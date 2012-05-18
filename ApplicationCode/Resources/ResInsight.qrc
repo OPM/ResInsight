@@ -1,0 +1,30 @@
+<RCC>
+    <qresource prefix="/">
+		<file>AppLogo48x48.png</file>
+		<file>Default.png</file>
+		<file>NorthViewArrow.png</file>
+		<file>SouthViewArrow.png</file>
+		<file>EastViewArrow.png</file>
+		<file>WestViewArrow.png</file>
+		<file>UpViewArrow.png</file>
+		<file>DownViewArrow.png</file>
+		<file>ReservoirView.png</file>
+		<file>CellFilter_Values.png</file>
+		<file>CellFilter_Range.png</file>
+		<file>CellResult.png</file>
+		<file>EdgeResult_1.png</file>
+		<file>EdgeResult_2.png</file>
+		<file>Legend.png</file>
+		<file>Plus.png</file>
+		<file>Minus.png</file>
+		<file>Save.png</file>
+		<file>Well.png</file>
+		<file>WellCollection.png</file>
+        <file>octave.png</file>
+        <file>Folder.png</file>
+	</qresource>
+    <qresource prefix="/Shader/">
+        <file>fs_CellFace.glsl</file>
+        <file>vs_CellFace.glsl</file>
+    </qresource>
+</RCC>

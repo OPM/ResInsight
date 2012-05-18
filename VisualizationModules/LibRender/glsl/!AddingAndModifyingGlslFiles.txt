@@ -1,0 +1,13 @@
+
+ADDING A NEW FILE
+-----------------
+When adding a new .glsl file you MUST change the 'Item Type' of the file to 'C/C++ header' !!
+Can be accessed through the Properties dialog under General for the relevant file.
+
+This seems to be the current workaround to ensure that modifications to the .glsl
+file will trigger a build which in turn will trigger the custom build step
+that is configured for the LibRender project.
+
+MODIFYING A FILE
+-----------------
+When a .glsl file is modified, the cvfShaderSourceStrings.h must be checked out (and committed afterwards)

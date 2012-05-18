@@ -1,0 +1,129 @@
+//##################################################################################################
+//
+//   Custom Visualization Core library
+//   Copyright (C) 2011-2012 Ceetron AS
+//    
+//   This library is free software: you can redistribute it and/or modify 
+//   it under the terms of the GNU General Public License as published by 
+//   the Free Software Foundation, either version 3 of the License, or 
+//   (at your option) any later version. 
+//    
+//   This library is distributed in the hope that it will be useful, but WITHOUT ANY 
+//   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+//   FITNESS FOR A PARTICULAR PURPOSE.   
+//    
+//   See the GNU General Public License at <<http://www.gnu.org/licenses/gpl.html>> 
+//   for more details. 
+//
+//##################################################################################################
+
+#include "cvfBase.h"
+#include "cvfModel.h"
+#include "cvfOpenGLContext.h"
+#include "cvfPart.h"
+#include "cvfRayIntersectSpec.h"
+#include "cvfRay.h"
+
+namespace cvf {
+
+
+
+//==================================================================================================
+///
+/// \class cvf::Model
+/// \ingroup Viewing
+///
+/// Model is an abstract class that can deliver Part objects to a Scene.
+/// 
+/// The model does not enforce any internal structure. This is left to derived classes. The only 
+/// requirement for a derived model is to be able to respond to the abstract interface.
+/// 
+//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
+///  
+//--------------------------------------------------------------------------------------------------
+Model::Model()
+:   m_partEnableMask(0xffffffff)
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Model::rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection)
+{
+    // Example implementation
+    cref<Ray> ray = rayIntersectSpec.ray();
+    if (ray.isNull())
+    {
+        return false;
+    }
+
+    bool anyPartsHit = false;
+
+    Collection<Part> allPartsColl;
+    allParts(&allPartsColl);
+    size_t numParts = allPartsColl.size();
+    size_t partIdx;
+    for (partIdx = 0; partIdx < numParts; partIdx++)
+    {
+        Part* part = allPartsColl.at(partIdx);
+        CVF_ASSERT(part);
+
+        anyPartsHit |= part->rayIntersect(*ray, hitItemCollection);
+    }
+
+    return anyPartsHit;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Model::setPartEnableMask(unsigned int partEnableMask)
+{
+    m_partEnableMask = partEnableMask;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+unsigned int Model::partEnableMask() const
+{
+    return m_partEnableMask;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Delete or release all OpenGL resources held by the contained parts
+/// 
+/// \warning The OpenGL context in which the resources were created or a context that is being
+///          shared must be current in the calling thread.
+/// \warning Some resources are merely released (by unreferencing the object) so in order to assure 
+///          that the actual OpenGL resources get deleted, you may have to do cleanup through the  
+///          OpenGLResourceManager as afterwards (eg. deleteOrphanedManagedBufferObjects())
+//--------------------------------------------------------------------------------------------------
+void Model::deleteOrReleaseOpenGLResources(OpenGLContext* oglContext)
+{
+    CVF_ASSERT(oglContext);
+
+    Collection<Part> allPartsColl;
+    allParts(&allPartsColl);
+
+    size_t numParts = allPartsColl.size();
+    size_t partIdx;
+    for (partIdx = 0; partIdx < numParts; partIdx++)
+    {
+        Part* part = allPartsColl.at(partIdx);
+        CVF_ASSERT(part);
+
+        part->deleteOrReleaseOpenGLResources(oglContext);
+    }
+}
+
+
+} // namespace cvf
+

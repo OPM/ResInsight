@@ -1,0 +1,93 @@
+#The source code for ERT is located in :
+
+cd /home/builder/src/ert/devel/
+
+# We only use libecl and libutil
+# libutil must be built first
+
+# First you might want to check what has happened since last update:
+cd libutil
+svn log -r BASE:HEAD
+cd ../libecl
+svn log -r BASE:HEAD
+cd ..
+
+# Then update and build the code:
+
+# using cmake
+
+svn up
+cmake-gui
+
+# Enter the following in the gui:
+# Source code: /home/builder/src/ert/devel/
+# Binaries: /home/builder/src/ert/ErtCmakeBuild
+
+# Then press configure, and edit the following variables:
+# BLAS_LIBRARY: /usr/lib64/libblas.so.3
+# INSTALL_ROOT: /home/builder/Projects/ResInsight/ThirdParty/Ert/
+
+# then press Configure and then Generate
+# at the prompt:
+
+cd /home/builder/src/ert/ErtCmakeBuild
+make clean
+make
+
+# make your copy of the library editable by checking it out
+#p4 edit -c default /home/builder/Projects/ResInsight/ThirdParty/Ert/...
+
+rm -r /home/builder/Projects/ResInsight/ThirdParty/Ert/ecl/*
+rm -r /home/builder/Projects/ResInsight/ThirdParty/Ert/util/*
+rm -r /home/builder/Projects/ResInsight/ThirdParty/Ert/geometry/*
+rm -r /home/builder/Projects/ResInsight/ThirdParty/Ert/well/*
+
+make install
+
+# Then check in if appropriate
+# Finished.
+
+############################################################################
+# Old build system using SCons.
+# At that time the installation directories was
+# called libecl and libutil, not ecl and util so this must be taken into
+# accont if this approach is tested
+
+# First clean up
+
+cd libutil
+scons -c
+rm -r include
+rm -r lib
+cd ..
+
+cd libecl
+scons -c
+rm -r include
+rm -r lib
+cd ..
+
+# update and build
+svn up
+
+cd libutil
+scons -k
+cd ..
+cd libecl
+scons -k
+cd ..
+
+# Copy the new lib files and includes into our repository
+# make your copy of the library editable by checking it out
+#p4 edit -c default /home/builder/Projects/ResInsight/ThirdParty/Ert/...
+
+rm -r /home/builder/Projects/ResInsight/ThirdParty/Ert/libecl/*
+rm -r /home/builder/Projects/ResInsight/ThirdParty/Ert/libutil/*
+
+cp -v -r libecl/include /home/builder/Projects/ResInsight/ThirdParty/Ert/libecl/include
+cp -v -r libecl/lib /home/builder/Projects/ResInsight/ThirdParty/Ert/libecl/lib
+cp -v -r libutil/include /home/builder/Projects/ResInsight/ThirdParty/Ert/libutil/include
+cp -v -r libutil/lib /home/builder/Projects/ResInsight/ThirdParty/Ert/libutil/lib
+
+# Then check in if appropriate
+

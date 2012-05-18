@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# Find the installation path. We assume that this script is placed in the installation directory.
+INSTALL_PATH=$(dirname "$_")
+#echo "Invoking ResInsight in path: $INSTALL_PATH"
+
+# Change to application directory
+cd "$INSTALL_PATH"
+
+# Start the application
+CmdName=ResInsight
+exec ./$CmdName "$@"
