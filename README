@@ -1,0 +1,19 @@
+These are the release notes for ResInsight.
+
+WHAT IS RESINSIGHT?
+ResInsight is a 3D viewer and post processing tool for reservoir models. It has been co-developed by Statoil and Ceetron with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
+
+ON WHAT PLATFORMS DOES IT RUN?
+ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on linux and windows platforms. It will probably also compile and run on osx should anybody be interested in that.
+
+DOCUMENTATION
+No efforts to provide documentation has been made yet.
+
+DOWNLOADING RESINSIGHT
+ git clone git://github.com/Statoil/ResInsight.git
+
+BUILDING RESINSIGHT
+An out-of-tree build is typically done with
+ mkdir resinsight-build
+ cd resinsight-build
+ cmake ../ResInsight
