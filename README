@@ -17,3 +17,5 @@ An out-of-tree build is typically done with
  mkdir resinsight-build
  cd resinsight-build
  cmake ../ResInsight
+ make
+ make install
