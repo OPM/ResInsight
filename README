@@ -18,7 +18,7 @@ ResInsight uses the cmake build system and requires cmake version 2.8 or higher.
  cmake ../ResInsight
  make
  make install
-You will find the ResInsight binary under the Install directory in your buil driectory.
+You will find the ResInsight binary under the Install directory in your build directory.
 
 DEPENDENCIES FOR DEBIAN BASED DISTRIBUTIONS
 git cmake build-essential octave octave-headers qt4-dev-tools
