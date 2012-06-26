@@ -20,6 +20,9 @@
 
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
+#include "cafFactory.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
 
@@ -78,7 +81,7 @@ RimLegendConfig::RimLegendConfig()
     CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
-    resultVariableName.setHidden(true);
+    resultVariableName.setUiHidden(true);
 
     m_linDiscreteScalarMapper = new cvf::ScalarMapperUniformLevels;
     m_linDiscreteScalarMapper->setTextureSize(1024);
@@ -300,13 +303,13 @@ void RimLegendConfig::updateFieldVisibility()
 {
     if (m_rangeMode == USER_DEFINED)
     {
-        m_userDefinedMaxValue.setHidden(false);
-        m_userDefinedMinValue.setHidden(false);
+        m_userDefinedMaxValue.setUiHidden(false);
+        m_userDefinedMinValue.setUiHidden(false);
     }
     else
     {
-        m_userDefinedMaxValue.setHidden(true);
-        m_userDefinedMinValue.setHidden(true);
+        m_userDefinedMaxValue.setUiHidden(true);
+        m_userDefinedMinValue.setUiHidden(true);
     }
 }
 

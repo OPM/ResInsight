@@ -5,37 +5,12 @@ namespace caf
 
 
 
-class PdmFieldHandle
-{
-    // ....
-
-    void removeFieldView(PdmUiFieldViewHandle* fieldView)   { m_fieldViews.erase(fieldView); }
-    void addFieldView(PdmUiFieldViewHandle* fieldView)      { m_fieldViews.insert(fieldView); }
-private:
-    std::set<PdmUiFieldViewHandle*> m_fieldViews;
-    // ....
-    void setValueFromUI(...) 
-    { 
-        //... 
-        std::set<PdmUiFieldViewHandle*>::iterator it;
-        for (it = m_fieldViews.begin(); it != m_fieldViews.end(); ++it)
-        {
-            m_fieldViews[i]->updateUiValue();
-        }
-
-        //...
-    } 
-
-};
-
-
-
 class PdmUiItemInfo
 {
  // ....
-    QString m_editorType; // Int, type_info, className or ??
-    int     m_isHidden;
-    int     m_isReadOnly;
+    const type_info* m_editorType; 
+    int              m_isHidden;
+    int              m_isReadOnly;
 
 };
 
@@ -46,8 +21,8 @@ class PdmUiItem
 {
     // ...
 
-    QString editorType(const QString& uiConfigName);
-    void    setEditorType(const QString& uiConfigName, const QString& editorKeyword);
+    const type_info* editorType(const QString& uiConfigName);
+    void    setEditorType(const QString& uiConfigName, const type_info* editorType);
 
     bool    isHidden(QString uiConfigName);
     void    setHidden(QString uiConfigName, bool isHidden);
@@ -67,12 +42,11 @@ private :
 
 
 
-
-class PdmUiConfiguration
+class PdmUiOrdering
 {
 public:
-    PdmUiConfiguration(): m_forgetRemainingFields(false) { };
-    virtual ~PdmUiConfiguration() 
+    PdmUiOrdering(): m_forgetRemainingFields(false) { };
+    virtual ~PdmUiOrdering() 
     {
         for (size_t i = 0; i < m_createdGroups.size(); ++i)
         {
@@ -87,21 +61,21 @@ public:
         group->setUiName(displayName);
 
         m_createdGroups.push_back(group);
-        m_config.push_back(group);
+        m_ordering.push_back(group);
     }
 
-    void                           add(PdmUiItem* item)               { m_config.push_back(item); }
+    void                           add(PdmUiItem* item)               { m_ordering.push_back(item); }
     bool                           forgetRemainingFields() const      { return m_forgetRemainingFields; }
     void                           setForgetRemainingFields(bool val) { m_forgetRemainingFields = val; }
 
-    const std::vector<PdmUiItem*>& uiItems() const                    { return m_config; }
+    const std::vector<PdmUiItem*>& uiItems() const                    { return m_ordering; }
 
 private:
     // Private copy constructor and assignment to prevent this. (The vectors below will make trouble)
-    PdmUiConfiguration(const PdmUiConfiguration& other)                                 { }
-    PdmUiConfiguration&       operator= (const PdmUiConfiguration& other)               { }
+    PdmUiOrdering(const PdmUiOrdering& other)                                 { }
+    PdmUiOrdering&       operator= (const PdmUiOrdering& other)               { }
 
-    std::vector<PdmUiItem*>     m_config;
+    std::vector<PdmUiItem*>     m_ordering;
     std::vector<PdmUiGroup*>    m_createdGroups; /// Owned PdmUiGroups, for mem management
     bool                        m_forgetRemainingFields;
 
@@ -110,11 +84,10 @@ private:
 
 
 
-class PdmUiGroup : public PdmUiItem, PdmUiConfiguration
+class PdmUiGroup : public PdmUiItem, PdmUiOrdering
 {
     virtual bool isGroup() { return true; }
 };
-
 
 
 
@@ -123,32 +96,170 @@ class PdmObject : public PdmUiItem
 public:
 
     /// For a specific field, return editor specific parameters used to customize the editor behavior..
-    virtual void setUpUiAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiAttributeHandle * attributes);
+    void editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute)
+    {
+        this->defineEditorAttribute(field, uiConfigName, attribute);
+    }
+
    // For later // virtual void uiAttributeChangedByUI(const PdmFieldHandle* field, QString uiConfigName, const PdmUiAttributeHandle * attributes);
 
     // Method to be called from the Ui classes creating Auto Gui to get the group information 
-    // supplied by the \sa setUpUIConfiguration method that can be reimplemented
-
-    void uiConfiguration(QString uiConfigName, PdmUiConfiguration& uiConfig)
+    // supplied by the \sa defineUiOrdering method that can be reimplemented
+    void uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering)
     {
-        this->setUpUIConfiguration(uiConfigName, uiConfig);
-        if (!uiConfig.forgetRemainingFields())
+        this->defineUiOrdering(uiConfigName, uiOrdering);
+        if (!uiOrdering.forgetRemainingFields())
         {
-            // Todo: add Remaining Fields To UiConfig
+            // Add the remaining Fields To UiConfig
 
-
+            for (size_t i = 0; i < m_fields.size(); ++i)
+            {
+                if (!uiOrdering.contains(m_fields[i]))
+                {
+                    uiOrdering.add( m_fields[i]);
+                }
+            }
         }
     }
 
 protected:
-    /// Fill up the UiConfig object with groups and field references to create the gui structure
-    /// If the uiConfig is empty, it is interpreted as meaning all fields w/o grouping.
+    /// Override to customize the order and grouping of the Gui.
+    /// Fill up the uiOrdering object with groups and field references to create the gui structure
+    /// If the uiOrdering is empty, it is interpreted as meaning all fields w/o grouping.
+    virtual void defineUiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) {}
 
-    virtual void setUpUIConfiguration(QString uiConfigName, PdmUiConfiguration& uiConfig) ;
+    /// Override to provide editor specific data for the field and uiConfigName 
+    virtual void defineEditorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute) {}
 
 };
 
 
+
+
+
+
+class PdmUiObjectEditorHandle: public QObject
+{
+public:
+    PdmUiObjectEditorHandle() : m_pdmObject(NULL) {}
+    ~PdmUiObjectEditorHandle() {}
+    /// 
+    QWidget* getOrCreateWidget(QWidget* parent) 
+    { 
+        if (m_widget.isNull()) 
+        {
+            m_widget = this->createWidget(parent);
+        }
+        return m_widget; 
+    }
+    QWidget*            widget() { return m_widget; }
+
+    /// Virtual method to be overridden. Needs to set up the supplied widget
+    /// with all signals etc to make it communicate with this object
+    void                setPdmObject(PdmObject* object, QString uiConfigName) { m_pdmObject = object;  }
+    PdmObject*          pdmObject()                     { return m_pdmObject; }
+
+    virtual void        updateUi(QString uiConfigName) = 0;
+
+protected:
+   
+    virtual QWidget*    createWidget(QWidget* parent) = 0;
+
+private:
+    PdmObject*          m_pdmObject;
+    QPointer<QWidget>   m_widget;
+};
+
+
+
+class PdmUiFieldEditorHandle : public QObject
+{
+public:
+    PdmUiFieldEditorHandle() : m_field(NULL) {}
+    ~PdmUiFieldEditorHandle() 
+    { 
+        if (m_field) m_field->removeFieldEditor(this); 
+
+        if (!m_combinedWidget.isNull()) delete m_combinedWidget; 
+        if (!m_editorWidget.isNull()) delete m_editorWidget ;
+        if (!m_labelWidget.isNull()) delete m_labelWidget;
+    }
+
+    /// 
+    PdmFieldHandle* field() { return m_field; } 
+   void             setField(PdmFieldHandle * field) 
+    {
+        if (m_field) m_field->removeFieldEditor(this);
+        m_field = field; 
+        if (m_field) m_field->addFieldEditor(this);
+    }
+
+
+    void            setValueToField(const QVariant& value)
+    {
+        if (m_field) m_field->setUiValue(value);
+    }
+
+    void            createWidgets(QWidget * parent)
+    {
+        if (m_combinedWidget.isNull()) m_combinedWidget = createCombinedWidget(parent);
+        if (m_editorWidget.isNull()) m_editorWidget = createEditorWidget(parent);
+        if (m_labelWidget.isNull()) m_labelWidget = createLabelWidget(parent);
+    }
+
+    QWidget* combinedWidget()     { return m_combinedWidget; }
+    QWidget* editorWidget()       { return m_editorWidget; }
+    QWidget* labelWidget()        { return m_labelWidget; }
+
+public: // Virtual interface to override
+    /// Update only the display of the data value, because some other view has changed it.
+    virtual void    updateUiValue() = 0;
+
+    /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
+    virtual void    updateUi(QString uiConfigName) = 0;
+
+    /// Supposed to do all wiring of singals and slots
+    virtual void    connectUi() = 0;
+
+protected: // Virtual interface to override
+    /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to 
+    /// being "Label" Editor" or a single combined widget. 
+
+    virtual QWidget* createCombinedWidget(QWidget * parent) { return NULL; }
+    virtual QWidget* createEditorWidget(QWidget * parent)   { return NULL; }
+    virtual QWidget* createLabelWidget(QWidget * parent)    { return NULL; }
+
+private:
+    PdmFieldHandle* m_field;
+
+    QPointer<QWidget> m_combinedWidget;
+    QPointer<QWidget> m_editorWidget;
+    QPointer<QWidget> m_labelWidget;
+};
+
+
+class PdmFieldHandle
+{
+    // ....
+
+    void removeFieldEditor(PdmUiFieldEditorHandle* fieldView)   { m_fieldEditors.erase(fieldView); }
+    void addFieldEditor(PdmUiFieldEditorHandle* fieldView)      { m_fieldEditors.insert(fieldView); }
+private:
+    std::set<PdmUiFieldEditorHandle*> m_fieldEditors;
+    // ....
+    void setValueFromUI(...) 
+    { 
+        //... 
+        std::set<PdmUiFieldEditorHandle*>::iterator it;
+        for (it = m_fieldEditors.begin(); it != m_fieldEditors.end(); ++it)
+        {
+            m_fieldEditors[i]->updateUiValue();
+        }
+
+        //...
+    } 
+
+};
 
 
 class PdmPropertyWindow : public QWidget
@@ -196,7 +307,7 @@ public:
             m_currentObjectView = PdmObjViewFactory::instance()->create(object->editorType(m_uiConfigName));
             if (!m_currentObjectView)
             {
-                m_currentObjectView = new PdmStdObjView();
+                m_currentObjectView = new PdmUiDefaultObjectEditor();
             }
 
             // Create widget to handle this
@@ -213,119 +324,27 @@ public:
     }
 
 private:
-    PdmObjectViewHandle* m_currentObjectView; 
+    PdmUiObjectEditorHandle* m_currentObjectView; 
     QString              m_uiConfigName;
 };
 
 
 
-
-class PdmObjectViewHandle: public QObject
+class PdmUiEditorAttribute
 {
 public:
-    PdmObjectViewHandle() : m_pdmObject(NULL) {}
-    ~PdmObjectViewHandle() {}
-    /// 
-    QWidget* getOrCreateWidget(QWidget* parent) 
-    { 
-        if (m_widget.isNull()) 
-        {
-            m_widget = this->createWidget(parent);
-        }
-        return m_widget; 
-    }
-    QWidget*            widget() { return m_widget; }
-
-    /// Virtual method to be overridden. Needs to set up the supplied widget
-    /// with all signals etc to make it communicate with this object
-    void                setPdmObject(PdmObject* object, QString uiConfigName) { m_pdmObject = object;  }
-    PdmObject*          pdmObject()                     { return m_pdmObject; }
-
-    virtual void        updateUi(QString uiConfigName) = 0;
-
-protected:
-   
-    virtual QWidget*    createWidget(QWidget* parent) = 0;
-
-private:
-    PdmObject*          m_pdmObject;
-    QPointer<QWidget>   m_widget;
+    PdmUiEditorAttribute() {}
+    virtual ~PdmUiEditorAttribute() {} 
 };
 
 
 
-class PdmUiFieldViewHandle : public QObject
+
+class PdmUiDefaultObjectEditor : PdmUiObjectEditorHandle
 {
 public:
-    PdmUiFieldViewHandle() : m_field(NULL) {}
-    ~PdmUiFieldViewHandle() 
-    { 
-        if (m_field) m_field->removeFieldView(this); 
-
-        if (!m_combinedWidget.isNull()) delete m_combinedWidget; 
-        if (!m_editorWidget.isNull()) delete m_editorWidget ;
-        if (!m_labelWidget.isNull()) delete m_labelWidget;
-    }
-
-    /// 
-    PdmFieldHandle* field() { return m_field; } 
-   void             setField(PdmFieldHandle * field) 
-    {
-        if (m_field) m_field->removeFieldView(this);
-        m_field = field; 
-        if (m_field) m_field->addFieldView(this);
-    }
-
-
-    void            setValueToField(const QVariant& value)
-    {
-        if (m_field) m_field->setUiValue(value);
-    }
-
-    void            createWidgets(QWidget * parent)
-    {
-        if (m_combinedWidget.isNull()) m_combinedWidget = createCombinedWidget(parent);
-        if (m_editorWidget.isNull()) m_editorWidget = createEditorWidget(parent);
-        if (m_labelWidget.isNull()) m_labelWidget = createLabelWidget(parent);
-    }
-
-    QWidget* combinedWidget()     { return m_combinedWidget; }
-    QWidget* editorWidget()       { return m_editorWidget; }
-    QWidget* labelWidget()        { return m_labelWidget; }
-
-public: // Virtual interface to override
-    /// Update only the display of the data value, because some other view has changed it.
-    virtual void    updateUiValue() = 0;
-
-    /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
-    virtual void    updateUi(QString uiConfigName) = 0;
-
-    /// Supposed to do all wiring of singals and slots
-    virtual void    connectUi() = 0;
-
-protected: // Virtual interface to override
-    /// Implement one of these, or both editor and label. The widgets will be used in the parent layout according to 
-    /// being "Label" Editor" or a single combined widget. 
-
-    virtual QWidget* createCombinedWidget(QWidget * parent) { return NULL; }
-    virtual QWidget* createEditorWidget(QWidget * parent)   { return NULL; }
-    virtual QWidget* createLabelWidget(QWidget * parent)    { return NULL; }
-
-private:
-    PdmFieldHandle* m_field;
-
-    QPointer<QWidget> m_combinedWidget;
-    QPointer<QWidget> m_editorWidget;
-    QPointer<QWidget> m_labelWidget;
-};
-
-
-
-class PdmStdObjView : PdmObjectViewHandle
-{
-public:
-    PdmStdObjView()  {};
-    ~PdmStdObjView() {}
+    PdmUiDefaultObjectEditor()  {};
+    ~PdmUiDefaultObjectEditor() {}
 
 protected:
 
@@ -339,8 +358,8 @@ protected:
 
     virtual void updateUi(QString uiConfigName)
     {
-        PdmUiConfiguration config;
-        m_pdmObject->uiConfiguration(uiConfigName, &config);
+        PdmUiOrdering config;
+        m_pdmObject->uiOrdering(uiConfigName, &config);
 
         // Set all fieldViews to be unvisited
         std::map<QString, PdmFieldViewHandle*>::iterator it;
@@ -435,13 +454,13 @@ protected:
             else
             {
                 PdmFieldHandle* field = dynamic_cast<PdmFieldHandle*>(uiItems[i]);
-                PdmUiFieldViewHandle* fvh = NULL;
+                PdmUiFieldEditorHandle* fvh = NULL;
 
                 if (!field->isHidden(uiConfName))
                 {
 
                     // Find or create FieldView
-                    std::map<QString, PdmUiFieldViewHandle*>::iterator it;
+                    std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
                     it = m_fieldViews.find(field->keyword());
 
                     if (it == m_fieldViews.end())
@@ -502,7 +521,7 @@ protected:
 
 private:
 
-    std::map<QString, PdmUiFieldViewHandle*>    m_fieldViews; 
+    std::map<QString, PdmUiFieldEditorHandle*>    m_fieldViews; 
     std::map<QString, QPointer<QGroupBox> >     m_groupBoxes;
     std::map<QString, QPointer<QGroupBox> >     m_newGroupBoxes; ///< used temporarily to store the new(complete) set of group boxes
 
@@ -512,30 +531,23 @@ private:
 
 
 
-caf::Factory<PdmUiFieldViewHandle, type_info>::instance()->registerCreator<PdmLineEditFieldView>(typeid(PdmField<QString>));
-caf::Factory<PdmUiFieldViewHandle, type_info>::instance()->registerCreator<PdmLineEditFieldView>(typeid(PdmField<int>));
-caf::Factory<PdmUiFieldViewHandle, type_info>::instance()->registerCreator<PdmLineEditFieldView>(typeid(PdmField<double>));
-caf::Factory<PdmUiFieldViewHandle, type_info>::instance()->registerCreator<PdmLineEditFieldView>(typeid(PdmField<size_t>));
+caf::Factory<PdmUiFieldEditorHandle, type_info>::instance()->registerCreator<PdmUiLineEditor>(typeid(PdmField<QString>));
+caf::Factory<PdmUiFieldEditorHandle, type_info>::instance()->registerCreator<PdmUiLineEditor>(typeid(PdmField<int>));
+caf::Factory<PdmUiFieldEditorHandle, type_info>::instance()->registerCreator<PdmUiLineEditor>(typeid(PdmField<double>));
+caf::Factory<PdmUiFieldEditorHandle, type_info>::instance()->registerCreator<PdmUiLineEditor>(typeid(PdmField<size_t>));
 
-caf::Factory<PdmUiFieldViewHandle, type_info>::instance()->registerCreator<PdmLineEditFieldView>(typeid(PdmUiFileEditor));
+caf::Factory<PdmUiFieldEditorHandle, type_info>::instance()->registerCreator<PdmUiLineEditor>(typeid(PdmUiFileEditor));
 
-class PdmUiAttributeHandle
-{
-public:
-    PdmUiAttributeHandle() {}
-    virtual ~PdmUiAttributeHandle() {} 
-};
-
-class PdmLineEditAttribute : public PdmUiAttributeHandle
+class PdmUiLineEditorAttribute : public PdmUiEditorAttribute
 {
     
 };
 
-class PdmLineEditFieldView : public PdmUiFieldViewHandle
+class PdmUiLineEditor : public PdmUiFieldEditorHandle
 {
 public:
-    PdmLineEditFieldView()          {} 
-    virtual ~PdmLineEditFieldView() {} 
+    PdmUiLineEditor()          {} 
+    virtual ~PdmUiLineEditor() {} 
 
 
     virtual void    updateUiValue()
@@ -563,8 +575,8 @@ public:
         m_lineEdit->setEnabled(!m_field->readOnly(uiConfigName));
         m_label->setEnabled(!m_field->readOnly(uiConfigName));
 
-        PdmLineEditAttribute leab;
-        m_field->ownerObject()->setUpUiAttribute(m_field, uiConfigName, &leab);
+        PdmUiLineEditorAttribute leab;
+        m_field->ownerObject()->defineEditorAttribute(m_field, uiConfigName, &leab);
 
         if (dynamic_cast<PdmField<int>*> (m_field)) 
         {
@@ -628,7 +640,7 @@ DemoPdmObj::DemoPdmObj()
 
 }
 
-void DemoPdmObj::setUpUIConfiguration(QString uiConfigName, PdmUiConfiguration& uiConfig)
+void DemoPdmObj::setUpUIConfiguration(QString uiConfigName, PdmUiOrdering& uiConfig)
 {
     if (uiConfigName == "DetailsView")
     {

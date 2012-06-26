@@ -73,11 +73,14 @@ public:
     void                createMockModel();
     void                createResultsMockModel();
     void                createLargeResultsMockModel();
+    void                createInputMockModel();
 
     bool                openEclipseCaseFromFile(const QString& fileName);
-    bool                openEclipseCase(const QString& caseName, const QString& casePath);
+    bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
+    bool                openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames);
+
     bool                loadLastUsedProject();
-    QString             lastProjectFileName() const;
+    QString             currentProjectFileName() const;
     bool                loadProject(const QString& fileName);
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
@@ -110,6 +113,7 @@ private:
     void		        onProjectOpenedOrClosed();
     void		        setWindowCaptionFromAppState();
     
+   
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -119,7 +123,6 @@ private:
     caf::PdmPointer<RimReservoirView>  m_activeReservoirView;
     caf::PdmPointer<RimProject>        m_project;
 
-    QString                         m_currentProjectFileName;
     RiaSocketServer*                m_socketServer;
 
     caf::UiProcess*                 m_workerProcess;

@@ -109,7 +109,14 @@ void UiPropertyCreatorPdm::createAndShowPropertiesForIndex(const QModelIndex& in
         caf::PdmUiTreeItem* treeItem = caf::UiTreeModelPdm::getTreeItemFromIndex(index);
         assert(treeItem);
 
-        createAndShowPropertiesForObject(treeItem->dataObject());
+        caf::PdmObject* pdmObj = treeItem->dataObject();
+
+        if (m_propertyBrowser)
+        {
+            createAndShowPropertiesForObject(pdmObj);
+        }
+
+        emit selectedObjectChanged(pdmObj);
     }
 }
 
@@ -191,7 +198,7 @@ void UiPropertyCreatorPdm::createAndShowPropertiesForObject(caf::PdmObject* obje
                 qtProperty->setWhatsThis(field->uiWhatsThis());
 
                 m_properties[qtProperty] = field;
-                if (!field->isHidden())
+                if (!field->isUiHidden())
                 {  
                     m_propertyBrowser->addProperty(qtProperty);
                 }
@@ -215,9 +222,11 @@ void UiPropertyCreatorPdm::createAndShowPropertiesForObject(caf::PdmObject* obje
 //--------------------------------------------------------------------------------------------------
 void UiPropertyCreatorPdm::clearWidgetsAndProperties()
 {
-    assert(m_propertyBrowser);
+    if (m_propertyBrowser)
+    {
+        m_propertyBrowser->clear();
+    }
 
-    m_propertyBrowser->clear();
     m_properties.clear();
 }
 
@@ -230,7 +239,7 @@ void UiPropertyCreatorPdm::setAllPropertyValuesFromDataSource()
     for (it = m_properties.begin(); it != m_properties.end(); it++)
     {
 #if 1
-        if (it->second->isHidden())
+        if (it->second->isUiHidden())
         {
             QtProperty* prop = it->first;
 #if 0
@@ -360,5 +369,6 @@ void UiPropertyCreatorPdm::uiFields(const caf::PdmObject* object, std::vector<ca
     assert(object);
     object->fields(fields);
 }
+
 
 } // end namespace caf

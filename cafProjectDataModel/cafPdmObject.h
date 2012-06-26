@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafPdmUiItem.h"
+#include "cafPdmUiOrdering.h"
 #include "cafPdmPointer.h"
 
 #include <set>
@@ -28,11 +29,27 @@
 class QXmlStreamReader;
 class QXmlStreamWriter;
 
+
+// Taken from gtest.h
+//
+// Due to C++ preprocessor weirdness, we need double indirection to
+// concatenate two tokens when one of them is __LINE__.  Writing
+//
+//   foo ## __LINE__
+//
+// will result in the token foo__LINE__, instead of foo followed by
+// the current line number.  For more details, see
+// http://www.parashift.com/c++-faq-lite/misc-technical-issues.html#faq-39.6
+#define PDM_OBJECT_STRING_CONCATENATE(foo, bar) PDM_OBJECT_STRING_CONCATENATE_IMPL_(foo, bar)
+#define PDM_OBJECT_STRING_CONCATENATE_IMPL_(foo, bar) foo ## bar
+
+
 namespace caf 
 {
 
 class PdmFieldHandle;
 template < class FieldDataType > class PdmField;
+class PdmUiEditorAttribute;
 
 //==================================================================================================
 /// Macros helping in development of PDM objects
@@ -51,7 +68,7 @@ public: \
 
 #define CAF_PDM_SOURCE_INIT(ClassName, keyword) \
     QString ClassName::classKeywordStatic() { return keyword;   } \
-    bool ClassName##_initialized = caf::PdmObjectFactory::instance()->registerCreator<ClassName>()
+    static bool PDM_OBJECT_STRING_CONCATENATE(pdm_object_factory_init_, __LINE__) = caf::PdmObjectFactory::instance()->registerCreator<ClassName>()
 
 /// InitObject sets up the user interface related information for the object
 /// Placed in the constructor of your PdmObject
@@ -93,6 +110,9 @@ public:
     PdmObject() { }
     virtual ~PdmObject();
 
+    /// The classKeyword method is overridden in subclasses by the CAF_PDM_HEADER_INIT macro
+    virtual QString         classKeyword() = 0;
+
     void                    readFields (QXmlStreamReader& inputStream );
     void                    writeFields(QXmlStreamWriter& outputStream);
 
@@ -100,9 +120,18 @@ public:
     void                    fields(std::vector<PdmFieldHandle*>& fields) const;
     /// The fields containing pointers to this PdmObject. Use ownerObject() on the fieldHandle to get the PdmObject parent.
     void                    parentFields(std::vector<PdmFieldHandle*>& fields) const;
+    /// Remove pointer to this from all parent fields
+    void                    removeFromParentFields();
 
-    /// The classKeyword method is overridden in subclasses by the CAF_PDM_HEADER_INIT macro
-    virtual QString         classKeyword() = 0;     
+    /// 
+    void                    parentObjects(std::vector<PdmObject*>& objects) const;
+
+    /// Method to be called from the Ui classes creating Auto Gui to get the group information 
+    /// supplied by the \sa defineUiOrdering method that can be reimplemented
+    void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const;
+
+    /// For a specific field, return editor specific parameters used to customize the editor behavior..
+    void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute);
 
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual 
@@ -112,6 +141,7 @@ public: // Virtual
     /// Method to re-implement to supply option values for a specific field
     virtual QList<PdmOptionItemInfo> 
                             calculateValueOptions(const PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
+    // For later // virtual void editorAttributeChangedByUI(const PdmFieldHandle* field, QString uiConfigName, const PdmUiAttributeHandle * attributes);
 
 protected: // Virtual 
     /// Method gets called from PdmDocument after all objects are read. 
@@ -120,6 +150,15 @@ protected: // Virtual
     /// Method gets called from PdmDocument before saving document. 
     /// Re-implement to make sure your fields have correct data before saving
     virtual void            setupBeforeSave() {};
+
+    /// Override to customize the order and grouping of the Gui.
+    /// Fill up the uiOrdering object with groups and field references to create the gui structure
+    /// If the uiOrdering is empty, it is interpreted as meaning all fields w/o grouping.
+    virtual void            defineUiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const {}
+
+    /// Override to provide editor specific data for the field and uiConfigName 
+    virtual void            defineEditorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute) {}
+
 public:
     /// operator= implemented to avoid copying the internal m_fields
     PdmObject&              operator=(const PdmObject& ) { return *this; }

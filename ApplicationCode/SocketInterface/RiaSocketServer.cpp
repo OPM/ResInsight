@@ -30,6 +30,9 @@
 #include "RigReservoir.h"
 #include "RigReservoirCellResults.h"
 #include <QDebug>
+#include "RimInputProperty.h"
+#include "RimInputReservoir.h"
+#include "RimUiTreeModelPdm.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -118,6 +121,7 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
     m_currentTimeStepToRead = 0;
     m_currentReservoir = NULL;
     m_currentScalarIndex = cvf::UNDEFINED_SIZE_T;
+    m_currentPropertyName = "";
 
     connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
 
@@ -211,8 +215,9 @@ void RiaSocketServer::slotReadCommand()
     bool isGetProperty = args[0] == "GetProperty"; // GetProperty [casename/index] PropertyName
     bool isSetProperty = args[0] == "SetProperty"; // SetProperty [casename/index] PropertyName
     bool isGetCellInfo = args[0] == "GetActiveCellInfo"; // GetActiveCellInfo [casename/index]
+    bool isGetGridDim  = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
 
-    if (!(isGetProperty || isSetProperty || isGetCellInfo))
+    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         return;
@@ -236,7 +241,7 @@ void RiaSocketServer::slotReadCommand()
             propertyName = args[2];
         }
     }
-    else if (isGetCellInfo)
+    else if (isGetCellInfo || isGetGridDim)
     {
         if (args.size() > 1)
         {
@@ -272,6 +277,7 @@ void RiaSocketServer::slotReadCommand()
             {
                 scalarResultFrames = &(reservoir->reservoirData()->mainGrid()->results()->cellScalarResults(scalarResultIndex));
                 m_currentScalarIndex = scalarResultIndex;
+                m_currentPropertyName = propertyName;
             }
 
         }
@@ -374,6 +380,23 @@ void RiaSocketServer::slotReadCommand()
 #endif
         }
     }
+    else if (isGetGridDim)
+    {
+        // Write data back to octave: I, J, K dimensions
+
+        size_t iCount = 0;
+        size_t jCount = 0;
+        size_t kCount = 0;
+
+        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid())
+        {
+             iCount = reservoir->reservoirData()->mainGrid()->cellCountI();
+             jCount = reservoir->reservoirData()->mainGrid()->cellCountJ();
+             kCount = reservoir->reservoirData()->mainGrid()->cellCountK();
+        }
+
+        socketStream << (quint64)iCount << (quint64)jCount << (quint64)kCount;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -402,20 +425,23 @@ void RiaSocketServer::slotReadPropertyData()
     // Check if a complete timestep is available, return and whait for readyRead() if not
     if (m_currentClient->bytesAvailable() < (int)m_bytesPerTimeStepToRead) return;
 
-    size_t  activeCellCount = m_bytesPerTimeStepToRead / sizeof(double);
+    size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
     size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->numActiveCells();
-    if (gridActiveCellCount != activeCellCount)
+    size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
+
+    if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
     {
-        m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("The number of active cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseName() + "\"\n"
-                                          "   Octave: " + QString::number(activeCellCount) + "\n"
-                                          "  " + m_currentReservoir->caseName() + ": " + QString::number(gridActiveCellCount));
+        m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + 
+            tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseName() + "\"\n"
+            "   Octave: " + QString::number(cellCountFromOctave) + "\n"
+            "  " + m_currentReservoir->caseName() + ": Active cell count: " + QString::number(gridActiveCellCount) + " Total cell count: " +  QString::number(gridTotalCellCount)) ;
 
-       activeCellCount = 0;
-       m_invalidActiveCellCountDetected = true;
-       m_currentClient->abort();
+        cellCountFromOctave = 0;
+        m_invalidActiveCellCountDetected = true;
+        m_currentClient->abort();
 
-       return;
+        return;
     }
 
     // Make sure the size of the retreiving container is correct.
@@ -423,7 +449,7 @@ void RiaSocketServer::slotReadPropertyData()
     m_scalarResultsToAdd->resize(m_timeStepCountToRead);
     for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
     {
-        m_scalarResultsToAdd->at(tIdx).resize(activeCellCount, HUGE_VAL);
+        m_scalarResultsToAdd->at(tIdx).resize(cellCountFromOctave, HUGE_VAL);
     }
 
     // Read available complete timestepdata
@@ -435,7 +461,7 @@ void RiaSocketServer::slotReadPropertyData()
 #if 1 // Use raw data transfer. Faster.
         bytesRead = m_currentClient->read((char*)(internalMatrixData), m_bytesPerTimeStepToRead);
 #else
-        for (size_t cIdx = 0; cIdx < activeCellCount; ++cIdx)
+        for (size_t cIdx = 0; cIdx < cellCountFromOctave; ++cIdx)
         {
             socketStream >> internalMatrixData[cIdx];
 
@@ -456,6 +482,25 @@ void RiaSocketServer::slotReadPropertyData()
     {
         if (m_currentReservoir != NULL)
         {
+            // Create a new input property if we have an input reservoir
+            RimInputReservoir* inputRes = dynamic_cast<RimInputReservoir*>(m_currentReservoir);
+            if (inputRes)
+            {
+                RimInputProperty* inputProperty = NULL;
+                inputProperty = inputRes->m_inputPropertyCollection->findInputProperty(m_currentPropertyName);
+                if (!inputProperty)
+                {
+                    inputProperty = new RimInputProperty;
+                    inputProperty->resultName = m_currentPropertyName;
+                    inputProperty->eclipseKeyword = "";
+                    inputProperty->fileName = "";
+                    inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
+                    RimUiTreeModelPdm* treeModel = RIMainWindow::instance()->uiPdmModel();
+                    treeModel->rebuildUiSubTree(inputRes->m_inputPropertyCollection());
+                }
+                inputProperty->resolvedState = RimInputProperty::RESOLVED_NOT_SAVED;
+            }
+
             if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
                 m_currentReservoir->reservoirData() && 
                 m_currentReservoir->reservoirData()->mainGrid() &&
@@ -501,6 +546,7 @@ void RiaSocketServer::slotCurrentClientDisconnected()
     m_currentTimeStepToRead = 0;
     m_currentReservoir = NULL;
     m_currentScalarIndex = cvf::UNDEFINED_SIZE_T;
+    m_currentPropertyName = "";
     m_invalidActiveCellCountDetected = false;
 
     QTcpSocket *newClient = m_tcpServer->nextPendingConnection();

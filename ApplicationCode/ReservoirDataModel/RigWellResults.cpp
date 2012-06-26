@@ -105,25 +105,6 @@ size_t RigWellResults::firstResultTimeStep() const
     return cvf::UNDEFINED_SIZE_T;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class cellId
-{
-public:
-    cellId() : 
-      gridIndex(cvf::UNDEFINED_SIZE_T), 
-      cellIndex(cvf::UNDEFINED_SIZE_T) 
-      { }
-
-    cellId(size_t gidx, size_t cIdx) : 
-      gridIndex(gidx), 
-      cellIndex(cIdx) 
-      { }
-
-      size_t gridIndex;
-      size_t cellIndex;
-};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -132,7 +113,7 @@ void RigWellResults::computeStaticWellCellPath()
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
-    std::map < size_t, std::list< cellId > > staticWellBranches;
+    std::map < size_t, std::list< RigWellResultCell > > staticWellBranches;
 
     // Add ResultCell data from the first timestep to the final result.
 
@@ -140,15 +121,12 @@ void RigWellResults::computeStaticWellCellPath()
     {
         size_t branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchNumber;
         std::vector<RigWellResultCell>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_wellCells;
-
-        std::list< cellId >& branch =  staticWellBranches[branchNumber];
+       
+        std::list< RigWellResultCell >& branch =  staticWellBranches[branchNumber];
 
         for(size_t cIdx = 0; cIdx < frameCells.size(); ++cIdx)
         {
-            cellId cId;
-            cId.gridIndex = frameCells[cIdx].m_gridIndex;
-            cId.cellIndex = frameCells[cIdx].m_gridCellIndex;
-            branch.push_back(cId);
+            branch.push_back(frameCells[cIdx]);
         }
     }
 
@@ -163,10 +141,10 @@ void RigWellResults::computeStaticWellCellPath()
             size_t branchNumber = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchNumber;
             std::vector<RigWellResultCell>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_wellCells;
 
-            std::list< cellId >& stBranch =  staticWellBranches[branchNumber];
-            std::list< cellId >::iterator it;
-            std::list< cellId >::iterator sStartIt;
-            std::list< cellId >::iterator sEndIt;
+            std::list< RigWellResultCell >& stBranch =  staticWellBranches[branchNumber];
+            std::list< RigWellResultCell >::iterator it;
+            std::list< RigWellResultCell >::iterator sStartIt;
+            std::list< RigWellResultCell >::iterator sEndIt;
             size_t  rStartIdx;
             size_t  rEndIdx;
 
@@ -179,17 +157,19 @@ void RigWellResults::computeStaticWellCellPath()
             // First detect if we have cells on the start of the result frame, that is not in the static frame
             {
                 sEndIt = stBranch.begin();
-
-                sGridIdx = sEndIt->gridIndex;
-                sCellIdx = sEndIt->cellIndex;
-
                 bool found = false;
-                for (rEndIdx = 0; !found && rEndIdx < resBranch.size(); ++rEndIdx)
+                if (stBranch.size())
                 {
-                    rGridIdx = resBranch[rEndIdx].m_gridIndex;
-                    rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
+                    sGridIdx = sEndIt->m_gridIndex;
+                    sCellIdx = sEndIt->m_gridCellIndex;
 
-                    if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
+                    for (rEndIdx = 0; !found && rEndIdx < resBranch.size(); ++rEndIdx)
+                    {
+                        rGridIdx = resBranch[rEndIdx].m_gridIndex;
+                        rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
+
+                        if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
+                    }
                 }
 
                 if (found)
@@ -199,9 +179,7 @@ void RigWellResults::computeStaticWellCellPath()
                         // Found cells in start, merge them in
                         for (size_t cIdx = 0; cIdx < rEndIdx; ++cIdx)
                         {
-                            rGridIdx = resBranch[cIdx].m_gridIndex;
-                            rCellIdx = resBranch[cIdx].m_gridCellIndex;
-                            stBranch.insert(sEndIt, cellId(rGridIdx, rCellIdx));
+                            stBranch.insert(sEndIt, resBranch[cIdx]);
                         }
                     }
                 }
@@ -222,10 +200,11 @@ void RigWellResults::computeStaticWellCellPath()
             // strange ways. A geometric test could make this more robust, but we will 
             // not solve before we see that it actually ends up as a problem
 
-            for ( ++sEndIt; sEndIt != stBranch.end() ; ++sEndIt)
+            if (sEndIt !=  stBranch.end()) ++sEndIt;
+            for ( ; sEndIt != stBranch.end() ; ++sEndIt)
             {
-                sGridIdx = sEndIt->gridIndex;
-                sCellIdx = sEndIt->cellIndex;
+                sGridIdx = sEndIt->m_gridIndex;
+                sCellIdx = sEndIt->m_gridCellIndex;
 
                 bool found = false;
                 for (rEndIdx += 1; !found && rEndIdx < resBranch.size(); ++rEndIdx)
@@ -243,9 +222,7 @@ void RigWellResults::computeStaticWellCellPath()
                         // Found cell range in result that we do not have in the static result, merge them in
                         for (size_t cIdx = rStartIdx + 1; cIdx < rEndIdx; ++cIdx)
                         {
-                            rGridIdx = resBranch[cIdx].m_gridIndex;
-                            rCellIdx = resBranch[cIdx].m_gridCellIndex;
-                            stBranch.insert(sEndIt, cellId(rGridIdx, rCellIdx));
+                            stBranch.insert(sEndIt, resBranch[cIdx]);
                         }
                     }
                 }
@@ -262,35 +239,31 @@ void RigWellResults::computeStaticWellCellPath()
             // Then add cells from the end of the resultpath not present in the static path
             for (size_t cIdx = rEndIdx + 1; cIdx < resBranch.size(); ++cIdx)
             {
-                rGridIdx = resBranch[cIdx].m_gridIndex;
-                rCellIdx = resBranch[cIdx].m_gridCellIndex;
-                stBranch.push_back(cellId(rGridIdx, rCellIdx));
+                stBranch.push_back(resBranch[cIdx]);
             }
         }
     }
 
     // Populate the static well info 
 
-    std::map < size_t, std::list< cellId > >::iterator bIt;
+    std::map < size_t, std::list< RigWellResultCell > >::iterator bIt;
 
     m_staticWellCells.m_wellResultBranches.clear();
     m_staticWellCells.m_wellHead = m_wellCellsTimeSteps[0].m_wellHead;
 
-    for (bIt= staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt)
+    for (bIt = staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt)
     {
         RigWellResultBranch rigBranch;
         rigBranch.m_branchNumber = bIt->first;
 
-        std::list< cellId >& branch =  bIt->second;
-        std::list< cellId >::iterator cIt;
+        std::list< RigWellResultCell >& branch =  bIt->second;
+        std::list< RigWellResultCell >::iterator cIt;
 
         for (cIt = branch.begin(); cIt != branch.end(); ++cIt)
         {
-            RigWellResultCell rwc;
-            rwc.m_gridIndex = cIt->gridIndex;
-            rwc.m_gridCellIndex = cIt->cellIndex;
-
-            rigBranch.m_wellCells.push_back(rwc);
+            RigWellResultCell rwc = *cIt;
+            rwc.m_isOpen = false; // Reset the dynamic property
+            rigBranch.m_wellCells.push_back(*cIt);
         }
 
         m_staticWellCells.m_wellResultBranches.push_back(rigBranch);

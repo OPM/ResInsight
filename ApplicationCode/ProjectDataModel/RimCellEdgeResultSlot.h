@@ -75,9 +75,6 @@ protected:
     QStringList                           findResultVariableNames();
 
 private:
-    RigReservoirCellResults*                   gridCellResults();
-    RifReaderInterface*                   fileReaderinterface();
-
     void                                  resetResultIndices();
     void                                  updateIgnoredScalarValue();
 protected:

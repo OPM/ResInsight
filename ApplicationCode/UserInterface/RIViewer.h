@@ -58,13 +58,14 @@ public slots:
     virtual void    slotEndAnimation();
 
 protected:
-    void    keyPressEvent(QKeyEvent* event);
-    void	mouseReleaseEvent(QMouseEvent* event);
+    void            keyPressEvent(QKeyEvent* event);
+    void            mouseReleaseEvent(QMouseEvent* event);
 
-    void	handlePickAction(int winPosX, int winPosY);
-    cvf::Part* pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint);
+    void            handlePickAction(int winPosX, int winPosY);
+    cvf::Part*      pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint);
 
 private:
+    void            updateLegends();
     caf::QtMouseState   m_mouseState;
 
     cvf::ref<cvf::OverlayColorLegend> m_legend1;

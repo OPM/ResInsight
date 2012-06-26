@@ -30,6 +30,7 @@ class QMdiSubWindow;
 class QComboBox;
 class QLabel;
 class QLineEdit;
+class QItemSelection;
 
 class RIViewer;
 class RIResultInfoPanel;
@@ -43,6 +44,7 @@ namespace caf
     class PdmObject;
     class FrameAnimationControl;
     class AnimationToolBar;
+    class PdmUiPropertyView;
 }
 
 //==================================================================================================
@@ -101,11 +103,13 @@ private:
 private:
     // File actions
     QAction*		    m_openAction;
+    QAction*		    m_openInputEclipseFileAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
     QAction*		    m_mockModelAction;
     QAction*		    m_mockResultsModelAction;
     QAction*		    m_mockLargeResultsModelAction;
+    QAction*		    m_mockInputModelAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeAction;
@@ -126,6 +130,7 @@ private:
     // Debug actions
     QAction*		    m_debugUseShaders;
     QAction*		    m_performanceHud;
+    QAction*		    m_newPropertyView;
 
     // Help actions
     QAction*            m_aboutAction;
@@ -151,13 +156,15 @@ private:
 private slots:
 
     // File slots
-    void    slotOpenFile();
+    void    slotOpenBinaryGridFiles();
+    void    slotOpenInputFiles();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
 
     void    slotMockModel();
     void    slotMockResultsModel();
     void    slotMockLargeResultsModel();
+    void    slotInputMockModel();
     
     void    slotSaveProject();
     void    slotSaveProjectAs();
@@ -183,6 +190,7 @@ private slots:
     void    slotRefreshDebugActions();
     void    slotUseShaders(bool enable);
     void    slotShowPerformanceInfo(bool enable);
+    void    slotNewObjectPropertyView();
 
     // Windows slots
     void    slotBuildWindowActions();
@@ -202,10 +210,8 @@ public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 
 private:
-    QTreeView*              m_treeView;
-    caf::UiPropertyCreatorPdm*      m_uiManagerPdm;
-    RimUiTreeModelPdm*    m_treeModelPdm;
-    caf::PdmObject*     m_pdmRoot;
-
-    
+    QTreeView*                  m_treeView;
+    RimUiTreeModelPdm*          m_treeModelPdm;
+    caf::PdmObject*             m_pdmRoot;
+    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 };

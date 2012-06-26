@@ -22,6 +22,7 @@
 #include "RimReservoirView.h"
 #include "RimWellCollection.h"
 #include "RivWellPipesPartMgr.h"
+#include "RivWellHeadPartMgr.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -52,7 +53,7 @@ void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
    if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
    {
        m_wellPipesPartMgrs.clear();
-       m_wellPipesPartMgrs.clear();
+       m_wellHeadPartMgrs.clear();
 
        for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
        {

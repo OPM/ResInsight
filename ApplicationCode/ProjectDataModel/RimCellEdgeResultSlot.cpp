@@ -25,7 +25,8 @@
 #include "RimReservoirView.h"
 #include "RigReservoirCellResults.h"
 #include "RigReservoir.h"
-#include "RifReaderInterface.h"
+
+#include "cafPdmUiListEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCellEdgeResultSlot, "CellEdgeResultSlot");
@@ -37,8 +38,10 @@ RimCellEdgeResultSlot::RimCellEdgeResultSlot()
 {
     CAF_PDM_InitObject("Cell Edge Result", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result variable", ":/Default.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result variable", "", "", "");
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
+
+    resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 
     legendConfig = new RimLegendConfig();
 
@@ -68,13 +71,16 @@ void RimCellEdgeResultSlot::setReservoirView(RimReservoirView* ownerReservoirVie
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeResultSlot::loadResult()
 {
+    CVF_ASSERT(m_reservoirView && m_reservoirView->gridCellResults());
+
     resetResultIndices();
     QStringList vars = findResultVariableNames();
     updateIgnoredScalarValue();
+
     int i;
     for (i = 0; i < vars.size(); ++i)
     {
-         size_t resultindex = gridCellResults()->loadResultIntoGrid(RimDefines::STATIC_NATIVE, vars[i]);
+         size_t resultindex = m_reservoirView->gridCellResults()->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, vars[i]);
          int cubeFaceIdx;
          for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
          {
@@ -124,10 +130,13 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
 {
     if (fieldNeedingOptions == &resultVariable)
     {
-        if (fileReaderinterface())
+        if (m_reservoirView && m_reservoirView->gridCellResults())
         {
             QStringList varList;
-            varList = fileReaderinterface()->staticResults();
+            varList = m_reservoirView->gridCellResults()->resultNames(RimDefines::STATIC_NATIVE);
+
+            //TODO: Must also handle input properties
+            //varList += m_reservoirView->gridCellResults()->resultNames(RimDefines::INPUT_PROPERTY);
 
             QList<caf::PdmOptionItemInfo> optionList;
 
@@ -196,10 +205,12 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
 {
     QStringList varNames;
     
-    if (fileReaderinterface() && !resultVariable().isEmpty())
+    if (m_reservoirView && m_reservoirView->gridCellResults() && !resultVariable().isEmpty())
     {
         QStringList varList;
-        varList = fileReaderinterface()->staticResults();
+        varList = m_reservoirView->gridCellResults()->resultNames(RimDefines::STATIC_NATIVE);
+        //TODO: Must handle Input properties
+
         int i;
         for (i = 0; i < varList.size(); ++i)
         {
@@ -212,33 +223,7 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
     return varNames;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigReservoirCellResults* RimCellEdgeResultSlot::gridCellResults()
-{
-    CVF_ASSERT(m_reservoirView != NULL 
-        && m_reservoirView->eclipseCase() 
-        && m_reservoirView->eclipseCase()->reservoirData() 
-        && m_reservoirView->eclipseCase()->reservoirData()->mainGrid());
 
-    return m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->results();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RifReaderInterface* RimCellEdgeResultSlot::fileReaderinterface()
-{
-    if (m_reservoirView && m_reservoirView->eclipseCase())
-    {
-        return m_reservoirView->eclipseCase()->fileInterface();
-    }
-    else
-    {
-        return NULL;
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

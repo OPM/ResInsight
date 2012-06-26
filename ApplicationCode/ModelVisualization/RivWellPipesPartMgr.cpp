@@ -41,6 +41,26 @@ RivWellPipesPartMgr::RivWellPipesPartMgr(RimReservoirView* reservoirView, RimWel
     m_rimReservoirView = reservoirView;
     m_rimWell      = well;
     m_needsTransformUpdate = true;
+
+    // Setup a scalar mapper
+    cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
+    cvf::Color3ubArray legendColors;
+    legendColors.resize(4);
+    legendColors[0] = cvf::Color3::GRAY;
+    legendColors[1] = cvf::Color3::GREEN;
+    legendColors[2] = cvf::Color3::BLUE;
+    legendColors[3] = cvf::Color3::RED;
+    scalarMapper->setColors(legendColors);
+    scalarMapper->setRange(0.0 , 4.0);
+    scalarMapper->setLevelsFromColorCount(4);
+
+    m_scalarMapper = scalarMapper;
+
+    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), true);
+    m_scalarMapperSurfaceEffect = surfEffGen.generateEffect();
+
+    caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
+    m_scalarMapperMeshEffect = meshEffGen.generateEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,25 +82,24 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
     std::vector< size_t > pipeBranchIds;
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-    std::vector< std::vector <CellId> > pipeBranchesCellIds;
+    std::vector< std::vector <RigWellResultCell> > pipeBranchesCellIds;
 
-    calculateWellPipeCenterline( pipeBranchIds, pipeBranchesCLCoords, pipeBranchesCellIds);
+    calculateWellPipeCenterline(pipeBranchesCLCoords, pipeBranchesCellIds);
 
     double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
 
-    for (size_t brIdx = 0; brIdx < pipeBranchIds.size(); ++brIdx)
+    for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
     {
         m_wellBranches.push_back(RivPipeBranchData());
         RivPipeBranchData& pbd = m_wellBranches.back();
 
-        pbd.m_branchId = pipeBranchIds[brIdx];
         pbd.m_cellIds = pipeBranchesCellIds[brIdx];
 
         pbd.m_pipeGeomGenerator = new RivPipeGeometryGenerator;
 
         pbd.m_pipeGeomGenerator->setRadius(pipeRadius);
-        pbd.m_pipeGeomGenerator->setCrossSectionVertexCount(12);
+        pbd.m_pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
         pbd.m_pipeGeomGenerator->setPipeColor( m_rimWell->wellPipeColor());
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
@@ -131,12 +150,13 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< size_t >& pipeBranchIds, 
-                                                        std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
-                                                        std::vector< std::vector <CellId> >& pipeBranchesCellIds) const
+void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
+                                                        std::vector< std::vector <RigWellResultCell> >& pipeBranchesCellIds) const
 {
     CVF_ASSERT(m_rimWell.notNull());
     CVF_ASSERT(m_rimReservoirView.notNull());
+
+    bool isAutoDetectBranches = m_rimReservoirView->wellCollection()->isAutoDetectingBranches();
     
     RigReservoir*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
     RigWellResults* wellResults = m_rimWell->wellResults();
@@ -151,7 +171,6 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< size_t >& p
     if (staticWellFrame.m_wellResultBranches.size() == 0) return;
 
     // Initialize the return arrays
-    pipeBranchIds.clear();
     pipeBranchesCLCoords.clear();
     pipeBranchesCellIds.clear();
 
@@ -163,115 +182,134 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< size_t >& p
 
     // Loop over all the well branches
     const std::vector<RigWellResultBranch>& resBranches = staticWellFrame.m_wellResultBranches;
-
-    for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
+    bool hasResultCells = false;
+    if (resBranches.size())
     {
-        if (resBranches[brIdx].m_wellCells.size() == 0) continue; // Skip empty branches. Do not know why they exist, but they make problems.
+        for (size_t i = 0 ; i < resBranches.size(); ++i)
+        {
+            if (resBranches[i].m_wellCells.size() != 0)
+            {
+                hasResultCells = true;
+            }
+        }
+    }
 
-        // Create a new branch
-        pipeBranchIds.push_back(resBranches[brIdx].m_branchNumber);
+    if (hasResultCells)
+    {
+        // Create a new branch from wellhead
+
         pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-        pipeBranchesCellIds.push_back(std::vector <CellId>());
-        
+        pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
+
         // We start by entering the first cell (the wellhead)
         const RigWellResultCell* prevResCell = whResCell;
+
         pipeBranchesCLCoords.back().push_back(whStartPos);
-        pipeBranchesCellIds.back().push_back(CellId(prevResCell->m_gridIndex, prevResCell->m_gridCellIndex));
+        pipeBranchesCellIds.back().push_back(*prevResCell );
 
         // Add extra coordinate between cell face and cell center 
         // to make sure the well pipe terminated in a segment parallel to z-axis
         cvf::Vec3d whIntermediate = whStartPos;
         whIntermediate.z() = (whStartPos.z() + whCell.center().z()) / 2.0;
+
         pipeBranchesCLCoords.back().push_back(whIntermediate);
-        pipeBranchesCellIds.back().push_back(CellId(prevResCell->m_gridIndex, prevResCell->m_gridCellIndex));
+        pipeBranchesCellIds.back().push_back(*prevResCell );
 
 
-        // Loop over all the resultCells in the branch
-        const std::vector<RigWellResultCell>& resBranchCells = resBranches[brIdx].m_wellCells;
-
-        for (size_t cIdx = 0; cIdx < resBranchCells.size(); cIdx++)
+        for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
         {
-            std::vector<cvf::Vec3d>& branchCLCoords = pipeBranchesCLCoords.back();
-            std::vector<CellId>&     branchCellIds  = pipeBranchesCellIds.back();
+            if (resBranches[brIdx].m_wellCells.size() == 0)
+                continue; // Skip empty branches. Do not know why they exist, but they make problems.
 
-            const RigWellResultCell& resCell = resBranchCells[cIdx];
-            const RigCell& cell = rigReservoir->cellFromWellResultCell(resCell);
+            // Loop over all the resultCells in the branch
+            const std::vector<RigWellResultCell>& resBranchCells = resBranches[brIdx].m_wellCells;
 
-            // Check if this and the previous cells has shared faces
-
-            cvf::StructGridInterface::FaceType sharedFace;
-            if (rigReservoir->findSharedSourceFace(sharedFace, resCell, *prevResCell))
+            for (int cIdx = 0; cIdx < static_cast<int>(resBranchCells.size()); cIdx++) // Need int because cIdx can temporarily end on -1
             {
-                branchCLCoords.push_back(cell.faceCenter(sharedFace));
-                branchCellIds.push_back(CellId(resCell.m_gridIndex, resCell.m_gridCellIndex));
-            }
-            else
-            {
-                // This and the previous cell does not share a face. We need to go out of the previous cell, before entering this.
-                const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
-                cvf::Vec3d centerPrevCell = prevCell.center();
-                cvf::Vec3d centerThisCell = cell.center();
+                std::vector<cvf::Vec3d>&        branchCLCoords = pipeBranchesCLCoords.back();
+                std::vector<RigWellResultCell>& branchCellIds  = pipeBranchesCellIds.back();
 
-                // First make sure this cell is not starting a new "display" branch 
-                if ( (prevResCell == whResCell) || (centerThisCell-centerPrevCell).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared())
+                const RigWellResultCell& resCell = resBranchCells[cIdx];
+                const RigCell& cell = rigReservoir->cellFromWellResultCell(resCell);
+
+                // Check if this and the previous cells has shared faces
+
+                cvf::StructGridInterface::FaceType sharedFace;
+                if (rigReservoir->findSharedSourceFace(sharedFace, resCell, *prevResCell))
                 {
-                    // Create ray and intersect with cells
-
-                    cvf::Ray rayToThisCell;
-                    rayToThisCell.setOrigin(centerPrevCell);
-                    rayToThisCell.setDirection((centerThisCell - centerPrevCell).getNormalized());
-
-                    cvf::Vec3d outOfPrevCell(centerPrevCell);
-                    cvf::Vec3d intoThisCell(centerThisCell);
-
-                    bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
-                    //CVF_ASSERT(intersectionOk);
-                    intersectionOk = cell.firstIntersectionPoint(rayToThisCell, &intoThisCell);
-                    //CVF_ASSERT(intersectionOk);
-                    if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)
-                    {
-                        branchCLCoords.push_back(outOfPrevCell);
-                        branchCellIds.push_back(CellId(cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T));
-                    }
-                    branchCLCoords.push_back(intoThisCell);
-                    branchCellIds.push_back(CellId(resCell.m_gridIndex, resCell.m_gridCellIndex));
+                    branchCLCoords.push_back(cell.faceCenter(sharedFace));
+                    branchCellIds.push_back(resCell);
                 }
                 else
                 {
-                    // This cell is further from the previous cell than from the well head, 
-                    // thus we interpret it as a new branch.
+                    // This and the previous cell does not share a face. We need to go out of the previous cell, before entering this.
+                    const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
+                    cvf::Vec3d centerPrevCell = prevCell.center();
+                    cvf::Vec3d centerThisCell = cell.center();
 
-                    // First finish the current branch
-                    branchCLCoords.push_back(branchCLCoords.back() + 1.5*(centerPrevCell - branchCLCoords.back())  );
+                    // First make sure this cell is not starting a new "display" branch 
+                    if (   !isAutoDetectBranches || (prevResCell == whResCell) 
+                        || (centerThisCell-centerPrevCell).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared())
+                    {
+                        // Not starting a "display" branch
+                        // Create ray and intersect with cells
 
-                    // Create new display branch
-                    pipeBranchIds.push_back(resBranches[brIdx].m_branchNumber);
-                    pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-                    pipeBranchesCellIds.push_back(std::vector <CellId>());
+                        cvf::Ray rayToThisCell;
+                        rayToThisCell.setOrigin(centerPrevCell);
+                        rayToThisCell.setDirection((centerThisCell - centerPrevCell).getNormalized());
 
-                    // Start the new branch by entering the first cell (the wellhead) and intermediate
-                    prevResCell = whResCell;
-                    pipeBranchesCLCoords.back().push_back(whStartPos);
-                    pipeBranchesCellIds.back().push_back(CellId(prevResCell->m_gridIndex, prevResCell->m_gridCellIndex));
+                        cvf::Vec3d outOfPrevCell(centerPrevCell);
+                        cvf::Vec3d intoThisCell(centerThisCell);
 
-                    // Include intermediate
-                    pipeBranchesCLCoords.back().push_back(whIntermediate);
-                    pipeBranchesCellIds.back().push_back(CellId(prevResCell->m_gridIndex, prevResCell->m_gridCellIndex));
+                        bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                        //CVF_ASSERT(intersectionOk);
+                        intersectionOk = cell.firstIntersectionPoint(rayToThisCell, &intoThisCell);
+                        //CVF_ASSERT(intersectionOk);
+                        if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)
+                        {
+                            branchCLCoords.push_back(outOfPrevCell);
+                            branchCellIds.push_back(RigWellResultCell());
+                        }
+                        branchCLCoords.push_back(intoThisCell);
+                        branchCellIds.push_back(resCell);
+                    }
+                    else
+                    {
+                        // This cell is further from the previous cell than from the well head, 
+                        // thus we interpret it as a new branch.
 
-                    // Well now we need to step one back to take this cell again, but in the new branch.
-                    cIdx--;
-                    continue;
+                        // First finish the current branch
+                        branchCLCoords.push_back(branchCLCoords.back() + 1.5*(centerPrevCell - branchCLCoords.back())  );
+
+                        // Create new display branch
+                        pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
+                        pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
+
+                        // Start the new branch by entering the first cell (the wellhead) and intermediate
+                        prevResCell = whResCell;
+                        pipeBranchesCLCoords.back().push_back(whStartPos);
+                        pipeBranchesCellIds.back().push_back(*prevResCell);
+
+                        // Include intermediate
+                        pipeBranchesCLCoords.back().push_back(whIntermediate);
+                        pipeBranchesCellIds.back().push_back(*prevResCell);
+
+                        // Well now we need to step one back to take this cell again, but in the new branch.
+                        cIdx--;
+                        continue;
+                    }
                 }
-            }
 
-            prevResCell = &resCell;
+                prevResCell = &resCell;
 
-            // If we are looking at last cell, add the point 0.5 past the center of that cell
-            if (cIdx == resBranchCells.size() -1) 
-            {
-                 branchCLCoords.push_back(branchCLCoords.back() + 1.5*(cell.center() - branchCLCoords.back())  );
-            }
+             }
         }
+
+        // For the last cell, add the point 0.5 past the center of that cell
+        const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
+        cvf::Vec3d centerPrevCell = prevCell.center();
+        pipeBranchesCLCoords.back().push_back(pipeBranchesCLCoords.back().back() + 1.5*(centerPrevCell - pipeBranchesCLCoords.back().back())  );
+
     }
 
     CVF_ASSERT(pipeBranchesCellIds.size() == pipeBranchesCLCoords.size());
@@ -324,18 +362,6 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
     if (frameIndex < wRes->firstResultTimeStep()) return; // Or reset colors or something
 
-    // Setup a scalar mapper
-    cvf::ref<cvf::ScalarMapperDiscreteLinear> scalarMapper = new cvf::ScalarMapperDiscreteLinear;
-    cvf::Color3ubArray legendColors;
-    legendColors.resize(4);
-    legendColors[0] = cvf::Color3::GRAY;
-    legendColors[1] = cvf::Color3::GREEN;
-    legendColors[2] = cvf::Color3::BLUE;
-    legendColors[3] = cvf::Color3::RED;
-    scalarMapper->setColors(legendColors);
-    scalarMapper->setRange(0.0 , 4.0);
-    scalarMapper->setLevelsFromColorCount(4);
-
     const double closed = -0.1, producing = 1.5, water = 2.5, hcInjection = 3.5; // Closed set to -0.1 instead of 0.5 to workaround bug in the scalar mapper.
 
     std::list<RivPipeBranchData>::iterator brIt;
@@ -345,77 +371,48 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
     for (brIt = m_wellBranches.begin(); brIt != m_wellBranches.end(); ++brIt)
     {
-        size_t branchId = brIt->m_branchId;
-
-        // find corresponding result branch
-        size_t i;
-        for ( i = 0; i < wResFrame.m_wellResultBranches.size(); ++i)
-        {
-            if (wResFrame.m_wellResultBranches[i].m_branchNumber == branchId) break;
-        }
-
         // Initialize well states to "closed" state
         wellCellStates.clear();
         wellCellStates.resize(brIt->m_cellIds.size(), closed);
 
-        // Find result values
-        if (i >= wResFrame.m_wellResultBranches.size())
+        const std::vector <RigWellResultCell>& cellIds =  brIt->m_cellIds;
+
+        for (size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx)
         {
-            // Branch not found in results. Do nothing. Keep the "closed" states
-        }
-        else
-        {
-            const std::vector<RigWellResultCell>& resBranch = wResFrame.m_wellResultBranches[i].m_wellCells;
-            const std::vector <CellId>& cellIds =  brIt->m_cellIds;
+            // we need a faster lookup, I guess
+            const RigWellResultCell* wResCell = wResFrame.findResultCell(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
 
-            // Find cellIds[wcIdx] in resBranch
-            //   ifFound then give color from cell state
-            //   else give closed color
-
-            // The search can be simplified to comparing the current element against 
-            // the first unmatched element in the result branch vector since the result is (supposed) to be 
-            // a subset of the complete branch where all elements have the same order
-
-            size_t rcIdx = 0; // index to first unmatched element in results 
-            for (size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx)
+            if (wResCell == NULL) 
             {
-                if (rcIdx >= resBranch.size()) 
+                // We cant find any state. This well cell is closed.
+            }
+            else
+            {
+                double cellState = closed;
+
+                if (wResCell->m_isOpen)
                 {
-                    // We are beyond the result cells. This well cell is closed.
-                }
-                else
-                {
-                    if (   cellIds[wcIdx].gridIndex == resBranch[rcIdx].m_gridIndex
-                        && cellIds[wcIdx].cellIndex == resBranch[rcIdx].m_gridCellIndex)
+                    switch (wResFrame.m_productionType)
                     {
-                        double cellState = closed;
-                        
-                        if (resBranch[rcIdx].m_isOpen)
-                        {
-                            switch (wResFrame.m_productionType)
-                            {
-                            case RigWellResultFrame::PRODUCER:
-                                cellState = producing;
-                                break;
-                            case RigWellResultFrame::OIL_INJECTOR:
-                                cellState = hcInjection;
-                                break;
-                            case RigWellResultFrame::GAS_INJECTOR:
-                                cellState = hcInjection;
-                                break;
-                            case RigWellResultFrame::WATER_INJECTOR:
-                                cellState = water;
-                                break;
-                            case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
-                                cellState = closed;
-                                break;
-                           }
-                        }
-                       
-                        wellCellStates[wcIdx] = cellState;
-                        rcIdx++;
+                    case RigWellResultFrame::PRODUCER:
+                        cellState = producing;
+                        break;
+                    case RigWellResultFrame::OIL_INJECTOR:
+                        cellState = hcInjection;
+                        break;
+                    case RigWellResultFrame::GAS_INJECTOR:
+                        cellState = hcInjection;
+                        break;
+                    case RigWellResultFrame::WATER_INJECTOR:
+                        cellState = water;
+                        break;
+                    case RigWellResultFrame::UNDEFINED_PRODUCTION_TYPE:
+                        cellState = closed;
+                        break;
                     }
                 }
+
+                wellCellStates[wcIdx] = cellState;
             }
         }
 
@@ -430,13 +427,10 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
                 surfTexCoords = new cvf::Vec2fArray;
             }
 
-            brIt->m_pipeGeomGenerator->pipeSurfaceTextureCoords( surfTexCoords.p(), wellCellStates, scalarMapper.p());
+            brIt->m_pipeGeomGenerator->pipeSurfaceTextureCoords( surfTexCoords.p(), wellCellStates, m_scalarMapper.p());
             brIt->m_surfaceDrawable->setTextureCoordArray( surfTexCoords.p());
 
-            caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), true);
-            cvf::ref<cvf::Effect> seff = surfEffGen.generateEffect();
-
-            brIt->m_surfacePart->setEffect(seff.p());
+            brIt->m_surfacePart->setEffect(m_scalarMapperSurfaceEffect.p());
         }
 
         // Find or create texture coords array for pipe center line
@@ -450,7 +444,7 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
             }
 
             // Calculate new texture coordinates
-            brIt->m_pipeGeomGenerator->centerlineTextureCoords( lineTexCoords.p(), wellCellStates, scalarMapper.p());
+            brIt->m_pipeGeomGenerator->centerlineTextureCoords( lineTexCoords.p(), wellCellStates, m_scalarMapper.p());
 
             // Set the new texture coordinates
 
@@ -458,10 +452,7 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 
             // Set effects
 
-            caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
-            cvf::ref<cvf::Effect> meff = meshEffGen.generateEffect();
-
-            brIt->m_centerLinePart->setEffect(meff.p());
+            brIt->m_centerLinePart->setEffect(m_scalarMapperMeshEffect.p());
         }
     }
 }

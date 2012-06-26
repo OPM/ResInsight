@@ -22,10 +22,10 @@
 
 
 #include "cvfCollection.h"
-#include "RivWellHeadPartMgr.h"
 
 class RimReservoirView;
 class RivWellPipesPartMgr;
+class RivWellHeadPartMgr;
 
 class RivReservoirPipesPartMgr : public cvf::Object
 {

@@ -66,13 +66,18 @@ RimWellCollection::RimWellCollection()
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "    Well head scale", "", "", "");
 
     CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(ALL_ON), "Global well pipe visibility",  "", "", "");
-    CAF_PDM_InitField(&pipeRadiusScaleFactor, "WellPipeRadiusScale",    0.1,                        "    Pipe radius scale", "", "", "");
+
+    CAF_PDM_InitField(&pipeRadiusScaleFactor,       "WellPipeRadiusScale",    0.1,                        "    Pipe radius scale", "", "", "");
+    CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
+    pipeCrossSectionVertexCount.setUiHidden(true);
 
     CAF_PDM_InitField(&wellCellVisibility,  "GlobalWellCellVisibility", WellVisibilityEnum(FORCE_ALL_OFF),  "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "    Use well fence", "", "", "");
     CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION),        "    Well Fence direction", "", "", "");
 
     CAF_PDM_InitField(&wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well cell transparency", "", "", "");
+
+    CAF_PDM_InitField(&isAutoDetectingBranches, "IsAutoDetectingBranches", true, "Geometry based branch detection", "", "Toggle wether the well pipe visualization will try to detect when a part of the well \nis really a branch, and thus is starting from wellhead", "");
 
     CAF_PDM_InitFieldNoDefault(&wells, "Wells", "Wells",  "", "", "");
 
@@ -84,7 +89,7 @@ RimWellCollection::RimWellCollection()
 //--------------------------------------------------------------------------------------------------
 RimWellCollection::~RimWellCollection()
 {
-   wells.deleteChildren();
+   wells.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -199,7 +204,11 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
             m_reservoirView->createDisplayModelAndRedraw();
         }
     }
-    else if (&pipeRadiusScaleFactor == changedField || &wellHeadScaleFactor == changedField || &showWellHead == changedField)
+    else if (  &pipeCrossSectionVertexCount == changedField 
+            || &pipeRadiusScaleFactor == changedField 
+            || &wellHeadScaleFactor == changedField 
+            || &showWellHead == changedField
+            || &isAutoDetectingBranches == changedField)
     {
         if (m_reservoirView) 
         {

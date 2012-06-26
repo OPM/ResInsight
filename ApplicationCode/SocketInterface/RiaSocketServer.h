@@ -62,6 +62,7 @@ private:
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
     RimReservoir*   m_currentReservoir;
     size_t          m_currentScalarIndex;
+    QString         m_currentPropertyName;
     bool            m_invalidActiveCellCountDetected;
 };
 

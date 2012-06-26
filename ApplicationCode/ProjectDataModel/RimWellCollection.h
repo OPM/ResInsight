@@ -68,8 +68,12 @@ public:
 
     caf::PdmField<WellVisibilityEnum>   wellPipeVisibility;
     caf::PdmField<double>               pipeRadiusScaleFactor;
+    caf::PdmField<int>                  pipeCrossSectionVertexCount;
+
     caf::PdmField<double>               wellHeadScaleFactor;
     caf::PdmField<bool>                 showWellHead;
+
+    caf::PdmField<bool>                 isAutoDetectingBranches;
 
     caf::PdmPointersField<RimWell*>     wells;
 

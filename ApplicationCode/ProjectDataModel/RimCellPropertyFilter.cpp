@@ -53,7 +53,16 @@ RimCellPropertyFilter::RimCellPropertyFilter()
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimResultDefinition();
-    resultDefinition.setHidden(true);
+    
+    // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
+    resultDefinition->resultType.setOwnerObject(this);
+    resultDefinition->resultVariable.setOwnerObject(this);
+    resultDefinition->resultType.setUiName("");
+    resultDefinition->resultVariable.setUiName("");
+
+    // Set to hidden to avoid this item to been displayed as a child item
+    // Fields in this object are displayed using defineUiOrdering()
+    resultDefinition.setUiHidden(true);
 
     CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
     CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
@@ -76,8 +85,10 @@ void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     if (changedField == &name)
     {
     }
-    else if (&resultDefinition == changedField)
+    else if (&(resultDefinition->resultType) == changedField || &(resultDefinition->resultVariable) == changedField)
     {
+        resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
+        
         setDefaultValues();
         m_parentContainer->fieldChangedByUi(changedField, oldValue,  newValue);
     }
@@ -85,71 +96,6 @@ void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     {
         m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
         this->updateIconState();
-    }
-
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimCellPropertyFilter::isCellRejected(const RigGridBase* grid, size_t timeStepIndex, size_t cellIndex) const
-{
-    CVF_ASSERT(grid);
-
-    if (resultDefinition->gridScalarIndex() == cvf::UNDEFINED_SIZE_T)
-    {
-        return false;
-    }
-
-    size_t resultIndex = 0;
-    if (resultDefinition->hasDynamicResult())
-    {
-        resultIndex = timeStepIndex;
-    }
-
-    double scalarValue = grid->cellScalar(resultIndex, resultDefinition->gridScalarIndex(), cellIndex);
-    bool rejected = false;
-    if (scalarValue < lowerBound || scalarValue > upperBound)
-    {
-        rejected = true;
-    }
-
-    if (filterMode == INCLUDE)
-    {
-        return rejected;
-    }
-    else
-    {
-        return !rejected;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::CellRangeFilter::CellStateType RimCellPropertyFilter::cellFilterState(const RigGridBase* grid, size_t timeStepIndex, size_t cellIndex) const
-{
-    CVF_TIGHT_ASSERT(grid);
-    CVF_TIGHT_ASSERT(resultDefinition->gridScalarIndex() != cvf::UNDEFINED_SIZE_T);
-
-    size_t tStepIdx = 0;
-    if (resultDefinition->hasDynamicResult())
-    {
-        tStepIdx = timeStepIndex;
-    }
-
-    double scalarValue = grid->cellScalar(tStepIdx, resultDefinition->gridScalarIndex(), cellIndex);
-
-    if ( lowerBound <= scalarValue  && scalarValue <= upperBound)
-    {
-        if (filterMode == INCLUDE) return cvf::CellRangeFilter::INCLUDED;
-        else                       return cvf::CellRangeFilter::EXCLUDED;
-    }
-    else
-    {
-        return cvf::CellRangeFilter::NOT_INCLUDED;
     }
 }
 
@@ -202,5 +148,28 @@ void RimCellPropertyFilter::setDefaultValues()
 
     upperBound = max;
     upperBound.setUiName(QString("Max (%1)").arg(max));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+{
+    // Fields declared in RimCellFilter
+    uiOrdering.add(&name);
+
+    // Fields declared in RimResultDefinition
+    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
+    group1->add(&(resultDefinition->resultType));
+    group1->add(&(resultDefinition->resultVariable));
+    
+    // Fields declared in RimCellFilter
+    uiOrdering.add(&active);
+    uiOrdering.add(&filterMode);
+
+    // Fields declared in this class (RimCellPropertyFilter)
+    uiOrdering.add(&lowerBound);
+    uiOrdering.add(&upperBound);
+    uiOrdering.add(&filterMode);
 }
 

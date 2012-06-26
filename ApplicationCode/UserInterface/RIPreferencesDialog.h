@@ -23,7 +23,7 @@
 namespace caf
 {
     class PdmObject;
-    class UiPropertyCreatorPdm;
+    class PdmUiPropertyView;
 }
 
 
@@ -37,12 +37,13 @@ class RIPreferencesDialog : public QDialog
     Q_OBJECT
 
 public:
-    RIPreferencesDialog(QWidget* parent, caf::PdmObject* object);
+    RIPreferencesDialog(QWidget* parent, caf::PdmObject* object, const QString& windowTitle);
 
 private:
     void setupUi();
 
 private:
+    QString                     m_windowTitle;
     caf::PdmObject*             m_pdmObject;
-    caf::UiPropertyCreatorPdm*  m_uiManagerPdm;
+    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
 };

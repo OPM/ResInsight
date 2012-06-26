@@ -23,57 +23,51 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimWellCollection.h"
 
 class QString;
 class RigReservoir;
-class RifReaderInterface;
-class RimWellCollection;
 class RigGridBase;
+class RimReservoirView;
 
 //==================================================================================================
-//
 // 
-//
+// Interface for reservoirs. 
+// As this is a pure virtual class, the factory macros are not relevant (nor possible) to use
+// CAF_PDM_HEADER_INIT and CAF_PDM_SOURCE_INIT
+// 
 //==================================================================================================
-class RimReservoir : public caf::PdmObject, public cvf::Object
+class RimReservoir : public caf::PdmObject
 {
-    CAF_PDM_HEADER_INIT;
 
 public:
     RimReservoir();
-    RimReservoir(RigReservoir* reservoir);
     virtual ~RimReservoir();
 
-    bool                        openEclipseGridFile();
+    virtual bool                openEclipseGridFile() = 0;
                                       
     RigReservoir*               reservoirData();
     const RigReservoir*         reservoirData() const;
                                       
-    RifReaderInterface*         fileInterface();
-    const RifReaderInterface*   fileInterface() const;
-
     RimReservoirView*           createAndAddReservoirView();
     void                        removeReservoirView(RimReservoirView* reservoirView);
+
+    void                        removeResult(const QString& resultName);
                                       
     // Fields:                        
     caf::PdmField<QString>      caseName;
-    caf::PdmField<QString>      caseDirectory;
 
     caf::PdmPointersField<RimReservoirView*> reservoirViews;
 
-    virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName;}
+    virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName; }
+    
+    virtual QString             locationOnDisc() const      { return QString(); }
 
 protected:
     // Overridden methods
     virtual void                    initAfterRead();
 
-private:
-    void                            createMockModel(QString modelName);
 
-private:
+protected:
     cvf::ref<RigReservoir>            m_rigReservoir;
-    cvf::ref<RifReaderInterface>      m_fileInterface;
-    
 };
 

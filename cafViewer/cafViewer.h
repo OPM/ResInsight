@@ -88,6 +88,7 @@ public:
 
     // Set the navigation policy
     void                    setNavigationPolicy(caf::NavigationPolicy* navigationPolicy);
+    void                    enableNavigationPolicy(bool enable) { m_navigationPolicyEnabled = enable; } 
     void                    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                    zoomAll();
 
@@ -118,6 +119,7 @@ protected:
     virtual bool            event( QEvent* e );
     cvf::ref<caf::NavigationPolicy> 
                             m_navigationPolicy;
+    bool                    m_navigationPolicyEnabled;
 
     // Overridable methods to setup the render system
     virtual void            setupMainRendering();
@@ -137,6 +139,7 @@ protected:
 
 private:
     void                    releaseOGlResourcesForCurrentFrame();
+    void                    debugShowRenderingSequencePartNames();
 
     bool                    m_showPerfInfoHud;
     size_t                  m_paintCounter;

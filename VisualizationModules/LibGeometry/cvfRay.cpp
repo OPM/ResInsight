@@ -181,13 +181,13 @@ bool Ray::quadIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const
     Vec3d v12 = v2 - v1;
     Vec3d v13 = v3 - v1;
 
-    Vec3d n = (v12 ^ v13).getNormalized();
+    Vec3d n = (v12 ^ v13).getNormalized();  // Quad Average normal
 
-    double det = n * direction();
+    double det = n * direction();  // Length of projection of Quad normal to ray direction
 
     if (det == 0.0f)
     {
-        return false;
+        return false;  // Ray parallel to average quad plane. Not quite accurate if origin is close to quad 
     }
 
     double t = n * ((v1 - origin()) / det);
@@ -203,9 +203,9 @@ bool Ray::quadIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const
     int i;
     for(i = 0; i <  4; i++)
     {
-        Vec3d bi_norm = -((pts[i+1]-pts[i]) ^ n).getNormalized();
+        Vec3d bi_norm = -((pts[i+1] - pts[i]) ^ n).getNormalized(); // - (Edge x Quad normal) : Unit Vector in quad plane from edge into the quad
 
-        if (((fp-pts[i]) * bi_norm) < 0)
+        if (((fp - pts[i]) * bi_norm) < 0)
         {
             return false;
         }

@@ -22,6 +22,11 @@
 #include "RigReservoir.h"
 
 
+/* rand example: guess the number */
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -248,6 +253,28 @@ void RigReservoirBuilderMock::setWorldCoordinates(cvf::Vec3d minWorldCoordinate,
 {
     m_minWorldCoordinate = minWorldCoordinate;
     m_maxWorldCoordinate = maxWorldCoordinate;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigReservoirBuilderMock::inputProperty(RigReservoir* reservoir, const QString& propertyName, std::vector<double>* values)
+{
+    size_t k;
+
+    /* initialize random seed: */
+    srand ( time(NULL) );
+
+    /* generate secret number: */
+    int iSecret = rand() % 20 + 1;
+
+    for (k = 0; k < reservoir->mainGrid()->cellCount(); k++)
+    {
+        values->push_back(k * iSecret);
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

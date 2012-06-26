@@ -22,6 +22,12 @@
 #include "cafPdmObject.h"
 #include "RimCalcScript.h"
 
+namespace caf
+{
+    class PdmUiEditorAttribute;
+
+}
+
 //==================================================================================================
 ///  
 ///  
@@ -47,5 +53,6 @@ public: // Methods
 // Overrides from PdmObject
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-
+protected:
+    virtual void                                defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
 };

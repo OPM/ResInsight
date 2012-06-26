@@ -61,7 +61,7 @@ void PdmObjectGroup::deleteObjects()
 //--------------------------------------------------------------------------------------------------
 void PdmObjectGroup::removeNullPtrs()
 {
-    objects.removeAll(NULL);
+    objects.removeChildObject(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------

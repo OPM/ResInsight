@@ -78,12 +78,11 @@ RIViewer::~RIViewer()
 //--------------------------------------------------------------------------------------------------
 void RIViewer::setColorLegend1(cvf::OverlayColorLegend* legend)
 {
-    if (m_legend1.notNull() && legend == NULL)
-    {
-        m_mainRendering->removeOverlayItem(m_legend1.p());
-    }
+    m_mainRendering->removeOverlayItem(m_legend1.p());
 
     m_legend1 = legend;
+
+    this->updateLegends();
 }
 
 
@@ -92,14 +91,34 @@ void RIViewer::setColorLegend1(cvf::OverlayColorLegend* legend)
 //--------------------------------------------------------------------------------------------------
 void RIViewer::setColorLegend2(cvf::OverlayColorLegend* legend)
 {
-    if (m_legend2.notNull() && legend == NULL)
-    {
-        m_mainRendering->removeOverlayItem(m_legend2.p());
-    }
+    m_mainRendering->removeOverlayItem(m_legend2.p());
 
     m_legend2 = legend;
+
+    this->updateLegends();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RIViewer::updateLegends()
+{
+    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    CVF_ASSERT(firstRendering);
+
+    firstRendering->removeOverlayItem(m_legend1.p());
+    firstRendering->removeOverlayItem(m_legend2.p());
+
+    if (m_legend1.notNull())
+    {
+        firstRendering->addOverlayItem(m_legend1.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+    }
+
+    if (m_legend2.notNull())
+    {
+        firstRendering->addOverlayItem(m_legend2.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -133,8 +152,7 @@ void RIViewer::setDefaultView()
         }
     }
 
-    m_mainCamera->fitView(bb, cvf::Vec3d::Y_AXIS, cvf::Vec3d::Z_AXIS);
-   // m_trackball->setRotationPoint(bb.center());
+    m_mainCamera->fitView(bb, -cvf::Vec3d::Z_AXIS, cvf::Vec3d::Y_AXIS);
 }
 
 
@@ -247,20 +265,9 @@ void RIViewer::slotSetCurrentFrame(int frameIndex)
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
 
-    firstRendering->removeOverlayItem(m_legend1.p());
-    firstRendering->removeOverlayItem(m_legend2.p());
-
-    if (m_legend1.notNull())
-    {
-        firstRendering->addOverlayItem(m_legend1.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
-    }
-
-    if (m_legend2.notNull())
-    {
-        firstRendering->addOverlayItem(m_legend2.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
-    }
-
     if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
+
+    this->updateLegends();
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
 }

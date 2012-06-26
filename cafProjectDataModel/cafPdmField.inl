@@ -19,6 +19,7 @@
 
 #include "cafPdmObject.h"
 #include <vector>
+#include "cafPdmUiFieldEditorHandle.h"
 
 namespace caf
 {
@@ -60,6 +61,9 @@ void caf::PdmField<DataType>::setValueFromUi(const QVariant& uiValue)
     {
         assert(m_ownerObject != NULL);
         m_ownerObject->fieldChangedByUi(this, oldValue, newValue);
+
+        // This assumes that all field editors are updated by an instance of PdmUiObjectEditorHandle
+        m_ownerObject->updateConnectedEditors();
     }
 } 
 
@@ -185,6 +189,7 @@ void caf::PdmField<DataType*>::childObjects(std::vector<PdmObject*>* objects)
 //--------------------------------------------------------------------------------------------------
 template<typename DataType >
 caf::PdmField<DataType*>::PdmField(const PdmField& other)
+    : PdmFieldHandle()
 {
     if (m_fieldValue) m_fieldValue.rawPtr()->removeParentField(this);
     m_fieldValue = other.m_fieldValue;
@@ -334,7 +339,7 @@ void PdmPointersField<DataType*>::clear()
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-void PdmPointersField<DataType*>::deleteChildren()
+void PdmPointersField<DataType*>::deleteAllChildObjects()
 {
     size_t index;
     for (index = 0; index < m_pointers.size(); ++index)
@@ -355,13 +360,14 @@ void PdmPointersField<DataType*>::erase(size_t index)
     m_pointers.erase(m_pointers.begin() + index);
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-void PdmPointersField<DataType*>::removeAll(DataType* pointer)
+void PdmPointersField<DataType*>::removeChildObject(PdmObject* object)
 {
+    DataType* pointer = dynamic_cast<DataType*>(object);
+
     size_t index;
     std::vector< PdmPointer<DataType> > tempPointers;
     tempPointers = m_pointers;
@@ -378,6 +384,7 @@ void PdmPointersField<DataType*>::removeAll(DataType* pointer)
         }
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -433,7 +440,7 @@ template<typename DataType>
         }
 
         currentObject->readFields(xmlStream);
-        m_pointers.push_back(currentObject);
+        this->push_back(currentObject);
 
         // Skip comments and for some reason: Characters. The last bit should not be correct, 
         // but Qt reports a character token between EndElement and StartElement
@@ -489,5 +496,6 @@ void PdmPointersField<DataType*>::addThisAsParentField()
         }
     }
 }
+
 
 } //End of namespace caf

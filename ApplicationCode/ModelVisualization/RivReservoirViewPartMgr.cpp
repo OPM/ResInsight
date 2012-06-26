@@ -601,17 +601,23 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 }
 
                 const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
+                bool useGlobalActiveIndex = grid->mainGrid()->results()->isUsingGlobalActiveIndex((*pfIt)->resultDefinition->gridScalarIndex());
 
                 #pragma omp parallel for schedule(dynamic)
                 for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
                 {
                     if ( (*cellVisibility)[cellIndex] )
                     {
-                        size_t resultIndex = grid->cell(cellIndex).globalActiveIndex();
-                        double value = HUGE_VAL;
-                        if (resultIndex != cvf::UNDEFINED_SIZE_T) value = (*scalarResult)[resultIndex];
+                        size_t resultIndex = cellIndex;
+                        if (useGlobalActiveIndex)
+                        {
+                            resultIndex = grid->cell(cellIndex).globalActiveIndex();
+                        }
+                        
+                        double scalarValue = HUGE_VAL;
+                        if (resultIndex != cvf::UNDEFINED_SIZE_T) scalarValue = (*scalarResult)[resultIndex];
 
-                        if (lowerBound <= value && value <= upperBound)
+                        if (lowerBound <= scalarValue && scalarValue <= upperBound)
                         {
                             if (filterType == RimCellFilter::EXCLUDE)
                             {

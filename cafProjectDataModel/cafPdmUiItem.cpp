@@ -18,7 +18,7 @@
 //##################################################################################################
 
 #include "cafPdmUiItem.h"
-
+#include "cafPdmUiEditorHandle.h"
 
 namespace caf
 {
@@ -62,64 +62,168 @@ bool PdmOptionItemInfo::findValue(const QList<PdmOptionItemInfo>& optionList , Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QString PdmUiItem::uiName() const
+const QString PdmUiItem::uiName(QString uiConfigName) const
 {
-    if(m_dynamicItemInfo.m_uiName.isNull()) 
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_uiName.isNull())) return conInfo->m_uiName;
+    if (defInfo && !(defInfo->m_uiName.isNull())) return defInfo->m_uiName;
+    if (sttInfo && !(sttInfo->m_uiName.isNull())) return sttInfo->m_uiName;
+
+    return QString(""); 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QIcon PdmUiItem::uiIcon(QString uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_icon.isNull())) return conInfo->m_icon;
+    if (defInfo && !(defInfo->m_icon.isNull())) return defInfo->m_icon;
+    if (sttInfo && !(sttInfo->m_icon.isNull())) return sttInfo->m_icon;
+
+    return QIcon();    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString PdmUiItem::uiToolTip(QString uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_toolTip.isNull())) return conInfo->m_toolTip;
+    if (defInfo && !(defInfo->m_toolTip.isNull())) return defInfo->m_toolTip;
+    if (sttInfo && !(sttInfo->m_toolTip.isNull())) return sttInfo->m_toolTip;
+
+    return QString(""); 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const QString PdmUiItem::uiWhatsThis(QString uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_whatsThis.isNull())) return conInfo->m_whatsThis;
+    if (defInfo && !(defInfo->m_whatsThis.isNull())) return defInfo->m_whatsThis;
+    if (sttInfo && !(sttInfo->m_whatsThis.isNull())) return sttInfo->m_whatsThis;
+
+    return QString(""); 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiItem::isUiHidden(QString uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_isHidden == -1)) return conInfo->m_isHidden;
+    if (defInfo && !(defInfo->m_isHidden == -1)) return defInfo->m_isHidden;
+    if (sttInfo && !(sttInfo->m_isHidden == -1)) return sttInfo->m_isHidden;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiItem::isUiReadOnly(QString uiConfigName /*= ""*/)
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_isReadOnly == -1)) return conInfo->m_isReadOnly;
+    if (defInfo && !(defInfo->m_isReadOnly == -1)) return defInfo->m_isReadOnly;
+    if (sttInfo && !(sttInfo->m_isReadOnly == -1)) return sttInfo->m_isReadOnly;
+
+    return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString PdmUiItem::uiEditorTypeName(const QString& uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_editorTypeName.isEmpty())) return conInfo->m_editorTypeName;
+    if (defInfo && !(defInfo->m_editorTypeName.isEmpty())) return defInfo->m_editorTypeName;
+    if (sttInfo && !(sttInfo->m_editorTypeName.isEmpty())) return sttInfo->m_editorTypeName;
+
+    return QString();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+const PdmUiItemInfo* PdmUiItem::configInfo(QString uiConfigName) const
+{
+    if (uiConfigName == "" || uiConfigName.isNull()) return NULL;
+
+    std::map<QString, PdmUiItemInfo>::const_iterator it;
+    it = m_configItemInfos.find(uiConfigName);
+
+    if (it != m_configItemInfos.end()) return &(it->second);
+
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+const PdmUiItemInfo* PdmUiItem::defaultInfo() const
+{
+    std::map<QString, PdmUiItemInfo>::const_iterator it;
+    it = m_configItemInfos.find("");
+
+    if (it != m_configItemInfos.end()) return &(it->second);
+
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::updateConnectedEditors()
+{
+    std::set<PdmUiEditorHandle*>::iterator it;
+    for (it = m_editors.begin(); it != m_editors.end(); ++it)
     {
-        if(m_staticItemInfo) return m_staticItemInfo->m_uiName;   
-        else return QString(""); 
-    }
-    else
-    {
-        return m_dynamicItemInfo.m_uiName;
+        (*it)->updateUi();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const QIcon PdmUiItem::uiIcon() const
+PdmUiItem::~PdmUiItem()
 {
-    if(m_dynamicItemInfo.m_icon.isNull()) 
+    std::set<PdmUiEditorHandle*>::iterator it;
+    for (it = m_editors.begin(); it != m_editors.end(); ++it)
     {
-        if(m_staticItemInfo) return m_staticItemInfo->m_icon;
-        else return QIcon();
-    }
-    else
-    {
-        return m_dynamicItemInfo.m_icon;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const QString PdmUiItem::uiToolTip() const
-{
-    if(m_dynamicItemInfo.m_toolTip.isNull()) 
-    {
-        if(m_staticItemInfo) return m_staticItemInfo->m_toolTip;   
-        else return QString("");
-    }
-    else
-    {
-        return m_dynamicItemInfo.m_toolTip;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const QString PdmUiItem::uiWhatsThis() const
-{
-    if(m_dynamicItemInfo.m_whatsThis.isNull()) 
-    {
-        if(m_staticItemInfo) return m_staticItemInfo->m_whatsThis; 
-        else return QString("");
-    }
-    else
-    {
-        return m_dynamicItemInfo.m_whatsThis;
+        (*it)->m_pdmItem = NULL;
     }
 }
 

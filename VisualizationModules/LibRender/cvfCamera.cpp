@@ -684,7 +684,7 @@ void Camera::updateCachedValues()
 
     // Update the cached frustum
     m_cachedViewFrustum = computeViewFrustum();
-    m_cachedViewFrustum.isOutside(Vec3d(0,0,0));
+    
     // Update the front plane pixel size (height)
     CVF_ASSERT(m_viewport.notNull());
     uint vpWidth  = m_viewport->width();

@@ -24,7 +24,6 @@
 #include "cvfVector3.h"
 #include "RigCell.h"
 #include "RigReservoir.h"
-#include "RifReaderInterface.h"
 
 class LocalGridRefinement
 {
@@ -58,6 +57,7 @@ public:
 
     void populateReservoir(RigReservoir* reservoir);
 
+    bool inputProperty(RigReservoir* reservoir, const QString& propertyName, std::vector<double>* values );
     bool staticResult(RigReservoir* reservoir, const QString& result, std::vector<double>* values );
     bool dynamicResult(RigReservoir* reservoir, const QString& result, size_t stepIndex, std::vector<double>* values );
 

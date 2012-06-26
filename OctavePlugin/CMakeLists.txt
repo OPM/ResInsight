@@ -4,6 +4,7 @@ set(CPP_SOURCES
   riGetActiveCellProperty.cpp
   riSetActiveCellProperty.cpp
   riGetActiveCellInfo.cpp
+  riGetMainGridDimensions.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -48,7 +49,12 @@ else()
 
   #add_custom_target(oct-files ALL DEPENDS "${OCTAVE_BINARY_OCT_FILES}")
 
-  add_custom_target(octave_plugins ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellProperty.oct" "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct" "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct")
+  add_custom_target(octave_plugins ALL DEPENDS
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
+  )
 endif()
 
 install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME})

@@ -31,12 +31,12 @@ varying vec3 v_ecPosition;
 varying vec3 v_ecNormal;
 // End native vz stuff
 
-#define POS_I 0
-#define NEG_I 1
-#define POS_J 2
-#define NEG_J 3
-#define POS_K 4
-#define NEG_K 5
+#define POS_I 0.0
+#define NEG_I 1.0
+#define POS_J 2.0
+#define NEG_J 3.0
+#define POS_K 4.0
+#define NEG_K 5.0
 
 //
 //     7---------6               
@@ -60,7 +60,7 @@ varying vec3 v_ecNormal;
 vec4 getColorFromTextureCoord(float textureCoord, vec4 cellColor)
 {
 
-    if (textureCoord < 0)
+    if (textureCoord < 0.0)
         return cellColor;
     else
         return texture2D(u_edgeTexture2D, vec2(textureCoord, 0.5f ));
@@ -73,7 +73,7 @@ void main()
 {	
     v_localCoord = a_localCoord;
     
-	if ( a_colorCell < 0)
+	if ( a_colorCell < 0.0)
 		v_cellColor = vec4(0.75, 0.75, 0.75, 1); // Light grayish
 	else
 		v_cellColor = texture2D(u_cellTexture2D, vec2( a_colorCell, 0.5f));

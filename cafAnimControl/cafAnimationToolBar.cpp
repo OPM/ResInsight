@@ -226,7 +226,9 @@ void AnimationToolBar::setTimeStepStrings(const QStringList& timeStepStrings)
 //--------------------------------------------------------------------------------------------------
 void AnimationToolBar::setCurrentTimeStepIndex(int index)
 {
+    m_timestepCombo->blockSignals(true);
     m_timestepCombo->setCurrentIndex(index);
+    m_timestepCombo->blockSignals(false);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -88,7 +88,10 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
 
     CVF_ASSERT(grid != NULL);
     const std::vector< double >* cellScalarResults = NULL;
+    bool cellScalarResultUseGlobalActiveIndex = true;
+
     const std::vector< double >* edgeScalarResults[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
+    bool edgeScalarResultUseGlobalActiveIndex[6];
 
     if (cellResultSlot->hasResult())
     {
@@ -101,6 +104,8 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         {
             cellScalarResults = &scalarResultTimeSteps[0];
         }
+
+        cellScalarResultUseGlobalActiveIndex = grid->mainGrid()->results()->isUsingGlobalActiveIndex(cellResultSlot->gridScalarIndex());
     }
 
     size_t resultIndices[6];
@@ -115,6 +120,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
             {
                 const std::vector< std::vector<double> >& scalarResultTimeSteps = grid->mainGrid()->results()->cellScalarResults(resultIndices[cubeFaceIdx]);
                 edgeScalarResults[cubeFaceIdx] = &scalarResultTimeSteps[0]; // Assuming only static edge results
+                edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx] = grid->mainGrid()->results()->isUsingGlobalActiveIndex(resultIndices[cubeFaceIdx]);
             }
         }
     }
@@ -136,7 +142,12 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
 
         float cellColorTextureCoord = 0.5f; // If no results exists, the texture will have a special color
         size_t cellIndex = quadToCell[quadIdx];
-        size_t resultIndex = grid->cell(cellIndex).globalActiveIndex();
+
+        size_t resultIndex = cellIndex;
+        if (cellScalarResultUseGlobalActiveIndex)
+        {
+            resultIndex = grid->cell(cellIndex).globalActiveIndex();
+        }
 
         if (cellScalarResults )
         {
@@ -162,6 +173,12 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         for (cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
         {
             edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
+
+            resultIndex = cellIndex;
+            if (edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx])
+            {
+                resultIndex = grid->cell(cellIndex).globalActiveIndex();
+            }
 
             if (resultIndices[cubeFaceIdx] != cvf::UNDEFINED_SIZE_T && resultIndex != cvf::UNDEFINED_SIZE_T)
             {

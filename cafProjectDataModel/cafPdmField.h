@@ -22,7 +22,7 @@
 #include "cafPdmUiItem.h"
 #include "cafPdmFieldImpl.h"
 
-
+#include <set>
 #include <assert.h>
 
 #include <QXmlStreamWriter>
@@ -34,6 +34,7 @@ namespace caf
 
 class PdmObject;
 template <class T> class PdmPointer;
+class PdmUiFieldEditorHandle;
 
 //==================================================================================================
 /// Base class for all fields, making it possible to handle them generically
@@ -42,11 +43,16 @@ template <class T> class PdmPointer;
 class PdmFieldHandle : public PdmUiItem
 {
 public:
-    PdmFieldHandle()                                                { m_ownerObject = NULL; m_keyword = "UNDEFINED"; }
+    PdmFieldHandle() : m_isIOReadable(true), m_isIOWritable(true)   { m_ownerObject = NULL; m_keyword = "UNDEFINED"; }
     virtual ~PdmFieldHandle()                                       {  }
 
     virtual void     readFieldData(QXmlStreamReader& xmlStream)  = 0;
     virtual void     writeFieldData(QXmlStreamWriter& xmlStream) = 0;
+
+    bool             isIOReadable()                                 { return m_isIOReadable; }
+    bool             isIOWritable()                                 { return m_isIOWritable; }
+    void             setIOWritable(bool isWritable)                 {  m_isIOWritable = isWritable; }
+    void             setIOReadable(bool isReadable)                 {  m_isIOReadable = isReadable; }
 
     void             setKeyword(const QString& keyword)             { m_keyword = keyword; }
     QString          keyword() const                                { return m_keyword;    }
@@ -59,6 +65,7 @@ public:
     virtual QVariant uiValue() const                                { return QVariant(); }
     virtual void     setValueFromUi(const QVariant& )               {  }
     virtual void     childObjects(std::vector<PdmObject*>* )        {  }
+    virtual void     removeChildObject(PdmObject* )                 {  }
     virtual QList<PdmOptionItemInfo> 
                      valueOptions( bool* useOptionsOnly)            {  return  QList<PdmOptionItemInfo>(); }
 
@@ -68,6 +75,9 @@ protected:
     PdmObject*       m_ownerObject;
 private:
     QString          m_keyword;
+    bool             m_isIOReadable;
+    bool             m_isIOWritable;
+
 };
 
 
@@ -86,8 +96,8 @@ public:
     virtual ~PdmField() {}
 
     // Copy and assignment must ignore the default value.
-    PdmField(const PdmField& other)                                 { assertValid(); m_fieldValue = other.m_fieldValue; }
-    PdmField(const DataType& fieldValue)                            { assertValid(); m_fieldValue = fieldValue; }
+    PdmField(const PdmField& other) : PdmFieldHandle()              { assertValid(); m_fieldValue = other.m_fieldValue; }
+    PdmField(const DataType& fieldValue) : PdmFieldHandle()         { assertValid(); m_fieldValue = fieldValue; }
     PdmField&       operator= (const PdmField& other)               { assertValid(); m_fieldValue = other.m_fieldValue; return *this; }
     PdmField&       operator= (const DataType& fieldValue)          { assertValid(); m_fieldValue = fieldValue; return *this; }
 
@@ -135,7 +145,7 @@ class PdmField <DataType*> : public PdmFieldHandle
 {
     typedef DataType* DataTypePtr;
 public:
-    PdmField()                                                              { m_fieldValue = NULL; }
+    PdmField()  : PdmFieldHandle()                                          { m_fieldValue = NULL; }
     PdmField(const PdmField& other);
     PdmField(const DataTypePtr& fieldValue);
     virtual ~PdmField();
@@ -205,8 +215,7 @@ public:
 
     void                clear();
     void                erase(size_t index);
-    void                removeAll(DataType* pointer);
-    void                deleteChildren();
+    void                deleteAllChildObjects();
 
     // Reimplementation of PdmFieldhandle methods
     virtual void        readFieldData(QXmlStreamReader& xmlStream);
@@ -214,6 +223,8 @@ public:
 
     // Gui generalized methods
     virtual void        childObjects(std::vector<PdmObject*>* objects);
+    virtual void        removeChildObject(PdmObject* object);
+
 private:
     void                removeThisAsParentField();
     void                addThisAsParentField();

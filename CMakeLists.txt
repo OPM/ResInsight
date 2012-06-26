@@ -24,7 +24,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 #        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g1")
 ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp -DUSE_ECL_LIB")
 ENDIF() 
 
 
@@ -33,8 +33,8 @@ ENDIF()
 ################################################################################
 
 set(CMAKE_MAJOR_VERSION 0)
-set(CMAKE_MINOR_VERSION 4)
-set(CMAKE_PATCH_VERSION 8)
+set(CMAKE_MINOR_VERSION 8)
+set(CMAKE_PATCH_VERSION 0)
 
 set(PRODUCTVER ${CMAKE_MAJOR_VERSION},${CMAKE_MINOR_VERSION},0,${CMAKE_PATCH_VERSION})
 set(STRPRODUCTVER ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION})
@@ -74,17 +74,11 @@ include_directories(
 ################################################################################
 
 add_subdirectory(cafProjectDataModel)
-add_subdirectory(cafPdmCvf)
 add_subdirectory(CommonCode)
-add_subdirectory(QtPropertyBrowser)
 add_subdirectory(cafAnimControl)
 add_subdirectory(cafViewer)
-
-include_directories(
-    ${QtPropertyBrowser_SOURCE_DIR}
-)
-
 add_subdirectory(cafUserInterface)
+add_subdirectory(cafPdmCvf)
 
 include_directories(
     ${cafUserInterface_SOURCE_DIR}
@@ -109,6 +103,7 @@ set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
 ################################################################################
 add_subdirectory(ApplicationCode)
 add_subdirectory(OctavePlugin)
+#
 
 ################################################################################
 # Unit tests
@@ -117,8 +112,8 @@ add_subdirectory(ApplicationCode/ReservoirDataModel/ReservoirDataModel_UnitTests
 add_subdirectory(ApplicationCode/FileInterface/FileInterface_UnitTests)
 add_subdirectory(ApplicationCode/ModelVisualization/ModelVisualization_UnitTests)
 
-#add_subdirectory(cafTests/cafProjectDataModel_UnitTests)
-#add_subdirectory(cafTests/cafTestApplication)
+
+
 
 
 

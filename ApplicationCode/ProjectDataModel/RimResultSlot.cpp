@@ -37,7 +37,7 @@ RimResultSlot::RimResultSlot()
 
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
-    m_legendConfigData.setHidden(true);
+    m_legendConfigData.setUiHidden(true);
 
     legendConfig = new RimLegendConfig();
 }

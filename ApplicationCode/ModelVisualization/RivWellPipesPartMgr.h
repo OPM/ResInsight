@@ -20,12 +20,14 @@
 
 #include "cafPdmPointer.h"
 #include <list>
+#include "RigWellResults.h"
 
 namespace cvf
 {
     class Part;
     class ModelBasicList;
     class Transform;
+    class Effect;
 }
 
 class RivPipeGeometryGenerator;
@@ -54,33 +56,17 @@ private:
     bool                        m_needsTransformUpdate;
 
     void buildWellPipeParts();
-    class CellId
-    {
-    public:
-        CellId() : 
-          gridIndex(cvf::UNDEFINED_SIZE_T), 
-              cellIndex(cvf::UNDEFINED_SIZE_T) 
-          { }
-
-          CellId(size_t gidx, size_t cIdx) : 
-          gridIndex(gidx), 
-              cellIndex(cIdx) 
-          { }
-
-          size_t gridIndex;
-          size_t cellIndex;
-    };
+ 
 
     //void calculateWellPipeCenterline(std::vector<cvf::Vec3d>& coords) const;
 
-    void calculateWellPipeCenterline(std::vector< size_t >& pipeBranchIds,
-                                     std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
-                                     std::vector< std::vector <CellId> >& pipeBranchesCellIds ) const;
+    void calculateWellPipeCenterline(std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords,
+                                     std::vector< std::vector <RigWellResultCell> >& pipeBranchesCellIds ) const;
 
     struct RivPipeBranchData
     {
-        size_t                              m_branchId;
-        std::vector <CellId>                m_cellIds;
+        std::vector <RigWellResultCell>     m_cellIds;
+        //std::vector< std::vector<WellCellStatus> > m_cellStatusPrFrame;
         cvf::ref<RivPipeGeometryGenerator>  m_pipeGeomGenerator;
 
         cvf::ref<cvf::Part>                 m_surfacePart;
@@ -91,5 +77,8 @@ private:
     };
 
     std::list<RivPipeBranchData> m_wellBranches;
-    cvf::Collection< cvf::Part > m_wellPipeParts;
+
+    cvf::ref<cvf::ScalarMapper> m_scalarMapper;
+    cvf::ref<cvf::Effect>       m_scalarMapperSurfaceEffect; 
+    cvf::ref<cvf::Effect>       m_scalarMapperMeshEffect; 
 };

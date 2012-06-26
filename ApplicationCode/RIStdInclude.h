@@ -32,6 +32,5 @@
 
 #include <QtCore/QtCore>
 #include <QtGui/QtGui>
-#include <QtOpenGL/QtOpenGL>
 
 #endif // USE_PRECOMPILED_HEADERS

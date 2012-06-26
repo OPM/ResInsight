@@ -19,24 +19,11 @@
 #pragma once
 
 #include "RimDefines.h"
+#include <QDateTime>
+#include <vector>
 
-
-class ResultMapper
-{
-public:
-    ResultMapper(RimDefines::ResultCatType resultType, QString resultName, size_t gridScalarResultIndex)
-        : m_resultType(resultType),
-        m_resultName(resultName),
-        m_gridScalarResultIndex(gridScalarResultIndex)
-    {
-    }
-
-public:
-    RimDefines::ResultCatType  m_resultType;
-    QString                     m_resultName;
-    size_t                      m_gridScalarResultIndex;
-};
-
+class RifReaderInterface;
+class RigMainGrid;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -44,36 +31,61 @@ public:
 class RigReservoirCellResults : public cvf::Object
 {
 public:
-    RigReservoirCellResults();
+    RigReservoirCellResults(RigMainGrid* ownerGrid);
 
-    void        setReaderInterface(RifReaderInterface* readerInterface);
-    void        minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
-    void        minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
+    void                setReaderInterface(RifReaderInterface* readerInterface);
 
-    size_t      resultCount() const;
-	size_t      timeStepCount(size_t scalarResultIndex) const; ///< This one must be modified to ask for a specific resultIndex
+    // Max and min values of the results
+    void                recalculateMinMax(size_t scalarResultIndex);
+    void                minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
+    void                minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
 
-    void        loadOrComputeSOIL();
-    size_t      loadResultIntoGrid(RimDefines::ResultCatType type, const QString& resultName);
-    size_t      addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName);
-    QStringList resultNames(RimDefines::ResultCatType type);
-    size_t      findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
-    size_t      findGridScalarIndex(RimDefines::ResultCatType type, const QString& resultName) const;
+    // Access meta-information about the results
+    size_t              resultCount() const;
+    size_t              timeStepCount(size_t scalarResultIndex) const; 
+    size_t              maxTimeStepCount() const; 
+    QStringList         resultNames(RimDefines::ResultCatType type) const;
+    bool                isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
+    QList<QDateTime>    timeStepDates(size_t scalarResultIndex) const;
+    void                setTimeStepDates(size_t scalarResultIndex, const QList<QDateTime>& dates);
 
-    void        recalculateMinMax(size_t scalarResultIndex);
+    // Find or create a slot for the results
+    size_t              findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+    size_t              findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+    size_t              findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;
+    size_t              findScalarResultIndex(const QString& resultName) const;
+    size_t              addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+    QString             makeResultNameUnique(const QString& resultNameProposal) const;
 
-    std::vector< std::vector<double> > &        cellScalarResults(size_t scalarResultIndex);
-    const std::vector< std::vector<double> >&   cellScalarResults(size_t scalarResultIndex) const;
+    void                removeResult(const QString& resultName);
 
-private:
-    void        initialize(size_t resultCount, size_t timeStepCount);
+    void                loadOrComputeSOIL();
+
+    // Access the results data
+    std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex);
+    const std::vector< std::vector<double> >&               cellScalarResults(size_t scalarResultIndex) const;
 
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results for each timestep for each Result index (ResultVariable)
     std::vector< std::pair<double, double> >                m_maxMinValues; ///< Max min values for each Result index
     std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs; ///< Max min values for each timestep and Result index
 
-    std::list<ResultMapper>         m_resultMap;
-    cvf::ref<RifReaderInterface>    m_readerInterface;
+    class ResultInfo
+    {
+    public:
+        ResultInfo(RimDefines::ResultCatType resultType, QString resultName, size_t gridScalarResultIndex)
+            : m_resultType(resultType), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex) { }
+
+    public:
+        RimDefines::ResultCatType   m_resultType;
+        QString                     m_resultName;
+        size_t                      m_gridScalarResultIndex;
+        QList<QDateTime>            m_timeStepDates;
+    };
+
+    std::vector<ResultInfo>                                 m_resultInfos;
+    cvf::ref<RifReaderInterface>                            m_readerInterface;
+    RigMainGrid*                                            m_ownerMainGrid;
+
 };
 

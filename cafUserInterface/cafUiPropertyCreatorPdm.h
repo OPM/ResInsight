@@ -55,6 +55,9 @@ public:
 
     void createAndShowPropertiesForObject(caf::PdmObject* dataSource);
 
+signals:
+    void selectedObjectChanged(caf::PdmObject* object);
+
 private:
     void createAndShowPropertiesForIndex(const QModelIndex& index);
 

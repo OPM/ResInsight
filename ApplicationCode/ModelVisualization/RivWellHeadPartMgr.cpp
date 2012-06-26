@@ -18,6 +18,8 @@
 
 
 
+#include "RivWellHeadPartMgr.h"
+
 #include "cvfLibCore.h"
 
 #include "cvfModelBasicList.h"
@@ -38,7 +40,6 @@
 #include "RigCell.h"
 
 #include "RivPipeGeometryGenerator.h"
-#include "RivWellHeadPartMgr.h"
 #include "RivWellPipesPartMgr.h"
 
 
@@ -49,6 +50,8 @@ RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell*
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
+
+    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::LARGE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,7 +113,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         cvf::ref<RivPipeGeometryGenerator> pipeGeomGenerator = new RivPipeGeometryGenerator;
         pipeGeomGenerator->setPipeCenterCoords(wellHeadPipeCoords.p());
         pipeGeomGenerator->setPipeColor(well->wellPipeColor());
-        pipeGeomGenerator->setCrossSectionVertexCount(12);
+        pipeGeomGenerator->setCrossSectionVertexCount(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
 
         double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() * m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
         pipeGeomGenerator->setRadius(pipeRadius);
@@ -121,6 +124,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         if (pipeSurface.notNull())
         {
             cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("RivWellHeadPartMgr: surface " + cvfqt::Utils::fromQString(well->name()));
             part->setDrawable(pipeSurface.p());
 
             caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), true);
@@ -134,6 +138,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         if (centerLineDrawable.notNull())
         {
             cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("RivWellHeadPartMgr: centerline " + cvfqt::Utils::fromQString(well->name()));
             part->setDrawable(centerLineDrawable.p());
 
             caf::MeshEffectGenerator meshGen(well->wellPipeColor());
@@ -172,6 +177,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     gen.setShaftRelativeRadius(0.5f);
     gen.setHeadRelativeRadius(1.0f);
     gen.setHeadRelativeLength(0.4f);
+    gen.setNumSlices(m_rimReservoirView->wellCollection()->pipeCrossSectionVertexCount());
     gen.generate(&builder);
 
     cvf::ref<cvf::Vec3fArray> vertices = builder.vertices();
@@ -193,6 +199,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("RivWellHeadPartMgr: arrow " + cvfqt::Utils::fromQString(well->name()));
         part->setDrawable(geo1.p());
 
         cvf::Color4f headColor(cvf::Color3::GRAY);
@@ -226,7 +233,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel())
     {
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(new cvf::FixedAtlasFont(cvf::FixedAtlasFont::LARGE));
+        drawableText->setFont(m_font.p());
         drawableText->setCheckPosVisible(false);
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
@@ -239,6 +246,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         drawableText->addText(cvfString, textCoord);
 
         cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("RivWellHeadPartMgr: text " + cvfString);
         part->setDrawable(drawableText.p());
 
         cvf::ref<cvf::Effect> eff = new cvf::Effect;

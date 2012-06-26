@@ -18,14 +18,22 @@
 
 #pragma once
 
+#include "cvfBase.h"
+#include "cvfAssert.h"
+#include "cvfObject.h"
+#include "cafPdmPointer.h"
+#include "cvfCollection.h"
+
 namespace cvf
 {
     class Part;
     class ModelBasicList;
     class Transform;
+    class Font;
 }
 
 class RimWell;
+class RimReservoirView;
 
 class RivWellHeadPartMgr : public cvf::Object
 {
@@ -48,4 +56,6 @@ private:
     
     cvf::ref<cvf::Transform>            m_scaleTransform; 
     cvf::Collection< cvf::Part >        m_wellHeadParts;
+
+    cvf::ref<cvf::Font>                 m_font;
 };

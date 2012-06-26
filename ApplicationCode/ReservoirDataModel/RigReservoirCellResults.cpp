@@ -20,14 +20,18 @@
 
 #include "RigReservoirCellResults.h"
 #include "RifReaderInterface.h"
+#include "RigMainGrid.h"
+
+#include <QDateTime>
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigReservoirCellResults::RigReservoirCellResults()
+RigReservoirCellResults::RigReservoirCellResults(RigMainGrid* ownerGrid)
 {
-
+    CVF_ASSERT(ownerGrid != NULL);
+    m_ownerMainGrid = ownerGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,21 +122,6 @@ void RigReservoirCellResults::minMaxCellScalarValues(size_t scalarResultIndex, s
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Allocates resultCount of result containers and allocates
-/// timeStepCount entries for last result container
-//--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::initialize( size_t resultCount, size_t timeStepCount )
-{
-	m_cellScalarResults.resize(resultCount);
-
-    if (m_cellScalarResults.size() > 0)
-    {
-        m_cellScalarResults[resultCount - 1].resize(timeStepCount);
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 size_t RigReservoirCellResults::resultCount() const
@@ -173,74 +162,55 @@ const std::vector< std::vector<double> >& RigReservoirCellResults::cellScalarRes
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::loadResultIntoGrid(RimDefines::ResultCatType type, const QString& resultName)
+size_t RigReservoirCellResults::findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName)
 {
     size_t resultGridIndex = cvf::UNDEFINED_SIZE_T;
 
-    resultGridIndex = findGridScalarIndex(type, resultName);
-    if (resultGridIndex != cvf::UNDEFINED_SIZE_T) return resultGridIndex;
+    resultGridIndex = findScalarResultIndex(type, resultName);
+
+    if (resultGridIndex == cvf::UNDEFINED_SIZE_T)  return cvf::UNDEFINED_SIZE_T;
+
+    if (cellScalarResults(resultGridIndex).size()) return resultGridIndex;
+
+    // Generated and Input properties should always be loaded up front.
+    CVF_ASSERT(type == RimDefines::STATIC_NATIVE || type == RimDefines::DYNAMIC_NATIVE);
 
     if (m_readerInterface.notNull())
     {
         // Add one more result to result container
-        resultGridIndex = resultCount();
-        size_t timeStepCount = m_readerInterface->numTimeSteps();
+        size_t timeStepCount = m_resultInfos[resultGridIndex].m_timeStepDates.size();
 
         bool resultLoadingSucess = true;
 
         if (type == RimDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
-            initialize(resultGridIndex + 1, timeStepCount);
-            if (m_readerInterface->dynamicResults().indexOf(resultName) >= 0)
+            m_cellScalarResults[resultGridIndex].resize(timeStepCount);
+
+            size_t i;
+            for (i = 0; i < timeStepCount; i++)
             {
-                size_t i;
-                for (i = 0; i < timeStepCount; i++)
-                {
-                    std::vector<double>& values = m_cellScalarResults[resultGridIndex][i];
-                    if (!m_readerInterface->dynamicResult(resultName, i, &values))
-                    {
-                        resultLoadingSucess = false;
-                    }
-                }
-            }
-            else
-            {
-                resultLoadingSucess = false;
-            }
-        }
-        else if (type == RimDefines::STATIC_NATIVE)
-        {
-            initialize(resultGridIndex + 1, 1);
-            
-            if (m_readerInterface->staticResults().indexOf(resultName) >= 0)
-            {
-                std::vector<double>& values = m_cellScalarResults[resultGridIndex][0];
-                if (!m_readerInterface->staticResult(resultName, &values))
+                std::vector<double>& values = m_cellScalarResults[resultGridIndex][i];
+                if (!m_readerInterface->dynamicResult(resultName, i, &values))
                 {
                     resultLoadingSucess = false;
                 }
             }
-            else
+        }
+        else if (type == RimDefines::STATIC_NATIVE)
+        {
+            m_cellScalarResults[resultGridIndex].resize(1);
+
+            std::vector<double>& values = m_cellScalarResults[resultGridIndex][0];
+            if (!m_readerInterface->staticResult(resultName, &values))
             {
                 resultLoadingSucess = false;
             }
         }
-        else
-        {
-            resultLoadingSucess = false;
-        }
 
-        if (resultLoadingSucess)
-        {
-            ResultMapper mapper(type, resultName, resultGridIndex);
-            m_resultMap.push_back(mapper);
-        }
-        else
+        if (!resultLoadingSucess)
         {
             // Remove last scalar result because loading of result failed
-            m_cellScalarResults.resize(resultGridIndex);
-
-            resultGridIndex = cvf::UNDEFINED_SIZE_T;
+            m_cellScalarResults[resultGridIndex].clear();
         }
     }
 
@@ -258,10 +228,10 @@ void RigReservoirCellResults::setReaderInterface(RifReaderInterface* readerInter
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::findGridScalarIndex(RimDefines::ResultCatType type, const QString& resultName) const
+size_t RigReservoirCellResults::findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const
 {
-    std::list<ResultMapper>::const_iterator it;
-    for (it = m_resultMap.begin(); it != m_resultMap.end(); it++)
+    std::vector<ResultInfo>::const_iterator it;
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
     {
         if (it->m_resultType == type && it->m_resultName == resultName)
         {
@@ -275,20 +245,47 @@ size_t RigReservoirCellResults::findGridScalarIndex(RimDefines::ResultCatType ty
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RigReservoirCellResults::findScalarResultIndex(const QString& resultName) const
+{
+    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+
+    scalarResultIndex = this->findScalarResultIndex(RimDefines::STATIC_NATIVE, resultName);
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, resultName);
+    }
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::GENERATED, resultName);
+    }
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::INPUT_PROPERTY, resultName);
+    }
+
+    return scalarResultIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigReservoirCellResults::loadOrComputeSOIL()
 {
-    size_t resultGridIndex = loadResultIntoGrid(RimDefines::DYNAMIC_NATIVE, "SOIL");
+    size_t resultGridIndex = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
 
     if (resultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        size_t scalarIndexSWAT = loadResultIntoGrid(RimDefines::DYNAMIC_NATIVE, "SWAT");
-        size_t scalarIndexSGAS = loadResultIntoGrid(RimDefines::DYNAMIC_NATIVE, "SGAS");
+        size_t scalarIndexSWAT = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+        size_t scalarIndexSGAS = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
 
         if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T && scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
         {
-            resultGridIndex = resultCount();
-            size_t timeStepCount = m_readerInterface->numTimeSteps();
-            initialize(resultGridIndex + 1, timeStepCount);
+            size_t timeStepCount = m_resultInfos[scalarIndexSWAT].m_timeStepDates.size();
+            resultGridIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+            m_cellScalarResults[resultGridIndex].resize(timeStepCount);
 
             const std::vector< std::vector<double> >& sgas = cellScalarResults(scalarIndexSGAS);
             const std::vector< std::vector<double> >& swat = cellScalarResults(scalarIndexSWAT);
@@ -307,10 +304,6 @@ void RigReservoirCellResults::loadOrComputeSOIL()
                     soil[timeStepIdx][idx] = 1.0 - sgas[timeStepIdx][idx] - swat[timeStepIdx][idx];
                 }
             }
-
-            QString resName = "SOIL";
-            ResultMapper mapper(RimDefines::DYNAMIC_NATIVE, resName, resultGridIndex);
-            m_resultMap.push_back(mapper);
         }
     }
 }
@@ -322,15 +315,21 @@ size_t RigReservoirCellResults::findOrLoadScalarResult(const QString& resultName
 {
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
-    scalarResultIndex = this->loadResultIntoGrid(RimDefines::STATIC_NATIVE, resultName);
+    scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
+    
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->loadResultIntoGrid(RimDefines::DYNAMIC_NATIVE, resultName);
+        scalarResultIndex = this->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, resultName);
     }
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->findGridScalarIndex(RimDefines::GENERATED, resultName);
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::GENERATED, resultName);
+    }
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        scalarResultIndex = this->findScalarResultIndex(RimDefines::INPUT_PROPERTY, resultName);
     }
 
     return scalarResultIndex;
@@ -344,13 +343,13 @@ size_t RigReservoirCellResults::addEmptyScalarResult(RimDefines::ResultCatType t
 {
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
-    scalarResultIndex = this->findGridScalarIndex(type, resultName);
+    scalarResultIndex = this->findScalarResultIndex(type, resultName);
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
         scalarResultIndex = this->resultCount();
         m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-        ResultMapper mapper(type, resultName, scalarResultIndex);
-        m_resultMap.push_back(mapper);
+        ResultInfo resInfo(type, resultName, scalarResultIndex);
+        m_resultInfos.push_back(resInfo);
     }
 
     return scalarResultIndex;
@@ -359,11 +358,11 @@ size_t RigReservoirCellResults::addEmptyScalarResult(RimDefines::ResultCatType t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RigReservoirCellResults::resultNames(RimDefines::ResultCatType resType)
+QStringList RigReservoirCellResults::resultNames(RimDefines::ResultCatType resType) const
 {
     QStringList varList;
-    std::list<ResultMapper>::const_iterator it;
-    for (it = m_resultMap.begin(); it != m_resultMap.end(); it++)
+    std::vector<ResultInfo>::const_iterator it;
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
     {
         if (it->m_resultType == resType )
         {
@@ -390,4 +389,89 @@ void RigReservoirCellResults::recalculateMinMax(size_t scalarResultIndex)
     {
         m_maxMinValuesPrTs[scalarResultIndex].clear();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Returns whether the result data in question is addressed by Active Cell Index
+//--------------------------------------------------------------------------------------------------
+bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex) const
+{
+    CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
+
+    if (!m_cellScalarResults[scalarResultIndex].size()) return true;
+    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->numActiveCells()) return true;
+    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->cellCount()) return false;
+
+    CVF_TIGHT_ASSERT(false); // Wrong number of results
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<QDateTime> RigReservoirCellResults::timeStepDates(size_t scalarResultIndex) const
+{
+    if (scalarResultIndex < m_resultInfos.size() )
+        return  m_resultInfos[scalarResultIndex].m_timeStepDates;
+    else
+        return QList<QDateTime>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const QList<QDateTime>& dates)
+{
+    CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
+
+    m_resultInfos[scalarResultIndex].m_timeStepDates = dates;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigReservoirCellResults::maxTimeStepCount() const
+{
+    size_t maxTsCount = 0;
+    for (size_t i = 0; i < m_cellScalarResults.size(); ++i)
+    {
+       maxTsCount =  m_cellScalarResults[i].size() > maxTsCount ? m_cellScalarResults[i].size() : maxTsCount;
+    }
+    return maxTsCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RigReservoirCellResults::makeResultNameUnique(const QString& resultNameProposal) const
+{
+    QString newResultName = resultNameProposal;
+    size_t resultIndex = cvf::UNDEFINED_SIZE_T;
+    int nameNum = 1;
+    int stringLength = newResultName.size();
+    while (true) 
+    {
+        resultIndex = this->findScalarResultIndex(newResultName);
+        if (resultIndex == cvf::UNDEFINED_SIZE_T) break;
+
+        newResultName.truncate(stringLength);
+        newResultName += "_" + QString::number(nameNum);
+        ++nameNum;
+    }
+
+    return newResultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirCellResults::removeResult(const QString& resultName)
+{
+    size_t resultIdx = findScalarResultIndex(resultName);
+    if (resultIdx == cvf::UNDEFINED_SIZE_T) return;
+
+    m_cellScalarResults[resultIdx].clear();
+
+    m_resultInfos[resultIdx].m_resultType = RimDefines::REMOVED;
 }

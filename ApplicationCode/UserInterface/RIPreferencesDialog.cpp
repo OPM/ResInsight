@@ -23,19 +23,20 @@
 #include "cafPdmObject.h"
 
 #include "RimUiTreeModelPdm.h"
-#include "qtgroupboxpropertybrowser.h"
+#include "cafPdmUiPropertyView.h"
 
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIPreferencesDialog::RIPreferencesDialog(QWidget* parent, caf::PdmObject* object)
+RIPreferencesDialog::RIPreferencesDialog(QWidget* parent, caf::PdmObject* object, const QString& windowTitle)
     : QDialog(parent)
 {
     CVF_ASSERT(object);
     
     m_pdmObject = object;
+    m_windowTitle = windowTitle;
 
     setupUi();
 }
@@ -45,18 +46,15 @@ RIPreferencesDialog::RIPreferencesDialog(QWidget* parent, caf::PdmObject* object
 //--------------------------------------------------------------------------------------------------
 void RIPreferencesDialog::setupUi()
 {
-    setWindowTitle("Preferences");
+    setWindowTitle(m_windowTitle);
 
-    m_uiManagerPdm = new RimUiPropertyCreatorPdm(this);
+    m_pdmUiPropertyView = new caf::PdmUiPropertyView(this);
 
     QVBoxLayout* dialogLayout = new QVBoxLayout;
     setLayout(dialogLayout);
 
-    QtGroupBoxPropertyBrowser* groupPropertyBrowser = new QtGroupBoxPropertyBrowser();
-    m_uiManagerPdm->setPropertyBrowser(groupPropertyBrowser);
-    m_uiManagerPdm->createAndShowPropertiesForObject(m_pdmObject);
-    dialogLayout->addWidget(groupPropertyBrowser);
-
+    dialogLayout->addWidget(m_pdmUiPropertyView);
+    m_pdmUiPropertyView->showProperties(m_pdmObject);
 
     // Buttons
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

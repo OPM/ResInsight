@@ -39,9 +39,6 @@ public:
     RimCellPropertyFilter* createAndAppendPropertyFilter();
     void remove(RimCellPropertyFilter* propertyFilter);
 
-    bool isCellRejected(const RigGridBase* grid, size_t timeStepIndex, size_t cellIndex) const;
-    cvf::CellRangeFilter::CellStateType cellFilterState(const RigGridBase* grid, cvf::CellRangeFilter::CellStateType rangeCellState, size_t timeStepIndex, size_t cellIndex) const;
-
     bool hasActiveFilters() const; 
     bool hasActiveDynamicFilters() const; 
 

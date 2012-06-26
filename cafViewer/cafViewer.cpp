@@ -39,6 +39,7 @@
 
 #include "cvfDebugTimer.h"
 #include "cvfqtPerformanceInfoHud.h"
+#include "cvfqtUtils.h"
 
 #include "cafNavigationPolicy.h"
 #include "cafCadNavigation.h"
@@ -46,6 +47,7 @@
 
 #include <QInputEvent>
 #include <QHBoxLayout>
+#include <QDebug>
 
 std::list<caf::Viewer*> caf::Viewer::sm_viewers;
 cvf::ref<cvf::OpenGLContextGroup> caf::Viewer::sm_openGLContextGroup;
@@ -59,7 +61,8 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_minNearPlaneDistance(0.05),
     m_maxFarPlaneDistance(cvf::UNDEFINED_DOUBLE),
     m_releaseOGLResourcesEachFrame(false),
-    m_paintCounter(0)
+    m_paintCounter(0),
+    m_navigationPolicyEnabled(true)
 {
     m_layoutWidget = parentWidget();
 
@@ -269,7 +272,7 @@ void caf::Viewer::optimizeClippingPlanes()
 //--------------------------------------------------------------------------------------------------
 bool caf::Viewer::event(QEvent* e)
 {
-    if (e && m_navigationPolicy.notNull())
+    if (e && m_navigationPolicy.notNull() && m_navigationPolicyEnabled)
     {
         switch (e->type())
         {
@@ -608,5 +611,41 @@ cvf::Scene* caf::Viewer::frame(size_t frameIndex)
         return m_frameScenes[frameIndex].p();
     else
         return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Helper function used to write out the name of all parts in a rendering sequence
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::debugShowRenderingSequencePartNames()
+{
+    qDebug() << "\n\n";
+    size_t globalPartCount = 0;
+
+    cvf::uint rIdx = m_renderingSequence->renderingCount();
+    for (rIdx = 0; rIdx < m_renderingSequence->renderingCount(); rIdx++)
+    {
+        cvf::Rendering* rendering = m_renderingSequence->rendering(rIdx);
+        if (rendering && rendering->scene())
+        {
+            cvf::uint mIdx;
+            for (mIdx = 0; mIdx < rendering->scene()->modelCount(); mIdx++)
+            {
+                cvf::Model* model = rendering->scene()->model(mIdx);
+                if (model)
+                {
+                    cvf::Collection<cvf::Part> parts;
+                    model->allParts(&parts);
+
+                    size_t pIdx;
+                    for (pIdx = 0; pIdx < parts.size(); pIdx++)
+                    {
+                        cvf::Part* part = parts.at(pIdx);
+
+                        qDebug() << QString("%1").arg(globalPartCount++) << cvfqt::Utils::toQString(part->name());
+                    }
+                }
+            }
+        }
+    }
 }
 

@@ -35,17 +35,17 @@
 #include "RIProcessMonitor.h"
 #include "RIPreferences.h"
 
-#include "RimReservoir.h"
+#include "RimResultReservoir.h"
+#include "RimInputReservoir.h"
+#include "RimReservoirView.h"
 
 #include "RigReservoir.h"
 #include "RigCell.h"
 #include "RigReservoirBuilderMock.h"
 
-#include "RimReservoirView.h"
-
 #include <QSettings>
 #include "cafPdmDocument.h"
-#include "RifReaderInterfaceMock.h"
+#include "RifReaderMockModel.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
@@ -149,7 +149,7 @@ void RIApplication::setWindowCaptionFromAppState()
 #endif
 
     {
-         QString projFileName = m_currentProjectFileName;
+        QString projFileName = m_project->fileName();
          if (projFileName.isEmpty()) projFileName = "Untitled project";
 
         capt = projFileName + QString("[*]") + QString(" - ") + capt;
@@ -222,7 +222,6 @@ bool RIApplication::loadProject(const QString& projectFileName)
     }
     else
     {
-        m_currentProjectFileName = projectFileName;
         m_preferences->lastUsedProjectFileName = projectFileName;
         writePreferences();
 
@@ -263,13 +262,15 @@ bool RIApplication::loadLastUsedProject()
 //--------------------------------------------------------------------------------------------------
 bool RIApplication::saveProject()
 {
-    if (!QFile::exists(m_currentProjectFileName))
+    CVF_ASSERT(m_project.notNull());
+
+    if (!QFile::exists(m_project->fileName()))
     {
         return saveProjectPromptForFileName();
     }
     else
     {
-        return saveProjectAs(m_currentProjectFileName);
+        return saveProjectAs(m_project->fileName());
     }
 }
 
@@ -282,9 +283,9 @@ bool RIApplication::saveProjectPromptForFileName()
     //if (m_project.isNull()) return true;
 
     QString startPath;
-    if (!m_currentProjectFileName.isEmpty())
+    if (!m_project->fileName().isEmpty())
     {
-        QFileInfo fi(m_currentProjectFileName);
+        QFileInfo fi(m_project->fileName());
         startPath = fi.absolutePath();
     }
     else
@@ -316,7 +317,6 @@ bool RIApplication::saveProjectAs(const QString& fileName)
     m_project->fileName = fileName;
     m_project->writeFile();
 
-    m_currentProjectFileName = fileName;
     m_preferences->lastUsedProjectFileName = fileName;
     writePreferences();
 
@@ -380,9 +380,9 @@ void RIApplication::onProjectOpenedOrClosed()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RIApplication::lastProjectFileName() const
+QString RIApplication::currentProjectFileName() const
 {
-    return "";
+    return m_project->fileName();
 }
 
 
@@ -395,24 +395,27 @@ bool RIApplication::openEclipseCaseFromFile(const QString& fileName)
 
     QFileInfo gridFileName(fileName);
     QString caseName = gridFileName.completeBaseName();
-    QString casePath = gridFileName.absolutePath();
 
-    return openEclipseCase(caseName, casePath);
+    return openEclipseCase(caseName, fileName);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::openEclipseCase(const QString& caseName, const QString& casePath)
+bool RIApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
 {
-    RimReservoir* rimReservoir = new RimReservoir();
-    rimReservoir->caseName = caseName;
-    rimReservoir->caseDirectory = casePath;
+    QFileInfo gridFileName(caseFileName);
+    QString casePath = gridFileName.absolutePath();
 
-    m_project->reservoirs.push_back(rimReservoir);
+    RimResultReservoir* rimResultReservoir = new RimResultReservoir();
+    rimResultReservoir->caseName = caseName;
+    rimResultReservoir->caseFileName = caseFileName;
+    rimResultReservoir->caseDirectory = casePath;
 
-    RimReservoirView* riv = rimReservoir->createAndAddReservoirView();
+    m_project->reservoirs.push_back(rimResultReservoir);
+
+    RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
     // Select SOIL as default result variable
     riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
@@ -423,7 +426,36 @@ bool RIApplication::openEclipseCase(const QString& caseName, const QString& case
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->resultVariable = "";
+        riv->cellResult()->resultVariable = RimDefines::nonSelectedResultName();
+    }
+
+    onProjectOpenedOrClosed();
+
+    return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RIApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
+{
+    RimInputReservoir* rimInputReservoir = new RimInputReservoir();
+    rimInputReservoir->caseName = caseName;
+    rimInputReservoir->openDataFileSet(caseFileNames);
+
+    m_project->reservoirs.push_back(rimInputReservoir);
+
+    RimReservoirView* riv = rimInputReservoir->createAndAddReservoirView();
+
+    riv->cellResult()->resultType = RimDefines::INPUT_PROPERTY;
+    riv->animationMode = true;
+
+    riv->loadDataAndUpdate();
+
+    if (!riv->cellResult()->hasResult())
+    {
+        riv->cellResult()->resultVariable = RimDefines::nonSelectedResultName();
     }
 
     onProjectOpenedOrClosed();
@@ -438,7 +470,7 @@ bool RIApplication::openEclipseCase(const QString& caseName, const QString& case
 //--------------------------------------------------------------------------------------------------
 void RIApplication::createMockModel()
 {
-    openEclipseCase("Mock Debug Model Simple", "");
+    openEclipseCase("Result Mock Debug Model Simple", "Result Mock Debug Model Simple");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -446,7 +478,7 @@ void RIApplication::createMockModel()
 //--------------------------------------------------------------------------------------------------
 void RIApplication::createResultsMockModel()
 {
-    openEclipseCase("Mock Debug Model With Results", "");
+    openEclipseCase("Result Mock Debug Model With Results", "Result Mock Debug Model With Results");
 }
 
 
@@ -455,9 +487,16 @@ void RIApplication::createResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RIApplication::createLargeResultsMockModel()
 {
-    openEclipseCase("Mock Debug Model Large With Results", "");
+    openEclipseCase("Result Mock Debug Model Large With Results", "Result Mock Debug Model Large With Results");
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::createInputMockModel()
+{
+    openInputEclipseCase("Input Mock Debug Model Simple", QStringList("Input Mock Debug Model Simple"));
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

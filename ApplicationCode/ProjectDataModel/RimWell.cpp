@@ -49,7 +49,8 @@ RimWell::RimWell()
 
 
 
-    name.setHidden(true);
+    name.setUiHidden(true);
+    name.setUiReadOnly(true);
 
     m_reservoirView = NULL;
 }

@@ -102,64 +102,6 @@ RimCellPropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyF
     return propertyFilter;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimCellPropertyFilterCollection::isCellRejected(const RigGridBase* grid, size_t timeStepIndex, size_t cellIndex) const
-{
-    std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
-    if (propertyFilters.v().empty()) return false;
-
-    bool rejectCell = true;
-    for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
-    {
-        if (!(*it)->isCellRejected(grid, timeStepIndex, cellIndex))
-        {
-            rejectCell = false;
-        }
-    }
-
-    return rejectCell;
-}
-
-cvf::CellRangeFilter::CellStateType RimCellPropertyFilterCollection::cellFilterState(const RigGridBase* grid, cvf::CellRangeFilter::CellStateType rangeCellState, size_t timeStepIndex, size_t cellIndex) const
-{
-    bool included = false;
-
-    std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
-    for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
-    {
-        RimCellPropertyFilter* propertyFilter = *it;
-        CVF_ASSERT(propertyFilter);
-
-        if (propertyFilter->active() && propertyFilter->resultDefinition->hasResult())
-        {
-            // No property filter evaluation outside evaluation region
-            if (propertyFilter->evaluationRegion == RimCellPropertyFilter::RANGE_FILTER_REGION && rangeCellState != cvf::CellRangeFilter::INCLUDED)
-            {
-                continue;
-            }
-
-            bool rejected = propertyFilter->isCellRejected(grid, timeStepIndex, cellIndex);
-
-            if (propertyFilter->filterMode == RimCellFilter::EXCLUDE)
-            {
-                if (rejected)
-                {
-                    // Reject from exclude filters will always win
-                    return cvf::CellRangeFilter::EXCLUDED;
-                }
-            }
-            
-            if (!rejected)
-            {
-                included = true;
-            }
-        }
-    }
-
-    return included ? cvf::CellRangeFilter::INCLUDED : cvf::CellRangeFilter::EXCLUDED;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

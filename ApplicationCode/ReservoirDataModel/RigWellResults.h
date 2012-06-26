@@ -26,14 +26,17 @@ struct RigWellResultCell
     RigWellResultCell() : 
         m_gridIndex(cvf::UNDEFINED_SIZE_T), 
         m_gridCellIndex(cvf::UNDEFINED_SIZE_T), 
-        m_isOpen(false), 
-        m_isTemporarilyOut(false) 
+        m_branchId(-1),
+        m_segmentId(-1),
+        m_isOpen(false) 
     { }
 
     size_t m_gridIndex;
     size_t m_gridCellIndex;     //< Index to cell which is included in the well
+    int    m_branchId;
+    int    m_segmentId;
+
     bool   m_isOpen;            //< Marks the well as open or closed as of Eclipse simulation
-    bool   m_isTemporarilyOut;  //< Marks the cell as not member of the well at the current time step, (but it is a member at some other time step)
 };
 
 struct RigWellResultBranch
@@ -56,6 +59,28 @@ public:
         m_isOpen(false),
         m_productionType(UNDEFINED_PRODUCTION_TYPE)
     { }
+
+    const RigWellResultCell* findResultCell(size_t gridIndex, size_t gridCellIndex) const
+    {
+        if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
+        {
+            return &m_wellHead;
+        }
+
+        for (size_t wb = 0; wb < m_wellResultBranches.size(); ++wb)
+        {
+            for (size_t wc = 0; wc < m_wellResultBranches[wb].m_wellCells.size(); ++wc)
+            {
+                if (   m_wellResultBranches[wb].m_wellCells[wc].m_gridCellIndex == gridCellIndex  
+                    && m_wellResultBranches[wb].m_wellCells[wc].m_gridIndex == gridIndex  )
+                {
+                    return &(m_wellResultBranches[wb].m_wellCells[wc]);
+                }
+            }
+        }
+
+        return NULL;
+    }
 
     WellProductionType  m_productionType;
     bool                m_isOpen;

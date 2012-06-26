@@ -25,7 +25,7 @@
 #include "RigReservoirCellResults.h"
 #include "RigReservoir.h"
 #include "RigMainGrid.h"
-#include "RifReaderInterface.h"
+#include "cafPdmUiListEditor.h"
 
 
 CAF_PDM_SOURCE_INIT(RimResultDefinition, "ResultDefinition");
@@ -38,8 +38,10 @@ RimResultDefinition::RimResultDefinition()
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&resultType, "ResultType","Result type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&resultVariable, "ResultVariable","Variable", "", "", "" );
+    CAF_PDM_InitFieldNoDefault(&resultType,     "ResultType",       "Type", "", "", "");
+    CAF_PDM_InitField(&resultVariable, "ResultVariable", RimDefines::nonSelectedResultName(), "Variable", "", "", "" );
+
+    resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,21 +67,10 @@ void RimResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     if (changedField == &resultType)
     {
-        resultVariable = "";
+        resultVariable = RimDefines::nonSelectedResultName();
     }
 
     loadResult();
-
-    // Notify the parent objects that this object has changed
-    // In this case the RimCellPropertyFilter.
-    // The RimReservoirView can also be a parent, but the call should have no effect there
-
-    std::vector<caf::PdmFieldHandle*> parentFields;
-    this->parentFields(parentFields);
-    for (size_t i = 0; i < parentFields.size(); ++i)
-    {
-        parentFields[i]->ownerObject()->fieldChangedByUi(parentFields[i], QVariant(), QVariant());
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,17 +80,13 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
 {
     if (fieldNeedingOptions == &resultVariable)
     {
-        if (m_reservoirView &&
-            m_reservoirView->eclipseCase() &&
-            m_reservoirView->eclipseCase()->fileInterface())
+        if (m_reservoirView && m_reservoirView->gridCellResults())
         {
-            RifReaderInterface* readerInterface = m_reservoirView->eclipseCase()->fileInterface();
-            CVF_ASSERT(readerInterface);
-
+            /*
             QStringList varList;
             if (resultType() == RimDefines::DYNAMIC_NATIVE)
             {
-                varList = readerInterface->dynamicResults();
+                varList = readerInterface->dynamicResultNames();
 
                 if (!varList.contains("SOIL", Qt::CaseInsensitive))
                 {
@@ -112,20 +99,26 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
             }
             else if (resultType == RimDefines::STATIC_NATIVE)
             {
-                varList = readerInterface->staticResults();
+                varList = readerInterface->staticResultNames();
             }
             else if (resultType == RimDefines::GENERATED)
             {
                varList = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->results()->resultNames(resultType());
             }
-
+            else if (resultType == RimDefines::INPUT_PROPERTY)
+            {
+                varList = readerInterface->inputPropertyNames();
+            }
+            */
+            
+            QStringList varList = m_reservoirView->gridCellResults()->resultNames(resultType());
             QList<caf::PdmOptionItemInfo> optionList;
             int i;
             for (i = 0; i < varList.size(); ++i)
             {
                 optionList.push_back(caf::PdmOptionItemInfo( varList[i], varList[i]));
             }
-            optionList.push_front(caf::PdmOptionItemInfo( "None", "" ));
+            optionList.push_front(caf::PdmOptionItemInfo( RimDefines::nonSelectedResultName(), RimDefines::nonSelectedResultName() ));
 
             if (useOptionsOnly) *useOptionsOnly = true;
 
@@ -144,7 +137,7 @@ size_t RimResultDefinition::gridScalarIndex() const
     if (m_gridScalarResultIndex ==  cvf::UNDEFINED_SIZE_T)
     {
         const RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
-        if (gridCellResults) m_gridScalarResultIndex = gridCellResults->findGridScalarIndex(resultType(), resultVariable());
+        if (gridCellResults) m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(resultType(), resultVariable());
     }
     return m_gridScalarResultIndex;
 }
@@ -157,7 +150,7 @@ void RimResultDefinition::loadResult()
     RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
     if (gridCellResults)
     {
-        m_gridScalarResultIndex = gridCellResults->loadResultIntoGrid(resultType(), resultVariable);
+        m_gridScalarResultIndex = gridCellResults->findOrLoadScalarResult(resultType(), resultVariable);
     }
     else
     {
@@ -167,7 +160,8 @@ void RimResultDefinition::loadResult()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns whether the result requested by the definition is a single frame result 
+/// The result needs to be loaded before asking
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasStaticResult() const
 {
@@ -183,7 +177,7 @@ bool RimResultDefinition::hasStaticResult() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns whether the result requested by the definition is loaded or possible to load from the result file
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasResult() const
 {
@@ -192,7 +186,7 @@ bool RimResultDefinition::hasResult() const
     const RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
     if (gridCellResults)
     {
-        m_gridScalarResultIndex = gridCellResults->findGridScalarIndex(resultType(), resultVariable());
+        m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(resultType(), resultVariable());
         return m_gridScalarResultIndex != cvf::UNDEFINED_SIZE_T;
     }
 
@@ -200,7 +194,8 @@ bool RimResultDefinition::hasResult() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns whether the result requested by the definition is a multi frame result 
+/// The result needs to be loaded before asking
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasDynamicResult() const
 {
@@ -209,4 +204,12 @@ bool RimResultDefinition::hasDynamicResult() const
         return true;
     else
         return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimReservoirView* RimResultDefinition::reservoirView()
+{
+    return m_reservoirView;
 }

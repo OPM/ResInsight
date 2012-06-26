@@ -41,12 +41,9 @@ public:
 
     virtual bool                open(const QString& fileName, RigReservoir* reservoir) = 0;
     virtual void                close() = 0;
-
-    virtual const QStringList&  staticResults() const = 0;
-    virtual const QStringList&  dynamicResults() const = 0;
-    virtual size_t              numTimeSteps() const = 0;
-    virtual const QStringList&  timeStepText() const = 0;
+   
     virtual bool                staticResult(const QString& result, std::vector<double>* values) = 0;
     virtual bool                dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values) = 0;
+
 };
 

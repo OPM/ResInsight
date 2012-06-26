@@ -31,6 +31,10 @@
 #include "RimCalcScript.h"
 #include "RIApplication.h"
 #include "RIMainWindow.h"
+#include "RimInputProperty.h"
+#include "RimInputPropertyCollection.h"
+#include "cafPdmField.h"
+#include "RimInputReservoir.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -103,7 +107,7 @@ bool RimUiTreeModelPdm::insertRows(int position, int rows, const QModelIndex &pa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::removePropertyFilter(const QModelIndex& itemIndex)
+bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
 {
     CVF_ASSERT(itemIndex.isValid());
 
@@ -140,7 +144,7 @@ bool RimUiTreeModelPdm::removePropertyFilter(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::removeRangeFilter(const QModelIndex& itemIndex)
+bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
 {
     CVF_ASSERT(itemIndex.isValid());
 
@@ -178,7 +182,7 @@ bool RimUiTreeModelPdm::removeRangeFilter(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::removeReservoirView(const QModelIndex& itemIndex)
+bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
 {
     CVF_ASSERT(itemIndex.isValid());
 
@@ -354,493 +358,64 @@ void RimUiTreeModelPdm::slotRefreshScriptTree(QString path)
     }
 }
 
-
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimTreeView::RimTreeView(QWidget *parent /*= 0*/)
-    : QTreeView(parent)
+void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames)
 {
-    setHeaderHidden(true);
-}
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::contextMenuEvent(QContextMenuEvent* event)
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
+    RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(currentItem->dataObject().p());
+    CVF_ASSERT(inputPropertyCollection);
+    
+    std::vector<caf::PdmObject*> parentObjects;
+    inputPropertyCollection->parentObjects(parentObjects);
+
+
+    CVF_ASSERT(parentObjects.size() == 1);
+
+    RimInputReservoir* inputReservoir = dynamic_cast<RimInputReservoir*>(parentObjects[0]);
+    CVF_ASSERT(inputReservoir);
+    if (inputReservoir)
     {
-        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-        if (uiItem && uiItem->dataObject())
-        {
-            // Range filters
-            if (dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
-            {
-                QMenu menu;
-                menu.addAction(QString("Show 3D Window"), this, SLOT(slotShowWindow()));
-                menu.addAction(QString("New View"), this, SLOT(slotAddView()));
-                menu.addAction(QString("Delete"), this, SLOT(slotDeleteView()));
-                menu.exec(event->globalPos());
-            }
-            else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem->dataObject().p()))
-            {
-                QMenu menu;
-                menu.addAction(QString("New Range Filter"), this, SLOT(slotAddRangeFilter()));
-                menu.addAction(QString("Slice I Filter"), this, SLOT(slotAddSliceFilterI()));
-                menu.addAction(QString("Slice J Filter"), this, SLOT(slotAddSliceFilterJ()));
-                menu.addAction(QString("Slice K Filter"), this, SLOT(slotAddSliceFilterK()));
-                menu.exec(event->globalPos());
-            }
-            else if (dynamic_cast<RimCellRangeFilter*>(uiItem->dataObject().p()))
-            {
-                QMenu menu;
-                menu.addAction(QString("Insert Range Filter"), this, SLOT(slotAddRangeFilter()));
-                menu.addAction(QString("Slice I Filter"), this, SLOT(slotAddSliceFilterI()));
-                menu.addAction(QString("Slice J Filter"), this, SLOT(slotAddSliceFilterJ()));
-                menu.addAction(QString("Slice K Filter"), this, SLOT(slotAddSliceFilterK()));
-                menu.addSeparator();
-                menu.addAction(QString("Delete"), this, SLOT(slotDeleteRangeFilter()));
-
-                menu.exec(event->globalPos());
-            }
-            else if (dynamic_cast<RimCellPropertyFilterCollection*>(uiItem->dataObject().p()))
-            {
-
-                QMenu menu;
-                menu.addAction(QString("New Property Filter"), this, SLOT(slotAddPropertyFilter()));
-                menu.exec(event->globalPos());
-            }
-            else if (dynamic_cast<RimCellPropertyFilter*>(uiItem->dataObject().p()))
-            {
-
-                QMenu menu;
-                menu.addAction(QString("Insert Property Filter"), this, SLOT(slotAddPropertyFilter()));
-                menu.addSeparator();
-                menu.addAction(QString("Delete"), this, SLOT(slotDeletePropertyFilter()));
-                menu.exec(event->globalPos());
-            }
-            else if (dynamic_cast<RimCalcScript*>(uiItem->dataObject().p()))
-            {
-                RIApplication* app = RIApplication::instance();
-
-                QMenu menu;
-                {
-                    QAction* action = menu.addAction(QString("Edit"), this, SLOT(slotEditScript()));
-                    if (app->scriptEditorPath().isEmpty())
-                    {
-                        action->setEnabled(false);
-                    }
-                }
-                menu.addAction(QString("New"), this, SLOT(slotNewScript()));
-                //menu.addAction(QString("ReadFromFile"), this, SLOT(slotReadScriptContentFromFile()));
-                menu.addSeparator();
-
-                {
-                    QAction* action = menu.addAction(QString("Execute"), this, SLOT(slotExecuteScript()));
-                    if (app->octavePath().isEmpty())
-                    {
-                        action->setEnabled(false);
-                    }
-                }
-
-                menu.exec(event->globalPos());
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotAddChildItem()
-{
-
-    QModelIndex index = currentIndex();
-    QAbstractItemModel* myModel = model();
-
-    // Insert a single row at the end of the collection of items
-    int itemCount = myModel->rowCount(index);
-    if (!myModel->insertRow(itemCount, index))
-        return;
-
-    selectionModel()->setCurrentIndex(myModel->index(0, 0, index), QItemSelectionModel::ClearAndSelect);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotDeleteItem()
-{
-    QModelIndex index = currentIndex();
-    QAbstractItemModel* myModel = model();
-
-    if (!myModel->removeRow(index.row(), index.parent()))
-        return;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotShowWindow()
-{
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    RimReservoirView * riv = NULL;
-    if (riv = dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
-    {
-        riv->showWindow = true;
-        bool generateDisplayModel = (riv->viewer() == NULL);
-        riv->updateViewerWidget();
-        if (generateDisplayModel)
-        {
-            riv->createDisplayModelAndRedraw();
-        }
-
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotDeletePropertyFilter()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        myModel->removePropertyFilter(currentIndex());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotDeleteRangeFilter()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        myModel->removeRangeFilter(currentIndex());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotAddPropertyFilter()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        QModelIndex insertedIndex;
-        RimCellPropertyFilter* propFilter = myModel->addPropertyFilter(currentIndex(), insertedIndex);
-        setCurrentIndex(insertedIndex);
-        if (propFilter)
-        {
-            propFilter->parentContainer()->reservoirView()->createDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotAddRangeFilter()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* newFilter = myModel->addRangeFilter(currentIndex(), insertedIndex);
-        setCurrentIndex(insertedIndex);
-
-        if (newFilter && newFilter->parentContainer())
-        {
-            newFilter->parentContainer()->reservoirView()->createDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotAddSliceFilterI()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(currentIndex(), insertedIndex);
-
-        RimCellRangeFilterCollection* rangeFilterCollection = rangeFilter->parentContainer();
-        rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountI = 1;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        setCurrentIndex(insertedIndex);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotAddSliceFilterJ()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(currentIndex(), insertedIndex);
-
-        RimCellRangeFilterCollection* rangeFilterCollection = rangeFilter->parentContainer();
-        rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountJ = 1;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        setCurrentIndex(insertedIndex);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotAddSliceFilterK()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        QModelIndex insertedIndex;
-        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(currentIndex(), insertedIndex);
-
-        RimCellRangeFilterCollection* rangeFilterCollection = rangeFilter->parentContainer();
-        rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
-        rangeFilter->cellCountK = 1;
-
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
-        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
-
-        setCurrentIndex(insertedIndex);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotReadScriptContentFromFile()
-{
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    if (uiItem)
-    {
-        RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
-        if (calcScript)
-        {
-            calcScript->readContentFromFile();
-        }
+        inputReservoir->openDataFileSet(fileNames);
     }
 
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotEditScript()
-{
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    if (uiItem)
-    {
-        RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
-
-        RIApplication* app = RIApplication::instance();
-        QString scriptEditor = app->scriptEditorPath();
-        if (!scriptEditor.isEmpty())
-        {
-            QStringList arguments;
-            arguments << calcScript->absolutePath;
-
-            QProcess* myProcess = new QProcess(this);
-            myProcess->start(scriptEditor, arguments);
-            
-            if (!myProcess->waitForStarted(1000))
-            {
-                QMessageBox::warning(RIMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
-            }
-        }
-    }
+    this->rebuildUiSubTree(inputPropertyCollection);
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTreeView::slotNewScript()
+void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
 {
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    RimCalcScript* calcScript = NULL;
-    RimScriptCollection * scriptColl = NULL;
+    if (!itemIndex.isValid()) return;
 
-    calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
-    scriptColl = dynamic_cast<RimScriptCollection*>(uiItem->dataObject().p());
-    QString fullPathNewScript;
+    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
+    if (!uiItem) return;
 
-    if (calcScript )
-    {
-        QFileInfo existingScriptFileInfo(calcScript->absolutePath());
-        fullPathNewScript = existingScriptFileInfo.absolutePath();
-    }
-    else if (scriptColl)
-    {
-        fullPathNewScript = scriptColl->directory();
-    }
-    else
-    {
-        return;
-    }
+    caf::PdmObject* object = uiItem->dataObject().p();
+    RimInputProperty* inputProperty = dynamic_cast<RimInputProperty*>(object);
+    if (!inputProperty) return;
 
-    QString fullPathFilenameNewScript;
+    // Remove item from UI tree model before delete of project data structure
+    removeRow(itemIndex.row(), itemIndex.parent());
 
-    fullPathFilenameNewScript = fullPathNewScript + "/untitled.m";
-    int num= 1;
-    while (QFileInfo(fullPathFilenameNewScript).exists())
-    {
-        fullPathFilenameNewScript = fullPathNewScript + "/untitled" + QString::number(num) + ".m";
-        num++;
-    }
+    std::vector<caf::PdmObject*> parentObjects;
+    object->parentObjects(parentObjects);
+    CVF_ASSERT(parentObjects.size() == 1);
 
-    RIApplication* app = RIApplication::instance();
-    QString scriptEditor = app->scriptEditorPath();
-    if (!scriptEditor.isEmpty())
-    {
-        QStringList arguments;
-        arguments << fullPathFilenameNewScript;
+    RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(parentObjects[0]);
+    if (!inputPropertyCollection) return;
 
-        QProcess* myProcess = new QProcess(this);
-        myProcess->start(scriptEditor, arguments);
+    std::vector<caf::PdmObject*> parentObjects2;
+    inputPropertyCollection->parentObjects(parentObjects2);
+    CVF_ASSERT(parentObjects2.size() == 1);
 
-        if (!myProcess->waitForStarted(1000))
-        {
-            QMessageBox::warning(RIMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
-        }
-    }
+    RimInputReservoir* inputReservoir = dynamic_cast<RimInputReservoir*>(parentObjects2[0]);
+    if (!inputReservoir) return;
+
+    inputReservoir->removeProperty(inputProperty);
+
+    delete inputProperty;
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotExecuteScript()
-{
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    if (uiItem)
-    {
-        RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
-
-        RIApplication* app = RIApplication::instance();
-        QString octavePath = app->octavePath();
-        if (!octavePath.isEmpty())
-        {
-            QStringList arguments;
-
-            arguments << calcScript->absolutePath();
-
-            if (!RIApplication::instance()->launchProcess(octavePath, arguments))
-            {
-                QMessageBox::warning(RIMainWindow::instance(), "Script execution", "Failed to start script executable located at\n" + octavePath);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotAddView()
-{
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    
-    RimReservoirView* rimView = dynamic_cast<RimReservoirView*>(uiItem->dataObject().p());
-    if (rimView)
-    {
-        QModelIndex insertedIndex;
-        myModel->addReservoirView(index, insertedIndex);
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimTreeView::slotDeleteView()
-{
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
-    {
-        myModel->removeReservoirView(currentIndex());
-
-        RIApplication* app = RIApplication::instance();
-        app->setActiveReservoirView(NULL);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimUiPropertyCreatorPdm::RimUiPropertyCreatorPdm(QObject* parent)
-    : caf::UiPropertyCreatorPdm(parent)
-{
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimUiPropertyCreatorPdm::uiFields(const caf::PdmObject* object, std::vector<caf::PdmFieldHandle*>& fields) const
-{
-    const RimCellPropertyFilter* propertyFilter = dynamic_cast<const RimCellPropertyFilter*>(object);
-    if (propertyFilter)
-    {
-        caf::UiPropertyCreatorPdm::uiFields(object, fields);
-
-        CVF_ASSERT(propertyFilter->resultDefinition);
-
-        // Append fields from result definition object
-        std::vector<caf::PdmFieldHandle*> childFields;
-        propertyFilter->resultDefinition->fields(childFields);
-
-        size_t i;
-        for (i = 0; i < childFields.size(); i++)
-        {
-            fields.push_back(childFields[i]);
-        }
-    }
-    else
-    {
-        caf::UiPropertyCreatorPdm::uiFields(object, fields);
-    }
-
-
-}
-

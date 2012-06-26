@@ -7,6 +7,12 @@ project ( ${ProjectName} )
 find_package (Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
 include (${QT_USE_FILE})
 
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set ( ERT_ROOT "Ert" )
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set ( ERT_ROOT "Ert-windows" )
+endif()
+
 include_directories(
     ${LibCore_SOURCE_DIR}
     ${LibGeometry_SOURCE_DIR}
@@ -23,19 +29,22 @@ include_directories(
 
     ${ResInsight_SOURCE_DIR}/CommonCode
 
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/ecl/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/util/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/well/include
+    ${ResInsight_SOURCE_DIR}/ThirdParty/${ERT_ROOT}/ecl/include
+    ${ResInsight_SOURCE_DIR}/ThirdParty/${ERT_ROOT}/util/include
+    ${ResInsight_SOURCE_DIR}/ThirdParty/${ERT_ROOT}/well/include
 
 )
 
+
 set( FILEINTERFACE_CPP_SOURCES
-    ../RifReaderEclipseFileAccess.cpp
-    ../RifReaderEclipseRestartFiles.cpp
-    ../RifReaderEclipseResultAccess.cpp
-    ../RifReaderEclipseUnifiedRestartFile.cpp
-    ../RifReaderInterfaceEcl.cpp
-    ../RifReaderInterfaceMock.cpp
+    ../RifEclipseInputFileTools.cpp
+    ../RifEclipseOutputFileTools.cpp
+    ../RifEclipseRestartFilesetAccess.cpp
+    ../RifEclipseRestartDataAccess.cpp
+    ../RifEclipseUnifiedRestartFileAccess.cpp
+    ../RifReaderEclipseOutput.cpp
+    ../RifReaderEclipseInput.cpp
+    ../RifReaderMockModel.cpp
 )
 
 set( RESERVOIRDATAMODEL_CPP_SOURCES
@@ -47,6 +56,7 @@ set( RESERVOIRDATAMODEL_CPP_SOURCES
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoirBuilderMock.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoirCellResults.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigWellResults.cpp
+    ${ResInsight_SOURCE_DIR}/cafUserInterface/cafProgressInfo.cpp
 )
 
 set( CPP_SOURCES
@@ -59,7 +69,7 @@ source_group( "ReservoirDataModel"  FILES ${RESERVOIRDATAMODEL_CPP_SOURCES} )
 
 set( UNIT_TEST_CPP_SOURCES
     main.cpp
-    RifReaderInterfaceEcl-Test.cpp
+    RifReaderEclipseOutput-Test.cpp
     Ert-Test.cpp
 )
 
@@ -76,6 +86,7 @@ set( LINK_LIBRARIES
 )
 
 
+
 add_executable( ${ProjectName}
     ${CPP_SOURCES}
     ${UNIT_TEST_CPP_SOURCES}
@@ -85,35 +96,55 @@ add_executable( ${ProjectName}
 
 
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( LINUX_LINK_LIBRARIES
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set ( EXTERNAL_LINK_LIBRARIES
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/ecl/lib/libecl.a
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/util/lib/libutil.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/geometry/lib/libgeometry.a
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/well/lib/libwell.a
         lapack
     )
-
-        # Linux specific code
-        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -DUSE_ECL_LIB -pipe -Wextra -Woverloaded-virtual -Wformat")
-        set(CMAKE_CXX_FLAGS_DEBUG 	"-g -DDEBUG -D_DEBUG")
-        set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-
-ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-
-
-target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${LINUX_LINK_LIBRARIES})
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set ( EXTERNAL_LINK_LIBRARIES
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/ecl/lib/libecl.lib
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/util/lib/libutil.lib
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/geometry/lib/libgeometry.lib
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/well/lib/libwell.lib
+    )
+endif()
 
 
-# Copy Qt Dlls
+target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
+
+
+
+# Copy Dlls
 if (MSVC)
-    set (QTLIBLIST QtCore QtGui QtOpenGl)
+
+    # Qt DLLs
+    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd)
     foreach (qtlib ${QTLIBLIST})
-        
-        # Debug
-        execute_process(COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}d4.dll ${CMAKE_CURRENT_BINARY_DIR}/Debug/${qtlib}d4.dll)
-        
-        # Release
-        execute_process(COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}4.dll ${CMAKE_CURRENT_BINARY_DIR}/Release/${qtlib}4.dll)
+        add_custom_command(TARGET ${ProjectName} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${QT_BINARY_DIR}/${qtlib}4.dll"
+                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
     endforeach( qtlib )
+
+
+    # DLLs ERT depends on
+    add_custom_command(TARGET ${ProjectName} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${PROJECT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/bin/"
+            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
+
+
+     # ERT DLLs
+     set (ERT_MODULES ecl geometry util well)
+     foreach (ert_module ${ERT_MODULES})
+         add_custom_command(TARGET ${ProjectName} POST_BUILD
+             COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                 "${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/${ert_module}/lib/lib${ert_module}.dll"
+                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
+     endforeach()
+
 endif(MSVC)

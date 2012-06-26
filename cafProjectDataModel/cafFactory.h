@@ -28,14 +28,21 @@ namespace caf
     //==================================================================================================
     /// A generic Factory class template
     /// Usage:
-    ///     caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
+    ///     Initialization in source file (Initialization :
+    ///     bool TypeToCreate_Factory_initialized = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
+    /*INIT_FACTORY(BaseType, KeyType,TypeToCreate )
+         bool TypeToCreate_Factory_initialized = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(QString("TypeToCreate"));*/
+    ///     When you need an object:
     ///     BaseType* newObject = caf::Factory<BaseType, KeyType>::instance()->create(key);
     //==================================================================================================
 
     template<typename BaseType, typename KeyType>
     class Factory
     {
+        class ObjectCreatorBase;
     public:
+        typedef typename std::map<KeyType, ObjectCreatorBase*>::iterator iterator_type;
+
         static Factory<BaseType, KeyType> * instance()
         {
             static Factory<BaseType, KeyType>* fact = new Factory<BaseType, KeyType>;
@@ -43,9 +50,9 @@ namespace caf
         }
 
         template< typename TypeToCreate >
-        void registerCreator(const KeyType& key)
+        bool registerCreator(const KeyType& key)
         {
-            std::map<KeyType, ObjectCreatorBase*>::iterator entryIt;
+            iterator_type entryIt;
 
             entryIt = m_factoryMap.find(key);
             if (entryIt == m_factoryMap.end())
@@ -57,12 +64,14 @@ namespace caf
             {
                 assert(key != entryIt->first); // classNameKeyword has already been used
                 assert(false); // To be sure ..
+                return false;
             }
         }
 
-        BaseType* create(const KeyType& key);
+        BaseType* create(const KeyType& key)
         {
-            std::map<KeyType, ObjectCreatorBase*>::iterator entryIt;
+            iterator_type entryIt;
+
             entryIt = m_factoryMap.find(key);
             if (entryIt != m_factoryMap.end())
             {
@@ -74,11 +83,13 @@ namespace caf
             }
         }
 
+
     private:
         Factory ()  {}
         ~Factory() 
         {
-            std::map<KeyType, ObjectCreatorBase*>::iterator entryIt;
+            iterator_type entryIt;
+
             for (entryIt = m_factoryMap.begin(); entryIt != m_factoryMap.end(); ++entryIt)
             {
                 delete(entryIt->second);
@@ -107,4 +118,4 @@ namespace caf
     };
 
 
-} //End of namespace caf
+}//End of namespace caf

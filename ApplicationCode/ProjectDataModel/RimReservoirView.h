@@ -40,7 +40,6 @@
 class RIViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
-class RimReservoir;
 class RivReservoirViewPartMgr;
 
 namespace cvf

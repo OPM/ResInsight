@@ -38,8 +38,10 @@
 
 #include "gtest/gtest.h"
 
+#include "RigReservoir.h"
+#include "RifReaderEclipseInput.h"
 
-
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// This file contains test code taken from the test cases in ERT source code.
 //  There is a typedef issue (center) between ERT and QTextStream, so this file does not include any 
@@ -47,7 +49,7 @@
 //--------------------------------------------------------------------------------------------------
 TEST(RigReservoirTest, WellTestErt)
 {
-    char filename[1024] = "/mnt/hgfs/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST";
+    char filename[1024] = "TEST10K_FLT_LGR_NNC.UNRST";
 
     well_info_type * well_info = well_info_alloc( NULL );
     well_info_load_rstfile( well_info , filename);
@@ -100,5 +102,20 @@ TEST(RigReservoirTest, WellTestErt)
 
     well_info_free( well_info );
 }
+#endif
+//--------------------------------------------------------------------------------------------------
+/// This file contains test code taken from the test cases in ERT source code.
+//  There is a typedef issue (center) between ERT and QTextStream, so this file does not include any 
+//  Qt files.
+//--------------------------------------------------------------------------------------------------
+TEST(RigReservoirTest, ElipseInputGridFile)
+{
+    RigReservoir res;
+    RifReaderEclipseInput inputReader;
+    bool result = inputReader.open("TEST10K_FLT_LGR_NNC.grdecl", &res);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(size_t(1), res.mainGrid()->cells().size());
+    EXPECT_EQ(size_t(1), res.mainGrid()->numActiveCells());
 
+}
 #endif //USE_ECL_LIB

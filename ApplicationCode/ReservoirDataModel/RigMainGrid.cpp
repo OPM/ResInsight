@@ -31,7 +31,7 @@ RigMainGrid::RigMainGrid(void)
         m_validCellPositionMax(cvf::Vec3st::UNDEFINED),
         m_activeCellCount(cvf::UNDEFINED_SIZE_T)
 {
-	m_results = new RigReservoirCellResults;
+	m_results = new RigReservoirCellResults(this);
 
     m_activeCellsBoundingBox.add(cvf::Vec3d::ZERO);
     m_gridIndex = 0;

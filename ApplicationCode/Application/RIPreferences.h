@@ -40,4 +40,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     showHud;
 
     caf::PdmField<QString>  lastUsedProjectFileName;
+
+protected:
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 };

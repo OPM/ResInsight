@@ -20,7 +20,6 @@
 
 #include "RimDefines.h"
 #include "cafAppEnum.h"
-#include "RifReaderInterface.h"
 
 
 namespace caf
@@ -30,7 +29,8 @@ namespace caf
     {
         addItem(RimDefines::DYNAMIC_NATIVE, "DYNAMIC_NATIVE",   "Dynamic");
         addItem(RimDefines::STATIC_NATIVE,  "STATIC_NATIVE",    "Static");
-        addItem(RimDefines::GENERATED,  "Generated",    "Generated");
+        addItem(RimDefines::GENERATED,      "GENERATED",        "Generated");
+        addItem(RimDefines::INPUT_PROPERTY, "INPUT_PROPERTY",   "Input Property");
 
         setDefault(RimDefines::DYNAMIC_NATIVE);
     }

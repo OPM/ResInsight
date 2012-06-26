@@ -24,6 +24,7 @@
 #include "cafUtils.h"
 #include "RIMainWindow.h"
 #include "RimUiTreeModelPdm.h"
+#include "cafPdmUiFilePathEditor.h"
 
 CAF_PDM_SOURCE_INIT(RimScriptCollection, "ScriptLocation");
 
@@ -37,6 +38,8 @@ RimScriptCollection::RimScriptCollection()
     CAF_PDM_InitFieldNoDefault(&directory, "ScriptDirectory", "Dir",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&calcScripts, "CalcScripts", "",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&subDirectories, "SubDirectories", "",  "", "", "");
+
+    directory.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,8 +47,8 @@ RimScriptCollection::RimScriptCollection()
 //--------------------------------------------------------------------------------------------------
 RimScriptCollection::~RimScriptCollection()
 {
-   calcScripts.deleteChildren();
-   subDirectories.deleteChildren();
+   calcScripts.deleteAllChildObjects();
+   subDirectories.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +56,7 @@ RimScriptCollection::~RimScriptCollection()
 //--------------------------------------------------------------------------------------------------
 void RimScriptCollection::readContentFromDisc()
 {
-    calcScripts.deleteChildren();
+    calcScripts.deleteAllChildObjects();
 
     if (directory().isEmpty())
     {
@@ -91,7 +94,7 @@ void RimScriptCollection::readContentFromDisc()
     {
         QDir dir(directory);
         QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot);
-        subDirectories.deleteChildren();
+        subDirectories.deleteAllChildObjects();
 
         QStringList retFileNames;
 
@@ -160,5 +163,17 @@ void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle *changedFie
         this->readContentFromDisc();
         RimUiTreeModelPdm* treeModel = RIMainWindow::instance()->uiPdmModel();
         if (treeModel) treeModel->rebuildUiSubTree(this);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimScriptCollection::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (field == &directory)
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        myAttr->m_selectDirectory = true;
     }
 }

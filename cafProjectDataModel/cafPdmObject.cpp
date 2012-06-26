@@ -74,16 +74,23 @@ void PdmObject::readFields (QXmlStreamReader& xmlStream )
                PdmFieldHandle* currentField = findField(name);
                if (currentField)
                {
-                   // readFieldData assumes that the xmlStream points to first token of field content.
-                   // After reading, the xmlStream is supposed to point to the first token after the field content.
-                   // (typically an "endElement")
-                   QXmlStreamReader::TokenType tt;
-                   tt = xmlStream.readNext();
-                   currentField->readFieldData( xmlStream );
+                   if (currentField->isIOReadable())
+                   {
+                       // readFieldData assumes that the xmlStream points to first token of field content.
+                       // After reading, the xmlStream is supposed to point to the first token after the field content.
+                       // (typically an "endElement")
+                       QXmlStreamReader::TokenType tt;
+                       tt = xmlStream.readNext();
+                       currentField->readFieldData( xmlStream );
+                   }
+                   else
+                   {
+                       xmlStream.skipCurrentElement();
+                   }
                }
                else
                {
-                   std::cout << "Warning: Could not find a field with name " << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data() << std::endl;
+                   std::cout << "Line "<< xmlStream.lineNumber() << ": Warning: Could not find a field with name " << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data() << std::endl;
                    xmlStream.skipCurrentElement();
                }
                break;
@@ -119,11 +126,14 @@ void PdmObject::writeFields(QXmlStreamWriter& xmlStream)
     std::vector<PdmFieldHandle*>::iterator it;
     for (it = m_fields.begin(); it != m_fields.end(); ++it)
     {
-        PdmFieldHandle* obj = *it;
-        QString keyword = obj->keyword();
-        xmlStream.writeStartElement("", keyword);
-        obj->writeFieldData(xmlStream);
-        xmlStream.writeEndElement();
+        PdmFieldHandle* field = *it;
+        if (field->isIOWritable())
+        {
+            QString keyword = field->keyword();
+            xmlStream.writeStartElement("", keyword);
+            field->writeFieldData(xmlStream);
+            xmlStream.writeEndElement();
+        }
     }
 }
 
@@ -198,6 +208,37 @@ void PdmObject::parentFields(std::vector<PdmFieldHandle*>& parentFields) const
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::parentObjects(std::vector<PdmObject*>& objects) const
+{
+    std::vector<caf::PdmFieldHandle*> parentFields;
+    this->parentFields(parentFields);
+    size_t i;
+    for (i = 0; i < parentFields.size(); i++)
+    {
+        objects.push_back(parentFields[i]->ownerObject());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::removeFromParentFields()
+{
+    std::vector<caf::PdmFieldHandle*> parentFields;
+    this->parentFields(parentFields);
+    size_t i;
+    for (i = 0; i < parentFields.size(); i++)
+    {
+        parentFields[i]->removeChildObject(this);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void PdmObject::addFieldNoDefault(PdmFieldHandle* field, const QString& keyword, PdmUiItemInfo * fieldDescription)
 {
     field->setUiItemInfo(fieldDescription);
@@ -207,5 +248,34 @@ void PdmObject::addFieldNoDefault(PdmFieldHandle* field, const QString& keyword,
     assert(findField(keyword) == NULL);
     m_fields.push_back(field);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const
+{
+    this->defineUiOrdering(uiConfigName, uiOrdering);
+    if (!uiOrdering.forgetRemainingFields())
+    {
+        // Add the remaining Fields To UiConfig
+
+        for (size_t i = 0; i < m_fields.size(); ++i)
+        {
+            if (!uiOrdering.contains(m_fields[i]))
+            {
+                uiOrdering.add( m_fields[i]);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute)
+{
+    this->defineEditorAttribute(field, uiConfigName, attribute);
+}
+
 
 } //End of namespace caf

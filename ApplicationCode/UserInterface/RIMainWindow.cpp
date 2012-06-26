@@ -27,21 +27,19 @@
 #include "RIPreferences.h"
 #include "RIPreferencesDialog.h"
 
-#include "RifReaderInterface.h"
 #include "RigReservoir.h"
+#include "RigReservoirCellResults.h"
 #include "RimReservoir.h"
 #include "RimUiTreeModelPdm.h"
 
 #include "cvfqtBasicAboutDialog.h"
 #include "cafUtils.h"
 
-#include "cafUiPropertyCreatorPdm.h"
 #include "cafFrameAnimationControl.h"
 #include "cafAnimationToolBar.h"
 
-#include "qttreepropertybrowser.h"
-#include "qtbuttonpropertybrowser.h"
-#include "qtgroupboxpropertybrowser.h"
+#include "cafPdmUiPropertyView.h"
+#include "RimUiTreeView.h"
 
 
 
@@ -61,7 +59,6 @@ RIMainWindow* RIMainWindow::sm_mainWindowInstance = NULL;
 //--------------------------------------------------------------------------------------------------
 RIMainWindow::RIMainWindow()
 :   m_treeView(NULL),   
-    m_uiManagerPdm(NULL),
     m_pdmRoot(NULL),
     m_mainViewer(NULL),
     m_windowMenu(NULL)
@@ -133,6 +130,11 @@ void RIMainWindow::cleanupGuiBeforeProjectClose()
 {
     setPdmRoot(NULL);
     setResultInfo("");
+    
+    if (m_pdmUiPropertyView)
+    {
+        m_pdmUiPropertyView->showProperties(NULL);
+    }
 
     m_processMonitor->startMonitorWorkProcess(NULL);
 }
@@ -179,12 +181,14 @@ void RIMainWindow::createActions()
 {
     // File actions
     m_openAction                = new QAction(QIcon(":/AppLogo48x48.png"), "&Open Eclipse Case", this);
+    m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
     m_mockLargeResultsModelAction = new QAction("Large Mock Model", this);
+    m_mockInputModelAction      = new QAction("Input Mock Model", this);
 
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
@@ -192,13 +196,15 @@ void RIMainWindow::createActions()
     m_closeAction               = new QAction("&Close", this);
     m_exitAction		        = new QAction("E&xit", this);
 
-    connect(m_openAction,	            SIGNAL(triggered()), SLOT(slotOpenFile()));
+    connect(m_openAction,	            SIGNAL(triggered()), SLOT(slotOpenBinaryGridFiles()));
+    connect(m_openInputEclipseFileAction,SIGNAL(triggered()), SLOT(slotOpenInputFiles()));
     connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
     
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
     connect(m_mockLargeResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
+    connect(m_mockInputModelAction,	    SIGNAL(triggered()), SLOT(slotInputMockModel()));
     
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
@@ -245,6 +251,8 @@ void RIMainWindow::createActions()
     m_performanceHud->setCheckable(true);
     connect(m_performanceHud, SIGNAL(triggered(bool)), SLOT(slotShowPerformanceInfo(bool)));
 
+    m_newPropertyView = new QAction("New Property View", this);
+    connect(m_newPropertyView, SIGNAL(triggered()), SLOT(slotNewObjectPropertyView()));
 
     // Help actions
     m_aboutAction = new QAction("&About", this);    
@@ -260,6 +268,7 @@ void RIMainWindow::createMenus()
     // File menu
     QMenu* fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction(m_openAction);
+    fileMenu->addAction(m_openInputEclipseFileAction);
     fileMenu->addAction(m_openProjectAction);
     fileMenu->addAction(m_openLastUsedProjectAction);
 
@@ -298,9 +307,11 @@ void RIMainWindow::createMenus()
     debugMenu->addAction(m_mockModelAction);
     debugMenu->addAction(m_mockResultsModelAction);
     debugMenu->addAction(m_mockLargeResultsModelAction);
+    debugMenu->addAction(m_mockInputModelAction);
     debugMenu->addSeparator();
     debugMenu->addAction(m_debugUseShaders);
     debugMenu->addAction(m_performanceHud);
+    debugMenu->addAction(m_newPropertyView);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
@@ -323,6 +334,7 @@ void RIMainWindow::createToolBars()
     m_standardToolBar->setObjectName(m_standardToolBar->windowTitle());
 
     m_standardToolBar->addAction(m_openAction);
+    m_standardToolBar->addAction(m_openInputEclipseFileAction);
     m_standardToolBar->addAction(m_openProjectAction);
     //m_standardToolBar->addAction(m_openLastUsedProjectAction);
     m_standardToolBar->addAction(m_saveProjectAction);
@@ -352,38 +364,15 @@ void RIMainWindow::createToolBars()
 
 void RIMainWindow::createDockPanels()
 {
-    m_uiManagerPdm = new RimUiPropertyCreatorPdm(this);
-
     {
         QDockWidget* dockWidget = new QDockWidget("Project", this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-        m_treeView = new RimTreeView(dockWidget);
+        m_treeView = new RimUiTreeView(dockWidget);
+        m_treeView->setModel(m_treeModelPdm);
+
         dockWidget->setWidget(m_treeView);
-
-        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-    }
-
-    {
-        QDockWidget* dockWidget = new QDockWidget("Properties", this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-#if 0
-        QtButtonPropertyBrowser* treePropertyBrowser = new QtButtonPropertyBrowser(dockWidget);
-#elif 1
-        QtGroupBoxPropertyBrowser * treePropertyBrowser = new QtGroupBoxPropertyBrowser (dockWidget);
-
-#else
-        QtTreePropertyBrowser* treePropertyBrowser = new QtTreePropertyBrowser(dockWidget);
-        treePropertyBrowser->setPropertiesWithoutValueMarked(true);
-        treePropertyBrowser->setRootIsDecorated(true);
-        treePropertyBrowser->setResizeMode(QtTreePropertyBrowser::ResizeToContents);
-#endif
-        m_uiManagerPdm->setPropertyBrowser(treePropertyBrowser);
-
-        dockWidget->setWidget(treePropertyBrowser);
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
@@ -406,6 +395,19 @@ void RIMainWindow::createDockPanels()
         dockPanel->setWidget(m_processMonitor);
 
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
+    }
+
+    {
+        QDockWidget* dockWidget = new QDockWidget("Properties", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+        m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
+        dockWidget->setWidget(m_pdmUiPropertyView);
+
+        connect(m_treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObject* )));
+
+        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
 
     setCorner(Qt::BottomLeftCorner,	Qt::LeftDockWidgetArea);
@@ -534,13 +536,18 @@ void RIMainWindow::refreshAnimationActions()
     {
         enableAnimControls = true;
 
-        if (app->activeReservoirView()->eclipseCase() && app->activeReservoirView()->eclipseCase()->fileInterface())
+        if (app->activeReservoirView()->gridCellResults())
         {
             if (app->activeReservoirView()->cellResult()->hasDynamicResult() 
             || app->activeReservoirView()->propertyFilterCollection()->hasActiveDynamicFilters() 
             || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes())
             {
-                timeStepStrings = app->activeReservoirView()->eclipseCase()->fileInterface()->timeStepText();
+                QList<QDateTime> timeStepDates = app->activeReservoirView()->gridCellResults()->timeStepDates(0);
+                int i;
+                for (i = 0; i < timeStepDates.size(); i++)
+                {
+                    timeStepStrings += timeStepDates[i].toString("dd.MMM yyyy");
+                }
                 currentTimeStepIndex = RIApplication::instance()->activeReservoirView()->currentTimeStep();
             }
             else
@@ -594,23 +601,48 @@ void RIMainWindow::slotAbout()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIMainWindow::slotOpenFile()
+void RIMainWindow::slotOpenBinaryGridFiles()
 {
     if (checkForDocumentModifications())
     {
 #ifdef USE_ECL_LIB
-        QString fileName = QFileDialog::getOpenFileName(this, "Open Eclipse File", NULL, "Eclipse Grid Files (*.GRID *.EGRID)");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", NULL, "Eclipse Grid Files (*.GRID *.EGRID)");
 #else
-        QString fileName = "dummy";
+        QStringList fileNames;
+        fileNames << "dummy";
 #endif
-        if (fileName.isEmpty()) return;
- 
         RIApplication* app = RIApplication::instance();
-        app->openEclipseCaseFromFile(fileName);
-    }
 
-    //m_mainViewer->setDefaultView();
+        int i;
+        for (i = 0; i < fileNames.size(); i++)
+        {
+            QString fileName = fileNames[i];
+
+            if (!fileNames.isEmpty())
+            {
+                app->openEclipseCaseFromFile(fileName);
+            }
+        }
+    }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotOpenInputFiles()
+{
+    if (checkForDocumentModifications())
+    {
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse Input Files", NULL, "Eclipse Input Files and Input Properties (*.GRDECL *)");
+
+        if (fileNames.isEmpty()) return;
+
+        RIApplication* app = RIApplication::instance();
+        app->openInputEclipseCase("Eclipse Input Files", fileNames);
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -668,6 +700,16 @@ void RIMainWindow::slotMockLargeResultsModel()
 {
     RIApplication* app = RIApplication::instance();
     app->createLargeResultsMockModel();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotInputMockModel()
+{
+    RIApplication* app = RIApplication::instance();
+    app->createInputMockModel();
 }
 
 
@@ -805,21 +847,11 @@ void RIMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
     caf::PdmUiTreeItem* treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, m_pdmRoot);
     m_treeModelPdm->setRoot(treeItemRoot);
 
-    m_treeView->setModel(m_treeModelPdm);
     m_treeView->expandAll();
 
-    if (treeItemRoot)
+    if (treeItemRoot && m_treeView->selectionModel())
     {
-        m_uiManagerPdm->setModel(m_treeModelPdm, m_treeView->selectionModel());
-
-        if (m_treeView->selectionModel())
-        {
-            connect(m_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
-        }
-    }
-    else
-    {
-        m_uiManagerPdm->setModel(NULL, NULL);
+        connect(m_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
     }
 }
 
@@ -1014,7 +1046,7 @@ void RIMainWindow::slotRefreshDebugActions()
 void RIMainWindow::slotEditPreferences()
 {
     RIApplication* app = RIApplication::instance();
-    RIPreferencesDialog preferencesDialog(this, app->preferences());
+    RIPreferencesDialog preferencesDialog(this, app->preferences(), "Preferences");
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
@@ -1114,5 +1146,45 @@ void RIMainWindow::slotCurrentChanged(const QModelIndex & current, const QModelI
 
         // Traverse parents until a reservoir view is found
         tmp = tmp.parent();
+    }
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotNewObjectPropertyView()
+{
+    if (!m_treeModelPdm) return;
+
+    RimUiTreeView* treeView = NULL;
+    
+    {
+        QDockWidget* dockWidget = new QDockWidget("Project", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+        treeView = new RimUiTreeView(dockWidget);
+        dockWidget->setWidget(treeView);
+
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+    }
+
+    treeView->setModel(m_treeModelPdm);
+    treeView->expandAll();
+
+
+    {
+        QDockWidget* dockWidget = new QDockWidget("Properties", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+        caf::PdmUiPropertyView* propView = new caf::PdmUiPropertyView(dockWidget);
+        dockWidget->setWidget(propView);
+
+        addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+
+        connect(treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), propView, SLOT(showProperties( caf::PdmObject* )));
     }
 }

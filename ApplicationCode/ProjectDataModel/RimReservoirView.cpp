@@ -41,7 +41,6 @@
 #include "cafCadNavigation.h"
 #include "cafCeetronNavigation.h"
 #include "RimReservoir.h"
-#include "RifReaderInterface.h"
 
 namespace caf {
 
@@ -90,13 +89,13 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&name,            "UserDescription", QString(""), "Name",             "", "", "");
     CAF_PDM_InitField(&scaleZ,          "GridZScale",      1.0,         "Z Scale",          "", "Scales the scene in the Z direction", "");
     CAF_PDM_InitField(&showWindow,      "ShowWindow",      true,        "Show 3D viewer",   "", "", "");
-    showWindow.setHidden(true);
+    showWindow.setUiHidden(true);
 
     CAF_PDM_InitField(&m_currentTimeStep, "CurrentTimeStep", 0,          "Current Time Step","", "", "");
-    m_currentTimeStep.setHidden(true);
+    m_currentTimeStep.setUiHidden(true);
 
     CAF_PDM_InitField(&animationMode, "AnimationMode", false, "Animation Mode","", "", "");
-    animationMode.setHidden(true);
+    animationMode.setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection","Wells", "", "", "");
     wellCollection = new RimWellCollection;
@@ -113,7 +112,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate","", "", "");
-    maximumFrameRate.setHidden(true);
+    maximumFrameRate.setUiHidden(true);
 
     // Visualization fields
     CAF_PDM_InitField(&showMainGrid,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
@@ -404,12 +403,6 @@ void RimReservoirView::createDisplayModel()
 
     if (m_reservoir && m_reservoir->reservoirData())
     {
-        RigReservoir* reservoir = m_reservoir->reservoirData();
-        CVF_ASSERT(reservoir);
-
-        RigReservoirCellResults* results = reservoir->mainGrid()->results();
-        CVF_ASSERT(results);
-
         // Define a vector containing time step indices to produce geometry for.
         // First entry in this vector is used to define the geometry only result mode with no results.
         std::vector<size_t> timeStepIndices;
@@ -417,12 +410,16 @@ void RimReservoirView::createDisplayModel()
         // The one and only geometry entry
         timeStepIndices.push_back(0);
 
+        // Find the number of time frames the animation needs to show the requested data.
+
         if (this->cellResult()->hasDynamicResult() 
             || this->propertyFilterCollection()->hasActiveDynamicFilters() 
             || this->wellCollection->hasVisibleWellPipes())
         {
+            CVF_ASSERT(gridCellResults());
+
             size_t i;
-            for (i = 0; i < m_reservoir->fileInterface()->numTimeSteps(); i++)
+            for (i = 0; i < gridCellResults()->maxTimeStepCount(); i++)
             {
                 timeStepIndices.push_back(i);
             }
@@ -522,16 +519,16 @@ void RimReservoirView::createDisplayModel()
         // Create Scenes from the frameModels
         // Animation frames for results display, starts from frame 1
 
-        size_t modelIndex;
-        for (modelIndex = 0; modelIndex < frameModels.size(); modelIndex++)
+        size_t frameIndex;
+        for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
         {
-            cvf::ModelBasicList* model = frameModels.at(modelIndex);
+            cvf::ModelBasicList* model = frameModels.at(frameIndex);
             model->updateBoundingBoxesRecursive();
 
             cvf::ref<cvf::Scene> scene = new cvf::Scene;
             scene->addModel(model);
 
-            if (modelIndex == 0)
+            if (frameIndex == 0)
                 m_viewer->setMainScene(scene.p());
             else
                 m_viewer->addFrame(scene.p());
@@ -552,7 +549,6 @@ void RimReservoirView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateCurrentTimeStep()
 {
-    updateLegends();
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
 
@@ -622,14 +618,33 @@ void RimReservoirView::updateCurrentTimeStep()
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
-            m_pipesPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), m_currentTimeStep);
+            cvf::String modelName = "WellPipeModel";
+            std::vector<cvf::Model*> models;
+            for (i = 0; i < frameScene->modelCount(); i++)
+            {
+                if (frameScene->model(i)->name() == modelName)
+                {
+                    models.push_back(frameScene->model(i));
+                }
+            }
+
+            for (i = 0; i < models.size(); i++)
+            {
+                frameScene->removeModel(models[i]);
+            }
+
+            cvf::ref<cvf::ModelBasicList> pipeModel = new cvf::ModelBasicList;
+            pipeModel->setName(modelName);
+
+            m_pipesPartManager->appendDynamicGeometryPartsToModel(pipeModel.p(), m_currentTimeStep);
             m_pipesPartManager->updatePipeResultColor(m_currentTimeStep);
 
-            frameParts->updateBoundingBoxesRecursive();
-            frameScene->addModel(frameParts.p());
+            pipeModel->updateBoundingBoxesRecursive();
+            frameScene->addModel(pipeModel.p());
         }
     }
+
+    updateLegends();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -643,7 +658,7 @@ void RimReservoirView::loadDataAndUpdate()
     {
         if (!m_reservoir->openEclipseGridFile())
         {
-            QMessageBox::warning(RIMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName() + "\nIn directory " + m_reservoir->caseDirectory());
+            QMessageBox::warning(RIMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName());
         }
         else
         {

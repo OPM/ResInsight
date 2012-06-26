@@ -30,13 +30,13 @@ CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 RimProject::RimProject(void)
 {
     CAF_PDM_InitFieldNoDefault(&m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "");
-    m_projectFileVersionString.setHidden(true);
+    m_projectFileVersionString.setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     
     scriptCollection = new RimScriptCollection();
-    scriptCollection->directory.setHidden(true);
+    scriptCollection->directory.setUiHidden(true);
 
     initAfterRead();
 }
@@ -48,7 +48,7 @@ RimProject::~RimProject(void)
 {
     if (scriptCollection()) delete scriptCollection();
 
-    reservoirs.deleteChildren();
+    reservoirs.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
-    reservoirs.deleteChildren();
+    reservoirs.deleteAllChildObjects();
 
     fileName = "";
 }
@@ -89,8 +89,8 @@ void RimProject::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setUserScriptPath(const QString& scriptDirectory)
 {
-    scriptCollection->calcScripts().deleteChildren();
-    scriptCollection->subDirectories().deleteChildren();
+    scriptCollection->calcScripts().deleteAllChildObjects();
+    scriptCollection->subDirectories().deleteAllChildObjects();
 
 
     QDir dir(scriptDirectory);

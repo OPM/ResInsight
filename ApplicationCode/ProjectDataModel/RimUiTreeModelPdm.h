@@ -21,14 +21,13 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafUiTreeModelPdm.h"
-#include "RimCellRangeFilter.h"
-
-#include <QTreeView>
-#include "cafUiPropertyCreatorPdm.h"
 
 class QFileSystemWatcher;
 
 class RimCellPropertyFilter;
+class RimCellRangeFilter;
+class RimReservoirView;
+class RimInputProperty;
 
 //==================================================================================================
 ///
@@ -45,13 +44,15 @@ public:
     virtual bool    insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
 
     // Special edit methods
-    bool            removeRangeFilter(const QModelIndex& itemIndex);
-    bool            removePropertyFilter(const QModelIndex& itemIndex);
-    bool            removeReservoirView(const QModelIndex& itemIndex);
-    
+    bool            deleteRangeFilter(const QModelIndex& itemIndex);
+    bool            deletePropertyFilter(const QModelIndex& itemIndex);
+    bool            deleteReservoirView(const QModelIndex& itemIndex);
+    void            deleteInputProperty(const QModelIndex& itemIndex);
+
     RimCellPropertyFilter*  addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*     addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimReservoirView*       addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    void                    addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
 
     void            updateScriptPaths();
 
@@ -64,50 +65,5 @@ private:
 
 
 
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimTreeView : public QTreeView
-{
-    Q_OBJECT
-
-public:
-    RimTreeView(QWidget *parent = 0);
-
-protected:
-    void contextMenuEvent(QContextMenuEvent* event);
-
-private slots:
-    void slotAddChildItem();
-    void slotDeleteItem();
-    void slotShowWindow();
-    
-    void slotAddRangeFilter();
-    void slotAddSliceFilterI();
-    void slotAddSliceFilterJ();
-    void slotAddSliceFilterK();
-
-    void slotAddPropertyFilter();
-
-    void slotDeletePropertyFilter();
-    void slotDeleteRangeFilter();
-
-    void slotReadScriptContentFromFile();
-    void slotEditScript();
-    void slotNewScript();
-    void slotExecuteScript();
-
-    void slotAddView();
-    void slotDeleteView();
-};
 
 
-
-class RimUiPropertyCreatorPdm : public caf::UiPropertyCreatorPdm
-{
-public:
-    RimUiPropertyCreatorPdm(QObject* parent);
-
-    virtual void uiFields(const caf::PdmObject* object, std::vector<caf::PdmFieldHandle*>& fields) const;
-};

@@ -18,11 +18,7 @@
 
 #pragma once
 
-#include "cafPdmUiItem.h"
-#include <QList>
-
-class RifReaderInterface;
-
+#include <QString>
 
 class RimDefines
 {
@@ -32,8 +28,11 @@ public:
     {
         DYNAMIC_NATIVE,
         STATIC_NATIVE,
-        GENERATED
+        GENERATED,
+        INPUT_PROPERTY,
+        REMOVED
     };
 
-
+    static QString nonSelectedResultName() { return "None"; }
 };
+

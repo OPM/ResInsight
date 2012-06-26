@@ -18,43 +18,29 @@
 
 #include "RIStdInclude.h"
 
-#include "RifReaderInterfaceEcl.h"
+#include "RifReaderEclipseOutput.h"
 #include "RimReservoir.h"
 #include "RigReservoir.h"
 #include "RigMainGrid.h"
 #include "RigReservoirCellResults.h"
 
-#include "RimWell.h"
-#include "RimWellCollection.h"
 #include "RimReservoirView.h"
 
 #include "cvfAssert.h"
 
 #include <QString>
-#include "RifReaderInterfaceMock.h"
+#include "RifReaderMockModel.h"
 
-CAF_PDM_SOURCE_INIT(RimReservoir, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 RimReservoir::RimReservoir()
 {
     m_rigReservoir = NULL;
-    m_fileInterface = NULL;
 
-    CAF_PDM_InitObject("Reservoir", ":/AppLogo48x48.png", "", "");
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Case name", "", "" ,"");
-    CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
 
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimReservoir::RimReservoir(RigReservoir* reservoir)
-{
-    m_rigReservoir = reservoir;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,144 +57,6 @@ RigReservoir* RimReservoir::reservoirData()
 const RigReservoir* RimReservoir::reservoirData() const
 {
     return m_rigReservoir.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RifReaderInterface* RimReservoir::fileInterface()
-{
-    return m_fileInterface.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const RifReaderInterface* RimReservoir::fileInterface() const
-{
-    return m_fileInterface.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimReservoir::openEclipseGridFile()
-{
-    // Early exit if reservoir data is created
-    if (m_rigReservoir.notNull()) return true;
-
-    if (caseName().contains("Mock Debug Model"))
-    {
-        this->createMockModel(this->caseName());
-    }
-    else
-    {
-        QString fullCaseName = caseName + ".EGRID";
-
-        QDir dir(caseDirectory.v());
-        if (!dir.exists(fullCaseName))
-        {
-            fullCaseName = caseName + ".GRID";
-            if (!dir.exists(fullCaseName))
-            {
-                return false;
-            }
-        }
-
-        QString fname = dir.absoluteFilePath(fullCaseName);
-
-        RigReservoir* reservoir = new RigReservoir;
-        m_fileInterface = new RifReaderInterfaceECL;
-        if (!m_fileInterface->open(fname, reservoir))
-        {
-            delete reservoir;
-            return false;
-        }
-
-        m_rigReservoir = reservoir;
-    }
-
-    CVF_ASSERT(m_rigReservoir.notNull());
-    CVF_ASSERT(m_fileInterface.notNull());
-
-    m_rigReservoir->mainGrid()->results()->setReaderInterface(m_fileInterface.p());
-    m_rigReservoir->computeFaults();
-    m_rigReservoir->mainGrid()->computeCachedData();
-
-    return true;
- }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoir::createMockModel(QString modelName)
-{
-    cvf::ref<RifReaderInterfaceMock> mockFileInterface = new RifReaderInterfaceMock;
-    cvf::ref<RigReservoir> reservoir = new RigReservoir;
-
-     if (modelName == "Mock Debug Model Simple")
-    {
-        // Create the mock file interface and and RigSerervoir and set them up.
-        mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(20, 20, 20));
-        mockFileInterface->setGridPointDimensions(cvf::Vec3st(4, 5, 6));
-        mockFileInterface->addLocalGridRefinement(cvf::Vec3st(0, 2, 2), cvf::Vec3st(0, 2, 2), cvf::Vec3st(3, 3, 3));
-
-        mockFileInterface->open("", reservoir.p());
-        {
-            size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
-            reservoir->mainGrid()->cell(idx).setActive(false);
-        }
-
-        {
-            size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
-            reservoir->mainGrid()->cell(idx).setActive(false);
-        }
-    }
-    else if (modelName == "Mock Debug Model With Results")
-    {
-        mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(-20, -20, -20));
-        mockFileInterface->setGridPointDimensions(cvf::Vec3st(5, 10, 20));
-        mockFileInterface->addLocalGridRefinement(cvf::Vec3st(0, 3, 3), cvf::Vec3st(1, 4, 9), cvf::Vec3st(2, 2, 2));
-        mockFileInterface->setResultInfo(3, 10);
-
-        mockFileInterface->open("", reservoir.p());
-
-        // Make a fault
-        cvf::Vec3d& tmp = reservoir->mainGrid()->nodes()[1];
-        tmp += cvf::Vec3d(1, 0, 0);
-    }
-    else if (modelName =="Mock Debug Model Large With Results")
-    {
-        double startX = 0;
-        double startY = 0;
-        double startZ = 0;
-
-        double widthX = 6000;
-        double widthY = 12000;
-        double widthZ = 500;
-
-        double offsetX = 0;
-        double offsetY = 0;
-        double offsetZ = 0;
-
-        // Test code to simulate UTM coordinates
-        offsetX = 400000;
-        offsetY = 6000000;
-        offsetZ = 0;
-
-
-        mockFileInterface->setWorldCoordinates(cvf::Vec3d(startX + offsetX, startY + offsetY, startZ + offsetZ), cvf::Vec3d(startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ));
-        mockFileInterface->setGridPointDimensions(cvf::Vec3st(50, 100, 200));
-        mockFileInterface->addLocalGridRefinement(cvf::Vec3st(0, 30, 30), cvf::Vec3st(1, 40, 90), cvf::Vec3st(2, 2, 2));
-        mockFileInterface->setResultInfo(3, 10);
-
-        mockFileInterface->open("", reservoir.p());
-
-    }
-
-    m_rigReservoir = reservoir;
-    m_fileInterface = mockFileInterface;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -231,7 +79,7 @@ void RimReservoir::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimReservoir::~RimReservoir()
 {
-    reservoirViews.deleteChildren();
+    reservoirViews.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,6 +119,57 @@ void RimReservoir::removeReservoirView(RimReservoirView* reservoirView)
     {
         reservoirViews().erase(indices.back());
         indices.pop_back();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoir::removeResult(const QString& resultName)
+{
+    size_t i;
+    for (i = 0; i < reservoirViews().size(); i++)
+    {
+        RimReservoirView* reservoirView = reservoirViews()[i];
+        CVF_ASSERT(reservoirView);
+
+        RimResultSlot* result = reservoirView->cellResult;
+        CVF_ASSERT(result);
+
+        bool rebuildDisplayModel = false;
+
+        // Set cell result variable to none if displaying 
+        if (result->resultVariable() == resultName)
+        {
+            result->resultVariable.v() = QString("None");
+            result->loadResult();
+
+            rebuildDisplayModel = true;
+        }
+
+        std::list< caf::PdmPointer< RimCellPropertyFilter > >::iterator it;
+        RimCellPropertyFilterCollection* propFilterCollection = reservoirView->propertyFilterCollection();
+        for (it = propFilterCollection->propertyFilters.v().begin(); it != propFilterCollection->propertyFilters.v().end(); ++it)
+        {
+            RimCellPropertyFilter* propertyFilter = *it;
+            if (propertyFilter->resultDefinition->resultVariable.v() == resultName)
+            {
+                propertyFilter->resultDefinition->resultVariable.v() = QString("None");
+                propertyFilter->resultDefinition->loadResult();
+                propertyFilter->setDefaultValues();
+
+                rebuildDisplayModel = true;
+            }
+        }
+
+        if (rebuildDisplayModel)
+        {
+            reservoirViews()[i]->createDisplayModelAndRedraw();
+        }
+
+
+        // TODO
+        // CellEdgeResults are not considered, as they do not support display of input properties yet
     }
 }
 

@@ -33,6 +33,7 @@ class RimResultDefinition;
 
 class RigGridBase;
 class RigReservoirCellResults;
+
 namespace cvf
 {
     //enum CellRangeFilter::CellStateType;
@@ -66,12 +67,12 @@ public:
     caf::PdmField<double>   upperBound;
     caf::PdmField< caf::AppEnum< EvaluationRegionType > > evaluationRegion;
 
-    bool isCellRejected(const RigGridBase* grid, size_t timeStepIndex, size_t cellIndex) const;
-    cvf::CellRangeFilter::CellStateType  cellFilterState(const RigGridBase* grid, size_t timeStepIndex, size_t cellIndex) const;
-
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+
+protected:
+    virtual void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const;
 
 private:
     RimCellPropertyFilterCollection* m_parentContainer;

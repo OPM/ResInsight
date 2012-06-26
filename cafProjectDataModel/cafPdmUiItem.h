@@ -21,6 +21,7 @@
 #include <QString>
 #include <QIcon>
 #include <QVariant>
+#include <set>
 
 namespace caf 
 {
@@ -33,16 +34,24 @@ namespace caf
 class PdmUiItemInfo
 {
 public:  
-    PdmUiItemInfo() {}
+    PdmUiItemInfo()
+        : m_editorTypeName(""), m_isHidden(-1) , m_isReadOnly(-1)
+    {}
 
     PdmUiItemInfo( QString  uiName,   QIcon icon = QIcon(), QString  toolTip = "", QString  whatsThis = "")
-                          : m_uiName(uiName), m_icon(icon),         m_toolTip(toolTip),    m_whatsThis(whatsThis)
+        : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis),
+          m_editorTypeName(""), m_isHidden(false) , m_isReadOnly(false) 
     { }
 
-    QString  m_uiName;
-    QString  m_toolTip;
-    QString  m_whatsThis;
-    QIcon    m_icon;
+private: 
+    friend class PdmUiItem;
+    QString             m_uiName;
+    QString             m_toolTip;
+    QString             m_whatsThis;
+    QIcon               m_icon;         
+    QString             m_editorTypeName;   ///< Use this exact type of editor to edit this UiItem
+    int                 m_isHidden;     ///< UiItem should be hidden. -1 means not set
+    int                 m_isReadOnly;   ///< UiItem should be insensitive, or read only. -1 means not set.
 };
 
 //==================================================================================================
@@ -68,6 +77,8 @@ public:
                                       unsigned int* indexToValue = NULL);
 };
 
+class PdmUiEditorHandle;
+
 //==================================================================================================
 /// Base class for all datastructure items (fields or objects) to make them have information on 
 /// how to display them in the GUI. All the information can have a static variant valid for all 
@@ -78,39 +89,59 @@ public:
 class PdmUiItem
 {
 public:
-    PdmUiItem() : m_staticItemInfo(NULL), m_isHidden(false)                     { }
-    virtual ~PdmUiItem()                                                        { }
+    PdmUiItem() : m_staticItemInfo(NULL)                                                   { }
+    virtual ~PdmUiItem();
 
     // Copy and assignment to avoid hampering our internal pointer.
-    PdmUiItem(const PdmUiItem& ) : m_staticItemInfo(NULL) , m_isHidden(false)   { }
-    PdmUiItem& operator=(const PdmUiItem& ) { return *this; }
+    PdmUiItem(const PdmUiItem& ) : m_staticItemInfo(NULL)                                  { }
+    PdmUiItem&       operator=(const PdmUiItem& )                                          { return *this; }
     
-    const QString uiName()      const;
-    void          setUiName(const QString& uiName)                              { m_dynamicItemInfo.m_uiName = uiName; } 
+    const QString    uiName(QString uiConfigName = "")      const;
+    void             setUiName(const QString& uiName, QString uiConfigName = "")           { m_configItemInfos[uiConfigName].m_uiName = uiName; } 
 
-    const QIcon   uiIcon()      const;
-    void          setUiIcon(const QIcon& uiIcon)                                { m_dynamicItemInfo.m_icon = uiIcon; } 
+    const QIcon      uiIcon(QString uiConfigName = "")      const;
+    void             setUiIcon(const QIcon& uiIcon, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_icon = uiIcon; } 
 
-    const QString uiToolTip()   const;
-    void          setUiToolTip(const QString& uiToolTip)                        { m_dynamicItemInfo.m_toolTip = uiToolTip; } 
+    const QString    uiToolTip(QString uiConfigName = "")   const;
+    void             setUiToolTip(const QString& uiToolTip, QString uiConfigName = "")     { m_configItemInfos[uiConfigName].m_toolTip = uiToolTip; } 
 
-    const QString uiWhatsThis() const;
-    void          setUiWhatsThis(const QString& uiWhatsThis)                    { m_dynamicItemInfo.m_whatsThis = uiWhatsThis; } 
+    const QString    uiWhatsThis(QString uiConfigName = "") const;
+    void             setUiWhatsThis(const QString& uiWhatsThis, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_whatsThis = uiWhatsThis; } 
 
-    bool          isHidden() const                                              { return m_isHidden; }
-    void          setHidden(bool isHidden)                                      { m_isHidden = isHidden; }
+    bool             isUiHidden(QString uiConfigName = "") const;
+    void             setUiHidden(bool isHidden, QString uiConfigName = "")                 { m_configItemInfos[uiConfigName].m_isHidden = isHidden; } 
 
+    bool             isUiReadOnly(QString uiConfigName = "");
+    void             setUiReadOnly(bool isReadOnly, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_isReadOnly = isReadOnly; } 
+
+    QString          uiEditorTypeName(const QString& uiConfigName) const;
+    void             setUiEditorTypeName(const QString& editorTypeName, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_editorTypeName = editorTypeName; }
+
+    virtual bool     isUiGroup()                                                           { return false; }
+
+    void             updateConnectedEditors();
+
+public: // Pdm-Private only
     //==================================================================================================
     /// This method sets the GUI description pointer, which is supposed to be statically allocated 
     /// somewhere. the PdmGuiEntry class will not delete it in any way, and always trust it to be present.
+    /// Consider as PRIVATE to the PdmSystem
     //==================================================================================================
 
-    void           setUiItemInfo(PdmUiItemInfo* itemInfo) { m_staticItemInfo = itemInfo; }
+    void              setUiItemInfo(PdmUiItemInfo* itemInfo)            { m_staticItemInfo = itemInfo; }
+
+    void              removeFieldEditor(PdmUiEditorHandle* fieldView)   { m_editors.erase(fieldView); }
+    void              addFieldEditor(PdmUiEditorHandle* fieldView)      { m_editors.insert(fieldView); }
+
+protected:
+    std::set<PdmUiEditorHandle*>        m_editors;
 
 private:
-    PdmUiItemInfo* m_staticItemInfo;
-    PdmUiItemInfo  m_dynamicItemInfo;
-    bool           m_isHidden;
+    const PdmUiItemInfo*                defaultInfo() const;
+    const PdmUiItemInfo*                configInfo(QString uiConfigName) const;
+
+    PdmUiItemInfo*                      m_staticItemInfo;
+    std::map< QString, PdmUiItemInfo >  m_configItemInfos; 
 };
 
 

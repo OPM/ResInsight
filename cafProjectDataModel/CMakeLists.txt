@@ -6,6 +6,10 @@ add_library( ${PROJECT_NAME}
     cafPdmObject.cpp
     cafPdmDocument.cpp
     cafPdmField.cpp
-    cafPdmUiItem.cpp
 	cafPdmPointer.cpp
+	cafPdmUiItem.cpp
+	cafPdmUiOrdering.cpp
+	cafPdmUiEditorHandle.cpp
+	cafPdmUiFieldEditorHandle.cpp
+	cafPdmUiObjectEditorHandle.cpp
 )

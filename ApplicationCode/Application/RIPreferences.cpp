@@ -18,6 +18,7 @@
 
 #include "RIStdInclude.h"
 #include "RIPreferences.h"
+#include "cafPdmUiFilePathEditor.h"
 
 CAF_PDM_SOURCE_INIT(RIPreferences, "RIPreferences");
 //--------------------------------------------------------------------------------------------------
@@ -28,14 +29,19 @@ RIPreferences::RIPreferences(void)
     CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RIApplication::RINavigationPolicy>(RIApplication::NAVIGATION_POLICY_CAD), "Navigation mode", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&scriptDirectory,        "scriptDirectory", "Shared Script Folder", "", "", "");
+    scriptDirectory.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    
     CAF_PDM_InitField(&scriptEditorExecutable,          "scriptEditorExecutable", QString("kate"), "Script Editor", "", "", "");
+    scriptEditorExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    
     CAF_PDM_InitField(&octaveExecutable,                "octaveExecutable", QString("octave"), "Octave", "", "", "");
+    octaveExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
     CAF_PDM_InitField(&showHud,                         "showHud", true, "Show 3D Information", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
-    lastUsedProjectFileName.setHidden(true);
+    lastUsedProjectFileName.setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,3 +51,19 @@ RIPreferences::~RIPreferences(void)
 {
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (field == &scriptDirectory)
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_selectDirectory = true;
+        }
+    }
+}
+

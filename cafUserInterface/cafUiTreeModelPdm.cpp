@@ -157,6 +157,8 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
 
     PdmObject* obj = treeItem->dataObject();
 
+    if (obj == NULL) return QVariant();
+
     // We try to find the context of the object first: The parent field
     // If found, use its data to describe the thing
     // Note: This code will only find first field pointing at the current object. Its valid for now,
@@ -267,14 +269,27 @@ bool UiTreeModelPdm::setData(const QModelIndex &index, const QVariant &value, in
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Enable edit of this item if we have a editable user description field for a pdmObject
+/// Disable edit for other items
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return Qt::ItemIsEnabled;
 
-    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+    PdmUiTreeItem* treeItem = getTreeItemFromIndex(index);
+    if (treeItem)
+    {
+        PdmObject* pdmObject = treeItem->dataObject();
+        if (pdmObject && pdmObject->userDescriptionField() && !pdmObject->userDescriptionField()->isUiReadOnly())
+        {
+            Qt::ItemFlags flagMask = QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+            return flagMask;
+        }
+    }
+
+    Qt::ItemFlags flagMask = QAbstractItemModel::flags(index) & (~Qt::ItemIsEditable);
+    return flagMask;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,7 +425,7 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
     for (it = fields.begin(); it != fields.end(); it++)
     {
         caf::PdmFieldHandle* field = *it;
-        if (field->isHidden()) continue;
+        if (field->isUiHidden()) continue;
 
         std::vector<caf::PdmObject*> children;
         field->childObjects(&children);
