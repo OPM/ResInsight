@@ -295,7 +295,7 @@ QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ec
         int reportNumber = -1;
         if (ecl_util_get_file_type(fileSet.at(i).toAscii().data(), &formatted, &reportNumber) == fileType)
         {
-            return QString(fileSet.at(i).data());
+            return fileSet.at(i);
         }
     }
 
@@ -319,7 +319,7 @@ QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSe
         int reportNumber = -1;
         if (ecl_util_get_file_type(fileSet.at(i).toAscii().data(), &formatted, &reportNumber) == fileType)
         {
-            fileNames.append(QString(fileSet.at(i).data()));
+            fileNames.append(fileSet.at(i));
         }
     }
 
