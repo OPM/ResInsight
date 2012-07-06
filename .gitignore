@@ -1,0 +1,30 @@
+# editor backup files
+*~
+.\#*
+
+# compiler output
+*.o
+*.a
+
+# Octave plugins (compiled)
+*.oct
+
+# precompiled headers
+*.gch
+
+# Qt preprocessor
+moc_*.cxx
+qrc_*.cxx
+
+# CMake
+*.cmake
+Makefile
+CMakeFiles/
+CMakeCache.txt
+/Generated/
+
+# Unit testing
+*_UnitTests
+
+# Target program
+/ApplicationCode/ResInsight
