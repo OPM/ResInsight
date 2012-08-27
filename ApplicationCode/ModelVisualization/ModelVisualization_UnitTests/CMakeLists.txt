@@ -52,6 +52,11 @@ add_executable( ${ProjectName}
 )
 
 
-target_link_libraries( ${ProjectName} ${LINK_LIBRARIES})
+set( EXTERNAL_LINK_LIBRARIES
+    pthread
+)
+
+
+target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 
