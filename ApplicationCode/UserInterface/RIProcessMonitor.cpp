@@ -20,6 +20,7 @@
 
 #include "RIProcessMonitor.h"
 #include "cafUiProcess.h"
+#include "RIApplication.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -38,6 +39,15 @@ RIProcessMonitor::RIProcessMonitor(QDockWidget* pParent)
     pTopLayout->addWidget(pLabel);
     pTopLayout->addWidget(m_labelStatus);
 
+    pTopLayout->addStretch();
+    QPushButton* clearPushButton = new QPushButton("Clear", this);
+    pTopLayout->addWidget(clearPushButton);
+    connect(clearPushButton, SIGNAL(clicked()), this, SLOT(slotClearTextEdit()) );
+
+    m_terminatePushButton = new QPushButton("Stop", this);
+    pTopLayout->addWidget(m_terminatePushButton);
+    connect(m_terminatePushButton, SIGNAL(clicked()), this, SLOT(slotTerminateProcess()) );
+    m_terminatePushButton->setEnabled(false);
 
     m_textEdit = new QPlainTextEdit(this);
     m_textEdit->setReadOnly(true);
@@ -72,7 +82,6 @@ RIProcessMonitor::~RIProcessMonitor()
 void RIProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
 {
     setStatusMsg("N/A", caf::PROCESS_STATE_NORMAL);
-    m_textEdit->clear();
 
     if (m_monitoredProcess == pProcess) return;
 
@@ -82,6 +91,11 @@ void RIProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
     connect(m_monitoredProcess, SIGNAL(signalStatusMsg(const QString&, int)),    SLOT(slotShowProcStatusMsg(const QString&, int)));
     connect(m_monitoredProcess, SIGNAL(readyReadStandardError()),                SLOT(slotProcReadyReadStdErr()));
     connect(m_monitoredProcess, SIGNAL(readyReadStandardOutput()),                SLOT(slotProcReadyReadStdOut()));
+
+    m_terminatePushButton->setEnabled(true);
+
+    QString timeStamp = QTime::currentTime().toString("hh:mm:ss");
+    addStringToLog(timeStamp + " Process starting\n");
 }
 
 
@@ -92,7 +106,12 @@ void RIProcessMonitor::stopMonitorWorkProcess()
 {
     m_monitoredProcess = NULL;
 
+    m_terminatePushButton->setEnabled(false);
+
     setStatusMsg("N/A", caf::PROCESS_STATE_NORMAL);
+
+    QString timeStamp = QTime::currentTime().toString("hh:mm:ss");
+    addStringToLog(timeStamp + " Process finished\n\n");
 }
 
 
@@ -164,5 +183,24 @@ void RIProcessMonitor::slotProcReadyReadStdErr()
     dataArray.replace("\r", "");
 
     addStringToLog(dataArray.data());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIProcessMonitor::slotTerminateProcess()
+{
+    addStringToLog("Process terminated by user\n");
+
+    RIApplication* app = RIApplication::instance();
+    app->terminateProcess();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIProcessMonitor::slotClearTextEdit()
+{
+    m_textEdit->clear();
 }
 

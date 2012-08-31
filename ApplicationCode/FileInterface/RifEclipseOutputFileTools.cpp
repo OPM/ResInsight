@@ -25,6 +25,7 @@
 #endif //USE_ECL_LIB
 
 #include <QFileInfo>
+#include "cafProgressInfo.h"
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -105,7 +106,11 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
     CVF_ASSERT(keywords);
     keywords->clear();
 
+
     size_t numKeywords = ecl_file_get_num_distinct_kw(m_file);
+
+    caf::ProgressInfo info(numKeywords, "Reading Keywords on file");
+
     size_t i;
     for (i = 0; i < numKeywords; i++)
     {
@@ -148,6 +153,8 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
         {
             keywords->append(QString(kw));
         }
+
+        info.setProgress(i);
     }
 
     return true;

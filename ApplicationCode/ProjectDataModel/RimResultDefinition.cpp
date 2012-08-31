@@ -39,7 +39,7 @@ RimResultDefinition::RimResultDefinition()
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&resultType,     "ResultType",       "Type", "", "", "");
-    CAF_PDM_InitField(&resultVariable, "ResultVariable", RimDefines::nonSelectedResultName(), "Variable", "", "", "" );
+    CAF_PDM_InitField(&resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
 
     resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 }
@@ -67,7 +67,7 @@ void RimResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 {
     if (changedField == &resultType)
     {
-        resultVariable = RimDefines::nonSelectedResultName();
+        resultVariable = RimDefines::undefinedResultName();
     }
 
     loadResult();
@@ -118,7 +118,7 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
             {
                 optionList.push_back(caf::PdmOptionItemInfo( varList[i], varList[i]));
             }
-            optionList.push_front(caf::PdmOptionItemInfo( RimDefines::nonSelectedResultName(), RimDefines::nonSelectedResultName() ));
+            optionList.push_front(caf::PdmOptionItemInfo( RimDefines::undefinedResultName(), RimDefines::undefinedResultName() ));
 
             if (useOptionsOnly) *useOptionsOnly = true;
 

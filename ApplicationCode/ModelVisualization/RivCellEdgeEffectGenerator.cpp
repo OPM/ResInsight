@@ -44,6 +44,7 @@
 #include "cvfTexture.h"
 #include "cvfSampler.h"
 #include "cvfScalarMapper.h"
+#include "cafEffectGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -87,22 +88,16 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     const RigGridBase* grid = dynamic_cast<const RigGridBase*>(generator->activeGrid());
 
     CVF_ASSERT(grid != NULL);
-    const std::vector< double >* cellScalarResults = NULL;
-    bool cellScalarResultUseGlobalActiveIndex = true;
 
-    const std::vector< double >* edgeScalarResults[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
+    bool cellScalarResultUseGlobalActiveIndex = true;
     bool edgeScalarResultUseGlobalActiveIndex[6];
 
     if (cellResultSlot->hasResult())
     {
-        const std::vector< std::vector<double> >& scalarResultTimeSteps = grid->mainGrid()->results()->cellScalarResults(cellResultSlot->gridScalarIndex());
-        if (cellResultSlot->hasDynamicResult())
+        if (!cellResultSlot->hasDynamicResult())
         {
-            cellScalarResults = &scalarResultTimeSteps[timeStepIndex];
-        }
-        else
-        {
-            cellScalarResults = &scalarResultTimeSteps[0];
+            // Static result values are located at time step 0
+            timeStepIndex = 0;
         }
 
         cellScalarResultUseGlobalActiveIndex = grid->mainGrid()->results()->isUsingGlobalActiveIndex(cellResultSlot->gridScalarIndex());
@@ -118,8 +113,6 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         {
             if (resultIndices[cubeFaceIdx] != cvf::UNDEFINED_SIZE_T)
             {
-                const std::vector< std::vector<double> >& scalarResultTimeSteps = grid->mainGrid()->results()->cellScalarResults(resultIndices[cubeFaceIdx]);
-                edgeScalarResults[cubeFaceIdx] = &scalarResultTimeSteps[0]; // Assuming only static edge results
                 edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx] = grid->mainGrid()->results()->isUsingGlobalActiveIndex(resultIndices[cubeFaceIdx]);
             }
         }
@@ -143,18 +136,16 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         float cellColorTextureCoord = 0.5f; // If no results exists, the texture will have a special color
         size_t cellIndex = quadToCell[quadIdx];
 
-        size_t resultIndex = cellIndex;
+        size_t resultValueIndex = cellIndex;
         if (cellScalarResultUseGlobalActiveIndex)
         {
-            resultIndex = grid->cell(cellIndex).globalActiveIndex();
+            resultValueIndex = grid->cell(cellIndex).globalActiveIndex();
         }
 
-        if (cellScalarResults )
         {
-            if (resultIndex != cvf::UNDEFINED_SIZE_T)
+            double scalarValue = grid->mainGrid()->results()->cellScalarResult(timeStepIndex, cellResultSlot->gridScalarIndex(), resultValueIndex);
+            if (scalarValue != HUGE_VAL)
             {
-                double scalarValue = (*cellScalarResults)[resultIndex];
-
                 cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
             }
             else
@@ -174,19 +165,17 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         {
             edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
-            resultIndex = cellIndex;
+            resultValueIndex = cellIndex;
             if (edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx])
             {
-                resultIndex = grid->cell(cellIndex).globalActiveIndex();
+                resultValueIndex = grid->cell(cellIndex).globalActiveIndex();
             }
 
-            if (resultIndices[cubeFaceIdx] != cvf::UNDEFINED_SIZE_T && resultIndex != cvf::UNDEFINED_SIZE_T)
+            // Assuming static values to be mapped onto cell edge, always using time step zero
+            double scalarValue = grid->mainGrid()->results()->cellScalarResult(0, resultIndices[cubeFaceIdx], resultValueIndex);
+            if (scalarValue != HUGE_VAL && scalarValue != ignoredScalarValue)
             {
-                double scalarValue = (*(edgeScalarResults[cubeFaceIdx]))[resultIndex];
-                if(scalarValue != ignoredScalarValue)
-                {
-                    edgeColor = edgeResultScalarMapper->mapToTextureCoord(scalarValue)[0];
-                }
+                edgeColor = edgeResultScalarMapper->mapToTextureCoord(scalarValue)[0];
             }
 
             cvf::FloatArray* colArr = cellEdgeColorTextureCoordsArrays.at(cubeFaceIdx);
@@ -250,6 +239,20 @@ bool CellEdgeEffectGenerator::isEqual(const EffectGenerator* other) const
         && m_defaultCellColor     == otherCellFaceEffectGenerator->m_defaultCellColor
         )
     {
+        cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
+
+        if (otherCellFaceEffectGenerator->m_edgeScalarMapper.notNull())
+        {
+            otherCellFaceEffectGenerator->m_edgeScalarMapper->updateTexture(texImg2.p());
+            if (!caf::ScalarMapperEffectGenerator::isImagesEqual(m_edgeTextureImage.p(), texImg2.p())) return false;
+        }
+
+        if (otherCellFaceEffectGenerator->m_cellScalarMapper.notNull())
+        {
+            otherCellFaceEffectGenerator->m_cellScalarMapper->updateTexture(texImg2.p());
+            if (!caf::ScalarMapperEffectGenerator::isImagesEqual(m_cellTextureImage.p(), texImg2.p())) return false;
+        }
+
         return true;
     }
     else
@@ -264,6 +267,9 @@ bool CellEdgeEffectGenerator::isEqual(const EffectGenerator* other) const
 caf::EffectGenerator* CellEdgeEffectGenerator::copy() const
 {
     CellEdgeEffectGenerator * newEffect = new CellEdgeEffectGenerator(m_edgeScalarMapper.p(), m_cellScalarMapper.p());
+    newEffect->m_edgeTextureImage = m_edgeTextureImage;
+    newEffect->m_cellTextureImage = m_cellTextureImage;
+
     newEffect->setOpacityLevel(m_opacityLevel);
     newEffect->setCullBackfaces(m_cullBackfaces);
     newEffect->setUndefinedColor(m_undefinedColor);
@@ -316,23 +322,25 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
  
     // Set up textures
 
-    cvf::ref<cvf::TextureImage> edgeTexImg = new cvf::TextureImage;
-    cvf::ref<cvf::TextureImage> cellTexImg = new cvf::TextureImage;
+    m_edgeTextureImage = new cvf::TextureImage;
+    m_cellTextureImage = new cvf::TextureImage;
 
-    m_edgeScalarMapper->updateTexture(edgeTexImg.p());
+    cvf::ref<cvf::TextureImage> modifiedCellTextImage;
+    m_edgeScalarMapper->updateTexture(m_edgeTextureImage.p());
     if (m_cellScalarMapper.notNull()) 
     {
-        m_cellScalarMapper->updateTexture(cellTexImg.p());
-        cellTexImg = caf::ScalarMapperEffectGenerator::addAlphaAndUndefStripes(cellTexImg.p(), m_undefinedColor, m_opacityLevel);
+        m_cellScalarMapper->updateTexture(m_cellTextureImage.p());
+        modifiedCellTextImage = caf::ScalarMapperEffectGenerator::addAlphaAndUndefStripes(m_cellTextureImage.p(), m_undefinedColor, m_opacityLevel);
     }
     else 
     {
-        cellTexImg->allocate(2,1);
-        cellTexImg->fill(cvf::Color4ub(cvf::Color4f(m_defaultCellColor, m_opacityLevel)));
+        modifiedCellTextImage = new cvf::TextureImage;
+        modifiedCellTextImage->allocate(2,1);
+        modifiedCellTextImage->fill(cvf::Color4ub(cvf::Color4f(m_defaultCellColor, m_opacityLevel)));
     }
 
-    cvf::ref<cvf::Texture> edgeTexture = new cvf::Texture(edgeTexImg.p());
-    cvf::ref<cvf::Texture> cellTexture = new cvf::Texture(cellTexImg.p());
+    cvf::ref<cvf::Texture> edgeTexture = new cvf::Texture(m_edgeTextureImage.p());
+    cvf::ref<cvf::Texture> cellTexture = new cvf::Texture(modifiedCellTextImage.p());
 
     cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
     sampler->setWrapMode(cvf::Sampler::CLAMP_TO_EDGE);

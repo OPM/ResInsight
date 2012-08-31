@@ -128,8 +128,6 @@ private:
     QAction*		    m_zoomAll;
 
     // Debug actions
-    QAction*		    m_debugUseShaders;
-    QAction*		    m_performanceHud;
     QAction*		    m_newPropertyView;
 
     // Help actions

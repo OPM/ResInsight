@@ -33,6 +33,7 @@
 #include "cafUtils.h"
 #include "cafFrameAnimationControl.h"
 #include "cafNavigationPolicy.h"
+#include "cafEffectGenerator.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -255,6 +256,8 @@ void RIViewer::slotEndAnimation()
     if (m_reservoirView) m_reservoirView->endAnimation();
     
     caf::Viewer::slotEndAnimation();
+
+    caf::EffectGenerator::releaseUnreferencedEffects();
 }
 
 //--------------------------------------------------------------------------------------------------

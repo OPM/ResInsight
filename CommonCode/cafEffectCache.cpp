@@ -51,7 +51,7 @@ EffectCache* EffectCache::instance()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect> EffectCache::getOrCreateEffect(const EffectGenerator* generator)
+cvf::Effect* EffectCache::findEffect(const EffectGenerator* generator)
 {
     CVF_ASSERT(generator);
 
@@ -69,18 +69,11 @@ cvf::ref<cvf::Effect> EffectCache::getOrCreateEffect(const EffectGenerator* gene
         {
             cvf::ref<cvf::Effect> effect = m_effectCache[i].second;
             EffectGenerator* effGen = m_effectCache[i].first;
-            effGen->updateEffect(effect.p());
-
-            return effect;
+            return effect.p();
         }
     }
 
-    EffectGenerator* myCopy = generator->copy();
-
-    cvf::ref<cvf::Effect> eff = generator->generateEffect();
-    m_effectCache.push_back(std::make_pair(myCopy, eff));
-
-    return eff;
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,6 +89,39 @@ void EffectCache::clear()
     }
 
     m_effectCache.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void EffectCache::addEffect(const EffectGenerator* generator, cvf::Effect* effect)
+{
+    EffectGenerator* myCopy = generator->copy();
+    m_effectCache.push_back(std::make_pair(myCopy, effect));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void EffectCache::releaseUnreferencedEffects()
+{
+    std::vector<std::pair<EffectGenerator*, cvf::ref<cvf::Effect> > > newCache;
+    size_t i;
+    for (i = 0; i < m_effectCache.size(); i++)
+    {
+        if (m_effectCache[i].second.p()->refCount() <= 1 )
+        {
+            m_effectCache[i].second = NULL;
+            delete m_effectCache[i].first;
+            m_effectCache[i].first = NULL;
+        }
+        else
+        {
+            newCache.push_back(m_effectCache[i]);
+        }
+    }
+    
+    m_effectCache.swap(newCache);
 }
 
 

@@ -18,40 +18,47 @@
 //##################################################################################################
 
 #pragma once
+#include "cafPdmUiFieldEditorHandle.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfEffect.h"
+#include <QWidget>
+#include <QPointer>
+#include <QPushButton>
+#include <QLabel>
 
-#include "cafEffectGenerator.h"
-
-
-namespace caf {
-
-//==================================================================================================
-//
-// Private class. Used only by caf::EffectGenerator to cache effects (with GPU resources)
-//
-//==================================================================================================
-class EffectCache
+namespace caf 
 {
-private:
-    friend class EffectGenerator;
-    EffectCache();
 
-    static EffectCache* instance();
-   
-    cvf::Effect*        findEffect(const EffectGenerator* generator);
-    void                addEffect(const EffectGenerator* generator, cvf::Effect* effect);
+//==================================================================================================
+/// The default editor for several PdmFields.
+//==================================================================================================
 
-    void                releaseUnreferencedEffects();
-    void                clear();
+class PdmUiPushButtonEditorAttribute : public PdmUiEditorAttribute
+{
 
-private:
-    EffectGenerator::RenderingModeType                                m_effectType;
-    std::vector<std::pair<EffectGenerator*, cvf::ref<cvf::Effect> > > m_effectCache;
 };
-    
 
 
-}
+class PdmUiPushButtonEditor : public PdmUiFieldEditorHandle
+{
+    Q_OBJECT
+    CAF_PDM_UI_FIELD_EDITOR_HEADER_INIT;
+
+public:
+    PdmUiPushButtonEditor()          {} 
+    virtual ~PdmUiPushButtonEditor() {} 
+
+protected:
+    virtual QWidget*    createEditorWidget(QWidget * parent);
+    virtual QWidget*    createLabelWidget(QWidget * parent);
+    virtual void        configureAndUpdateUi(const QString& uiConfigName);
+
+protected slots:
+    void                slotClicked(bool checked);
+
+private:
+    QPointer<QPushButton> m_pushButton;
+    QPointer<QLabel>    m_label;
+};
+
+
+} // end namespace caf

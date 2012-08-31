@@ -33,6 +33,6 @@ public:
         REMOVED
     };
 
-    static QString nonSelectedResultName() { return "None"; }
+    static QString undefinedResultName() { return "None"; }
 };
 

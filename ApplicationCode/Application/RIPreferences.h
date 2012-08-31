@@ -41,6 +41,9 @@ public: // Pdm Fields
 
     caf::PdmField<QString>  lastUsedProjectFileName;
 
+    caf::PdmField<bool>     autocomputeSOIL;
+
+
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 };

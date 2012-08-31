@@ -58,17 +58,18 @@ public:
     void                            setCullBackfaces(bool cullBackFaces)    { m_cullBackfaces = cullBackFaces; }
     void                            setDefaultCellColor(cvf::Color3f color) { m_defaultCellColor = color; }
 
+protected:
     virtual bool                    isEqual( const EffectGenerator* other ) const;
     virtual EffectGenerator*        copy() const;
 
-
-protected:
     virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
     virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
 
 private:
-    cvf::cref<cvf::ScalarMapper>    m_edgeScalarMapper;
-    cvf::cref<cvf::ScalarMapper>    m_cellScalarMapper;
+    cvf::cref<cvf::ScalarMapper>        m_edgeScalarMapper;
+    mutable cvf::ref<cvf::TextureImage> m_edgeTextureImage;
+    cvf::cref<cvf::ScalarMapper>        m_cellScalarMapper;
+    mutable cvf::ref<cvf::TextureImage> m_cellTextureImage;
 
     float                           m_opacityLevel;
     bool                            m_cullBackfaces;

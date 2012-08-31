@@ -456,10 +456,7 @@ void RimUiTreeView::slotExecuteScript()
             arguments.append("-q");
             arguments << calcScript->absolutePath();
 
-            if (!RIApplication::instance()->launchProcess(octavePath, arguments))
-            {
-                QMessageBox::warning(RIMainWindow::instance(), "Script execution", "Failed to start script executable located at\n" + octavePath);
-            }
+            RIApplication::instance()->launchProcess(octavePath, arguments);
         }
     }
 }

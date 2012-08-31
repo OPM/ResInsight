@@ -588,16 +588,12 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 const double lowerBound = (*pfIt)->lowerBound();
                 const double upperBound = (*pfIt)->upperBound();
 
-                const std::vector< std::vector<double> >& scalarResultTimeSteps = grid->mainGrid()->results()->cellScalarResults((*pfIt)->resultDefinition->gridScalarIndex());
-                const std::vector< double >* scalarResult = NULL;
+                size_t scalarResultIndex = (*pfIt)->resultDefinition->gridScalarIndex();
 
-                if ((*pfIt)->resultDefinition()->hasDynamicResult())
+                // Set time step to zero for static results
+                if ((*pfIt)->resultDefinition()->hasStaticResult())
                 {
-                    scalarResult = &(scalarResultTimeSteps[timeStepIndex]);
-                }
-                else if ((*pfIt)->resultDefinition()->hasStaticResult())
-                {
-                    scalarResult = &(scalarResultTimeSteps[0]);
+                    timeStepIndex = 0;
                 }
 
                 const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
@@ -608,15 +604,13 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 {
                     if ( (*cellVisibility)[cellIndex] )
                     {
-                        size_t resultIndex = cellIndex;
+                        size_t resultValueIndex = cellIndex;
                         if (useGlobalActiveIndex)
                         {
-                            resultIndex = grid->cell(cellIndex).globalActiveIndex();
+                            resultValueIndex = grid->cell(cellIndex).globalActiveIndex();
                         }
                         
-                        double scalarValue = HUGE_VAL;
-                        if (resultIndex != cvf::UNDEFINED_SIZE_T) scalarValue = (*scalarResult)[resultIndex];
-
+                        double scalarValue = grid->mainGrid()->results()->cellScalarResult(timeStepIndex, scalarResultIndex, resultValueIndex);
                         if (lowerBound <= scalarValue && scalarValue <= upperBound)
                         {
                             if (filterType == RimCellFilter::EXCLUDE)

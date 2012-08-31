@@ -24,6 +24,7 @@
 #include "RigGridBase.h"
 #include "RigReservoir.h"
 #include "RIApplication.h"
+#include "RIPreferences.h"
 
 #include "cafEffectGenerator.h"
 #include "cafFrameAnimationControl.h"
@@ -665,7 +666,11 @@ void RimReservoirView::loadDataAndUpdate()
             RigReservoirCellResults* results = gridCellResults();
             CVF_ASSERT(results);
 
-            results->loadOrComputeSOIL();
+            RIApplication* app = RIApplication::instance();
+            if (app->preferences()->autocomputeSOIL)
+            {
+                results->loadOrComputeSOIL();
+            }
         }
     }
 

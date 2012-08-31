@@ -243,14 +243,6 @@ void RIMainWindow::createActions()
     connect(m_zoomAll,	                    SIGNAL(triggered()), SLOT(slotZoomAll()));
 
     // Debug actions
-    m_debugUseShaders = new QAction("Use shaders", this);
-    m_debugUseShaders->setCheckable(true);
-    connect(m_debugUseShaders, SIGNAL(triggered(bool)), SLOT(slotUseShaders(bool)));
-
-    m_performanceHud = new QAction("Show Performance Info", this);
-    m_performanceHud->setCheckable(true);
-    connect(m_performanceHud, SIGNAL(triggered(bool)), SLOT(slotShowPerformanceInfo(bool)));
-
     m_newPropertyView = new QAction("New Property View", this);
     connect(m_newPropertyView, SIGNAL(triggered()), SLOT(slotNewObjectPropertyView()));
 
@@ -309,8 +301,6 @@ void RIMainWindow::createMenus()
     debugMenu->addAction(m_mockLargeResultsModelAction);
     debugMenu->addAction(m_mockInputModelAction);
     debugMenu->addSeparator();
-    debugMenu->addAction(m_debugUseShaders);
-    debugMenu->addAction(m_performanceHud);
     debugMenu->addAction(m_newPropertyView);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
@@ -1036,8 +1026,6 @@ void RIMainWindow::slotShowPerformanceInfo(bool enable)
 void RIMainWindow::slotRefreshDebugActions()
 {
     RIApplication* app = RIApplication::instance();
-    m_debugUseShaders->setChecked(app->useShaders());
-    m_performanceHud->setChecked(app->showPerformanceInfo());
 }
 
 //--------------------------------------------------------------------------------------------------

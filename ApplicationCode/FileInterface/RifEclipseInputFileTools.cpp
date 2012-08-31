@@ -66,7 +66,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
     FILE* gridFilePointer = util_fopen(fileName.toLatin1().data(), "r");
     if (!gridFilePointer) return false;
 
-    // Main grid Dimentions
+    // Main grid dimensions
     // SPECGRID - This is whats normally available, but not really the input to Eclipse.
     // DIMENS - Is what Eclipse expects and uses, but is not defined in the GRID section and is not (?) available normally
     // ZCORN, COORD, ACTNUM, MAPAXES

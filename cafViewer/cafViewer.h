@@ -104,6 +104,8 @@ public:
     void	                enablePerfInfoHud(bool enable);
     bool	                isPerfInfoHudEnabled();
 
+    void                    enableForcedImmediateMode(bool enable);
+
     // Find out whether the system supports shaders
     static bool             isShadersSupported();
 

@@ -347,13 +347,10 @@ QString BasicAboutDialog::openGLVersionString() const
 
     QGLFormat::OpenGLVersionFlags flags = QGLFormat::openGLVersionFlags();
 
-    if (false) ;
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 7, 0))
-    else if (flags & QGLFormat::OpenGL_Version_4_0              ) versionString += "4.0";
+    if      (flags & QGLFormat::OpenGL_Version_4_0              ) versionString += "4.0";
     else if (flags & QGLFormat::OpenGL_Version_3_3              ) versionString += "3.3";
     else if (flags & QGLFormat::OpenGL_Version_3_2              ) versionString += "3.2";
     else if (flags & QGLFormat::OpenGL_Version_3_1              ) versionString += "3.1";
-#endif /* QT_VERSION > 4.7 */
     else if (flags & QGLFormat::OpenGL_Version_3_0              ) versionString += "3.0";
     else if (flags & QGLFormat::OpenGL_ES_Version_2_0           ) versionString += "ES_Version 2.0";
     else if (flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_1) versionString += "ES_CommonLite_Version 1.1";

@@ -82,7 +82,7 @@ DEFUN_DLD (riGetMainGridDimensions, args, nargout,
            "   riGetMainGridDimensions( [CaseName/CaseIndex])\n"
            "\n"
            "Returns a vector of size 3: [ICount, JCount, KCount] \n"
-           "Containing the dimentions of the main grid in the requested case.\n"
+           "Containing the dimensions of the main grid in the requested case.\n"
            "If the Eclipse Case is not defined, the active View in ResInsight is used."
            )
 {

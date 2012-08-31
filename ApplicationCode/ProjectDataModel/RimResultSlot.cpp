@@ -62,7 +62,10 @@ void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
            changeLegendConfig(this->resultVariable());
         }
 
-        if (newValue != "None") if (m_reservoirView) m_reservoirView->animationMode = true;
+        if (newValue != RimDefines::undefinedResultName())
+        {
+            if (m_reservoirView) m_reservoirView->animationMode = true;
+        }
     }
 
     RimResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);

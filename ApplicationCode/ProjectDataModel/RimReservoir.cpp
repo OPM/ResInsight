@@ -19,17 +19,20 @@
 #include "RIStdInclude.h"
 
 #include "RifReaderEclipseOutput.h"
+#include "RifReaderMockModel.h"
+
 #include "RimReservoir.h"
+#include "RimReservoirView.h"
+
 #include "RigReservoir.h"
 #include "RigMainGrid.h"
 #include "RigReservoirCellResults.h"
 
-#include "RimReservoirView.h"
-
 #include "cvfAssert.h"
 
+#include "cafPdmUiPushButtonEditor.h"
+
 #include <QString>
-#include "RifReaderMockModel.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -39,6 +42,10 @@ RimReservoir::RimReservoir()
     m_rigReservoir = NULL;
 
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Case name", "", "" ,"");
+//     CAF_PDM_InitField(&releaseResultMemory, "ReleaseResultMemory", true, "Release result memory", "", "" ,"");
+//     releaseResultMemory.setIOReadable(false);
+//     releaseResultMemory.setIOWritable(false);
+//     releaseResultMemory.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
 
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
 }
@@ -141,7 +148,7 @@ void RimReservoir::removeResult(const QString& resultName)
         // Set cell result variable to none if displaying 
         if (result->resultVariable() == resultName)
         {
-            result->resultVariable.v() = QString("None");
+            result->resultVariable.v() = RimDefines::undefinedResultName();
             result->loadResult();
 
             rebuildDisplayModel = true;
@@ -154,7 +161,7 @@ void RimReservoir::removeResult(const QString& resultName)
             RimCellPropertyFilter* propertyFilter = *it;
             if (propertyFilter->resultDefinition->resultVariable.v() == resultName)
             {
-                propertyFilter->resultDefinition->resultVariable.v() = QString("None");
+                propertyFilter->resultDefinition->resultVariable.v() = RimDefines::undefinedResultName();
                 propertyFilter->resultDefinition->loadResult();
                 propertyFilter->setDefaultValues();
 
@@ -170,6 +177,46 @@ void RimReservoir::removeResult(const QString& resultName)
 
         // TODO
         // CellEdgeResults are not considered, as they do not support display of input properties yet
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &releaseResultMemory)
+    {
+        if (m_rigReservoir.notNull())
+        {
+            for (size_t i = 0; i < reservoirViews().size(); i++)
+            {
+                RimReservoirView* reservoirView = reservoirViews()[i];
+                CVF_ASSERT(reservoirView);
+
+                RimResultSlot* result = reservoirView->cellResult;
+                CVF_ASSERT(result);
+
+                result->resultVariable.v() = RimDefines::undefinedResultName();
+                result->loadResult();
+
+                RimCellEdgeResultSlot* cellEdgeResult = reservoirView->cellEdgeResult;
+                CVF_ASSERT(cellEdgeResult);
+
+                cellEdgeResult->resultVariable.v() = RimDefines::undefinedResultName();
+                cellEdgeResult->loadResult();
+
+                reservoirView->createDisplayModelAndRedraw();
+            }
+
+            RigReservoirCellResults* results = m_rigReservoir->mainGrid()->results();
+            if (results)
+            {
+                results->clearAllResults();
+            }
+        }
+
+        releaseResultMemory = oldValue.toBool();
     }
 }
 

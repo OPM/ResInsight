@@ -23,6 +23,7 @@
 class QDockWidget;
 class QLabel;
 class QPlainTextEdit;
+class QPushButton;
 
 namespace caf
 {
@@ -40,6 +41,7 @@ class RIProcessMonitor : public QWidget
 private:
     QLabel*         m_labelStatus;          // Shows current status string
     QPlainTextEdit* m_textEdit;             // Showing the textual output from the process
+    QPushButton*    m_terminatePushButton;
 
     caf::UiProcess* m_monitoredProcess;     // Pointer to the process we're monitoring. Needed to fetch text
 
@@ -58,5 +60,7 @@ private slots:
     void                    slotShowProcStatusMsg(const QString& message, int messageType);
     void                    slotProcReadyReadStdOut();
     void                    slotProcReadyReadStdErr();
+    void                    slotTerminateProcess();
+    void                    slotClearTextEdit();
 };
 

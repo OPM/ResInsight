@@ -250,20 +250,16 @@ double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size
 //--------------------------------------------------------------------------------------------------
 double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t cellIndex) const
 {
-    size_t resultIndex = cellIndex;
+    size_t resultValueIndex = cellIndex;
     
     bool useGlobalActiveIndex = m_mainGrid->results()->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
-        resultIndex = cell(cellIndex).globalActiveIndex();
-        if (resultIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
+        resultValueIndex = cell(cellIndex).globalActiveIndex();
+        if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
     }
     
-    const std::vector< std::vector<double> >& scalarResult = m_mainGrid->results()->cellScalarResults(scalarSetIndex);
-
-    if (!(timeStepIndex < scalarResult.size() && resultIndex < scalarResult[timeStepIndex].size())) return HUGE_VAL;
-
-    return scalarResult[timeStepIndex][resultIndex];
+    return m_mainGrid->results()->cellScalarResult(timeStepIndex, scalarSetIndex, resultValueIndex);
 }
 
 //--------------------------------------------------------------------------------------------------

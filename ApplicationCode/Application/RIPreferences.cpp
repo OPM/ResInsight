@@ -42,6 +42,8 @@ RIPreferences::RIPreferences(void)
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.setUiHidden(true);
+
+    CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "Compute SOIL if not on disk", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

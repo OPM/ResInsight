@@ -347,6 +347,12 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
         }
     }
 
+    // Set result size to zero for some timesteps
+    if ((stepIndex + 1) % 3 == 0)
+    {
+        values->clear();
+    }
+
     return true;
 }
 

@@ -67,7 +67,7 @@ bool RifReaderEclipseInput::open(const QString& fileName, RigReservoir* reservoi
     close();
 
     // Should we handle gridless properties ?
-    //    If so, they must match dimentions, and a grid afterwards must match dimension
+    //    If so, they must match dimensions, and a grid afterwards must match dimension
 
     // Add file:
     //   Open file

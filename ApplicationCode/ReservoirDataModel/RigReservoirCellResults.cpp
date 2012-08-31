@@ -152,11 +152,19 @@ std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector<double> >& RigReservoirCellResults::cellScalarResults( size_t scalarResultIndex ) const
+double RigReservoirCellResults::cellScalarResult(size_t timeStepIndex, size_t scalarResultIndex, size_t resultValueIndex)
 {
-	CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
-
-	return m_cellScalarResults[scalarResultIndex];
+    if (scalarResultIndex < resultCount() &&
+        timeStepIndex < m_cellScalarResults[scalarResultIndex].size() &&
+        resultValueIndex != cvf::UNDEFINED_SIZE_T &&
+        resultValueIndex < m_cellScalarResults[scalarResultIndex][timeStepIndex].size())
+    {
+        return m_cellScalarResults[scalarResultIndex][timeStepIndex][resultValueIndex];
+    }
+    else
+    {
+        return HUGE_VAL;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,8 +180,10 @@ size_t RigReservoirCellResults::findOrLoadScalarResult(RimDefines::ResultCatType
 
     if (cellScalarResults(resultGridIndex).size()) return resultGridIndex;
 
-    // Generated and Input properties should always be loaded up front.
-    CVF_ASSERT(type == RimDefines::STATIC_NATIVE || type == RimDefines::DYNAMIC_NATIVE);
+    if (type == RimDefines::GENERATED)
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
 
     if (m_readerInterface.notNull())
     {
@@ -475,3 +485,15 @@ void RigReservoirCellResults::removeResult(const QString& resultName)
 
     m_resultInfos[resultIdx].m_resultType = RimDefines::REMOVED;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirCellResults::clearAllResults()
+{
+    for (size_t i = 0; i < m_cellScalarResults.size(); i++)
+    {
+        m_cellScalarResults[i].clear();
+    }
+}
+

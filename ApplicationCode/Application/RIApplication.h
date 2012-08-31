@@ -103,6 +103,7 @@ public:
     QString             octavePath() const;
 
     bool                launchProcess(const QString& program, const QStringList& arguments);
+    void                terminateProcess();
     
     RIPreferences*      preferences();
     void                readPreferences();

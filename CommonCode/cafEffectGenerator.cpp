@@ -32,6 +32,7 @@
 #include "cvfSampler.h"
 
 #include <QtOpenGL/QGLFormat>
+#include "cafEffectCache.h"
 
 namespace caf {
 
@@ -66,7 +67,13 @@ EffectGenerator::RenderingModeType EffectGenerator::renderingMode()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Effect> EffectGenerator::generateEffect() const
 {
-    cvf::ref<cvf::Effect> eff = new cvf::Effect;
+    
+    cvf::ref<cvf::Effect> eff = caf::EffectCache::instance()->findEffect(this);
+
+    if (eff.notNull())  return eff.p();
+
+    eff = new cvf::Effect;
+
     if (sm_renderingMode == SHADER_BASED)
     {
         updateForShaderBasedRendering(eff.p());
@@ -75,6 +82,8 @@ cvf::ref<cvf::Effect> EffectGenerator::generateEffect() const
     {
         updateForFixedFunctionRendering(eff.p());
     }
+
+    caf::EffectCache::instance()->addEffect(this, eff.p());
 
     return eff;
 }
@@ -102,6 +111,22 @@ void EffectGenerator::updateEffect(cvf::Effect* effect) const
     {
         updateForFixedFunctionRendering(effect);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void EffectGenerator::clearEffectCache()
+{
+    EffectCache::instance()->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void EffectGenerator::releaseUnreferencedEffects()
+{
+    EffectCache::instance()->releaseUnreferencedEffects();
 }
 
 //==================================================================================================
@@ -272,10 +297,10 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
 
     // Result mapping texture
 
-    cvf::ref<cvf::TextureImage> texImg = new cvf::TextureImage;
-    m_scalarMapper->updateTexture(texImg.p());
+    m_textureImage = new cvf::TextureImage();
+    m_scalarMapper->updateTexture(m_textureImage.p());
 
-    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(texImg.p(), m_undefinedColor, m_opacityLevel);
+    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(m_textureImage.p(), m_undefinedColor, m_opacityLevel);
 
     cvf::ref<cvf::Texture> texture = new cvf::Texture(modTexImg.p());
     cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
@@ -308,10 +333,10 @@ void ScalarMapperEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* e
 
     // Result mapping texture
 
-    cvf::ref<cvf::TextureImage> texImg = new cvf::TextureImage;
-    m_scalarMapper->updateTexture(texImg.p());
+    m_textureImage = new cvf::TextureImage;
+    m_scalarMapper->updateTexture(m_textureImage.p());
 
-    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(texImg.p(), m_undefinedColor, m_opacityLevel);
+    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(m_textureImage.p(), m_undefinedColor, m_opacityLevel);
 
     cvf::ref<cvf::Texture2D_FF> texture = new cvf::Texture2D_FF(modTexImg.p());
     texture->setWrapMode(cvf::Texture2D_FF::CLAMP);
@@ -374,7 +399,10 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor
             && m_cullBackfaces == otherTextureResultEffect->m_cullBackfaces)
         {
-            return true;
+            cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
+            otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
+
+            return ScalarMapperEffectGenerator::isImagesEqual(m_textureImage.p(), texImg2.p());
         }
     }
 
@@ -387,6 +415,7 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
 EffectGenerator* ScalarMapperEffectGenerator::copy() const
 {
     ScalarMapperEffectGenerator* scEffGen = new ScalarMapperEffectGenerator(m_scalarMapper.p(), m_polygonOffset);
+    scEffGen->m_textureImage = m_textureImage;
     scEffGen->m_opacityLevel = m_opacityLevel;
     scEffGen->m_undefinedColor = m_undefinedColor;
     scEffGen->m_cullBackfaces = m_cullBackfaces;
@@ -417,6 +446,32 @@ ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* te
     }
 
     return modTexImg;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Tests whether two texture images are equal. It might in some rare cases not detect the difference
+/// but to make the comparison fast only some sampling points are used. If both pointers are NULL,
+/// they are considered equal.
+//--------------------------------------------------------------------------------------------------
+bool ScalarMapperEffectGenerator::isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2)
+{
+    if (texImg1 == NULL && texImg2 == NULL ) return true;
+
+    if (   texImg1 != NULL && texImg2 != NULL 
+        && texImg1->height() == texImg2->height() 
+        && texImg1->width()  == texImg2->width()
+        && texImg1->width() > 0 && texImg1->height() > 0
+        && texImg1->pixel(0,0) == texImg2->pixel(0,0)
+        && texImg1->pixel( texImg1->width()-1, texImg1->height()-1) == texImg2->pixel(texImg1->width()-1, texImg1->height()-1)
+        && texImg1->pixel( texImg1->width()/2, texImg1->height()/2) == texImg2->pixel(texImg1->width()/2, texImg1->height()/2)
+        && texImg1->pixel( texImg1->width()/4, texImg1->height()/4) == texImg2->pixel(texImg1->width()/4, texImg1->height()/4)
+        && texImg1->pixel( texImg1->width()/2 + texImg1->width()/4, texImg1->height()/2 + texImg1->height()/4) == texImg2->pixel(texImg1->width()/2 + texImg1->width()/4, texImg1->height()/2 + texImg1->height()/4 )
+        )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -456,10 +511,10 @@ void ScalarMapperMeshEffectGenerator::updateForShaderBasedRendering(cvf::Effect*
 
     // Result mapping texture
 
-    cvf::ref<cvf::TextureImage> texImg = new cvf::TextureImage;
-    m_scalarMapper->updateTexture(texImg.p());
+    m_textureImage = new cvf::TextureImage;
+    m_scalarMapper->updateTexture(m_textureImage.p());
 
-    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(texImg.p(), m_undefinedColor, m_opacityLevel);
+    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(m_textureImage.p(), m_undefinedColor, m_opacityLevel);
 
     cvf::ref<cvf::Texture> texture = new cvf::Texture(modTexImg.p());
     cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
@@ -490,10 +545,10 @@ void ScalarMapperMeshEffectGenerator::updateForFixedFunctionRendering(cvf::Effec
 
     // Result mapping texture
 
-    cvf::ref<cvf::TextureImage> texImg = new cvf::TextureImage;
-    m_scalarMapper->updateTexture(texImg.p());
+    m_textureImage = new cvf::TextureImage;
+    m_scalarMapper->updateTexture(m_textureImage.p());
 
-    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(texImg.p(), m_undefinedColor, m_opacityLevel);
+    cvf::ref<cvf::TextureImage> modTexImg = ScalarMapperEffectGenerator::addAlphaAndUndefStripes(m_textureImage.p(), m_undefinedColor, m_opacityLevel);
 
     cvf::ref<cvf::Texture2D_FF> texture = new cvf::Texture2D_FF(modTexImg.p());
     texture->setWrapMode(cvf::Texture2D_FF::CLAMP);
@@ -541,7 +596,10 @@ bool ScalarMapperMeshEffectGenerator::isEqual(const EffectGenerator* other) cons
             && m_opacityLevel == otherTextureResultEffect->m_opacityLevel
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor)
         {
-            return true;
+            cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
+            otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
+
+            return ScalarMapperEffectGenerator::isImagesEqual(m_textureImage.p(), texImg2.p());
         }
     }
 
@@ -554,6 +612,7 @@ bool ScalarMapperMeshEffectGenerator::isEqual(const EffectGenerator* other) cons
 EffectGenerator* ScalarMapperMeshEffectGenerator::copy() const
 {
     ScalarMapperMeshEffectGenerator* scEffGen = new ScalarMapperMeshEffectGenerator(m_scalarMapper.p());
+    scEffGen->m_textureImage = m_textureImage;
     scEffGen->m_opacityLevel = m_opacityLevel;
     scEffGen->m_undefinedColor = m_undefinedColor;
 

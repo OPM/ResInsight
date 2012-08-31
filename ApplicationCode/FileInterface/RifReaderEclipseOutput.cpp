@@ -381,7 +381,11 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
         QStringList staticResultNames = staticResults;
 
         QList<QDateTime> staticDate;
-        staticDate.push_back(m_timeSteps.front());
+        if (m_timeSteps.size() > 0)
+        {
+            staticDate.push_back(m_timeSteps.front());
+        }
+
         for (size_t i = 0; i < static_cast<size_t>(staticResultNames.size()); ++i)
         {
             size_t resIndex = resCellResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, staticResultNames[i]);

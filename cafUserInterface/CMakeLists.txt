@@ -15,6 +15,7 @@ set( QOBJECT_HEADERS
     cafPdmUiLineEditor.h
     cafPdmUiCheckBoxEditor.h
     cafPdmUiComboBoxEditor.h
+    cafPdmUiPushButtonEditor.h
     cafPdmUiFilePathEditor.h
     cafPdmUiListEditor.h
     cafPdmUiSliderEditor.h
@@ -36,6 +37,7 @@ add_library( ${PROJECT_NAME}
     cafPdmUiLineEditor.cpp
     cafPdmUiCheckBoxEditor.cpp
     cafPdmUiComboBoxEditor.cpp
+    cafPdmUiPushButtonEditor.cpp
     cafPdmUiFilePathEditor.cpp
     cafPdmUiListEditor.cpp
     cafPdmUiSliderEditor.cpp

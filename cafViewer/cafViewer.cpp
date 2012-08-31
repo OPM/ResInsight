@@ -116,7 +116,8 @@ void caf::Viewer::setupMainRendering()
     m_mainRendering->setCamera(m_mainCamera.p());
     m_mainRendering->setRenderQueueSorter(new cvf::RenderQueueSorterBasic(cvf::RenderQueueSorterBasic::EFFECT_ONLY));
 
-    if (!Viewer::isShadersSupported())
+    // Set fixed function rendering if QGLFormat does not support directRendering
+    if (!this->format().directRendering())
     {
         m_mainRendering->renderEngine()->enableForcedImmediateMode(true);
     }
@@ -530,6 +531,7 @@ void caf::Viewer::slotSetCurrentFrame(int frameIndex)
 
     m_renderingSequence->firstRendering()->setScene(m_frameScenes.at(frameIndex));
 
+
     update();
 }
 
@@ -543,7 +545,15 @@ void caf::Viewer::releaseOGlResourcesForCurrentFrame()
         size_t i;
         for (i = 0; i < modelCount; ++i)
         {
-            currentScene->model(i)->deleteOrReleaseOpenGLResources(cvfOpenGLContext());
+            cvf::Collection<cvf::Part> partCollection; 
+            currentScene->model(i)->allParts(&partCollection);
+            for (size_t pIdx = 0; pIdx < partCollection.size(); ++pIdx)
+            {
+                if (partCollection[pIdx].notNull() && partCollection[pIdx]->drawable())
+                {
+                    partCollection[pIdx]->drawable()->releaseBufferObjectsGPU();
+                }
+            }
         }
     }
 }
@@ -647,5 +657,10 @@ void caf::Viewer::debugShowRenderingSequencePartNames()
             }
         }
     }
+}
+
+void caf::Viewer::enableForcedImmediateMode(bool enable)
+{
+    m_mainRendering->renderEngine()->enableForcedImmediateMode(enable);
 }
 

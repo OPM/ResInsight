@@ -142,7 +142,15 @@ QStringList RifEclipseRestartFilesetAccess::resultNames()
 bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t timeStep, std::vector<double>* values)
 {
     size_t numOccurrences = m_files[timeStep]->numOccurrences(resultName);
-    CVF_ASSERT(m_numGrids == numOccurrences);
+
+    // No results for this result variable for current time step found
+    if (numOccurrences == 0) return true;
+
+    // Result handling depends on presens of result values for all grids
+    if (m_numGrids != numOccurrences)
+    {
+        return false;
+    }
 
     size_t i;
     for (i = 0; i < numOccurrences; i++)

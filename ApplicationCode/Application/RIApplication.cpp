@@ -331,6 +331,8 @@ bool RIApplication::closeProject(bool askToSaveIfDirty)
 {
     RIMainWindow* mainWnd = RIMainWindow::instance();
 
+    terminateProcess();
+
     if (false)
     {
         QMessageBox msgBox(mainWnd);
@@ -353,7 +355,7 @@ bool RIApplication::closeProject(bool askToSaveIfDirty)
 
     mainWnd->cleanupGuiBeforeProjectClose();
 
-    caf::EffectCache::instance()->clear();
+    caf::EffectGenerator::clearEffectCache();
     m_project->close();
 
     onProjectOpenedOrClosed();
@@ -417,16 +419,19 @@ bool RIApplication::openEclipseCase(const QString& caseName, const QString& case
 
     RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
-    // Select SOIL as default result variable
-    riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
-    riv->cellResult()->resultVariable = "SOIL";
-    riv->animationMode = true;
+    if (m_preferences->autocomputeSOIL)
+    {
+        // Select SOIL as default result variable
+        riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
+        riv->cellResult()->resultVariable = "SOIL";
+        riv->animationMode = true;
+    }
 
     riv->loadDataAndUpdate();
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->resultVariable = RimDefines::nonSelectedResultName();
+        riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
     }
 
     onProjectOpenedOrClosed();
@@ -455,7 +460,7 @@ bool RIApplication::openInputEclipseCase(const QString& caseName, const QStringL
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->resultVariable = RimDefines::nonSelectedResultName();
+        riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
     }
 
     onProjectOpenedOrClosed();
@@ -536,10 +541,12 @@ void RIApplication::setUseShaders(bool enable)
 //--------------------------------------------------------------------------------------------------
 bool RIApplication::useShaders() const
 {
+    if (!m_preferences->useShaders) return false;
+
     bool isShadersSupported = caf::Viewer::isShadersSupported();
     if (!isShadersSupported) return false;
 
-    return m_preferences->useShaders;
+    return true;
 }
 
 
@@ -721,7 +728,7 @@ void RIApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus
     // get a chance to run before we delete the object
     if (m_workerProcess)
     {
-        m_workerProcess->deleteLater();
+        m_workerProcess->close();
     }
     m_workerProcess = NULL;
 
@@ -749,23 +756,33 @@ void RIApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus
 //--------------------------------------------------------------------------------------------------
 bool RIApplication::launchProcess(const QString& program, const QStringList& arguments)
 {
-    m_workerProcess = new caf::UiProcess(this);
-    connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
-
-    RIMainWindow::instance()->processMonitor()->startMonitorWorkProcess(m_workerProcess);
-
-    m_workerProcess->start(program, arguments);
-    if (!m_workerProcess->waitForStarted(1000))
+    if (m_workerProcess == NULL)
     {
-        m_workerProcess->deleteLater();
-        m_workerProcess = NULL;
+        m_workerProcess = new caf::UiProcess(this);
+        connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
 
-        RIMainWindow::instance()->processMonitor()->stopMonitorWorkProcess();
+        RIMainWindow::instance()->processMonitor()->startMonitorWorkProcess(m_workerProcess);
 
+        m_workerProcess->start(program, arguments);
+        if (!m_workerProcess->waitForStarted(1000))
+        {
+            m_workerProcess->close();
+            m_workerProcess = NULL;
+
+            RIMainWindow::instance()->processMonitor()->stopMonitorWorkProcess();
+
+            QMessageBox::warning(RIMainWindow::instance(), "Script execution", "Failed to start script executable located at\n" + program);
+
+            return false;
+        }
+
+        return true;
+    }
+    else
+    {
+        QMessageBox::warning(NULL, "Script execution", "An Octave process is still running. Please stop this process before executing a new script.");
         return false;
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -852,4 +869,17 @@ void RIApplication::applyPreferences()
         if (treeModel) treeModel->rebuildUiSubTree(this->project()->scriptCollection());
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::terminateProcess()
+{
+    if (m_workerProcess)
+    {
+        m_workerProcess->close();
+    }
+
+    m_workerProcess = NULL;
 }

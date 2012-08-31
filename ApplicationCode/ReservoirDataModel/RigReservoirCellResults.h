@@ -58,12 +58,13 @@ public:
     QString             makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                removeResult(const QString& resultName);
+    void                clearAllResults();
 
     void                loadOrComputeSOIL();
 
     // Access the results data
     std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex);
-    const std::vector< std::vector<double> >&               cellScalarResults(size_t scalarResultIndex) const;
+    double                                                  cellScalarResult(size_t timeStepIndex, size_t scalarResultIndex, size_t resultValueIndex);
 
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results for each timestep for each Result index (ResultVariable)

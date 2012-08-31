@@ -25,6 +25,7 @@
 
 
 class QString;
+
 class RigReservoir;
 class RigGridBase;
 class RimReservoirView;
@@ -55,6 +56,7 @@ public:
                                       
     // Fields:                        
     caf::PdmField<QString>      caseName;
+    caf::PdmField<bool>         releaseResultMemory;
 
     caf::PdmPointersField<RimReservoirView*> reservoirViews;
 
@@ -66,6 +68,7 @@ protected:
     // Overridden methods
     virtual void                    initAfterRead();
 
+    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
 protected:
     cvf::ref<RigReservoir>            m_rigReservoir;

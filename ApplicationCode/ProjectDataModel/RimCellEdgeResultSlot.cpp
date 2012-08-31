@@ -187,7 +187,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
 
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo( "None", "" ));
+            optionList.push_front(caf::PdmOptionItemInfo( RimDefines::undefinedResultName(), "" ));
 
             if (useOptionsOnly) *useOptionsOnly = true;
 

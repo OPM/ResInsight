@@ -23,6 +23,7 @@
 #include "cvfObject.h"
 #include "cvfEffect.h"
 #include "cvfScalarMapper.h"
+#include "cvfTextureImage.h"
 #include "cvfCollection.h"
 
 namespace caf {
@@ -41,16 +42,22 @@ public:
     EffectGenerator()           {}
     virtual ~EffectGenerator()  {}
 
+    cvf::ref<cvf::Effect>       generateEffect() const;
+    void                        updateEffect(cvf::Effect* effect) const;
+
     static void                 setRenderingMode(RenderingModeType effectType);
     static RenderingModeType    renderingMode();
 
-    cvf::ref<cvf::Effect>       generateEffect() const;
-    void                        updateEffect(cvf::Effect* effect) const;
+    static void                 clearEffectCache();
+    static void                 releaseUnreferencedEffects();
+
+protected:
 
     // Interface that must be implemented in base classes
     virtual bool                isEqual(const EffectGenerator* other) const = 0;
     virtual EffectGenerator*    copy() const = 0;
-protected:
+    friend class EffectCache;
+
     // When these are called, the effect is already cleared by updateEffect()
     virtual void                updateForShaderBasedRendering(cvf::Effect* effect) const = 0;
     virtual void                updateForFixedFunctionRendering(cvf::Effect* effect) const = 0;
@@ -73,10 +80,10 @@ public:
 
     void                            setCullBackfaces(bool cullBackFaces) { m_cullBackfaces = cullBackFaces; }
 
+protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
     virtual EffectGenerator*        copy() const;
 
-protected:
     virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
     virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
 
@@ -104,15 +111,14 @@ public:
     void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
     void                            setCullBackfaces(bool cullBackFaces)  { m_cullBackfaces = cullBackFaces; }
+public: 
+    static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
+    static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
 
+protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
     virtual EffectGenerator*        copy() const;
 
-
-public: 
-    static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
-
-protected:
     virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
     virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
 
@@ -121,6 +127,7 @@ private:
 
 private:
     cvf::cref<cvf::ScalarMapper>    m_scalarMapper;
+    mutable cvf::ref<cvf::TextureImage>     m_textureImage;
     bool                            m_polygonOffset;
     float                           m_opacityLevel;
     cvf::Color3f                    m_undefinedColor;
@@ -141,10 +148,10 @@ public:
     void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
 
+protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
     virtual EffectGenerator*        copy() const;
 
-protected:
     virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
     virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
 
@@ -153,6 +160,7 @@ private:
 
 private:
     cvf::cref<cvf::ScalarMapper>    m_scalarMapper;
+    mutable cvf::ref<cvf::TextureImage>     m_textureImage;
     float                           m_opacityLevel;
     cvf::Color3f                    m_undefinedColor;
 };
@@ -167,10 +175,11 @@ class MeshEffectGenerator : public EffectGenerator
 {
 public:
     MeshEffectGenerator(const cvf::Color3f& color);
+
+protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
     virtual EffectGenerator*        copy() const;
 
-protected:
     virtual void                    updateForShaderBasedRendering(cvf::Effect* effect) const;
     virtual void                    updateForFixedFunctionRendering(cvf::Effect* effect) const;
 

@@ -292,7 +292,7 @@ void FrameAnimationControl::slotTimerTriggered()
             }
             else
             {
-                stop();
+                m_timer->stop();
                 m_currentFrame = m_numFrames - 1;
             }
         }
@@ -316,7 +316,7 @@ void FrameAnimationControl::slotTimerTriggered()
             }
             else
             {
-                stop();
+                m_timer->stop();
                 m_currentFrame = 0;
             }
         }
