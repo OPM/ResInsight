@@ -22,6 +22,7 @@ Makefile
 CMakeFiles/
 CMakeCache.txt
 /Generated/
+*.qrc.depends
 
 # Unit testing
 *_UnitTests
