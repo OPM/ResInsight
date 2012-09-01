@@ -60,6 +60,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/util/lib/libutil.a
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/well/lib/libwell.a
         lapack
+        pthread
     )
 
         # Linux specific code
