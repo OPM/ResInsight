@@ -103,6 +103,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/geometry/lib/libgeometry.a
         ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/well/lib/libwell.a
         lapack
+        pthread
+        z # In case libz is not included in libQtCore
     )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set ( EXTERNAL_LINK_LIBRARIES
