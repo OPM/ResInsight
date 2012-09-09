@@ -7,12 +7,6 @@ project ( ${ProjectName} )
 find_package (Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
 include (${QT_USE_FILE})
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( ERT_ROOT "Ert" )
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set ( ERT_ROOT "Ert-windows" )
-endif()
-
 include_directories(
     ${LibCore_SOURCE_DIR}
     ${LibGeometry_SOURCE_DIR}
@@ -28,13 +22,37 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/cafProjectDataModel
 
     ${ResInsight_SOURCE_DIR}/CommonCode
-
-    ${ResInsight_SOURCE_DIR}/ThirdParty/${ERT_ROOT}/ecl/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/${ERT_ROOT}/util/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/${ERT_ROOT}/well/include
-
 )
 
+#-----------------------------------------------------------------
+# Ert configuration
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/../ThirdParty/Ert" CACHE PATH "Root path for ERT distribution to link with")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/../ThirdParty/Ert-windows" CACHE PATH "Root path for ERT distribution to link with")
+endif()
+set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
+set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")
+set( ERT_WELL_PREFIX "well" CACHE STRING "Prefix path to use for well code in ert")
+
+set( ERT_INCLUDE_LIST 
+     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/include 
+     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/include 
+     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/include )
+
+# Link to these ERT libraries
+set( ERT_LIBRARY_LIST 
+     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.a 
+     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libert_util.a 
+     ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.a 
+     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.a )
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   list(APPEND ERT_LIBRARY_LIST lapack z)  
+endif()	
+#-----------------------------------------------------------------
+
+include_directories( ${ERT_INCLUDE_LIST} )
 
 set( FILEINTERFACE_CPP_SOURCES
     ../RifEclipseInputFileTools.cpp
@@ -94,28 +112,7 @@ add_executable( ${ProjectName}
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
 )
 
-
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( EXTERNAL_LINK_LIBRARIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/ecl/lib/libecl.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/util/lib/libutil.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/geometry/lib/libgeometry.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/well/lib/libwell.a
-        lapack
-        pthread
-        z # In case libz is not included in libQtCore
-    )
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set ( EXTERNAL_LINK_LIBRARIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/ecl/lib/libecl.lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/util/lib/libutil.lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/geometry/lib/libgeometry.lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/well/lib/libwell.lib
-    )
-endif()
-
-
+set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 
