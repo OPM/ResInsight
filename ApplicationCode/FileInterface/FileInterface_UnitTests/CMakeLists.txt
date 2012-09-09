@@ -43,7 +43,7 @@ set( ERT_INCLUDE_LIST
 # Link to these ERT libraries
 set( ERT_LIBRARY_LIST 
      ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.a 
-     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libert_util.a 
+     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.a 
      ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.a 
      ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.a )
 
