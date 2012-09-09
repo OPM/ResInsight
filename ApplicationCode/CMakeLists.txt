@@ -9,13 +9,6 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RIVersionInfo.h.cmake
 )
 
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( ERT_ROOT "Ert" )
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set ( ERT_ROOT "Ert-windows" )
-endif()
-
-
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/Adm
@@ -26,13 +19,74 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/${ERT_ROOT}/ecl/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/${ERT_ROOT}/util/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/${ERT_ROOT}/geometry/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/${ERT_ROOT}/well/include
-
     ${CMAKE_BINARY_DIR}/Generated
 )
+
+#-----------------------------------------------------------------
+# Configuration of ERT depdendence
+#-----------------------------------------------------------------
+
+# By default the ERT_ROOT_PATH variable will point to the ERT distribution which
+# is embedded in the ThirdParty/ directory, but by using the ERT_ROOT_PATH
+# variable you can point to a different ERT distribution.
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert" CACHE PATH "Root path for ERT distribution to link with")
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+   set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/x../ThirdParty/Ert-windows" CACHE PATH "Root path for ERT distribution to link with")
+endif()
+
+
+# The ERT binary distribution consists of four libraries, libwell, libecl,
+# libutil and libgeometry and their accompanying header files. There has been a
+# bit of mess of how this has been organized; either it has been on per
+# directory basis as:
+#
+#    ${ERT_ROOT_PATH}/ecl/lib/libecl.so
+#    ${ERT_ROOT_PATH}/ecl/include/ecl_xxx.h 
+#
+#    ${ERT_ROOT_PATH}/well/lib/libwell.so
+#    ${ERT_ROOT_PATH}/well/include/well_xxx.h 
+#    ....
+#
+# Or alternatively everything has been in common include/ and lib/ directories.
+#
+#    ${ERT_ROOT_PATH}/lib
+#    ${ERT_ROOT_PATH}/include
+#
+# This is indirectly goverened by the ERT_XXX_PREFIX variables. If these are
+# set to blank if everything will be collected from common include/ and lib/
+# dierectories.
+set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
+set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")
+set( ERT_WELL_PREFIX "well" CACHE STRING "Prefix path to use for well code in ert")
+set( ERT_GEO_PREFIX  "geometry" CACHE STRING "Prefix path to use for geometry code in ert")
+
+mark_as_advanced( ERT_UTIL_PREFIX  ERT_ECL_PREFIX ERT_WELL_PREFIX ERT_GEO_PREFIX)
+
+# Setting up include directories for ERT
+set( ERT_INCLUDE_LIST 
+     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/include 
+     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/include 
+     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/include 
+     ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/include )
+
+# Link to these ERT libraries
+set( ERT_LIBRARY_LIST 
+     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.a 
+     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.a 
+     ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.a 
+     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.a )
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+   list(APPEND ERT_LIBRARY_LIST lapack z)  
+endif()	
+
+include_directories( ${ERT_INCLUDE_LIST} )
+# Ert configuration complete
+#-----------------------------------------------------------------
+
+
 
 
 # Use all cpp and h files in the subdirectories
@@ -226,25 +280,7 @@ set( LINK_LIBRARIES
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 )
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( EXTERNAL_LINK_LIBRARIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert/ecl/lib/libecl.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert/util/lib/libutil.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert/geometry/lib/libgeometry.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert/well/lib/libwell.a
-        lapack
-        z # In case libz is not included in libQtCore
-    )
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set ( EXTERNAL_LINK_LIBRARIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows/ecl/lib/libecl.lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows/util/lib/libutil.lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows/geometry/lib/libgeometry.lib
-        ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows/well/lib/libwell.lib
-    )
-endif()
-
+set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 # Copy Dlls
