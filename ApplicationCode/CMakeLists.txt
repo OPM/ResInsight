@@ -33,10 +33,10 @@ include_directories(
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert" CACHE PATH "Root path for ERT distribution to link with")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-   set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/x../ThirdParty/Ert-windows" CACHE PATH "Root path for ERT distribution to link with")
+   set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows" CACHE PATH "Root path for ERT distribution to link with")
 endif()
 
-
+	
 # The ERT binary distribution consists of four libraries, libwell, libecl,
 # libutil and libgeometry and their accompanying header files. There has been a
 # bit of mess of how this has been organized; either it has been on per
