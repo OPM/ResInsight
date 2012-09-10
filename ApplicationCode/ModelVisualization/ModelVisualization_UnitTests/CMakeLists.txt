@@ -52,10 +52,11 @@ add_executable( ${ProjectName}
 )
 
 
-set( EXTERNAL_LINK_LIBRARIES
-    pthread
-)
-
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set( EXTERNAL_LINK_LIBRARIES
+        pthread
+    )
+ENDIF()
 
 target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 

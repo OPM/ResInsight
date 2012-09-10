@@ -72,11 +72,19 @@ set( ERT_INCLUDE_LIST
      ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/include )
 
 # Link to these ERT libraries
-set( ERT_LIBRARY_LIST 
-     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.a 
-     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.a 
-     ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.a 
-     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.a )
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set( ERT_LIBRARY_LIST 
+         ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.a 
+         ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.a 
+         ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.a 
+         ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.a )
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    set( ERT_LIBRARY_LIST 
+         ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.lib
+         ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.lib
+         ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.lib
+         ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.lib )
+endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    list(APPEND ERT_LIBRARY_LIST lapack z)  
