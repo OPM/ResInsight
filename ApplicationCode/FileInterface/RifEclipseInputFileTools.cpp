@@ -92,8 +92,10 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
     progress.setProgress(3);
     allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "ACTNUM" , false , ECL_INT_TYPE));
     progress.setProgress(4);
-    allKwReadOk = allKwReadOk && NULL != (mapAxesKw  = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "MAPAXES" , false , ECL_FLOAT_TYPE));
-   
+
+    // If MAPAXES is not defined, this pointer will be NULL, which is a valid condition
+    mapAxesKw = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "MAPAXES" , false , ECL_FLOAT_TYPE);
+
     if (!allKwReadOk)
     {
         if(specGridKw) ecl_kw_free(specGridKw);
@@ -124,7 +126,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
     ecl_kw_free(zCornKw);
     ecl_kw_free(coordKw);
     ecl_kw_free(actNumKw);
-    ecl_kw_free(mapAxesKw);
+    if (mapAxesKw) ecl_kw_free(mapAxesKw);
 
     ecl_grid_free(inputGrid);
 
