@@ -85,7 +85,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         QString propName;
         QString cellEdgeName;
 
-        if (m_reservoirView->eclipseCase())
+        if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData())
         {
             caseName = m_reservoirView->eclipseCase()->caseName();
             totCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
