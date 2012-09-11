@@ -93,7 +93,15 @@ include_directories(
 ################################################################################
 # Installation settings
 ################################################################################
+
 set (RESINSIGHT_FINAL_NAME "ResInsight-${STRPRODUCTVER}")
+
+# Append el5 when compiled on RHEL5 and el6 if compiled on RHEL6
+string(REGEX MATCH "el[5,6]?" RESINSIGHT_PLATFORM ${CMAKE_SYSTEM})
+if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
+    set (RESINSIGHT_FINAL_NAME "${RESINSIGHT_FINAL_NAME}-${RESINSIGHT_PLATFORM}")
+endif()
+
 set (RESINSIGHT_FINAL_INSTALL_PATH "/usr/${RESINSIGHT_FINAL_NAME}")
 
 set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
@@ -133,6 +141,10 @@ set(CPACK_PACKAGE_VERSION_MINOR ${CMAKE_MINOR_VERSION})
 set(CPACK_PACKAGE_VERSION_PATCH ${CMAKE_PATCH_VERSION})
 
 set(CPACK_PACKAGE_NAME "ResInsight-bin")
+
+if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
+    set (CPACK_SYSTEM_NAME "${RESINSIGHT_PLATFORM}")
+endif()
 
 include (CPack)
 
