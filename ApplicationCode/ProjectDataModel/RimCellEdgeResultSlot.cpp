@@ -294,3 +294,36 @@ void RimCellEdgeResultSlot::updateIgnoredScalarValue()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellEdgeResultSlot::minMaxCellEdgeValues(double& min, double& max)
+{
+    CVF_ASSERT(min && max);
+
+    double globalMin, globalMax;
+    globalMin = HUGE_VAL;
+    globalMax = -HUGE_VAL;
+
+    size_t resultIndices[6];
+    this->gridScalarIndices(resultIndices);
+
+    size_t idx;
+    for (idx = 0; idx < 6; idx++)
+    {
+        if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+
+        {
+            double cMin, cMax;
+            m_reservoirView->gridCellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+
+            globalMin = CVF_MIN(globalMin, cMin);
+            globalMax = CVF_MAX(globalMax, cMax);
+        }
+
+    }
+
+    min = globalMin;
+    max = globalMax;
+}
+

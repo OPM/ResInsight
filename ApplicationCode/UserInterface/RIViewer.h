@@ -26,6 +26,9 @@
 #include "cafMouseState.h"
 
 class RimReservoirView;
+class QLabel;
+class QProgressBar;
+class RiuSimpleHistogramWidget;
 
 namespace cvf
 {
@@ -52,12 +55,21 @@ public:
     void            setPointOfInterest(cvf::Vec3d poi);
     void            setOwnerReservoirView(RimReservoirView * owner);
     void            setEnableMask(unsigned int mask);
+
+    void            showInfoText(bool enable);
+    void            setInfoText(QString text);
+    void            showHistogram(bool enable);
+    void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
+    void            setHistogramPercentiles(double pmin, double pmax);
+
+    void            showAnimationProgress(bool enable);
  
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);
     virtual void    slotEndAnimation();
 
 protected:
+    void            paintOverlayItems(QPainter* painter);
     void            keyPressEvent(QKeyEvent* event);
     void            mouseReleaseEvent(QMouseEvent* event);
 
@@ -67,6 +79,16 @@ protected:
 private:
     void            updateLegends();
     caf::QtMouseState   m_mouseState;
+
+    QLabel*         m_InfoLabel;
+    bool            m_showInfoText;; 
+
+    QProgressBar*   m_animationProgress;
+    bool            m_showAnimProgress; 
+    RiuSimpleHistogramWidget* m_histogramWidget;
+    bool            m_showHistogram;
+
+
 
     cvf::ref<cvf::OverlayColorLegend> m_legend1;
     cvf::ref<cvf::OverlayColorLegend> m_legend2;

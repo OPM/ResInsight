@@ -31,6 +31,9 @@ public:
     ~ProgressInfo();
     void setProgressDescription(const QString& description);
     void setProgress(int progressValue);
+    void incrementProgress();
+    void setNextProgressIncrement(int nextStepSize);
+
 };
 
 
@@ -41,6 +44,8 @@ public:
 
     static void setProgressDescription(const QString& description);
     static void setProgress(int progressValue);
+    static void incrementProgress();
+    static void setNextProgressIncrement(int nextStepSize);
 
     static void finished();
 };

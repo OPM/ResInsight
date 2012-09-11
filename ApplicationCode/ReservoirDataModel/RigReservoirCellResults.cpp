@@ -124,6 +124,57 @@ void RigReservoirCellResults::minMaxCellScalarValues(size_t scalarResultIndex, s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector<size_t>& RigReservoirCellResults::cellScalarValuesHistogram(size_t scalarResultIndex)
+{
+    CVF_ASSERT(scalarResultIndex < resultCount());
+
+    // Extend array and cache vars
+
+    if (scalarResultIndex >= m_histograms.size() )
+    {
+        m_histograms.resize(resultCount());
+        m_p10p90.resize(resultCount(), std::make_pair(HUGE_VAL, HUGE_VAL));
+    }
+
+    if (m_histograms[scalarResultIndex].size())
+    {
+        return m_histograms[scalarResultIndex];
+
+    }
+
+    double min;
+    double max;
+    size_t nBins = 100;
+    this->minMaxCellScalarValues( scalarResultIndex, min, max );
+    RigHistogramCalculator histCalc(min, max, nBins, &m_histograms[scalarResultIndex]);
+
+    for (size_t tsIdx = 0; tsIdx < this->timeStepCount(scalarResultIndex); tsIdx++)
+    {
+        std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tsIdx];
+
+        histCalc.addData(values);
+    } 
+
+    m_p10p90[scalarResultIndex].first = histCalc.calculatePercentil(0.1);
+    m_p10p90[scalarResultIndex].second = histCalc.calculatePercentil(0.9);
+
+    return m_histograms[scalarResultIndex];
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirCellResults::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
+{
+    const std::vector<size_t>& histogr = cellScalarValuesHistogram( scalarResultIndex);
+    p10 = m_p10p90[scalarResultIndex].first;
+    p90 = m_p10p90[scalarResultIndex].second;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigReservoirCellResults::resultCount() const
 {
 	return m_cellScalarResults.size();
@@ -420,6 +471,17 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QDateTime RigReservoirCellResults::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
+{
+    if (scalarResultIndex < m_resultInfos.size() && (size_t)(m_resultInfos[scalarResultIndex].m_timeStepDates.size()) > timeStepIndex)
+        return m_resultInfos[scalarResultIndex].m_timeStepDates[timeStepIndex];
+    else
+        return QDateTime();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 QList<QDateTime> RigReservoirCellResults::timeStepDates(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() )
@@ -496,4 +558,3 @@ void RigReservoirCellResults::clearAllResults()
         m_cellScalarResults[i].clear();
     }
 }
-

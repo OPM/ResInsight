@@ -34,6 +34,8 @@
 #include "cafFrameAnimationControl.h"
 #include "cafNavigationPolicy.h"
 #include "cafEffectGenerator.h"
+#include "RiuSimpleHistogramWidget.h"
+
 
 using cvf::ManipulatorTrackball;
 
@@ -61,6 +63,47 @@ RIViewer::RIViewer(const QGLFormat& format, QWidget* parent)
     m_mainRendering->addOverlayItem(axisCross, cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
 
     setReleaseOGLResourcesEachFrame(true);
+
+    QColor c;
+    QPalette p = QApplication::palette();
+    QColor frameAndTextColor(255, 255, 255, 200);
+    p.setColor(QPalette::Window, QColor(144, 173, 208, 180));
+    p.setColor(QPalette::WindowText, frameAndTextColor);
+
+    c = p.color(QPalette::Base );
+    c.setAlpha(100);
+    p.setColor(QPalette::Base, c);
+
+    //c = p.color(QPalette::AlternateBase );
+    //c.setAlpha(0);
+    //p.setColor(QPalette::AlternateBase, c);
+
+    
+    p.setColor(QPalette::Highlight, QColor(20, 20, 130, 100));
+
+    p.setColor(QPalette::HighlightedText, frameAndTextColor);
+
+    p.setColor(QPalette::Dark, QColor(230, 250, 255, 100));
+
+    // Info Text
+    m_InfoLabel = new QLabel();
+    m_InfoLabel->setPalette(p);
+    m_InfoLabel->setFrameShape(QFrame::Box);
+    m_showInfoText = true;
+
+    // Animation progress bar
+    m_animationProgress = new QProgressBar();
+    m_animationProgress->setPalette(p);
+    m_animationProgress->setFormat("Time Step: %v/%m");
+    m_animationProgress->setTextVisible(true);
+    m_animationProgress->setStyle(new QCDEStyle());
+    m_showAnimProgress = false;
+
+    // Histogram
+    m_histogramWidget = new RiuSimpleHistogramWidget();
+    m_histogramWidget->setPalette(p);
+    m_showHistogram = false;
+
 }
 
 
@@ -355,4 +398,96 @@ cvf::Part* RIViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, c
     {
         return NULL;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIViewer::paintOverlayItems(QPainter* painter)
+{
+    int columnWidth = 200;
+    int margin = 5;
+    int yPos = margin;
+
+    bool showAnimBar = false;
+    if (isAnimationActive() && frameCount() > 1) showAnimBar = true;
+
+    //if (showAnimBar)       columnWidth = CVF_MAX(columnWidth, m_animationProgress->width());
+    if (m_showInfoText) columnWidth = CVF_MAX(columnWidth, m_InfoLabel->sizeHint().width());
+
+    int columnPos = this->width() - columnWidth - margin;
+
+    if (showAnimBar && m_showAnimProgress)
+    {
+        m_animationProgress->setMinimum(0);
+        m_animationProgress->setMaximum(frameCount() - 1);
+        m_animationProgress->setValue(currentFrameIndex());
+        m_animationProgress->resize(columnWidth, m_animationProgress->sizeHint().height());
+
+        m_animationProgress->render(painter,QPoint(columnPos, yPos));
+        yPos +=  m_animationProgress->height() + margin;
+
+    }
+
+    if (m_showInfoText)
+    {
+        m_InfoLabel->resize(columnWidth, m_InfoLabel->sizeHint().height());
+        m_InfoLabel->render(painter, QPoint(columnPos, yPos));
+        yPos +=  m_InfoLabel->height() + margin;
+    }
+
+    if (m_showHistogram)
+    {
+        m_histogramWidget->resize(columnWidth, 40);
+        m_histogramWidget->render(painter,QPoint(columnPos, yPos));
+        yPos +=  m_InfoLabel->height() + margin;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIViewer::setInfoText(QString text)
+{
+    m_InfoLabel->setText(text);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIViewer::showInfoText(bool enable)
+{
+    m_showInfoText = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIViewer::setHistogram(double min, double max, const std::vector<size_t>& histogram)
+{
+    m_histogramWidget->setHistogramData(min, max, histogram);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIViewer::setHistogramPercentiles(double pmin, double pmax)
+{
+    m_histogramWidget->setPercentiles(pmin, pmax);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIViewer::showAnimationProgress(bool enable)
+{
+    m_showAnimProgress = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIViewer::showHistogram(bool enable)
+{
+    m_showHistogram = enable;
 }

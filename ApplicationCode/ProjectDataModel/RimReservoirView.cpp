@@ -42,6 +42,7 @@
 #include "cafCadNavigation.h"
 #include "cafCeetronNavigation.h"
 #include "RimReservoir.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 namespace caf {
 
@@ -86,6 +87,10 @@ RimReservoirView::RimReservoirView()
 
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
+
+    CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Overlay Info", "", "", "");
+    overlayInfoConfig = new Rim3dOverlayInfoConfig();
+    overlayInfoConfig->setReservoirView(this);
 
     CAF_PDM_InitField(&name,            "UserDescription", QString(""), "Name",             "", "", "");
     CAF_PDM_InitField(&scaleZ,          "GridZScale",      1.0,         "Z Scale",          "", "Scales the scene in the Z direction", "");
@@ -144,6 +149,8 @@ RimReservoirView::~RimReservoirView()
 {
     delete this->cellResult();
     delete this->cellEdgeResult();
+    delete this->overlayInfoConfig();
+
     delete rangeFilterCollection();
     delete propertyFilterCollection();
 
@@ -645,6 +652,7 @@ void RimReservoirView::updateCurrentTimeStep()
         }
     }
 
+    overlayInfoConfig()->update3DInfo();
     updateLegends();
 }
 
@@ -691,6 +699,7 @@ void RimReservoirView::loadDataAndUpdate()
     createDisplayModel();
     updateDisplayModelVisibility();
     setDefaultView();
+    overlayInfoConfig()->update3DInfo();
 
     if (animationMode && m_viewer)
     {
@@ -1018,31 +1027,8 @@ void RimReservoirView::updateLegends()
 
     if (this->cellEdgeResult()->hasResult())
     {
-        double localMin, localMax;
-        localMin = HUGE_VAL;
-        localMax = -HUGE_VAL;
         double globalMin, globalMax;
-        globalMin = HUGE_VAL;
-        globalMax = -HUGE_VAL;
-
-        size_t resultIndices[6];
-        this->cellEdgeResult()->gridScalarIndices(resultIndices);
-
-        size_t idx;
-        for (idx = 0; idx < 6; idx++)
-        {
-            if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
-
-            {
-                double min, max;
-                results->minMaxCellScalarValues(resultIndices[idx], min, max);
-
-                globalMin = CVF_MIN(globalMin, min);
-                globalMax = CVF_MAX(globalMax, max);
-            }
-
-        }
-
+        this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
         m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
         this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));

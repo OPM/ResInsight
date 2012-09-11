@@ -98,11 +98,13 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
 
     mainGrid->nodes().resize(nodeStartIndex + cellCount*8, cvf::Vec3d(0,0,0));
 
-    caf::ProgressInfo progInfo(cellCount, "");
+    int progTicks = 100;
+    double cellsPrProgressTick = cellCount/(float)progTicks;
+    caf::ProgressInfo progInfo(progTicks, "");
     size_t computedCellCount = 0;
     // Loop over cells and fill them with data
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int gIdx = 0; gIdx < cellCount; ++gIdx)
     {
         RigCell& cell = mainGrid->cells()[cellStartIndex + gIdx];
@@ -149,8 +151,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
 #pragma omp atomic
         computedCellCount++;
 
-        if (computedCellCount%5000 < 20) 
-            progInfo.setProgress(computedCellCount);
+        progInfo.setProgress((int)(computedCellCount/cellsPrProgressTick));
     }
     return true;
 }
@@ -255,12 +256,13 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     mainGrid->cells().reserve(totalCellCount);
     mainGrid->nodes().reserve(8*totalCellCount);
 
-    caf::ProgressInfo progInfo(1 + numLGRs, "");
+    caf::ProgressInfo progInfo(3 + numLGRs, "");
     progInfo.setProgressDescription("Main Grid");
+    progInfo.setNextProgressIncrement(3);
 
     transferGridCellData(mainGrid, mainGrid, mainEclGrid, 0);
 
-    progInfo.setProgress(1);
+    progInfo.setProgress(3);
 
     size_t globalActiveSize = ecl_grid_get_active_size(mainEclGrid);
 
@@ -271,7 +273,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
         transferGridCellData(mainGrid, static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1)), localEclGrid, globalActiveSize);
         globalActiveSize += ecl_grid_get_active_size(localEclGrid);
-        progInfo.setProgress(1 + lgrIdx);
+        progInfo.setProgress(3 + lgrIdx);
     }
 
 #endif
@@ -286,7 +288,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservoir)
 {
     CVF_ASSERT(reservoir);
-    caf::ProgressInfo progInfo(4, "");
+    caf::ProgressInfo progInfo(10, "");
 
     progInfo.setProgressDescription("Reading Grid");
 
@@ -306,13 +308,15 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
     ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
 
     progInfo.setProgress(1);
+    progInfo.setNextProgressIncrement(6);
     progInfo.setProgressDescription("Transferring grid geometry");
 
     if (!transferGeometry(mainEclGrid, reservoir)) return false;
-
+    progInfo.setProgress(7);
+     progInfo.setProgressDescription("Releasing reader memory");
     ecl_grid_free( mainEclGrid );
 
-    progInfo.setProgress(2);
+    progInfo.setProgress(8);
     progInfo.setProgressDescription("Reading Result index");
 
 #endif
@@ -320,7 +324,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
     // Build results meta data
     if (!buildMetaData(reservoir)) return false;
 
-    progInfo.setProgress(3);
+    progInfo.setProgress(9);
     progInfo.setProgressDescription("Reading Well information");
     
     readWellCells(reservoir);

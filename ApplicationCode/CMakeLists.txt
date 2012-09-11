@@ -22,6 +22,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}/Generated
 )
 
+
 #-----------------------------------------------------------------
 # Configuration of ERT depdendence
 #-----------------------------------------------------------------
@@ -160,7 +161,7 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimCalcScript.cpp
     ProjectDataModel/RimExportInputPropertySettings.cpp
     ProjectDataModel/RimBinaryExportSettings.cpp
-
+    ProjectDataModel/Rim3dOverlayInfoConfig.cpp
     ProjectDataModel/RimUiTreeModelPdm.cpp
     ProjectDataModel/RimUiTreeView.cpp
 )
@@ -182,6 +183,8 @@ list( APPEND CPP_SOURCES
     UserInterface/RIPreferencesDialog.cpp
     UserInterface/RIResultInfoPanel.cpp
     UserInterface/RIViewer.cpp
+    UserInterface/RiuSimpleHistogramWidget.cpp
+
     UserInterface/RIProcessMonitor.cpp
 
 )
@@ -240,6 +243,8 @@ list( REMOVE_ITEM RAW_SOURCES
     FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
     FileInterface/RifReaderEclipseInput.cpp
     FileInterface/RifReaderEclipseOutput.cpp
+    UserInterface/RiuSimpleHistogramWidget.cpp
+
 )
 
 include( CustomPCH.cmake )

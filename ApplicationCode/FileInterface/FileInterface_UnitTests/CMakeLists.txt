@@ -27,9 +27,9 @@ include_directories(
 #-----------------------------------------------------------------
 # Ert configuration
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/../ThirdParty/Ert" CACHE PATH "Root path for ERT distribution to link with")
+   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert" CACHE PATH "Root path for ERT distribution to link with")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/../ThirdParty/Ert-windows" CACHE PATH "Root path for ERT distribution to link with")
+   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows" CACHE PATH "Root path for ERT distribution to link with")
 endif()
 set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
 set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")

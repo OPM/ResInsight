@@ -30,6 +30,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimCellPropertyFilter.h"
 #include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 #include "cvfMatrix4.h"
 #include "cvfStructGridGeometryGenerator.h"
@@ -86,6 +87,7 @@ public:
 
     caf::PdmField<RimResultSlot*>           cellResult;
     caf::PdmField<RimCellEdgeResultSlot*>   cellEdgeResult;
+    caf::PdmField<Rim3dOverlayInfoConfig*>  overlayInfoConfig;
 
     caf::PdmField<double>           scaleZ;
     caf::PdmField<bool>             showWindow;

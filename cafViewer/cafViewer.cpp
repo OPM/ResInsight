@@ -414,6 +414,9 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
     painter.endNativePainting();
 #endif
 
+    // Call virtual method to allow subclasses to paint on the OpenGlCanvas
+    this->paintOverlayItems(&painter); 
+
     if (m_showPerfInfoHud && isShadersSupported())
     {
         cvfqt::PerformanceInfoHud hud;
@@ -662,5 +665,14 @@ void caf::Viewer::debugShowRenderingSequencePartNames()
 void caf::Viewer::enableForcedImmediateMode(bool enable)
 {
     m_mainRendering->renderEngine()->enableForcedImmediateMode(enable);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int caf::Viewer::currentFrameIndex()
+{
+    if (m_animationControl) return m_animationControl->currentFrame();
+    else return 0;
 }
 

@@ -112,8 +112,18 @@ public:
 public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
     virtual void            slotEndAnimation();
+    int                     currentFrameIndex();
 
 protected:
+    // Method to override if painting directly on the OpenGl Canvas is needed.
+    virtual void            paintOverlayItems(QPainter* painter) {};
+
+    // Overridable methods to setup the render system
+    virtual void            setupMainRendering();
+    virtual void            setupRenderingSequence();
+    virtual void            optimizeClippingPlanes();
+
+    // Standard overrides. Not for overriding
     virtual void            resizeGL(int width, int height);
     virtual void            paintEvent(QPaintEvent* event);
 
@@ -122,13 +132,6 @@ protected:
     cvf::ref<caf::NavigationPolicy> 
                             m_navigationPolicy;
     bool                    m_navigationPolicyEnabled;
-
-    // Overridable methods to setup the render system
-    virtual void            setupMainRendering();
-    virtual void            setupRenderingSequence();
-
-    virtual void            optimizeClippingPlanes();
-    void                    updateCamera(int width, int height);
 
     // Actual rendering objects
     cvf::ref<cvf::RenderSequence>       m_renderingSequence;
@@ -140,6 +143,8 @@ protected:
     double                  m_maxFarPlaneDistance;
 
 private:
+    void                    updateCamera(int width, int height);
+
     void                    releaseOGlResourcesForCurrentFrame();
     void                    debugShowRenderingSequencePartNames();
 

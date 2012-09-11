@@ -21,6 +21,7 @@
 #include "RimDefines.h"
 #include <QDateTime>
 #include <vector>
+#include <cmath>
 
 class RifReaderInterface;
 class RigMainGrid;
@@ -39,6 +40,8 @@ public:
     void                recalculateMinMax(size_t scalarResultIndex);
     void                minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
     void                minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
+    const std::vector<size_t>& cellScalarValuesHistogram(size_t scalarResultIndex);
+    void                p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90);
 
     // Access meta-information about the results
     size_t              resultCount() const;
@@ -46,6 +49,8 @@ public:
     size_t              maxTimeStepCount() const; 
     QStringList         resultNames(RimDefines::ResultCatType type) const;
     bool                isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
+
+    QDateTime           timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
     QList<QDateTime>    timeStepDates(size_t scalarResultIndex) const;
     void                setTimeStepDates(size_t scalarResultIndex, const QList<QDateTime>& dates);
 
@@ -69,6 +74,9 @@ public:
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results for each timestep for each Result index (ResultVariable)
     std::vector< std::pair<double, double> >                m_maxMinValues; ///< Max min values for each Result index
+    std::vector< std::vector<size_t> >                      m_histograms; ///< Histogram for each Result Index
+    std::vector< std::pair<double, double> >                m_p10p90; ///< P10 and p90 values for each Result Index
+
     std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs; ///< Max min values for each timestep and Result index
 
     class ResultInfo
@@ -90,3 +98,80 @@ private:
 
 };
 
+class RigHistogramCalculator
+{
+public:
+    RigHistogramCalculator(double min, double max, size_t nBins, std::vector<size_t>* histogram)
+    {
+        CVF_ASSERT(histogram);
+        CVF_ASSERT(nBins > 0);
+
+        if (max == min) {  nBins = 1; } // Avoid dividing on 0 range
+
+        m_histogram = histogram;
+        m_min = min;
+        m_observationCount = 0;
+
+        // Initialize bins
+        m_histogram->resize(nBins);
+        for (size_t i = 0; i < m_histogram->size(); ++i) (*m_histogram)[i] = 0;
+
+        m_range = max - min;
+        maxIndex = nBins-1;
+    }
+
+    void addData(const std::vector<double>& data)
+    {
+        CVF_ASSERT(m_histogram);
+        for (size_t i = 0; i < data.size(); ++i) 
+        {
+            size_t index = 0;
+
+            if (maxIndex > 0) index = (size_t)(maxIndex*(data[i] - m_min)/m_range);
+
+            if(index < m_histogram->size()) // Just clip to the max min range (-index will overflow to positive )
+            {
+                (*m_histogram)[index]++;
+                m_observationCount++;
+            }
+        }
+    }
+
+    /// Calculates the estimated percentile from the histogram. 
+    /// the percentile is the domain value at which pVal of the observations are below it.
+    /// Will only consider observed values between min and max, as all other values are discarded from the histogram
+
+    double calculatePercentil(double pVal) 
+    {
+        CVF_ASSERT(m_histogram);
+        CVF_ASSERT(m_histogram->size());
+        CVF_ASSERT( 0.0 <= pVal && pVal <= 1.0);
+
+        double pValObservationCount = pVal*m_observationCount;
+        if (pValObservationCount == 0.0) return m_min;
+
+        size_t accObsCount = 0;
+        double binWidth =  m_range/m_histogram->size();
+        for (size_t binIdx = 0; binIdx < m_histogram->size(); ++binIdx)
+        {
+            size_t binObsCount = (*m_histogram)[binIdx];
+
+            accObsCount += binObsCount;
+            if (accObsCount >= pValObservationCount)
+            {
+                double domainValueAtEndOfBin = m_min + (binIdx+1) * binWidth;
+                double unusedFractionOfLastBin = (double)(accObsCount - pValObservationCount)/binObsCount;
+                return domainValueAtEndOfBin - unusedFractionOfLastBin*binWidth;
+            }
+        }
+        CVF_ASSERT(false);
+        return HUGE_VAL;
+    }
+
+private:
+    size_t maxIndex;
+    double m_range;
+    double m_min;
+    size_t m_observationCount;
+    std::vector<size_t>* m_histogram;
+};

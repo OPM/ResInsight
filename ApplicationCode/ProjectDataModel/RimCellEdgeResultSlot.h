@@ -68,6 +68,7 @@ public:
     void                                  loadResult();
     bool                                  hasResult() const; 
 
+    void                                  minMaxCellEdgeValues(double& min, double& max);
 protected:
 
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
