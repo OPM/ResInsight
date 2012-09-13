@@ -54,19 +54,11 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
          ${ERT_ROOT_PATH}/lib/libgeometry.a
          ${ERT_ROOT_PATH}/lib/libwell.a )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  if (${CMAKE_SIZEOF_VOID_P} MATCHES "8" )
     set( ERT_LIBRARY_LIST 
          ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/ecl.lib
          ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/ert_util.lib
          ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/geometry.lib
          ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/well.lib )
-  else()
-    set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.lib
-         ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.lib
-         ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.lib
-         ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.lib )
-  endif()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -153,19 +145,19 @@ if (MSVC)
 
 
     # DLLs ERT depends on
-    add_custom_command(TARGET ${ProjectName} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${PROJECT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/bin/"
-            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
+#    add_custom_command(TARGET ${ProjectName} POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy_directory
+#            "${PROJECT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/bin/"
+#            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
 
 
      # ERT DLLs
-     set (ERT_MODULES ecl geometry util well)
-     foreach (ert_module ${ERT_MODULES})
-         add_custom_command(TARGET ${ProjectName} POST_BUILD
-             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                 "${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/${ert_module}/lib/lib${ert_module}.dll"
-                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
-     endforeach()
+ #    set (ERT_MODULES ecl geometry util well)
+ #    foreach (ert_module ${ERT_MODULES})
+ #        add_custom_command(TARGET ${ProjectName} POST_BUILD
+ #            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+ #                "${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/${ert_module}/lib/lib${ert_module}.dll"
+ #                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
+ #    endforeach()
 
 endif(MSVC)
