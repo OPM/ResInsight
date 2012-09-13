@@ -56,9 +56,9 @@ add_executable( ${ProjectName}
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set ( LINUX_LINK_LIBRARIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/ecl/lib/libecl.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/util/lib/libutil.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/well/lib/libwell.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libecl.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libert_util.a
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libwell.a
         lapack
         pthread
     )

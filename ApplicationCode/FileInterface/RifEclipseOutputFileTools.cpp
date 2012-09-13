@@ -186,9 +186,7 @@ bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
         if (kwINTEHEAD)
         {
             // Get date info
-            time_t stepTime = util_make_date(ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX),
-                ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX),
-                ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX));
+            time_t stepTime = ecl_intehead_date(kwINTEHEAD);
 
             // Hack!!! We seem to get 01/01/1970 (time -1) for sub grids!
             if (stepTime < 0) continue;
@@ -235,9 +233,7 @@ bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
         if (kwINTEHEAD)
         {
             // Get date info
-            time_t stepTime = util_make_date(ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX),
-                ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX),
-                ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX));
+            time_t stepTime = ecl_intehead_date(kwINTEHEAD);
 
             // Hack!!! We seem to get 01/01/1970 (time -1) for sub grids!
             if (stepTime < 0) continue;

@@ -582,9 +582,12 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                 if (ert_wellhead)
                 {
                     wellResFrame.m_wellHead.m_gridIndex = gridNr;
-                    int gridK = CVF_MAX(0, ert_wellhead->k); // Why this ?
-                    wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(ert_wellhead->i, ert_wellhead->j, gridK);
+                    int gridK = CVF_MAX(0, well_conn_get_k(ert_wellhead)); // Why this ?
+                    int gridI = well_conn_get_i( ert_wellhead );
+                    int gridJ = well_conn_get_j( ert_wellhead );
+                    wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(gridI, gridJ, gridK);
                 }
+
 
                 int branchCount = well_state_iget_lgr_num_branches(ert_well_state, gridNr);
                 if (branchCount > 0)
@@ -611,10 +614,20 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
 
                                 RigWellResultCell& data = wellSegment.m_wellCells[existingConnCount + connIdx];
                                 data.m_gridIndex = gridNr;
-                                data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(ert_connection->i, ert_connection->j, ert_connection->k);
-                                data.m_isOpen    = ert_connection->open;
-                                data.m_branchId  = ert_connection->branch;
-                                data.m_segmentId = ert_connection->segment;
+                                {
+                                    int connI = well_conn_get_i( ert_connection );
+                                    int connJ = well_conn_get_j( ert_connection );
+                                    int connK = well_conn_get_k( ert_connection );
+                                    bool open = well_conn_open( ert_connection );
+                                    int branch = well_conn_get_branch( ert_connection );
+                                    int segment = well_conn_get_segment( ert_connection );
+                                    
+                                    data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(connI , connJ , connK);
+                                    
+                                    data.m_isOpen    = open;
+                                    data.m_branchId  = branch;
+                                    data.m_segmentId = segment;
+                                }
                             }
                         }
                     }

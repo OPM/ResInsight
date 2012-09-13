@@ -27,15 +27,21 @@ include_directories(
 #-----------------------------------------------------------------
 # Ert configuration
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert" CACHE PATH "Root path for ERT distribution to link with")
+   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-   set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows" CACHE PATH "Root path for ERT distribution to link with")
+  if (${CMAKE_SIZEOF_VOID_P} MATCHES "8" )
+    set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows-x64")
+  else()
+    set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows")
+  endif()
 endif()
+
 set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
 set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")
 set( ERT_WELL_PREFIX "well" CACHE STRING "Prefix path to use for well code in ert")
 
 set( ERT_INCLUDE_LIST 
+     ${ERT_ROOT_PATH}/include 
      ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/include 
      ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/include 
      ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/include )
@@ -43,16 +49,24 @@ set( ERT_INCLUDE_LIST
 # Link to these ERT libraries
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.a 
-         ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.a 
-         ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.a 
-         ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.a )
+         ${ERT_ROOT_PATH}/lib/libecl.a
+         ${ERT_ROOT_PATH}/lib/libert_util.a
+         ${ERT_ROOT_PATH}/lib/libgeometry.a
+         ${ERT_ROOT_PATH}/lib/libwell.a )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  if (${CMAKE_SIZEOF_VOID_P} MATCHES "8" )
+    set( ERT_LIBRARY_LIST 
+         ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/ecl.lib
+         ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/ert_util.lib
+         ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/geometry.lib
+         ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/well.lib )
+  else()
     set( ERT_LIBRARY_LIST 
          ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/libecl.lib
          ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/libutil.lib
          ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/libgeometry.lib
          ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/libwell.lib )
+  endif()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
