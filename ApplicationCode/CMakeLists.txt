@@ -86,10 +86,10 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
          ${ERT_ROOT_PATH}/lib/libwell.a )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/lib/ecl.lib
-         ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/lib/ert_util.lib
-         ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/lib/geometry.lib
-         ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/lib/well.lib )
+         ${ERT_ROOT_PATH}/lib/ecl.lib
+         ${ERT_ROOT_PATH}/lib/ert_util.lib
+         ${ERT_ROOT_PATH}/lib/geometry.lib
+         ${ERT_ROOT_PATH}/lib/well.lib )
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
