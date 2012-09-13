@@ -26,7 +26,7 @@
 #include "RigMainGrid.h"
 #include "RigReservoirCellResults.h"
 
-CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "3dOverlayInfoConfig");
+CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 
 //--------------------------------------------------------------------------------------------------
 /// 
