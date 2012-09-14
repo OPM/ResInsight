@@ -19,7 +19,9 @@
 
 #pragma once
 #include "cafPdmUiFieldEditorHandle.h"
+
 #include <QString>
+#include <QLabel>
 #include <QWidget>
 #include <QPointer>
 #include <QLineEdit>
@@ -60,6 +62,7 @@ public:
 protected:
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
     virtual QWidget*    createEditorWidget(QWidget * parent);
+    virtual QWidget*    createLabelWidget(QWidget * parent);
 
 protected slots:
     void                slotEditingFinished();
@@ -67,11 +70,12 @@ protected slots:
 
 private:
     void                updateSliderPosition();
+    void                writeValueToField();
 
 private:
-    QPointer<QGroupBox> m_groupBox;
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QSlider>   m_slider;
+    QPointer<QLabel>    m_label;
   
     PdmUiSliderEditorAttribute m_attributes;
 };

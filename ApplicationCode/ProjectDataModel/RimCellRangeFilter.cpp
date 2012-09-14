@@ -23,6 +23,8 @@
 #include "RimReservoirView.h"
 #include "RigReservoir.h"
 
+#include "cafPdmUiSliderEditor.h"
+
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilter, "CellRangeFilter");
 
@@ -35,13 +37,24 @@ RimCellRangeFilter::RimCellRangeFilter()
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
     CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start index I", "", "","");
+    startIndexI.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    
     CAF_PDM_InitField(&cellCountI,  "CellCountI",   1,  "Cell Count I", "", "","");
-    CAF_PDM_InitField(&startIndexJ, "StartIndexJ",  1,  "Start index J", "", "","");
-    CAF_PDM_InitField(&cellCountJ,  "CellCountJ",   1,  "Cell Count J", "", "","");
-    CAF_PDM_InitField(&startIndexK, "StartIndexK",  1,  "Start index K", "", "","");
-    CAF_PDM_InitField(&cellCountK,  "CellCountK",   1,  "Cell Count K", "", "","");
-    updateIconState();
+    cellCountI.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
 
+    CAF_PDM_InitField(&startIndexJ, "StartIndexJ",  1,  "Start index J", "", "","");
+    startIndexJ.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&cellCountJ,  "CellCountJ",   1,  "Cell Count J", "", "","");
+    cellCountJ.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&startIndexK, "StartIndexK",  1,  "Start index K", "", "","");
+    startIndexK.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+
+    CAF_PDM_InitField(&cellCountK,  "CellCountK",   1,  "Cell Count K", "", "","");
+    cellCountK.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
+    
+    updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,22 +131,11 @@ void RimCellRangeFilter::setDefaultValues()
         max.z() = max.z() + 1;
 
         startIndexI = min.x();
-        startIndexI.setUiName(QString("I Start (%1)").arg(min.x()));
-
         startIndexJ = min.y();
-        startIndexJ.setUiName(QString("J Start (%1)").arg(min.y()));
-
         startIndexK = min.z();
-        startIndexK.setUiName(QString("K Start (%1)").arg(min.z()));
-
         cellCountI = max.x() - min.x() + 1;
-        cellCountI.setUiName(QString("  Width (%1)").arg(max.x() - min.x() + 1));
-
         cellCountJ = max.y() - min.y() + 1;
-        cellCountJ.setUiName(QString("  Width (%1)").arg(max.y() - min.y() + 1));
-
         cellCountK = max.z() - min.z() + 1;
-        cellCountK.setUiName(QString("  Width (%1)").arg(max.z() - min.z() + 1));
     }
 }
 
@@ -143,5 +145,56 @@ void RimCellRangeFilter::setDefaultValues()
 RimCellRangeFilterCollection* RimCellRangeFilter::parentContainer()
 {
     return m_parentContainer;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    caf::PdmUiSliderEditorAttribute* myAttr = static_cast<caf::PdmUiSliderEditorAttribute*>(attribute);
+    if (!myAttr || !m_parentContainer)
+    {
+        return;
+    }
+
+    RigMainGrid* mainGrid = m_parentContainer->mainGrid();
+    if (mainGrid)
+    {
+        cvf::Vec3st min, max;
+        mainGrid->activeCellsBoundingBox(min, max);
+
+        // Adjust to Eclipse indexing
+        min.x() = min.x() + 1;
+        min.y() = min.y() + 1;
+        min.z() = min.z() + 1;
+
+        max.x() = max.x() + 1;
+        max.y() = max.y() + 1;
+        max.z() = max.z() + 1;
+
+        startIndexI.setUiName(QString("I Start (%1)").arg(min.x()));
+        startIndexJ.setUiName(QString("J Start (%1)").arg(min.y()));
+        startIndexK.setUiName(QString("K Start (%1)").arg(min.z()));
+        cellCountI.setUiName(QString("  Width (%1)").arg(max.x() - min.x() + 1));
+        cellCountJ.setUiName(QString("  Width (%1)").arg(max.y() - min.y() + 1));
+        cellCountK.setUiName(QString("  Width (%1)").arg(max.z() - min.z() + 1));
+
+        if (field == &startIndexI || field == &cellCountI)
+        {
+            myAttr->m_minimum = 1;
+            myAttr->m_maximum = mainGrid->cellCountI();
+        }
+        else if (field == &startIndexJ  || field == &cellCountJ)
+        {
+            myAttr->m_minimum = 1;
+            myAttr->m_maximum = mainGrid->cellCountJ();
+        }
+        else if (field == &startIndexK || field == &cellCountK)
+        {
+            myAttr->m_minimum = 1;
+            myAttr->m_maximum = mainGrid->cellCountK();
+        }
+    }
 }
 
