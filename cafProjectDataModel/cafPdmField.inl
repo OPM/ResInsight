@@ -187,7 +187,7 @@ QVariant caf::PdmField<DataType>::uiValue() const
         PdmOptionItemInfo::findValues(m_optionEntryCache, convertedFieldValue, indexes);
         if (convertedFieldValue.type() == QVariant::List)
         {
-            if (indexes.size() == convertedFieldValue.toList().size())
+            if (indexes.size() == static_cast<size_t>(convertedFieldValue.toList().size()))
             {
                 QList<QVariant> returnList;
                 for(size_t i = 0; i < indexes.size(); ++i)

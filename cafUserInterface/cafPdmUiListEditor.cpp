@@ -36,8 +36,8 @@
 
 
 #include <assert.h>
-#include "..\src\corelib\kernel\qcoreevent.h"
-#include "..\src\gui\kernel\qevent.h"
+#include <QEvent>
+#include <QKeyEvent>
 
 //==================================================================================================
 /// Helper class used to override flags to disable editable items
