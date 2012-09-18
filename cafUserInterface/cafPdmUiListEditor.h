@@ -26,6 +26,7 @@ class QStringListModel;
 class QItemSelection;
 class QListView;
 class QLabel;
+class QModelIndex;
 
 namespace caf 
 {
@@ -54,14 +55,22 @@ protected:
     virtual QWidget*    createEditorWidget(QWidget * parent);
     virtual QWidget*    createLabelWidget(QWidget * parent);
     virtual void        configureAndUpdateUi(const QString& uiConfigName);
+    virtual bool        eventFilter ( QObject * listView, QEvent * event ); // To catch delete key press in list view.
 
 protected slots:
     void                slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
+    void                slotListItemEdited(const QModelIndex&, const QModelIndex&);
 
 private:
     QPointer<QListView>         m_listView;
     QPointer<QLabel>            m_label;
     QPointer<QStringListModel>  m_model;
+
+    QList<PdmOptionItemInfo> m_options;
+    bool                     m_optionsOnly;
+
+
+
 };
 
 

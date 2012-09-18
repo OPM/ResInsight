@@ -26,6 +26,8 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiListEditor.h"
+
 
 #include <QWidget>
 #include <QGridLayout>
@@ -45,7 +47,30 @@ CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, QString);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, int);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, double);
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiLineEditor, float);
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<QString>);
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<int>);
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<unsigned int>);
 
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(PdmUiListEditor, std::vector<float>);
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiDefaultObjectEditor::PdmUiDefaultObjectEditor()
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiDefaultObjectEditor::~PdmUiDefaultObjectEditor()
+{
+
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -54,7 +79,9 @@ QWidget* PdmUiDefaultObjectEditor::createWidget(QWidget* parent)
 {
     m_mainWidget = new QWidget(parent);
     m_layout     = new QGridLayout();
+    m_layout->setContentsMargins(0, 0, 0, 0);
     m_mainWidget->setLayout(m_layout);
+    
     return m_mainWidget;
 }
 
@@ -173,25 +200,34 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             if (!field->isUiHidden(uiConfigName))
             {
 
-                // Find or create FieldView
+                // Find or create FieldEditor
                 std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
                 it = m_fieldViews.find(field->keyword());
 
                 if (it == m_fieldViews.end())
                 {
+                    // If editor type is specified, find in factory
                     if ( !uiItems[i]->uiEditorTypeName(uiConfigName).isEmpty() )
                     {
                         fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
                     }
                     else
-                    {
+                    { 
+                        // Find the default field editor
+
                         QString editorTypeName = qStringTypeName(*field);
 
-                        bool useOptionsOnly = true; 
-                        QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
-                        if (!options.empty())
+                        // Handle a single value field with valueOptions: Make a combobox
+
+                        if (field->uiValue().type() != QVariant::List)
                         {
-                            editorTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+                            bool useOptionsOnly = true; 
+                            QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
+
+                            if (!options.empty())
+                            {
+                                editorTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+                            }
                         }
 
                         fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
@@ -225,17 +261,29 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                         QWidget* fieldEditorWidget = fieldEditor->editorWidget();
                         QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
 
-                        if (fieldEditorWidget)
-                        {
-                            fieldEditorWidget->setParent(parent); // To make sure this widget has the current group box as parent.
-                            parentLayout->addWidget(fieldEditorWidget, currentRowIndex, 1, Qt::AlignTop);
-                        }
+                        bool labelOnTop = field->labelAlignment(uiConfigName) & Qt::AlignTop;
 
                         if (fieldLabelWidget)
                         {
                             fieldLabelWidget->setParent(parent);
-                            parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, Qt::AlignTop);
+
+                            // Label widget will span two columns if aligned on top
+                            int colSpan = labelOnTop ? 2 : 1;
+                            parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
+
+                            if (labelOnTop) currentRowIndex++;
                         }
+
+                        if (fieldEditorWidget)
+                        {
+                            fieldEditorWidget->setParent(parent); // To make sure this widget has the current group box as parent.
+
+                            // Label widget will span two columns if aligned on top
+                            int colSpan = labelOnTop ? 2 : 1;
+                            int colIndex = labelOnTop ? 0 : 1;
+                            parentLayout->addWidget(fieldEditorWidget, currentRowIndex, colIndex, 1, colSpan, Qt::AlignTop);
+                        }
+
                     }
 
                     fieldEditor->updateUi(uiConfigName);

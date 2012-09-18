@@ -36,21 +36,61 @@ void caf::PdmField<DataType>::setValueFromUi(const QVariant& uiValue)
 {
     QVariant oldValue = PdmFieldTypeSpecialization<DataType>::convert(m_fieldValue);
 
+    // Check whether we are handling selections of values or actual values
     if (m_optionEntryCache.size())
     {
-        // Check if we got an index into the option list
+       // This has an option based GUI, the uiValue is only indexes into the m_optionEntryCache
         if (uiValue.type() == QVariant::UInt)
         {
             assert(uiValue.toUInt() < static_cast<unsigned int>(m_optionEntryCache.size()));
             PdmFieldTypeSpecialization<DataType>::setFromVariant(m_optionEntryCache[uiValue.toUInt()].value, m_fieldValue); 
         }
-        else
+        else if (uiValue.type() == QVariant::List)
         {
+            QList<QVariant> selectedIndexes = uiValue.toList();
+            QList<QVariant> valuesToSetInField;
+
+            if (selectedIndexes.isEmpty())
+            {
+                PdmFieldTypeSpecialization<DataType>::setFromVariant(valuesToSetInField, m_fieldValue);
+            }
+            else
+            {
+                if (selectedIndexes.front().type() == QVariant::UInt)
+                {
+                    for (int i = 0; i < selectedIndexes.size(); ++i)
+                    {
+                        unsigned int opIdx = selectedIndexes[i].toUInt();
+                        if (opIdx < static_cast<unsigned int>(m_optionEntryCache.size()))
+                        {
+                            valuesToSetInField.push_back(m_optionEntryCache[opIdx].value);
+                        }
+                    }
+
+                    PdmFieldTypeSpecialization<DataType>::setFromVariant(valuesToSetInField, m_fieldValue);
+                }
+                else
+                {
+                    // We are not getting indexes as expected from the UI. For now assert, to catch this condition
+                    // but it should possibly be handled as setting the values explicitly. The code for that is below the assert
+                    assert(false);
+                    PdmFieldTypeSpecialization<DataType>::setFromVariant(uiValue, m_fieldValue);
+                    m_optionEntryCache.clear();
+                }
+            }
+
+        }
+        else 
+        { 
+            // We are not getting indexes as expected from the UI. For now assert, to catch this condition
+            // but it should possibly be handled as setting the values explicitly. The code for that is below the assert
+            assert(false);
+            PdmFieldTypeSpecialization<DataType>::setFromVariant(uiValue, m_fieldValue);
             m_optionEntryCache.clear();
         }
     }
     else
-    {
+    {   // Not an option based GUI, the uiValue is a real field value
         PdmFieldTypeSpecialization<DataType>::setFromVariant(uiValue, m_fieldValue);
     }
 
@@ -68,37 +108,74 @@ void caf::PdmField<DataType>::setValueFromUi(const QVariant& uiValue)
 } 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns the option values that is to be displayed in the UI for this field. 
+/// This method calls the virtual PdmObject::calculateValueOptions to get the list provided from the 
+/// application, then possibly adds the current field value(s) to the list, to 
+/// make sure the actual values are shown
 //--------------------------------------------------------------------------------------------------
 template<typename DataType >
 QList<PdmOptionItemInfo> caf::PdmField<DataType>::valueOptions(bool* useOptionsOnly)
 {
+    // First check if the owner PdmObject has a value options specification. 
+    // if it has, use it.
     if (m_ownerObject)
     {
         m_optionEntryCache = m_ownerObject->calculateValueOptions(this, useOptionsOnly);
         if (m_optionEntryCache.size())
         {
-            // Find this field value in the list if present
+            // Make sure the options contain the field values, event though they not necessarily 
+            // is supplied as possible options by the application. This is a convenience making sure
+            // the actual data in the pdmObject is shown correctly in the UI, and to prevent accidental 
+            // changes of the field values
+
+            // Find the field value(s) in the list if present
+
             QVariant convertedFieldValue = PdmFieldTypeSpecialization<DataType>::convert(m_fieldValue);
-            unsigned int index;
-            bool foundFieldValue = PdmOptionItemInfo::findValue(m_optionEntryCache, convertedFieldValue, &index);
 
-            // If not found, we have to add it to the list, to be able to show it
+            std::vector<unsigned int> foundIndexes;
+            bool foundAllFieldValues = PdmOptionItemInfo::findValues(m_optionEntryCache, convertedFieldValue, foundIndexes);
+            
+            // If not all are found, we have to add the missing to the list, to be able to show it
 
-            if (!foundFieldValue)
+            if (!foundAllFieldValues)
             {
-                m_optionEntryCache.push_front(PdmOptionItemInfo(convertedFieldValue.toString(), convertedFieldValue, true, QIcon()));
+                if (convertedFieldValue.type() != QVariant::List)  // Single value field
+                {
+                    m_optionEntryCache.push_front(PdmOptionItemInfo(convertedFieldValue.toString(), convertedFieldValue, true, QIcon()));
+                }
+                else // The field value is a list of values 
+                {
+                    QList<QVariant> valuesSelectedInField = convertedFieldValue.toList();
+                    for (int i= 0 ; i < valuesSelectedInField.size(); ++i)
+                    {
+                        bool isFound = false;
+                        for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(m_optionEntryCache.size()); ++opIdx)
+                        {
+                            if (valuesSelectedInField[i] == m_optionEntryCache[opIdx].value) isFound = true;
+                        }
+
+                        if (!isFound)
+                        {
+                            m_optionEntryCache.push_front(PdmOptionItemInfo(valuesSelectedInField[i].toString(), valuesSelectedInField[i], true, QIcon()));
+                        }
+                    }
+                }
             }
 
-            if (m_optionEntryCache.size()) return m_optionEntryCache;
+            return m_optionEntryCache;
         }
     }
+
+    // If we have no options, use the options defined by the type. Normally only caf::AppEnum type
 
     return PdmFieldTypeSpecialization<DataType>::valueOptions(useOptionsOnly, m_fieldValue);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Extracts a QVariant representation of the data in the field to be used in the UI. 
+/// Note that for fields with a none empty valueOptions list the returned QVariant contains the 
+/// indexes to the selected options rather than the actual values, if they can be found.
+/// If we cant find them, the method asserts, forcing the valueOptions to always contain the field values
 //--------------------------------------------------------------------------------------------------
 template<typename DataType >
 QVariant caf::PdmField<DataType>::uiValue() const
@@ -106,13 +183,34 @@ QVariant caf::PdmField<DataType>::uiValue() const
     if (m_optionEntryCache.size())
     {
         QVariant convertedFieldValue = PdmFieldTypeSpecialization<DataType>::convert(m_fieldValue);
-        unsigned int index;
-        bool foundFieldValue = PdmOptionItemInfo::findValue(m_optionEntryCache, convertedFieldValue, &index);
-        assert(foundFieldValue);
-        return QVariant(index);
-    }
+        std::vector<unsigned int> indexes;
+        PdmOptionItemInfo::findValues(m_optionEntryCache, convertedFieldValue, indexes);
+        if (convertedFieldValue.type() == QVariant::List)
+        {
+            if (indexes.size() == convertedFieldValue.toList().size())
+            {
+                QList<QVariant> returnList;
+                for(size_t i = 0; i < indexes.size(); ++i)
+                {
+                    returnList.push_back(QVariant(indexes[i]));
+                }
+                return QVariant(returnList);
+            }
+            assert(false); // Did not find all the field values among the options available.
+        }
+        else
+        {
+            if (indexes.size() == 1) return QVariant(indexes.front());
+        }
 
-    return PdmFieldTypeSpecialization<DataType>::convert(m_fieldValue);
+        assert(false);
+        return convertedFieldValue;
+    }
+    else
+    {
+        return PdmFieldTypeSpecialization<DataType>::convert(m_fieldValue);
+    }
+    
 }
 
 //==================================================================================================

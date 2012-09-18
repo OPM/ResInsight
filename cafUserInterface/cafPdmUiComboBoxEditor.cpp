@@ -59,20 +59,25 @@ void PdmUiComboBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     m_comboBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
+    // Demo code for attribute retreival when becoming relevant
+    // PdmUiComboBoxEditorAttribute attributes;
+    // field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
+
     bool fromMenuOnly = false;
-    QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
-    if (!enumNames.isEmpty() && fromMenuOnly == true)
+    QList<PdmOptionItemInfo> options = field()->valueOptions(&fromMenuOnly);
+    m_comboBox->blockSignals(true);
+    m_comboBox->clear();
+    if (!options.isEmpty())
     {
-        m_comboBox->blockSignals(true);
-        m_comboBox->clear();
-        m_comboBox->addItems(PdmOptionItemInfo::extractUiTexts(enumNames));
-        m_comboBox->blockSignals(false);
+        m_comboBox->addItems(PdmOptionItemInfo::extractUiTexts(options));
+        m_comboBox->setCurrentIndex(field()->uiValue().toInt());
     }
-
-    PdmUiComboBoxEditorAttribute attributes;
-    field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
-
-    m_comboBox->setCurrentIndex(field()->uiValue().toInt());
+    else
+    {
+        m_comboBox->addItem(field()->uiValue().toString());
+        m_comboBox->setCurrentIndex(0);
+    }
+    m_comboBox->blockSignals(false);
 }
 
 

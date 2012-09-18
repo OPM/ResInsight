@@ -40,7 +40,7 @@ public:
 
     PdmUiItemInfo( QString  uiName,   QIcon icon = QIcon(), QString  toolTip = "", QString  whatsThis = "")
         : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis),
-          m_editorTypeName(""), m_isHidden(false) , m_isReadOnly(false) 
+          m_editorTypeName(""), m_isHidden(false), m_isReadOnly(false), m_labelAlignment(Qt::AlignLeft)
     { }
 
 private: 
@@ -52,6 +52,7 @@ private:
     QString             m_editorTypeName;   ///< Use this exact type of editor to edit this UiItem
     int                 m_isHidden;     ///< UiItem should be hidden. -1 means not set
     int                 m_isReadOnly;   ///< UiItem should be insensitive, or read only. -1 means not set.
+    Qt::Alignment       m_labelAlignment;
 };
 
 //==================================================================================================
@@ -61,7 +62,7 @@ private:
 class PdmOptionItemInfo
 {
 public:
-    PdmOptionItemInfo( QString  anOptionUiText, QVariant aValue = QVariant(), bool anIsDimmed = false, QIcon anIcon = QIcon() )
+    PdmOptionItemInfo( QString  anOptionUiText, QVariant aValue, bool anIsDimmed = false, QIcon anIcon = QIcon() )
         :  value(aValue), optionUiText(anOptionUiText), isDimmed(anIsDimmed), icon(anIcon)
     {}
 
@@ -71,10 +72,11 @@ public:
     QVariant value;
 
     // Static utility methods to handle QList of PdmOptionItemInfo
+    // Please regard as private to the PDM system 
     
     static QStringList extractUiTexts(const QList<PdmOptionItemInfo>& optionList );
-    static bool        findValue     (const QList<PdmOptionItemInfo>& optionList , QVariant fieldValue, 
-                                      unsigned int* indexToValue = NULL);
+    static bool        findValues     (const QList<PdmOptionItemInfo>& optionList , QVariant fieldValue, 
+                                      std::vector<unsigned int>& foundIndexes);
 };
 
 class PdmUiEditorHandle;
@@ -113,6 +115,9 @@ public:
 
     bool             isUiReadOnly(QString uiConfigName = "");
     void             setUiReadOnly(bool isReadOnly, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_isReadOnly = isReadOnly; } 
+
+    Qt::Alignment    labelAlignment(QString uiConfigName = "") const;
+    void             setLabelAlignment(Qt::Alignment alignment, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_labelAlignment = alignment; } 
 
     QString          uiEditorTypeName(const QString& uiConfigName) const;
     void             setUiEditorTypeName(const QString& editorTypeName, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_editorTypeName = editorTypeName; }

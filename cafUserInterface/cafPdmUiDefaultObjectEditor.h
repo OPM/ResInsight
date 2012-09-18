@@ -39,8 +39,8 @@ class PdmUiItem;
 class PdmUiDefaultObjectEditor : public PdmUiObjectEditorHandle
 {
 public:
-    PdmUiDefaultObjectEditor() {}
-    ~PdmUiDefaultObjectEditor() {}
+    PdmUiDefaultObjectEditor();
+    ~PdmUiDefaultObjectEditor();
 
 protected:
     virtual QWidget* createWidget(QWidget* parent);

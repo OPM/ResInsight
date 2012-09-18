@@ -41,7 +41,7 @@ public:
     ~PdmUiPropertyView();
 
     void setUiConfigurationName(QString uiConfigName);
-
+    caf::PdmObject* currentObject();
 public slots:
     void showProperties(caf::PdmObject* object);
 

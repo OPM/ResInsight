@@ -262,7 +262,7 @@ public:
         int i;
         for (i = 0; i < optionTexts.size(); ++i)
         {
-            optionList.push_back(PdmOptionItemInfo(optionTexts[i]));
+            optionList.push_back(PdmOptionItemInfo(optionTexts[i], static_cast<unsigned int>(i)));
         }
 
         return optionList;

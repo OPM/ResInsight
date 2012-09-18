@@ -54,7 +54,7 @@ public:
     void             setIOWritable(bool isWritable)                 {  m_isIOWritable = isWritable; }
     void             setIOReadable(bool isReadable)                 {  m_isIOReadable = isReadable; }
 
-    void             setKeyword(const QString& keyword)             { m_keyword = keyword; }
+    void             setKeyword(const QString& keyword);
     QString          keyword() const                                { return m_keyword;    }
 
     void             setOwnerObject(PdmObject * owner)              { m_ownerObject = owner; }

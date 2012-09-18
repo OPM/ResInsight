@@ -38,24 +38,49 @@ QStringList PdmOptionItemInfo::extractUiTexts(const QList<PdmOptionItemInfo>& op
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Finds the indexes into the optionList that the field value(s) corresponds to.
+/// In the case where the field is some kind of array, several indexes might be returned
+/// The returned bool is true if all the fieldValues were found.
 //--------------------------------------------------------------------------------------------------
-bool PdmOptionItemInfo::findValue(const QList<PdmOptionItemInfo>& optionList , QVariant fieldValue, unsigned int* indexToValue /*= NULL*/)
+bool PdmOptionItemInfo::findValues(const QList<PdmOptionItemInfo>& optionList , QVariant fieldValue, std::vector<unsigned int>& foundIndexes)
 {
-    // Find this field value in the list if present
-    unsigned int i;
-    bool foundFieldValue = false;
+    foundIndexes.clear();
 
-    for(i = 0; i < static_cast<unsigned int>(optionList.size()); ++i)
+    // Find this fieldvalue in the optionlist if present
+
+    // First handle lists/arrays of values
+    if (fieldValue.type() == QVariant::List)
     {
-        if (optionList[i].value == fieldValue)
+        QList<QVariant> valuesSelectedInField = fieldValue.toList();
+
+        if (valuesSelectedInField.size())
         {
-            foundFieldValue = true;
-            break;
+            for (int i= 0 ; i < valuesSelectedInField.size(); ++i)
+            {
+                for (unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(optionList.size()); ++opIdx)
+                {
+                    if (valuesSelectedInField[i] == optionList[opIdx].value)
+                    {
+                        foundIndexes.push_back(opIdx);
+                    }
+                }
+            }
         }
+
+        return (static_cast<size_t>(valuesSelectedInField.size()) <= foundIndexes.size());
     }
-    if (indexToValue) *indexToValue = i;
-    return foundFieldValue;
+    else  // Then handle single value fields
+    {
+        for(unsigned int opIdx = 0; opIdx < static_cast<unsigned int>(optionList.size()); ++opIdx)
+        {
+            if (optionList[opIdx].value == fieldValue)
+            {
+                foundIndexes.push_back(opIdx);
+                break;
+            }
+        }
+        return (foundIndexes.size() > 0);
+    }
 }
 
 
@@ -172,6 +197,21 @@ QString PdmUiItem::uiEditorTypeName(const QString& uiConfigName) const
     return QString();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Qt::Alignment PdmUiItem::labelAlignment(QString uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo) return conInfo->m_labelAlignment;
+    if (defInfo) return defInfo->m_labelAlignment;
+    if (sttInfo) return sttInfo->m_labelAlignment;
+
+    return Qt::AlignLeft;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

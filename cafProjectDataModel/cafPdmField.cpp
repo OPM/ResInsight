@@ -18,6 +18,7 @@
 //##################################################################################################
 
 #include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 #include <iostream>
 
@@ -61,10 +62,24 @@ bool PdmFieldHandle::assertValid() const
         std::cout << "Detected use of non-initialized field\n";
         return false;
     }
-    else
+
+    if (!PdmObject::isValidXmlElementName(m_keyword))
     {
-        return true;
+        std::cout << "Detected keyword " << m_keyword.toStdString() << " which is an invalid Xml element name\n";
+        return false;
     }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmFieldHandle::setKeyword(const QString& keyword)
+{
+    assert(PdmObject::isValidXmlElementName(keyword));
+
+    m_keyword = keyword;
 }
 
 //--------------------------------------------------------------------------------------------------

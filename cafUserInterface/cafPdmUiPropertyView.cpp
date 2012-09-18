@@ -37,7 +37,7 @@ PdmUiPropertyView::PdmUiPropertyView(QWidget* parent, Qt::WindowFlags f)
 {
     m_layout = new QVBoxLayout(this);
     m_layout->insertStretch(1, 1);
-    m_layout->setMargin(0);
+    m_layout->setContentsMargins(0, 0, 0, 0);
     m_layout->setSpacing(0);
 
     setLayout(m_layout);
@@ -110,7 +110,8 @@ void PdmUiPropertyView::showProperties(caf::PdmObject* object)
         //m_currentObjectView = PdmObjViewFactory::instance()->create(object->editorType(m_uiConfigName));
         if (!m_currentObjectView)
         {
-            m_currentObjectView = new PdmUiDefaultObjectEditor();
+            PdmUiDefaultObjectEditor* defaultEditor = new PdmUiDefaultObjectEditor();
+            m_currentObjectView = defaultEditor;
         }
 
         // Create widget to handle this
@@ -124,6 +125,15 @@ void PdmUiPropertyView::showProperties(caf::PdmObject* object)
 
     m_currentObjectView->setPdmObject(object);
     m_currentObjectView->updateUi(m_uiConfigName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmObject* PdmUiPropertyView::currentObject()
+{
+    if (!m_currentObjectView) return NULL;
+    return m_currentObjectView->pdmObject();
 }
 
 

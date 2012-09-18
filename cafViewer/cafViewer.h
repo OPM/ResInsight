@@ -88,7 +88,7 @@ public:
 
     // Set the navigation policy
     void                    setNavigationPolicy(caf::NavigationPolicy* navigationPolicy);
-    void                    enableNavigationPolicy(bool enable) { m_navigationPolicyEnabled = enable; } 
+    void                    enableNavigationPolicy(bool enable); 
     void                    setView( const cvf::Vec3d& alongDirection, const cvf::Vec3d& upDirection );
     void                    zoomAll();
 
@@ -113,6 +113,9 @@ public slots:
     virtual void            slotSetCurrentFrame(int frameIndex);
     virtual void            slotEndAnimation();
     int                     currentFrameIndex();
+
+public:
+    virtual QSize           sizeHint() const;
 
 protected:
     // Method to override if painting directly on the OpenGl Canvas is needed.

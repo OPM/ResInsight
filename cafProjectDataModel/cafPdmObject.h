@@ -67,7 +67,7 @@ public: \
 /// Place this in the cpp file, preferably above the constructor
 
 #define CAF_PDM_SOURCE_INIT(ClassName, keyword) \
-    QString ClassName::classKeywordStatic() { return keyword;   } \
+    QString ClassName::classKeywordStatic() { assert(PdmObject::isValidXmlElementName(keyword)); return keyword;   } \
     static bool PDM_OBJECT_STRING_CONCATENATE(pdm_object_factory_init_, __LINE__) = caf::PdmObjectFactory::instance()->registerCreator<ClassName>()
 
 /// InitObject sets up the user interface related information for the object
@@ -142,6 +142,11 @@ public: // Virtual
     virtual QList<PdmOptionItemInfo> 
                             calculateValueOptions(const PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly) { return QList<PdmOptionItemInfo>(); }
     // For later // virtual void editorAttributeChangedByUI(const PdmFieldHandle* field, QString uiConfigName, const PdmUiAttributeHandle * attributes);
+
+
+public:
+    /// Check if a string is a valid Xml element name
+    static bool isValidXmlElementName(const QString& name);
 
 protected: // Virtual 
     /// Method gets called from PdmDocument after all objects are read. 

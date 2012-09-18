@@ -69,7 +69,7 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     QHBoxLayout* layout = new QHBoxLayout(m_layoutWidget);
 
     layout->addWidget(this);
-    layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
 
     setAutoFillBackground(false);
     setMouseTracking(true);
@@ -378,6 +378,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
 
     cvf::ref<cvf::OpenGLContext> myOglContext = cvfOpenGLContext();
     CVF_CHECK_OGL(myOglContext.p());
+    CVF_ASSERT(myOglContext->isContextValid());
 
     QPainter painter(this);
 
@@ -660,6 +661,23 @@ void caf::Viewer::debugShowRenderingSequencePartNames()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::enableNavigationPolicy(bool enable)
+{
+    m_navigationPolicyEnabled = enable;
+    if (enable && m_navigationPolicy.notNull()) m_navigationPolicy->init(); 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QSize caf::Viewer::sizeHint() const
+{
+    return QSize(500, 400);
 }
 
 void caf::Viewer::enableForcedImmediateMode(bool enable)

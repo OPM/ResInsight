@@ -36,6 +36,8 @@
 
 
 #include <assert.h>
+#include "..\src\corelib\kernel\qcoreevent.h"
+#include "..\src\gui\kernel\qevent.h"
 
 //==================================================================================================
 /// Helper class used to override flags to disable editable items
@@ -43,12 +45,23 @@
 class MyStringListModel : public QStringListModel
 {
 public:
-    MyStringListModel(QObject *parent = 0) : QStringListModel(parent) { }
+    MyStringListModel(QObject *parent = 0) : m_isItemsEditable(false), QStringListModel(parent) { }
 
     virtual Qt::ItemFlags flags (const QModelIndex& index) const
     {
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        if (m_isItemsEditable)
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable;
+        else
+            return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
     }
+
+    void setItemsEditable(bool isEditable)
+    {
+        m_isItemsEditable = isEditable;
+    }
+
+private:
+    bool m_isItemsEditable;
 };
 
 
@@ -65,7 +78,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiListEditor);
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-PdmUiListEditor::PdmUiListEditor()
+PdmUiListEditor::PdmUiListEditor(): m_optionsOnly(false)
 {
 }
 
@@ -94,7 +107,8 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
     else
     {
-        m_label->setText(field()->uiName(uiConfigName));
+        QString uiName = field()->uiName(uiConfigName);
+        m_label->setText(uiName);
     }
 
     m_label->setVisible(!field()->isUiHidden(uiConfigName));
@@ -102,24 +116,74 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
-    PdmUiListEditorAttribute attributes;
-    field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
+    /// Demo code Not used yet
+    // PdmUiListEditorAttribute attributes;
+    // field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
 
-    bool fromMenuOnly = false;
-    QList<PdmOptionItemInfo> enumNames = field()->valueOptions(&fromMenuOnly);
-    if (!enumNames.isEmpty() && fromMenuOnly == true)
+    MyStringListModel* strListModel = dynamic_cast<MyStringListModel*>(m_model.data());
+
+    assert(strListModel);
+
+    m_options = field()->valueOptions(&m_optionsOnly);
+    if (!m_options.isEmpty())
     {
-        QStringList texts = PdmOptionItemInfo::extractUiTexts(enumNames);
-        m_model->setStringList(texts);
+        assert(m_optionsOnly); // Handling Additions on the fly not implemented
+
+        strListModel->setItemsEditable(false);
+        QModelIndex currentItem = 	m_listView->selectionModel()->currentIndex();
+        QStringList texts = PdmOptionItemInfo::extractUiTexts(m_options);
+        strListModel->setStringList(texts);
         
-        int col = 0;
-        int row = field()->uiValue().toInt();
-        QModelIndex mi = m_model->index(row, col);
+        QVariant fieldValue = field()->uiValue();
+        if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
+        {
+            int col = 0;
+            int row = field()->uiValue().toInt();
+            QModelIndex mi = strListModel->index(row, col);
+
+            m_listView->selectionModel()->blockSignals(true);
+            m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
+            m_listView->selectionModel()->select(mi, QItemSelectionModel::SelectCurrent);
+            m_listView->selectionModel()->setCurrentIndex(mi, QItemSelectionModel::SelectCurrent);
+
+            m_listView->selectionModel()->blockSignals(false);
+        }
+        else if (fieldValue.type() == QVariant::List)
+        {
+            QList<QVariant> valuesSelectedInField = fieldValue.toList();
+            QItemSelection selection;
+
+            for (int i= 0 ; i < valuesSelectedInField.size(); ++i)
+            {
+                QModelIndex mi = strListModel->index(valuesSelectedInField[i].toInt(), 0);
+                selection.append(QItemSelectionRange (mi));
+            }
+
+            m_listView->selectionModel()->blockSignals(true);
             
+            m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+            m_listView->selectionModel()->select(selection, QItemSelectionModel::Select);
+            m_listView->selectionModel()->setCurrentIndex(currentItem, QItemSelectionModel::Current);
+
+            m_listView->selectionModel()->blockSignals(false);
+        }
+    }
+    else
+    {
         m_listView->selectionModel()->blockSignals(true);
 
-        m_listView->selectionModel()->select(mi, QItemSelectionModel::SelectCurrent);
-        m_listView->selectionModel()->setCurrentIndex(mi, QItemSelectionModel::SelectCurrent);
+        QItemSelection selection =  m_listView->selectionModel()->selection();
+        QModelIndex currentItem = 	m_listView->selectionModel()->currentIndex();
+        QVariant fieldValue = field()->uiValue();
+        QStringList texts = fieldValue.toStringList();
+        texts.push_back("");
+        strListModel->setStringList(texts);
+        
+        strListModel->setItemsEditable(true);
+
+        m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        m_listView->selectionModel()->select(selection, QItemSelectionModel::Select);
+        m_listView->selectionModel()->setCurrentIndex(currentItem, QItemSelectionModel::Current);
 
         m_listView->selectionModel()->blockSignals(false);
     }
@@ -137,6 +201,8 @@ QWidget* PdmUiListEditor::createEditorWidget(QWidget * parent)
     m_listView->setModel(m_model);
 
     connect(m_listView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection& )), this, SLOT(slotSelectionChanged(const QItemSelection&, const QItemSelection& )));
+    connect(m_model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(slotListItemEdited(const QModelIndex&, const QModelIndex&)));
+    m_listView->installEventFilter(this);
 
     return m_listView;
 }
@@ -155,19 +221,98 @@ QWidget* PdmUiListEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiListEditor::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-    if (selected.indexes().size() == 1)
-    {
-        QModelIndex mi = selected.indexes()[0];
-        int col = mi.column();
-        int row = mi.row();
-        
-        QVariant v;
-        v = row;
-        QVariant uintValue(v.toUInt());
+    if (m_options.isEmpty()) return;
 
-        this->setValueToField(uintValue);
+    //QModelIndexList idxList = selected.indexes();
+    QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
+
+    QVariant fieldValue = field()->uiValue();
+    if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
+    {
+        if (idxList.size() >= 1)
+        {
+            if (idxList[0].row() < m_options.size())
+            {
+                this->setValueToField(QVariant(static_cast<unsigned int>(idxList[0].row())));
+            }
+        }
+    }
+    else if (fieldValue.type() == QVariant::List)
+    {
+        QList<QVariant> valuesToSetInField;
+
+        for (int i = 0; i < idxList.size(); ++i)
+        {
+            if (idxList[i].row() < m_options.size())
+            {
+                valuesToSetInField.push_back(QVariant(static_cast<unsigned int>(idxList[i].row())));
+            }
+        }
+
+        this->setValueToField(valuesToSetInField);
     }
 }
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiListEditor::slotListItemEdited(const QModelIndex&, const QModelIndex&)
+{
+    if (m_optionsOnly) return;
+    assert(m_options.isEmpty()); // Not supported yet
 
+    QStringList uiList = m_model->stringList();
+
+    // Remove dummy elements specifically at the  end of list.
+    
+    QStringList result;
+    foreach (const QString &str, uiList) 
+    {
+        if (str != "" && str != " ") result += str;
+    }
+
+    this->setValueToField(result);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PdmUiListEditor::eventFilter(QObject * listView, QEvent * event)
+{
+    if (listView == m_listView && event->type() == QEvent::KeyPress)
+    {
+        if (m_optionsOnly) return false;
+        assert(m_options.isEmpty()); // Not supported yet
+
+        QKeyEvent* keyEv = static_cast<QKeyEvent*>(event);
+        if (keyEv->key() == Qt::Key_Delete || keyEv->key() == Qt::Key_Backspace )
+        {
+            QModelIndexList idxList =  m_listView->selectionModel()->selectedIndexes();
+            bool isAnyDeleted = false;
+            while(idxList.size())
+            {
+                m_model->removeRow(idxList[0].row());
+                idxList =  m_listView->selectionModel()->selectedIndexes();
+                isAnyDeleted = true;
+            }
+
+            if (isAnyDeleted)
+            {
+                QStringList uiList = m_model->stringList();
+
+                // Remove dummy elements specifically at the  end of list.
+
+                QStringList result;
+                foreach (const QString &str, uiList) 
+                {
+                    if (str != "" && str != " ") result += str;
+                }
+                this->setValueToField(result);
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
 
 } // end namespace caf

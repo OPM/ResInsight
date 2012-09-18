@@ -11,7 +11,9 @@ set( QOBJECT_HEADERS
     cafViewer.h
 )
 
-qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
+    qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+endif()
 
 
 add_library( ${PROJECT_NAME}

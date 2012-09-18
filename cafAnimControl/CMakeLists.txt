@@ -7,7 +7,9 @@ set( QOBJECT_HEADERS
     cafAnimationToolBar.h
 )
 
-qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
+    qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
+endif()
 
 # NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent scope
 # CMakeList.txt in the application folder (parent scope) must use the following syntax
