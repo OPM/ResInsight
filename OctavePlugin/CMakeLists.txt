@@ -24,6 +24,8 @@ if(NOT MKOCTFILE_EXECUTABLE)
   message(WARNING "Failed to find mkoctfile")
 else()
 
+    get_filename_component(OCTAVE_PATH ${MKOCTFILE_EXECUTABLE} PATH)
+
   foreach(srcFileName IN LISTS CPP_SOURCES)
   
     if(NOT IS_ABSOLUTE "${srcFileName}")
@@ -34,12 +36,12 @@ else()
 
     set(octFileName "${CMAKE_CURRENT_BINARY_DIR}/${baseFilename}.oct")
 
-
-    add_custom_command(
+ add_custom_command(
         OUTPUT "${octFileName}"
         COMMAND ${MKOCTFILE_EXECUTABLE} -I${QT_QTNETWORK_INCLUDE_DIR} -I${QT_QTCORE_INCLUDE_DIR} -I${QT_INCLUDE_DIR} ${RPATH_COMMAND} -L${QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
         DEPENDS "${srcFileName}"
         COMMENT "Generating ${octFileName}"
+        WORKING_DIRECTORY "${OCTAVE_PATH}"
     )
   
      list(APPEND OCTAVE_BINARY_OCT_FILES "${octFileName}")
