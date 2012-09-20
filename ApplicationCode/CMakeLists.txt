@@ -32,13 +32,13 @@ include_directories(
 # variable you can point to a different ERT distribution.
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert")
+    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  if (${CMAKE_SIZEOF_VOID_P} MATCHES "8" )
-    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows-x64")
-  else()
-    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows")
-  endif()
+    if (CMAKE_CL_64)
+        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows-x64")
+    else()
+        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows")
+    endif()
 endif()
 
 	
