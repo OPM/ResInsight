@@ -25,16 +25,17 @@ include_directories(
 )
 
 #-----------------------------------------------------------------
-# Ert configuration
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert")
+    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert" CACHE  DIRECTORY "Root path for ERT installation to build against")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     if (CMAKE_CL_64)
-        set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows-x64")
+        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows-x64" CACHE  DIRECTORY "Root path for ERT installation to build against")
     else()
-        set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows")
+        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows" CACHE  DIRECTORY "Root path for ERT installation to build against")
     endif()
 endif()
+
 
 set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
 set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")
@@ -63,7 +64,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    list(APPEND ERT_LIBRARY_LIST lapack z)  
-endif()	
+endif() 
 #-----------------------------------------------------------------
 
 include_directories( ${ERT_INCLUDE_LIST} )
