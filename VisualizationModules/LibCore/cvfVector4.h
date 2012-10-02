@@ -43,50 +43,55 @@ public:
     explicit Vector4(const T& other);
 
     inline Vector4&         operator=(const Vector4& rhs);
+
+    inline bool             equals(const Vector4& other) const;
     inline bool             operator==(const Vector4& rhs) const;
     inline bool             operator!=(const Vector4& rhs) const;
 
+    inline void             add(const Vector4& other);
+    inline void             subtract(const Vector4& other);
     inline const Vector4    operator+(const Vector4& rhs) const;
     inline const Vector4    operator-(const Vector4& rhs) const;
-    inline const Vector4    operator*(S scalar) const;
-    inline const Vector4    operator/(S scalar) const;
-    inline const Vector4    operator-() const;
-
     inline Vector4&         operator+=(const Vector4& rhs);
     inline Vector4&         operator-=(const Vector4& rhs);
+    inline const Vector4    operator-() const;
+
+    inline void             scale(S scalar);
+    inline const Vector4    operator*(S scalar) const;
+    inline const Vector4    operator/(S scalar) const;
     inline Vector4&         operator*=(S scalar);
     inline Vector4&         operator/=(S scalar);
+
+    inline S                dot(const Vector4& other) const;
+    inline S                operator*(const Vector4& rhs) const;    // Dot product
+
+    template<typename T> 
+    void                    set(const T& other);
+    inline void             set(S x, S y, S z, S w);
+    inline void             setZero();
+    inline const S&         x() const       { return m_v[0]; }      ///< Get the X element of the vector
+    inline const S&         y() const       { return m_v[1]; }      ///< Get the Y element of the vector
+    inline const S&         z() const       { return m_v[2]; }      ///< Get the Z element of the vector
+    inline const S&         w() const       { return m_v[3]; }      ///< Get the W element of the vector
+    inline S&               x()             { return m_v[0]; }      ///< Get a reference to the X element of the vector. E.g. x() = 1;
+    inline S&               y()             { return m_v[1]; }      ///< Get a reference to the Y element of the vector. E.g. y() = 2;
+    inline S&               z()             { return m_v[2]; }      ///< Get a reference to the Z element of the vector. E.g. z() = 3;
+    inline S&               w()             { return m_v[3]; }      ///< Get a reference to the W element of the vector. E.g. w() = 3;
 
     inline const S&         operator[](int index) const;            // Get component 0,1,2,3. E.g. x = v[0];
     inline S&               operator[](int index);                  // Set component 0,1,2,3. E.g. v[0] = x;
 
-    inline S                operator*(const Vector4& rhs) const;    // Dot product
+    inline S*               ptr()       { return m_v; }             ///< Get a raw pointer to the internal c array of type S.
+    inline const S*         ptr() const { return m_v; }             ///< Get a const raw pointer to the internal c array of type S.
 
-    inline const S& x() const   { return m_v[0]; }                  ///< Get the X element of the vector
-    inline const S& y() const   { return m_v[1]; }                  ///< Get the Y element of the vector
-    inline const S& z() const   { return m_v[2]; }                  ///< Get the Z element of the vector
-    inline const S& w() const   { return m_v[3]; }                  ///< Get the W element of the vector
-    inline S&       x()         { return m_v[0]; }                  ///< Get a reference to the X element of the vector. E.g. x() = 1;
-    inline S&       y()         { return m_v[1]; }                  ///< Get a reference to the Y element of the vector. E.g. y() = 2;
-    inline S&       z()         { return m_v[2]; }                  ///< Get a reference to the Z element of the vector. E.g. z() = 3;
-    inline S&       w()         { return m_v[3]; }                  ///< Get a reference to the W element of the vector. E.g. w() = 3;
+    inline bool     isZero() const;
 
-    inline S*       ptr()       { return m_v; }                     ///< Get a raw pointer to the internal c array of type S.
-    inline const S* ptr() const { return m_v; }                     ///< Get a const raw pointer to the internal c array of type S.
+    bool            normalize();
+    const Vector4   getNormalized(bool* normalizationOK = NULL) const;
 
-    inline void set(S x, S y, S z, S w);
-    inline void setZero();
-    inline bool isZero() const;
-
-    template<typename T> 
-    void set(const T& other);
-
-    bool        normalize();
-    Vector4     normalized(bool* normalizationOK = NULL) const;
-
-    inline S    length() const;
-    inline S    lengthSquared() const;
-    bool        setLength(S newLength);
+    inline S        length() const;
+    inline S        lengthSquared() const;
+    bool            setLength(S newLength);
 
 public:
     static const Vector4 ZERO;      ///< Null vector <0, 0, 0>
@@ -95,6 +100,7 @@ public:
 private:
     S m_v[4];
 };
+
 
 typedef Vector4<float>  Vec4f;  ///< A vector with float components
 typedef Vector4<double> Vec4d;  ///< A vector with double components

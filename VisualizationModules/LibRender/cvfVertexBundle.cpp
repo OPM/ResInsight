@@ -654,12 +654,16 @@ void VertexBundle::finishUseBundle(OpenGLContext* oglContext, VertexBundleUsage*
 
     if (bundleUsage->fixedFunction())
     {
+#ifdef CVF_OPENGL_ES
+        CVF_FAIL_MSG("Not supported on OpenGL ES");
+#else       
         CVF_TIGHT_ASSERT(oglContext->capabilities()->supportsFixedFunction());
         
         if (m_vertexCount > 0)  glDisableClientState(GL_VERTEX_ARRAY);
         if (m_hasNormals)       glDisableClientState(GL_NORMAL_ARRAY);
         if (m_hasTexCoords)     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         if (m_hasColors)        glDisableClientState(GL_COLOR_ARRAY);
+#endif
     }
     else
     {

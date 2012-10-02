@@ -33,7 +33,7 @@ namespace cvf {
 // 
 //
 //==================================================================================================
-class HitItemCollection : Object
+class HitItemCollection : public Object
 {
 public:
     HitItemCollection();

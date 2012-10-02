@@ -268,23 +268,56 @@ void Camera::setProjectionAsPixelExact2D()
 /// the view to. The relativeDistance parameter specifies the distance from the camera to the 
 /// center of the bounding box
 //--------------------------------------------------------------------------------------------------
-void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double relativeDistance)
+void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double distanceScaleFactor)
 {
-    double boxRadius = boundingBox.radius();
+    CVF_ASSERT(projection() == PERSPECTIVE);
 
-    // Determine needed distance from center of model to eye point
-    double fovY = m_fieldOfViewYDeg;
-    double fovX = m_fieldOfViewYDeg*aspectRatio();
+    // TODO! !!! !! !! 
+    CVF_UNUSED(distanceScaleFactor);
 
-    // The return values are the complete angle in degrees, get half in radians
-    fovX = Math::toRadians(fovX/2);
-    fovY = Math::toRadians(fovY/2);
+    cvf::Vec3d corners[8];
+    boundingBox.cornerVertices(corners);
 
-    // Use the largest distance
-    double dist1 = (fovX != 0) ? boxRadius*relativeDistance/Math::sin(fovX) : -1;
-    double dist2 = (fovY != 0) ? boxRadius*relativeDistance/Math::sin(fovY) : -1;
+    cvf::Vec3d upNorm = up.getNormalized();
+    cvf::Vec3d right = dir^up;
+    right.normalize();
+    cvf::Vec3d boxEyeNorm = (-dir).getNormalized();
 
-    double dist = CVF_MAX(dist1, dist2);
+    cvf::Plane planeTop;
+    planeTop.setFromPointAndNormal(boundingBox.center(), up);
+
+    cvf::Plane planeSide;
+    planeSide.setFromPointAndNormal(boundingBox.center(), right);
+
+    // m_fieldOfViewYDeg is the complete angle in degrees, get half in radians
+    double fovY = Math::toRadians(m_fieldOfViewYDeg/2.0);
+    double fovX = Math::atan(Math::tan(fovY)*aspectRatio());
+
+    double dist = 0;
+
+    for (size_t i = 0; i < 8; ++i)
+    {
+        cvf::Vec3d centerToCorner = corners[i] - boundingBox.center();
+
+        // local horizontal plane
+        cvf::Vec3d centerToCornerTop = planeTop.projectPoint(centerToCorner);
+        double rightCoord = centerToCornerTop*right;
+        double distRight = Math::abs(rightCoord/Math::tan(fovX));
+        distRight += centerToCornerTop*boxEyeNorm;
+
+        // local vertical plane
+        cvf::Vec3d centerToCornerSide = planeSide.projectPoint(centerToCorner);
+        double upCoord = centerToCornerSide*upNorm;
+        double distUp    = Math::abs(upCoord/Math::tan(fovY));
+        distUp += (centerToCornerSide*boxEyeNorm);
+
+        // Adjust for the distance scale factor
+        distRight /= distanceScaleFactor;
+        distUp /= distanceScaleFactor;
+
+        dist = CVF_MAX(dist, distRight);
+        dist = CVF_MAX(dist, distUp);
+    }
 
     // Avoid distances of 0 when model has no extent
     if (!(dist > 0))
@@ -293,9 +326,58 @@ void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec
     }
 
     // Use old view direction, but look towards model center
-    Vec3d eye = boundingBox.center()- dir*dist;
-    
+    Vec3d eye = boundingBox.center()- dir.getNormalized()*dist;
+
     // Will update cached values
+    setFromLookAt(eye, boundingBox.center(), up);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Camera::fitViewOrtho(const BoundingBox& boundingBox, double eyeDist, const Vec3d& dir, const Vec3d& up, double adjustmentFactor)
+{
+    // Algorithm:
+    // Project all points into the viewing plan. Find the distance along the right and up vector. 
+    // Set the height of the frustum to this distance.
+    cvf::Vec3d corners[8];
+    boundingBox.cornerVertices(corners);
+
+    cvf::BoundingBox projBox;
+    cvf::Plane viewPlane;
+    viewPlane.setFromPointAndNormal(boundingBox.center(), -dir);
+
+    cvf::Vec3d upNorm = up.getNormalized();
+    cvf::Vec3d right = up^dir;
+    right.normalize();
+
+    double rightMin = cvf::UNDEFINED_DOUBLE_THRESHOLD;
+    double rightMax = -cvf::UNDEFINED_DOUBLE_THRESHOLD;
+    double upMin = cvf::UNDEFINED_DOUBLE_THRESHOLD;
+    double upMax = -cvf::UNDEFINED_DOUBLE_THRESHOLD;
+
+    for (size_t i = 0; i < 8; ++i)
+    {
+        cvf::Vec3d cornerInPlane = viewPlane.projectPoint(corners[i]);
+        cvf::Vec3d cornerVec = cornerInPlane-boundingBox.center();
+
+        double rightCoord = cornerVec*right;
+        rightMin = CVF_MIN(rightMin, rightCoord);
+        rightMax = CVF_MAX(rightMax, rightCoord);
+
+        double upCood = cornerVec*upNorm;
+        upMin = CVF_MIN(upMin, upCood);
+        upMax = CVF_MAX(upMax, upCood);
+    }
+
+    double deltaRight = rightMax - rightMin;
+    double deltaUp = upMax - upMin;
+    double newHeight = CVF_MAX(deltaUp, deltaRight/aspectRatio())/adjustmentFactor;
+
+    setProjectionAsOrtho(newHeight, m_nearPlane, m_farPlane);
+
+    Vec3d eye = boundingBox.center()- eyeDist*dir.getNormalized();
     setFromLookAt(eye, boundingBox.center(), up);
 }
 
@@ -305,7 +387,7 @@ void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec
 ///
 /// Note that this will setup a perspective projection with the new clipping planes.
 //--------------------------------------------------------------------------------------------------
-void Camera::setClipPlanesFromBoundingBoxPerspective(const BoundingBox& boundingBox, double minNearPlaneDistance)
+void Camera::setClipPlanesFromBoundingBox(const BoundingBox& boundingBox, double minNearPlaneDistance)
 {
     CVF_ASSERT(minNearPlaneDistance > 0);
 
@@ -321,7 +403,14 @@ void Camera::setClipPlanesFromBoundingBoxPerspective(const BoundingBox& bounding
     if (nearPlane < minNearPlaneDistance) nearPlane = minNearPlaneDistance;
     if (farPlane <= nearPlane) farPlane = nearPlane + 1.0;
 
-    setProjectionAsPerspective(m_fieldOfViewYDeg, nearPlane, farPlane);
+    if (projection() == PERSPECTIVE)
+    {
+        setProjectionAsPerspective(m_fieldOfViewYDeg, nearPlane, farPlane);
+    }
+    else
+    {
+        setProjectionAsOrtho(m_frontPlaneFrustumHeight, nearPlane, farPlane);
+    }
 }
 
 
@@ -466,6 +555,42 @@ ref<Ray> Camera::rayFromWinCoord(int winCoordX, int winCoordY) const
     ray->setDirection(dir);
 
     return ray;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Construct a plane from a line specified in window coordinates    
+///
+/// The plane will be constructed so that the specified line lies in the plane, and the plane 
+/// normal will be pointing left when moving along the line from start to end.
+/// The coordinates (winCoordStart & winCoordEnd) are assumed to be in the window coordinate system
+/// where <0,0> is in the top left corner.
+//--------------------------------------------------------------------------------------------------
+ref<Plane> Camera::planeFromLineWinCoord(Vec2i winCoordStart, Vec2i winCoordEnd) const
+{
+    // Unproject works in OpenGL coord system with (0,0) in lower left corner, so flip the y-coordinates
+    winCoordStart.y() = static_cast<int>(m_viewport->height()) - winCoordStart.y();
+    winCoordEnd.y()   = static_cast<int>(m_viewport->height()) - winCoordEnd.y();
+
+    Vec3d s0(0, 0, 0);
+    Vec3d e0(0, 0, 0);
+    Vec3d e1(0, 0, 0);
+    bool unprojOk = true;
+    unprojOk &= unproject(Vec3d(winCoordStart.x(), winCoordStart.y(), 0), &s0);
+    unprojOk &= unproject(Vec3d(winCoordEnd.x(),   winCoordEnd.y(),   0), &e0);
+    unprojOk &= unproject(Vec3d(winCoordEnd.x(),   winCoordEnd.y(),   1), &e1);
+    if (!unprojOk)
+    {
+        return NULL;
+    }
+
+    ref<Plane> plane = new Plane;
+    if (!plane->setFromPoints(s0, e0, e1))
+    {
+        return NULL;
+    }
+
+    return plane;
 }
 
 
@@ -684,7 +809,7 @@ void Camera::updateCachedValues()
 
     // Update the cached frustum
     m_cachedViewFrustum = computeViewFrustum();
-    
+
     // Update the front plane pixel size (height)
     CVF_ASSERT(m_viewport.notNull());
     uint vpWidth  = m_viewport->width();
@@ -709,7 +834,7 @@ void Camera::updateCachedValues()
 //--------------------------------------------------------------------------------------------------
 Frustum Camera::computeViewFrustum() const
 {
-    // See also
+    // See: 
     // http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
     // http://zach.in.tu-clausthal.de/teaching/cg_literatur/lighthouse3d_view_frustum_culling/index.html
 

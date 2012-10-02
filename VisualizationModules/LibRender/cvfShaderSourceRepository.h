@@ -41,6 +41,7 @@ public:
         calcShadowCoord,
 
         src_Color,
+        src_TwoSidedColor,
         src_Texture,
         src_TextureGlobalAlpha,
         src_TextureFromPointCoord,
@@ -49,8 +50,7 @@ public:
         light_Phong,
         light_PhongDual,
         light_SimpleHeadlight,
-        light_SimpleHeadlight_spec_uniform,
-        light_AmbientDiffuse,
+        light_Headlight,
 
         checkDiscard_ClipDistances,
 
@@ -74,6 +74,11 @@ public:
         fs_ParticleTraceComets,
         fs_GradientTopBottom,
         fs_GradientTopMiddleBottom,
+        fs_HighlightStencilBlur_v33,
+        fs_HighlightStencilDraw,
+        fs_HighlightStencilMix_v33,
+        fs_GaussianBlur,
+        fs_HighlightMix,
 
         gs_PassThroughTriangle_v33
     };

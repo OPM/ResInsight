@@ -243,9 +243,14 @@ bool Texture::setupTexture(OpenGLContext* oglContext)
             }
             else if (m_internalFormat == DEPTH24_STENCIL8)
             {
+#ifndef CVF_OPENGL_ES
+                
                 CVF_ASSERT(m_image.isNull());
                 CVF_ASSERT(!m_enableMipmapGeneration);
                 glTexImage2D(GL_TEXTURE_2D, 0, internalFormatOpenGL(), static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, 0);
+#else
+                CVF_FAIL_MSG("Not supported on IOS");
+#endif
             }
             else
             {

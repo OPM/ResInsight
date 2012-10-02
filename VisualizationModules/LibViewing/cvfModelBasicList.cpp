@@ -25,6 +25,8 @@
 #include "cvfPartRenderHintCollection.h"
 #include "cvfDrawableGeo.h"
 #include "cvfTransform.h"
+#include "cvfRayIntersectSpec.h"
+#include "cvfRay.h"
 
 namespace cvf {
 
@@ -135,26 +137,11 @@ BoundingBox ModelBasicList::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ModelBasicList::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, unsigned int enableMask)
+void ModelBasicList::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask)
 {
-    Frustum frust;
-    if (cullSettings.isViewFrustumCullingEnabled())
-    {
-        frust = camera.frustum();
-    }
-
     // Combination of model's and incoming enable mask
-    unsigned int combinedEnableMask = (partEnableMask() & enableMask);
+    uint combinedEnableMask = (partEnableMask() & enableMask);
 
-    doFindVisibleParts(visibleParts, camera, frust, cullSettings, combinedEnableMask);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void ModelBasicList::doFindVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const Frustum& frust, const CullSettings& cullSettings, unsigned int enableMask)
-{
     size_t numParts = m_parts.size();
     size_t i;
     for (i = 0; i < numParts; i++)
@@ -162,54 +149,67 @@ void ModelBasicList::doFindVisibleParts(PartRenderHintCollection* visibleParts, 
         Part* part = m_parts[i].p();
         CVF_ASSERT(part);
 
-        bool culled = false;
-
-        // Check if part is enabled (visible)
-        if (((part->enableMask() & enableMask) > 0) && (part->drawable()))
+        double projectedAreaPixels = -1;
+        
+        if (partVisible(part, &camera, &cullSettings, combinedEnableMask, &projectedAreaPixels))
         {
-            double projectedAreaPixels = -1;
-
-            // View Frustum Culling
-            if (cullSettings.isViewFrustumCullingEnabled())
+            if (projectedAreaPixels >= 0)
             {
-                const BoundingBox& bb = part->boundingBox();
-                CVF_ASSERT(bb.isValid());
-
-                if (frust.isOutside(bb))
-                {
-                    culled = true;
-                }
+                visibleParts->add(part, static_cast<float>(projectedAreaPixels), -1.0f);
             }
-
-            // Pixel size (small feature) culling
-            // Cull based on objects projected screen area. Objects with area smaller than specified threshold will be culled
-            if (cullSettings.isPixelSizeCullingEnabled() && !culled)
+            else
             {
-                const BoundingBox& bb = part->boundingBox();
-                CVF_ASSERT(bb.isValid());
-
-                projectedAreaPixels = camera.computeProjectedBoundingSpherePixelArea(bb.center(), bb.radius());
-
-                if (projectedAreaPixels < cullSettings.pixelSizeCullingAreaThreshold())
-                {
-                    culled = true;
-                }
-            }
-
-            // Add to collection if not culled
-            if (!culled)
-            {
-                if (projectedAreaPixels >= 0)
-                {
-                    visibleParts->add(part, static_cast<float>(projectedAreaPixels), -1.0f);
-                }
-                else
-                {
-                    visibleParts->add(part);
-                }
+                visibleParts->add(part);
             }
         }
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool ModelBasicList::partVisible(cvf::Part* part, const Camera* camera, const CullSettings* cullSettings, uint enableMask, double* projectedAreaPixels)
+{
+    if (projectedAreaPixels)
+    {
+        *projectedAreaPixels = -1.0;
+    }
+
+    // Check if part is enabled (visible)
+    if (((part->enableMask() & enableMask) > 0) && (part->drawable()))
+    {
+        // View Frustum Culling
+        if (cullSettings && camera && cullSettings->isViewFrustumCullingEnabled())
+        {
+            const BoundingBox& bb = part->boundingBox();
+            CVF_ASSERT(bb.isValid());
+
+            if (camera->frustum().isOutside(bb))
+            {
+                return false;
+            }
+        }
+
+        // Pixel size (small feature) culling
+        // Cull based on objects projected screen area. Objects with area smaller than specified threshold will be culled
+        if (cullSettings && cullSettings->isPixelSizeCullingEnabled())
+        {
+            const BoundingBox& bb = part->boundingBox();
+            CVF_ASSERT(bb.isValid());
+
+            *projectedAreaPixels = camera->computeProjectedBoundingSpherePixelArea(bb.center(), bb.radius());
+
+            if (*projectedAreaPixels < cullSettings->pixelSizeCullingAreaThreshold())
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -227,12 +227,39 @@ void ModelBasicList::allParts(Collection<Part>* partCollection)
 }
 
 
+
 //--------------------------------------------------------------------------------------------------
-/// Intersect all parts in the model with the given ray. 
+/// 
 //--------------------------------------------------------------------------------------------------
-bool ModelBasicList::rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection) 
+bool ModelBasicList::rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection)
 {
-    return Model::rayIntersect(rayIntersectSpec, hitItemCollection);
+    // Example implementation
+    cref<Ray> ray = rayIntersectSpec.ray();
+    if (ray.isNull())
+    {
+        return false;
+    }
+
+    // Combination of model's and incoming enable mask
+    unsigned int combinedEnableMask = (partEnableMask() & rayIntersectSpec.enableMask());
+    bool anyPartsHit = false;
+
+    Collection<Part> allPartsColl;
+    allParts(&allPartsColl);
+    size_t numParts = allPartsColl.size();
+    size_t partIdx;
+    for (partIdx = 0; partIdx < numParts; partIdx++)
+    {
+        Part* part = allPartsColl.at(partIdx);
+        CVF_ASSERT(part);
+
+        if (partVisible(part, rayIntersectSpec.camera(), rayIntersectSpec.cullSettings(), combinedEnableMask, NULL))
+        {
+            anyPartsHit |= part->rayIntersect(*ray, hitItemCollection);
+        }
+    }
+
+    return anyPartsHit;
 }
 
 
@@ -285,7 +312,7 @@ Part* ModelBasicList::findPartByName(String name)
 /// containing merged drawableGeos. Vertices are transformed if a transformation matrix exists.
 ///
 //--------------------------------------------------------------------------------------------------
-void ModelBasicList::mergeParts(double maxExtent, unsigned int minimumPrimitiveCount)
+void ModelBasicList::mergeParts(double maxExtent, uint minimumPrimitiveCount)
 {
     // Gather all parts to be merged in a collection
     Collection<Part> candidates;

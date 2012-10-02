@@ -20,6 +20,8 @@
 #include "cvfBase.h"
 #include "cvfRayIntersectSpec.h"
 #include "cvfRay.h"
+#include "cvfRendering.h"
+#include "cvfCamera.h"
 
 namespace cvf {
 
@@ -38,8 +40,29 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RayIntersectSpec::RayIntersectSpec(const Ray* ray)
+RayIntersectSpec::RayIntersectSpec(const Ray* ray, const Rendering* rendering)
 :   m_ray(ray)
+{
+    if (rendering)
+    {
+        m_camera = rendering->camera();
+        m_cullSettings = rendering->cullSettings();
+        m_enableMask = rendering->enableMask();
+    }
+    else
+    {
+        m_enableMask = 0xffffffff;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RayIntersectSpec::RayIntersectSpec(const Ray* ray, const Camera* camera, const CullSettings* cullSettings, uint enableMask)
+:   m_ray(ray),
+    m_camera(camera),
+    m_cullSettings(cullSettings),
+    m_enableMask(enableMask)
 {
 }
 
@@ -49,7 +72,6 @@ RayIntersectSpec::RayIntersectSpec(const Ray* ray)
 //--------------------------------------------------------------------------------------------------
 RayIntersectSpec::~RayIntersectSpec()
 {
-
 }
 
 
@@ -59,6 +81,33 @@ RayIntersectSpec::~RayIntersectSpec()
 const Ray* RayIntersectSpec::ray() const
 {
     return m_ray.p();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const Camera* RayIntersectSpec::camera() const
+{
+    return m_camera.p();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const CullSettings* RayIntersectSpec::cullSettings() const
+{
+    return m_cullSettings.p();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+uint RayIntersectSpec::enableMask() const
+{
+    return m_enableMask;
 }
 
 

@@ -35,7 +35,7 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double ScalarMapperDiscreteLog::normalizedLevelPosition(double domainScalarValue) const
+double ScalarMapperDiscreteLog::normalizedValue(double domainScalarValue) const
 {
     double logRangeMax = log10(m_rangeMax);
     double logRangeMin = log10(m_rangeMin);

@@ -37,7 +37,7 @@ namespace cvf {
     class Scene;
     class Rendering;
     class RenderSequence;
-    class OverlayColorLegend;
+    class OverlayScalarMapperLegend;
     class HitItemCollection;
 }
 

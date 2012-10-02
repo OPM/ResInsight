@@ -22,12 +22,15 @@
 #include "cvfDrawableText.h"
 #include "cvfMatrixState.h"
 #include "cvfCamera.h"
-#include "cvfRenderState.h"
 #include "cvfShaderProgram.h"
 #include "cvfOpenGL.h"
 #include "cvfViewport.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfUniform.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfFont.h"
+#include "cvfGlyph.h"
+#include "cvfRenderStateLine.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
@@ -49,6 +52,7 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 OverlayTextBox::OverlayTextBox(Font* font)
 :   m_size(200, 50),
+    m_font(font),
     m_drawBackground(true),
     m_drawBorder(true),
     m_textColor(Color3::WHITE),
@@ -56,7 +60,7 @@ OverlayTextBox::OverlayTextBox(Font* font)
     m_borderColor(0.6f, 0.6f, 1.0f)
 {
     m_textDrawer = new TextDrawer(font);
-    m_textDrawer->setVerticalAlignment(TextDrawer::CENTER);
+    m_textDrawer->setVerticalAlignment(TextDrawer::BASELINE);
     m_textDrawer->setDrawBackground(false);
     m_textDrawer->setDrawBorder(false);
 }
@@ -130,6 +134,9 @@ void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2ui& position, c
         textPos.x() = 4; // Allow for margin
     }
 
+    Vec2ui textExtent = m_font->textExtent(m_text);
+    textPos.y() -= (static_cast<float>(textExtent.y())/2.0f);
+
     // Set the text
     m_textDrawer->removeAllTexts();
     m_textDrawer->addText(m_text, textPos);
@@ -161,7 +168,7 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
     projCam.setViewMatrix(Mat4d::IDENTITY);
 
     // Turn off depth test
-    Depth depth(false, Depth::LESS, false);
+    RenderStateDepth depth(false, RenderStateDepth::LESS, false);
     depth.applyOpenGL(oglContext);
 
     ref<ShaderProgram> backgroundShader;
@@ -177,11 +184,11 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
         }
 
 #ifndef CVF_OPENGL_ES
-        Material_FF mat;
+        RenderStateMaterial_FF mat;
         mat.enableColorMaterial(true);
         mat.applyOpenGL(oglContext);
 
-        Lighting_FF light(false);
+        RenderStateLighting_FF light(false);
         light.applyOpenGL(oglContext);
 #endif
         projCam.applyOpenGL();
@@ -256,8 +263,14 @@ void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const 
             UniformFloat borderColor("u_color", Color4f(m_borderColor));
             backgroundShader->applyUniform(oglContext, borderColor);
 
+            RenderStateLine line(static_cast<float>(3));
+            line.applyOpenGL(oglContext);
+
             // Draw border
             glDrawArrays(GL_LINE_LOOP, 0, 4);
+
+            RenderStateLine resetLine;
+            resetLine.applyOpenGL(oglContext);
         }
     }
 }
@@ -275,9 +288,32 @@ void OverlayTextBox::setText(const String& text)
 //--------------------------------------------------------------------------------------------------
 /// Set the size (in pixels) of the text box
 //--------------------------------------------------------------------------------------------------
-void OverlayTextBox::setSize( const Vec2ui& size )
+void OverlayTextBox::setPixelSize( const Vec2ui& size )
 {
     m_size = size;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Set the size of the text box to fit the current text. 
+/// 
+/// The method will also add a bit of space for the border or background if enabled.
+//--------------------------------------------------------------------------------------------------
+void OverlayTextBox::setSizeToFitText()
+{
+    cvf::Vec2ui textSize = m_font->textExtent(m_text);
+
+    // Add the size of an 'A' as the margin, same as used in the Text Drawer
+    ref<Glyph> glyph = m_font->getGlyph(L'A');
+    Vec2ui size = Vec2ui(textSize.x() + glyph->width(), textSize.y() + glyph->height());
+
+    if (m_drawBorder)
+    {
+        size.x() += 4;
+        size.y() += 4;
+    }
+
+    setPixelSize(size);
 }
 
 

@@ -17,23 +17,35 @@
 //
 //##################################################################################################
 
-#include "cvfBase.h"
-#include "cvfLegendScalarMapper.h"
+#pragma once
+
+#include "cvfRenderState.h"
 
 namespace cvf {
 
+
+
 //==================================================================================================
-///
-/// \class cvf::LegendScalarMapper
-/// \ingroup Render
-///
-/// Abstract base class for ScalarMapper's that communicate with a legend
-///
+//
+// Controls OpenGL linewidth and aliasing, glLineWidth() and glEnable()/glDisable() with GL_LINE SMOOTH
+//
 //==================================================================================================
+class RenderStateLine : public RenderState
+{
+public:
+    RenderStateLine(float lineWidth = 1.0f);
+
+    void            setWidth(float lineWidth);
+    float           width() const;
+    void            enableSmooth(bool enableSmooth);
+    bool            isSmoothEnabled() const;
+
+    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+
+private:
+    float   m_lineWidth;
+    bool    m_smooth;
+};
 
 
-
-
-
-} // namespace cvf
-
+}  // namespace cvf

@@ -18,9 +18,8 @@
 //##################################################################################################
 
 #pragma once
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfLegendScalarMapper.h"
+
+#include "cvfScalarMapperRangeBased.h"
 
 namespace cvf {
 
@@ -29,40 +28,16 @@ namespace cvf {
 // Maps scalar values to texture coordinates/colors
 //
 //==================================================================================================
-class ScalarMapperContinuousLog : public LegendScalarMapper
+
+class ScalarMapperContinuousLog : public ScalarMapperRangeBased
 {
 public:
     ScalarMapperContinuousLog();
 
-    void                setRange(double min, double max);
-    void                setMajorLevelCount(size_t levelCount, bool adjustLevels = true);
+    // Implementing the Scalarmapper interface
 
-    void                setColors(const Color3ubArray& colorArray);
-    void                setColors(ColorTable colorTable);
-
-    // Scalarmapper interface
-    virtual Vec2f       mapToTextureCoord(double scalarValue) const;
-    virtual Color3ub    mapToColor(double scalarValue) const;
-
-    virtual bool        updateTexture(TextureImage* image) const;
-
-    // LegendScalarmapper interface
-
-    virtual void        majorLevels(std::vector<double>* domainValues ) const;
-    virtual double      normalizedLevelPosition( double domainValue ) const;
+    virtual double      normalizedValue( double domainValue ) const;
     virtual double      domainValue( double normalizedPosition ) const;
-
-protected:
-    double          m_rangeMin;
-    double          m_rangeMax;
-    unsigned int    m_decadeLevelCount;
-
-private:
-    size_t          m_majorLevelCount;
-    bool            m_adjustLevels;
-
-    Color3ubArray   m_colors;
-    uint            m_textureSize;      // The size of texture that updateTexture() will produce. 
 };
 
 }

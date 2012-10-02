@@ -48,8 +48,8 @@ public:
     RIViewer(const QGLFormat& format, QWidget* parent);
     ~RIViewer();
 
-    void            setColorLegend1(cvf::OverlayColorLegend* legend);
-    void            setColorLegend2(cvf::OverlayColorLegend* legend);
+    void            setColorLegend1(cvf::OverlayScalarMapperLegend* legend);
+    void            setColorLegend2(cvf::OverlayScalarMapperLegend* legend);
     void            setDefaultView();
     cvf::Vec3d      pointOfInterest();
     void            setPointOfInterest(cvf::Vec3d poi);
@@ -90,8 +90,8 @@ private:
 
 
 
-    cvf::ref<cvf::OverlayColorLegend> m_legend1;
-    cvf::ref<cvf::OverlayColorLegend> m_legend2;
+    cvf::ref<cvf::OverlayScalarMapperLegend> m_legend1;
+    cvf::ref<cvf::OverlayScalarMapperLegend> m_legend2;
 
     caf::PdmPointer<RimReservoirView> m_reservoirView;
 

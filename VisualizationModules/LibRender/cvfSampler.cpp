@@ -78,7 +78,7 @@ void Sampler::setWrapModeT(WrapMode wrapMode)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Set the texture minifying filter function
 //--------------------------------------------------------------------------------------------------
 void Sampler::setMinFilter(Filter minFilter)
 {
@@ -87,7 +87,9 @@ void Sampler::setMinFilter(Filter minFilter)
 
 
 //--------------------------------------------------------------------------------------------------
+/// Set the magnification filter function
 /// 
+/// \param magFilter  Filter function to use. Legal values are NEAREST and LINEAR.
 //--------------------------------------------------------------------------------------------------
 void Sampler::setMagFilter(Filter magFilter)
 {

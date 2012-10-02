@@ -77,6 +77,33 @@ OpenGLCapabilities& OpenGLCapabilities::operator=(const OpenGLCapabilities& rhs)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool OpenGLCapabilities::operator==(const OpenGLCapabilities& rhs) const
+{
+    if (m_capabilityFlags == rhs.m_capabilityFlags &&
+        m_openGLMajorVersion == rhs.m_openGLMajorVersion &&
+        m_supportsFixedFunction == rhs.m_supportsFixedFunction)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool OpenGLCapabilities::operator!=(const OpenGLCapabilities& rhs) const
+{
+    return !(*this == rhs);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool OpenGLCapabilities::hasCapability(Capability capability) const
 {
     return (m_capabilityFlags & capability) ? true : false;

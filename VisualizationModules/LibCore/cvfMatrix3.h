@@ -39,12 +39,15 @@ public:
     Matrix3(S m00, S m01, S m02, S m10, S m11, S m12, S m20, S m21, S m22);
 
     template<typename T>
-    explicit Matrix3(const T& other);
+    explicit Matrix3(const Matrix3<T>& other);
 
     inline Matrix3&     operator=(const Matrix3& rhs);
+
+    bool                equals(const Matrix3& mat) const;
     bool                operator==(const Matrix3& rhs) const;
     bool                operator!=(const Matrix3& rhs) const;
 
+    void                multiply(const Matrix3& mat);
     const Matrix3       operator*(const Matrix3& rhs) const;
 
     void                setIdentity();
@@ -52,10 +55,10 @@ public:
     void                setZero();
     bool                isZero() const;
 
-    inline S&           operator()(int row, int col);
-    inline S            operator()(int row, int col) const;
     inline void         setRowCol(int row, int col, S value);
     inline S            rowCol(int row, int col) const;
+    inline S&           operator()(int row, int col);
+    inline S            operator()(int row, int col) const;
 
     bool                invert();
     const Matrix3       getInverted(bool* pInvertible = NULL) const;

@@ -32,11 +32,11 @@ namespace cvf {
 
 //==================================================================================================
 ///
-/// \class cvf::FrameBufferObject
+/// \class cvf::FramebufferObject
 /// \ingroup Render
 ///
 /// Encapsulates FBOs which are used to redirect OpenGL (and thus shader) output from the default
-/// Window Framebuffer to a number of custom buffers (either textures or RenderBuffers
+/// Window Framebuffer to a number of custom buffers (either textures or renderbuffers)
 /// 
 //==================================================================================================
 
@@ -232,7 +232,7 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
         createdNewFrameBuffer = true;
     }
 
-    glBindFramebuffer(GL_FRAMEBUFFER, OglRc::safeOglId(m_oglRcBuffer.p()));
+    bind(oglContext);
 
     bool attachmentsModified = createdNewFrameBuffer;
 
@@ -419,7 +419,11 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
                 }
             }
 
+#ifndef CVF_OPENGL_ES
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depthStencilRenderBuffer->renderbufferOglId());
+#else
+            CVF_FAIL_MSG("Not supported on iOS");
+#endif
 
             m_depthAttachmentVersionTick = m_depthStencilRenderBuffer->versionTick();
         }
@@ -439,7 +443,11 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
 
             if (m_depthStencilTexture2d->textureType() == Texture::TEXTURE_2D)
             {
+#ifndef CVF_OPENGL_ES                
                 glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_depthStencilTexture2d->textureOglId(), 0);
+#else
+                CVF_FAIL_MSG("Not supported on iOS");
+#endif
             }
             else if (m_depthStencilTexture2d->textureType() == Texture::TEXTURE_RECTANGLE)
             {
@@ -465,6 +473,18 @@ void FramebufferObject::applyOpenGL(OpenGLContext* oglContext)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void FramebufferObject::bind(OpenGLContext* oglContext) const
+{
+    CVF_CALLSITE_OPENGL(oglContext);
+
+    CVF_ASSERT(OglRc::safeOglId(m_oglRcBuffer.p()) != 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, m_oglRcBuffer->oglId());
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void FramebufferObject::useDefaultWindowFramebuffer(OpenGLContext* oglContext)
 {
     CVF_CALLSITE_OPENGL(oglContext);
@@ -475,6 +495,8 @@ void FramebufferObject::useDefaultWindowFramebuffer(OpenGLContext* oglContext)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glDrawBuffer(GL_BACK);
 #endif
+
+    CVF_CHECK_OGL(oglContext);
 }
 
 
@@ -564,7 +586,7 @@ bool FramebufferObject::isFramebufferComplete(OpenGLContext* oglContext, String*
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, OglRc::safeOglId(m_oglRcBuffer.p()));
+    bind(oglContext);
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
     if (status != GL_FRAMEBUFFER_COMPLETE)

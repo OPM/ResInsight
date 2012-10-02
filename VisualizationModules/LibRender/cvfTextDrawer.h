@@ -54,18 +54,24 @@ public:
     TextDrawer(Font* font);
     virtual ~TextDrawer();
 
-    void addText(const String& text, const Vec2f& pos);
-    void removeAllTexts();
+    void    addText(const String& text, const Vec2f& pos);
+    void    removeAllTexts();
 
-    void setVerticalAlignment(Alignment alignment);
-    void setTextColor(const Color3f& color);
-    void setBackgroundColor(const Color3f& color);
-    void setBorderColor(const Color3f& color);
-    void setDrawBackground(bool drawBackground);
-    void setDrawBorder(bool drawBorder);
+    void    setVerticalAlignment(Alignment alignment);
+    void    setTextColor(const Color3f& color);
+    void    setBackgroundColor(const Color3f& color);
+    void    setBorderColor(const Color3f& color);
+    void    setDrawBackground(bool drawBackground);
+    void    setDrawBorder(bool drawBorder);
 
-    void render(OpenGLContext* oglContext, const MatrixState& matrixState);
-    void renderSoftware(OpenGLContext* oglContext, const MatrixState& matrixState);
+    Color3f textColor() const;
+    Color3f backgroundColor() const;
+    Color3f borderColor() const;
+    bool    drawBackground() const;
+    bool    drawBorder() const;
+
+    void    render(OpenGLContext* oglContext, const MatrixState& matrixState);
+    void    renderSoftware(OpenGLContext* oglContext, const MatrixState& matrixState);
 
 private:
     void doRender2d(OpenGLContext* oglContext, const MatrixState& matrixState, bool softwareRendering);

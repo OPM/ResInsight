@@ -115,6 +115,17 @@ Vector3<S>& Vector3<S>::operator=(const Vector3& other)
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// Check if two vectors are equal. An exact match is required.
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+bool Vector3<S>::equals(const Vector3& other) const
+{
+    return (*this == other);
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// Check if two vectors are equal. An exact match is required.
 //--------------------------------------------------------------------------------------------------
@@ -136,6 +147,26 @@ inline bool Vector3<S>::operator!=(const Vector3& rhs) const
 
 
 //--------------------------------------------------------------------------------------------------
+/// Adds the vector \a other to this vector
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void cvf::Vector3<S>::add(const Vector3& other)
+{
+    (*this) += other;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Subtracts the vector \a other from this vector
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void cvf::Vector3<S>::subtract(const Vector3& other)
+{
+    (*this) -= other;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the sum of this vector and the rhs vector
 //--------------------------------------------------------------------------------------------------
 template<typename S>
@@ -152,6 +183,16 @@ template<typename S>
 inline const Vector3<S> Vector3<S>::operator-(const Vector3& rhs) const
 {
     return Vector3(m_v[0] - rhs.m_v[0], m_v[1] - rhs.m_v[1], m_v[2] - rhs.m_v[2]);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Scale this vector by the given scalar
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void Vector3<S>::scale(S scalar)
+{
+    (*this) *= scalar;
 }
 
 
@@ -275,6 +316,16 @@ inline S& Vector3<S>::operator[](int index)
 
 
 //--------------------------------------------------------------------------------------------------
+/// Compute the dot product of this and \a other
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+S Vector3<S>::dot(const Vector3& other) const
+{
+    return (*this)*other;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Compute the dot product of this and rhs and return the result (scalar)
 /// 
 /// Formula:
@@ -286,6 +337,17 @@ template<typename S>
 inline S Vector3<S>::operator*(const Vector3& rhs) const
 {
     return m_v[0]*rhs.m_v[0] + m_v[1]*rhs.m_v[1] + m_v[2]*rhs.m_v[2];
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Sets this vector to the cross product of vectors \a v1 and \a v2
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void cvf::Vector3<S>::cross(const Vector3& v1, const Vector3& v2)
+{
+    *this = v1 ^ v2;
 }
 
 

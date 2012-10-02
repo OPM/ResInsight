@@ -35,13 +35,12 @@
 #include "cvfMatrixState.h"
 #include "cvfBufferObjectManaged.h"
 #include "cvfGlyph.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfRenderStateLine.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
-#else
-#include "cvfRenderState.h"
 #endif
-#include "cvfLegendScalarMapper.h"
 
 namespace cvf {
 
@@ -61,10 +60,16 @@ namespace cvf {
 OverlayColorLegend::OverlayColorLegend(Font* font)
 :   m_sizeHint(200, 200),
     m_color(Color3::BLACK),
+    m_lineColor(Color3::BLACK),
+    m_lineWidth(1),
     m_font(font)
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
+
+    m_levelColors.reserve(2);
+    m_levelColors.add(Color3::RED);
+    m_levelColors.add(Color3::BLUE);
 
     m_tickValues.reserve(3);
     m_tickValues.add(0.0);
@@ -112,17 +117,13 @@ cvf::Vec2ui OverlayColorLegend::minimumSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayColorLegend::setScalarMapper(const LegendScalarMapper* scalarMapper)
+void OverlayColorLegend::configureLevels(const Color3ubArray& levelColors, const DoubleArray& tickValues)
 {
-    m_scalarMapper = scalarMapper;
-  
-    if (m_scalarMapper.notNull())
-    {
-        std::vector<double> levelValues;
-        m_scalarMapper->majorLevels(&levelValues);
+    CVF_ASSERT(levelColors.size() > 0);
+    CVF_ASSERT(levelColors.size() + 1 == tickValues.size());
 
-        m_tickValues.assign(levelValues);
-    }
+    m_levelColors = levelColors;
+    m_tickValues = tickValues;
 }
 
 
@@ -151,6 +152,8 @@ const Color3f&  OverlayColorLegend::color() const
 {
     return m_color;
 }
+
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -207,6 +210,32 @@ void OverlayColorLegend::render(OpenGLContext* oglContext, const Vec2ui& positio
 void OverlayColorLegend::renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
 {
     render(oglContext, position, size, true);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool OverlayColorLegend::pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size)
+{
+    Rectui oglRect(position, size.x(), size.y());
+
+    OverlayColorLegendLayoutInfo layoutInViewPortCoords(oglRect.min(), Vec2ui(oglRect.width(), oglRect.height()));
+    layoutInfo(&layoutInViewPortCoords);
+
+    Vec2ui legendBarOrigin = oglRect.min();
+    legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().x());
+    legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().y());
+
+    Rectui legendBarRect = Rectui(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.legendRect.width()), static_cast<uint>(layoutInViewPortCoords.legendRect.height()));
+
+    if ((oglXCoord > legendBarRect.min().x()) && (oglXCoord < legendBarRect.max().x()) &&
+        (oglYCoord > legendBarRect.min().y()) && (oglYCoord < legendBarRect.max().y()))
+    {
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -277,19 +306,10 @@ void OverlayColorLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayColorLeg
         float textY = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(it));
         
         // Always draw first and last tick label. For all others, skip drawing if text ends up
-        // on top of the previous label. 
+        // on top of the previous label
         if (it != 0 && it != (numTicks - 1))
         {
             if (cvf::Math::abs(textY - lastVisibleTextY) < overlapTolerance)
-            {
-                m_visibleTickLabels.push_back(false);
-                continue;
-            }
-            // Make sure it does not overlap the last tick as well
-
-            float lastTickY = static_cast<float>(layout->legendRect.max().y() );
-
-            if (cvf::Math::abs(textY - lastTickY) < overlapTolerance)
             {
                 m_visibleTickLabels.push_back(false);
                 continue;
@@ -328,7 +348,7 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
     CVF_TIGHT_ASSERT(layout->size.x() > 0);
     CVF_TIGHT_ASSERT(layout->size.y() > 0);
 
-    Depth depth(false);
+    RenderStateDepth depth(false);
     depth.applyOpenGL(oglContext);
 
     // All vertices. Initialized here to set Z to zero once and for all.
@@ -338,22 +358,25 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
         0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f 
     };
 
     // Per vector convenience pointers
-    float* v0 = &vertexArray[0]; 
-    float* v1 = &vertexArray[3]; 
-    float* v2 = &vertexArray[6]; 
-    float* v3 = &vertexArray[9]; 
-    float* v4 = &vertexArray[12];
+    float* v1 = &vertexArray[0];    // x0, y0
+    float* v2 = &vertexArray[3];    // x1, y0
+    float* v3 = &vertexArray[6];    // tickX, y0
+    float* v4 = &vertexArray[9];    // x0, y1
+    float* v5 = &vertexArray[12];   // x1, y1
+    float* v6 = &vertexArray[15];   // tickX, y1
 
     // Constant coordinates
-    v0[0] = v3[0] = layout->x0;
-    v1[0] = v4[0] = layout->x1;
+    v1[0] = v4[0] = layout->x0;
+    v2[0] = v5[0] = layout->x1;
 
     // Connects
     static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
+    static const ushort linesConnects[] = { 0, 3, 1, 4, 0, 2, 3, 5 };
 
     ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram(oglContext);
     CVF_TIGHT_ASSERT(shaderProgram.notNull());
@@ -368,98 +391,49 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
     glEnableVertexAttribArray(ShaderProgram::VERTEX);
     glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
 
-    // Render color bar as one colored quad per pixel
-
-    int legendHeightPixelCount = static_cast<int>(layout->tickPixelPos->get(m_tickValues.size()-1) - layout->tickPixelPos->get(0) + 0.01);
-    if (m_scalarMapper.notNull())
+    // Render colored quads and lines
+    size_t numColors = m_levelColors.size();
+    CVF_ASSERT(numColors == m_tickValues.size() - 1);
+    size_t ic;
+    for (ic = 0; ic < numColors; ic++)
     {
-        int iPx;
-        for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
+        const Color3ub& clr = m_levelColors[ic];
+        float y0 = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(ic));
+        float y1 = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(ic + 1));
+
+        // Dynamic coordinates for rectangle
+        v1[1] = v2[1] = y0;
+        v4[1] = v5[1] = y1;
+
+        // Dynamic coordinates for tickmarks-lines
+        v3[0] = m_visibleTickLabels[ic] ? layout->tickX : layout->x1;
+        v6[0] = m_visibleTickLabels[ic + 1] ? layout->tickX : layout->x1;
+        v3[1] = y0;
+        v6[1] = y1;
+
+        // Draw filled rectangle elements
         {
-            const Color3ub& clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
-
-            // Dynamic coordinates for rectangle
-            v0[1] = v1[1] = y0;
-            v3[1] = v4[1] = y1;
-
-            // Draw filled rectangle elements
-            {
-                UniformFloat uniformColor("u_color", Color4f(Color3f(clr)));
-                shaderProgram->applyUniform(oglContext, uniformColor);
+            UniformFloat uniformColor("u_color", Color4f(Color3f(clr)));
+            shaderProgram->applyUniform(oglContext, uniformColor);
 
 #ifdef CVF_OPENGL_ES
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, trianglesConnects);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, trianglesConnects);
 #else
-                glDrawRangeElements(GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects);
+            glDrawRangeElements(GL_TRIANGLES, 0, 4, 6, GL_UNSIGNED_SHORT, trianglesConnects);
 #endif
-            }
         }
-    }
 
-    // Render frame
-
-    // Dynamic coordinates for  tickmarks-lines
-    bool isRenderingFrame = true;
-    if (isRenderingFrame)
-    {
-        v0[0] = v2[0] = layout->legendRect.min().x()-0.5f;
-        v1[0] = v3[0] = layout->legendRect.max().x()-0.5f;
-        v0[1] = v1[1] = layout->legendRect.min().y()-0.5f;
-        v2[1] = v3[1] = layout->legendRect.max().y()-0.5f;
-        static const ushort frameConnects[] = { 0, 1, 1, 3, 3, 2, 2, 0};
-
-        UniformFloat uniformColor("u_color", Color4f(m_color));
-        shaderProgram->applyUniform(oglContext, uniformColor);
-
-#ifdef CVF_OPENGL_ES
-        glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, frameConnects);
-#else
-        glDrawRangeElements(GL_LINES, 0, 3, 8, GL_UNSIGNED_SHORT, frameConnects);
-#endif
-    }
-
-    // Render tickmarks
-    bool isRenderingTicks = true;
-
-    if (isRenderingTicks)
-    {
-        // Constant coordinates
-        v0[0] = layout->x0;
-        v1[0] = layout->x1 - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v2[0] = layout->x1;
-        v3[0] = layout->tickX - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v4[0] = layout->tickX;
-
-        static const ushort tickLinesWithLabel[] = { 0, 4 };
-        static const ushort tickLinesWoLabel[] = { 2, 3 };
-
-        size_t ic;
-        for (ic = 0; ic < m_tickValues.size(); ic++)
+        // Draw legend lines
         {
-                float y0 = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(ic) - 0.5f);
-
-                // Dynamic coordinates for  tickmarks-lines
-                v0[1] = v1[1] = v2[1] = v3[1] = v4[1] = y0;
-
-                UniformFloat uniformColor("u_color", Color4f(m_color));
-                shaderProgram->applyUniform(oglContext, uniformColor);
-                const ushort * linesConnects;
-
-                if ( m_visibleTickLabels[ic])
-                {
-                    linesConnects = tickLinesWithLabel;
-                }
-                else
-                {
-                    linesConnects = tickLinesWoLabel;
-                }
+            RenderStateLine line(static_cast<float>(m_lineWidth));
+            line.applyOpenGL(oglContext);
+            UniformFloat uniformColor("u_color", Color4f(m_lineColor));
+            shaderProgram->applyUniform(oglContext, uniformColor);
 
 #ifdef CVF_OPENGL_ES
-                glDrawElements(GL_LINES, 2, GL_UNSIGNED_SHORT, linesConnects);
+            glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, linesConnects);
 #else
-                glDrawRangeElements(GL_LINES, 0, 4, 2, GL_UNSIGNED_SHORT, linesConnects);
+            glDrawRangeElements(GL_LINES, 0, 5, 8, GL_UNSIGNED_SHORT, linesConnects);
 #endif
         }
     }
@@ -470,8 +444,11 @@ void OverlayColorLegend::renderLegend(OpenGLContext* oglContext, OverlayColorLeg
     shaderProgram->useNoProgram(oglContext);
 
     // Reset render states
-    Depth resetDepth;
+    RenderStateDepth resetDepth;
     resetDepth.applyOpenGL(oglContext);
+
+    RenderStateLine resetLine;
+    resetLine.applyOpenGL(oglContext);
 
     CVF_CHECK_OGL(oglContext);
 }
@@ -490,10 +467,10 @@ void OverlayColorLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Ov
     CVF_TIGHT_ASSERT(layout->size.x() > 0);
     CVF_TIGHT_ASSERT(layout->size.y() > 0);
 
-    Depth depth(false);
+    RenderStateDepth depth(false);
     depth.applyOpenGL(oglContext);
 
-    Lighting_FF lighting(false);
+    RenderStateLighting_FF lighting(false);
     lighting.applyOpenGL(oglContext);
 
     // All vertices. Initialized here to set Z to zero once and for all.
@@ -504,111 +481,68 @@ void OverlayColorLegend::renderLegendImmediateMode(OpenGLContext* oglContext, Ov
         0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f 
     };
 
     // Per vector convenience pointers
-    float* v0 = &vertexArray[0];    
-    float* v1 = &vertexArray[3];    
-    float* v2 = &vertexArray[6];    
-    float* v3 = &vertexArray[9];    
-    float* v4 = &vertexArray[12];   
+    float* v1 = &vertexArray[0];    // x0, y0
+    float* v2 = &vertexArray[3];    // x1, y0
+    float* v3 = &vertexArray[6];    // tickX, y0
+    float* v4 = &vertexArray[9];    // x0, y1
+    float* v5 = &vertexArray[12];   // x1, y1
+    float* v6 = &vertexArray[15];   // tickX, y1
 
     // Constant coordinates
-    v0[0] = v3[0] = layout->x0;
-    v1[0] = v4[0] = layout->x1;
+    v1[0] = v4[0] = layout->x0;
+    v2[0] = v5[0] = layout->x1;
 
-    // Render color bar as one colored quad per pixel
-
-    int legendHeightPixelCount = static_cast<int>(layout->tickPixelPos->get(m_tickValues.size() - 1) - layout->tickPixelPos->get(0) + 0.01);
-    if (m_scalarMapper.notNull())
+    // Render colored quads and lines
+    size_t numColors = m_levelColors.size();
+    CVF_ASSERT(numColors == m_tickValues.size() - 1);
+    size_t ic;
+    for (ic = 0; ic < numColors; ic++)
     {
-        int iPx;
-        for (iPx = 0; iPx < legendHeightPixelCount; iPx++)
-        {
-            const Color3ub& clr = m_scalarMapper->mapToColor(m_scalarMapper->domainValue((iPx+0.5)/legendHeightPixelCount));
-            float y0 = static_cast<float>(layout->legendRect.min().y() + iPx);
-            float y1 = static_cast<float>(layout->legendRect.min().y() + iPx + 1);
+        const Color3ub& levelColor = m_levelColors[ic];
+        float y0 = static_cast<float>(layout->margins.y() + layout->tickPixelPos->get(ic));
+        float y1 = static_cast<float>(layout->margins.y() + layout->tickPixelPos->get(ic + 1));
 
-            // Dynamic coordinates for rectangle
-            v0[1] = v1[1] = y0;
-            v3[1] = v4[1] = y1;
+        // Dynamic coordinates for rectangle
+        v1[1] = v2[1] = y0;
+        v4[1] = v5[1] = y1;
 
-            // Draw filled rectangle elements
-            glColor3ubv(clr.ptr());
-            glBegin(GL_TRIANGLE_FAN);
-            glVertex3fv(v0);
-            glVertex3fv(v1);
-            glVertex3fv(v4);
-            glVertex3fv(v3);
-            glEnd();
-        }
-    }
+        // Dynamic coordinates for tickmarks-lines
+        v3[0] = m_visibleTickLabels[ic] ? layout->tickX : layout->x1;
+        v6[0] = m_visibleTickLabels[ic + 1] ? layout->tickX : layout->x1;
+        v3[1] = y0;
+        v6[1] = y1;
 
-    // Render frame
-
-    // Dynamic coordinates for  tickmarks-lines
-    bool isRenderingFrame = true;
-    if (isRenderingFrame)
-    {
-        v0[0] = v2[0] = layout->legendRect.min().x()-0.5f;
-        v1[0] = v3[0] = layout->legendRect.max().x()-0.5f;
-        v0[1] = v1[1] = layout->legendRect.min().y()-0.5f;
-        v2[1] = v3[1] = layout->legendRect.max().y()-0.5f;
-
-        glColor3fv(m_color.ptr());
-        glBegin(GL_LINES);
-        glVertex3fv(v0);
+        // Draw filled rectangle elements
+        glColor3ubv(levelColor.ptr());
+        glBegin(GL_TRIANGLE_FAN);
         glVertex3fv(v1);
-        glVertex3fv(v1);
-        glVertex3fv(v3);
-        glVertex3fv(v3);
         glVertex3fv(v2);
-        glVertex3fv(v2);
-        glVertex3fv(v0);
+        glVertex3fv(v5);
+        glVertex3fv(v4);
         glEnd();
 
-    }
-
-    // Render tickmarks
-    bool isRenderingTicks = true;
-
-    if (isRenderingTicks)
-    {
-        // Constant coordinates
-        v0[0] = layout->x0;
-        v1[0] = layout->x1 - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v2[0] = layout->x1;
-        v3[0] = layout->tickX - 0.5f*(layout->tickX - layout->x1) - 0.5f;
-        v4[0] = layout->tickX;
-
-        size_t ic;
-        for (ic = 0; ic < m_tickValues.size(); ic++)
-        {
-            float y0 = static_cast<float>(layout->legendRect.min().y() + layout->tickPixelPos->get(ic) - 0.5f);
-
-            // Dynamic coordinates for  tickmarks-lines
-            v0[1] = v1[1] = v2[1] = v3[1] = v4[1] = y0;
-
-            glColor3fv(m_color.ptr());
-            glBegin(GL_LINES);
-            if ( m_visibleTickLabels[ic])
-            {
-                glVertex3fv(v0);
-                glVertex3fv(v4); 
-            }
-            else
-            {
-                glVertex3fv(v2);
-                glVertex3fv(v3);
-            }
-            glEnd();
-        }
+        // Draw legend lines
+        glColor3fv(m_color.ptr());
+        glBegin(GL_LINES);
+        glVertex3fv(v1);
+        glVertex3fv(v4);
+        glVertex3fv(v2);
+        glVertex3fv(v5);
+        glVertex3fv(v1);
+        glVertex3fv(v3);
+        glVertex3fv(v4);
+        glVertex3fv(v6);
+        glEnd();
     }
 
     // Reset render states
-    Lighting_FF resetLighting;
+    RenderStateLighting_FF resetLighting;
     resetLighting.applyOpenGL(oglContext);
-    Depth resetDepth;
+    RenderStateDepth resetDepth;
     resetDepth.applyOpenGL(oglContext);
 
     CVF_CHECK_OGL(oglContext);
@@ -641,22 +575,79 @@ void OverlayColorLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     layout->x1 = layout->margins.x() + layout->legendRect.width();
     layout->tickX = layout->x1 + 5;
 
-    // Build array containing the pixel positions of all the ticks
     size_t numTicks = m_tickValues.size();
-    layout->tickPixelPos = new DoubleArray(numTicks);
-
-    size_t i;
-    for (i = 0; i < numTicks; i++)
+    if (numTicks < 1)
     {
-        double t;
-        if (m_scalarMapper.isNull()) t = 0;
-        else                         t = m_scalarMapper->normalizedLevelPosition(m_tickValues[i]);
-        t = Math::clamp(t, 0.0, 1.1);
-        layout->tickPixelPos->set(i, t*layout->legendRect.height());
+        return;
     }
-  
+
+    // Get legend range (the slightly odd test on the range should guard against any NaNs
+    double minVal = m_tickValues[0];
+    double maxVal = m_tickValues[numTicks - 1];
+    double valueRange = (maxVal - minVal);
+    if (!(valueRange >= 0))
+    {
+        layout->tickPixelPos = NULL;
+        return;
+    }
+
+    // Build array containing the pixel positions of all the ticks
+    layout->tickPixelPos = new DoubleArray(numTicks);
+    if (valueRange > 0)
+    {
+        size_t i;
+        for (i = 0; i < numTicks; i++)
+        {
+            double t = (m_tickValues[i] - minVal)/valueRange;
+            t = Math::clamp(t, 0.0, 1.1);
+            layout->tickPixelPos->set(i, t*layout->legendRect.height());
+        }
+    }
+    else
+    {
+        size_t i;
+        for (i = 0; i < numTicks; i++)
+        {
+            layout->tickPixelPos->set(i, static_cast<double>(i)*(layout->legendRect.height()/static_cast<double>(numTicks)));
+        }
+    }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OverlayColorLegend::setLineColor(const Color3f& lineColor)
+{
+    m_lineColor = lineColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const Color3f& OverlayColorLegend::lineColor() const
+{
+    return m_lineColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OverlayColorLegend::setLineWidth(int lineWidth)
+{
+    m_lineWidth = lineWidth;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int OverlayColorLegend::lineWidth() const
+{
+    return m_lineWidth;
+}
 
 } // namespace cvf
 

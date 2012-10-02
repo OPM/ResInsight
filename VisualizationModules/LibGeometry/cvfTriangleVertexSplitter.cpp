@@ -282,40 +282,28 @@ uint TriangleVertexSplitter::processVertex(uint origVertexIndex, const Vec3f& fa
     }
 }
 
+
 //--------------------------------------------------------------------------------------------------
-/// Return true if the angle between the two normals are below the current crease angle.
+/// Return true if the angle between the two normals is below the current crease angle.
 //--------------------------------------------------------------------------------------------------
 bool TriangleVertexSplitter::isNormalDifferenceBelowThreshold(const Vec3f& n1, const Vec3f& n2)
 {
+    // If either vector is 0, there is probably some trouble with the triangle
+    // Return false so that it will be split
     if (n1.isZero() || n2.isZero())
     {
         return false;
     }
 
-    double dotProduct = n1*n2;
-
     // Guard acos against out-of-domain input
+    const double dotProduct = Math::clamp(static_cast<double>(n1*n2), -1.0, 1.0);
 
-    if (dotProduct <= -1.0) 
-    {
-        dotProduct = -1.0; 
-    }
-    else if (dotProduct >= 1.0)
-    {
-        dotProduct = 1.0; 
-    }
-
-    double angle = Math::acos(dotProduct);
-
+    const double angle = Math::acos(dotProduct);
     if (Math::abs(angle) < m_creaseAngle)
     {
         return true;
     }
-    else if (Math::abs(angle) >= m_creaseAngle)
-    {
-        return false;
-    }
- 
+
     return false;
 }
 

@@ -32,16 +32,16 @@ include_directories(
 # variable you can point to a different ERT distribution.
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert" CACHE  DIRECTORY "Root path for ERT installation to build against")
+    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     if (CMAKE_CL_64)
-        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows-x64" CACHE  DIRECTORY "Root path for ERT installation to build against")
+        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows-x64")
     else()
-        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows" CACHE  DIRECTORY "Root path for ERT installation to build against")
+        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows")
     endif()
 endif()
 
-                
+	
 # The ERT binary distribution consists of four libraries, libwell, libecl,
 # libutil and libgeometry and their accompanying header files. There has been a
 # bit of mess of how this has been organized; either it has been on per
@@ -94,7 +94,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    list(APPEND ERT_LIBRARY_LIST lapack z)  
-endif() 
+endif()	
 
 include_directories( ${ERT_INCLUDE_LIST} )
 # Ert configuration complete
@@ -128,7 +128,7 @@ list( APPEND CPP_SOURCES
 )
 
 list( APPEND CPP_SOURCES
-        FileInterface/RifEclipseInputFileTools.cpp
+	FileInterface/RifEclipseInputFileTools.cpp
     FileInterface/RifEclipseOutputFileTools.cpp
     FileInterface/RifEclipseRestartFilesetAccess.cpp
     FileInterface/RifEclipseRestartDataAccess.cpp
@@ -206,7 +206,7 @@ set ( QT_MOC_HEADERS
     UserInterface/RIResultInfoPanel.h
     UserInterface/RIViewer.h
     UserInterface/RIProcessMonitor.h
-        SocketInterface/RiaSocketServer.h
+	SocketInterface/RiaSocketServer.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
@@ -279,7 +279,7 @@ add_executable(ResInsight
     ${CPP_SOURCES}
     ${MOC_FILES_CPP}
     ${QRC_FILES_CPP}
-        ${HEADER_FILES}
+	${HEADER_FILES}
 )
 
 
@@ -299,6 +299,15 @@ set( LINK_LIBRARIES
     ${QT_LIBRARIES}
 )
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
+
+# According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set ( EXTERNAL_LINK_LIBRARIES
+		${EXTERNAL_LINK_LIBRARIES}
+		rt
+    )
+endif()
+
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 # Copy Dlls
@@ -378,8 +387,8 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "No_Linux")
 install(CODE "
     set (INSTALLFILE_LIST
             ${CMAKE_CURRENT_BINARY_DIR}/ResInsight
-                        ${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
-                        ${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
+			${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
+			${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
             ${QT_LIBRARY_DIR}/libQtCore.so.4
             ${QT_LIBRARY_DIR}/libQtGui.so.4
             ${QT_LIBRARY_DIR}/libQtOpenGL.so.4

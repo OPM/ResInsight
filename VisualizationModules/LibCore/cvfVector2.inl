@@ -89,6 +89,16 @@ Vector2<S>& Vector2<S>::operator=(const Vector2& other)
 /// Check if two vectors are equal. An exact match is required.
 //--------------------------------------------------------------------------------------------------
 template<typename S>
+bool Vector2<S>::equals(const Vector2& other) const
+{
+    return (*this == other);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Check if two vectors are equal. An exact match is required.
+//--------------------------------------------------------------------------------------------------
+template<typename S>
 inline bool Vector2<S>::operator==(const Vector2& rhs) const
 {
     return (m_v[0] == rhs.m_v[0]) && (m_v[1] == rhs.m_v[1]);
@@ -116,12 +126,42 @@ inline const Vector2<S> Vector2<S>::operator+(const Vector2& rhs) const
 
 
 //--------------------------------------------------------------------------------------------------
+/// Adds the vector \a other to this vector
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void Vector2<S>::add(const Vector2& other)
+{
+    (*this) += other;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Subtracts the vector \a other from this vector
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void cvf::Vector2<S>::subtract(const Vector2& other)
+{
+    (*this) -= other;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Compute this-rhs and return the result.
 //--------------------------------------------------------------------------------------------------
 template<typename S>
 inline const Vector2<S> Vector2<S>::operator-(const Vector2& rhs) const
 {
     return Vector2(m_v[0] - rhs.m_v[0], m_v[1] - rhs.m_v[1]);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Scale this vector by the given scalar
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void Vector2<S>::scale(S scalar)
+{
+    (*this) *= scalar;
 }
 
 
@@ -237,6 +277,16 @@ inline S& Vector2<S>::operator[](int index)
     CVF_TIGHT_ASSERT(index < 2);
 
     return m_v[index];
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Compute the dot product of this and \a other
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+S Vector2<S>::dot(const Vector2& other) const
+{
+    return (*this)*other;
 }
 
 

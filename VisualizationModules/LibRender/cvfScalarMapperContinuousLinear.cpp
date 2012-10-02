@@ -35,7 +35,7 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double ScalarMapperContinuousLinear::normalizedLevelPosition(double domainValue) const
+double ScalarMapperContinuousLinear::normalizedValue(double domainValue) const
 {
     double range = m_rangeMax - m_rangeMin;
     if (range != 0) return cvf::Math::clamp((domainValue - m_rangeMin)/range, 0.0, 1.0);

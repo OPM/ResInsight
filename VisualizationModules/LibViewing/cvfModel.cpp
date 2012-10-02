@@ -23,6 +23,7 @@
 #include "cvfPart.h"
 #include "cvfRayIntersectSpec.h"
 #include "cvfRay.h"
+#include "cvfTransform.h"
 
 namespace cvf {
 
@@ -52,37 +53,14 @@ Model::Model()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Model::rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection)
+Model::~Model()
 {
-    // Example implementation
-    cref<Ray> ray = rayIntersectSpec.ray();
-    if (ray.isNull())
-    {
-        return false;
-    }
-
-    bool anyPartsHit = false;
-
-    Collection<Part> allPartsColl;
-    allParts(&allPartsColl);
-    size_t numParts = allPartsColl.size();
-    size_t partIdx;
-    for (partIdx = 0; partIdx < numParts; partIdx++)
-    {
-        Part* part = allPartsColl.at(partIdx);
-        CVF_ASSERT(part);
-
-        anyPartsHit |= part->rayIntersect(*ray, hitItemCollection);
-    }
-
-    return anyPartsHit;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Model::setPartEnableMask(unsigned int partEnableMask)
+void Model::setPartEnableMask(uint partEnableMask)
 {
     m_partEnableMask = partEnableMask;
 }
@@ -91,7 +69,7 @@ void Model::setPartEnableMask(unsigned int partEnableMask)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-unsigned int Model::partEnableMask() const
+uint Model::partEnableMask() const
 {
     return m_partEnableMask;
 }
@@ -124,6 +102,21 @@ void Model::deleteOrReleaseOpenGLResources(OpenGLContext* oglContext)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Model::setTransformTree(Transform* transform)
+{
+    m_tranformTree = transform;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Transform* Model::transformTree()
+{
+    return m_tranformTree.p();
+}
 
 } // namespace cvf
 

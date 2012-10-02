@@ -269,6 +269,40 @@ Color3ub ScalarMapperUniformLevels::mapToColor(double scalarValue) const
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool ScalarMapperUniformLevels::updateColorLegend(OverlayColorLegend* legend) const
+{
+    CVF_ASSERT(legend);
+
+    size_t numTicks = m_colors.size() + 1;
+    if (numTicks < 2)
+    {
+        return false;
+    }
+
+    DoubleArray ticks;
+    ticks.reserve(numTicks);
+
+    double delta = (m_rangeMax - m_rangeMin)/static_cast<double>(numTicks - 1);
+
+    size_t i;
+    for (i = 0; i < numTicks - 1; i++)
+    {
+        double tickVal = m_rangeMin + static_cast<double>(i)*delta;
+        ticks.add(tickVal);
+    }
+
+    ticks.add(m_rangeMax);
+    Color3ubArray colorArr(m_colors);
+
+    legend->configureLevels(colorArr, ticks);
+
+    return true;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -319,55 +353,5 @@ bool ScalarMapperUniformLevels::updateTexture(TextureImage* image) const
     return true;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void ScalarMapperUniformLevels::majorLevels( std::vector<double>* domainValues) const
-{
-    CVF_ASSERT(domainValues != NULL);
-
-    size_t numTicks = m_colors.size() + 1;
-
-    CVF_ASSERT(numTicks > 1);
-
-    double delta = (m_rangeMax - m_rangeMin)/static_cast<double>(numTicks - 1);
-
-    size_t i;
-    for (i = 0; i < numTicks - 1; i++)
-    {
-        double tickVal = m_rangeMin + static_cast<double>(i)*delta;
-        domainValues->push_back(tickVal);
-      
-    }
-   
-    domainValues->push_back(m_rangeMax);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double ScalarMapperUniformLevels::normalizedLevelPosition(double scalarValue) const
-{
-    double range = m_rangeMax - m_rangeMin; 
-    if (range != 0)
-    {
-        return (scalarValue - m_rangeMin)/range;
-    }
-    else
-    {
-        return 0;
-    }
-
-} 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double ScalarMapperUniformLevels::domainValue(double normalizedPosition) const
-{
-     double range = m_rangeMax - m_rangeMin; 
-    
-     return normalizedPosition*range + m_rangeMin;
-}
-
 } // namespace cvf
+

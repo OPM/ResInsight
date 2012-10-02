@@ -202,7 +202,8 @@ void Quat<S>::toAxisAngle(Vector3<S>* rotationAxis, S* angle) const
     Quat nQ(*this);
     nQ.normalize();
 
-    S cos_a = nQ.m_w;
+    // Clamp to acos' input domain
+    S cos_a = Math::clamp(nQ.m_w, static_cast<S>(-1), static_cast<S>(1));
     *angle = 2*Math::acos(cos_a);
 
     S sin_a = Math::sqrt(1 - cos_a*cos_a);

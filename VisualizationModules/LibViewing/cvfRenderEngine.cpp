@@ -31,6 +31,7 @@
 #include "cvfBufferObjectManaged.h"
 #include "cvfMatrixState.h"
 #include "cvfCamera.h"
+#include "cvfRenderStateTextureBindings.h"
 
 #include <memory.h>
 
@@ -90,6 +91,7 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
     // Init matrix state tracker
     MatrixState matrixState(camera);
     uint lastAppliedMatrixStateVersionTick = matrixState.versionTick() - 1;
+    uint lastAppliedMatrixStateVersionTickFixedFunction = matrixState.versionTick() - 1;
 
     const Effect* prevEffect = NULL;
     const RenderStateSet* prevRenderStateSet = NULL;
@@ -133,9 +135,22 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
         }
 
         // Update matrix state to reflect any part transformations
+        // Register if the pass modifies the view matrix so that we can reset it at the end of this part
+        bool lastPartModifiedViewMatrix = false;
         if (part->transform())
         {
-            matrixState.setModelMatrix(part->transform()->worldTransform());
+            const Transform* trans = part->transform();
+            if (trans->eyeLiftFactor() != 0)
+            {
+                // Eye lifting done by scaling the vertex coordinates after transforming them to eye space. See Transform::setEyeLiftFactor()
+                // An eye lift factor of 1.0 results in scaling by 0.995. Might have to tweak the value below somewhat
+                double scaleFactor = 1 - (trans->eyeLiftFactor()*0.005);
+                Mat4d scaleMatrix = Mat4d::fromScaling(Vec3d(scaleFactor, scaleFactor, scaleFactor));
+                matrixState.setViewMatrix(scaleMatrix*camera.viewMatrix());
+                lastPartModifiedViewMatrix = true;
+            }
+
+            matrixState.setModelMatrix(trans->worldTransform());
         }
         else
         {
@@ -198,7 +213,7 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
                         shaderProgramInUse->applyActiveUniformsOnly(oglContext, *globalUniformSet);
                     }
 
-                    const TextureBindings* textureBindings = static_cast<const TextureBindings*>(effect->renderStateOfType(RenderState::TEXTURE_BINDINGS));
+                    const RenderStateTextureBindings* textureBindings = static_cast<const RenderStateTextureBindings*>(effect->renderStateOfType(RenderState::TEXTURE_BINDINGS));
                     if (textureBindings)
                     {
                         textureBindings->applySamplerTextureUnitUniforms(oglContext, shaderProgramInUse);
@@ -236,10 +251,10 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
         else
         {
 #ifndef CVF_OPENGL_ES
-            if (lastAppliedMatrixStateVersionTick != matrixState.versionTick())
+            if (lastAppliedMatrixStateVersionTickFixedFunction != matrixState.versionTick())
             {
                 glLoadMatrixf(matrixState.modelViewMatrix().ptr());
-                lastAppliedMatrixStateVersionTick = matrixState.versionTick();
+                lastAppliedMatrixStateVersionTickFixedFunction = matrixState.versionTick();
             }
 #endif // CVF_OPENGL_ES
         }
@@ -267,6 +282,12 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
             m_renderedPartCount++;
         }
 
+        // Must reset the view matrix if it was modified during drawing of this part
+        if (lastPartModifiedViewMatrix)
+        {
+            matrixState.setViewMatrix(camera.viewMatrix());
+        }
+        
         // Update counters
         if (m_enableItemCountUpdate)
         {

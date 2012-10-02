@@ -174,7 +174,8 @@ namespace cvf {
 /// \class cvf::Base64
 /// \ingroup Core
 ///
-/// 
+/// Base64 encoding and decoding for representing binary data in an ASCII string format by 
+/// translating it into a radix-64 representation.
 ///
 //==================================================================================================
 

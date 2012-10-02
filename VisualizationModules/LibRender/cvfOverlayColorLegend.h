@@ -31,7 +31,6 @@ class Font;
 class ShaderProgram;
 class MatrixState;
 class TextDrawer;
-class LegendScalarMapper;
 
 
 //==================================================================================================
@@ -76,16 +75,22 @@ public:
     virtual Vec2ui  sizeHint();
     virtual Vec2ui  maximumSize();
     virtual Vec2ui  minimumSize();
-    void            setScalarMapper(const LegendScalarMapper* scalarMapper);
 
     virtual void    render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
     virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
+    virtual bool    pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size);
 
+    void            configureLevels(const Color3ubArray& levelColors, const DoubleArray& tickValues);
 
     void            setSizeHint(const Vec2ui& size);
     
     void            setColor(const Color3f& color);
     const Color3f&  color() const;
+
+    void            setLineColor(const Color3f& lineColor);
+    const Color3f&  lineColor() const;
+    void            setLineWidth(int lineWidth);
+    int             lineWidth() const;
     
     void            setTitle(const String& title);
     String          title() const;
@@ -99,16 +104,17 @@ protected:
     void layoutInfo(OverlayColorLegendLayoutInfo* layout);
 
 protected:
+    Color3ubArray       m_levelColors;          // Colors for n levels
     DoubleArray         m_tickValues;           // Ticks between each level + top and bottom of legend (n+1 entries)
     std::vector<bool>   m_visibleTickLabels;    // Skip tick labels ending up on top of previous visible label
 
     Vec2ui              m_sizeHint;     // Pixel size of the color legend area
     
     Color3f             m_color;
+    Color3f             m_lineColor;
+    int                 m_lineWidth;
     std::vector<String> m_titleStrings;
     ref<Font>           m_font;
-
-    cref<LegendScalarMapper> m_scalarMapper;
 };
 
 }

@@ -23,7 +23,7 @@
 #include "cvfObject.h"
 
 #include "cvfScalarMapperUniformLevels.h"
-#include "cvfOverlayColorLegend.h"
+#include "cvfOverlayScalarMapperLegend.h"
 #include "RimReservoirView.h"
 
 #include <iostream>

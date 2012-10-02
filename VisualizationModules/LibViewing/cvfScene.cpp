@@ -21,6 +21,7 @@
 #include "cvfScene.h"
 #include "cvfModel.h"
 #include "cvfPartRenderHintCollection.h"
+#include "cvfTransform.h"
 
 namespace cvf {
 
@@ -36,14 +37,29 @@ namespace cvf {
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Scene::Scene()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Scene::~Scene()
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Compute the visible parts of all models in the scene
 //--------------------------------------------------------------------------------------------------
-void Scene::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, unsigned int enableMask)
+void Scene::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask)
 {
     visibleParts->setCountZero();
 
-    uint i;
-    for (i = 0; i < modelCount(); i++)
+    uint numModels = modelCount();
+    for (uint i = 0; i < numModels; i++)
     {
         Model* model = m_models[i].p();
         if (model) 
@@ -167,5 +183,53 @@ BoundingBox Scene::boundingBox() const
 }
 
 
-} // namespace cvf
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Scene::setTransformTree(Transform* transform)
+{
+    m_tranformTree = transform;
+}
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Transform* Scene::transformTree()
+{
+    return m_tranformTree.p();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Scene::updateTransformTree(const Camera* camera)
+{
+    bool boundingBoxesNeedUpdate = false;
+
+    if (m_tranformTree.notNull())
+    {
+        m_tranformTree->updateWorldTransform(camera);
+        boundingBoxesNeedUpdate = true;
+    }
+
+    size_t numModels = m_models.size();
+    for (size_t i = 0; i < numModels; i++)
+    {
+        Model* model = m_models.at(i);
+        CVF_ASSERT(model);
+
+        if (model->transformTree())
+        {
+            model->transformTree()->updateWorldTransform(camera);
+        }
+
+        if (model->transformTree() || boundingBoxesNeedUpdate)
+        {
+            model->updateBoundingBoxesRecursive();
+        }
+    }
+}
+
+} // namespace cvf

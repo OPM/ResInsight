@@ -43,10 +43,9 @@ public:
     void                    removePart(Part* part);
     void                    removeAllParts();
 
-    virtual void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, unsigned int enableMask);
+    virtual void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask);
     virtual void            allParts(Collection<Part>* partCollection);
-    virtual void            mergeParts(double maxExtent, unsigned int minimumPrimitiveCount);
-    void                    doFindVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const Frustum& frustum, const CullSettings& cullSettings, unsigned int enableMask);
+    virtual void            mergeParts(double maxExtent, uint minimumPrimitiveCount);
 
     virtual void            updateBoundingBoxesRecursive();
     virtual BoundingBox     boundingBox() const;
@@ -58,6 +57,8 @@ public:
 
 private:
     ref<Part>               mergeAndAddPart(Collection<Part>& partCollection) const;
+
+    bool                    partVisible(cvf::Part* part, const Camera* camera, const CullSettings* cullSettings, uint enableMask, double* projectedAreaPixels);
 
 protected:
     String           m_modelName;

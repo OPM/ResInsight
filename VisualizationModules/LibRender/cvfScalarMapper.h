@@ -19,8 +19,10 @@
 
 #pragma once
 
+#include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
+#include <vector>
 
 namespace cvf {
 
@@ -30,6 +32,8 @@ class TextureImage;
 //==================================================================================================
 //
 // Abstract base class for mapping scalar values to texture coordinates/colors
+// It also provides an interface that OverlayScalarMapperLegend's use to draw consistent colors 
+// and labels/ticks
 //
 //==================================================================================================
 class ScalarMapper : public Object
@@ -51,15 +55,34 @@ public:
     };
 
 public:
-    virtual Vec2f       mapToTextureCoord(double scalarValue) const = 0;
-    virtual Color3ub    mapToColor(double scalarValue) const = 0;
+    //////
+    // Interface for mapping of scalar values to color and texture
 
-    virtual bool        updateTexture(TextureImage* image) const = 0;
+    /// Calculate texture coords into an image produced by updateTexture, from the scalarValue
+    virtual Vec2f               mapToTextureCoord(double scalarValue) const = 0;
+    /// Update the supplied TextureImage to be addressable by the texture coords delivered by mapToTextureCoord
+    virtual bool                updateTexture(TextureImage* image) const = 0;
+
+    /// Calculate a color from the scalar value
+    virtual Color3ub            mapToColor(double scalarValue) const = 0;
+
+    //////
+    // Interface used by OverlayScalarMapperLegend:
+    
+    /// Return a the set of domain values representing sensible major tickmarks
+    virtual void                majorTickValues(std::vector<double>* domainValues) const = 0;  
+    /// Return the normalized (0.0, 1.0) representation of the domainValue
+    virtual double              normalizedValue(double domainValue) const = 0;
+    /// Return the domain value from a normalized val
+    virtual double              domainValue(double normalizedValue) const = 0;
 
 protected:
-    static ref<Color3ubArray> colorTableArray(ColorTable colorTable);
-    static ref<Color3ubArray> normalColorTableArray(uint colorCount);
-    static ref<Color3ubArray> interpolateColorArray(const Color3ubArray& colorArray, uint targetColorCount);
+
+    // Static utility methods that can be used when creating real ScalarMapper's
+
+    static ref<Color3ubArray>   colorTableArray(ColorTable colorTable);
+    static ref<Color3ubArray>   normalColorTableArray(uint colorCount);
+    static ref<Color3ubArray>   interpolateColorArray(const Color3ubArray& colorArray, uint targetColorCount);
 };
 
 

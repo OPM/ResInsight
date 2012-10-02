@@ -35,6 +35,7 @@ class PrimitiveSetIndexedUShort : public PrimitiveSet
 {
 public:
     PrimitiveSetIndexedUShort(PrimitiveType primitiveType);
+    PrimitiveSetIndexedUShort(PrimitiveType primitiveType, UShortArray* indices);
     virtual ~PrimitiveSetIndexedUShort();
 
     virtual void            render(OpenGLContext* oglContext) const;

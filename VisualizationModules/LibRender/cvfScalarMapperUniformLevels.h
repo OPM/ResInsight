@@ -20,7 +20,7 @@
 #pragma once
 
 #include "cvfObject.h"
-#include "cvfLegendScalarMapper.h"
+#include "cvfScalarMapper.h"
 
 namespace cvf {
 
@@ -32,7 +32,7 @@ class OverlayColorLegend;
 // Maps scalar values to texture coordinates/colors
 //
 //==================================================================================================
-class ScalarMapperUniformLevels : public LegendScalarMapper
+class ScalarMapperUniformLevels : public ScalarMapper
 {
 public:
     ScalarMapperUniformLevels();
@@ -43,26 +43,17 @@ public:
 
     void                setColors(const Color3ubArray& colorArray);
     void                setColors(ColorTable colorTable, uint levelCount);
-
     void                setTextureSize(uint textureSize);
     uint                textureSize() const;
 
-    // Scalarmapper interface
     virtual Vec2f       mapToTextureCoord(double scalarValue) const;
     virtual Color3ub    mapToColor(double scalarValue) const;
 
     virtual bool        updateTexture(TextureImage* image) const;
-
-    // LegendScalarmapper interface
-
-    virtual void        majorLevels(std::vector<double>* domainValues ) const;
-    virtual double      normalizedLevelPosition( double domainValue ) const;
-    virtual double      domainValue( double normalizedPosition ) const;
+    bool                updateColorLegend(OverlayColorLegend* legend) const;
 
 private:
     void                recomputeMaxTexCoord();
-
-
 
 private:
     double          m_rangeMin;

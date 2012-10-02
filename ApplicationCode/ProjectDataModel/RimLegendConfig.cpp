@@ -23,6 +23,7 @@
 #include "cafFactory.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cvfScalarMapperDiscreteLog.h"
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
 
@@ -58,6 +59,7 @@ namespace caf {
         addItem(RimLegendConfig::LINEAR_DISCRETE,    "LinearDiscrete",   "Discrete Linear");
         addItem(RimLegendConfig::LINEAR_CONTINUOUS,  "LinearContinuous", "Continuous Linear");
         addItem(RimLegendConfig::LOG10_CONTINUOUS,   "Log10Continuous",  "Continuous Logarithmic");
+        addItem(RimLegendConfig::LOG10_DISCRETE,     "Log10Discrete",    "Discrete Logarithmic");
         setDefault(RimLegendConfig::LINEAR_CONTINUOUS);
     }
 }
@@ -83,17 +85,16 @@ RimLegendConfig::RimLegendConfig()
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
     resultVariableName.setUiHidden(true);
 
-    m_linDiscreteScalarMapper = new cvf::ScalarMapperUniformLevels;
-    m_linDiscreteScalarMapper->setTextureSize(1024);
-
-    m_logSmoothScalarMapper = new cvf::ScalarMapperContinuousLog;
+    m_linDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
+    m_logDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLog;
     m_linSmoothScalarMapper = new cvf::ScalarMapperContinuousLinear;
+    m_logSmoothScalarMapper = new cvf::ScalarMapperContinuousLog;
 
     m_currentScalarMapper = m_linDiscreteScalarMapper;
 
 
     cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    m_legend = new cvf::OverlayColorLegend(font);
+    m_legend = new cvf::OverlayScalarMapperLegend(font);
     m_position = cvf::Vec2ui(20, 50);
 
     updateFieldVisibility();
@@ -164,7 +165,9 @@ void RimLegendConfig::updateLegend()
        adjustedMax = adjust(m_userDefinedMaxValue, m_precision);
    }
 
+
    m_linDiscreteScalarMapper->setRange(adjustedMin, adjustedMax);
+   m_logDiscreteScalarMapper->setRange(adjustedMin, adjustedMax);
    m_logSmoothScalarMapper->setRange(adjustedMin, adjustedMax);
    m_linSmoothScalarMapper->setRange(adjustedMin, adjustedMax);
 
@@ -173,26 +176,26 @@ void RimLegendConfig::updateLegend()
    {
    case NORMAL: 
        {
-           legendColors.reserve(5);
+           legendColors.reserve(7);
            legendColors.add(cvf::Color3ub(  0,   0, 255));
+           legendColors.add(cvf::Color3ub(  0, 127, 255));
            legendColors.add(cvf::Color3ub(  0, 255, 255));
            legendColors.add(cvf::Color3ub(  0, 255,   0));
            legendColors.add(cvf::Color3ub(255, 255,   0));
+           legendColors.add(cvf::Color3ub(255, 127,   0));
            legendColors.add(cvf::Color3ub(255,   0,   0));
-
-           m_linDiscreteScalarMapper->setColors(cvf::ScalarMapper::NORMAL, m_numLevels); 
        }
        break;
    case OPPOSITE_NORMAL: 
        {
-           legendColors.reserve(5);
+           legendColors.reserve(7);
            legendColors.add(cvf::Color3ub(255,   0,   0));
+           legendColors.add(cvf::Color3ub(255, 127,   0));
            legendColors.add(cvf::Color3ub(255, 255,   0));
            legendColors.add(cvf::Color3ub(  0, 255,   0));
            legendColors.add(cvf::Color3ub(  0, 255, 255));
+           legendColors.add(cvf::Color3ub(  0, 127, 255));
            legendColors.add(cvf::Color3ub(  0,   0, 255));
-
-           m_linDiscreteScalarMapper->setColors(legendColors); // Todo: Change legend type to new
        }
        break;  case BLACK_WHITE:
    case WHITE_BLACK:
@@ -208,8 +211,6 @@ void RimLegendConfig::updateLegend()
                legendColors.add(cvf::Color3ub::WHITE);
                legendColors.add(cvf::Color3ub::BLACK);
            }
-           cvf::ref<cvf::Color3ubArray> interpolated = interpolateColorArray(legendColors, m_numLevels);
-           m_linDiscreteScalarMapper->setColors(*(interpolated.p())); 
        }
        break;
    case PINK_WHITE:
@@ -226,17 +227,19 @@ void RimLegendConfig::updateLegend()
                legendColors.add(cvf::Color3ub::WHITE);
                legendColors.add(cvf::Color3ub::DEEP_PINK);
            }
-           cvf::ref<cvf::Color3ubArray> interpolated = interpolateColorArray(legendColors, m_numLevels);
-           m_linDiscreteScalarMapper->setColors(*(interpolated.p())); 
        }
        break;
    }
 
+   m_linDiscreteScalarMapper->setColors(legendColors);
+   m_logDiscreteScalarMapper->setColors(legendColors);
    m_logSmoothScalarMapper->setColors(legendColors);
    m_linSmoothScalarMapper->setColors(legendColors);
 
-   m_logSmoothScalarMapper->setMajorLevelCount(m_numLevels, true);
-   m_linSmoothScalarMapper->setMajorLevelCount(m_numLevels, true);
+   m_linDiscreteScalarMapper->setLevelCount(m_numLevels, true);
+   m_logDiscreteScalarMapper->setLevelCount(m_numLevels, true);
+   m_logSmoothScalarMapper->setLevelCount(m_numLevels, true);
+   m_linSmoothScalarMapper->setLevelCount(m_numLevels, true);
 
    switch(m_mappingMode())
    {
@@ -249,9 +252,13 @@ void RimLegendConfig::updateLegend()
    case LOG10_CONTINUOUS:
        m_currentScalarMapper = m_logSmoothScalarMapper.p();
        break;
+   case LOG10_DISCRETE:
+       m_currentScalarMapper = m_logDiscreteScalarMapper.p();
+       break;
    default:
        break;
    }
+
    m_legend->setScalarMapper(m_currentScalarMapper.p());
 
 
@@ -322,6 +329,7 @@ void RimLegendConfig::setColorRangeMode(ColorRangesType colorMode)
     updateLegend();
 }
 
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -367,7 +375,7 @@ cvf::ref<cvf::Color3ubArray> RimLegendConfig::interpolateColorArray(const cvf::C
 
     return colors;
 }
-
+*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -387,7 +395,7 @@ void RimLegendConfig::recreateLegend()
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
     cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    m_legend = new cvf::OverlayColorLegend(font);
+    m_legend = new cvf::OverlayScalarMapperLegend(font);
 
     updateLegend();
 }
