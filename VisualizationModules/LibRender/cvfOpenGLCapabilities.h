@@ -48,6 +48,8 @@ public:
     ~OpenGLCapabilities();
 
     OpenGLCapabilities& operator=(const OpenGLCapabilities& rhs);
+    bool                operator==(const OpenGLCapabilities& rhs) const;
+    bool                operator!=(const OpenGLCapabilities& rhs) const;
 
     bool    hasCapability(Capability capability) const;
     void    addCapablity(Capability capability);

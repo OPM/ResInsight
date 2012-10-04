@@ -57,6 +57,7 @@ public:
     void        attachDepthStencilTexture2d(Texture* texture);
 
     void        applyOpenGL(OpenGLContext* oglContext);
+    void        bind(OpenGLContext* oglContext) const;
     static void useDefaultWindowFramebuffer(OpenGLContext* oglContext);
     void        deleteFramebuffer(OpenGLContext* oglContext);
 

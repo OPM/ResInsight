@@ -30,6 +30,7 @@ class Part;
 class Camera;
 class PartRenderHintCollection;
 class CullSettings;
+class Transform;
 
 
 //==================================================================================================
@@ -40,7 +41,10 @@ class CullSettings;
 class Scene : public Object
 {
 public:
-    void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, unsigned int enableMask);
+    Scene();
+    ~Scene();
+
+    void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask);
     void            allParts(Collection<Part>* partCollection);
 
     void            addModel(Model* model);
@@ -53,8 +57,13 @@ public:
     void            updateBoundingBoxesRecursive();
     BoundingBox     boundingBox() const;
 
+    void            updateTransformTree(const Camera* camera);
+    void            setTransformTree(Transform* transform);
+    Transform*      transformTree();
+
 protected:
-    Collection<Model> m_models;
+    Collection<Model>   m_models;
+    ref<Transform>      m_tranformTree;
 };
  
 }

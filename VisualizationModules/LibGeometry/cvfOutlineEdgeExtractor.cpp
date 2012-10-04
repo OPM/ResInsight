@@ -253,7 +253,10 @@ bool OutlineEdgeExtractor::isFaceAngleAboveThreshold(size_t faceIdx1, size_t fac
         return true;
     }
 
-    double angle = Math::acos(n1*n2);
+    // Guard acos against out-of-domain input
+    const double dotProduct = Math::clamp(static_cast<double>(n1*n2), -1.0, 1.0);
+
+    const double angle = Math::acos(dotProduct);
     if (Math::abs(angle) > m_creaseAngle)
     {
         return true;

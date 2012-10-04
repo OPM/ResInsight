@@ -80,11 +80,13 @@ ref<Part> Part::shallowCopy() const
 {
     ref<Part> newPart = new Part;
 
-    newPart->m_id = m_id;
-    newPart->m_name = m_name;
-    newPart->m_enableMask = m_enableMask;
-    newPart->m_transform = m_transform;
-    newPart->m_boundingBox = m_boundingBox;
+    newPart->m_name         = m_name;
+    newPart->m_id           = m_id;
+    newPart->m_enableMask   = m_enableMask;
+    newPart->m_priority     = m_priority;
+    newPart->m_transform    = m_transform;
+    newPart->m_boundingBox  = m_boundingBox;
+    newPart->m_sourceInfo   = m_sourceInfo;
 
     uint i;
     for (i = 0; i < MAX_NUM_LOD_LEVELS; i++)
@@ -302,6 +304,9 @@ const Transform* Part::transform() const
 
 //--------------------------------------------------------------------------------------------------
 /// Set the transform (matrix) to use for this part. NULL for none.
+/// 
+/// Note that you need to call updateBoundingBox() after setting the transform and after any changes
+/// to the transform object.
 //--------------------------------------------------------------------------------------------------
 void Part::setTransform(Transform* transform)
 {
@@ -431,6 +436,16 @@ void Part::setSourceInfo(Object* sourceInfo)
 {
     m_sourceInfo = sourceInfo;
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Object* Part::sourceInfo()
+{
+    return m_sourceInfo.p();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -28,6 +28,7 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderProgram.h"
 #include "cvfShaderProgramGenerator.h"
+#include "cvfRenderStateTextureBindings.h"
 
 namespace cvf {
 
@@ -44,8 +45,13 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-SingleQuadRenderingGenerator::SingleQuadRenderingGenerator()
+SingleQuadRenderingGenerator::SingleQuadRenderingGenerator(const String& renderingName)
+:   m_renderingName(renderingName)
 {
+    if (m_renderingName.isEmpty())
+    {
+        m_renderingName = "SingleQuadRendering";
+    }
 }
 
 
@@ -136,7 +142,7 @@ ref<Rendering> SingleQuadRenderingGenerator::generate()
     if (m_textures.size() > 0)
     {
         // Setup the texture binding render state
-        ref<TextureBindings> textureBindings = new TextureBindings;
+        ref<RenderStateTextureBindings> textureBindings = new RenderStateTextureBindings;
         eff->setRenderState(textureBindings.p());
 
         CVF_ASSERT((m_textures.size() == m_samplers.size()) && (m_textures.size() == m_samplerNames.size()));
@@ -148,7 +154,7 @@ ref<Rendering> SingleQuadRenderingGenerator::generate()
     }
 
     // Shader program
-    cvf::ShaderProgramGenerator gen("SingleQuadRendering", cvf::ShaderSourceProvider::instance());
+    cvf::ShaderProgramGenerator gen(m_renderingName + "ShaderProg", cvf::ShaderSourceProvider::instance());
 
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_FullScreenQuad);
 
@@ -183,6 +189,7 @@ ref<Rendering> SingleQuadRenderingGenerator::generate()
     quadModel->updateBoundingBoxesRecursive();
     scene->addModel(quadModel.p());
     quadRendering->setScene(scene.p());
+    quadRendering->setRenderingName(m_renderingName);
 
     return quadRendering;
 }

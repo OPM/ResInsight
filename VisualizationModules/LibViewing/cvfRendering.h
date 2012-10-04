@@ -76,15 +76,16 @@ public:
     RenderEngine*           renderEngine();
     const RenderEngine*     renderEngine() const;
 
-    void                    setTargetFrameBuffer(FramebufferObject* frameBuffer);
+    FramebufferObject*      targetFramebuffer();
+    void                    setTargetFramebuffer(FramebufferObject* framebuffer);
 
     ref<RayIntersectSpec>   createRayIntersectSpec(int winCoordX, int winCoordY) const;
     bool                    rayIntersect(RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection);
     
     BoundingBox             boundingBox() const;
 
-    void                    setEnableMask(unsigned int mask);
-    unsigned int            enableMask() const;
+    void                    setEnableMask(uint mask);
+    uint                    enableMask() const;
 
     void                    setClearMode(Viewport::ClearMode clearMode);
     Viewport::ClearMode     clearMode() const;
@@ -132,7 +133,7 @@ private:
     String                          m_renderingName;
     ref<Scene>                      m_scene;
     ref<Camera>                     m_camera;
-    ref<FramebufferObject>          m_targetFrameBuffer;
+    ref<FramebufferObject>          m_targetFramebuffer;        // The target framebuffer for the rendering. NULL means the default window framebuffer.
 
     std::vector<OverlayItemLayout>  m_overlayItems;
 
@@ -140,7 +141,7 @@ private:
     ref<RenderQueueSorter>          m_renderQueueSorter;        // Render queue sorter, initialized to a basic sorter with minimal sorting strategy
     RenderEngine                    m_renderEngine;             // 
 
-    unsigned int                    m_enableMask;               // Mask will be compared against the contained scene's models and the model's parts when determining visible parts
+    uint                            m_enableMask;               // Mask will be compared against the contained scene's models and the model's parts when determining visible parts
     Viewport::ClearMode             m_clearMode;
     ref<Effect>                     m_effectOverride;           // Can hold an overriding effect. All parts drawn by this rendering will use this effect
     
@@ -148,7 +149,7 @@ private:
     Collection<DynamicUniformSet>   m_globalDynamicUniformSets; // Collection of global user added dynamic uniform sets
     ref<UniformSet>                 m_combinedGlobalUniformSet; // Global uniform set, this is the combination of the uniform sets from all the dynamic uniform sets
 
-    CullSettings                    m_cullSettings;             // Cull settings used when extracting visible parts from the scene
+    ref<CullSettings>               m_cullSettings;             // Cull settings used when extracting visible parts from the scene
     size_t                          m_maxNumPartsToDraw;        // The maximum number of parts to draw during render pass
 
     PerformanceInfo                 m_performanceInfo;

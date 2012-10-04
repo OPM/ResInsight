@@ -76,13 +76,3 @@ cvfVector4.cpp
 
 add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set ( EXTERNAL_LINK_LIBRARIES
-          rt
-    )
-endif()
-
-
-target_link_libraries(LibCore ${EXTERNAL_LINK_LIBRARIES})
-

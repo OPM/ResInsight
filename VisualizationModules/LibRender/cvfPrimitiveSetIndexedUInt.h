@@ -35,6 +35,7 @@ class PrimitiveSetIndexedUInt : public PrimitiveSet
 {
 public:
     PrimitiveSetIndexedUInt(PrimitiveType primitiveType);
+    PrimitiveSetIndexedUInt(PrimitiveType primitiveType, UIntArray* indices);
     virtual ~PrimitiveSetIndexedUInt();
 
     virtual void        render(OpenGLContext* oglContext) const;

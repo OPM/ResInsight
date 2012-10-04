@@ -26,13 +26,14 @@
 #include "cvfOpenGLResourceManager.h"
 #include "cvfShaderProgram.h"
 #include "cvfUniform.h"
-#include "cvfRenderState.h"
 #include "cvfCamera.h"
 #include "cvfViewport.h"
 #include "cvfBoundingBox.h"
 #include "cvfShaderProgramGenerator.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfMatrixState.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfRenderStateBlending.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
@@ -192,6 +193,51 @@ void TextDrawer::setDrawBorder(bool drawBorder)
 
 
 //--------------------------------------------------------------------------------------------------
+/// Returns the color used to draw the text
+//--------------------------------------------------------------------------------------------------
+Color3f TextDrawer::textColor() const
+{
+    return m_textColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the color of the background
+//--------------------------------------------------------------------------------------------------
+Color3f TextDrawer::backgroundColor() const
+{
+    return m_backgroundColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the color of the border.
+//--------------------------------------------------------------------------------------------------
+Color3f TextDrawer::borderColor() const
+{
+    return m_borderColor;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Returns true if the background will be drawn
+//--------------------------------------------------------------------------------------------------
+bool TextDrawer::drawBackground() const
+{
+    return m_drawBackground;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Returns true if the border will be drawn
+//--------------------------------------------------------------------------------------------------
+bool TextDrawer::drawBorder() const
+{
+    return m_drawBorder;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Draw text based using OpenGL shader programs
 //--------------------------------------------------------------------------------------------------
 void TextDrawer::render(OpenGLContext* oglContext, const MatrixState& matrixState)
@@ -238,7 +284,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     MatrixState projMatrixState(projCam);
 
     // Turn off depth test
-    Depth depth(false, Depth::LESS, false);
+    RenderStateDepth depth(false, RenderStateDepth::LESS, false);
     depth.applyOpenGL(oglContext);
 
     // Setup viewport
@@ -252,11 +298,11 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         }
 
 #ifndef CVF_OPENGL_ES
-        Material_FF mat;
+        RenderStateMaterial_FF mat;
         mat.enableColorMaterial(true);
         mat.applyOpenGL(oglContext);
 
-        Lighting_FF light(false);
+        RenderStateLighting_FF light(false);
         light.applyOpenGL(oglContext);
 #endif
         projCam.applyOpenGL();
@@ -268,6 +314,10 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         glVertexAttribPointer(ShaderProgram::VERTEX, 3, GL_FLOAT, GL_FALSE, 0, vertexArray);
     }
 
+    // Use a fixed line spacing
+    float lineSpacing = m_font->lineSpacing();
+    Vec2f offset(0,0);
+    
     // Render background and border
     // -------------------------------------------------------------------------
     if (m_drawBackground || m_drawBorder)
@@ -289,61 +339,18 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         float charHeight = static_cast<float>(glyph->height());
         float charWidth  = static_cast<float>(glyph->width());
 
+        offset.x() = cvf::Math::floor(charWidth/2.0f);
+        offset.y() = cvf::Math::floor(charHeight/2.0f);
+
         size_t numTexts = m_texts.size();
-        size_t i, j;
-        for (i = 0; i < numTexts; i++)
+        for (size_t i = 0; i < numTexts; i++)
         {
             Vec3f pos  = m_positions[i];
             String text = m_texts[i];
-            BoundingBox textBB;
+            Vec2ui textExtent = m_font->textExtent(text);
 
-            // Cursor incrementor
-            Vec2f cursor(pos);
-            size_t numCharacters = text.size();
-
-            for (j = 0; j < numCharacters; j++)
-            {
-                wchar_t character = text[j];
-                ref<Glyph> glyph = m_font->getGlyph(character);
-
-                float textureWidth = static_cast<float>(glyph->width());
-                float textureHeight = static_cast<float>(glyph->height());
-
-                // Lower left corner
-                v1[0] = cursor.x() + static_cast<float>(glyph->horizontalBearingX());
-                v1[1] = cursor.y() + static_cast<float>(glyph->horizontalBearingY()) - textureHeight + static_cast<float>(m_verticalAlignment);
-
-                // Lower right corner
-                v2[0] = v1[0] + textureWidth;
-                v2[1] = v1[1];
-
-                // Upper right corner
-                v3[0] = v2[0];
-                v3[1] = v1[1] + textureHeight;
-
-                // Upper left corner
-                v4[0] = v1[0];
-                v4[1] = v3[1];
-
-                textBB.add(Vec3f(v1[0], v1[1], 0.0f));
-                textBB.add(Vec3f(v2[0], v2[1], 0.0f));
-                textBB.add(Vec3f(v3[0], v3[1], 0.0f));
-                textBB.add(Vec3f(v4[0], v4[1], 0.0f));
-
-                // Jump to the next character in the string, if any
-                if (j < (numCharacters - 1))
-                {
-                    float advance = static_cast<float>(m_font->advance(character, text[j + 1]));
-                    cursor.x() += advance;
-                }
-            }
-
-            Vec3f min = Vec3f(textBB.min());
-            Vec3f max = Vec3f(textBB.max());
-            min.x() -= charWidth*0.5f;
-            max.x() += charWidth*0.5f;
-            min.y() -= charHeight*0.5f;
-            max.y() += charHeight*0.5f;
+            Vec3f min = pos;//Vec3f(textBB.min());
+            Vec3f max = Vec3f(min.x() + static_cast<float>(textExtent.x()) + offset.x()*2.0f, min.y() + static_cast<float>(textExtent.y()) + offset.y()*2.0f, 0.0f);
 
             // Draw the background triangle
             v1[0] = min.x(); v1[1] = min.y();
@@ -432,7 +439,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         glActiveTexture(GL_TEXTURE0);
     }
 
-    Blending blending;
+    RenderStateBlending blending;
     blending.configureTransparencyBlending();
     blending.applyOpenGL(oglContext);
 
@@ -444,6 +451,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     for (i = 0; i < numTexts; i++)
     {
         Vec3f pos  = m_positions[i];
+
         String text = m_texts[i];
         
         // Need to round off to integer positions to avoid buggy text drawing on iPad2
@@ -453,82 +461,94 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
         // Cursor incrementor
         Vec2f cursor(pos);
+        cursor += offset;
 
-        numCharacters = text.size();
+        std::vector<cvf::String> lines = text.split("\n");
 
-        for (j = 0; j < numCharacters; j++)
+        for (size_t lineIdx = lines.size(); lineIdx-- > 0; )
         {
-            character = text[j];
-            ref<Glyph> glyph = m_font->getGlyph(character);
+            String line = lines[lineIdx];
 
-            float textureWidth = static_cast<float>(glyph->width());
-            float textureHeight = static_cast<float>(glyph->height());
+            numCharacters = line.size();
 
-            // Lower left corner
-            v1[0] = cursor.x() + static_cast<float>(glyph->horizontalBearingX());
-            v1[1] = cursor.y() + static_cast<float>(glyph->horizontalBearingY()) - textureHeight + static_cast<float>(m_verticalAlignment);
-
-            // Lower right corner
-            v2[0] = v1[0] + textureWidth;
-            v2[1] = v1[1];
-
-            // Upper right corner
-            v3[0] = v2[0];
-            v3[1] = v1[1] + textureHeight;
-
-            // Upper left corner
-            v4[0] = v1[0];
-            v4[1] = v3[1];
-
-            glyph->setupAndBindTexture(oglContext, softwareRendering);
-
-            // Get texture coordinates
-            const FloatArray* textureCoordinates = glyph->textureCoordinates();
-            CVF_ASSERT(textureCoordinates);
-            CVF_ASSERT(textureCoordinates->size() == 8);
-            const float* textureCoordinatesPtr = textureCoordinates->ptr();
-            CVF_ASSERT(textureCoordinatesPtr);
-            int t;
-            for (t = 0; t < 8; t++)
+            for (j = 0; j < numCharacters; j++)
             {
-                textureCoords[t] = textureCoordinatesPtr[t];
-            }
+                character = line[j];
+                ref<Glyph> glyph = m_font->getGlyph(character);
 
-            if (softwareRendering)
-            {
+                float textureWidth = static_cast<float>(glyph->width());
+                float textureHeight = static_cast<float>(glyph->height());
+
+                // Lower left corner
+                v1[0] = cursor.x() + static_cast<float>(glyph->horizontalBearingX());
+                v1[1] = cursor.y() + static_cast<float>(glyph->horizontalBearingY()) - textureHeight + static_cast<float>(m_verticalAlignment);
+
+                // Lower right corner
+                v2[0] = v1[0] + textureWidth;
+                v2[1] = v1[1];
+
+                // Upper right corner
+                v3[0] = v2[0];
+                v3[1] = v1[1] + textureHeight;
+
+                // Upper left corner
+                v4[0] = v1[0];
+                v4[1] = v3[1];
+
+                glyph->setupAndBindTexture(oglContext, softwareRendering);
+
+                // Get texture coordinates
+                const FloatArray* textureCoordinates = glyph->textureCoordinates();
+                CVF_ASSERT(textureCoordinates);
+                CVF_ASSERT(textureCoordinates->size() == 8);
+                const float* textureCoordinatesPtr = textureCoordinates->ptr();
+                CVF_ASSERT(textureCoordinatesPtr);
+                int t;
+                for (t = 0; t < 8; t++)
+                {
+                    textureCoords[t] = textureCoordinatesPtr[t];
+                }
+
+                if (softwareRendering)
+                {
 #ifndef CVF_OPENGL_ES
-                glBegin(GL_TRIANGLES);
+                    glBegin(GL_TRIANGLES);
 
-                // First triangle in quad
-                glTexCoord2fv(&textureCoordinatesPtr[0]);
-                glVertex3fv(v1);
-                glTexCoord2fv(&textureCoordinatesPtr[2]);
-                glVertex3fv(v2);
-                glTexCoord2fv(&textureCoordinatesPtr[4]);
-                glVertex3fv(v3);
+                    // First triangle in quad
+                    glTexCoord2fv(&textureCoordinatesPtr[0]);
+                    glVertex3fv(v1);
+                    glTexCoord2fv(&textureCoordinatesPtr[2]);
+                    glVertex3fv(v2);
+                    glTexCoord2fv(&textureCoordinatesPtr[4]);
+                    glVertex3fv(v3);
 
-                // Second triangle in quad
-                glTexCoord2fv(&textureCoordinatesPtr[0]);
-                glVertex3fv(v1);
-                glTexCoord2fv(&textureCoordinatesPtr[4]);
-                glVertex3fv(v3);
-                glTexCoord2fv(&textureCoordinatesPtr[6]);
-                glVertex3fv(v4);
+                    // Second triangle in quad
+                    glTexCoord2fv(&textureCoordinatesPtr[0]);
+                    glVertex3fv(v1);
+                    glTexCoord2fv(&textureCoordinatesPtr[4]);
+                    glVertex3fv(v3);
+                    glTexCoord2fv(&textureCoordinatesPtr[6]);
+                    glVertex3fv(v4);
 
-                glEnd();
+                    glEnd();
 #endif
-            }
-            else
-            {
-                glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, connects);
+                }
+                else
+                {
+                    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, connects);
+                }
+
+                // Jump to the next character in the string, if any
+                if (j < (numCharacters - 1))
+                {
+                    float advance = static_cast<float>(m_font->advance(character, text[j + 1]));
+                    cursor.x() += advance;
+                }
             }
 
-            // Jump to the next character in the string, if any
-            if (j < (numCharacters - 1))
-            {
-                float advance = static_cast<float>(m_font->advance(character, text[j + 1]));
-                cursor.x() += advance;
-            }
+            // CR
+            cursor.x() = pos.x() + offset.x();
+            cursor.y() += lineSpacing;
         }
     }
 
@@ -543,10 +563,10 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         glMatrixMode(GL_MODELVIEW);
         glLoadMatrixf(matrixState.viewMatrix().ptr());
 
-        Material_FF mat;
+        RenderStateMaterial_FF mat;
         mat.applyOpenGL(oglContext);
 
-        Lighting_FF light;
+        RenderStateLighting_FF light;
         light.applyOpenGL(oglContext);
 #endif
     }
@@ -559,11 +579,11 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     }
 
     // Reset render states
-    Blending resetBlending;
+    RenderStateBlending resetBlending;
     resetBlending.applyOpenGL(oglContext);
 
     // Turn off depth test
-    Depth resetDepth;
+    RenderStateDepth resetDepth;
     resetDepth.applyOpenGL(oglContext);
 
     CVF_CHECK_OGL(oglContext);

@@ -33,6 +33,9 @@ namespace cvf {
 ///
 //==================================================================================================
 
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -139,8 +142,8 @@ ref<Color3ubArray> ScalarMapper::colorTableArray(ColorTable colorTable)
 
         case NORMAL:
         {
-            // Choses the primary colors only variant
-            colors = normalColorTableArray(5);
+            // Which number of levels should we choose here?
+            colors = normalColorTableArray(10);
             break;
         }
     }

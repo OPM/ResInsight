@@ -30,10 +30,13 @@
 #include "cvfGlyph.h"
 #include "cvfCamera.h"
 #include "cvfShaderProgram.h"
-#include "cvfRenderState.h"
 #include "cvfViewport.h"
 #include "cvfGeometryUtils.h"
 #include "cvfMatrixState.h"
+#include "cvfRenderStatePoint.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderStateBlending.h"
 
 #ifndef CVF_OPENGL_ES 
 #include "cvfRenderState_FF.h"
@@ -273,7 +276,7 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
             nudgeShader->clearUniformApplyTracking();
             nudgeShader->applyFixedUniforms(oglContext, matrixState);
 
-            Point point(Point::PROGRAM_SIZE);
+            RenderStatePoint point(RenderStatePoint::PROGRAM_SIZE);
             point.applyOpenGL(oglContext);
         }
         else
@@ -284,27 +287,27 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
             }
 
 #ifndef CVF_OPENGL_ES
-            Material_FF mat;
+            RenderStateMaterial_FF mat;
             mat.enableColorMaterial(true);
 
-            Lighting_FF noLight(false);
+            RenderStateLighting_FF noLight(false);
             noLight.applyOpenGL(oglContext);
 #endif
         }
 
-        Depth visibleCheckDepthRS(true, Depth::LEQUAL, false);
+        RenderStateDepth visibleCheckDepthRS(true, RenderStateDepth::LEQUAL, false);
         visibleCheckDepthRS.applyOpenGL(oglContext);
 
-        PolygonOffset po;
+        RenderStatePolygonOffset po;
         po.enablePointMode(true);
         po.setFactor(-3.0f);
         po.setUnits(-3.0f);
         po.applyOpenGL(oglContext);
 
-        Blending addBlend;
+        RenderStateBlending addBlend;
         addBlend.enableBlending(true);
-        addBlend.setFunction(Blending::ONE, Blending::ONE);
-        addBlend.setEquation(Blending::FUNC_ADD);
+        addBlend.setFunction(RenderStateBlending::ONE, RenderStateBlending::ONE);
+        addBlend.setEquation(RenderStateBlending::FUNC_ADD);
         addBlend.applyOpenGL(oglContext);
     }
 
@@ -327,19 +330,19 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
 
     if (m_checkPosVisible)
     {
-        PolygonOffset resetPO;
+        RenderStatePolygonOffset resetPO;
         resetPO.applyOpenGL(oglContext);
 
-        Blending resetBlend;
+        RenderStateBlending resetBlend;
         resetBlend.applyOpenGL(oglContext);
 
 #ifndef CVF_OPENGL_ES
         if (!shaderProgram)
         {
-            Material_FF mat;
+            RenderStateMaterial_FF mat;
             mat.applyOpenGL(oglContext);
 
-            Lighting_FF light;
+            RenderStateLighting_FF light;
             light.applyOpenGL(oglContext);
         }
 #endif

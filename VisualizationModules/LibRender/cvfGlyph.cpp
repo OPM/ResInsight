@@ -23,8 +23,9 @@
 #include "cvfMath.h"
 #include "cvfTextureImage.h"
 #include "cvfTexture.h"
-#include "cvfRenderState.h"
 #include "cvfSampler.h"
+#include "cvfRenderStateTextureBindings.h"
+
 #ifndef CVF_OPENGL_ES
 #include "cvfTexture2D_FF.h"
 #include "cvfRenderState_FF.h"
@@ -249,7 +250,7 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
 #ifndef CVF_OPENGL_ES
             if (renderStateType == RenderState::TEXTURE_MAPPING_FF)
             {
-                TextureMapping_FF* texMapping = static_cast<TextureMapping_FF*>(m_textureBindings.p());
+                RenderStateTextureMapping_FF* texMapping = static_cast<RenderStateTextureMapping_FF*>(m_textureBindings.p());
                 texMapping->setupTexture(oglContext);
                 texMapping->applyOpenGL(oglContext);
                 return;
@@ -262,7 +263,7 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
         {
             if (renderStateType == RenderState::TEXTURE_BINDINGS)
             {
-                TextureBindings* texBindings = static_cast<TextureBindings*>(m_textureBindings.p());
+                RenderStateTextureBindings* texBindings = static_cast<RenderStateTextureBindings*>(m_textureBindings.p());
                 texBindings->setupTextures(oglContext);
                 texBindings->applyOpenGL(oglContext);
                 return;
@@ -331,8 +332,8 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
             texture->setupTexture(oglContext);
             texture->setupTextureParams(oglContext);
 
-            ref<TextureMapping_FF> textureMapping = new TextureMapping_FF(texture.p());
-            textureMapping->setTextureFunction(TextureMapping_FF::MODULATE);
+            ref<RenderStateTextureMapping_FF> textureMapping = new RenderStateTextureMapping_FF(texture.p());
+            textureMapping->setTextureFunction(RenderStateTextureMapping_FF::MODULATE);
 
             m_textureBindings = textureMapping;
 #endif
@@ -347,7 +348,7 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
             ref<Texture> texture = new Texture(m_textureImage.p());
             texture->setupTexture(oglContext);
 
-            TextureBindings* textureBindings = new TextureBindings(texture.p(), sampler.p(), "dummy");
+            RenderStateTextureBindings* textureBindings = new RenderStateTextureBindings(texture.p(), sampler.p(), "dummy");
             textureBindings->setupTextures(oglContext);
 
             m_textureBindings = textureBindings;

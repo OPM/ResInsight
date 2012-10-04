@@ -44,12 +44,15 @@ public:
     explicit Matrix4(const Matrix3<S>& other);
 
     template<typename T>
-    explicit Matrix4(const T& other);
+    explicit Matrix4(const Matrix4<T>& other);
 
     inline Matrix4&     operator=(const Matrix4& rhs);
+
+    bool                equals(const Matrix4& mat) const;
     bool                operator==(const Matrix4& rhs) const;
     bool                operator!=(const Matrix4& rhs) const;
 
+    void                multiply(const Matrix4& mat);
     const Matrix4       operator*(const Matrix4& rhs) const;
     const Vector4<S>    operator*(const Vector4<S>& rhs) const;
 
@@ -58,10 +61,10 @@ public:
     void                setZero();
     bool                isZero() const;
 
-    inline S&           operator()(int row, int col);
-    inline S            operator()(int row, int col) const;
     inline void         setRowCol(int row, int col, S value);
     inline S            rowCol(int row, int col) const;
+    inline S&           operator()(int row, int col);
+    inline S            operator()(int row, int col) const;
 
     void                setRow(int row, const Vector4<S>& vector);
     Vector4<S>          row(int row) const;
@@ -89,6 +92,7 @@ public:
     inline const S*     ptr() const;
 
     static Matrix4      fromTranslation(const Vector3<S>& trans);
+    static Matrix4      fromScaling(const Vector3<S>& scale);
     static Matrix4      fromRotation(Vector3<S> axis, S angle);
     static Matrix4      fromCoordSystemAxes(const Vector3<S>* xAxis, const Vector3<S>* yAxis, const Vector3<S>* zAxis);
 
@@ -106,6 +110,7 @@ private:
 private:
     S   m_v[16];        
 };
+
 
 template<typename S>
 Vector4<S> operator*(const Matrix4<S>& m, const Vector4<S>& v);

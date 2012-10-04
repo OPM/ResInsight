@@ -71,6 +71,7 @@ Rendering::Rendering(const String& renderingName)
 {
     m_camera = new Camera;
     m_visibleParts = new PartRenderHintCollection;
+    m_cullSettings = new CullSettings;
 
     // Initialize with minimal sorting (just priorities)
     m_renderQueueSorter = new RenderQueueSorterBasic(RenderQueueSorterBasic::MINIMAL);
@@ -147,6 +148,8 @@ void Rendering::render(OpenGLContext* oglContext)
         CVF_LOG_RENDER_DEBUG(oglContext, String("Entering Rendering::render(), renderingName='%1'").arg(m_renderingName));
     }
 
+    CVF_CHECK_OGL(oglContext);
+
     m_performanceInfo.clear();
 
     ref<Timer> renderTimer;
@@ -155,12 +158,15 @@ void Rendering::render(OpenGLContext* oglContext)
         renderTimer = new Timer;
     }
 
+    // Update any transforms and bounding boxes if a transform tree is used
+    m_scene->updateTransformTree(m_camera.p());
+
     // Compute visible parts
     // -------------------------------------------------------------------------
     m_visibleParts->setCountZero();
     if (m_scene.notNull())
     {
-        m_scene->findVisibleParts(m_visibleParts.p(), *m_camera.p(), m_cullSettings, m_enableMask);
+        m_scene->findVisibleParts(m_visibleParts.p(), *m_camera.p(), *m_cullSettings, m_enableMask);
     }
 
     if (renderTimer.notNull())
@@ -172,13 +178,13 @@ void Rendering::render(OpenGLContext* oglContext)
 
     // Setup FBO
     // -------------------------------------------------------------------------
-    if (m_targetFrameBuffer.notNull())
+    if (m_targetFramebuffer.notNull())
     {
         // Option to sync FBO size to viewport size
-        m_targetFrameBuffer->applyOpenGL(oglContext);
+        m_targetFramebuffer->applyOpenGL(oglContext);
 
         String failReason;
-        if (!m_targetFrameBuffer->isFramebufferComplete(oglContext, &failReason))
+        if (!m_targetFramebuffer->isFramebufferComplete(oglContext, &failReason))
         {
             Trace::show(failReason);
             return;
@@ -267,6 +273,8 @@ void Rendering::render(OpenGLContext* oglContext)
         m_performanceInfo.totalDrawTime = renderTimer->time();
     }
 
+    CVF_CHECK_OGL(oglContext);
+
     if (debugLogging)
     {
         CVF_LOG_RENDER_DEBUG(oglContext, String("Exiting Rendering::render(), renderingName='%1'").arg(m_renderingName));
@@ -332,6 +340,25 @@ void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, Over
         case OverlayItem::BOTTOM_LEFT:  cursor.set(border, border); break;
         case OverlayItem::BOTTOM_RIGHT: cursor.set(vpSize.x() - border, border); break;
         default:                        cursor.set(border,border);
+    }
+
+    // Adjust based on other already placed items
+    OverlayItemRectMap::iterator it;
+    for (it = itemRectMap->begin(); it != itemRectMap->end(); ++it)
+    {
+        Rectui rect = it->second;
+
+        if (rect.contains(cursor) && (direction == OverlayItem::VERTICAL))
+        {
+            if (corner == OverlayItem::BOTTOM_LEFT || corner == OverlayItem::BOTTOM_RIGHT)
+            {
+                cursor.y() += rect.height() + border;
+            }
+            else
+            {
+                cursor.y() -= rect.height() + border;
+            }
+        }
     }
 
     size_t numOverlayItems = m_overlayItems.size();
@@ -438,11 +465,20 @@ const RenderEngine* Rendering::renderEngine() const
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns the current target framebuffer for this rendering.
 //--------------------------------------------------------------------------------------------------
-void Rendering::setTargetFrameBuffer(FramebufferObject* frameBuffer)
+FramebufferObject* Rendering::targetFramebuffer()
 {
-    m_targetFrameBuffer = frameBuffer;
+    return m_targetFramebuffer.p();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Set the target framebuffer. NULL means default window framebuffer.
+//--------------------------------------------------------------------------------------------------
+void Rendering::setTargetFramebuffer(FramebufferObject* framebuffer)
+{
+    m_targetFramebuffer = framebuffer;
 }
 
 
@@ -485,7 +521,7 @@ ref<RayIntersectSpec> Rendering::createRayIntersectSpec(int winCoordX, int winCo
         return NULL;
     }
 
-    ref<RayIntersectSpec> rayIntersectSpec = new RayIntersectSpec(ray.p());
+    ref<RayIntersectSpec> rayIntersectSpec = new RayIntersectSpec(ray.p(), this);
     return rayIntersectSpec;
 }
 
@@ -541,7 +577,7 @@ BoundingBox Rendering::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rendering::setEnableMask(unsigned int mask)
+void Rendering::setEnableMask(uint mask)
 {
     m_enableMask = mask;
 }
@@ -550,7 +586,7 @@ void Rendering::setEnableMask(unsigned int mask)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-unsigned int Rendering::enableMask() const
+uint Rendering::enableMask() const
 {
     return m_enableMask;
 }
@@ -730,7 +766,7 @@ bool Rendering::isPerformanceTimingEnabled() const
 //--------------------------------------------------------------------------------------------------
 CullSettings* Rendering::cullSettings()
 {
-    return &m_cullSettings;
+    return m_cullSettings.p();
 }
 
 
@@ -741,7 +777,7 @@ CullSettings* Rendering::cullSettings()
 //--------------------------------------------------------------------------------------------------
 const CullSettings* Rendering::cullSettings() const
 {
-    return &m_cullSettings;
+    return m_cullSettings.p();
 }
 
 
@@ -844,7 +880,8 @@ const OverlayItem* Rendering::overlayItem(size_t index, OverlayItem::LayoutCorne
 OverlayItem* Rendering::overlayItemFromWinCoord(uint winCoordX, uint winCoordY)
 {
     // Overlay items are stored OpenGL coord system with (0,0) in lower left corner, so flip the y-coordinate
-    winCoordY = static_cast<int>(m_camera->viewport()->height()) - winCoordY;
+    uint oglCoordX = winCoordX;
+    uint oglCoordY = static_cast<int>(m_camera->viewport()->height()) - winCoordY;
 
     OverlayItemRectMap itemRectMap;
     calculateOverlayItemLayout(&itemRectMap);
@@ -855,8 +892,7 @@ OverlayItem* Rendering::overlayItemFromWinCoord(uint winCoordX, uint winCoordY)
         OverlayItem* item = it->first;
         Rectui rect = it->second;
 
-        if ((winCoordX > rect.min().x()) && (winCoordX < rect.max().x()) &&
-            (winCoordY > rect.min().y()) && (winCoordY < rect.max().y()))
+        if (item->pick(oglCoordX, oglCoordY, rect.min(), Vec2ui(rect.width(), rect.height())))
         {
             return item;
         }
@@ -918,9 +954,9 @@ String Rendering::toString() const
     str += "\n enableMask:                      " + String(m_enableMask);
     str += "\n m_maxNumPartsToDraw:             " + String(m_enableMask);
 
-    str += "\n m_viewFrustumCulling:            " + String(m_cullSettings.isViewFrustumCullingEnabled());
-    str += "\n m_pixelSizeCulling:              " + String(m_cullSettings.isPixelSizeCullingEnabled());
-    str += "\n m_pixelSizeCullingAreaThreshold: " + String(m_cullSettings.pixelSizeCullingAreaThreshold());
+    str += "\n m_viewFrustumCulling:            " + String(m_cullSettings->isViewFrustumCullingEnabled());
+    str += "\n m_pixelSizeCulling:              " + String(m_cullSettings->isPixelSizeCullingEnabled());
+    str += "\n m_pixelSizeCullingAreaThreshold: " + String(m_cullSettings->pixelSizeCullingAreaThreshold());
 
     return str;
 }

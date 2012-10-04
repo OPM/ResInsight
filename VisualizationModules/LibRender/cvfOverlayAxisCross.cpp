@@ -255,12 +255,12 @@ void OverlayAxisCross::renderAxisImmediateMode(OpenGLContext* oglContext, const 
     m_axis->renderImmediateMode(oglContext, matrixState);  
 
     // Draw X axis triangle
-    Material_FF xMaterial(Material_FF::PURE_RED);
+    RenderStateMaterial_FF xMaterial(RenderStateMaterial_FF::PURE_RED);
     xMaterial.applyOpenGL(oglContext);
     m_xAxisTriangle->renderImmediateMode(oglContext, matrixState);
 
     // Draw Y axis triangle
-    Material_FF yMaterial(Material_FF::PURE_GREEN);
+    RenderStateMaterial_FF yMaterial(RenderStateMaterial_FF::PURE_GREEN);
     yMaterial.applyOpenGL(oglContext);
     m_yAxisTriangle->renderImmediateMode(oglContext, matrixState);
 #endif // CVF_OPENGL_ES

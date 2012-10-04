@@ -102,6 +102,17 @@ Vector4<S>::Vector4(const Vector3<S>& other, S w)
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// Check if two vectors are equal. An exact match is required.
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+bool Vector4<S>::equals(const Vector4& other) const
+{
+    return (*this == other);
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// Check if two vectors are equal. An exact match is required.
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +134,26 @@ inline bool Vector4<S>::operator!=(const Vector4& rhs) const
 
 
 //--------------------------------------------------------------------------------------------------
+/// Adds the vector \a other to this vector
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void cvf::Vector4<S>::add(const Vector4& other)
+{
+    (*this) += other;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Subtracts the vector \a other from this vector
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void cvf::Vector4<S>::subtract(const Vector4& other)
+{
+    (*this) -= other;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the sum of this vector and the rhs vector
 //--------------------------------------------------------------------------------------------------
 template<typename S>
@@ -139,6 +170,17 @@ template<typename S>
 inline const Vector4<S> Vector4<S>::operator-(const Vector4& rhs) const
 {
     return Vector4(m_v[0] - rhs.m_v[0], m_v[1] - rhs.m_v[1], m_v[2] - rhs.m_v[2], m_v[3] - rhs.m_v[3]);
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Scale this vector by the given scalar
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void Vector4<S>::scale(S scalar)
+{
+    (*this) *= scalar;
 }
 
 
@@ -255,6 +297,16 @@ inline S& Vector4<S>::operator[](int index)
     CVF_TIGHT_ASSERT(index < 4);
 
     return m_v[index];
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Compute the dot product of this and \a other
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+S Vector4<S>::dot(const Vector4& other) const
+{
+    return (*this)*other;
 }
 
 
@@ -384,7 +436,7 @@ bool Vector4<S>::normalize()
 /// Returns a normalized version of the current vector. The vector is unchanged.
 //--------------------------------------------------------------------------------------------------
 template<typename S>
-Vector4<S> Vector4<S>::normalized(bool* normalizationOK) const
+const Vector4<S> Vector4<S>::getNormalized(bool* normalizationOK) const
 {
     S len = length();
     if (len > 0.0)

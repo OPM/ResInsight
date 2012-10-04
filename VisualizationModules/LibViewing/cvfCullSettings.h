@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "cvfObject.h"
+
 namespace cvf {
 
 
@@ -27,7 +29,7 @@ namespace cvf {
 // CullSettings
 //
 //==================================================================================================
-class CullSettings
+class CullSettings : public Object
 {
 public:
     CullSettings();

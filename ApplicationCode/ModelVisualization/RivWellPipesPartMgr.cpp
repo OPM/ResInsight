@@ -52,7 +52,7 @@ RivWellPipesPartMgr::RivWellPipesPartMgr(RimReservoirView* reservoirView, RimWel
     legendColors[3] = cvf::Color3::RED;
     scalarMapper->setColors(legendColors);
     scalarMapper->setRange(0.0 , 4.0);
-    scalarMapper->setLevelsFromColorCount(4);
+    scalarMapper->setLevelCount(4, true);
 
     m_scalarMapper = scalarMapper;
 

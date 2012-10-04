@@ -18,6 +18,8 @@ cvfConstantFrameRate.h
 cvfCullSettings.h
 cvfDynamicUniformSet.h
 cvfEffect.h
+cvfFixedSizeTransform.h
+cvfGaussianBlur.h
 cvfHitItem.h
 cvfHitItemCollection.h
 cvfLibViewing.h
@@ -27,6 +29,7 @@ cvfModel.h
 cvfModelBasicList.h
 cvfModelBasicTree.h
 cvfPart.h
+cvfPartHighlighter.h
 cvfPartRenderHintCollection.h
 cvfPerformanceInfo.h
 cvfRayIntersectSpec.h
@@ -47,6 +50,8 @@ cvfConstantFrameRate.cpp
 cvfCullSettings.cpp
 cvfDynamicUniformSet.cpp
 cvfEffect.cpp
+cvfFixedSizeTransform.cpp
+cvfGaussianBlur.cpp
 cvfHitItem.cpp
 cvfHitItemCollection.cpp
 cvfLocators.cpp
@@ -55,6 +60,7 @@ cvfModel.cpp
 cvfModelBasicList.cpp
 cvfModelBasicTree.cpp
 cvfPart.cpp
+cvfPartHighlighter.cpp
 cvfPartRenderHintCollection.cpp
 cvfPerformanceInfo.cpp
 cvfRayIntersectSpec.cpp

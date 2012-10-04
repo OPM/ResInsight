@@ -31,6 +31,7 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfqtUtils.h"
 #include "cvfShaderProgram.h"
+#include "cvfRenderStateCullFace.h"
 
 #include <vector>
 #include <QFile>
@@ -314,7 +315,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
         }
     }
 
-    shaderGen.addFragmentCode(cvf::ShaderSourceRepository::light_AmbientDiffuse);
+    shaderGen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
     shaderGen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
 
     cvf::ref<cvf::ShaderProgram> prog = shaderGen.generate();
@@ -347,7 +348,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
     sampler->setMinFilter(cvf::Sampler::NEAREST);
     sampler->setMagFilter(cvf::Sampler::NEAREST);
 
-    cvf::ref<cvf::TextureBindings> texBind = new cvf::TextureBindings;
+    cvf::ref<cvf::RenderStateTextureBindings> texBind = new cvf::RenderStateTextureBindings;
     texBind->addBinding(edgeTexture.p(), sampler.p(), "u_edgeTexture2D");
     texBind->addBinding(cellTexture.p(), sampler.p(), "u_cellTexture2D");
     eff->setRenderState(texBind.p());
@@ -356,7 +357,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
 
     if (true)
     {
-        cvf::ref<cvf::PolygonOffset> polyOffset = new cvf::PolygonOffset;
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
         polyOffset->configurePolygonPositiveOffset();
         eff->setRenderState(polyOffset.p());
     }
@@ -364,7 +365,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
     // Simple transparency
     if (m_opacityLevel < 1.0f)
     {
-        cvf::ref<cvf::Blending> blender = new cvf::Blending;
+        cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
         blender->configureTransparencyBlending();
         eff->setRenderState(blender.p());
     }
@@ -373,7 +374,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
 
     if (m_cullBackfaces)
     {
-        cvf::ref<cvf::CullFace> faceCulling = new cvf::CullFace;
+        cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
         eff->setRenderState(faceCulling.p());
     }
 }

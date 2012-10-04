@@ -76,7 +76,7 @@ private:
     // Texture info
     ref<TextureImage> m_textureImage;       // Pre-rendered image of m_character
     ref<FloatArray>   m_textureCoordinates; // Texture coordinates of where in the m_texgtureImage to find the given pre-rendered character
-    ref<RenderState>  m_textureBindings;    // For shader based rendering this is a TextureBindings object, while software rendering uses TextureMapping_FF instead
+    ref<RenderState>  m_textureBindings;    // For shader based rendering this is a TextureBindings object, while software rendering uses RenderStateTextureMapping_FF instead
 };
 
 } // namespace cvf

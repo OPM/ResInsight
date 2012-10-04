@@ -218,7 +218,7 @@ void ModelBasicTreeNode::updateBoundingBoxesRecursive()
 //--------------------------------------------------------------------------------------------------
 /// Compute and append the visible parts in this node and all child nodes (recursive)
 //--------------------------------------------------------------------------------------------------
-void ModelBasicTreeNode::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const Frustum& frust, const CullSettings& cullSettings, unsigned int enableMask)
+void ModelBasicTreeNode::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask)
 {
     if (!m_boundingBox.isValid())
     {
@@ -233,7 +233,7 @@ void ModelBasicTreeNode::findVisibleParts(PartRenderHintCollection* visibleParts
         // View Frustum culling
         if (cullSettings.isViewFrustumCullingEnabled())
         {
-            if (frust.isOutside(m_boundingBox))
+            if (camera.frustum().isOutside(m_boundingBox))
             {
                 // No parts on this level (or below) are visible. So just return
                 return;
@@ -257,12 +257,12 @@ void ModelBasicTreeNode::findVisibleParts(PartRenderHintCollection* visibleParts
         ModelBasicTreeNode* c = m_children[i];
         CVF_ASSERT(c);
 
-        c->findVisibleParts(visibleParts, camera, frust, cullSettings, enableMask);
+        c->findVisibleParts(visibleParts, camera, cullSettings, enableMask);
     }
 
     if (m_partList.notNull()) 
     {
-        m_partList->doFindVisibleParts(visibleParts, camera, frust, cullSettings, enableMask);
+        m_partList->findVisibleParts(visibleParts, camera, cullSettings, enableMask);
     }
 }
 
@@ -418,7 +418,7 @@ Part* ModelBasicTreeNode::findPartByName(String name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ModelBasicTreeNode::mergeParts(double maxExtent, unsigned int minimumPrimitiveCount)
+void ModelBasicTreeNode::mergeParts(double maxExtent, uint minimumPrimitiveCount)
 {
     uint numChildren = childCount();
     
@@ -614,14 +614,14 @@ BoundingBox ModelBasicTree::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ModelBasicTree::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, unsigned int enableMask)
+void ModelBasicTree::findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask)
 {
     // Add in the model's enable mask before delegating to root node
-    unsigned int combinedEnableMask = (partEnableMask() & enableMask);
+    uint combinedEnableMask = (partEnableMask() & enableMask);
 
     if (m_root)
     {
-        m_root->findVisibleParts(visibleParts, camera, camera.frustum(), cullSettings, combinedEnableMask);
+        m_root->findVisibleParts(visibleParts, camera, cullSettings, combinedEnableMask);
     }
 }
 
@@ -683,7 +683,7 @@ Part* ModelBasicTree::findPartByName(String name)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ModelBasicTree::mergeParts(double maxExtent, unsigned int minimumPrimitiveCount)
+void ModelBasicTree::mergeParts(double maxExtent, uint minimumPrimitiveCount)
 {
     if (m_root)
     {

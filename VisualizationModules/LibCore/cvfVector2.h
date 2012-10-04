@@ -43,44 +43,45 @@ public:
     explicit Vector2(const T& other);
 
     inline Vector2&         operator=(const Vector2& rhs);
+
+    inline bool             equals(const Vector2& other) const;
     inline bool             operator==(const Vector2& rhs) const;
     inline bool             operator!=(const Vector2& rhs) const;
     
+    inline void             add(const Vector2& other);
+    inline void             subtract(const Vector2& other);
     inline const Vector2    operator+(const Vector2& rhs) const;
     inline const Vector2    operator-(const Vector2& rhs) const;
-    inline const Vector2    operator*(S scalar) const;
-    inline const Vector2    operator/(S scalar) const;
-
-    template<typename T> 
-    friend inline const Vector2<T> operator*(T scalar, const Vector2<T>& rhs);
-
-    inline const Vector2    operator-() const;
-
     inline Vector2&         operator+=(const Vector2& rhs);
     inline Vector2&         operator-=(const Vector2& rhs);
+    inline const Vector2    operator-() const;
+
+    inline void             scale(S scalar);
+    inline const Vector2    operator*(S scalar) const;
+    inline const Vector2    operator/(S scalar) const;
     inline Vector2&         operator*=(S scalar);
     inline Vector2&         operator/=(S scalar);
+
+    inline S                dot(const Vector2& other) const;
+    inline S                operator*(const Vector2& rhs) const;    // Dot product
+
+    template<typename T> 
+    void                    set(const T& other);
+    inline void             set(S x, S y);
+    inline void             setZero();
+    inline const S&         x() const   { return m_v[0]; }          ///< Get the X element of the vector
+    inline const S&         y() const   { return m_v[1]; }          ///< Get the Y element of the vector
+    inline S&               x()         { return m_v[0]; }          ///< Get a reference to the X element of the vector. E.g. x() = 1;
+    inline S&               y()         { return m_v[1]; }          ///< Get a reference to the Y element of the vector. E.g. y() = 2;
 
     inline const S&         operator[](int index) const;            // Get component 0 or 1. E.g. x = v[0];
     inline S&               operator[](int index);                  // Set component 0 or 1. E.g. v[0] = x;
 
-    inline S                operator*(const Vector2& rhs) const;    // Dot product
+    inline S*               ptr()       { return m_v; }             ///< Get a raw pointer to the internal c array of type S.
+    inline const S*         ptr() const { return m_v; }             ///< Get a const raw pointer to the internal c array of type S.
 
-    inline const S& x() const   { return m_v[0]; }                  ///< Get the X element of the vector
-    inline const S& y() const   { return m_v[1]; }                  ///< Get the Y element of the vector
-    inline S&       x()         { return m_v[0]; }                  ///< Get a reference to the X element of the vector. E.g. x() = 1;
-    inline S&       y()         { return m_v[1]; }                  ///< Get a reference to the Y element of the vector. E.g. y() = 2;
-
-    inline S*       ptr()       { return m_v; }                     ///< Get a raw pointer to the internal c array of type S.
-    inline const S* ptr() const { return m_v; }                     ///< Get a const raw pointer to the internal c array of type S.
-
-    inline void set(S x, S y);
-    inline void setZero();
-    inline bool isZero() const;
-    inline bool isUndefined() const;
-
-    template<typename T> 
-    void set(const T& other);
+    inline bool     isZero() const;
+    inline bool     isUndefined() const;
 
     bool            normalize();
     const Vector2   getNormalized(bool* normalizationOK = NULL) const;
@@ -96,8 +97,13 @@ public:
     static const Vector2 UNDEFINED; ///< Undefined vector
 
 private:
+    template<typename T> 
+    friend inline const Vector2<T> operator*(T scalar, const Vector2<T>& rhs);
+
+private:
     S m_v[2];
 };
+
 
 typedef Vector2<float>  Vec2f;  ///< A vector with float components
 typedef Vector2<double> Vec2d;  ///< A vector with double components

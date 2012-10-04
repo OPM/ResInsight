@@ -43,8 +43,11 @@ public:
     virtual ref<Glyph>      getGlyph(wchar_t character) = 0;
     virtual uint            advance(wchar_t character, wchar_t nextCharacter) = 0;
     virtual bool            isEmpty() = 0;
+    
+    float                   lineSpacing();
 
     Vec2ui                  textExtent(const String& text);        
+
 };
 
 } // namespace cvf

@@ -19,30 +19,47 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfArray.h"
-#include "cvfScalarMapper.h"
-#include <vector>
+#include "cvfRenderState.h"
+#include "cvfOpenGLTypes.h"
+#include "cvfColor4.h"
 
 namespace cvf {
 
+
+
 //==================================================================================================
 //
-// Abstract base class for scalar mappers that communicate with a legend
+// Controls OpenGL polygon rasterization mode, glPolygonMode() 
 //
 //==================================================================================================
-class LegendScalarMapper : public ScalarMapper
+class RenderStatePolygonMode : public RenderState
 {
 public:
-    // Return a the set of domain values representing sensible major tickmarks
-    virtual void   majorLevels(std::vector<double>* domainValues) const = 0;  
-    // Return the normalized (0.0, 1.0) representation of the domainValue
-    virtual double normalizedLevelPosition(double domainValue) const = 0;
-    // Return the domain value from a normalized val
-    virtual double domainValue(double normalizedPosition) const = 0;
+    enum Mode
+    {
+        FILL,   ///< The interior of the polygons is filled
+        LINE,   ///< Boundary edges of the polygons are drawn as line segments
+        POINT   ///< Polygon vertices that are marked as the start of a boundary edge are drawn as points
+    };
 
+public:
+    RenderStatePolygonMode(Mode frontAndBackFaceMode = FILL);
+
+    void            set(Mode frontAndBackMode);
+    void            setFrontFace(Mode mode);
+    void            setBackFace(Mode mode);
+    Mode            frontFace() const;
+    Mode            backFace() const;
+
+    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+
+private:
+    static cvfGLenum    polygonModeOpenGL(Mode mode);
+
+private:
+    Mode    m_frontFaceMode;
+    Mode    m_backFaceMode;
 };
 
 
-}
+}  // namespace cvf

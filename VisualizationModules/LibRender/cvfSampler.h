@@ -44,7 +44,7 @@ class Sampler : public Object
 public:
     enum WrapMode
     {
-        REPEAT,          // OpenGL default   
+        REPEAT,             // OpenGL default   
         CLAMP_TO_EDGE,
         CLAMP_TO_BORDER,
         MIRRORED_REPEAT
@@ -52,12 +52,12 @@ public:
 
     enum Filter
     {
-        NEAREST, 
-        LINEAR,                 // Default mag filter in OpenGL
-        NEAREST_MIPMAP_NEAREST,
-        LINEAR_MIPMAP_NEAREST,
-        NEAREST_MIPMAP_LINEAR,  // Default min filter in OpenGL
-        LINEAR_MIPMAP_LINEAR
+        NEAREST,                ///< Nearest neighbor filtering on the base mip level
+        LINEAR,                 ///< Linear filtering on the base mip level. (Default magnification filter in OpenGL)
+        NEAREST_MIPMAP_NEAREST, ///< Selects nearest mip level and performs nearest neighbor filtering
+        LINEAR_MIPMAP_NEAREST,  ///< Selects nearest mip level and performs linear filtering
+        NEAREST_MIPMAP_LINEAR,  ///< Perform linear interpolation between mip levels and perform nearest neighbor filtering. (Default minifying filter in OpenGL)
+        LINEAR_MIPMAP_LINEAR    ///< Perform linear interpolation between mip levels and perform linear filtering (trilinear mipmapping)
     };
 
 public:
@@ -75,10 +75,10 @@ public:
     Filter      magFilter() const;
 
 private:
-    WrapMode    m_wrapModeS;
-    WrapMode    m_wrapModeT;
-    Filter      m_minFilter;
-    Filter      m_magFilter;
+    WrapMode    m_wrapModeS;    ///< Wrap mode for texture coordinate S. Default is REPEAT
+    WrapMode    m_wrapModeT;    ///< Wrap mode for texture coordinate T. Default is REPEAT
+    Filter      m_minFilter;    ///< Minifying function. Default is NEAREST_MIPMAP_LINEAR
+    Filter      m_magFilter;    ///< Magnification function. Default is LINEAR
 };
 
 }  // namespace cvf

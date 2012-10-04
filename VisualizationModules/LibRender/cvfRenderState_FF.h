@@ -32,10 +32,10 @@ class Texture2D_FF;
 // Encapsulates  OpenGL's glLightModel() and glEnable()/glDisable() with GL_LIGHTING
 //
 //==================================================================================================
-class Lighting_FF : public RenderState
+class RenderStateLighting_FF : public RenderState
 {
 public:
-    Lighting_FF(bool enableLighting = true);
+    RenderStateLighting_FF(bool enableLighting = true);
 
     void            enable(bool enableLighting);
     bool            isEnabled() const;
@@ -65,7 +65,7 @@ private:
 // Encapsulates OpenGL glMaterial() state
 //
 //==================================================================================================
-class Material_FF : public RenderState
+class RenderStateMaterial_FF : public RenderState
 {
 public:
     enum MaterialIdent
@@ -114,13 +114,14 @@ public:
     };
 
 public:
-    Material_FF();
-    explicit Material_FF(const Color3f& ambientAndDiffuseColor);
-    explicit Material_FF(MaterialIdent materialIdent);
+    RenderStateMaterial_FF();
+    explicit RenderStateMaterial_FF(const Color3f& ambientAndDiffuseColor);
+    explicit RenderStateMaterial_FF(MaterialIdent materialIdent);
 
     void            setAmbientAndDiffuse(const Color3f& color);
     void            setDiffuse(const Color3f& color);
     void            setSpecular(const Color3f& color);
+    void            setEmission(const Color3f& color);
     void            setAlpha(float alpha);
     void            setShininess(float shininess);
 
@@ -153,10 +154,10 @@ private:
 // Controls normalization of normals in fixed function
 //
 //==================================================================================================
-class Normalize_FF : public RenderState
+class RenderStateNormalize_FF : public RenderState
 {
 public:
-    Normalize_FF(bool enableNormalization = true);
+    RenderStateNormalize_FF(bool enableNormalization = true);
 
     void            enable(bool enableNormalization);
     bool            isEnabled() const;
@@ -173,7 +174,7 @@ private:
 // 
 //
 //==================================================================================================
-class TextureMapping_FF : public RenderState
+class RenderStateTextureMapping_FF : public RenderState
 {
 public:
     enum TextureFunction
@@ -183,8 +184,8 @@ public:
     };
 
 public:
-    TextureMapping_FF(Texture2D_FF* texture = NULL);
-    ~TextureMapping_FF();
+    RenderStateTextureMapping_FF(Texture2D_FF* texture = NULL);
+    ~RenderStateTextureMapping_FF();
 
     void            setTexture(Texture2D_FF* texture);
     Texture2D_FF*   texture();

@@ -24,8 +24,8 @@
 #include "cafAppEnum.h"
 #include "cvfScalarMapperContinuousLog.h"
 #include "cvfScalarMapperContinuousLinear.h"
-#include "cvfOverlayColorLegend.h"
-#include "cvfScalarMapperUniformLevels.h"
+#include "cvfOverlayScalarMapperLegend.h"
+#include "cvfScalarMapperDiscreteLinear.h"
 
 class RimReservoirView;
 //==================================================================================================
@@ -66,7 +66,8 @@ public:
     {
         LINEAR_DISCRETE,
         LINEAR_CONTINUOUS,
-        LOG10_CONTINUOUS
+        LOG10_CONTINUOUS,
+        LOG10_DISCRETE
     };
 
     typedef caf::AppEnum<MappingType> MappingEnum;
@@ -76,7 +77,7 @@ public:
     void                                        setPosition(cvf::Vec2ui position);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
-    cvf::OverlayColorLegend*                    legend() { return m_legend.p(); }
+    cvf::OverlayScalarMapperLegend*                    legend() { return m_legend.p(); }
     void                                        updateLegend();
 
 protected:
@@ -90,12 +91,13 @@ private:
 private:
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
 
-    cvf::ref<cvf::ScalarMapperUniformLevels>    m_linDiscreteScalarMapper;
+    cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
+    cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_logDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperContinuousLog>    m_logSmoothScalarMapper;
     cvf::ref<cvf::ScalarMapperContinuousLinear> m_linSmoothScalarMapper;
-    cvf::ref<cvf::LegendScalarMapper>           m_currentScalarMapper;
+    cvf::ref<cvf::ScalarMapper>                 m_currentScalarMapper;
 
-    cvf::ref<cvf::OverlayColorLegend>           m_legend;
+    cvf::ref<cvf::OverlayScalarMapperLegend>           m_legend;
 
     double                                      m_globalAutoMax;
     double                                      m_globalAutoMin;

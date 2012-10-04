@@ -96,6 +96,7 @@ const char* ShaderSourceRepository::shaderIdentString(ShaderIdent shaderIdent)
         CVF_IDENT_HANDLE_CASE(calcShadowCoord);
 
         CVF_IDENT_HANDLE_CASE(src_Color);
+        CVF_IDENT_HANDLE_CASE(src_TwoSidedColor);
         CVF_IDENT_HANDLE_CASE(src_Texture);
         CVF_IDENT_HANDLE_CASE(src_TextureGlobalAlpha);
         CVF_IDENT_HANDLE_CASE(src_TextureFromPointCoord);
@@ -104,8 +105,7 @@ const char* ShaderSourceRepository::shaderIdentString(ShaderIdent shaderIdent)
         CVF_IDENT_HANDLE_CASE(light_Phong);
         CVF_IDENT_HANDLE_CASE(light_PhongDual);
         CVF_IDENT_HANDLE_CASE(light_SimpleHeadlight);
-        CVF_IDENT_HANDLE_CASE(light_SimpleHeadlight_spec_uniform);
-        CVF_IDENT_HANDLE_CASE(light_AmbientDiffuse);
+        CVF_IDENT_HANDLE_CASE(light_Headlight);
         
         CVF_IDENT_HANDLE_CASE(checkDiscard_ClipDistances);
 
@@ -129,6 +129,11 @@ const char* ShaderSourceRepository::shaderIdentString(ShaderIdent shaderIdent)
         CVF_IDENT_HANDLE_CASE(fs_ParticleTraceComets);
         CVF_IDENT_HANDLE_CASE(fs_GradientTopBottom);
         CVF_IDENT_HANDLE_CASE(fs_GradientTopMiddleBottom);
+        CVF_IDENT_HANDLE_CASE(fs_HighlightStencilBlur_v33);
+        CVF_IDENT_HANDLE_CASE(fs_HighlightStencilDraw);
+        CVF_IDENT_HANDLE_CASE(fs_HighlightStencilMix_v33);
+        CVF_IDENT_HANDLE_CASE(fs_GaussianBlur);
+        CVF_IDENT_HANDLE_CASE(fs_HighlightMix);
         
         CVF_IDENT_HANDLE_CASE(gs_PassThroughTriangle_v33);
     }
@@ -151,6 +156,7 @@ bool ShaderSourceRepository::rawShaderSource(ShaderIdent shaderIdent, CharArray*
         CVF_SOURCE_HANDLE_CASE(calcShadowCoord);
 
         CVF_SOURCE_HANDLE_CASE(src_Color);
+        CVF_SOURCE_HANDLE_CASE(src_TwoSidedColor);
         CVF_SOURCE_HANDLE_CASE(src_Texture);
         CVF_SOURCE_HANDLE_CASE(src_TextureGlobalAlpha);
         CVF_SOURCE_HANDLE_CASE(src_TextureFromPointCoord);
@@ -159,8 +165,7 @@ bool ShaderSourceRepository::rawShaderSource(ShaderIdent shaderIdent, CharArray*
         CVF_SOURCE_HANDLE_CASE(light_Phong);
         CVF_SOURCE_HANDLE_CASE(light_PhongDual);
         CVF_SOURCE_HANDLE_CASE(light_SimpleHeadlight);
-        CVF_SOURCE_HANDLE_CASE(light_SimpleHeadlight_spec_uniform);
-        CVF_SOURCE_HANDLE_CASE(light_AmbientDiffuse);
+        CVF_SOURCE_HANDLE_CASE(light_Headlight);
 
         CVF_SOURCE_HANDLE_CASE(checkDiscard_ClipDistances);
 
@@ -184,6 +189,11 @@ bool ShaderSourceRepository::rawShaderSource(ShaderIdent shaderIdent, CharArray*
         CVF_SOURCE_HANDLE_CASE(fs_ParticleTraceComets);
         CVF_SOURCE_HANDLE_CASE(fs_GradientTopBottom);
         CVF_SOURCE_HANDLE_CASE(fs_GradientTopMiddleBottom);
+        CVF_SOURCE_HANDLE_CASE(fs_HighlightStencilBlur_v33);
+        CVF_SOURCE_HANDLE_CASE(fs_HighlightStencilDraw);
+        CVF_SOURCE_HANDLE_CASE(fs_HighlightStencilMix_v33);
+        CVF_SOURCE_HANDLE_CASE(fs_GaussianBlur);
+        CVF_SOURCE_HANDLE_CASE(fs_HighlightMix);
 
         CVF_SOURCE_HANDLE_CASE(gs_PassThroughTriangle_v33);
     }

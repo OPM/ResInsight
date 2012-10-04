@@ -39,7 +39,7 @@ namespace cvf
 class SingleQuadRenderingGenerator
 {
 public:
-    SingleQuadRenderingGenerator();
+    SingleQuadRenderingGenerator(const String& renderingName = String());
 
     void addTexture(Texture* texture, Sampler* sampler, String samplerUniformName);
     void addFragmentShaderCode(String shaderCode);
@@ -49,6 +49,7 @@ public:
     ref<Rendering> generate();
 
 private:
+    String              m_renderingName;
     Collection<Texture> m_textures;
     Collection<Sampler> m_samplers;
     std::vector<String> m_samplerNames;

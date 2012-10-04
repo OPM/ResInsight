@@ -37,6 +37,8 @@ public:
     MatrixState(const Camera& camera);
     MatrixState(const Vec2ui& viewportPosition, const Vec2ui& viewportSize, const Mat4d& projectionMatrix, const Mat4d& viewMatrix);
 
+    void            setViewMatrix(const Mat4d& viewMatrix);
+
     void            setModelMatrix(const Mat4d& modelMatrix);
     void            clearModelMatrix();
 

@@ -111,11 +111,8 @@ set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
 # Application 
 ################################################################################
 add_subdirectory(ApplicationCode)
+add_subdirectory(OctavePlugin)
 
-# Do not build Octave plugins for Windows 64-bit, as there is no precompiled 64-bit Octave available
-if (NOT CMAKE_CL_64)
-    add_subdirectory(OctavePlugin)
-endif()
 #
 
 ################################################################################

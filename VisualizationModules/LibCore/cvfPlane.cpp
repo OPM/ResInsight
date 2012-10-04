@@ -32,7 +32,7 @@ namespace cvf {
 ///
 /// Class defining a plane in space
 ///
-/// The class describes a plane by the equation: \f$Ax + By + Cz + Dx = 0\f$
+/// The class describes a plane by the equation: \f$Ax + By + Cz + D = 0\f$
 /// The plane's normal is defined by the coefficients \f$[A, B, C]\f$
 /// 
 //==================================================================================================
@@ -423,6 +423,114 @@ bool Plane::intersect(const Plane& other, Vec3d* point, Vec3d* direction) const
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find intersection between a line segment and a plane
+///
+/// \param a            Start of line segment
+/// \param b            End of line segment
+/// \param intersection Returns intersection point if not NULL
+///
+/// \return True if line segment intersects the plane
+//--------------------------------------------------------------------------------------------------
+bool Plane::intersect(const Vec3d& a, const Vec3d& b, Vec3d* intersection) const
+{
+    // From Real-Time Collision Detection by Christer Eriscon, published by Morgen Kaufmann Publishers, (c) 2005 Elsevier Inc
+
+    // Compute the t value for the directed line ab intersecting the plane
+    Vec3d ab = b - a;
+    double t = (-m_D - (normal() * a)) / (normal() * ab);
+
+    // If t in [0..1] compute and return intersection point
+    if (t >= 0.0 && t <= 1.0)
+    {
+        if (intersection)
+        {
+            *intersection = a + t * ab;
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Classify where the point is located relative to the plane
+///
+/// \return Plane::FRONT if the point is located on the side the plane normal is pointing\n
+///         Plane::BACK if the point is located on the opposite side the plane normal is pointing\n
+///         Plane::ON if the point is located in the plane
+///         
+//--------------------------------------------------------------------------------------------------
+Plane::Side Plane::side(const Vec3d& point) const
+{
+    double d = distanceSquared(point);
+
+    if (d > 0.0)
+    {
+        return FRONT;
+    }
+    else if (d < 0.0)
+    {
+        return BACK;
+    }
+    else
+    {
+        return ON;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Classify where the points are located relative to the plane
+/// 
+/// \param  points  Points to test for location relative the plane
+///  
+/// \return Plane::FRONT if points are either Plane::FRONT or Plane::ON\n
+///         Plane::BACK if points are either Plane::BACK or Plane::ON\n
+///         Plane::ON if all points are Plane::ON\n
+///         Plane::BOTH if points are located on both sides
+//--------------------------------------------------------------------------------------------------
+Plane::Side Plane::side(const Vec3dArray& points) const
+{
+    // Code taken from
+    // http://code.google.com/p/papervision3d/source/browse/trunk/as3/trunk/src/org/papervision3d/core/math/util/ClassificationUtil.as
+
+    cvf::uint frontCount = 0;
+    cvf::uint backCount = 0;
+
+    for (size_t i = 0; i < points.size(); i++)
+    {
+        Side s = side(points[i]);
+
+        if (s == FRONT)
+        {
+            frontCount++;
+        }
+        else if (s == BACK)
+        {
+            backCount++;
+        }
+    }
+    
+    if (frontCount > 0 && backCount == 0)
+    {
+        return FRONT;
+    }
+    else if (frontCount == 0 && backCount > 0)
+    {
+        return BACK;
+    }
+    else if (frontCount > 0 && backCount > 0)
+    {
+        return BOTH;
+    }
+    else
+    {
+        return ON;
+    }
 }
 
 

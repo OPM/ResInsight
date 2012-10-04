@@ -131,7 +131,7 @@ Matrix4<S>::Matrix4(const Matrix3<S>& other)
 //----------------------------------------------------------------------------------------------------
 template<typename S>
 template<typename T>
-Matrix4<S>::Matrix4(const T& other)
+Matrix4<S>::Matrix4(const Matrix4<T>& other)
 {
     m_v[e00] = static_cast<S>(other.rowCol(0, 0));
     m_v[e10] = static_cast<S>(other.rowCol(1, 0));
@@ -163,19 +163,29 @@ inline Matrix4<S>& Matrix4<S>::operator=(const Matrix4& obj)
 }
 
 
+
+//----------------------------------------------------------------------------------------------------
+/// Check if matrices are equal using exact comparisons.
+//----------------------------------------------------------------------------------------------------
+template<typename S>
+bool Matrix4<S>::equals(const Matrix4& mat) const
+{
+    for (int i = 0; i < 16; i++)
+    {
+        if (m_v[i] != mat.m_v[i]) return false;
+    }
+
+    return true;
+}
+
+
 //----------------------------------------------------------------------------------------------------
 /// Comparison operator. Checks for equality using exact comparisons.
 //----------------------------------------------------------------------------------------------------
 template <typename S>
 bool Matrix4<S>::operator==(const Matrix4& rhs) const
 {
-    int i;
-    for (i = 0; i < 16; i++)
-    {
-        if (m_v[i] != rhs.m_v[i]) return false;
-    }
-
-    return true;
+    return this->equals(rhs);
 }
 
 
@@ -192,6 +202,16 @@ bool Matrix4<S>::operator!=(const Matrix4& rhs) const
     }
 
     return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Multiplies this matrix M with the matrix \a mat, M = M*mat
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void Matrix4<S>::multiply(const Matrix4& mat)
+{
+    *this = (*this)*mat;
 }
 
 
@@ -497,9 +517,9 @@ void Matrix4<S>::setTranslation(const Vector3<S>& trans)
 //----------------------------------------------------------------------------------------------------
 /// Adds translation by pre-multiplying the matrix with a matrix containing the specified translation
 /// 
-/// Adds translation to this (transformation) matrix by pre multiplying the current matrix M with 
-/// a matrix containing the specified translation. Calling this function has the effect of doing the 
-/// multiplication T x M where T is a matrix that only contains translation.
+/// Adds translation to this (transformation) matrix by pre-multiplying the current matrix M with 
+/// a matrix T containing only the specified translation. 
+/// Calling this function has the effect of doing the multiplication M' = T x M
 /// 
 /// \param trans  Specifies the X, Y and Z components of the translation.
 //----------------------------------------------------------------------------------------------------
@@ -526,9 +546,9 @@ void Matrix4<S>::translatePreMultiply(const Vector3<S>& trans)
 //----------------------------------------------------------------------------------------------------
 /// Adds translation by post-multiplying the matrix with a matrix containing the specified translation
 ///
-/// Adds translation to this (transformation) matrix by post multiplying the current matrix M with 
-/// a matrix containing the specified translation. Calling this function has the effect of doing the 
-/// multiplication M x T where T is a matrix that only contains translation.
+/// Adds translation to this (transformation) matrix by post-multiplying the current matrix M with 
+/// a matrix T containing only the specified translation. 
+/// Calling this function has the effect of doing the multiplication M' = M x T
 /// 
 /// \param trans  Specifies the X, Y and Z coordinates of the translation.
 //----------------------------------------------------------------------------------------------------
@@ -767,6 +787,19 @@ Matrix4<S> Matrix4<S>::fromTranslation(const Vector3<S>& trans)
                    0, 1, 0, trans.y(),
                    0, 0, 1, trans.z(),
                    0, 0, 0, 1);
+}
+
+
+//----------------------------------------------------------------------------------------------------
+/// Static member function that creates a transformation matrix containing only scaling
+//----------------------------------------------------------------------------------------------------
+template <typename S>
+Matrix4<S> Matrix4<S>::fromScaling(const Vector3<S>& scale)
+{
+    return Matrix4(scale.x(), 0,         0,         0,
+                   0,         scale.y(), 0,         0,
+                   0,         0,         scale.z(), 0,
+                   0,         0,         0,         1);
 }
 
 
