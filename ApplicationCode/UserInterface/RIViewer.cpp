@@ -120,7 +120,7 @@ RIViewer::~RIViewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setColorLegend1(cvf::OverlayColorLegend* legend)
+void RIViewer::setColorLegend1(cvf::OverlayScalarMapperLegend* legend)
 {
     m_mainRendering->removeOverlayItem(m_legend1.p());
 
@@ -133,7 +133,7 @@ void RIViewer::setColorLegend1(cvf::OverlayColorLegend* legend)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setColorLegend2(cvf::OverlayColorLegend* legend)
+void RIViewer::setColorLegend2(cvf::OverlayScalarMapperLegend* legend)
 {
     m_mainRendering->removeOverlayItem(m_legend2.p());
 

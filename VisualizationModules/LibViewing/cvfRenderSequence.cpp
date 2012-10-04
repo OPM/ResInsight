@@ -65,6 +65,35 @@ void RenderSequence::addRendering(Rendering* rendering)
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// Insert a rendering
+///
+/// The rendering will be inserted in the sequence before \a beforeRendering. If \a beforeRendering
+/// is NULL or isn't in the sequence, the rendering will be added at the end of the sequence
+//--------------------------------------------------------------------------------------------------
+void RenderSequence::insertRendering(const Rendering* beforeRendering, Rendering* rendering)
+{
+    size_t indexToInsertAt = m_renderings.indexOf(beforeRendering);
+    if (indexToInsertAt == UNDEFINED_SIZE_T)
+    {
+        addRendering(rendering);
+        return;
+    }
+
+    size_t numRenderings = m_renderings.size();
+    CVF_ASSERT(numRenderings > 0);
+    CVF_ASSERT(indexToInsertAt < numRenderings);
+    m_renderings.resize(numRenderings + 1);
+    
+    for (size_t i = numRenderings; i > indexToInsertAt; i--)
+    {
+        m_renderings[i] = m_renderings[i - 1];
+    }
+
+    m_renderings[indexToInsertAt] = rendering;
+}
+
+
 //------------------------------------------------------------------------------------------------
 /// Get a rendering pass by index
 //------------------------------------------------------------------------------------------------

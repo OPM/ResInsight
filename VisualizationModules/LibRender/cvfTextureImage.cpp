@@ -109,13 +109,24 @@ void TextureImage::setFromRgb(const UByteArray& rgbData, uint width, uint height
     CVF_ASSERT(width > 0 && height > 0);
     CVF_ASSERT(rgbData.size() == width*height*3);
 
-    m_dataRgba.reserve(width*height*4);
+    setFromRgb(rgbData.ptr(), width, height);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TextureImage::setFromRgb(const ubyte* rgbData, uint width, uint height)
+{
+    CVF_ASSERT(rgbData);
+    CVF_ASSERT(width > 0 && height > 0);
+
+    const size_t numPixels = width*height;
+    m_dataRgba.reserve(4*numPixels);
     m_width = width;
     m_height = height;
 
-    size_t numPixels = rgbData.size()/3;
-    size_t i;
-    for (i = 0; i < numPixels; i++)
+    for (size_t i = 0; i < numPixels; i++)
     {
         m_dataRgba.add(rgbData[3*i + 0]);
         m_dataRgba.add(rgbData[3*i + 1]);

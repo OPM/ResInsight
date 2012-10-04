@@ -27,16 +27,14 @@ namespace cvf {
 
 //==================================================================================================
 //
-// Base64 encoding and decoding for representing binary data in an ASCII string format by 
-// translating it into a radix-64 representation.
+// Base64 encoding and decoding for representing binary data in an ASCII string
 //
 //==================================================================================================
 class Base64
 {
 public:
-    static std::string encode(const cvf::UByteArray& data);
-    static cvf::ref<cvf::UByteArray> decode(const std::string& encodedData);
-
+    static std::string                  encode(const cvf::UByteArray& data);
+    static cvf::ref<cvf::UByteArray>    decode(const std::string& encodedData);
 };
 
 }

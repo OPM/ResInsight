@@ -19,11 +19,9 @@
 
 #pragma once
 
-#include "cvfScalarMapperContinuousLog.h"
+#include "cvfScalarMapperRangeBased.h"
 
-
-namespace cvf 
-{
+namespace cvf {
 
 //==================================================================================================
 //
@@ -31,12 +29,14 @@ namespace cvf
 //
 //==================================================================================================
 
-class ScalarMapperContinuousLinear : public ScalarMapperContinuousLog
+class ScalarMapperContinuousLinear : public ScalarMapperRangeBased
 {
 public:
     ScalarMapperContinuousLinear() {m_decadeLevelCount = 2; }
-protected:
-    virtual double      normalizedLevelPosition( double domainValue ) const;
+
+    // Implementing the Scalarmapper interface
+
+    virtual double      normalizedValue( double domainValue ) const;
     virtual double      domainValue( double normalizedPosition ) const;
 };
 

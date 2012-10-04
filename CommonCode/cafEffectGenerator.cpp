@@ -30,11 +30,60 @@
 #include "cvfMatrixState.h"
 #include "cvfTexture.h"
 #include "cvfSampler.h"
+#include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderStateBlending.h"
+#include "cvfRenderStateCullFace.h"
+#include "cvfRenderStateTextureBindings.h"
+#include "cvfRenderStatePolygonMode.h"
+#include "cvfRenderStateDepth.h"
 
 #include <QtOpenGL/QGLFormat>
 #include "cafEffectCache.h"
 
 namespace caf {
+
+
+//#############################################################################################################################
+//#############################################################################################################################
+static const char light_AmbientDiffuse_inl[] =
+    "                                                                                                      \n"
+    "varying vec3 v_ecPosition;                                                                            \n"
+    "varying vec3 v_ecNormal;                                                                              \n"
+    "                                                                                                      \n"
+    "//--------------------------------------------------------------------------------------------------  \n"
+    "/// lightFragment() - Simple Headlight without Phong/specular component                               \n"
+    "///                                                                                                   \n"
+    "//--------------------------------------------------------------------------------------------------  \n"
+    "vec4 lightFragment(vec4 srcFragColor, float not_in_use_shadowFactor)                                  \n"
+    "{                                                                                                     \n"
+    "    const vec3  ecLightPosition = vec3(0.5, 5.0, 7.0);                                                \n"
+    "    const float ambientIntensity = 0.2;                                                               \n"
+    "                                                                                                      \n"
+    "    // Light vector (from point to light source)                                                      \n"
+    "    vec3 L = normalize(ecLightPosition - v_ecPosition);                                               \n"
+    "                                                                                                      \n"
+    "    // Viewing vector (from point to eye)                                                             \n"
+    "    // Since we are in eye space, the eye pos is at (0, 0, 0)                                         \n"
+    "    vec3 V = normalize(-v_ecPosition);                                                                \n"
+    "                                                                                                      \n"
+    "    vec3 N = normalize(v_ecNormal);                                                                   \n"
+    "    vec3 R = normalize(reflect(-L, N));                                                               \n"
+    "                                                                                                      \n"
+    "    vec3 ambient = srcFragColor.rgb*ambientIntensity;                                                 \n"
+    "    vec3 diffuse = srcFragColor.rgb*(1.0 - ambientIntensity)*abs(dot(N, L));                          \n"
+    "                                                                                                      \n"
+    "    return vec4(ambient + diffuse, srcFragColor.a);                                                   \n"
+    "}                                                                                                     \n";
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::String CommonShaderSources::light_AmbientDiffuse()
+{
+    return cvf::String(light_AmbientDiffuse_inl);
+}
+
 
 
 //==================================================================================================
@@ -164,7 +213,7 @@ void SurfaceEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) 
     cvf::ShaderProgramGenerator gen("SurfaceEffectGenerator", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Color);
-    gen.addFragmentCode(cvf::ShaderSourceRepository::light_AmbientDiffuse);
+    gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
     gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
 
     cvf::ref<cvf::ShaderProgram> shaderProg = gen.generate();
@@ -184,12 +233,12 @@ void SurfaceEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect
 {
     cvf::ref<cvf::Effect> eff = effect;
 
-    cvf::ref<cvf::Material_FF> mat = new cvf::Material_FF(m_color.toColor3f());
+    cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(m_color.toColor3f());
     mat->setAlpha(m_color.a());
 
     eff->setRenderState(mat.p());
 
-    cvf::ref<cvf::Lighting_FF> lighting = new cvf::Lighting_FF;
+    cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
     lighting->enableTwoSided(true);
     eff->setRenderState(lighting.p());
 
@@ -204,7 +253,7 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 {
     if (m_polygonOffset)
     {
-        cvf::ref<cvf::PolygonOffset> polyOffset = new cvf::PolygonOffset;
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
         polyOffset->configurePolygonPositiveOffset();
         effect->setRenderState(polyOffset.p());
     }
@@ -212,7 +261,7 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
     // Simple transparency
     if (m_color.a() < 1.0f)
     {
-        cvf::ref<cvf::Blending> blender = new cvf::Blending;
+        cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
         blender->configureTransparencyBlending();
         effect->setRenderState(blender.p());
     }
@@ -221,7 +270,7 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 
     if (m_cullBackfaces)
     {
-        cvf::ref<cvf::CullFace> faceCulling = new cvf::CullFace;
+        cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
         effect->setRenderState(faceCulling.p());
     }
 }
@@ -289,7 +338,7 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
     cvf::ShaderProgramGenerator gen("ScalarMapperEffectGenerator", cvf::ShaderSourceProvider::instance());
     gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
     gen.addFragmentCode(cvf::ShaderSourceRepository::src_Texture);
-    gen.addFragmentCode(cvf::ShaderSourceRepository::light_AmbientDiffuse);
+    gen.addFragmentCode(CommonShaderSources::light_AmbientDiffuse());
     gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
 
     cvf::ref<cvf::ShaderProgram> prog = gen.generate();
@@ -308,7 +357,7 @@ void ScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::Effect* eff
     sampler->setMinFilter(cvf::Sampler::NEAREST);
     sampler->setMagFilter(cvf::Sampler::NEAREST);
 
-    cvf::ref<cvf::TextureBindings> texBind = new cvf::TextureBindings;
+    cvf::ref<cvf::RenderStateTextureBindings> texBind = new cvf::RenderStateTextureBindings;
     texBind->addBinding(texture.p(), sampler.p(), "u_texture2D");
     eff->setRenderState(texBind.p());
 
@@ -324,10 +373,10 @@ void ScalarMapperEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* e
 {
     cvf::ref<cvf::Effect> eff = effect;
 
-    cvf::ref<cvf::Material_FF> mat = new cvf::Material_FF(cvf::Color3::WHITE);
+    cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::WHITE);
     eff->setRenderState(mat.p());
 
-    cvf::ref<cvf::Lighting_FF> lighting = new cvf::Lighting_FF;
+    cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
     lighting->enableTwoSided(true);
     eff->setRenderState(lighting.p());
 
@@ -342,7 +391,7 @@ void ScalarMapperEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* e
     texture->setWrapMode(cvf::Texture2D_FF::CLAMP);
     texture->setMinFilter(cvf::Texture2D_FF::NEAREST);
     texture->setMagFilter(cvf::Texture2D_FF::NEAREST);
-    cvf::ref<cvf::TextureMapping_FF> texMapping = new cvf::TextureMapping_FF(texture.p());
+    cvf::ref<cvf::RenderStateTextureMapping_FF> texMapping = new cvf::RenderStateTextureMapping_FF(texture.p());
     eff->setRenderState(texMapping.p());
 
     // Hardware independent:
@@ -361,7 +410,7 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 
     if (m_polygonOffset)
     {
-        cvf::ref<cvf::PolygonOffset> polyOffset = new cvf::PolygonOffset;
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
         polyOffset->configurePolygonPositiveOffset();
         effect->setRenderState(polyOffset.p());
     }
@@ -369,7 +418,7 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
     // Simple transparency
     if (m_opacityLevel < 1.0f)
     {
-        cvf::ref<cvf::Blending> blender = new cvf::Blending;
+        cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
         blender->configureTransparencyBlending();
         effect->setRenderState(blender.p());
     }
@@ -378,7 +427,7 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 
     if (m_cullBackfaces)
     {
-        cvf::ref<cvf::CullFace> faceCulling = new cvf::CullFace;
+        cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
         effect->setRenderState(faceCulling.p());
     }
 }
@@ -522,7 +571,7 @@ void ScalarMapperMeshEffectGenerator::updateForShaderBasedRendering(cvf::Effect*
     sampler->setMinFilter(cvf::Sampler::NEAREST);
     sampler->setMagFilter(cvf::Sampler::NEAREST);
 
-    cvf::ref<cvf::TextureBindings> texBind = new cvf::TextureBindings;
+    cvf::ref<cvf::RenderStateTextureBindings> texBind = new cvf::RenderStateTextureBindings;
     texBind->addBinding(texture.p(), sampler.p(), "u_texture2D");
     eff->setRenderState(texBind.p());
 
@@ -538,10 +587,10 @@ void ScalarMapperMeshEffectGenerator::updateForFixedFunctionRendering(cvf::Effec
 {
     cvf::ref<cvf::Effect> eff = effect;
 
-    eff->setRenderState(new cvf::Material_FF(cvf::Color3::WHITE));
-    eff->setRenderState(new cvf::PolygonMode(cvf::PolygonMode::LINE));
-    eff->setRenderState(new cvf::Depth(true, cvf::Depth::LEQUAL));
-    eff->setRenderState(new cvf::Lighting_FF(false));
+    eff->setRenderState(new cvf::RenderStateMaterial_FF(cvf::Color3::WHITE));
+    eff->setRenderState(new cvf::RenderStatePolygonMode(cvf::RenderStatePolygonMode::LINE));
+    eff->setRenderState(new cvf::RenderStateDepth(true, cvf::RenderStateDepth::LEQUAL));
+    eff->setRenderState(new cvf::RenderStateLighting_FF(false));
 
     // Result mapping texture
 
@@ -555,8 +604,8 @@ void ScalarMapperMeshEffectGenerator::updateForFixedFunctionRendering(cvf::Effec
     texture->setMinFilter(cvf::Texture2D_FF::NEAREST);
     texture->setMagFilter(cvf::Texture2D_FF::NEAREST);
 
-    cvf::ref<cvf::TextureMapping_FF> texMapping = new cvf::TextureMapping_FF(texture.p());
-    texMapping->setTextureFunction(cvf::TextureMapping_FF::DECAL);
+    cvf::ref<cvf::RenderStateTextureMapping_FF> texMapping = new cvf::RenderStateTextureMapping_FF(texture.p());
+    texMapping->setTextureFunction(cvf::RenderStateTextureMapping_FF::DECAL);
     eff->setRenderState(texMapping.p());
 
     // Hardware independent:
@@ -576,7 +625,7 @@ void ScalarMapperMeshEffectGenerator::updateCommonEffect(cvf::Effect* effect) co
     // Simple transparency
     if (m_opacityLevel < 1.0f)
     {
-        cvf::ref<cvf::Blending> blender = new cvf::Blending;
+        cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
         blender->configureTransparencyBlending();
         effect->setRenderState(blender.p());
     }
@@ -659,10 +708,10 @@ void MeshEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) c
 {
     cvf::ref<cvf::Effect> eff = effect;
 
-    eff->setRenderState(new cvf::Material_FF(m_color));
-    eff->setRenderState(new cvf::PolygonMode(cvf::PolygonMode::LINE));
-    eff->setRenderState(new cvf::Depth(true, cvf::Depth::LEQUAL));
-    eff->setRenderState(new cvf::Lighting_FF(false));
+    eff->setRenderState(new cvf::RenderStateMaterial_FF(m_color));
+    eff->setRenderState(new cvf::RenderStatePolygonMode(cvf::RenderStatePolygonMode::LINE));
+    eff->setRenderState(new cvf::RenderStateDepth(true, cvf::RenderStateDepth::LEQUAL));
+    eff->setRenderState(new cvf::RenderStateLighting_FF(false));
 
 }
 

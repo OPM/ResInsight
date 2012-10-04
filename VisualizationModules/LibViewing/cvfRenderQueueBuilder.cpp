@@ -29,6 +29,7 @@
 #include "cvfOpenGLResourceManager.h"
 #include "cvfBufferObjectManaged.h"
 #include "cvfCamera.h"
+#include "cvfRenderStateTextureBindings.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
@@ -173,14 +174,14 @@ void RenderQueueBuilder::populateRenderQueue(RenderQueue* renderQueue)
         }
 
         // Create/Setup the textures
-        TextureBindings* textureBindings = static_cast<TextureBindings*>(effect->renderStateOfType(RenderState::TEXTURE_BINDINGS));
+        RenderStateTextureBindings* textureBindings = static_cast<RenderStateTextureBindings*>(effect->renderStateOfType(RenderState::TEXTURE_BINDINGS));
         if (textureBindings && canAddToQueue) 
         {
             textureBindings->setupTextures(m_oglContext.p());
         }
 
 #ifndef CVF_OPENGL_ES
-        TextureMapping_FF* textureMapping = static_cast<TextureMapping_FF*>(effect->renderStateOfType(RenderState::TEXTURE_MAPPING_FF));
+        RenderStateTextureMapping_FF* textureMapping = static_cast<RenderStateTextureMapping_FF*>(effect->renderStateOfType(RenderState::TEXTURE_MAPPING_FF));
         if (textureMapping && canAddToQueue) 
         {
             textureMapping->setupTexture(m_oglContext.p());

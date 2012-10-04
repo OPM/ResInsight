@@ -89,7 +89,7 @@ Matrix3<S>::Matrix3(S m00, S m01, S m02, S m10, S m11, S m12, S m20, S m21, S m2
 //----------------------------------------------------------------------------------------------------
 template<typename S>
 template<typename T>
-Matrix3<S>::Matrix3(const T& other)
+Matrix3<S>::Matrix3(const Matrix3<T>& other)
 {
     m_v[e00] = static_cast<S>(other.rowCol(0, 0));
     m_v[e01] = static_cast<S>(other.rowCol(0, 1));
@@ -115,18 +115,27 @@ inline Matrix3<S>& Matrix3<S>::operator=(const Matrix3& obj)
 
 
 //----------------------------------------------------------------------------------------------------
+/// Check if matrices are equal using exact comparisons.
+//----------------------------------------------------------------------------------------------------
+template<typename S>
+bool Matrix3<S>::equals(const Matrix3& mat) const
+{
+    for (int i = 0; i < 9; i++)
+    {
+        if (m_v[i] != mat.m_v[i]) return false;
+    }
+
+    return true;
+}
+
+
+//----------------------------------------------------------------------------------------------------
 /// Comparison operator. Checks for equality using exact comparisons.
 //----------------------------------------------------------------------------------------------------
 template <typename S>
 bool Matrix3<S>::operator==(const Matrix3& rhs) const
 {
-    int i;
-    for (i = 0; i < 9; i++)
-    {
-        if (m_v[i] != rhs.m_v[i]) return false;
-    }
-
-    return true;
+    return this->equals(rhs);
 }
 
 
@@ -143,6 +152,16 @@ bool Matrix3<S>::operator!=(const Matrix3& rhs) const
     }
 
     return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Multiplies this matrix M with the matrix \a mat, M = M*mat
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+void Matrix3<S>::multiply(const Matrix3& mat)
+{
+    *this = (*this)*mat;
 }
 
 

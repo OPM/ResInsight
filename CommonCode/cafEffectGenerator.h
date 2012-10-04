@@ -25,9 +25,16 @@
 #include "cvfScalarMapper.h"
 #include "cvfTextureImage.h"
 #include "cvfCollection.h"
+#include "cvfString.h"
 
 namespace caf {
 
+class CommonShaderSources
+{
+public:
+    static cvf::String light_AmbientDiffuse();
+
+};
 
 //==================================================================================================
 //

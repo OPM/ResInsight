@@ -611,7 +611,9 @@ void ShaderProgram::applyFixedUniforms(OpenGLContext* oglContext, const MatrixSt
 
             case NORMAL_MATRIX:                     glUniformMatrix3fv(location, 1, GL_FALSE, matrixState.normalMatrix().ptr());                break;
 
-            case PIXEL_HEIGHT_AT_UNIT_DISTANCE:     glUniform1f(location, matrixState.pixelHeightAtUnitDistance());                             break;
+            case VIEWPORT_WIDTH:                    glUniform1i(location,  static_cast<GLint>(matrixState.viewportSize().x()));                 break;
+            case VIEWPORT_HEIGHT:                   glUniform1i(location,  static_cast<GLint>(matrixState.viewportSize().y()));                 break;
+            case PIXEL_HEIGHT_AT_UNIT_DISTANCE:     glUniform1f(location,  matrixState.pixelHeightAtUnitDistance());                            break;
 
             default:
                 CVF_FAIL_MSG("Unhandled fixed uniform");
@@ -790,6 +792,8 @@ bool ShaderProgram::mapUniformNameToFixedUniformEnum(const char* uniformName, Fi
 
     else if (System::strcmp(uniformName, "cvfu_normalMatrix") == 0)                 { *fixedUniform = NORMAL_MATRIX;                    return true; }
 
+    else if (System::strcmp(uniformName, "cvfu_viewportWidth") == 0)                { *fixedUniform = VIEWPORT_WIDTH;                   return true; }
+    else if (System::strcmp(uniformName, "cvfu_viewportHeight") == 0)               { *fixedUniform = VIEWPORT_HEIGHT;                  return true; }
     else if (System::strcmp(uniformName, "cvfu_pixelHeightAtUnitDistance") == 0)    { *fixedUniform = PIXEL_HEIGHT_AT_UNIT_DISTANCE;    return true; }
 
     else

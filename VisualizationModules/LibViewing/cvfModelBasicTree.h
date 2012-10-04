@@ -46,9 +46,9 @@ public:
     uint                         childCount() const;
     void                        removeChild(ModelBasicTreeNode* child);
 
-    void                        findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const Frustum& frustum, const CullSettings& cullSettings, unsigned int enableMask);
+    void                        findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask);
     void                        allParts(Collection<Part>* partCollection);
-    virtual void                mergeParts(double maxExtent, unsigned int minimumPrimitiveCount);
+    virtual void                mergeParts(double maxExtent, uint minimumPrimitiveCount);
 
     void                        updateBoundingBoxesRecursive();
     const BoundingBox&          boundingBox() const;
@@ -89,9 +89,9 @@ public:
 
     void                        removePart(Part* part);
 
-    virtual void                findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, unsigned int enableMask);
+    virtual void                findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask);
     virtual void                allParts(Collection<Part>* partCollection);
-    virtual void                mergeParts(double maxExtent, unsigned int minimumPrimitiveCount);
+    virtual void                mergeParts(double maxExtent, uint minimumPrimitiveCount);
 
     virtual void                updateBoundingBoxesRecursive();
     virtual BoundingBox         boundingBox() const;

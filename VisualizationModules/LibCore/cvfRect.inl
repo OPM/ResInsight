@@ -28,6 +28,7 @@ namespace cvf {
 /// 
 //==================================================================================================
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +49,6 @@ template <typename T>
 Rect<T>::Rect(T minX, T minY, T width, T height)
 {
     m_minPos.set(minX, minY);
-
     m_width = width;
     m_height = height;
 }
@@ -186,7 +186,30 @@ void Rect<T>::setHeight(T height)
 template <typename T>
 bool Rect<T>::isValid() const
 {
-    return m_width > 0.0 && m_height > 0.0;
+    return (m_width > 0.0) && (m_height > 0.0);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Normalizes the rectangle
+/// 
+/// Ensures that the rectangle has a non-negative width and height. If width or height is negative,
+/// the corresponding min component will be moved.
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void Rect<T>::normalize()
+{
+    if (m_width < 0.0)
+    {
+        m_width = -m_width;
+        m_minPos.x() -= m_width;
+    }
+
+    if (m_height < 0.0)
+    {
+        m_height = -m_height;
+        m_minPos.y() -= m_height;
+    }
 }
 
 
@@ -240,12 +263,16 @@ void Rect<T>::include(const Rect& rect)
 
     T left = m_minPos.x();
     T right = m_minPos.x();
-    if (m_width < 0)
+    if (m_width < 0.0)
+    {
         left += m_width;
+    }
     else
+    {
         right += m_width;
+    }
 
-    if (rect.width() < 0) 
+    if (rect.width() < 0.0) 
     {
         left = CVF_MIN(left, rect.min().x() + rect.width());
         right = CVF_MAX(right, rect.min().x());
@@ -258,7 +285,7 @@ void Rect<T>::include(const Rect& rect)
 
     T bottom = m_minPos.y();
     T top = m_minPos.y();
-    if (m_height < 0)
+    if (m_height < 0.0)
     {
         bottom += m_height;
     }
@@ -267,7 +294,7 @@ void Rect<T>::include(const Rect& rect)
         top += m_height;
     }
 
-    if (rect.height() < 0) 
+    if (rect.height() < 0.0) 
     {
         bottom = CVF_MIN(bottom, rect.min().y() + rect.height());
         top = CVF_MAX(top, rect.min().y());
@@ -285,14 +312,16 @@ void Rect<T>::include(const Rect& rect)
 
 
 //--------------------------------------------------------------------------------------------------
+/// Check if the rectangle contains the specified coordinate
 /// 
+/// Returns true if the point is inside or on the edge of the rectangle; otherwise returns false.
 //--------------------------------------------------------------------------------------------------
 template <typename T>
 bool Rect<T>::contains(const Vector2<T>& coord) const
 {
     T left = m_minPos.x();
     T right = m_minPos.x();
-    if (m_width < 0)
+    if (m_width < 0.0)
     {
         left += m_width;
     }
@@ -314,7 +343,7 @@ bool Rect<T>::contains(const Vector2<T>& coord) const
 
     T bot = m_minPos.y();
     T top = m_minPos.y();
-    if (m_height < 0)
+    if (m_height < 0.0)
     {
         bot += m_height;
     }
@@ -346,7 +375,7 @@ bool Rect<T>::intersects(const Rect& rect) const
 {
     T left1 = m_minPos.x();
     T right1 = m_minPos.x();
-    if (m_width < 0)
+    if (m_width < 0.0)
     {
         left1 += m_width;
     }
@@ -363,7 +392,7 @@ bool Rect<T>::intersects(const Rect& rect) const
 
     T left2 = rect.min().x();
     T right2 = rect.min().x();
-    if (rect.width() < 0)
+    if (rect.width() < 0.0)
     {
         left2 += rect.width();
     }
@@ -385,7 +414,7 @@ bool Rect<T>::intersects(const Rect& rect) const
 
     T bot1 = m_minPos.y();
     T top1 = m_minPos.y();
-    if (m_height < 0)
+    if (m_height < 0.0)
     {
         bot1 += m_height;
     }
@@ -402,7 +431,7 @@ bool Rect<T>::intersects(const Rect& rect) const
 
     T bot2 = rect.min().y();
     T top2 = rect.min().y();
-    if (rect.height() < 0)
+    if (rect.height() < 0.0)
     {
         bot2 += rect.height();
     }
@@ -430,26 +459,6 @@ bool Rect<T>::intersects(const Rect& rect) const
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void Rect<T>::normalize()
-{
-    if (m_width < 0)
-    {
-        m_width = -m_width;
-        m_minPos.x() -= m_width;
-    }
-
-    if (m_height < 0)
-    {
-        m_height = -m_height;
-        m_minPos.y() -= m_height;
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-template <typename T>
 void Rect<T>::translate(const Vector2<T>& offset)
 {
     m_minPos += offset;
@@ -462,8 +471,11 @@ void Rect<T>::translate(const Vector2<T>& offset)
 template <typename T>
 Rect<T> Rect<T>::fromMinMax(const Vector2<T>& min, const Vector2<T>& max)
 {
-    Rect<T> rect(min, max.x() - min.x(), max.y() - min.y());
+    // Enforce min/max - otherwise we'll get bogus results for unsigned types
+    CVF_ASSERT(min.x() <= max.x());
+    CVF_ASSERT(min.y() <= max.y());
 
+    Rect<T> rect(min, max.x() - min.x(), max.y() - min.y());
     return rect;
 }
 
@@ -518,7 +530,6 @@ bool Rect<T>::segmentIntersect(const Vec2d& p1, const Vec2d& p2, Vec2d* intersec
 
     return false;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

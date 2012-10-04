@@ -42,6 +42,7 @@ public:
 
     uint			        renderingCount() const;
     void                    addRendering(Rendering* rendering);
+    void                    insertRendering(const Rendering* beforeRendering, Rendering* rendering);
     Rendering*              firstRendering();
     const Rendering*        firstRendering() const;
     Rendering*              rendering(uint index);

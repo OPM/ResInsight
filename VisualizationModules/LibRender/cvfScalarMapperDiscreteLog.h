@@ -33,8 +33,10 @@ class ScalarMapperDiscreteLog : public ScalarMapperDiscreteLinear
 {
 public:
     ScalarMapperDiscreteLog() {m_decadeLevelCount = 2; }
-protected:
-    virtual double      normalizedLevelPosition( double domainValue ) const;
+
+    // Implementing the Scalarmapper interface
+
+    virtual double      normalizedValue( double domainValue ) const;
     virtual double      domainValue( double normalizedPosition ) const;
 };
 }

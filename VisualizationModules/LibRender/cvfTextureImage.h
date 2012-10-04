@@ -44,9 +44,10 @@ public:
     void                allocate(uint width, uint height);
     void                setData(const ubyte* rgbaData, uint width, uint height);
     void                setFromRgb(const UByteArray& rgbData, uint width, uint height);
+    void                setFromRgb(const ubyte* rgbData, uint width, uint height);
 
-    const ubyte*        ptr() const;
     ref<UByteArray>     toRgb() const;
+    const ubyte*        ptr() const;
 
     void                setPixel(uint x, uint y, const Color4ub& clr);
     Color4ub            pixel(uint x, uint y) const;

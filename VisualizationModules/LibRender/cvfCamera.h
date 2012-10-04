@@ -63,8 +63,10 @@ public:
     void            setProjectionAsUnitOrtho();
     void            setProjectionAsPixelExact2D();
 
-    void            fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double relativeDistance = 1.0);
-    void            setClipPlanesFromBoundingBoxPerspective(const BoundingBox& boundingBox, double minNearPlaneDistance = 0.01);
+    void            fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor = 0.9);
+    void            fitViewOrtho(const BoundingBox& boundingBox, double eyeDist, const Vec3d& dir, const Vec3d& up, double coverageFactor = 0.9);
+
+    void            setClipPlanesFromBoundingBox(const BoundingBox& boundingBox, double minNearPlaneDistance = 0.01);
 
     const Mat4d&    viewMatrix() const; 
     const Mat4d&    invertedViewMatrix() const; 
@@ -84,6 +86,7 @@ public:
     const Viewport* viewport() const;
 
     ref<Ray>        rayFromWinCoord(int winCoordX, int winCoordY) const;
+    ref<Plane>      planeFromLineWinCoord(Vec2i winCoordStart, Vec2i winCoordEnd) const;
     bool            unproject(const Vec3d& coord, Vec3d* out) const;
     bool            project(const Vec3d& point, Vec3d* out) const;
 

@@ -86,6 +86,7 @@ public:
     void                deleteOrReleaseOpenGLResources(OpenGLContext* oglContext);
 
     void                setSourceInfo(Object* sourceInfo);
+    Object*             sourceInfo();
     const Object*       sourceInfo() const;
 
 protected:

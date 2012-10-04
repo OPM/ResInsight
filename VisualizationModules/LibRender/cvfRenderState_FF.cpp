@@ -31,7 +31,7 @@ namespace cvf {
 
 //==================================================================================================
 ///
-/// \class cvf::Lighting_FF
+/// \class cvf::RenderStateLighting_FF
 /// \ingroup Render 
 ///
 /// Encapsulate OpenGL glLightModel() and glEnable()/glDisable() with GL_LIGHTING
@@ -43,7 +43,7 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Lighting_FF::Lighting_FF(bool enableLighting)
+RenderStateLighting_FF::RenderStateLighting_FF(bool enableLighting)
 :   RenderState(LIGHTING_FF),
     m_enableLighting(enableLighting),
     m_twoSided(false),
@@ -58,7 +58,7 @@ Lighting_FF::Lighting_FF(bool enableLighting)
 /// 
 /// \sa http://www.opengl.org/sdk/docs/man/xhtml/glEnable.xml with GL_LIGHTING
 //--------------------------------------------------------------------------------------------------
-void Lighting_FF::enable(bool enableLighting)
+void RenderStateLighting_FF::enable(bool enableLighting)
 {
     m_enableLighting = enableLighting;
 }
@@ -67,7 +67,7 @@ void Lighting_FF::enable(bool enableLighting)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Lighting_FF::enableTwoSided(bool enableTwoSided)
+void RenderStateLighting_FF::enableTwoSided(bool enableTwoSided)
 {
     m_twoSided = enableTwoSided;
 }
@@ -76,7 +76,7 @@ void Lighting_FF::enableTwoSided(bool enableTwoSided)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Lighting_FF::enableLocalViewer(bool enableLocalViewer)
+void RenderStateLighting_FF::enableLocalViewer(bool enableLocalViewer)
 {
     m_localViewer = enableLocalViewer;
 }
@@ -85,7 +85,7 @@ void Lighting_FF::enableLocalViewer(bool enableLocalViewer)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Lighting_FF::setAmbientIntensity(const Color3f& ambientIntensity)
+void RenderStateLighting_FF::setAmbientIntensity(const Color3f& ambientIntensity)
 {
     m_ambientIntensity.set(ambientIntensity, 1.0f);
 }
@@ -94,7 +94,7 @@ void Lighting_FF::setAmbientIntensity(const Color3f& ambientIntensity)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool Lighting_FF::isEnabled() const
+bool RenderStateLighting_FF::isEnabled() const
 {
     return m_enableLighting;
 }
@@ -103,7 +103,7 @@ bool Lighting_FF::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Lighting_FF::isTwoSidedEnabled() const
+bool RenderStateLighting_FF::isTwoSidedEnabled() const
 {
     return m_twoSided;
 }
@@ -112,7 +112,7 @@ bool Lighting_FF::isTwoSidedEnabled() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Lighting_FF::isLocalViewerEnabled() const
+bool RenderStateLighting_FF::isLocalViewerEnabled() const
 {
     return m_localViewer;
 }
@@ -121,7 +121,7 @@ bool Lighting_FF::isLocalViewerEnabled() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Color3f Lighting_FF::ambientIntensity() const
+Color3f RenderStateLighting_FF::ambientIntensity() const
 {
     return m_ambientIntensity.toColor3f();
 }
@@ -130,7 +130,7 @@ Color3f Lighting_FF::ambientIntensity() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Lighting_FF::applyOpenGL(OpenGLContext* oglContext) const
+void RenderStateLighting_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
     if (m_enableLighting)  
     {
@@ -154,7 +154,7 @@ void Lighting_FF::applyOpenGL(OpenGLContext* oglContext) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Lighting_FF::isFixedFunction() const
+bool RenderStateLighting_FF::isFixedFunction() const
 {
     return true;
 }
@@ -163,7 +163,7 @@ bool Lighting_FF::isFixedFunction() const
 
 //==================================================================================================
 ///
-/// \class cvf::Material_FF
+/// \class cvf::RenderStateMaterial_FF
 /// \ingroup Render
 ///
 /// 
@@ -173,7 +173,7 @@ bool Lighting_FF::isFixedFunction() const
 //--------------------------------------------------------------------------------------------------
 /// Default constructor, initializes all values to OpenGL defaults
 //--------------------------------------------------------------------------------------------------
-Material_FF::Material_FF()
+RenderStateMaterial_FF::RenderStateMaterial_FF()
 :   RenderState(MATERIAL_FF),
     m_ambient(0.2f, 0.2f, 0.2f),
     m_diffuse(0.8f, 0.8f, 0.8f),
@@ -189,7 +189,7 @@ Material_FF::Material_FF()
 //--------------------------------------------------------------------------------------------------
 /// Constructor taking ambient and diffuse color
 //--------------------------------------------------------------------------------------------------
-Material_FF::Material_FF(const Color3f& ambientAndDiffuseColor)
+RenderStateMaterial_FF::RenderStateMaterial_FF(const Color3f& ambientAndDiffuseColor)
 :   RenderState(MATERIAL_FF),
     m_ambient(ambientAndDiffuseColor),
     m_diffuse(ambientAndDiffuseColor),
@@ -205,7 +205,7 @@ Material_FF::Material_FF(const Color3f& ambientAndDiffuseColor)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Material_FF::Material_FF(MaterialIdent materialIdent)
+RenderStateMaterial_FF::RenderStateMaterial_FF(MaterialIdent materialIdent)
 :   RenderState(MATERIAL_FF),
     m_specular(0, 0, 0),
     m_emission(0, 0, 0),
@@ -263,7 +263,7 @@ Material_FF::Material_FF(MaterialIdent materialIdent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Material_FF::setAmbientAndDiffuse(const Color3f& color)
+void RenderStateMaterial_FF::setAmbientAndDiffuse(const Color3f& color)
 {
     CVF_ASSERT(color.isValid());
 
@@ -274,7 +274,7 @@ void Material_FF::setAmbientAndDiffuse(const Color3f& color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Material_FF::setDiffuse(const Color3f& color)
+void RenderStateMaterial_FF::setDiffuse(const Color3f& color)
 {
     CVF_ASSERT(color.isValid());
 
@@ -285,7 +285,7 @@ void Material_FF::setDiffuse(const Color3f& color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Material_FF::setSpecular(const Color3f& color)
+void RenderStateMaterial_FF::setSpecular(const Color3f& color)
 {
     CVF_ASSERT(color.isValid());
 
@@ -296,7 +296,18 @@ void Material_FF::setSpecular(const Color3f& color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Material_FF::setAlpha(float alpha)
+void RenderStateMaterial_FF::setEmission(const Color3f& color)
+{
+    CVF_ASSERT(color.isValid());
+
+    m_emission = color;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RenderStateMaterial_FF::setAlpha(float alpha)
 {
     m_alpha = alpha;
 }
@@ -307,7 +318,7 @@ void Material_FF::setAlpha(float alpha)
 /// Only values in the range 0 128 are accepted. The initial specular exponent for 
 /// both front- and back-facing materials is 0
 //--------------------------------------------------------------------------------------------------
-void Material_FF::setShininess(float shininess)
+void RenderStateMaterial_FF::setShininess(float shininess)
 {
     m_shininess = shininess;
 }
@@ -316,7 +327,7 @@ void Material_FF::setShininess(float shininess)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Color3f Material_FF::frontAmbient() const
+Color3f RenderStateMaterial_FF::frontAmbient() const
 {
     return m_ambient;
 }
@@ -325,7 +336,7 @@ Color3f Material_FF::frontAmbient() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Color3f Material_FF::frontDiffuse() const
+Color3f RenderStateMaterial_FF::frontDiffuse() const
 {
     return m_diffuse;
 }
@@ -334,7 +345,7 @@ Color3f Material_FF::frontDiffuse() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Color3f Material_FF::frontSpecular() const
+Color3f RenderStateMaterial_FF::frontSpecular() const
 {
     return m_specular;
 }
@@ -343,7 +354,7 @@ Color3f Material_FF::frontSpecular() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Color3f Material_FF::frontEmission() const
+Color3f RenderStateMaterial_FF::frontEmission() const
 {
     return m_emission;
 }
@@ -352,7 +363,7 @@ Color3f Material_FF::frontEmission() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-float Material_FF::frontAlpha() const
+float RenderStateMaterial_FF::frontAlpha() const
 {
     return m_alpha;
 }
@@ -361,7 +372,7 @@ float Material_FF::frontAlpha() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-float Material_FF::frontShininess() const
+float RenderStateMaterial_FF::frontShininess() const
 {
     return m_shininess;
 }
@@ -370,7 +381,7 @@ float Material_FF::frontShininess() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Material_FF::enableColorMaterial(bool enableColorMaterial)
+void RenderStateMaterial_FF::enableColorMaterial(bool enableColorMaterial)
 {
     m_enableColorMaterial = enableColorMaterial;
 }
@@ -379,7 +390,7 @@ void Material_FF::enableColorMaterial(bool enableColorMaterial)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Material_FF::isColorMaterialEnabled() const
+bool RenderStateMaterial_FF::isColorMaterialEnabled() const
 {
     return m_enableColorMaterial;
 }
@@ -388,7 +399,7 @@ bool Material_FF::isColorMaterialEnabled() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Material_FF::applyOpenGL(OpenGLContext* oglContext) const
+void RenderStateMaterial_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
     Color4f ambient(m_ambient, m_alpha);
     Color4f diffuse(m_diffuse, m_alpha);
@@ -427,7 +438,7 @@ void Material_FF::applyOpenGL(OpenGLContext* oglContext) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Material_FF::isFixedFunction() const
+bool RenderStateMaterial_FF::isFixedFunction() const
 {
     return true;
 }
@@ -437,7 +448,7 @@ bool Material_FF::isFixedFunction() const
 
 //==================================================================================================
 ///
-/// \class cvf::Normalize_FF
+/// \class cvf::RenderStateNormalize_FF
 /// \ingroup Render
 ///
 /// Controls normalization of normals in fixed function
@@ -447,7 +458,7 @@ bool Material_FF::isFixedFunction() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Normalize_FF::Normalize_FF(bool enableNormalization)
+RenderStateNormalize_FF::RenderStateNormalize_FF(bool enableNormalization)
 :   RenderState(NORMALIZE_FF),
     m_enable(enableNormalization)
 {
@@ -457,7 +468,7 @@ Normalize_FF::Normalize_FF(bool enableNormalization)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Normalize_FF::enable(bool enableNormalization)
+void RenderStateNormalize_FF::enable(bool enableNormalization)
 {
     m_enable = enableNormalization;
 }
@@ -466,7 +477,7 @@ void Normalize_FF::enable(bool enableNormalization)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Normalize_FF::isEnabled() const
+bool RenderStateNormalize_FF::isEnabled() const
 {
     return m_enable;
 }
@@ -475,7 +486,7 @@ bool Normalize_FF::isEnabled() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Normalize_FF::applyOpenGL(OpenGLContext* oglContext) const
+void RenderStateNormalize_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
     if (m_enable)
     {
@@ -493,7 +504,7 @@ void Normalize_FF::applyOpenGL(OpenGLContext* oglContext) const
 
 //==================================================================================================
 ///
-/// \class cvf::TextureMapping_FF
+/// \class cvf::RenderStateTextureMapping_FF
 /// \ingroup Render
 ///
 /// Enable 2D texturing for texture unit 0 and fixed function
@@ -503,7 +514,7 @@ void Normalize_FF::applyOpenGL(OpenGLContext* oglContext) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TextureMapping_FF::TextureMapping_FF(Texture2D_FF* texture)
+RenderStateTextureMapping_FF::RenderStateTextureMapping_FF(Texture2D_FF* texture)
 :   RenderState(TEXTURE_MAPPING_FF),
     m_texture(texture),
     m_textureFunction(MODULATE),
@@ -515,7 +526,7 @@ TextureMapping_FF::TextureMapping_FF(Texture2D_FF* texture)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TextureMapping_FF::~TextureMapping_FF()
+RenderStateTextureMapping_FF::~RenderStateTextureMapping_FF()
 {
 }
 
@@ -523,7 +534,7 @@ TextureMapping_FF::~TextureMapping_FF()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void TextureMapping_FF::setTexture(Texture2D_FF* texture)
+void RenderStateTextureMapping_FF::setTexture(Texture2D_FF* texture)
 {
     m_texture = texture;
 }
@@ -532,7 +543,7 @@ void TextureMapping_FF::setTexture(Texture2D_FF* texture)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Texture2D_FF* TextureMapping_FF::texture()
+Texture2D_FF* RenderStateTextureMapping_FF::texture()
 {
     return m_texture.p();
 }
@@ -541,7 +552,7 @@ Texture2D_FF* TextureMapping_FF::texture()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void TextureMapping_FF::setTextureFunction(TextureFunction texFunc)
+void RenderStateTextureMapping_FF::setTextureFunction(TextureFunction texFunc)
 {
     m_textureFunction = texFunc;
 }
@@ -550,7 +561,7 @@ void TextureMapping_FF::setTextureFunction(TextureFunction texFunc)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TextureMapping_FF::TextureFunction TextureMapping_FF::textureFunction() const
+RenderStateTextureMapping_FF::TextureFunction RenderStateTextureMapping_FF::textureFunction() const
 {
     return m_textureFunction;
 }
@@ -559,7 +570,7 @@ TextureMapping_FF::TextureFunction TextureMapping_FF::textureFunction() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void TextureMapping_FF::setEnvironmentMapping(bool environmentMapping)
+void RenderStateTextureMapping_FF::setEnvironmentMapping(bool environmentMapping)
 {
     m_environmentMapping = environmentMapping;
 }
@@ -568,7 +579,7 @@ void TextureMapping_FF::setEnvironmentMapping(bool environmentMapping)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool TextureMapping_FF::environmentMapping() const
+bool RenderStateTextureMapping_FF::environmentMapping() const
 {
     return m_environmentMapping;
 }
@@ -577,7 +588,7 @@ bool TextureMapping_FF::environmentMapping() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void TextureMapping_FF::setupTexture(OpenGLContext* oglContext)
+void RenderStateTextureMapping_FF::setupTexture(OpenGLContext* oglContext)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
@@ -601,7 +612,7 @@ void TextureMapping_FF::setupTexture(OpenGLContext* oglContext)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void TextureMapping_FF::applyOpenGL(OpenGLContext* oglContext) const
+void RenderStateTextureMapping_FF::applyOpenGL(OpenGLContext* oglContext) const
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
@@ -656,7 +667,7 @@ void TextureMapping_FF::applyOpenGL(OpenGLContext* oglContext) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool TextureMapping_FF::isFixedFunction() const
+bool RenderStateTextureMapping_FF::isFixedFunction() const
 {
     return true;
 }

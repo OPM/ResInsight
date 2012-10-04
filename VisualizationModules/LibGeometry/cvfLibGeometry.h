@@ -27,8 +27,8 @@
 #include "cvfArrowGenerator.h"
 #include "cvfBoundingBox.h"
 #include "cvfBoxGenerator.h"
-#include "cvfFrustum.h"
 #include "cvfEdgeKey.h"
+#include "cvfFrustum.h"
 #include "cvfGeometryBuilder.h"
 #include "cvfGeometryBuilderFaceList.h"
 #include "cvfGeometryBuilderTriangles.h"
@@ -37,5 +37,8 @@
 #include "cvfOutlineEdgeExtractor.h"
 #include "cvfPatchGenerator.h"
 #include "cvfRay.h"
+#include "cvfTriangleMeshEdgeExtractor.h"
+#include "cvfTriangleVertexSplitter.h"
+#include "cvfVertexCompactor.h"
 #include "cvfVertexWelder.h"
 

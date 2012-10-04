@@ -31,7 +31,7 @@ class CullSettings;
 class RayIntersectSpec;
 class HitItemCollection;
 class OpenGLContext;
-
+class Transform;
 
 
 //==================================================================================================
@@ -43,10 +43,11 @@ class Model : public Object
 {
 public:
     Model();
+    virtual ~Model();
 
     virtual String          name() const = 0;
 
-    virtual void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, unsigned int enableMask) = 0;
+    virtual void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask) = 0;
     virtual void            allParts(Collection<Part>* partCollection) = 0;
 
     virtual void            updateBoundingBoxesRecursive() = 0;
@@ -54,13 +55,17 @@ public:
 
     virtual bool            rayIntersect(const RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection) = 0;
 
-    void                    setPartEnableMask(unsigned int partEnableMask);
-    unsigned int            partEnableMask() const;
+    void                    setPartEnableMask(uint partEnableMask);
+    uint                    partEnableMask() const;
 
     void                    deleteOrReleaseOpenGLResources(OpenGLContext* oglContext);
 
+    void                    setTransformTree(Transform* transform);
+    Transform*              transformTree();
+
 private:
-    unsigned int    m_partEnableMask;   // Mask will be compared against our parts when determining visible parts
+    uint                    m_partEnableMask;   // Mask will be compared against our parts when determining visible parts
+    ref<Transform>          m_tranformTree;
 };
 
 }

@@ -24,6 +24,9 @@
 namespace cvf {
 
 class Ray;
+class Camera;
+class CullSettings;
+class Rendering;
 
 
 //==================================================================================================
@@ -34,13 +37,20 @@ class Ray;
 class RayIntersectSpec : public Object
 {
 public:
-    RayIntersectSpec(const Ray* ray);
+    RayIntersectSpec(const Ray* ray, const Rendering* rendering);
+    RayIntersectSpec(const Ray* ray, const Camera* camera, const CullSettings* cullSettings, uint enableMask);
     ~RayIntersectSpec();
 
-    const Ray* ray() const;
+    const Ray*          ray() const;
+    const Camera*       camera() const;
+    const CullSettings* cullSettings() const;
+    uint                enableMask() const;
 
 private:
-    cref<Ray>   m_ray;
+    cref<Ray>           m_ray;
+    cref<Camera>        m_camera;
+    cref<CullSettings>  m_cullSettings;
+    uint                m_enableMask;
 };
 
 }

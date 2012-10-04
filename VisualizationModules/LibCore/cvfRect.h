@@ -50,14 +50,13 @@ public:
     void        setHeight(T height);
 
     bool        isValid() const;
+    void        normalize();
 
     void        include(const Vector2<T>& coord);
     void        include(const Rect& rect);
 
     bool        contains(const Vector2<T>& coord) const;
     bool        intersects(const Rect& rect) const;
-
-    void        normalize();
 
     void        translate(const Vector2<T>& offset);
 

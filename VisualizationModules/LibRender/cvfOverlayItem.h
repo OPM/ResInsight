@@ -21,6 +21,7 @@
 
 #include "cvfObject.h"
 #include "cvfVector2.h"
+#include "cvfRect.h"
 
 namespace cvf {
 
@@ -58,6 +59,7 @@ public:
 
     virtual void    render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size) = 0;
     virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size) = 0;
+    virtual bool    pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size);
 };
 
 }

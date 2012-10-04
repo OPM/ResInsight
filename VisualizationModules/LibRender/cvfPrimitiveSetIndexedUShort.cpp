@@ -51,6 +51,18 @@ PrimitiveSetIndexedUShort::PrimitiveSetIndexedUShort(PrimitiveType primitiveType
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PrimitiveSetIndexedUShort::PrimitiveSetIndexedUShort(PrimitiveType primitiveType, UShortArray* indices)
+:   PrimitiveSet(primitiveType),
+    m_minIndex(0),
+    m_maxIndex(0)
+{
+    setIndices(indices);
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Deletes  OpenGL resources created by this primitive set
 //--------------------------------------------------------------------------------------------------
 PrimitiveSetIndexedUShort::~PrimitiveSetIndexedUShort()

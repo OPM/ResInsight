@@ -22,6 +22,7 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 #include "cvfMatrix4.h"
+#include "cvfArray.h"
 
 
 namespace cvf {
@@ -33,6 +34,9 @@ namespace cvf {
 //=================================================================================================
 class Plane : public Object
 {
+public:
+    enum Side { FRONT, BACK, ON, BOTH };
+
 public:
     Plane();
     Plane(double A, double B, double C, double D);
@@ -68,6 +72,10 @@ public:
     Vec3d           projectPoint(const Vec3d& point) const;
 
     bool            intersect(const Plane& other, Vec3d* point, Vec3d* direction = NULL) const;
+    bool            intersect(const Vec3d& a, const Vec3d& b, Vec3d* intersection) const;
+
+    Side            side(const Vec3d& point) const;
+    Side            side(const Vec3dArray& points) const;
 
 private:
     double m_A;     // Plane equation coefficients

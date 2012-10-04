@@ -20,6 +20,17 @@
 #include "cvfBase.h"
 #include "cvfRenderStateTracker.h"
 #include "cvfRenderStateSet.h"
+#include "cvfRenderStateBlending.h"
+#include "cvfRenderStateColorMask.h"
+#include "cvfRenderStateCullFace.h"
+#include "cvfRenderStateDepth.h"
+#include "cvfRenderStateFrontFace.h"
+#include "cvfRenderStateLine.h"
+#include "cvfRenderStatePoint.h"
+#include "cvfRenderStatePolygonMode.h"
+#include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderStateStencil.h"
+#include "cvfRenderStateTextureBindings.h"
 #include "cvfOpenGLContext.h"
 #include "cvfOpenGLCapabilities.h"
 
@@ -59,21 +70,23 @@ RenderStateTracker::RenderStateTracker()
 //--------------------------------------------------------------------------------------------------
 void RenderStateTracker::setupDefaultRenderStates()
 {
-    m_defaultRenderStates[RenderState::BLENDING]            = new Blending;
-    m_defaultRenderStates[RenderState::COLOR_MASK]          = new ColorMask;
-    m_defaultRenderStates[RenderState::CULL_FACE]           = new CullFace(false);
-    m_defaultRenderStates[RenderState::FRONT_FACE]          = new FrontFace;
-    m_defaultRenderStates[RenderState::DEPTH]               = new Depth;
-    m_defaultRenderStates[RenderState::POINT]               = new Point;
-    m_defaultRenderStates[RenderState::POLYGON_MODE]        = new PolygonMode;
-    m_defaultRenderStates[RenderState::POLYGON_OFFSET]      = new PolygonOffset;
-    m_defaultRenderStates[RenderState::TEXTURE_BINDINGS]    = new TextureBindings;
+    m_defaultRenderStates[RenderState::BLENDING]            = new RenderStateBlending;
+    m_defaultRenderStates[RenderState::COLOR_MASK]          = new RenderStateColorMask;
+    m_defaultRenderStates[RenderState::CULL_FACE]           = new RenderStateCullFace(false);
+    m_defaultRenderStates[RenderState::DEPTH]               = new RenderStateDepth;
+    m_defaultRenderStates[RenderState::FRONT_FACE]          = new RenderStateFrontFace;
+    m_defaultRenderStates[RenderState::LINE]                = new RenderStateLine;
+    m_defaultRenderStates[RenderState::POINT]               = new RenderStatePoint;
+    m_defaultRenderStates[RenderState::POLYGON_MODE]        = new RenderStatePolygonMode;
+    m_defaultRenderStates[RenderState::POLYGON_OFFSET]      = new RenderStatePolygonOffset;
+    m_defaultRenderStates[RenderState::STENCIL]             = new RenderStateStencil;
+    m_defaultRenderStates[RenderState::TEXTURE_BINDINGS]    = new RenderStateTextureBindings;
 
 #ifndef CVF_OPENGL_ES
-    m_defaultRenderStates[RenderState::LIGHTING_FF]         = new Lighting_FF;
-    m_defaultRenderStates[RenderState::MATERIAL_FF]         = new Material_FF;
-    m_defaultRenderStates[RenderState::NORMALIZE_FF]        = new Normalize_FF(false);
-    m_defaultRenderStates[RenderState::TEXTURE_MAPPING_FF]  = new TextureMapping_FF;
+    m_defaultRenderStates[RenderState::LIGHTING_FF]         = new RenderStateLighting_FF;
+    m_defaultRenderStates[RenderState::MATERIAL_FF]         = new RenderStateMaterial_FF;
+    m_defaultRenderStates[RenderState::NORMALIZE_FF]        = new RenderStateNormalize_FF(false);
+    m_defaultRenderStates[RenderState::TEXTURE_MAPPING_FF]  = new RenderStateTextureMapping_FF;
 #endif
 }
 

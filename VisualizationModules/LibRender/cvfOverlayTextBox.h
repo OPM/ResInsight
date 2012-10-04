@@ -48,7 +48,9 @@ public:
     virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
 
     void            setText(const String& text);
-    void            setSize(const Vec2ui& size);
+    void            setPixelSize(const Vec2ui& size);
+    void            setSizeToFitText();
+
     void            setTextColor(const Color3f& color);
     void            setBackgroundColor(const Color3f& color);
     void            setBorderColor(const Color3f& color);
@@ -71,6 +73,7 @@ private:
     Vec2ui              m_size;
     String              m_text;
     ref<TextDrawer>     m_textDrawer;
+    ref<Font>           m_font;
 
     bool                m_drawBackground;
     bool                m_drawBorder;

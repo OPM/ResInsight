@@ -75,6 +75,17 @@ MatrixState::MatrixState(const Vec2ui& viewportPosition, const Vec2ui& viewportS
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void MatrixState::setViewMatrix(const Mat4d& viewMatrix)
+{
+    m_viewMatrix = Mat4f(viewMatrix);
+    m_viewProjectionMatrix = m_projectionMatrix*m_viewMatrix;
+    m_versionTick++;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Computes height of a pixel at unit distance in world system
 //--------------------------------------------------------------------------------------------------
 void MatrixState::computePixelHeight()
