@@ -57,29 +57,38 @@ else()
 
     set(octFileName "${CMAKE_CURRENT_BINARY_DIR}/${baseFilename}.oct")
     
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" AND CMAKE_CL_64)
-        # The following line calls the build configuration for x86 VS2010 compiler
-        # call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86 
-        add_custom_command(
-            OUTPUT "${octFileName}"
-            COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
-            COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${MKOCTFILE_EXECUTABLE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
-                -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
-            DEPENDS "${srcFileName}"
-            COMMENT "Generating ${octFileName}"
-        )
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+        if (CMAKE_CL_64)
+            # The following line calls the build configuration for x86 VS2010 compiler
+            # call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
+            add_custom_command(
+                OUTPUT "${octFileName}"
+                COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
+                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${MKOCTFILE_EXECUTABLE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
+                    -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                    -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
+                DEPENDS "${srcFileName}"
+                COMMENT "Generating ${octFileName}"
+            )
+        else()
+            add_custom_command(
+                OUTPUT "${octFileName}"
+                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${MKOCTFILE_EXECUTABLE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
+                    -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                    -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
+                DEPENDS "${srcFileName}"
+                COMMENT "Generating ${octFileName}"
+            )
+        endif()
     else()
         add_custom_command(
             OUTPUT "${octFileName}"
-            COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${MKOCTFILE_EXECUTABLE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
-                -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
+            COMMAND ${MKOCTFILE_EXECUTABLE} -I${QT_QTNETWORK_INCLUDE_DIR} -I${QT_QTCORE_INCLUDE_DIR} -I${QT_INCLUDE_DIR} ${RPATH_COMMAND} -L${QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
             DEPENDS "${srcFileName}"
             COMMENT "Generating ${octFileName}"
         )
     endif()
-  
+
     list(APPEND OCTAVE_BINARY_OCT_FILES "${octFileName}")
   
   endforeach()
