@@ -220,8 +220,8 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
 
         if (isExistingFile)
         {
-            std::vector<QString> fileKeywords = RifEclipseInputFileTools::findKeywordsOnFile(filenames[i]);
-            for_all(fileKeywords, fkIt) fileKeywordSet.insert(fileKeywords[fkIt]);
+            std::vector< RifKeywordAndFilePos > fileKeywords = RifEclipseInputFileTools::findKeywordsOnFile(filenames[i]);
+            for_all(fileKeywords, fkIt) fileKeywordSet.insert(fileKeywords[fkIt].keyword);
         }
 
         // Find the input property objects referring to the file
