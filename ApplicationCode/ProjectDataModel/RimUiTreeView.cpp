@@ -452,7 +452,26 @@ void RimUiTreeView::slotExecuteScript()
         QString octavePath = app->octavePath();
         if (!octavePath.isEmpty())
         {
+            // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
+
+            // -p path
+            // Add path to the head of the search path for function files. The value of path specified on the command line
+            // will override any value of OCTAVE_PATH found in the environment, but not any commands in the system or
+            // user startup files that set the internal load path through one of the path functions.
+
+            // -q
+            // Don't print the usual greeting and version message at startup.
+
+
+            // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
+            // absolutePath() is a function in QFileInfo
+            QFileInfo fi(calcScript->absolutePath());
+            QString octaveFunctionSearchPath = fi.absolutePath();
+
             QStringList arguments;
+            arguments.append("--path");
+            arguments << octaveFunctionSearchPath;
+
             arguments.append("-q");
             arguments << calcScript->absolutePath();
 
