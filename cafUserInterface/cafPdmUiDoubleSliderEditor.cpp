@@ -197,7 +197,7 @@ int PdmUiDoubleSliderEditor::convertToSliderValue(double value)
 {
     double exactSliderValue = m_slider->maximum() * (value - m_attributes.m_minimum) / (m_attributes.m_maximum - m_attributes.m_minimum);
 
-    int sliderValue = exactSliderValue;
+    int sliderValue = static_cast<int>(exactSliderValue);
     sliderValue = qBound(m_slider->minimum(), sliderValue, m_slider->maximum());
 
     return sliderValue;
