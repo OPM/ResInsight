@@ -36,6 +36,9 @@ public: // Pdm Fields
     caf::PdmField<QString>  scriptEditorExecutable;
     caf::PdmField<QString>  octaveExecutable;
 
+    caf::PdmField<int>      defaultScaleFactorZ;
+    caf::PdmField<bool>     defaultGridLines;
+
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
 
@@ -46,4 +49,6 @@ public: // Pdm Fields
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const;
 };

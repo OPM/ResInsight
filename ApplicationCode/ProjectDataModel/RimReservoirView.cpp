@@ -80,6 +80,10 @@ CAF_PDM_SOURCE_INIT(RimReservoirView, "ReservoirView");
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::RimReservoirView()
 {
+    RIApplication* app = RIApplication::instance();
+    RIPreferences* preferences = app->preferences();
+    CVF_ASSERT(preferences);
+
     CAF_PDM_InitObject("Reservoir View", ":/ReservoirView.png", "", "");
  
     CAF_PDM_InitFieldNoDefault(&cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
@@ -93,7 +97,11 @@ RimReservoirView::RimReservoirView()
     overlayInfoConfig->setReservoirView(this);
 
     CAF_PDM_InitField(&name,            "UserDescription", QString(""), "Name",             "", "", "");
-    CAF_PDM_InitField(&scaleZ,          "GridZScale",      1.0,         "Z Scale",          "", "Scales the scene in the Z direction", "");
+    
+    double defaultScaleFactor = 1.0;
+    if (preferences) defaultScaleFactor = preferences->defaultScaleFactorZ;
+    CAF_PDM_InitField(&scaleZ,          "GridZScale", defaultScaleFactor,         "Z Scale",          "", "Scales the scene in the Z direction", "");
+
     CAF_PDM_InitField(&showWindow,      "ShowWindow",      true,        "Show 3D viewer",   "", "", "");
     showWindow.setUiHidden(true);
 
@@ -114,7 +122,9 @@ RimReservoirView::RimReservoirView()
     propertyFilterCollection = new RimCellPropertyFilterCollection();
     propertyFilterCollection->setReservoirView(this);
 
-    CAF_PDM_InitFieldNoDefault(&meshMode,    "MeshMode",    "Grid lines",   "", "", "");
+    caf::AppEnum<RimReservoirView::MeshModeType> defaultMeshType = NO_MESH;
+    if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
+    CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate","", "", "");
