@@ -46,7 +46,8 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
   m_currentTimeStepToRead(0),
   m_currentReservoir(NULL),
   m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
-  m_invalidActiveCellCountDetected(false)
+  m_invalidActiveCellCountDetected(false),
+  m_readState(ReadingCommand)
 {
     m_errorMessageDialog = new QErrorMessage(RIMainWindow::instance());
 
@@ -67,7 +68,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
         return;
     }
 
-    connect(m_tcpServer, SIGNAL(newConnection()), this, SLOT(onNewClientConnection()));
+    connect(m_tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewClientConnection()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,16 +91,36 @@ unsigned short RiaSocketServer::serverPort()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::onNewClientConnection()
+void RiaSocketServer::slotNewClientConnection()
 {
     // If we are currently handling a connection, just ignore the new one until the queue is empty.
 
-    if (m_currentClient != NULL) return;
+    if (m_currentClient != NULL)
+    {
+        qDebug() << "onNewClientConnection(), m_currentClient != NULL";
+
+        if (m_currentClient->state() == QAbstractSocket::ConnectedState)
+        {
+            return;
+        }
+        else
+        {
+            qDebug() << "onNewClientConnection(), m_currentClient != NULL, state : " << m_currentClient->state() << "errorString " << m_currentClient->errorString();
+
+
+            if (m_readState == ReadingPropertyData)
+            {
+                readPropertyDataFromOctave();
+            }
+
+            terminateCurrentConnection();
+        }
+    }
+
 
     // Get the first pending connection, and set it as the current Client to handle
 
     QTcpSocket *newClient = m_tcpServer->nextPendingConnection();
-
     this->handleClientConnection(newClient);
 }
 
@@ -108,6 +129,8 @@ void RiaSocketServer::onNewClientConnection()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 {
+    qDebug() << "handleClientConnection()";
+
     CVF_ASSERT(clientToHandle != NULL);
     CVF_ASSERT(m_currentClient == NULL);
     m_currentClient = clientToHandle;
@@ -125,12 +148,15 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 
     connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
 
+    m_readState = ReadingCommand;
+
     if (m_currentClient->bytesAvailable())
     {
-        this->slotReadCommand();
+        qDebug() << "Initial call to slotReadCommand()";
+        this->readCommandFromOctave();
     }
 
-    connect(m_currentClient, SIGNAL(readyRead()), this, SLOT(slotReadCommand()));
+    connect(m_currentClient, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,8 +204,10 @@ RimReservoir* RiaSocketServer::findReservoir(const QString& caseName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::slotReadCommand()
+void RiaSocketServer::readCommandFromOctave()
 {
+    qDebug() << "slotReadCommand() ";
+
     QDataStream socketStream(m_currentClient);
     socketStream.setVersion(QDataStream::Qt_4_0);
 
@@ -210,18 +238,22 @@ void RiaSocketServer::slotReadCommand()
 
     CVF_ASSERT(args.size() > 0); 
 
-    // qDebug() << args;
 
     bool isGetProperty = args[0] == "GetProperty"; // GetProperty [casename/index] PropertyName
     bool isSetProperty = args[0] == "SetProperty"; // SetProperty [casename/index] PropertyName
     bool isGetCellInfo = args[0] == "GetActiveCellInfo"; // GetActiveCellInfo [casename/index]
     bool isGetGridDim  = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
 
+
     if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim))
     {
+        qDebug() << tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data());
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
+        terminateCurrentConnection();
         return;
     }
+
+    qDebug() << args;
 
     QString caseName;
     QString propertyName;
@@ -326,8 +358,11 @@ void RiaSocketServer::slotReadCommand()
         }
         else // Set property
         {
+            qDebug() << "Starting set property handling";
+
+            m_readState = ReadingPropertyData;
+
             // Disconnect the socket from calling this slot again.
-            m_currentClient->disconnect(SIGNAL(readyRead()));
             m_currentReservoir = reservoir;
 
             if ( scalarResultFrames != NULL)
@@ -335,10 +370,9 @@ void RiaSocketServer::slotReadCommand()
                 m_scalarResultsToAdd = scalarResultFrames;
                 if (m_currentClient->bytesAvailable())
                 {
-                    this->slotReadPropertyData();
+                    qDebug() << "Initial call to slotReadPropertyData()";
+                    this->readPropertyDataFromOctave();
                 }
-
-                connect(m_currentClient, SIGNAL(readyRead()), this, SLOT(slotReadPropertyData()));
             }
         }
     }
@@ -402,8 +436,10 @@ void RiaSocketServer::slotReadCommand()
 //--------------------------------------------------------------------------------------------------
 /// This method reads data from octave and puts it into the resInsight Structures
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::slotReadPropertyData()
+void RiaSocketServer::readPropertyDataFromOctave()
 {
+    qDebug() << "slotReadPropertyData() ";
+
     QDataStream socketStream(m_currentClient);
     socketStream.setVersion(QDataStream::Qt_4_0);
 
@@ -480,6 +516,8 @@ void RiaSocketServer::slotReadPropertyData()
     // If we have read all the data, refresh the views
     if (m_currentTimeStepToRead == m_timeStepCountToRead)
     {
+        qDebug() << "slotReadPropertyData() - all data read from socket";
+
         if (m_currentReservoir != NULL)
         {
             // Create a new input property if we have an input reservoir
@@ -525,34 +563,79 @@ void RiaSocketServer::slotReadPropertyData()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::slotCurrentClientDisconnected()
 {
+
+    qDebug() << "slotCurrentClientDisconnected()";
+
     if (m_timeStepCountToRead > 0
         && m_currentTimeStepToRead < m_timeStepCountToRead
         && m_currentClient->bytesAvailable()
         && !m_invalidActiveCellCountDetected)
     {
-        this->slotReadPropertyData();
+        qDebug() << "slotCurrentClientDisconnected(), but not completed yet)";
+
+        this->readPropertyDataFromOctave();
     }
 
-    m_currentClient->deleteLater();
-    m_currentClient = NULL;
-
-    // Clean up more state:
-
-    m_currentCommandSize = 0;
-    m_scalarResultsToAdd = NULL;
-
-    m_timeStepCountToRead = 0;
-    m_bytesPerTimeStepToRead = 0;
-    m_currentTimeStepToRead = 0;
-    m_currentReservoir = NULL;
-    m_currentScalarIndex = cvf::UNDEFINED_SIZE_T;
-    m_currentPropertyName = "";
-    m_invalidActiveCellCountDetected = false;
+    terminateCurrentConnection();
 
     QTcpSocket *newClient = m_tcpServer->nextPendingConnection();
 
     if (newClient)
     {
         this->handleClientConnection(newClient);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::terminateCurrentConnection()
+{
+    if (m_currentClient)
+    {
+        m_currentClient->disconnect(SIGNAL(disconnected()));
+        m_currentClient->disconnect(SIGNAL(readyRead()));
+        m_currentClient->deleteLater();
+        m_currentClient = NULL;
+    }
+
+    // Clean up more state:
+
+    m_currentCommandSize = 0;
+    m_timeStepCountToRead = 0;
+    m_bytesPerTimeStepToRead = 0;
+    m_currentTimeStepToRead = 0;
+    m_scalarResultsToAdd = NULL;
+    m_currentReservoir = NULL;
+    m_currentScalarIndex = cvf::UNDEFINED_SIZE_T;
+    m_currentPropertyName = "";
+    m_invalidActiveCellCountDetected = false;
+
+    m_readState = ReadingCommand;
+
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::slotReadyRead()
+{
+    switch (m_readState)
+    {
+        case ReadingCommand :
+        {
+            readCommandFromOctave();
+            break;
+        }
+
+        case ReadingPropertyData :
+        {
+            readPropertyDataFromOctave();
+            break;
+        }
+
+        default:
+            CVF_ASSERT(false);
+            break;
     }
 }

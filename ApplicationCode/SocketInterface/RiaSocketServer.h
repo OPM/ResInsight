@@ -28,9 +28,13 @@ class QNetworkSession;
 class QErrorMessage;
 class RimReservoir;
 
+
 class RiaSocketServer : public QObject
 {
     Q_OBJECT
+
+public:
+    enum ReadState {ReadingCommand, ReadingPropertyData};
 
 public:
     RiaSocketServer(QObject *parent = 0);
@@ -38,14 +42,19 @@ public:
     unsigned short  serverPort();
 
 private slots:
-    void            onNewClientConnection();
-    void            slotReadCommand();
-    void            slotReadPropertyData();
+    void            slotNewClientConnection();
     void            slotCurrentClientDisconnected();
 
+    void            slotReadyRead();
+
 private:
+    void            readCommandFromOctave();
+    void            readPropertyDataFromOctave();
+
+
     void            handleClientConnection( QTcpSocket* clientToHandle);
     RimReservoir*   findReservoir(const QString &casename);
+    void            terminateCurrentConnection();
 
 private:
     QTcpServer*     m_tcpServer;
@@ -56,6 +65,7 @@ private:
 
 
     // Vars used for reading data from octave and adding them to the available results
+    ReadState       m_readState;
     quint64         m_timeStepCountToRead;
     quint64         m_bytesPerTimeStepToRead;
     size_t          m_currentTimeStepToRead;
