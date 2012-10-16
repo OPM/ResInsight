@@ -61,11 +61,15 @@ extern "C" {
   bool            ecl_grid_ijk_valid(const ecl_grid_type * , int  , int , int ); 
   int             ecl_grid_get_global_index3(const ecl_grid_type * , int  , int , int );
   int             ecl_grid_get_global_index1A(const ecl_grid_type * ecl_grid , int active_index);
+
   ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , const ecl_kw_type * zcorn_kw , const ecl_kw_type * coord_kw , const ecl_kw_type * actnum_kw , const ecl_kw_type * mapaxes_kw );
   ecl_grid_type * ecl_grid_alloc_GRDECL_data(int , int , int , const float *  , const float *  , const int * , const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc_GRID_data(int num_coords , int nx, int ny , int nz , int coords_size , int ** coords , float ** corners , const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc(const char * );
   ecl_grid_type * ecl_grid_load_case( const char * case_input );
+  ecl_grid_type * ecl_grid_alloc_rectangular( int nx , int ny , int nz , double dx , double dy , double dz , const int * actnum);
+  ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum);
+
   bool            ecl_grid_exists( const char * case_input );
   char          * ecl_grid_alloc_case_filename( const char * case_input );
   
@@ -147,6 +151,9 @@ extern "C" {
   ecl_kw_type    * ecl_grid_alloc_actnum_kw( const ecl_grid_type * grid );
   ecl_kw_type    * ecl_grid_alloc_hostnum_kw( const ecl_grid_type * grid );
   ecl_kw_type    * ecl_grid_alloc_gridhead_kw( int nx, int ny , int nz , int grid_nr);
+  
+  void             ecl_grid_ri_export( const ecl_grid_type * ecl_grid , double * ri_points);
+  void             ecl_grid_cell_ri_export( const ecl_grid_type * ecl_grid , int global_index , double * ri_points);
   
 #ifdef __cplusplus
 }
