@@ -147,6 +147,8 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
     m_currentPropertyName = "";
 
     connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
+    connect(m_currentClient, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotCurrentClientError(QAbstractSocket::SocketError)));
+    connect(m_currentClient, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(slotCurrentClientStateChanged(QAbstractSocket::SocketState)));
 
     m_readState = ReadingCommand;
 
@@ -638,4 +640,20 @@ void RiaSocketServer::slotReadyRead()
             CVF_ASSERT(false);
             break;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::slotCurrentClientError(QAbstractSocket::SocketError socketError)
+{
+    qDebug() << "slotCurrentClientError()         error : " << m_currentClient->errorString();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::slotCurrentClientStateChanged(QAbstractSocket::SocketState socketState)
+{
+    qDebug() << "slotCurrentClientStateChanged()  state : " << m_currentClient->state();
 }
