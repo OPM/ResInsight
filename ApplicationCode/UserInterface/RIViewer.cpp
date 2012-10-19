@@ -405,6 +405,12 @@ cvf::Part* RIViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, c
 //--------------------------------------------------------------------------------------------------
 void RIViewer::paintOverlayItems(QPainter* painter)
 {
+    // No support for overlay items using SW rendering yet.
+    if (!isShadersSupported())
+    {
+        return;
+    }
+
     int columnWidth = 200;
     int margin = 5;
     int yPos = margin;
