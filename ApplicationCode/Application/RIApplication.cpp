@@ -127,6 +127,7 @@ RIApplication::RIApplication(int& argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 RIApplication::~RIApplication()
 {
+    delete m_preferences;
 }
 
 

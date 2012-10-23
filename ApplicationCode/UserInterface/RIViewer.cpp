@@ -96,7 +96,9 @@ RIViewer::RIViewer(const QGLFormat& format, QWidget* parent)
     m_animationProgress->setPalette(p);
     m_animationProgress->setFormat("Time Step: %v/%m");
     m_animationProgress->setTextVisible(true);
-    m_animationProgress->setStyle(new QCDEStyle());
+
+    QCDEStyle myStyle;
+    m_animationProgress->setStyle(&myStyle);
     m_showAnimProgress = false;
 
     // Histogram
