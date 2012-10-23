@@ -29,7 +29,6 @@
 #include "RimReservoir.h"
 #include "RigReservoir.h"
 #include "RigReservoirCellResults.h"
-#include <QDebug>
 #include "RimInputProperty.h"
 #include "RimInputReservoir.h"
 #include "RimUiTreeModelPdm.h"
@@ -97,17 +96,12 @@ void RiaSocketServer::slotNewClientConnection()
 
     if (m_currentClient != NULL)
     {
-        qDebug() << "onNewClientConnection(), m_currentClient != NULL";
-
         if (m_currentClient->state() == QAbstractSocket::ConnectedState)
         {
             return;
         }
         else
         {
-            qDebug() << "onNewClientConnection(), m_currentClient != NULL, state : " << m_currentClient->state() << "errorString " << m_currentClient->errorString();
-
-
             if (m_readState == ReadingPropertyData)
             {
                 readPropertyDataFromOctave();
@@ -129,8 +123,6 @@ void RiaSocketServer::slotNewClientConnection()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 {
-    qDebug() << "handleClientConnection()";
-
     CVF_ASSERT(clientToHandle != NULL);
     CVF_ASSERT(m_currentClient == NULL);
     m_currentClient = clientToHandle;
@@ -147,14 +139,10 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
     m_currentPropertyName = "";
 
     connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
-    connect(m_currentClient, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slotCurrentClientError(QAbstractSocket::SocketError)));
-    connect(m_currentClient, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(slotCurrentClientStateChanged(QAbstractSocket::SocketState)));
-
     m_readState = ReadingCommand;
 
     if (m_currentClient->bytesAvailable())
     {
-        qDebug() << "Initial call to slotReadCommand()";
         this->readCommandFromOctave();
     }
 
@@ -208,8 +196,6 @@ RimReservoir* RiaSocketServer::findReservoir(const QString& caseName)
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::readCommandFromOctave()
 {
-    qDebug() << "slotReadCommand() ";
-
     QDataStream socketStream(m_currentClient);
     socketStream.setVersion(QDataStream::Qt_4_0);
 
@@ -249,13 +235,10 @@ void RiaSocketServer::readCommandFromOctave()
 
     if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim))
     {
-        qDebug() << tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data());
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
         return;
     }
-
-    qDebug() << args;
 
     QString caseName;
     QString propertyName;
@@ -341,8 +324,6 @@ void RiaSocketServer::readCommandFromOctave()
                 quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
                 socketStream << timestepByteCount ;
 
-                // qDebug() << "Trying to read " << (quint64)(scalarResultFrames->front().size()*sizeof(double)) << "bytes of data";
-
                 // Then write the data.
 
                 for (size_t tIdx = 0; tIdx < scalarResultFrames->size(); ++tIdx)
@@ -360,8 +341,6 @@ void RiaSocketServer::readCommandFromOctave()
         }
         else // Set property
         {
-            qDebug() << "Starting set property handling";
-
             m_readState = ReadingPropertyData;
 
             // Disconnect the socket from calling this slot again.
@@ -372,7 +351,6 @@ void RiaSocketServer::readCommandFromOctave()
                 m_scalarResultsToAdd = scalarResultFrames;
                 if (m_currentClient->bytesAvailable())
                 {
-                    qDebug() << "Initial call to slotReadPropertyData()";
                     this->readPropertyDataFromOctave();
                 }
             }
@@ -440,8 +418,6 @@ void RiaSocketServer::readCommandFromOctave()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::readPropertyDataFromOctave()
 {
-    qDebug() << "slotReadPropertyData() ";
-
     QDataStream socketStream(m_currentClient);
     socketStream.setVersion(QDataStream::Qt_4_0);
 
@@ -518,8 +494,6 @@ void RiaSocketServer::readPropertyDataFromOctave()
     // If we have read all the data, refresh the views
     if (m_currentTimeStepToRead == m_timeStepCountToRead)
     {
-        qDebug() << "slotReadPropertyData() - all data read from socket";
-
         if (m_currentReservoir != NULL)
         {
             // Create a new input property if we have an input reservoir
@@ -565,16 +539,11 @@ void RiaSocketServer::readPropertyDataFromOctave()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::slotCurrentClientDisconnected()
 {
-
-    qDebug() << "slotCurrentClientDisconnected()";
-
     if (m_timeStepCountToRead > 0
         && m_currentTimeStepToRead < m_timeStepCountToRead
         && m_currentClient->bytesAvailable()
         && !m_invalidActiveCellCountDetected)
     {
-        qDebug() << "slotCurrentClientDisconnected(), but not completed yet)";
-
         this->readPropertyDataFromOctave();
     }
 
@@ -642,18 +611,3 @@ void RiaSocketServer::slotReadyRead()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::slotCurrentClientError(QAbstractSocket::SocketError socketError)
-{
-    qDebug() << "slotCurrentClientError()         error : " << m_currentClient->errorString();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::slotCurrentClientStateChanged(QAbstractSocket::SocketState socketState)
-{
-    qDebug() << "slotCurrentClientStateChanged()  state : " << m_currentClient->state();
-}

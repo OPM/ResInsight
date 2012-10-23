@@ -45,10 +45,6 @@ public:
 private slots:
     void            slotNewClientConnection();
     void            slotCurrentClientDisconnected();
-    void            slotCurrentClientError(QAbstractSocket::SocketError socketError);
-    void            slotCurrentClientStateChanged(QAbstractSocket::SocketState socketState);
-
-
     void            slotReadyRead();
 
 private:
