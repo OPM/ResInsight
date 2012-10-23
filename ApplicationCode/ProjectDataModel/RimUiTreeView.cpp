@@ -142,6 +142,12 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Write"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
                 menu.exec(event->globalPos());
             }
+            else if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
+            {
+                QMenu menu;
+                menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
+                menu.exec(event->globalPos());
+            }
         }
     }
 }
@@ -726,6 +732,18 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotCloseCase()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        myModel->deleteReservoir(currentIndex());
     }
 }
 

@@ -204,6 +204,28 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::deleteReservoir(const QModelIndex& itemIndex)
+{
+    CVF_ASSERT(itemIndex.isValid());
+
+    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
+    CVF_ASSERT(uiItem);
+
+    RimReservoir* reservoir = dynamic_cast<RimReservoir*>(uiItem->dataObject().p());
+    CVF_ASSERT(reservoir);
+
+    // Remove Ui items pointing at the pdm object to delete
+    removeRow(itemIndex.row(), itemIndex.parent());
+
+    RimProject* proj = RIApplication::instance()->project();
+    proj->reservoirs().removeChildObject(reservoir);
+
+    delete reservoir;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RimCellPropertyFilter* RimUiTreeModelPdm::addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
@@ -419,3 +441,4 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
 
     delete inputProperty;
 }
+
