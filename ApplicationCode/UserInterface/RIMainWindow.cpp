@@ -291,6 +291,8 @@ void RIMainWindow::createMenus()
     viewMenu->addAction(m_viewFromEast);
     viewMenu->addAction(m_viewFromBelow);
     viewMenu->addAction(m_viewFromAbove);
+    viewMenu->addSeparator();
+    viewMenu->addAction(m_newPropertyView);
 
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
@@ -300,8 +302,6 @@ void RIMainWindow::createMenus()
     debugMenu->addAction(m_mockResultsModelAction);
     debugMenu->addAction(m_mockLargeResultsModelAction);
     debugMenu->addAction(m_mockInputModelAction);
-    debugMenu->addSeparator();
-    debugMenu->addAction(m_newPropertyView);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
