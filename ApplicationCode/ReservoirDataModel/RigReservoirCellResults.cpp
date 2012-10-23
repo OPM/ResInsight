@@ -175,6 +175,42 @@ void RigReservoirCellResults::p10p90CellScalarValues(size_t scalarResultIndex, d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigReservoirCellResults::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
+{
+    CVF_ASSERT(scalarResultIndex < resultCount());
+
+    // Extend array and cache vars
+
+    if (scalarResultIndex >= m_meanValues.size() )
+    {
+        m_meanValues.resize(scalarResultIndex+1, HUGE_VAL);
+    }
+
+    if (m_meanValues[scalarResultIndex] != HUGE_VAL)
+    {
+        meanValue = m_meanValues[scalarResultIndex];
+        return;
+    }
+
+    double valueSum = 0.0;
+    size_t count = 0;
+    for (size_t tIdx = 0; tIdx < timeStepCount(scalarResultIndex); tIdx++)
+    {
+        std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tIdx];
+        for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+        {
+            valueSum += values[cIdx];
+        }
+        count += values.size();
+    }
+
+    m_meanValues[scalarResultIndex] = valueSum/count;
+    meanValue = m_meanValues[scalarResultIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigReservoirCellResults::resultCount() const
 {
 	return m_cellScalarResults.size();

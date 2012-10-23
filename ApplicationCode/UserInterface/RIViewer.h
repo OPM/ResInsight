@@ -60,7 +60,7 @@ public:
     void            setInfoText(QString text);
     void            showHistogram(bool enable);
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
-    void            setHistogramPercentiles(double pmin, double pmax);
+    void            setHistogramPercentiles(double pmin, double pmax, double mean);
 
     void            showAnimationProgress(bool enable);
  

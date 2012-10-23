@@ -481,9 +481,10 @@ void RIViewer::setHistogram(double min, double max, const std::vector<size_t>& h
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setHistogramPercentiles(double pmin, double pmax)
+void RIViewer::setHistogramPercentiles(double pmin, double pmax, double mean)
 {
     m_histogramWidget->setPercentiles(pmin, pmax);
+    m_histogramWidget->setMean(mean);
 }
 
 //--------------------------------------------------------------------------------------------------

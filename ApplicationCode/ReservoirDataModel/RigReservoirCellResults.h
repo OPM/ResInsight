@@ -42,6 +42,7 @@ public:
     void                minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
     const std::vector<size_t>& cellScalarValuesHistogram(size_t scalarResultIndex);
     void                p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90);
+    void                meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
 
     // Access meta-information about the results
     size_t              resultCount() const;
@@ -76,6 +77,7 @@ private:
     std::vector< std::pair<double, double> >                m_maxMinValues; ///< Max min values for each Result index
     std::vector< std::vector<size_t> >                      m_histograms; ///< Histogram for each Result Index
     std::vector< std::pair<double, double> >                m_p10p90; ///< P10 and p90 values for each Result Index
+    std::vector< double >                                   m_meanValues; ///< Mean value for each Result Index
 
     std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs; ///< Max min values for each timestep and Result index
 

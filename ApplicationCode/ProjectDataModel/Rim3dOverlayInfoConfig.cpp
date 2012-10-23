@@ -99,7 +99,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
         QString infoText = QString(
             "<p><b><center>-- %1 --</center></b><p>  "
-            "<b>Cell count:</b> Total: %2 Active: %3 <br>" 
+            "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>" 
             "<b>Main Grid I,J,K:</b> %4, %5, %6 <br>").arg(caseName, totCellCount, activeCellCount, iSize, jSize, kSize);
 
         if (m_reservoirView->animationMode() && m_reservoirView->cellResult()->hasResult())
@@ -108,11 +108,14 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
             double min, max;
             double p10, p90;
+            double mean;
             size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
             m_reservoirView->gridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
             m_reservoirView->gridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            m_reservoirView->gridCellResults()->meanCellScalarValues(scalarIndex, mean);
 
-            infoText += QString("<blockquote> Min: %1 P10: %2 P90: %3 Max: %4 </blockquote>").arg(min).arg(p10).arg(p90).arg(max);
+            infoText += QString("<blockquote><b>Min:</b> %1   <b>P10:</b> %2   <b>Mean:</b> %3   <b>P90:</b> %4   <b>Max:</b> %5 </blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+            //infoText += QString("<blockquote><pre>Min: %1   P10: %2   Mean: %3 \n  P90: %4   Max: %5 </pre></blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
         }
 
 
@@ -142,13 +145,16 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         {
             double min, max;
             double p10, p90;
+            double mean;
+
             size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
             m_reservoirView->gridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
             m_reservoirView->gridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            m_reservoirView->gridCellResults()->meanCellScalarValues(scalarIndex, mean);
 
             m_reservoirView->viewer()->showHistogram(true);
             m_reservoirView->viewer()->setHistogram(min, max, m_reservoirView->gridCellResults()->cellScalarValuesHistogram(scalarIndex));
-            m_reservoirView->viewer()->setHistogramPercentiles(p10, p90);
+            m_reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
         }
     }
 }
