@@ -163,6 +163,7 @@ RimReservoirView::~RimReservoirView()
 
     delete rangeFilterCollection();
     delete propertyFilterCollection();
+    delete wellCollection();
 
     if (m_viewer)
     {

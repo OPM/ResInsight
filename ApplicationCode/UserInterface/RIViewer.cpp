@@ -114,6 +114,10 @@ RIViewer::~RIViewer()
 {
     m_reservoirView->showWindow = false;
     m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
+
+    delete m_InfoLabel;
+    delete m_animationProgress;
+    delete m_histogramWidget;
 }
 
 
