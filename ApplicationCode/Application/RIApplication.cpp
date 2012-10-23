@@ -111,6 +111,14 @@ RIApplication::RIApplication(int& argc, char** argv)
 
     m_socketServer = new RiaSocketServer( this);
     m_workerProcess = NULL;
+
+
+    m_startupDefaultDirectory = QDir::homePath();
+
+#ifdef WIN32
+    //m_startupDefaultDirectory += "/My Documents/";
+#endif
+
 }
 
 
@@ -282,6 +290,8 @@ bool RIApplication::saveProjectPromptForFileName()
 {
     //if (m_project.isNull()) return true;
 
+    RIApplication* app = RIApplication::instance();
+
     QString startPath;
     if (!m_project->fileName().isEmpty())
     {
@@ -290,7 +300,7 @@ bool RIApplication::saveProjectPromptForFileName()
     }
     else
     {
-        startPath = QDir::currentPath();
+        startPath = app->defaultFileDialogDirectory("BINARY_GRID");
     }
 
     startPath += "/ResInsightProject.rip";
@@ -300,6 +310,9 @@ bool RIApplication::saveProjectPromptForFileName()
     {
         return false;
     }
+
+    // Remember the directory to next time
+    app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
 
     bool bSaveOk = saveProjectAs(fileName);
 
@@ -591,38 +604,52 @@ bool RIApplication::parseArguments()
 
     bool isParsingProjectFile = false;
     bool isParsingCaseNames = false;
+    bool isParsingStartDir = false;
     bool showHelp = false;
     
     int i;
     for (i = 1; i < arguments.size(); i++)
     {
         QString arg = arguments[i];
-        bool argParsedAsFlag = false;
+        bool foundKnownOption = false;
 
         if (arg.toLower() == "-help" || arg.toLower() == "-?")
         {
             showHelp = true;
+            foundKnownOption = true;
         }
 
         if (arg.toLower() == "-last")
         {
             openLatestProject = true;
-            argParsedAsFlag = true;
+            foundKnownOption = true;
         }
         else if (arg.toLower() == "-project")
         {
             isParsingCaseNames = false;
             isParsingProjectFile = true;
-            argParsedAsFlag = true;
+            isParsingStartDir = false;
+
+            foundKnownOption = true;
         }
         else if (arg.toLower() == "-case")
         {
             isParsingCaseNames = true;
             isParsingProjectFile = false;
-            argParsedAsFlag = true;
+            isParsingStartDir = false;
+
+            foundKnownOption = true;
+        }
+        else if (arg.toLower() == "-startdir")
+        {
+            isParsingCaseNames = false;
+            isParsingProjectFile = false;
+            isParsingStartDir = true;
+
+            foundKnownOption = true;
         }
 
-        if (!argParsedAsFlag)
+        if (!foundKnownOption)
         {
             if (isParsingProjectFile && QFile::exists(arg))
             {
@@ -632,6 +659,11 @@ bool RIApplication::parseArguments()
             if (isParsingCaseNames)
             {
                 caseNames.append(arg);
+            }
+
+            if (isParsingStartDir)
+            {
+                m_startupDefaultDirectory = arg;
             }
         }
     }
@@ -648,6 +680,8 @@ bool RIApplication::parseArguments()
         "-project <filename>  Open project file <filename>\n"
         "-case <casename>     Open Eclipse case <casename>\n"
         "                     (do not include .GRID/.EGRID)\n"
+        "-startdir            The default directory for open/save commands\n"
+
         "-help                \n"
         "-?                   Displays help text\n"
         "-----------------------------------------------------------------";
@@ -882,4 +916,29 @@ void RIApplication::terminateProcess()
     }
 
     m_workerProcess = NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RIApplication::defaultFileDialogDirectory(const QString& dialogName)
+{
+    QString defaultDirectory = m_startupDefaultDirectory;
+    std::map<QString, QString>::iterator it;
+    it = m_fileDialogDefaultDirectories.find(dialogName);
+    
+    if ( it != m_fileDialogDefaultDirectories.end())
+    {
+        defaultDirectory = it->second;
+    }
+
+    return defaultDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory)
+{
+    m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
 }

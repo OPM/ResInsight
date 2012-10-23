@@ -558,8 +558,16 @@ void RimUiTreeView::setModel(QAbstractItemModel* model)
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotAddInputProperty()
 {
-    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select Eclipse Input Property Files", NULL, "All Files (*.* *)");
+    RIApplication* app = RIApplication::instance();
+    QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
+    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select Eclipse Input Property Files", defaultDir, "All Files (*.* *)");
+
     if (fileNames.isEmpty()) return;
+
+    // Remember the directory to next time
+    defaultDir = QFileInfo(fileNames.last()).absolutePath();
+    app->setDefaultFileDialogDirectory("INPUT_FILES", defaultDir);
+
 
     QModelIndex index = currentIndex();
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());

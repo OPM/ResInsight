@@ -595,13 +595,19 @@ void RIMainWindow::slotOpenBinaryGridFiles()
 {
     if (checkForDocumentModifications())
     {
+        RIApplication* app = RIApplication::instance();
+
 #ifdef USE_ECL_LIB
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", NULL, "Eclipse Grid Files (*.GRID *.EGRID)");
+
+        QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
+        if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
+        app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
+
 #else
         QStringList fileNames;
         fileNames << "dummy";
 #endif
-        RIApplication* app = RIApplication::instance();
 
         int i;
         for (i = 0; i < fileNames.size(); i++)
@@ -624,11 +630,15 @@ void RIMainWindow::slotOpenInputFiles()
 {
     if (checkForDocumentModifications())
     {
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse Input Files", NULL, "Eclipse Input Files and Input Properties (*.GRDECL *)");
+        RIApplication* app = RIApplication::instance();
+        QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
 
         if (fileNames.isEmpty()) return;
 
-        RIApplication* app = RIApplication::instance();
+        // Remember the path to next time
+        app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
+ 
         app->openInputEclipseCase("Eclipse Input Files", fileNames);
     }
 }
@@ -641,10 +651,15 @@ void RIMainWindow::slotOpenProject()
 {
     if (checkForDocumentModifications())
     {
-        QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", NULL, "ResInsight project (*.rip)");
+        RIApplication* app = RIApplication::instance();
+        QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
+        QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rip)");
+
         if (fileName.isEmpty()) return;
 
-        RIApplication* app = RIApplication::instance();
+        // Remember the path to next time
+        app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
+
         app->loadProject(fileName);
     }
 

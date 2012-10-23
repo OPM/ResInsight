@@ -75,6 +75,9 @@ public:
     void                createLargeResultsMockModel();
     void                createInputMockModel();
 
+    QString             defaultFileDialogDirectory(const QString& dialogName);
+    void                setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory);
+
     bool                openEclipseCaseFromFile(const QString& fileName);
     bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
     bool                openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames);
@@ -129,4 +132,7 @@ private:
     caf::UiProcess*                 m_workerProcess;
 
     RIPreferences*                  m_preferences;
+
+    std::map<QString, QString>      m_fileDialogDefaultDirectories;
+    QString                         m_startupDefaultDirectory;
 };
