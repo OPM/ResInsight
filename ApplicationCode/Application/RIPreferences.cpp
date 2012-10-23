@@ -41,7 +41,7 @@ RIPreferences::RIPreferences(void)
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
 
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
-    CAF_PDM_InitField(&showHud,                         "showHud", true, "Show 3D Information", "", "", "");
+    CAF_PDM_InitField(&showHud,                         "showHud", false, "Show 3D Information", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.setUiHidden(true);
