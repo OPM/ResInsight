@@ -74,7 +74,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
 
     findGridKeywordPositions(fileName, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos);
 
-    if (coordPos < 0 || zcornPos < 0 || specgridPos < 0 || actnumPos < 0)
+    if (coordPos < 0 || zcornPos < 0 || specgridPos < 0)
     {
         return false;
     }
@@ -119,9 +119,13 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
     allKwReadOk = allKwReadOk && NULL != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_FLOAT_TYPE));
     progress.setProgress(3);
 
-    fseek(gridFilePointer, actnumPos, SEEK_SET);
-    allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_INT_TYPE));
-    progress.setProgress(4);
+    // If ACTNUM is not defined, this pointer will be NULL, which is a valid condition
+    if (actnumPos >= 0)
+    {
+        fseek(gridFilePointer, actnumPos, SEEK_SET);
+        allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_INT_TYPE));
+        progress.setProgress(4);
+    }
 
     // If MAPAXES is not defined, this pointer will be NULL, which is a valid condition
     if (mapaxesPos >= 0)
@@ -159,7 +163,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
     ecl_kw_free(specGridKw);
     ecl_kw_free(zCornKw);
     ecl_kw_free(coordKw);
-    ecl_kw_free(actNumKw);
+    if (actNumKw) ecl_kw_free(actNumKw);
     if (mapAxesKw) ecl_kw_free(mapAxesKw);
 
     ecl_grid_free(inputGrid);
