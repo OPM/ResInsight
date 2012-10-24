@@ -49,8 +49,9 @@ namespace caf {
 template<>
 void caf::AppEnum< RimReservoirView::MeshModeType >::setUp()
 {
-    addItem(RimReservoirView::FULL_MESH,       "FULL_MESH",       "All");
-    addItem(RimReservoirView::NO_MESH,         "NO_MESH",         "None");
+    addItem(RimReservoirView::FULL_MESH,      "FULL_MESH",       "All");
+    addItem(RimReservoirView::FAULTS_MESH,    "FAULTS_MESH",      "Faults only");
+    addItem(RimReservoirView::NO_MESH,        "NO_MESH",        "None");
     setDefault(RimReservoirView::FULL_MESH);
 }
 
@@ -58,7 +59,7 @@ template<>
 void caf::AppEnum< RimReservoirView::SurfaceModeType >::setUp()
 {
     addItem(RimReservoirView::SURFACE,              "SURFACE",             "All");
-    addItem(RimReservoirView::FAULTS,               "FAULTS",              "Faults");
+    addItem(RimReservoirView::FAULTS,               "FAULTS",              "Faults only");
     addItem(RimReservoirView::NO_SURFACE,           "NO_SURFACE",          "None");
     setDefault(RimReservoirView::SURFACE);
 }
@@ -881,35 +882,27 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 void RimReservoirView::updateDisplayModelVisibility()
 {
     if (m_viewer.isNull()) return;
-
-    bool surfaceVisible = false;
-    bool faultVisible = false;
+ 
+    unsigned int mask = 0;
 
     if (surfaceMode == SURFACE)
     {
-        surfaceVisible = true;
-        faultVisible = true;
+         mask |= surfaceBit;
+         mask |= faultBit;
     }
     else if (surfaceMode == FAULTS)
     {
-        faultVisible = true;
+        mask |= faultBit;
     }
 
-    unsigned int mask = 0;
     if (meshMode == FULL_MESH)
     {
-        if (surfaceVisible) mask |= meshSurfaceBit;
-        if (faultVisible) mask |= meshFaultBit;
+        mask |= meshSurfaceBit;
+        mask |= meshFaultBit;
     }
-
-    if (surfaceVisible)
+    else if (meshMode == FAULTS_MESH)
     {
-        mask |= surfaceBit;
-    }
-    
-    if (faultVisible)
-    {
-        mask |= faultBit;
+        mask |= meshFaultBit;
     }
 
     m_viewer->setEnableMask(mask);

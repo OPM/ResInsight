@@ -73,6 +73,7 @@ public:
     enum MeshModeType
     {
         FULL_MESH,
+        FAULTS_MESH,
         NO_MESH
     };
 
