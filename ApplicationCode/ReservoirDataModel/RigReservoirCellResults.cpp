@@ -451,14 +451,14 @@ void RigReservoirCellResults::computeDepthRelatedResults()
     size_t dxResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
     size_t dyResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
     size_t dzResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
-    size_t topResultGridIndex    = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "TOP");
+    size_t topsResultGridIndex   = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "TOPS");
     size_t bottomResultGridIndex = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "BOTTOM");
 
     bool computeDepth = false;
     bool computeDx = false;
     bool computeDy = false;
     bool computeDz = false;
-    bool computeTop = false;
+    bool computeTops = false;
     bool computeBottom = false;
 
     size_t resultValueCount = m_ownerMainGrid->cells().size();
@@ -487,10 +487,10 @@ void RigReservoirCellResults::computeDepthRelatedResults()
         computeDz = true;
     }
     
-    if (topResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    if (topsResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        topResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "TOP", resultValueCount);
-        computeTop = true;
+        topsResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "TOPS", resultValueCount);
+        computeTops = true;
     }
     
     if (bottomResultGridIndex == cvf::UNDEFINED_SIZE_T)
@@ -503,7 +503,7 @@ void RigReservoirCellResults::computeDepthRelatedResults()
     std::vector< std::vector<double> >& dx      = cellScalarResults(dxResultGridIndex);
     std::vector< std::vector<double> >& dy      = cellScalarResults(dyResultGridIndex);
     std::vector< std::vector<double> >& dz      = cellScalarResults(dzResultGridIndex);
-    std::vector< std::vector<double> >& top     = cellScalarResults(topResultGridIndex);
+    std::vector< std::vector<double> >& tops    = cellScalarResults(topsResultGridIndex);
     std::vector< std::vector<double> >& bottom  = cellScalarResults(bottomResultGridIndex);
     
     bool computeValuesForActiveCellsOnly = m_ownerMainGrid->numActiveCells() > 0;
@@ -541,14 +541,14 @@ void RigReservoirCellResults::computeDepthRelatedResults()
             dz[0][cellIdx] = cellWidth.length();
         }
 
-        if (computeTop)
+        if (computeTops)
         {
-            top[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
+            tops[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
         }
 
         if (computeBottom)
         {
-            bottom[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
+            bottom[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
         }
     }
 }
