@@ -34,6 +34,10 @@
 #include "RifEclipseInputFileTools.h"
 #include "cafProgressInfo.h"
 
+#include "RIApplication.h"
+#include "RIPreferences.h"
+
+
 CAF_PDM_SOURCE_INIT(RimInputReservoir, "RimInputReservoir");
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -150,34 +154,42 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
 bool RimInputReservoir::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
-    if (m_rigReservoir.notNull()) return true;
-
-    cvf::ref<RifReaderInterface> readerInterface;
-
-    if (caseName().contains("Input Mock Debug Model"))
+    if (m_rigReservoir.isNull())
     {
-        readerInterface = this->createMockModel(this->caseName());
-    }
-    else
-    {
-        RigReservoir* reservoir = new RigReservoir;
-        readerInterface = new RifReaderEclipseInput;
-        if (!readerInterface->open(m_gridFileName, reservoir))
+        cvf::ref<RifReaderInterface> readerInterface;
+
+        if (caseName().contains("Input Mock Debug Model"))
         {
-            delete reservoir;
-            return false;
+            readerInterface = this->createMockModel(this->caseName());
+        }
+        else
+        {
+            RigReservoir* reservoir = new RigReservoir;
+            readerInterface = new RifReaderEclipseInput;
+            if (!readerInterface->open(m_gridFileName, reservoir))
+            {
+                delete reservoir;
+                return false;
+            }
+
+            m_rigReservoir = reservoir;
+            loadAndSyncronizeInputProperties();
         }
 
-        m_rigReservoir = reservoir;
-        loadAndSyncronizeInputProperties();
+        CVF_ASSERT(m_rigReservoir.notNull());
+        CVF_ASSERT(readerInterface.notNull());
+
+        m_rigReservoir->mainGrid()->results()->setReaderInterface(readerInterface.p());
+        m_rigReservoir->computeFaults();
+        m_rigReservoir->mainGrid()->computeCachedData();
     }
 
-    CVF_ASSERT(m_rigReservoir.notNull());
-    CVF_ASSERT(readerInterface.notNull());
-
-    m_rigReservoir->mainGrid()->results()->setReaderInterface(readerInterface.p());
-    m_rigReservoir->computeFaults();
-    m_rigReservoir->mainGrid()->computeCachedData();
+    RigReservoirCellResults* results = m_rigReservoir->mainGrid()->results();
+    RIApplication* app = RIApplication::instance();
+    if (app->preferences()->autocomputeDepthRelatedProperties)
+    {
+        results->computeDepthRelatedResults();
+    }
 
     return true;
  }

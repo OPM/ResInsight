@@ -106,6 +106,11 @@ void RigReservoirCellResults::minMaxCellScalarValues(size_t scalarResultIndex, s
     size_t i;
     for (i = 0; i < values.size(); i++)
     {
+        if (values[i] == HUGE_VAL)
+        {
+            continue;
+        }
+
         if (values[i] < min)
         {
             min = values[i];
@@ -440,6 +445,118 @@ void RigReservoirCellResults::loadOrComputeSOIL()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigReservoirCellResults::computeDepthRelatedResults()
+{
+    size_t depthResultGridIndex  = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DEPTH");
+    size_t dxResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
+    size_t dyResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
+    size_t dzResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DZ");
+    size_t topResultGridIndex    = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "TOP");
+    size_t bottomResultGridIndex = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "BOTTOM");
+
+    bool computeDepth = false;
+    bool computeDx = false;
+    bool computeDy = false;
+    bool computeDz = false;
+    bool computeTop = false;
+    bool computeBottom = false;
+
+    size_t resultValueCount = m_ownerMainGrid->cells().size();
+
+    if (depthResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        depthResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "DEPTH", resultValueCount);
+        computeDepth = true;
+    }
+
+    if (dxResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        dxResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "DX", resultValueCount);
+        computeDx = true;
+    }
+
+    if (dyResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        dyResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "DY", resultValueCount);
+        computeDy = true;
+    }
+    
+    if (dzResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        dzResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "DZ", resultValueCount);
+        computeDz = true;
+    }
+    
+    if (topResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        topResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "TOP", resultValueCount);
+        computeTop = true;
+    }
+    
+    if (bottomResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        bottomResultGridIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, "BOTTOM", resultValueCount);
+        computeBottom = true;
+    }
+
+    std::vector< std::vector<double> >& depth   = cellScalarResults(depthResultGridIndex);
+    std::vector< std::vector<double> >& dx      = cellScalarResults(dxResultGridIndex);
+    std::vector< std::vector<double> >& dy      = cellScalarResults(dyResultGridIndex);
+    std::vector< std::vector<double> >& dz      = cellScalarResults(dzResultGridIndex);
+    std::vector< std::vector<double> >& top     = cellScalarResults(topResultGridIndex);
+    std::vector< std::vector<double> >& bottom  = cellScalarResults(bottomResultGridIndex);
+    
+    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->numActiveCells() > 0;
+
+    size_t cellIdx = 0;
+    for (cellIdx = 0; cellIdx < m_ownerMainGrid->cells().size(); cellIdx++)
+    {
+        const RigCell& cell = m_ownerMainGrid->cells()[cellIdx];
+
+        if (computeValuesForActiveCellsOnly && !cell.active())
+        {
+            continue;
+        }
+
+        if (computeDepth)
+        {
+            depth[0][cellIdx] = cvf::Math::abs(cell.center().z());
+        }
+
+        if (computeDx)
+        {
+            cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
+            dx[0][cellIdx] = cellWidth.length();
+        }
+
+        if (computeDy)
+        {
+            cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
+            dy[0][cellIdx] = cellWidth.length();
+        }
+
+        if (computeDz)
+        {
+            cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
+            dz[0][cellIdx] = cellWidth.length();
+        }
+
+        if (computeTop)
+        {
+            top[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::POS_K).z());
+        }
+
+        if (computeBottom)
+        {
+            bottom[0][cellIdx] = cvf::Math::abs(cell.faceCenter(cvf::StructGridInterface::NEG_K).z());
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigReservoirCellResults::findOrLoadScalarResult(const QString& resultName)
 {
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
@@ -626,3 +743,17 @@ void RigReservoirCellResults::clearAllResults()
         m_cellScalarResults[i].clear();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Add a result with given type and name, and allocate one result vector for the static result values
+//--------------------------------------------------------------------------------------------------
+size_t RigReservoirCellResults::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, size_t resultValueCount)
+{
+    size_t resultIdx = addEmptyScalarResult(type, resultName);
+    
+    m_cellScalarResults[resultIdx].push_back(std::vector<double>());
+    m_cellScalarResults[resultIdx][0].resize(resultValueCount, HUGE_VAL);
+
+    return resultIdx;
+}
+

@@ -46,7 +46,8 @@ RIPreferences::RIPreferences(void)
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.setUiHidden(true);
 
-    CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "Compute SOIL if not on disk", "", "", "");
+    CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "SOIL", "", "SOIL = 1.0 - SGAS - SWAT", "");
+    CAF_PDM_InitField(&autocomputeDepthRelatedProperties,"autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,8 +89,8 @@ void RIPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& u
     defaultSettingsGroup->add(&defaultScaleFactorZ);
     defaultSettingsGroup->add(&defaultGridLines);
 
-
-
-
+    caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
+    autoComputeGroup->add(&autocomputeSOIL);
+    autoComputeGroup->add(&autocomputeDepthRelatedProperties);
 }
 

@@ -45,6 +45,7 @@ public: // Pdm Fields
     caf::PdmField<QString>  lastUsedProjectFileName;
 
     caf::PdmField<bool>     autocomputeSOIL;
+    caf::PdmField<bool>     autocomputeDepthRelatedProperties;
 
 
 protected:
