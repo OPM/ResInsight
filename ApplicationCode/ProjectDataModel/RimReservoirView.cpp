@@ -883,7 +883,10 @@ void RimReservoirView::updateDisplayModelVisibility()
 {
     if (m_viewer.isNull()) return;
  
-    unsigned int mask = 0;
+    // Initialize the mask to show everything except the the bits controlled here
+    unsigned int mask = 0xffffffff & ~surfaceBit & ~faultBit & ~meshSurfaceBit & ~meshFaultBit ;
+
+    // Then turn the appropriate bits on according to the user settings
 
     if (surfaceMode == SURFACE)
     {
