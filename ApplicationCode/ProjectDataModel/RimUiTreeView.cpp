@@ -133,13 +133,13 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteObjectFromContainer()));
-                menu.addAction(QString("Write"), this, SLOT(slotWriteInputProperty()));
+                menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteInputProperty()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimResultSlot*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
-                menu.addAction(QString("Write"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
+                menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
