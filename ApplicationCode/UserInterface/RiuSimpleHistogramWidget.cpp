@@ -10,6 +10,8 @@ QWidget(parent, f)
 {
     m_minPercentile = HUGE_VAL;
     m_maxPercentile = HUGE_VAL;
+    m_mean = HUGE_VAL;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,6 +78,14 @@ void RiuSimpleHistogramWidget::draw(QPainter *painter,int x, int y, int width, i
     {
         int xpos = xPosFromDomainValue(m_maxPercentile);
         painter->setPen(QColor(255, 0, 0, 200));
+        painter->drawLine(xpos, y+1, xpos, y + height -1);
+    }
+
+    // Vertical lines for percentiles
+    if (m_mean != HUGE_VAL)
+    {
+        int xpos = xPosFromDomainValue(m_mean);
+        painter->setPen(QColor(0, 0, 255, 200));
         painter->drawLine(xpos, y+1, xpos, y + height -1);
     }
 }

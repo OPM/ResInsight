@@ -37,13 +37,17 @@ RIPreferences::RIPreferences(void)
     CAF_PDM_InitField(&octaveExecutable,                "octaveExecutable", QString("octave"), "Octave", "", "", "");
     octaveExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
+    CAF_PDM_InitField(&defaultGridLines,                "defaultGridLines", true, "Gridlines", "", "", "");
+    CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
+
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
-    CAF_PDM_InitField(&showHud,                         "showHud", true, "Show 3D Information", "", "", "");
+    CAF_PDM_InitField(&showHud,                         "showHud", false, "Show 3D Information", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.setUiHidden(true);
 
-    CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "Compute SOIL if not on disk", "", "", "");
+    CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "SOIL", "", "SOIL = 1.0 - SGAS - SWAT", "");
+    CAF_PDM_InitField(&autocomputeDepthRelatedProperties,"autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,5 +71,26 @@ void RIPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QStr
             myAttr->m_selectDirectory = true;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+{
+    uiOrdering.add(&navigationPolicy);
+
+    caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script configuration");
+    scriptGroup->add(&scriptDirectory);
+    scriptGroup->add(&scriptEditorExecutable);
+    scriptGroup->add(&octaveExecutable);
+
+    caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
+    defaultSettingsGroup->add(&defaultScaleFactorZ);
+    defaultSettingsGroup->add(&defaultGridLines);
+
+    caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
+    autoComputeGroup->add(&autocomputeSOIL);
+    autoComputeGroup->add(&autocomputeDepthRelatedProperties);
 }
 

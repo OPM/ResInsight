@@ -299,8 +299,6 @@ void RimCellEdgeResultSlot::updateIgnoredScalarValue()
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeResultSlot::minMaxCellEdgeValues(double& min, double& max)
 {
-    CVF_ASSERT(min && max);
-
     double globalMin, globalMax;
     globalMin = HUGE_VAL;
     globalMax = -HUGE_VAL;

@@ -263,6 +263,8 @@ static bool isWrongThread()
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::start(int maxProgressValue, const QString& title)
 {
+    if (!qApp) return;
+
     if (isWrongThread()) return;
 
     if (!maxProgressStack().size())

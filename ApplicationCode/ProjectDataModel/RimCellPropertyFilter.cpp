@@ -24,6 +24,7 @@
 #include "RigGridBase.h"
 #include "RigReservoirCellResults.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
 
 
 
@@ -65,9 +66,15 @@ RimCellPropertyFilter::RimCellPropertyFilter()
     resultDefinition.setUiHidden(true);
 
     CAF_PDM_InitField(&lowerBound, "LowerBound", 0.0, "Min", "", "", "");
+    lowerBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
+
     CAF_PDM_InitField(&upperBound, "UpperBound", 0.0, "Max", "", "", "");
+    upperBound.setUiEditorTypeName(caf::PdmUiDoubleSliderEditor::uiEditorTypeName());
 
     updateIconState();
+
+    m_minimumResultValue = cvf::UNDEFINED_DOUBLE;
+    m_maximumResultValue = cvf::UNDEFINED_DOUBLE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,6 +155,9 @@ void RimCellPropertyFilter::setDefaultValues()
 
     upperBound = max;
     upperBound.setUiName(QString("Max (%1)").arg(max));
+
+    m_maximumResultValue = max;
+    m_minimumResultValue = min;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,5 +181,28 @@ void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add(&lowerBound);
     uiOrdering.add(&upperBound);
     uiOrdering.add(&filterMode);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    if (m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE)
+    {
+        return;
+    }
+
+    if (field == &lowerBound || field == &upperBound)
+    {
+        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>(attribute);
+        if (!myAttr)
+        {
+            return;
+        }
+
+        myAttr->m_minimum = m_minimumResultValue;
+        myAttr->m_maximum = m_maximumResultValue;
+    }
 }
 

@@ -133,13 +133,19 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteObjectFromContainer()));
-                menu.addAction(QString("Write"), this, SLOT(slotWriteInputProperty()));
+                menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteInputProperty()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimResultSlot*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
-                menu.addAction(QString("Write"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
+                menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
+                menu.exec(event->globalPos());
+            }
+            else if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
+            {
+                QMenu menu;
+                menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.exec(event->globalPos());
             }
         }
@@ -452,7 +458,26 @@ void RimUiTreeView::slotExecuteScript()
         QString octavePath = app->octavePath();
         if (!octavePath.isEmpty())
         {
+            // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
+
+            // -p path
+            // Add path to the head of the search path for function files. The value of path specified on the command line
+            // will override any value of OCTAVE_PATH found in the environment, but not any commands in the system or
+            // user startup files that set the internal load path through one of the path functions.
+
+            // -q
+            // Don't print the usual greeting and version message at startup.
+
+
+            // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
+            // absolutePath() is a function in QFileInfo
+            QFileInfo fi(calcScript->absolutePath());
+            QString octaveFunctionSearchPath = fi.absolutePath();
+
             QStringList arguments;
+            arguments.append("--path");
+            arguments << octaveFunctionSearchPath;
+
             arguments.append("-q");
             arguments << calcScript->absolutePath();
 
@@ -539,8 +564,16 @@ void RimUiTreeView::setModel(QAbstractItemModel* model)
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotAddInputProperty()
 {
-    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select Eclipse Input Property Files", NULL, "All Files (*.* *)");
+    RIApplication* app = RIApplication::instance();
+    QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
+    QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select Eclipse Input Property Files", defaultDir, "All Files (*.* *)");
+
     if (fileNames.isEmpty()) return;
+
+    // Remember the directory to next time
+    defaultDir = QFileInfo(fileNames.last()).absolutePath();
+    app->setDefaultFileDialogDirectory("INPUT_FILES", defaultDir);
+
 
     QModelIndex index = currentIndex();
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
@@ -699,6 +732,18 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotCloseCase()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        myModel->deleteReservoir(currentIndex());
     }
 }
 

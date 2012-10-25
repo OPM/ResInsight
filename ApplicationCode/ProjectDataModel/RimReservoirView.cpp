@@ -49,8 +49,9 @@ namespace caf {
 template<>
 void caf::AppEnum< RimReservoirView::MeshModeType >::setUp()
 {
-    addItem(RimReservoirView::FULL_MESH,       "FULL_MESH",       "All");
-    addItem(RimReservoirView::NO_MESH,         "NO_MESH",         "None");
+    addItem(RimReservoirView::FULL_MESH,      "FULL_MESH",       "All");
+    addItem(RimReservoirView::FAULTS_MESH,    "FAULTS_MESH",      "Faults only");
+    addItem(RimReservoirView::NO_MESH,        "NO_MESH",        "None");
     setDefault(RimReservoirView::FULL_MESH);
 }
 
@@ -58,7 +59,7 @@ template<>
 void caf::AppEnum< RimReservoirView::SurfaceModeType >::setUp()
 {
     addItem(RimReservoirView::SURFACE,              "SURFACE",             "All");
-    addItem(RimReservoirView::FAULTS,               "FAULTS",              "Faults");
+    addItem(RimReservoirView::FAULTS,               "FAULTS",              "Faults only");
     addItem(RimReservoirView::NO_SURFACE,           "NO_SURFACE",          "None");
     setDefault(RimReservoirView::SURFACE);
 }
@@ -80,6 +81,10 @@ CAF_PDM_SOURCE_INIT(RimReservoirView, "ReservoirView");
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::RimReservoirView()
 {
+    RIApplication* app = RIApplication::instance();
+    RIPreferences* preferences = app->preferences();
+    CVF_ASSERT(preferences);
+
     CAF_PDM_InitObject("Reservoir View", ":/ReservoirView.png", "", "");
  
     CAF_PDM_InitFieldNoDefault(&cellResult,  "GridCellResult", "Cell Result", ":/CellResult.png", "", "");
@@ -93,7 +98,11 @@ RimReservoirView::RimReservoirView()
     overlayInfoConfig->setReservoirView(this);
 
     CAF_PDM_InitField(&name,            "UserDescription", QString(""), "Name",             "", "", "");
-    CAF_PDM_InitField(&scaleZ,          "GridZScale",      1.0,         "Z Scale",          "", "Scales the scene in the Z direction", "");
+    
+    double defaultScaleFactor = 1.0;
+    if (preferences) defaultScaleFactor = preferences->defaultScaleFactorZ;
+    CAF_PDM_InitField(&scaleZ,          "GridZScale", defaultScaleFactor,         "Z Scale",          "", "Scales the scene in the Z direction", "");
+
     CAF_PDM_InitField(&showWindow,      "ShowWindow",      true,        "Show 3D viewer",   "", "", "");
     showWindow.setUiHidden(true);
 
@@ -114,7 +123,9 @@ RimReservoirView::RimReservoirView()
     propertyFilterCollection = new RimCellPropertyFilterCollection();
     propertyFilterCollection->setReservoirView(this);
 
-    CAF_PDM_InitFieldNoDefault(&meshMode,    "MeshMode",    "Grid lines",   "", "", "");
+    caf::AppEnum<RimReservoirView::MeshModeType> defaultMeshType = NO_MESH;
+    if (preferences->defaultGridLines) defaultMeshType = FULL_MESH;
+    CAF_PDM_InitField(&meshMode, "MeshMode", defaultMeshType, "Grid lines",   "", "", "");
     CAF_PDM_InitFieldNoDefault(&surfaceMode, "SurfaceMode", "Grid surface",  "", "", "");
 
     CAF_PDM_InitField(&maximumFrameRate, "MaximumFrameRate", 10, "Maximum frame rate","", "", "");
@@ -153,6 +164,7 @@ RimReservoirView::~RimReservoirView()
 
     delete rangeFilterCollection();
     delete propertyFilterCollection();
+    delete wellCollection();
 
     if (m_viewer)
     {
@@ -870,35 +882,30 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 void RimReservoirView::updateDisplayModelVisibility()
 {
     if (m_viewer.isNull()) return;
+ 
+    // Initialize the mask to show everything except the the bits controlled here
+    unsigned int mask = 0xffffffff & ~surfaceBit & ~faultBit & ~meshSurfaceBit & ~meshFaultBit ;
 
-    bool surfaceVisible = false;
-    bool faultVisible = false;
+    // Then turn the appropriate bits on according to the user settings
 
     if (surfaceMode == SURFACE)
     {
-        surfaceVisible = true;
-        faultVisible = true;
+         mask |= surfaceBit;
+         mask |= faultBit;
     }
     else if (surfaceMode == FAULTS)
     {
-        faultVisible = true;
+        mask |= faultBit;
     }
 
-    unsigned int mask = 0;
     if (meshMode == FULL_MESH)
     {
-        if (surfaceVisible) mask |= meshSurfaceBit;
-        if (faultVisible) mask |= meshFaultBit;
+        mask |= meshSurfaceBit;
+        mask |= meshFaultBit;
     }
-
-    if (surfaceVisible)
+    else if (meshMode == FAULTS_MESH)
     {
-        mask |= surfaceBit;
-    }
-    
-    if (faultVisible)
-    {
-        mask |= faultBit;
+        mask |= meshFaultBit;
     }
 
     m_viewer->setEnableMask(mask);

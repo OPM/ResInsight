@@ -173,6 +173,8 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   void                  ecl_sum_fwrite( const ecl_sum_type * ecl_sum );
   void                  ecl_sum_fwrite_smspec( const ecl_sum_type * ecl_sum );
   smspec_node_type    * ecl_sum_add_var( ecl_sum_type * ecl_sum , const char * keyword , const char * wgname , int num , const char * unit , float default_value);
+  smspec_node_type    * ecl_sum_add_blank_var( ecl_sum_type * ecl_sum , float default_value);
+  void                  ecl_sum_init_var( ecl_sum_type * ecl_sum , smspec_node_type * smspec_node , const char * keyword , const char * wgname , int num , const char * unit);
   ecl_sum_tstep_type  * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_days);
   void                  ecl_sum_update_wgname( ecl_sum_type * ecl_sum , smspec_node_type * node , const char * wgname );
 

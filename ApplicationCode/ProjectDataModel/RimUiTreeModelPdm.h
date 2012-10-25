@@ -48,6 +48,7 @@ public:
     bool            deletePropertyFilter(const QModelIndex& itemIndex);
     bool            deleteReservoirView(const QModelIndex& itemIndex);
     void            deleteInputProperty(const QModelIndex& itemIndex);
+    void            deleteReservoir(const QModelIndex& itemIndex);
 
     RimCellPropertyFilter*  addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*     addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);

@@ -72,10 +72,12 @@ public:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
 
 protected:
-    virtual void            defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const;
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const;
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:
     RimCellPropertyFilterCollection* m_parentContainer;
+    double m_minimumResultValue, m_maximumResultValue;
 };
 
 

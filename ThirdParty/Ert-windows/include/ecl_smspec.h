@@ -44,8 +44,9 @@ typedef struct ecl_smspec_struct ecl_smspec_type;
    ecl_smspec_install_gen_key() must be updated.
 */
   const int_vector_type * ecl_smspec_get_index_map( const ecl_smspec_type * smspec );
-  
-  void                ecl_smspec_add_node(ecl_smspec_type * ecl_smspec, smspec_node_type * smspec_node);
+  void                ecl_smspec_index_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node);
+  void                ecl_smspec_insert_node(ecl_smspec_type * ecl_smspec, smspec_node_type * smspec_node);  
+  void ecl_smspec_add_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node );
   ecl_smspec_var_type ecl_smspec_iget_var_type( const ecl_smspec_type * smspec , int index );
   bool                ecl_smspec_needs_num( ecl_smspec_var_type var_type );
   bool                ecl_smspec_needs_wgname( ecl_smspec_var_type var_type );
@@ -112,7 +113,7 @@ typedef struct ecl_smspec_struct ecl_smspec_type;
 
 
 
-  
+  void              ecl_smspec_init_var( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node , const char * keyword , const char * wgname , int num, const char * unit );  
   void              ecl_smspec_select_matching_general_var_list( const ecl_smspec_type * smspec , const char * pattern , stringlist_type * keys);
   stringlist_type * ecl_smspec_alloc_matching_general_var_list(const ecl_smspec_type * smspec , const char * pattern);
 

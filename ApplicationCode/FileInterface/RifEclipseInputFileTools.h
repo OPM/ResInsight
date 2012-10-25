@@ -23,9 +23,22 @@
 #include "cvfLibCore.h"
 #include <map>
 
+#include <QString>
+
+
 class RigReservoir;
-class QString;
 class QFile;
+
+
+//--------------------------------------------------------------------------------------------------
+/// Structure used to cache file position of keywords
+//--------------------------------------------------------------------------------------------------
+struct RifKeywordAndFilePos
+{
+    QString keyword;
+    qint64  filePos;
+};
+
 
 //==================================================================================================
 //
@@ -43,7 +56,9 @@ public:
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties(const QString& fileName, RigReservoir* reservoir);
     static bool                       readProperty  (const QString& fileName, RigReservoir* reservoir, const QString& eclipseKeyWord, const QString& resultName );
-    static std::vector<QString> findKeywordsOnFile(const QString &fileName);
+    static bool                       readPropertyAtFilePosition (const QString& fileName, RigReservoir* reservoir, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName );
+
+    static std::vector< RifKeywordAndFilePos > findKeywordsOnFile(const QString &fileName);
 
     static const std::vector<QString>& knownPropertyKeywords(); 
 
@@ -52,4 +67,5 @@ public:
 
 private:
     static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);
+    static void     findGridKeywordPositions(const QString& filename, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos);
 };

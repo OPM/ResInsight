@@ -18,8 +18,8 @@
 #ifndef __THREAD_POOL_H__
 #define __THREAD_POOL_H__
 
-#ifdef  HAVE_PTHREAD
-#define HAVE_THREAD_POOL   
+#ifdef  WITH_PTHREAD
+#define WITH_THREAD_POOL   
 #include "thread_pool_posix.h"
 #endif
 

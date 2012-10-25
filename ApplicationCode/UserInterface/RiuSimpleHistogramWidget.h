@@ -11,6 +11,7 @@ public:
 
     void                setHistogramData(double min, double max, const std::vector<size_t>& histogram);
     void                setPercentiles(double pmin, double pmax) {m_minPercentile = pmin; m_maxPercentile = pmax;}
+    void                setMean(double mean) {m_mean = mean;}
 
 protected:
      virtual void       paintEvent(QPaintEvent* event);
@@ -28,6 +29,7 @@ private:
     double              m_min;
     double              m_minPercentile;
     double              m_maxPercentile;
+    double              m_mean;
     size_t              m_maxHistogramCount;
 
     double              m_width;
