@@ -395,6 +395,12 @@ void RigReservoirCellResults::loadOrComputeSOIL()
             sgas = &(cellScalarResults(scalarIndexSGAS));
         }
 
+        // Early exit if none of SWAT or SGAS is present
+        if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
+        {
+            return;
+        }
+
         size_t soilResultValueCount = 0;
         size_t soilTimeStepCount = 0;
         if (swat)
