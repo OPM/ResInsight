@@ -92,7 +92,7 @@ extern "C" {
   buffer_type      * buffer_fread_alloc(const char * filename);
   void               buffer_fread_realloc(buffer_type * buffer , const char * filename);
 
-#ifdef HAVE_ZLIB
+#ifdef WITH_ZLIB
   size_t             buffer_fwrite_compressed(buffer_type * buffer, const void * ptr , size_t byte_size);
   size_t             buffer_fread_compressed(buffer_type * buffer , size_t compressed_size , void * target_ptr , size_t target_size);
 #endif

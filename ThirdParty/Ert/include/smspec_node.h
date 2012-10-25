@@ -68,6 +68,15 @@ typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
   char * smspec_alloc_local_completion_key( const char * join_string, const char * keyword , const char * lgr_name , const char * wgname , int i , int j , int k);
 
 
+  bool smspec_node_init( smspec_node_type * smspec_node, 
+                         ecl_smspec_var_type var_type , 
+                         const char * wgname  , 
+                         const char * keyword , 
+                         const char * unit    , 
+                         const char * key_join_string , 
+                         const int grid_dims[3] , 
+                         int num);
+
   
   smspec_node_type * smspec_node_alloc( ecl_smspec_var_type var_type , 
                                         const char * wgname  , 
@@ -87,6 +96,7 @@ typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
                                             int param_index, 
                                             float default_value);
 
+  smspec_node_type *  smspec_node_alloc_new(int params_index, float default_value);
 
   void                smspec_node_free( smspec_node_type * index );
   void                smspec_node_free__(void * arg);
@@ -100,11 +110,15 @@ typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
   void                smspec_node_update_wgname( smspec_node_type * index , const char * wgname , const char * key_join_string);
   const char        * smspec_node_get_keyword( const smspec_node_type * smspec_node);
   const char        * smspec_node_get_unit( const smspec_node_type * smspec_node);
+  void                smspec_node_set_unit( smspec_node_type * smspec_node , const char * unit );
   bool                smspec_node_is_rate( const smspec_node_type * smspec_node );
   bool                smspec_node_is_total( const smspec_node_type * smspec_node );
   bool                smspec_node_need_nums( const smspec_node_type * smspec_node );
-  float               smspec_node_get_default_value( const smspec_node_type * smspec_node );
   void                smspec_node_fprintf( const smspec_node_type * smspec_node , FILE * stream);
+
+  void                smspec_node_set_default( smspec_node_type * smspec_node , float default_value);
+  float               smspec_node_get_default( const smspec_node_type * smspec_node);
+
   
 #ifdef __cplusplus
 }

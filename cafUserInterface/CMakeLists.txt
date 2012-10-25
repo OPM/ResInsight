@@ -19,6 +19,8 @@ set( QOBJECT_HEADERS
     cafPdmUiFilePathEditor.h
     cafPdmUiListEditor.h
     cafPdmUiSliderEditor.h
+    cafPdmUiDoubleSliderEditor.h
+
     cafPdmUiColorEditor.h
     
     cafPdmUiPropertyView.h
@@ -43,6 +45,7 @@ add_library( ${PROJECT_NAME}
     cafPdmUiFilePathEditor.cpp
     cafPdmUiListEditor.cpp
     cafPdmUiSliderEditor.cpp
+    cafPdmUiDoubleSliderEditor.cpp
     cafPdmUiColorEditor.cpp
 
     cafPdmUiPropertyView.cpp

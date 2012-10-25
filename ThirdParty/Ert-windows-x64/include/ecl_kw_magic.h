@@ -255,6 +255,9 @@ extern "C" {
  
 /* Common keywords */
 #define SPECGRID_KW    "SPECGRID"
+#define SPECGRID_NX_INDEX  0 
+#define SPECGRID_NY_INDEX  1 
+#define SPECGRID_NZ_INDEX  2 
 #define MAPAXES_KW     "MAPAXES"    /* Keyword used to transform from grid coordinates to
                                        world coordinates. */
 #define LGR_KW         "LGR"        /* Name of LGR; for GRID files it can contain two elements, 

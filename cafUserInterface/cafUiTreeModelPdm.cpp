@@ -315,7 +315,17 @@ bool UiTreeModelPdm::removeRows(int position, int rows, const QModelIndex &paren
 {
     if (rows <= 0) return true;
 
-    PdmUiTreeItem* parentItem = getTreeItemFromIndex(parent);
+    PdmUiTreeItem* parentItem = NULL;
+    if (parent.isValid())
+    {
+        parentItem = getTreeItemFromIndex(parent);
+    }
+    else
+    {
+        parentItem = m_root;
+    }
+
+    if (!parentItem) return true;
 
     bool success = true;
 

@@ -67,6 +67,8 @@ private slots:
     void slotWriteInputProperty();
     void slotWriteBinaryResultAsInputProperty();
 
+    void slotCloseCase();
+
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 signals:

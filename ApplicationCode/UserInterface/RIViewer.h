@@ -29,6 +29,7 @@ class RimReservoirView;
 class QLabel;
 class QProgressBar;
 class RiuSimpleHistogramWidget;
+class QCDEStyle;
 
 namespace cvf
 {
@@ -60,7 +61,7 @@ public:
     void            setInfoText(QString text);
     void            showHistogram(bool enable);
     void            setHistogram(double min, double max, const std::vector<size_t>& histogram);
-    void            setHistogramPercentiles(double pmin, double pmax);
+    void            setHistogramPercentiles(double pmin, double pmax, double mean);
 
     void            showAnimationProgress(bool enable);
  
@@ -88,6 +89,7 @@ private:
     RiuSimpleHistogramWidget* m_histogramWidget;
     bool            m_showHistogram;
 
+    QCDEStyle*      m_progressBarStyle;
 
 
     cvf::ref<cvf::OverlayScalarMapperLegend> m_legend1;

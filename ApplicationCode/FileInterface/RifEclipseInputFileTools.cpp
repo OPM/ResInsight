@@ -29,6 +29,7 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QDebug>
 
 #ifdef USE_ECL_LIB
 #include "ecl_grid.h"
@@ -36,6 +37,8 @@
 #include "util.h"
 #endif 
 #include <fstream>
+
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -63,6 +66,20 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
 {
     CVF_ASSERT(reservoir);
 
+    qint64 coordPos = -1;
+    qint64 zcornPos = -1;
+    qint64 specgridPos = -1;
+    qint64 actnumPos = -1;
+    qint64 mapaxesPos = -1;
+
+    findGridKeywordPositions(fileName, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos);
+
+    if (coordPos < 0 || zcornPos < 0 || specgridPos < 0)
+    {
+        return false;
+    }
+
+
     FILE* gridFilePointer = util_fopen(fileName.toLatin1().data(), "r");
     if (!gridFilePointer) return false;
 
@@ -74,6 +91,8 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
     //ecl_kw_type  *  ecl_kw_fscanf_alloc_grdecl_dynamic__( FILE * stream , const char * kw , bool strict , ecl_type_enum ecl_type);
     //ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , const ecl_kw_type * zcorn_kw , const ecl_kw_type * coord_kw , const ecl_kw_type * actnum_kw , const ecl_kw_type * mapaxes_kw ); 
 
+
+
     ecl_kw_type* specGridKw  = NULL;
     ecl_kw_type* zCornKw     = NULL;
     ecl_kw_type* coordKw     = NULL;
@@ -82,19 +101,38 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
 
     // Try to read all the needed keywords. Early exit if some are not found
     caf::ProgressInfo progress(7, "Read Grid from Eclipse Input file");
-    bool allKwReadOk = true;
 
-    allKwReadOk = allKwReadOk && NULL != (specGridKw = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "SPECGRID" , false , ECL_INT_TYPE));
+
+
+    bool allKwReadOk = true;
+    bool continueReading = true;
+
+    fseek(gridFilePointer, specgridPos, SEEK_SET);
+    allKwReadOk = allKwReadOk && NULL != (specGridKw = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_INT_TYPE));
     progress.setProgress(1);
-    allKwReadOk = allKwReadOk && NULL != (zCornKw    = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "ZCORN" , false , ECL_FLOAT_TYPE));
+
+    fseek(gridFilePointer, zcornPos, SEEK_SET);
+    allKwReadOk = allKwReadOk && NULL != (zCornKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_FLOAT_TYPE));
     progress.setProgress(2);
-    allKwReadOk = allKwReadOk && NULL != (coordKw    = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "COORD" , false , ECL_FLOAT_TYPE));
+
+    fseek(gridFilePointer, coordPos, SEEK_SET);
+    allKwReadOk = allKwReadOk && NULL != (coordKw    = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_FLOAT_TYPE));
     progress.setProgress(3);
-    allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "ACTNUM" , false , ECL_INT_TYPE));
-    progress.setProgress(4);
+
+    // If ACTNUM is not defined, this pointer will be NULL, which is a valid condition
+    if (actnumPos >= 0)
+    {
+        fseek(gridFilePointer, actnumPos, SEEK_SET);
+        allKwReadOk = allKwReadOk && NULL != (actNumKw   = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer, false , ECL_INT_TYPE));
+        progress.setProgress(4);
+    }
 
     // If MAPAXES is not defined, this pointer will be NULL, which is a valid condition
-    mapAxesKw = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , "MAPAXES" , false , ECL_FLOAT_TYPE);
+    if (mapaxesPos >= 0)
+    {
+        fseek(gridFilePointer, mapaxesPos, SEEK_SET);
+        mapAxesKw = ecl_kw_fscanf_alloc_current_grdecl__( gridFilePointer, false , ECL_FLOAT_TYPE);
+    }
 
     if (!allKwReadOk)
     {
@@ -125,7 +163,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
     ecl_kw_free(specGridKw);
     ecl_kw_free(zCornKw);
     ecl_kw_free(coordKw);
-    ecl_kw_free(actNumKw);
+    if (actNumKw) ecl_kw_free(actNumKw);
     if (mapAxesKw) ecl_kw_free(mapAxesKw);
 
     ecl_grid_free(inputGrid);
@@ -152,7 +190,7 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
     caf::ProgressInfo mainProgress(2, "Reading Eclipse Input properties");
     caf::ProgressInfo startProgress(knownKeywordSet.size(), "Scanning for known properties");
 
-    std::vector<QString> fileKeywords = RifEclipseInputFileTools::findKeywordsOnFile(fileName);
+    std::vector<RifKeywordAndFilePos> fileKeywords = RifEclipseInputFileTools::findKeywordsOnFile(fileName);
 
     mainProgress.setProgress(1);
     caf::ProgressInfo progress(fileKeywords.size(), "Reading properties");
@@ -168,13 +206,14 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
     std::map<QString, QString> newResults;
     for (size_t i = 0; i < fileKeywords.size(); ++i)
     {
-        std::cout << fileKeywords[i].toLatin1().data() << std::endl;
-        if (knownKeywordSet.count(fileKeywords[i]))
+        //std::cout << fileKeywords[i].keyword.toLatin1().data() << std::endl;
+        if (knownKeywordSet.count(fileKeywords[i].keyword))
         {
-            ecl_kw_type* eclKeyWordData = ecl_kw_fscanf_alloc_grdecl_dynamic__( gridFilePointer , fileKeywords[i].toLatin1().data() , false , ECL_FLOAT_TYPE);
+            fseek(gridFilePointer, fileKeywords[i].filePos, SEEK_SET);
+            ecl_kw_type* eclKeyWordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer,  false , ECL_FLOAT_TYPE);
             if (eclKeyWordData)
             {
-                QString newResultName = reservoir->mainGrid()->results()->makeResultNameUnique(fileKeywords[i]);
+                QString newResultName = reservoir->mainGrid()->results()->makeResultNameUnique(fileKeywords[i].keyword);
 
                 size_t resultIndex = reservoir->mainGrid()->results()->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); // Should really merge with inputProperty object information because we need to use PropertyName, and not keyword
 
@@ -184,7 +223,7 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
                 ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
 
                 ecl_kw_free(eclKeyWordData);
-                newResults[newResultName] = fileKeywords[i];
+                newResults[newResultName] = fileKeywords[i].keyword;
             }
         }
         progress.setProgress(i);
@@ -196,45 +235,47 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
 
 //--------------------------------------------------------------------------------------------------
 /// Read all the keywords from a file
+//
+// This code was originally written using QTextStream, but due to a bug in Qt version up to 4.8.0
+// we had to implement the reading using QFile and QFile::readLine
+//
+// See:
+// https://bugreports.qt-project.org/browse/QTBUG-9814
+//
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName)
+std::vector< RifKeywordAndFilePos > RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName)
 {
-    std::vector<QString> keywords;
+    std::vector< RifKeywordAndFilePos > keywords;
 
-    std::ifstream is(fileName.toLatin1().data());
+    char buf[1024];
 
-    while (is)
+    QFile data(fileName);
+    data.open(QFile::ReadOnly);
+
+    QString line;
+    qint64 filepos = -1;
+    qint64 lineLength = -1;
+
+    do
     {
-        std::string word;
-        is >> word;
-        if (word.size() && isalpha(word[0])) 
+        lineLength = data.readLine(buf, sizeof(buf));
+        if (lineLength > 0)
         {
-            keywords.push_back(word.c_str());
+            line = QString::fromAscii(buf);
+            if (line.size() && line[0].isLetter())
+            {
+                RifKeywordAndFilePos keyPos;
+
+                filepos = data.pos() - lineLength;
+                keyPos.filePos = filepos;
+                keyPos.keyword = line.left(8).trimmed();
+                keywords.push_back(keyPos);
+                //qDebug() << keyPos.keyword << " - " << keyPos.filePos;
+            }
         }
-
-        is.ignore(20000, '\n');
     }
+    while (lineLength != -1);
 
-    is.close();
-
-    /*
-    FILE* gridFilePointer = util_fopen(fileName.toLatin1().data(), "r");
-
-    if (!gridFilePointer) return keywords;
-
-    char * keyWordString = NULL;
- 
-    keyWordString = ecl_kw_grdecl_alloc_next_header(gridFilePointer);
-
-    while(keyWordString)
-    {
-        keywords.push_back(keyWordString);
-        util_realloc(keyWordString, 0, "RifEclipseInputFileTools::findKeywordsOnFile");
-        keyWordString = ecl_kw_grdecl_alloc_next_header(gridFilePointer);
-    }
-
-    util_fclose(gridFilePointer);
-    */
     return keywords;
 }
 
@@ -433,4 +474,74 @@ void RifEclipseInputFileTools::writeDataToTextFile(QFile* file, const QString& e
     }
 
     out << "\n" << "/" << "\n";
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::findGridKeywordPositions(const QString& filename, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos)
+{
+    CVF_ASSERT(coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos);
+
+
+    std::vector< RifKeywordAndFilePos > keywordsAndFilePos = findKeywordsOnFile(filename);
+    size_t i;
+    for (i = 0; i < keywordsAndFilePos.size(); i++)
+    {
+        if (keywordsAndFilePos[i].keyword == "COORD")
+        {
+            *coordPos = keywordsAndFilePos[i].filePos;
+        }
+        else if (keywordsAndFilePos[i].keyword == "ZCORN")
+        {
+            *zcornPos = keywordsAndFilePos[i].filePos;
+        }
+        else if (keywordsAndFilePos[i].keyword == "SPECGRID")
+        {
+            *specgridPos = keywordsAndFilePos[i].filePos;
+        }
+        else if (keywordsAndFilePos[i].keyword == "ACTNUM")
+        {
+            *actnumPos = keywordsAndFilePos[i].filePos;
+        }
+        else if (keywordsAndFilePos[i].keyword == "MAPAXES")
+        {
+            *mapaxesPos = keywordsAndFilePos[i].filePos;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigReservoir* reservoir, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
+{
+    CVF_ASSERT(reservoir);
+
+    FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
+    if (!filePointer) return false;
+
+    fseek(filePointer, filePos, SEEK_SET);
+    ecl_kw_type* eclKeyWordData = ecl_kw_fscanf_alloc_current_grdecl__(filePointer, false , ECL_FLOAT_TYPE);
+    bool isOk = false;
+    if (eclKeyWordData)
+    {
+        QString newResultName = resultName;
+        size_t resultIndex = reservoir->mainGrid()->results()->findScalarResultIndex(newResultName);
+        if (resultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            resultIndex = reservoir->mainGrid()->results()->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
+        }
+
+        std::vector< std::vector<double> >& newPropertyData = reservoir->mainGrid()->results()->cellScalarResults(resultIndex);
+        newPropertyData.resize(1);
+        newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
+        ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
+        isOk = true;
+        ecl_kw_free(eclKeyWordData);
+    }
+
+    util_fclose(filePointer);
+    return isOk;
 }

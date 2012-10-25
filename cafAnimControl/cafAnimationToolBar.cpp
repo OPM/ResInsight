@@ -99,7 +99,7 @@ void AnimationToolBar::init()
     addAction(m_animSkipToStartAction);
     addAction(m_animStepBackwardAction);
     addAction(m_animPlayBwdAction         );
-    addAction(m_animStopAction);
+    //addAction(m_animStopAction);
     addAction(m_animPauseAction);
     addAction(m_animPlayAction);
     addAction(m_animStepForwardAction);

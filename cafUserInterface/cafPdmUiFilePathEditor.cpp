@@ -122,11 +122,21 @@ void PdmUiFilePathEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 void PdmUiFilePathEditor::fileSelectionClicked()
 {
+    QString defaultPath;
+    if ( m_lineEdit->text().isEmpty())
+    {
+        defaultPath = QDir::homePath();
+    }
+    else
+    {
+        defaultPath = m_lineEdit->text();
+    }
+
     if (m_attributes.m_selectDirectory)
     {
         QString directoryPath = QFileDialog::getExistingDirectory(m_lineEdit, 
                                                 tr("Get existing directory"),
-                                                m_lineEdit->text(),
+                                                defaultPath,
                                                 QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
         
         if (!directoryPath.isEmpty())
@@ -140,11 +150,11 @@ void PdmUiFilePathEditor::fileSelectionClicked()
         QString filePath;
         if (m_attributes.m_selectSaveFileName)
         {
-            filePath = QFileDialog::getSaveFileName(m_lineEdit, tr("Save File"), m_lineEdit->text(), m_attributes.m_fileSelectionFilter);
+            filePath = QFileDialog::getSaveFileName(m_lineEdit, tr("Save File"), defaultPath, m_attributes.m_fileSelectionFilter);
         }
         else
         {
-            filePath = QFileDialog::getOpenFileName(m_lineEdit, tr("Choose a file"), m_lineEdit->text(), m_attributes.m_fileSelectionFilter);
+            filePath = QFileDialog::getOpenFileName(m_lineEdit, tr("Choose a file"), defaultPath, m_attributes.m_fileSelectionFilter);
         }
 
         if (!filePath.isEmpty())

@@ -405,7 +405,7 @@ const char * util_enum_iget( int index , int size , const util_enum_element_type
 /*****************************************************************/
 /* Conditional section below here */
 
-#ifdef HAVE_ZLIB
+#ifdef WITH_ZLIB
   void     util_compress_buffer(const void * , int , void * , unsigned long * );
   int      util_fread_sizeof_compressed(FILE * stream);
   void     util_fread_compressed(void * , FILE * );

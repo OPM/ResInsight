@@ -96,7 +96,9 @@ RIViewer::RIViewer(const QGLFormat& format, QWidget* parent)
     m_animationProgress->setPalette(p);
     m_animationProgress->setFormat("Time Step: %v/%m");
     m_animationProgress->setTextVisible(true);
-    m_animationProgress->setStyle(new QCDEStyle());
+
+    m_progressBarStyle = new QCDEStyle();
+    m_animationProgress->setStyle(m_progressBarStyle);
     m_showAnimProgress = false;
 
     // Histogram
@@ -114,6 +116,11 @@ RIViewer::~RIViewer()
 {
     m_reservoirView->showWindow = false;
     m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
+
+    delete m_InfoLabel;
+    delete m_animationProgress;
+    delete m_histogramWidget;
+    delete m_progressBarStyle;
 }
 
 
@@ -405,6 +412,12 @@ cvf::Part* RIViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, c
 //--------------------------------------------------------------------------------------------------
 void RIViewer::paintOverlayItems(QPainter* painter)
 {
+    // No support for overlay items using SW rendering yet.
+    if (!isShadersSupported())
+    {
+        return;
+    }
+
     int columnWidth = 200;
     int margin = 5;
     int yPos = margin;
@@ -471,9 +484,10 @@ void RIViewer::setHistogram(double min, double max, const std::vector<size_t>& h
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setHistogramPercentiles(double pmin, double pmax)
+void RIViewer::setHistogramPercentiles(double pmin, double pmax, double mean)
 {
     m_histogramWidget->setPercentiles(pmin, pmax);
+    m_histogramWidget->setMean(mean);
 }
 
 //--------------------------------------------------------------------------------------------------
