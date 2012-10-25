@@ -206,7 +206,7 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
     std::map<QString, QString> newResults;
     for (size_t i = 0; i < fileKeywords.size(); ++i)
     {
-        std::cout << fileKeywords[i].keyword.toLatin1().data() << std::endl;
+        //std::cout << fileKeywords[i].keyword.toLatin1().data() << std::endl;
         if (knownKeywordSet.count(fileKeywords[i].keyword))
         {
             fseek(gridFilePointer, fileKeywords[i].filePos, SEEK_SET);
