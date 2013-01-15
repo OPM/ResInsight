@@ -1,0 +1,18 @@
+Source: resinsight
+Section: science
+Priority: extra
+Maintainer: Arne Morten Kvarving <arne.morten.kvarving@sintef.no>
+Build-Depends: debhelper (>= 8.0.0), cmake, octave, octave-headers, qt4-dev-tools, libqt4-dev, libqt4-opengl-dev
+Standards-Version: 3.9.2
+Homepage: http://opm-project.org
+Vcs-Git: git://github.com/OPM/ResInsight.git
+Vcs-Browser: https://github.com/OPM/ResInsight
+
+Package: resinsight
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: ResInsight - the 3D reservoir viewer and post processor
+ ResInsight is a 3D viewer and post processing tool for reservoir models. 
+ It has been co-developed by Statoil and Ceetron with the aim to provide
+ a versatile tool for professionals who need to visualize and process
+ reservoir models. 
