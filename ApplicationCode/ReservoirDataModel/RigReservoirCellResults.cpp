@@ -380,25 +380,27 @@ void RigReservoirCellResults::loadOrComputeSOIL()
 
     if (soilResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        const std::vector< std::vector<double> >* swat = NULL;
-        const std::vector< std::vector<double> >* sgas = NULL;
-
         size_t scalarIndexSWAT = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-        if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
-        {
-            swat = &(cellScalarResults(scalarIndexSWAT));
-        }
-
         size_t scalarIndexSGAS = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-        if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
-        {
-            sgas = &(cellScalarResults(scalarIndexSGAS));
-        }
 
         // Early exit if none of SWAT or SGAS is present
         if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
         {
             return;
+        }
+
+        soilResultGridIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+
+        const std::vector< std::vector<double> >* swat = NULL;
+        const std::vector< std::vector<double> >* sgas = NULL;
+        if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
+        {
+            swat = &(cellScalarResults(scalarIndexSWAT));
+        }
+
+        if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
+        {
+            sgas = &(cellScalarResults(scalarIndexSGAS));
         }
 
         size_t soilResultValueCount = 0;
@@ -417,7 +419,6 @@ void RigReservoirCellResults::loadOrComputeSOIL()
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
         }
 
-        soilResultGridIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
         m_cellScalarResults[soilResultGridIndex].resize(soilTimeStepCount);
 
         std::vector< std::vector<double> >& soil = cellScalarResults(soilResultGridIndex);
@@ -427,9 +428,8 @@ void RigReservoirCellResults::loadOrComputeSOIL()
         {
             soil[timeStepIdx].resize(soilResultValueCount);
 
-            int idx = 0;
 #pragma omp parallel for
-            for (idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
+            for (int idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
             {
                 double soilValue = 1.0;
                 if (sgas)
