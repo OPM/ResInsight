@@ -1,5 +1,0 @@
-Refcase <-> history source
-    * Kanskje det er ERT som må sjekka om verdien er sett og så utsetta evt. kjøring?
-
-Copy from case:
-    * kræsj.

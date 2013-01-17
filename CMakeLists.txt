@@ -47,6 +47,15 @@ set(STRPRODUCTVER ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VE
 ################################################################################
 add_subdirectory(ThirdParty/Ert/devel)
 
+include_directories(
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/src
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libutil/src
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/src
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libwell/src
+    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libutil/src
+)
+
+
 ################################################################################
 # Qt
 ################################################################################

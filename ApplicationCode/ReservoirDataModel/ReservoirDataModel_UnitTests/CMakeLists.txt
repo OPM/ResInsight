@@ -22,11 +22,6 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/cafProjectDataModel
 
     ${ResInsight_SOURCE_DIR}/CommonCode
-
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/ecl/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/util/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/well/include
-
 )
 
 file( GLOB CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../*.cpp )
@@ -40,6 +35,10 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
+
+    ecl
+    well
+    util
 
     ${QT_LIBRARIES}
 )
@@ -56,9 +55,6 @@ add_executable( ${ProjectName}
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set ( LINUX_LINK_LIBRARIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libecl.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libert_util.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libwell.a
         lapack
         pthread
     )

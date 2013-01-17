@@ -3,16 +3,12 @@ cmake_minimum_required (VERSION 2.8)
 SET (ProjectName FileInterface_UnitTests)
 project ( ${ProjectName} )
 
+
 # Qt
 find_package (Qt4 COMPONENTS QtCore QtGui QtMain QtOpenGl REQUIRED)
 include (${QT_USE_FILE})
 
 include_directories(
-    ${LibCore_SOURCE_DIR}
-    ${LibGeometry_SOURCE_DIR}
-    ${LibRender_SOURCE_DIR}
-    ${LibViewing_SOURCE_DIR}
-
     ${ResInsight_SOURCE_DIR}/ApplicationCode
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel
     ${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface

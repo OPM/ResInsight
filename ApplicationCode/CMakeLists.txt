@@ -23,7 +23,6 @@ include_directories(
 )
 
 
-
 # Use all cpp and h files in the subdirectories
 file( GLOB_RECURSE HEADER_FILES *.h )
 
@@ -249,23 +248,6 @@ if (MSVC)
                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
     endforeach( qtlib )
 
-
-    # DLLs ERT depends on
-#    add_custom_command(TARGET ResInsight POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory
-#            "${PROJECT_SOURCE_DIR}/../ThirdParty/Ert-windows/bin/"
-#            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
-
-
-     # ERT DLLs
-#     set (ERT_MODULES ecl geometry util well)
-#     foreach (ert_module ${ERT_MODULES})
-#         add_custom_command(TARGET ResInsight POST_BUILD
-#             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#                 "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows/${ert_module}/lib/lib${ert_module}.dll"
-#                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
-#     endforeach()
-
 endif(MSVC)
 
 #############################################################################
@@ -308,28 +290,3 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
 endif()
 
-
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "No_Linux")
-install(CODE "
-    set (INSTALLFILE_LIST
-            ${CMAKE_CURRENT_BINARY_DIR}/ResInsight
-			${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
-			${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
-            ${QT_LIBRARY_DIR}/libQtCore.so.4
-            ${QT_LIBRARY_DIR}/libQtGui.so.4
-            ${QT_LIBRARY_DIR}/libQtOpenGL.so.4
-            /usr/lib64/libgfortran.so.1
-            /usr/lib64/liblapack.so.3
-            /usr/lib64/libblas.so.3
-    )
-    execute_process(COMMAND rm -r ${CMAKE_BINARY_DIR}/Install/ResInsight )
-    execute_process(COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Install/ResInsight )
-    foreach (installFile \${INSTALLFILE_LIST})
-        execute_process(COMMAND cp -v \${installFile} ${CMAKE_BINARY_DIR}/Install/ResInsight)
-    endforeach (installFile)
-
-    execute_process(COMMAND bash -c \"cd ${CMAKE_BINARY_DIR}/Install/ ; tar cvzf ResInsight_${STRPRODUCTVER}-bin.tar.gz ResInsight/*\" )
-
-")
-endif()
