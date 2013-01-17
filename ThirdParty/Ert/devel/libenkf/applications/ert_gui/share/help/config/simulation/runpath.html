@@ -1,0 +1,12 @@
+The <b>Runpath</b> should give the name of the folders where the
+ECLIPSE simulations are to be executed. It should contain at least one
+%d-specifier, which will be replaced by the realization number when
+ERT creates the folders. <br/> <br/>
+
+Optionally, the Runpath can contain two more %d specifers, which will
+be replaced by the first and last report step of the simulation. By
+default, Runpath is set to "simulations/realization%d".  <br/> <br/>
+
+When running with LSF it is essential that the <b>Runpath</b> points
+to a network disk which is accessible with the same path from all the
+nodes in the cluster.

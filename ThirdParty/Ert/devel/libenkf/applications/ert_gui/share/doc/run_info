@@ -1,0 +1,36 @@
+state     = enkf_main_iget_state( enkf_main , iens );
+status    = enkf_state_get_run_status( state );
+sim_start   = enkf_state_get_start_time( state );
+submit_time = enkf_state_get_submit_time( state );
+
+
+Queue running:
+-------------
+s = enkf_main_get_site_config( enkf_main )
+site_config_queue_is_running( s )
+
+
+Kill simulation
+---------------
+enkf_state_kill_simulation( state )
+
+
+Restart simulation
+------------------
+enkf_state_restart_simulation( state , resample )  /* Resample er en bool - True: Kjør ny initialisering */
+
+
+
+
+Main queue pausing:
+-------------------
+job_queue_get_pause( jq )
+
+job_queue_set_pause_on( jq )
+
+job_queue_set_pause_off( jp )
+
+
+
+
+

@@ -1,0 +1,15 @@
+SConscript(["libsched/SConstruct",
+            "librms/SConstruct",
+            "libecl/SConstruct",
+            "libwell/SConstruct",
+            "libanalysis/SConstruct",
+            "libgeometry/SConstruct",
+            "libjob_queue/SConstruct",
+            "libplot/SConstruct",
+            "libutil/SConstruct",
+            "libconfig/SConstruct",
+            "libenkf/SConstruct"])
+
+            
+           
+        

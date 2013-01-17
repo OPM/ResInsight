@@ -24,50 +24,6 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/CommonCode
 )
 
-#-----------------------------------------------------------------
-# Ert configuration
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if (CMAKE_CL_64)
-        set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows-x64")
-    else()
-        set(ERT_ROOT_PATH "${ResInsight_SOURCE_DIR}/ThirdParty/Ert-windows")
-    endif()
-endif()
-
-set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
-set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")
-set( ERT_WELL_PREFIX "well" CACHE STRING "Prefix path to use for well code in ert")
-
-set( ERT_INCLUDE_LIST 
-     ${ERT_ROOT_PATH}/include 
-     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/include )
-
-# Link to these ERT libraries
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/lib/libecl.a
-         ${ERT_ROOT_PATH}/lib/libert_util.a
-         ${ERT_ROOT_PATH}/lib/libgeometry.a
-         ${ERT_ROOT_PATH}/lib/libwell.a )
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/lib/ecl.lib
-         ${ERT_ROOT_PATH}/lib/ert_util.lib
-         ${ERT_ROOT_PATH}/lib/geometry.lib
-         ${ERT_ROOT_PATH}/lib/well.lib )
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   list(APPEND ERT_LIBRARY_LIST lapack z)  
-endif()	
-#-----------------------------------------------------------------
-
-include_directories( ${ERT_INCLUDE_LIST} )
-
 set( FILEINTERFACE_CPP_SOURCES
     ../RifEclipseInputFileTools.cpp
     ../RifEclipseOutputFileTools.cpp
@@ -113,6 +69,11 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
+
+    ecl
+    util
+    geometry
+    well
 
     ${QT_LIBRARIES}
 )

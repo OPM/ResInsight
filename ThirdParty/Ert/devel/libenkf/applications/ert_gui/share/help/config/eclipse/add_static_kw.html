@@ -1,0 +1,15 @@
+The restart files from ECLIPSE are organized by <b>keywords</b>, which are of three different types:
+<ol>
+  <li> Keywords containing the dynamic solution, e.g. pressure and saturations. </li>
+  <li> Keywords containing various types of header information which is needed for a restart. </li>
+  <li> Keywords containing various types of diagnostic information which is <i>not</i> needed for a restart.</li>
+</ol>
+
+Keywords in category 2 and 3 are referred to as <b>static keywords</b>. To be able to restart ECLIPSE, the ERT application has to store the keywords in category 2, whereas keywords in category 3 can safely be dropped. To determine whether a particular keyword is in category 2 or 3 ERT considers an internal list of keywords. The current list contains the keywords:
+<code>
+<br/>  INTEHEAD LOGIHEAD DOUBHEAD IGRP SGRP XGRP ZGRP IWEL SWEL XWEL ZWEL <br/>
+  ICON SCON XCON HIDDEN STARTSOL PRESSURE SWAT SGAS RS RV ENDSOL ICAQNUM ICAQ IAAQ <br/>
+  SCAQNUM SCAQ SAAQ ACAQNUM ACAQ XAAQ <br/>
+  ISEG ILBS ILBR RSEG ISTHW ISTHG <br/>
+</code>
+Here you can dynamically add to this list. The magic string <code>__ALL__</code> will add all static keywords, but use of this option is <b>strongly</b> discouraged, as it wastes a lot of disk space.

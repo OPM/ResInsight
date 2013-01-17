@@ -1,0 +1,205 @@
+This file is brief overview of the various files and the functionality
+in the libecl library. The library is written to read/write ECLIPSE
+files in restart format, the organsiation of the units in the library
+are closely linked to the concept of ECLIPSE files. In addition to the
+various files in this library, the library needs access to the
+library libutil.
+
+The diagram below illustrates the (main) files in libecl, and how they
+depend on eachother. The dependencies follow the links, i.e. one file
+depends (explicitly) on all the files it points at. Observe that in
+the diagram below only explicit dependencies are illustrated.
+
+----------------------------------------------------------------------
+
+The executive summary of this diagram is that there are essentally
+three different layers in the libecl library:
+
+  [High level]: At the highest level are function which implement
+     functionality to work with spesific ECLIPSE files, these are
+     ecl_sum.c for summaryfiles, ecl_rft_file for rft files and
+     ecl_grid for GRID files.
+
+  [Medium level]: At the medium level is only one file - the
+     ecl_file.c file which is to work with one arbitrary eclipse file
+     with restart-like keywords. All the high level functions depend
+     on this functionality.
+
+  [Core level]: At the lowest level are functions to read/write binary
+     fortran files, ecl_kw to read *ONE* ECLIPSE keyword in restart
+     form and ecl_util which knows all filename conventions and so on
+     for ECLIPSE. Unfortuntaely the lowest level shines through the
+     medium level - i.e. nearly all the files in the [High level] and
+     [Medium level] depend explicitly on at least ecl_util and ecl_kw
+     form the [Core level].
+
+----------------------------------------------------------------------
+
+							       _______________________________________________________
+							      /                                                       \
+							     |                  ecl_rft_file.c                         |
+							     | --------------------------------------------------------|
+							     | ecl_rft_file.c: This file parses one X.RFT file, and    |
+							     | internalizes the results in the form of a vector of     |------->--------------\
+							     | ecL_rft_node instances. The functions in this file      |		       \
+							     | are quite 'thin' - most of the functionality is         |		       	\
+       	       	       	       	       	       	       	     | implemented in the ecl_rft_node layer.                  |		      	 \
+							      \_______________________________________________________/ 		      	  |
+				       	       	       	       	     | 	       	       	     | 			       			      	  |
+				  				     |	      	   	     | 			       			      	  |
+       	       	       	       	  	    			     |	      	   	     | 			       			      	  |
+ 				  	      ______________________\|/_________	     | 			       			      	  |
+				  	     /                                  \   	     | 			       			      	  |
+				  	    |           ecl_rft_node.c           |	     | 			       			      	  |
+				  	    | ---------------------------------- |  	     | 			       			      	  |
+				  	    | ecl_rft_node.c: This file          |------------------------------------>---------------------------|
+				  	    | implements a RFT/PLT node for one  |	     | 						      	  |
+				  	    | time/well.                         |	     | 						      	  |
+				  	     \__________________________________/	     | 						      	  |
+				  					      |        	     | 						      	  |
+				  	        			      |		     | 						      	  |
+									      |		     | 						      	  |
+		         _________________________________________________    |              |    ________________________________________    	  |
+		        /                                                 \   |	 	     | 	 /                                        \   	  |
+		       |                    ecl_sum.c                      |  |	 	     | 	|              ecl_grid.c                  |  	  |
+		       | ------------------------------------------------- |  |	 	     | 	| ---------------------------------------- |  	  |
+		       | The file ecl_sum.c implements the ecl_sum_type    |  |	 	     |  | The file ecl_grid.c implements the type  |  	  |
+		       | which is used to load summary files, and do	   |  |	 	     | 	| ecl_grid_type. The functionality impl-   |  	  |
+		       | queries on them. The ecl_sum type is a quite thin |  |	 	     | 	| emented in ecl_grid.c is to load itself  |  	  |
+		       | wrapper, containg a ecl_sum_data instance for the |  |	 	     | 	| from an existing EGRID or GRID file.     |  	  |
+		       | actual data, and a ecl_smspec instance for the    |  |	       	     |   \________________________________________/   	  |
+		       | header information.                               |  |	       	     | 	   |   	     |	       |		      	  |
+		        \_________________________________________________/   \	 	     | 	   |	     |	       |		      	  |
+                                |                          |  		       \__________   \ 	   |	     |	       |		      	  |
+		                |                          |       	       	 	  \   \	   |	     |	       |		      	  |
+                                |                          |  		       	 	   \   \   |	     |	       |		      	  |
+   ____________________________\|/__________       _______\|/_______________________________\   \  |	     |	       |		      	  |
+  /                                         \ 	  /                                         \\   | |	     |	       |		      	  |
+ |             ecl_smspec.c                  |	 |             ecl_sum_data.c                |\  | |	     |	       |		      	  |
+ | ----------------------------------------- |	 | ----------------------------------------- | | | |	     |	       |		      	  |
+ | The file ecl_smspec.c implements          |	 | The file ecl_sum_data.c implements        | | | |	     |	       |		      	  |
+ | functions to parse and internalize the    |	 | functions to parse and internalize the    | | | |	     |	       |		      	  |
+ | SMSPEC file. When asking to get e.g WWCT  |	 | summary data, i.e. the BASE.Snnnn or      |-|-|-|->----|  |	       |		      	  |
+ | in well P2, the ecl_smspec object will    |	 | BASE.UNSMRY files. All time information   | | | |   	  |  |	       |		      	  |
+ | now which index in ECLIPSE PARAMS vector  | 	 | is handeled by this file.                 | | | |   	  |  |	       |		      	  |
+ | that data has.                            |	 |                                           | | | |   	  |  |	       |		      	  |
+  \_________________________________________/ 	  \_________________________________________/  | | |   	  |  |	       |		      	  |
+                            |             |                 | 		       	 	       | | |   	  |  |	       |		      	  |
+                            |             |	 	    | 		       	 	       | | |   	  |  |	       |		      	  |
+                            |             | 	 	    | 		       	 	       | | |   	  |  |	       |		      	  |
+			    |	        _\|/_______________\|/________________________________\|_|_|/_ 	  |  |	       |		      	  |
+			    |	       /                                                              \	  |  |	       |		      	  |
+			    |	      |                       ecl_file.c                               | \|/ |	       |		      	 \|/
+			    |	      | -------------------------------------------------------------- |  |  |	       |		      	  |
+			    |	      | The ecl_file file implements functinality to load a an         |  |  |	       |		      	  |
+			    |	      | ECLIPSE file consisting of ecl_kw_type vectors. The ecl_file   |  |  |	       |		      	  |
+	|-----------------------------| instance can either be used to load fthe full content of a     |  |  |	       |		      	  |
+       	|      	       	    |  	      | file, or it can stop loading when a certain keyowrd is         |  |  |	       |		      	  |
+	|		    |	      | reached. The latter is useful for loading parts of a unified   |  |  |	       |		      	  |
+	|		    |	      | summary/restart file.                                          |  |  |	       |		      	  |
+	|		    |	      | ecl_file is a simplification of the functionality which        |  |  |	       |		      	  |
+	|		    |	      | prevously existed in ecl_block/ecl_fstate.                     |  |  |	       |		      	  |
+	|		    |	       \______________________________________________________________/	  |  |	       |		      	  |
+        |                   |             |	 			 |     	 	       		  | \|/	       |		      	  |
+	|		    |		  |	 			 |     	 	       		  |  |	       |		      	  |
+	|		    |		  |	 			 |     	 	       		  |  |	       |		      	  |
+	|		    |		  |	 			 |     	 	       		  |  |	       |		      	  |
+	|		    |		  |	 			 |     	 	       		  |  |	       |		      	  |
+        |               ___\|/___________\|/____________________    	 |     	  	       		  |  |	       |		      	  |
+        |              /                                        \   	 |     	  	       		  |  |	       |		      	  |
+        |             |              ecl_kw.c                    |     	 |     	       	                  |  |	       |		      	  |
+        |             | ---------------------------------------- | 	 |     	  	       		  |  |	       |		      	  |
+        |             | The file ecl_kw.c implements the type    |<------|--------------<-----------------|  |	       |		      	  |
+        |             | ecl_kw_type. This is the lowest level    | 	 |     	       	      |	       	     |	       |		      	  |
+        |             | function in the libecl type hierarchy.   | 	 |     	    	      |	       	     |	       |		      	  |
+        |             |                                          |<------|-------<------------|--------------|	       |		      	  |
+        |             | ECLIPSE restart files, summary files,    | 	 |     	  	      |		      	       |		      	  |
+        |             | the INIT file, GRID/EGRID files, RFT     | 	 |     	  	      |		      	       |		      	  |
+        |             | file +++ all consist of basic building   | 	 |     	  	      |	       	       	       |		      	  |
+        |             | blocks consisting of:                    |<-------------------------------------------<-----------------------------------/
+        |             |   * NAME                                 | 	 |     	  	      |		      	       |	     	 |
+        |             |   * SIZE (number of elements)            | 	 |     	  	      |		       	       |	     	 |
+        |             |   * TYPE (float/double/int/logical/char) | 	 |     	  	     \|/	      	       |	     	 |
+        |             |   * DATA                                 | 	 |     	       	      |		      	       |	     	 |
+        |             | An ecl_kw instance contains one such     | 	 |     	  	      |		      	       |	     	 |
+        |             | basic building block.                    | 	 |     	  	      |		      	       |	     	 |
+        |              \________________________________________/  	 |     	  	      |		      	       |	       	 |
+        |                                 ||			   	 |     	 |-------------               	       |	       	\|/
+        |                                 ||			   	 |     	 |	     		      	       |		 |
+        |                _________________/\_________________	   	 |     	 |	     		      	       |		 |
+        |               /                                    \	   	 |     	 |	     		      	       |		 |
+        |               |                                    |	   	 |     	 |	     		      	       |		 |
+        |               |                                    |	   	 |     	 |	     		      	       |		 |
+  _____\|/_____________\|/________________         _________\|/_________\|/_____\|/_____     		      	       |		 |
+ /                                        \       /                                     \    		      	       |		 |
+|               fortio.c                   |     |               ecl_util.c              |     	       	      	       |		 |
+| ---------------------------------------- |     | ------------------------------------- |   		      	       |		 |
+| ECLIPSE is written in Fortran; the       |     | The ecl_util.c file implements a      |   		      	       |		 |
+| Fortran runtime library adds a header &  |     | number of small utility functions for |                    	       |		 |
+| tail when it writes binary data.         |     | working with ECLIPSE. Typically func- |   		      	       |		 |
+|                                          |     | tions to determine the type of a file |   		      	       |		 |
+| The fortio file implements the           |     | from the name, and oppsite functions  |<----------------------------|		 |
+| fortio_type struct which is used to read |     | to create an ECLIPSE filename.        |   						 |
+| and write binary Fortran files in a      |     |                                       |   						 |
+| transparent manner.                      |     | All the functions in ecl_util.c are   |<----------------------------------------------/
+ \________________________________________/      | stateless.                            |
+                                                  \_____________________________________/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

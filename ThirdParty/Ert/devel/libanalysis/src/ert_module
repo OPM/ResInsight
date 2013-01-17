@@ -1,0 +1,167 @@
+#!/usr/bin/env python
+import sys
+import os 
+from   optparse import OptionParser
+
+#-----------------------------------------------------------------
+
+lib_list          = ["analysis" , "ert_util"]
+lib_path_list     = ["./" , "../../libutil/slib"]
+include_path_list = ["./" , "../../libutil/src"]
+define_list       = ["HAVE_PTHREAD"]
+
+
+CFLAGS       = "-std=gnu99 -O2 -Wall -fpic -g"
+LDFLAGS      = "-shared -Wl,-soname,"
+CC           = "gcc"
+LD           = CC
+
+
+#-----------------------------------------------------------------
+
+c_file      = 0
+header_file = 1
+object_file = 2
+other       = 3
+
+file_types = {".o" : object_file , 
+              ".h" : header_file , 
+              ".c" : c_file }
+
+def base_name(file):
+    (name,ext) = os.path.split( file )
+    return name
+
+
+def file_type( file ):
+    name,ext = os.path.splitext( file )
+    return file_types.get( ext , other )
+
+
+def object_file_name( file ):
+    (name,ext) = os.path.splitext( file )
+    return "%s.o" % name
+
+
+def make_XFLAG( X , def_list ):
+    FLAG = ""
+    for d in def_list:
+        FLAG += "-%s%s " % (X , d)
+    return FLAG
+    
+
+def compile_file( file , IFLAG , DFLAG ):
+    target = object_file_name( file )
+    if os.path.exists( target ):
+        os.unlink( target )
+
+    cmd = "%s %s %s %s -c %s -o %s" % (CC , CFLAGS , IFLAG , DFLAG , file , target)
+    print "Compiling: %s" % cmd
+    os.system( cmd )
+    if os.path.exists( target ):
+        return target
+    else:
+        sys.exit("Compile cmd:%s failed" % cmd)
+
+    
+def link( libname , object_list , LFLAG , lFLAG):
+    (tmp,ext) = os.path.splitext( libname )
+    if not ext:
+        libname += ".so"
+
+    object_string = ""
+    for obj in object_list:
+        object_string += "%s " % obj
+    soname = libname
+    cmd = "%s %s%s -o %s %s %s %s" % ( LD , LDFLAGS , soname , libname , object_string , LFLAG , lFLAG)
+    print "Linking  : %s" % cmd
+    if os.path.exists( libname ):
+        os.unlink( libname )
+    os.system(cmd)
+    if os.path.exists( libname ):
+
+        return True
+    else:
+        return False
+
+
+usage = """
+The ert_module script is a small convenience script to 
+compile C source code into an analysis module which can 
+be loaded by ert. The script is controlled by commandline
+arguments:
+
+  1. The first argument should be the name of the module
+     you are creating, an extension .so will be appended.
+
+  2. List the source files you want to include, the 
+     files should have extension .c. In addition you can
+     include object files which have been compiled by 
+     other means, the object files should have 
+     extension .o
+
+  3. Optionally you can pass -I and -D options which are
+     passed to the compiler; and -l and -L options which 
+     are passed to the linker.
+
+Example:
+
+  ert_module my_module my_src1.c my_src2.c f90_object1.o f90_object2.o -I/path -DFAST=Yes -L/path/to/lib -lfm -lz 
+
+Will create a module 'my_module' based on the src files my_src1.c 
+and my_src2.c; in addition the object files f90_object1.o and
+f90_object2.o will be included in the final module.
+
+By default the ert_module script will include some libraries from the
+core ert distribution; if you are not interested in referencing these
+you can issue the option --exclude-ert. Default flags:
+
+Compile: %s  %s 
+Link:    %s  %s
+""" % (make_XFLAG( "I" , include_path_list) , make_XFLAG( "D" , define_list) , make_XFLAG("L" , lib_path_list) , make_XFLAG("l" , lib_list))
+
+parser = OptionParser( usage ) 
+parser.add_option("-I" , dest = "include_path_list", action = "append")
+parser.add_option("-D" , dest = "define_list"      , action = "append")
+parser.add_option("-L" , dest = "lib_path_list"    , action = "append")
+parser.add_option("-l" , dest = "lib_list"         , action = "append")
+parser.add_option("--exclude-ert" , dest = "exclude_ert" , action="store_true" , default = False)
+
+(options , args) = parser.parse_args()
+if len(args) == 0:
+    sys.exit( usage )
+
+if options.exclude_ert:
+    include_path_list = []
+    define_list = []
+    lib_list = []
+    lib_path_list = []
+
+
+if options.include_path_list:
+    include_path_list += options.include_path_list
+
+if options.define_list:
+    define_list  += options.define_list
+
+if options.lib_list:
+    lib_list += options.lib_list
+
+if options.lib_path_list:
+    lib_path_list += options.lib_path_list
+
+IFLAG = make_XFLAG( "I" , include_path_list )
+DFLAG = make_XFLAG( "D" , define_list )
+LFLAG = make_XFLAG( "L" , lib_path_list )
+lFLAG = make_XFLAG( "l" , lib_list )
+
+object_list = []
+for arg in args[1:]:
+    if file_type( arg ) == c_file:
+        object_list.append( compile_file( arg ,IFLAG , DFLAG) )
+    elif file_type( arg ) == object_file:
+        object_list.append( arg )
+    else:
+        print "** Warning: ignoring file:%s" % arg
+
+link( args[0] , object_list , LFLAG , lFLAG)

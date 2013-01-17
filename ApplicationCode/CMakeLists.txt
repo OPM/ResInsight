@@ -23,85 +23,6 @@ include_directories(
 )
 
 
-#-----------------------------------------------------------------
-# Configuration of ERT depdendence
-#-----------------------------------------------------------------
-
-# By default the ERT_ROOT_PATH variable will point to the ERT distribution which
-# is embedded in the ThirdParty/ directory, but by using the ERT_ROOT_PATH
-# variable you can point to a different ERT distribution.
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if (CMAKE_CL_64)
-        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows-x64")
-    else()
-        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows")
-    endif()
-endif()
-
-	
-# The ERT binary distribution consists of four libraries, libwell, libecl,
-# libutil and libgeometry and their accompanying header files. There has been a
-# bit of mess of how this has been organized; either it has been on per
-# directory basis as:
-#
-#    ${ERT_ROOT_PATH}/ecl/lib/libecl.so
-#    ${ERT_ROOT_PATH}/ecl/include/ecl_xxx.h 
-#
-#    ${ERT_ROOT_PATH}/well/lib/libwell.so
-#    ${ERT_ROOT_PATH}/well/include/well_xxx.h 
-#    ....
-#
-# Or alternatively everything has been in common include/ and lib/ directories.
-#
-#    ${ERT_ROOT_PATH}/lib
-#    ${ERT_ROOT_PATH}/include
-#
-# This is indirectly goverened by the ERT_XXX_PREFIX variables. If these are
-# set to blank if everything will be collected from common include/ and lib/
-# dierectories.
-set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
-set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")
-set( ERT_WELL_PREFIX "well" CACHE STRING "Prefix path to use for well code in ert")
-set( ERT_GEO_PREFIX  "geometry" CACHE STRING "Prefix path to use for geometry code in ert")
-
-mark_as_advanced( ERT_UTIL_PREFIX  ERT_ECL_PREFIX ERT_WELL_PREFIX ERT_GEO_PREFIX)
-
-# Setting up include directories for ERT
-set( ERT_INCLUDE_LIST 
-     ${ERT_ROOT_PATH}/include 
-     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/include )
-
-# Link to these ERT libraries
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/lib/libecl.a
-         ${ERT_ROOT_PATH}/lib/libert_util.a
-         ${ERT_ROOT_PATH}/lib/libgeometry.a
-         ${ERT_ROOT_PATH}/lib/libwell.a )
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/lib/ecl.lib
-         ${ERT_ROOT_PATH}/lib/ert_util.lib
-         ${ERT_ROOT_PATH}/lib/geometry.lib
-         ${ERT_ROOT_PATH}/lib/well.lib )
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   list(APPEND ERT_LIBRARY_LIST lapack z)  
-endif()	
-
-include_directories( ${ERT_INCLUDE_LIST} )
-# Ert configuration complete
-#-----------------------------------------------------------------
-
-
-
 
 # Use all cpp and h files in the subdirectories
 file( GLOB_RECURSE HEADER_FILES *.h )
@@ -295,6 +216,12 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
+
+    ecl
+    util
+    geometry
+    well
+
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 )

@@ -1,0 +1,2 @@
+#define SITE_CONFIG_FILE "@SITE_CONFIG_FILE@"
+

@@ -1,0 +1,110 @@
+/*
+   Copyright (C) 2011  Statoil ASA, Norway. 
+    
+   The file 'uncle_sam_100.h' is part of ERT - Ensemble based Reservoir Tool. 
+    
+   ERT is free software: you can redistribute it and/or modify 
+   it under the terms of the GNU General Public License as published by 
+   the Free Software Foundation, either version 3 of the License, or 
+   (at your option) any later version. 
+    
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+   FITNESS FOR A PARTICULAR PURPOSE.   
+    
+   See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+   for more details. 
+*/
+
+#define SPLASH_LENGTH 90
+const char *splash_text[SPLASH_LENGTH] = {
+"..  .    ................. ......... .  .::=I$O8888OO?.  . .........................................",
+". .     ..........................,MM7.. ..MMMMMMM,... .MMMN. ......................................",
+".   . .  ................... ,ZMMMMMMM.....MMMMMMM.....ZMMMM~Z:.....................................",
+".   .   .............. ....O...~MMMMMM.....MMMMMMM.....MMMMM .DN ...................................",
+".        ................ MM. ..MMMMMM.....NMMMMMM ....MMMMM .MM ...................................",
+". . ...  ...... ........~MMM7...IMMMMMO....IMMMMMM ....MMMMM..MN ...................................",
+".         ..... ........MMMMM... MMMMMM....:MMMMMM ...,MMMM: OM.....................................",
+"... . ..................NMMMM8...NMMMMM  ..,MMMMMM ...OMMMM .MM.....................................",
+"..  . . .................DMMMM. ..MMMMM~ ...MMMMMM ...MMMMM..MI ....................................",
+"     .  ...  .. ...... ...MMMMM  .MMMMMM ...MMMMMM....MMMMM.~M......................................",
+"        .............. . ..MMMM,  .MMMMM....MMMMMM ...MMMM=.MM......................................",
+"     .  ...  ...............MMMM  .MMMMM, . MMMNN8   +MMMM. MD......................................",
+"        ... ................NMMM? ..  ...:+ZNMMMMMMMD+ ..N .M+.... ................  ....  .........",
+"        .....................MM~ZNMMMMMMMMMMM=MMMMMMMMMMMMMO,7......................................",
+"        .... .. ........ .. ..MMMMMMMMMMMMMM: ~MMMMMMMMMMMMMM$......................................",
+"        ......................MMMMMMMMMMMMMM....MMMMMMMMMMMM~:......................................",
+"        .........  ..  .  . ..8MMMMMMMMMM,... . . .$MMMMMM,. =.  . ... .. . . ....   . .   ... .... ",
+"         .....................,MMMMMMMN.  ........MMMMMMMM...N.. ...................................",
+"        .... .............. .. I MMMMMMMMM, .....MMMMMMMMMM+ ...... ................................",
+"        ......... ...... .... .OMMMMMMMMMM....... MMMMMMMMM  MD ..INM ..... ....... ..... ..........",
+"  ................ .OO$OD,.  ..MMMMMMMMMMM.. DM,. 7MMMMMMMO7MMMN,. ,M. ...... .....  . .... .. .... ",
+"  . ..............Z. MMMM8,~I ..MMMMMMMMMI,MMMMMMM:MMMMMMMNM$ . ,MMM..,...... ...... ...............",
+"   ...............I ~:MMMMMMMMM,,NMMMMMMMMMMMMMMMMMMD,$.   .+MMMMMM:.D .............................",
+"  . ..............88~..NMMMMMMMMMD... .. ..  .  .......DMMMMMMMMMMMMM7.$$...........................",
+"  . ...............MO+..$MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM .+D$  . ...... ......... .... ",
+"  ..................=MMMMMMMMMMMMMMMMNMMMMMMMMMMMMMMM7  ..7MMMMMMMM=  .:M7 .........................",
+"     .  ...  .  . ....NMM.MMMMMMMMM..D  .: .:, .M~.  .,7:.M:.MMMMMMMMMZ~Z . . .....  ......... .....",
+"  ............... ... .IMMMMMIMMM$MMMM$M......I.M. ..M .7MMMMMMMMMMMII:  .... ...... ...............",
+"     .  .................MMMM8:MMMMMM~DMMMI.O M.M,MDMMMMMMMMMM~MMDMMM$D ... . ..... ................",
+"  . ....................MDMMMMMMMMDMMMMMMMMMN7M MMMMDMM.8MMM,.IMMMM 7.O ............................",
+"    .. ..... .... ...  .+ MMMMMMD..MMM.N Z.MMM  .MMDND? .MM.. 7MMMM M N ..... ......................",
+"  . ....................NMMMMMMM8.. .MZ .+ZDMM. .MN..,DMD.....NMMMO~ I .. . . .....  . ....... .....",
+"  .......................MMMMMMMM...........~N  .+  ..  I ...:MMMM .N. .............................",
+"    .....................=.NMMMMMM: ...... ..D  ..7. ..OO ..ZMMMMMM7....... . .....  ......... .....",
+"  . .....................M IMMMMMMM.....8. ..M.... ......MMMMMMMMMMMM+.............. ...............",
+"  .......... .. . ... .M, 7:+MMMMMMM  ZM.  .    ..N:. . .MMMMMMMMMMMMM. ... . . ...  ......... .....",
+"   .................... ?~M.MMMMMMD~M,.  ...MM. .,M=....IMDMMMMMMMMMMMM ............................",
+"  ................... ..NMMMMMMMMM..D7 ..... .,MMM  ....,  MM.ZMMMMMMMM, .... .....  ......... .....",
+"  ................,NMMMMMMMMMMMMMMM.I =..... M.,I... . .D  NM...MMMMMMMM ...........................",
+"    ......,. . MMMMMMMMMMMMMMMMMM MMM~I.... ... ........M. .....MMMMMMMMM7... .....  .. . .... .. ..",
+"     . ..:MMMMMMMMMMMMMMMMMMMMMM:..MM =  .NMMMMMMMMMMMM.M..Z . MMMMMMMMMMMMNM$:..    ......... .....",
+"        .=MMMNMMMMMMMMMMMMMMMMMM.  OMMMI ..,M.   ...+~.  .7, +MMMMMMMMMMMMMMMMIM8MM  .....  ........",
+".   ... .MMM$,MMMMMMMMMMMMMMMMMMMMMMMMM..ZN+.MMM N ..O..,M..M$.MMMMMMMMMMMMMMMMMZMM,MNM..MM, .......",
+"..      .MMMM8 DMMMMMMMMMMMMMMMMMMMDZMMMMMMMMM8M  .:.MIMM..M.8MMM+.MMMMMMMMMMMMMMMMMMMMMMMMM.. .....",
+"     .  ZMMMMMM.MMMMMMMMMMMMMMMMMMMD ...MMMMMM~M .... M.M?N :MMMMM MMMMMMMMMMMN,MMMMMMMMMMMM+  .....",
+"        .MMMM,77 MMMMMMMMMMMMMMMMM?D ...7$MMDM  ....=,=:MMMMMMMMM8.MMMMMMMMM.MD DMMMMMMMMMMMM. .....",
+"     .  .MMMMM.: .MMMMM?IMMMMMMMMMM=D ..?.N.M+M7$. ..ZI7MMMMMMMMM?MMMMMMMMMMMMMMMMMMMDMMMMMMM+ Z....",
+" .   .  .$MM8MM ..8MMM~MMMMMMMMMMM Z~....8~.MMO8=8M~. 8MMMMNMMD~ ,MMMMMMMMMMMMMMMMMMMMMMMMMMMMMO ...",
+"       .MMMM:ZMM  .MMMMOMMMMMMMMM. .:D,.$7:NM7....Z~D.$MMMMM.....MMMMD.IMMMMMMMMMMMMMMMMMMMMMMMM  ..",
+"..   ..OMMMMMM+MO,~8MMMMMMMMMMMM$O .. 7M? .....$$ 8.D:M.MMMMD ...MMM7.NMMMMMMMMMMMZ.:MMMMMMMMMMM....",
+"     . MMMMMMMMMMMMMMMMNMMMMMMM?.. IM. ... .  . 8M..M D:$MMMMM   MMM NMM. . .,+. . .MMMMMMMMMMMM. . ",
+"    ..=MMMNMMMMMMMMMMMMMMMMMMMM.D.......~8MO,...  .:M.IM$MMMMMMMMZMO .MM.. ..MMMMMM.MMMMMMMMMMMM....",
+"       OMM8=N=MMMMMMMMMMMMMMMMM 7 .........  ,D? ..=Z.., . ...   MM. .MMMNINMMMMMM,,MMMMMMMMMMMM:...",
+"     .  :MM.MMM MMMMMMMMMMMMM+7...?MDMMMMMZ......:MI.:,M ....... MM ...$MMMMMMMMMM .MMMMMMMMMMMM  ..",
+"..     IMMMMMMMM:MMMMMMMMMMM  : M..... MMMMMMMMM.MI~ OM+........=MM....... ...MMMM :MMMMMMMDMMMM8 ..",
+".    =MMMMMMMM M  ZMMMMMMM M..=.M. .......MM$NMMMMZ8.ON.  ......OM: ........ ....  DMMMMM$OMMMMMM ..",
+".   NMMMMMMM.ND.,$=MMMMN.  : ..Z.M7. M ...  .. MMM~~~ZN ........MM .=...NMMMMMNM~..8MMMMMMMMMMMMM...",
+"    .MMMMMMMMMMMM8.MMM,.... ....NMMD..?DM7....M..MMOO?M ........MM .M .M.  ....7MI.MMMMMMM+MMMMMD...",
+"    ..MMMMMMMMMM .MMMD...........M?  ..IMMMMMMMZ...NM...........MM.,? ..... . . ..MMMMMNIMMMMMMM ...",
+".     8MMMMMMMMMMM,MN,.....M .... .?...MMMMMMM$......... ...... MZ?M..........M .7MMMMMMMMMMNMM,....",
+"      MMMMDMMMMM8~M = .....M= ....=.~MMMMMMMM.. ..... . .......:M.MN .........=  MMMZ8MMMOM.+.......",
+"    .MM .. .M$M...M 8......N~.... , MMMMMMMMM......8...........IM,M..........D  MMMN7MMMMM$:, ......",
+" .  MNMM=7NMMM.NNMM.= .....:N ...N DMMMMM7IMM......= ..~.......8MMM .. .. . .M..MMMM8MMMMMMMMMMN  . ",
+".  MMM~M:MMMN.M:MIMM........M. .. ~MMM~MMMMMN .......... ......MMM, ........:M DMMMMMMMMMMMMMMM=....",
+"    DMNZMMN..M..7MMM .......?M.   MMMMMNMMMMN . ...,...........MMM.. ...... ,~.MMM7NMMMMMMMMMMM:. ..",
+".   NMM.D,..M,=?.MM$.........MZ.MMMMMM?DMMMM ...... ..........,MM? ........=M MMMMMMMMMMMMMMMMM ....",
+".   MN..MMMM $. .MM7 ........?MM: .+$ $.MMMM:.......: .. .....8MM....... ....=MMMMMMMMMMMMMMMM .....",
+"====================================================================================================",
+"",
+"          Y88b   d88P                                                   888             ",
+"           Y88b d88P                                                    888             ",
+"            Y88o88P                                                     888             ",
+"             Y888P  .d88b.  888  888    88888b.   .d88b.   .d88b.   .d88888     8888b.  ",
+"              888  d88\"\"88b 888  888    888 \"88b d8P  Y8b d8P  Y8b d88\" 888        \"88b ",
+"              888  888  888 888  888    888  888 88888888 88888888 888  888    .d888888 ",
+"              888  Y88..88P Y88b 888    888  888 Y8b.     Y8b.     Y88b 888    888  888 ",
+"              888   \"Y88P\"   \"Y88888    888  888  \"Y8888   \"Y8888   \"Y88888    \"Y888888 ",
+"                                                                                        ",
+"                                                                                        ",
+"                                                                                        ",
+"                                         888       .d888 888                        888 ",
+"                                         888      d88P\"  888                        888 ",
+"                                         888      888    888                        888 ",
+"          888  888  888  .d88b.  888d888 888  888 888888 888  .d88b.  888  888  888 888 ",
+"          888  888  888 d88\"\"88b 888P\"   888 .88P 888    888 d88\"\"88b 888  888  888 888 ",
+"          888  888  888 888  888 888     888888K  888    888 888  888 888  888  888 Y8P ",
+"          Y88b 888 d88P Y88..88P 888     888 \"88b 888    888 Y88..88P Y88b 888 d88P  \"  ",
+"           \"Y8888888P\"   \"Y88P\"  888     888  888 888    888  \"Y88P\"   \"Y8888888P\"  888",
+"",
+"===================================================================================================="};
