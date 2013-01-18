@@ -1,0 +1,231 @@
+Python has a system for packages and sub packages which maps to the
+filesystem; there are many different ways to import symbols into the
+Python interpreter context. These things are exploited in the ert python
+bindings, here we try to document the python apporach to packages and
+importing in general, and the conventions used in ert python in special.
+
+Example module (file: example.py)
+--------------
+   
+   def example_sum(a,b):
+       return a+b
+
+   example_variable = 100
+
+   class ExampleClass:
+       def  __init__(self , **kwargs):
+           ....
+       
+       def method( self , arg1 , arg2 )
+           ....
+
+We will use this example module in the following.
+
+
+
+
+
+1. Modules and symbols
+----------------------
+
+A module is a python source file (or alternatively a shared library with
+a prescribed structure). When importing a module all the symbols in the
+module will become available in calling scope, with the module name as
+namespace prefix:
+
+   import example
+
+   var = example.example_variable    
+   sum = example.example_sum( 100 , 100)
+   instance = example.ExampleClass()
+
+Observe that even though we have imported the 'example' module, we
+still need to use the 'example' prefix when referring to the symbols
+found in the example module. It is important to remember that the
+module object is only a collection of symbols - you can not use the
+module itself, only the symbols contained in the module can be put to
+useful work.
+
+It is also possible to import the symbols from 'example' directly into
+the current namespace, without creating the intermediate namespace
+'example', that is done using the 'from <module> import <symbol_list>'
+statement:
+
+    from example import example_variable,example_sum,ExampleClass
+
+    var = example_variable
+    sum = example_sum
+    inst = ExampleClass()
+
+With this approach the symbols from 'example' are imported directly into
+the current namespace, and the 'example' prefix should not be used when
+referring to the 'example_variable','example_sum' and 'ExampleClass'
+symbols. In the example above we have explicitly named the symbols we are
+after, it is also possible to import all symbols undiscriminately:
+
+    from example import *
+
+    ....
+    ....
+
+Finally it is possible to perform name transliteration during the
+import:
+
+     from example import example_variable as EXAMPLE_VARIABLE
+
+     print "100 = %s??" % EXAMPLE_VARIABLE
+
+Here we have imported the example_variable symbol from the 'example'
+module and renamed it to 'EXAMPLE_VARIABLE' in the calling scope.
+  
+
+
+2. Packages
+-----------
+
+It is convenient to group related modules together in a package
+structure; a module is just a python source file. In the same manner a
+package is just a directory - WITH THE MAGICAL FILE __init.py__.
+
+For instance for ert the top level package is just the the 'ert'
+directory. Looking on the filesystem for an ert installation it will
+look something like this:
+
+   ert/                      <-- Top level package / directory.
+   ert/__init__.py           <-- Magic file signalling that 'ert' is a package.
+   ert/ecl/                  <-- ecl is subpackage.
+   ert/ecl/__init__.py       <-- Magic file signalling that 'ecl' is a package.
+   ert/ecl/ecl_grid.py       <-- Normal module in the ecl package.
+   ert/ecl/ecl_sum.py        <-- Normal module in the ecl package.
+   ....
+   ert/util/                 <-- The util subpackage.
+   ert/util/__init__.py      <-- Magic file that 'util' is a package.
+   ert/util/stringlist.py    <-- Normal module in the util package.
+   ert/util/tvector.py       <-- Normal module in the util package.
+
+   ert/
+
+The important thing about packages is that they are normal filesystem
+directories, with the magic __init__.py file which signals that this is
+indeed a package. When importing a package the python code in the
+corresponding __init__.py file will be loaded and imported, that can be
+used as a means to perform package initialisation of various kinds.
+
+The statement:
+
+    import ert
+
+works, but as long as ert is a package (i.e. only a directory) this is
+not immediately very interesting[1], we have to continue importing until
+we have actually imported a module with real content:
+
+   import ert.ecl
+
+Observe how the directories/subdirectories of the filesystem is
+translated to a dotted notation in package/module space. The statement
+'import ert.ecl' will import the ert.ecl subpackage, but this is still
+not any symbols usable for anything. Observe that the 'import ert.ecl'
+statement will evaluate the '__init__.py' files found along the
+way. ecl_grid.py is a module in the ecl package, so this statement will
+finally give us something usable:
+
+   import ert.ecl.ecl_grid
+
+The module ecl_grid contains the implementation of the EclGrid class
+which can actually be used for something. To instantiate an EclGrid
+instance we have to go through the following hoops:
+
+   import ert.ecl.ecl_grid
+   ....
+   ....
+   grid = ert.ecl.ecl_grid.EclGrid( "ECLIPSE.EGRID" )
+           |   |     |        | 
+           |   |     |        |
+  Package--/   |     |        \-------- Symbol (Class definition)
+               |     |
+ Subpackage ---/     \---- Module
+
+The 'ert.ecl.ecl_grid' namespace is quite massive. It is easy to
+simplify this using the from <module> import <symbol_list> as:
+
+  from ert.ecl.ecl_grid import EclGrid    <-- Explicitly import symbol
+  ....                                        into current namespace.
+  ....
+  grid = EclGrid( "ECLIPSE.EGRID" )  
+   
+By convention the ert python distribution offers some limited
+simplifications of this procedure.
+
+
+3. Interaction with PYTHONPATH
+
+When issuing the import statement:
+
+   import ert.ecl.ecl_grid
+
+The directory 'ert/' must be on PYTHONPATH. In principle it is possible
+to circumvent the lowest level packge, and go directly to the 'ecl'
+subpackage:
+
+    import ecl.ecl_grid
+
+but then the 'ecl/' directory must be on PYTHONPATH. For the default
+ert-python distribution only the 'ert/' directory will be on the import
+path, i.e. the "import ecl.ecl_grid' will not work directly.
+
+
+4. Conventions applied in ert
+
+In the ert-python distribution some conventions have been adhered to;
+they can of course be changed:
+
+  1. All the __init__.py files are empty, i.e. no automagic namespace
+     manipulations. It is tempting to fill up the __init__.py files
+     with further import statements in an attempt to shorten and
+     simplify the imports. Some of that was done in the initial
+     dsitributions of ert, but it gets very easy to be too smart and
+     shoot oneself in the foot.
+
+  2. All subpackages have a module with the same name as the package,
+     i.e. the ecl package has a module ecl - this module imports all
+     the symbols from all the modules in the package with no namespace
+     prefix, i.e. the ecl module looks like:
+
+        from ecl_grid import EclGrid
+        from ecl_region import EclRegion
+        from ecl_kw import EclKW
+        .....
+
+     The point of this is a minor simplification, you can then issue
+     e.g.
+
+        from ert.ecl.ecl import *
+        ....
+        grid = EclGrid("ECLIPSE.EGRID")
+
+     To get all the symbols from the ecl package directly into the
+     current namespace, or alternatively you can use 
+
+        import ert.ecl.ecl as ecl
+        ....
+        grid = ecl.EclGrid("ECLIPSE.EGRID")
+
+     and then use all the symbols from the ecl package under the
+     common 'ecl' prefix. The functionality of the xxx module in the
+     xxx package could have been achieved with the __init__.py - but
+     then you would get it unconditionally.
+     
+  3. The ert python distribution is organized with one subpackage per
+     library in the ERT C distribution. In each subpackage there is a
+     module with the same name as the library which this package
+     wraps, i.e. the ecl package, which wraps the libecl library,
+     contains a module libecl.py. This module again contains the
+     ctypes trickery to actually load the libecl.so shared library.
+     
+
+[1]: The big disclaimer here is that you can use the '__init__.py' to
+     perform additional action when importing the 'ert' package. In
+     particular all symbols defined in the '__init__.py' module/file
+     will be part of the ert packages namespace. As described in the
+     chapter '4. Conventions applied in ert' no such trickery is applied
+     in the ert distribution, all the __init__.py files are empty.

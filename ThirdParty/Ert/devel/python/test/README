@@ -1,0 +1,26 @@
+This directory contains some tests which can be used to test a local
+ert-python installation before installing. To make sure you are indeed
+using the local copies you must source one of the scripts 'local_bash'
+or 'local_csh' with the command:
+
+   ps1> source local_xxx
+
+first.
+
+The local scripts will:
+
+  1. Create a directory lib and populate lib with symbolic links to
+     all the required shared libraries.
+
+  2. Create a symbolic link ../ert/util/pycfile.so -> ../../C/libpycfile/slib/libpycfile.so 
+
+  3. Create symbolic link lib/ert -> ../../ert for importing python modules.
+
+  4. Update the LD_LIBRARY_PATH and PYTHONPATH environment variables
+     to ensure that the Python modules and shared libraries will be found.
+
+Observe that in a production setting one would probably not put the
+Python modules and the shared C libraries in the same directory.
+
+
+

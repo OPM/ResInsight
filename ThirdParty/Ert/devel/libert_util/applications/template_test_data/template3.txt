@@ -1,0 +1,4 @@
+Her comes some text
+{% for $x in [A,B,C] %} 
+{% for $y in [1,2,3] %}$x$y {% endfor %}
+{% endfor %}

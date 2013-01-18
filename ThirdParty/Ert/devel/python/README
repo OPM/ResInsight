@@ -1,0 +1,7 @@
+Some of the code in the ERT codebase has been wrapped with with
+Python.
+
+
+
+More detailed documentation of the wrapping can be found in
+docs/devel.txt.
