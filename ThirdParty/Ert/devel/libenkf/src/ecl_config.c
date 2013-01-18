@@ -643,42 +643,42 @@ bool ecl_config_get_unified_summary(const ecl_config_type * ecl_config)  { retur
 
 
 void ecl_config_add_config_items( config_type * config ) {
-  config_item_type * item;
+  config_schema_item_type * item;
 
-  item = config_add_item(config , SCHEDULE_FILE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , SCHEDULE_FILE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
   /*
     Observe that SCHEDULE_PREDICTION_FILE - which is implemented as a
     GEN_KW is added in ensemble_config.c
   */
 
-  item = config_add_item( config , IGNORE_SCHEDULE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_BOOLEAN });
+  item = config_add_schema_item( config , IGNORE_SCHEDULE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_BOOLEAN });
 
-  item = config_add_item(config , ECLBASE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , ECLBASE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
 
-  item = config_add_item(config , DATA_FILE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , DATA_FILE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
 
-  item = config_add_item(config , STATIC_KW_KEY , false , true);
-  config_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item(config , STATIC_KW_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
 
-  item = config_add_item(config , ADD_FIXED_LENGTH_SCHEDULE_KW_KEY , false , true);
-  config_item_set_argc_minmax(item , 2 , 2 , 2 , (const config_item_types [2]) { CONFIG_STRING , CONFIG_INT});
+  item = config_add_schema_item(config , ADD_FIXED_LENGTH_SCHEDULE_KW_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 2 , 2 , 2 , (const config_item_types [2]) { CONFIG_STRING , CONFIG_INT});
 
-  item = config_add_item(config , REFCASE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , NULL );
+  item = config_add_schema_item(config , REFCASE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , NULL );
   
-  item = config_add_item(config , GRID_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , GRID_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
   
-  item = config_add_item(config , INIT_SECTION_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_FILE});
+  item = config_add_schema_item(config , INIT_SECTION_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_FILE});
   config_add_alias(config , INIT_SECTION_KEY , "EQUIL_INIT_FILE");
   
-  item = config_add_item(config , END_DATE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL );
+  item = config_add_schema_item(config , END_DATE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL );
 }
 
 

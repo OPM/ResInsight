@@ -78,6 +78,7 @@ static well_state_type * well_state_alloc_empty() {
   return well_state;
 }
 
+
 /*
   This function assumes that the ecl_file state has been restricted
   to one LGR block with the ecl_file_subselect_block() function.
@@ -194,85 +195,88 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
 
 
 well_state_type * well_state_alloc( ecl_file_type * ecl_file , int report_nr ,  int global_well_nr) {
-  well_state_type * well_state = NULL;
-  ecl_intehead_type * global_header  = ecl_intehead_alloc( ecl_file_iget_named_kw( ecl_file , INTEHEAD_KW , 0 ));
-  const ecl_kw_type * global_iwel_kw = ecl_file_iget_named_kw( ecl_file , IWEL_KW   , 0);
-  const ecl_kw_type * global_zwel_kw = ecl_file_iget_named_kw( ecl_file , ZWEL_KW   , 0);
-
-  const int iwel_offset = global_header->niwelz * global_well_nr;
-  {
-        const int zwel_offset         = global_header->nzwelz * global_well_nr;
-    well_state = well_state_alloc_empty();
+  if (ecl_file_has_kw( ecl_file , IWEL_KW)) {
+    well_state_type * well_state = NULL;
+    ecl_intehead_type * global_header  = ecl_intehead_alloc( ecl_file_iget_named_kw( ecl_file , INTEHEAD_KW , 0 ));
+    const ecl_kw_type * global_iwel_kw = ecl_file_iget_named_kw( ecl_file , IWEL_KW   , 0);
+    const ecl_kw_type * global_zwel_kw = ecl_file_iget_named_kw( ecl_file , ZWEL_KW   , 0);
     
-    well_state->valid_from_time   = global_header->sim_time;
-    well_state->valid_from_report = report_nr;
-    well_state->name              = util_alloc_strip_copy(ecl_kw_iget_ptr( global_zwel_kw , zwel_offset ));  // Hardwired max 8 characters in Well Name
-    
+    const int iwel_offset = global_header->niwelz * global_well_nr;
     {
-      int int_state = ecl_kw_iget_int( global_iwel_kw , iwel_offset + IWEL_STATUS_ITEM );
-      if (int_state > 0)
-        well_state->open = true;
-      else
-        well_state->open = false;
-    }
-    
-    {
-      int int_type = ecl_kw_iget_int( global_iwel_kw , iwel_offset + IWEL_TYPE_ITEM);
-      switch (int_type) {
-      /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
-      case(IWEL_UNDOCUMENTED_ZERO):
-        well_state->type = UNDOCUMENTED_ZERO;
-        if (well_state->open)
-          util_abort("%s: Invalid type value %d\n",__func__ , int_type);
-        break;
-      case(IWEL_PRODUCER):
-        well_state->type = PRODUCER;
-        break;
-      case(IWEL_OIL_INJECTOR):
-        well_state->type = OIL_INJECTOR;
-        break;
-      case(IWEL_GAS_INJECTOR):
-        well_state->type = GAS_INJECTOR;
-        break;
-      case(IWEL_WATER_INJECTOR):
-        well_state->type = WATER_INJECTOR;
-        break;
-      default:
-        util_abort("%s: Invalid type value %d\n",__func__ , int_type);
+      const int zwel_offset         = global_header->nzwelz * global_well_nr;
+      well_state = well_state_alloc_empty();
+      
+      well_state->valid_from_time   = global_header->sim_time;
+      well_state->valid_from_report = report_nr;
+      well_state->name              = util_alloc_strip_copy(ecl_kw_iget_ptr( global_zwel_kw , zwel_offset ));  // Hardwired max 8 characters in Well Name
+      
+      {
+        int int_state = ecl_kw_iget_int( global_iwel_kw , iwel_offset + IWEL_STATUS_ITEM );
+        if (int_state > 0)
+          well_state->open = true;
+        else
+          well_state->open = false;
       }
-    }
-    
-    
-    // Add global connections:
-    well_state_add_connections( well_state , ecl_file , 0 , global_well_nr );
-    
-
-    
+      
+      {
+        int int_type = ecl_kw_iget_int( global_iwel_kw , iwel_offset + IWEL_TYPE_ITEM);
+        switch (int_type) {
+          /* See documentation of the 'IWEL_UNDOCUMENTED_ZERO' in well_const.h */
+        case(IWEL_UNDOCUMENTED_ZERO):
+          well_state->type = UNDOCUMENTED_ZERO;
+          if (well_state->open)
+            util_abort("%s: Invalid type value %d\n",__func__ , int_type);
+          break;
+        case(IWEL_PRODUCER):
+          well_state->type = PRODUCER;
+          break;
+        case(IWEL_OIL_INJECTOR):
+          well_state->type = OIL_INJECTOR;
+          break;
+        case(IWEL_GAS_INJECTOR):
+          well_state->type = GAS_INJECTOR;
+          break;
+        case(IWEL_WATER_INJECTOR):
+          well_state->type = WATER_INJECTOR;
+          break;
+        default:
+          util_abort("%s: Invalid type value %d\n",__func__ , int_type);
+        }
+      }
+      
+      
+      // Add global connections:
+      well_state_add_connections( well_state , ecl_file , 0 , global_well_nr );
+      
+      
+      
     // Go through all the LGRs and add connections; both in the bulk
     // grid and as wellhead.
-    
-    {
-      int num_lgr = ecl_file_get_num_named_kw( ecl_file , LGR_KW );
-      int lgr_nr;
-      for (lgr_nr = 0; lgr_nr < num_lgr; lgr_nr++) {
-        ecl_file_push_block( ecl_file );                                  // <--------------------
-        {                                                                                       //  
-          ecl_file_subselect_block( ecl_file , LGR_KW , lgr_nr );                               // 
-          {                                                                                     //  Restrict the file view 
-            int well_nr = well_state_get_lgr_well_nr( well_state , ecl_file);                   //  to one LGR block.   
-                                                                                                //
-            if (well_nr >= 0)                                                                   // 
-              well_state_add_connections( well_state , ecl_file , lgr_nr + 1, well_nr );        //
-          }                                                                                     //
-        }                                                                                       //
-        ecl_file_pop_block( ecl_file );                                   // <--------------------  
+      
+      {
+        int num_lgr = ecl_file_get_num_named_kw( ecl_file , LGR_KW );
+        int lgr_nr;
+        for (lgr_nr = 0; lgr_nr < num_lgr; lgr_nr++) {
+          ecl_file_push_block( ecl_file );                                  // <--------------------
+          {                                                                                       //  
+            ecl_file_subselect_block( ecl_file , LGR_KW , lgr_nr );                               // 
+            {                                                                                     //  Restrict the file view 
+              int well_nr = well_state_get_lgr_well_nr( well_state , ecl_file);                   //  to one LGR block.   
+              //
+              if (well_nr >= 0)                                                                   // 
+                well_state_add_connections( well_state , ecl_file , lgr_nr + 1, well_nr );        //
+            }                                                                                     //
+          }                                                                                       //
+          ecl_file_pop_block( ecl_file );                                   // <--------------------  
+        }
       }
-    }
-  } 
-  ecl_intehead_free( global_header );
-  return well_state;
+    } 
+    ecl_intehead_free( global_header );
+    return well_state;
+  } else 
+    /* This seems a bit weird - have come over E300 restart files without the IWEL keyword. */
+    return NULL;
 }
-
 
 void well_state_free( well_state_type * well ) {
   hash_free( well->name_lgr_path );

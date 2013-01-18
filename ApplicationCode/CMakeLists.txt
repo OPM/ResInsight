@@ -217,7 +217,7 @@ set( LINK_LIBRARIES
     LibCore
 
     ecl
-    util
+    ert_util
     geometry
     well
 

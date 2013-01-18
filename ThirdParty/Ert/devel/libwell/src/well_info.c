@@ -300,7 +300,7 @@ void well_info_add_UNRST_wells( well_info_type * well_info , ecl_file_type * rst
   {
     int num_blocks = ecl_file_get_num_named_kw( rst_file , SEQNUM_KW );
     int block_nr;
-        for (block_nr = 0; block_nr < num_blocks; block_nr++) {
+    for (block_nr = 0; block_nr < num_blocks; block_nr++) {
       ecl_file_push_block( rst_file );      // <-------------------------------------------------------
       {                                                                                               //
         ecl_file_subselect_block( rst_file , SEQNUM_KW , block_nr );                                  //  Ensure that the status

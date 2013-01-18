@@ -49,7 +49,7 @@ tui_objects = env.Object( ["enkf_tui_main.c" , "enkf_tui_fs.c" ,
                            "enkf_tui_plot_util.c" , "enkf_tui_run.c",
                            "enkf_tui_util.c" , "enkf_tui_init.c" ,
                            "enkf_tui_export.c" , "enkf_tui_analysis.c" ,
-                           "enkf_tui_QC.c"]) 
+                           "enkf_tui_QC.c" , "enkf_tui_help.c"]) 
 
 define_fmt = "\'%s=\"%s\"\'" 
 main_object = env.Object("main.c" , CPPDEFINES = "DEVEL_VERSION")

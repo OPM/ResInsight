@@ -49,10 +49,10 @@ add_subdirectory(ThirdParty/Ert/devel)
 
 include_directories(
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/src
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libutil/src
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/src
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/src
     ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libwell/src
-    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libutil/src
+    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/src
 )
 
 

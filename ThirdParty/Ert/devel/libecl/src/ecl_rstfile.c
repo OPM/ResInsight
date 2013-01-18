@@ -169,20 +169,20 @@ static time_t file_map_iget_restart_sim_date(const file_map_type * file_map , in
 
 
 static int file_map_find_sim_time(const file_map_type * file_map , time_t sim_time) {
-  int global_index = -1;
+  int seqnum_index = -1;
   if ( file_map_has_kw( file_map , INTEHEAD_KW)) {
     const int_vector_type * intehead_index_list = hash_get( file_map->kw_index , INTEHEAD_KW );
     int index = 0;
     while (index < int_vector_size( intehead_index_list )) {
       const ecl_kw_type * intehead_kw = file_map_iget_kw( file_map , int_vector_iget( intehead_index_list , index ));
       if (ecl_intehead_date( intehead_kw ) == sim_time) {
-        global_index = int_vector_iget( intehead_index_list , index );
+        seqnum_index = index;
         break;
       }
       index++;
     }
   }
-  return global_index;
+  return seqnum_index;
 }
 
 
@@ -296,6 +296,42 @@ bool ecl_file_has_sim_time( const ecl_file_type * ecl_file , time_t sim_time) {
   return file_map_has_sim_time( ecl_file->active_map , sim_time );
 }
 
+
+/*
+  This function will determine the restart block corresponding to the
+  world time @sim_time; if @sim_time can not be found the function
+  will return 0.
+  
+  The returned index is the 'occurence number' in the restart file,
+  i.e. in the (quite typical case) that not all report steps are
+  present the return value will not agree with report step. 
+
+  The return value from this function can then be used to get a
+  corresponding solution field directly, or the file map can
+  restricted to this block.
+
+  Direct access:
+  
+     int index = ecl_file_get_restart_index( ecl_file , sim_time );
+     if (index >= 0) {
+        ecl_kw_type * pressure_kw = ecl_file_iget_named_kw( ecl_file , "PRESSURE" , index );
+        ....
+     }
+
+
+  Using block restriction:   
+
+     int index = ecl_file_get_restart_index( ecl_file , sim_time );
+     if (index >= 0) {
+        ecl_file_iselect_rstblock( ecl_file , index );
+        {
+           ecl_kw_type * pressure_kw = ecl_file_iget_named_kw( ecl_file , "PRESSURE" , 0 );
+           ....
+        } 
+     }
+     
+  Specially in the case of LGRs the block restriction should be used.  
+ */
 
 int ecl_file_get_restart_index( const ecl_file_type * ecl_file , time_t sim_time) {
   int active_index = file_map_find_sim_time( ecl_file->active_map , sim_time );

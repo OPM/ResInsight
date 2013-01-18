@@ -1662,6 +1662,12 @@ const char * ecl_smspec_get_join_string( const ecl_smspec_type * smspec) {
     Returns a stringlist instance with all the (valid) well names. It
     is the responsability of the calling scope to free the stringlist
     with stringlist_free();
+
+    
+    If @pattern is different from NULL only wells which 'match' the
+    pattern is included; if @pattern == NULL all wells are
+    included. The match is done with function fnmatch() -
+    i.e. standard shell wildcards.
 */
 
 stringlist_type * ecl_smspec_alloc_well_list( const ecl_smspec_type * smspec , const char * pattern) {
@@ -1738,4 +1744,11 @@ const int * ecl_smspec_get_grid_dims( const ecl_smspec_type * smspec ) {
 void ecl_smspec_update_wgname( ecl_smspec_type * smspec , smspec_node_type * node , const char * wgname ) {
   smspec_node_update_wgname( node , wgname , smspec->key_join_string);
   ecl_smspec_index_node( smspec , node );
+}
+
+
+/*****************************************************************/
+
+char * ecl_smspec_alloc_well_key( const ecl_smspec_type * smspec , const char * keyword , const char * wgname) {
+  return smspec_alloc_well_key( smspec->key_join_string , keyword , wgname );
 }

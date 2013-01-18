@@ -412,18 +412,16 @@ void enkf_fs_create_fs( const char * mount_point, fs_driver_impl driver_id , voi
 
 
 static void enkf_fs_fsync_time_map( enkf_fs_type * fs ) {
-  FILE * stream = enkf_fs_open_case_file( fs , TIME_MAP_FILE , "w");
-  time_map_fwrite( fs->time_map , stream );
-  fclose( stream );
+  char * filename = enkf_fs_alloc_case_filename( fs , TIME_MAP_FILE );
+  time_map_fwrite( fs->time_map , filename );
+  free( filename );
 }
 
 
 static void enkf_fs_fread_time_map( enkf_fs_type * fs ) {
-  FILE * stream = enkf_fs_open_excase_file( fs , TIME_MAP_FILE );
-  if (stream != NULL) {
-    time_map_fread( fs->time_map , stream );
-    fclose( stream );
-  }
+  char * filename = enkf_fs_alloc_case_filename( fs , TIME_MAP_FILE );
+  time_map_fread( fs->time_map , filename );
+  free( filename );
 }
 
 

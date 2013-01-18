@@ -116,6 +116,7 @@ extern "C" {
 #define  PRE_CLEAR_RUNPATH_KEY             "PRE_CLEAR_RUNPATH"
 #define  QUEUE_SYSTEM_KEY                  "QUEUE_SYSTEM"
 #define  QUEUE_OPTION_KEY                  "QUEUE_OPTION" 
+#define  QC_PATH_KEY                       "QC_PATH"  
 #define  REFCASE_KEY                       "REFCASE"
 #define  REPORT_CONTEXT_KEY                "REPORT_CONTEXT"
 #define  REPORT_SEARCH_PATH_KEY            "REPORT_SEARCH_PATH"

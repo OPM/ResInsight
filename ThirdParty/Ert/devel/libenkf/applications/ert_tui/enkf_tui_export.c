@@ -34,7 +34,7 @@
 #include <msg.h>
 #include <gen_data.h>
 #include <gen_data_config.h>
-
+#include <enkf_tui_help.h>
 #define PROMPT_LEN  60
 
 
@@ -780,6 +780,7 @@ void enkf_tui_export_menu(void * arg) {
   menu_add_item(menu , "Export GEN_DATA/GEN_PARAM to file"                      , "dD" , enkf_tui_export_gen_data , enkf_main , NULL);
   menu_add_separator( menu );
   menu_add_item(menu , "EclWrite mean and std"                                  , "mM" , enkf_tui_export_stat , enkf_main , NULL );
+  menu_add_item(menu , "Help"                                  , "hH" , enkf_tui_help_menu_export , enkf_main , NULL );
   menu_run(menu);
   menu_free(menu);
 }

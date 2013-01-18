@@ -19,8 +19,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
-#include <plplot.h>
-#include <plplotP.h>
+#include <plplot/plplot.h>
+#include <plplot/plplotP.h>
 #include <plot_const.h>
 #include <plot_range.h>
 #include <util.h>

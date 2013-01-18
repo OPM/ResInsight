@@ -1,6 +1,0 @@
-{% for $x in [1,2,3,4] %}
-$x
-{% endfor %}
----
-{% for $x in [a,b,c] %}var$x
-{% endfor %}

@@ -37,7 +37,7 @@
 #include <ensemble_config.h>
 #include <msg.h>
 #include <gen_kw_config.h>
-
+#include <enkf_tui_help.h>
 
 
         
@@ -243,6 +243,7 @@ void enkf_tui_table_menu(void * arg) {
     menu_add_item(menu , "Ensemble of parameters"          , "eE"  , enkf_tui_table_ensemble        , enkf_main , NULL);
     menu_add_item(menu , "GEN_KW ensemble"                 , "gG"  , enkf_tui_table_GEN_KW_ensemble , enkf_main , NULL);
     menu_add_item(menu , "Time development of parameters"  , "tT"  , enkf_tui_table_time            , enkf_main , NULL);
+    menu_add_item(menu , "Help"                            , "hH"  , enkf_tui_help_menu_table            , enkf_main , NULL);
     menu_run(menu);
     menu_free(menu);
   }

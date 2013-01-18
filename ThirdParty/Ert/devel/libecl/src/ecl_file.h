@@ -38,6 +38,7 @@ extern "C" {
   void             ecl_file_push_block( ecl_file_type * ecl_file );
   void             ecl_file_pop_block( ecl_file_type * ecl_file );
   ecl_file_type  * ecl_file_open( const char * filename );
+  ecl_file_type  * ecl_file_try_open( const char * filename);
   ecl_file_type  * ecl_file_open_writable( const char * filename );
   void             ecl_file_close( ecl_file_type * ecl_file );
   void             ecl_file_fortio_detach( ecl_file_type * ecl_file );

@@ -34,7 +34,7 @@ extern "c" {
  */
 #include <stdbool.h>
 #include <util.h>
-#include <plplot.h>
+#include <plplot/plplot.h>
 #include <plot_const.h>
 #include <plot_dataset.h>
 

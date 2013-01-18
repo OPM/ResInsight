@@ -836,6 +836,7 @@ static ecl_file_type * ecl_file_open__( const char * filename , bool read_only) 
     ecl_file->fortio = fortio_open_readwrite( filename , fmt_file , ECL_ENDIAN_FLIP);
   
   ecl_file->global_map = file_map_alloc( ecl_file->fortio , ecl_file->inv_map , true );
+  
   ecl_file_add_map( ecl_file , ecl_file->global_map );
   ecl_file_scan( ecl_file );
   ecl_file_select_global( ecl_file );
@@ -848,9 +849,25 @@ ecl_file_type * ecl_file_open( const char * filename ) {
   return ecl_file_open__(filename , true );
 }
 
+ecl_file_type * ecl_file_try_open( const char * filename) {
+  if (util_entry_readable( filename ))
+    return ecl_file_open( filename );
+  else
+    return NULL;
+}
+
+/**
+   This function opens the file in a mode where it can be updated and
+   modified, but it must still exist and be readable. I.e. this should
+   not compared with the normal: fopen(filename , "w") where an
+   existing file is truncated to zero upon successfull open.  
+*/
 
 ecl_file_type * ecl_file_open_writable( const char * filename ) {
-  return ecl_file_open__(filename , false );
+  if (util_entry_readable( filename ) && util_entry_writable( filename ))
+    return ecl_file_open__(filename , false );
+  else
+    return NULL;
 }
 
 

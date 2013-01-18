@@ -228,17 +228,17 @@ void plot_config_add_config_items( config_type * config ) {
   config_add_key_value(config , PLOT_PATH_KEY         , false , CONFIG_STRING);
   config_add_key_value(config , PLOT_REFCASE_KEY      , false , CONFIG_STRING);
   config_add_key_value(config , IMAGE_VIEWER_KEY      , false , CONFIG_FILE);
-  config_add_key_value(config , PLOT_ERRORBAR_KEY, false , CONFIG_BOOLEAN);
+  config_add_key_value(config , PLOT_ERRORBAR_KEY     , false , CONFIG_BOOLEAN);
   config_add_key_value(config , PLOT_ERRORBAR_MAX_KEY , false , CONFIG_INT);
 
   {
-    config_item_type * item;
+    config_schema_item_type * item;
     
     item = config_add_key_value(config , IMAGE_TYPE_KEY , false , CONFIG_STRING);
-    config_item_set_common_selection_set( item , 3 , (const char *[3]) {"png" , "jpg" , "psc"});
+    config_schema_item_set_common_selection_set( item , 3 , (const char *[3]) {"png" , "jpg" , "psc"});
 
     item = config_add_key_value(config , PLOT_DRIVER_KEY , false , CONFIG_STRING);
-    config_item_set_common_selection_set( item , 2 , (const char *[2]) {"PLPLOT" , "TEXT"});
+    config_schema_item_set_common_selection_set( item , 2 , (const char *[2]) {"PLPLOT" , "TEXT"});
   }
 }
 

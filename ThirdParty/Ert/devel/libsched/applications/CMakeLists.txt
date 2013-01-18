@@ -9,12 +9,12 @@ add_executable( sched_summary.x sched_summary.c )
 
 set(program_list sched_summary.x)
 foreach(prog ${program_list})
-   target_link_libraries( ${prog} sched_static ecl_static util_static )
+   target_link_libraries( ${prog} sched ecl ert_util )
    #-----------------------------------------------------------------
    if (SCHED_INSTALL_PREFIX)
-      set (destination ${INSTALL_ROOT}/${SCHED_INSTALL_PREFIX}/bin)
+      set (destination ${SCHED_INSTALL_PREFIX}/bin)
    else()
-      set (destination ${INSTALL_ROOT}/bin)
+      set (destination bin)
    endif()
 
    install(TARGETS ${prog} DESTINATION ${destination})

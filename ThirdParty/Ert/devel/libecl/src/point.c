@@ -38,7 +38,8 @@ void point_mapaxes_invtransform( point_type * p , const double origo[2], const d
   double dx     = p->x - origo[0];
   double dy     = p->y - origo[1];
 
-  double org_x  =  (dx*unit_y[1] - dy*unit_y[0]) * norm;
+
+  double org_x  =  (dx*unit_y[1] - dy*unit_y[0])  * norm;
   double org_y  =  (-dx*unit_x[1] + dy*unit_x[0]) * norm;
   
   p->x = org_x;
@@ -47,12 +48,12 @@ void point_mapaxes_invtransform( point_type * p , const double origo[2], const d
 
 
 
+
 void point_compare( const point_type *p1 , const point_type * p2, bool * equal) {
   const double tolerance = 0.0001;
-  if ((abs(p1->x - p2->x) + abs(p1->y - p2->y) + abs(p1->z - p2->z)) > tolerance) {
+  if ((abs(p1->x - p2->x) + abs(p1->y - p2->y) + abs(p1->z - p2->z)) > tolerance) 
     *equal = false;
-    printf("Setting different:  (%g , %g , %g)   (%g , %g , %g) \n",p1->x,p1->y , p1->z , p2->x , p2->y , p2->z);
-  }
+
 }
 
 

@@ -396,8 +396,23 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
           }
 
           value_ptr = &value;
+        } else if (ecl_type == ECL_DOUBLE_TYPE) {
+          double value;
+
+          if (sscanf(buffer , "%d*%lg" , &multiplier , &value) == 2) 
+            {}
+          else if (sscanf( buffer , "%lg" , &value) == 1) 
+            multiplier = 1;
+          else {
+            char_input = true;
+            if (strict)
+              util_abort("%s: Malformed content:\"%s\" when reading keyword:%s \n",__func__ , buffer , header);
+          }
+          
+          value_ptr = &value;
         } else 
           util_abort("%s: sorry type:%s not supported \n",__func__ , ecl_util_get_type_name(ecl_type));
+        
         
         if (char_input)
           fprintf(stderr,"Warning: character string: \'%s\' ignored when reading keyword:%s \n",buffer , header);
@@ -484,8 +499,8 @@ static char * fscanf_alloc_grdecl_data( const char * header , bool strict , ecl_
 
 
 static ecl_kw_type * __ecl_kw_fscanf_alloc_grdecl__(FILE * stream , const char * header , bool strict , int size , ecl_type_enum ecl_type) {
-  if (!(ecl_type == ECL_FLOAT_TYPE || ecl_type == ECL_INT_TYPE))
-    util_abort("%s: sorry only types FLOAT and INT supported\n",__func__);
+  if (! (ecl_type == ECL_FLOAT_TYPE || ecl_type == ECL_INT_TYPE || ecl_type == ECL_DOUBLE_TYPE))
+    util_abort("%s: sorry only types FLOAT, INT and DOUBLE supported\n",__func__);
 
   if (header != NULL)
     if (!ecl_kw_grdecl_fseek_kw( header , true , stream ))

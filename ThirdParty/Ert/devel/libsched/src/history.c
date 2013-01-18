@@ -181,7 +181,7 @@ bool history_init_ts( const history_type * history , const char * summary_key , 
       for (int tstep = 0; tstep <= history_get_last_restart(history); tstep++) {
         int time_index = ecl_sum_iget_report_end( history->refcase , tstep );
         if (time_index >= 0) {
-          double_vector_iset( value , tstep , ecl_sum_iget_general_var( history->refcase , time_index , local_key ));
+          double_vector_iset( value , tstep , ecl_sum_get_general_var( history->refcase , time_index , local_key ));
           bool_vector_iset( valid , tstep , true );
         } else
           bool_vector_iset( valid , tstep , false );    /* Did not have this report step */

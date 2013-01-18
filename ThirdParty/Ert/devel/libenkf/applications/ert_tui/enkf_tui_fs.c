@@ -30,7 +30,7 @@
 #include <enkf_types.h>
 #include <enkf_fs.h>
 #include <ranking_table.h>
-
+#include <enkf_tui_help.h>
 
 void enkf_tui_fs_ls_case(void * arg) {
   enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );
@@ -414,7 +414,7 @@ void enkf_tui_fs_menu(void * arg) {
    /* Are these two in use??? */
    menu_add_item(menu, "Copy full ensemble to another case", "eE", enkf_tui_fs_copy_ensemble, enkf_main, NULL); 
    menu_add_item(menu, "Copy ensemble of parameters to another case", "oO", enkf_tui_fs_copy_ensemble_of_parameters, enkf_main, NULL); 
-   
+   menu_add_item(menu , "Help"                                  , "hH" , enkf_tui_help_menu_cases   , enkf_main , NULL); 
 
    menu_run(menu);
    menu_free(menu);

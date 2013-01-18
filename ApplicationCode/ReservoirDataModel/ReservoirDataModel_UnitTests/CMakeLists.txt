@@ -38,7 +38,7 @@ set( LINK_LIBRARIES
 
     ecl
     well
-    util
+    ert_util
 
     ${QT_LIBRARIES}
 )

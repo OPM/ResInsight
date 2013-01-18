@@ -1,6 +1,7 @@
 cmake_minimum_required( VERSION 2.6 )
 project( ERT C CXX )
 include( CheckFunctionExists )
+ENABLE_TESTING()
 
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -28,6 +29,9 @@ if (SHARED_LIB)
 else()
    set( LIBRARY_TYPE STATIC )
 endif()     
+
+set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 #-----------------------------------------------------------------
 find_library( ZLIB_LIBRARY NAMES z )
@@ -152,10 +156,6 @@ if (HAVE_LOCKF)
   add_definitions( -DHAVE_LOCKF )
 endif()
 
-check_function_exists( isfinite HAVE_ISFINITE )
-if (HAVE_ISFINITE)
-  add_definitions( -DHAVE_ISFINITE )
-endif()
 
 check_function_exists( glob HAVE_GLOB )
 if (HAVE_GLOB)
@@ -177,6 +177,8 @@ if (HAVE_SETENV)
   add_definitions( -DPOSIX_SETENV )
 endif()
 
+
+
 check_function_exists( opendir HAVE_OPENDIR )
 if (HAVE_OPENDIR)
   add_definitions( -DHAVE_OPENDIR )
@@ -185,6 +187,11 @@ endif()
 check_function_exists( usleep HAVE_USLEEP )
 if (HAVE_OPENDIR)
   add_definitions( -DHAVE_USLEEP )
+endif()
+
+try_compile( HAVE_ISFINITE ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/CMake/Tests/test_isfinite.c )
+if (HAVE_ISFINITE)
+  add_definitions( -DHAVE_ISFINITE )
 endif()
 
 try_compile( MKDIR_POSIX ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/CMake/Tests/test_mkdir.c )
@@ -199,7 +206,6 @@ endif()
 
 try_compile( HAVE_VA_COPY ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/CMake/Tests/test_va_copy.c )
 if (HAVE_VA_COPY)
-   message("Have va_copy() macro")
    add_definitions( -DHAVE_VA_COPY )
 endif()
 
@@ -212,6 +218,7 @@ endif()
 if (ERT_LINUX)
    set( NEED_LIBM TRUE )
    set( LINK_STATIC FALSE )
+   add_definitions( -DHAVE_PROC )
 else()
    set( NEED_LIBM FALSE )
    set( LINK_STATIC TRUE )
@@ -221,34 +228,41 @@ endif()
 configure_file( ${PROJECT_SOURCE_DIR}/CMake/config/ert_build_config.h.in
                 ${PROJECT_BINARY_DIR}/ert_build_config.h )
 
-set( libert_util_build_path   ${PROJECT_BINARY_DIR}/libutil/src )
-set( libert_util_src_path     ${PROJECT_SOURCE_DIR}/libutil/src )
+set( libert_util_build_path   ${PROJECT_BINARY_DIR}/libert_util/src )
+set( libert_util_src_path     ${PROJECT_SOURCE_DIR}/libert_util/src )
 set( libecl_src_path          ${PROJECT_SOURCE_DIR}/libecl/src )
 set( libgeometry_src_path     ${PROJECT_SOURCE_DIR}/libgeometry/src )
 set( libwell_src_path         ${PROJECT_SOURCE_DIR}/libwell/src )
 set( libplot_src_path         ${PROJECT_SOURCE_DIR}/libplot/src )
 
-set( BUILD_CXX ON )
-set( BUILD_ERT OFF)
-
 include_directories( ${libert_util_build_path}) 
 include_directories( ${libert_util_src_path} )
 
-add_subdirectory( libutil )
+add_subdirectory( libert_util )
 add_subdirectory( libgeometry )
 add_subdirectory( libecl )
 add_subdirectory( libwell )
 
+option( BUILD_ERT      "Build the full ERT application - Linux only" OFF)
+option( BUILD_ENS_PLOT "Build small Eclipse plotting program - no" OFF)
+
 #-----------------------------------------------------------------
 if (BUILD_ERT)
 #-----------------------------------------------------------------
+
+   try_compile( DLOPEN ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/CMake/Tests/test_dlopen.c )
+   if (DLOPEN)
+      set(NEED_LIBDL OFF)    
+   else()
+      set(NEED_LIBDL ON)
+   endif()
+
    option(USE_LSF "Include support for LSF" ON)
    set( libconfig_src_path    ${CMAKE_SOURCE_DIR}/libconfig/src )
    set( libsched_src_path     ${CMAKE_SOURCE_DIR}/libsched/src )
    set( librms_src_path       ${CMAKE_SOURCE_DIR}/librms/src )
    set( libanalysis_src_path  ${CMAKE_SOURCE_DIR}/libanalysis/src )
    set( libjob_queue_src_path ${CMAKE_SOURCE_DIR}/libjob_queue/src )
-   set( libplot_src_path      ${CMAKE_SOURCE_DIR}/libplot/src )
    set( libenkf_src_path      ${CMAKE_SOURCE_DIR}/libenkf/src )
 
    add_subdirectory( libconfig )
@@ -259,22 +273,22 @@ if (BUILD_ERT)
    add_subdirectory( libplot )
    add_subdirectory( libenkf)
 
-   add_dependencies( config_shared util_shared )
-   #add_dependencies( analysis_shared util_shared )
-   add_dependencies( rms_shared geometry_shared util_shared )
-   add_dependencies( sched_shared util_shared ecl_shared )
-   add_dependencies( job_queue_shared config_shared util )
-   add_dependencies( plot_shared util_shared )
-   add_dependencies( enkf_shared plot_shared ecl_shared util_shared config_shared sched_shared rms_shared analysis job_queue_shared )
-   add_dependencies( ert_shared enkf_shared plot_shared )
-
-   add_dependencies( config_static util_static )
-   #add_dependencies( analysis_static util_static )
-   add_dependencies( rms_static geometry_static util_static )
-   add_dependencies( sched_static util_static ecl_static )
-   add_dependencies( job_queue_static config_static util )
-   add_dependencies( plot_static util_static )
-   add_dependencies( enkf_static plot_static ecl_static util_static config_static sched_static rms_static analysis job_queue_static )
-   add_dependencies( ert enkf_static plot_static )
+   #add_dependencies( config_shared util_shared )
+   ##add_dependencies( analysis_shared util_shared )
+   #add_dependencies( rms_shared geometry_shared util_shared )
+   #add_dependencies( sched_shared util_shared ecl_shared )
+   #add_dependencies( job_queue_shared config_shared util )
+   #add_dependencies( plot_shared util_shared )
+   #add_dependencies( enkf_shared plot_shared ecl_shared util_shared config_shared sched_shared rms_shared analysis job_queue_shared )
+   #add_dependencies( ert_shared enkf_shared plot_shared )
+   #
+   #add_dependencies( config_static util_static )
+   ##add_dependencies( analysis_static util_static )
+   #add_dependencies( rms_static geometry_static util_static )
+   #add_dependencies( sched_static util_static ecl_static )
+   #add_dependencies( job_queue_static config_static util )
+   #add_dependencies( plot_static util_static )
+   #add_dependencies( enkf_static plot_static ecl_static util_static config_static sched_static rms_static analysis job_queue_static )
+   #add_dependencies( ert enkf_static plot_static )
 endif()
 

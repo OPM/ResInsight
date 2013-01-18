@@ -83,6 +83,7 @@
 #include <plot_config.h>
 #include <ensemble_config.h>
 #include <model_config.h>
+#include <qc_config.h>
 #include <site_config.h>
 #include <active_config.h>
 #include <enkf_analysis.h>
@@ -92,7 +93,6 @@
 #include <local_dataset.h>
 #include <misfit_ensemble.h>
 #include <ert_template.h>
-#include <ert_build_info.h>
 #include <rng_config.h>
 #include <enkf_plot_data.h>
 #include <ert_report_list.h>
@@ -100,7 +100,7 @@
 #include "enkf_defaults.h"
 #include "config_keys.h"
 
-
+/**/
 
 /**
    This object should contain **everything** needed to run a enkf
@@ -138,6 +138,7 @@ struct enkf_main_struct {
   char                 * current_fs_case;
   enkf_fs_type         * dbase;              /* The internalized information. */
   ensemble_config_type * ensemble_config;    /* The config objects for the various enkf nodes.*/
+  qc_config_type       * qc_config;
   model_config_type    * model_config;
   ecl_config_type      * ecl_config;
   site_config_type     * site_config;
@@ -391,6 +392,7 @@ void enkf_main_free(enkf_main_type * enkf_main) {
   analysis_config_free(enkf_main->analysis_config);
   ecl_config_free(enkf_main->ecl_config);
   model_config_free( enkf_main->model_config);
+  qc_config_free( enkf_main->qc_config );
   site_config_free( enkf_main->site_config);
   ensemble_config_free( enkf_main->ensemble_config );
   
@@ -1259,77 +1261,8 @@ static void enkf_main_report_load_failure( const enkf_main_type * enkf_main , in
 
 
 /**
-   The function enkf_main_run_step() is quite heavily multithreaded
-   involving one designated worker thread (queue_thread) and two
-   thread_pools. In the diagram below we have attempted to illustrate
-   the multithreaded behaviour of the function enkf_main_run_step():
-
-    o The execution path does not leave a 'box' before the thread / thread_pool
-      has been joined.
-
-    o An 'X' is meant to indicate a join.
-
-    o Dotted lines indicate communication; specifically the queue_thread running
-      the queue is "the owner" of all the job status information.
-
-    o The thread pool spawns many individual worker threads, these are
-      administrated by the thread_pool and not shown in the diagram.
-
-
-   main_thread: enkf_main_run_step
-   -------------------------------
-               |
-               |
-               |------------------------------------->--------------------------+
-               |                                                                |
-               |                                                                |
-               |                                                                |
-               |                                                                |
-               |                                                                |
-               |                                                   _____________|____________________
-    ___________|_______ thread pool __________________            /                                  \
-   /                                                  \           | queue_thread: job_queue_run_jobs |
-   |  submit_threads: enkf_state_start_forward_model  |...........\__________________________________/
-   \__________________________________________________/              .     .    |
-               |                                                     .     .    |
-               |                                                     .     .    |
-               |                                                     .     .    |
-               |                                                     .     .    |
-               |                                                     .     .    |
-               +---------+                                           .     .    |
-                         |                                           .     .    |
-                         |                                           .     .    |
-                         |                                           .     .    |
-                                                                     .     .    |
-              main_thread: enkf_main_wait_loop()......................     .    |
-              ----------------------------------                           .    |
-                         |                                                 .    |
-                         |                                                 .    |
-        _________________| thread pool ____________________                .    |
-       /                                                   \               .    |
-       | load_threads: enkf_state_complete_forward_model() |................    |
-       \___________________________________________________/                    |
-                         |                                                      |
-                         |                                                      |
-                         |                                                      |
-               +---------+                                                      |
-               |                                                                |
-               |                                                                |
-               X---------------------------------------<------------------------+
-               |
-               |
-              \|/
-
-         Some single threaded clean up.
-
-
-  In addition to the trivial speed up (on a multi CPU box) the
-  multithreading allows for asyncronous treatmeant of the queue,
-  loading of results e.t.c. The latter is probably the most important
-  argument for using a multithreaded approach.
-
   If all simulations have completed successfully the function will
-  return true, otherwise it will return false.
+  return true, otherwise it will return false.  
 */
 
 
@@ -1514,6 +1447,30 @@ void enkf_main_init_run( enkf_main_type * enkf_main, run_mode_type run_mode) {
 }
 
 
+/*
+This function checks if no parameters have been initialized. If as much as one parameter
+has been initialized the function will return false.
+*/
+
+
+bool enkf_main_is_not_initialized_at_all( const enkf_main_type * enkf_main ) {
+  stringlist_type  * parameter_keys = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER );
+  bool initialized;
+  bool not_initialized_at_all = true;
+  int ikey, iens;
+  for (ikey = 0 ; ikey < stringlist_get_size( parameter_keys ) ; ikey++){
+    const enkf_config_node_type * config_node = ensemble_config_get_node( enkf_main->ensemble_config , stringlist_iget( parameter_keys , ikey) );
+    for ( iens = 0 ; iens < enkf_main->ens_size ; iens++ ){
+      node_id_type node_id = {.report_step = 0 , .iens = iens , .state = ANALYZED };
+      initialized = enkf_config_node_has_node( config_node , enkf_main->dbase , node_id);
+      if (initialized)
+	not_initialized_at_all = false;
+    }
+    
+  }
+  return not_initialized_at_all;
+}
+
 
 
 void enkf_main_run_exp(enkf_main_type * enkf_main            ,
@@ -1521,7 +1478,13 @@ void enkf_main_run_exp(enkf_main_type * enkf_main            ,
                        int              init_step_parameters ,
                        int              start_report         ,
                        state_enum       start_state) {
-  
+  bool initialize = enkf_main_is_not_initialized_at_all( enkf_main );
+  int ens_size = enkf_main_get_ensemble_size( enkf_main );
+  if (initialize) {
+    stringlist_type * param_list = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER );
+    enkf_main_initialize_from_scratch( enkf_main , param_list , 0 , ens_size - 1);
+    stringlist_free( param_list );
+  }  
   enkf_main_init_run( enkf_main , ENSEMBLE_EXPERIMENT );
   {
     const enkf_sched_type * enkf_sched = model_config_get_enkf_sched(enkf_main->model_config);
@@ -1540,7 +1503,13 @@ void enkf_main_run_assimilation(enkf_main_type * enkf_main            ,
                                 int              init_step_parameters ,
                                 int              start_report         ,
                                 state_enum       start_state) {
-
+  bool initialize = enkf_main_is_not_initialized_at_all( enkf_main );
+  int ens_size = enkf_main_get_ensemble_size( enkf_main );
+  if (initialize) {
+    stringlist_type * param_list = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER );
+    enkf_main_initialize_from_scratch( enkf_main , param_list , 0 , ens_size - 1);
+    stringlist_free( param_list );
+  }  
   bool rerun       = analysis_config_get_rerun( enkf_main->analysis_config );
   int  rerun_start = analysis_config_get_rerun_start( enkf_main->analysis_config );
   enkf_main_init_run( enkf_main , ENKF_ASSIMILATION);
@@ -1630,7 +1599,8 @@ void enkf_main_run_assimilation(enkf_main_type * enkf_main            ,
 }
 
 
-void enkf_main_run_smoother(enkf_main_type * enkf_main , bool initialize , const char * target_fs_name , bool rerun) {
+void enkf_main_run_smoother(enkf_main_type * enkf_main , const char * target_fs_name , bool rerun) {
+  bool initialize = enkf_main_is_not_initialized_at_all( enkf_main ); 
   int ens_size = enkf_main_get_ensemble_size( enkf_main );
   if (initialize) {
     stringlist_type * param_list = ensemble_config_alloc_keylist_from_var_type( enkf_main->ensemble_config , PARAMETER );
@@ -1825,9 +1795,11 @@ void enkf_main_initialize_from_scratch(enkf_main_type * enkf_main , const string
       int start_iens = i * ens_sub_size;
       int end_iens   = start_iens + ens_sub_size;
       
-      if (i == (num_cpu - 1))
+      if (i == (num_cpu - 1)){
         end_iens = iens2 + 1;  /* Input is upper limit inclusive. */
-
+	if(ens_sub_size == 0)
+	  start_iens = iens1;  /* Don't necessarily want to start from zero when ens_sub_size = 0*/
+      }
       arg_pack_append_int( arg_list[i] , start_iens );
       arg_pack_append_int( arg_list[i] , end_iens );
     }
@@ -1925,10 +1897,10 @@ void enkf_main_create_all_active_config( const enkf_main_type * enkf_main ,
 
 static config_type * enkf_main_alloc_config( bool site_only , bool strict ) {
   config_type * config = config_alloc();
-  config_item_type * item;
+  config_schema_item_type * item;
 
   /*****************************************************************/
-  /* config_add_item():                                            */
+  /* config_add_schema_item():                                            */
   /*                                                               */
   /*  1. boolean - required?                                       */
   /*  2. boolean - append?                                         */
@@ -1949,8 +1921,8 @@ static config_type * enkf_main_alloc_config( bool site_only , bool strict ) {
   /*****************************************************************/
   /* Required keywords from the ordinary model_config file */
 
-  item = config_add_item(config , CASE_TABLE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1, (const config_item_types [1]) {CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , CASE_TABLE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1, (const config_item_types [1]) {CONFIG_EXISTING_FILE});
 
   config_add_key_value( config , LOG_LEVEL_KEY , false , CONFIG_INT);
   config_add_key_value( config , LOG_FILE_KEY  , false , CONFIG_STRING); 
@@ -1958,8 +1930,8 @@ static config_type * enkf_main_alloc_config( bool site_only , bool strict ) {
   config_add_key_value(config , MAX_RESAMPLE_KEY , false , CONFIG_INT);
   
   
-  item = config_add_item(config , NUM_REALIZATIONS_KEY , true , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1, (const config_item_types [1]) {CONFIG_INT});
+  item = config_add_schema_item(config , NUM_REALIZATIONS_KEY , true , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1, (const config_item_types [1]) {CONFIG_INT});
   config_add_alias(config , NUM_REALIZATIONS_KEY , "SIZE");
   config_add_alias(config , NUM_REALIZATIONS_KEY , "NUM_REALISATIONS");
   config_install_message(config , "SIZE" , "** Warning: \'SIZE\' is depreceated - use \'NUM_REALIZATIONS\' instead.");
@@ -1968,81 +1940,86 @@ static config_type * enkf_main_alloc_config( bool site_only , bool strict ) {
   /*****************************************************************/
   /* Optional keywords from the model config file */
 
-  item = config_add_item( config , RUN_TEMPLATE_KEY , false , true );
-  config_item_set_argc_minmax(item , 2 , -1 , 2 , (const config_item_types [2]) { CONFIG_EXISTING_FILE , CONFIG_STRING });  /* Force the template to exist at boot time. */
+  item = config_add_schema_item( config , RUN_TEMPLATE_KEY , false , true );
+  config_schema_item_set_argc_minmax(item , 2 , -1 , 2 , (const config_item_types [2]) { CONFIG_EXISTING_FILE , CONFIG_STRING });  /* Force the template to exist at boot time. */
 
   config_add_key_value(config , RUNPATH_KEY , false , CONFIG_STRING);
   config_add_key_value(config , RERUN_PATH_KEY , false , CONFIG_STRING);
   
-  item = config_add_item(config , ENSPATH_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , ENSPATH_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
 
-  item = config_add_item( config , JOBNAME_KEY , false , false );
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item( config , JOBNAME_KEY , false , false );
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
   
-  item = config_add_item(config , SELECT_CASE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , SELECT_CASE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
 
-  item = config_add_item(config , DBASE_TYPE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1, 1 , 0 , NULL);
-  config_item_set_common_selection_set(item , 3 , (const char *[3]) {"PLAIN" , "SQLITE" , "BLOCK_FS"});
+  item = config_add_schema_item(config , DBASE_TYPE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1, 1 , 0 , NULL);
+  config_schema_item_set_common_selection_set(item , 3 , (const char *[3]) {"PLAIN" , "SQLITE" , "BLOCK_FS"});
 
-  item = config_add_item(config , FORWARD_MODEL_KEY , false , true);
-  config_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item(config , FORWARD_MODEL_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
 
-  item = config_add_item(config , DATA_KW_KEY , false , true);
-  config_item_set_argc_minmax(item , 2 , 2 , 0 , NULL);
+  item = config_add_schema_item(config , DATA_KW_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 2 , 2 , 0 , NULL);
 
-  item = config_add_item(config , KEEP_RUNPATH_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item(config , KEEP_RUNPATH_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
 
   config_add_key_value(config , PRE_CLEAR_RUNPATH_KEY , false , CONFIG_BOOLEAN);
 
-  item = config_add_item(config , DELETE_RUNPATH_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item(config , DELETE_RUNPATH_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
 
-  item = config_add_item(config , OBS_CONFIG_KEY  , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , OBS_CONFIG_KEY  , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
 
-  item = config_add_item(config , RFT_CONFIG_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , RFT_CONFIG_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
 
-  item = config_add_item(config , RFTPATH_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , RFTPATH_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
 
-  item = config_add_item(config , LOCAL_CONFIG_KEY  , false , true);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , LOCAL_CONFIG_KEY  , false , true);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
 
-  item = config_add_item(config , ENKF_SCHED_FILE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , ENKF_SCHED_FILE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
 
-  item = config_add_item(config , HISTORY_SOURCE_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , HISTORY_SOURCE_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
   {
     stringlist_type * refcase_dep = stringlist_alloc_argv_ref( (const char *[1]) { REFCASE_KEY } , 1);
 
-    config_item_set_common_selection_set(item , 3 , (const char *[3]) {"SCHEDULE" , "REFCASE_SIMULATED" , "REFCASE_HISTORY"});
-    config_item_set_required_children_on_value(item , "REFCASE_SIMULATED" , refcase_dep);
-    config_item_set_required_children_on_value(item , "REFCASE_HISTORY"  , refcase_dep);
+    config_schema_item_set_common_selection_set(item , 3 , (const char *[3]) {"SCHEDULE" , "REFCASE_SIMULATED" , "REFCASE_HISTORY"});
+    config_schema_item_set_required_children_on_value(item , "REFCASE_SIMULATED" , refcase_dep);
+    config_schema_item_set_required_children_on_value(item , "REFCASE_HISTORY"  , refcase_dep);
 
     stringlist_free(refcase_dep);
   }
   /*****************************************************************/
   /* Report */
-  item = config_add_item(config , REPORT_LIST_KEY , false , true);
-  config_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item(config , REPORT_LIST_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
 
-  item = config_add_item(config , REPORT_CONTEXT_KEY , false , true);
-  config_item_set_argc_minmax(item , 2 , 2 , 0 , NULL);
+  item = config_add_schema_item(config , REPORT_CONTEXT_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 2 , 2 , 0 , NULL);
   
-  item = config_add_item(config , REPORT_PATH_KEY , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , REPORT_PATH_KEY , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
 
-  item = config_add_item( config , REPORT_WELL_LIST_KEY , false , true );
-  config_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item( config , REPORT_WELL_LIST_KEY , false , true );
+  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
   
-  item = config_add_item( config , REPORT_GROUP_LIST_KEY , false , true );
-  config_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item( config , REPORT_GROUP_LIST_KEY , false , true );
+  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  /*****************************************************************/
+  /* QC */
+  item = config_add_schema_item( config , QC_PATH_KEY , false , false );
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  
   return config;
 }
 
@@ -2189,6 +2166,7 @@ static enkf_main_type * enkf_main_alloc_empty( ) {
   enkf_main->site_config      = site_config_alloc_empty();
   enkf_main->ensemble_config  = ensemble_config_alloc_empty();
   enkf_main->ecl_config       = ecl_config_alloc_empty();
+  enkf_main->qc_config        = qc_config_alloc( DEFAULT_QC_PATH );
   enkf_main->model_config     = model_config_alloc_empty();
   enkf_main->analysis_config  = analysis_config_alloc_default( enkf_main->rng );   /* This is ready for use. */
   enkf_main->plot_config      = plot_config_alloc_default();       /* This is ready for use. */
@@ -2346,14 +2324,57 @@ void enkf_main_create_fs( enkf_main_type * enkf_main , const char * fs_path) {
 
 static void enkf_main_link_current_fs__( enkf_main_type * enkf_main , const char * case_path) {
   const char * ens_path = model_config_get_enspath( enkf_main->model_config);
-  char * current_link = util_alloc_filename( ens_path , CURRENT_CASE , NULL );
+  
+  /* 1: Create a symlink pointing to the currently open case. */
   {
-    if (util_entry_exists( current_link ))
-      unlink( current_link );
-    symlink( case_path , current_link );
+    char * current_link = util_alloc_filename( ens_path , CURRENT_CASE , NULL );
+    {
+      if (util_entry_exists( current_link ))
+        unlink( current_link );
+      symlink( case_path , current_link );
+    }
+    free( current_link );
   }
-  free( current_link );
+
+
+  /* 2: Update a small text file with the name of the host currently
+        running ert, the pid number of the process, the active case
+        and when it started. 
+        
+        If the previous shutdown was unclean the file will be around,
+        and we will need the info from the previous invocation which
+        is in the file. For that reason we open with mode 'a' instead
+        of 'w'.
+  */
+  {
+    int buffer_size = 256;
+    char * current_host = util_alloc_filename( ens_path , CASE_LOG , NULL );
+    FILE * stream = util_fopen( current_host , "a");
+    
+    fprintf(stream , "CASE:%-16s  " , case_path ); 
+    fprintf(stream , "PID:%-8d  " , getpid());
+    {
+      char hostname[buffer_size];
+      gethostname( hostname , buffer_size );
+      fprintf(stream , "HOST:%-16s  " , hostname );
+    }
+
+    
+    {
+      int year,month,day,hour,minute,second;
+      time_t now = time( NULL );
+      
+      util_set_datetime_values( now , &second , &minute , &hour , &day , &month , &year );
+      
+      fprintf(stream , "TIME:%02d/%02d/%4d-%02d.%02d.%02d\n" , day , month ,  year , hour , minute , second);
+    }
+    fclose( stream );
+    free( current_host );
+  }
 }
+
+
+
 
 static void enkf_main_close_fs( enkf_main_type * enkf_main ) {
   enkf_fs_close( enkf_main->dbase );
@@ -2364,6 +2385,7 @@ static void enkf_main_close_fs( enkf_main_type * enkf_main ) {
 enkf_fs_type * enkf_main_get_fs(const enkf_main_type * enkf_main) {
   return enkf_main->dbase;
 }
+
 
 char * enkf_main_alloc_mount_point( const enkf_main_type * enkf_main , const char * case_path) {
   char * mount_point;
@@ -2382,6 +2404,7 @@ void enkf_main_set_fs( enkf_main_type * enkf_main , enkf_fs_type * fs , const ch
 
     enkf_main_link_current_fs__( enkf_main , case_path);
     enkf_main->current_fs_case = util_realloc_string_copy( enkf_main->current_fs_case , case_path);
+    enkf_main_gen_data_special( enkf_main );
   }
 }
 
@@ -2463,10 +2486,8 @@ void enkf_main_gen_data_special( enkf_main_type * enkf_main ) {
 void enkf_main_select_fs( enkf_main_type * enkf_main , const char * case_path ) {
   enkf_fs_type * new_fs = enkf_main_get_alt_fs( enkf_main , case_path , false , true );
   
-  if (new_fs != NULL) {
+  if (new_fs != NULL) 
     enkf_main_set_fs( enkf_main , new_fs , case_path);
-    enkf_main_gen_data_special( enkf_main );
-  }
   else {
     const char * ens_path = model_config_get_enspath( enkf_main->model_config );
     util_exit("%s: select filesystem %s:%s failed \n",__func__ , ens_path , case_path );
@@ -2686,7 +2707,7 @@ static void enkf_main_bootstrap_site(enkf_main_type * enkf_main , const char * s
     
     {
       config_type * config = enkf_main_alloc_config( true , strict );
-      config_parse(config , site_config_file  , "--" , INCLUDE_KEY , DEFINE_KEY , true , false , true);
+      config_parse(config , site_config_file  , "--" , INCLUDE_KEY , DEFINE_KEY , true , false);
       site_config_init( enkf_main->site_config , config , false);                                /*  <---- site_config : first pass. */  
       ert_report_list_site_init( enkf_main->report_list , config );
       config_free( config );
@@ -2791,7 +2812,7 @@ enkf_main_type * enkf_main_bootstrap(const char * _site_config, const char * _mo
     
     config = enkf_main_alloc_config( false , strict );
     site_config_init_user_mode( enkf_main->site_config );
-    config_parse(config , model_config , "--" , INCLUDE_KEY , DEFINE_KEY , true , false , true);
+    config_parse(config , model_config , "--" , INCLUDE_KEY , DEFINE_KEY , true , true);
     site_config_init( enkf_main->site_config , config , true );                                   /*  <---- model_config : second pass. */ 
 
     /*****************************************************************/
@@ -2816,6 +2837,7 @@ enkf_main_type * enkf_main_bootstrap(const char * _site_config, const char * _mo
     ecl_config_init( enkf_main->ecl_config , config );
     plot_config_init( enkf_main->plot_config , config );
     ensemble_config_init( enkf_main->ensemble_config , config , ecl_config_get_grid( enkf_main->ecl_config ) , ecl_config_get_refcase( enkf_main->ecl_config) );
+    qc_config_init( enkf_main->qc_config , config );
     model_config_init( enkf_main->model_config , 
                        config , 
                        enkf_main_get_ensemble_size( enkf_main ),
@@ -3302,6 +3324,8 @@ bool enkf_main_is_initialized( const enkf_main_type * enkf_main , bool_vector_ty
 }
 
 
+
+
 void enkf_main_log_fprintf_config( const enkf_main_type * enkf_main , FILE * stream ) {
   fprintf( stream , CONFIG_COMMENTLINE_FORMAT );
   fprintf( stream , CONFIG_COMMENT_FORMAT  , "Here comes configuration information about the ERT logging.");
@@ -3327,20 +3351,6 @@ void enkf_main_install_SIGNALS(void) {
 }
 
 
-void enkf_main_init_debug( const char * executable ) {
-  char * svn_version      = util_alloc_sprintf("svn version..........: %s \n",SVN_VERSION);
-  char * compile_time     = util_alloc_sprintf("Compile time.........: %s \n",COMPILE_TIME_STAMP);
-
-  /* This will be printed if/when util_abort() is called on a later stage. */
-  util_abort_append_version_info( svn_version );
-  util_abort_append_version_info( compile_time );
-  
-  free(svn_version);
-  free(compile_time);
-
-  if (executable != NULL)
-    util_abort_set_executable( executable );
-}  
 
 
 ert_templates_type * enkf_main_get_templates( enkf_main_type * enkf_main ) {

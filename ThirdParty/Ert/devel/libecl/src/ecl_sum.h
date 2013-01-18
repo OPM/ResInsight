@@ -36,6 +36,25 @@ extern "C" {
 #include <smspec_node.h>
 
 
+  typedef struct {
+    char * locale;
+    char * sep;
+    char * newline;
+    char * value_fmt;
+    char * date_fmt;
+    char * days_fmt;
+    char * header_fmt;
+    bool   print_header;
+    bool   print_dash;
+    char * date_header;
+    char * date_dash;
+    char * value_dash;
+  } ecl_sum_fmt_type;
+    
+  void ecl_sum_fmt_init_csv( ecl_sum_fmt_type * fmt );
+  void ecl_sum_fmt_init_summary_x( ecl_sum_fmt_type * fmt );
+  /*****************************************************************/
+
 typedef struct ecl_sum_struct       ecl_sum_type;
 
   double         ecl_sum_get_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const smspec_node_type * node);
@@ -53,7 +72,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   const char *     ecl_sum_get_unit( const ecl_sum_type * sum , const char * gen_key );
   int              ecl_sum_get_num( const ecl_sum_type * sum , const char * gen_key );
 
-  double           ecl_sum_iiget( const ecl_sum_type * ecl_sum , int internal_index , int param_index);
+  double           ecl_sum_iget( const ecl_sum_type * ecl_sum , int time_index , int param_index);
   int              ecl_sum_iget_num( const ecl_sum_type * sum , int param_index );
   const char *     ecl_sum_iget_wgname( const ecl_sum_type * sum , int param_index );
   const char *     ecl_sum_iget_keyword( const ecl_sum_type * sum , int param_index );
@@ -114,7 +133,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   double            ecl_sum_get_general_var_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const char * var);
   const char *      ecl_sum_get_general_var_unit( const ecl_sum_type * ecl_sum , const char * var);
   /***************/
-  void              ecl_sum_fprintf(const ecl_sum_type * , FILE * , const stringlist_type * , bool report_only , bool print_header);
+  void              ecl_sum_fprintf(const ecl_sum_type * , FILE * , const stringlist_type * , bool report_only , const ecl_sum_fmt_type * fmt);
   
   
   
@@ -178,6 +197,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   ecl_sum_tstep_type  * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_days);
   void                  ecl_sum_update_wgname( ecl_sum_type * ecl_sum , smspec_node_type * node , const char * wgname );
 
+  char                * ecl_sum_alloc_well_key( const ecl_sum_type * ecl_sum , const char * keyword , const char * wgname);
 UTIL_IS_INSTANCE_HEADER( ecl_sum );
 
 #ifdef __cplusplus

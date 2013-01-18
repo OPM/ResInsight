@@ -463,7 +463,7 @@ analysis_config_type * analysis_config_alloc_default( rng_type * rng ) {
 */
 
 void analysis_config_add_config_items( config_type * config ) {
-  config_item_type * item;
+  config_schema_item_type * item;
   
   config_add_key_value( config , ENKF_ALPHA_KEY              , false , CONFIG_FLOAT);
   config_add_key_value( config , STD_CUTOFF_KEY              , false , CONFIG_FLOAT);
@@ -486,14 +486,14 @@ void analysis_config_add_config_items( config_type * config ) {
 
   config_add_key_value( config , ANALYSIS_SELECT_KEY         , false , CONFIG_STRING);
 
-  item = config_add_item( config , ANALYSIS_LOAD_KEY , false , true );
-  config_item_set_argc_minmax( item , 2 , 2 , 0 , NULL );  
+  item = config_add_schema_item( config , ANALYSIS_LOAD_KEY , false , true );
+  config_schema_item_set_argc_minmax( item , 2 , 2 , 0 , NULL );  
 
-  item = config_add_item( config , ANALYSIS_COPY_KEY , false , true );
-  config_item_set_argc_minmax( item , 2 , 2 , 0 , NULL );  
+  item = config_add_schema_item( config , ANALYSIS_COPY_KEY , false , true );
+  config_schema_item_set_argc_minmax( item , 2 , 2 , 0 , NULL );  
   
-  item = config_add_item( config , ANALYSIS_SET_VAR_KEY , false , true );
-  config_item_set_argc_minmax( item , 3 , -1 , 0 , NULL );
+  item = config_add_schema_item( config , ANALYSIS_SET_VAR_KEY , false , true );
+  config_schema_item_set_argc_minmax( item , 3 , -1 , 0 , NULL );
 }
 
 

@@ -29,7 +29,7 @@
 #include <enkf_tui_util.h>
 #include <ranking_table.h>
 #include <misfit_ensemble.h>
-
+#include <enkf_tui_help.h>
 
 static void enkf_tui_ranking_make_misfit_ensemble( void * arg) {
   arg_pack_type * arg_pack                     = arg_pack_safe_cast( arg );
@@ -202,6 +202,7 @@ void enkf_tui_ranking_menu(void * arg) {
       if (!misfit_ensemble_initialized( misfit_ensemble ))
         menu_item_disable( obs_item );
     }
+    menu_add_item(menu , "Help" , "hH" , enkf_tui_help_menu_rank , enkf_main , NULL);
     menu_run(menu);
     menu_free(menu);
   }

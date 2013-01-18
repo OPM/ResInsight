@@ -276,6 +276,7 @@ extern "C" {
 #define FILEHEAD_KW    "FILEHEAD"
 #define ENDGRID_KW     "ENDGRID"
 #define ENDLGR_KW      "ENDLGR"
+#define CORSNUM_KW     "CORSNUM"
 
 /* GRID keywords */
 #define GRIDHEAD_KW    "GRIDHEAD"   /* Header information for GRID files. */
@@ -309,8 +310,19 @@ extern "C" {
 #define GRIDHEAD_GRIDTYPE_CORNERPOINT 1 /*  <----\                        */
                                         /*       |  Fucking hysterical!   */
 #define FILEHEAD_GRIDTYPE_CORNERPOINT 0 /*  <----/                        */
-#define FILEHEAD_SINGLE_POROSITY      0 
+
 #define FILEHEAD_ORGTYPE_CORNERPOINT  1
+#define FILEHEAD_SINGLE_POROSITY      0 
+#define FILEHEAD_DUAL_POROSITY        1 
+#define FILEHEAD_DUAL_PERMEABILITY    2 
+
+
+#define INACTIVE            0 
+#define ACTIVE_MATRIX       1
+#define ACTIVE              ACTIVE_MATRIX 
+#define ACTIVE_FRACTURE     2 
+
+
 
 #ifdef __cplusplus
 }

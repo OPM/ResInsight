@@ -7,12 +7,12 @@ add_executable( tag_list     tag_list.c    )
 
 set(program_list rms_extract rms_setname rms_stat rms_test tag_list)
 foreach(prog ${program_list})
-   target_link_libraries( ${prog} rms_static ecl_static util_static )
+   target_link_libraries( ${prog} rms ecl util )
    #-----------------------------------------------------------------
    if (RMS_INSTALL_PREFIX)
-      set (destination ${INSTALL_ROOT}/${RMS_INSTALL_PREFIX}/bin)
+      set (destination ${RMS_INSTALL_PREFIX}/bin)
    else()
-      set (destination ${INSTALL_ROOT}/bin)
+      set (destination bin)
    endif()
 
    install(TARGETS ${prog} DESTINATION ${destination})

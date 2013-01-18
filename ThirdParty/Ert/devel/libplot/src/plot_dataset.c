@@ -8,7 +8,7 @@
    the Free Software Foundation, either version 3 of the License, or 
    (at your option) any later version. 
     
-   ERT is distributed in the hope that it will be useful, but WITHOUT ANY 
+   ERT is distributed in the hope that it will be useful, but WITHOUT ANY
    WARRANTY; without even the implied warranty of MERCHANTABILITY or 
    FITNESS FOR A PARTICULAR PURPOSE.   
     
@@ -18,8 +18,8 @@
 
 #include <string.h>
 #include <util.h>
-#include <plplot.h>
-#include <plplotP.h>
+#include <plplot/plplot.h>
+#include <plplot/plplotP.h>
 #include <math.h>
 #include <double_vector.h>
 #include <bool_vector.h>

@@ -7,22 +7,17 @@ include_directories( ${libutil_build_path} )
 include_directories( ${libutil_src_path} )
 include_directories( ${libecl_src_path} )
 
-add_library( sched_static  STATIC ${source_files} )
-add_library( sched_shared  SHARED ${source_files} )
+add_library( sched ${LIBRARY_TYPE} ${source_files} )
 
-set_target_properties( sched_static PROPERTIES OUTPUT_NAME sched )
-set_target_properties( sched_shared PROPERTIES OUTPUT_NAME sched )
-
-target_link_libraries( sched_static )
-target_link_libraries( sched_shared )
+target_link_libraries( sched ert_util ecl)
 
 #-----------------------------------------------------------------
 if (SCHED_INSTALL_PREFIX)
-   install(TARGETS sched_static sched_shared DESTINATION ${INSTALL_ROOT}/${SCHED_INSTALL_PREFIX}/lib)
-   install(FILES ${header_files} DESTINATION ${INSTALL_ROOT}/${SCHED_INSTALL_PREFIX}/include)
+   install(TARGETS sched DESTINATION ${SCHED_INSTALL_PREFIX}/lib)
+   install(FILES ${header_files} DESTINATION ${SCHED_INSTALL_PREFIX}/include)
 else()
-   install(TARGETS sched_static sched_shared DESTINATION ${INSTALL_ROOT}/lib)
-   install(FILES ${header_files} DESTINATION ${INSTALL_ROOT}/include)
+   install(TARGETS sched DESTINATION lib)
+   install(FILES ${header_files} DESTINATION include)
 endif()        
 
 

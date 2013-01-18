@@ -25,23 +25,23 @@
 int main(void) {
   const char * config_file = "config_test_input";
   config_type * config = config_alloc();
-  config_item_type * item;
+  config_schema_item_type * item;
   
-  item = config_add_item(config , "KEY1" , true  , true);
-  item = config_add_item(config , "KEY2" , true  , false);
-  config_item_set_argc_minmax(item , 1 , 4 , 4 , (const config_item_types [4]) {CONFIG_EXECUTABLE , CONFIG_EXISTING_FILE , CONFIG_BOOLEAN , CONFIG_BOOLEAN});
+  item = config_add_schema_item(config , "KEY1" , true  , true);
+  item = config_add_schema_item(config , "KEY2" , true  , false);
+  config_schema_item_set_argc_minmax(item , 1 , 4 , 4 , (const config_item_types [4]) {CONFIG_EXECUTABLE , CONFIG_EXISTING_FILE , CONFIG_BOOLEAN , CONFIG_BOOLEAN});
 
 
-  item = config_add_item(config , "FATHER"  , false , false);
+  item = config_add_schema_item(config , "FATHER"  , false , false);
   {
     stringlist_type * children = stringlist_alloc_argv_ref( (const char *[2]) {"CHILD1" , "CHILD2"} , 2);
-    config_item_set_required_children(item , children);
+    config_schema_item_set_required_children(item , children);
     stringlist_free(children);
   }
-  item = config_add_item(config , "CHILD1"  , false , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+  item = config_add_schema_item(config , "CHILD1"  , false , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
   
-  config_parse(config , config_file , "--" , "INCLUDE" , NULL , true, true , true);
+  config_parse(config , config_file , "--" , "INCLUDE" , NULL , true, true);
   
 
 

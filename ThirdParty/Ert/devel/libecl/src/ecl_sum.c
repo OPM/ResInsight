@@ -20,6 +20,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>
+#include <locale.h>
 
 #include <hash.h>
 #include <util.h>
@@ -612,15 +613,13 @@ bool ecl_sum_has_key(const ecl_sum_type * ecl_sum , const char * lookup_kw) {
   return ecl_sum_has_general_var( ecl_sum , lookup_kw );
 }
 
+
 double ecl_sum_get_general_var(const ecl_sum_type * ecl_sum , int time_index , const char * lookup_kw) {
   int params_index = ecl_sum_get_general_var_params_index(ecl_sum , lookup_kw);
-  return ecl_sum_data_iget( ecl_sum->data , time_index , params_index);
+  return ecl_sum_data_iget( ecl_sum->data , time_index  , params_index);
 }
 
-double ecl_sum_iget_general_var(const ecl_sum_type * ecl_sum , int internal_index , const char * lookup_kw) {
-  int params_index = ecl_sum_get_general_var_params_index(ecl_sum , lookup_kw);
-  return ecl_sum_data_iget( ecl_sum->data , internal_index  , params_index);
-}
+
 
 double ecl_sum_get_general_var_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const char * var) {
   const smspec_node_type * node = ecl_sum_get_general_var_node( ecl_sum , var );
@@ -632,6 +631,7 @@ double ecl_sum_get_general_var_from_sim_days( const ecl_sum_type * ecl_sum , dou
   return ecl_sum_data_get_from_sim_days( ecl_sum->data , sim_days , node );
 }
 
+
 const char * ecl_sum_get_general_var_unit( const ecl_sum_type * ecl_sum , const char * var) {
   const smspec_node_type * node = ecl_sum_get_general_var_node( ecl_sum , var );
   return smspec_node_get_unit( node );
@@ -639,8 +639,8 @@ const char * ecl_sum_get_general_var_unit( const ecl_sum_type * ecl_sum , const 
 
 /*****************************************************************/
 
-double ecl_sum_iiget( const ecl_sum_type * ecl_sum , int internal_index , int param_index) {
-  return ecl_sum_data_iget(ecl_sum->data , internal_index , param_index);
+double ecl_sum_iget( const ecl_sum_type * ecl_sum , int time_index , int param_index) {
+  return ecl_sum_data_iget(ecl_sum->data , time_index , param_index);
 }
 
 /*****************************************************************/
@@ -830,51 +830,109 @@ double ecl_sum_iget_sim_days( const ecl_sum_type * ecl_sum , int index ) {
 /*****************************************************************/
 /* This is essentially the summary.x program. */
 
-#define DAYS_DATE_FORMAT    "%7.2f   %02d/%02d/%04d   "
-#define FLOAT_FORMAT        " %15.6g "
-#define HEADER_FORMAT       " %15s "
-#define DATE_HEADER         "-- Days   dd/mm/yyyy   "
-#define DATE_DASH           "-----------------------"
-#define FLOAT_DASH          "-----------------"
+void ecl_sum_fmt_init_csv( ecl_sum_fmt_type * fmt ) {
+  fmt->locale     = "Norwegian";
+  fmt->sep        = "\t";
+  fmt->date_fmt   = "%d/%m/%y";
+  fmt->value_fmt  = "%g";
+  fmt->days_fmt   = "%7.2f";
+  fmt->header_fmt = "%s";
 
-static void __ecl_sum_fprintf_line( const ecl_sum_type * ecl_sum , FILE * stream , int internal_index , const bool_vector_type * has_var , const int_vector_type * var_index ) {
-  int ivar , day,month,year;
-  util_set_date_values(ecl_sum_iget_sim_time(ecl_sum , internal_index ) , &day , &month, &year);
-  fprintf(stream , DAYS_DATE_FORMAT , ecl_sum_iget_sim_days(ecl_sum , internal_index) , day , month , year);
-
-  for (ivar = 0; ivar < int_vector_size( var_index ); ivar++)
-    if (bool_vector_iget( has_var , ivar ))
-      fprintf(stream , FLOAT_FORMAT , ecl_sum_iiget(ecl_sum , internal_index, int_vector_iget( var_index , ivar )));
-
-  fprintf(stream , "\n");
+  fmt->newline     = "\r\n";
+  fmt->date_header = "DAYS\tDATE";
+  fmt->print_header = true;
+  fmt->print_dash = false;
 }
 
 
-static void ecl_sum_fprintf_header( const ecl_sum_type * ecl_sum , const stringlist_type * key_list , const bool_vector_type * has_var , FILE * stream) {
-  fprintf(stream , DATE_HEADER);
+
+void ecl_sum_fmt_init_summary_x( ecl_sum_fmt_type * fmt ) {
+  fmt->locale     = NULL;
+  fmt->sep        = "";
+  fmt->date_fmt   = "%d/%m/%Y   ";
+  fmt->value_fmt  = " %15.6g ";
+  fmt->days_fmt   = "%7.2f   ";
+  fmt->header_fmt = " %15s ";
+
+  fmt->newline = "\n";
+  fmt->print_header= true;
+  fmt->print_dash = true;
+  fmt->date_dash  = "-----------------------";
+  fmt->value_dash = "-----------------";
+  fmt->date_header= "-- Days   dd/mm/yyyy   ";
+}
+
+
+/*#define DAYS_DATE_FORMAT    "%7.2f   %02d/%02d/%04d   "
+#define FLOAT_FORMAT        " %15.6g "
+#define HEADER_FORMAT       " %15s "
+#define DATE_DASH           "-----------------------"
+#define FLOAT_DASH          "-----------------"
+*/
+
+#define DATE_HEADER         "-- Days   dd/mm/yyyy   "
+#define DATE_STRING_LENGTH 128
+
+static void __ecl_sum_fprintf_line( const ecl_sum_type * ecl_sum , FILE * stream , int internal_index , const bool_vector_type * has_var , const int_vector_type * var_index , char * date_string , const ecl_sum_fmt_type * fmt) {
+  int ivar , day,month,year;
+  util_set_date_values(ecl_sum_iget_sim_time(ecl_sum , internal_index ) , &day , &month, &year);
+  fprintf(stream , fmt->days_fmt , ecl_sum_iget_sim_days(ecl_sum , internal_index));
+  fprintf(stream , fmt->sep );
+
+  {  
+    struct tm ts;
+    time_t sim_time = ecl_sum_iget_sim_time(ecl_sum , internal_index );
+    util_localtime( &sim_time , &ts);
+    strftime( date_string , DATE_STRING_LENGTH - 1 , fmt->date_fmt , &ts);
+    fprintf(stream , date_string );
+  }   
+
+  for (ivar = 0; ivar < int_vector_size( var_index ); ivar++) {  
+    if (bool_vector_iget( has_var , ivar )) {
+      fprintf(stream , fmt->sep);
+      fprintf(stream , fmt->value_fmt , ecl_sum_iget(ecl_sum , internal_index, int_vector_iget( var_index , ivar )));
+    }   
+  }   
+  
+  fprintf(stream , fmt->newline);
+}
+
+
+static void ecl_sum_fprintf_header( const ecl_sum_type * ecl_sum , const stringlist_type * key_list , const bool_vector_type * has_var , FILE * stream, const ecl_sum_fmt_type * fmt) {
+  fprintf(stream , fmt->date_header);
   { 
     int i;
     for (i=0; i < stringlist_get_size( key_list ); i++)
-      if (bool_vector_iget( has_var , i ))
-        fprintf(stream , HEADER_FORMAT , stringlist_iget( key_list , i ));
+      if (bool_vector_iget( has_var , i )) { 
+        fprintf(stream , fmt->sep);
+        fprintf(stream , fmt->header_fmt , stringlist_iget( key_list , i ));
+      }
   }
 
-  fprintf( stream , "\n");
-  fprintf(stream , DATE_DASH);
-
-  {
-    int i;
-    for (i=0; i < stringlist_get_size( key_list ); i++)
-      if (bool_vector_iget( has_var , i ))
-        fprintf(stream , FLOAT_DASH);
+  fprintf( stream , fmt->newline);
+  if (fmt->print_dash)   {
+    fprintf(stream , fmt->date_dash);
+    
+    {
+      int i;
+      for (i=0; i < stringlist_get_size( key_list ); i++)
+        if (bool_vector_iget( has_var , i ))
+          fprintf(stream , fmt->value_dash);
+    }
+    fprintf( stream , fmt->newline);
   }
-  fprintf( stream , "\n");
 }
 
 
-void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const stringlist_type * var_list , bool report_only , bool print_header) {
+
+void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const stringlist_type * var_list , bool report_only , const ecl_sum_fmt_type * fmt) {
   bool_vector_type  * has_var   = bool_vector_alloc( stringlist_get_size( var_list ), false );
   int_vector_type   * var_index = int_vector_alloc( stringlist_get_size( var_list ), -1 );
+  char * date_string            = util_malloc( DATE_STRING_LENGTH * sizeof * date_string);
+
+  char * current_locale = NULL;
+  if (fmt->locale != NULL)
+    current_locale = setlocale(LC_NUMERIC , fmt->locale);
   
   {
     int ivar;
@@ -889,8 +947,8 @@ void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const string
     }
   }
   
-  if (print_header)
-    ecl_sum_fprintf_header( ecl_sum , var_list , has_var , stream );
+  if (fmt->print_header)
+    ecl_sum_fprintf_header( ecl_sum , var_list , has_var , stream , fmt);
 
   if (report_only) {
     int first_report = ecl_sum_get_first_report_step( ecl_sum );
@@ -899,20 +957,23 @@ void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const string
 
     for (report = first_report; report <= last_report; report++) {
       if (ecl_sum_data_has_report_step(ecl_sum->data , report)) {
-        int internal_index;
-        internal_index = ecl_sum_data_iget_report_end( ecl_sum->data , report );
-        __ecl_sum_fprintf_line( ecl_sum , stream , internal_index , has_var , var_index );
+        int time_index;
+        time_index = ecl_sum_data_iget_report_end( ecl_sum->data , report );
+        __ecl_sum_fprintf_line( ecl_sum , stream , time_index , has_var , var_index , date_string , fmt);
       }
     }
   } else {
-    int internal_index;
-    for (internal_index = 0; internal_index < ecl_sum_get_data_length( ecl_sum ); internal_index++)
-      __ecl_sum_fprintf_line( ecl_sum , stream , internal_index , has_var , var_index );
+    int time_index;
+    for (time_index = 0; time_index < ecl_sum_get_data_length( ecl_sum ); time_index++)
+      __ecl_sum_fprintf_line( ecl_sum , stream , time_index , has_var , var_index , date_string , fmt);
   }
 
   int_vector_free( var_index );
   bool_vector_free( has_var );
+  if (current_locale != NULL)
+    setlocale( LC_NUMERIC , current_locale);
 }
+#undef DATE_STRING_LENGTH
 
 
 const char * ecl_sum_get_case(const ecl_sum_type * ecl_sum) {
@@ -1079,4 +1140,23 @@ const ecl_smspec_type * ecl_sum_get_smspec( const ecl_sum_type * ecl_sum ) {
 void ecl_sum_update_wgname( ecl_sum_type * ecl_sum , smspec_node_type * node , const char * wgname ) {
   ecl_smspec_update_wgname( ecl_sum->smspec ,node , wgname );
 }
+
+/*****************************************************************/
+
+/* 
+   The functions below are extremly simple functions which only serve
+   as an easy access to the smspec_alloc_xxx_key() functions which
+   know how to create the various composite keys.  
+*/
+
+char * ecl_sum_alloc_well_key( const ecl_sum_type * ecl_sum , const char * keyword , const char * wgname) {
+  return ecl_smspec_alloc_well_key( ecl_sum->smspec , keyword , wgname );
+}
+
+
+
+
+
+
+
 

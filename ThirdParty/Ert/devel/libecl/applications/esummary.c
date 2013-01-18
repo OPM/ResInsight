@@ -155,7 +155,7 @@ int main(int argc , char ** argv) {
                       util_set_date_values(ecl_sum_iget_sim_time(ecl_sum , end_index) , &day , &month, &year);
                       fprintf(stream , "%7.2f   %02d/%02d/%04d   " , ecl_sum_iget_sim_days(ecl_sum , end_index) , day , month , year);
                     }
-                    value = ecl_sum_iget_general_var(ecl_sum , end_index , var_list[ivar]);
+                    value = ecl_sum_get_general_var(ecl_sum , end_index , var_list[ivar]);
                   }
                 }
                 fprintf(stream , " %12.3f " , value);

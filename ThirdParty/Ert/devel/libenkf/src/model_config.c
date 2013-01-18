@@ -246,15 +246,6 @@ void * model_config_get_dbase_args( const model_config_type * model_config ) {
   return NULL;
 }
 
-void model_config_set_max_resample( model_config_type * model_config , int max_resample ) {
-  model_config->max_internal_submit = max_resample;
-}
-
-
-int model_config_get_max_resample(const model_config_type * model_config ) {
-  return model_config->max_internal_submit;
-}
-
 
 void model_config_set_refcase( model_config_type * model_config , const ecl_sum_type * refcase ) {
   model_config->refcase = refcase;
@@ -290,6 +281,13 @@ void model_config_select_refcase_history( model_config_type * model_config , con
     util_abort("%s: internal error - trying to load history from REFCASE - but no REFCASE has been loaded.\n",__func__);
 }
 
+int model_config_get_max_internal_submit( const model_config_type * config ) {
+  return config->max_internal_submit;
+}
+
+static void model_config_set_max_internal_submit( model_config_type * model_config , int max_resample ) {
+  model_config->max_internal_submit = max_resample;
+}
 
 
 
@@ -322,7 +320,7 @@ model_config_type * model_config_alloc_empty() {
   model_config_set_enspath( model_config        , DEFAULT_ENSPATH );
   model_config_set_rftpath( model_config        , DEFAULT_RFTPATH );
   model_config_set_dbase_type( model_config     , DEFAULT_DBASE_TYPE );
-  model_config_set_max_resample( model_config   , DEFAULT_MAX_INTERNAL_SUBMIT);
+  model_config_set_max_internal_submit( model_config   , DEFAULT_MAX_INTERNAL_SUBMIT);
   model_config_add_runpath( model_config , DEFAULT_RUNPATH_KEY , DEFAULT_RUNPATH);
   model_config_select_runpath( model_config , DEFAULT_RUNPATH_KEY );
   
@@ -424,7 +422,7 @@ void model_config_init(model_config_type * model_config ,
     model_config_set_dbase_type( model_config , config_get_value(config , DBASE_TYPE_KEY));
   
   if (config_item_set( config , MAX_RESAMPLE_KEY))
-    model_config_set_max_resample( model_config , config_get_value_as_int( config , MAX_RESAMPLE_KEY ));
+    model_config_set_max_internal_submit( model_config , config_get_value_as_int( config , MAX_RESAMPLE_KEY ));
   
 }
 
@@ -534,9 +532,7 @@ bool model_config_load_state( const model_config_type * config , int report_step
 }
 
 
-int model_config_get_max_internal_submit( const model_config_type * config ) {
-  return config->max_internal_submit;
-}
+
 
 
 void model_config_fprintf_config( const model_config_type * model_config , int ens_size , FILE * stream ) {

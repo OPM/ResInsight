@@ -136,6 +136,9 @@ typedef struct ecl_smspec_struct ecl_smspec_type;
   const   smspec_node_type * ecl_smspec_iget_node( const ecl_smspec_type * smspec , int index );
   void                       ecl_smspec_lock( ecl_smspec_type * smspec );
 
+
+  char                     * ecl_smspec_alloc_well_key( const ecl_smspec_type * smspec , const char * keyword , const char * wgname);
+
 #ifdef __cplusplus
 }
 #endif

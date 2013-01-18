@@ -21,7 +21,7 @@
 #include <errno.h>
 #include <string.h>
 #include <math.h>
-#include <plplot.h>
+#include <plplot/plplot.h>
 #include <plot_driver.h>
 #include <plot_const.h>
 #include <arg_pack.h>

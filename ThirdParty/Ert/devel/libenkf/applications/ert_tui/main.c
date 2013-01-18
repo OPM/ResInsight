@@ -37,8 +37,7 @@
 #include <enkf_types.h>
 #include <enkf_sched.h>
 #include <enkf_tui_main.h>
-#include <ert_build_info.h>
-#include <site_config_file.h>
+
 
 void text_splash() {
   const int usleep_time = 1000;
@@ -75,13 +74,11 @@ void devel_warning() {
 
 
 /*
-  SVN_VERSION and COMPILE_TIME_STAMP are env variables set by the
+  GIT_COMMIT and COMPILE_TIME_STAMP are env variables set by the
   makefile. Will exit if the config file does not exist.
 */
 void enkf_welcome(const char * config_file) {
   if (util_file_exists( config_file )) {
-    char * svn_version           = util_alloc_sprintf("svn version..........: %s \n",SVN_VERSION);
-    char * compile_time          = util_alloc_sprintf("Compile time.........: %s \n",COMPILE_TIME_STAMP);
     char * abs_path              = util_alloc_realpath( config_file );
     char * config_file_msg       = util_alloc_sprintf("Configuration file...: %s \n",abs_path);
     
@@ -91,8 +88,6 @@ void enkf_welcome(const char * config_file) {
     
     free(config_file_msg);
     free(abs_path);
-    free(svn_version);
-    free(compile_time);
   } else util_exit(" ** Sorry: can not locate configuration file: %s \n\n" , config_file);
 }
 
@@ -119,19 +114,35 @@ void enkf_usage() {
 
 
 
+static void init_debug( const char * executable ) {
+  char * git_commit       = util_alloc_sprintf("git commit...........: %s \n",GIT_COMMIT);
+  char * compile_time     = util_alloc_sprintf("Compile time.........: %s \n",COMPILE_TIME_STAMP);
+
+  /* This will be printed if/when util_abort() is called on a later stage. */
+  util_abort_append_version_info( git_commit );
+  util_abort_append_version_info( compile_time );
+  
+  free(git_commit);
+  free(compile_time);
+
+  if (executable != NULL)
+    util_abort_set_executable( executable );
+}  
+
+
 
 
 int main (int argc , char ** argv) {
   devel_warning();
   text_splash();
+  init_debug( NULL );
   printf("\n");
   printf("Documentation : %s \n","http://ert.nr.no");
-  printf("svn version   : %s \n",SVN_VERSION);
+  printf("git commit    : %s \n",GIT_COMMIT);
   printf("compile time  : %s \n",COMPILE_TIME_STAMP);
   printf("site config   : %s \n\n",SITE_CONFIG_FILE);
   enkf_main_install_SIGNALS();                     /* Signals common to both tui and gui. */
   signal(SIGINT , util_abort_signal);              /* Control C - tui only.               */
-  enkf_main_init_debug( NULL );
   if (argc != 2) {
     enkf_usage();
     exit(1);
@@ -148,4 +159,5 @@ int main (int argc , char ** argv) {
     
     util_abort_free_version_info(); /* No fucking leaks ... */
   }
+
 }

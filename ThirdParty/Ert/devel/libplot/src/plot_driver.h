@@ -61,11 +61,11 @@ typedef void (plot_hist_ftype)        (plot_driver_type * driver , const char * 
 
 struct plot_driver_struct {
   char                    * driver_name;
-  void               	  * state;	       
+  void                    * state;             
   
   close_driver_ftype      * close_driver;    
 
-  set_labels_ftype    	  * set_labels;
+  set_labels_ftype        * set_labels;
   window_size_ftype       * set_window_size;
   set_axis_ftype          * set_axis;
   

@@ -286,6 +286,7 @@ Q                                | Quit
 */
 
 
+#define VIEWER          "/usr/bin/display"
 
 #define CREATE_ENS_CMD  "C"
 #define PLOT_CMD        "P"
@@ -965,7 +966,7 @@ void plot_ensemble(const ens_type * ens , plot_type * plot , const char * user_k
         plot_dataset_append_point_xy( plot_dataset , 
                                       //ecl_sum_iget_sim_days( ecl_sum , time_index ),
                                       ecl_sum_iget_sim_time( ecl_sum , time_index ),
-                                      ecl_sum_iiget( ecl_sum , time_index , param_index ));
+                                      ecl_sum_iget( ecl_sum , time_index , param_index ));
       }
       
       plot_dataset_set_style      ( plot_dataset , ens->plot_style);

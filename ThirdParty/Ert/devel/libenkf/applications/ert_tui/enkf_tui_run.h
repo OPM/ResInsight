@@ -20,6 +20,9 @@
 #define  __ENKF_TUI_RUN_H__
 
 void enkf_tui_run_menu(void *);
-
+void enkf_tui_run_exp(void *);
+void enkf_tui_run_start(void *);
+void enkf_tui_run_smoother(void *);
+void enkf_tui_run_iterated_ES(void *);
 
 #endif

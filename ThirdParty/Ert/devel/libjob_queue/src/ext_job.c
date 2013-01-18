@@ -749,22 +749,22 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
     
     ext_job_set_config_file( ext_job , config_file );
     {
-      config_item_type * item;
-      item = config_add_item(config , "MAX_RUNNING"         , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
-      item = config_add_item(config , "STDIN"               , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_item(config , "STDOUT"              , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_item(config , "STDERR"              , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_item(config , "EXECUTABLE"          , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_item(config , "TARGET_FILE"         , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_item(config , "ERROR_FILE"          , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_item(config , "START_FILE"          , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_item(config , "ENV"                 , false , true ); config_item_set_argc_minmax(item  , 2 , 2 , 0 , NULL);
-      item = config_add_item(config , "DEFAULT"             , false , true ); config_item_set_argc_minmax(item  , 2 , 2 , 0 , NULL);
-      item = config_add_item(config , "ARGLIST"             , false , true ); config_item_set_argc_minmax(item  , 1 ,-1 , 0 , NULL);
-      item = config_add_item(config , "MAX_RUNNING_MINUTES" , false , false); config_item_set_argc_minmax(item  , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+      config_schema_item_type * item;
+      item = config_add_schema_item(config , "MAX_RUNNING"         , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+      item = config_add_schema_item(config , "STDIN"               , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
+      item = config_add_schema_item(config , "STDOUT"              , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
+      item = config_add_schema_item(config , "STDERR"              , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
+      item = config_add_schema_item(config , "EXECUTABLE"          , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
+      item = config_add_schema_item(config , "TARGET_FILE"         , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
+      item = config_add_schema_item(config , "ERROR_FILE"          , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
+      item = config_add_schema_item(config , "START_FILE"          , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
+      item = config_add_schema_item(config , "ENV"                 , false , true ); config_schema_item_set_argc_minmax(item  , 2 , 2 , 0 , NULL);
+      item = config_add_schema_item(config , "DEFAULT"             , false , true ); config_schema_item_set_argc_minmax(item  , 2 , 2 , 0 , NULL);
+      item = config_add_schema_item(config , "ARGLIST"             , false , true ); config_schema_item_set_argc_minmax(item  , 1 ,-1 , 0 , NULL);
+      item = config_add_schema_item(config , "MAX_RUNNING_MINUTES" , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
     }
     config_add_alias(config , "EXECUTABLE" , "PORTABLE_EXE");
-    config_parse(config , config_file , "--" , NULL , NULL , true , false , true);
+    config_parse(config , config_file , "--" , NULL , NULL , true , true);
     {
       if (config_item_set(config , "STDIN"))                 ext_job_set_stdin_file(ext_job       , config_iget(config  , "STDIN" , 0,0));
       if (config_item_set(config , "STDOUT"))                ext_job_set_stdout_file(ext_job      , config_iget(config  , "STDOUT" , 0,0));

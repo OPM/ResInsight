@@ -62,6 +62,7 @@ extern "C" {
   void           ecl_kw_free(ecl_kw_type *);
   void           ecl_kw_free__(void *);
   ecl_kw_type *  ecl_kw_alloc_copy (const ecl_kw_type *);
+  ecl_kw_type *  ecl_kw_alloc_sub_copy( const ecl_kw_type * src, const char * new_kw , int offset , int count);
   const void  *  ecl_kw_copyc__(const void *);
   ecl_kw_type *  ecl_kw_alloc_slice_copy( const ecl_kw_type * src, int index1, int index2, int stride);
   //void        * ecl_kw_get_data_ref(const ecl_kw_type *);
@@ -92,7 +93,9 @@ extern "C" {
   double         ecl_kw_iget_as_double(const ecl_kw_type * ecl_kw , int i);
   void           ecl_kw_get_data_as_double(const ecl_kw_type *, double *);
   void           ecl_kw_get_data_as_float(const ecl_kw_type * ecl_kw , float * float_data);
+  bool           ecl_kw_header_eq(const ecl_kw_type *ecl_kw1 , const ecl_kw_type * ecl_kw2);
   bool           ecl_kw_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2);
+  bool           ecl_kw_numeric_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2 , double rel_diff);
   bool           ecl_kw_block_equal( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2 , int cmp_elements);
   bool           ecl_kw_data_equal( const ecl_kw_type * ecl_kw , const void * data);
   void           ecl_kw_fskip_data__( ecl_type_enum ecl_type , int size , fortio_type * fortio);

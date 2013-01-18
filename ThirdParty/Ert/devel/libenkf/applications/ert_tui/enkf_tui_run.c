@@ -38,7 +38,7 @@
 #include <enkf_tui_analysis.h>
 #include <ert_tui_const.h>
 #include <ecl_config.h>
-
+#include <enkf_tui_help.h>
 
 /*
 Set runpath runtime - disabled.
@@ -61,7 +61,7 @@ static void enkf_tui_run_set_runpath(void * arg) {
 
 
 
-void enkf_tui_run_start__(void * enkf_main) {
+void enkf_tui_run_start(void * enkf_main) {
   const int ens_size = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive = bool_vector_alloc(0,true);
   bool_vector_iset( iactive , ens_size - 1 , true );
@@ -105,13 +105,13 @@ void enkf_tui_run_restart__(void * enkf_main) {
 
 
 
-void enkf_tui_run_smoother__(void * arg) {
+void enkf_tui_run_smoother(void * arg) {
   enkf_main_type * enkf_main  = enkf_main_safe_cast( arg );
-  enkf_main_run_smoother(enkf_main , true , "AUTO-SMOOTHER" , true );
+  enkf_main_run_smoother(enkf_main , "AUTO-SMOOTHER" , true );
 }
 
 
-void enkf_tui_run_iterated_ES__(void * enkf_main) {
+void enkf_tui_run_iterated_ES(void * enkf_main) {
   const int ens_size    = enkf_main_get_ensemble_size( enkf_main );
   const int last_report = enkf_main_get_history_length( enkf_main );
 
@@ -193,7 +193,7 @@ void enkf_tui_run_iterated_ES__(void * enkf_main) {
 
 
 
-void enkf_tui_run_exp__(void * enkf_main) {
+void enkf_tui_run_exp(void * enkf_main) {
   const int ens_size           = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive = bool_vector_alloc(0,true);
   bool_vector_iset( iactive , ens_size - 1 , true );
@@ -202,6 +202,7 @@ void enkf_tui_run_exp__(void * enkf_main) {
   int start_report         = 0;
   int init_step_parameters = 0;
   char * select_string;
+  
   {
     char * prompt = util_alloc_sprintf("Which realizations to simulate (Ex: 1,3-5) <Enter for all> [M to return to menu] : " , ens_size);
     util_printf_prompt(prompt , PROMPT_LEN , '=' , "=> ");
@@ -265,7 +266,7 @@ void enkf_tui_run_manual_load__( void * arg ) {
   step1 = 0;
   step2 = last_report;  /** Observe that for the summary data it will load all the available data anyway. */
   {
-    char * prompt = util_alloc_sprintf("Which realizations to load [ensemble size:%d] : " , ens_size);
+    char * prompt = util_alloc_sprintf("Which realizations to load  (Ex: 1,3-5) <Enter for all> [M to return to menu] : [ensemble size:%d] : " , ens_size);
     char * select_string;
     util_printf_prompt(prompt , PROMPT_LEN , '=' , "=> ");
     select_string = util_alloc_stdin_line();
@@ -273,6 +274,10 @@ void enkf_tui_run_manual_load__( void * arg ) {
     free( prompt );
     free( select_string );
   }
+
+
+
+
   {
     int iens;
     arg_pack_type ** arg_list = util_calloc( ens_size , sizeof * arg_list );
@@ -328,16 +333,16 @@ void enkf_tui_run_menu(void * arg) {
     menu = menu_alloc(title , "Back" , "bB");
     free(title);
   }
-  menu_add_item(menu , "Ensemble run: history"                , "xX" , enkf_tui_run_exp__         , enkf_main , NULL);
+  menu_add_item(menu , "Ensemble run: history"                , "xX" , enkf_tui_run_exp         , enkf_main , NULL);
   menu_add_separator( menu );
   {
     const ecl_config_type * ecl_config = enkf_main_get_ecl_config( enkf_main );
     const model_config_type * model_config = enkf_main_get_model_config( enkf_main );
     
-    menu_item_type * enkf_item         = menu_add_item(menu , "Start EnKF run from beginning"          , "sS" , enkf_tui_run_start__         , enkf_main , NULL);
+    menu_item_type * enkf_item         = menu_add_item(menu , "Start EnKF run from beginning"          , "sS" , enkf_tui_run_start         , enkf_main , NULL);
     menu_item_type * restart_enkf_item = menu_add_item(menu , "Restart EnKF run from arbitrary state"  , "rR" , enkf_tui_run_restart__       , enkf_main , NULL);
-    menu_item_type * ES_item           = menu_add_item(menu , "Integrated smoother update"             , "iI" , enkf_tui_run_smoother__      , enkf_main , NULL);
-    menu_item_type * it_ES_item        = menu_add_item(menu , "Iterated smoother [RML-EnKF]"           , "tT" , enkf_tui_run_iterated_ES__   , enkf_main , NULL);
+    menu_item_type * ES_item           = menu_add_item(menu , "Integrated smoother update"             , "iI" , enkf_tui_run_smoother      , enkf_main , NULL);
+    menu_item_type * it_ES_item        = menu_add_item(menu , "Iterated smoother [RML-EnKF]"           , "tT" , enkf_tui_run_iterated_ES   , enkf_main , NULL);
     
     if (!ecl_config_has_schedule( ecl_config )) {
       menu_item_disable( enkf_item );
@@ -375,6 +380,7 @@ void enkf_tui_run_menu(void * arg) {
     free(runpath_label);
     }
   */
+  menu_add_item(menu , "Help"                                  , "hH" , enkf_tui_help_menu_run   , enkf_main , NULL); 
   menu_run(menu);
   menu_free(menu);
 

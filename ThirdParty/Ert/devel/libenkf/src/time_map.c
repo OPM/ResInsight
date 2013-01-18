@@ -63,8 +63,18 @@ static void time_map_update__( time_map_type * map , int step , time_t time) {
   if (current_time == DEFAULT_TIME) 
     time_t_vector_iset( map->map , step , time );
   else {
-    if (current_time != time)
-      util_abort("%s: time mismatch for step:%d \n",__func__ , step );
+    if (current_time != time) {
+      int current[3];
+      int new[3];
+      
+      util_set_date_values( current_time , &current[0] , &current[1] , &current[2]);
+      util_set_date_values( time , &new[0] , &new[1] , &new[2]);
+      
+      util_abort("%s: time mismatch for step:%d   New: %02d/%02d/%04d   existing: %02d/%02d/%04d \n",__func__ , step , 
+                 new[0]     , new[1]     , new[2] , 
+                 current[0] , current[1] , current[2]);
+      
+    }
   }
 
   if (step == 0)
@@ -137,22 +147,30 @@ void time_map_summary_update( time_map_type * map , const ecl_sum_type * ecl_sum
 }
 
 
-void time_map_fwrite( time_map_type * map , FILE * stream ) {
-  pthread_rwlock_rdlock( &map->rw_lock );
-  time_t_vector_fwrite( map->map , stream );
+void time_map_fwrite( time_map_type * map , const char * filename ) {
+  pthread_rwlock_wrlock( &map->rw_lock );
+  {
+    FILE * stream = util_fopen(filename , "w");
+    time_t_vector_fwrite( map->map , stream );
+    fclose( stream );
+}
   pthread_rwlock_unlock( &map->rw_lock );
 }
 
 
-void time_map_fread( time_map_type * map , FILE * stream ) {
-  pthread_rwlock_wrlock( &map->rw_lock );
+void time_map_fread( time_map_type * map , const char * filename) {
+  pthread_rwlock_rdlock( &map->rw_lock );
   {
-    time_t_vector_type * file_map = time_t_vector_fread_alloc( stream );
-
-    for (int step=0; step < time_t_vector_size( file_map ); step++) 
-      time_map_update__( map , step , time_t_vector_iget( file_map , step ));
-    
-    time_t_vector_free( file_map );
+    if (util_file_exists( filename )) {
+      FILE * stream = util_fopen( filename , "r");
+      time_t_vector_type * file_map = time_t_vector_fread_alloc( stream );
+      
+      for (int step=0; step < time_t_vector_size( file_map ); step++) 
+        time_map_update__( map , step , time_t_vector_iget( file_map , step ));
+      
+      time_t_vector_free( file_map );
+      fclose( stream );
+    }
   }
   pthread_rwlock_unlock( &map->rw_lock );
 }
@@ -165,7 +183,7 @@ void time_map_fread( time_map_type * map , FILE * stream ) {
   step. 
 */
 
-int time_map_get_last_step( const time_map_type * map) {
+int time_map_get_last_step( time_map_type * map) {
   int last_step;
   
   pthread_rwlock_rdlock( &map->rw_lock );

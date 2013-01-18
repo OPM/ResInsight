@@ -62,7 +62,7 @@
 #include <enkf_tui_plot_util.h>
 #include <enkf_tui_plot.h>
 #include <enkf_tui_fs.h>
-
+#include <enkf_tui_help.h>
 /**
    The final plot path consists of three parts: 
 
@@ -577,34 +577,70 @@ void enkf_tui_plot_all_GEN_KW(void * arg) {
 
 
 
+void enkf_tui_plot_histogram__(enkf_main_type * enkf_main , enkf_fs_type * fs , char * user_key , state_enum plot_state , int report_step){
+  const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
+  const plot_config_type     * plot_config     = enkf_main_get_plot_config( enkf_main );
+  const char                 * case_name       = enkf_main_get_current_fs( enkf_main );     
+  {
+    const enkf_config_node_type * config_node;
+    const int ens_size    = enkf_main_get_ensemble_size( enkf_main );
+    char * key_index;
+    double * count        = util_calloc(ens_size , sizeof * count );
+    int iens;
+    char * plot_file = enkf_tui_plot_alloc_plot_file( plot_config , case_name , user_key );
+    plot_type * plot = enkf_tui_plot_alloc(plot_config , user_key , "#" ,user_key , plot_file);
+    
+    config_node = ensemble_config_user_get_node( ensemble_config , user_key , &key_index);
+    if (config_node == NULL) {
+      fprintf(stderr,"** Sorry - could not find any nodes with the key:%s \n",user_key);
+      util_safe_free(key_index);
+      return;
+    }
+    {
+      int active_size = 0;
+      enkf_node_type * node = enkf_node_alloc( config_node );
+      node_id_type node_id = {.report_step = report_step , 
+                              .iens = 0 , 
+                              .state = plot_state };
+      for (iens = 0; iens < ens_size; iens++) {
+        node_id.iens = iens;
+        if (enkf_node_user_get( node , fs , key_index , node_id , &count[active_size]))
+          active_size++;
+      }
+      enkf_node_free( node );
+      
+      {
+        plot_dataset_type * d = plot_alloc_new_dataset( plot , NULL , PLOT_HIST);
+        plot_dataset_append_vector_hist(d , active_size , count);
+        if(plot_dataset_get_size(d) > 0){
+          enkf_tui_show_plot(plot , plot_config , plot_file);}
+        else{
+          fprintf(stderr,"** There is no data to plot. Are you trying to plot analyzed data after a forward run with option x? \n");}
+      }
+    }
+    free(count);
+    util_safe_free(key_index);
+  }
+}
 
 
 
 void enkf_tui_plot_histogram(void * arg) {
   enkf_main_type             * enkf_main  = enkf_main_safe_cast( arg );
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
-  enkf_fs_type               * fs              = enkf_main_get_fs(enkf_main);
-  const time_map_type        * time_map        = enkf_fs_get_time_map( fs );
-  const plot_config_type     * plot_config     = enkf_main_get_plot_config( enkf_main );
-  const char                 * case_name       = enkf_main_get_current_fs( enkf_main );     
+  enkf_fs_type  * fs                     = enkf_main_get_fs( enkf_main );
+  const time_map_type * time_map               = enkf_fs_get_time_map( fs );
   {
     const char * prompt  = "What do you want to plot (KEY:INDEX)";
     const enkf_config_node_type * config_node;
     char       * user_key;
-    
-    
     util_printf_prompt(prompt , PROMPT_LEN , '=' , "=> ");
     user_key = util_alloc_stdin_line();
     if (user_key != NULL) {
-      const int ens_size    = enkf_main_get_ensemble_size( enkf_main );
       state_enum plot_state = ANALYZED; /* Compiler shut up */
       char * key_index;
       const int last_report = time_map_get_last_step( time_map );
-      double * count        = util_calloc(ens_size , sizeof * count );
-      int iens , report_step;
-      char * plot_file = enkf_tui_plot_alloc_plot_file( plot_config , case_name , user_key );
-      plot_type * plot = enkf_tui_plot_alloc(plot_config , user_key , "#" ,user_key , plot_file);
-
+      int report_step;
       config_node = ensemble_config_user_get_node( ensemble_config , user_key , &key_index);
       if (config_node == NULL) {
         fprintf(stderr,"** Sorry - could not find any nodes with the key:%s \n",user_key);
@@ -614,34 +650,26 @@ void enkf_tui_plot_histogram(void * arg) {
       report_step = util_scanf_int_with_limits("Report step: ", PROMPT_LEN , 0 , last_report);
       {
         enkf_var_type var_type = enkf_config_node_get_var_type(config_node);
-        if ((var_type == DYNAMIC_STATE) || (var_type == DYNAMIC_RESULT)) 
+        if ((var_type == DYNAMIC_STATE) || (var_type == DYNAMIC_RESULT)) {
           plot_state = enkf_tui_util_scanf_state("Plot Forecast/Analyzed: [F|A]" , PROMPT_LEN , false);
-        else if (var_type == PARAMETER)
+          enkf_tui_plot_histogram__(enkf_main , fs , user_key , plot_state, report_step);
+        }
+        else if (var_type == PARAMETER){
           plot_state = ANALYZED;
+          gen_kw_config_type * gen_kw_config        = enkf_config_node_get_ref( config_node );
+          stringlist_type * key_list                = gen_kw_config_alloc_name_list( gen_kw_config );
+          int ikw;
+          for (ikw = 0; ikw < stringlist_get_size( key_list ); ikw++) {
+            char * user_key = gen_kw_config_alloc_user_key( gen_kw_config , ikw );
+            enkf_tui_plot_histogram__(enkf_main , fs , user_key , plot_state, report_step);
+            free( user_key );
+          }
+          stringlist_free( key_list );
+        }
         else
           util_abort("%s: can not plot this type \n",__func__);
       }
-      {
-        int active_size = 0;
-        enkf_node_type * node = enkf_node_alloc( config_node );
-        node_id_type node_id = {.report_step = report_step , 
-                                .iens = 0 , 
-                                .state = plot_state };
-        for (iens = 0; iens < ens_size; iens++) {
-          node_id.iens = iens;
-          if (enkf_node_user_get( node , fs , key_index , node_id , &count[active_size]))
-            active_size++;
-        }
-        enkf_node_free( node );
-        
-        {
-          plot_dataset_type * d = plot_alloc_new_dataset( plot , NULL , PLOT_HIST);
-          plot_dataset_append_vector_hist(d , active_size , count);
-        }
-        
-        enkf_tui_show_plot(plot , plot_config , plot_file);
-      }
-      free(count);
+      
       util_safe_free(key_index);
     }
     util_safe_free( user_key );
@@ -722,7 +750,59 @@ static void * enkf_tui_plot_ensemble_mt( void * void_arg ) {
                            arg_pack_iget_int( arg  , 9 ));
   return NULL;
 }
-     
+    
+
+void enkf_tui_plot_all_summary__( enkf_main_type * enkf_main , int iens1 , int iens2 , int step1 , int step2 , bool prediction_mode) {
+  /*
+    This code is prepared for multithreaded creation of plots;
+    however the low level PLPlot library is not thread safe, we
+    therefor must limit the the number of threads in the thread pool
+    to 0 - i.e. serial excution.
+  */
+  //thread_pool_type * tp = thread_pool_alloc( 0 , true );
+  
+  const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
+  const plot_config_type     * plot_config     = enkf_main_get_plot_config( enkf_main ); 
+  stringlist_type * summary_keys = ensemble_config_alloc_keylist_from_impl_type(ensemble_config , SUMMARY);
+  arg_pack_type ** arg_list = util_calloc( stringlist_get_size( summary_keys ) , sizeof * arg_list );
+  {
+    char * plot_path = util_alloc_filename( plot_config_get_path( plot_config ) , enkf_main_get_current_fs( enkf_main ) , NULL );
+    util_make_path( plot_path );
+    free( plot_path );
+  }
+  
+  for (int ikey = 0; ikey < stringlist_get_size( summary_keys ); ikey++) {
+    const char * key = stringlist_iget( summary_keys , ikey);
+    
+    arg_list[ikey] = arg_pack_alloc( );
+    {
+      arg_pack_type * arg = arg_list[ikey];
+      
+      arg_pack_append_ptr( arg  , enkf_main );
+      arg_pack_append_ptr( arg  , ensemble_config_get_node( ensemble_config , key ));
+      arg_pack_append_ptr( arg  , key );
+      arg_pack_append_ptr( arg  , NULL );
+      arg_pack_append_int( arg  , step1 );
+      arg_pack_append_int( arg  , step2 );
+      arg_pack_append_bool( arg , prediction_mode );
+      arg_pack_append_int( arg  , iens1 );
+      arg_pack_append_int( arg  , iens2 );
+      arg_pack_append_int( arg  , BOTH );
+      
+      enkf_tui_plot_ensemble_mt( arg );
+      //thread_pool_add_job( tp , enkf_tui_plot_ensemble_mt , arg );
+    }
+  }
+  //thread_pool_join( tp );
+  for (int ikey = 0; ikey < stringlist_get_size( summary_keys ); ikey++) 
+    arg_pack_free( arg_list[ikey] );
+  free( arg_list );
+  stringlist_free( summary_keys );
+  
+  //thread_pool_free( tp );
+} 
+
+
 
 void enkf_tui_plot_all_summary(void * arg) {
   enkf_main_type             * enkf_main       = enkf_main_safe_cast( arg );
@@ -743,54 +823,7 @@ void enkf_tui_plot_all_summary(void * arg) {
   }
   if (step1 != -2 && step2 != -2){
     enkf_tui_util_scanf_iens_range("Realizations members to plot(0 - %d) [default: all]" , enkf_main_get_ensemble_size( enkf_main ) , PROMPT_LEN , &iens1 , &iens2);
-    
-    {
-      /*
-        This code is prepared for multithreaded creation of plots;
-        however the low level PLPlot library is not thread safe, we
-        therefor must limit the the number of threads in the thread pool
-        to 0 - i.e. serial excution.
-      */
-      //thread_pool_type * tp = thread_pool_alloc( 0 , true );
-
-      stringlist_type * summary_keys = ensemble_config_alloc_keylist_from_impl_type(ensemble_config , SUMMARY);
-      arg_pack_type ** arg_list = util_calloc( stringlist_get_size( summary_keys ) , sizeof * arg_list );
-      {
-        char * plot_path = util_alloc_filename( plot_config_get_path( plot_config ) , enkf_main_get_current_fs( enkf_main ) , NULL );
-        util_make_path( plot_path );
-        free( plot_path );
-      }
-      
-      for (int ikey = 0; ikey < stringlist_get_size( summary_keys ); ikey++) {
-        const char * key = stringlist_iget( summary_keys , ikey);
-        
-        arg_list[ikey] = arg_pack_alloc( );
-        {
-          arg_pack_type * arg = arg_list[ikey];
-          
-          arg_pack_append_ptr( arg , enkf_main );
-          arg_pack_append_ptr( arg , ensemble_config_get_node( ensemble_config , key ));
-          arg_pack_append_ptr( arg , key );
-          arg_pack_append_ptr( arg , NULL );
-          arg_pack_append_int( arg , step1 );
-          arg_pack_append_int( arg , step2 );
-          arg_pack_append_bool( arg , prediction_mode );
-          arg_pack_append_int( arg , iens1 );
-          arg_pack_append_int( arg , iens2 );
-          arg_pack_append_int( arg , BOTH );
-          
-          enkf_tui_plot_ensemble_mt( arg );
-          //thread_pool_add_job( tp , enkf_tui_plot_ensemble_mt , arg );
-        }
-      }
-      //thread_pool_join( tp );
-      for (int ikey = 0; ikey < stringlist_get_size( summary_keys ); ikey++) 
-        arg_pack_free( arg_list[ikey] );
-      free( arg_list );
-      stringlist_free( summary_keys );
-
-      //thread_pool_free( tp );
-    }
+    enkf_tui_plot_all_summary__( enkf_main , iens1 , iens2 , step1 , step2 , prediction_mode);
   }
 }
 
@@ -1140,6 +1173,66 @@ void enkf_tui_plot_reports( void * arg ) {
 
 /*****************************************************************/
 
+void enkf_tui_plot_simple_menu(void * arg) {
+  
+  enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );  
+  plot_config_type * plot_config = enkf_main_get_plot_config( enkf_main );
+  {
+    const char * plot_path  =  plot_config_get_path( plot_config );
+    util_make_path( plot_path );
+  }
+  
+  {
+    menu_type * menu;
+    {
+      char            * title      = util_alloc_sprintf("Plot results [case:%s]" , enkf_main_get_current_fs( enkf_main ));
+      menu = menu_alloc(title , "Back" , "bB");
+      free(title);
+    }
+    menu_add_item(menu , "Ensemble plot"                                   , "eE" , enkf_tui_plot_ensemble        , enkf_main , NULL);
+    menu_add_item(menu , "Ensemble plot of ALL summary variables"          , "aA" , enkf_tui_plot_all_summary     , enkf_main , NULL);
+    menu_add_item(menu , "Ensemble plot of GEN_KW parameter"               , "g"  , enkf_tui_plot_GEN_KW          , enkf_main , NULL);
+    menu_add_item(menu , "Ensemble plot of ALL GEN_KW parameters"      , "G"  , enkf_tui_plot_all_GEN_KW      , enkf_main , NULL);
+    menu_add_item(menu , "Observation plot"                                , "oO" , enkf_tui_plot_observation     , enkf_main , NULL);
+    /*    menu_add_separator( menu );
+    menu_add_item(menu , "Plot RFT and simulated pressure vs. TVD"         , "tT" , enkf_tui_plot_RFT_sim_all_TVD , enkf_main , NULL);
+    menu_add_item(menu , "Plot RFT and simulated pressure vs. MD"          , "mM" , enkf_tui_plot_RFT_sim_all_MD  , enkf_main , NULL);
+    menu_add_separator( menu );
+    menu_add_item(menu , "Plot block observation (~RFT) versus depth"      , "dD" , enkf_tui_plot_RFT_depth       , enkf_main , NULL);
+    menu_add_item(menu , "Plot block observation (~RFT) versus time"       , "iI" , enkf_tui_plot_RFT_time        , enkf_main , NULL);
+    menu_add_item(menu , "Plot all block observations (~RFT) versus depth" , "rR" , enkf_tui_plot_all_RFT         , enkf_main , NULL);
+    menu_add_separator( menu );*/
+    menu_add_item(menu , "Sensitivity plot"                                , "sS" , enkf_tui_plot_sensitivity     , enkf_main , NULL); 
+    menu_add_item(menu , "Histogram"                                       , "H" , enkf_tui_plot_histogram       , enkf_main , NULL);
+    menu_add_separator(menu);
+    {
+      menu_item_type * menu_item;
+      arg_pack_type * arg_pack = arg_pack_alloc();
+      menu_item = menu_add_item(menu , "" , "lL" , enkf_tui_toggle_logy , arg_pack , arg_pack_free__);
+      arg_pack_append_ptr( arg_pack , plot_config );
+      arg_pack_append_ptr( arg_pack , menu_item );
+      plot_config_toggle_logy( plot_config );
+      enkf_tui_toggle_logy( arg_pack );   /* This sets the label */
+    }
+
+    /*    menu_add_separator(menu);
+    {
+      menu_item_type * menu_item = menu_add_item( menu , "Create pdf reports" , "pP" , enkf_tui_plot_reports , enkf_main , NULL );
+      ert_report_list_type * report_list = enkf_main_get_report_list( enkf_main );
+      
+      if (ert_report_list_get_num( report_list ) == 0)
+        menu_item_disable( menu_item );
+      
+        }*/
+    menu_add_item(menu , "Help"                                , "h" , enkf_tui_help_menu_plot     , enkf_main , NULL);
+    menu_run(menu);
+    menu_free(menu);
+  }
+}
+
+
+/*****************************************************************/
+
 void enkf_tui_plot_menu(void * arg) {
   
   enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );  
@@ -1159,7 +1252,7 @@ void enkf_tui_plot_menu(void * arg) {
     menu_add_item(menu , "Ensemble plot"                                   , "eE" , enkf_tui_plot_ensemble        , enkf_main , NULL);
     menu_add_item(menu , "Ensemble plot of ALL summary variables"          , "aA" , enkf_tui_plot_all_summary     , enkf_main , NULL);
     menu_add_item(menu , "Ensemble plot of GEN_KW parameter"               , "g"  , enkf_tui_plot_GEN_KW          , enkf_main , NULL);
-    menu_add_item(menu , "Ensemble plot of ALL ALL GEN_KW parameters"      , "G"  , enkf_tui_plot_all_GEN_KW      , enkf_main , NULL);
+    menu_add_item(menu , "Ensemble plot of ALL GEN_KW parameters"      , "G"  , enkf_tui_plot_all_GEN_KW      , enkf_main , NULL);
     menu_add_item(menu , "Observation plot"                                , "oO" , enkf_tui_plot_observation     , enkf_main , NULL);
     menu_add_separator( menu );
     menu_add_item(menu , "Plot RFT and simulated pressure vs. TVD"         , "tT" , enkf_tui_plot_RFT_sim_all_TVD , enkf_main , NULL);
@@ -1170,7 +1263,7 @@ void enkf_tui_plot_menu(void * arg) {
     menu_add_item(menu , "Plot all block observations (~RFT) versus depth" , "rR" , enkf_tui_plot_all_RFT         , enkf_main , NULL);
     menu_add_separator( menu );
     menu_add_item(menu , "Sensitivity plot"                                , "sS" , enkf_tui_plot_sensitivity     , enkf_main , NULL); 
-    menu_add_item(menu , "Histogram"                                       , "hH" , enkf_tui_plot_histogram       , enkf_main , NULL);
+    menu_add_item(menu , "Histogram"                                       , "H" , enkf_tui_plot_histogram       , enkf_main , NULL);
     menu_add_separator(menu);
     {
       menu_item_type * menu_item;
@@ -1191,7 +1284,7 @@ void enkf_tui_plot_menu(void * arg) {
         menu_item_disable( menu_item );
       
     }
-
+    menu_add_item(menu , "Help"                                , "h" , enkf_tui_help_menu_plot     , enkf_main , NULL);
     menu_run(menu);
     menu_free(menu);
   }

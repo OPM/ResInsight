@@ -55,16 +55,16 @@
 
 config_type * create_config( ) {
   config_type * config = config_alloc( );
-  config_item_type * item;
+  config_schema_item_type * item;
 
-  item = config_add_item(config , ENSPATH_KEY , true , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , ENSPATH_KEY , true , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
   
-  item = config_add_item(config , NUM_REALIZATIONS_KEY , true , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1, (const config_item_types [1]) {CONFIG_INT});
+  item = config_add_schema_item(config , NUM_REALIZATIONS_KEY , true , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1, (const config_item_types [1]) {CONFIG_INT});
   
-  item = config_add_item(config , REFCASE_KEY , true , false);
-  config_item_set_argc_minmax(item , 1 , 1 , 1 , NULL );
+  item = config_add_schema_item(config , REFCASE_KEY , true , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , NULL );
 
   return config;
 }
@@ -268,7 +268,7 @@ int main (int argc , char ** argv) {
     ecl_sum_type * refcase;
     {
       config_type * config = create_config();
-      config_parse( config , model_config_file , "--" , "INCLUDE" , "DEFINE" , false , false , true );
+      config_parse( config , model_config_file , "--" , "INCLUDE" , "DEFINE" , false , true );
       {
         char * path;
         util_alloc_file_components(model_config_file , &path , NULL , NULL);

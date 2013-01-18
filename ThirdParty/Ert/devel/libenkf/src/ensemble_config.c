@@ -284,54 +284,54 @@ void ensemble_config_clear_obs_keys(ensemble_config_type * ensemble_config) {
 
 
 void ensemble_config_add_config_items(config_type * config) {
-  config_item_type * item;
+  config_schema_item_type * item;
 
   /** 
       the two fault types are just added to the config object only to
       be able to print suitable messages before exiting.
   */
       
-  item = config_add_item(config , "HAVANA_FAULT" , false , true);
-  config_item_set_argc_minmax(item , 2 , 2 ,  0 , NULL );
+  item = config_add_schema_item(config , "HAVANA_FAULT" , false , true);
+  config_schema_item_set_argc_minmax(item , 2 , 2 ,  0 , NULL );
 
-  item = config_add_item(config , "MULTFLT" , false , true);
-  config_item_set_argc_minmax(item , 3 , 3 ,  3 , (const config_item_types [3]) { CONFIG_STRING , CONFIG_STRING , CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , "MULTFLT" , false , true);
+  config_schema_item_set_argc_minmax(item , 3 , 3 ,  3 , (const config_item_types [3]) { CONFIG_STRING , CONFIG_STRING , CONFIG_EXISTING_FILE});
 
 
   /*****************************************************************/
   
-  item = config_add_item(config , GEN_KW_KEY , false , true);
-  config_item_set_argc_minmax(item , 4 , 6 ,  6 , (const config_item_types [6]) { CONFIG_STRING , CONFIG_EXISTING_FILE , CONFIG_STRING , CONFIG_EXISTING_FILE , CONFIG_STRING , CONFIG_STRING});
+  item = config_add_schema_item(config , GEN_KW_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 4 , 6 ,  6 , (const config_item_types [6]) { CONFIG_STRING , CONFIG_EXISTING_FILE , CONFIG_STRING , CONFIG_EXISTING_FILE , CONFIG_STRING , CONFIG_STRING});
   
   item = config_add_key_value( config , GEN_KW_TAG_FORMAT_KEY , false , CONFIG_STRING);
   
-  item = config_add_item(config , SCHEDULE_PREDICTION_FILE_KEY , false , false);
+  item = config_add_schema_item(config , SCHEDULE_PREDICTION_FILE_KEY , false , false);
   /* scedhule_prediction_file   filename  <parameters:> <init_files:> */
-  config_item_set_argc_minmax(item , 1 , 3 ,  3 , (const config_item_types [3]) { CONFIG_EXISTING_FILE , CONFIG_STRING , CONFIG_STRING});
+  config_schema_item_set_argc_minmax(item , 1 , 3 ,  3 , (const config_item_types [3]) { CONFIG_EXISTING_FILE , CONFIG_STRING , CONFIG_STRING});
 
-  item = config_add_item(config , GEN_PARAM_KEY , false , true);
-  config_item_set_argc_minmax(item , 5 , -1 ,  0 , NULL);
+  item = config_add_schema_item(config , GEN_PARAM_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 5 , -1 ,  0 , NULL);
   
-  item = config_add_item(config , GEN_DATA_KEY , false , true);
-  config_item_set_argc_minmax(item , 1 , -1 ,  0 , NULL);
+  item = config_add_schema_item(config , GEN_DATA_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 1 , -1 ,  0 , NULL);
 
-  item = config_add_item(config , SUMMARY_KEY , false , true);   /* can have several summary keys on each line. */
-  config_item_set_argc_minmax(item , 1 , -1 ,  0 , NULL);
+  item = config_add_schema_item(config , SUMMARY_KEY , false , true);   /* can have several summary keys on each line. */
+  config_schema_item_set_argc_minmax(item , 1 , -1 ,  0 , NULL);
 
-  item = config_add_item(config , CONTAINER_KEY , false , true);   /* can have several summary keys on each line. */
-  config_item_set_argc_minmax(item , 2 , -1 ,  0 , NULL);
+  item = config_add_schema_item(config , CONTAINER_KEY , false , true);   /* can have several summary keys on each line. */
+  config_schema_item_set_argc_minmax(item , 2 , -1 ,  0 , NULL);
   
-  item = config_add_item( config , SURFACE_KEY , false , true );
-  config_item_set_argc_minmax(item , 4 , 5 ,  0 , NULL);
+  item = config_add_schema_item( config , SURFACE_KEY , false , true );
+  config_schema_item_set_argc_minmax(item , 4 , 5 ,  0 , NULL);
   /* 
      the way config info is entered for fields is unfortunate because
      it is difficult/impossible to let the config system handle run
      time validation of the input.
   */
   
-  item = config_add_item(config , FIELD_KEY , false , true);
-  config_item_set_argc_minmax(item , 2 , -1 ,  0 , NULL);
-  config_item_add_required_children(item , GRID_KEY);   /* if you are using a field - you must have a grid. */
+  item = config_add_schema_item(config , FIELD_KEY , false , true);
+  config_schema_item_set_argc_minmax(item , 2 , -1 ,  0 , NULL);
+  config_schema_item_add_required_children(item , GRID_KEY);   /* if you are using a field - you must have a grid. */
 }
 
 
@@ -791,18 +791,20 @@ enkf_config_node_type * ensemble_config_add_surface( ensemble_config_type * ense
 /*
   If key == NULL the function will create a random key.
 */
-enkf_config_node_type * ensemble_config_add_container( ensemble_config_type * ensemble_config , char * key) {
-  bool random_key = false;
+enkf_config_node_type * ensemble_config_add_container( ensemble_config_type * ensemble_config , const char * key) {
+  char * local_key = key;
+  bool  random_key = false;
   if (key == NULL) {
-    key = util_calloc( 11 , sizeof * key  );
-    sprintf(key , "%ld" , random() % 10000000 ); 
+    local_key = util_calloc( 11 , sizeof * local_key  );
+    sprintf(local_key , "%ld" , random() % 10000000 ); 
     random_key = true;
-  }
+  } 
+
   {
-    enkf_config_node_type * config_node = enkf_config_node_new_container( key );
+    enkf_config_node_type * config_node = enkf_config_node_new_container( local_key );
     ensemble_config_add_node__( ensemble_config , config_node );
     if (random_key)
-      free( key );
+      free( local_key );
     return config_node;
   }
 }

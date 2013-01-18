@@ -118,6 +118,7 @@
 #define DEFAULT_ANALYSIS_MODULE    "STD_ENKF"
 
 /* Default directories. */
+#define DEFAULT_QC_PATH      "QC"
 #define DEFAULT_REPORT_PATH  "reports" 
 #define DEFAULT_PLOT_PATH    "plots"
 #define DEFAULT_RUNPATH      "simulations/realization%d"
@@ -237,6 +238,8 @@
 #define DEFAULT_START_TAG "<"
 #define DEFAULT_END_TAG   ">"
 
+#define DEFAULT_MANUAL_URL "http://ert.nr.no/wiki/index.php/User_Manual"
+#define DEFAULT_BROWSER    "firefox"
 
 /*****************************************************************/
 
@@ -249,6 +252,7 @@
   Name of the default case.
 */
 
+#define CASE_LOG     "case-log"
 #define CURRENT_CASE "current"
 #define DEFAULT_CASE "default"
 

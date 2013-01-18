@@ -250,7 +250,7 @@ bool summary_forward_load(summary_type * summary , const char * ecl_file_name , 
       int last_report_index = ecl_sum_iget_report_end( ecl_sum , report_step );
 
       if (ecl_sum_has_general_var(ecl_sum , var_key)) {
-        load_value = ecl_sum_iget_general_var(ecl_sum , last_report_index  ,var_key );
+        load_value = ecl_sum_get_general_var(ecl_sum , last_report_index  ,var_key );
         loadOK = true;
       } else {
         load_value = 0;
@@ -343,7 +343,7 @@ bool summary_forward_load_vector(summary_type * summary , const char * ecl_file_
           if (ecl_sum_has_report_step( ecl_sum , report_step )) {
             int last_report_index = ecl_sum_iget_report_end( ecl_sum , report_step );
             
-            double_vector_iset( storage_vector , report_step , ecl_sum_iiget(ecl_sum , last_report_index  , sum_index ));
+            double_vector_iset( storage_vector , report_step , ecl_sum_iget(ecl_sum , last_report_index  , sum_index ));
           }
         }
         loadOK = true;

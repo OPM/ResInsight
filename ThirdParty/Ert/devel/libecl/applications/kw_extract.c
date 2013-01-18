@@ -49,7 +49,6 @@ int main(int argc, char ** argv) {
     int num_kw               = argc - 3;
     fortio_type * fortio_src;
     fortio_type * fortio_target;
-    int ikw;
     bool fmt_src , fmt_target;
     set_type    * kw_set = set_alloc( num_kw , kw_list );
     

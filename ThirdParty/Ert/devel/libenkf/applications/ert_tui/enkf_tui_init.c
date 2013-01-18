@@ -37,7 +37,7 @@
 
 
 
-void enkf_tui_init(enkf_main_type * enkf_main, bool all_members , bool all_parameters) {
+void enkf_tui_init(enkf_main_type * enkf_main, bool all_members , bool all_parameters , bool interval ) {
   const int prompt_len                         = 35;
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
   int   ens_size                               = enkf_main_get_ensemble_size( enkf_main );
@@ -50,13 +50,27 @@ void enkf_tui_init(enkf_main_type * enkf_main, bool all_members , bool all_param
     iens2 = ens_size - 1;
     iens_valid = true;
   } else {
-    char * iens1char = util_scanf_int_with_limits_return_char("Initialize ensemble member" , prompt_len , 0 , ens_size - 1);
-    if (strlen(iens1char)) {
-      util_sscanf_int(iens1char , &iens1);
-      iens2 = iens1;
-      iens_valid = true;
+    if( interval ) {
+      char * iens1char = util_scanf_int_with_limits_return_char("First ensemble member in interval"  , prompt_len , 0 , ens_size - 1);
+      if (strlen(iens1char)) {
+	util_sscanf_int(iens1char , &iens1);
+	char * iens2char = util_scanf_int_with_limits_return_char("Second ensemble member in interval" , prompt_len , iens1 , ens_size - 1);
+	if (strlen(iens2char)) {
+	  util_sscanf_int(iens2char , &iens2);
+	  iens_valid = true;
+	}
+	free(iens2char);
+      }
+      free(iens1char);
+    } else {
+      char * iens1char = util_scanf_int_with_limits_return_char("Initialize ensemble member" , prompt_len , 0 , ens_size - 1);
+      if (strlen(iens1char)) {
+	util_sscanf_int(iens1char , &iens1);
+	iens2 = iens1;
+	iens_valid = true;
+      }
+      free(iens1char);
     }
-    free(iens1char);
   }
   
   if (iens_valid) {
@@ -80,32 +94,39 @@ void enkf_tui_init(enkf_main_type * enkf_main, bool all_members , bool all_param
 
 
 static void enkf_tui_init1(void * enkf_main) {
-  enkf_tui_init(enkf_main, true , true);
+  enkf_tui_init(enkf_main, true , true , false);
 }
 
 static void enkf_tui_init2(void * enkf_main) {
-  enkf_tui_init(enkf_main , true , false);
+  enkf_tui_init(enkf_main , true , false , false);
 }
 
 static void enkf_tui_init3(void * enkf_main) {
-  enkf_tui_init(enkf_main , false , true );
+  enkf_tui_init(enkf_main , false , true , false);
 }
 
 static void enkf_tui_init4(void * enkf_main) {
-  enkf_tui_init(enkf_main , false , false);
+  enkf_tui_init(enkf_main , false , false, false);
 }
 
+static void enkf_tui_init5(void * enkf_main) {
+  enkf_tui_init(enkf_main , false , true, true);
+}
 
+static void enkf_tui_init6(void * enkf_main) {
+  enkf_tui_init(enkf_main , false , false, true);
+}
 
 void enkf_tui_init_menu(void * arg) {
   enkf_main_type * enkf_main = enkf_main_safe_cast(arg);
 
   menu_type * menu = menu_alloc("Initialize from scratch" , "Back" , "bB");
-  menu_add_item(menu , "Initialize all members/all parameters" , "1" , enkf_tui_init1 , enkf_main , NULL);
-  menu_add_item(menu , "Initialize all members/one  parameter" , "2" , enkf_tui_init2 , enkf_main , NULL);
-  menu_add_item(menu , "Initialize one member/all parameters" , "3" , enkf_tui_init3 , enkf_main , NULL);
-  menu_add_item(menu , "Initialize one member/one parameter"  , "4" , enkf_tui_init4 , enkf_main , NULL);
-  
+  menu_add_item(menu , "Initialize all members/all parameters"                  , "1" , enkf_tui_init1 , enkf_main , NULL);
+  menu_add_item(menu , "Initialize all members/one  parameter"                  , "2" , enkf_tui_init2 , enkf_main , NULL);
+  menu_add_item(menu , "Initialize one member/all parameters"                   , "3" , enkf_tui_init3 , enkf_main , NULL);
+  menu_add_item(menu , "Initialize one member/one parameter"                    , "4" , enkf_tui_init4 , enkf_main , NULL);
+  menu_add_item(menu , "Initialize interval of ensemble members/all parameters" , "5" , enkf_tui_init5 , enkf_main , NULL);
+  menu_add_item(menu , "Initialize interval of ensemble members/one parameter"  , "6" , enkf_tui_init6 , enkf_main , NULL);  
   menu_run(menu);
   menu_free(menu);
 

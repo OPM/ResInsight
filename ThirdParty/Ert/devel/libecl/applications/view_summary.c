@@ -144,9 +144,10 @@ int main(int argc , char ** argv) {
     bool           report_only     = false;
     bool           list_mode       = false;
     bool           include_restart = true;
-    bool           print_header    = true;
+    ecl_sum_fmt_type fmt;
     int            arg_offset      = 1;  
-    
+
+    ecl_sum_fmt_init_summary_x( &fmt );
 #ifdef HAVE_GETOPT
     if (argc == 1)
       print_help_and_exit();
@@ -179,7 +180,7 @@ int main(int argc , char ** argv) {
           list_mode = true;
           break;
         case 'x':
-          print_header = false;
+          fmt.print_header = false;
           break;
         case 'h':
           print_help_and_exit();
@@ -226,7 +227,7 @@ int main(int argc , char ** argv) {
           
           {
             int columns = 5;
-	    int i;
+            int i;
             for (i=0; i< stringlist_get_size( keys );  i++) {
               printf("%-24s ",stringlist_iget( keys , i ));
               if ((i % columns) == 4)
@@ -239,7 +240,8 @@ int main(int argc , char ** argv) {
           /* Normal operation print results for the various keys on stdout. */
           stringlist_type * key_list = stringlist_alloc_new( );
           build_key_list( ecl_sum , key_list , num_keys , arg_list);
-          ecl_sum_fprintf(ecl_sum , stdout , key_list , report_only , print_header);
+          ecl_sum_fprintf(ecl_sum , stdout , key_list , report_only , &fmt);
+
           stringlist_free( key_list );
         }
         ecl_sum_free(ecl_sum);

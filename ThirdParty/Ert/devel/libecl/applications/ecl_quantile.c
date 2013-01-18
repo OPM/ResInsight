@@ -707,14 +707,14 @@ void output_table_run( hash_type * output_table , ensemble_type * ensemble ) {
 void config_init( config_type * config ) {
 
 
-  config_add_item( config , "CASE_LIST"      , true , true );
+  config_add_schema_item( config , "CASE_LIST"      , true , true );
   config_add_key_value( config , "NUM_INTERP" , false , CONFIG_INT);
   
   {
-    config_item_type * item;
-    item = config_add_item( config , "OUTPUT" , true , true );
-    config_item_set_argc_minmax( item , 2 , -1 , 0 , NULL );
-    config_item_set_indexed_selection_set( item , 1 , 3 , (const char *[3]) { S3GRAPH_STRING , HEADER_STRING , PLAIN_STRING });
+    config_schema_item_type * item;
+    item = config_add_schema_item( config , "OUTPUT" , true , true );
+    config_schema_item_set_argc_minmax( item , 2 , -1 , 0 , NULL );
+    config_schema_item_set_indexed_selection_set( item , 1 , 3 , (const char *[3]) { S3GRAPH_STRING , HEADER_STRING , PLAIN_STRING });
   }
   
 }
@@ -815,7 +815,7 @@ int main( int argc , char ** argv ) {
       const char    * config_arg  = argv[1];
       
       config_init( config );
-      config_parse( config , config_arg , "--" , NULL , NULL , true , false , true );
+      config_parse( config , config_arg , "--" , NULL , NULL , true , true );
       
       {
         char * config_path;
