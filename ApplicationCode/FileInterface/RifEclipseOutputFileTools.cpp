@@ -107,12 +107,11 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
     keywords->clear();
 
 
-    size_t numKeywords = ecl_file_get_num_distinct_kw(m_file);
+    int numKeywords = ecl_file_get_num_distinct_kw(m_file);
 
     caf::ProgressInfo info(numKeywords, "Reading Keywords on file");
 
-    size_t i;
-    for (i = 0; i < numKeywords; i++)
+    for (int i = 0; i < numKeywords; i++)
     {
         const char* kw = ecl_file_iget_distinct_kw(m_file , i);
         size_t numKWOccurences = ecl_file_get_num_named_kw(m_file, kw);
