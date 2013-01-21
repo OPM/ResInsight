@@ -18,142 +18,144 @@
 //##################################################################################################
 
 #include "cvfBase.h"
-#include "cvfShaderSourceProvider.h"
-#include "cvfShaderProgram.h"
-
-#include <sys/stat.h>
-#include <stdio.h>
-#include <fstream>
+#include "cvfPropertySet.h"
 
 namespace cvf {
 
 
 //==================================================================================================
 ///
-/// \class cvf::ShaderSourceProvider
-/// \ingroup Render
+/// \class cvf::PropertySet
+/// \ingroup Core
 ///
 /// 
-/// 
+///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// Private constructor
+/// 
 //--------------------------------------------------------------------------------------------------
-ShaderSourceProvider::ShaderSourceProvider()
+PropertySet::PropertySet(const String& classType)
+    : m_classType(classType)
 {
-    m_sourceRepository = new ShaderSourceRepository;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Private destructor
-//--------------------------------------------------------------------------------------------------
-ShaderSourceProvider::~ShaderSourceProvider()
-{
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Get a pointer to the singleton instance.
-//--------------------------------------------------------------------------------------------------
-ShaderSourceProvider* ShaderSourceProvider::instance()
-{
-    static ref<ShaderSourceProvider> staticInstance = new ShaderSourceProvider;
-
-    return staticInstance.p();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String ShaderSourceProvider::getSourceFromRepository(ShaderSourceRepository::ShaderIdent shaderIdent)
+PropertySet::~PropertySet()
 {
-    CVF_ASSERT(m_sourceRepository.notNull());
-
-    return m_sourceRepository->shaderSource(shaderIdent);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String ShaderSourceProvider::getSourceFromFile(String shaderName)
+bool PropertySet::operator==(const PropertySet& rhs) const
 {
-    const String fileName = shaderName + ".glsl";
-
-    size_t i;
-    for (i = 0; i < m_searchDirectories.size(); i++)
+    if (m_classType == rhs.m_classType)
     {
-        String fullPath = m_searchDirectories[i] + fileName;
-
-        CharArray fileContents;
-        if (loadFile(fullPath, &fileContents))
-        {
-            return String(fileContents.ptr());
-        }
+        return (m_propMap == rhs.m_propMap);
     }
 
-    return "";
+    return false;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ShaderSourceProvider::setSourceRepository(ShaderSourceRepository* repository)
+String PropertySet::classType() const
 {
-    m_sourceRepository = repository;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Add directory to list of search directories
-///
-/// \param directory Directory with trailing slash
-//--------------------------------------------------------------------------------------------------
-void ShaderSourceProvider::addFileSearchDirectory(String directory)
-{
-    m_searchDirectories.push_back(directory);
+    return m_classType;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool ShaderSourceProvider::loadFile(const String& fullFileName, CharArray* fileContents)
+bool PropertySet::isEmpty() const
 {
-#ifdef WIN32
-    std::ifstream file(fullFileName.c_str());
-#else
-    std::ifstream file(fullFileName.toUtf8().ptr());
-#endif
+    return m_propMap.empty();
+}
 
-    if (!file.is_open())
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Variant PropertySet::value(const String& key) const
+{
+    std::map<String, Variant>::const_iterator it = m_propMap.find(key);
+    if (it != m_propMap.end())
+    {
+        return it->second;
+    }
+    else
+    {
+        return Variant();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PropertySet::setValue(const String& key, const Variant& data)
+{
+    m_propMap[key] = data;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool PropertySet::contains(const String& key) const
+{
+    if (m_propMap.find(key) != m_propMap.end())
+    {
+        return true;
+    }
+    else
     {
         return false;
     }
 
-    std::string line;
-    while (file.good())
-    {
-        getline(file, line);
-
-        size_t c;
-        for (c = 0; c < line.length(); c++)
-        {
-            fileContents->push_back(line[c]);
-        }
-
-        fileContents->push_back('\n');
-    }
-
-    file.close();
-
-    return true;
 }
 
 
-} // namespace cvf
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<String> PropertySet::allKeys() const
+{
+    std::vector<String> all;
+    std::map<String, Variant>::const_iterator it;
+    for (it = m_propMap.begin(); it != m_propMap.end(); ++it)
+    {
+        all.push_back(it->first);
+    }
 
+    return all;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<Variant> PropertySet::allValues() const
+{
+    std::vector<Variant> all;
+    std::map<String, Variant>::const_iterator it;
+    for (it = m_propMap.begin(); it != m_propMap.end(); ++it)
+    {
+        all.push_back(it->second);
+    }
+
+    return all;
+}
+
+
+
+
+}  // namespace gc

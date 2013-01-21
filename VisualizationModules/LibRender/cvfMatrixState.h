@@ -35,7 +35,7 @@ class MatrixState
 {
 public:
     MatrixState(const Camera& camera);
-    MatrixState(const Vec2ui& viewportPosition, const Vec2ui& viewportSize, const Mat4d& projectionMatrix, const Mat4d& viewMatrix);
+    MatrixState(const Vec2i& viewportPosition, const Vec2ui& viewportSize, const Mat4d& projectionMatrix, const Mat4d& viewMatrix);
 
     void            setViewMatrix(const Mat4d& viewMatrix);
 
@@ -56,7 +56,7 @@ public:
     Mat3f           normalMatrix() const;
 
     float           pixelHeightAtUnitDistance() const;
-    Vec2ui          viewportPosition() const;
+    Vec2i           viewportPosition() const;
     Vec2ui          viewportSize() const;
 
     uint            versionTick() const;
@@ -71,7 +71,7 @@ private:
     bool    m_modelMatrixIsSet;         // Set to true when a model matrix is set, false when no model matrix is currently set
     Mat4f   m_viewProjectionMatrix;     // Combined view matrix and projection matrix
 
-    Vec2ui  m_viewportPosition;         // Position of the viewport
+    Vec2i   m_viewportPosition;         // Position of the viewport
     Vec2ui  m_viewportSize;             // Size of the viewport
     float   m_pixelHeightAtUnitDistance;// Height of a pixel at unit distance (distance of 1.0 from camera) in world system. For perspective projections this value must be multiplied by the distance to the point in question
 

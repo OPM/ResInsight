@@ -37,8 +37,8 @@ public:
     Locator() {};
 
     virtual Vec3d   position() const = 0;
-    virtual void    start(int winCoordX, int winCoordY) = 0;
-    virtual bool    update(int winCoordX, int winCoordY) = 0;
+    virtual void    start(int x, int y) = 0;
+    virtual bool    update(int x, int y) = 0;
 };
 
 
@@ -56,8 +56,8 @@ public:
 
     void            setPosition(const Vec3d& position, const Vec3d& planeNormal);
     virtual Vec3d   position() const;
-    virtual void    start(int winCoordX, int winCoordY);
-    virtual bool    update(int winCoordX, int winCoordY);
+    virtual void    start(int x, int y);
+    virtual bool    update(int x, int y);
 
 public:
     ref<Camera> m_camera;               
@@ -90,8 +90,8 @@ public:
     void            setOperation(Operation op);
     void            setPosition(const Vec3d& position);
     virtual Vec3d   position() const;
-    virtual void    start(int winCoordX, int winCoordY);
-    virtual bool    update(int winCoordX, int winCoordY);
+    virtual void    start(int x, int y);
+    virtual bool    update(int x, int y);
 
 private:
     void            updatePan(double tx, double ty);
@@ -101,8 +101,8 @@ private:
     ref<Camera> m_camera;       
     Operation   m_operation;    // Default operation is PAN
     Vec3d       m_pos;        
-    int         m_lastWinPosX;   
-    int         m_lastWinPosY;         
+    int         m_lastPosX;   
+    int         m_lastPosY;         
 };
 
 

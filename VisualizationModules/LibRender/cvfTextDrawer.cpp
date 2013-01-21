@@ -363,6 +363,8 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                 if (softwareRendering)
                 {
 #ifndef CVF_OPENGL_ES
+                    glEnable(GL_COLOR_MATERIAL);
+                    glDisable(GL_TEXTURE_2D);
                     glColor4fv(m_backgroundColor.ptr());
                     glBegin(GL_TRIANGLE_FAN);
                     glVertex3fv(v1);

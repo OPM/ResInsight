@@ -18,142 +18,140 @@
 //##################################################################################################
 
 #include "cvfBase.h"
-#include "cvfShaderSourceProvider.h"
-#include "cvfShaderProgram.h"
-
-#include <sys/stat.h>
-#include <stdio.h>
-#include <fstream>
+#include "cvfPropertySetCollection.h"
 
 namespace cvf {
 
 
+
 //==================================================================================================
 ///
-/// \class cvf::ShaderSourceProvider
-/// \ingroup Render
+/// \class cvf::PropertySetCollection
+/// \ingroup Core
 ///
 /// 
-/// 
+///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// Private constructor
+/// 
 //--------------------------------------------------------------------------------------------------
-ShaderSourceProvider::ShaderSourceProvider()
+PropertySetCollection::PropertySetCollection()
 {
-    m_sourceRepository = new ShaderSourceRepository;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Private destructor
-//--------------------------------------------------------------------------------------------------
-ShaderSourceProvider::~ShaderSourceProvider()
-{
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Get a pointer to the singleton instance.
-//--------------------------------------------------------------------------------------------------
-ShaderSourceProvider* ShaderSourceProvider::instance()
-{
-    static ref<ShaderSourceProvider> staticInstance = new ShaderSourceProvider;
-
-    return staticInstance.p();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String ShaderSourceProvider::getSourceFromRepository(ShaderSourceRepository::ShaderIdent shaderIdent)
+PropertySetCollection::~PropertySetCollection()
 {
-    CVF_ASSERT(m_sourceRepository.notNull());
-
-    return m_sourceRepository->shaderSource(shaderIdent);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String ShaderSourceProvider::getSourceFromFile(String shaderName)
+size_t PropertySetCollection::count() const
 {
-    const String fileName = shaderName + ".glsl";
+    return m_propertySets.size();
+}
 
-    size_t i;
-    for (i = 0; i < m_searchDirectories.size(); i++)
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PropertySet* PropertySetCollection::propertySet(size_t index)
+{
+    CVF_ASSERT(index < m_propertySets.size());
+    return m_propertySets.at(index);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const PropertySet* PropertySetCollection::propertySet(size_t index) const
+{
+    CVF_ASSERT(index < m_propertySets.size());
+    return m_propertySets.at(index);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PropertySetCollection::addPropertySet(PropertySet* propertySet)
+{
+    CVF_ASSERT(propertySet);
+    m_propertySets.push_back(propertySet);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t PropertySetCollection::countOfType(const String& classType) const
+{
+    size_t classCount = 0;
+    const size_t totNumSets = m_propertySets.size();
+    for (size_t i = 0; i < totNumSets; i++)
     {
-        String fullPath = m_searchDirectories[i] + fileName;
-
-        CharArray fileContents;
-        if (loadFile(fullPath, &fileContents))
+        const PropertySet* ps = m_propertySets.at(i);
+        if (ps->classType() == classType)
         {
-            return String(fileContents.ptr());
+            classCount++;
         }
     }
 
-    return "";
+    return classCount;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ShaderSourceProvider::setSourceRepository(ShaderSourceRepository* repository)
+PropertySet* PropertySetCollection::propertySetOfType(const String& classType, size_t index)
 {
-    m_sourceRepository = repository;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Add directory to list of search directories
-///
-/// \param directory Directory with trailing slash
-//--------------------------------------------------------------------------------------------------
-void ShaderSourceProvider::addFileSearchDirectory(String directory)
-{
-    m_searchDirectories.push_back(directory);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool ShaderSourceProvider::loadFile(const String& fullFileName, CharArray* fileContents)
-{
-#ifdef WIN32
-    std::ifstream file(fullFileName.c_str());
-#else
-    std::ifstream file(fullFileName.toUtf8().ptr());
-#endif
-
-    if (!file.is_open())
+    size_t classCount = 0;
+    const size_t totNumSets = m_propertySets.size();
+    for (size_t i = 0; i < totNumSets; i++)
     {
-        return false;
-    }
-
-    std::string line;
-    while (file.good())
-    {
-        getline(file, line);
-
-        size_t c;
-        for (c = 0; c < line.length(); c++)
+        PropertySet* ps = m_propertySets.at(i);
+        if (ps->classType() == classType)
         {
-            fileContents->push_back(line[c]);
-        }
+            if (classCount == index)
+            {
+                return ps;
+            }
 
-        fileContents->push_back('\n');
+            classCount++;
+        }
     }
 
-    file.close();
+    CVF_FAIL_MSG("Specified index is of of range");
 
-    return true;
+    return NULL;
 }
 
 
-} // namespace cvf
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PropertySet* PropertySetCollection::firstPropertySetOfType(const String& classType)
+{
+    const size_t totNumSets = m_propertySets.size();
+    for (size_t i = 0; i < totNumSets; i++)
+    {
+        PropertySet* ps = m_propertySets.at(i);
+        if (ps->classType() == classType)
+        {
+            return ps;
+        }
+    }
 
+    return NULL;
+}
+
+
+}  // namespace gc

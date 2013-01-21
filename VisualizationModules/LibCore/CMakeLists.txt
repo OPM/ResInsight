@@ -34,6 +34,8 @@ cvfMatrix4.inl
 cvfObject.h
 cvfObject.inl
 cvfPlane.h
+cvfPropertySet.h
+cvfPropertySetCollection.h
 cvfQuat.h
 cvfQuat.inl
 cvfRect.h
@@ -44,6 +46,7 @@ cvfTBBControl.h
 cvfTimer.h
 cvfTrace.h
 cvfValueArray.h
+cvfVariant.h
 cvfVector2.h
 cvfVector2.inl
 cvfVector3.h
@@ -64,11 +67,14 @@ cvfLogger.cpp
 cvfMath.cpp
 cvfObject.cpp
 cvfPlane.cpp
+cvfPropertySet.cpp
+cvfPropertySetCollection.cpp
 cvfString.cpp
 cvfSystem.cpp
 cvfTimer.cpp
 cvfTBBControl.cpp
 cvfTrace.cpp
+cvfVariant.cpp
 cvfVector2.cpp
 cvfVector3.cpp
 cvfVector4.cpp

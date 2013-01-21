@@ -72,6 +72,7 @@ public:
     String              subString(size_t start, size_t length = npos) const;
 	void                replace(const String& before, const String& after);
 
+    const wchar_t*      c_str() const;
     CharArray           toAscii() const;                // Useful when you need a const char* pointer.
     std::string         toStdString() const;
     std::wstring        toStdWString() const;
@@ -83,9 +84,6 @@ public:
     size_t              size() const;
     void                resize(size_t size);
 
-    const wchar_t*      ptr() const;
-    wchar_t*            ptr();
-
     static String       number(float n, char format = 'g', int precision = -1);
     static String       number(double n, char format = 'g', int precision = -1);
 
@@ -95,6 +93,10 @@ public:
     float               toFloat(float defaultValue) const;
     int                 toInt(bool* ok = NULL) const;
     int                 toInt(int defaultValue) const;
+    uint                toUInt(bool* ok = NULL) const;
+    uint                toUInt(uint defaultValue) const;
+    int64               toInt64(bool* ok = NULL) const;
+    int64               toInt64(int64 defaultValue) const;
 
     String              arg(const String& a, int fieldWidth = 0, const wchar_t& fillChar = ' ') const;
     String              arg(char a, int fieldWidth = 0, const wchar_t& fillChar = ' ') const;

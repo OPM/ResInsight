@@ -81,12 +81,12 @@ public:
     double          frontPlanePixelHeight() const;
     double          distanceWhereObjectProjectsToPixelExtent(double objectExtentWorld, double objectExtentPixels) const;
 
-    void            setViewport(uint x, uint y, uint width, uint height);
+    void            setViewport(int x, int y, uint width, uint height);
     Viewport*       viewport();
     const Viewport* viewport() const;
 
-    ref<Ray>        rayFromWinCoord(int winCoordX, int winCoordY) const;
-    ref<Plane>      planeFromLineWinCoord(Vec2i winCoordStart, Vec2i winCoordEnd) const;
+    ref<Ray>        rayFromWindowCoordinates(int x, int y) const;
+    ref<Plane>      planeFromLineWindowCoordinates(Vec2i coordStart, Vec2i coordEnd) const;
     bool            unproject(const Vec3d& coord, Vec3d* out) const;
     bool            project(const Vec3d& point, Vec3d* out) const;
 

@@ -29,6 +29,7 @@
 #include "cvfShaderProgram.h"
 #include "cvfShaderProgramGenerator.h"
 #include "cvfRenderStateTextureBindings.h"
+#include "cvfRenderStateDepth.h"
 
 namespace cvf {
 
@@ -167,6 +168,7 @@ ref<Rendering> SingleQuadRenderingGenerator::generate()
 
     ref<ShaderProgram> shaderProg = gen.generate();
     eff->setShaderProgram(shaderProg.p());
+    eff->setRenderState(new RenderStateDepth(true, RenderStateDepth::LESS, false));
 
     uint rs;
     for (rs = 0; rs < m_renderStateSet.count(); rs++)

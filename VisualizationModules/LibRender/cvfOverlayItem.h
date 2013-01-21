@@ -57,9 +57,9 @@ public:
     virtual Vec2ui  maximumSize() = 0;      // In Pixels
     virtual Vec2ui  minimumSize() = 0;      // In Pixels
 
-    virtual void    render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size) = 0;
-    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size) = 0;
-    virtual bool    pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size);
+    virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) = 0;
+    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) = 0;
+    virtual bool    pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size);
 };
 
 }

@@ -73,7 +73,9 @@ public:
         SEA_GREEN,		///< Sea green (46, 139, 87)
         SKY_BLUE,		///< Sky blue (135, 206, 235)
         VIOLET,		    ///< Violet (238, 130, 238)
-        YELLOW_GREEN 	///< Yellow green (154, 205, 50)
+        YELLOW_GREEN, 	///< Yellow green (154, 205, 50)
+
+        CEETRON         ///< Ceetron Color (81, 134, 148)
     };
 };
 

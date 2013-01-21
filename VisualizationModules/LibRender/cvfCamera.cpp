@@ -489,8 +489,11 @@ double Camera::aspectRatio() const
 /// This method calls Viewport::set() and then updates the projection matrix, as this is depending
 /// on the viewport dimensions.
 /// This method is usually used as a response to a Resize message from the window system
+/// 
+/// The window coordinates (x,y) are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-void Camera::setViewport(uint x, uint y, uint width, uint height)
+void Camera::setViewport(int x, int y, uint width, uint height)
 {
     CVF_ASSERT(m_viewport.notNull());
     m_viewport->set(x, y, width, height);
@@ -528,22 +531,19 @@ const Viewport* Camera::viewport() const
 //--------------------------------------------------------------------------------------------------
 /// Create a Ray from window coordinates
 /// 
-/// The coordinates (winCoordX & winCoordY) are assumed to be in the  window coordinate system
-/// where <0,0> if in the top left corner.
+    /// The window coordinates are in OpenGL style coordinates, which means a right handed 
+    /// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-ref<Ray> Camera::rayFromWinCoord(int winCoordX, int winCoordY) const
+ref<Ray> Camera::rayFromWindowCoordinates(int x, int y) const
 {
-    // Unproject works in OpenGL coord system with (0,0) in lower left corner, so flip the y-coordinate
-    winCoordY = static_cast<int>(m_viewport->height()) - winCoordY;
-
     Vec3d coord0(0, 0, 0);
-    if (!unproject(Vec3d(static_cast<double>(winCoordX), static_cast<double>(winCoordY), 0), &coord0))
+    if (!unproject(Vec3d(static_cast<double>(x), static_cast<double>(y), 0), &coord0))
     {
         return NULL;
     }
 
     Vec3d coord1(0, 0, 0);
-    if (!unproject(Vec3d(static_cast<double>(winCoordX), static_cast<double>(winCoordY), 1), &coord1))
+    if (!unproject(Vec3d(static_cast<double>(x), static_cast<double>(y), 1), &coord1))
     {
         return NULL;
     }
@@ -563,22 +563,19 @@ ref<Ray> Camera::rayFromWinCoord(int winCoordX, int winCoordY) const
 ///
 /// The plane will be constructed so that the specified line lies in the plane, and the plane 
 /// normal will be pointing left when moving along the line from start to end.
-/// The coordinates (winCoordStart & winCoordEnd) are assumed to be in the window coordinate system
-/// where <0,0> is in the top left corner.
+/// 
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-ref<Plane> Camera::planeFromLineWinCoord(Vec2i winCoordStart, Vec2i winCoordEnd) const
+ref<Plane> Camera::planeFromLineWindowCoordinates(Vec2i coordStart, Vec2i coordEnd) const
 {
-    // Unproject works in OpenGL coord system with (0,0) in lower left corner, so flip the y-coordinates
-    winCoordStart.y() = static_cast<int>(m_viewport->height()) - winCoordStart.y();
-    winCoordEnd.y()   = static_cast<int>(m_viewport->height()) - winCoordEnd.y();
-
     Vec3d s0(0, 0, 0);
     Vec3d e0(0, 0, 0);
     Vec3d e1(0, 0, 0);
     bool unprojOk = true;
-    unprojOk &= unproject(Vec3d(winCoordStart.x(), winCoordStart.y(), 0), &s0);
-    unprojOk &= unproject(Vec3d(winCoordEnd.x(),   winCoordEnd.y(),   0), &e0);
-    unprojOk &= unproject(Vec3d(winCoordEnd.x(),   winCoordEnd.y(),   1), &e1);
+    unprojOk &= unproject(Vec3d(coordStart.x(), coordStart.y(), 0), &s0);
+    unprojOk &= unproject(Vec3d(coordEnd.x(),   coordEnd.y(),   0), &e0);
+    unprojOk &= unproject(Vec3d(coordEnd.x(),   coordEnd.y(),   1), &e1);
     if (!unprojOk)
     {
         return NULL;
@@ -770,7 +767,7 @@ bool Camera::unproject(const Vec3d& coord, Vec3d* out) const
 //--------------------------------------------------------------------------------------------------
 bool Camera::project(const Vec3d& point, Vec3d* out) const
 {
-    return GeometryUtils::project(m_cachedProjectionMultViewMatrix, Vec2ui(m_viewport->x(), m_viewport->y()), Vec2ui(m_viewport->width(), m_viewport->height()), point, out);
+    return GeometryUtils::project(m_cachedProjectionMultViewMatrix, Vec2i(m_viewport->x(), m_viewport->y()), Vec2ui(m_viewport->width(), m_viewport->height()), point, out);
 }
 
 

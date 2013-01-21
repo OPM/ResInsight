@@ -324,8 +324,10 @@ bool caf::Viewer::rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pick
 {
     CVF_ASSERT(m_mainRendering.notNull());
 
+    int translatedMousePosX = winPosX;
+    int translatedMousePosY = height() - winPosY;
 
-    cvf::ref<cvf::RayIntersectSpec> ris = m_mainRendering->createRayIntersectSpec(winPosX, winPosY);
+    cvf::ref<cvf::RayIntersectSpec> ris = m_mainRendering->rayIntersectSpecFromWindowCoordinates(translatedMousePosX, translatedMousePosY);
     if (ris.notNull())
     {
         bool retVal = m_mainRendering->rayIntersect(*ris, pickedPoints);
@@ -545,9 +547,8 @@ void caf::Viewer::releaseOGlResourcesForCurrentFrame()
     {
         cvf::Scene* currentScene = m_renderingSequence->firstRendering()->scene();
         makeCurrent();
-        size_t modelCount = currentScene->modelCount();
-        size_t i;
-        for (i = 0; i < modelCount; ++i)
+        cvf::uint modelCount = currentScene->modelCount();
+        for (cvf::uint i = 0; i < modelCount; ++i)
         {
             cvf::Collection<cvf::Part> partCollection; 
             currentScene->model(i)->allParts(&partCollection);

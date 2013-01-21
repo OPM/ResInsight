@@ -24,6 +24,7 @@
 #include "cvfLogger.h"
 
 struct GLEWContextStruct;
+struct WGLEWContextStruct;
 
 namespace cvf {
 
@@ -53,12 +54,14 @@ public:
 
     OpenGLCapabilities*     capabilities();
     GLEWContextStruct*      glewContextStruct();
+    WGLEWContextStruct*     wglewContextStruct();
 
 private:
     bool                    initializeContextGroup(OpenGLContext* currentContext);
     void                    uninitializeContextGroup();
     void                    contextAboutToBeShutdown(OpenGLContext* contextToShutdown);
     bool                    initializeGLEW(OpenGLContext* currentContext);
+    bool                    initializeWGLEW(OpenGLContext* currentContext);
     void                    configureCapablititesFromGLEW(OpenGLContext* currentContext);
     void                    addContext(OpenGLContext* contextToAdd);
 
@@ -69,12 +72,11 @@ private:
     ref<Logger>                 m_logger;
     ref<OpenGLCapabilities>     m_capabilities;         // Capabilities of the contexts in this group context
     GLEWContextStruct*          m_glewContextStruct;    // Pointer to the GLEW context struct 
+    WGLEWContextStruct*         m_wglewContextStruct;   // Pointer to the GLEW context struct 
 
     friend class OpenGLContext;
 };
 
 
 }
-
-
 

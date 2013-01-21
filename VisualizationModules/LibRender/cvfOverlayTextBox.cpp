@@ -104,7 +104,7 @@ cvf::Vec2ui OverlayTextBox::minimumSize()
 //--------------------------------------------------------------------------------------------------
 /// Render using Shaders
 //--------------------------------------------------------------------------------------------------
-void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, false);
 }
@@ -113,7 +113,7 @@ void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2ui& position, c
 //--------------------------------------------------------------------------------------------------
 /// Render using Fixed Function
 //--------------------------------------------------------------------------------------------------
-void OverlayTextBox::renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayTextBox::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, true);
 }
@@ -122,7 +122,7 @@ void OverlayTextBox::renderSoftware(OpenGLContext* oglContext, const Vec2ui& pos
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software)
+void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
 {
     Mat4d ident;
     MatrixState matrixState(position, size, ident, ident);
@@ -157,7 +157,7 @@ void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2ui& position, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software)
+void OverlayTextBox::renderBackgroundAndBorder(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 

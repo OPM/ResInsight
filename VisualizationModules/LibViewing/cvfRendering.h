@@ -79,7 +79,7 @@ public:
     FramebufferObject*      targetFramebuffer();
     void                    setTargetFramebuffer(FramebufferObject* framebuffer);
 
-    ref<RayIntersectSpec>   createRayIntersectSpec(int winCoordX, int winCoordY) const;
+    ref<RayIntersectSpec>   rayIntersectSpecFromWindowCoordinates(int x, int y) const;
     bool                    rayIntersect(RayIntersectSpec& rayIntersectSpec, HitItemCollection* hitItemCollection);
     
     BoundingBox             boundingBox() const;
@@ -97,7 +97,7 @@ public:
     void                    removeDynamicUniformSet(DynamicUniformSet* dynUniformSet);
     void                    removeAllDynamicUniformSets();
     void                    addGlobalDynamicUniformSet(DynamicUniformSet* dynUniformSet);
-    void                    removeAllGlobalUniformSets();
+    void                    removeAllGlobalDynamicUniformSets();
 
     const PerformanceInfo&  performanceInfo() const;
     void                    enablePerformanceTiming(bool enable);
@@ -112,16 +112,16 @@ public:
     void                    addOverlayItem(OverlayItem* overlayItem, OverlayItem::LayoutCorner corner, OverlayItem::LayoutDirection direction);
     OverlayItem*            overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction);
     const OverlayItem*      overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction) const;
-    OverlayItem*            overlayItemFromWinCoord(uint winCoordX, uint winCoordY);
+    OverlayItem*            overlayItemFromWindowCoordinates(int x, int y);
     void                    removeOverlayItem(const OverlayItem* overlayItem);
     void                    removeAllOverlayItems();
 
-    String                  toString() const;
+    String                  debugString() const;
 
 private:
     void                    renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRendering);
 
-    typedef std::map<cvf::OverlayItem*, cvf::Rectui>  OverlayItemRectMap;
+    typedef std::map<cvf::OverlayItem*, cvf::Recti>  OverlayItemRectMap;
     void                    calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap);
     void                    calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, OverlayItem::LayoutCorner corner, OverlayItem::LayoutDirection direction);
 

@@ -748,12 +748,21 @@ void ShaderProgram::discoverActiveUniforms(OpenGLContext* oglContext)
 
         if (numCharsInName > 0)
         {
-            const char* uniformName = uniformNameBuffer.ptr();
-            int location = glGetUniformLocation(m_oglRcProgram->oglId(), uniformName);
+            std::string uniformName = uniformNameBuffer.ptr();
+
+            // Added this code to fix a bug in the Nvidia drivers that reports arrays as xxx[0], like u_ecClipPlanes reported as u_ecClipPlanes[0]
+            size_t bracketPos = uniformName.find('[');
+            if (bracketPos != std::string::npos)
+            {
+                uniformName.resize(bracketPos);
+            }    
+
+            int location = glGetUniformLocation(m_oglRcProgram->oglId(), uniformName.c_str());
             CVF_CHECK_OGL(oglContext);
 
+
             FixedUniform fixedUniform;
-            if (ShaderProgram::mapUniformNameToFixedUniformEnum(uniformName, &fixedUniform))
+            if (ShaderProgram::mapUniformNameToFixedUniformEnum(uniformName.c_str(), &fixedUniform))
             {
                 m_fixedUniformsMap[fixedUniform] = location;
                 m_fixedUniformsNameLocationMap[uniformName] = location;

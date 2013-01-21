@@ -17,46 +17,44 @@
 //
 //##################################################################################################
 
-#include "cvfBase.h"
-#include "cvfOverlayTextBox.h"
-#include "cvfDrawableText.h"
-#include "cvfMatrixState.h"
-#include "cvfCamera.h"
-#include "cvfShaderProgram.h"
-#include "cvfOpenGL.h"
-#include "cvfViewport.h"
-#include "cvfOpenGLResourceManager.h"
-#include "cvfUniform.h"
+#pragma once
 
-#ifndef CVF_OPENGL_ES
-#include "cvfRenderState_FF.h"
-#endif
+#include "cvfObject.h"
+#include "cvfVariant.h"
+#include "cvfString.h"
+
+#include <map>
 
 namespace cvf {
 
-//==================================================================================================
-///
-/// \class cvf::OverlayItem
-/// \ingroup Render
-///
-/// A base class for all overlay items
-///
-//==================================================================================================
 
-//--------------------------------------------------------------------------------------------------
-/// Do hit test on the overlay item. Base class only does a check 
-//--------------------------------------------------------------------------------------------------
-bool OverlayItem::pick(int x, int y, const Vec2i& position, const Vec2ui& size)
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class PropertySet : public Object
 {
-    Recti oglRect(position, static_cast<int>(size.x()), static_cast<int>(size.y()));
+public:
+    PropertySet(const String& classType);
+    ~PropertySet();
 
-    if ((x > oglRect.min().x()) && (x < oglRect.max().x()) &&
-        (y > oglRect.min().y()) && (y < oglRect.max().y()))
-    {
-        return true;
-    }
+    bool                    operator==(const PropertySet& rhs) const;
 
-    return false;
-}
+    String                  classType() const;
+    bool                    isEmpty() const;
 
-} // namespace cvf
+    Variant                 value(const String& key) const;
+    void                    setValue(const String& key, const Variant& data);
+    bool                    contains(const String& key) const;
+
+    std::vector<String>     allKeys() const;
+    std::vector<Variant>    allValues() const;
+
+private:
+    String                      m_classType;
+    std::map<String, Variant>   m_propMap;
+};
+
+
+}  // namespace cvf

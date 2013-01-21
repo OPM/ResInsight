@@ -56,8 +56,11 @@ Viewport::Viewport()
 
 //--------------------------------------------------------------------------------------------------
 /// Specify the position and dimensions of the viewport
+/// 
+/// The window coordinates (x,y) are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-void Viewport::set(uint x, uint y, uint width, uint height) 
+void Viewport::set(int x, int y, uint width, uint height) 
 { 
     m_x = x; 
     m_y = y; 
@@ -84,7 +87,7 @@ void Viewport::setClearColor(Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// Get the x coordinate of the lower left corner of the viewport
 //--------------------------------------------------------------------------------------------------
-uint Viewport::x() const
+int Viewport::x() const
 {
     return m_x;
 }
@@ -93,7 +96,7 @@ uint Viewport::x() const
 //--------------------------------------------------------------------------------------------------
 /// Get the y coordinate of the lower left corner of the viewport
 //--------------------------------------------------------------------------------------------------
-uint Viewport::y() const
+int Viewport::y() const
 {
     return m_y;
 }
@@ -245,7 +248,7 @@ void Viewport::applyOpenGL(OpenGLContext* oglContext, ClearMode clearMode)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String Viewport::toString() const
+String Viewport::debugString() const
 {
     String str = "Viewport: ";
 

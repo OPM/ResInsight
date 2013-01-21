@@ -53,7 +53,7 @@ bool ShaderSourceRepositoryFile::rawShaderSource(ShaderIdent shaderIdent, CharAr
     String fullFileName = fileNameFromIdent(shaderIdent);
 
 #ifdef WIN32
-    std::ifstream file(fullFileName.ptr());
+    std::ifstream file(fullFileName.c_str());
 #else
     std::ifstream file(fullFileName.toUtf8().ptr());
 #endif

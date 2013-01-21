@@ -198,7 +198,7 @@ String OverlayColorLegend::title() const
 //--------------------------------------------------------------------------------------------------
 /// Hardware rendering using shader programs
 //--------------------------------------------------------------------------------------------------
-void OverlayColorLegend::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayColorLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, false);
 }
@@ -207,7 +207,7 @@ void OverlayColorLegend::render(OpenGLContext* oglContext, const Vec2ui& positio
 //--------------------------------------------------------------------------------------------------
 /// Software rendering using software
 //--------------------------------------------------------------------------------------------------
-void OverlayColorLegend::renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayColorLegend::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, true);
 }
@@ -216,21 +216,21 @@ void OverlayColorLegend::renderSoftware(OpenGLContext* oglContext, const Vec2ui&
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool OverlayColorLegend::pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size)
+bool OverlayColorLegend::pick(int x, int y, const Vec2i& position, const Vec2ui& size)
 {
-    Rectui oglRect(position, size.x(), size.y());
+    Recti oglRect(position, static_cast<int>(size.x()), static_cast<int>(size.y()));
 
-    OverlayColorLegendLayoutInfo layoutInViewPortCoords(oglRect.min(), Vec2ui(oglRect.width(), oglRect.height()));
+    OverlayColorLegendLayoutInfo layoutInViewPortCoords(oglRect.min(), Vec2ui(static_cast<uint>(oglRect.width()), static_cast<uint>(oglRect.height())));
     layoutInfo(&layoutInViewPortCoords);
 
-    Vec2ui legendBarOrigin = oglRect.min();
+    Vec2i legendBarOrigin = oglRect.min();
     legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().x());
     legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().y());
 
-    Rectui legendBarRect = Rectui(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.legendRect.width()), static_cast<uint>(layoutInViewPortCoords.legendRect.height()));
+    Recti legendBarRect = Recti(legendBarOrigin, static_cast<int>(layoutInViewPortCoords.legendRect.width()), static_cast<int>(layoutInViewPortCoords.legendRect.height()));
 
-    if ((oglXCoord > legendBarRect.min().x()) && (oglXCoord < legendBarRect.max().x()) &&
-        (oglYCoord > legendBarRect.min().y()) && (oglYCoord < legendBarRect.max().y()))
+    if ((x > legendBarRect.min().x()) && (x < legendBarRect.max().x()) &&
+        (y > legendBarRect.min().y()) && (y < legendBarRect.max().y()))
     {
         return true;
     }
@@ -242,7 +242,7 @@ bool OverlayColorLegend::pick(uint oglXCoord, uint oglYCoord, const Vec2ui& posi
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void OverlayColorLegend::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software)
+void OverlayColorLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
 {   
     if (size.x() <= 0 || size.y() <= 0)
     {

@@ -111,7 +111,7 @@ void caf::CeetronNavigation::mouseMoveEvent(QMouseEvent* event)
     if (!m_viewer->canRender()) return;
     initializeRotationCenter();
     int posX = event->x();
-    int posY = event->y();
+    int posY = m_viewer->height() - event->y();
 
     ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons(event->buttons());
     if (navType != m_trackball->activeNavigation())
@@ -137,7 +137,7 @@ void caf::CeetronNavigation::mousePressEvent(QMouseEvent* event)
     if (!m_viewer->canRender()) return;
     initializeRotationCenter();
     int posX = event->x();
-    int posY = event->y();
+    int posY = m_viewer->height() - event->y();
 
     ManipulatorTrackball::NavigationType navType = getNavigationTypeFromMouseButtons(event->buttons());
     m_trackball->startNavigation(navType, posX, posY);
@@ -176,16 +176,18 @@ void caf::CeetronNavigation::wheelEvent(QWheelEvent* event)
     int navDelta = vpHeight/5;
     if (event->delta() < 0) navDelta *= -1;
 
+    int posY = m_viewer->height() - event->y();
+
     if (m_viewer->mainCamera()->projection() == cvf::Camera::PERSPECTIVE)
     {
-        m_trackball->startNavigation(ManipulatorTrackball::WALK, event->x(), event->y());
+        m_trackball->startNavigation(ManipulatorTrackball::WALK, event->x(), posY);
     }
     else
     {
-        m_trackball->startNavigation(ManipulatorTrackball::ZOOM, event->x(), event->y());
+        m_trackball->startNavigation(ManipulatorTrackball::ZOOM, event->x(), posY);
     }
 
-    m_trackball->updateNavigation(event->x(), event->y() - navDelta);
+    m_trackball->updateNavigation(event->x(), posY + navDelta);
     m_trackball->endNavigation();
 
     m_viewer->update();

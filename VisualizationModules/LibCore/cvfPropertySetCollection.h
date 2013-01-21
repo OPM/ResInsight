@@ -17,46 +17,40 @@
 //
 //##################################################################################################
 
-#include "cvfBase.h"
-#include "cvfOverlayTextBox.h"
-#include "cvfDrawableText.h"
-#include "cvfMatrixState.h"
-#include "cvfCamera.h"
-#include "cvfShaderProgram.h"
-#include "cvfOpenGL.h"
-#include "cvfViewport.h"
-#include "cvfOpenGLResourceManager.h"
-#include "cvfUniform.h"
+#pragma once
 
-#ifndef CVF_OPENGL_ES
-#include "cvfRenderState_FF.h"
-#endif
+#include "cvfObject.h"
+#include "cvfPropertySet.h"
+#include "cvfCollection.h"
+
+#include <map>
 
 namespace cvf {
 
-//==================================================================================================
-///
-/// \class cvf::OverlayItem
-/// \ingroup Render
-///
-/// A base class for all overlay items
-///
-//==================================================================================================
 
-//--------------------------------------------------------------------------------------------------
-/// Do hit test on the overlay item. Base class only does a check 
-//--------------------------------------------------------------------------------------------------
-bool OverlayItem::pick(int x, int y, const Vec2i& position, const Vec2ui& size)
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class PropertySetCollection : public Object
 {
-    Recti oglRect(position, static_cast<int>(size.x()), static_cast<int>(size.y()));
+public:
+    PropertySetCollection();
+    ~PropertySetCollection();
 
-    if ((x > oglRect.min().x()) && (x < oglRect.max().x()) &&
-        (y > oglRect.min().y()) && (y < oglRect.max().y()))
-    {
-        return true;
-    }
+    size_t              count() const;
+    PropertySet*        propertySet(size_t index);
+    const PropertySet*  propertySet(size_t index) const;
+    void                addPropertySet(PropertySet* propertySet);
 
-    return false;
-}
+    size_t              countOfType(const String& classType) const;
+    PropertySet*        propertySetOfType(const String& classType, size_t index);
+    PropertySet*        firstPropertySetOfType(const String& classType);
 
-} // namespace cvf
+private:
+    Collection<PropertySet> m_propertySets;
+};
+
+
+}  // namespace cvf
