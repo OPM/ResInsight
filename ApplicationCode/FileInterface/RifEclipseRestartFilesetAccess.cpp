@@ -43,8 +43,8 @@ bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
 {
     close();
 
-    size_t numFiles = fileSet.size();
-    size_t i;
+    int numFiles = fileSet.size();
+    int i;
     for (i = 0; i < numFiles; i++)
     {
         cvf::ref<RifEclipseOutputFileTools> fileAccess = new RifEclipseOutputFileTools;

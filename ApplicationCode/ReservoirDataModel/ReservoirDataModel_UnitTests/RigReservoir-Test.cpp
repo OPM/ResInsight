@@ -34,16 +34,16 @@ TEST(RigReservoirTest, BasicTest)
 
     QDateTime wellStartTime = QDateTime::currentDateTime();
 
-    size_t wellTimeStepCount = 5;
+    int wellTimeStepCount = 5;
     wellCellTimeHistory->m_wellCellsTimeSteps.resize(wellTimeStepCount);
 
-    size_t i;
+    int i;
     for (i = 0; i < wellTimeStepCount; i++)
     {
         wellCellTimeHistory->m_wellCellsTimeSteps[i].m_timestamp = QDateTime(wellStartTime).addYears(i);
     }
 
-    size_t resultTimeStepCount = 2 * wellTimeStepCount;
+    int resultTimeStepCount = 2 * wellTimeStepCount;
     QList<QDateTime> resultTimes;
     for (i = 0; i < resultTimeStepCount; i++)
     {

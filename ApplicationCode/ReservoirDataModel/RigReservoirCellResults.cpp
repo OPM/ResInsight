@@ -665,7 +665,7 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
 QDateTime RigReservoirCellResults::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() && (size_t)(m_resultInfos[scalarResultIndex].m_timeStepDates.size()) > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].m_timeStepDates[timeStepIndex];
+        return m_resultInfos[scalarResultIndex].m_timeStepDates[static_cast<int>(timeStepIndex)];
     else
         return QDateTime();
 }

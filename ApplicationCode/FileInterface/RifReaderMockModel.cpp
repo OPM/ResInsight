@@ -35,7 +35,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigReservoir* reservoir)
 
     QList<QDateTime> dates;
 
-    for (size_t i = 0; i < m_reservoirBuilder.timeStepCount(); i++)
+    for (int i = 0; i < static_cast<int>(m_reservoirBuilder.timeStepCount()); i++)
     {
         dates.push_back(QDateTime(QDate(2012+i, 6, 1)));
     }
@@ -50,7 +50,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigReservoir* reservoir)
 
     QList<QDateTime> staticDates;
     staticDates.push_back(dates[0]);
-    for (size_t i = 0; i < m_reservoirBuilder.resultCount(); i++)
+    for (int i = 0; i < static_cast<int>(m_reservoirBuilder.resultCount()); i++)
     {
         QString varEnd;
         if (i == 0) varEnd = "X";

@@ -488,7 +488,7 @@ void caf::Viewer::zoomAll()
 void caf::Viewer::addFrame(cvf::Scene* scene)
 {
     m_frameScenes.push_back(scene);
-    m_animationControl->setNumFrames(m_frameScenes.size());
+    m_animationControl->setNumFrames(static_cast<int>(m_frameScenes.size()));
 }
 
 //--------------------------------------------------------------------------------------------------

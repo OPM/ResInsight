@@ -255,7 +255,7 @@ ref<UIntArray> StructGridGeometryGenerator::lineIndicesFromQuadVertexArray(const
     CVF_ASSERT(vertexArray);
 
     size_t numVertices = vertexArray->size();
-    int numQuads = numVertices/4;
+    int numQuads = static_cast<int>(numVertices/4);
     CVF_ASSERT(numVertices%4 == 0);
 
     ref<UIntArray> indices = new UIntArray;

@@ -97,7 +97,7 @@ size_t RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
 
 //--------------------------------------------------------------------------------------------------
 /// Get keywords found on file given by name.
-/// If numDataItems > -1, get keywords with that exact number of data items only.
+/// If numDataItems != cvf::UNDEFINED_SIZE_T, get keywords with that exact number of data items only.
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t numDataItems, size_t numSteps)
 {
@@ -114,16 +114,16 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
     for (int i = 0; i < numKeywords; i++)
     {
         const char* kw = ecl_file_iget_distinct_kw(m_file , i);
-        size_t numKWOccurences = ecl_file_get_num_named_kw(m_file, kw);
+        int numKWOccurences = ecl_file_get_num_named_kw(m_file, kw);
 
         if (numDataItems != cvf::UNDEFINED_SIZE_T)
         {
             bool dataTypeSupported = true;
-            size_t numKWValues = 0;
-            size_t j;
+            int numKWValues = 0;
+            int j;
             for (j = 0; j < numKWOccurences; j++)
             {
-                numKWValues += (size_t) ecl_file_iget_named_size(m_file, kw, j);
+                numKWValues += ecl_file_iget_named_size(m_file, kw, j);
 
                 // Check the data type - only float and double are supported
                 ecl_type_enum dataType = ecl_file_iget_named_type(m_file, kw, j);
@@ -138,7 +138,7 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
             {
                 if (numSteps != cvf::UNDEFINED_SIZE_T && numSteps > 0)
                 {
-                    numKWValues /= numSteps;
+                    numKWValues /= static_cast<int>(numSteps);
                 }
 
                 // Append keyword to the list if it has the given number of values in total
@@ -265,7 +265,7 @@ bool RifEclipseOutputFileTools::keywordData(const QString& keyword, size_t index
     CVF_ASSERT(m_file);
     CVF_ASSERT(values);
 
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(m_file, keyword.toAscii().data(), index);
+    ecl_kw_type* kwData = ecl_file_iget_named_kw(m_file, keyword.toAscii().data(), static_cast<int>(index));
     if (kwData)
     {
         size_t numValues = ecl_kw_get_size(kwData);

@@ -130,12 +130,12 @@ void RimCellRangeFilter::setDefaultValues()
         max.y() = max.y() + 1;
         max.z() = max.z() + 1;
 
-        startIndexI = min.x();
-        startIndexJ = min.y();
-        startIndexK = min.z();
-        cellCountI = max.x() - min.x() + 1;
-        cellCountJ = max.y() - min.y() + 1;
-        cellCountK = max.z() - min.z() + 1;
+        startIndexI = static_cast<int>(min.x());
+        startIndexJ = static_cast<int>(min.y());
+        startIndexK = static_cast<int>(min.z());
+        cellCountI = static_cast<int>(max.x() - min.x() + 1);
+        cellCountJ = static_cast<int>(max.y() - min.y() + 1);
+        cellCountK = static_cast<int>(max.z() - min.z() + 1);
     }
 }
 
@@ -183,17 +183,17 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         if (field == &startIndexI || field == &cellCountI)
         {
             myAttr->m_minimum = 1;
-            myAttr->m_maximum = mainGrid->cellCountI();
+            myAttr->m_maximum = static_cast<int>(mainGrid->cellCountI());
         }
         else if (field == &startIndexJ  || field == &cellCountJ)
         {
             myAttr->m_minimum = 1;
-            myAttr->m_maximum = mainGrid->cellCountJ();
+            myAttr->m_maximum = static_cast<int>(mainGrid->cellCountJ());
         }
         else if (field == &startIndexK || field == &cellCountK)
         {
             myAttr->m_minimum = 1;
-            myAttr->m_maximum = mainGrid->cellCountK();
+            myAttr->m_maximum = static_cast<int>(mainGrid->cellCountK());
         }
     }
 }

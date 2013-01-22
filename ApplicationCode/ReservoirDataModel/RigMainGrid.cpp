@@ -313,14 +313,14 @@ void RigMainGrid::calculateActiveCellInfo(std::vector<qint32> &gridNumber,
                 parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
             }
 
-            gridNumber.push_back(grid->gridIndex());
-            cellI.push_back(i);
-            cellJ.push_back(j);
-            cellK.push_back(k);
-            parentGridNumber.push_back(parentGrid->gridIndex());
-            hostCellI.push_back(pi);
-            hostCellJ.push_back(pj);
-            hostCellK.push_back(pk);
+            gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
+            cellI.push_back(static_cast<qint32>(i));
+            cellJ.push_back(static_cast<qint32>(j));
+            cellK.push_back(static_cast<qint32>(k));
+            parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
+            hostCellI.push_back(static_cast<qint32>(pi));
+            hostCellJ.push_back(static_cast<qint32>(pj));
+            hostCellK.push_back(static_cast<qint32>(pk));
         }
     }
 }

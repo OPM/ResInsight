@@ -614,8 +614,7 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
     }
 
-    size_t i;
-    for (i = 0; i < geometriesToRecolor.size(); ++i)
+    for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
     {
 
         if (this->animationMode() && this->cellEdgeResult()->hasResult())
@@ -640,7 +639,7 @@ void RimReservoirView::updateCurrentTimeStep()
         {
             cvf::String modelName = "WellPipeModel";
             std::vector<cvf::Model*> models;
-            for (i = 0; i < frameScene->modelCount(); i++)
+            for (cvf::uint i = 0; i < frameScene->modelCount(); i++)
             {
                 if (frameScene->model(i)->name() == modelName)
                 {
@@ -648,7 +647,7 @@ void RimReservoirView::updateCurrentTimeStep()
                 }
             }
 
-            for (i = 0; i < models.size(); i++)
+            for (size_t i = 0; i < models.size(); i++)
             {
                 frameScene->removeModel(models[i]);
             }
@@ -862,8 +861,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             this->cellEdgeResult()->gridScalarIndices(resultIndices);
             this->cellEdgeResult()->gridScalarResultNames(&resultNames);
 
-            size_t idx;
-            for (idx = 0; idx < 6; idx++)
+            for (int idx = 0; idx < 6; idx++)
             {
                 if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 

@@ -433,7 +433,7 @@ void RIViewer::paintOverlayItems(QPainter* painter)
     if (showAnimBar && m_showAnimProgress)
     {
         m_animationProgress->setMinimum(0);
-        m_animationProgress->setMaximum(frameCount() - 1);
+        m_animationProgress->setMaximum(static_cast<int>(frameCount()) - 1);
         m_animationProgress->setValue(currentFrameIndex());
         m_animationProgress->resize(columnWidth, m_animationProgress->sizeHint().height());
 

@@ -215,12 +215,12 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
 
     size_t inputPropCount = this->m_inputPropertyCollection()->inputProperties.size();
 
-    caf::ProgressInfo progInfo(filenames.size() *( inputPropCount + knownKeywords.size()), "Reading Input properties" );
+    caf::ProgressInfo progInfo(static_cast<int>(filenames.size() *( inputPropCount + knownKeywords.size())), "Reading Input properties" );
     int progress = 0;
 
     for_all(filenames, i)
     {
-        progress = i*( inputPropCount + knownKeywords.size());
+        progress = static_cast<int>(i*( inputPropCount + knownKeywords.size()));
         // Find all the keywords present on the file
 
         progInfo.setProgressDescription(filenames[i]);
@@ -262,10 +262,10 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
                 fileKeywordSet.erase(kw);
             }
 
-            progInfo.setProgress(progress + ipIdx );
+            progInfo.setProgress(static_cast<int>(progress + ipIdx) );
         }
 
-        progInfo.setProgress(progress +  inputPropCount);
+        progInfo.setProgress(static_cast<int>(progress +  inputPropCount));
         // Check if there are more known property keywords left on file. If it is, read them and create inputProperty objects
 
         if (!fileKeywordSet.empty())
@@ -288,7 +288,7 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
                         m_inputPropertyCollection->inputProperties.push_back(inputProperty);
                     }
                 }
-                 progInfo.setProgress(progress +  inputPropCount + fkIt);
+                 progInfo.setProgress(static_cast<int>(progress +  inputPropCount + fkIt));
             }
         }
     }
