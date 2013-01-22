@@ -162,4 +162,3 @@ if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
 endif()
 
 include (CPack)
-
