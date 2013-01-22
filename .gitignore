@@ -16,7 +16,6 @@ moc_*.cxx
 qrc_*.cxx
 
 # CMake
-*.cmake
 Makefile
 CMakeFiles/
 CMakeCache.txt
