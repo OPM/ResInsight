@@ -36,7 +36,7 @@ namespace caf {
 /// Then call incrementProgress() or setProgress() at proper times in your method.
 /// When the method returns, the ProgressInfo destructor will clean up and finish.
 /// The real beauty is that this class will magically interact with possible ProgressInfo instances
-/// instantiated in function your method calls, providing a complete, consistent and detailed progress bar 
+/// in functions that your method calls, providing a complete, consistent and detailed progress bar 
 /// 
 /// caf::ProgressInfo progInfo(3, "Open File");
 /// progInfo.setProgressDescription("Reading");
@@ -47,13 +47,13 @@ namespace caf {
 /// progInfo.incrementProgress();
 /// progInfo.setProgressDescription("Building geometry");
 ///  ... buildGeometry();
-/// progInfo.incrementProgress(); // not needed really, caus destructor will send progress to top.
+/// progInfo.incrementProgress(); // not needed really, because the destructor will send the progress to top.
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ProgressInfo::ProgressInfo(int maxProgressValue, const QString& title)
+ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title)
 {
     ProgressInfoStatic::start(maxProgressValue, title);
 }
@@ -78,7 +78,7 @@ void ProgressInfo::setProgressDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ProgressInfo::setProgress(int progressValue)
+void ProgressInfo::setProgress(size_t progressValue)
 {
     ProgressInfoStatic::setProgress(progressValue);
 }
@@ -103,7 +103,7 @@ void ProgressInfo::incrementProgress()
 /// progInfo.incrementProgress();
 /// 
 //--------------------------------------------------------------------------------------------------
-void ProgressInfo::setNextProgressIncrement(int nextStepSize)
+void ProgressInfo::setNextProgressIncrement(size_t nextStepSize)
 {
     ProgressInfoStatic::setNextProgressIncrement(nextStepSize);
 }
@@ -141,9 +141,9 @@ static QProgressDialog* progressDialog()
 //--------------------------------------------------------------------------------------------------
 /// A static vector containing the maximum values for the progress on each sublevel (call stack level)
 //--------------------------------------------------------------------------------------------------
-static std::vector<int>& maxProgressStack()
+static std::vector<size_t>& maxProgressStack()
 {
-     static std::vector<int> m_maxProgressStack;
+     static std::vector<size_t> m_maxProgressStack;
   
      return m_maxProgressStack;
 }
@@ -171,9 +171,9 @@ static std::vector<QString>& descriptionStack()
 //--------------------------------------------------------------------------------------------------
 /// The actual progress value on each level (call stack level) 0 corresponds to the outermost function
 //--------------------------------------------------------------------------------------------------
-static std::vector<int>& progressStack()
+static std::vector<size_t>& progressStack()
 {
-    static std::vector<int> m_progressStack;
+    static std::vector<size_t> m_progressStack;
 
     return m_progressStack;
 }
@@ -182,9 +182,9 @@ static std::vector<int>& progressStack()
 /// The number of progress ticks (span) on each callstack level that the level deeper (in callstack) shall fill
 /// used to balance the progress, making some (heavy) operations span more of the progress bar
 //--------------------------------------------------------------------------------------------------
-static std::vector<int>& progressSpanStack()
+static std::vector<size_t>& progressSpanStack()
 {
-    static std::vector<int> m_progressSpanStack;
+    static std::vector<size_t> m_progressSpanStack;
 
     return m_progressSpanStack;
 }
@@ -194,9 +194,9 @@ static std::vector<int>& progressSpanStack()
 /// Calculate the total number of progress values we would need if we only look at the levels from 
 /// \a levelDepth and below (increasing subdivision)
 //--------------------------------------------------------------------------------------------------
-static int subLevelsMaxProgressValue(size_t levelDepth)
+static size_t subLevelsMaxProgressValue(size_t levelDepth)
 {
-    int levCount = 1;
+    size_t levCount = 1;
     for (; levelDepth < maxProgressStack().size(); ++levelDepth)
     {
         levCount *=  maxProgressStack()[levelDepth];
@@ -207,12 +207,12 @@ static int subLevelsMaxProgressValue(size_t levelDepth)
 //--------------------------------------------------------------------------------------------------
 /// Calculate the total progress value based on the current level subdivision and progress
 //--------------------------------------------------------------------------------------------------
-static int currentTotalProgress()
+static size_t currentTotalProgress()
 {
-    int progress = 0;
+    size_t progress = 0;
     for (size_t i = 0; i < progressStack().size(); ++i)
     {
-        int span = (i < 1) ? 1 : progressSpanStack()[i-1];
+        size_t span = (i < 1) ? 1 : progressSpanStack()[i-1];
         progress = progress + span*progressStack()[i]* subLevelsMaxProgressValue(i+1);
     }
     return progress;
@@ -221,7 +221,7 @@ static int currentTotalProgress()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-static int currentTotalMaxProgressValue()
+static size_t currentTotalMaxProgressValue()
 {
     return subLevelsMaxProgressValue(0);
 }
@@ -261,7 +261,7 @@ static bool isWrongThread()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ProgressInfoStatic::start(int maxProgressValue, const QString& title)
+void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title)
 {
     if (!qApp) return;
 
@@ -282,8 +282,8 @@ void ProgressInfoStatic::start(int maxProgressValue, const QString& title)
     titleStack().push_back(title);
     descriptionStack().push_back("");
 
-    progressDialog()->setMaximum(currentTotalMaxProgressValue());
-    progressDialog()->setValue(currentTotalProgress());
+    progressDialog()->setMaximum(static_cast<int>(currentTotalMaxProgressValue()));
+    progressDialog()->setValue(static_cast<int>(currentTotalProgress()));
     progressDialog()->setLabelText(currentComposedLabel());
 
     QCoreApplication::processEvents();
@@ -306,12 +306,12 @@ void ProgressInfoStatic::setProgressDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ProgressInfoStatic::setProgress(int progressValue)
+void ProgressInfoStatic::setProgress(size_t progressValue)
 {
     if (isWrongThread()) return;
     if (progressValue == progressStack().back()) return; // Do nothing if no progress.
 
-    // Guard against the max value set for theis level
+    // Guard against the max value set for this level
     if (progressValue < 0 ) progressValue = 0;
     if (progressValue > maxProgressStack().back() ) progressValue = maxProgressStack().back();
 
@@ -319,10 +319,10 @@ void ProgressInfoStatic::setProgress(int progressValue)
     progressSpanStack().back() = 1;
 
     assert(currentTotalProgress() <= progressDialog()->maximum());
-    int totProg = currentTotalProgress();
+    size_t totProg = currentTotalProgress();
 
-    progressDialog()->setMaximum(currentTotalMaxProgressValue());
-    progressDialog()->setValue(currentTotalProgress());
+    progressDialog()->setMaximum(static_cast<int>(currentTotalMaxProgressValue()));
+    progressDialog()->setValue(static_cast<int>(currentTotalProgress()));
     QCoreApplication::processEvents();
 }
 
@@ -339,7 +339,7 @@ void ProgressInfoStatic::incrementProgress()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void ProgressInfoStatic::setNextProgressIncrement(int nextStepSize)
+void ProgressInfoStatic::setNextProgressIncrement(size_t nextStepSize)
 {
     assert(progressSpanStack().size());
 
