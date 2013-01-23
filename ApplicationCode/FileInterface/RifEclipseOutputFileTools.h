@@ -44,7 +44,7 @@ public:
     bool                open(const QString& fileName);
     void                close();
 
-    size_t              numOccurrences(const QString& keyword);
+    int                 numOccurrences(const QString& keyword);
     bool                keywordsOnFile(QStringList* keywords, size_t numDataItems = cvf::UNDEFINED_SIZE_T, size_t numSteps = cvf::UNDEFINED_SIZE_T);
 
     bool                timeStepsText(QStringList* timeSteps);

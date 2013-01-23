@@ -360,7 +360,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
         // Get the names of the dynamic results
         QStringList dynamicResultNames = m_dynamicResultsAccess->resultNames();
 
-        for (size_t i = 0; i < static_cast<size_t>(dynamicResultNames.size()); ++i)
+        for (int i = 0; i < dynamicResultNames.size(); ++i)
         {
             size_t resIndex = resCellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, dynamicResultNames[i]);
             resCellResults->setTimeStepDates(resIndex, m_timeSteps);
@@ -390,7 +390,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
             staticDate.push_back(m_timeSteps.front());
         }
 
-        for (size_t i = 0; i < static_cast<size_t>(staticResultNames.size()); ++i)
+        for (int i = 0; i < staticResultNames.size(); ++i)
         {
             size_t resIndex = resCellResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, staticResultNames[i]);
             resCellResults->setTimeStepDates(resIndex, staticDate);
@@ -566,7 +566,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
             bool hasWellConnectionsInLGR = false;
             for (size_t gridNr = 1; gridNr < grids.size(); ++gridNr)
             {
-                int branchCount = well_state_iget_lgr_num_branches(ert_well_state, gridNr);
+                int branchCount = well_state_iget_lgr_num_branches(ert_well_state, static_cast<int>(gridNr));
                 if (branchCount > 0)
                 {
                     hasWellConnectionsInLGR = true;
@@ -578,7 +578,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
             {
 
                 // Wellhead. If several grids have a wellhead definition for this well, we use tha last one. (Possibly the innermost LGR)
-                const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, gridNr);
+                const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
                 if (ert_wellhead)
                 {
                     wellResFrame.m_wellHead.m_gridIndex = gridNr;
@@ -589,7 +589,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                 }
 
 
-                int branchCount = well_state_iget_lgr_num_branches(ert_well_state, gridNr);
+                int branchCount = well_state_iget_lgr_num_branches(ert_well_state, static_cast<int>(gridNr));
                 if (branchCount > 0)
                 {
                     if (static_cast<int>(wellResFrame.m_wellResultBranches.size()) < branchCount) wellResFrame.m_wellResultBranches.resize(branchCount);
@@ -597,7 +597,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                     for (int branchIdx = 0; branchIdx < branchCount; ++branchIdx )
                     {
                         // Connections
-                        int connectionCount = well_state_iget_num_lgr_connections(ert_well_state, gridNr, branchIdx);
+                        int connectionCount = well_state_iget_num_lgr_connections(ert_well_state, static_cast<int>(gridNr), branchIdx);
                         if (connectionCount > 0)
                         {
 
@@ -609,7 +609,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                             int connIdx;
                             for (connIdx = 0; connIdx < connectionCount; connIdx++)
                             {
-                                const well_conn_type* ert_connection = well_state_iget_lgr_connections( ert_well_state, gridNr, branchIdx)[connIdx];
+                                const well_conn_type* ert_connection = well_state_iget_lgr_connections( ert_well_state, static_cast<int>(gridNr), branchIdx)[connIdx];
                                 CVF_ASSERT(ert_connection);
 
                                 RigWellResultCell& data = wellSegment.m_wellCells[existingConnCount + connIdx];

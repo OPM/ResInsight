@@ -222,7 +222,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine(const cvf::Vec
     size_t i;
     for (i = 0; i < duplicateVertexCount; i++)
     {
-        indices->set(i, i);
+        indices->set(i, static_cast<cvf::uint>(i));
     }
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;

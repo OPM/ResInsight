@@ -84,11 +84,11 @@ void RifEclipseOutputFileTools::close()
 //--------------------------------------------------------------------------------------------------
 /// Get the number of occurrences of the given keyword
 //--------------------------------------------------------------------------------------------------
-size_t RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
+int RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
 {
 #ifdef USE_ECL_LIB
     CVF_ASSERT(m_file);
-    return (size_t) ecl_file_get_num_named_kw(m_file, keyword.toAscii().data());
+    return ecl_file_get_num_named_kw(m_file, keyword.toAscii().data());
 #else
     return 0;
 #endif //USE_ECL_LIB
@@ -175,10 +175,10 @@ bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
     const char* KW_INTEHEAD = "INTEHEAD";
 
     // Get the number of occurrences of the INTEHEAD keyword
-    size_t numINTEHEAD = numOccurrences(KW_INTEHEAD);
+    int numINTEHEAD = numOccurrences(KW_INTEHEAD);
 
     QStringList timeStepsFound;
-    size_t i;
+    int i;
     for (i = 0; i < numINTEHEAD; i++)
     {
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(m_file, KW_INTEHEAD, i);
@@ -222,10 +222,10 @@ bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
     const char* KW_INTEHEAD = "INTEHEAD";
 
     // Get the number of occurrences of the INTEHEAD keyword
-    size_t numINTEHEAD = numOccurrences(KW_INTEHEAD);
+    int numINTEHEAD = numOccurrences(KW_INTEHEAD);
 
     QList<QDateTime> timeStepsFound;
-    size_t i;
+    int i;
     for (i = 0; i < numINTEHEAD; i++)
     {
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(m_file, KW_INTEHEAD, i);

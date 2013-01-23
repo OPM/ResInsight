@@ -455,7 +455,7 @@ void RifEclipseInputFileTools::writeDataToTextFile(QFile* file, const QString& e
     out << eclipseKeyWord << "\n" << right << qSetFieldWidth(16);
 
     caf::ProgressInfo pi(resultData.size(), QString("Writing data to file %1").arg(file->fileName()) );
-    int progressSteps = resultData.size() / 20;
+    size_t progressSteps = resultData.size() / 20;
 
     size_t i;
     for (i = 0; i < resultData.size(); i++)
