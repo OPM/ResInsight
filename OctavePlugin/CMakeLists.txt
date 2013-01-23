@@ -98,6 +98,8 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
+
+      SOURCES ${CPP_SOURCES}
   )
 endif()
 
