@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 class QString;
 
 namespace caf {
