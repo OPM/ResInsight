@@ -176,10 +176,14 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
 {
     if (!well_info) return;
 
-    size_t i;
-    for (i=0; i < m_files.size(); i++)
+    for (size_t i = 0; i < m_files.size(); i++)
     {
-        well_info_add_UNRST_wells(well_info, m_files[i]->filePointer());
+        const char* fileName = ecl_file_get_src_file(m_files[i]->filePointer());
+        int reportNumber = ecl_util_filename_report_nr(fileName);
+        if(reportNumber != -1)
+        {
+            well_info_add_wells(well_info, m_files[i]->filePointer(), reportNumber);
+        }
     }
 }
 #endif
