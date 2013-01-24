@@ -532,19 +532,19 @@ void RigReservoirCellResults::computeDepthRelatedResults()
         if (computeDx)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
-            dx[0][cellIdx] = cellWidth.length();
+            dx[0][cellIdx] =  cvf::Math::abs(cellWidth.x());
         }
 
         if (computeDy)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
-            dy[0][cellIdx] = cellWidth.length();
+            dy[0][cellIdx] =  cvf::Math::abs(cellWidth.y());
         }
 
         if (computeDz)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
-            dz[0][cellIdx] = cellWidth.length();
+            dz[0][cellIdx] = cvf::Math::abs(cellWidth.z());
         }
 
         if (computeTops)
