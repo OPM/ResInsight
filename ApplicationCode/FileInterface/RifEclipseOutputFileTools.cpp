@@ -142,7 +142,7 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
                 }
 
                 // Append keyword to the list if it has the given number of values in total
-                if (numKWValues == numDataItems)
+                if (numKWValues == static_cast<int>(numDataItems))
                 {
                     keywords->append(QString(kw));
                 }

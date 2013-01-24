@@ -312,13 +312,12 @@ void ProgressInfoStatic::setProgress(size_t progressValue)
     if (progressValue == progressStack().back()) return; // Do nothing if no progress.
 
     // Guard against the max value set for this level
-    if (progressValue < 0 ) progressValue = 0;
     if (progressValue > maxProgressStack().back() ) progressValue = maxProgressStack().back();
 
     progressStack().back() = progressValue;
     progressSpanStack().back() = 1;
 
-    assert(currentTotalProgress() <= progressDialog()->maximum());
+    assert(static_cast<int>(currentTotalProgress()) <= progressDialog()->maximum());
     size_t totProg = currentTotalProgress();
 
     progressDialog()->setMaximum(static_cast<int>(currentTotalMaxProgressValue()));
