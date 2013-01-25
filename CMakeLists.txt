@@ -17,14 +17,14 @@ endif()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         # Linux specific code
-        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -DUSE_ECL_LIB -pipe -Wextra -Woverloaded-virtual -Wformat")
+        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
         set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
         set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
         #set(CMAKE_EXE_LINKER_FLAGS  "-Xlinker -rpath .")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 #        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g1")
 ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp -DUSE_ECL_LIB")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
 ENDIF() 
 
 

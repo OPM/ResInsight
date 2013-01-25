@@ -19,12 +19,10 @@
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifEclipseOutputFileTools.h"
 
-#ifdef USE_ECL_LIB
 #include <well_state.h>
 #include <well_info.h>
 #include <well_conn.h>
 #include <well_ts.h>
-#endif
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -47,7 +45,6 @@ RifEclipseUnifiedRestartFileAccess::~RifEclipseUnifiedRestartFileAccess()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet)
 {
-#ifdef USE_ECL_LIB
     QString fileName = fileSet[0];
 
     cvf::ref<RifEclipseOutputFileTools> fileAccess = new RifEclipseOutputFileTools;
@@ -59,9 +56,6 @@ bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet)
     m_file = fileAccess;
 
     return true;
-#else
-    return false;
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,12 +147,10 @@ bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info)
 {
     if (!well_info) return;
 
     well_info_add_UNRST_wells(well_info, m_file->filePointer());
 }
-#endif
 

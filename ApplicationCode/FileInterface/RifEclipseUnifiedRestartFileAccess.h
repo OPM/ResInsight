@@ -22,9 +22,7 @@
 
 class RifEclipseOutputFileTools;
 
-#ifdef USE_ECL_LIB
 #include "well_info.h"
-#endif // USE_ECL_LIB
 
 //==================================================================================================
 //
@@ -47,9 +45,7 @@ public:
     QStringList                 resultNames();
     bool                        results(const QString& resultName, size_t timeStep, std::vector<double>* values);
 
-#ifdef USE_ECL_LIB
     virtual void                readWellData(well_info_type * well_info);
-#endif
 
 private:
     cvf::ref<RifEclipseOutputFileTools> m_file;

@@ -171,7 +171,6 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
 {
     if (!well_info) return;
@@ -186,4 +185,3 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
         }
     }
 }
-#endif

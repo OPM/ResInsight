@@ -60,7 +60,7 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 
         # Linux specific code
-        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -DUSE_ECL_LIB -pipe -Wextra -Woverloaded-virtual -Wformat")
+        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
         set(CMAKE_CXX_FLAGS_DEBUG 	"-g -DDEBUG -D_DEBUG")
         set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")

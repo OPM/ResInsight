@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_ECL_LIB
 
 
 #include <time.h>
@@ -118,4 +117,3 @@ TEST(RigReservoirTest, ElipseInputGridFile)
     EXPECT_EQ(size_t(1), res.mainGrid()->numActiveCells());
 
 }
-#endif //USE_ECL_LIB

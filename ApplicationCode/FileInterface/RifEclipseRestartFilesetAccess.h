@@ -45,9 +45,7 @@ public:
     QStringList                 resultNames();
     bool                        results(const QString& resultName, size_t timeStep, std::vector<double>* values);
 
-#ifdef USE_ECL_LIB
     virtual void                readWellData(well_info_type* well_info);
-#endif //USE_ECL_LIB
 
 private:
     std::vector< cvf::ref<RifEclipseOutputFileTools> > m_files;

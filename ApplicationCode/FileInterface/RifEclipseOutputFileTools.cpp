@@ -18,11 +18,9 @@
 
 #include "RifEclipseOutputFileTools.h"
 
-#ifdef USE_ECL_LIB
 #include "util.h"
 #include "ecl_file.h"
 #include "ecl_intehead.h"
-#endif //USE_ECL_LIB
 
 #include <QFileInfo>
 #include "cafProgressInfo.h"
@@ -32,9 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 RifEclipseOutputFileTools::RifEclipseOutputFileTools()
 {
-#ifdef USE_ECL_LIB
     m_file = NULL;
-#endif //USE_ECL_LIB
 }
 
 
@@ -52,7 +48,6 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::open(const QString& fileName)
 {
-#ifdef USE_ECL_LIB
     // Close current file if any
     close();
 
@@ -60,9 +55,6 @@ bool RifEclipseOutputFileTools::open(const QString& fileName)
     if (!m_file) return false;
 
     return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
 }
 
 
@@ -71,13 +63,11 @@ bool RifEclipseOutputFileTools::open(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::close()
 {
-#ifdef USE_ECL_LIB
     if (m_file)
     {
         ecl_file_close(m_file);
         m_file = NULL;
     }
-#endif //USE_ECL_LIB
 }
 
 
@@ -86,12 +76,8 @@ void RifEclipseOutputFileTools::close()
 //--------------------------------------------------------------------------------------------------
 int RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
 {
-#ifdef USE_ECL_LIB
     CVF_ASSERT(m_file);
     return ecl_file_get_num_named_kw(m_file, keyword.toAscii().data());
-#else
-    return 0;
-#endif //USE_ECL_LIB
 }
 
 
@@ -101,11 +87,9 @@ int RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t numDataItems, size_t numSteps)
 {
-#ifdef USE_ECL_LIB
     CVF_ASSERT(m_file);
     CVF_ASSERT(keywords);
     keywords->clear();
-
 
     int numKeywords = ecl_file_get_num_distinct_kw(m_file);
 
@@ -157,9 +141,6 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
     }
 
     return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
 }
 
 
@@ -168,7 +149,6 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
 {
-#ifdef USE_ECL_LIB
     CVF_ASSERT(timeSteps);
     CVF_ASSERT(m_file);
 
@@ -205,9 +185,6 @@ bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
     *timeSteps = timeStepsFound;
 
     return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,7 +192,6 @@ bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
 {
-#ifdef USE_ECL_LIB
     CVF_ASSERT(timeSteps);
     CVF_ASSERT(m_file);
 
@@ -251,9 +227,6 @@ bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
     *timeSteps = timeStepsFound;
 
     return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,7 +234,6 @@ bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseOutputFileTools::keywordData(const QString& keyword, size_t index, std::vector<double>* values)
 {
-#ifdef USE_ECL_LIB
     CVF_ASSERT(m_file);
     CVF_ASSERT(values);
 
@@ -278,16 +250,12 @@ bool RifEclipseOutputFileTools::keywordData(const QString& keyword, size_t index
     }
 
     return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     int i;
@@ -303,13 +271,11 @@ QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ec
 
     return QString::null;
 }
-#endif //USE_ECL_LIB
 
 
 //--------------------------------------------------------------------------------------------------
 /// Get all files of file of given type in given list of filenames, as filename or NULL if not found
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     QStringList fileNames;
@@ -327,7 +293,6 @@ QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSe
 
     return fileNames;
 }
-#endif //USE_ECL_LIB
 
 
 //--------------------------------------------------------------------------------------------------
@@ -338,7 +303,6 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
     CVF_ASSERT(fileSet);
     fileSet->clear();
 
-#ifdef USE_ECL_LIB
     QString filePath = QFileInfo(fileName).absoluteFilePath();
     filePath = QFileInfo(filePath).path();
     QString fileNameBase = QFileInfo(fileName).baseName();
@@ -353,7 +317,6 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
     }
 
     stringlist_free(eclipseFiles);
-#endif //USE_ECL_LIB
 
     return fileSet->count() > 0;
 }
@@ -361,9 +324,7 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 ecl_file_type* RifEclipseOutputFileTools::filePointer()
 {
     return m_file;
 }
-#endif //USE_ECL_LIB

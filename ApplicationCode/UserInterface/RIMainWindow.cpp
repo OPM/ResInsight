@@ -94,11 +94,6 @@ RIMainWindow::RIMainWindow()
     slotRefreshFileActions();
     slotRefreshEditActions();
 
-#ifndef USE_ECL_LIB
-    // Always load mock model on Windows
-    //slotMockModel();
-#endif
-
     // Set pdm root so scripts are displayed
     setPdmRoot(RIApplication::instance()->project());
 }
@@ -597,17 +592,10 @@ void RIMainWindow::slotOpenBinaryGridFiles()
     {
         RIApplication* app = RIApplication::instance();
 
-#ifdef USE_ECL_LIB
-
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
         QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
         if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
         app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
-
-#else
-        QStringList fileNames;
-        fileNames << "dummy";
-#endif
 
         int i;
         for (i = 0; i < fileNames.size(); i++)

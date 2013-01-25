@@ -27,9 +27,7 @@
 
 #include <vector>
 
-#ifdef USE_ECL_LIB
 #include "well_info.h"
-#endif // USE_ECL_LIB
 
 //==================================================================================================
 //
@@ -52,10 +50,7 @@ public:
     virtual QStringList         resultNames() = 0;
     virtual bool                results(const QString& resultName, size_t timeStep, std::vector<double>* values) = 0;
 
-
-#ifdef USE_ECL_LIB
     virtual void                readWellData(well_info_type * well_info) = 0;
-#endif
 
 protected:
     size_t                      m_numGrids;

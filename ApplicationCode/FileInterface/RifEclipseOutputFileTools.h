@@ -26,9 +26,7 @@
 #include <QStringList>
 #include <QDateTime>
 
-#ifdef USE_ECL_LIB
 #include "ecl_file.h"
-#endif //USE_ECL_LIB
 
 //==================================================================================================
 //
@@ -52,20 +50,14 @@ public:
 
     bool                keywordData(const QString& keyword, size_t index, std::vector<double>* values);
 
-#ifdef USE_ECL_LIB
     ecl_file_type*      filePointer();
-#endif //USE_ECL_LIB
 
     // Static methods
     static bool         fileSet(const QString& fileName, QStringList* fileSet);
 
-#ifdef USE_ECL_LIB
     static QString      fileNameByType(const QStringList& fileSet, ecl_file_enum fileType);
     static QStringList  fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType);
-#endif //USE_ECL_LIB
 
 protected:
-#ifdef USE_ECL_LIB
     ecl_file_type*      m_file;
-#endif //USE_ECL_LIB
 };

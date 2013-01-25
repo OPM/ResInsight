@@ -29,10 +29,8 @@
 
 #include <iostream>
 
-#ifdef USE_ECL_LIB
 #include "ecl_grid.h"
 #include "well_state.h"
-#endif //USE_ECL_LIB
 #include "cafProgressInfo.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +83,6 @@ static const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 // Static functions
 //**************************************************************************************************
 
-#ifdef USE_ECL_LIB
 bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const ecl_grid_type* localEclGrid, size_t activeStartIndex)
 {
     int cellCount = ecl_grid_get_global_size(localEclGrid);
@@ -155,7 +152,6 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
     }
     return true;
 }
-#endif
 
 //==================================================================================================
 //
@@ -208,8 +204,6 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 {
     CVF_ASSERT(reservoir);
 
-#ifdef USE_ECL_LIB
-    
     if (!mainEclGrid)
     {
         // Some error
@@ -276,10 +270,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         progInfo.setProgress(3 + lgrIdx);
     }
 
-#endif
-
     return true;
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -304,7 +295,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
     m_fileSet = fileSet;
 
     // Read geometry
-#ifdef USE_ECL_LIB
     ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
 
     progInfo.setProgress(1);
@@ -318,8 +308,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
 
     progInfo.setProgress(8);
     progInfo.setProgressDescription("Reading Result index");
-
-#endif
 
     // Build results meta data
     if (!buildMetaData(reservoir)) return false;
@@ -337,7 +325,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 {
-#ifdef USE_ECL_LIB
     CVF_ASSERT(reservoir);
     CVF_ASSERT(m_fileSet.size() > 0);
 
@@ -400,9 +387,6 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
     }
 
     return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,7 +396,6 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const 
 {
     RifEclipseRestartDataAccess* resultsAccess = NULL;
 
-#ifdef USE_ECL_LIB
     // Look for unified restart file
     QString unrstFileName = RifEclipseOutputFileTools::fileNameByType(fileSet, ECL_UNIFIED_RESTART_FILE);
     if (unrstFileName.size() > 0)
@@ -438,7 +421,6 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const 
             }
         }
     }
-#endif //USE_ECL_LIB
 
     // !! could add support for formatted result files
     // !! consider priorities in case multiple types exist (.UNRST, .XNNNN, ...)
@@ -492,7 +474,6 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
 
     if (m_dynamicResultsAccess.isNull()) return;
 
-#ifdef USE_ECL_LIB
     well_info_type* ert_well_info = well_info_alloc(NULL);
     if (!ert_well_info) return;
 
@@ -643,8 +624,5 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
     well_info_free(ert_well_info);
 
     reservoir->setWellResults(wells);
-
-
-#endif
 }
 

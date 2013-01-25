@@ -31,11 +31,9 @@
 #include <QTextStream>
 #include <QDebug>
 
-#ifdef USE_ECL_LIB
 #include "ecl_grid.h"
 #include "well_state.h"
 #include "util.h"
-#endif 
 #include <fstream>
 
 

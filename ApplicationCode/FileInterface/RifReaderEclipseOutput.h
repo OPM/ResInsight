@@ -46,9 +46,7 @@ public:
     bool                    staticResult(const QString& result, std::vector<double>* values);
     bool                    dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values);
 
-#ifdef USE_ECL_LIB
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigReservoir* reservoir);
-#endif
 
 private:
     void                    ground();
