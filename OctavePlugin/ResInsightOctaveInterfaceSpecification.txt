@@ -1,0 +1,31 @@
+riGetMainGridDimensions( [CaseName/CaseIndex])
+
+Returns a vector of size 3: [ICount, JCount, KCount] 
+Containing the dimensions of the main grid in the requested case.
+If the Eclipse Case is not defined, the active View in ResInsight is used."
+
+riSetActiveCellProperty( Matrix(nActiveCells, nTimesteps), [CaseName/CaseIndex], PropertyName )
+
+Interprets the supplied matrix as an eclipse property set, and puts the data into
+ResInsight as a "Generated" property with the name "PropertyName". The property
+is added to the active case if no case specification is given, or to the Eclipse Case
+named "CaseName" or to the case number "CaseIndex". "
+
+riGetActiveCellProperty( [CaseName/CaseIndex], PropertyName )
+
+Returns a two dimentional matrix: [ActiveCells][Timesteps]
+
+Containing the requested property data from the Eclipse Case defined.
+If the Eclipse Case is not defined, the active View in ResInsight is used.		
+
+riGetActiveCellInfo( [CaseName/CaseIndex])
+
+Returns a two dimentional matrix: [ActiveCells][8]
+
+Containing grid and ijk information about the cells from the Eclipse Case defined.
+The columns contain the following information:
+  1: GridIndex: The index of the grid the cell resides in. (Main grid has index 0) 
+  2, 3, 4: I, J, K address of the cell in the grid.
+  5: ParentGridIndex. The index to the grid that this cell's grid is residing in.
+  6, 7, 8: PI, PJ, PK address of the parent grid cell that this cell is a part of.
+If the Eclipse Case is not defined, the active View in ResInsight is used.	   
