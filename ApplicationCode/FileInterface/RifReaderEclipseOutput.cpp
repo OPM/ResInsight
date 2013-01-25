@@ -458,14 +458,6 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, size_t stepInd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const QList<QDateTime>& RifReaderEclipseOutput::timeSteps() const
-{
-    return m_timeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)

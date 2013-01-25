@@ -42,8 +42,6 @@ public:
     bool                    open(const QString& fileName, RigReservoir* reservoir);
     void                    close();
 
-    const QList<QDateTime>& timeSteps() const;
-
     bool                    staticResult(const QString& result, std::vector<double>* values);
     bool                    dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values);
 
