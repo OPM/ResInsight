@@ -562,11 +562,28 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                 const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
                 if (ert_wellhead)
                 {
+                    int cellI = well_conn_get_i( ert_wellhead );
+                    int cellJ = well_conn_get_j( ert_wellhead );
+                    int cellK = CVF_MAX(0, well_conn_get_k(ert_wellhead)); // Why this ?
+                    
+                    if (!grids[gridNr]->isCellValid(cellI, cellJ, cellK))
+                    {
+                        int candidateCellK = findSmallestActiveCellIndexK(grids[gridNr], cellI, cellJ);
+
+                        if (candidateCellK >= 0)
+                        {
+                            cellK = candidateCellK;
+                        }
+                        else
+                        {
+                            CVF_ASSERT(false);
+                            cellK = 0;
+                        }
+                    }
+
+                    CVF_ASSERT(grids[gridNr]->isCellValid(cellI, cellJ, cellK));
+                    wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI, cellJ, cellK);
                     wellResFrame.m_wellHead.m_gridIndex = gridNr;
-                    int gridK = CVF_MAX(0, well_conn_get_k(ert_wellhead)); // Why this ?
-                    int gridI = well_conn_get_i( ert_wellhead );
-                    int gridJ = well_conn_get_j( ert_wellhead );
-                    wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(gridI, gridJ, gridK);
                 }
 
 
@@ -596,14 +613,31 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                                 RigWellResultCell& data = wellSegment.m_wellCells[existingConnCount + connIdx];
                                 data.m_gridIndex = gridNr;
                                 {
-                                    int connI = well_conn_get_i( ert_connection );
-                                    int connJ = well_conn_get_j( ert_connection );
-                                    int connK = well_conn_get_k( ert_connection );
+                                    int cellI = well_conn_get_i( ert_connection );
+                                    int cellJ = well_conn_get_j( ert_connection );
+                                    int cellK = well_conn_get_k( ert_connection );
                                     bool open = well_conn_open( ert_connection );
                                     int branch = well_conn_get_branch( ert_connection );
                                     int segment = well_conn_get_segment( ert_connection );
                                     
-                                    data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(connI , connJ , connK);
+                                    if (!grids[gridNr]->isCellValid(cellI, cellJ, cellK))
+                                    {
+                                        int candidateCellK = findSmallestActiveCellIndexK(grids[gridNr], cellI, cellJ);
+
+                                        if (candidateCellK >= 0)
+                                        {
+                                            cellK = candidateCellK;
+                                        }
+                                        else
+                                        {
+                                            CVF_ASSERT(false);
+                                            cellK = 0;
+                                        }
+                                    }
+
+                                    CVF_ASSERT(grids[gridNr]->isCellValid(cellI, cellJ, cellK));
+
+                                    data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI , cellJ , cellK);
                                     
                                     data.m_isOpen    = open;
                                     data.m_branchId  = branch;
@@ -624,5 +658,24 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
     well_info_free(ert_well_info);
 
     reservoir->setWellResults(wells);
+}
+
+//--------------------------------------------------------------------------------------------------
+// For case DUALPORO, the well K index is reported outside the grid. If this happens,
+// for the given IJ position, search from K=0 and upwards for first active cell.
+//--------------------------------------------------------------------------------------------------
+int RifReaderEclipseOutput::findSmallestActiveCellIndexK(const RigGridBase* grid, int cellI, int cellJ)
+{
+    if (!grid) return -1;
+
+    for (int candidateCellK = 0; candidateCellK < grid->cellCountK(); candidateCellK++ )
+    {
+        if (grid->isCellActive(cellI, cellJ, candidateCellK))
+        {
+            return candidateCellK;
+        }
+    }
+
+    return -1;
 }
 

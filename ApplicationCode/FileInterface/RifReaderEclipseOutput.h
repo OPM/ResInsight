@@ -24,6 +24,7 @@
 
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
+class RigGridBase;
 
 typedef struct ecl_grid_struct ecl_grid_type;
 
@@ -52,6 +53,8 @@ private:
     void                    ground();
     bool                    buildMetaData(RigReservoir* reservoir);
     void                    readWellCells(RigReservoir* reservoir);
+
+    int                     findSmallestActiveCellIndexK( const RigGridBase* grid, int cellI, int cellJ);
 
     static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet, size_t numGrids, size_t numActiveCells);
     static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet, size_t numGrids, size_t numActiveCells);
