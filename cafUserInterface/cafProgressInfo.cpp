@@ -245,9 +245,13 @@ static QString currentComposedLabel()
 
 }
 
-static bool isWrongThread()
+static bool isUpdatePossible()
 {
-   return  !(progressDialog()->thread() == QThread::currentThread());
+    if (!qApp) return false;
+
+    if (!progressDialog()) return false;
+    
+    return progressDialog()->thread() == QThread::currentThread();
 }
 //==================================================================================================
 ///
@@ -263,9 +267,7 @@ static bool isWrongThread()
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title)
 {
-    if (!qApp) return;
-
-    if (isWrongThread()) return;
+    if (!isUpdatePossible()) return;
 
     if (!maxProgressStack().size())
     {
@@ -295,7 +297,7 @@ void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title)
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::setProgressDescription(const QString& description)
 {
-    if (isWrongThread()) return;
+    if (!isUpdatePossible()) return;
 
     descriptionStack().back() = description;
 
@@ -308,7 +310,8 @@ void ProgressInfoStatic::setProgressDescription(const QString& description)
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::setProgress(size_t progressValue)
 {
-    if (isWrongThread()) return;
+    if (!isUpdatePossible()) return;
+
     if (progressValue == progressStack().back()) return; // Do nothing if no progress.
 
     // Guard against the max value set for this level
@@ -330,6 +333,8 @@ void ProgressInfoStatic::setProgress(size_t progressValue)
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::incrementProgress()
 {
+    if (!isUpdatePossible()) return;
+
     assert(progressStack().size());
     ProgressInfoStatic::setProgress(progressStack().back() += progressSpanStack().back());
 }
@@ -340,6 +345,8 @@ void ProgressInfoStatic::incrementProgress()
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::setNextProgressIncrement(size_t nextStepSize)
 {
+    if (!isUpdatePossible()) return;
+
     assert(progressSpanStack().size());
 
     progressSpanStack().back() = nextStepSize;
@@ -351,7 +358,7 @@ void ProgressInfoStatic::setNextProgressIncrement(size_t nextStepSize)
 //--------------------------------------------------------------------------------------------------
 void ProgressInfoStatic::finished()
 {
-    if (isWrongThread()) return;
+    if (!isUpdatePossible()) return;
 
     assert(maxProgressStack().size() && progressStack().size() && progressSpanStack().size() && titleStack().size() && descriptionStack().size());
 
