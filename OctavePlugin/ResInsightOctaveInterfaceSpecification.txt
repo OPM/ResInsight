@@ -1,90 +1,108 @@
 Vector(3)[ICount, JCount, KCount] riGetMainGridDimensions( [CaseName/CaseIndex])
 
-Returns a vector of size 3: [ICount, JCount, KCount] 
-Containing the dimensions of the main grid in the requested case.
-If the Eclipse Case is not defined, the active View in ResInsight is used."
+	Returns a vector of size 3: [ICount, JCount, KCount] 
+	Containing the dimensions of the main grid in the requested case.
+	If the Eclipse Case is not defined, the active View in ResInsight is used."
 
 
 riSetActiveCellProperty( Matrix(nActiveCells, nTimesteps), [CaseName/CaseIndex], PropertyName )
 
-Interprets the supplied matrix as an eclipse property set, and puts the data into
-ResInsight as a "Generated" property with the name "PropertyName". The property
-is added to the active case if no case specification is given, or to the Eclipse Case
-named "CaseName" or to the case number "CaseIndex". "
+	Interprets the supplied matrix as an eclipse property set, and puts the data into
+	ResInsight as a "Generated" property with the name "PropertyName". The property
+	is added to the active case if no case specification is given, or to the Eclipse Case
+	named "CaseName" or to the case number "CaseIndex". "
 
 
 
 Matrix[ActiveCells][Timesteps] riGetActiveCellProperty( [CaseName/CaseIndex], PropertyName )
 
-Returns a two dimentional matrix: [ActiveCells][Timesteps]
+	Returns a two dimentional matrix: [ActiveCells][Timesteps]
 
-Containing the requested property data from the Eclipse Case defined.
-If the Eclipse Case is not defined, the active View in ResInsight is used.		
+	Containing the requested property data from the Eclipse Case defined.
+	If the Eclipse Case is not defined, the active View in ResInsight is used.		
 
 
 
 Matrix[ActiveCells][8] riGetActiveCellInfo( [CaseName/CaseIndex])
 
-Returns a two dimentional matrix: [ActiveCells][8]
+	Returns a two dimentional matrix: [ActiveCells][8]
 
-Containing grid and ijk information about the cells from the Eclipse Case defined.
-The columns contain the following information:
-  1: GridIndex: The index of the grid the cell resides in. (Main grid has index 0) 
-  2, 3, 4: I, J, K: 1-based index address of the cell in the grid.
-  5: ParentGridIndex. The index to the grid that this cell's grid is residing in.
-  6, 7, 8: PI, PJ, PK address of the parent grid cell that this cell is a part of.
-If the Eclipse Case is not defined, the active View in ResInsight is used.	   
+	Containing grid and ijk information about the cells from the Eclipse Case defined.
+	The columns contain the following information:
+		1: GridIndex: The index of the grid the cell resides in. (Main grid has index 0) 
+		2, 3, 4: I, J, K: 1-based index address of the cell in the grid.
+		5: ParentGridIndex. The index to the grid that this cell's grid is residing in.
+		6, 7, 8: PI, PJ, PK address of the parent grid cell that this cell is a part of.
+	If the Eclipse Case is not defined, the active View in ResInsight is used.	   
 
 
 
 Matrix[g0I, g0J, g0K; ... ; gnI, gnJ, gnK] riGetGridDimensions ( [CaseName/CaseIndex]) 
 
-Returns a matrix: [NuberOfGrids][3] 
-containing the I, J, K dimentions of the main grid and all the LGR's
+	Returns a matrix: [NuberOfGrids][3] 
+	containing the I, J, K dimentions of the main grid and all the LGR's
 
 
 NumberOfGrids riGetNumLGRs([Casename/CaseIndex])
 
-Returns an integer telling the number of LGRS in this case 
+	Returns an integer telling the number of LGRS in this case 
 
 
 Matrix[numI][numJ][numK][timeSteps] riGetGridProperty( [Casename/CaseIndex], GridIndex , PropertyName )
 Matrix[numI][numJ][numK]            riGetGridProperty( [Casename/CaseIndex], GridIndex , PropertyName, TimeStep )
 
-Returns a 4D or 3D matrix of the requested property data for all the gridcells in the requested grid.
-Grids are indexed from 0 - main grid to Max num LGR's 
+	Returns a 4D or 3D matrix of the requested property data for all the gridcells in the requested grid.
+	Grids are indexed from 0 - main grid to Max num LGR's 
 
 
 Vector[Casenames] riGetCaseNames()
  
-Returns a vector of all the case names in the current ResInsight project
-Use this to determine the number of cases as well
+	Returns a vector of all the case names in the current ResInsight project
+	Use this to determine the number of cases as well
 
 
 Vector[Dates] riGetTimestepDates([Casename/CaseIndex])
 
-Returns a vector of all the timesteps in a case as dates YYYY.MM.DD 
+	Returns a vector of all the timesteps in a case as dates YYYY.MM.DD 
 
 
 Vector[Days] riGetTimestepDays([Casename/CaseIndex])
 
-Returns a vector of all the timesteps in a case as days from start
+	Returns a vector of all the timesteps in a case as days from start
 
 
+Cell geometry functions:
+=================================
+
+Matrix[numI*Vector(3)][numJ*Vec(3)] [numK*Vec(3)] riGetCellCenters( [Casename/CaseIndex], GridIndex )
+
+	Returns the UTM coordinates (X, Y, Z) for centerpoint of all cells
+
+
+Matrix[numI*8*Vector(3)][numJ*8*Vec(3)] [numK*8*Vec(3)] riGetCellCorners( [Casename/CaseIndex], GridIndex )
+
+	Returns the UTM coordinates of the each cells 8 corners
+
+
+Well data functions
+=================================
+Vector[WellNames] riGetWellNames([Casename/CaseIndex])
+
+	Returns the names of all the wells in the case
+
+Vector[ I, J, K, GridNr] riGetWellCells([Casename/CaseIndex], WellName/WellIndex, TimeStep, Producing/Injecting/Any)
+
+	Returns the cells that has the requested production status for the given well and timestep
+
+Comments
+=================================
+“Execute for all cases within group” in script-tree
+
+Well trajectories (alternative trajectory like Planned / Drilled /Real Time/ Project ahead?)
+riGetTrajectories(well, case) ? MD, Inc, Az, Norht(X), East(Y), TVD(Z),DLS,BUR,TR,prop/log/connections?
+
+Operator to restrict operation to be carried out inside a given polygon object
+riInside(polygon)
 
 Set Octave function Case ID as a function parameter (enable for loops)
 Write grid data to file on .grdecl format (and read & append?)
-
-Grid functions:
-
-riGetCellCenter(case), – give UTM coordinates (X, Y, Z) for centerpoint of all cells
-riGetCellCorner(case)  – give UTM koordinatene (X,Y, Z) for all 8 cell corner points for all cells
-riGetCellValue(parameter, I, J, K, case) (if needed , ref  choice of array type)
-Operator to restrict operation to be carried out inside a given polygon object
-riInside(polygon)
-Well data:
-Well names
-riGetWellNames(case)
-Well trajectories (alternative trajectory like Planned / Drilled /Real Time/ Project ahead?)
-riGetTrajectories(well, case) ? MD, Inc, Az, Norht(X), East(Y), TVD(Z),DLS,BUR,TR,prop/log/connections?
-“Execute for all cases within group” in script-tree
