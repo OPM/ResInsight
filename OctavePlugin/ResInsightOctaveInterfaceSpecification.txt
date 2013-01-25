@@ -1,18 +1,26 @@
-Vector(3)[ICount, JCount, KCount] riGetMainGridDimensions( [CaseName/CaseIndex])
+Considerations
+==================================
 
-	Returns a vector of size 3: [ICount, JCount, KCount] 
-	Containing the dimensions of the main grid in the requested case.
-	If the Eclipse Case is not defined, the active View in ResInsight is used."
-
-
-riSetActiveCellProperty( Matrix(nActiveCells, nTimesteps), [CaseName/CaseIndex], PropertyName )
-
-	Interprets the supplied matrix as an eclipse property set, and puts the data into
-	ResInsight as a "Generated" property with the name "PropertyName". The property
-	is added to the active case if no case specification is given, or to the Eclipse Case
-	named "CaseName" or to the case number "CaseIndex". "
+This function interface towards ResInsight is curre
+1. Calling an Octave Script for each selected Case 
+	OR Creating Scripts that loops over all selections in ResInsight ?
+	Both ? How should these two ways relate ?
+2. How do we address Cases in the future when we have Case Groups ?
+3. Do we need functions to retreive the selected/active cases ?
+3. Do we need functions to retreive info on what Parent cells an LGR occupies ?
 
 
+Project Information
+==================================
+
+Vector[Casenames] riGetCaseNames()
+ 
+	Returns a vector of all the case names in the current ResInsight project
+	Use this to determine the number of cases as well
+
+
+Retreiving property data
+==================================
 
 Matrix[ActiveCells][Timesteps] riGetActiveCellProperty( [CaseName/CaseIndex], PropertyName )
 
@@ -22,6 +30,33 @@ Matrix[ActiveCells][Timesteps] riGetActiveCellProperty( [CaseName/CaseIndex], Pr
 	If the Eclipse Case is not defined, the active View in ResInsight is used.		
 
 
+Matrix[numI][numJ][numK][timeSteps] riGetGridProperty( [Casename/CaseIndex], GridIndex , PropertyName )
+Matrix[numI][numJ][numK]            riGetGridProperty( [Casename/CaseIndex], GridIndex , PropertyName, TimeStep )
+
+	Returns a 4D or 3D matrix of the requested property data for all the gridcells in the requested grid.
+	Grids are indexed from 0 - main grid to Max num LGR's 
+	
+Writing Back to ResInsight
+==================================
+
+riSetActiveCellProperty( Matrix(nActiveCells, nTimesteps), [CaseName/CaseIndex], PropertyName )
+
+	Interprets the supplied matrix as an eclipse property set, and puts the data into
+	ResInsight as a "Generated" property with the name "PropertyName". The property
+	is added to the active case if no case specification is given, or to the Eclipse Case
+	named "CaseName" or to the case number "CaseIndex". "
+
+
+riSetGridProperty( Matrix[numI][numJ][numK][timeSteps] , [CaseName/CaseIndex], GridIndex, PropertyName )
+riSetGridProperty( Matrix[numI][numJ][numK], 			 [CaseName/CaseIndex], GridIndex, PropertyName , TimeStep)
+	
+	Interprets the supplied matrix as an eclipse property set defined for all cells in one of the grids in a case,
+	and puts the data into ResInsight as a "Generated" property with the name "PropertyName". The property
+	is added to the active case if no case specification is given, or to the Eclipse Case
+	named "CaseName" or to the case number "CaseIndex". "
+
+Retreiving Grid Metadata
+==================================
 
 Matrix[ActiveCells][8] riGetActiveCellInfo( [CaseName/CaseIndex])
 
@@ -41,24 +76,17 @@ Matrix[g0I, g0J, g0K; ... ; gnI, gnJ, gnK] riGetGridDimensions ( [CaseName/CaseI
 
 	Returns a matrix: [NuberOfGrids][3] 
 	containing the I, J, K dimentions of the main grid and all the LGR's
+	
+# Unnecessary ? # Vector(3)[ICount, JCount, KCount] riGetMainGridDimensions( [CaseName/CaseIndex])
+# Unnecessary ? # 
+# Unnecessary ? # 	Returns a vector of size 3: [ICount, JCount, KCount] 
+# Unnecessary ? # 	Containing the dimensions of the main grid in the requested case.
+# Unnecessary ? # 	If the Eclipse Case is not defined, the active View in ResInsight is used."
+# Unnecessary ? # 
+# Unnecessary ? # NumberOfGrids riGetNumLGRs([Casename/CaseIndex])
+# Unnecessary ? # 
+# Unnecessary ? # 	Returns an integer telling the number of LGRS in this case 
 
-
-NumberOfGrids riGetNumLGRs([Casename/CaseIndex])
-
-	Returns an integer telling the number of LGRS in this case 
-
-
-Matrix[numI][numJ][numK][timeSteps] riGetGridProperty( [Casename/CaseIndex], GridIndex , PropertyName )
-Matrix[numI][numJ][numK]            riGetGridProperty( [Casename/CaseIndex], GridIndex , PropertyName, TimeStep )
-
-	Returns a 4D or 3D matrix of the requested property data for all the gridcells in the requested grid.
-	Grids are indexed from 0 - main grid to Max num LGR's 
-
-
-Vector[Casenames] riGetCaseNames()
- 
-	Returns a vector of all the case names in the current ResInsight project
-	Use this to determine the number of cases as well
 
 
 Vector[Dates] riGetTimestepDates([Casename/CaseIndex])
@@ -94,7 +122,7 @@ Vector[ I, J, K, GridNr] riGetWellCells([Casename/CaseIndex], WellName/WellIndex
 
 	Returns the cells that has the requested production status for the given well and timestep
 
-Comments
+Comments to remember/consider
 =================================
 “Execute for all cases within group” in script-tree
 
