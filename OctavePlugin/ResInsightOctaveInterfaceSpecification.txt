@@ -1,13 +1,21 @@
 Considerations
 ==================================
 
-This function interface towards ResInsight is curre
-1. Calling an Octave Script for each selected Case 
-	OR Creating Scripts that loops over all selections in ResInsight ?
-	Both ? How should these two ways relate ?
-2. How do we address Cases in the future when we have Case Groups ?
-3. Do we need functions to retreive the selected/active cases ?
-3. Do we need functions to retreive info on what Parent cells an LGR occupies ?
+This function interface towards ResInsight is currently a Draft, 
+and not addressing some issues. The known issues are :
+
+1. How do we address Cases in the future when we have Case Groups ?
+   Where do we write/store the generated data ?
+2. Users wants to run octave operations on several cases/groups.
+   There are two ways (at least) of doing that. Either from ResInsight:
+		1 Command to call a specified Octave Script for each selected Case 
+		2 Creating Scripts that loops over all selections in ResInsight
+	Option 2 is needed if users wants to do cross-case operations 
+	Option 1 seems intuitive for one case operations
+	How does these two relate ?
+
+3. Do we need functions to retreive the selected/active cases/groups ?
+4. Do we need functions to retreive info on what Parent cells an LGR occupies ?
 
 
 Project Information
@@ -17,6 +25,52 @@ Vector[Casenames] riGetCaseNames()
  
 	Returns a vector of all the case names in the current ResInsight project
 	Use this to determine the number of cases as well
+	
+	This probably needs some additions related to Case Groups
+
+
+Retreiving Grid Metadata
+==================================
+
+Matrix[ActiveCells][8] riGetActiveCellInfo( [CaseName/CaseIndex])
+
+	Returns a two dimensional matrix: [ActiveCells][8]
+
+	Containing grid and ijk information about the cells from the Eclipse Case defined.
+	The columns contain the following information:
+		1: GridIndex: The index of the grid the cell resides in. (Main grid has index 0) 
+		2, 3, 4: I, J, K: 1-based index address of the cell in the grid.
+		5: ParentGridIndex. The index to the grid that this cell's grid is residing in.
+		6, 7, 8: PI, PJ, PK address of the parent grid cell that this cell is a part of.
+	If the Eclipse Case is not defined, the active View in ResInsight is used.	   
+
+
+
+Matrix[g0I, g0J, g0K; ... ; gnI, gnJ, gnK] riGetGridDimensions ( [CaseName/CaseIndex]) 
+
+	Returns a matrix: [NuberOfGrids][3] 
+	containing the I, J, K dimensions of the main grid and all the LGR's
+	
+# Unnecessary ? # Vector(3)[ICount, JCount, KCount] riGetMainGridDimensions( [CaseName/CaseIndex])
+# Unnecessary ? # 
+# Unnecessary ? # 	Returns a vector of size 3: [ICount, JCount, KCount] 
+# Unnecessary ? # 	Containing the dimensions of the main grid in the requested case.
+# Unnecessary ? # 	If the Eclipse Case is not defined, the active View in ResInsight is used."
+# Unnecessary ? # 
+# Unnecessary ? # NumberOfGrids riGetNumLGRs([Casename/CaseIndex])
+# Unnecessary ? # 
+# Unnecessary ? # 	Returns an integer telling the number of LGRS in this case 
+
+
+
+Vector[Dates] riGetTimestepDates([Casename/CaseIndex])
+
+	Returns a vector of all the timesteps in a case as dates YYYY.MM.DD 
+
+
+Vector[Days] riGetTimestepDays([Casename/CaseIndex])
+
+	Returns a vector of all the timesteps in a case as days from start
 
 
 Retreiving property data
@@ -55,50 +109,6 @@ riSetGridProperty( Matrix[numI][numJ][numK], 			 [CaseName/CaseIndex], GridIndex
 	is added to the active case if no case specification is given, or to the Eclipse Case
 	named "CaseName" or to the case number "CaseIndex". "
 
-Retreiving Grid Metadata
-==================================
-
-Matrix[ActiveCells][8] riGetActiveCellInfo( [CaseName/CaseIndex])
-
-	Returns a two dimentional matrix: [ActiveCells][8]
-
-	Containing grid and ijk information about the cells from the Eclipse Case defined.
-	The columns contain the following information:
-		1: GridIndex: The index of the grid the cell resides in. (Main grid has index 0) 
-		2, 3, 4: I, J, K: 1-based index address of the cell in the grid.
-		5: ParentGridIndex. The index to the grid that this cell's grid is residing in.
-		6, 7, 8: PI, PJ, PK address of the parent grid cell that this cell is a part of.
-	If the Eclipse Case is not defined, the active View in ResInsight is used.	   
-
-
-
-Matrix[g0I, g0J, g0K; ... ; gnI, gnJ, gnK] riGetGridDimensions ( [CaseName/CaseIndex]) 
-
-	Returns a matrix: [NuberOfGrids][3] 
-	containing the I, J, K dimentions of the main grid and all the LGR's
-	
-# Unnecessary ? # Vector(3)[ICount, JCount, KCount] riGetMainGridDimensions( [CaseName/CaseIndex])
-# Unnecessary ? # 
-# Unnecessary ? # 	Returns a vector of size 3: [ICount, JCount, KCount] 
-# Unnecessary ? # 	Containing the dimensions of the main grid in the requested case.
-# Unnecessary ? # 	If the Eclipse Case is not defined, the active View in ResInsight is used."
-# Unnecessary ? # 
-# Unnecessary ? # NumberOfGrids riGetNumLGRs([Casename/CaseIndex])
-# Unnecessary ? # 
-# Unnecessary ? # 	Returns an integer telling the number of LGRS in this case 
-
-
-
-Vector[Dates] riGetTimestepDates([Casename/CaseIndex])
-
-	Returns a vector of all the timesteps in a case as dates YYYY.MM.DD 
-
-
-Vector[Days] riGetTimestepDays([Casename/CaseIndex])
-
-	Returns a vector of all the timesteps in a case as days from start
-
-
 Cell geometry functions:
 =================================
 
@@ -122,6 +132,7 @@ Vector[ I, J, K, GridNr] riGetWellCells([Casename/CaseIndex], WellName/WellIndex
 
 	Returns the cells that has the requested production status for the given well and timestep
 
+	
 Comments to remember/consider
 =================================
 “Execute for all cases within group” in script-tree
