@@ -118,12 +118,12 @@ cvf::ref<RifReaderInterface> RimResultReservoir::createMockModel(QString modelNa
         mockFileInterface->open("", reservoir.p());
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
-            reservoir->mainGrid()->cell(idx).setActive(false);
+            reservoir->mainGrid()->cell(idx).setMatrixActive(false);
         }
 
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
-            reservoir->mainGrid()->cell(idx).setActive(false);
+            reservoir->mainGrid()->cell(idx).setMatrixActive(false);
         }
     }
     else if (modelName == "Result Mock Debug Model With Results")

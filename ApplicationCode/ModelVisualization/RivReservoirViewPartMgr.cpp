@@ -475,8 +475,8 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
         const RigCell& cell = grid->cell(cellIndex);
 
         if (   !invalidCellsIsVisible && cell.isInvalid() 
-            || !inactiveCellsIsVisible && !cell.active()
-            || !activeCellsIsVisible && cell.active()
+            || !inactiveCellsIsVisible && !cell.matrixActive()
+            || !activeCellsIsVisible && cell.matrixActive()
             || mainGridIsVisible && (cell.subGrid() != NULL)
             || cell.isWellCell()
             )

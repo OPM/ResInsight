@@ -37,8 +37,8 @@ public:
     caf::SizeTArray8&       cornerIndices()                                 { return m_cornerIndices;}
     const caf::SizeTArray8& cornerIndices() const                           { return m_cornerIndices;}
 
-    bool                    active() const                                      { return m_isActive; }
-    void                    setActive(bool val)                                 { m_isActive = val; }
+    bool                    matrixActive() const                                { return m_isMatrixActive; }
+    void                    setMatrixActive(bool val)                           { m_isMatrixActive = val; }
 
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
@@ -73,7 +73,7 @@ public:
 private:
     caf::SizeTArray8        m_cornerIndices;
     
-    bool                    m_isActive;
+    bool                    m_isMatrixActive;
     bool                    m_isInvalid;
     bool                    m_isWellCell;
 

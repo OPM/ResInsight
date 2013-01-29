@@ -1199,7 +1199,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                                 for ( fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
                                 {
                                     size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
-                                    if (grid->cell(fenceCellIndex).active())
+                                    if (grid->cell(fenceCellIndex).matrixActive())
                                     {
                                         (*visibleCells)[fenceCellIndex] = true;
                                     }

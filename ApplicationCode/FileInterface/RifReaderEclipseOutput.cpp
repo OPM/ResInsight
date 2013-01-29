@@ -83,7 +83,7 @@ static const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 // Static functions
 //**************************************************************************************************
 
-bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const ecl_grid_type* localEclGrid, size_t activeStartIndex)
+bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const ecl_grid_type* localEclGrid, size_t matrixActiveStartIndex)
 {
     int cellCount = ecl_grid_get_global_size(localEclGrid);
     size_t cellStartIndex = mainGrid->cells().size();
@@ -112,9 +112,9 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         //cell.setInvalid(invalid);
 
         cell.setCellIndex(gIdx);
-        bool active = ecl_grid_cell_active1(localEclGrid, gIdx);
-        cell.setActive(active);
-        cell.setGlobalMatrixActiveIndex(active ? activeStartIndex + ecl_grid_get_active_index1(localEclGrid, gIdx) : cvf::UNDEFINED_SIZE_T);
+        bool matrixActive = ecl_grid_cell_active1(localEclGrid, gIdx);
+        cell.setMatrixActive(matrixActive);
+        cell.setGlobalMatrixActiveIndex(matrixActive ? matrixActiveStartIndex + ecl_grid_get_active_index1(localEclGrid, gIdx) : cvf::UNDEFINED_SIZE_T);
 
         int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gIdx);
         if (parentCellIndex == -1)
@@ -258,15 +258,15 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 
     progInfo.setProgress(3);
 
-    size_t globalActiveSize = ecl_grid_get_active_size(mainEclGrid);
+    size_t globalMatrixActiveSize = ecl_grid_get_active_size(mainEclGrid);
 
     for (lgrIdx = 0; lgrIdx < numLGRs; ++lgrIdx)
     {
         progInfo.setProgressDescription("LGR number " + QString::number(lgrIdx+1));
 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
-        transferGridCellData(mainGrid, static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1)), localEclGrid, globalActiveSize);
-        globalActiveSize += ecl_grid_get_active_size(localEclGrid);
+        transferGridCellData(mainGrid, static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1)), localEclGrid, globalMatrixActiveSize);
+        globalMatrixActiveSize += ecl_grid_get_active_size(localEclGrid);
         progInfo.setProgress(3 + lgrIdx);
     }
 

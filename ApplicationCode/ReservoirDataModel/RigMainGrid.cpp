@@ -93,7 +93,7 @@ size_t RigMainGrid::numActiveCells()
     size_t i;
     for (i = 0; i < m_cells.size(); i++)
     {
-        if (m_cells[i].active()) numActiveCells++;
+        if (m_cells[i].matrixActive()) numActiveCells++;
     }
 
     m_activeCellCount = numActiveCells;
@@ -183,7 +183,7 @@ void RigMainGrid::computeActiveAndValidCellRanges()
             validBB.add(i, j, k);
         }
 
-        if (c.active())
+        if (c.matrixActive())
         {
             activeBB.add(i, j, k);
         }
@@ -222,7 +222,7 @@ void RigMainGrid::computeBoundingBox()
         for (i = 0; i < cellCount(); i++)
         {
             const RigCell& c = cell(i);
-            if (c.active())
+            if (c.matrixActive())
             {
                 const caf::SizeTArray8& indices = c.cornerIndices();
 
@@ -286,7 +286,7 @@ void RigMainGrid::calculateActiveCellInfo(std::vector<qint32> &gridNumber,
 
     for (size_t cIdx = 0; cIdx < m_cells.size(); ++cIdx)
     {
-        if (m_cells[cIdx].active())
+        if (m_cells[cIdx].matrixActive())
         {
             RigGridBase* grid = m_cells[cIdx].hostGrid();
             CVF_ASSERT(grid != NULL);

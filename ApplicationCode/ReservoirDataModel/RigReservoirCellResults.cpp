@@ -519,7 +519,7 @@ void RigReservoirCellResults::computeDepthRelatedResults()
     {
         const RigCell& cell = m_ownerMainGrid->cells()[cellIdx];
 
-        if (computeValuesForActiveCellsOnly && !cell.active())
+        if (computeValuesForActiveCellsOnly && !cell.matrixActive())
         {
             continue;
         }

@@ -152,7 +152,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
         riCell.cornerIndices()[7] = nodeStartIndex + i * 8 + 7;
 
         riCell.setParentCellIndex(0);
-        if (!(i % 5)) riCell.setActive(false);
+        if (!(i % 5)) riCell.setMatrixActive(false);
 
         cells.push_back(riCell);
     }
@@ -288,7 +288,7 @@ bool RigReservoirBuilderMock::staticResult(RigReservoir* reservoir, const QStrin
     for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
     {
         RigCell& cell = reservoir->mainGrid()->cells()[k];
-        if (cell.active())
+        if (cell.matrixActive())
         {
             if (cell.hostGrid() == reservoir->mainGrid())
             {
@@ -330,7 +330,7 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
     for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
     {
         RigCell& cell = reservoir->mainGrid()->cells()[k];
-        if (cell.active())
+        if (cell.matrixActive())
         {
             if (cell.hostGrid() == reservoir->mainGrid())
             {
