@@ -368,7 +368,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 
         // Get the names of the static results
         QStringList staticResults;
-        initFile->keywordsOnFile(&staticResults, numActiveCells);
+        initFile->keywordsWithGivenResultValueCount(&staticResults, numActiveCells);
         QStringList staticResultNames = staticResults;
 
         QList<QDateTime> staticDate;

@@ -131,7 +131,7 @@ QStringList RifEclipseRestartFilesetAccess::resultNames()
 
     // Get the results found on the first file
     QStringList resultsList;
-    m_files[0]->keywordsOnFile(&resultsList, m_numActiveCells, 1);
+    m_files[0]->keywordsWithGivenResultValueCount(&resultsList, m_numActiveCells, 1);
 
     return resultsList;
 }

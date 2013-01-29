@@ -114,7 +114,7 @@ QStringList RifEclipseUnifiedRestartFileAccess::resultNames()
 {
     // Get the results found on the UNRST file
     QStringList resultsList;
-    m_file->keywordsOnFile(&resultsList, m_numActiveCells, numTimeSteps());
+    m_file->keywordsWithGivenResultValueCount(&resultsList, m_numActiveCells, numTimeSteps());
 
     return resultsList;
 }

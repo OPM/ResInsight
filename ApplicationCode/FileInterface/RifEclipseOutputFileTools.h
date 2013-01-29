@@ -43,7 +43,7 @@ public:
     void                close();
 
     int                 numOccurrences(const QString& keyword);
-    bool                keywordsOnFile(QStringList* keywords, size_t numDataItems = cvf::UNDEFINED_SIZE_T, size_t numSteps = cvf::UNDEFINED_SIZE_T);
+    bool                keywordsWithGivenResultValueCount(QStringList* keywords, size_t expectedResultValueCount = cvf::UNDEFINED_SIZE_T, size_t numSteps = cvf::UNDEFINED_SIZE_T);
 
     bool                timeStepsText(QStringList* timeSteps);
     bool                timeSteps(QList<QDateTime>* timeSteps);

@@ -85,7 +85,7 @@ int RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
 /// Get keywords found on file given by name.
 /// If numDataItems != cvf::UNDEFINED_SIZE_T, get keywords with that exact number of data items only.
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t numDataItems, size_t numSteps)
+bool RifEclipseOutputFileTools::keywordsWithGivenResultValueCount(QStringList* keywords, size_t expectedResultValueCount, size_t numSteps)
 {
     CVF_ASSERT(m_file);
     CVF_ASSERT(keywords);
@@ -98,16 +98,16 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
     for (int i = 0; i < numKeywords; i++)
     {
         const char* kw = ecl_file_iget_distinct_kw(m_file , i);
-        int numKWOccurences = ecl_file_get_num_named_kw(m_file, kw);
+        int numKeywordOccurrences = ecl_file_get_num_named_kw(m_file, kw);
 
-        if (numDataItems != cvf::UNDEFINED_SIZE_T)
+        if (expectedResultValueCount != cvf::UNDEFINED_SIZE_T)
         {
             bool dataTypeSupported = true;
-            int numKWValues = 0;
+            int fileResultValueCount = 0;
             int j;
-            for (j = 0; j < numKWOccurences; j++)
+            for (j = 0; j < numKeywordOccurrences; j++)
             {
-                numKWValues += ecl_file_iget_named_size(m_file, kw, j);
+                fileResultValueCount += ecl_file_iget_named_size(m_file, kw, j);
 
                 // Check the data type - only float and double are supported
                 ecl_type_enum dataType = ecl_file_iget_named_type(m_file, kw, j);
@@ -122,11 +122,11 @@ bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t num
             {
                 if (numSteps != cvf::UNDEFINED_SIZE_T && numSteps > 0)
                 {
-                    numKWValues /= static_cast<int>(numSteps);
+                    fileResultValueCount /= static_cast<int>(numSteps);
                 }
 
                 // Append keyword to the list if it has the given number of values in total
-                if (numKWValues == static_cast<int>(numDataItems))
+                if (fileResultValueCount == static_cast<int>(expectedResultValueCount))
                 {
                     keywords->append(QString(kw));
                 }
