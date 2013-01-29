@@ -299,7 +299,7 @@ bool RigReservoirBuilderMock::staticResult(RigReservoir* reservoir, const QStrin
                 values->push_back(500);
             }
 
-            cell.setGlobalActiveIndex(rIdx);
+            cell.setGlobalMatrixActiveIndex(rIdx);
             ++rIdx;
 
         }
@@ -342,7 +342,7 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
                 values->push_back(500);
             }
 
-            cell.setGlobalActiveIndex(rIdx);
+            cell.setGlobalMatrixActiveIndex(rIdx);
             ++rIdx;
         }
     }

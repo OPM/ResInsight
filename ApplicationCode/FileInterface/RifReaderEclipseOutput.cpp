@@ -114,7 +114,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         cell.setCellIndex(gIdx);
         bool active = ecl_grid_cell_active1(localEclGrid, gIdx);
         cell.setActive(active);
-        cell.setGlobalActiveIndex(active ? activeStartIndex + ecl_grid_get_active_index1(localEclGrid, gIdx) : cvf::UNDEFINED_SIZE_T);
+        cell.setGlobalMatrixActiveIndex(active ? activeStartIndex + ecl_grid_get_active_index1(localEclGrid, gIdx) : cvf::UNDEFINED_SIZE_T);
 
         int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gIdx);
         if (parentCellIndex == -1)

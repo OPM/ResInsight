@@ -607,7 +607,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                         size_t resultValueIndex = cellIndex;
                         if (useGlobalActiveIndex)
                         {
-                            resultValueIndex = grid->cell(cellIndex).globalActiveIndex();
+                            resultValueIndex = grid->cell(cellIndex).globalMatrixActiveIndex();
                         }
                         
                         double scalarValue = grid->mainGrid()->results()->cellScalarResult(timeStepIndex, scalarResultIndex, resultValueIndex);

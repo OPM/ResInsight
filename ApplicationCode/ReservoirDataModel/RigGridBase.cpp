@@ -255,7 +255,7 @@ double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size
     bool useGlobalActiveIndex = m_mainGrid->results()->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
-        resultValueIndex = cell(cellIndex).globalActiveIndex();
+        resultValueIndex = cell(cellIndex).globalMatrixActiveIndex();
         if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
     }
     

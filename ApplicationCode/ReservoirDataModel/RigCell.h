@@ -49,8 +49,8 @@ public:
     size_t                  cellIndex() const                                   { return m_cellIndex; }
     void                    setCellIndex(size_t val)                            { m_cellIndex = val; }
 
-    size_t                  globalActiveIndex() const                           { return m_globalActiveIndex; }
-    void                    setGlobalActiveIndex(size_t val)                    { m_globalActiveIndex = val; }
+    size_t                  globalMatrixActiveIndex() const                     { return m_globalMatrixActiveIndex; }
+    void                    setGlobalMatrixActiveIndex(size_t val)              { m_globalMatrixActiveIndex = val; }
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
@@ -85,6 +85,6 @@ private:
     size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
     size_t                  m_mainGridCellIndex;
 
-    size_t                  m_globalActiveIndex; ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
-    size_t                  m_cellIndex; ///< This cells index in the grid it belongs to.
+    size_t                  m_globalMatrixActiveIndex;  ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
+    size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
 };

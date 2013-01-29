@@ -41,7 +41,7 @@ RigCell::RigCell() :
     m_isActive(true),
     m_isInvalid(false),
     m_isWellCell(false),
-    m_globalActiveIndex(cvf::UNDEFINED_SIZE_T),
+    m_globalMatrixActiveIndex(cvf::UNDEFINED_SIZE_T),
     m_cellIndex(cvf::UNDEFINED_SIZE_T)
 {
     memcpy(m_cornerIndices.m_array, undefinedCornersArray, 8*sizeof(size_t));
