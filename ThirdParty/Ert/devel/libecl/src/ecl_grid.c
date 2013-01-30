@@ -2991,7 +2991,8 @@ int ecl_grid_get_active_fracture_index3(const ecl_grid_type * ecl_grid , int i ,
 */
 
 int ecl_grid_get_active_fracture_index1(const ecl_grid_type * ecl_grid , int global_index) {
-  return ecl_grid->fracture_index_map[global_index];
+    if (!ecl_grid->fracture_index_map) return -1;
+    return ecl_grid->fracture_index_map[global_index];
 }
 
 
