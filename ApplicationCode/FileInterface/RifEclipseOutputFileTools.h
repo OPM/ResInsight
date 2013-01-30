@@ -28,6 +28,8 @@
 
 #include "ecl_file.h"
 
+#include "RifReaderInterface.h"
+
 //==================================================================================================
 //
 // Class for access to Eclipse "keyword" files using libecl
@@ -39,16 +41,19 @@ public:
     RifEclipseOutputFileTools();
     virtual ~RifEclipseOutputFileTools();
 
-    bool                open(const QString& fileName);
+    bool                open(const QString& fileName, const std::vector<size_t>& matrixActiveCellCounts, const std::vector<size_t>& fractureActiveCellCounts);
     void                close();
 
     int                 numOccurrences(const QString& keyword);
-    bool                keywordsWithGivenResultValueCount(QStringList* keywords, size_t expectedResultValueCount = cvf::UNDEFINED_SIZE_T, size_t numSteps = cvf::UNDEFINED_SIZE_T);
+    
+    bool                validKeywords(QStringList* keywords, RifReaderInterface::PorosityModelResultType matrixOrFracture);
 
     bool                timeStepsText(QStringList* timeSteps);
     bool                timeSteps(QList<QDateTime>* timeSteps);
 
-    bool                keywordData(const QString& keyword, size_t index, std::vector<double>* values);
+    bool                keywordData(const QString& keyword, size_t fileKeywordOccurrence,
+                                    RifReaderInterface::PorosityModelResultType matrixOrFracture,
+                                    std::vector<double>* values);
 
     ecl_file_type*      filePointer();
 
@@ -60,4 +65,11 @@ public:
 
 protected:
     ecl_file_type*      m_file;
+
+private:
+    std::vector<size_t> m_numMatrixActiveCellCounts;
+    std::vector<size_t> m_numFractureActiveCellCount;
+
+    size_t m_globalMatrixActiveCellCounts;
+    size_t m_globalFractureActiveCellCounts;
 };

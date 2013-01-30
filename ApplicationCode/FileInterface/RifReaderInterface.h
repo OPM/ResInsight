@@ -36,14 +36,20 @@ class RigReservoir;
 class RifReaderInterface : public cvf::Object
 {
 public:
+    enum PorosityModelResultType
+    {
+        MATRIX_RESULTS,
+        FRACTURE_RESULTS
+    };
+
+public:
     RifReaderInterface() {}
     virtual ~RifReaderInterface() {}
 
     virtual bool                open(const QString& fileName, RigReservoir* reservoir) = 0;
     virtual void                close() = 0;
    
-    virtual bool                staticResult(const QString& result, std::vector<double>* values) = 0;
-    virtual bool                dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values) = 0;
-
+    virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;
+    virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
 };
 

@@ -43,8 +43,10 @@ public:
     RigReservoirCellResults*		        results() {return m_results.p();}
     const RigReservoirCellResults*          results() const {return m_results.p();}
 
-    size_t                                  globalMatrixActiveCellCount();
-    void                                    activeCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
+    size_t                                  globalMatrixModelActiveCellCount();
+    size_t                                  globalFractureModelActiveCellCount();
+
+    void                                    matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
     void                                    validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
 
     void                                    addLocalGrid(RigLocalGrid* localGrid);
@@ -52,7 +54,7 @@ public:
     RigGridBase*                            gridByIndex(size_t localGridIndex);
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
     
-    void                                    calculateActiveCellInfo(std::vector<qint32>& gridNumber,
+    void                                    calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
                                                                     std::vector<qint32>& i,
                                                                     std::vector<qint32>& j,
                                                                     std::vector<qint32>& k,
@@ -62,7 +64,7 @@ public:
                                                                     std::vector<qint32>& hostCellK);
     void                                    computeCachedData();
 
-    cvf::BoundingBox                        activeCellsBoundingBox() const;
+    cvf::BoundingBox                        matrixModelActiveCellsBoundingBox() const;
 
     // Overrides
     virtual cvf::Vec3d                      displayModelOffset() const;
@@ -72,6 +74,7 @@ private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    computeActiveAndValidCellRanges();
     void                                    computeBoundingBox();
+    void                                    computeGlobalActiveCellCount();
     void                                    computeActiveCellCountForAllGrids();
 
 private:
@@ -79,7 +82,8 @@ private:
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
     cvf::ref<RigReservoirCellResults>       m_results;
-    size_t                                  m_globalMatrixActiveCellCount;
+    size_t                                  m_globalMatrixModelActiveCellCount;
+    size_t                                  m_globalFractureModelActiveCellCount;
 
     cvf::Vec3st                             m_activeCellPositionMin;
     cvf::Vec3st                             m_activeCellPositionMax;

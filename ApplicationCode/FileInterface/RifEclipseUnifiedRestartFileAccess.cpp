@@ -27,9 +27,10 @@
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseUnifiedRestartFileAccess::RifEclipseUnifiedRestartFileAccess(size_t numGrids, size_t numActiveCells)
-    : RifEclipseRestartDataAccess(numGrids, numActiveCells)
+RifEclipseUnifiedRestartFileAccess::RifEclipseUnifiedRestartFileAccess()
+    : RifEclipseRestartDataAccess()
 {
+    m_gridCount = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,17 +44,19 @@ RifEclipseUnifiedRestartFileAccess::~RifEclipseUnifiedRestartFileAccess()
 //--------------------------------------------------------------------------------------------------
 /// Open file
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet)
+bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts)
 {
     QString fileName = fileSet[0];
 
     cvf::ref<RifEclipseOutputFileTools> fileAccess = new RifEclipseOutputFileTools;
-    if (!fileAccess->open(fileName))
+    if (!fileAccess->open(fileName, matrixModelActiveCellCounts, fractureModelActiveCellCounts))
     {
         return false;
     }
 
     m_file = fileAccess;
+
+    m_gridCount = matrixModelActiveCellCounts.size();
 
     return true;
 }
@@ -114,7 +117,7 @@ QStringList RifEclipseUnifiedRestartFileAccess::resultNames()
 {
     // Get the results found on the UNRST file
     QStringList resultsList;
-    m_file->keywordsWithGivenResultValueCount(&resultsList, m_numActiveCells, numTimeSteps());
+    m_file->validKeywords(&resultsList, RifReaderInterface::MATRIX_RESULTS);
 
     return resultsList;
 }
@@ -122,17 +125,17 @@ QStringList RifEclipseUnifiedRestartFileAccess::resultNames()
 //--------------------------------------------------------------------------------------------------
 /// Get result values for given time step
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size_t timeStep, std::vector<double>* values)
+bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values)
 {
     size_t numOccurrences   = m_file->numOccurrences(resultName);
-    size_t startIndex       = timeStep*m_numGrids;
-    CVF_ASSERT(startIndex + m_numGrids <= numOccurrences);
+    size_t startIndex       = timeStep * m_gridCount;
+    CVF_ASSERT(startIndex + m_gridCount <= numOccurrences);
 
-    size_t i;
-    for (i = startIndex; i < startIndex + m_numGrids; i++)
+    size_t occurrenceIdx;
+    for (occurrenceIdx = startIndex; occurrenceIdx < startIndex + m_gridCount; occurrenceIdx++)
     {
         std::vector<double> partValues;
-        if (!m_file->keywordData(resultName, i, &partValues))  // !! don't need to append afterwards
+        if (!m_file->keywordData(resultName, occurrenceIdx, matrixOrFracture, &partValues))  // !! don't need to append afterwards
         {
             return false;
         }

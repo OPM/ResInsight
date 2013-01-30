@@ -156,11 +156,11 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
 
         if (!(i % 5))
         {
-            riCell.setGlobalMatrixActiveIndex(cvf::UNDEFINED_SIZE_T);
+            riCell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
         else
         {
-            riCell.setGlobalMatrixActiveIndex(activeCellIndex++);
+            riCell.setActiveIndexInMatrixModel(activeCellIndex++);
         }
 
         cells.push_back(riCell);
@@ -296,7 +296,7 @@ bool RigReservoirBuilderMock::staticResult(RigReservoir* reservoir, const QStrin
     for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
     {
         RigCell& cell = reservoir->mainGrid()->cells()[k];
-        if (cell.matrixActive())
+        if (cell.isActiveInMatrixModel())
         {
             if (cell.hostGrid() == reservoir->mainGrid())
             {
@@ -333,7 +333,7 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
     for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
     {
         RigCell& cell = reservoir->mainGrid()->cells()[k];
-        if (cell.matrixActive())
+        if (cell.isActiveInMatrixModel())
         {
             if (cell.hostGrid() == reservoir->mainGrid())
             {

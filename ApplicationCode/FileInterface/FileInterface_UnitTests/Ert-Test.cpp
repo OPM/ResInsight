@@ -114,6 +114,6 @@ TEST(RigReservoirTest, ElipseInputGridFile)
     bool result = inputReader.open("TEST10K_FLT_LGR_NNC.grdecl", &res);
     EXPECT_TRUE(result);
     EXPECT_EQ(size_t(1), res.mainGrid()->cells().size());
-    EXPECT_EQ(size_t(1), res.mainGrid()->globalMatrixActiveCellCount());
+    EXPECT_EQ(size_t(1), res.mainGrid()->globalMatrixModelActiveCellCount());
 
 }

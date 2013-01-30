@@ -377,12 +377,12 @@ cvf::ref<RifReaderInterface> RimInputReservoir::createMockModel(QString modelNam
         mockFileInterface->open("", reservoir.p());
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
-            reservoir->mainGrid()->cell(idx).setGlobalMatrixActiveIndex(cvf::UNDEFINED_SIZE_T);
+            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
-            reservoir->mainGrid()->cell(idx).setGlobalMatrixActiveIndex(cvf::UNDEFINED_SIZE_T);
+            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         // Add a property

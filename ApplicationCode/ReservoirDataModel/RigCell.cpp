@@ -40,8 +40,8 @@ RigCell::RigCell() :
     m_hostGrid(NULL),
     m_isInvalid(false),
     m_isWellCell(false),
-    m_globalMatrixActiveIndex(cvf::UNDEFINED_SIZE_T),
-    m_globalFractureActiveIndex(cvf::UNDEFINED_SIZE_T),
+    m_activeIndexInMatrixModel(cvf::UNDEFINED_SIZE_T),
+    m_activeIndexInFractureModel(cvf::UNDEFINED_SIZE_T),
     m_cellIndex(cvf::UNDEFINED_SIZE_T)
 {
     memcpy(m_cornerIndices.m_array, undefinedCornersArray, 8*sizeof(size_t));

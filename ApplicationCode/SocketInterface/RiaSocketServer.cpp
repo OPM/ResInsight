@@ -368,7 +368,7 @@ void RiaSocketServer::readCommandFromOctave()
             return;
         }
 
-        reservoir->reservoirData()->mainGrid()->calculateActiveCellInfo(activeCellInfo[0], activeCellInfo[1], activeCellInfo[2], activeCellInfo[3],
+        reservoir->reservoirData()->mainGrid()->calculateMatrixModelActiveCellInfo(activeCellInfo[0], activeCellInfo[1], activeCellInfo[2], activeCellInfo[3],
                                                                         activeCellInfo[4], activeCellInfo[5], activeCellInfo[6], activeCellInfo[7]);
 
         // First write timestep count
@@ -441,7 +441,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
     size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->globalMatrixActiveCellCount();
+    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->globalMatrixModelActiveCellCount();
     size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
 
     if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)

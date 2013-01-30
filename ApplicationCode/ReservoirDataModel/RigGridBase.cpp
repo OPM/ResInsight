@@ -29,8 +29,8 @@ RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
     m_mainGrid(mainGrid),
     m_indexToStartOfCells(0),
-    m_matrixActiveCellCount(cvf::UNDEFINED_SIZE_T),
-    m_fractureActiveCellCount(cvf::UNDEFINED_SIZE_T)
+    m_matrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
+    m_fractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
 {
     if (mainGrid == NULL)
     {
@@ -257,7 +257,7 @@ double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size
     bool useGlobalActiveIndex = m_mainGrid->results()->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
-        resultValueIndex = cell(cellIndex).globalMatrixActiveIndex();
+        resultValueIndex = cell(cellIndex).activeIndexInMatrixModel();
         if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
     }
     
@@ -359,7 +359,7 @@ bool RigGridBase::isCellActive(size_t i, size_t j, size_t k) const
 {
     size_t idx = cellIndexFromIJK(i, j, k);
     const RigCell& c = cell(idx);
-    if (!c.matrixActive() || c.isInvalid())
+    if (!c.isActiveInMatrixModel() || c.isInvalid())
     {
         return false;
     }
@@ -529,52 +529,52 @@ double RigGridBase::characteristicCellSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::activeMatrixCellCount()
+size_t RigGridBase::matrixModelActiveCellCount()
 {
-    if (m_matrixActiveCellCount == cvf::UNDEFINED_SIZE_T)
+    if (m_matrixModelActiveCellCount == cvf::UNDEFINED_SIZE_T)
     {
-        computeMatrixAndFractureActiveCellCount();
+        computeMatrixAndFractureModelActiveCellCount();
     }
 
-    CVF_ASSERT(m_matrixActiveCellCount != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_matrixModelActiveCellCount != cvf::UNDEFINED_SIZE_T);
 
-    return m_matrixActiveCellCount;
+    return m_matrixModelActiveCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::activeFractureCellCount()
+size_t RigGridBase::fractureModelActiveCellCount()
 {
-    if (m_fractureActiveCellCount == cvf::UNDEFINED_SIZE_T)
+    if (m_fractureModelActiveCellCount == cvf::UNDEFINED_SIZE_T)
     {
-        computeMatrixAndFractureActiveCellCount();
+        computeMatrixAndFractureModelActiveCellCount();
     }
 
-    CVF_ASSERT(m_fractureActiveCellCount != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_fractureModelActiveCellCount != cvf::UNDEFINED_SIZE_T);
 
-    return m_fractureActiveCellCount;
+    return m_fractureModelActiveCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::computeMatrixAndFractureActiveCellCount()
+void RigGridBase::computeMatrixAndFractureModelActiveCellCount()
 {
-    m_matrixActiveCellCount = 0;
-    m_fractureActiveCellCount = 0;
+    m_matrixModelActiveCellCount = 0;
+    m_fractureModelActiveCellCount = 0;
 
     for (size_t i = 0; i < cellCount(); i++)
     {
         const RigCell& c = cell(i);
-        if (c.matrixActive())
+        if (c.isActiveInMatrixModel())
         {
-            m_matrixActiveCellCount++;
+            m_matrixModelActiveCellCount++;
         }
 
-        if (c.fractureActive())
+        if (c.isActiveInFractureModel())
         {
-            m_fractureActiveCellCount++;
+            m_fractureModelActiveCellCount++;
         }
     }
 }

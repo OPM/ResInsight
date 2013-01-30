@@ -91,3 +91,4 @@ bool RifReaderEclipseInput::open(const QString& fileName, RigReservoir* reservoi
     
     return isOk;
 }
+

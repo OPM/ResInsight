@@ -140,7 +140,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         size_t resultValueIndex = cellIndex;
         if (cellScalarResultUseGlobalActiveIndex)
         {
-            resultValueIndex = grid->cell(cellIndex).globalMatrixActiveIndex();
+            resultValueIndex = grid->cell(cellIndex).activeIndexInMatrixModel();
         }
 
         {
@@ -169,7 +169,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
             resultValueIndex = cellIndex;
             if (edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx])
             {
-                resultValueIndex = grid->cell(cellIndex).globalMatrixActiveIndex();
+                resultValueIndex = grid->cell(cellIndex).activeIndexInMatrixModel();
             }
 
             // Assuming static values to be mapped onto cell edge, always using time step zero

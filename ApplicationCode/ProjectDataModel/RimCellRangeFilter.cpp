@@ -119,7 +119,7 @@ void RimCellRangeFilter::setDefaultValues()
     if (mainGrid)
     {
         cvf::Vec3st min, max;
-        mainGrid->activeCellsBoundingBox(min, max);
+        mainGrid->matrixModelActiveCellsBoundingBox(min, max);
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;
@@ -162,7 +162,7 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
     if (mainGrid)
     {
         cvf::Vec3st min, max;
-        mainGrid->activeCellsBoundingBox(min, max);
+        mainGrid->matrixModelActiveCellsBoundingBox(min, max);
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;

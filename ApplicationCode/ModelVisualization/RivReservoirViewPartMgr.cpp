@@ -475,8 +475,8 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
         const RigCell& cell = grid->cell(cellIndex);
 
         if (   !invalidCellsIsVisible && cell.isInvalid() 
-            || !inactiveCellsIsVisible && !cell.matrixActive()
-            || !activeCellsIsVisible && cell.matrixActive()
+            || !inactiveCellsIsVisible && !cell.isActiveInMatrixModel()
+            || !activeCellsIsVisible && cell.isActiveInMatrixModel()
             || mainGridIsVisible && (cell.subGrid() != NULL)
             || cell.isWellCell()
             )
@@ -607,7 +607,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                         size_t resultValueIndex = cellIndex;
                         if (useGlobalActiveIndex)
                         {
-                            resultValueIndex = grid->cell(cellIndex).globalMatrixActiveIndex();
+                            resultValueIndex = grid->cell(cellIndex).activeIndexInMatrixModel();
                         }
                         
                         double scalarValue = grid->mainGrid()->results()->cellScalarResult(timeStepIndex, scalarResultIndex, resultValueIndex);

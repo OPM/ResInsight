@@ -101,7 +101,7 @@ bool RifReaderMockModel::inputProperty(const QString& propertyName, std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::staticResult(const QString& result, std::vector<double>* values)
+bool RifReaderMockModel::staticResult(const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, std::vector<double>* values)
 {
     m_reservoirBuilder.staticResult(m_reservoir.p(), result, values);
 
@@ -111,7 +111,7 @@ bool RifReaderMockModel::staticResult(const QString& result, std::vector<double>
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values)
+bool RifReaderMockModel::dynamicResult(const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
     m_reservoirBuilder.dynamicResult(m_reservoir.p(), result, stepIndex, values);
 

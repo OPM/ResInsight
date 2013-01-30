@@ -29,6 +29,8 @@
 
 #include "well_info.h"
 
+#include "RifReaderInterface.h"
+
 //==================================================================================================
 //
 // Abstract class for results access
@@ -37,10 +39,10 @@
 class RifEclipseRestartDataAccess : public cvf::Object
 {
 public:
-    RifEclipseRestartDataAccess(size_t numGrids, size_t numActiveCells);
+    RifEclipseRestartDataAccess();
     virtual ~RifEclipseRestartDataAccess();
 
-    virtual bool                open(const QStringList& fileSet) = 0;
+    virtual bool                open(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts) = 0;
     virtual void                close() = 0;
 
     virtual size_t              numTimeSteps() = 0;
@@ -48,11 +50,7 @@ public:
     virtual QList<QDateTime>    timeSteps() = 0;
 
     virtual QStringList         resultNames() = 0;
-    virtual bool                results(const QString& resultName, size_t timeStep, std::vector<double>* values) = 0;
+    virtual bool                results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values) = 0;
 
     virtual void                readWellData(well_info_type * well_info) = 0;
-
-protected:
-    size_t                      m_numGrids;
-    size_t                      m_numActiveCells;
 };

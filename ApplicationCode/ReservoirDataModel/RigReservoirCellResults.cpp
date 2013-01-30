@@ -292,7 +292,7 @@ size_t RigReservoirCellResults::findOrLoadScalarResult(RimDefines::ResultCatType
             for (i = 0; i < timeStepCount; i++)
             {
                 std::vector<double>& values = m_cellScalarResults[resultGridIndex][i];
-                if (!m_readerInterface->dynamicResult(resultName, i, &values))
+                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, i, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -303,7 +303,7 @@ size_t RigReservoirCellResults::findOrLoadScalarResult(RimDefines::ResultCatType
             m_cellScalarResults[resultGridIndex].resize(1);
 
             std::vector<double>& values = m_cellScalarResults[resultGridIndex][0];
-            if (!m_readerInterface->staticResult(resultName, &values))
+            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -512,14 +512,14 @@ void RigReservoirCellResults::computeDepthRelatedResults()
     std::vector< std::vector<double> >& tops    = cellScalarResults(topsResultGridIndex);
     std::vector< std::vector<double> >& bottom  = cellScalarResults(bottomResultGridIndex);
     
-    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->globalMatrixActiveCellCount() > 0;
+    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->globalMatrixModelActiveCellCount() > 0;
 
     size_t cellIdx = 0;
     for (cellIdx = 0; cellIdx < m_ownerMainGrid->cells().size(); cellIdx++)
     {
         const RigCell& cell = m_ownerMainGrid->cells()[cellIdx];
 
-        if (computeValuesForActiveCellsOnly && !cell.matrixActive())
+        if (computeValuesForActiveCellsOnly && !cell.isActiveInMatrixModel())
         {
             continue;
         }
@@ -651,7 +651,7 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
-    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->globalMatrixActiveCellCount()) return true;
+    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->globalMatrixModelActiveCellCount()) return true;
     if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->cellCount()) return false;
 
     CVF_TIGHT_ASSERT(false); // Wrong number of results

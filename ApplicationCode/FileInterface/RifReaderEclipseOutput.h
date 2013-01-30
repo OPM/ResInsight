@@ -42,8 +42,8 @@ public:
     bool                    open(const QString& fileName, RigReservoir* reservoir);
     void                    close();
 
-    bool                    staticResult(const QString& result, std::vector<double>* values);
-    bool                    dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values);
+    bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
+    bool                    dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
 
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigReservoir* reservoir);
 
@@ -54,15 +54,15 @@ private:
 
     int                     findSmallestActiveCellIndexK( const RigGridBase* grid, int cellI, int cellJ);
 
-    static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet, size_t numGrids, size_t numActiveCells);
-    static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet, size_t numGrids, size_t numActiveCells);
+    static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts);
+    static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts);
 
 private:
-    QString                               m_fileName;         // Name of file used to start accessing Eclipse output files
-    QStringList                           m_fileSet;          // Set of files in filename's path with same base name as filename
+    QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
+    QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename
 
-    QList<QDateTime>                      m_timeSteps;
+    QList<QDateTime>                        m_timeSteps;
 
-    cvf::ref<RifEclipseOutputFileTools>  m_staticResultsAccess;    // File access to static results
-    cvf::ref<RifEclipseRestartDataAccess> m_dynamicResultsAccess;   // File access to dynamic results
+    cvf::ref<RifEclipseOutputFileTools>     m_staticResultsAccess;    // File access to static results
+    cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results
 };

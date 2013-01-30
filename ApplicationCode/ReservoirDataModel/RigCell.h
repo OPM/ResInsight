@@ -34,16 +34,16 @@ public:
     RigCell();
     ~RigCell(); // Not virtual, to save space. Do not inherit from this class
 
-    caf::SizeTArray8&       cornerIndices()                                 { return m_cornerIndices;}
-    const caf::SizeTArray8& cornerIndices() const                           { return m_cornerIndices;}
+    caf::SizeTArray8&       cornerIndices()                                     { return m_cornerIndices;}
+    const caf::SizeTArray8& cornerIndices() const                               { return m_cornerIndices;}
 
-    bool                    matrixActive() const                                { return m_globalMatrixActiveIndex != cvf::UNDEFINED_SIZE_T; }
-    size_t                  globalMatrixActiveIndex() const                     { return m_globalMatrixActiveIndex; }
-    void                    setGlobalMatrixActiveIndex(size_t val)              { m_globalMatrixActiveIndex = val; }
+    bool                    isActiveInMatrixModel() const                       { return m_activeIndexInMatrixModel != cvf::UNDEFINED_SIZE_T; }
+    size_t                  activeIndexInMatrixModel() const                    { return m_activeIndexInMatrixModel; }
+    void                    setActiveIndexInMatrixModel(size_t val)             { m_activeIndexInMatrixModel = val; }
 
-    bool                    fractureActive() const                                { return m_globalFractureActiveIndex != cvf::UNDEFINED_SIZE_T; }
-    size_t                  globalFractureActiveIndex() const                     { return m_globalFractureActiveIndex; }
-    void                    setGlobalFractureActiveIndex(size_t val)              { m_globalFractureActiveIndex = val; }
+    bool                    isActiveInFractureModel() const                     { return m_activeIndexInFractureModel != cvf::UNDEFINED_SIZE_T; }
+    size_t                  activeIndexInFractureModel() const                  { return m_activeIndexInFractureModel; }
+    void                    setActiveIndexInFractureModel(size_t val)           { m_activeIndexInFractureModel = val; }
 
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
@@ -87,8 +87,8 @@ private:
     size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
     size_t                  m_mainGridCellIndex;
 
-    size_t                  m_globalMatrixActiveIndex;      ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
-    size_t                  m_globalFractureActiveIndex;    ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
+    size_t                  m_activeIndexInMatrixModel;      ///< This cell's running index of all the active calls (matrix) in the reservoir
+    size_t                  m_activeIndexInFractureModel;    ///< This cell's running index of all the active calls (fracture) in the reservoir
 
     size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
 };

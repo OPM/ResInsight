@@ -29,7 +29,8 @@ RigMainGrid::RigMainGrid(void)
         m_activeCellPositionMax(cvf::Vec3st::UNDEFINED),
         m_validCellPositionMin(cvf::Vec3st::UNDEFINED),
         m_validCellPositionMax(cvf::Vec3st::UNDEFINED),
-        m_globalMatrixActiveCellCount(cvf::UNDEFINED_SIZE_T)
+        m_globalMatrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
+        m_globalFractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
 {
 	m_results = new RigReservoirCellResults(this);
 
@@ -79,35 +80,33 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Calculates the number of active cells in the complete reservoir.
-/// Caches the result, so subsequent calls are fast
+/// 
 //--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::globalMatrixActiveCellCount()
+size_t RigMainGrid::globalMatrixModelActiveCellCount()
 {
-    if (m_globalMatrixActiveCellCount != cvf::UNDEFINED_SIZE_T) return m_globalMatrixActiveCellCount;
+    if (m_globalMatrixModelActiveCellCount != cvf::UNDEFINED_SIZE_T) return m_globalMatrixModelActiveCellCount;
 
-    if (m_cells.size() == 0) return 0;
+    computeGlobalActiveCellCount();
 
-    size_t numActiveCells = 0;
-
-    size_t i;
-    for (i = 0; i < m_cells.size(); i++)
-    {
-        if (m_cells[i].matrixActive()) numActiveCells++;
-    }
-
-    m_globalMatrixActiveCellCount = numActiveCells;
-    return m_globalMatrixActiveCellCount;
+    return m_globalMatrixModelActiveCellCount;
 }
-
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::activeCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
+size_t RigMainGrid::globalFractureModelActiveCellCount()
+{
+    if (m_globalFractureModelActiveCellCount != cvf::UNDEFINED_SIZE_T) return m_globalFractureModelActiveCellCount;
+
+    computeGlobalActiveCellCount();
+
+    return m_globalFractureModelActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
 {
     min = m_activeCellPositionMin;
     max = m_activeCellPositionMax;
@@ -116,7 +115,7 @@ void RigMainGrid::activeCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RigMainGrid::activeCellsBoundingBox() const
+cvf::BoundingBox RigMainGrid::matrixModelActiveCellsBoundingBox() const
 {
     return m_activeCellsBoundingBox;
 }
@@ -183,7 +182,7 @@ void RigMainGrid::computeActiveAndValidCellRanges()
             validBB.add(i, j, k);
         }
 
-        if (c.matrixActive())
+        if (c.isActiveInMatrixModel())
         {
             activeBB.add(i, j, k);
         }
@@ -222,7 +221,7 @@ void RigMainGrid::computeBoundingBox()
         for (i = 0; i < cellCount(); i++)
         {
             const RigCell& c = cell(i);
-            if (c.matrixActive())
+            if (c.isActiveInMatrixModel())
             {
                 const caf::SizeTArray8& indices = c.cornerIndices();
 
@@ -256,7 +255,7 @@ void RigMainGrid::computeCachedData()
 ///
 ///
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::calculateActiveCellInfo(std::vector<qint32> &gridNumber,
+void RigMainGrid::calculateMatrixModelActiveCellInfo(std::vector<qint32> &gridNumber,
                                           std::vector<qint32> &cellI,
                                           std::vector<qint32> &cellJ,
                                           std::vector<qint32> &cellK,
@@ -265,7 +264,7 @@ void RigMainGrid::calculateActiveCellInfo(std::vector<qint32> &gridNumber,
                                           std::vector<qint32> &hostCellJ,
                                           std::vector<qint32> &hostCellK)
 {
-    size_t numActiveCells = this->globalMatrixActiveCellCount();
+    size_t numMatrixModelActiveCells = this->globalMatrixModelActiveCellCount();
 
     gridNumber.clear();
     cellI.clear();
@@ -276,18 +275,18 @@ void RigMainGrid::calculateActiveCellInfo(std::vector<qint32> &gridNumber,
     hostCellJ.clear();
     hostCellK.clear();
 
-    gridNumber.reserve(numActiveCells);
-    cellI.reserve(numActiveCells);
-    cellJ.reserve(numActiveCells);
-    cellK.reserve(numActiveCells);
-    parentGridNumber.reserve(numActiveCells);
-    hostCellI.reserve(numActiveCells);
-    hostCellJ.reserve(numActiveCells);
-    hostCellK.reserve(numActiveCells);
+    gridNumber.reserve(numMatrixModelActiveCells);
+    cellI.reserve(numMatrixModelActiveCells);
+    cellJ.reserve(numMatrixModelActiveCells);
+    cellK.reserve(numMatrixModelActiveCells);
+    parentGridNumber.reserve(numMatrixModelActiveCells);
+    hostCellI.reserve(numMatrixModelActiveCells);
+    hostCellJ.reserve(numMatrixModelActiveCells);
+    hostCellK.reserve(numMatrixModelActiveCells);
 
     for (size_t cIdx = 0; cIdx < m_cells.size(); ++cIdx)
     {
-        if (m_cells[cIdx].matrixActive())
+        if (m_cells[cIdx].isActiveInMatrixModel())
         {
             RigGridBase* grid = m_cells[cIdx].hostGrid();
             CVF_ASSERT(grid != NULL);
@@ -351,11 +350,27 @@ const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::computeActiveCellCountForAllGrids()
 {
-    computeMatrixAndFractureActiveCellCount();
+    computeMatrixAndFractureModelActiveCellCount();
     
     size_t i;
     for (i = 0; i < m_localGrids.size(); ++i)
     {
-        m_localGrids[i]->computeMatrixAndFractureActiveCellCount();
+        m_localGrids[i]->computeMatrixAndFractureModelActiveCellCount();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::computeGlobalActiveCellCount()
+{
+    m_globalMatrixModelActiveCellCount = 0;
+    m_globalFractureModelActiveCellCount = 0;
+
+    size_t i;
+    for (i = 0; i < m_cells.size(); i++)
+    {
+        if (m_cells[i].isActiveInMatrixModel()) m_globalMatrixModelActiveCellCount++;
+        if (m_cells[i].isActiveInFractureModel()) m_globalFractureModelActiveCellCount++;
     }
 }

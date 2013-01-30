@@ -32,10 +32,10 @@ class RifEclipseOutputFileTools;
 class RifEclipseRestartFilesetAccess : public RifEclipseRestartDataAccess
 {
 public:
-    RifEclipseRestartFilesetAccess(size_t numGrids, size_t numActiveCells);
+    RifEclipseRestartFilesetAccess();
     virtual ~RifEclipseRestartFilesetAccess();
 
-    bool                        open(const QStringList& fileSet);
+    bool                        open(const QStringList& fileSet, const std::vector<size_t>& matrixActiveCellCounts, const std::vector<size_t>& fractureActiveCellCounts);
     void                        close();
 
     size_t                      numTimeSteps();
@@ -43,10 +43,12 @@ public:
     QList<QDateTime>            timeSteps();
 
     QStringList                 resultNames();
-    bool                        results(const QString& resultName, size_t timeStep, std::vector<double>* values);
+    bool                        results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values);
 
     virtual void                readWellData(well_info_type* well_info);
 
 private:
     std::vector< cvf::ref<RifEclipseOutputFileTools> > m_files;
+
+    size_t m_gridCount;
 };

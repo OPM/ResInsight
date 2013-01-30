@@ -23,8 +23,8 @@
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseRestartFilesetAccess::RifEclipseRestartFilesetAccess(size_t numGrids, size_t numActiveCells)
-    : RifEclipseRestartDataAccess(numGrids, numActiveCells)
+RifEclipseRestartFilesetAccess::RifEclipseRestartFilesetAccess()
+    : RifEclipseRestartDataAccess()
 {
 }
 
@@ -39,7 +39,7 @@ RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 //--------------------------------------------------------------------------------------------------
 /// Open files
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
+bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet, const std::vector<size_t>& matrixActiveCellCounts, const std::vector<size_t>& fractureActiveCellCounts)
 {
     close();
 
@@ -48,7 +48,7 @@ bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
     for (i = 0; i < numFiles; i++)
     {
         cvf::ref<RifEclipseOutputFileTools> fileAccess = new RifEclipseOutputFileTools;
-        if (!fileAccess->open(fileSet[i]))
+        if (!fileAccess->open(fileSet[i], matrixActiveCellCounts, fractureActiveCellCounts))
         {
             close();
             return false;
@@ -56,6 +56,8 @@ bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
 
         m_files.push_back(fileAccess);
     }
+
+    m_gridCount = matrixActiveCellCounts.size();
 
     return true;
 }
@@ -131,7 +133,7 @@ QStringList RifEclipseRestartFilesetAccess::resultNames()
 
     // Get the results found on the first file
     QStringList resultsList;
-    m_files[0]->keywordsWithGivenResultValueCount(&resultsList, m_numActiveCells, 1);
+    m_files[0]->validKeywords(&resultsList, RifReaderInterface::MATRIX_RESULTS);
 
     return resultsList;
 }
@@ -139,15 +141,15 @@ QStringList RifEclipseRestartFilesetAccess::resultNames()
 //--------------------------------------------------------------------------------------------------
 /// Get result values for given time step
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t timeStep, std::vector<double>* values)
+bool RifEclipseRestartFilesetAccess::results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values)
 {
     size_t numOccurrences = m_files[timeStep]->numOccurrences(resultName);
 
     // No results for this result variable for current time step found
     if (numOccurrences == 0) return true;
 
-    // Result handling depends on presens of result values for all grids
-    if (m_numGrids != numOccurrences)
+    // Result handling depends on presents of result values for all grids
+    if (m_gridCount != numOccurrences)
     {
         return false;
     }
@@ -156,7 +158,7 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
     for (i = 0; i < numOccurrences; i++)
     {
         std::vector<double> partValues;
-        if (!m_files[timeStep]->keywordData(resultName, i, &partValues))  // !! don't need to append afterwards
+        if (!m_files[timeStep]->keywordData(resultName, i, matrixOrFracture, &partValues))  // !! don't need to append afterwards
         {
             return false;
         }
