@@ -80,6 +80,145 @@ cvf::Vec3d RigCell::center() const
     return avg;
 }
 
+bool isNear(const cvf::Vec3d& p1, const cvf::Vec3d& p2, double tolerance)
+{
+    if (   cvf::Math::abs(p1[0] - p2[0]) < tolerance 
+        && cvf::Math::abs(p1[1] - p2[1]) < tolerance 
+        && cvf::Math::abs(p1[2] - p2[2]) < tolerance )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCell::isLongPyramidCell(double maxHeightFactor, double nodeNearTolerance ) const
+{
+    cvf::ubyte faceVertexIndices[4];
+    double squaredMaxHeightFactor = maxHeightFactor*maxHeightFactor;
+
+    const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
+
+    bool isPyramidCell = false;
+
+    int face;
+    for ( face = 0; face < 6 ; ++face)
+    {
+        cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
+        int zeroLengthEdgeCount = 0;
+
+        const cvf::Vec3d& c0 =  nodes[m_cornerIndices[faceVertexIndices[0]]];
+        const cvf::Vec3d& c1 =  nodes[m_cornerIndices[faceVertexIndices[1]]];
+        const cvf::Vec3d& c2 =  nodes[m_cornerIndices[faceVertexIndices[2]]];
+        const cvf::Vec3d& c3 =  nodes[m_cornerIndices[faceVertexIndices[3]]];
+
+        if (isNear(c0, c1, nodeNearTolerance)) { ++zeroLengthEdgeCount;  }
+        if (isNear(c1, c2, nodeNearTolerance)) { ++zeroLengthEdgeCount;  }
+        if (isNear(c2, c3, nodeNearTolerance)) { ++zeroLengthEdgeCount;  }
+
+        if (zeroLengthEdgeCount == 3)
+        {
+            return true;
+            // Collapse of a complete face is detected. This is possibly the top of a pyramid
+
+            // "face" has the index to the collapsed face. We need the size of the opposite face
+            // to compare it with the pyramid "roof" length.
+
+            cvf::StructGridInterface::FaceType oppositeFace = cvf::StructGridInterface::POS_I;
+            switch (face)
+            {
+            case cvf::StructGridInterface::POS_I:
+                oppositeFace = cvf::StructGridInterface::NEG_I;
+                break;
+            case cvf::StructGridInterface::POS_J:
+                oppositeFace = cvf::StructGridInterface::NEG_J;
+                break;
+            case cvf::StructGridInterface::POS_K:
+                oppositeFace = cvf::StructGridInterface::NEG_K;
+                break;
+            case cvf::StructGridInterface::NEG_I:
+                oppositeFace = cvf::StructGridInterface::POS_I;
+                break;
+            case cvf::StructGridInterface::NEG_J:
+                oppositeFace = cvf::StructGridInterface::POS_J;
+                break;
+            case cvf::StructGridInterface::NEG_K:
+                oppositeFace = cvf::StructGridInterface::POS_K;
+                break;
+            default:
+                CVF_ASSERT(false);
+                break;
+            }
+
+            cvf::StructGridInterface::cellFaceVertexIndices(oppositeFace, faceVertexIndices);
+
+            
+            const cvf::Vec3d& c0opp =  nodes[m_cornerIndices[faceVertexIndices[0]]];
+            const cvf::Vec3d& c1opp =  nodes[m_cornerIndices[faceVertexIndices[1]]];
+            const cvf::Vec3d& c2opp =  nodes[m_cornerIndices[faceVertexIndices[2]]];
+            const cvf::Vec3d& c3opp =  nodes[m_cornerIndices[faceVertexIndices[3]]];
+
+            // Check if any of the opposite face vertexes are also degenerated to the pyramid top
+            
+            int okVertexCount = 0;
+            cvf::Vec3d okVxs[4];
+            if (!isNear(c0opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c0opp; ++okVertexCount;  }
+            if (!isNear(c1opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c1opp; ++okVertexCount;  }
+            if (!isNear(c2opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c2opp; ++okVertexCount;  }
+            if (!isNear(c3opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c3opp; ++okVertexCount;  }
+
+            if (okVertexCount < 2)
+            {
+                return true;
+            }
+            else
+            {
+                // Use the good vertices to calculate a face size that can be compared to the pyramid height:
+                double typicalSquaredEdgeLength = 0;
+                for (int i = 1; i < okVertexCount; ++i)
+                {
+                    typicalSquaredEdgeLength += (okVxs[i-1] - okVxs[i]).lengthSquared(); 
+                }
+                typicalSquaredEdgeLength /= okVertexCount;
+                double pyramidHeightSquared = (okVxs[0] - c0).lengthSquared();
+
+                if (pyramidHeightSquared > squaredMaxHeightFactor*typicalSquaredEdgeLength)
+                {
+                    return true;
+                }
+            }
+        }
+
+        // Check the ratio of the length of opposite edges.
+        // both ratios have to be above threshold to detect a pyramid-ish cell
+        // Only test this if we have all nonzero edge lenghts.
+        else if  (zeroLengthEdgeCount == 0) // If the four first faces are ok, the two last must be as well
+        {
+            double e0SquareLenght = (c1 - c0).lengthSquared();
+            double e2SquareLenght = (c3 - c2).lengthSquared();
+            if (    e0SquareLenght / e2SquareLenght > squaredMaxHeightFactor 
+                ||  e2SquareLenght / e0SquareLenght > squaredMaxHeightFactor )
+            {
+                double e1SquareLenght = (c2 - c1).lengthSquared();
+                double e3SquareLenght = (c0 - c3).lengthSquared();
+
+                if (   e1SquareLenght / e3SquareLenght > squaredMaxHeightFactor 
+                    || e3SquareLenght / e1SquareLenght > squaredMaxHeightFactor )
+                {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

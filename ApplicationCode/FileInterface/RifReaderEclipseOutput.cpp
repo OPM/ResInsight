@@ -62,10 +62,10 @@
 //
 // The indexing conventions for vertices in ResInsight
 //
-//      7-------------6
-//     /|            /|
-//    / |           / |
-//   /  |          /  |
+//      7-------------6             |k     
+//     /|            /|             | /j   
+//    / |           / |             |/     
+//   /  |          /  |             *---i  
 //  4-------------5   |
 //  |   |         |   |
 //  |   3---------|---2
@@ -106,29 +106,28 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
     {
         RigCell& cell = mainGrid->cells()[cellStartIndex + gIdx];
 
+        bool invalid = ecl_grid_cell_invalid1(localEclGrid, gIdx);
+        cell.setInvalid(invalid);
         cell.setCellIndex(gIdx);
+
+        int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, gIdx);
+        if (matrixActiveIndex != -1)
         {
-            int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, gIdx);
-            if (matrixActiveIndex != -1)
-            {
-                cell.setActiveIndexInMatrixModel(matrixActiveStartIndex + matrixActiveIndex);
-            }
-            else
-            {
-                cell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
-            }
+            cell.setActiveIndexInMatrixModel(matrixActiveStartIndex + matrixActiveIndex);
+        }
+        else
+        {
+            cell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
+        int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, gIdx);
+        if (fractureActiveIndex != -1)
         {
-            int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, gIdx);
-            if (fractureActiveIndex != -1)
-            {
-                cell.setActiveIndexInFractureModel(fractureActiveStartIndex + fractureActiveIndex);
-            }
-            else
-            {
-                cell.setActiveIndexInFractureModel(cvf::UNDEFINED_SIZE_T);
-            }
+            cell.setActiveIndexInFractureModel(fractureActiveStartIndex + fractureActiveIndex);
+        }
+        else
+        {
+            cell.setActiveIndexInFractureModel(cvf::UNDEFINED_SIZE_T);
         }
 
         int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gIdx);
@@ -158,6 +157,11 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
             int subGridFileIndex = ecl_grid_get_grid_nr(subGrid);
             CVF_ASSERT(subGridFileIndex > 0);
             cell.setSubGrid(static_cast<RigLocalGrid*>(mainGrid->gridByIndex(subGridFileIndex)));
+        }
+
+        if (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel() && !invalid)
+        {
+            cell.setInvalid(cell.isLongPyramidCell());
         }
 
 #pragma omp atomic
