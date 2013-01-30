@@ -58,6 +58,10 @@ public:
     bool                        isMainGrid() const;
     RigMainGrid*                mainGrid() const { return m_mainGrid; }
 
+    size_t                      activeMatrixCellCount();
+    size_t                      activeFractureCellCount();
+    void                        computeMatrixAndFractureActiveCellCount();
+
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();
     void                        initSubGridParentPointer();
@@ -97,12 +101,16 @@ public:
     virtual bool isCellActive( size_t i, size_t j, size_t k ) const;
     virtual bool isCellValid( size_t i, size_t j, size_t k ) const;
     virtual bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
+
 private:
     std::string                 m_gridName;
     cvf::Vec3st                 m_gridPointDimensions;
     size_t                      m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t                      m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     RigMainGrid*                m_mainGrid;
+
+    size_t                      m_matrixActiveCellCount;
+    size_t                      m_fractureActiveCellCount;
 };
 
 

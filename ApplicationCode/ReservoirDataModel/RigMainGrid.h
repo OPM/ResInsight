@@ -43,7 +43,7 @@ public:
     RigReservoirCellResults*		        results() {return m_results.p();}
     const RigReservoirCellResults*          results() const {return m_results.p();}
 
-    size_t                                  numActiveCells();
+    size_t                                  globalMatrixActiveCellCount();
     void                                    activeCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
     void                                    validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
 
@@ -72,12 +72,14 @@ private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    computeActiveAndValidCellRanges();
     void                                    computeBoundingBox();
+    void                                    computeActiveCellCountForAllGrids();
+
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
     cvf::ref<RigReservoirCellResults>       m_results;
-    size_t                                  m_activeCellCount;
+    size_t                                  m_globalMatrixActiveCellCount;
 
     cvf::Vec3st                             m_activeCellPositionMin;
     cvf::Vec3st                             m_activeCellPositionMax;

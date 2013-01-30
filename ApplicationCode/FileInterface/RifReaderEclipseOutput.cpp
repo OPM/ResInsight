@@ -349,7 +349,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
     caf::ProgressInfo progInfo(2,"");
 
     // Get the number of active cells in the grid
-    size_t numActiveCells = reservoir->mainGrid()->numActiveCells();
+    size_t numActiveCells = reservoir->mainGrid()->globalMatrixActiveCellCount();
     size_t numGrids = reservoir->mainGrid()->gridCount();
 
     // Create access object for dynamic results

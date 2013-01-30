@@ -28,7 +28,9 @@
 RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
     m_mainGrid(mainGrid),
-    m_indexToStartOfCells(0)
+    m_indexToStartOfCells(0),
+    m_matrixActiveCellCount(cvf::UNDEFINED_SIZE_T),
+    m_fractureActiveCellCount(cvf::UNDEFINED_SIZE_T)
 {
     if (mainGrid == NULL)
     {
@@ -522,6 +524,59 @@ double RigGridBase::characteristicCellSize()
     if (cellSizeK > characteristicCellSize) characteristicCellSize = cellSizeK;
 
     return characteristicCellSize;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::activeMatrixCellCount()
+{
+    if (m_matrixActiveCellCount == cvf::UNDEFINED_SIZE_T)
+    {
+        computeMatrixAndFractureActiveCellCount();
+    }
+
+    CVF_ASSERT(m_matrixActiveCellCount != cvf::UNDEFINED_SIZE_T);
+
+    return m_matrixActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::activeFractureCellCount()
+{
+    if (m_fractureActiveCellCount == cvf::UNDEFINED_SIZE_T)
+    {
+        computeMatrixAndFractureActiveCellCount();
+    }
+
+    CVF_ASSERT(m_fractureActiveCellCount != cvf::UNDEFINED_SIZE_T);
+
+    return m_fractureActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::computeMatrixAndFractureActiveCellCount()
+{
+    m_matrixActiveCellCount = 0;
+    m_fractureActiveCellCount = 0;
+
+    for (size_t i = 0; i < cellCount(); i++)
+    {
+        const RigCell& c = cell(i);
+        if (c.matrixActive())
+        {
+            m_matrixActiveCellCount++;
+        }
+
+        if (c.fractureActive())
+        {
+            m_fractureActiveCellCount++;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

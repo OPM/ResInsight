@@ -29,7 +29,7 @@ RigMainGrid::RigMainGrid(void)
         m_activeCellPositionMax(cvf::Vec3st::UNDEFINED),
         m_validCellPositionMin(cvf::Vec3st::UNDEFINED),
         m_validCellPositionMax(cvf::Vec3st::UNDEFINED),
-        m_activeCellCount(cvf::UNDEFINED_SIZE_T)
+        m_globalMatrixActiveCellCount(cvf::UNDEFINED_SIZE_T)
 {
 	m_results = new RigReservoirCellResults(this);
 
@@ -82,9 +82,9 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
 /// Calculates the number of active cells in the complete reservoir.
 /// Caches the result, so subsequent calls are fast
 //--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::numActiveCells()
+size_t RigMainGrid::globalMatrixActiveCellCount()
 {
-    if (m_activeCellCount != cvf::UNDEFINED_SIZE_T) return m_activeCellCount;
+    if (m_globalMatrixActiveCellCount != cvf::UNDEFINED_SIZE_T) return m_globalMatrixActiveCellCount;
 
     if (m_cells.size() == 0) return 0;
 
@@ -96,8 +96,8 @@ size_t RigMainGrid::numActiveCells()
         if (m_cells[i].matrixActive()) numActiveCells++;
     }
 
-    m_activeCellCount = numActiveCells;
-    return m_activeCellCount;
+    m_globalMatrixActiveCellCount = numActiveCells;
+    return m_globalMatrixActiveCellCount;
 }
 
 
@@ -248,6 +248,7 @@ void RigMainGrid::computeCachedData()
     initAllSubCellsMainGridCellIndex();
     computeActiveAndValidCellRanges();
     computeBoundingBox();
+    computeActiveCellCountForAllGrids();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,7 +265,7 @@ void RigMainGrid::calculateActiveCellInfo(std::vector<qint32> &gridNumber,
                                           std::vector<qint32> &hostCellJ,
                                           std::vector<qint32> &hostCellK)
 {
-    size_t numActiveCells = this->numActiveCells();
+    size_t numActiveCells = this->globalMatrixActiveCellCount();
 
     gridNumber.clear();
     cellI.clear();
@@ -343,4 +344,18 @@ const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
     if (localGridIndex == 0) return this;
     CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
     return m_localGrids[localGridIndex-1].p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::computeActiveCellCountForAllGrids()
+{
+    computeMatrixAndFractureActiveCellCount();
+    
+    size_t i;
+    for (i = 0; i < m_localGrids.size(); ++i)
+    {
+        m_localGrids[i]->computeMatrixAndFractureActiveCellCount();
+    }
 }

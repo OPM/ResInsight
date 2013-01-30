@@ -512,7 +512,7 @@ void RigReservoirCellResults::computeDepthRelatedResults()
     std::vector< std::vector<double> >& tops    = cellScalarResults(topsResultGridIndex);
     std::vector< std::vector<double> >& bottom  = cellScalarResults(bottomResultGridIndex);
     
-    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->numActiveCells() > 0;
+    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->globalMatrixActiveCellCount() > 0;
 
     size_t cellIdx = 0;
     for (cellIdx = 0; cellIdx < m_ownerMainGrid->cells().size(); cellIdx++)
@@ -651,7 +651,7 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
-    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->numActiveCells()) return true;
+    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->globalMatrixActiveCellCount()) return true;
     if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->cellCount()) return false;
 
     CVF_TIGHT_ASSERT(false); // Wrong number of results

@@ -441,7 +441,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
     size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->numActiveCells();
+    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->globalMatrixActiveCellCount();
     size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
 
     if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
