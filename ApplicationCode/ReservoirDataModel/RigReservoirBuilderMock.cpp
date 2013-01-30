@@ -134,6 +134,7 @@ void RigReservoirBuilderMock::appendCubeNodes(const cvf::Vec3d& min, const cvf::
 //--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells)
 {
+    size_t activeCellIndex = 0;
     size_t i;
     for (i = 0; i < cellCount; i++)
     {
@@ -152,7 +153,15 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
         riCell.cornerIndices()[7] = nodeStartIndex + i * 8 + 7;
 
         riCell.setParentCellIndex(0);
-        if (!(i % 5)) riCell.setMatrixActive(false);
+
+        if (!(i % 5))
+        {
+            riCell.setGlobalMatrixActiveIndex(cvf::UNDEFINED_SIZE_T);
+        }
+        else
+        {
+            riCell.setGlobalMatrixActiveIndex(activeCellIndex++);
+        }
 
         cells.push_back(riCell);
     }
@@ -283,7 +292,6 @@ bool RigReservoirBuilderMock::inputProperty(RigReservoir* reservoir, const QStri
 bool RigReservoirBuilderMock::staticResult(RigReservoir* reservoir, const QString& result, std::vector<double>* values)
 {
     size_t k;
-    size_t rIdx = 0;
 
     for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
     {
@@ -298,10 +306,6 @@ bool RigReservoirBuilderMock::staticResult(RigReservoir* reservoir, const QStrin
             {
                 values->push_back(500);
             }
-
-            cell.setGlobalMatrixActiveIndex(rIdx);
-            ++rIdx;
-
         }
     }
 
@@ -326,7 +330,6 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
     double offsetValue = 100 * resultIndex;
 
     size_t k;
-    size_t rIdx = 0;
     for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
     {
         RigCell& cell = reservoir->mainGrid()->cells()[k];
@@ -341,9 +344,6 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
             {
                 values->push_back(500);
             }
-
-            cell.setGlobalMatrixActiveIndex(rIdx);
-            ++rIdx;
         }
     }
 

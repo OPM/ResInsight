@@ -37,8 +37,13 @@ public:
     caf::SizeTArray8&       cornerIndices()                                 { return m_cornerIndices;}
     const caf::SizeTArray8& cornerIndices() const                           { return m_cornerIndices;}
 
-    bool                    matrixActive() const                                { return m_isMatrixActive; }
-    void                    setMatrixActive(bool val)                           { m_isMatrixActive = val; }
+    bool                    matrixActive() const                                { return m_globalMatrixActiveIndex != cvf::UNDEFINED_SIZE_T; }
+    size_t                  globalMatrixActiveIndex() const                     { return m_globalMatrixActiveIndex; }
+    void                    setGlobalMatrixActiveIndex(size_t val)              { m_globalMatrixActiveIndex = val; }
+
+    bool                    fractureActive() const                                { return m_globalFractureActiveIndex != cvf::UNDEFINED_SIZE_T; }
+    size_t                  globalFractureActiveIndex() const                     { return m_globalFractureActiveIndex; }
+    void                    setGlobalFractureActiveIndex(size_t val)              { m_globalFractureActiveIndex = val; }
 
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
@@ -49,8 +54,6 @@ public:
     size_t                  cellIndex() const                                   { return m_cellIndex; }
     void                    setCellIndex(size_t val)                            { m_cellIndex = val; }
 
-    size_t                  globalMatrixActiveIndex() const                     { return m_globalMatrixActiveIndex; }
-    void                    setGlobalMatrixActiveIndex(size_t val)              { m_globalMatrixActiveIndex = val; }
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
@@ -73,7 +76,6 @@ public:
 private:
     caf::SizeTArray8        m_cornerIndices;
     
-    bool                    m_isMatrixActive;
     bool                    m_isInvalid;
     bool                    m_isWellCell;
 
@@ -85,6 +87,8 @@ private:
     size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
     size_t                  m_mainGridCellIndex;
 
-    size_t                  m_globalMatrixActiveIndex;  ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
+    size_t                  m_globalMatrixActiveIndex;      ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
+    size_t                  m_globalFractureActiveIndex;    ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
+
     size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
 };

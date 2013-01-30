@@ -83,7 +83,7 @@ static const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 // Static functions
 //**************************************************************************************************
 
-bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const ecl_grid_type* localEclGrid, size_t matrixActiveStartIndex)
+bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const ecl_grid_type* localEclGrid, size_t matrixActiveStartIndex, size_t fractureActiveStartIndex)
 {
     int cellCount = ecl_grid_get_global_size(localEclGrid);
     size_t cellStartIndex = mainGrid->cells().size();
@@ -106,15 +106,30 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
     {
         RigCell& cell = mainGrid->cells()[cellStartIndex + gIdx];
 
-        // The invalid (tainted) cell concept in ecl was not correct at all,
-        // so this is disabeled.
-        //bool invalid = ecl_grid_cell_invalid1(localEclGrid, gIdx);
-        //cell.setInvalid(invalid);
-
         cell.setCellIndex(gIdx);
-        bool matrixActive = ecl_grid_cell_active1(localEclGrid, gIdx);
-        cell.setMatrixActive(matrixActive);
-        cell.setGlobalMatrixActiveIndex(matrixActive ? matrixActiveStartIndex + ecl_grid_get_active_index1(localEclGrid, gIdx) : cvf::UNDEFINED_SIZE_T);
+        {
+            int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, gIdx);
+            if (matrixActiveIndex != -1)
+            {
+                cell.setGlobalMatrixActiveIndex(matrixActiveStartIndex + matrixActiveIndex);
+            }
+            else
+            {
+                cell.setGlobalMatrixActiveIndex(cvf::UNDEFINED_SIZE_T);
+            }
+        }
+
+        {
+            int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, gIdx);
+            if (fractureActiveIndex != -1)
+            {
+                cell.setGlobalFractureActiveIndex(fractureActiveStartIndex + fractureActiveIndex);
+            }
+            else
+            {
+                cell.setGlobalFractureActiveIndex(cvf::UNDEFINED_SIZE_T);
+            }
+        }
 
         int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gIdx);
         if (parentCellIndex == -1)
@@ -254,19 +269,22 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     progInfo.setProgressDescription("Main Grid");
     progInfo.setNextProgressIncrement(3);
 
-    transferGridCellData(mainGrid, mainGrid, mainEclGrid, 0);
+    transferGridCellData(mainGrid, mainGrid, mainEclGrid, 0, 0);
 
     progInfo.setProgress(3);
 
-    size_t globalMatrixActiveSize = ecl_grid_get_active_size(mainEclGrid);
+    size_t globalMatrixActiveSize = ecl_grid_get_nactive(mainEclGrid);
+    size_t globalFractureActiveSize = ecl_grid_get_nactive_fracture(mainEclGrid);
 
     for (lgrIdx = 0; lgrIdx < numLGRs; ++lgrIdx)
     {
         progInfo.setProgressDescription("LGR number " + QString::number(lgrIdx+1));
 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
-        transferGridCellData(mainGrid, static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1)), localEclGrid, globalMatrixActiveSize);
-        globalMatrixActiveSize += ecl_grid_get_active_size(localEclGrid);
+        transferGridCellData(mainGrid, static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1)), localEclGrid, globalMatrixActiveSize, globalFractureActiveSize);
+        globalMatrixActiveSize += ecl_grid_get_nactive(localEclGrid);
+        globalFractureActiveSize += ecl_grid_get_nactive_fracture(localEclGrid);
+
         progInfo.setProgress(3 + lgrIdx);
     }
 
