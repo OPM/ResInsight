@@ -117,7 +117,20 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         }
         else
         {
-            cell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
+            ecl_coarse_cell_type * coarseCellData = ecl_grid_get_cell_coarse_group1( localEclGrid , gIdx);
+            if ( false )//coarseCellData)
+            {
+                matrixActiveIndex = ecl_coarse_cell_get_active_index(coarseCellData);
+            }
+            
+            if (matrixActiveIndex != -1)
+            {
+                cell.setActiveIndexInMatrixModel(matrixActiveStartIndex + matrixActiveIndex);
+            }
+            else
+            {
+                cell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
+            }
         }
 
         int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, gIdx);

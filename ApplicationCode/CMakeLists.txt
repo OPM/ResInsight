@@ -218,8 +218,8 @@ set( LINK_LIBRARIES
 
     ecl
     ert_util
-    geometry
-    well
+    ert_geometry
+    ecl_well
 
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}

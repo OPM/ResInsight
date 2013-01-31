@@ -37,7 +37,7 @@ set( LINK_LIBRARIES
     LibCore
 
     ecl
-    well
+    ecl_well
     ert_util
 
     ${QT_LIBRARIES}

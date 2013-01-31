@@ -68,8 +68,8 @@ set( LINK_LIBRARIES
 
     ecl
     ert_util
-    geometry
-    well
+    ert_geometry
+    ecl_well
 
     ${QT_LIBRARIES}
 )

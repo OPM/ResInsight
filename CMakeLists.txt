@@ -40,11 +40,17 @@ include (ResInsightVersion.cmake)
 add_subdirectory(ThirdParty/Ert/devel)
 
 include_directories(
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/src
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/src
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/src
-    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libwell/src
-    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/src
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include/ert/ecl
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include/ert/geometry
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include/ert/ecl_well
+	${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include
+
+	${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
+    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
 )
 
 
