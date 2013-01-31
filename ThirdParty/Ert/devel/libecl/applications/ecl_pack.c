@@ -16,13 +16,16 @@
    for more details. 
 */
 
-#include <util.h>
-#include <ecl_file.h>
-#include <ecl_util.h>
 #include <stdlib.h>
-#include <msg.h>
-#include <ecl_endian_flip.h>   
-#include <stringlist.h>
+
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/msg.h>
+
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_endian_flip.h>   
+
 
 
 int main(int argc, char ** argv) {

@@ -5,19 +5,17 @@ set( header_files sched_history.h sched_time.h group_index.h sched_blob.h well_i
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 include_directories( ${libutil_build_path} )
 include_directories( ${libutil_src_path} )
-include_directories( ${libecl_src_path} )
 
 add_library( sched ${LIBRARY_TYPE} ${source_files} )
+set_target_properties( sched PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
 target_link_libraries( sched ert_util ecl)
 
 #-----------------------------------------------------------------
-if (SCHED_INSTALL_PREFIX)
-   install(TARGETS sched DESTINATION ${SCHED_INSTALL_PREFIX}/lib)
-   install(FILES ${header_files} DESTINATION ${SCHED_INSTALL_PREFIX}/include)
-else()
-   install(TARGETS sched DESTINATION lib)
-   install(FILES ${header_files} DESTINATION include)
-endif()        
+install(TARGETS sched DESTINATION ${CMAKE_INSTALL_LIBDIR})
+foreach(header ${header_files})
+    install(FILES ../include/ert/sched/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/sched)
+endforeach()
+
 
 

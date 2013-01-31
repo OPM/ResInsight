@@ -21,11 +21,14 @@ if (USE_LSF)
 endif()
 
 include_directories( ${LSF_INCLUDE_PATH} )
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
-include_directories( ${libconfig_src_path} )
 
 add_subdirectory( src )
-add_subdirectory( applications )
-add_subdirectory( tests )
-#-----------------------------------------------------------------
+if (BUILD_APPLICATONS)
+   add_subdirectory( applications )
+endif()
+
+if (BUILD_TESTS)
+   add_subdirectory( tests )
+endif()
+
 

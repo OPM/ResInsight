@@ -22,29 +22,29 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <util.h>
-#include <path_fmt.h>
-#include <hash.h>
-#include <menu.h>
-#include <bool_vector.h>
+#include <ert/util/util.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/hash.h>
+#include <ert/util/menu.h>
+#include <ert/util/bool_vector.h>
 
-#include <history.h>
-#include <sched_file.h>
+#include <ert/sched/history.h>
+#include <ert/sched/sched_file.h>
 
-#include <config.h>
+#include <ert/config/config.h>
 
-#include <ecl_sum.h>
-#include <ecl_util.h>
-#include <ecl_grid.h>
+#include <ert/ecl/ecl_sum.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_grid.h>
 
-#include <forward_model.h>
+#include <ert/job_queue/forward_model.h>
 
-#include <enkf_sched.h>
-#include <model_config.h>
-#include <enkf_types.h>
-#include <fs_types.h>
-#include <enkf_defaults.h>
-#include "config_keys.h"
+#include <ert/enkf/enkf_sched.h>
+#include <ert/enkf/model_config.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/fs_types.h>
+#include <ert/enkf/enkf_defaults.h>
+#include <ert/enkf/config_keys.h>
 
 /**
    This struct contains configuration which is specific to this

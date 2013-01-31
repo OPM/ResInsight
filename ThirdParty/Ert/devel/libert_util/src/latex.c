@@ -25,8 +25,8 @@
 #include <libgen.h>
 #include <string.h>
 
-#include <util.h>
-#include <latex.h>
+#include <ert/util/util.h>
+#include <ert/util/latex.h>
 
 #ifdef __cplusplus
 extern "C" {

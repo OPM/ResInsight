@@ -1,2 +1,10 @@
-set( GEOMETRY_INSTALL_PREFIX "" CACHE STRING "Prefix for installation of libgeometry")
 add_subdirectory( src )
+
+#if (BUILD_APPLICATONS)
+#   add_subdirectory( applications )
+#endif()
+#
+#if (BUILD_TESTS)
+#   add_subdirectory( tests )
+#endif()
+

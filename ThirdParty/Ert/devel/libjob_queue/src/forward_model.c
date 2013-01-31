@@ -19,16 +19,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
 #include <ctype.h>
-#include <util.h>
-#include <subst_list.h>
-#include <vector.h> 
-#include <parser.h>
 
-#include <ext_job.h>
-#include <ext_joblist.h>
-#include <forward_model.h>
+#include <ert/util/util.h>
+#include <ert/util/subst_list.h>
+#include <ert/util/vector.h> 
+#include <ert/util/parser.h>
+
+#include <ert/job_queue/ext_job.h>
+#include <ert/job_queue/ext_joblist.h>
+#include <ert/job_queue/forward_model.h>
 
 /**
    This file implements a 'forward-model' object. I

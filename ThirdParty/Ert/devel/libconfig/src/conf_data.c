@@ -19,8 +19,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
-#include <conf_data.h>
-#include <util.h>
+
+#include <ert/util/util.h>
+
+#include <ert/config/conf_data.h>
+
+
 
 #define DT_STR_STRING             "string"
 #define DT_INT_STRING             "integer"

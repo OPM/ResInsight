@@ -19,8 +19,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <enkf_types.h>
-#include <util.h>
+
+#include <ert/util/util.h>
+
+#include <ert/enkf/enkf_types.h>
 
 
 /*****************************************************************/

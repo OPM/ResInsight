@@ -16,13 +16,16 @@
    for more details. 
 */
 
-#include <hash.h>
-#include <util.h>
 #include <string.h>
-#include <sched_kw_gruptree.h>
-#include <sched_util.h>
-#include <sched_macros.h>
-#include <stringlist.h>
+
+#include <ert/util/hash.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/util.h>
+
+#include <ert/sched/sched_kw_gruptree.h>
+#include <ert/sched/sched_util.h>
+#include <ert/sched/sched_macros.h>
+
 
 struct sched_kw_gruptree_struct
 {

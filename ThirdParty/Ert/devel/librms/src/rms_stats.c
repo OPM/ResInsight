@@ -18,11 +18,14 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <rms_stats.h>
-#include <rms_tagkey.h>
-#include <rms_tag.h>
-#include <rms_file.h>
-#include <util.h>
+
+#include <ert/util/util.h>
+
+#include <ert/rms/rms_stats.h>
+#include <ert/rms/rms_tagkey.h>
+#include <ert/rms/rms_tag.h>
+#include <ert/rms/rms_file.h>
+
 
 
 
@@ -43,7 +46,7 @@ void rms_stats_mean_std(rms_tagkey_type * mean , rms_tagkey_type * std , const c
       rms_tagkey_type * file_tag = rms_file_fread_alloc_data_tagkey(rms_file, "parameter" , "name" , parameter_name);
       
       if (log_transform)
-	rms_tagkey_inplace_log10(file_tag);
+        rms_tagkey_inplace_log10(file_tag);
       
       rms_tagkey_inplace_add_scaled(mean , file_tag , norm);
       rms_tagkey_inplace_sqr(file_tag);
@@ -93,7 +96,7 @@ void rms_stats_update_ens(const char *prior_path , const char *posterior_path , 
       prior[iens]              = rms_file_fread_alloc_data_tagkey(rms_file , "parameter" , "name" , param_name);
     
       if (iens == 0)
-	dim_tag = rms_file_fread_alloc_tag(rms_file , "dimensions" , NULL , NULL);
+        dim_tag = rms_file_fread_alloc_tag(rms_file , "dimensions" , NULL , NULL);
     
       rms_file_free(rms_file);
     }

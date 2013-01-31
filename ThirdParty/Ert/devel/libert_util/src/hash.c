@@ -23,12 +23,12 @@
 #include <stdint.h>
 #include <errno.h>
 
-#include <hash.h>
-#include <hash_sll.h>
-#include <hash_node.h>
-#include <node_data.h>
-#include <util.h>
-#include <stringlist.h>
+#include <ert/util/hash.h>
+#include <ert/util/hash_sll.h>
+#include <ert/util/hash_node.h>
+#include <ert/util/node_data.h>
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
 
 #ifdef HAVE_PTHREAD
 #include <pthread.h>

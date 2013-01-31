@@ -15,6 +15,6 @@ if (ECL_INSTALL_PREFIX)
    install(FILES ${header_files} DESTINATION ${ECL_INSTALL_PREFIX}/include)
 else()
    #
-   install(TARGETS eclxx_static DESTINATION lib)
+   install(TARGETS eclxx_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
    install(FILES ${header_files} DESTINATION include)
 endif()        

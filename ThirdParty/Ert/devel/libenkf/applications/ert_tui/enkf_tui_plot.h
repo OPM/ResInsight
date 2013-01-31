@@ -20,8 +20,10 @@
 #define __ENKF_TUI_PLOT_H__
 
 
-#include <matrix.h>
-#include <enkf_main.h>
+#include <ert/util/matrix.h>
+
+#include <ert/enkf/enkf_main.h>
+
 void    enkf_tui_plot_simple_menu(void * );
 void    enkf_tui_plot_menu(void * );
 void    enkf_tui_plot_PC( enkf_main_type * enkf_main , const char * plot_name , const matrix_type * PC , const matrix_type * PC_obs);

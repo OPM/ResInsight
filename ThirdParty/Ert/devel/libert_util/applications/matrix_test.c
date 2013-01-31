@@ -20,10 +20,11 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <matrix.h>
-#include <rng.h>
+#include <ert/util/matrix.h>
+#include <ert/util/rng.h>
+
 #ifdef WITH_LAPACK
-#include <matrix_lapack.h>
+#include <ert/util/matrix_lapack.h>
 #endif
 
 int main( int argc, char ** argv)  {

@@ -1,8 +1,0 @@
-plot_driver.o                       : plot_driver.c plot_driver.h plot_const.h  
-plplot_driver.o                     : plplot_driver.c plplot_driver.h plot_driver.o plot_const.h  
-plot_const_cxx.o                    : plot_const_cxx.cxx plot_const_cxx.hxx  
-plot.o                              : plot.c plot.h plot_dataset.o plot_range.o plot_const.h plot_driver.o plplot_driver.o text_driver.o  
-all_include.o                       : plot_const.h  
-plot_range.o                        : plot_range.c plot_range.h plot_const.h  
-plot_dataset.o                      : plot_dataset.c plot_dataset.h plot_const.h plot_range.o plot_driver.o  
-text_driver.o                       : text_driver.c text_driver.h plot_driver.o plot_const.h  

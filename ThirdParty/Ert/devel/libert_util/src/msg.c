@@ -21,9 +21,9 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <util.h>
-#include <msg.h>
-#include <type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/msg.h>
+#include <ert/util/type_macros.h>
 
 #define MSG_TYPE_ID 1999867
 

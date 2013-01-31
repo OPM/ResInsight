@@ -18,9 +18,10 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include <util.h>
-#include <double_vector.h>
-#include <statistics.h>
+
+#include <ert/util/util.h>
+#include <ert/util/double_vector.h>
+#include <ert/util/statistics.h>
 
 
 double statistics_mean( const double_vector_type * data_vector ) {

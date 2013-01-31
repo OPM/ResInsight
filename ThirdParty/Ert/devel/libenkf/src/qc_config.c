@@ -19,12 +19,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <config.h>
+#include <ert/config/config.h>
 
-#include <config_keys.h>
-#include <qc_config.h>
+#include <ert/enkf/config_keys.h>
+#include <ert/enkf/qc_config.h>
 
 
 struct qc_config_struct {

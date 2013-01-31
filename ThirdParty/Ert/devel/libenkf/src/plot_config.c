@@ -17,10 +17,12 @@
 */
 
 #include <stdlib.h>
-#include <util.h>
-#include <plot_config.h>
-#include <enkf_defaults.h>
-#include "config_keys.h"
+
+#include <ert/util/util.h>
+
+#include <ert/enkf/plot_config.h>
+#include <ert/enkf/enkf_defaults.h>
+#include <ert/enkf/config_keys.h>
 
 /** 
     Struct holding basic information used when plotting.

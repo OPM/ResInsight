@@ -16,15 +16,19 @@
    for more details. 
 */
 
-#include <util.h>
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <buffer.h>
 #include <errno.h>
 #include <time.h>
 
-#include <ssize_t.h>
+#include <ert/util/ssize_t.h>
+#include <ert/util/util.h>
+#include <ert/util/buffer.h>
+
+
+
 /**
    This function implements a small buffer type. The whole point of
    this type is that it should work (more-or-less) as a drop in

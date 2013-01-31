@@ -17,12 +17,13 @@
 */
 
 #include <stdlib.h>
-#include <hash.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <set.h>
 #include <string.h>
-#include <util.h>
+
+#include <ert/util/set.h>
+#include <ert/util/hash.h>
+#include <ert/util/util.h>
 
 
 struct set_struct {

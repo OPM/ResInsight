@@ -22,23 +22,22 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include <util.h>
-#include <double_vector.h>
-#include <int_vector.h>
-#include <hash.h>
-#include <vector.h>
-#include <stringlist.h>
+#include <ert/util/util.h>
+#include <ert/util/double_vector.h>
+#include <ert/util/int_vector.h>
+#include <ert/util/hash.h>
+#include <ert/util/vector.h>
+#include <ert/util/stringlist.h>
 
-#include <ecl_util.h>
-#include <ecl_kw.h>
-#include <ecl_file.h>
-#include <ecl_kw_magic.h>
-#include <ecl_endian_flip.h>
-
-#include <ecl_coarse_cell.h>
-#include <ecl_grid.h>
-#include <point.h>
-#include <tetrahedron.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_coarse_cell.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/point.h>
+#include <ert/ecl/tetrahedron.h>
 
 
 /*
@@ -1215,11 +1214,11 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int du
     grid->LGR_list     = NULL;
     grid->LGR_hash     = NULL;
   }
-  grid->coarse_cells = vector_alloc_new();
   grid->name         = NULL;
   grid->parent_name  = NULL;
   grid->parent_grid  = NULL;
   grid->children     = hash_alloc();
+  grid->coarse_cells = vector_alloc_new();
   return grid;
 }
 
@@ -1365,16 +1364,17 @@ static void ecl_grid_set_cell_GRID(ecl_grid_type * ecl_grid , int coords_size , 
    ecl_grid->total_active is correct.
 */
 
-static void ecl_grid_init_index_map__( ecl_grid_type * ecl_grid , int * index_map , int * inv_index_map , int active_mask, int index_index) {
+static void ecl_grid_init_index_map__( ecl_grid_type * ecl_grid , int * index_map , int * inv_index_map , int active_mask, int type_index) {
   int global_index;
 
   for (global_index = 0; global_index < ecl_grid->size; global_index++) {     
     const ecl_cell_type * cell = ecl_grid_get_cell( ecl_grid , global_index);
     if (cell->active & active_mask) {
-      index_map[global_index] = cell->active_index[index_index];
+      index_map[global_index] = cell->active_index[type_index];
       
       if (cell->coarse_group == COARSE_GROUP_NONE)
-        inv_index_map[cell->active_index[index_index]] = global_index;
+        inv_index_map[cell->active_index[type_index]] = global_index;
+      //else: In the case of coarse groups the inv_index_map is set below.
     } else
       index_map[global_index] = -1;
   }
@@ -1412,12 +1412,26 @@ static void ecl_grid_realloc_index_map(ecl_grid_type * ecl_grid) {
         int active_index          = ecl_coarse_cell_get_active_index( coarse_cell );
         int active_fracture_index = ecl_coarse_cell_get_active_fracture_index( coarse_cell );
         
-        if (active_value & ACTIVE_MATRIX)
-          ecl_grid->inv_index_map[ active_index ] = global_index;
-        
-        if (active_value & ACTIVE_FRACTURE)
+        if (active_value & ACTIVE_MATRIX) 
+          ecl_grid->inv_index_map[ active_index ] = global_index;    // The active -> global mapping point to one "random" cell in the coarse group
+          
+        if (active_value & ACTIVE_FRACTURE) 
           ecl_grid->inv_fracture_index_map[ active_fracture_index ] = global_index;
-        
+
+        {
+          int coarse_size = ecl_coarse_cell_get_size( coarse_cell );
+          const int_vector_type * global_index_list = ecl_coarse_cell_get_index_vector( coarse_cell );
+          int ic;
+          for (ic =0; ic < coarse_size; ic++) {
+            int gi = int_vector_iget( global_index_list , ic );
+            
+            if (active_value & ACTIVE_MATRIX) 
+              ecl_grid->index_map[ gi ] = active_index;        // All the cells in the coarse group point to the same active index.
+            
+            if (active_value & ACTIVE_FRACTURE) 
+              ecl_grid->fracture_index_map[ gi ] = active_fracture_index;
+          }
+        }  
       } // else the coarse cell does not have any active cells.
     }
   }
@@ -2991,8 +3005,7 @@ int ecl_grid_get_active_fracture_index3(const ecl_grid_type * ecl_grid , int i ,
 */
 
 int ecl_grid_get_active_fracture_index1(const ecl_grid_type * ecl_grid , int global_index) {
-    if (!ecl_grid->fracture_index_map) return -1;
-    return ecl_grid->fracture_index_map[global_index];
+  return ecl_grid->fracture_index_map[global_index];
 }
 
 

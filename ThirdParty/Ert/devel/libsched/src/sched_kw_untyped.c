@@ -18,12 +18,15 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <vector.h>
 #include <ctype.h>
-#include <util.h>
-#include <sched_kw_untyped.h>
-#include <sched_util.h>
-#include <stringlist.h>
+
+#include <ert/util/vector.h>
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
+
+#include <ert/sched/sched_kw_untyped.h>
+#include <ert/sched/sched_util.h>
+
 
 
 

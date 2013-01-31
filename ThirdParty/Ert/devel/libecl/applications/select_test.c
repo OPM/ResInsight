@@ -19,10 +19,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <util.h>
-#include <stringlist.h>
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
 
-#include <ecl_kw.h>
+#include <ert/ecl/ecl_kw.h>
 
 
 int main(int argc , char ** argv) {

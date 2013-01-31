@@ -1,6 +1,0 @@
-rms_tag.o                           : rms_tag.c rms_tag.h rms_util.o rms_tagkey.o  
-rms_file.o                          : rms_file.c rms_file.h rms_type.o rms_util.o rms_tag.o rms_tagkey.o  
-rms_util.o                          : rms_util.c rms_util.h  
-rms_tagkey.o                        : rms_tagkey.c rms_tagkey.h rms_type.o rms_util.o  
-rms_stats.o                         : rms_stats.c rms_stats.h rms_tagkey.o rms_tag.o rms_file.o  
-rms_type.o                          : rms_type.c rms_type.h  

@@ -19,9 +19,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <util.h>
-#include <node_data.h>
-#include <node_ctype.h>
+
+#include <ert/util/util.h>
+#include <ert/util/node_data.h>
+#include <ert/util/node_ctype.h>
 
 
 /*

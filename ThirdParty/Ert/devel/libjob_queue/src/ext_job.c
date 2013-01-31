@@ -17,19 +17,22 @@
 */
 
 #include <stdlib.h>
-#include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <util.h>
-#include <hash.h>
-#include <ext_job.h>
-#include <config.h>
-#include <stringlist.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <subst_list.h>
-#include <parser.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdio.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/subst_list.h>
+#include <ert/util/parser.h>
+
+#include <ert/config/config.h>
+
+#include <ert/job_queue/ext_job.h>
 
 /*
   About arguments

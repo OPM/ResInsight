@@ -19,11 +19,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <double_vector.h>
-#include <sched_util.h>
-#include <util.h>
-#include <sched_kw_tstep.h>
-#include <sched_macros.h>
+
+#include <ert/util/double_vector.h>
+#include <ert/util/util.h>
+
+#include <ert/sched/sched_util.h>
+#include <ert/sched/sched_kw_tstep.h>
+#include <ert/sched/sched_macros.h>
 
 
 

@@ -23,14 +23,16 @@
 
 #include <math.h>
 #include <stdlib.h>
-#include <meas_data.h>
 #include <string.h>
-#include <util.h>
-#include <hash.h>
-#include <matrix.h>
 #include <pthread.h>
-#include <set.h>
-#include <vector.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/matrix.h>
+#include <ert/util/set.h>
+#include <ert/util/vector.h>
+
+#include <ert/enkf/meas_data.h>
 
 #define MEAS_BLOCK_TYPE_ID 661936407
 

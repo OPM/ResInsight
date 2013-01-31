@@ -16,7 +16,7 @@
    for more details. 
 */
 
-#include "enkf_defaults.h"
+#include <ert/enkf/enkf_defaults.h>
 
 /**
    Currently no code here - but the way DEFAULT_STATIC_KW is implemented

@@ -21,22 +21,22 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include <util.h>
-#include <hash.h>
-#include <vector.h>
-#include <double_vector.h>
-#include <msg.h>
-#include <buffer.h>
-#include <type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/vector.h>
+#include <ert/util/double_vector.h>
+#include <ert/util/msg.h>
+#include <ert/util/buffer.h>
+#include <ert/util/type_macros.h>
 
-#include <enkf_obs.h>
-#include <enkf_fs.h>
-#include <enkf_util.h>
-#include <ranking_common.h>
-#include <data_ranking.h>
-#include <misfit_ranking.h>
-#include <misfit_ensemble.h>
-#include <ranking_table.h>
+#include <ert/enkf/enkf_obs.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/enkf_util.h>
+#include <ert/enkf/ranking_common.h>
+#include <ert/enkf/data_ranking.h>
+#include <ert/enkf/misfit_ranking.h>
+#include <ert/enkf/misfit_ensemble.h>
+#include <ert/enkf/ranking_table.h>
 
 
 #define RANKING_TABLE_TYPE_ID 78420651

@@ -17,27 +17,27 @@
 */
 #include <stdlib.h>
 
-#include <util.h>
-#include <hash.h>
-#include <time_t_vector.h>
-#include <bool_vector.h>
-#include <size_t_vector.h>
-#include <double_vector.h>
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/time_t_vector.h>
+#include <ert/util/bool_vector.h>
+#include <ert/util/size_t_vector.h>
+#include <ert/util/double_vector.h>
 
-#include <well_history.h>
-#include <group_history.h>
-#include <sched_kw.h>
-#include <sched_kw_wconhist.h>
-#include <sched_kw_welspecs.h>
-#include <sched_kw_wconinje.h>
-#include <sched_kw_wconprod.h>
-#include <sched_kw_wconinjh.h>
-#include <sched_kw_gruptree.h>
-#include <sched_file.h>
-#include <sched_types.h>
-#include <well_index.h>
-#include <group_index.h>
-#include <sched_history.h>
+#include <ert/sched/well_history.h>
+#include <ert/sched/group_history.h>
+#include <ert/sched/sched_kw.h>
+#include <ert/sched/sched_kw_wconhist.h>
+#include <ert/sched/sched_kw_welspecs.h>
+#include <ert/sched/sched_kw_wconinje.h>
+#include <ert/sched/sched_kw_wconprod.h>
+#include <ert/sched/sched_kw_wconinjh.h>
+#include <ert/sched/sched_kw_gruptree.h>
+#include <ert/sched/sched_file.h>
+#include <ert/sched/sched_types.h>
+#include <ert/sched/well_index.h>
+#include <ert/sched/group_index.h>
+#include <ert/sched/sched_history.h>
 
 
 struct sched_history_struct {

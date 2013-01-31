@@ -23,15 +23,15 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <util.h>
-#include <matrix.h>
-#include <matrix_blas.h>
-#include <rng.h>
+#include <ert/util/util.h>
+#include <ert/util/matrix.h>
+#include <ert/util/matrix_blas.h>
+#include <ert/util/rng.h>
 
-#include <analysis_module.h>
-#include <analysis_table.h>
-#include <enkf_linalg.h>
-#include <rml_enkf_common.h>
+#include <ert/analysis/analysis_module.h>
+#include <ert/analysis/analysis_table.h>
+#include <ert/analysis/enkf_linalg.h>
+#include <ert/analysis/rml_enkf_common.h>
 
 
 

@@ -54,9 +54,6 @@
 #include <Shlwapi.h>
 #endif
 
-#include <util.h>
-#include <buffer.h>
-
 #ifdef HAVE_FORK
 #include <unistd.h>
 #include <sys/wait.h>
@@ -89,6 +86,9 @@
 #else
 #error "Could not determine if this is a 32 bit or 64 bit computer?"
 #endif
+
+#include <ert/util/util.h>
+#include <ert/util/buffer.h>
 
 
 /*

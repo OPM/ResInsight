@@ -18,12 +18,15 @@
 
 #include <stdbool.h>
 #include <util.h>
-#include <sched_file.h>
-#include <history.h>
-#include <sched_kw_wconinje.h>
-#include <sched_history.h>
-#include <well_history.h>
-#include <ecl_sum.h>
+
+#include <ert/ecl/ecl_sum.h>
+
+#include <ert/sched/sched_file.h>
+#include <ert/sched/history.h>
+#include <ert/sched/sched_kw_wconinje.h>
+#include <ert/sched/sched_history.h>
+#include <ert/sched/well_history.h>
+
 
 
 int main(int argc, char **argv)

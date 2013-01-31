@@ -21,9 +21,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <util.h>
-#include <menu.h>
-#include <vector.h>
+#include <ert/util/util.h>
+#include <ert/util/menu.h>
+#include <ert/util/vector.h>
 
 /**
    This file implements a simple character based menu system. The menu
@@ -311,7 +311,7 @@ static void __print_helptext(char * label, int l){
   while(!end_reached){
     int i;
     if(strlen(label_copy) > l){
-	  util_binary_split_string_from_max_length(label_copy , " ", l , &first_part , &second_part);
+          util_binary_split_string_from_max_length(label_copy , " ", l , &first_part , &second_part);
       printf("|    %s",first_part);
       for (i=strlen(first_part); i < l; i++)
         fputc(' ' , stdout);

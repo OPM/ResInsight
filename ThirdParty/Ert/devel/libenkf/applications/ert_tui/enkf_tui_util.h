@@ -20,11 +20,11 @@
 #define __ENKF_TUI_UTIL_H__
 
 
-#include <enkf_types.h>
-#include <field_config.h>
-#include <enkf_fs.h>
-#include <enkf_config_node.h>
-#include <ensemble_config.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/enkf_config_node.h>
+#include <ert/enkf/ensemble_config.h>
 
 
 void                          enkf_tui_util_scanf_report_steps(int  , int  , int *  , int * );

@@ -21,11 +21,14 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
-#include <ecl_util.h>
-#include <util.h>
-#include <hash.h>
-#include <stringlist.h>
-#include <parser.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/parser.h>
+
+#include <ert/ecl/ecl_util.h>
+
 
 /*****************************************************************/
 /* The string names for the different ECLIPSE low-level

@@ -18,11 +18,11 @@
 
 #include <stdlib.h>
 
-#include <vector.h>
-#include <util.h>
+#include <ert/util/vector.h>
+#include <ert/util/util.h>
 
-#include <container_config.h>
-#include <enkf_macros.h>
+#include <ert/enkf/container_config.h>
+#include <ert/enkf/enkf_macros.h>
 
 #define CONTAINER_CONFIG_TYPE_ID 51330852
 

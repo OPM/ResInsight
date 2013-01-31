@@ -24,17 +24,17 @@
 #include <pthread.h>
 #include <glob.h>
 
-#include <util.h>
-#include <double_vector.h>
-#include <time_t_vector.h>
-#include <statistics.h>
-#include <vector.h>
-#include <arg_pack.h>
-#include <thread_pool.h>
+#include <ert/util/util.h>
+#include <ert/util/double_vector.h>
+#include <ert/util/time_t_vector.h>
+#include <ert/util/statistics.h>
+#include <ert/util/vector.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/thread_pool.h>
 
-#include <config.h>
+#include <ert/config/config.h>
 
-#include <ecl_sum.h>
+#include <ert/ecl/ecl_sum.h>
 
 #define DEFAULT_NUM_INTERP  50
 #define SUMMARY_JOIN       ":"

@@ -17,8 +17,10 @@
 */
 
 #include <string.h>
-#include <util.h>
-#include <sched_types.h>
+
+#include <ert/util/util.h>
+
+#include <ert/sched/sched_types.h>
 
 #define SCHED_KW_DEFAULT_ITEM "*"
 

@@ -17,18 +17,21 @@
 */
 
 #include <stdlib.h>
-#include <ecl_kw.h>
-#include <fortio.h>
-#include <set.h>
-#include <util.h>
-#include <string.h>
-#include <ecl_util.h>
-#include <ecl_sum.h>
-#include <hash.h>
 #include <stdbool.h>
-#include <ecl_grid.h>
-#include <ecl_endian_flip.h>
-#include <msg.h>
+#include <string.h>
+
+#include <ert/util/set.h>
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/msg.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_sum.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_endian_flip.h>
+
 
 /**
    This file will extract all occurences of kw1,kw2,...,kwn from the

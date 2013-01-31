@@ -19,12 +19,15 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <math.h>
+
+#include <ert/util/util.h>
+#include <ert/util/arg_pack.h>
+
 #include <plplot/plplot.h>
 #include <plplot/plplotP.h>
-#include <plot_const.h>
-#include <plot_range.h>
-#include <util.h>
-#include <arg_pack.h>
+
+#include <ert/plot/plot_const.h>
+#include <ert/plot/plot_range.h>
 
 
 /**

@@ -20,9 +20,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <rms_util.h>
-#include <ecl_util.h>
-#include <util.h>
+
+#include <ert/util/util.h>
+
+#include <ert/rms/rms_util.h>
+
+#include <ert/ecl/ecl_util.h>
+
 
 
 
@@ -51,9 +55,9 @@ void rms_util_set_fortran_data(void *_f90_data , const void * _rms_data, int siz
   for (i=0; i < nx; i++) 
     for (j=0; j < ny; j++)
       for (k= 0; k < nz; k++) {
-	rms_index  = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);
-	f90_index  = i + j*nx + k*nx*ny;
-	memcpy(&f90_data[f90_index * sizeof_ctype] , &rms_data[rms_index * sizeof_ctype] , sizeof_ctype);
+        rms_index  = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);
+        f90_index  = i + j*nx + k*nx*ny;
+        memcpy(&f90_data[f90_index * sizeof_ctype] , &rms_data[rms_index * sizeof_ctype] , sizeof_ctype);
       }
 }
 
@@ -67,9 +71,9 @@ void rms_util_read_fortran_data(const void *_f90_data , void * _rms_data, int si
   for (i=0; i < nx; i++) 
     for (j=0; j < ny; j++)
       for (k= 0; k < nz; k++) {
-	rms_index  = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);
-	f90_index = i + j*nx + k*nx*ny;
-	memcpy(&rms_data[rms_index * sizeof_ctype] , &f90_data[f90_index * sizeof_ctype] , sizeof_ctype);
+        rms_index  = rms_util_global_index_from_eclipse_ijk(nx,ny,nz,i,j,k);
+        f90_index = i + j*nx + k*nx*ny;
+        memcpy(&rms_data[rms_index * sizeof_ctype] , &f90_data[f90_index * sizeof_ctype] , sizeof_ctype);
       }
 }
 
@@ -122,11 +126,11 @@ bool rms_util_fread_string(char *string , int max_length , FILE *stream) {
     } else {
       pos++;
       if (max_length > 0) {
-	if (pos == max_length) {
-	  read_ok = false;
-	  fseek(stream , init_pos , SEEK_SET);
-	  cont = false;
-	}
+        if (pos == max_length) {
+          read_ok = false;
+          fseek(stream , init_pos , SEEK_SET);
+          cont = false;
+        }
       }
     } 
   } 

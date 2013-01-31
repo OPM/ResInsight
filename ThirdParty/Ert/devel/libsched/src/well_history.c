@@ -19,19 +19,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <double_vector.h>
-#include <int_vector.h>
-#include <time_t_vector.h>
-#include <size_t_vector.h>
-#include <bool_vector.h>
+#include <ert/util/double_vector.h>
+#include <ert/util/int_vector.h>
+#include <ert/util/time_t_vector.h>
+#include <ert/util/size_t_vector.h>
+#include <ert/util/bool_vector.h>
 
-#include <sched_types.h>
-#include <well_history.h>
-#include <group_history.h>
-#include <sched_kw.h>
-#include <sched_kw_wconhist.h>
-#include <sched_kw_wconinje.h>
-#include <sched_kw_wconinjh.h>
+#include <ert/sched/sched_types.h>
+#include <ert/sched/well_history.h>
+#include <ert/sched/group_history.h>
+#include <ert/sched/sched_kw.h>
+#include <ert/sched/sched_kw_wconhist.h>
+#include <ert/sched/sched_kw_wconinje.h>
+#include <ert/sched/sched_kw_wconinjh.h>
 
 
 #define WELL_HISTORY_TYPE_ID   44431872

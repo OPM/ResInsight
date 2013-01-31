@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <util.h>
-#include <node_ctype.h>
+#include <ert/util/util.h>
+#include <ert/util/node_ctype.h>
 
 
 const char * node_ctype_name(node_ctype ctype) {

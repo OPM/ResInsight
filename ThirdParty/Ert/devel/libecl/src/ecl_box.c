@@ -16,12 +16,15 @@
    for more details. 
 */
 
-#include <util.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <ecl_box.h>
-#include <ecl_grid.h>
+
+#include <ert/util/util.h>
+
+#include <ert/ecl/ecl_box.h>
+#include <ert/ecl/ecl_grid.h>
 
 
 #define ECL_BOX_TYPE_ID 6610643

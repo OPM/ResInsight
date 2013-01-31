@@ -18,17 +18,19 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <util.h>
-#include <rng.h>
-#include <matrix.h>
-#include <matrix_blas.h>
-#include <stdio.h>
-#include <analysis_table.h>
-#include <analysis_module.h>
-/*#include <enkf_linalg.h>*/
-#include <stepwise.h>
-#include <fwd_step_enkf.h>
 #include <math.h>
+#include <stdio.h>
+
+#include <ert/util/util.h>
+#include <ert/util/rng.h>
+#include <ert/util/matrix.h>
+#include <ert/util/matrix_blas.h>
+#include <ert/util/stepwise.h>
+
+#include <ert/analysis/fwd_step_enkf.h>
+#include <ert/analysis/analysis_table.h>
+#include <ert/analysis/analysis_module.h>
+
 
 #define FWD_STEP_ENKF_TYPE_ID 765524
 

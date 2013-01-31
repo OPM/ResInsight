@@ -20,18 +20,20 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include <hash.h>
-#include <util.h>
-#include <vector.h>
-#include <ecl_kw.h>
-#include <ecl_util.h>
-#include <ecl_file.h>
-#include <ecl_grid.h>
-#include <ecl_region.h>
-#include <ecl_subsidence.h>
-#include <ecl_grid_cache.h>
-#include <ecl_kw_magic.h>
-#include <ecl_grav_common.h>
+
+#include <ert/util/hash.h>
+#include <ert/util/util.h>
+#include <ert/util/vector.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_region.h>
+#include <ert/ecl/ecl_subsidence.h>
+#include <ert/ecl/ecl_grid_cache.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_grav_common.h>
 
 
 /**

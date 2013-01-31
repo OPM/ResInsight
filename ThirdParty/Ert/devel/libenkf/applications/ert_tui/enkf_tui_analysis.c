@@ -20,19 +20,21 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <util.h>
 #include <ctype.h>
-#include <menu.h>
-#include <thread_pool.h>
-#include <arg_pack.h>
-#include <stringlist.h>
 
-#include <enkf_main.h>
-#include <enkf_sched.h>
-#include <ensemble_config.h>
-#include <analysis_config.h>
-#include <analysis_module.h>
+#include <ert/util/util.h>
+#include <ert/util/menu.h>
+#include <ert/util/thread_pool.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/stringlist.h>
+
+#include <ert/analysis/analysis_module.h>
+
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_sched.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/analysis_config.h>
+
 #include <enkf_tui_util.h>
 #include <enkf_tui_fs.h>
 #include <ert_tui_const.h>

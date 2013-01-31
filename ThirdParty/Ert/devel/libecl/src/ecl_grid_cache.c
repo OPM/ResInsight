@@ -21,13 +21,13 @@
 #include <math.h>
 #include <stdbool.h>
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <ecl_kw.h>
-#include <ecl_util.h>
-#include <ecl_file.h>
-#include <ecl_grid.h>
-#include <ecl_grid_cache.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_grid_cache.h>
 
 
 

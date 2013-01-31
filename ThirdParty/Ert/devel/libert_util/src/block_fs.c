@@ -21,17 +21,19 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <hash.h>
-#include <util.h>
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <block_fs.h>
-#include <vector.h>
-#include <buffer.h>
-#include <long_vector.h>
 #include <time.h>
 #include <fnmatch.h>
+
+#include <ert/util/hash.h>
+#include <ert/util/util.h>
+#include <ert/util/block_fs.h>
+#include <ert/util/vector.h>
+#include <ert/util/buffer.h>
+#include <ert/util/long_vector.h>
+
 
 #define MOUNT_MAP_MAGIC_INT  8861290
 #define BLOCK_FS_TYPE_ID     7100652

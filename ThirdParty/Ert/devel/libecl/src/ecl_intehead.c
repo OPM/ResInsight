@@ -16,10 +16,12 @@
    for more details. 
 */
 #include <stdlib.h>
-#include <util.h>
-#include <ecl_kw.h>
-#include <ecl_intehead.h>
-#include <ecl_kw_magic.h>
+
+#include <ert/util/util.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_intehead.h>
+#include <ert/ecl/ecl_kw_magic.h>
 
 static time_t intehead_date( int day , int month , int year) {
   return util_make_date( day , month, year );

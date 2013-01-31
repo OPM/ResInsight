@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <latex.h>
+#include <ert/util/latex.h>
 
 
 int main(int argc , char ** argv) {

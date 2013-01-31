@@ -18,8 +18,9 @@
 
 #include <stdbool.h>
 #include <util.h>
-#include <sched_file.h>
-#include <history.h>
+
+#include <ert/sched/sched_file.h>
+#include <ert/sched/history.h>
 
 int main(int argc, char **argv)
 {

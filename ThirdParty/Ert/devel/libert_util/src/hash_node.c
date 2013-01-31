@@ -20,10 +20,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <util.h>
 #include <stdint.h>
-#include <node_data.h>
-#include <hash_node.h>
+
+#include <ert/util/util.h>
+#include <ert/util/node_data.h>
+#include <ert/util/hash_node.h>
 
 #ifdef __cplusplus
 extern "C" {

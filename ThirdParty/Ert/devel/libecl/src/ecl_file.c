@@ -22,19 +22,19 @@
 #include <errno.h>
 #include <time.h>
 
-#include <hash.h>
-#include <util.h>
-#include <vector.h>
-#include <int_vector.h>
-#include <stringlist.h>
+#include <ert/util/hash.h>
+#include <ert/util/util.h>
+#include <ert/util/vector.h>
+#include <ert/util/int_vector.h>
+#include <ert/util/stringlist.h>
 
-#include <fortio.h>
-#include <ecl_kw.h>
-#include <ecl_file.h>
-#include <ecl_endian_flip.h>
-#include <ecl_kw_magic.h>
-#include <ecl_intehead.h>
-#include <ecl_file_kw.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_intehead.h>
+#include <ert/ecl/ecl_file_kw.h>
 
 
 /**

@@ -5,9 +5,9 @@ from   optparse import OptionParser
 
 #-----------------------------------------------------------------
 
-lib_list          = ["analysis" , "ert_util"]
-lib_path_list     = ["./" , "../../libutil/slib"]
-include_path_list = ["./" , "../../libutil/src"]
+lib_list          = ["analysis"   , "ert_util"]
+lib_path_list     = ["./"         , "../../libutil/slib"]
+include_path_list = ["../include" , "../../libutil/src"]
 define_list       = ["HAVE_PTHREAD"]
 
 

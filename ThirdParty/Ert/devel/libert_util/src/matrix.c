@@ -21,11 +21,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <thread_pool.h>
-#include <util.h>
-#include <matrix.h>
-#include <arg_pack.h>
-#include <rng.h>
+#include <ert/util/thread_pool.h>
+#include <ert/util/util.h>
+#include <ert/util/matrix.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/rng.h>
 
 /**
    This is V E R Y  S I M P L E matrix implementation. It is not

@@ -19,16 +19,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <menu.h>
-#include <util.h>
-#include <arg_pack.h>
+#include <ert/util/menu.h>
+#include <ert/util/util.h>
+#include <ert/util/arg_pack.h>
 
-#include <enkf_fs.h>
-#include <enkf_main.h>
-#include <enkf_obs.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_obs.h>
+#include <ert/enkf/ranking_table.h>
+#include <ert/enkf/misfit_ensemble.h>
+
 #include <enkf_tui_util.h>
-#include <ranking_table.h>
-#include <misfit_ensemble.h>
 #include <enkf_tui_help.h>
 
 static void enkf_tui_ranking_make_misfit_ensemble( void * arg) {

@@ -23,13 +23,15 @@
 #include <stdbool.h>
 #include <math.h>
 #include <string.h>
-#include <util.h>
 #include <stdio.h>
-#include <summary_obs.h>
-#include <obs_data.h>
-#include <meas_data.h>
-#include <summary.h>
-#include <active_list.h>
+
+#include <ert/util/util.h>
+
+#include <ert/enkf/summary_obs.h>
+#include <ert/enkf/obs_data.h>
+#include <ert/enkf/meas_data.h>
+#include <ert/enkf/summary.h>
+#include <ert/enkf/active_list.h>
 
 
 #define SUMMARY_OBS_TYPE_ID 66103

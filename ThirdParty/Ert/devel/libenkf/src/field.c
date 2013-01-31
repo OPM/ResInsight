@@ -20,24 +20,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <util.h>
-#include <buffer.h>
-#include <rng.h>
+#include <ert/util/util.h>
+#include <ert/util/buffer.h>
+#include <ert/util/rng.h>
 
-#include <fortio.h>
-#include <ecl_kw.h>
-#include <ecl_file.h>
-#include <ecl_util.h>
-#include <ecl_endian_flip.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_endian_flip.h>
 
-#include <rms_file.h>
-#include <rms_tagkey.h>
-#include <rms_type.h>
-#include <rms_util.h>
+#include <ert/rms/rms_file.h>
+#include <ert/rms/rms_tagkey.h>
+#include <ert/rms/rms_type.h>
+#include <ert/rms/rms_util.h>
 
-#include <field.h>
-#include <field_config.h>
-#include <enkf_serialize.h>
+#include <ert/enkf/field.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/enkf_serialize.h>
 
 
 GET_DATA_SIZE_HEADER(field);

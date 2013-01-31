@@ -19,13 +19,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <util.h>
 #include <math.h>
 #include <time.h>
-#include <hash.h>
-#include <rms_type.h>
-#include <rms_tagkey.h>
-#include <rms_util.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+
+#include <ert/rms/rms_type.h>
+#include <ert/rms/rms_tagkey.h>
+#include <ert/rms/rms_util.h>
 
 static const char * rms_array_string      = "array";
 

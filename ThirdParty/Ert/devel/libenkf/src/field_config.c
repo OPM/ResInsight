@@ -20,22 +20,22 @@
 #include <string.h>
 #include <math.h>
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <ecl_grid.h>
-#include <ecl_kw.h>
-#include <ecl_util.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_util.h>
 
-#include <rms_file.h>
-#include <rms_util.h>
+#include <ert/rms/rms_file.h>
+#include <ert/rms/rms_util.h>
 
-#include <enkf_types.h>
-#include <field_config.h>
-#include <enkf_macros.h>
-#include <field_trans.h>
-#include <field_common.h>
-#include "config_keys.h"  
-#include "enkf_defaults.h"
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/enkf_macros.h>
+#include <ert/enkf/field_trans.h>
+#include <ert/enkf/field_common.h>
+#include <ert/enkf/config_keys.h>
+#include <ert/enkf/enkf_defaults.h>
 
 /**
    About transformations and truncations

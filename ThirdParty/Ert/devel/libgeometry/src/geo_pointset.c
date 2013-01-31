@@ -20,9 +20,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <geo_pointset.h>
+#include <ert/geometry/geo_pointset.h>
 
 
 #define INIT_SIZE 256

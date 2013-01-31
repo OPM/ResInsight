@@ -19,12 +19,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <util.h>
-#include <hash.h>
-#include <ext_job.h>
-#include <stringlist.h>
-#include <ext_joblist.h>
-#include <subst_list.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/subst_list.h>
+
+#include <ert/job_queue/ext_job.h>
+#include <ert/job_queue/ext_joblist.h>
 
 
 //#define MODULE_NAME    "jobs.py"

@@ -18,8 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <util.h>
-#include <ecl_grid.h>
+#include <ert/util/util.h>
+
+#include <ert/ecl/ecl_grid.h>
 
 
 

@@ -21,25 +21,24 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <util.h>
-#include <buffer.h>
-#include <msg.h>
-#include <rng.h>
-#include <vector.h>
-#include <path_fmt.h>
+#include <ert/util/util.h>
+#include <ert/util/buffer.h>
+#include <ert/util/msg.h>
+#include <ert/util/rng.h>
+#include <ert/util/vector.h>
+#include <ert/util/path_fmt.h>
 
-#include <enkf_node.h>
-#include <enkf_config_node.h>
-#include <enkf_fs.h>
-
-#include <field.h>
-#include <surface.h>
-#include <summary.h>
-#include <ecl_static_kw.h>
-#include <gen_kw.h>
-#include <gen_data.h>
-#include <container.h>
-#include <enkf_serialize.h>
+#include <ert/enkf/enkf_node.h>
+#include <ert/enkf/enkf_config_node.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/field.h>
+#include <ert/enkf/surface.h>
+#include <ert/enkf/summary.h>
+#include <ert/enkf/ecl_static_kw.h>
+#include <ert/enkf/gen_kw.h>
+#include <ert/enkf/gen_data.h>
+#include <ert/enkf/container.h>
+#include <ert/enkf/enkf_serialize.h>
 
 /**
    A small illustration (says more than thousand words ...) of how the

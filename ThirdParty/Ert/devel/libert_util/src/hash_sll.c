@@ -20,9 +20,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <util.h>
-#include <hash_node.h>
-#include <hash_sll.h>
+#include <ert/util/util.h>
+#include <ert/util/hash_node.h>
+#include <ert/util/hash_sll.h>
 
 #ifdef __cplusplus
 extern "C" {

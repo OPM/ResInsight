@@ -20,10 +20,10 @@
 #include <signal.h>
 #include <stdbool.h>
 
-#include <util.h>
-#include <stringlist.h>
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
 
-#include <ecl_sum.h>
+#include <ert/ecl/ecl_sum.h>
 
 
 

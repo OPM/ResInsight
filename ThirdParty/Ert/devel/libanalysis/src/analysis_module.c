@@ -21,12 +21,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <dlfcn.h>
-#include <matrix.h>
-#include <util.h>
-#include <rng.h>
 
-#include <analysis_module.h>
-#include <analysis_table.h>
+#include <ert/util/matrix.h>
+#include <ert/util/util.h>
+#include <ert/util/rng.h>
+
+#include <ert/analysis/analysis_module.h>
+#include <ert/analysis/analysis_table.h>
 
 #define ANALYSIS_MODULE_TYPE_ID 6610123
 

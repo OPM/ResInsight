@@ -21,13 +21,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <type_macros.h>
-#include <util.h>
-#include <template.h>
-#include <latex.h>
-#include <subst_list.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/template.h>
+#include <ert/util/latex.h>
+#include <ert/util/subst_list.h>
 
-#include <ert_report.h>
+#include <ert/enkf/ert_report.h>
 
 /*
   The LATEX_PATH_FMT is a format string for where the latex

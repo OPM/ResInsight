@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <int_vector.h>
+#include <ert/util/int_vector.h>
 
 void assert_equal( bool equal ) {
   if (!equal)

@@ -20,17 +20,18 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <util.h>
 #include <ctype.h>
-#include <menu.h>
-#include <enkf_node.h>
-#include <arg_pack.h>
-#include <arg_pack.h>
-#include <field.h>
-#include <field_config.h>
-#include <enkf_state.h>
-#include <ensemble_config.h>
-#include <enkf_types.h>
+
+#include <ert/util/util.h>
+#include <ert/util/menu.h>
+#include <ert/util/arg_pack.h>
+
+#include <ert/enkf/enkf_node.h>
+#include <ert/enkf/field.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/enkf_state.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/enkf_types.h>
 
 
 /** 

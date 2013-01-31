@@ -19,9 +19,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <ecl_grid.h>
+#include <ert/ecl/ecl_grid.h>
 
 
 

@@ -23,25 +23,25 @@
 #include <ctype.h>
 #include <time.h>
 
-#include <hash.h>
-#include <util.h>
-#include <stringlist.h>
+#include <ert/util/hash.h>
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
 
-#include <sched_kw.h>
-#include <sched_util.h>
-#include <sched_kw_gruptree.h>
-#include <sched_kw_tstep.h>
-#include <sched_kw_dates.h>
-#include <sched_kw_wconhist.h>
-#include <sched_kw_wconinjh.h>
-#include <sched_kw_welspecs.h>
-#include <sched_kw_wconprod.h>
-#include <sched_kw_wconinj.h>
-#include <sched_kw_wconinje.h>
-#include <sched_kw_compdat.h>
-#include <sched_kw_untyped.h>
-#include <sched_kw_include.h>
-#include <sched_macros.h>
+#include <ert/sched/sched_kw.h>
+#include <ert/sched/sched_util.h>
+#include <ert/sched/sched_kw_gruptree.h>
+#include <ert/sched/sched_kw_tstep.h>
+#include <ert/sched/sched_kw_dates.h>
+#include <ert/sched/sched_kw_wconhist.h>
+#include <ert/sched/sched_kw_wconinjh.h>
+#include <ert/sched/sched_kw_welspecs.h>
+#include <ert/sched/sched_kw_wconprod.h>
+#include <ert/sched/sched_kw_wconinj.h>
+#include <ert/sched/sched_kw_wconinje.h>
+#include <ert/sched/sched_kw_compdat.h>
+#include <ert/sched/sched_kw_untyped.h>
+#include <ert/sched/sched_kw_include.h>
+#include <ert/sched/sched_macros.h>
 
 
 /*

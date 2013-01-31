@@ -20,10 +20,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include <timer.h>
+#include <ert/util/timer.h>
 
-#include <ecl_grid.h>
-#include <ecl_file.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_file.h>
 
 
 void test_case( const char * base , bool load_all) {

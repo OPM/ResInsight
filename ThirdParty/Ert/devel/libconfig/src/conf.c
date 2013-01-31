@@ -18,12 +18,15 @@
 
 #include <assert.h>
 #include <string.h>
-#include <hash.h>
-#include <set.h>
-#include <util.h>
-#include <conf.h>
-#include <conf_util.h>
-#include <vector.h>
+
+#include <ert/util/hash.h>
+#include <ert/util/set.h>
+#include <ert/util/util.h>
+#include <ert/util/vector.h>
+
+#include <ert/config/conf.h>
+#include <ert/config/conf_util.h>
+
 
 
 /** S T R U C T   D E F I N I T I O N S */ 

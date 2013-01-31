@@ -1,5 +1,0 @@
-conf.o                              : conf.c conf.h conf_util.o  
-conf_data.o                         : conf_data.c conf_data.h  
-conf_util.o                         : conf_util.c conf_util.h  
-config.o                            : config.c config.h  
-tokenizer.o                         : tokenizer.c tokenizer.h

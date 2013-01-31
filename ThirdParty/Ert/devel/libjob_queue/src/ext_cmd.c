@@ -20,13 +20,13 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 
-#include <int_vector.h>
-#include <util.h>
-#include <type_macros.h>
+#include <ert/util/int_vector.h>
+#include <ert/util/util.h>
+#include <ert/util/type_macros.h>
 
-#include <config.h>
+#include <ert/config/config.h>
 
-#include <ext_cmd.h>
+#include <ert/job_queue/ext_cmd.h>
 
 
 /* The default values are interepreted as no limit. */

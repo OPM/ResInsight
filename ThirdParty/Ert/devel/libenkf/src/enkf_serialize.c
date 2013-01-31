@@ -18,10 +18,12 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <enkf_serialize.h>
-#include <enkf_types.h>
-#include <util.h>
-#include <active_list.h>
+
+#include <ert/util/util.h>
+
+#include <ert/enkf/enkf_serialize.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/active_list.h>
 
 /** This is heavy shit ... */
 

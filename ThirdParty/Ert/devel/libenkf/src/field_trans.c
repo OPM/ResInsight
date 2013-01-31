@@ -29,12 +29,13 @@
   bottom of the file.
 */
 #include <string.h>
-#include <field_trans.h>
-#include <hash.h>
 #include <stdbool.h>
-#include <util.h>
 #include <math.h>
 
+#include <ert/util/hash.h>
+#include <ert/util/util.h>
+
+#include <ert/enkf/field_trans.h>
 /*****************************************************************/
 
 struct field_trans_table_struct {

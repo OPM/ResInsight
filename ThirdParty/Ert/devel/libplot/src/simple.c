@@ -16,8 +16,9 @@
    for more details. 
 */
 
-#include <plot.h>
-#include <plot_dataset.h>
+
+#include <ert/plot/plot.h>
+#include <ert/plot/plot_dataset.h>
 
 int main()
 {
@@ -29,22 +30,22 @@ int main()
     plot_initialize(item, "png", "test.png");
 
     {
-	plot_dataset_type *d;
-	int N = pow(2, 10);
-	PLFLT x[2 * N];
-	PLFLT y[2 * N];
-	int i;
+        plot_dataset_type *d;
+        int N = pow(2, 10);
+        PLFLT x[2 * N];
+        PLFLT y[2 * N];
+        int i;
 
-	for (i = 0; i <= 2 * N; i++) {
-	    x[i] = (i - N) / period;
-	    if (x[i] != 0.0)
-		y[i] = sin(PI * x[i]) / (PI * x[i]);
-	    else
-		y[i] = 1.0;
-	}
-	d = plot_dataset_alloc();
-	plot_dataset_set_data(d, x, y, 2 * N, BLUE, LINE);
-	plot_dataset_add(item, d);
+        for (i = 0; i <= 2 * N; i++) {
+            x[i] = (i - N) / period;
+            if (x[i] != 0.0)
+                y[i] = sin(PI * x[i]) / (PI * x[i]);
+            else
+                y[i] = 1.0;
+        }
+        d = plot_dataset_alloc();
+        plot_dataset_set_data(d, x, y, 2 * N, BLUE, LINE);
+        plot_dataset_add(item, d);
     }
 
     plot_set_labels(item, "x-axis", "y-axis", "y = sinc(x)", BLACK);

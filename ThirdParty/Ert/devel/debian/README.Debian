@@ -1,6 +1,13 @@
-libert for Debian
+libert.ecl for Debian
 -----------------
 
-<possible notes regarding this package - if none, delete this file>
+ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
+of reservoir models. This package contains the ERT functionality for
+working with ECLIPSE output files. The package contains functionality
+for reading, and partly writing, ECLIPSE INIT/GRID/EGRID/RFT and
+summary and restart files. There is also some functionality for
+working with .grdecl formatted ECLIPSE input files.
+
+ -- Joakim Hove <joaho@statoil.com> Wed, 23 Jan 2013 13:41:00 +0100
 
  -- Arne Morten Kvarving <arne.morten.kvarving@sintef.no>  Wed, 16 Jan 2013 11:21:17 +0100

@@ -31,12 +31,12 @@
 */
 
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <fortio.h>
-#include <ecl_kw_magic.h>
-#include <ecl_kw.h>
-#include <ecl_grid.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_grid.h>
 
 static ecl_kw_type * ecl_init_file_alloc_INTEHEAD( const ecl_grid_type * ecl_grid , int phases, time_t start_date , int simulator) {
   ecl_kw_type * intehead_kw = ecl_kw_alloc( INTEHEAD_KW , INTEHEAD_INIT_SIZE , ECL_INT_TYPE );

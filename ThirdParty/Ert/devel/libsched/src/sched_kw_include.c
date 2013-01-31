@@ -20,12 +20,15 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <util.h>
-#include <sched_util.h>
-#include <sched_kw_include.h>
-#include <sched_macros.h>
-#include <parser.h>
-#include <stringlist.h>
+
+#include <ert/util/util.h>
+#include <ert/util/parser.h>
+#include <ert/util/stringlist.h>
+
+#include <ert/sched/sched_util.h>
+#include <ert/sched/sched_kw_include.h>
+#include <ert/sched/sched_macros.h>
+
 
 /**
    This file implemtents support for the INCLUDE keyword in the

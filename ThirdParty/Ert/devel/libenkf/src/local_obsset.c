@@ -19,11 +19,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <util.h>
-#include <hash.h>
-#include <active_list.h>
-#include <local_obsset.h>
-#include <local_config.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+
+#include <ert/enkf/active_list.h>
+#include <ert/enkf/local_obsset.h>
+#include <ert/enkf/local_config.h>
 
 #define LOCAL_OBSSET_TYPE_ID 991534
 

@@ -20,15 +20,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <util.h>
-#include <int_vector.h>
-#include <bool_vector.h>
-#include <type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/int_vector.h>
+#include <ert/util/bool_vector.h>
+#include <ert/util/type_macros.h>
 
-#include <geo_util.h>
-#include <geo_pointset.h>
-#include <geo_region.h>
-#include <geo_polygon.h>
+#include <ert/geometry/geo_util.h>
+#include <ert/geometry/geo_pointset.h>
+#include <ert/geometry/geo_region.h>
+#include <ert/geometry/geo_polygon.h>
 
 #define GEO_REGION_TYPE_ID 4431973
 

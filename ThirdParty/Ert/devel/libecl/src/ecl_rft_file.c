@@ -20,19 +20,22 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <util.h>
-#include <ecl_rft_file.h>
-#include <ecl_rft_node.h>
-#include <hash.h>
-#include <vector.h>
-#include <ecl_file.h>
-#include <int_vector.h>
-#include <ecl_endian_flip.h>
-#include <ecl_kw_magic.h>
 
 #ifdef HAVE_FNMATCH
 #include <fnmatch.h>
 #endif
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/vector.h>
+#include <ert/util/int_vector.h>
+
+#include <ert/ecl/ecl_rft_file.h>
+#include <ert/ecl/ecl_rft_node.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_endian_flip.h>
+#include <ert/ecl/ecl_kw_magic.h>
+
 
 /**
    This data structure is for loading one eclipse RFT file. One RFT

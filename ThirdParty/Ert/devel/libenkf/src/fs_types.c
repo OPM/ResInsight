@@ -18,8 +18,11 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <fs_types.h>
-#include <util.h>
+
+#include <ert/util/util.h>
+
+#include <ert/enkf/fs_types.h>
+
 
 
 fs_driver_impl fs_types_lookup_string_name(const char * driver_name) {

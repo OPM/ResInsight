@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <matrix.h>
-#include <matrix_lapack.h>
-#include <matrix_blas.h>
-#include <util.h>
+#include <ert/util/matrix.h>
+#include <ert/util/matrix_lapack.h>
+#include <ert/util/matrix_blas.h>
+#include <ert/util/util.h>
 
-#include <enkf_linalg.h>
+#include <ert/analysis/enkf_linalg.h>
 
 void enkf_linalg_genX3(matrix_type * X3 , const matrix_type * W , const matrix_type * D , const double * eig) {
   const int nrobs = matrix_get_rows( D );

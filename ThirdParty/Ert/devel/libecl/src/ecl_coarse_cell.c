@@ -18,12 +18,12 @@
 
 #include <stdbool.h>
 
-#include <util.h>
-#include <type_macros.h>
-#include <int_vector.h>
+#include <ert/util/util.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/int_vector.h>
 
-#include <ecl_kw_magic.h>
-#include <ecl_coarse_cell.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_coarse_cell.h>
 
 /******************************************************************/
 /*

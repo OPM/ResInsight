@@ -20,20 +20,22 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <util.h>
 #include <ctype.h>
-#include <menu.h>
-#include <enkf_main.h>
-#include <field.h>
-#include <field_config.h>
-#include <enkf_state.h>
 
-#include <enkf_fs.h>
+#include <ert/util/util.h>
+#include <ert/util/menu.h>
+#include <ert/util/msg.h>
+
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/field.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/enkf_state.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/gen_data.h>
+#include <ert/enkf/gen_data_config.h>
+
 #include <enkf_tui_util.h>
-#include <field_config.h>
-#include <msg.h>
-#include <gen_data.h>
-#include <gen_data_config.h>
 #include <enkf_tui_help.h>
 #define PROMPT_LEN  60
 

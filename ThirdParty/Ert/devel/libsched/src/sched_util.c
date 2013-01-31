@@ -19,9 +19,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <util.h>
-#include <sched_util.h>
-#include <buffer.h>
+
+#include <ert/util/util.h>
+#include <ert/util/buffer.h>
+
+#include <ert/sched/sched_util.h>
 
 /**
    This file implements small utility functions used by the rest of

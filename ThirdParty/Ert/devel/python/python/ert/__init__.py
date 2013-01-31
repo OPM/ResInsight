@@ -35,14 +35,14 @@ variable LD_LIBRARY_PATH.
 To avoid conflict with other application using the ert libraries the
 Python code should be able to locate the shared libraries without
 (necessarily) using the LD_LIBRARY_PATH variable. The default
-behaviour is to try to load from the library ../../lib, but by using
+behaviour is to try to load from the library ../../lib64, but by using
 the enviornment variable ERT_LIBRARY_PATH you can alter how ert looks
 for shared libraries. This module will set the ert_lib_path of the
 ert.cwrap.clib module; the actual loading will take place in that
 module.
 
    1. By default the code will try to load the shared libraries from
-      '../../lib' relative to the location of this file.
+      '../../lib64' relative to the location of this file.
 
    2. Depending on the value of ERT_LIBRARY_PATH two different
       behaviours can be imposed:
@@ -53,7 +53,7 @@ module.
          Arbitrary value: the package will use standard load order for
          the operating system.
 
-If the fixed path, given by the default ../../lib or ERT_LIBRARY_PATH
+If the fixed path, given by the default ../../lib64 or ERT_LIBRARY_PATH
 alternative fails, the loader will try the default load behaviour
 before giving up completely.
 """
@@ -69,8 +69,8 @@ if ert_lib_path:
         ert_lib_path = None
     #else: look in ERT_LIBRARY_PATH
 else:
-    # Look in the default path "../../lib"
-    ert_lib_path = os.path.realpath( os.path.join(os.path.dirname( os.path.abspath( __file__)) , "../../lib") )
+    # Look in the default path "../../lib64"
+    ert_lib_path = os.path.realpath( os.path.join(os.path.dirname( os.path.abspath( __file__)) , "../../lib64") )
     if not os.path.exists( ert_lib_path ):
         ert_lib_path = None
     

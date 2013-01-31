@@ -19,8 +19,10 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <util.h>
-#include <geo_util.h>
+
+#include <ert/util/util.h>
+
+#include <ert/geometry/geo_util.h>
 
 
 

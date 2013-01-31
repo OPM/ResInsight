@@ -16,9 +16,11 @@
    for more details. 
 */
 
-#include <plot_driver.h>
-#include <plot_const.h>
-#include <util.h>
+#include <ert/util/util.h>
+
+#include <ert/plot/plot_driver.h>
+#include <ert/plot/plot_const.h>
+
 
 
 /**

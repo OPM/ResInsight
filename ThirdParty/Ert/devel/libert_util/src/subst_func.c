@@ -16,13 +16,16 @@
    for more details. 
 */
 
-#include <util.h>
-#include <stringlist.h>
-#include <subst_func.h>
+
 #include <stdbool.h>
-#include <hash.h>
 #include <math.h>
-#include <rng.h>
+
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/subst_func.h>
+#include <ert/util/hash.h>
+#include <ert/util/rng.h>
+
 
 #define SUBST_FUNC_TYPE_ID      646781
 #define SUBST_FUNC_POOL_TYPE_ID 7641

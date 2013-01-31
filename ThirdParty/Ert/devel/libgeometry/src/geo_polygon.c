@@ -19,10 +19,13 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <util.h>
-#include <geo_util.h>
-#include <geo_polygon.h>        
-#include <double_vector.h>
+
+#include <ert/util/util.h>
+#include <ert/util/double_vector.h>
+
+#include <ert/geometry/geo_util.h>
+#include <ert/geometry/geo_polygon.h>        
+
 
 
 #define GEO_POLYGON_TYPE_ID 9951322

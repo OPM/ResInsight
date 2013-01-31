@@ -19,8 +19,9 @@
 #include <stdbool.h>
 
 //#include <test_util.h>
-#include <lsf_driver.h>
 #include <lsf/lsbatch.h>
+
+#include <ert/job_queue/lsf_driver.h>
 
 
 void test_option(lsf_driver_type * driver , const char * option , const char * value) {

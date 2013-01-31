@@ -18,15 +18,17 @@
 
 #include <stdbool.h>
 #include <string.h>
-#include <plot.h>
-#include <plot_dataset.h>
-#include <plot_range.h>
-#include <plot_const.h>
-#include <plot_driver.h>
-#include <hash.h>
-#include <vector.h>
-#include <plplot_driver.h>
-#include <text_driver.h>
+
+#include <ert/util/hash.h>
+#include <ert/util/vector.h>
+
+#include <ert/plot/plplot_driver.h>
+#include <ert/plot/plot.h>
+#include <ert/plot/plot_dataset.h>
+#include <ert/plot/plot_range.h>
+#include <ert/plot/plot_const.h>
+#include <ert/plot/plot_driver.h>
+#include <ert/plot/text_driver.h>
 
 
 /**

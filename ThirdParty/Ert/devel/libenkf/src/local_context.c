@@ -16,14 +16,18 @@
    for more details.
 */
 
-#include <util.h>
-#include <hash.h>
 #include <stdbool.h>
-#include <local_context.h>
-#include <ecl_grid.h>
-#include <geo_polygon.h>
-#include <geo_surface.h>
-#include <geo_region.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+
+#include <ert/geometry/geo_polygon.h>
+#include <ert/geometry/geo_surface.h>
+#include <ert/geometry/geo_region.h>
+
+#include <ert/ecl/ecl_grid.h>
+
+#include <ert/enkf/local_context.h>
 
 struct local_context_struct {
   hash_type * ecl_regions;

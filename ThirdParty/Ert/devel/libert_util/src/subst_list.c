@@ -20,13 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <util.h>
-#include <vector.h>
-#include <node_data.h>
-#include <buffer.h>
-#include <subst_list.h>
-#include <subst_func.h>
-#include <parser.h>
+#include <ert/util/util.h>
+#include <ert/util/vector.h>
+#include <ert/util/node_data.h>
+#include <ert/util/buffer.h>
+#include <ert/util/subst_list.h>
+#include <ert/util/subst_func.h>
+#include <ert/util/parser.h>
 
 /**
    This file implements a small support struct for search-replace

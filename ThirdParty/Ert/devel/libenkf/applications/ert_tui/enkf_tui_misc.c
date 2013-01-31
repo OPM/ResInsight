@@ -16,14 +16,17 @@
    for more details. 
 */
 
-#include <menu.h>
-#include <util.h>
-#include <enkf_types.h>
-#include <enkf_main.h>
-#include <enkf_state.h>
+#include <ert/job_queue/ext_joblist.h>
+#include <ert/job_queue/ext_job.h>
+
+#include <ert/util/menu.h>
+#include <ert/util/util.h>
+
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_state.h>
+
 #include <enkf_tui_misc.h>
-#include <ext_joblist.h>
-#include <ext_job.h>
 #include <enkf_tui_help.h>
 
 static void enkf_tui_misc_printf_subst_list(void * arg) {

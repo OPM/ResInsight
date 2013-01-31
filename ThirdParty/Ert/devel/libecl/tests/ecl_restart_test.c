@@ -18,8 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <util.h>
-#include <ecl_file.h>
+#include <ert/util/util.h>
+
+#include <ert/ecl/ecl_file.h>
 
 
 bool test_get( ecl_file_type * rst_file , int day , int month , int year , int expected_index) {

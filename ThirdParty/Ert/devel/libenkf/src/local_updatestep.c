@@ -16,13 +16,14 @@
    for more details. 
 */
 
-#include <util.h>
-#include <hash.h>
-#include <vector.h>
-#include <local_ministep.h>
-#include <local_updatestep.h>
-#include <enkf_macros.h>
-#include <local_config.h>
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/vector.h>
+
+#include <ert/enkf/local_ministep.h>
+#include <ert/enkf/local_updatestep.h>
+#include <ert/enkf/local_config.h>
+#include <ert/enkf/enkf_macros.h>
 
 /**
    One enkf update is described/configured by the data structure in

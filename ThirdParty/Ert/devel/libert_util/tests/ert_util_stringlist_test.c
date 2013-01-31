@@ -19,7 +19,7 @@
 #include <stdbool.h>
 
 //#include <test_util.h>
-#include <stringlist.h>
+#include <ert/util/stringlist.h>
 
 void test_char() {
   const char * S1 = "S1";

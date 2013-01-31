@@ -16,9 +16,10 @@
    for more details. 
 */
 
-#include <stringlist.h>
+#include <ert/util/stringlist.h>
 
-#include <enkf_main.h>
+#include <ert/enkf/enkf_main.h>
+
 #include <enkf_tui_plot.h>
 
 void enkf_tui_plot_all_summary_JOB(void * self , const stringlist_type * args ) {

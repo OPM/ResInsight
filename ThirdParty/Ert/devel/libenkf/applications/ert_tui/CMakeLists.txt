@@ -1,6 +1,4 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
-include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
-include_directories( ${libplot_src_path} )
 include_directories( ${PLPLOT_HEADER} )
 
 set( SITE_CONFIG_FILE /project/res/etc/ERT/site-config CACHE FILEPATH "Path to global ERT Configuration file")
@@ -32,7 +30,7 @@ string(STRIP ${GIT_COMMIT} GIT_COMMIT)
 set_source_files_properties( main.c PROPERTIES COMPILE_DEFINITIONS "COMPILE_TIME_STAMP=\"${BUILD_TIME}\";GIT_COMMIT=\"${GIT_COMMIT}\";SITE_CONFIG_FILE=\"${SITE_CONFIG_FILE}\"")
 
 add_executable( ert ${src_list} )
-target_link_libraries( ert enkf sched rms ecl geometry config plot job_queue analysis util )
+target_link_libraries( ert enkf sched rms ecl config plot job_queue analysis ert_util )
 
 if (ERT_INSTALL_PREFIX)
    set (destination ${CMAKE_INSTALL_PREFIX}/${ERT_INSTALL_PREFIX}/bin)

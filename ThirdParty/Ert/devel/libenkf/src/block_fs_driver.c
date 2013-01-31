@@ -19,16 +19,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <util.h>
-#include <path_fmt.h>
-#include <fs_types.h>
-#include <buffer.h>
-#include <fs_driver.h>
-#include <block_fs_driver.h>
-#include <block_fs.h>
-#include <enkf_types.h>
-#include <thread_pool.h>
-#include <timer.h>
+
+#include <ert/util/util.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/block_fs.h>
+#include <ert/util/buffer.h>
+#include <ert/util/timer.h>
+#include <ert/util/thread_pool.h>
+
+#include <ert/enkf/fs_types.h>
+#include <ert/enkf/fs_driver.h>
+#include <ert/enkf/block_fs_driver.h>
+#include <ert/enkf/enkf_types.h>
+
 
 typedef struct bfs_struct bfs_type;
 typedef struct bfs_config_struct bfs_config_type;

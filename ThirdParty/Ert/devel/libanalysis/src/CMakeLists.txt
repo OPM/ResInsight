@@ -3,6 +3,7 @@ set( source_files analysis_module.c enkf_linalg.c std_enkf.c sqrt_enkf.c cv_enkf
 set( header_files analysis_module.h enkf_linalg.h analysis_table.h)
 add_library( analysis  SHARED ${source_files} )
 set_target_properties( analysis PROPERTIES COMPILE_DEFINITIONS INTERNAL_LINK)
+set_target_properties( analysis PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
 target_link_libraries( analysis ert_util )
 if (NEED_LIBDL)
@@ -18,12 +19,9 @@ add_library( sqrt_enkf MODULE sqrt_enkf.c )
 
 #-----------------------------------------------------------------
 
-if (ANALYSIS_INSTALL_PREFIX)
-   install(TARGETS analysis DESTINATION ${ANALYSIS_INSTALL_PREFIX}/lib)
-   install(FILES ${header_files} DESTINATION ${ANALYSIS_INSTALL_PREFIX}/include)
-else()
-   install(TARGETS analysis DESTINATION lib)
-   install(FILES ${header_files} DESTINATION include)
-endif()        
+install(TARGETS analysis DESTINATION ${CMAKE_INSTALL_LIBDIR})
+foreach(header ${header_files})
+    install(FILES ../include/ert/analysis/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/analysis)
+endforeach()
 
 

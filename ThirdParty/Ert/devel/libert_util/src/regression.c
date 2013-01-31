@@ -20,11 +20,11 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <util.h>
-#include <matrix.h>
-#include <matrix_blas.h>
-#include <matrix_lapack.h>
-#include <regression.h>
+#include <ert/util/util.h>
+#include <ert/util/matrix.h>
+#include <ert/util/matrix_blas.h>
+#include <ert/util/matrix_lapack.h>
+#include <ert/util/regression.h>
 
 
 
@@ -68,7 +68,7 @@ double regression_scale(matrix_type * X , matrix_type * Y , matrix_type * X_mean
       
       for (col=0; col < nvar; col++) {
         double norm = 1.0 / sqrt( (1.0 / (nsample - 1)) * matrix_get_column_sum2( X , col ));
-	matrix_iset( X_norm , 0 , col , norm );
+        matrix_iset( X_norm , 0 , col , norm );
       }
     }
     return y_mean;

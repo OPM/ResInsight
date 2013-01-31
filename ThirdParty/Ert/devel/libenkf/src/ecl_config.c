@@ -21,24 +21,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <set.h>
-#include <path_fmt.h>
-#include <util.h>
-#include <parser.h>
+#include <ert/util/set.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/util.h>
+#include <ert/util/parser.h>
 
-#include <sched_file.h>
+#include <ert/sched/sched_file.h>
 
-#include <config.h>
+#include <ert/config/config.h>
 
-#include <ecl_grid.h>
-#include <ecl_sum.h>
-#include <ecl_io_config.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_sum.h>
+#include <ert/ecl/ecl_io_config.h>
 
-#include <enkf_util.h>
-#include <ecl_config.h>
-
-#include "config_keys.h"
-#include "enkf_defaults.h"
+#include <ert/enkf/enkf_util.h>
+#include <ert/enkf/ecl_config.h>
+#include <ert/enkf/config_keys.h>
+#include <ert/enkf/enkf_defaults.h>
 
 /**
   This file implements a struct which holds configuration information

@@ -18,9 +18,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <rms_tagkey.h>
-#include <rms_file.h>
-#include <rms_stats.h>
+
+#include <ert/rms/rms_tagkey.h>
+#include <ert/rms/rms_file.h>
+#include <ert/rms/rms_stats.h>
 
 
 

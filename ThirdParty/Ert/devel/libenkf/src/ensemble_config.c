@@ -25,45 +25,46 @@
 #include <time.h>
 #include <pthread.h>                /* must have rw locking on the config_nodes ... */
 
-#include <util.h>
-#include <hash.h>
-#include <set.h>
-#include <path_fmt.h>
-#include <thread_pool.h>
-#include <stringlist.h>
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/set.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/thread_pool.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/subst_func.h>
 
-#include <ecl_grid.h>
+#include <ert/ecl/ecl_grid.h>
 
-#include <job_queue.h>
-#include <lsf_driver.h>
-#include <local_driver.h>
-#include <rsh_driver.h>
-#include <ext_joblist.h>
+#include <ert/job_queue/job_queue.h>
+#include <ert/job_queue/lsf_driver.h>
+#include <ert/job_queue/local_driver.h>
+#include <ert/job_queue/rsh_driver.h>
+#include <ert/job_queue/ext_joblist.h>
 
-#include <config.h>
+#include <ert/sched/sched_file.h>
 
-#include <enkf_config_node.h>
-#include <enkf_types.h>
-#include <field_config.h>
-#include <gen_data_config.h>
-#include <surface_config.h>
-#include <meas_data.h>
-#include <enkf_types.h>
-#include <sched_file.h>
-#include <gen_kw_config.h>
-#include <summary.h>
-#include <summary_config.h>
-#include <gen_data.h>
-#include <gen_kw_config.h>
-#include <gen_data_config.h>
-#include <ensemble_config.h>
-#include <gen_data_config.h>
-#include <field_trans.h>
-#include <subst_func.h>
-#include <enkf_obs.h>
-#include <ecl_config.h>
-#include "config_keys.h"
-#include "enkf_defaults.h"
+#include <ert/config/config.h>
+
+#include <ert/enkf/enkf_config_node.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/surface_config.h>
+#include <ert/enkf/meas_data.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/gen_kw_config.h>
+#include <ert/enkf/summary.h>
+#include <ert/enkf/summary_config.h>
+#include <ert/enkf/gen_data.h>
+#include <ert/enkf/gen_kw_config.h>
+#include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/field_trans.h>
+#include <ert/enkf/enkf_obs.h>
+#include <ert/enkf/ecl_config.h>
+#include <ert/enkf/config_keys.h>
+#include <ert/enkf/enkf_defaults.h>
 
 
 struct ensemble_config_struct {

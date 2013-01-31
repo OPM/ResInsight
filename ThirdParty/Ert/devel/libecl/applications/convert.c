@@ -19,12 +19,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <ecl_kw.h>
-#include <fortio.h>
 #include <string.h>
-#include <util.h>
-#include <ecl_util.h>
-#include <ecl_endian_flip.h>
+
+#include <ert/util/util.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_endian_flip.h>
 
 
 void file_convert(const char * src_file , const char * target_file, ecl_file_enum file_type , bool fmt_src) {

@@ -19,15 +19,19 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <int_vector.h>
-#include <geo_util.h>
-#include <geo_polygon.h>
-#include <ecl_kw.h>
-#include <ecl_grid.h>
-#include <ecl_box.h>
-#include <ecl_util.h>
-#include <ecl_region.h>
-#include <util.h>
+
+#include <ert/util/int_vector.h>
+#include <ert/util/util.h>
+
+#include <ert/geometry/geo_util.h>
+#include <ert/geometry/geo_polygon.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_box.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_region.h>
+
 
 /**
    This file implements a type called ecl_region which is a way to

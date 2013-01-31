@@ -32,11 +32,11 @@
 #define END_OPTIONS  REG_EXTENDED
 #endif
 
-
-#include <subst_list.h>
-#include <subst_func.h>
-#include <template.h>
-#include <stringlist.h>
+#include <ert/util/util.h>
+#include <ert/util/subst_list.h>
+#include <ert/util/subst_func.h>
+#include <ert/util/template.h>
+#include <ert/util/stringlist.h>
 
 
 

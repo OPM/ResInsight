@@ -17,11 +17,11 @@
 */
 
 
-#include <util.h>
-#include <type_macros.h>
-#include <double_vector.h>
+#include <ert/util/util.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/double_vector.h>
 
-#include <misfit_ts.h>
+#include <ert/enkf/misfit_ts.h>
 
 
 #define MISFIT_TS_TYPE_ID         641066

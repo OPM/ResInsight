@@ -19,14 +19,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <util.h>
-#include <path_fmt.h>
-#include <fs_types.h>
-#include <buffer.h>
-#include <fs_driver.h>
-#include <plain_driver.h>
-#include <enkf_node.h>
 
+#include <ert/util/util.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/buffer.h>
+
+#include <ert/enkf/fs_driver.h>
+#include <ert/enkf/plain_driver.h>
+#include <ert/enkf/enkf_node.h>
+#include <ert/enkf/fs_types.h>
 
 
 /**

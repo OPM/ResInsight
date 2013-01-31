@@ -17,17 +17,19 @@
 */
 
 #include <math.h>
+#include <time.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <util.h>
-#include <hash.h>
-#include <time.h>
-#include <ecl_kw.h>
-#include <ecl_kw_magic.h>
-#include <ecl_file.h>
-#include <ecl_rft_node.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_kw_magic.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_rft_node.h>
 
 
 /** 

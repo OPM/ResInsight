@@ -22,20 +22,20 @@
 */
 #include <stdlib.h>
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <enkf_util.h>
-#include <enkf_types.h>
-#include <enkf_macros.h>
-#include <enkf_fs.h>
-#include <meas_data.h>
-#include <gen_obs.h>
-#include <gen_data_config.h>
-#include <obs_data.h>
-#include <gen_data.h>
-#include <gen_obs.h>
-#include <gen_common.h>
-#include <active_list.h>
+#include <ert/enkf/enkf_util.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_macros.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/meas_data.h>
+#include <ert/enkf/gen_obs.h>
+#include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/obs_data.h>
+#include <ert/enkf/gen_data.h>
+#include <ert/enkf/gen_obs.h>
+#include <ert/enkf/gen_common.h>
+#include <ert/enkf/active_list.h>
 
 /**
    This file implemenets a structure for general observations. A

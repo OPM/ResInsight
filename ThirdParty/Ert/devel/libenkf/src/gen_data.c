@@ -22,25 +22,25 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include <util.h>
-#include <matrix.h>
-#include <log.h>
-#include <bool_vector.h>
-#include <rng.h>
+#include <ert/util/util.h>
+#include <ert/util/matrix.h>
+#include <ert/util/log.h>
+#include <ert/util/bool_vector.h>
+#include <ert/util/rng.h>
 
-#include <fortio.h>
-#include <ecl_sum.h>
-#include <ecl_file.h>
-#include <ecl_util.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_sum.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_util.h>
 
-#include <enkf_serialize.h>
-#include <enkf_types.h>
-#include <enkf_macros.h>
-#include <enkf_util.h>
-#include <gen_data_config.h>
-#include <gen_data.h>
-#include <gen_data_common.h>
-#include <gen_common.h>
+#include <ert/enkf/enkf_serialize.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_macros.h>
+#include <ert/enkf/enkf_util.h>
+#include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/gen_data.h>
+#include <ert/enkf/gen_data_common.h>
+#include <ert/enkf/gen_common.h>
 
 /**
    The file implements a general data type which can be used to update

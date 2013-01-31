@@ -17,11 +17,13 @@
 */
 
 #include <stdlib.h>
-#include <util.h>
-#include <enkf_macros.h>
-#include <active_list.h>
-#include <int_vector.h>
-#include <local_config.h>
+
+#include <ert/util/util.h>
+#include <ert/util/int_vector.h>
+
+#include <ert/enkf/enkf_macros.h>
+#include <ert/enkf/active_list.h>
+#include <ert/enkf/local_config.h>
 
 
 /**

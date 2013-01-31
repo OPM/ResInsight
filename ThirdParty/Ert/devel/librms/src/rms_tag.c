@@ -19,12 +19,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <hash.h>
-#include <vector.h>
-#include <util.h>
-#include <rms_tag.h>
-#include <rms_util.h>
-#include <rms_tagkey.h>
+
+#include <ert/util/hash.h>
+#include <ert/util/vector.h>
+#include <ert/util/util.h>
+
+#include <ert/rms/rms_tag.h>
+#include <ert/rms/rms_util.h>
+#include <ert/rms/rms_tagkey.h>
 
 static const char * rms_eof_tag           = "eof";
 static const char * rms_starttag_string   = "tag";

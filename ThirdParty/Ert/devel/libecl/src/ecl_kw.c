@@ -22,13 +22,13 @@
 #include <string.h>
 #include <math.h>
 
-#include <util.h>
-#include <buffer.h>
+#include <ert/util/util.h>
+#include <ert/util/buffer.h>
 
-#include <ecl_kw.h>
-#include <ecl_util.h>
-#include <fortio.h>
-#include <ecl_endian_flip.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_endian_flip.h>
 
 
 #define ECL_KW_TYPE_ID  6111098

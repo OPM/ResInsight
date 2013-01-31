@@ -20,11 +20,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-#include <sched_kw_compdat.h>
-#include <vector.h>
-#include <util.h>
-#include <sched_util.h>
 #include <stdbool.h>
+
+#include <ert/util/vector.h>
+#include <ert/util/util.h>
+
+#include <ert/sched/sched_kw_compdat.h>
+#include <ert/sched/sched_util.h>
+
 
 #define COMPDAT_NUM_KW        14   
 #define SCHED_KW_COMPDAT_ID   771882

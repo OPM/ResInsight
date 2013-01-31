@@ -19,18 +19,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <menu.h>
-#include <arg_pack.h>
-#include <util.h>
-#include <msg.h>
+#include <ert/util/menu.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/util.h>
+#include <ert/util/msg.h>
 
-#include <enkf_tui_util.h>
-#include <enkf_tui_init.h>
-#include <enkf_main.h>
-#include <enkf_types.h>
-#include <enkf_fs.h>
-#include <ranking_table.h>
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/ranking_table.h>
+
 #include <enkf_tui_help.h>
+#include <enkf_tui_init.h>
 
 void enkf_tui_fs_ls_case(void * arg) {
   enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );

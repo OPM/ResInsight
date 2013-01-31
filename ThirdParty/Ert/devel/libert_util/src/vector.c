@@ -18,10 +18,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <util.h>
-#include <node_data.h>
-#include <type_macros.h>
-#include <vector.h>
+
+#include <ert/util/util.h>
+#include <ert/util/node_data.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/vector.h>
 
 
 #define VECTOR_TYPE_ID      551087

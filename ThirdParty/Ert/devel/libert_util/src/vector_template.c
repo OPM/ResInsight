@@ -96,10 +96,10 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <type_macros.h>
-#include <util.h>
-#include <buffer.h>
-#include <@TYPE@_vector.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/buffer.h>
+#include <ert/util/@TYPE@_vector.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -19,23 +19,28 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <vector.h>
-#include <util.h>
-#include <ecl_grid.h>
-#include <ecl_region.h>
-#include <geo_polygon.h>
-#include <geo_region.h>
-#include <local_ministep.h>
-#include <local_updatestep.h>
-#include <local_config.h>
-#include <local_dataset.h>
-#include <local_obsset.h>
-#include <local_context.h>
-#include <int_vector.h>
-#include <ensemble_config.h>
-#include <enkf_obs.h>
-#include "config_keys.h"
-#include "enkf_defaults.h"
+
+#include <ert/util/vector.h>
+#include <ert/util/util.h>
+#include <ert/util/int_vector.h>
+
+#include <ert/geometry/geo_polygon.h>
+#include <ert/geometry/geo_region.h>
+
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_region.h>
+
+
+#include <ert/enkf/local_ministep.h>
+#include <ert/enkf/local_updatestep.h>
+#include <ert/enkf/local_config.h>
+#include <ert/enkf/local_dataset.h>
+#include <ert/enkf/local_obsset.h>
+#include <ert/enkf/local_context.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/enkf_obs.h>
+#include <ert/enkf/config_keys.h>
+#include <ert/enkf/enkf_defaults.h>
 /******************************************************************/
 /*
 

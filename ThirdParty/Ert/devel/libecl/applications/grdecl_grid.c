@@ -19,10 +19,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <util.h>
-#include <ecl_kw.h>
-#include <ecl_grid.h>
-#include <ecl_kw_magic.h>
+#include <ert/util/util.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/ecl_kw_magic.h>
 
 
 int main(int argc , char ** argv) {

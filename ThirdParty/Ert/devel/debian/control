@@ -1,22 +1,22 @@
-Source: libert
+Source: libert.ecl
 Priority: extra
 Maintainer: Arne Morten Kvarving <arne.morten.kvarving@sintef.no>
-Build-Depends: debhelper (>= 8.0.0), cmake
+Build-Depends: debhelper (>= 8.0.0), cmake, liblapack-dev, libquadmath0
 Standards-Version: 3.9.2
 Section: libs
-Homepage: <add me>
+Homepage: http://ert.nr.no
 Vcs-Git: git://github.com/Ensembles/ert.git
 Vcs-Browser: https://github.com/Ensembles/ert
 
-Package: libert-dev
+Package: libert.ecl-dev
 Section: libdevel
 Architecture: any
-Depends: libert1 (= ${binary:Version})
+Depends: libert.ecl1 (= ${binary:Version})
 Description: The Ensemble based Reservoir Tool -- Development files
  ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
  of reservoir models.
 
-Package: libert1
+Package: libert.ecl1
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}

@@ -18,10 +18,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <util.h>
-//#include <test_util.h>
-#include <lsf_driver.h>
 #include <lsf/lsbatch.h>
+
+#include <ert/util/util.h>
+//#include <test_util.h>
+
+#include <ert/job_queue/lsf_driver.h>
+
 
 
 void test_submit(lsf_driver_type * driver , const char * server , const char * bsub_cmd , const char * bjobs_cmd , const char * bkill_cmd , const char * cmd) {

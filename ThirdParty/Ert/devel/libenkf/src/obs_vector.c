@@ -25,29 +25,29 @@
 #include <stdbool.h>
 #include <time.h>
 
-#include <util.h>
-#include <vector.h>
-#include <double_vector.h>
-#include <bool_vector.h>
-#include <msg.h>
+#include <ert/util/util.h>
+#include <ert/util/vector.h>
+#include <ert/util/double_vector.h>
+#include <ert/util/bool_vector.h>
+#include <ert/util/msg.h>
 
-#include <history.h>
+#include <ert/sched/history.h>
 
-#include <conf.h>
+#include <ert/config/conf.h>
 
-#include <ecl_sum.h>
-#include <ecl_grid.h>
-#include <smspec_node.h>
+#include <ert/ecl/ecl_sum.h>
+#include <ert/ecl/ecl_grid.h>
+#include <ert/ecl/smspec_node.h>
 
-#include <obs_vector.h>
-#include <enkf_fs.h>
-#include <summary_obs.h>
-#include <block_obs.h>
-#include <gen_obs.h>
-#include <ensemble_config.h>
-#include <active_list.h>
-#include <enkf_state.h>
-#include "enkf_defaults.h"
+#include <ert/enkf/obs_vector.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/summary_obs.h>
+#include <ert/enkf/block_obs.h>
+#include <ert/enkf/gen_obs.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/active_list.h>
+#include <ert/enkf/enkf_state.h>
+#include <ert/enkf/enkf_defaults.h>
 
 #define OBS_VECTOR_TYPE_ID 120086
 

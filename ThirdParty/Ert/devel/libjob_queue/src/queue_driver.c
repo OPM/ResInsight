@@ -19,12 +19,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <util.h>
+#include <ert/util/util.h>
 
-#include <queue_driver.h>
-#include <lsf_driver.h>
-#include <local_driver.h>
-#include <rsh_driver.h>
+#include <ert/job_queue/queue_driver.h>
+#include <ert/job_queue/lsf_driver.h>
+#include <ert/job_queue/local_driver.h>
+#include <ert/job_queue/rsh_driver.h>
 
 
 /**

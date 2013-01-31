@@ -21,16 +21,16 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <type_macros.h>
-#include <util.h>
-#include <parser.h>
-#include <hash.h>
-#include <stringlist.h>
-#include <set.h>
-#include <subst_list.h>
-#include <vector.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/parser.h>
+#include <ert/util/hash.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/set.h>
+#include <ert/util/subst_list.h>
+#include <ert/util/vector.h>
 
-#include <config.h>
+#include <ert/config/config.h>
 
 #define CLEAR_STRING "__RESET__"
 

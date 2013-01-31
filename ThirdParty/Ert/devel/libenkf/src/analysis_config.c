@@ -21,18 +21,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <util.h>
-#include <stringlist.h>
-#include <rng.h>
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/rng.h>
 
-#include <config.h>
+#include <ert/config/config.h>
 
-#include <analysis_module.h>
+#include <ert/analysis/analysis_module.h>
 
-#include <enkf_types.h>
-#include <analysis_config.h>
-#include <enkf_defaults.h>
-#include "config_keys.h"
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/analysis_config.h>
+#include <ert/enkf/enkf_defaults.h>
+#include <ert/enkf/config_keys.h>
 
 
 struct analysis_config_struct {

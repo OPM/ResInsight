@@ -20,9 +20,9 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <util.h>
-#include <parser.h>
-#include <buffer.h>
+#include <ert/util/util.h>
+#include <ert/util/parser.h>
+#include <ert/util/buffer.h>
 
 #define PARSER_ESCAPE_CHAR '\\'
 

@@ -17,13 +17,18 @@
 */
 
 #include <math.h>
-#include <trans_func.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <arg_pack.h> 
-#include <util.h>
-#include <stringlist.h>
+
+#include <ert/util/arg_pack.h> 
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
+
+#include <ert/enkf/trans_func.h>
+
+
+
 
 
 

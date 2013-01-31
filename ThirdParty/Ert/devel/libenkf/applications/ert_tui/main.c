@@ -22,20 +22,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include <util.h>
-#include <hash.h>
-#include <stringlist.h>
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/stringlist.h>
 
-#include <config.h>
-
-#include <ext_joblist.h>
-#include <local_driver.h>
-#include <lsf_driver.h>
-
-#include <enkf_fs.h>
-#include <enkf_main.h>
-#include <enkf_types.h>
-#include <enkf_sched.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_sched.h>
 #include <enkf_tui_main.h>
 
 

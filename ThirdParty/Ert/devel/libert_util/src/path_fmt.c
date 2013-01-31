@@ -23,10 +23,10 @@
 #include <stdbool.h>
 
 
-#include <util.h>
-#include <type_macros.h>
-#include <node_ctype.h>
-#include <path_fmt.h>
+#include <ert/util/util.h>
+#include <ert/util/type_macros.h>
+#include <ert/util/node_ctype.h>
+#include <ert/util/path_fmt.h>
 
 /**
 The basic idea of the path_fmt_type is that it should be possible for

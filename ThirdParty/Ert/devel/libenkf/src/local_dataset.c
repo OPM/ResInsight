@@ -16,15 +16,18 @@
    for more details. 
 */
 
-#include <util.h>
+
 #include <stdlib.h>
 #include <string.h>
-#include <hash.h>
-#include <enkf_macros.h>
-#include <local_ministep.h>
-#include <local_config.h>  
-#include <active_list.h>
-#include <local_dataset.h>
+
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+
+#include <ert/enkf/enkf_macros.h>
+#include <ert/enkf/local_ministep.h>
+#include <ert/enkf/local_config.h>  
+#include <ert/enkf/active_list.h>
+#include <ert/enkf/local_dataset.h>
 
 
 #define LOCAL_DATASET_TYPE_ID  6615409

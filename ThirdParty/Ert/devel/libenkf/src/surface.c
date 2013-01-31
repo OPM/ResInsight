@@ -20,19 +20,18 @@
 #include <math.h>
 #include <string.h>
 
-#include <util.h>
-#include <log.h>
+#include <ert/util/util.h>
+#include <ert/util/log.h>
 
-#include <geo_surface.h>
+#include <ert/geometry/geo_surface.h>
 
-#include <enkf_macros.h>
-#include <enkf_util.h>
-
-#include <surface.h>
-#include <surface_config.h>
-#include <enkf_types.h>
-#include <enkf_util.h>
-#include <enkf_serialize.h>
+#include <ert/enkf/enkf_macros.h>
+#include <ert/enkf/enkf_util.h>
+#include <ert/enkf/surface.h>
+#include <ert/enkf/surface_config.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_util.h>
+#include <ert/enkf/enkf_serialize.h>
 
 
 /*****************************************************************/

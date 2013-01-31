@@ -20,11 +20,11 @@
 #include <stdbool.h>
 #include <time.h>
 
-#include <util.h>
-#include <type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/type_macros.h>
 
-#include <sched_types.h>
-#include <sched_time.h>
+#include <ert/sched/sched_types.h>
+#include <ert/sched/sched_time.h>
 
 /*****************************************************************/
 

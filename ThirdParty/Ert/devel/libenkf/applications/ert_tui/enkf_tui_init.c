@@ -20,19 +20,22 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <util.h>
 #include <ctype.h>
-#include <menu.h>
-#include <enkf_main.h>
-#include <enkf_sched.h>
-#include <enkf_types.h>
+
+#include <ert/util/util.h>
+#include <ert/util/menu.h>
+#include <ert/util/msg.h>
+
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_sched.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_state.h>
+#include <ert/enkf/enkf_node.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/ensemble_config.h>
+
 #include <enkf_tui_util.h>
 #include <enkf_tui_init.h>
-#include <enkf_state.h>
-#include <enkf_node.h>
-#include <enkf_fs.h>
-#include <msg.h>
-#include <ensemble_config.h>
 
 
 
@@ -53,21 +56,21 @@ void enkf_tui_init(enkf_main_type * enkf_main, bool all_members , bool all_param
     if( interval ) {
       char * iens1char = util_scanf_int_with_limits_return_char("First ensemble member in interval"  , prompt_len , 0 , ens_size - 1);
       if (strlen(iens1char)) {
-	util_sscanf_int(iens1char , &iens1);
-	char * iens2char = util_scanf_int_with_limits_return_char("Second ensemble member in interval" , prompt_len , iens1 , ens_size - 1);
-	if (strlen(iens2char)) {
-	  util_sscanf_int(iens2char , &iens2);
-	  iens_valid = true;
-	}
-	free(iens2char);
+        util_sscanf_int(iens1char , &iens1);
+        char * iens2char = util_scanf_int_with_limits_return_char("Second ensemble member in interval" , prompt_len , iens1 , ens_size - 1);
+        if (strlen(iens2char)) {
+          util_sscanf_int(iens2char , &iens2);
+          iens_valid = true;
+        }
+        free(iens2char);
       }
       free(iens1char);
     } else {
       char * iens1char = util_scanf_int_with_limits_return_char("Initialize ensemble member" , prompt_len , 0 , ens_size - 1);
       if (strlen(iens1char)) {
-	util_sscanf_int(iens1char , &iens1);
-	iens2 = iens1;
-	iens_valid = true;
+        util_sscanf_int(iens1char , &iens1);
+        iens2 = iens1;
+        iens_valid = true;
       }
       free(iens1char);
     }

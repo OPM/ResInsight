@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <util.h>
-#include <rng.h>
-#include <mzran.h>
-#include <type_macros.h>
+#include <ert/util/util.h>
+#include <ert/util/rng.h>
+#include <ert/util/mzran.h>
+#include <ert/util/type_macros.h>
 #define RNG_TYPE_ID 66154432
 
 #ifdef __cplusplus

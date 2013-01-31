@@ -19,9 +19,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include <util_env.h>
-#include <util.h>
-#include <buffer.h>
+#include <ert/util/util.h>
+#include <ert/util/util_env.h>
+#include <ert/util/buffer.h>
 
 #ifdef POSIX_SETENV
 #define PATHVAR_SPLIT ":"

@@ -20,12 +20,14 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <util.h>
-#include <ecl_kw.h>
-#include <ecl_file.h>
-#include <ecl_region.h>
-#include <ecl_grid_cache.h>
-#include <ecl_kw_magic.h>
+
+#include <ert/util/util.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_region.h>
+#include <ert/ecl/ecl_grid_cache.h>
+#include <ert/ecl/ecl_kw_magic.h>
 
 /*
   This file contains code which is common to both the ecl_grav

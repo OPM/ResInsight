@@ -16,14 +16,16 @@
    for more details. 
 */
 
-#include <util.h>
 #include <string.h>
-#include <stringlist.h>
-#include <sched_util.h>
-#include <sched_blob.h>
-#include <sched_time.h>
-#include <buffer.h>
 #include <time.h>
+
+#include <ert/util/buffer.h>
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
+
+#include <ert/sched/sched_util.h>
+#include <ert/sched/sched_blob.h>
+#include <ert/sched/sched_time.h>
 
 
 

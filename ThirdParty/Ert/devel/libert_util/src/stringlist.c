@@ -20,16 +20,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <util.h>
-#include <stringlist.h>
-#include <vector.h>
-#include <buffer.h>
-
 #ifdef HAVE_GLOB
 #include <glob.h>
 #else
 #include <Windows.h>
 #endif
+
+#include <ert/util/util.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/vector.h>
+#include <ert/util/buffer.h>
 
 
 #define STRINGLIST_TYPE_ID 671855

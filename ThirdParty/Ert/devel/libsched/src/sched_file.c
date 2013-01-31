@@ -16,20 +16,21 @@
    for more details. 
 */
 
-#include <hash.h>
-#include <stringlist.h>
-#include <util.h>
-#include <sched_file.h>
-#include <sched_util.h>
-#include <vector.h>
-#include <parser.h>
-#include <time_t_vector.h>
-#include <sched_blob.h>
-#include <sched_kw_dates.h>
-#include <sched_kw_wconhist.h>
-#include <sched_kw_wconinje.h>
-#include <sched_kw_tstep.h>
-#include <sched_kw.h>
+#include <ert/util/hash.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/util.h>
+#include <ert/util/vector.h>
+#include <ert/util/parser.h>
+#include <ert/util/time_t_vector.h>
+
+#include <ert/sched/sched_file.h>
+#include <ert/sched/sched_util.h>
+#include <ert/sched/sched_blob.h>
+#include <ert/sched/sched_kw_dates.h>
+#include <ert/sched/sched_kw_wconhist.h>
+#include <ert/sched/sched_kw_wconinje.h>
+#include <ert/sched/sched_kw_tstep.h>
+#include <ert/sched/sched_kw.h>
 
 /* This sched_file.c contains code for internalizing an ECLIPSE
    schedule file.

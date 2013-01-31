@@ -15,49 +15,46 @@
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
    for more details. 
 */
-
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <util.h>
 #include <ctype.h>
-#include <menu.h>
-#include <arg_pack.h>
-#include <enkf_main.h>
-#include <enkf_tui_plot.h>
-#include <enkf_tui_fs.h>
-#include <enkf_obs.h>
-#include <block_obs.h>
-#include <gen_obs.h>
-#include <field_config.h>
-#include <obs_vector.h>
-#include <bool_vector.h>
-#include <plot.h>
-#include <plot_dataset.h> 
-#include <enkf_tui_util.h>
-#include <ensemble_config.h>
-#include <msg.h>
-#include <vector.h>
-#include <enkf_state.h>
-#include <gen_kw_config.h>
-#include <enkf_defaults.h>
 #include <math.h>
 #include <time.h>
-#include <plot_config.h>
-#include <member_config.h>
-#include <double_vector.h>
-#include <ert_tui_const.h>
-#include <ecl_rft_file.h>
-#include <path_fmt.h>
-#include <obs_data.h>
-#include <meas_data.h>
-#include <analysis_config.h>
-#include <plot_config.h>
-#include <local_obsset.h>
-#include <enkf_analysis.h>
-#include <enkf_obs.h>
 
+#include <ert/util/double_vector.h>
+#include <ert/util/util.h>
+#include <ert/util/menu.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/bool_vector.h>
+#include <ert/util/msg.h>
+#include <ert/util/vector.h>
+
+#include <ert/plot/plot.h>
+#include <ert/plot/plot_dataset.h> 
+
+#include <ert/ecl/ecl_rft_file.h>
+
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_obs.h>
+#include <ert/enkf/block_obs.h>
+#include <ert/enkf/gen_obs.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/obs_vector.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/enkf_state.h>
+#include <ert/enkf/gen_kw_config.h>
+#include <ert/enkf/enkf_defaults.h>
+#include <ert/enkf/plot_config.h>
+#include <ert/enkf/member_config.h>
+
+#include <enkf_tui_util.h>
+#include <enkf_tui_plot.h>
+#include <enkf_tui_fs.h>
+#include <ert_tui_const.h>
+#include <enkf_tui_plot_util.h>
 
 void enkf_tui_QC_plot_get_PC( enkf_main_type * enkf_main , int step1 , int step2 , state_enum state , const local_obsset_type * obsset , 
                               double truncation , int ncomp , 

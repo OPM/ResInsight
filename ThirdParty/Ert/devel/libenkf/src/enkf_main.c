@@ -30,75 +30,72 @@
 #include <sys/types.h>
 
 #define HAVE_THREAD_POOL 1
-#include <matrix.h>
+#include <ert/util/matrix.h>
+#include <ert/util/subst_list.h>
+#include <ert/util/rng.h>
+#include <ert/util/subst_func.h>
+#include <ert/util/int_vector.h>
+#include <ert/util/bool_vector.h>
+#include <ert/util/util.h>
+#include <ert/util/hash.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/thread_pool.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/msg.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/set.h>
+#include <ert/util/log.h>
+#include <ert/util/node_ctype.h>
 
-#include <subst_list.h>
-#include <rng.h>
-#include <subst_func.h>
-#include <int_vector.h>
-#include <bool_vector.h>
-#include <util.h>
-#include <hash.h>
-#include <path_fmt.h>
-#include <thread_pool.h>
-#include <arg_pack.h>
-#include <msg.h>
-#include <stringlist.h>
-#include <set.h>
-#include <log.h>
-#include <node_ctype.h>
+#include <ert/config/config.h>
 
-#include <config.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_io_config.h>
 
-#include <ecl_util.h>
-#include <ecl_io_config.h>
+#include <ert/job_queue/job_queue.h>
+#include <ert/job_queue/local_driver.h>
+#include <ert/job_queue/rsh_driver.h>
+#include <ert/job_queue/lsf_driver.h>
+#include <ert/job_queue/forward_model.h>
+#include <ert/job_queue/queue_driver.h>
 
-#include <enkf_types.h>
-#include <enkf_config_node.h>
-#include <ecl_config.h>
+#include <ert/sched/history.h>
+#include <ert/sched/sched_file.h>
 
-#include <job_queue.h>
-#include <local_driver.h>
-#include <rsh_driver.h>
-#include <lsf_driver.h>
-#include <forward_model.h>
-#include <queue_driver.h>
+#include <ert/analysis/analysis_module.h>
+#include <ert/analysis/analysis_table.h>
+#include <ert/analysis/enkf_linalg.h>
 
-#include <history.h>
-#include <sched_file.h>
-
-#include <enkf_sched.h>
-#include <obs_data.h>
-#include <meas_data.h>
-#include <enkf_state.h>
-#include <enkf_obs.h>
-#include <enkf_fs.h>
-#include <enkf_main.h>
-#include <enkf_serialize.h>
-
-#include <analysis_module.h>
-#include <analysis_table.h>
-#include <enkf_linalg.h>
-
-#include <plot_config.h>
-#include <ensemble_config.h>
-#include <model_config.h>
-#include <qc_config.h>
-#include <site_config.h>
-#include <active_config.h>
-#include <enkf_analysis.h>
-#include <local_ministep.h>
-#include <local_updatestep.h>
-#include <local_config.h>
-#include <local_dataset.h>
-#include <misfit_ensemble.h>
-#include <ert_template.h>
-#include <rng_config.h>
-#include <enkf_plot_data.h>
-#include <ert_report_list.h>
-#include <ranking_table.h>
-#include "enkf_defaults.h"
-#include "config_keys.h"
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_config_node.h>
+#include <ert/enkf/ecl_config.h>
+#include <ert/enkf/enkf_sched.h>
+#include <ert/enkf/obs_data.h>
+#include <ert/enkf/meas_data.h>
+#include <ert/enkf/enkf_state.h>
+#include <ert/enkf/enkf_obs.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_serialize.h>
+#include <ert/enkf/plot_config.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/model_config.h>
+#include <ert/enkf/qc_config.h>
+#include <ert/enkf/site_config.h>
+#include <ert/enkf/active_config.h>
+#include <ert/enkf/enkf_analysis.h>
+#include <ert/enkf/local_ministep.h>
+#include <ert/enkf/local_updatestep.h>
+#include <ert/enkf/local_config.h>
+#include <ert/enkf/local_dataset.h>
+#include <ert/enkf/misfit_ensemble.h>
+#include <ert/enkf/ert_template.h>
+#include <ert/enkf/rng_config.h>
+#include <ert/enkf/enkf_plot_data.h>
+#include <ert/enkf/ert_report_list.h>
+#include <ert/enkf/ranking_table.h>
+#include <ert/enkf/enkf_defaults.h>
+#include <ert/enkf/config_keys.h>
 
 /**/
 
@@ -1464,7 +1461,7 @@ bool enkf_main_is_not_initialized_at_all( const enkf_main_type * enkf_main ) {
       node_id_type node_id = {.report_step = 0 , .iens = iens , .state = ANALYZED };
       initialized = enkf_config_node_has_node( config_node , enkf_main->dbase , node_id);
       if (initialized)
-	not_initialized_at_all = false;
+        not_initialized_at_all = false;
     }
     
   }
@@ -1797,8 +1794,8 @@ void enkf_main_initialize_from_scratch(enkf_main_type * enkf_main , const string
       
       if (i == (num_cpu - 1)){
         end_iens = iens2 + 1;  /* Input is upper limit inclusive. */
-	if(ens_sub_size == 0)
-	  start_iens = iens1;  /* Don't necessarily want to start from zero when ens_sub_size = 0*/
+        if(ens_sub_size == 0)
+          start_iens = iens1;  /* Don't necessarily want to start from zero when ens_sub_size = 0*/
       }
       arg_pack_append_int( arg_list[i] , start_iens );
       arg_pack_append_int( arg_list[i] , end_iens );

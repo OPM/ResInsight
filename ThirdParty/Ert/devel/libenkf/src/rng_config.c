@@ -16,14 +16,17 @@
    for more details. 
 */
 
-#include <mzran.h>
-#include <util.h>
 #include <stdlib.h>
-#include <rng_config.h>
-#include <rng.h>
-#include <config.h>
-#include <config_keys.h>
-#include <enkf_defaults.h>
+
+#include <ert/util/mzran.h>
+#include <ert/util/util.h>
+#include <ert/util/rng.h>
+
+#include <ert/config/config.h>
+
+#include <ert/enkf/rng_config.h>
+#include <ert/enkf/config_keys.h>
+#include <ert/enkf/enkf_defaults.h>
 
 
 struct rng_config_struct {

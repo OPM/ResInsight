@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <util.h>
-#include <matrix.h>
-#include <regression.h>
-#include <stepwise.h>
-#include <bool_vector.h>
-#include <double_vector.h>
+
+#include <ert/util/util.h>
+#include <ert/util/matrix.h>
+#include <ert/util/regression.h>
+#include <ert/util/stepwise.h>
+#include <ert/util/bool_vector.h>
+#include <ert/util/double_vector.h>
 
 
 

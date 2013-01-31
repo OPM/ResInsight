@@ -17,16 +17,19 @@
 */
 
 #include <string.h>
-#include <util.h>
+#include <math.h>
+
+#include <ert/util/util.h>
+#include <ert/util/double_vector.h>
+#include <ert/util/bool_vector.h>
+
 #include <plplot/plplot.h>
 #include <plplot/plplotP.h>
-#include <math.h>
-#include <double_vector.h>
-#include <bool_vector.h>
-#include <plot_const.h>
-#include <plot_range.h>
-#include <plot_dataset.h>
-#include <plot_driver.h>
+
+#include <ert/plot/plot_const.h>
+#include <ert/plot/plot_range.h>
+#include <ert/plot/plot_dataset.h>
+#include <ert/plot/plot_driver.h>
 
 
 

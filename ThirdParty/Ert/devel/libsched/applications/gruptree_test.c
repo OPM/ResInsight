@@ -18,7 +18,8 @@
 
 #include <hash.h>
 #include <util.h>
-#include <gruptree.h>
+
+#include <ert/sched/gruptree.h>
 
 int main()
 {

@@ -16,7 +16,7 @@
    for more details. 
 */
 
-#include <lsf_driver.h>
+#include <ert/job_queue/lsf_driver.h>
 
 
 static void lsf_driver_invalid_usage( const char * func) {

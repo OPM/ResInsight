@@ -26,50 +26,50 @@
 #include <stdarg.h>
 #include <pthread.h>
 
-#include <path_fmt.h>
-#include <thread_pool.h>
-#include <hash.h>
-#include <util.h>
-#include <arg_pack.h>
-#include <stringlist.h>
-#include <node_ctype.h>
-#include <subst_list.h>
-#include <log.h>
-#include <timer.h>
-#include <time_t_vector.h>
-#include <rng.h>
+#include <ert/util/path_fmt.h>
+#include <ert/util/thread_pool.h>
+#include <ert/util/hash.h>
+#include <ert/util/util.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/stringlist.h>
+#include <ert/util/node_ctype.h>
+#include <ert/util/subst_list.h>
+#include <ert/util/log.h>
+#include <ert/util/timer.h>
+#include <ert/util/time_t_vector.h>
+#include <ert/util/rng.h>
 
-#include <fortio.h>
-#include <ecl_kw.h>
-#include <ecl_io_config.h>
-#include <ecl_file.h>
-#include <ecl_util.h>
-#include <ecl_sum.h>
-#include <ecl_endian_flip.h>
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_io_config.h>
+#include <ert/ecl/ecl_file.h>
+#include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_sum.h>
+#include <ert/ecl/ecl_endian_flip.h>
 
-#include <sched_file.h>
+#include <ert/sched/sched_file.h>
 
-#include <forward_model.h>
-#include <job_queue.h>
-#include <queue_driver.h>
-#include <ext_joblist.h>
+#include <ert/job_queue/forward_model.h>
+#include <ert/job_queue/job_queue.h>
+#include <ert/job_queue/queue_driver.h>
+#include <ert/job_queue/ext_joblist.h>
 
-#include <enkf_node.h>
-#include <enkf_state.h>
-#include <enkf_types.h>
-#include <ecl_static_kw.h>
-#include <field.h>
-#include <field_config.h>
-#include <gen_kw.h>
-#include <summary.h>
-#include <enkf_fs.h>
-#include <ensemble_config.h>
-#include <model_config.h>
-#include <site_config.h>
-#include <ecl_config.h>
-#include <ert_template.h>
-#include <member_config.h>
-#include <enkf_defaults.h>
+#include <ert/enkf/enkf_node.h>
+#include <ert/enkf/enkf_state.h>
+#include <ert/enkf/enkf_types.h>
+#include <ert/enkf/ecl_static_kw.h>
+#include <ert/enkf/field.h>
+#include <ert/enkf/field_config.h>
+#include <ert/enkf/gen_kw.h>
+#include <ert/enkf/summary.h>
+#include <ert/enkf/enkf_fs.h>
+#include <ert/enkf/ensemble_config.h>
+#include <ert/enkf/model_config.h>
+#include <ert/enkf/site_config.h>
+#include <ert/enkf/ecl_config.h>
+#include <ert/enkf/ert_template.h>
+#include <ert/enkf/member_config.h>
+#include <ert/enkf/enkf_defaults.h>
 
 #define  ENKF_STATE_TYPE_ID 78132
 

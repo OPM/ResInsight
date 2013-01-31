@@ -17,13 +17,16 @@
 */
 
 #include <stdlib.h>
-#include <util.h>
 #include <stdio.h>
 #include <string.h>
-#include <gen_data_config.h>
-#include <gen_common.h>
-#include <fortio.h>
-#include <ecl_util.h>
+
+#include <ert/util/util.h>
+
+#include <ert/ecl/fortio.h>
+#include <ert/ecl/ecl_util.h>
+
+#include <ert/enkf/gen_data_config.h>
+#include <ert/enkf/gen_common.h>
 
 /**
    This file implements some (very basic) functionality which is used

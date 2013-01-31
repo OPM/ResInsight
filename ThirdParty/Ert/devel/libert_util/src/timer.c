@@ -21,8 +21,8 @@
 #include <string.h>
 #include <math.h>
 
-#include <util.h>
-#include <timer.h>
+#include <ert/util/util.h>
+#include <ert/util/timer.h>
 
 #ifdef __cplusplus
 extern "C" {
