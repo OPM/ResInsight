@@ -127,13 +127,13 @@ QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
-QStringList RifEclipseRestartFilesetAccess::resultNames()
+QStringList RifEclipseRestartFilesetAccess::resultNames(RifReaderInterface::PorosityModelResultType matrixOrFracture)
 {
     CVF_ASSERT(numTimeSteps() > 0);
 
     // Get the results found on the first file
     QStringList resultsList;
-    m_files[0]->validKeywords(&resultsList, RifReaderInterface::MATRIX_RESULTS);
+    m_files[0]->validKeywords(&resultsList, matrixOrFracture);
 
     return resultsList;
 }

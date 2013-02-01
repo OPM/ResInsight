@@ -38,10 +38,12 @@ RimResultDefinition::RimResultDefinition()
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&resultType,     "ResultType",       "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&resultType,     "ResultType",           "Type", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&porosityModel,  "PorosityModelType",    "Type", "", "", "");
     CAF_PDM_InitField(&resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
 
     resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    porosityModel.setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,35 +84,6 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
     {
         if (m_reservoirView && m_reservoirView->gridCellResults())
         {
-            /*
-            QStringList varList;
-            if (resultType() == RimDefines::DYNAMIC_NATIVE)
-            {
-                varList = readerInterface->dynamicResultNames();
-
-                if (!varList.contains("SOIL", Qt::CaseInsensitive))
-                {
-                    // SOIL will be computed  in RigReservoirCellResults::loadOrComputeSOIL() if SGAS and SWAT is present
-                    if (varList.contains("SGAS", Qt::CaseInsensitive) && varList.contains("SWAT", Qt::CaseInsensitive))
-                    {
-                        varList.push_back("SOIL");
-                    }
-                }
-            }
-            else if (resultType == RimDefines::STATIC_NATIVE)
-            {
-                varList = readerInterface->staticResultNames();
-            }
-            else if (resultType == RimDefines::GENERATED)
-            {
-               varList = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->results()->resultNames(resultType());
-            }
-            else if (resultType == RimDefines::INPUT_PROPERTY)
-            {
-                varList = readerInterface->inputPropertyNames();
-            }
-            */
-            
             QStringList varList = m_reservoirView->gridCellResults()->resultNames(resultType());
             QList<caf::PdmOptionItemInfo> optionList;
             int i;
@@ -134,7 +107,7 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 size_t RimResultDefinition::gridScalarIndex() const
 {
-    if (m_gridScalarResultIndex ==  cvf::UNDEFINED_SIZE_T)
+    if (m_gridScalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
         const RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
         if (gridCellResults) m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(resultType(), resultVariable());

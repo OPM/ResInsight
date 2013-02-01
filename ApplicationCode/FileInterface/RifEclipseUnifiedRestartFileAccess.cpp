@@ -113,11 +113,11 @@ QList<QDateTime> RifEclipseUnifiedRestartFileAccess::timeSteps()
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
-QStringList RifEclipseUnifiedRestartFileAccess::resultNames()
+QStringList RifEclipseUnifiedRestartFileAccess::resultNames(RifReaderInterface::PorosityModelResultType matrixOrFracture)
 {
     // Get the results found on the UNRST file
     QStringList resultsList;
-    m_file->validKeywords(&resultsList, RifReaderInterface::MATRIX_RESULTS);
+    m_file->validKeywords(&resultsList, matrixOrFracture);
 
     return resultsList;
 }

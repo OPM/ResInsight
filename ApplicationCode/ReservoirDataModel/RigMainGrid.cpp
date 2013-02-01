@@ -32,7 +32,8 @@ RigMainGrid::RigMainGrid(void)
         m_globalMatrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
         m_globalFractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
 {
-	m_results = new RigReservoirCellResults(this);
+    m_matrixModelResults = new RigReservoirCellResults(this);
+	m_fractureModelResults = new RigReservoirCellResults(this);
 
     m_activeCellsBoundingBox.add(cvf::Vec3d::ZERO);
     m_gridIndex = 0;
@@ -373,4 +374,30 @@ void RigMainGrid::computeGlobalActiveCellCount()
         if (m_cells[i].isActiveInMatrixModel()) m_globalMatrixModelActiveCellCount++;
         if (m_cells[i].isActiveInFractureModel()) m_globalFractureModelActiveCellCount++;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigReservoirCellResults* RigMainGrid::results(RifReaderInterface::PorosityModelResultType porosityModel)
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_matrixModelResults.p();
+    }
+
+    return m_fractureModelResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigReservoirCellResults* RigMainGrid::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_matrixModelResults.p();
+    }
+
+    return m_fractureModelResults.p();
 }

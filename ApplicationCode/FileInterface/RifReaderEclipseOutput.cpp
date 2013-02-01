@@ -26,6 +26,7 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifEclipseRestartFilesetAccess.h"
+#include "RifReaderInterface.h"
 
 #include <iostream>
 
@@ -370,21 +371,34 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
         return false;
     }
 
-    RigReservoirCellResults* resCellResults = reservoir->mainGrid()->results();
+    RigReservoirCellResults* matrixModelResults = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
+    RigReservoirCellResults* fractureModelResults = reservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS);
 
     if (m_dynamicResultsAccess.notNull())
     {
         // Get time steps 
         m_timeSteps = m_dynamicResultsAccess->timeSteps();
 
-        // Get the names of the dynamic results
-        QStringList dynamicResultNames = m_dynamicResultsAccess->resultNames();
-
-        for (int i = 0; i < dynamicResultNames.size(); ++i)
         {
-            size_t resIndex = resCellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, dynamicResultNames[i]);
-            resCellResults->setTimeStepDates(resIndex, m_timeSteps);
+            QStringList dynamicResultNames = m_dynamicResultsAccess->resultNames(RifReaderInterface::MATRIX_RESULTS);
+
+            for (int i = 0; i < dynamicResultNames.size(); ++i)
+            {
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, dynamicResultNames[i]);
+                matrixModelResults->setTimeStepDates(resIndex, m_timeSteps);
+            }
         }
+
+        {
+            QStringList dynamicResultNames = m_dynamicResultsAccess->resultNames(RifReaderInterface::FRACTURE_RESULTS);
+
+            for (int i = 0; i < dynamicResultNames.size(); ++i)
+            {
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, dynamicResultNames[i]);
+                fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
+            }
+        }
+
     }
 
     progInfo.setProgress(1);
@@ -399,21 +413,40 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
             return false;
         }
 
-        // Get the names of the static results
-        QStringList staticResults;
-        initFile->validKeywords(&staticResults, RifReaderInterface::MATRIX_RESULTS);
-        QStringList staticResultNames = staticResults;
-
-        QList<QDateTime> staticDate;
-        if (m_timeSteps.size() > 0)
         {
-            staticDate.push_back(m_timeSteps.front());
+            QStringList staticResults;
+            initFile->validKeywords(&staticResults, RifReaderInterface::MATRIX_RESULTS);
+            QStringList staticResultNames = staticResults;
+
+            QList<QDateTime> staticDate;
+            if (m_timeSteps.size() > 0)
+            {
+                staticDate.push_back(m_timeSteps.front());
+            }
+
+            for (int i = 0; i < staticResultNames.size(); ++i)
+            {
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, staticResultNames[i]);
+                matrixModelResults->setTimeStepDates(resIndex, staticDate);
+            }
         }
 
-        for (int i = 0; i < staticResultNames.size(); ++i)
         {
-            size_t resIndex = resCellResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, staticResultNames[i]);
-            resCellResults->setTimeStepDates(resIndex, staticDate);
+            QStringList staticResults;
+            initFile->validKeywords(&staticResults, RifReaderInterface::FRACTURE_RESULTS);
+            QStringList staticResultNames = staticResults;
+
+            QList<QDateTime> staticDate;
+            if (m_timeSteps.size() > 0)
+            {
+                staticDate.push_back(m_timeSteps.front());
+            }
+
+            for (int i = 0; i < staticResultNames.size(); ++i)
+            {
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, staticResultNames[i]);
+                fractureModelResults->setTimeStepDates(resIndex, staticDate);
+            }
         }
 
         m_staticResultsAccess = initFile;

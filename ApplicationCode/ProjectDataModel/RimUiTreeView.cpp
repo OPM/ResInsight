@@ -30,6 +30,7 @@
 #include "RifEclipseInputFileTools.h"
 #include "RimInputReservoir.h"
 #include "RimBinaryExportSettings.h"
+#include "RigReservoirCellResults.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -727,7 +728,9 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = resultSlot->reservoirView()->currentTimeStep();
-        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, resultSlot->reservoirView()->eclipseCase()->reservoirData(), timeStep, resultSlot->resultVariable, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
+        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
+
+        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, resultSlot->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, resultSlot->resultVariable, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);

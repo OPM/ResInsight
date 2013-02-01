@@ -24,6 +24,7 @@
 #include <map>
 
 #include <QString>
+#include "RifReaderInterface.h"
 
 
 class RigReservoir;
@@ -63,7 +64,7 @@ public:
     static const std::vector<QString>& knownPropertyKeywords(); 
 
     static bool     writePropertyToTextFile(const QString& fileName, RigReservoir* reservoir, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
-    static bool     writeBinaryResultToTextFile(const QString& fileName, RigReservoir* reservoir, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
+    static bool     writeBinaryResultToTextFile(const QString& fileName, RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
 
 private:
     static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);

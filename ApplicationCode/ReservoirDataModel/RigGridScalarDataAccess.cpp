@@ -29,17 +29,17 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigGridScalarDataAccess::RigGridScalarDataAccess(const RigGridBase* grid, size_t timeStepIndex, size_t scalarSetIndex)
+RigGridScalarDataAccess::RigGridScalarDataAccess(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex)
 {
     CVF_ASSERT(grid);
     CVF_ASSERT(grid->mainGrid());
-    CVF_ASSERT(grid->mainGrid()->results());
+    CVF_ASSERT(grid->mainGrid()->results(porosityModel));
 
     m_grid = grid;
 
-    m_useGlobalActiveIndex = m_grid->mainGrid()->results()->isUsingGlobalActiveIndex(scalarSetIndex);
+    m_useGlobalActiveIndex = m_grid->mainGrid()->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
 
-    std::vector< std::vector<double> > & scalarSetResults = m_grid->mainGrid()->results()->cellScalarResults(scalarSetIndex);
+    std::vector< std::vector<double> > & scalarSetResults = m_grid->mainGrid()->results(porosityModel)->cellScalarResults(scalarSetIndex);
     CVF_ASSERT(timeStepIndex < scalarSetResults.size());
 
     m_resultValues = &(scalarSetResults[timeStepIndex]);

@@ -20,6 +20,7 @@
 
 #include "RifReaderMockModel.h"
 #include "RigReservoirCellResults.h"
+#include "RifReaderInterface.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -30,7 +31,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigReservoir* reservoir)
   
     m_reservoir = reservoir;
 
-    RigReservoirCellResults* cellResults = reservoir->mainGrid()->results();
+    RigReservoirCellResults* cellResults = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
 
 
     QList<QDateTime> dates;

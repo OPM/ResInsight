@@ -21,6 +21,7 @@
 
 #include "cvfStructGridScalarDataAccess.h"
 #include "RigGridBase.h"
+#include "RifReaderInterface.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -29,7 +30,7 @@
 class RigGridScalarDataAccess : public cvf::StructGridScalarDataAccess
 {
 public:
-    RigGridScalarDataAccess(const RigGridBase* grid, size_t timeStepIndex, size_t scalarSetIndex);
+    RigGridScalarDataAccess(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex);
 
     virtual double  cellScalar(size_t i, size_t j, size_t k) const;
     virtual double  cellScalar(size_t cellIndex) const;

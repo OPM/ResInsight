@@ -33,6 +33,12 @@ public:
         REMOVED
     };
 
+    enum PorosityModelType
+    {
+        MATRIX_MODEL,
+        FRACTURE_MODEL
+    };
+
     static QString undefinedResultName() { return "None"; }
 };
 

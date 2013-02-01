@@ -101,7 +101,8 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
             timeStepIndex = 0;
         }
 
-        cellScalarResultUseGlobalActiveIndex = grid->mainGrid()->results()->isUsingGlobalActiveIndex(cellResultSlot->gridScalarIndex());
+        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+        cellScalarResultUseGlobalActiveIndex = grid->mainGrid()->results(porosityModel)->isUsingGlobalActiveIndex(cellResultSlot->gridScalarIndex());
     }
 
     size_t resultIndices[6];
@@ -114,7 +115,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         {
             if (resultIndices[cubeFaceIdx] != cvf::UNDEFINED_SIZE_T)
             {
-                edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx] = grid->mainGrid()->results()->isUsingGlobalActiveIndex(resultIndices[cubeFaceIdx]);
+                edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx] = grid->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->isUsingGlobalActiveIndex(resultIndices[cubeFaceIdx]);
             }
         }
     }
@@ -144,7 +145,8 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         }
 
         {
-            double scalarValue = grid->mainGrid()->results()->cellScalarResult(timeStepIndex, cellResultSlot->gridScalarIndex(), resultValueIndex);
+            RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+            double scalarValue = grid->mainGrid()->results(porosityModel)->cellScalarResult(timeStepIndex, cellResultSlot->gridScalarIndex(), resultValueIndex);
             if (scalarValue != HUGE_VAL)
             {
                 cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
@@ -173,7 +175,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
             }
 
             // Assuming static values to be mapped onto cell edge, always using time step zero
-            double scalarValue = grid->mainGrid()->results()->cellScalarResult(0, resultIndices[cubeFaceIdx], resultValueIndex);
+            double scalarValue = grid->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResult(0, resultIndices[cubeFaceIdx], resultValueIndex);
             if (scalarValue != HUGE_VAL && scalarValue != ignoredScalarValue)
             {
                 edgeColor = edgeResultScalarMapper->mapToTextureCoord(scalarValue)[0];

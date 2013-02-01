@@ -525,12 +525,12 @@ void RigGridBase::computeMatrixAndFractureModelActiveCellCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigGridScalarDataAccess> RigGridBase::dataAccessObject(size_t timeStepIndex, size_t scalarSetIndex) const
+cvf::ref<RigGridScalarDataAccess> RigGridBase::dataAccessObject(RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const
 {
     if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
         scalarSetIndex != cvf::UNDEFINED_SIZE_T)
     {
-        cvf::ref<RigGridScalarDataAccess> dataAccess = new RigGridScalarDataAccess(this, timeStepIndex, scalarSetIndex);
+        cvf::ref<RigGridScalarDataAccess> dataAccess = new RigGridScalarDataAccess(this, porosityModel, timeStepIndex, scalarSetIndex);
         return dataAccess;
     }
 

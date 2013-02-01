@@ -763,3 +763,13 @@ size_t RigReservoirCellResults::addStaticScalarResult(RimDefines::ResultCatType 
     return resultIdx;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderInterface::PorosityModelResultType RigReservoirCellResults::convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel)
+{
+    if (porosityModel == RimDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
+    
+    return RifReaderInterface::FRACTURE_RESULTS;
+}
+

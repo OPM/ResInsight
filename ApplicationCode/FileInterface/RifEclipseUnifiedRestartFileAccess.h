@@ -42,7 +42,7 @@ public:
     QStringList                 timeStepsText();
     QList<QDateTime>            timeSteps();
 
-    QStringList                 resultNames();
+    QStringList                 resultNames(RifReaderInterface::PorosityModelResultType matrixOrFracture);
     bool                        results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values);
 
     virtual void                readWellData(well_info_type * well_info);

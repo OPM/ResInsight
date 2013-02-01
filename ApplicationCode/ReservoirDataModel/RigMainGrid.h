@@ -23,11 +23,13 @@
 #include "RigLocalGrid.h"
 #include "cvfCollection.h"
 #include "cvfBoundingBox.h"
+#include "RifReaderInterface.h"
+
 #include <QtGlobal>
 
 class RigReservoirCellResults;
 
-class RigMainGrid :  public RigGridBase
+class RigMainGrid : public RigGridBase
 {
 public:
     RigMainGrid();
@@ -40,8 +42,8 @@ public:
     std::vector<RigCell>&                   cells() {return m_cells;}
     const std::vector<RigCell>&             cells() const {return m_cells;}
 
-    RigReservoirCellResults*		        results() {return m_results.p();}
-    const RigReservoirCellResults*          results() const {return m_results.p();}
+    RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
     size_t                                  globalMatrixModelActiveCellCount();
     size_t                                  globalFractureModelActiveCellCount();
@@ -81,7 +83,10 @@ private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
-    cvf::ref<RigReservoirCellResults>       m_results;
+
+    cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
+    cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
+
     size_t                                  m_globalMatrixModelActiveCellCount;
     size_t                                  m_globalFractureModelActiveCellCount;
 
