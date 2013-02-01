@@ -23,6 +23,7 @@
 #include "RigReservoir.h"
 #include "RigGridBase.h"
 #include "RigReservoirCellResults.h"
+#include "RigGridScalarDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -597,7 +598,9 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 }
 
                 const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
-                bool useGlobalActiveIndex = grid->mainGrid()->results()->isUsingGlobalActiveIndex((*pfIt)->resultDefinition->gridScalarIndex());
+
+                cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(timeStepIndex, scalarResultIndex);
+                CVF_ASSERT(dataAccessObject.notNull());
 
                 #pragma omp parallel for schedule(dynamic)
                 for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
@@ -605,12 +608,8 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                     if ( (*cellVisibility)[cellIndex] )
                     {
                         size_t resultValueIndex = cellIndex;
-                        if (useGlobalActiveIndex)
-                        {
-                            resultValueIndex = grid->cell(cellIndex).activeIndexInMatrixModel();
-                        }
                         
-                        double scalarValue = grid->mainGrid()->results()->cellScalarResult(timeStepIndex, scalarResultIndex, resultValueIndex);
+                        double scalarValue = dataAccessObject->cellScalar(resultValueIndex);
                         if (lowerBound <= scalarValue && scalarValue <= upperBound)
                         {
                             if (filterType == RimCellFilter::EXCLUDE)
