@@ -18,8 +18,11 @@
 //##################################################################################################
 
 #include "cvfBase.h"
+
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cvfStructGridScalarDataAccess.h"
+
 #include "cvfDebugTimer.h"
 #include "cvfGeometryBuilderDrawableGeo.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
@@ -385,8 +388,10 @@ void StructGridGeometryGenerator::computeArrays()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, size_t timeStepIndex, size_t scalarSetIndex, const ScalarMapper* mapper) const
+void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, const StructGridScalarDataAccess* dataAccessObject, const ScalarMapper* mapper) const
 {
+    if (!dataAccessObject) return;
+
     size_t numVertices = m_quadsToGridCells.size()*4;
 
     textureCoords->resize(numVertices);
@@ -398,7 +403,7 @@ void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, 
 #pragma omp parallel for private(texCoord, cellScalarValue)
     for (int i = 0; i < static_cast<int>(m_quadsToGridCells.size()); i++)
     {
-        cellScalarValue = m_grid->cellScalar(timeStepIndex, scalarSetIndex, m_quadsToGridCells[i]);
+        cellScalarValue = dataAccessObject->cellScalar(m_quadsToGridCells[i]);
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {

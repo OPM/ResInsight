@@ -21,6 +21,7 @@
 #include "RigMainGrid.h"
 #include "RigCell.h"
 #include "RigReservoirCellResults.h"
+#include "RigGridScalarDataAccess.h"
 
 #include "cvfAssert.h"
 
@@ -577,6 +578,22 @@ void RigGridBase::computeMatrixAndFractureModelActiveCellCount()
             m_fractureModelActiveCellCount++;
         }
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigGridScalarDataAccess> RigGridBase::dataAccessObject(size_t timeStepIndex, size_t scalarSetIndex) const
+{
+    if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
+        scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        cvf::ref<RigGridScalarDataAccess> dataAccess = new RigGridScalarDataAccess(this, timeStepIndex, scalarSetIndex);
+        return dataAccess;
+    }
+
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

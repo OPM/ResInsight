@@ -100,6 +100,7 @@ list( APPEND CPP_SOURCES
     ReservoirDataModel/RigReservoir.cpp
     ReservoirDataModel/RigReservoirBuilderMock.cpp
     ReservoirDataModel/RigWellResults.cpp
+    ReservoirDataModel/RigGridScalarDataAccess.cpp
 )
 
 list( APPEND CPP_SOURCES
@@ -154,6 +155,7 @@ qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 set( RAW_SOURCES ${CPP_SOURCES} )
 list( REMOVE_ITEM RAW_SOURCES RIStdInclude.cpp)
 list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigReaderInterfaceECL.cpp)
+list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigGridScalarDataAccess.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivCellEdgeEffectGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivPipeGeometryGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellPipesPartMgr.cpp)
