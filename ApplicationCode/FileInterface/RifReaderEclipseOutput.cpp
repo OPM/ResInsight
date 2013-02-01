@@ -634,12 +634,10 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                         }
                         else
                         {
-                            CVF_ASSERT(false);
                             cellK = 0;
                         }
                     }
 
-                    CVF_ASSERT(grids[gridNr]->isCellValid(cellI, cellJ, cellK));
                     wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI, cellJ, cellK);
                     wellResFrame.m_wellHead.m_gridIndex = gridNr;
                 }
@@ -688,12 +686,9 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                                         }
                                         else
                                         {
-                                            CVF_ASSERT(false);
                                             cellK = 0;
                                         }
                                     }
-
-                                    CVF_ASSERT(grids[gridNr]->isCellValid(cellI, cellJ, cellK));
 
                                     data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI , cellJ , cellK);
                                     
