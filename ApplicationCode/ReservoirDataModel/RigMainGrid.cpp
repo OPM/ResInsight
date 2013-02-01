@@ -85,11 +85,8 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
 //--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::globalMatrixModelActiveCellCount()
 {
-    if (m_globalMatrixModelActiveCellCount != cvf::UNDEFINED_SIZE_T) return m_globalMatrixModelActiveCellCount;
-
-    computeGlobalActiveCellCount();
-
     return m_globalMatrixModelActiveCellCount;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,10 +94,6 @@ size_t RigMainGrid::globalMatrixModelActiveCellCount()
 //--------------------------------------------------------------------------------------------------
 size_t RigMainGrid::globalFractureModelActiveCellCount()
 {
-    if (m_globalFractureModelActiveCellCount != cvf::UNDEFINED_SIZE_T) return m_globalFractureModelActiveCellCount;
-
-    computeGlobalActiveCellCount();
-
     return m_globalFractureModelActiveCellCount;
 }
 
@@ -248,7 +241,6 @@ void RigMainGrid::computeCachedData()
     initAllSubCellsMainGridCellIndex();
     computeActiveAndValidCellRanges();
     computeBoundingBox();
-    computeActiveCellCountForAllGrids();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +337,7 @@ const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
     CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
     return m_localGrids[localGridIndex-1].p();
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -359,23 +351,24 @@ void RigMainGrid::computeActiveCellCountForAllGrids()
         m_localGrids[i]->computeMatrixAndFractureModelActiveCellCount();
     }
 }
-
+*/
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::computeGlobalActiveCellCount()
 {
-    m_globalMatrixModelActiveCellCount = 0;
-    m_globalFractureModelActiveCellCount = 0;
+    m_globalMatrixModelActiveCellCount = this->matrixModelActiveCellCount();
+    m_globalFractureModelActiveCellCount = this->fractureModelActiveCellCount();
 
     size_t i;
-    for (i = 0; i < m_cells.size(); i++)
+    for (i = 0; i < m_localGrids.size(); i++)
     {
-        if (m_cells[i].isActiveInMatrixModel()) m_globalMatrixModelActiveCellCount++;
-        if (m_cells[i].isActiveInFractureModel()) m_globalFractureModelActiveCellCount++;
+       m_globalMatrixModelActiveCellCount += m_localGrids[i]->matrixModelActiveCellCount() ;
+       m_globalFractureModelActiveCellCount += m_localGrids[i]->fractureModelActiveCellCount() ;
     }
 }
-
+*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -401,3 +394,4 @@ const RigReservoirCellResults* RigMainGrid::results(RifReaderInterface::Porosity
 
     return m_fractureModelResults.p();
 }
+

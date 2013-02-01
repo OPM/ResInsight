@@ -66,6 +66,9 @@ public:
     size_t                  mainGridCellIndex() const                           { return m_mainGridCellIndex; }
     void                    setMainGridCellIndex(size_t mainGridCellContainingThisCell) { m_mainGridCellIndex = mainGridCellContainingThisCell; }
 
+    bool                    isInCoarseCell() const                              { return m_isInCoarseCell; }
+    void                    setInCoarseCell(bool isInCoarseCell)                { m_isInCoarseCell = isInCoarseCell; }
+
     void                    setCellFaceFault(cvf::StructGridInterface::FaceType face)       { m_cellFaceFaults[face] = true; }
     bool                    isCellFaceFault(cvf::StructGridInterface::FaceType face) const  { return m_cellFaceFaults[face]; }
 
@@ -86,7 +89,7 @@ private:
     RigGridBase*            m_hostGrid;
     size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
     size_t                  m_mainGridCellIndex;
-
+    bool                    m_isInCoarseCell; 
     size_t                  m_activeIndexInMatrixModel;      ///< This cell's running index of all the active calls (matrix) in the reservoir
     size_t                  m_activeIndexInFractureModel;    ///< This cell's running index of all the active calls (fracture) in the reservoir
 

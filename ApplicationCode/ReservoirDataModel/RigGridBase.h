@@ -62,8 +62,10 @@ public:
     RigMainGrid*                mainGrid() const { return m_mainGrid; }
 
     size_t                      matrixModelActiveCellCount();
+    void                        setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount);
     size_t                      fractureModelActiveCellCount();
-    void                        computeMatrixAndFractureModelActiveCellCount();
+    void                        setFractureModelActiveCellCount(size_t activeFractureModelCellCount);
+    //void                        computeMatrixAndFractureModelActiveCellCount();
 
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();

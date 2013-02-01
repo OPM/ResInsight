@@ -47,6 +47,8 @@ public:
 
     size_t                                  globalMatrixModelActiveCellCount();
     size_t                                  globalFractureModelActiveCellCount();
+    void                                    setGlobalMatrixModelActiveCellCount  (size_t globalMatrixModelActiveCellCount)   { m_globalMatrixModelActiveCellCount   = globalMatrixModelActiveCellCount;  }
+    void                                    setGlobalFractureModelActiveCellCount(size_t globalFractureModelActiveCellCount) { m_globalFractureModelActiveCellCount = globalFractureModelActiveCellCount;}
 
     void                                    matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
     void                                    validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
@@ -76,8 +78,6 @@ private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    computeActiveAndValidCellRanges();
     void                                    computeBoundingBox();
-    void                                    computeGlobalActiveCellCount();
-    void                                    computeActiveCellCountForAllGrids();
 
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table

@@ -42,7 +42,8 @@ RigCell::RigCell() :
     m_isWellCell(false),
     m_activeIndexInMatrixModel(cvf::UNDEFINED_SIZE_T),
     m_activeIndexInFractureModel(cvf::UNDEFINED_SIZE_T),
-    m_cellIndex(cvf::UNDEFINED_SIZE_T)
+    m_cellIndex(cvf::UNDEFINED_SIZE_T),
+    m_isInCoarseCell(false)
 {
     memcpy(m_cornerIndices.m_array, undefinedCornersArray, 8*sizeof(size_t));
 

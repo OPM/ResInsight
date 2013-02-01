@@ -111,6 +111,8 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         cell.setInvalid(invalid);
         cell.setCellIndex(gIdx);
 
+        // Active cell index
+
         int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, gIdx);
         if (matrixActiveIndex != -1)
         {
@@ -131,6 +133,8 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
             cell.setActiveIndexInFractureModel(cvf::UNDEFINED_SIZE_T);
         }
 
+        // Parent cell index
+
         int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gIdx);
         if (parentCellIndex == -1)
         {
@@ -141,6 +145,10 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
             cell.setParentCellIndex(parentCellIndex);
         }
     
+        // Coarse cell info
+        ecl_coarse_cell_type * coarseCellData = ecl_grid_get_cell_coarse_group1( localEclGrid , gIdx);
+        cell.setInCoarseCell(coarseCellData != NULL);
+
         // Corner coordinates
         int cIdx;
         for (cIdx = 0; cIdx < 8; ++cIdx)
@@ -160,6 +168,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
             cell.setSubGrid(static_cast<RigLocalGrid*>(mainGrid->gridByIndex(subGridFileIndex)));
         }
 
+        // Mark inactive long pyramid looking cells as invalid
         if (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel() && !invalid)
         {
             cell.setInvalid(cell.isLongPyramidCell());
@@ -281,17 +290,32 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     size_t globalMatrixActiveSize = ecl_grid_get_nactive(mainEclGrid);
     size_t globalFractureActiveSize = ecl_grid_get_nactive_fracture(mainEclGrid);
 
+    mainGrid->setMatrixModelActiveCellCount(globalMatrixActiveSize);
+    mainGrid->setFractureModelActiveCellCount(globalFractureActiveSize);
+
     for (lgrIdx = 0; lgrIdx < numLGRs; ++lgrIdx)
     {
         progInfo.setProgressDescription("LGR number " + QString::number(lgrIdx+1));
 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
-        transferGridCellData(mainGrid, static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1)), localEclGrid, globalMatrixActiveSize, globalFractureActiveSize);
-        globalMatrixActiveSize += ecl_grid_get_nactive(localEclGrid);
-        globalFractureActiveSize += ecl_grid_get_nactive_fracture(localEclGrid);
+        RigLocalGrid* localGrid = static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1));
+
+        transferGridCellData(mainGrid, localGrid, localEclGrid, globalMatrixActiveSize, globalFractureActiveSize);
+
+        int activeCellCount = ecl_grid_get_nactive(localEclGrid);
+        localGrid->setMatrixModelActiveCellCount(activeCellCount);
+        globalMatrixActiveSize += activeCellCount;
+
+        activeCellCount = ecl_grid_get_nactive_fracture(localEclGrid);
+        localGrid->setFractureModelActiveCellCount(activeCellCount);
+        globalFractureActiveSize += activeCellCount;
 
         progInfo.setProgress(3 + lgrIdx);
     }
+
+
+    mainGrid->setGlobalMatrixModelActiveCellCount(globalMatrixActiveSize);
+    mainGrid->setGlobalFractureModelActiveCellCount(globalFractureActiveSize);
 
     return true;
 }
