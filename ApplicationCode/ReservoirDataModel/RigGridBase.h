@@ -65,7 +65,6 @@ public:
     void                        setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount);
     size_t                      fractureModelActiveCellCount();
     void                        setFractureModelActiveCellCount(size_t activeFractureModelCellCount);
-    //void                        computeMatrixAndFractureModelActiveCellCount();
 
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();

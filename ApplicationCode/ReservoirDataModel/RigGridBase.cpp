@@ -483,48 +483,6 @@ size_t RigGridBase::fractureModelActiveCellCount()
 {
     return m_fractureModelActiveCellCount;
 }
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::computeMatrixAndFractureModelActiveCellCount()
-{
-    m_matrixModelActiveCellCount = 0;
-    m_fractureModelActiveCellCount = 0;
-
-    size_t higestActiveIndexInMM = 0;
-    size_t higestActiveIndexInFM = 0;
-
-    bool firstMMActiveCell = true;
-    bool firstFMActiveCell = true;
-
-
-    for (size_t i = 0; i < cellCount(); i++)
-    {
-        const RigCell& c = cell(i);
-
-        if (c.isActiveInMatrixModel())
-        {
-           if (c.activeIndexInMatrixModel() > higestActiveIndexInMM  || firstMMActiveCell)
-           {
-            m_matrixModelActiveCellCount++;
-               higestActiveIndexInMM = c.activeIndexInMatrixModel();
-               firstMMActiveCell = false;
-           }
-        }
-
-        if (c.isActiveInFractureModel())
-        {
-            if (c.activeIndexInFractureModel() > higestActiveIndexInFM ||  firstFMActiveCell)
-            {
-            m_fractureModelActiveCellCount++;
-                higestActiveIndexInFM = c.activeIndexInFractureModel();
-                firstFMActiveCell = false;
-        }
-    }
-}
-*/
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -540,10 +498,6 @@ cvf::ref<RigGridScalarDataAccess> RigGridBase::dataAccessObject(RifReaderInterfa
 
     return NULL;
 }
-
-
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

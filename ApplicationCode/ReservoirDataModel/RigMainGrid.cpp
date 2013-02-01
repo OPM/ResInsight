@@ -337,38 +337,7 @@ const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
     CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
     return m_localGrids[localGridIndex-1].p();
 }
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeActiveCellCountForAllGrids()
-{
-    computeMatrixAndFractureModelActiveCellCount();
-    
-    size_t i;
-    for (i = 0; i < m_localGrids.size(); ++i)
-    {
-        m_localGrids[i]->computeMatrixAndFractureModelActiveCellCount();
-    }
-}
-*/
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeGlobalActiveCellCount()
-{
-    m_globalMatrixModelActiveCellCount = this->matrixModelActiveCellCount();
-    m_globalFractureModelActiveCellCount = this->fractureModelActiveCellCount();
 
-    size_t i;
-    for (i = 0; i < m_localGrids.size(); i++)
-    {
-       m_globalMatrixModelActiveCellCount += m_localGrids[i]->matrixModelActiveCellCount() ;
-       m_globalFractureModelActiveCellCount += m_localGrids[i]->fractureModelActiveCellCount() ;
-    }
-}
-*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
