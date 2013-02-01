@@ -43,6 +43,7 @@
 #include "cafCeetronNavigation.h"
 #include "RimReservoir.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RigGridScalarDataAccess.h"
 
 namespace caf {
 
@@ -850,8 +851,12 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         const RigGridBase* grid = reservoir->grid(gridIndex);
         if (this->cellResult()->hasResult())
         {
-            double scalarValue = grid->cellScalar(m_currentTimeStep, this->cellResult()->gridScalarIndex(), cellIndex);
-            resultInfoText->append(QString("Cell result : %1\n").arg(scalarValue));
+            cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            if (dataAccessObject.notNull())
+            {
+                double scalarValue = dataAccessObject->cellScalar(cellIndex);
+                resultInfoText->append(QString("Cell result : %1\n").arg(scalarValue));
+            }
         }
 
         if (this->cellEdgeResult()->hasResult())
@@ -866,8 +871,12 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 
                 // Cell edge results are static, results are loaded for first time step only
-                double scalarValue = grid->cellScalar(0, resultIndices[idx], cellIndex);
-                resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
+                cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(0, resultIndices[idx]);
+                if (dataAccessObject.notNull())
+                {
+                    double scalarValue = dataAccessObject->cellScalar(cellIndex);
+                    resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
+                }
             }
         }
     }

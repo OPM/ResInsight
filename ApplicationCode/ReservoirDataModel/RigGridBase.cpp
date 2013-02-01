@@ -148,13 +148,6 @@ void RigGridBase::initSubCellsMainGridCellIndex()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::scalarSetCount() const
-{
-    return m_mainGrid->results()->resultCount();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -220,49 +213,6 @@ bool RigGridBase::ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_
 size_t RigGridBase::gridPointIndexFromIJK(size_t i, size_t j, size_t k) const
 {
     return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::cellCornerScalars(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k, double scalars[8]) const
-{
-    
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::vectorSetCount() const
-{
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k) const
-{
-    size_t cellIndex = cellIndexFromIJK(i, j, k);
-
-    return cellScalar(timeStepIndex, scalarSetIndex, cellIndex);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t cellIndex) const
-{
-    size_t resultValueIndex = cellIndex;
-    
-    bool useGlobalActiveIndex = m_mainGrid->results()->isUsingGlobalActiveIndex(scalarSetIndex);
-    if (useGlobalActiveIndex)
-    {
-        resultValueIndex = cell(cellIndex).activeIndexInMatrixModel();
-        if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
-    }
-    
-    return m_mainGrid->results()->cellScalarResult(timeStepIndex, scalarSetIndex, resultValueIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -389,15 +339,6 @@ bool RigGridBase::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, s
     }
 
     return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const cvf::Vec3d* RigGridBase::cellVector(size_t vectorSetIndex, size_t i, size_t j, size_t k) const
-{
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

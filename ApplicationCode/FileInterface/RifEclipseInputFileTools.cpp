@@ -35,6 +35,7 @@
 #include "well_state.h"
 #include "util.h"
 #include <fstream>
+#include "RigGridScalarDataAccess.h"
 
 
 
@@ -417,16 +418,21 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
+    cvf::ref<RigGridScalarDataAccess> dataAccessObject = reservoir->mainGrid()->dataAccessObject(timeStep, resultIndex);
+    if (dataAccessObject.isNull())
+    {
+        return false;
+    }
+
     std::vector<double> resultData;
     size_t i, j, k;
-
     for (k = 0; k < reservoir->mainGrid()->cellCountK(); k++)
     {
         for (j = 0; j < reservoir->mainGrid()->cellCountJ(); j++)
         {
             for (i = 0; i < reservoir->mainGrid()->cellCountI(); i++)
             {
-                double resultValue = reservoir->mainGrid()->cellScalar(timeStep, resultIndex, i, j, k);
+                double resultValue = dataAccessObject->cellScalar(i, j, k);
                 if (resultValue == HUGE_VAL)
                 {
                     resultValue = undefinedValue;

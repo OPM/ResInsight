@@ -91,15 +91,6 @@ public:
     virtual size_t gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const;
     virtual cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const;
 
-    virtual size_t scalarSetCount() const;
-    virtual double cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k ) const;
-    virtual double cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t cellIndex ) const;
-
-    virtual void cellCornerScalars(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k, double scalars[8]) const;
-
-    virtual size_t vectorSetCount() const;
-    virtual const cvf::Vec3d* cellVector( size_t vectorSetIndex, size_t i, size_t j, size_t k ) const;
-
     virtual bool isCellActive( size_t i, size_t j, size_t k ) const;
     virtual bool isCellValid( size_t i, size_t j, size_t k ) const;
     virtual bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
