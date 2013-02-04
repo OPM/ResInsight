@@ -169,7 +169,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         }
 
         // Mark inactive long pyramid looking cells as invalid
-        if (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel() && !invalid)
+        if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
         {
             cell.setInvalid(cell.isLongPyramidCell());
         }
