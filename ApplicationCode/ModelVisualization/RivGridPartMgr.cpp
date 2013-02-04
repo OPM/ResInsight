@@ -221,7 +221,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-    cvf::ref<RigGridScalarDataAccess> dataAccessObject = m_grid->dataAccessObject(porosityModel, timeStepIndex, scalarSetIndex);
+    cvf::ref<RigGridScalarDataAccess> dataAccessObject = m_grid->dataAccessObject(porosityModel, resTimeStepIdx, scalarSetIndex);
     if (dataAccessObject.isNull()) return;
 
     // Outer surface
