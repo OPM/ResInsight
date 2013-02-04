@@ -69,7 +69,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 else if (me->modifiers() == Qt::NoModifier)
                 {
                     cvf::HitItemCollection hic;
-                    bool hitSomething = m_viewer->rayPick(translatedMousePosX, translatedMousePosY, &hic);
+                    bool hitSomething = m_viewer->rayPick( me->x(),  me->y(), &hic);
 
                     if (hitSomething)
                     { 
