@@ -61,9 +61,9 @@ public:
     bool                        isMainGrid() const;
     RigMainGrid*                mainGrid() const { return m_mainGrid; }
 
-    size_t                      matrixModelActiveCellCount();
+    size_t                      matrixModelActiveCellCount() const;
     void                        setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount);
-    size_t                      fractureModelActiveCellCount();
+    size_t                      fractureModelActiveCellCount() const ;
     void                        setFractureModelActiveCellCount(size_t activeFractureModelCellCount);
 
 protected:

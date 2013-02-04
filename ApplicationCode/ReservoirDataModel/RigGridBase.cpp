@@ -471,7 +471,7 @@ double RigGridBase::characteristicCellSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::matrixModelActiveCellCount()
+size_t RigGridBase::matrixModelActiveCellCount() const
 {
     return m_matrixModelActiveCellCount;
 }
@@ -479,7 +479,7 @@ size_t RigGridBase::matrixModelActiveCellCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::fractureModelActiveCellCount()
+size_t RigGridBase::fractureModelActiveCellCount() const
 {
     return m_fractureModelActiveCellCount;
 }
