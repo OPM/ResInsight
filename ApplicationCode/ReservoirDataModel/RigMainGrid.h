@@ -45,8 +45,8 @@ public:
     RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
-    size_t                                  globalMatrixModelActiveCellCount();
-    size_t                                  globalFractureModelActiveCellCount();
+    size_t                                  globalMatrixModelActiveCellCount() const;
+    size_t                                  globalFractureModelActiveCellCount() const;
     void                                    setGlobalMatrixModelActiveCellCount  (size_t globalMatrixModelActiveCellCount)   { m_globalMatrixModelActiveCellCount   = globalMatrixModelActiveCellCount;  }
     void                                    setGlobalFractureModelActiveCellCount(size_t globalFractureModelActiveCellCount) { m_globalFractureModelActiveCellCount = globalFractureModelActiveCellCount;}
 

@@ -83,7 +83,7 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::globalMatrixModelActiveCellCount()
+size_t RigMainGrid::globalMatrixModelActiveCellCount() const
 {
     return m_globalMatrixModelActiveCellCount;
 
@@ -92,7 +92,7 @@ size_t RigMainGrid::globalMatrixModelActiveCellCount()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::globalFractureModelActiveCellCount()
+size_t RigMainGrid::globalFractureModelActiveCellCount() const
 {
     return m_globalFractureModelActiveCellCount;
 }
