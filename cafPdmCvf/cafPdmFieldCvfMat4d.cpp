@@ -19,30 +19,35 @@
 
 #include <QTextStream>
 
-#include "cvfBase.h"
-
 // Includes needed for field editor registration
-#include "cvfColor3.h"
-#include "cafPdmUiColorEditor.h"
-#include "cafPdmField.h"
+#include "cvfAssert.h"
+#include "cvfMatrix4.h"
 
-CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiColorEditor, cvf::Color3f);
+//#include "cafPdmUiMatrixEditor.h"
+//#include "cafPdmField.h"
 
-void operator >> (QTextStream& str, cvf::Color3f& value)
+//CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiMatrixEditor, cvf::Mat4d);
+
+void operator >> (QTextStream& str, cvf::Mat4d& value)
 {
-    QString text;
-
-    double r, g, b;
-    str >> r;
-    str >> g;
-    str >> b;
-
-    value.set(r, g, b);
+    for (int r = 0; r < 4 ; ++r)
+    {
+        for (int c = 0; c < 4 ; ++c)
+        {
+            str >> value(r, c);
+        }
+    }
 }
 
-void operator << (QTextStream& str, const cvf::Color3f& value)
+void operator << (QTextStream& str, const cvf::Mat4d& value)
 {
-    str << value.r() << " " << value.g() << " " << value.b();
+    for (int r = 0; r < 4 ; ++r)
+    {
+        for (int c = 0; c < 4 ; ++c)
+        {
+            str << value(r, c) << " " ;
+        }
+    }
 }
 
 
