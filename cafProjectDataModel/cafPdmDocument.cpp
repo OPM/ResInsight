@@ -198,7 +198,7 @@ void PdmDocument::setupBeforeSaveTraversal(PdmObject * object)
     size_t cIdx;
     for (cIdx = 0; cIdx < children.size(); ++cIdx)
     {
-        PdmDocument::initAfterReadTraversal(children[cIdx]);
+        PdmDocument::setupBeforeSaveTraversal(children[cIdx]);
         if (children[cIdx]) children[cIdx]->setupBeforeSave();
     }
 
