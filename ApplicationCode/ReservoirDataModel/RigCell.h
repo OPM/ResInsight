@@ -78,20 +78,22 @@ public:
     bool                    isLongPyramidCell(double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
 private:
     caf::SizeTArray8        m_cornerIndices;
-    
-    bool                    m_isInvalid;
-    bool                    m_isWellCell;
 
+    size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
+    RigGridBase*            m_hostGrid;
     RigLocalGrid*           m_subGrid;
 
-    bool                    m_cellFaceFaults[6];
-
-    RigGridBase*            m_hostGrid;
     size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
     size_t                  m_mainGridCellIndex;
     bool                    m_isInCoarseCell; 
+
+    bool                    m_cellFaceFaults[6];
+
+    // Result case specific data 
+    bool                    m_isInvalid;
+    bool                    m_isWellCell;
+
     size_t                  m_activeIndexInMatrixModel;      ///< This cell's running index of all the active calls (matrix) in the reservoir
     size_t                  m_activeIndexInFractureModel;    ///< This cell's running index of all the active calls (fracture) in the reservoir
 
-    size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
 };

@@ -137,7 +137,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
 
-    //CAF_PDM_InitFieldNoDefault(&cameraPosition,      "CameraPosition", "", "", "", "");
+    CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
 
   
     this->cellResult()->setReservoirView(this);
@@ -714,7 +714,10 @@ void RimReservoirView::loadDataAndUpdate()
 
     createDisplayModel();
     updateDisplayModelVisibility();
-    setDefaultView();
+    if (cameraPosition().isIdentity())
+    {
+        setDefaultView();
+    }
     overlayInfoConfig()->update3DInfo();
 
     if (animationMode && m_viewer)
@@ -933,6 +936,7 @@ void RimReservoirView::setupBeforeSave()
     if (m_viewer)
     {
         animationMode = m_viewer->isAnimationActive();
+        cameraPosition = m_viewer->mainCamera()->viewMatrix();
     }
 }
 
