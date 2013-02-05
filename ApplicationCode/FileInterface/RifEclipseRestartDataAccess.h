@@ -42,15 +42,15 @@ public:
     RifEclipseRestartDataAccess();
     virtual ~RifEclipseRestartDataAccess();
 
-    virtual bool                open(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts) = 0;
+    virtual bool                open(const QStringList& fileSet) = 0;
     virtual void                close() = 0;
 
     virtual size_t              numTimeSteps() = 0;
     virtual QStringList         timeStepsText() = 0;
     virtual QList<QDateTime>    timeSteps() = 0;
 
-    virtual QStringList         resultNames(RifReaderInterface::PorosityModelResultType matrixOrFracture) = 0;
-    virtual bool                results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values) = 0;
+    virtual void                resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts) = 0;
+    virtual bool                results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values) = 0;
 
     virtual void                readWellData(well_info_type * well_info) = 0;
 };

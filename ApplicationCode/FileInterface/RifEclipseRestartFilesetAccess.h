@@ -35,20 +35,18 @@ public:
     RifEclipseRestartFilesetAccess();
     virtual ~RifEclipseRestartFilesetAccess();
 
-    bool                        open(const QStringList& fileSet, const std::vector<size_t>& matrixActiveCellCounts, const std::vector<size_t>& fractureActiveCellCounts);
+    bool                        open(const QStringList& fileSet);
     void                        close();
 
     size_t                      numTimeSteps();
     QStringList                 timeStepsText();
     QList<QDateTime>            timeSteps();
 
-    QStringList                 resultNames(RifReaderInterface::PorosityModelResultType matrixOrFracture);
-    bool                        results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values);
+    void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
+    bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
 
     virtual void                readWellData(well_info_type* well_info);
 
 private:
-    std::vector< cvf::ref<RifEclipseOutputFileTools> > m_files;
-
-    size_t m_gridCount;
+    std::vector< ecl_file_type* > m_ecl_files;
 };

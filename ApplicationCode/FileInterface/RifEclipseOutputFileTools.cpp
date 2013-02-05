@@ -21,6 +21,7 @@
 #include "util.h"
 #include "ecl_file.h"
 #include "ecl_intehead.h"
+#include "ecl_kw_magic.h"
 
 #include <QFileInfo>
 #include "cafProgressInfo.h"
@@ -31,10 +32,6 @@
 //--------------------------------------------------------------------------------------------------
 RifEclipseOutputFileTools::RifEclipseOutputFileTools()
 {
-    m_file = NULL;
-
-    m_globalMatrixActiveCellCounts = 0;;
-    m_globalFractureActiveCellCounts = 0;
 }
 
 
@@ -43,75 +40,25 @@ RifEclipseOutputFileTools::RifEclipseOutputFileTools()
 //--------------------------------------------------------------------------------------------------
 RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 {
-    close();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Open file given by name
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::open(const QString& fileName, const std::vector<size_t>& matrixActiveCellCounts, const std::vector<size_t>& fractureActiveCellCounts)
-{
-    // Close current file if any
-    close();
-
-    m_file = ecl_file_open(fileName.toAscii().data());
-    if (!m_file) return false;
-
-    m_numMatrixActiveCellCounts = matrixActiveCellCounts;
-    m_numFractureActiveCellCount = fractureActiveCellCounts;
-
-    for (size_t i = 0; i < matrixActiveCellCounts.size(); i++)
-    {
-        m_globalMatrixActiveCellCounts += matrixActiveCellCounts[i];
-        m_globalFractureActiveCellCounts += fractureActiveCellCounts[i];
-    }
-
-    return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Close file
-//--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::close()
-{
-    if (m_file)
-    {
-        ecl_file_close(m_file);
-        m_file = NULL;
-    }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Get the number of occurrences of the given keyword
-//--------------------------------------------------------------------------------------------------
-int RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
-{
-    CVF_ASSERT(m_file);
-    return ecl_file_get_num_named_kw(m_file, keyword.toAscii().data());
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
+bool RifEclipseOutputFileTools::timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps)
 {
     CVF_ASSERT(timeSteps);
-    CVF_ASSERT(m_file);
-
-    const char* KW_INTEHEAD = "INTEHEAD";
+    CVF_ASSERT(ecl_file);
 
     // Get the number of occurrences of the INTEHEAD keyword
-    int numINTEHEAD = numOccurrences(KW_INTEHEAD);
+    int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
 
     QStringList timeStepsFound;
     int i;
     for (i = 0; i < numINTEHEAD; i++)
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(m_file, KW_INTEHEAD, i);
+        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
         if (kwINTEHEAD)
         {
             // Get date info
@@ -140,21 +87,19 @@ bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
+bool RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps)
 {
     CVF_ASSERT(timeSteps);
-    CVF_ASSERT(m_file);
-
-    const char* KW_INTEHEAD = "INTEHEAD";
+    CVF_ASSERT(ecl_file);
 
     // Get the number of occurrences of the INTEHEAD keyword
-    int numINTEHEAD = numOccurrences(KW_INTEHEAD);
+    int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
 
     QList<QDateTime> timeStepsFound;
     int i;
     for (i = 0; i < numINTEHEAD; i++)
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(m_file, KW_INTEHEAD, i);
+        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
         if (kwINTEHEAD)
         {
             // Get date info
@@ -179,50 +124,27 @@ bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
     return true;
 }
 
+
 //--------------------------------------------------------------------------------------------------
-/// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
+/// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordData(const QString& keyword, size_t fileKeywordOccurrence,
-                                            RifReaderInterface::PorosityModelResultType matrixOrFracture,
-                                            std::vector<double>* values)
+bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
 {
-    CVF_ASSERT(m_file);
-    CVF_ASSERT(values);
-
-    size_t gridIndex = fileKeywordOccurrence % m_numMatrixActiveCellCounts.size();
-
-    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
+    if (kwData)
     {
-        ecl_kw_type* kwData = ecl_file_iget_named_kw(m_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
-        if (kwData)
-        {
-            size_t numValues = ecl_kw_get_size(kwData);
+        size_t numValues = ecl_kw_get_size(kwData);
 
-            std::vector<double> doubleData;
-            doubleData.resize(numValues);
+        std::vector<double> doubleData;
+        doubleData.resize(numValues);
 
-            ecl_kw_get_data_as_double(kwData, doubleData.data());
-            values->insert(values->end(), doubleData.begin(), doubleData.begin() + m_numMatrixActiveCellCounts[gridIndex]);
-        }
-    }
-    else
-    {
-        ecl_kw_type* kwData = ecl_file_iget_named_kw(m_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
-        if (kwData)
-        {
-            size_t numValues = ecl_kw_get_size(kwData);
-            CVF_ASSERT(numValues == m_numMatrixActiveCellCounts[gridIndex] + m_numFractureActiveCellCount[gridIndex]);
+        ecl_kw_get_data_as_double(kwData, doubleData.data());
+        values->insert(values->end(), doubleData.begin(), doubleData.end());
 
-            std::vector<double> doubleData;
-            doubleData.resize(numValues);
-
-            ecl_kw_get_data_as_double(kwData, doubleData.data());
-
-            values->insert(values->end(), doubleData.begin() + m_numMatrixActiveCellCounts[gridIndex], doubleData.end());
-        }
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 
@@ -294,42 +216,29 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
     return fileSet->count() > 0;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-ecl_file_type* RifEclipseOutputFileTools::filePointer()
-{
-    return m_file;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::validKeywords(QStringList* keywords, RifReaderInterface::PorosityModelResultType matrixOrFracture)
+void RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ecl_file_type* ecl_file, QStringList* keywords, std::vector<size_t>* keywordDataItemCounts)
 {
-    if (m_globalMatrixActiveCellCounts == 0) return true;
+    if (!ecl_file || !keywords || !keywordDataItemCounts) return;
 
-    CVF_ASSERT(m_file);
-    CVF_ASSERT(keywords);
-
-    if (!keywords) return false;
-    keywords->clear();
-
-    int numKeywords = ecl_file_get_num_distinct_kw(m_file);
+    int numKeywords = ecl_file_get_num_distinct_kw(ecl_file);
 
     caf::ProgressInfo info(numKeywords, "Reading Keywords on file");
 
     for (int i = 0; i < numKeywords; i++)
     {
-        const char* kw = ecl_file_iget_distinct_kw(m_file , i);
-        int numKeywordOccurrences = ecl_file_get_num_named_kw(m_file, kw);
+        const char* kw = ecl_file_iget_distinct_kw(ecl_file , i);
+        int numKeywordOccurrences = ecl_file_get_num_named_kw(ecl_file, kw);
         bool validData = true;
         size_t fileResultValueCount = 0;
         for (int j = 0; j < numKeywordOccurrences; j++)
         {
-            fileResultValueCount += ecl_file_iget_named_size(m_file, kw, j);
+            fileResultValueCount += ecl_file_iget_named_size(ecl_file, kw, j);
 
-            ecl_type_enum dataType = ecl_file_iget_named_type(m_file, kw, j);
+            ecl_type_enum dataType = ecl_file_iget_named_type(ecl_file, kw, j);
             if (dataType != ECL_DOUBLE_TYPE && dataType != ECL_FLOAT_TYPE && dataType != ECL_INT_TYPE )
             {
                 validData = false;
@@ -339,27 +248,10 @@ bool RifEclipseOutputFileTools::validKeywords(QStringList* keywords, RifReaderIn
 
         if (validData)
         {
-            // Only report valid fracture results when total result value count equals matrix and fracture
-            if (matrixOrFracture == RifReaderInterface::FRACTURE_RESULTS)
-            {
-                size_t rest = fileResultValueCount % (m_globalMatrixActiveCellCounts + m_globalFractureActiveCellCounts);
-                if (rest == 0)
-                {
-                    keywords->append(QString(kw));
-                }
-            }
-            else
-            {
-                size_t rest = fileResultValueCount % (m_globalMatrixActiveCellCounts);
-                if (rest == 0)
-                {
-                    keywords->append(QString(kw));
-                }
-            }
+            keywords->append(QString(kw));
+            keywordDataItemCounts->push_back(fileResultValueCount);
         }
 
         info.setProgress(i);
     }
-
-    return true;
 }

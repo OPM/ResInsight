@@ -56,6 +56,9 @@ bool RimResultReservoir::openEclipseGridFile()
     if (caseName().contains("Result Mock Debug Model"))
     {
         readerInterface = this->createMockModel(this->caseName());
+
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
     }
     else
     {
@@ -88,9 +91,6 @@ bool RimResultReservoir::openEclipseGridFile()
 
     CVF_ASSERT(m_rigReservoir.notNull());
     CVF_ASSERT(readerInterface.notNull());
-
-    m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-    m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
     progInfo.setProgressDescription("Computing Faults");
     m_rigReservoir->computeFaults();

@@ -43,7 +43,6 @@ RimResultDefinition::RimResultDefinition()
     CAF_PDM_InitField(&resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
 
     resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
-    porosityModel.setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,6 +59,17 @@ RimResultDefinition::~RimResultDefinition()
 void RimResultDefinition::setReservoirView(RimReservoirView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
+
+    // TODO: This code is executed before reservoir is read, and then porosity model is never set to zero
+    if (m_reservoirView->eclipseCase() &&
+        m_reservoirView->eclipseCase()->reservoirData() &&
+        m_reservoirView->eclipseCase()->reservoirData()->mainGrid() )
+    {
+        if (m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->globalFractureModelActiveCellCount() == 0)
+        {
+            porosityModel.setUiHidden(true);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

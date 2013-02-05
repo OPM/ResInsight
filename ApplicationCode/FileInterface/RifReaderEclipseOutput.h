@@ -25,8 +25,11 @@
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
 class RigGridBase;
+class RigMainGrid;
 
 typedef struct ecl_grid_struct ecl_grid_type;
+typedef struct ecl_file_struct ecl_file_type;
+
 
 //==================================================================================================
 //
@@ -52,17 +55,23 @@ private:
     bool                    buildMetaData(RigReservoir* reservoir);
     void                    readWellCells(RigReservoir* reservoir);
 
+    void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
+    
     int                     findSmallestActiveCellIndexK( const RigGridBase* grid, int cellI, int cellJ);
 
-    static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts);
-    static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts);
+    static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet);
+    static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet);
+
+    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
 
 private:
     QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
     QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename
 
+    cvf::cref<RigMainGrid>                  m_mainGrid;
+
     QList<QDateTime>                        m_timeSteps;
 
-    cvf::ref<RifEclipseOutputFileTools>     m_staticResultsAccess;    // File access to static results
+    ecl_file_type*                          m_ecl_file;    // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results
 };

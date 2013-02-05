@@ -101,7 +101,6 @@ TEST(RigReservoirTest, WellTestErt)
 
     well_info_free( well_info );
 }
-#endif
 //--------------------------------------------------------------------------------------------------
 /// This file contains test code taken from the test cases in ERT source code.
 //  There is a typedef issue (center) between ERT and QTextStream, so this file does not include any 
@@ -117,3 +116,4 @@ TEST(RigReservoirTest, ElipseInputGridFile)
     EXPECT_EQ(size_t(1), res.mainGrid()->globalMatrixModelActiveCellCount());
 
 }
+#endif

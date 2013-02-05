@@ -25,51 +25,32 @@
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
-
-#include "ecl_file.h"
-
 #include "RifReaderInterface.h"
 
+#include "ecl_util.h"
+
+typedef struct ecl_file_struct ecl_file_type;
+
+
 //==================================================================================================
 //
-// Class for access to Eclipse "keyword" files using libecl
+// 
 //
 //==================================================================================================
-class RifEclipseOutputFileTools : public cvf::Object
+class RifEclipseOutputFileTools
 {
 public:
     RifEclipseOutputFileTools();
     virtual ~RifEclipseOutputFileTools();
 
-    bool                open(const QString& fileName, const std::vector<size_t>& matrixActiveCellCounts, const std::vector<size_t>& fractureActiveCellCounts);
-    void                close();
+    static void         findKeywordsAndDataItemCounts(ecl_file_type* ecl_file, QStringList* keywords, std::vector<size_t>* keywordDataItemCounts);
+    static bool         keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values);
 
-    int                 numOccurrences(const QString& keyword);
-    
-    bool                validKeywords(QStringList* keywords, RifReaderInterface::PorosityModelResultType matrixOrFracture);
+    static bool         timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps);
+    static bool         timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps);
 
-    bool                timeStepsText(QStringList* timeSteps);
-    bool                timeSteps(QList<QDateTime>* timeSteps);
-
-    bool                keywordData(const QString& keyword, size_t fileKeywordOccurrence,
-                                    RifReaderInterface::PorosityModelResultType matrixOrFracture,
-                                    std::vector<double>* values);
-
-    ecl_file_type*      filePointer();
-
-    // Static methods
     static bool         fileSet(const QString& fileName, QStringList* fileSet);
 
     static QString      fileNameByType(const QStringList& fileSet, ecl_file_enum fileType);
     static QStringList  fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType);
-
-protected:
-    ecl_file_type*      m_file;
-
-private:
-    std::vector<size_t> m_numMatrixActiveCellCounts;
-    std::vector<size_t> m_numFractureActiveCellCount;
-
-    size_t m_globalMatrixActiveCellCounts;
-    size_t m_globalFractureActiveCellCounts;
 };

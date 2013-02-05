@@ -24,6 +24,121 @@
 #include "RigReservoir.h"
 
 #include "RifReaderEclipseOutput.h"
+#include "ecl_file.h"
+#include "RifEclipseOutputFileTools.h"
+#include "RigReservoirCellResults.h"
+
+
+
+
+
+#if 0
+
+
+TEST(RigReservoirTest, FileOutputToolsTest)
+{
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    cvf::ref<RigReservoir> reservoir = new RigReservoir;
+
+//    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
+    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+
+    ecl_file_type* ertFile = ecl_file_open(filename.toAscii().data());
+    EXPECT_TRUE(ertFile);
+
+
+    QStringList keywords;
+    std::vector<size_t> keywordDataItemCounts;
+    RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ertFile, &keywords, &keywordDataItemCounts);
+
+    EXPECT_TRUE(keywords.size() == keywordDataItemCounts.size());
+
+
+    qDebug() << "Keyword - Number of data items";
+    for (int i = 0; i < keywords.size(); i++)
+    {
+        QString paddedKeyword = QString("%1").arg(keywords[i], 8);
+        qDebug() << paddedKeyword << " - " << keywordDataItemCounts[i];
+    }
+
+    ecl_file_close(ertFile);
+    ertFile = NULL;
+}
+
+
+void buildResultInfoString(RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, RimDefines::ResultCatType resultType)
+{
+    RigReservoirCellResults* matrixResults = reservoir->mainGrid()->results(porosityModel);
+    {
+        QStringList resultNames = matrixResults->resultNames(resultType);
+
+        for (size_t i = 0 ; i < resultNames.size(); i++)
+        {
+            std::vector<double> values;
+            size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultNames[i]);
+            EXPECT_TRUE(scalarResultIndex != cvf::UNDEFINED_SIZE_T);
+
+            QString resultText = QString("%1").arg(resultNames[i], 8);
+            std::vector< std::vector<double> > & resultValues = matrixResults->cellScalarResults(scalarResultIndex);
+            for (size_t timeStepIdx = 0; timeStepIdx < matrixResults->timeStepCount(scalarResultIndex); timeStepIdx++)
+            {
+                size_t resultValueCount = resultValues[timeStepIdx].size();
+                resultText += QString(" %1").arg(resultValueCount);
+            }
+
+            qDebug() << resultText;
+        }
+        qDebug() << "Number of items : " << resultNames.size();
+    }
+}
+
+TEST(RigReservoirTest, DualPorosityTest)
+{
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    cvf::ref<RigReservoir> reservoir = new RigReservoir;
+
+    QString filename("d:/Models/Statoil/DualProperty/DUALPORO.EGRID");
+    //QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
+
+
+    bool result = readerInterfaceEcl->open(filename, reservoir.p());
+    EXPECT_TRUE(result);
+
+
+    qDebug() << "\n\n" << 
+        "Matrix porosities, DYNAMIC results" <<
+        "----------------------------------";
+    buildResultInfoString(reservoir.p(), RifReaderInterface::MATRIX_RESULTS, RimDefines::DYNAMIC_NATIVE);
+
+    qDebug() << "\n\n" << 
+        "Matrix porosities, STATIC results" <<
+        "----------------------------------";
+    buildResultInfoString(reservoir.p(), RifReaderInterface::MATRIX_RESULTS, RimDefines::STATIC_NATIVE);
+
+    qDebug() << "\n\n" << 
+        "Fracture porosities, DYNAMIC results" <<
+        "----------------------------------";
+    buildResultInfoString(reservoir.p(), RifReaderInterface::FRACTURE_RESULTS, RimDefines::DYNAMIC_NATIVE);
+
+    qDebug() << "\n\n" << 
+        "Fracture porosities, STATIC results" <<
+        "----------------------------------";
+    buildResultInfoString(reservoir.p(), RifReaderInterface::FRACTURE_RESULTS, RimDefines::STATIC_NATIVE);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //#include "RifEclipseUnifiedRestartFileAccess.h"
 
 /*
@@ -69,7 +184,6 @@ TEST(RigReservoirTest, UnifiedTestFile)
 }
 */
 
-#if 0
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -149,4 +263,7 @@ TEST(RigReservoirTest, WellTest)
     EXPECT_TRUE(mainGridWellCells->size() == reservoir->mainGrid()->cellCount());
 }
 
+
+
 #endif
+

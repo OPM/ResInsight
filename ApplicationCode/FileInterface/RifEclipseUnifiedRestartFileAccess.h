@@ -22,6 +22,8 @@
 
 class RifEclipseOutputFileTools;
 
+//typedef struct ecl_file_struct ecl_file_type;
+
 #include "well_info.h"
 
 //==================================================================================================
@@ -35,20 +37,18 @@ public:
     RifEclipseUnifiedRestartFileAccess();
     virtual ~RifEclipseUnifiedRestartFileAccess();
 
-    bool                        open(const QStringList& fileSet, const std::vector<size_t>& matrixModelActiveCellCounts, const std::vector<size_t>& fractureModelActiveCellCounts);
+    bool                        open(const QStringList& fileSet);
     void                        close();
 
     size_t                      numTimeSteps();
     QStringList                 timeStepsText();
     QList<QDateTime>            timeSteps();
 
-    QStringList                 resultNames(RifReaderInterface::PorosityModelResultType matrixOrFracture);
-    bool                        results(const QString& resultName, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t timeStep, std::vector<double>* values);
+    void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
+    bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
 
     virtual void                readWellData(well_info_type * well_info);
 
 private:
-    cvf::ref<RifEclipseOutputFileTools> m_file;
-
-    size_t m_gridCount;
+    ecl_file_type*  m_ecl_file;
 };
