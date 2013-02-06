@@ -28,6 +28,7 @@
 #include "cafFactory.h"
 
 #include "cafPdmUiEditorHandle.h"
+#include <typeinfo>
 
 // Taken from gtest.h
 //
