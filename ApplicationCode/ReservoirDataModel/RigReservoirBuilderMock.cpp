@@ -278,7 +278,7 @@ bool RigReservoirBuilderMock::inputProperty(RigReservoir* reservoir, const QStri
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
 
-    for (k = 0; k < reservoir->mainGrid()->cellCount(); k++)
+    for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
     {
         values->push_back(k * iSecret);
     }

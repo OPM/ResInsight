@@ -651,8 +651,10 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
-    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->globalMatrixModelActiveCellCount()) return true;
-    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->cellCount()) return false;
+    
+    size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalMatrixModelActiveCellCount()) return true;
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->cells().size()) return false;
 
     CVF_TIGHT_ASSERT(false); // Wrong number of results
 
