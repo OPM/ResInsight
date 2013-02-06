@@ -18,6 +18,7 @@
 
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseOutputFileTools.h"
+#include "cafProgressInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -44,13 +45,20 @@ bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
     close();
 
     int numFiles = fileSet.size();
+
+    caf::ProgressInfo progInfo(numFiles,"");
+
     int i;
     for (i = 0; i < numFiles; i++)
     {
+        progInfo.setProgressDescription(fileSet[i]);
+
         ecl_file_type* ecl_file = ecl_file_open(fileSet[i].toAscii().data());
         if (!ecl_file) return false;
 
         m_ecl_files.push_back(ecl_file);
+
+        progInfo.incrementProgress();
     }
 
     return true;

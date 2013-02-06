@@ -44,10 +44,10 @@ RimResultReservoir::RimResultReservoir()
 //--------------------------------------------------------------------------------------------------
 bool RimResultReservoir::openEclipseGridFile()
 {
-    caf::ProgressInfo progInfo(20, "Reading Eclipse Grid File");
+    caf::ProgressInfo progInfo(50, "Reading Eclipse Grid File");
 
     progInfo.setProgressDescription("Open Grid File");
-    progInfo.setNextProgressIncrement(19);
+    progInfo.setNextProgressIncrement(48);
     // Early exit if reservoir data is created
     if (m_rigReservoir.notNull()) return true;
 
@@ -107,13 +107,15 @@ bool RimResultReservoir::openEclipseGridFile()
         m_rigReservoir = reservoir;
     }
 
-    progInfo.setProgress(19);
+    progInfo.incrementProgress();
 
     CVF_ASSERT(m_rigReservoir.notNull());
     CVF_ASSERT(readerInterface.notNull());
 
     progInfo.setProgressDescription("Computing Faults");
     m_rigReservoir->computeFaults();
+
+    progInfo.incrementProgress();
     progInfo.setProgressDescription("Computing Cache");
     m_rigReservoir->mainGrid()->computeCachedData();
 

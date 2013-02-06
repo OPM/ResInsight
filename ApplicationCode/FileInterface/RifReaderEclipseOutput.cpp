@@ -326,7 +326,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservoir)
 {
     CVF_ASSERT(reservoir);
-    caf::ProgressInfo progInfo(10, "");
+    caf::ProgressInfo progInfo(100, "");
 
     progInfo.setProgressDescription("Reading Grid");
 
@@ -336,25 +336,30 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
     // Get set of files
     QStringList fileSet;
     if (!RifEclipseOutputFileTools::fileSet(fileName, &fileSet)) return false;
+    
+    progInfo.incrementProgress();
 
-
+    progInfo.setNextProgressIncrement(20);
     // Keep the set of files of interest
     m_fileSet = fileSet;
 
     // Read geometry
     ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
 
-    progInfo.setProgress(1);
-    progInfo.setNextProgressIncrement(6);
+    progInfo.incrementProgress();
+
+    progInfo.setNextProgressIncrement(10);
     progInfo.setProgressDescription("Transferring grid geometry");
 
     if (!transferGeometry(mainEclGrid, reservoir)) return false;
-    progInfo.setProgress(7);
+    progInfo.incrementProgress();
+
     progInfo.setProgressDescription("Releasing reader memory");
     ecl_grid_free( mainEclGrid );
+    progInfo.incrementProgress();
 
-    progInfo.setProgress(8);
     progInfo.setProgressDescription("Reading Result index");
+    progInfo.setNextProgressIncrement(60);
 
     m_mainGrid = reservoir->mainGrid();
     
@@ -363,8 +368,9 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
     
     // Build results meta data
     if (!buildMetaData(reservoir)) return false;
+    progInfo.incrementProgress();
 
-    progInfo.setProgress(9);
+    progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
     
     readWellCells(reservoir);
@@ -381,7 +387,9 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
     CVF_ASSERT(reservoir);
     CVF_ASSERT(m_fileSet.size() > 0);
 
-    caf::ProgressInfo progInfo(2,"");
+    caf::ProgressInfo progInfo(m_fileSet.size() + 3,"");
+
+    progInfo.setNextProgressIncrement(m_fileSet.size());
 
     // Create access object for dynamic results
     m_dynamicResultsAccess = dynamicResultsAccess(m_fileSet);
@@ -389,6 +397,8 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
     {
         return false;
     }
+
+    progInfo.incrementProgress();
 
     RigReservoirCellResults* matrixModelResults = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
     RigReservoirCellResults* fractureModelResults = reservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS);
@@ -424,13 +434,15 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 
     }
 
-    progInfo.setProgress(1);
+    progInfo.incrementProgress();
 
     QString initFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
         ecl_file_type* ecl_file = ecl_file_open(initFileName.toAscii().data());
         if (!ecl_file) return false;
+
+        progInfo.incrementProgress();
 
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
@@ -574,6 +586,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
     reservoir->allGrids(&grids);
 
     cvf::Collection<RigWellResults> wells;
+    caf::ProgressInfo progress(well_info_get_num_wells(ert_well_info), "");
 
     int wellIdx;
     for (wellIdx = 0; wellIdx < well_info_get_num_wells(ert_well_info); wellIdx++)
@@ -738,6 +751,8 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
         wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(m_timeSteps);
 
         wells.push_back(wellResults.p());
+
+        progress.incrementProgress();
     }
 
     well_info_free(ert_well_info);
