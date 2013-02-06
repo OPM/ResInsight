@@ -607,6 +607,7 @@ bool RIApplication::parseArguments()
     bool isParsingCaseNames = false;
     bool isParsingStartDir = false;
     bool showHelp = false;
+    bool isSaveSnapshotsForAllViews = false;
     
     int i;
     for (i = 1; i < arguments.size(); i++)
@@ -649,6 +650,12 @@ bool RIApplication::parseArguments()
 
             foundKnownOption = true;
         }
+        else if (arg.toLower() == "-savesnapshots")
+        {
+            isSaveSnapshotsForAllViews = true;
+
+            foundKnownOption = true;
+        }
 
         if (!foundKnownOption)
         {
@@ -682,7 +689,10 @@ bool RIApplication::parseArguments()
         "-case <casename>     Open Eclipse case <casename>\n"
         "                     (do not include .GRID/.EGRID)\n"
         "-startdir            The default directory for open/save commands\n"
-
+        "\n"
+        "-savesnapshots       Save snapshot of all views to 'snapshots' folder in project file folder\n"
+        "                     Application closes after snapshots are written to file\n"
+        "\n"
         "-help                \n"
         "-?                   Displays help text\n"
         "-----------------------------------------------------------------";
@@ -723,6 +733,14 @@ bool RIApplication::parseArguments()
                 }
             }
         }
+    }
+
+    if (m_project.notNull() && !m_project->fileName().isEmpty() && isSaveSnapshotsForAllViews)
+    {
+        saveSnapshotForAllViews();
+
+        // Returning false will exit the application
+        return false;
     }
 
     return true;
@@ -982,7 +1000,14 @@ void RIApplication::saveSnapshotAs(const QString& fileName)
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
         QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
-        image.save(fileName);
+        if (image.save(fileName))
+        {
+            qDebug() << "Saved snapshot image to " << fileName;
+        }
+        else
+        {
+            qDebug() << "Error when trying to save snapshot image to " << fileName;
+        }
     }
 }
 
