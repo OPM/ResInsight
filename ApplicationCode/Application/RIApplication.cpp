@@ -943,3 +943,114 @@ void RIApplication::setDefaultFileDialogDirectory(const QString& dialogName, con
 {
     m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::saveSnapshotPromtpForFilename()
+{
+    QString startPath;
+    if (!m_project->fileName().isEmpty())
+    {
+        QFileInfo fi(m_project->fileName());
+        startPath = fi.absolutePath();
+    }
+    else
+    {
+        startPath = defaultFileDialogDirectory("IMAGE_SNAPSHOT");
+    }
+
+    startPath += "/image.png";
+
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+
+    // Remember the directory to next time
+    setDefaultFileDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
+
+    saveSnapshotAs(fileName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::saveSnapshotAs(const QString& fileName)
+{
+    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    {
+        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
+        image.save(fileName);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::copySnapshotToClipboard()
+{
+    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    {
+        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
+
+        QClipboard* clipboard = QApplication::clipboard();
+        if (clipboard)
+        {
+            clipboard->setImage(image);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::saveSnapshotForAllViews()
+{
+    RIMainWindow* mainWnd = RIMainWindow::instance();
+    if (!mainWnd) return;
+
+    if (m_project.isNull()) return;
+
+    if (m_project->fileName().isEmpty()) return;
+
+    QFileInfo fi(m_project->fileName());
+    QDir projectDir(fi.absolutePath());
+
+    QString snapshotFolderName = "snapshots";
+    if (!projectDir.exists(snapshotFolderName))
+    {
+        if (!projectDir.mkdir(snapshotFolderName)) return;
+    }
+
+    QString snapshotPath = projectDir.absolutePath();
+    snapshotPath += "/" + snapshotFolderName;
+
+    for (size_t i = 0; i < m_project->reservoirs().size(); ++i)
+    {
+        RimReservoir* ri = m_project->reservoirs()[i];
+        if (!ri) continue;
+
+        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        {
+            RimReservoirView* riv = ri->reservoirViews()[j];
+
+            if (riv && riv->viewer())
+            {
+                setActiveReservoirView(riv);
+
+                RIViewer* viewer = riv->viewer();
+                mainWnd->setActiveViewer(viewer);
+
+                // Process all events to avoid a black image when grabbing frame buffer
+                QCoreApplication::processEvents();
+
+                QString fileName = ri->caseName() + "-" + riv->name();
+
+                QString absoluteFileName = caf::Utils::constructFullFileName(snapshotPath, fileName, ".PNG");
+                saveSnapshotAs(absoluteFileName);
+            }
+        }
+    }
+}

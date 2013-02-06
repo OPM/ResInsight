@@ -185,6 +185,10 @@ void RIMainWindow::createActions()
     m_mockLargeResultsModelAction = new QAction("Large Mock Model", this);
     m_mockInputModelAction      = new QAction("Input Mock Model", this);
 
+    m_snapshotToFile            = new QAction("Snapshot To File", this);
+    m_snapshotToClipboard       = new QAction("Snapshot To Clipboard", this);
+    m_snapshotAllViewsToFile    = new QAction("Snapshot All Views To File", this);
+
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
 
@@ -200,6 +204,10 @@ void RIMainWindow::createActions()
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
     connect(m_mockLargeResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
     connect(m_mockInputModelAction,	    SIGNAL(triggered()), SLOT(slotInputMockModel()));
+
+    connect(m_snapshotToFile,	        SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
+    connect(m_snapshotToClipboard,	    SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
+    connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
     
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
@@ -297,6 +305,11 @@ void RIMainWindow::createMenus()
     debugMenu->addAction(m_mockResultsModelAction);
     debugMenu->addAction(m_mockLargeResultsModelAction);
     debugMenu->addAction(m_mockInputModelAction);
+
+    debugMenu->addSeparator();
+    debugMenu->addAction(m_snapshotToClipboard);
+    debugMenu->addAction(m_snapshotToFile);
+    debugMenu->addAction(m_snapshotAllViewsToFile);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
@@ -1178,4 +1191,34 @@ void RIMainWindow::slotNewObjectPropertyView()
 
         connect(treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), propView, SLOT(showProperties( caf::PdmObject* )));
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotSnapshotToFile()
+{
+    RIApplication* app = RIApplication::instance();
+
+    app->saveSnapshotPromtpForFilename();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotSnapshotToClipboard()
+{
+    RIApplication* app = RIApplication::instance();
+
+    app->copySnapshotToClipboard();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotSnapshotAllViewsToFile()
+{
+    RIApplication* app = RIApplication::instance();
+
+    app->saveSnapshotForAllViews();
 }

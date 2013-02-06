@@ -89,6 +89,11 @@ public:
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
     bool                closeProject(bool askToSaveIfDirty);
+    
+    void                copySnapshotToClipboard();
+    void                saveSnapshotPromtpForFilename();
+    void                saveSnapshotAs(const QString& fileName);
+    void                saveSnapshotForAllViews();
 
     void                processNonGuiEvents();
 

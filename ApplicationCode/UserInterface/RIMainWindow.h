@@ -106,10 +106,6 @@ private:
     QAction*		    m_openInputEclipseFileAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
-    QAction*		    m_mockModelAction;
-    QAction*		    m_mockResultsModelAction;
-    QAction*		    m_mockLargeResultsModelAction;
-    QAction*		    m_mockInputModelAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeAction;
@@ -117,6 +113,7 @@ private:
 
     // Edit actions
     QAction*		    m_editPreferences;
+    QAction*		    m_newPropertyView;
 
     // View actions
     QAction*		    m_viewFromNorth;
@@ -127,8 +124,15 @@ private:
     QAction*		    m_viewFromBelow;
     QAction*		    m_zoomAll;
 
-    // Debug actions
-    QAction*		    m_newPropertyView;
+    // Mock actions
+    QAction*		    m_mockModelAction;
+    QAction*		    m_mockResultsModelAction;
+    QAction*		    m_mockLargeResultsModelAction;
+    QAction*		    m_mockInputModelAction;
+
+    QAction*		    m_snapshotToFile;
+    QAction*		    m_snapshotToClipboard;
+    QAction*		    m_snapshotAllViewsToFile;
 
     // Help actions
     QAction*            m_aboutAction;
@@ -158,12 +162,6 @@ private slots:
     void    slotOpenInputFiles();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
-
-    void    slotMockModel();
-    void    slotMockResultsModel();
-    void    slotMockLargeResultsModel();
-    void    slotInputMockModel();
-    
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
@@ -173,6 +171,7 @@ private slots:
     // Edit slots
     void    slotRefreshEditActions();
     void    slotEditPreferences();
+    void    slotNewObjectPropertyView();
 
     // View slots
     void    slotRefreshViewActions();
@@ -188,7 +187,16 @@ private slots:
     void    slotRefreshDebugActions();
     void    slotUseShaders(bool enable);
     void    slotShowPerformanceInfo(bool enable);
-    void    slotNewObjectPropertyView();
+    
+    void    slotSnapshotToFile();
+    void    slotSnapshotToClipboard();
+    void    slotSnapshotAllViewsToFile();
+
+    // Mock models
+    void    slotMockModel();
+    void    slotMockResultsModel();
+    void    slotMockLargeResultsModel();
+    void    slotInputMockModel();
 
     // Windows slots
     void    slotBuildWindowActions();
