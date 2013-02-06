@@ -189,15 +189,14 @@ static std::vector<size_t>& progressSpanStack()
     return m_progressSpanStack;
 }
 
-
 //--------------------------------------------------------------------------------------------------
-/// Calculate the total number of progress values we would need if we only look at the levels from 
-/// \a levelDepth and below (increasing subdivision)
+/// Calculate the total maximum value for the progress bar composed 
+/// of the complete stack
 //--------------------------------------------------------------------------------------------------
-static size_t subLevelsMaxProgressValue(size_t levelDepth)
+static size_t currentTotalMaxProgressValue()
 {
     size_t levCount = 1;
-    for (; levelDepth < maxProgressStack().size(); ++levelDepth)
+    for (size_t levelDepth = 0; levelDepth < maxProgressStack().size(); ++levelDepth)
     {
         levCount *=  maxProgressStack()[levelDepth];
     }
@@ -209,21 +208,16 @@ static size_t subLevelsMaxProgressValue(size_t levelDepth)
 //--------------------------------------------------------------------------------------------------
 static size_t currentTotalProgress()
 {
-    size_t progress = 0;
-    for (size_t i = 0; i < progressStack().size(); ++i)
+    double progress = 0;
+    for (int i =  static_cast<int>(progressStack().size()) - 1; i >= 0; --i)
     {
         size_t span = (i < 1) ? 1 : progressSpanStack()[i-1];
-        progress = progress + span*progressStack()[i]* subLevelsMaxProgressValue(i+1);
+        progress = span*(progress + progressStack()[i])/maxProgressStack()[i];
     }
-    return progress;
-}
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-static size_t currentTotalMaxProgressValue()
-{
-    return subLevelsMaxProgressValue(0);
+    size_t totalIntProgress = static_cast<size_t>(currentTotalMaxProgressValue()*progress);
+
+    return totalIntProgress;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,7 +330,7 @@ void ProgressInfoStatic::incrementProgress()
     if (!isUpdatePossible()) return;
 
     assert(progressStack().size());
-    ProgressInfoStatic::setProgress(progressStack().back() += progressSpanStack().back());
+    ProgressInfoStatic::setProgress(progressStack().back() + progressSpanStack().back());
 }
 
 
