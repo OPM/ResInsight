@@ -654,6 +654,7 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
     
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
     if (firstTimeStepResultValueCount == m_ownerMainGrid->globalMatrixModelActiveCellCount()) return true;
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalFractureModelActiveCellCount()) return true;
     if (firstTimeStepResultValueCount == m_ownerMainGrid->cells().size()) return false;
 
     CVF_TIGHT_ASSERT(false); // Wrong number of results
