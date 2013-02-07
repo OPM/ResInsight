@@ -541,10 +541,24 @@ void RIMainWindow::refreshAnimationActions()
             || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes())
             {
                 QList<QDateTime> timeStepDates = app->activeReservoirView()->gridCellResults()->timeStepDates(0);
-                int i;
-                for (i = 0; i < timeStepDates.size(); i++)
+                bool showHoursAndMinutes = false;
+                for (int i = 0; i < timeStepDates.size(); i++)
                 {
-                    timeStepStrings += timeStepDates[i].toString("dd.MMM yyyy");
+                    if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+                    {
+                        showHoursAndMinutes = true;
+                    }
+                }
+
+                QString formatString = "dd.MMM yyyy";
+                if (showHoursAndMinutes)
+                {
+                    formatString += " - hh:mm";
+                }
+
+                for (int i = 0; i < timeStepDates.size(); i++)
+                {
+                    timeStepStrings += timeStepDates[i].toString(formatString);
                 }
                 currentTimeStepIndex = RIApplication::instance()->activeReservoirView()->currentTimeStep();
             }

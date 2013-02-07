@@ -24,6 +24,7 @@
 #include "ecl_kw_magic.h"
 
 #include <QFileInfo>
+#include <QDebug>
 #include "cafProgressInfo.h"
 
 
@@ -46,74 +47,123 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps)
+void RifEclipseOutputFileTools::timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps)
 {
     CVF_ASSERT(timeSteps);
     CVF_ASSERT(ecl_file);
 
-    // Get the number of occurrences of the INTEHEAD keyword
-    int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
+    QList<QDateTime> timeStepDates;
+    bool hasFractionOfDays = false;
+    RifEclipseOutputFileTools::timeSteps(ecl_file, &timeStepDates, &hasFractionOfDays);
 
-    QStringList timeStepsFound;
-    int i;
-    for (i = 0; i < numINTEHEAD; i++)
+    QString formatString = "dd/MM/yyyy";
+    if (hasFractionOfDays)
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
-        if (kwINTEHEAD)
-        {
-            // Get date info
-            time_t stepTime = ecl_intehead_date(kwINTEHEAD);
-
-            // Hack!!! We seem to get 01/01/1970 (time -1) for sub grids!
-            if (stepTime < 0) continue;
-
-            // Build date string
-            char* dateString = util_alloc_date_string(stepTime);
-            timeStepsFound += QString(dateString);
-            util_safe_free(dateString);
-        }
+        formatString += "- hh:mm";
     }
 
-    // Time steps are given for both the main grid and all sub grids,
-    // so we need to make sure that duplicates are removed
-    timeStepsFound.removeDuplicates();
-
-    // Return time step info to caller
-    *timeSteps = timeStepsFound;
-
-    return true;
+    for (int i = 0; i < timeStepDates.size(); i++)
+    {
+        QString timeString = timeStepDates[i].toString(formatString);
+        timeSteps->push_back(timeString);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps)
+void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps, bool* detectedFractionOfDay )
 {
     CVF_ASSERT(timeSteps);
     CVF_ASSERT(ecl_file);
 
     // Get the number of occurrences of the INTEHEAD keyword
     int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
+    
+    // Get the number of occurrences of the DOUBHEAD keyword
+    int numDOUBHEAD = ecl_file_get_num_named_kw(ecl_file, DOUBHEAD_KW);
+
+    CVF_ASSERT(numINTEHEAD == numDOUBHEAD);
+
+    bool hasFractionOfDay = false;
+    bool foundAllDayValues = false;
+    const double delta = 0.001;
+
+    // Find all days, and stop when the double value is lower than the previous
+    QList<double> days;
+    for (int i = 0; i < numDOUBHEAD; i++)
+    {
+        if (foundAllDayValues) continue;;
+
+        ecl_kw_type* kwDOUBHEAD = ecl_file_iget_named_kw(ecl_file, DOUBHEAD_KW, i);
+        if (kwDOUBHEAD)
+        {
+            double dayValue = ecl_kw_iget_double(kwDOUBHEAD, DOUBHEAD_DAYS_INDEX);
+            qDebug() << dayValue;
+
+            double floorDayValue = cvf::Math::floor(dayValue);
+
+            if (dayValue - floorDayValue > delta)
+            {
+                hasFractionOfDay = true;
+            }
+
+            days.push_back(dayValue);
+        }
+    }
 
     QList<QDateTime> timeStepsFound;
-    int i;
-    for (i = 0; i < numINTEHEAD; i++)
+   
+    if (hasFractionOfDay)
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
+        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
         if (kwINTEHEAD)
         {
-            // Get date info
-            time_t stepTime = ecl_intehead_date(kwINTEHEAD);
+            int day     = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX);
+            int month   = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX);
+            int year    = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX);
+            QDate simulationStart(year, month, day);
 
-            // Hack!!! We seem to get 01/01/1970 (time -1) for sub grids!
-            if (stepTime < 0) continue;
-
-            // Build date string
-            QDateTime dateTime = QDateTime::fromTime_t(stepTime);
-
-            if (timeStepsFound.indexOf(dateTime) < 0)
+            for (int i = 0; i < days.size(); i++)
             {
-                timeStepsFound.push_back(dateTime);
+                double dayValue = days[i];
+                double floorDayValue = cvf::Math::floor(dayValue);
+                double dayFraction = dayValue - floorDayValue;
+
+                int seconds = (dayFraction * 24.0 * 60.0 * 60.0);
+                QTime time(0, 0);
+                time = time.addSecs(seconds);
+
+                QDate reportDate = simulationStart;
+                reportDate = reportDate.addDays(floorDayValue);
+
+                QDateTime reportDateTime(reportDate, time);
+                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                {
+                    timeStepsFound.push_back(reportDateTime);
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < numINTEHEAD; i++)
+        {
+            ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
+            if (kwINTEHEAD)
+            {
+                int day     = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX);
+                int month   = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX);
+                int year    = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX);
+
+                QDate reportDate(year, month, day);
+                CVF_ASSERT(reportDate.isValid());
+                
+                QDateTime reportDateTime(reportDate);
+                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                {
+                    timeStepsFound.push_back(reportDateTime);
+                }
             }
         }
     }
@@ -121,7 +171,10 @@ bool RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
     // Return time step info to caller
     *timeSteps = timeStepsFound;
 
-    return true;
+    if (detectedFractionOfDay)
+    {
+        *detectedFractionOfDay = hasFractionOfDay;
+    }
 }
 
 
