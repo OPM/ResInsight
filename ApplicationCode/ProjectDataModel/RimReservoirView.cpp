@@ -276,11 +276,6 @@ void RimReservoirView::createDisplayModelAndRedraw()
 
         if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 
-        if (!this->cellResult()->hasResult() || cellResult->hasStaticResult())
-        {
-            m_currentTimeStep = 0;
-        }
-
         if (m_viewer->frameCount() > 0)
         {
             m_viewer->animationControl()->setCurrentFrame(m_currentTimeStep);
