@@ -60,6 +60,8 @@ double RigGridScalarDataAccess::cellScalar(size_t i, size_t j, size_t k) const
 //--------------------------------------------------------------------------------------------------
 double RigGridScalarDataAccess::cellScalar(size_t cellIndex) const
 {
+    if (m_resultValues->size() == 0 ) return HUGE_VAL;
+
     size_t resultValueIndex = cellIndex;
 
     if (m_useGlobalActiveIndex)
@@ -67,6 +69,8 @@ double RigGridScalarDataAccess::cellScalar(size_t cellIndex) const
         resultValueIndex = m_grid->cell(cellIndex).activeIndexInMatrixModel();
         if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
     }
+
+    if (m_resultValues->size() <= resultValueIndex) return HUGE_VAL;
 
     return m_resultValues->at(resultValueIndex);
 }
