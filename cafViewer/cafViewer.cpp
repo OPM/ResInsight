@@ -480,6 +480,7 @@ void caf::Viewer::zoomAll()
     m_mainCamera->toLookAt(&eye, &vrp, &up);
 
     m_mainCamera->fitView(bb, vrp-eye, up);
+    update();
 }
 
 //--------------------------------------------------------------------------------------------------
