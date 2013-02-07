@@ -276,11 +276,6 @@ void RimReservoirView::clampCurrentTimestep()
     }
 
     if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
-
-    if (!this->cellResult()->hasResult() || cellResult->hasStaticResult())
-    {
-        m_currentTimeStep = 0;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
