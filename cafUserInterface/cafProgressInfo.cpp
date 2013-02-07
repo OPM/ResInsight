@@ -314,11 +314,14 @@ void ProgressInfoStatic::setProgress(size_t progressValue)
     progressStack().back() = progressValue;
     progressSpanStack().back() = 1;
 
-    assert(static_cast<int>(currentTotalProgress()) <= progressDialog()->maximum());
-    size_t totProg = currentTotalProgress();
+    int totalProgress = static_cast<int>(currentTotalProgress());
+    int totalMaxProgress = static_cast<int>(currentTotalMaxProgressValue());
 
-    progressDialog()->setMaximum(static_cast<int>(currentTotalMaxProgressValue()));
-    progressDialog()->setValue(static_cast<int>(currentTotalProgress()));
+    assert(static_cast<int>(totalProgress) <= totalMaxProgress);
+
+    progressDialog()->setMaximum(totalMaxProgress);
+    progressDialog()->setValue(totalProgress);
+
     QCoreApplication::processEvents();
 }
 

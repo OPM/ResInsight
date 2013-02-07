@@ -155,7 +155,8 @@ protected:
 
 
 private:
-    void                              syncronizeWellsWithResults();
+    void                            syncronizeWellsWithResults();
+    void                            clampCurrentTimestep();
 
 private:
     caf::PdmField<int>              m_currentTimeStep;
@@ -173,7 +174,6 @@ private:
     void                            updateStaticCellColors();
     void                            updateStaticCellColors(unsigned short geometryType);
     void                            updateLegends();
-
 
     cvf::ref<RivReservoirViewPartMgr> m_geometry;
     cvf::ref<RivReservoirPipesPartMgr> m_pipesPartManager;

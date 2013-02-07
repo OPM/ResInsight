@@ -261,6 +261,27 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::clampCurrentTimestep()
+{
+    // Clamp the current timestep to actual possibilities
+    if (this->gridCellResults()) 
+    {
+        if (m_currentTimeStep() > this->gridCellResults()->maxTimeStepCount())
+        {
+            m_currentTimeStep = this->gridCellResults()->maxTimeStepCount() -1;
+        }
+    }
+
+    if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
+
+    if (!this->cellResult()->hasResult() || cellResult->hasStaticResult())
+    {
+        m_currentTimeStep = 0;
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -271,10 +292,10 @@ void RimReservoirView::createDisplayModelAndRedraw()
     {
         m_viewer->animationControl()->slotStop();
 
+        this->clampCurrentTimestep();
+
         createDisplayModel();
         updateDisplayModelVisibility();
-
-        if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 
         if (m_viewer->frameCount() > 0)
         {
@@ -708,6 +729,7 @@ void RimReservoirView::loadDataAndUpdate()
     m_geometry->clearGeometryCache();
 
     syncronizeWellsWithResults();
+    this->clampCurrentTimestep();
 
     createDisplayModel();
     updateDisplayModelVisibility();
