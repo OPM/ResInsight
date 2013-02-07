@@ -680,6 +680,8 @@ void RimReservoirView::loadDataAndUpdate()
         if (!m_reservoir->openEclipseGridFile())
         {
             QMessageBox::warning(RIMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName());
+            m_reservoir = NULL;
+            return;
         }
         else
         {
