@@ -43,32 +43,6 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 {
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// Get list of time step texts (dates)
-//--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps)
-{
-    CVF_ASSERT(timeSteps);
-    CVF_ASSERT(ecl_file);
-
-    QList<QDateTime> timeStepDates;
-    bool hasFractionOfDays = false;
-    RifEclipseOutputFileTools::timeSteps(ecl_file, &timeStepDates, &hasFractionOfDays);
-
-    QString formatString = "dd/MM/yyyy";
-    if (hasFractionOfDays)
-    {
-        formatString += "- hh:mm";
-    }
-
-    for (int i = 0; i < timeStepDates.size(); i++)
-    {
-        QString timeString = timeStepDates[i].toString(formatString);
-        timeSteps->push_back(timeString);
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
@@ -99,8 +73,6 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
         if (kwDOUBHEAD)
         {
             double dayValue = ecl_kw_iget_double(kwDOUBHEAD, DOUBHEAD_DAYS_INDEX);
-            qDebug() << dayValue;
-
             double floorDayValue = cvf::Math::floor(dayValue);
 
             if (dayValue - floorDayValue > delta)

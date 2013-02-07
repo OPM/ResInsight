@@ -38,8 +38,7 @@ public:
     bool                        open(const QStringList& fileSet);
     void                        close();
 
-    size_t                      numTimeSteps();
-    QStringList                 timeStepsText();
+    size_t                      timeStepCount();
     QList<QDateTime>            timeSteps();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);

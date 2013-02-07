@@ -80,29 +80,9 @@ void RifEclipseRestartFilesetAccess::close()
 //--------------------------------------------------------------------------------------------------
 /// Get the number of time steps
 //--------------------------------------------------------------------------------------------------
-size_t RifEclipseRestartFilesetAccess::numTimeSteps()
+size_t RifEclipseRestartFilesetAccess::timeStepCount()
 {
     return m_ecl_files.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Get the time step texts
-//--------------------------------------------------------------------------------------------------
-QStringList RifEclipseRestartFilesetAccess::timeStepsText()
-{
-    QStringList timeSteps;
-
-    size_t numSteps = numTimeSteps();
-    size_t i;
-    for (i = 0; i < numSteps; i++)
-    {
-        QStringList stepText;
-        RifEclipseOutputFileTools::timeStepsText(m_ecl_files[i], &stepText);
-
-        timeSteps.append(stepText.size() == 1 ? stepText : QStringList(QString("Step %1").arg(i+1)));
-    }
-
-    return timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,7 +92,7 @@ QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 {
     QList<QDateTime> timeSteps;
 
-    size_t numSteps = numTimeSteps();
+    size_t numSteps = timeStepCount();
     size_t i;
     for (i = 0; i < numSteps; i++)
     {
@@ -138,14 +118,14 @@ QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts)
 {
-    CVF_ASSERT(numTimeSteps() > 0);
+    CVF_ASSERT(timeStepCount() > 0);
 
     std::vector<size_t> valueCountForOneFile;
     RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_files[0], resultNames, &valueCountForOneFile);
 
     for (size_t i = 0; i < valueCountForOneFile.size(); i++)
     {
-        resultDataItemCounts->push_back(valueCountForOneFile[i] * numTimeSteps());
+        resultDataItemCounts->push_back(valueCountForOneFile[i] * timeStepCount());
     }
 }
 

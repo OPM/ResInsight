@@ -413,7 +413,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
         m_dynamicResultsAccess->resultNames(&resultNames, &resultNamesDataItemCounts);
 
         {
-            QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::MATRIX_RESULTS, m_dynamicResultsAccess->numTimeSteps());
+            QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::MATRIX_RESULTS, m_dynamicResultsAccess->timeStepCount());
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
@@ -423,7 +423,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
         }
 
         {
-            QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::FRACTURE_RESULTS, m_dynamicResultsAccess->numTimeSteps());
+            QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::FRACTURE_RESULTS, m_dynamicResultsAccess->timeStepCount());
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {

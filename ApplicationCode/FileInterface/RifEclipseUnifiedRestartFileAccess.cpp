@@ -69,23 +69,9 @@ void RifEclipseUnifiedRestartFileAccess::close()
 //--------------------------------------------------------------------------------------------------
 /// Get the number of time steps
 //--------------------------------------------------------------------------------------------------
-size_t RifEclipseUnifiedRestartFileAccess::numTimeSteps()
+size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 {
-    QStringList timeSteps = timeStepsText();
-    return timeSteps.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Get the time step texts
-//--------------------------------------------------------------------------------------------------
-QStringList RifEclipseUnifiedRestartFileAccess::timeStepsText()
-{
-    CVF_ASSERT(m_ecl_file != NULL);
-
-    QStringList timeSteps;
-    RifEclipseOutputFileTools::timeStepsText(m_ecl_file, &timeSteps);
-
-    return timeSteps;
+    return timeSteps().size();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -45,8 +45,7 @@ public:
     virtual bool                open(const QStringList& fileSet) = 0;
     virtual void                close() = 0;
 
-    virtual size_t              numTimeSteps() = 0;
-    virtual QStringList         timeStepsText() = 0;
+    virtual size_t              timeStepCount() = 0;
     virtual QList<QDateTime>    timeSteps() = 0;
 
     virtual void                resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts) = 0;
