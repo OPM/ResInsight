@@ -29,8 +29,11 @@
 //--------------------------------------------------------------------------------------------------
 class RigGridScalarDataAccess : public cvf::StructGridScalarDataAccess
 {
+private:
+    RigGridScalarDataAccess(const RigGridBase* grid, bool useGlobalActiveIndex, std::vector<double>* resultValues);
+
 public:
-    RigGridScalarDataAccess(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex);
+    static cvf::ref<RigGridScalarDataAccess> createDataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex);
 
     virtual double  cellScalar(size_t i, size_t j, size_t k) const;
     virtual double  cellScalar(size_t cellIndex) const;

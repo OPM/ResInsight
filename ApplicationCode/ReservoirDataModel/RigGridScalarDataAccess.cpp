@@ -29,20 +29,39 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigGridScalarDataAccess::RigGridScalarDataAccess(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex)
+RigGridScalarDataAccess::RigGridScalarDataAccess(const RigGridBase* grid, bool useGlobalActiveIndex, std::vector<double>* resultValues) :
+    m_grid(grid),
+    m_useGlobalActiveIndex(useGlobalActiveIndex),
+    m_resultValues(resultValues)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigGridScalarDataAccess> RigGridScalarDataAccess::createDataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex)
 {
     CVF_ASSERT(grid);
     CVF_ASSERT(grid->mainGrid());
     CVF_ASSERT(grid->mainGrid()->results(porosityModel));
 
-    m_grid = grid;
+    if (!grid || !grid->mainGrid() || !grid->mainGrid()->results(porosityModel))
+    {
+        return NULL;
+    }
 
-    m_useGlobalActiveIndex = m_grid->mainGrid()->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
+    bool useGlobalActiveIndex = grid->mainGrid()->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
 
-    std::vector< std::vector<double> > & scalarSetResults = m_grid->mainGrid()->results(porosityModel)->cellScalarResults(scalarSetIndex);
-    CVF_ASSERT(timeStepIndex < scalarSetResults.size());
+    std::vector< std::vector<double> > & scalarSetResults = grid->mainGrid()->results(porosityModel)->cellScalarResults(scalarSetIndex);
+    if (timeStepIndex >= scalarSetResults.size())
+    {
+        return NULL;
+    }
 
-    m_resultValues = &(scalarSetResults[timeStepIndex]);
+    std::vector<double>* resultValues = &(scalarSetResults[timeStepIndex]);
+
+    cvf::ref<RigGridScalarDataAccess> object = new RigGridScalarDataAccess(grid, useGlobalActiveIndex, resultValues);
+    return object;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,3 +128,4 @@ const cvf::Vec3d* RigGridScalarDataAccess::cellVector(size_t i, size_t j, size_t
     CVF_ASSERT(false);
     return new cvf::Vec3d();
 }
+

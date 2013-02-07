@@ -492,7 +492,7 @@ cvf::ref<RigGridScalarDataAccess> RigGridBase::dataAccessObject(RifReaderInterfa
     if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
         scalarSetIndex != cvf::UNDEFINED_SIZE_T)
     {
-        cvf::ref<RigGridScalarDataAccess> dataAccess = new RigGridScalarDataAccess(this, porosityModel, timeStepIndex, scalarSetIndex);
+        cvf::ref<RigGridScalarDataAccess> dataAccess = RigGridScalarDataAccess::createDataAccessObject(this, porosityModel, timeStepIndex, scalarSetIndex);
         return dataAccess;
     }
 
