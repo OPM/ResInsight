@@ -144,13 +144,13 @@ static int well_ts_get_index__( const well_ts_type * well_ts , int report_step ,
     
     if (use_report) {
       if (report_step < first_node->report_nr)
-        return -1;         // Before the start
+        return 0;         // Before the start
       
       if (report_step >= last_node->report_nr)
         return size - 1;   // After end
     } else {
       if (sim_time < first_node->sim_time)
-        return -1;         // Before the start
+        return 0;         // Before the start
       
       if (sim_time >= last_node->sim_time)
         return size - 1;   // After end
