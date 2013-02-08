@@ -34,6 +34,8 @@ list( APPEND CPP_SOURCES
 list( APPEND CPP_SOURCES
     Application/RIApplication.cpp
     Application/RIPreferences.cpp
+	Application/RiaImageFileCompare.cpp
+	Application/RiaImageCompareReporter.cpp
 )
 
 list( APPEND CPP_SOURCES
@@ -160,6 +162,9 @@ list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivCellEdgeEffectGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivPipeGeometryGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellPipesPartMgr.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellHeadPartMgr.cpp)
+list( REMOVE_ITEM RAW_SOURCES Application/RiaImageFileCompare.cpp)
+list( REMOVE_ITEM RAW_SOURCES Application/RiaImageCompareReporter.cpp)
+
 
 
 list( REMOVE_ITEM RAW_SOURCES     

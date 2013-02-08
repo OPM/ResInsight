@@ -1234,5 +1234,5 @@ void RIMainWindow::slotSnapshotAllViewsToFile()
 {
     RIApplication* app = RIApplication::instance();
 
-    app->saveSnapshotForAllViews();
+    app->saveSnapshotForAllViews("snapshots");
 }

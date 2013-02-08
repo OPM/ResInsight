@@ -93,7 +93,9 @@ public:
     void                copySnapshotToClipboard();
     void                saveSnapshotPromtpForFilename();
     void                saveSnapshotAs(const QString& fileName);
-    void                saveSnapshotForAllViews();
+    void                saveSnapshotForAllViews(const QString& snapshotFolderName);
+    void                runRegressionTest(const QString& testRootPath);
+    void                updateRegressionTest(const QString& testRootPath );
 
     void                processNonGuiEvents();
 
@@ -126,7 +128,7 @@ private:
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    
+
 
 private:
     caf::PdmPointer<RimReservoirView>  m_activeReservoirView;
