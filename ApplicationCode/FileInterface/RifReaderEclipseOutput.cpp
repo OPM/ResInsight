@@ -668,21 +668,14 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                     int cellI = well_conn_get_i( ert_wellhead );
                     int cellJ = well_conn_get_j( ert_wellhead );
                     int cellK = CVF_MAX(0, well_conn_get_k(ert_wellhead)); // Why this ?
-                    
-                    if (!grids[gridNr]->isCellValid(cellI, cellJ, cellK))
+
+                    // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
+                    // Adjust K so index is always in valid grid region
+                    if (cellK >= grids[gridNr]->cellCountK())
                     {
-                        int candidateCellK = findSmallestActiveCellIndexK(grids[gridNr], cellI, cellJ);
-
-                        if (candidateCellK >= 0)
-                        {
-                            cellK = candidateCellK;
-                        }
-                        else
-                        {
-                            cellK = 0;
-                        }
+                        cellK -= static_cast<int>(grids[gridNr]->cellCountK());
                     }
-
+                    
                     wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI, cellJ, cellK);
                     wellResFrame.m_wellHead.m_gridIndex = gridNr;
                 }
@@ -721,18 +714,11 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                                     int branch = well_conn_get_branch( ert_connection );
                                     int segment = well_conn_get_segment( ert_connection );
                                     
-                                    if (!grids[gridNr]->isCellValid(cellI, cellJ, cellK))
+                                    // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
+                                    // Adjust K so index is always in valid grid region
+                                    if (cellK >= grids[gridNr]->cellCountK())
                                     {
-                                        int candidateCellK = findSmallestActiveCellIndexK(grids[gridNr], cellI, cellJ);
-
-                                        if (candidateCellK >= 0)
-                                        {
-                                            cellK = candidateCellK;
-                                        }
-                                        else
-                                        {
-                                            cellK = 0;
-                                        }
+                                        cellK -= static_cast<int>(grids[gridNr]->cellCountK());
                                     }
 
                                     data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI , cellJ , cellK);
