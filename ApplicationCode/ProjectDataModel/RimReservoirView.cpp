@@ -271,7 +271,7 @@ void RimReservoirView::clampCurrentTimestep()
     {
         if (m_currentTimeStep() > this->gridCellResults()->maxTimeStepCount())
         {
-            m_currentTimeStep = this->gridCellResults()->maxTimeStepCount() -1;
+            m_currentTimeStep = static_cast<int>(this->gridCellResults()->maxTimeStepCount()) -1;
         }
     }
 
