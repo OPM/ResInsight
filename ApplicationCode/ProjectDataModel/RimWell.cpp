@@ -118,7 +118,11 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
     else if (&pipeRadiusScaleFactor == changedField)
     {
-        if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+        if (m_reservoirView)
+        {
+            m_reservoirView->schedulePipeGeometryRegen();
+            m_reservoirView->createDisplayModelAndRedraw();
+        }
     }
 }
 
