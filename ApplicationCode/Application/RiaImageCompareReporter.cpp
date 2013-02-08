@@ -56,7 +56,7 @@ void RiaImageCompareReporter::generateHTMLReport(const std::string& fileName)
 {
     if (m_directorySets.size() == 0) return;
 
-    std::ofstream output(fileName);
+    std::ofstream output(fileName.c_str());
     if (!output) 
     {
         std::cout << "Trouble opening test report file: " << fileName;
