@@ -78,6 +78,8 @@ public:
 
     RIProcessMonitor* processMonitor();
 
+    void            hideAllDockWindows();
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 

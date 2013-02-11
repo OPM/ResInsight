@@ -765,6 +765,12 @@ bool RIApplication::parseArguments()
 
     if (isRunRegressionTest)
     {
+        RIMainWindow* mainWnd = RIMainWindow::instance();
+        if (mainWnd)
+        {
+            mainWnd->hideAllDockWindows();
+        }
+
         runRegressionTest(regressionTestPath);
 
         return false;

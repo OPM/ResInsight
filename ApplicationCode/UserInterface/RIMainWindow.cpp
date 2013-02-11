@@ -1236,3 +1236,16 @@ void RIMainWindow::slotSnapshotAllViewsToFile()
 
     app->saveSnapshotForAllViews("snapshots");
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::hideAllDockWindows()
+{
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    for (int i = 0; i < dockWidgets.size(); i++)
+    {
+        dockWidgets[i]->close();
+    }
+}
