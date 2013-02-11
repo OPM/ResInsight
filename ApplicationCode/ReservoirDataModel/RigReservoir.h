@@ -51,6 +51,17 @@ public:
     bool                    findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
 
 
+    // From RigMainGrid, can this function be moved to Octave socket server?
+    void                                    calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
+        std::vector<qint32>& i,
+        std::vector<qint32>& j,
+        std::vector<qint32>& k,
+        std::vector<qint32>& parentGridNumber,
+        std::vector<qint32>& hostCellI,
+        std::vector<qint32>& hostCellJ,
+        std::vector<qint32>& hostCellK);
+
+
 private:
     void                    computeWellCellsPrGrid();
 

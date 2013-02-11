@@ -41,6 +41,8 @@ set( RESERVOIRDATAMODEL_CPP_SOURCES
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoirCellResults.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigWellResults.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigGridScalarDataAccess.cpp
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigActiveCellInfo.cpp
+
     ${ResInsight_SOURCE_DIR}/cafUserInterface/cafProgressInfo.cpp
 )
 

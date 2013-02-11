@@ -303,22 +303,6 @@ bool RigGridBase::isCellValid(size_t i, size_t j, size_t k) const
     return !c.isInvalid();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigGridBase::isCellActive(size_t i, size_t j, size_t k) const
-{
-    size_t idx = cellIndexFromIJK(i, j, k);
-    const RigCell& c = cell(idx);
-    if (!c.isActiveInMatrixModel() || c.isInvalid())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// TODO: Use structgrid::neighborIJKAtCellFace

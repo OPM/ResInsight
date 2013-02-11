@@ -103,6 +103,7 @@ list( APPEND CPP_SOURCES
     ReservoirDataModel/RigReservoirBuilderMock.cpp
     ReservoirDataModel/RigWellResults.cpp
     ReservoirDataModel/RigGridScalarDataAccess.cpp
+    ReservoirDataModel/RigActiveCellInfo.cpp
 )
 
 list( APPEND CPP_SOURCES
@@ -158,6 +159,7 @@ set( RAW_SOURCES ${CPP_SOURCES} )
 list( REMOVE_ITEM RAW_SOURCES RIStdInclude.cpp)
 list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigReaderInterfaceECL.cpp)
 list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigGridScalarDataAccess.cpp)
+list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigActiveCellInfo.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivCellEdgeEffectGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivPipeGeometryGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellPipesPartMgr.cpp)

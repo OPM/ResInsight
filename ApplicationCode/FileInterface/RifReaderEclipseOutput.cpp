@@ -169,7 +169,9 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         }
 
         // Mark inactive long pyramid looking cells as invalid
-        if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
+        // Forslag
+        //if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
+        if (!invalid)
         {
             cell.setInvalid(cell.isLongPyramidCell());
         }
@@ -746,24 +748,6 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
     reservoir->setWellResults(wells);
 }
 
-//--------------------------------------------------------------------------------------------------
-// For case DUALPORO, the well K index is reported outside the grid. If this happens,
-// for the given IJ position, search from K=0 and upwards for first active cell.
-//--------------------------------------------------------------------------------------------------
-int RifReaderEclipseOutput::findSmallestActiveCellIndexK(const RigGridBase* grid, int cellI, int cellJ)
-{
-    if (!grid) return -1;
-
-    for (int candidateCellK = 0; candidateCellK < grid->cellCountK(); candidateCellK++ )
-    {
-        if (grid->isCellActive(cellI, cellJ, candidateCellK))
-        {
-            return candidateCellK;
-        }
-    }
-
-    return -1;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

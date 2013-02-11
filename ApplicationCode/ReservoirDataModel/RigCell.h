@@ -89,8 +89,9 @@ private:
 
     bool                    m_cellFaceFaults[6];
 
-    // Result case specific data 
     bool                    m_isInvalid;
+
+    // Result case specific data 
     bool                    m_isWellCell;
 
     size_t                  m_activeIndexInMatrixModel;      ///< This cell's running index of all the active calls (matrix) in the reservoir

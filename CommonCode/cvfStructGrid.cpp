@@ -230,7 +230,7 @@ void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, 
                 size_t i;
                 for (i = 0; i < cellCountI(); i += 10)  // NB! Evaluate every n-th cell
                 {
-                    if (isCellActive(i, j, k))
+                    if (isCellValid(i, j, k))
                     {
                         size_t cellIndex = cellIndexFromIJK(i, j, k);
                         cellCornerVertices(cellIndex, cornerVerts);

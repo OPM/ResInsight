@@ -93,7 +93,6 @@ public:
     virtual size_t gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const;
     virtual cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const;
 
-    virtual bool isCellActive( size_t i, size_t j, size_t k ) const;
     virtual bool isCellValid( size_t i, size_t j, size_t k ) const;
     virtual bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 

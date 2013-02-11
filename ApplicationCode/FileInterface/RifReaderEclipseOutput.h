@@ -57,8 +57,6 @@ private:
 
     void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
     
-    int                     findSmallestActiveCellIndexK( const RigGridBase* grid, int cellI, int cellJ);
-
     static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet);
     static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet);
 
