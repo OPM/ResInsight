@@ -25,6 +25,7 @@
 #include "RifReaderMockModel.h"
 #include "RifReaderEclipseInput.h"
 #include "cafProgressInfo.h"
+#include "RimProject.h"
 
 
 CAF_PDM_SOURCE_INIT(RimResultReservoir, "EclipseCase");
@@ -82,19 +83,11 @@ bool RimResultReservoir::openEclipseGridFile()
     }
     else
     {
-        QString fullCaseName = caseName + ".EGRID";
-
-        QDir dir(caseDirectory.v());
-        if (!dir.exists(fullCaseName))
+        QString fname = createAbsoluteFilenameFromCase(caseName);
+        if (fname.isEmpty())
         {
-            fullCaseName = caseName + ".GRID";
-            if (!dir.exists(fullCaseName))
-            {
-                return false;
-            }
+            return false;
         }
-
-        QString fname = dir.absoluteFilePath(fullCaseName);
 
         RigReservoir* reservoir = new RigReservoir;
         readerInterface = new RifReaderEclipseOutput;
@@ -211,5 +204,45 @@ RimResultReservoir::~RimResultReservoir()
 QString RimResultReservoir::locationOnDisc() const
 {
     return caseDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimResultReservoir::createAbsoluteFilenameFromCase(const QString& caseName)
+{
+    QString candidate;
+    
+    candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".EGRID");
+    if (QFile::exists(candidate)) return candidate;
+
+    candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".GRID");
+    if (QFile::exists(candidate)) return candidate;
+
+    std::vector<caf::PdmObject*> parentObjects;
+    this->parentObjects(parentObjects);
+
+    QString projectPath;
+    for (size_t i = 0; i < parentObjects.size(); i++)
+    {
+        caf::PdmObject* obj = parentObjects[i];
+        RimProject* proj = dynamic_cast<RimProject*>(obj);
+        if (proj)
+        {
+            QFileInfo fi(proj->fileName);
+            projectPath = fi.path();
+        }
+    }
+
+    if (!projectPath.isEmpty())
+    {
+        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".EGRID");
+        if (QFile::exists(candidate)) return candidate;
+
+        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".GRID");
+        if (QFile::exists(candidate)) return candidate;
+    }
+
+    return QString();
 }
 
