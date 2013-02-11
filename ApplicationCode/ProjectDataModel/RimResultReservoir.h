@@ -53,4 +53,6 @@ public:
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
+    QString createAbsoluteFilenameFromCase(const QString& caseName);
+
 };

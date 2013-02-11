@@ -44,7 +44,7 @@ MatrixState::MatrixState(const Camera& camera)
     m_modelMatrix(),
     m_modelMatrixIsSet(false),
     m_viewProjectionMatrix(m_projectionMatrix*m_viewMatrix),
-    m_viewportPosition(static_cast<uint>(camera.viewport()->x()), static_cast<uint>(camera.viewport()->y())),
+    m_viewportPosition(camera.viewport()->x(), camera.viewport()->y()),
     m_viewportSize(static_cast<uint>(camera.viewport()->width()), static_cast<uint>(camera.viewport()->height())),
     m_pixelHeightAtUnitDistance(0.0f),
     m_versionTick(1)
@@ -59,7 +59,7 @@ MatrixState::MatrixState(const Camera& camera)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-MatrixState::MatrixState(const Vec2ui& viewportPosition, const Vec2ui& viewportSize, const Mat4d& projectionMatrix, const Mat4d& viewMatrix)
+MatrixState::MatrixState(const Vec2i& viewportPosition, const Vec2ui& viewportSize, const Mat4d& projectionMatrix, const Mat4d& viewMatrix)
 :   m_projectionMatrix(projectionMatrix),
     m_viewMatrix(viewMatrix),
     m_modelMatrix(),
@@ -295,7 +295,7 @@ float MatrixState::pixelHeightAtUnitDistance() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Vec2ui MatrixState::viewportPosition() const
+Vec2i MatrixState::viewportPosition() const
 {
     return m_viewportPosition;
 }

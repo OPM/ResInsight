@@ -22,11 +22,6 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/cafProjectDataModel
 
     ${ResInsight_SOURCE_DIR}/CommonCode
-
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/ecl/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/util/include
-    ${ResInsight_SOURCE_DIR}/ThirdParty/Ert/well/include
-
 )
 
 file( GLOB CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../*.cpp )
@@ -40,6 +35,10 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
+
+    ecl
+    ecl_well
+    ert_util
 
     ${QT_LIBRARIES}
 )
@@ -56,15 +55,12 @@ add_executable( ${ProjectName}
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set ( LINUX_LINK_LIBRARIES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libecl.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libert_util.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert/lib/libwell.a
         lapack
         pthread
     )
 
         # Linux specific code
-        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -DUSE_ECL_LIB -pipe -Wextra -Woverloaded-virtual -Wformat")
+        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
         set(CMAKE_CXX_FLAGS_DEBUG 	"-g -DDEBUG -D_DEBUG")
         set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")

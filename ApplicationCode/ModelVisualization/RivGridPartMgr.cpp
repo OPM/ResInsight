@@ -27,6 +27,8 @@
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
+#include "RigGridScalarDataAccess.h"
+#include "RigReservoirCellResults.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -35,7 +37,8 @@
 RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx)
 :   m_surfaceGenerator(grid), 
     m_faultGenerator(grid), 
-    m_gridIdx(gridIdx), 
+    m_gridIdx(gridIdx),
+    m_grid(grid),
     m_surfaceFaceFilter(grid), 
     m_faultFaceFilter(grid),
     m_opacityLevel(1.0f),
@@ -217,10 +220,14 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     size_t resTimeStepIdx = timeStepIndex;
     if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
 
+    RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+    cvf::ref<RigGridScalarDataAccess> dataAccessObject = m_grid->dataAccessObject(porosityModel, resTimeStepIdx, scalarSetIndex);
+    if (dataAccessObject.isNull()) return;
+
     // Outer surface
     if (m_surfaceFaces.notNull())
     {
-        m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), resTimeStepIdx, scalarSetIndex, mapper);
+        m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
         for(size_t i = 0; i < m_surfaceFacesTextureCoords->size(); ++i)
         {
@@ -246,7 +253,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     // Faults
     if (m_faultFaces.notNull())
     {
-        m_faultGenerator.textureCoordinates(m_faultFacesTextureCoords.p(), resTimeStepIdx, scalarSetIndex, mapper);
+        m_faultGenerator.textureCoordinates(m_faultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
         for(size_t i = 0; i < m_faultFacesTextureCoords->size(); ++i)
         {

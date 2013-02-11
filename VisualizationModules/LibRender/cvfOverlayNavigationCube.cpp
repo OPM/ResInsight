@@ -145,7 +145,7 @@ void OverlayNavigationCube::setSize(const Vec2ui& size)
 //--------------------------------------------------------------------------------------------------
 /// Hardware rendering using shader programs
 //--------------------------------------------------------------------------------------------------
-void OverlayNavigationCube::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayNavigationCube::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     Mat4d viewMatrix = m_camera->viewMatrix();
     render(oglContext, position, size, false, viewMatrix);
@@ -155,7 +155,7 @@ void OverlayNavigationCube::render(OpenGLContext* oglContext, const Vec2ui& posi
 //--------------------------------------------------------------------------------------------------
 /// Software rendering 
 //--------------------------------------------------------------------------------------------------
-void OverlayNavigationCube::renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayNavigationCube::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     Mat4d viewMatrix = m_camera->viewMatrix();
     render(oglContext, position, size, true, viewMatrix);
@@ -165,7 +165,7 @@ void OverlayNavigationCube::renderSoftware(OpenGLContext* oglContext, const Vec2
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void OverlayNavigationCube::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software, const Mat4d& viewMatrix)
+void OverlayNavigationCube::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software, const Mat4d& viewMatrix)
 {
     if (size.x() <= 0 || size.y() <= 0)
     {

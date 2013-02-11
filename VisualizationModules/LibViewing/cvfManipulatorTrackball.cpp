@@ -92,15 +92,16 @@ ManipulatorTrackball::NavigationType ManipulatorTrackball::activeNavigation() co
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-void ManipulatorTrackball::startNavigation(NavigationType navigationType, int winCoordX, int winCoordY)
+void ManipulatorTrackball::startNavigation(NavigationType navigationType, int x, int y)
 {
     if (m_camera.isNull()) return;
     if (m_activeNavigation == navigationType) return;
 
-    m_lastPosX = winCoordX;
-    m_lastPosY = winCoordY;
+    m_lastPosX = x;
+    m_lastPosY = y;
 
     // Register camera's starting position for walk
     m_walkStartCameraPos = m_camera->position();
@@ -110,25 +111,26 @@ void ManipulatorTrackball::startNavigation(NavigationType navigationType, int wi
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-bool ManipulatorTrackball::updateNavigation(int winCoordX, int winCoordY)
+bool ManipulatorTrackball::updateNavigation(int x, int y)
 {
     if (m_activeNavigation == PAN)
     {
-        return pan(winCoordX, winCoordY);
+        return pan(x, y);
     }
     else if (m_activeNavigation == WALK)
     {
-        return walk(winCoordX, winCoordY);
+        return walk(x, y);
     }
     else if (m_activeNavigation == ZOOM)
     {
-        return zoom(winCoordX, winCoordY);
+        return zoom(x, y);
     }
     else if (m_activeNavigation == ROTATE)
     {
-        return rotate(winCoordX, winCoordY);
+        return rotate(x, y);
     }
 
     return false;
@@ -185,13 +187,13 @@ bool ManipulatorTrackball::pan(int posX, int posY)
         const double camRotPointDist = Math::abs(camDir*vDiff);
 
         Vec3d vX =  camRight*((tx*vpWorldSizeX)/nearPlane)*camRotPointDist;
-        Vec3d vY = -camUp*((ty*vpWorldSizeY)/nearPlane)*camRotPointDist;
+        Vec3d vY =  camUp*((ty*vpWorldSizeY)/nearPlane)*camRotPointDist;
         translation = vX + vY;
     }
     else if (projType == Camera::ORTHO)
     {
         Vec3d vX =  camRight*tx*vpWorldSizeX;
-        Vec3d vY = -camUp*ty*vpWorldSizeY;
+        Vec3d vY =  camUp*ty*vpWorldSizeY;
         translation = vX + vY;
     }
 
@@ -226,7 +228,7 @@ bool ManipulatorTrackball::walk(int posX, int posY)
     // Should be a member variable, settable as a ratio of the model bounding box/sphere
     const double minWalkTargetDistance = 1.0;
 
-    const double ty = (posY - m_lastPosY)/vpPixSizeY;
+    const double ty = (m_lastPosY - posY)/vpPixSizeY;
 
     // Determine target distance to travel along camera direction
     // This is the distance that we will move the camera in response to a full (whole viewport) movement of the mouse
@@ -261,7 +263,7 @@ bool ManipulatorTrackball::zoom(int posX, int posY)
     const double vpPixSizeY = m_camera->viewport()->height();
     if (vpPixSizeY <= 0) return false;
 
-    const double ty = (posY - m_lastPosY)/vpPixSizeY;
+    const double ty = (m_lastPosY - posY)/vpPixSizeY;
 
     const double frustumHeight = m_camera->frontPlaneFrustumHeight();
 
@@ -312,17 +314,21 @@ bool ManipulatorTrackball::rotate(int posX, int posY)
     const double vpPixSizeY = m_camera->viewport()->height();
     if (vpPixSizeX <= 0 || vpPixSizeY <= 0) return false;
 
+    const double vpPosX     = posX       - static_cast<int>(m_camera->viewport()->x());
+    const double vpPosY     = posY       - static_cast<int>(m_camera->viewport()->y());
+    const double vpLastPosX = m_lastPosX - static_cast<int>(m_camera->viewport()->x());
+    const double vpLastPosY = m_lastPosY - static_cast<int>(m_camera->viewport()->y());
 
     // Scale the new/last positions to the range [-1.0, 1.0] 
-    double newPosX =  2.0*(posX/vpPixSizeX) - 1.0;
-    double newPosY =  2.0*(posY/vpPixSizeY) - 1.0;
-    double lastPosX = 2.0*(m_lastPosX/vpPixSizeX) - 1.0;
-    double lastPosY = 2.0*(m_lastPosY/vpPixSizeY) - 1.0;
+    double newPosX =  2.0*(vpPosX/vpPixSizeX) - 1.0;
+    double newPosY =  2.0*(vpPosY/vpPixSizeY) - 1.0;
+    double lastPosX = 2.0*(vpLastPosX/vpPixSizeX) - 1.0;
+    double lastPosY = 2.0*(vpLastPosY/vpPixSizeY) - 1.0;
 
     Mat4d viewMat = m_camera->viewMatrix();
 
     // Compute rotation quaternion
-    Quatd rotQuat = trackballRotation(lastPosX, -lastPosY, newPosX, -newPosY, viewMat, m_rotateSensitivity);
+    Quatd rotQuat = trackballRotation(lastPosX, lastPosY, newPosX, newPosY, viewMat, m_rotateSensitivity);
 
     // Update navigation by modifying the view matrix
     Mat4d rotMatr = rotQuat.toMatrix4();

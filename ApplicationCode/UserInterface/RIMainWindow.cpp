@@ -94,11 +94,6 @@ RIMainWindow::RIMainWindow()
     slotRefreshFileActions();
     slotRefreshEditActions();
 
-#ifndef USE_ECL_LIB
-    // Always load mock model on Windows
-    //slotMockModel();
-#endif
-
     // Set pdm root so scripts are displayed
     setPdmRoot(RIApplication::instance()->project());
 }
@@ -190,6 +185,10 @@ void RIMainWindow::createActions()
     m_mockLargeResultsModelAction = new QAction("Large Mock Model", this);
     m_mockInputModelAction      = new QAction("Input Mock Model", this);
 
+    m_snapshotToFile            = new QAction("Snapshot To File", this);
+    m_snapshotToClipboard       = new QAction("Snapshot To Clipboard", this);
+    m_snapshotAllViewsToFile    = new QAction("Snapshot All Views To File", this);
+
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
 
@@ -205,6 +204,10 @@ void RIMainWindow::createActions()
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
     connect(m_mockLargeResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
     connect(m_mockInputModelAction,	    SIGNAL(triggered()), SLOT(slotInputMockModel()));
+
+    connect(m_snapshotToFile,	        SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
+    connect(m_snapshotToClipboard,	    SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
+    connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
     
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
@@ -302,6 +305,11 @@ void RIMainWindow::createMenus()
     debugMenu->addAction(m_mockResultsModelAction);
     debugMenu->addAction(m_mockLargeResultsModelAction);
     debugMenu->addAction(m_mockInputModelAction);
+
+    debugMenu->addSeparator();
+    debugMenu->addAction(m_snapshotToClipboard);
+    debugMenu->addAction(m_snapshotToFile);
+    debugMenu->addAction(m_snapshotAllViewsToFile);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
@@ -533,10 +541,24 @@ void RIMainWindow::refreshAnimationActions()
             || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes())
             {
                 QList<QDateTime> timeStepDates = app->activeReservoirView()->gridCellResults()->timeStepDates(0);
-                int i;
-                for (i = 0; i < timeStepDates.size(); i++)
+                bool showHoursAndMinutes = false;
+                for (int i = 0; i < timeStepDates.size(); i++)
                 {
-                    timeStepStrings += timeStepDates[i].toString("dd.MMM yyyy");
+                    if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
+                    {
+                        showHoursAndMinutes = true;
+                    }
+                }
+
+                QString formatString = "dd.MMM yyyy";
+                if (showHoursAndMinutes)
+                {
+                    formatString += " - hh:mm";
+                }
+
+                for (int i = 0; i < timeStepDates.size(); i++)
+                {
+                    timeStepStrings += timeStepDates[i].toString(formatString);
                 }
                 currentTimeStepIndex = RIApplication::instance()->activeReservoirView()->currentTimeStep();
             }
@@ -597,17 +619,10 @@ void RIMainWindow::slotOpenBinaryGridFiles()
     {
         RIApplication* app = RIApplication::instance();
 
-#ifdef USE_ECL_LIB
-
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
         QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
         if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
         app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
-
-#else
-        QStringList fileNames;
-        fileNames << "dummy";
-#endif
 
         int i;
         for (i = 0; i < fileNames.size(); i++)
@@ -1189,5 +1204,48 @@ void RIMainWindow::slotNewObjectPropertyView()
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
         connect(treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), propView, SLOT(showProperties( caf::PdmObject* )));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotSnapshotToFile()
+{
+    RIApplication* app = RIApplication::instance();
+
+    app->saveSnapshotPromtpForFilename();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotSnapshotToClipboard()
+{
+    RIApplication* app = RIApplication::instance();
+
+    app->copySnapshotToClipboard();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotSnapshotAllViewsToFile()
+{
+    RIApplication* app = RIApplication::instance();
+
+    app->saveSnapshotForAllViews("snapshots");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::hideAllDockWindows()
+{
+    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    for (int i = 0; i < dockWidgets.size(); i++)
+    {
+        dockWidgets[i]->close();
     }
 }

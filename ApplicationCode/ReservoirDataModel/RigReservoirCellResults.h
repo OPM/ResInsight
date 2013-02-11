@@ -22,6 +22,7 @@
 #include <QDateTime>
 #include <vector>
 #include <cmath>
+#include "RifReaderInterface.h"
 
 class RifReaderInterface;
 class RigMainGrid;
@@ -73,6 +74,8 @@ public:
     std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex);
     double                                                  cellScalarResult(size_t timeStepIndex, size_t scalarResultIndex, size_t resultValueIndex);
 
+    static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
+    
 private:
     size_t              addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, size_t resultValueCount);
 

@@ -27,6 +27,14 @@
 
 #include <memory.h>
 
+#ifdef WIN32
+#pragma warning (push)
+#pragma warning (disable: 4668)
+#include "glew/GL/wglew.h"
+#pragma warning (pop)
+#endif
+
+
 namespace cvf {
 
 
@@ -46,7 +54,8 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 OpenGLContextGroup::OpenGLContextGroup()
 :   m_isInitialized(false),
-    m_glewContextStruct(NULL)
+    m_glewContextStruct(NULL),
+    m_wglewContextStruct(NULL)
 {
     m_resourceManager = new OpenGLResourceManager;
     m_logger = new Logger;
@@ -116,6 +125,14 @@ bool OpenGLContextGroup::initializeContextGroup(OpenGLContext* currentContext)
         }
 
         configureCapablititesFromGLEW(currentContext);
+
+#ifdef WIN32
+        if (!initializeWGLEW(currentContext))
+        {
+            return false;
+        }
+#endif
+
 #endif
 
         m_isInitialized = true;
@@ -138,8 +155,13 @@ void OpenGLContextGroup::uninitializeContextGroup()
 
 #ifdef CVF_USE_GLEW
     delete m_glewContextStruct;
+
+#ifdef WIN32
+    delete m_wglewContextStruct;
+#endif
 #endif
     m_glewContextStruct = NULL;
+    m_wglewContextStruct = NULL;
 
     m_isInitialized = false;
 }
@@ -218,6 +240,45 @@ bool OpenGLContextGroup::initializeGLEW(OpenGLContext* currentContext)
     }
 
     m_glewContextStruct = theContextStruct;
+
+    CVF_CHECK_OGL(currentContext);
+
+#else
+
+    CVF_FAIL_MSG("Not implemented");
+
+#endif
+
+    return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Initializes GLEW for this context group
+///
+/// \warning The context passed in \a currentContext must be current!
+//--------------------------------------------------------------------------------------------------
+bool OpenGLContextGroup::initializeWGLEW(OpenGLContext* currentContext)
+{
+    CVF_ASSERT(currentContext);
+    CVF_ASSERT(m_wglewContextStruct == NULL);
+
+#if defined(CVF_USE_GLEW) && defined(WIN32)
+
+    // Since we're sometimes (when using Core OpenGL) seeing some OGL errors from GLEW, check before and after call to help find them
+    CVF_CHECK_OGL(currentContext);
+
+    // Must allocate memory for struct first since glewInit() call below will try and retrieve it
+    WGLEWContextStruct* theContextStruct = new WGLEWContextStruct;
+    memset(theContextStruct, 0, sizeof(WGLEWContextStruct));
+    GLenum err = wglewContextInit(theContextStruct);
+    if (err != GLEW_OK)
+    {
+        delete theContextStruct;
+        return false;
+    }
+
+    m_wglewContextStruct = theContextStruct;
 
     CVF_CHECK_OGL(currentContext);
 
@@ -374,5 +435,24 @@ GLEWContextStruct* OpenGLContextGroup::glewContextStruct()
 }
 
 
-} // namespace cvf
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+WGLEWContextStruct* OpenGLContextGroup::wglewContextStruct()
+{
+#if defined(CVF_USE_GLEW) && defined(WIN32)
 
+    CVF_TIGHT_ASSERT(this);
+    CVF_TIGHT_ASSERT(m_wglewContextStruct);
+    return m_wglewContextStruct;
+
+#else
+
+    CVF_FAIL_MSG("Not implemented");
+    return NULL;
+
+#endif
+}
+
+
+} // namespace cvf

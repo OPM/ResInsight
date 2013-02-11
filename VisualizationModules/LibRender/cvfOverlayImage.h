@@ -52,8 +52,8 @@ public:
     virtual Vec2ui      maximumSize();
     virtual Vec2ui      minimumSize();
 
-    virtual void        render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
-    virtual void        renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
+    virtual void        render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    virtual void        renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
 
     void                setImage(TextureImage* image);
     void                setPixelSize(const Vec2ui& size);
@@ -63,7 +63,7 @@ public:
     const TextureImage* image() const;
 
 private:
-    void render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software);
+    void render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
 
 private:
     Vec2ui                          m_size;

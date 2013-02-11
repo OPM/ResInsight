@@ -159,7 +159,10 @@ void Rendering::render(OpenGLContext* oglContext)
     }
 
     // Update any transforms and bounding boxes if a transform tree is used
-    m_scene->updateTransformTree(m_camera.p());
+    if (m_scene.notNull())
+    {
+        m_scene->updateTransformTree(m_camera.p());
+    }
 
     // Compute visible parts
     // -------------------------------------------------------------------------
@@ -294,15 +297,15 @@ void Rendering::renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRe
     for (it = itemRectMap.begin(); it != itemRectMap.end(); ++it)
     {
         OverlayItem* item = it->first;
-        Rectui rect = it->second;
+        Recti rect = it->second;
 
         if (useSoftwareRendering)
         {
-            item->renderSoftware(oglContext, rect.min(), Vec2ui(rect.width(), rect.height()));
+            item->renderSoftware(oglContext, rect.min(), Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height())));
         }
         else
         {
-            item->render(oglContext, rect.min(), Vec2ui(rect.width(), rect.height()));
+            item->render(oglContext, rect.min(),  Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height())));
         }
     }
 }
@@ -329,10 +332,11 @@ void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap)
 //--------------------------------------------------------------------------------------------------
 void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, OverlayItem::LayoutCorner corner, OverlayItem::LayoutDirection direction)
 {
-    const uint border = 3;
-    const Vec2ui vpSize = Vec2ui(m_camera->viewport()->width(), m_camera->viewport()->height());
+    const int border = 3;
+    const Vec2i vpSize = Vec2i(static_cast<int>(m_camera->viewport()->width()), static_cast<int>(m_camera->viewport()->height()));
+    const Vec2i vpPos  = Vec2i(m_camera->viewport()->x(), m_camera->viewport()->y());
 
-    Vec2ui cursor(0,0);
+    Vec2i cursor(0,0);
     switch (corner)
     {
         case OverlayItem::TOP_LEFT:     cursor.set(border, vpSize.y() - border); break;
@@ -342,11 +346,13 @@ void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, Over
         default:                        cursor.set(border,border);
     }
 
+    cursor += vpPos;
+
     // Adjust based on other already placed items
     OverlayItemRectMap::iterator it;
     for (it = itemRectMap->begin(); it != itemRectMap->end(); ++it)
     {
-        Rectui rect = it->second;
+        Recti rect = it->second;
 
         if (rect.contains(cursor) && (direction == OverlayItem::VERTICAL))
         {
@@ -371,7 +377,7 @@ void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, Over
             CVF_ASSERT(item.overlayItem.notNull());
 
             // Find this position and size
-            Vec2ui position = cursor;
+            Vec2i position = cursor;
             Vec2ui size = item.overlayItem->sizeHint();
             if ((corner == OverlayItem::TOP_RIGHT) || (corner == OverlayItem::BOTTOM_RIGHT))
             {
@@ -384,7 +390,7 @@ void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, Over
             }
 
             // Store the position in the map
-            Rectui rect(position.x(), position.y(), size.x(), size.y());
+            Recti rect(position.x(), position.y(), static_cast<int>(size.x()), static_cast<int>(size.y()));
             (*itemRectMap)[item.overlayItem.p()] = rect;
 
             // Find next position, moving the cursor
@@ -505,17 +511,17 @@ RenderQueueSorter* Rendering::renderQueueSorter()
 //--------------------------------------------------------------------------------------------------
 /// Create a new RayIntersectSpec object based on this rendering and the specified coordinates
 /// 
-/// The coordinates (\a winCoordX & \a winCoordY) are assumed to be in the  window coordinate system
-/// where <0,0> if in the top left corner.
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-ref<RayIntersectSpec> Rendering::createRayIntersectSpec(int winCoordX, int winCoordY) const
+ref<RayIntersectSpec> Rendering::rayIntersectSpecFromWindowCoordinates(int x, int y) const
 {
     if (m_scene.isNull() || m_camera.isNull()) 
     {
         return NULL;
     }
 
-    ref<Ray> ray = m_camera->rayFromWinCoord(winCoordX, winCoordY);
+    ref<Ray> ray = m_camera->rayFromWindowCoordinates(x, y);
     if (ray.isNull()) 
     {
         return NULL;
@@ -670,7 +676,7 @@ void Rendering::addGlobalDynamicUniformSet(DynamicUniformSet* dynUniformSet)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rendering::removeAllGlobalUniformSets()
+void Rendering::removeAllGlobalDynamicUniformSets()
 {
     m_globalDynamicUniformSets.clear();
 }
@@ -877,12 +883,8 @@ const OverlayItem* Rendering::overlayItem(size_t index, OverlayItem::LayoutCorne
 //--------------------------------------------------------------------------------------------------
 /// Get the the overlay item (if any) at the given cursor position
 //--------------------------------------------------------------------------------------------------
-OverlayItem* Rendering::overlayItemFromWinCoord(uint winCoordX, uint winCoordY)
+OverlayItem* Rendering::overlayItemFromWindowCoordinates(int x, int y)
 {
-    // Overlay items are stored OpenGL coord system with (0,0) in lower left corner, so flip the y-coordinate
-    uint oglCoordX = winCoordX;
-    uint oglCoordY = static_cast<int>(m_camera->viewport()->height()) - winCoordY;
-
     OverlayItemRectMap itemRectMap;
     calculateOverlayItemLayout(&itemRectMap);
 
@@ -890,9 +892,9 @@ OverlayItem* Rendering::overlayItemFromWinCoord(uint winCoordX, uint winCoordY)
     for (it = itemRectMap.begin(); it != itemRectMap.end(); ++it)
     {
         OverlayItem* item = it->first;
-        Rectui rect = it->second;
+        Recti rect = it->second;
 
-        if (item->pick(oglCoordX, oglCoordY, rect.min(), Vec2ui(rect.width(), rect.height())))
+        if (item->pick(x, y, rect.min(), Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height()))))
         {
             return item;
         }
@@ -933,7 +935,7 @@ void Rendering::removeAllOverlayItems()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String Rendering::toString() const
+String Rendering::debugString() const
 {
     String str = "Rendering: ";
     str += m_renderingName;

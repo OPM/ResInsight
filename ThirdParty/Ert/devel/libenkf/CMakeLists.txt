@@ -1,0 +1,6 @@
+add_subdirectory( src )
+add_subdirectory( applications/ert_tui )
+
+#if (BUILD_TESTS)
+#   add_subdirectory( tests )
+#endif()

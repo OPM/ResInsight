@@ -17,29 +17,41 @@ endif()
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         # Linux specific code
-        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -DUSE_ECL_LIB -pipe -Wextra -Woverloaded-virtual -Wformat")
+        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
         set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
         set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
         #set(CMAKE_EXE_LINKER_FLAGS  "-Xlinker -rpath .")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 #        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g1")
 ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp -DUSE_ECL_LIB")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
 ENDIF() 
 
 
 ################################################################################
-# Defines
+# Version number
 ################################################################################
-
-set(CMAKE_MAJOR_VERSION 0)
-set(CMAKE_MINOR_VERSION 9)
-set(CMAKE_PATCH_VERSION 0)
-
-set(PRODUCTVER ${CMAKE_MAJOR_VERSION},${CMAKE_MINOR_VERSION},0,${CMAKE_PATCH_VERSION})
-set(STRPRODUCTVER ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION})
+include (ResInsightVersion.cmake)
 
 
+################################################################################
+# ERT
+################################################################################
+add_subdirectory(ThirdParty/Ert/devel)
+
+include_directories(
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include/ert/ecl
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include/ert/geometry
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include/ert/ecl_well
+	${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl/include
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libert_util/include
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libgeometry/include
+    ${CMAKE_SOURCE_DIR}/ThirdParty/Ert/devel/libecl_well/include
+
+	${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include/ert/util
+    ${CMAKE_BINARY_DIR}/ThirdParty/Ert/devel/libert_util/include
+)
 
 
 ################################################################################
@@ -148,4 +160,3 @@ if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
 endif()
 
 include (CPack)
-

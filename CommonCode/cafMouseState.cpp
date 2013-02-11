@@ -140,8 +140,8 @@ void QtMouseState::updateFromMouseEvent(QGraphicsSceneMouseEvent* event)
         if (numMouseButtonsInState(m_mouseButtonState) == 1)
         {
             m_cleanButtonPressButton = buttonPressed;
-            m_cleanButtonPressPosX = event->scenePos().x();
-            m_cleanButtonPressPosY = event->scenePos().y();
+            m_cleanButtonPressPosX = (int)event->scenePos().x();
+            m_cleanButtonPressPosY = (int)event->scenePos().y();
         }
     }
 

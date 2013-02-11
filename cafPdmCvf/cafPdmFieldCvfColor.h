@@ -20,13 +20,7 @@
 #pragma once
 #include <QVariant>
 #include <QList>
-#include <QStringList>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
 #include <QTextStream>
-
-#include "cafPdmUiItem.h"
-#include "cafPdmObjectFactory.h"
 
 #include "cafPdmFieldImpl.h"
 

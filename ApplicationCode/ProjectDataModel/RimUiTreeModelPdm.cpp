@@ -328,7 +328,7 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
     RimReservoirView* insertedView = reservoirView->eclipseCase()->createAndAddReservoirView();
     caf::PdmUiTreeItem* collectionItem = currentItem->parent();
 
-    size_t viewCount = rowCount(itemIndex.parent());
+    int viewCount = rowCount(itemIndex.parent());
     beginInsertRows(itemIndex.parent(), viewCount, viewCount);
 
     caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(collectionItem, viewCount, insertedView);

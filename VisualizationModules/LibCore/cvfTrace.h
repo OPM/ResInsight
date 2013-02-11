@@ -40,7 +40,10 @@ private:
     static void showTraceOutput(String text, bool addNewLine);
 };
 
-#define CVF_TRACE_FILELINE               Trace::showFileLineNumber(__FILE__, __LINE__, "");
-#define CVF_TRACE_FILELINE_MSG(message)  Trace::showFileLineNumber(__FILE__, __LINE__, message);
 
-}
+}// namespace cvf
+
+
+#define CVF_TRACE_FILELINE               cvf::Trace::showFileLineNumber(__FILE__, __LINE__, "");
+#define CVF_TRACE_FILELINE_MSG(message)  cvf::Trace::showFileLineNumber(__FILE__, __LINE__, message);
+

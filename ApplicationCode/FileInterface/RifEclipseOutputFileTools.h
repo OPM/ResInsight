@@ -25,47 +25,32 @@
 #include <QString>
 #include <QStringList>
 #include <QDateTime>
+#include "RifReaderInterface.h"
 
-#ifdef USE_ECL_LIB
-#include "ecl_file.h"
-#endif //USE_ECL_LIB
+#include "ecl_util.h"
+
+typedef struct ecl_file_struct ecl_file_type;
+
 
 //==================================================================================================
 //
-// Class for access to Eclipse "keyword" files using libecl
+// 
 //
 //==================================================================================================
-class RifEclipseOutputFileTools : public cvf::Object
+class RifEclipseOutputFileTools
 {
 public:
     RifEclipseOutputFileTools();
     virtual ~RifEclipseOutputFileTools();
 
-    bool                open(const QString& fileName);
-    void                close();
+    static void         findKeywordsAndDataItemCounts(ecl_file_type* ecl_file, QStringList* keywords, std::vector<size_t>* keywordDataItemCounts);
+    static bool         keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values);
 
-    size_t              numOccurrences(const QString& keyword);
-    bool                keywordsOnFile(QStringList* keywords, size_t numDataItems = cvf::UNDEFINED_SIZE_T, size_t numSteps = cvf::UNDEFINED_SIZE_T);
+//    static void         timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps);
+    static void         timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps, bool* detectedFractionOfDay = NULL);
 
-    bool                timeStepsText(QStringList* timeSteps);
-    bool                timeSteps(QList<QDateTime>* timeSteps);
-
-    bool                keywordData(const QString& keyword, size_t index, std::vector<double>* values);
-
-#ifdef USE_ECL_LIB
-    ecl_file_type*      filePointer();
-#endif //USE_ECL_LIB
-
-    // Static methods
     static bool         fileSet(const QString& fileName, QStringList* fileSet);
 
-#ifdef USE_ECL_LIB
     static QString      fileNameByType(const QStringList& fileSet, ecl_file_enum fileType);
     static QStringList  fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType);
-#endif //USE_ECL_LIB
-
-protected:
-#ifdef USE_ECL_LIB
-    ecl_file_type*      m_file;
-#endif //USE_ECL_LIB
 };

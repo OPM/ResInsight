@@ -1282,7 +1282,7 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3d* intersectionPoint, uint* f
 
     size_t numPrimitiveSets = m_primitiveSets.size();
     size_t iPrimSet;
-    size_t accumulatedFaceCount = 0;
+    int accumulatedFaceCount = 0;
 
     for (iPrimSet = 0; iPrimSet < numPrimitiveSets; iPrimSet++)
     {
@@ -1347,7 +1347,7 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3dArray* intersectionPoints, U
     std::vector<uint> faceIndices;
 
     cref<Vec3fArray> vertexArr = m_vertexBundle->vertexArray();
-    size_t accumulatedFaceCount = 0;
+    int accumulatedFaceCount = 0;
 
     size_t numPrimitiveSets = m_primitiveSets.size();
     size_t iPrimSet;

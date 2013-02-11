@@ -486,7 +486,7 @@ ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* te
     modTexImg->allocate(texImg->width(), texImg->height() + 2);
     modTexImg->fill(cvf::Color4ub(cvf::Color3ub(undefScalarColor), 255)); // Undefined color
 
-    for (size_t i = 0 ; i < texImg->width(); ++i)
+    for (cvf::uint i = 0 ; i < texImg->width(); ++i)
     {
         cvf::Color4ub legendColor = texImg->pixel(i, 0);
         modTexImg->setPixel(i, 0, legendColor);

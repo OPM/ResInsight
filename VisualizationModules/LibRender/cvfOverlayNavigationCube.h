@@ -119,8 +119,8 @@ public:
     virtual Vec2ui  maximumSize();
     virtual Vec2ui  minimumSize();
 
-    virtual void    render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
-    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
+    virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
 
     void            setSize(const Vec2ui& size);
     void            updateHighlight(int winCoordX, int winCoordY);
@@ -130,7 +130,7 @@ public:
     void            setAxisLabelsColor(const Color3f& color);
 
 private:
-    void render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software, const Mat4d& viewMatrix);
+    void render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software, const Mat4d& viewMatrix);
     void createAxisGeometry(bool software);
     void renderAxis(OpenGLContext* oglContext, const MatrixState& matrixState);
     void renderAxisImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState);

@@ -23,86 +23,6 @@ include_directories(
 )
 
 
-#-----------------------------------------------------------------
-# Configuration of ERT depdendence
-#-----------------------------------------------------------------
-
-# By default the ERT_ROOT_PATH variable will point to the ERT distribution which
-# is embedded in the ThirdParty/ directory, but by using the ERT_ROOT_PATH
-# variable you can point to a different ERT distribution.
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if (CMAKE_CL_64)
-        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows-x64")
-    else()
-        set(ERT_ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows")
-    endif()
-endif()
-
-	
-# The ERT binary distribution consists of four libraries, libwell, libecl,
-# libutil and libgeometry and their accompanying header files. There has been a
-# bit of mess of how this has been organized; either it has been on per
-# directory basis as:
-#
-#    ${ERT_ROOT_PATH}/ecl/lib/libecl.so
-#    ${ERT_ROOT_PATH}/ecl/include/ecl_xxx.h 
-#
-#    ${ERT_ROOT_PATH}/well/lib/libwell.so
-#    ${ERT_ROOT_PATH}/well/include/well_xxx.h 
-#    ....
-#
-# Or alternatively everything has been in common include/ and lib/ directories.
-#
-#    ${ERT_ROOT_PATH}/lib
-#    ${ERT_ROOT_PATH}/include
-#
-# This is indirectly goverened by the ERT_XXX_PREFIX variables. If these are
-# set to blank if everything will be collected from common include/ and lib/
-# dierectories.
-set( ERT_ECL_PREFIX  "ecl" CACHE STRING "Prefix path to use for ecl code in ert")
-set( ERT_UTIL_PREFIX "util" CACHE STRING "Prefix path to use for util code in ert")
-set( ERT_WELL_PREFIX "well" CACHE STRING "Prefix path to use for well code in ert")
-set( ERT_GEO_PREFIX  "geometry" CACHE STRING "Prefix path to use for geometry code in ert")
-
-mark_as_advanced( ERT_UTIL_PREFIX  ERT_ECL_PREFIX ERT_WELL_PREFIX ERT_GEO_PREFIX)
-
-# Setting up include directories for ERT
-set( ERT_INCLUDE_LIST 
-     ${ERT_ROOT_PATH}/include 
-     ${ERT_ROOT_PATH}/${ERT_ECL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_UTIL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_WELL_PREFIX}/include 
-     ${ERT_ROOT_PATH}/${ERT_GEO_PREFIX}/include )
-
-# Link to these ERT libraries
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/lib/libecl.a
-         ${ERT_ROOT_PATH}/lib/libert_util.a
-         ${ERT_ROOT_PATH}/lib/libgeometry.a
-         ${ERT_ROOT_PATH}/lib/libwell.a )
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set( ERT_LIBRARY_LIST 
-         ${ERT_ROOT_PATH}/lib/ecl.lib
-         ${ERT_ROOT_PATH}/lib/ert_util.lib
-         ${ERT_ROOT_PATH}/lib/geometry.lib
-         ${ERT_ROOT_PATH}/lib/well.lib )
-endif()
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-   list(APPEND ERT_LIBRARY_LIST lapack z)  
-endif()	
-
-include_directories( ${ERT_INCLUDE_LIST} )
-# Ert configuration complete
-#-----------------------------------------------------------------
-
-
-
-
 # Use all cpp and h files in the subdirectories
 file( GLOB_RECURSE HEADER_FILES *.h )
 
@@ -114,6 +34,8 @@ list( APPEND CPP_SOURCES
 list( APPEND CPP_SOURCES
     Application/RIApplication.cpp
     Application/RIPreferences.cpp
+	Application/RiaImageFileCompare.cpp
+	Application/RiaImageCompareReporter.cpp
 )
 
 list( APPEND CPP_SOURCES
@@ -180,6 +102,7 @@ list( APPEND CPP_SOURCES
     ReservoirDataModel/RigReservoir.cpp
     ReservoirDataModel/RigReservoirBuilderMock.cpp
     ReservoirDataModel/RigWellResults.cpp
+    ReservoirDataModel/RigGridScalarDataAccess.cpp
 )
 
 list( APPEND CPP_SOURCES
@@ -234,10 +157,14 @@ qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 set( RAW_SOURCES ${CPP_SOURCES} )
 list( REMOVE_ITEM RAW_SOURCES RIStdInclude.cpp)
 list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigReaderInterfaceECL.cpp)
+list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigGridScalarDataAccess.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivCellEdgeEffectGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivPipeGeometryGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellPipesPartMgr.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellHeadPartMgr.cpp)
+list( REMOVE_ITEM RAW_SOURCES Application/RiaImageFileCompare.cpp)
+list( REMOVE_ITEM RAW_SOURCES Application/RiaImageCompareReporter.cpp)
+
 
 
 list( REMOVE_ITEM RAW_SOURCES     
@@ -295,6 +222,12 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
+
+    ecl
+    ert_util
+    ert_geometry
+    ecl_well
+
     ${OPENGL_LIBRARIES}
     ${QT_LIBRARIES}
 )
@@ -321,23 +254,6 @@ if (MSVC)
                 "${QT_BINARY_DIR}/${qtlib}4.dll"
                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
     endforeach( qtlib )
-
-
-    # DLLs ERT depends on
-#    add_custom_command(TARGET ResInsight POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory
-#            "${PROJECT_SOURCE_DIR}/../ThirdParty/Ert-windows/bin/"
-#            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
-
-
-     # ERT DLLs
-#     set (ERT_MODULES ecl geometry util well)
-#     foreach (ert_module ${ERT_MODULES})
-#         add_custom_command(TARGET ResInsight POST_BUILD
-#             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#                 "${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/Ert-windows/${ert_module}/lib/lib${ert_module}.dll"
-#                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
-#     endforeach()
 
 endif(MSVC)
 
@@ -381,28 +297,3 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
 endif()
 
-
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "No_Linux")
-install(CODE "
-    set (INSTALLFILE_LIST
-            ${CMAKE_CURRENT_BINARY_DIR}/ResInsight
-			${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
-			${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
-            ${QT_LIBRARY_DIR}/libQtCore.so.4
-            ${QT_LIBRARY_DIR}/libQtGui.so.4
-            ${QT_LIBRARY_DIR}/libQtOpenGL.so.4
-            /usr/lib64/libgfortran.so.1
-            /usr/lib64/liblapack.so.3
-            /usr/lib64/libblas.so.3
-    )
-    execute_process(COMMAND rm -r ${CMAKE_BINARY_DIR}/Install/ResInsight )
-    execute_process(COMMAND mkdir -p ${CMAKE_BINARY_DIR}/Install/ResInsight )
-    foreach (installFile \${INSTALLFILE_LIST})
-        execute_process(COMMAND cp -v \${installFile} ${CMAKE_BINARY_DIR}/Install/ResInsight)
-    endforeach (installFile)
-
-    execute_process(COMMAND bash -c \"cd ${CMAKE_BINARY_DIR}/Install/ ; tar cvzf ResInsight_${STRPRODUCTVER}-bin.tar.gz ResInsight/*\" )
-
-")
-endif()

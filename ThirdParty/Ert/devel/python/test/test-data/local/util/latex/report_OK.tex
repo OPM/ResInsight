@@ -1,0 +1,53 @@
+\documentclass[screen,8pt]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usetheme{statoil}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage[tight]{subfigure}
+\usepackage{caption3}
+\usepackage{verbatim}
+
+
+
+%% Well summary plot.
+%%
+%% Arguments:
+%%
+%% 1. Well name.
+\newcommand{\WellSummaryPlot}[1]
+{
+  \begin{frame}
+  \frametitle{Well #1}
+  \centering
+  \begin{figure}
+  \subfigure[OPR]{
+    \includegraphics[width=0.2\textwidth]{plots/WOPR:#1.png}
+  }
+  \subfigure[OPT]{
+    \includegraphics[width=0.2\textwidth]{plots/WOPT:#1.png}
+  }
+  \\
+  \subfigure[GOR]{
+    \includegraphics[width=0.2\textwidth]{plots/WGOR:#1.png}
+  }
+  \subfigure[WCT]{
+    \includegraphics[width=0.2\textwidth]{plots/WWCT:#1.png}
+  }
+  \caption{Well #1}
+  \end{figure}
+  \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}
+\frametitle{Drilled wells}
+Well1 well2
+\end{frame}
+
+\WellSummaryPlot{OP-1}
+
+\end{document}
+
+

@@ -292,7 +292,7 @@ size_t RigReservoirCellResults::findOrLoadScalarResult(RimDefines::ResultCatType
             for (i = 0; i < timeStepCount; i++)
             {
                 std::vector<double>& values = m_cellScalarResults[resultGridIndex][i];
-                if (!m_readerInterface->dynamicResult(resultName, i, &values))
+                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, i, &values))
                 {
                     resultLoadingSucess = false;
                 }
@@ -303,7 +303,7 @@ size_t RigReservoirCellResults::findOrLoadScalarResult(RimDefines::ResultCatType
             m_cellScalarResults[resultGridIndex].resize(1);
 
             std::vector<double>& values = m_cellScalarResults[resultGridIndex][0];
-            if (!m_readerInterface->staticResult(resultName, &values))
+            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
             {
                 resultLoadingSucess = false;
             }
@@ -380,25 +380,27 @@ void RigReservoirCellResults::loadOrComputeSOIL()
 
     if (soilResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        const std::vector< std::vector<double> >* swat = NULL;
-        const std::vector< std::vector<double> >* sgas = NULL;
-
         size_t scalarIndexSWAT = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-        if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
-        {
-            swat = &(cellScalarResults(scalarIndexSWAT));
-        }
-
         size_t scalarIndexSGAS = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-        if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
-        {
-            sgas = &(cellScalarResults(scalarIndexSGAS));
-        }
 
         // Early exit if none of SWAT or SGAS is present
         if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
         {
             return;
+        }
+
+        soilResultGridIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+
+        const std::vector< std::vector<double> >* swat = NULL;
+        const std::vector< std::vector<double> >* sgas = NULL;
+        if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
+        {
+            swat = &(cellScalarResults(scalarIndexSWAT));
+        }
+
+        if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
+        {
+            sgas = &(cellScalarResults(scalarIndexSGAS));
         }
 
         size_t soilResultValueCount = 0;
@@ -417,7 +419,6 @@ void RigReservoirCellResults::loadOrComputeSOIL()
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
         }
 
-        soilResultGridIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
         m_cellScalarResults[soilResultGridIndex].resize(soilTimeStepCount);
 
         std::vector< std::vector<double> >& soil = cellScalarResults(soilResultGridIndex);
@@ -427,9 +428,8 @@ void RigReservoirCellResults::loadOrComputeSOIL()
         {
             soil[timeStepIdx].resize(soilResultValueCount);
 
-            int idx = 0;
 #pragma omp parallel for
-            for (idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
+            for (int idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
             {
                 double soilValue = 1.0;
                 if (sgas)
@@ -512,14 +512,14 @@ void RigReservoirCellResults::computeDepthRelatedResults()
     std::vector< std::vector<double> >& tops    = cellScalarResults(topsResultGridIndex);
     std::vector< std::vector<double> >& bottom  = cellScalarResults(bottomResultGridIndex);
     
-    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->numActiveCells() > 0;
+    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->globalMatrixModelActiveCellCount() > 0;
 
     size_t cellIdx = 0;
     for (cellIdx = 0; cellIdx < m_ownerMainGrid->cells().size(); cellIdx++)
     {
         const RigCell& cell = m_ownerMainGrid->cells()[cellIdx];
 
-        if (computeValuesForActiveCellsOnly && !cell.active())
+        if (computeValuesForActiveCellsOnly && !cell.isActiveInMatrixModel())
         {
             continue;
         }
@@ -532,19 +532,19 @@ void RigReservoirCellResults::computeDepthRelatedResults()
         if (computeDx)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_I) - cell.faceCenter(cvf::StructGridInterface::POS_I);
-            dx[0][cellIdx] = cellWidth.length();
+            dx[0][cellIdx] =  cvf::Math::abs(cellWidth.x());
         }
 
         if (computeDy)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_J) - cell.faceCenter(cvf::StructGridInterface::POS_J);
-            dy[0][cellIdx] = cellWidth.length();
+            dy[0][cellIdx] =  cvf::Math::abs(cellWidth.y());
         }
 
         if (computeDz)
         {
             cvf::Vec3d cellWidth = cell.faceCenter(cvf::StructGridInterface::NEG_K) - cell.faceCenter(cvf::StructGridInterface::POS_K);
-            dz[0][cellIdx] = cellWidth.length();
+            dz[0][cellIdx] = cvf::Math::abs(cellWidth.z());
         }
 
         if (computeTops)
@@ -651,8 +651,11 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
-    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->numActiveCells()) return true;
-    if (m_cellScalarResults[scalarResultIndex][0].size() == m_ownerMainGrid->cellCount()) return false;
+    
+    size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalMatrixModelActiveCellCount()) return true;
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalFractureModelActiveCellCount()) return true;
+    if (firstTimeStepResultValueCount == m_ownerMainGrid->cells().size()) return false;
 
     CVF_TIGHT_ASSERT(false); // Wrong number of results
 
@@ -665,7 +668,7 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
 QDateTime RigReservoirCellResults::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() && (size_t)(m_resultInfos[scalarResultIndex].m_timeStepDates.size()) > timeStepIndex)
-        return m_resultInfos[scalarResultIndex].m_timeStepDates[timeStepIndex];
+        return m_resultInfos[scalarResultIndex].m_timeStepDates[static_cast<int>(timeStepIndex)];
     else
         return QDateTime();
 }
@@ -761,5 +764,15 @@ size_t RigReservoirCellResults::addStaticScalarResult(RimDefines::ResultCatType 
     m_cellScalarResults[resultIdx][0].resize(resultValueCount, HUGE_VAL);
 
     return resultIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderInterface::PorosityModelResultType RigReservoirCellResults::convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel)
+{
+    if (porosityModel == RimDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
+    
+    return RifReaderInterface::FRACTURE_RESULTS;
 }
 

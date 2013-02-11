@@ -1,0 +1,15 @@
+set( source_files geo_surface.c geo_util.c geo_pointset.c geo_region.c geo_polygon.c)
+set( header_files geo_surface.h geo_util.h geo_pointset.h geo_region.h geo_polygon.h)
+
+add_library( ert_geometry ${LIBRARY_TYPE} ${source_files} )
+set_target_properties( ert_geometry PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+target_link_libraries( ert_geometry ert_util )
+
+
+#-----------------------------------------------------------------
+install(TARGETS ert_geometry DESTINATION ${CMAKE_INSTALL_LIBDIR})
+foreach(header ${header_files})
+    install(FILES ../include/ert/geometry/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/geometry)
+endforeach()
+
+

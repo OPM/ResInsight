@@ -1,0 +1,48 @@
+/project/idi/personlig/eism/sandbox/eclplot/Plotpath
+c
+hist
+/project/idi/proj/HMprojects/gurbat/debug/Simulations/ROUND_1_NR_0
+_stop_
+c
+post
+/project/idi/proj/HMprojects/gurbat/debug/Simulations/ROUND_1_NR_0
+/project/idi/proj/HMprojects/gurbat/debug/Simulations/ROUND_1_NR_1
+/project/idi/proj/HMprojects/gurbat/debug/Simulations/ROUND_1_NR_2
+_stop_
+c
+prior
+/project/idi/proj/HMprojects/gurbat/debug/Simulations/PRIOR_DEBUG_0_0
+/project/idi/proj/HMprojects/gurbat/debug/Simulations/PRIOR_DEBUG_0_1
+/project/idi/proj/HMprojects/gurbat/debug/Simulations/PRIOR_DEBUG_0_2
+_stop_
+a
+post
+1
+a
+hist
+15
+p
+BPR:15,28,1
+post
+prior
+_meas_points_
+xxy 1843.213203435596 1800.786796 300.05
+xyy 21/09/2002 100.3313 200.26064
+xy 21/09/2003 150.33
+_stop_
+_set_range_
+XMIN 01/01/2000 XMAX 01/01/2010 YMAX 100.0 YMAX 400.0
+_stop_
+p
+RFT:WI_1:2/9/2000
+prior
+post
+_set_range_
+XMIN 300 XMAX 400	
+_meas_points_
+rft 15 28 1  340.0 345.2
+rft 15 28 10 345  350
+rft 15 28 14 350 352
+_stop_
+_stop_
+q

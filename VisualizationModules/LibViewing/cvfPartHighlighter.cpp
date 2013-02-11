@@ -38,6 +38,7 @@
 #include "cvfRenderStateBlending.h"
 #include "cvfRenderStatePolygonMode.h"
 #include "cvfRenderStateLine.h"
+#include "cvfClipPlaneSet.h"
 
 namespace cvf {
 
@@ -69,12 +70,6 @@ PartHighlighter::PartHighlighter(Model* highlightModel, Camera* mainCamera)
     m_drawFbo = new FramebufferObject;
     m_drawFbo->attachColorTexture2d(0, selectedColorTexture.p());
 
-    ShaderProgramGenerator spGen("DrawHighlightGeo", ShaderSourceProvider::instance());
-    spGen.addVertexCode(ShaderSourceRepository::vs_Standard);
-    spGen.addFragmentCode(ShaderSourceRepository::src_Color);
-    spGen.addFragmentCode(ShaderSourceRepository::fs_Unlit);
-    ref<ShaderProgram> shaderProg = spGen.generate();
-
     // Note that we clear alpha to 0
     m_highlightCamera = new Camera;
     m_highlightCamera->viewport()->setClearColor(Color4f(Color3::GRAY, 0)); 
@@ -85,14 +80,7 @@ PartHighlighter::PartHighlighter(Model* highlightModel, Camera* mainCamera)
     m_drawRendering->setCamera(m_highlightCamera.p());
     m_drawRendering->setScene(new Scene);
     m_drawRendering->scene()->addModel(m_highlightModel.p());
-
-    {
-        ref<Effect> eff = new Effect;
-        eff->setShaderProgram(shaderProg.p());
-        // Use magenta to detect if something isn't working as it should
-        eff->setUniform(new UniformFloat("u_color", Color4f(Color3::MAGENTA)));
-        m_drawRendering->setEffectOverride(eff.p());
-    }
+    m_drawRendering->setRenderingName("PartHighlighter : Main 'solid' rendering (m_drawRendering)");
 
     // Draw geometry again using lines to increase footprint of slim details 
     bool growFootprintUsingLineDrawing = true;
@@ -104,17 +92,10 @@ PartHighlighter::PartHighlighter(Model* highlightModel, Camera* mainCamera)
         m_drawRenderingLines->setScene(new Scene);
         m_drawRenderingLines->scene()->addModel(m_highlightModel.p());
         m_drawRenderingLines->setClearMode(Viewport::DO_NOT_CLEAR);
-
-        {
-            ref<Effect> eff = new Effect;
-            eff->setShaderProgram(shaderProg.p());
-            eff->setRenderState(new RenderStatePolygonMode(RenderStatePolygonMode::LINE));
-            eff->setRenderState(new RenderStateLine(3));
-            // Use cyan to detect if something isn't working as it should
-            eff->setUniform(new UniformFloat("u_color", Color4f(Color3::CYAN)));
-            m_drawRenderingLines->setEffectOverride(eff.p());
-        }
+        m_drawRenderingLines->setRenderingName("PartHighlighter : Main 'solid' rendering (lines) (m_drawRenderingLines)");
     }
+
+    configureOverrideEffects(false);
 
     // Setup the blur helper
     // The sigma value her should be tuned to the line width used above
@@ -141,6 +122,7 @@ PartHighlighter::PartHighlighter(Model* highlightModel, Camera* mainCamera)
         quadRenderGen.setUniform(m_highlightClrUniform.p());
         m_mixRendering = quadRenderGen.generate();
         m_mixRendering->setClearMode(Viewport::DO_NOT_CLEAR);
+        m_mixRendering->setRenderingName("PartHighlighter : Mix Rendering (m_mixRendering)");
     }
 }
 
@@ -205,14 +187,15 @@ void PartHighlighter::removeRenderingsFromSequence(RenderSequence* renderSequenc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PartHighlighter::resize(uint width, uint height)
+void PartHighlighter::resize(int x, int y, uint width, uint height)
 {
     m_drawFbo->resizeAttachedBuffers(width, height);
 
     // Since draw and drawLines shares a camera, this call will set both
     m_drawRendering->camera()->setViewport(0, 0, width, height);
 
-    m_mixRendering->camera()->setViewport(0, 0, width, height);
+    // Mix rendering is the only "on-screen" rendering so here we do need to set the position of the viewport
+    m_mixRendering->camera()->setViewport(x, y, width, height);
 
     if (m_blur.notNull())
     {
@@ -238,6 +221,78 @@ void PartHighlighter::prepareForRedraw()
     m_highlightCamera->setViewMatrix(m_mainCamera->viewMatrix());
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PartHighlighter::setClipPlaneSet(ClipPlaneSet* clipPlaneSet)
+{
+    m_drawRendering->removeAllGlobalDynamicUniformSets();
+    
+    if (m_drawRenderingLines.notNull())
+    {
+        m_drawRenderingLines->removeAllGlobalDynamicUniformSets();
+    }
+
+    if (clipPlaneSet)
+    {
+        m_drawRendering->addGlobalDynamicUniformSet(clipPlaneSet);
+        if (m_drawRenderingLines.notNull())
+        {
+            m_drawRenderingLines->addGlobalDynamicUniformSet(clipPlaneSet);
+        }
+
+        configureOverrideEffects(true);
+    }
+    else
+    {
+        configureOverrideEffects(false);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PartHighlighter::configureOverrideEffects(bool useClipping)
+{
+    ShaderProgramGenerator spGen("DrawHighlightGeo", ShaderSourceProvider::instance());
+
+    if (useClipping)
+    {
+        spGen.addVertexCode(cvf::ShaderSourceRepository::calcClipDistances);
+        spGen.addFragmentCode(cvf::ShaderSourceRepository::checkDiscard_ClipDistances);
+    }
+
+    spGen.addVertexCode(ShaderSourceRepository::vs_Standard);
+    spGen.addFragmentCode(ShaderSourceRepository::src_Color);
+    spGen.addFragmentCode(ShaderSourceRepository::fs_Unlit);
+
+    ref<ShaderProgram> shaderProg = spGen.generate();
+
+    if (useClipping)
+    {
+        shaderProg->setDefaultUniform(new cvf::UniformInt(  "u_clipPlaneCount",   0));
+        shaderProg->setDefaultUniform(new cvf::UniformFloat("u_ecClipPlanes",     cvf::Vec4f(0, 0, 1, 0)));
+    }
+
+    ref<Effect> eff = new Effect;
+    eff->setShaderProgram(shaderProg.p());
+    // Use magenta to detect if something isn't working as it should
+    eff->setUniform(new UniformFloat("u_color", Color4f(Color3::MAGENTA)));
+    m_drawRendering->setEffectOverride(eff.p());
+
+    if (m_drawRenderingLines.notNull())
+    {
+        ref<Effect> eff = new Effect;
+        eff->setShaderProgram(shaderProg.p());
+        eff->setRenderState(new RenderStatePolygonMode(RenderStatePolygonMode::LINE));
+        eff->setRenderState(new RenderStateLine(3));
+        // Use cyan to detect if something isn't working as it should
+        eff->setUniform(new UniformFloat("u_color", Color4f(Color3::CYAN)));
+        m_drawRenderingLines->setEffectOverride(eff.p());
+    }
+}
 
 
 

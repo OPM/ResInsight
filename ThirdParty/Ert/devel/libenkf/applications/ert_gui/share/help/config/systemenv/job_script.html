@@ -1,0 +1,7 @@
+Running the forward model from enkf is a multi-level process which can be summarized as follows:
+<ol>
+  <li> A Python module called <code>jobs.py</code> is written and stored in the directory where the forward simulation is run. This module contains a list of job-elements, where each element is a Python representation of the code entered when installing the job. </li>
+  <li> The ERT application submits a Python script to the EnKF queue system, this script then loads the <code>jobs.py</code> module to find out which programs to run, and how to run them. </li>
+  <li> The Job script starts and monitors the individual jobs in the <code>jobs.py</code> module. </li>
+</ol>
+<b>Job script</b> should point at the Python script which is managing the forward model.

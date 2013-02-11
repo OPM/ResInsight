@@ -22,10 +22,8 @@
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseRestartDataAccess::RifEclipseRestartDataAccess(size_t numGrids, size_t numActiveCells)
+RifEclipseRestartDataAccess::RifEclipseRestartDataAccess()
 {
-    m_numGrids          = numGrids;
-    m_numActiveCells    = numActiveCells;
 }
 
 

@@ -198,7 +198,7 @@ String OverlayScalarMapperLegend::title() const
 //--------------------------------------------------------------------------------------------------
 /// Hardware rendering using shader programs
 //--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayScalarMapperLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, false);
 }
@@ -207,7 +207,7 @@ void OverlayScalarMapperLegend::render(OpenGLContext* oglContext, const Vec2ui& 
 //--------------------------------------------------------------------------------------------------
 /// Software rendering using software
 //--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayScalarMapperLegend::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, true);
 }
@@ -216,18 +216,18 @@ void OverlayScalarMapperLegend::renderSoftware(OpenGLContext* oglContext, const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool OverlayScalarMapperLegend::pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size)
+bool OverlayScalarMapperLegend::pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size)
 {
-    Rectui oglRect(position, size.x(), size.y());
+    Recti oglRect(position, size.x(), size.y());
 
     OverlayColorLegendLayoutInfo layoutInViewPortCoords(oglRect.min(), Vec2ui(oglRect.width(), oglRect.height()));
     layoutInfo(&layoutInViewPortCoords);
 
-    Vec2ui legendBarOrigin = oglRect.min();
+    Vec2i legendBarOrigin = oglRect.min();
     legendBarOrigin.x() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().x());
     legendBarOrigin.y() += static_cast<uint>(layoutInViewPortCoords.legendRect.min().y());
 
-    Rectui legendBarRect = Rectui(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.legendRect.width()), static_cast<uint>(layoutInViewPortCoords.legendRect.height()));
+    Recti legendBarRect = Recti(legendBarOrigin, static_cast<uint>(layoutInViewPortCoords.legendRect.width()), static_cast<uint>(layoutInViewPortCoords.legendRect.height()));
 
     if ((oglXCoord > legendBarRect.min().x()) && (oglXCoord < legendBarRect.max().x()) &&
         (oglYCoord > legendBarRect.min().y()) && (oglYCoord < legendBarRect.max().y()))
@@ -242,7 +242,7 @@ bool OverlayScalarMapperLegend::pick(uint oglXCoord, uint oglYCoord, const Vec2u
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void OverlayScalarMapperLegend::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software)
+void OverlayScalarMapperLegend::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
 {   
     if (size.x() <= 0 || size.y() <= 0)
     {

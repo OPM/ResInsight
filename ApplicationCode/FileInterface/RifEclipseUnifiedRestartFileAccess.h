@@ -22,9 +22,9 @@
 
 class RifEclipseOutputFileTools;
 
-#ifdef USE_ECL_LIB
+//typedef struct ecl_file_struct ecl_file_type;
+
 #include "well_info.h"
-#endif // USE_ECL_LIB
 
 //==================================================================================================
 //
@@ -34,23 +34,20 @@ class RifEclipseOutputFileTools;
 class RifEclipseUnifiedRestartFileAccess : public RifEclipseRestartDataAccess
 {
 public:
-    RifEclipseUnifiedRestartFileAccess(size_t numGrids, size_t numActiveCells);
+    RifEclipseUnifiedRestartFileAccess();
     virtual ~RifEclipseUnifiedRestartFileAccess();
 
     bool                        open(const QStringList& fileSet);
     void                        close();
 
-    size_t                      numTimeSteps();
-    QStringList                 timeStepsText();
+    size_t                      timeStepCount();
     QList<QDateTime>            timeSteps();
 
-    QStringList                 resultNames();
-    bool                        results(const QString& resultName, size_t timeStep, std::vector<double>* values);
+    void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
+    bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
 
-#ifdef USE_ECL_LIB
     virtual void                readWellData(well_info_type * well_info);
-#endif
 
 private:
-    cvf::ref<RifEclipseOutputFileTools> m_file;
+    ecl_file_type*  m_ecl_file;
 };

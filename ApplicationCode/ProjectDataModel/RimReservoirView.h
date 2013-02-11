@@ -34,6 +34,7 @@
 
 #include "cvfMatrix4.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cafPdmFieldCvfMat4d.h"
 
 #include "RivReservoirViewPartMgr.h"
 #include "RivReservoirPipesPartMgr.h"
@@ -118,7 +119,7 @@ public:
 
     // 3D Viewer
     // Cam pos should be a field, but is not yet supported bu caf::Pdm
-    cvf::Mat4d                      cameraPosition;
+    caf::PdmField<cvf::Mat4d>       cameraPosition;
     void                            setDefaultView();
 
     RIViewer*                       viewer();
@@ -154,7 +155,8 @@ protected:
 
 
 private:
-    void                              syncronizeWellsWithResults();
+    void                            syncronizeWellsWithResults();
+    void                            clampCurrentTimestep();
 
 private:
     caf::PdmField<int>              m_currentTimeStep;
@@ -172,7 +174,6 @@ private:
     void                            updateStaticCellColors();
     void                            updateStaticCellColors(unsigned short geometryType);
     void                            updateLegends();
-
 
     cvf::ref<RivReservoirViewPartMgr> m_geometry;
     cvf::ref<RivReservoirPipesPartMgr> m_pipesPartManager;

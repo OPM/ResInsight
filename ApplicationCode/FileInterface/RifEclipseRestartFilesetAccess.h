@@ -32,23 +32,20 @@ class RifEclipseOutputFileTools;
 class RifEclipseRestartFilesetAccess : public RifEclipseRestartDataAccess
 {
 public:
-    RifEclipseRestartFilesetAccess(size_t numGrids, size_t numActiveCells);
+    RifEclipseRestartFilesetAccess();
     virtual ~RifEclipseRestartFilesetAccess();
 
     bool                        open(const QStringList& fileSet);
     void                        close();
 
-    size_t                      numTimeSteps();
-    QStringList                 timeStepsText();
+    size_t                      timeStepCount();
     QList<QDateTime>            timeSteps();
 
-    QStringList                 resultNames();
-    bool                        results(const QString& resultName, size_t timeStep, std::vector<double>* values);
+    void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
+    bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
 
-#ifdef USE_ECL_LIB
     virtual void                readWellData(well_info_type* well_info);
-#endif //USE_ECL_LIB
 
 private:
-    std::vector< cvf::ref<RifEclipseOutputFileTools> > m_files;
+    std::vector< ecl_file_type* > m_ecl_files;
 };

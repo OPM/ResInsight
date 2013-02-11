@@ -140,7 +140,7 @@ void OverlayAxisCross::setSize(const Vec2ui& size)
 //--------------------------------------------------------------------------------------------------
 /// Hardware rendering using shader programs
 //--------------------------------------------------------------------------------------------------
-void OverlayAxisCross::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayAxisCross::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     Mat4d viewMatrix = m_camera->viewMatrix();
     render(oglContext, position, size, false, viewMatrix);
@@ -150,7 +150,7 @@ void OverlayAxisCross::render(OpenGLContext* oglContext, const Vec2ui& position,
 //--------------------------------------------------------------------------------------------------
 /// Software rendering 
 //--------------------------------------------------------------------------------------------------
-void OverlayAxisCross::renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayAxisCross::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     Mat4d viewMatrix = m_camera->viewMatrix();
     render(oglContext, position, size, true, viewMatrix);
@@ -160,7 +160,7 @@ void OverlayAxisCross::renderSoftware(OpenGLContext* oglContext, const Vec2ui& p
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void OverlayAxisCross::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software, const Mat4d& viewMatrix)
+void OverlayAxisCross::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software, const Mat4d& viewMatrix)
 {
     if (size.x() <= 0 || size.y() <= 0)
     {

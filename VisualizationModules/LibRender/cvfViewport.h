@@ -52,10 +52,10 @@ public:
 public:
     Viewport();
 
-    void        set(uint x, uint y, uint width, uint height);
+    void        set(int x, int y, uint width, uint height);
 
-    uint        x() const;
-    uint        y() const;
+    int         x() const;
+    int         y() const;
     uint        width() const;
     uint        height() const;
     double      aspectRatio() const;
@@ -65,16 +65,16 @@ public:
 
     void        applyOpenGL(OpenGLContext* oglContext, ClearMode clearMode);
 
-    String      toString() const;
+    String      debugString() const;
 
 private:
     cvfGLbitfield clearFlagsOpenGL(ClearMode clearMode);
 
 private:
-    uint         m_x;
-    uint         m_y;
-    uint         m_width;
-    uint         m_height;
+    int         m_x;
+    int         m_y;
+    uint        m_width;
+    uint        m_height;
 
     Color4f     m_clearColor;
     double      m_clearDepth;

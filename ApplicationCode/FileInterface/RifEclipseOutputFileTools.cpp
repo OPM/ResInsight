@@ -18,23 +18,21 @@
 
 #include "RifEclipseOutputFileTools.h"
 
-#ifdef USE_ECL_LIB
 #include "util.h"
 #include "ecl_file.h"
 #include "ecl_intehead.h"
-#endif //USE_ECL_LIB
+#include "ecl_kw_magic.h"
 
 #include <QFileInfo>
+#include <QDebug>
 #include "cafProgressInfo.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
 RifEclipseOutputFileTools::RifEclipseOutputFileTools()
 {
-#ifdef USE_ECL_LIB
-    m_file = NULL;
-#endif //USE_ECL_LIB
 }
 
 
@@ -43,207 +41,101 @@ RifEclipseOutputFileTools::RifEclipseOutputFileTools()
 //--------------------------------------------------------------------------------------------------
 RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 {
-    close();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Open file given by name
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::open(const QString& fileName)
-{
-#ifdef USE_ECL_LIB
-    // Close current file if any
-    close();
-
-    m_file = ecl_file_open(fileName.toAscii().data());
-    if (!m_file) return false;
-
-    return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Close file
-//--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::close()
-{
-#ifdef USE_ECL_LIB
-    if (m_file)
-    {
-        ecl_file_close(m_file);
-        m_file = NULL;
-    }
-#endif //USE_ECL_LIB
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Get the number of occurrences of the given keyword
-//--------------------------------------------------------------------------------------------------
-size_t RifEclipseOutputFileTools::numOccurrences(const QString& keyword)
-{
-#ifdef USE_ECL_LIB
-    CVF_ASSERT(m_file);
-    return (size_t) ecl_file_get_num_named_kw(m_file, keyword.toAscii().data());
-#else
-    return 0;
-#endif //USE_ECL_LIB
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Get keywords found on file given by name.
-/// If numDataItems > -1, get keywords with that exact number of data items only.
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordsOnFile(QStringList* keywords, size_t numDataItems, size_t numSteps)
-{
-#ifdef USE_ECL_LIB
-    CVF_ASSERT(m_file);
-    CVF_ASSERT(keywords);
-    keywords->clear();
-
-
-    size_t numKeywords = ecl_file_get_num_distinct_kw(m_file);
-
-    caf::ProgressInfo info(numKeywords, "Reading Keywords on file");
-
-    size_t i;
-    for (i = 0; i < numKeywords; i++)
-    {
-        const char* kw = ecl_file_iget_distinct_kw(m_file , i);
-        size_t numKWOccurences = ecl_file_get_num_named_kw(m_file, kw);
-
-        if (numDataItems != cvf::UNDEFINED_SIZE_T)
-        {
-            bool dataTypeSupported = true;
-            size_t numKWValues = 0;
-            size_t j;
-            for (j = 0; j < numKWOccurences; j++)
-            {
-                numKWValues += (size_t) ecl_file_iget_named_size(m_file, kw, j);
-
-                // Check the data type - only float and double are supported
-                ecl_type_enum dataType = ecl_file_iget_named_type(m_file, kw, j);
-                if (dataType != ECL_DOUBLE_TYPE && dataType != ECL_FLOAT_TYPE && dataType != ECL_INT_TYPE )
-                {
-                    dataTypeSupported = false;
-                    break;
-                }
-            }
-
-            if (dataTypeSupported)
-            {
-                if (numSteps != cvf::UNDEFINED_SIZE_T && numSteps > 0)
-                {
-                    numKWValues /= numSteps;
-                }
-
-                // Append keyword to the list if it has the given number of values in total
-                if (numKWValues == numDataItems)
-                {
-                    keywords->append(QString(kw));
-                }
-            }
-        }
-        else
-        {
-            keywords->append(QString(kw));
-        }
-
-        info.setProgress(i);
-    }
-
-    return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Get list of time step texts (dates)
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::timeStepsText(QStringList* timeSteps)
-{
-#ifdef USE_ECL_LIB
-    CVF_ASSERT(timeSteps);
-    CVF_ASSERT(m_file);
-
-    const char* KW_INTEHEAD = "INTEHEAD";
-
-    // Get the number of occurrences of the INTEHEAD keyword
-    size_t numINTEHEAD = numOccurrences(KW_INTEHEAD);
-
-    QStringList timeStepsFound;
-    size_t i;
-    for (i = 0; i < numINTEHEAD; i++)
-    {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(m_file, KW_INTEHEAD, i);
-        if (kwINTEHEAD)
-        {
-            // Get date info
-            time_t stepTime = ecl_intehead_date(kwINTEHEAD);
-
-            // Hack!!! We seem to get 01/01/1970 (time -1) for sub grids!
-            if (stepTime < 0) continue;
-
-            // Build date string
-            char* dateString = util_alloc_date_string(stepTime);
-            timeStepsFound += QString(dateString);
-            util_safe_free(dateString);
-        }
-    }
-
-    // Time steps are given for both the main grid and all sub grids,
-    // so we need to make sure that duplicates are removed
-    timeStepsFound.removeDuplicates();
-
-    // Return time step info to caller
-    *timeSteps = timeStepsFound;
-
-    return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
+void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps, bool* detectedFractionOfDay )
 {
-#ifdef USE_ECL_LIB
     CVF_ASSERT(timeSteps);
-    CVF_ASSERT(m_file);
-
-    const char* KW_INTEHEAD = "INTEHEAD";
+    CVF_ASSERT(ecl_file);
 
     // Get the number of occurrences of the INTEHEAD keyword
-    size_t numINTEHEAD = numOccurrences(KW_INTEHEAD);
+    int numINTEHEAD = ecl_file_get_num_named_kw(ecl_file, INTEHEAD_KW);
+    
+    // Get the number of occurrences of the DOUBHEAD keyword
+    int numDOUBHEAD = ecl_file_get_num_named_kw(ecl_file, DOUBHEAD_KW);
+
+    CVF_ASSERT(numINTEHEAD == numDOUBHEAD);
+
+    bool hasFractionOfDay = false;
+    bool foundAllDayValues = false;
+    const double delta = 0.001;
+
+    // Find all days, and stop when the double value is lower than the previous
+    QList<double> days;
+    for (int i = 0; i < numDOUBHEAD; i++)
+    {
+        if (foundAllDayValues) continue;;
+
+        ecl_kw_type* kwDOUBHEAD = ecl_file_iget_named_kw(ecl_file, DOUBHEAD_KW, i);
+        if (kwDOUBHEAD)
+        {
+            double dayValue = ecl_kw_iget_double(kwDOUBHEAD, DOUBHEAD_DAYS_INDEX);
+            double floorDayValue = cvf::Math::floor(dayValue);
+
+            if (dayValue - floorDayValue > delta)
+            {
+                hasFractionOfDay = true;
+            }
+
+            days.push_back(dayValue);
+        }
+    }
 
     QList<QDateTime> timeStepsFound;
-    size_t i;
-    for (i = 0; i < numINTEHEAD; i++)
+   
+    if (hasFractionOfDay)
     {
-        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(m_file, KW_INTEHEAD, i);
+        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
         if (kwINTEHEAD)
         {
-            // Get date info
-            time_t stepTime = ecl_intehead_date(kwINTEHEAD);
+            int day     = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX);
+            int month   = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX);
+            int year    = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX);
+            QDate simulationStart(year, month, day);
 
-            // Hack!!! We seem to get 01/01/1970 (time -1) for sub grids!
-            if (stepTime < 0) continue;
-
-            // Build date string
-            QDateTime dateTime = QDateTime::fromTime_t(stepTime);
-
-            if (timeStepsFound.indexOf(dateTime) < 0)
+            for (int i = 0; i < days.size(); i++)
             {
-                timeStepsFound.push_back(dateTime);
+                double dayValue = days[i];
+                double floorDayValue = cvf::Math::floor(dayValue);
+                double dayFraction = dayValue - floorDayValue;
+
+                int seconds = (dayFraction * 24.0 * 60.0 * 60.0);
+                QTime time(0, 0);
+                time = time.addSecs(seconds);
+
+                QDate reportDate = simulationStart;
+                reportDate = reportDate.addDays(floorDayValue);
+
+                QDateTime reportDateTime(reportDate, time);
+                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                {
+                    timeStepsFound.push_back(reportDateTime);
+                }
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < numINTEHEAD; i++)
+        {
+            ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
+            if (kwINTEHEAD)
+            {
+                int day     = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX);
+                int month   = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX);
+                int year    = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX);
+
+                QDate reportDate(year, month, day);
+                CVF_ASSERT(reportDate.isValid());
+                
+                QDateTime reportDateTime(reportDate);
+                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                {
+                    timeStepsFound.push_back(reportDateTime);
+                }
             }
         }
     }
@@ -251,22 +143,19 @@ bool RifEclipseOutputFileTools::timeSteps(QList<QDateTime>* timeSteps)
     // Return time step info to caller
     *timeSteps = timeStepsFound;
 
-    return true;
-#else
-    return false;
-#endif //USE_ECL_LIB
+    if (detectedFractionOfDay)
+    {
+        *detectedFractionOfDay = hasFractionOfDay;
+    }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
-//--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::keywordData(const QString& keyword, size_t index, std::vector<double>* values)
-{
-#ifdef USE_ECL_LIB
-    CVF_ASSERT(m_file);
-    CVF_ASSERT(values);
 
-    ecl_kw_type* kwData = ecl_file_iget_named_kw(m_file, keyword.toAscii().data(), index);
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values)
+{
+    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
     if (kwData)
     {
         size_t numValues = ecl_kw_get_size(kwData);
@@ -276,19 +165,17 @@ bool RifEclipseOutputFileTools::keywordData(const QString& keyword, size_t index
 
         ecl_kw_get_data_as_double(kwData, doubleData.data());
         values->insert(values->end(), doubleData.begin(), doubleData.end());
+
+        return true;
     }
 
-    return true;
-#else
     return false;
-#endif //USE_ECL_LIB
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     int i;
@@ -304,13 +191,11 @@ QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ec
 
     return QString::null;
 }
-#endif //USE_ECL_LIB
 
 
 //--------------------------------------------------------------------------------------------------
 /// Get all files of file of given type in given list of filenames, as filename or NULL if not found
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     QStringList fileNames;
@@ -328,7 +213,6 @@ QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSe
 
     return fileNames;
 }
-#endif //USE_ECL_LIB
 
 
 //--------------------------------------------------------------------------------------------------
@@ -339,7 +223,6 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
     CVF_ASSERT(fileSet);
     fileSet->clear();
 
-#ifdef USE_ECL_LIB
     QString filePath = QFileInfo(fileName).absoluteFilePath();
     filePath = QFileInfo(filePath).path();
     QString fileNameBase = QFileInfo(fileName).baseName();
@@ -354,17 +237,46 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
     }
 
     stringlist_free(eclipseFiles);
-#endif //USE_ECL_LIB
 
     return fileSet->count() > 0;
 }
 
+
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
-ecl_file_type* RifEclipseOutputFileTools::filePointer()
+void RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ecl_file_type* ecl_file, QStringList* keywords, std::vector<size_t>* keywordDataItemCounts)
 {
-    return m_file;
+    if (!ecl_file || !keywords || !keywordDataItemCounts) return;
+
+    int numKeywords = ecl_file_get_num_distinct_kw(ecl_file);
+
+    caf::ProgressInfo info(numKeywords, "Reading Keywords on file");
+
+    for (int i = 0; i < numKeywords; i++)
+    {
+        const char* kw = ecl_file_iget_distinct_kw(ecl_file , i);
+        int numKeywordOccurrences = ecl_file_get_num_named_kw(ecl_file, kw);
+        bool validData = true;
+        size_t fileResultValueCount = 0;
+        for (int j = 0; j < numKeywordOccurrences; j++)
+        {
+            fileResultValueCount += ecl_file_iget_named_size(ecl_file, kw, j);
+
+            ecl_type_enum dataType = ecl_file_iget_named_type(ecl_file, kw, j);
+            if (dataType != ECL_DOUBLE_TYPE && dataType != ECL_FLOAT_TYPE && dataType != ECL_INT_TYPE )
+            {
+                validData = false;
+                break;
+            }
+        }
+
+        if (validData)
+        {
+            keywords->append(QString(kw));
+            keywordDataItemCounts->push_back(fileResultValueCount);
+        }
+
+        info.setProgress(i);
+    }
 }
-#endif //USE_ECL_LIB

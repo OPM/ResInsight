@@ -72,7 +72,30 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
     if (caseName().contains("Input Mock Debug Model"))
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(this->caseName());
-        m_rigReservoir->mainGrid()->results()->setReaderInterface(readerInterface.p());
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+
+        size_t matrixActiveCellCount = 0;
+        size_t fractureActiveCellCount = 0;
+
+        for (size_t cellIdx = 0; cellIdx < m_rigReservoir->mainGrid()->cells().size(); cellIdx++)
+        {
+            const RigCell& cell = m_rigReservoir->mainGrid()->cells()[cellIdx];
+
+            if (cell.isActiveInMatrixModel())
+            {
+                matrixActiveCellCount++;
+            }
+            if (cell.isActiveInFractureModel())
+            {
+                fractureActiveCellCount++;
+            }
+
+        }
+
+        m_rigReservoir->mainGrid()->setGlobalMatrixModelActiveCellCount(matrixActiveCellCount);
+        m_rigReservoir->mainGrid()->setGlobalFractureModelActiveCellCount(fractureActiveCellCount);
+
         return;
     }
 
@@ -179,16 +202,21 @@ bool RimInputReservoir::openEclipseGridFile()
         CVF_ASSERT(m_rigReservoir.notNull());
         CVF_ASSERT(readerInterface.notNull());
 
-        m_rigReservoir->mainGrid()->results()->setReaderInterface(readerInterface.p());
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
         m_rigReservoir->computeFaults();
         m_rigReservoir->mainGrid()->computeCachedData();
     }
 
-    RigReservoirCellResults* results = m_rigReservoir->mainGrid()->results();
+    
     RIApplication* app = RIApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
-        results->computeDepthRelatedResults();
+        RigReservoirCellResults* matrixResults = m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
+        RigReservoirCellResults* fractureResults = m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS);
+
+        matrixResults->computeDepthRelatedResults();
+        fractureResults->computeDepthRelatedResults();
     }
 
     return true;
@@ -215,12 +243,12 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
 
     size_t inputPropCount = this->m_inputPropertyCollection()->inputProperties.size();
 
-    caf::ProgressInfo progInfo(filenames.size() *( inputPropCount + knownKeywords.size()), "Reading Input properties" );
+    caf::ProgressInfo progInfo(static_cast<int>(filenames.size() *( inputPropCount + knownKeywords.size())), "Reading Input properties" );
     int progress = 0;
 
     for_all(filenames, i)
     {
-        progress = i*( inputPropCount + knownKeywords.size());
+        progress = static_cast<int>(i*( inputPropCount + knownKeywords.size()));
         // Find all the keywords present on the file
 
         progInfo.setProgressDescription(filenames[i]);
@@ -262,10 +290,10 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
                 fileKeywordSet.erase(kw);
             }
 
-            progInfo.setProgress(progress + ipIdx );
+            progInfo.setProgress(static_cast<int>(progress + ipIdx) );
         }
 
-        progInfo.setProgress(progress +  inputPropCount);
+        progInfo.setProgress(static_cast<int>(progress +  inputPropCount));
         // Check if there are more known property keywords left on file. If it is, read them and create inputProperty objects
 
         if (!fileKeywordSet.empty())
@@ -277,7 +305,7 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
             {
                 if (fileKeywordSet.count(knownKeywords[fkIt]))
                 {
-                    QString resultName = this->reservoirData()->mainGrid()->results()->makeResultNameUnique(knownKeywords[fkIt]);
+                    QString resultName = this->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(knownKeywords[fkIt]);
                     if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), knownKeywords[fkIt], resultName))
                     {
                         RimInputProperty* inputProperty = new RimInputProperty;
@@ -288,7 +316,7 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
                         m_inputPropertyCollection->inputProperties.push_back(inputProperty);
                     }
                 }
-                 progInfo.setProgress(progress +  inputPropCount + fkIt);
+                 progInfo.setProgress(static_cast<int>(progress +  inputPropCount + fkIt));
             }
         }
     }
@@ -352,7 +380,7 @@ void RimInputReservoir::removeProperty(RimInputProperty* inputProperty)
     }
 
     // Remove the results pointed to by this input property
-    RigReservoirCellResults* results = m_rigReservoir->mainGrid()->results();
+    RigReservoirCellResults* results = m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
     results->removeResult(inputProperty->resultName);
 
     this->removeResult(inputProperty->resultName);
@@ -377,12 +405,12 @@ cvf::ref<RifReaderInterface> RimInputReservoir::createMockModel(QString modelNam
         mockFileInterface->open("", reservoir.p());
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
-            reservoir->mainGrid()->cell(idx).setActive(false);
+            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
-            reservoir->mainGrid()->cell(idx).setActive(false);
+            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         // Add a property

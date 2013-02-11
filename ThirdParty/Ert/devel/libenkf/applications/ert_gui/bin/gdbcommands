@@ -1,0 +1,1 @@
+run $ert_gui_dir/main.py "$CONFIG_FILE"
