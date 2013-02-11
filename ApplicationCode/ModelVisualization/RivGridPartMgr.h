@@ -69,6 +69,8 @@ private:
 
 private:
     size_t                                      m_gridIdx;
+    cvf::cref<RigGridBase>                      m_grid;
+
     cvf::ref<cvf::Transform>                    m_scaleTransform;
     float                                       m_opacityLevel;
     cvf::Color3f                                m_defaultColor;

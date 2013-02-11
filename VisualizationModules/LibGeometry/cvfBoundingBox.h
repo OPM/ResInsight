@@ -67,7 +67,7 @@ public:
     void                transform(const Mat4d& matrix);
     const BoundingBox   getTransformed(const Mat4d& matrix) const;
 
-    String              toString() const;
+    String              debugString() const;
 
 private:
     Vec3d m_min;

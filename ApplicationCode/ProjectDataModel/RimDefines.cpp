@@ -34,5 +34,15 @@ namespace caf
 
         setDefault(RimDefines::DYNAMIC_NATIVE);
     }
+
+    template<>
+    void caf::AppEnum< RimDefines::PorosityModelType >::setUp()
+    {
+        addItem(RimDefines::MATRIX_MODEL,   "MATRIX_MODEL",     "Matrix");
+        addItem(RimDefines::FRACTURE_MODEL, "FRACTURE_MODEL",   "Fracture");
+
+        setDefault(RimDefines::MATRIX_MODEL);
+    }
+
 }
 

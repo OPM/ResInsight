@@ -23,11 +23,13 @@
 #include "RigLocalGrid.h"
 #include "cvfCollection.h"
 #include "cvfBoundingBox.h"
+#include "RifReaderInterface.h"
+
 #include <QtGlobal>
 
 class RigReservoirCellResults;
 
-class RigMainGrid :  public RigGridBase
+class RigMainGrid : public RigGridBase
 {
 public:
     RigMainGrid();
@@ -40,11 +42,15 @@ public:
     std::vector<RigCell>&                   cells() {return m_cells;}
     const std::vector<RigCell>&             cells() const {return m_cells;}
 
-    RigReservoirCellResults*		        results() {return m_results.p();}
-    const RigReservoirCellResults*          results() const {return m_results.p();}
+    RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
-    size_t                                  numActiveCells();
-    void                                    activeCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
+    size_t                                  globalMatrixModelActiveCellCount() const;
+    size_t                                  globalFractureModelActiveCellCount() const;
+    void                                    setGlobalMatrixModelActiveCellCount  (size_t globalMatrixModelActiveCellCount)   { m_globalMatrixModelActiveCellCount   = globalMatrixModelActiveCellCount;  }
+    void                                    setGlobalFractureModelActiveCellCount(size_t globalFractureModelActiveCellCount) { m_globalFractureModelActiveCellCount = globalFractureModelActiveCellCount;}
+
+    void                                    matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
     void                                    validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
 
     void                                    addLocalGrid(RigLocalGrid* localGrid);
@@ -52,7 +58,7 @@ public:
     RigGridBase*                            gridByIndex(size_t localGridIndex);
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
     
-    void                                    calculateActiveCellInfo(std::vector<qint32>& gridNumber,
+    void                                    calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
                                                                     std::vector<qint32>& i,
                                                                     std::vector<qint32>& j,
                                                                     std::vector<qint32>& k,
@@ -62,7 +68,7 @@ public:
                                                                     std::vector<qint32>& hostCellK);
     void                                    computeCachedData();
 
-    cvf::BoundingBox                        activeCellsBoundingBox() const;
+    cvf::BoundingBox                        matrixModelActiveCellsBoundingBox() const;
 
     // Overrides
     virtual cvf::Vec3d                      displayModelOffset() const;
@@ -72,12 +78,17 @@ private:
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    computeActiveAndValidCellRanges();
     void                                    computeBoundingBox();
+
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
-    cvf::ref<RigReservoirCellResults>       m_results;
-    size_t                                  m_activeCellCount;
+
+    cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
+    cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
+
+    size_t                                  m_globalMatrixModelActiveCellCount;
+    size_t                                  m_globalFractureModelActiveCellCount;
 
     cvf::Vec3st                             m_activeCellPositionMin;
     cvf::Vec3st                             m_activeCellPositionMax;

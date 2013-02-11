@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_ECL_LIB
 
 
 #include <time.h>
@@ -102,7 +101,6 @@ TEST(RigReservoirTest, WellTestErt)
 
     well_info_free( well_info );
 }
-#endif
 //--------------------------------------------------------------------------------------------------
 /// This file contains test code taken from the test cases in ERT source code.
 //  There is a typedef issue (center) between ERT and QTextStream, so this file does not include any 
@@ -115,7 +113,7 @@ TEST(RigReservoirTest, ElipseInputGridFile)
     bool result = inputReader.open("TEST10K_FLT_LGR_NNC.grdecl", &res);
     EXPECT_TRUE(result);
     EXPECT_EQ(size_t(1), res.mainGrid()->cells().size());
-    EXPECT_EQ(size_t(1), res.mainGrid()->numActiveCells());
+    EXPECT_EQ(size_t(1), res.mainGrid()->globalMatrixModelActiveCellCount());
 
 }
-#endif //USE_ECL_LIB
+#endif

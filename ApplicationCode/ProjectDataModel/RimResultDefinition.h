@@ -42,8 +42,9 @@ public:
     virtual void setReservoirView(RimReservoirView* ownerReservoirView);
     RimReservoirView* reservoirView();
 
-    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >  resultType;
-    caf::PdmField<QString>                                      resultVariable;
+    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      resultType;
+    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  porosityModel;
+    caf::PdmField<QString>                                          resultVariable;
 
     void    loadResult();
     size_t  gridScalarIndex() const;

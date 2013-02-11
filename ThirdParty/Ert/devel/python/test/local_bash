@@ -1,0 +1,14 @@
+ln -sf ../../../build/lib/libert_util.so ../lib/libert_util.so
+ln -sf ../../../build/lib/libgeometry.so ../lib/libgeometry.so
+ln -sf ../../../build/lib/libanalysis.so ../lib/libanalysis.so
+ln -sf ../../../build/lib/libecl.so ../lib/libecl.so
+ln -sf ../../../build/lib/librms.so ../lib/librms.so
+ln -sf ../../../build/lib/libsched.so ../lib/libsched.so
+ln -sf ../../../build/lib/libenkf.so ../lib/libenkf.so
+ln -sf ../../../build/lib/libjob_queue.so ../lib/libjob_queue.so
+ln -sf ../../../build/lib/libconfig.so ../lib/libconfig.so
+ln -sf ../../../build/lib/libwell.so ../lib/libwell.so
+export PYTHONPATH=$PWD/../python:$PYTHONPATH
+
+
+

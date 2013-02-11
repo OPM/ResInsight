@@ -1,0 +1,201 @@
+
+mask = util.bool_vector_alloc(ens_size , false) 
+# Første arg: størrelse
+# Andre arg: init verdi.
+
+util.bool_vector_iset( mask , 67 , true )
+# bool_ptr = util.bool_vector_get_ptr( mask )
+# Send inn int_ptr
+....
+#util.bool_vector_free( mask )
+
+
+
+
+
+
+
+#Missing initializer: job_script
+#  s = enkf_main_get_site_config( enkf_main )
+#  site_config_get_job_script( s );
+#  site_config_set_job_script( s , EXECUTABLE_FILE );
+
+
+
+
+Missing initializer: install_job
+  s = enkf_main_get_site_config( enkf_main );
+  site_config_install_job( s , JOB_KEY , EXISTING_FILE );   <- Should have a GUI option for creating the 
+                                                                config file EXISTING_FILE                      
+
+INSTALL_JOB:
+-----------
+1. Denne bør endre navn til "Private jobs"
+
+2. Her blir get/set ganske komplisert - det er to grunner til det:
+
+   a) Listen over installerte jobber inneholder både globale jobber,
+      som brukeren ikke har anledning til å manipulere, og "Private"
+      jobber som brukeren har installert og således må få lov til å
+      manipulere.
+
+   b) Foreløpig er det bare basert en config_file, men når vi først
+      lager GUI ville det være veldig naturlig å lage mulighet for å
+      konfigurere en jobb via GUI.
+
+3. Det opprinnelige GUI panelet består av to felt. Kutt ut det ene
+   feltet, men la det sprette opp ett vindu når man legger til en
+   jobb.
+
+
+Get:
+s  = enkf_main_get_site_config( enkf_main )
+jl = site_config_get_installed_jobs( s )
+h  = ext_joblist_get_jobs( jl )                  <- Nå er h en hash tabell.
+
+#Itererer over hash_tabellen:
+python_joblist = []
+job = hash_get( h , job_name );
+if ext_job_is_private( job ):                    <- Denne funksjonen er i libjob_queue
+   python_joblist.append( job_name )
+
+OK : python_joblist skal inneholde de job_navnene som skal
+     vises i GUI.
+
+
+
+Set: Her tror jeg det er enklest å respondere eksplisitt på add_job og
+     del_job events, istedet for å ta en batch prosess til slutt
+
+add_job:
+--------
+job = ext_job_fscanf_alloc( job_name , site_config_get_license_root_path__( s ) , job_config_file )             # job_name and job_config_file from GUI.
+ext_joblist_add_job( jl , job )
+
+
+del_job
+-------
+ext_joblist_del_job( jl , job_name )
+
+
+
+
+
+
+#Missing initializer: num_realizations
+#   enkf_main_get_ensemble_size( enkf_main );
+#   enkf_main_resize_ensemble( enkf_main );                  <- Denne kan potensielt ta en del tid, og
+                                                               bør være beskyttet av en APPLY knapp.
+
+
+Missing initializer: parameters
+Missing initializer: param_type
+Missing initializer: param_min
+Missing initializer: param_max
+Missing initializer: param_init
+Missing initializer: param_output
+Missing initializer: param_init_files
+Missing initializer: param_file_generated_by_enkf
+Missing initializer: param_file_loaded_by_enkf
+Missing initializer: history_source
+Missing initializer: obs_config
+
+
+
+#Missing initializer: max_submit
+#  s = enkf_main_get_site_config( enkf_main );
+#  site_config_get_max_submit( s );
+#  site_config_set_max_submit( s , max_submit );
+
+
+
+
+#Missing initializer: max_resample
+#  m = enkf_main_get_model_config( enkf_main );
+#  model_config_get_max_resample( m );
+#  model_config_set_max_resample( m , max_resample );
+
+
+
+Missing initializer: forward_model
+Missing initializer: case_table
+Missing initializer: license_path
+
+Missing initializer: runpath
+# m = enkf_main_get_model_config( enkf_main )
+# model_config_get_runpath_fmt( m )
+# model_config_set_runpath_fmt( m , "/path/to/run%d" ) 
+
+
+
+Missing initializer: pre_clear_runpath
+Missing initializer: delete_runpath
+Missing initializer: keep_runpath
+Missing initializer: run_template
+Missing initializer: dbase_type
+Missing initializer: enspath
+Missing initializer: select_case
+
+
+#Missing initializer: log_file
+#Missing initializer: log_level
+#   lg = enkf_main_get_logh( enkf_main );
+#   log_reset_filename( lg , "/some/path/to/FILENAME" );
+#   log_get_filename( lg );
+#
+#   log_get_level( lg );
+#   log_set_level( lg , LOG_LEVEL)
+
+
+
+Missing initializer: update_log_path
+
+
+
+
+#Get: s = enkf_main_get_data_kw( enkf_main )
+#     subst_list_get_size( s )
+#     subst_list_iget_key( s )
+#     subst_list_iget_value( s )
+#Set: enkf_main_clear_data_kw( enkf_main )
+#     enkf_main_add_data_kw( enkf_main , key , value )
+
+#Get: m = enkf_main_get_model_config( enkf_main )
+#         model_config_get_enkf_sched_file( m )
+#Set:     model_config_set_enkf_sched_file( m , "FILENAME" )
+
+#Get    l = enkf_main_get_local_config( enkf_main );
+#       s = local_config_get_config_files( l )  # Stringlist
+#Set    local_config_clear_config_files( l )
+#       local_config_add_config_file(l , "FILENAME")
+
+#Get    s = enkf_main_get_site_config( enkf_main )
+#       site_config_get_max_running_(lsf|rsh|local)( s )
+#Set    site_config_get_max_running_(lsf|rsh|local)( s , value )
+
+#Get    s = enkf_main_get_site_config( enkf_main )
+#       h = site_config_get_rsh_host_list( s )
+#       Iterer over hash - men bruk hash_get_int() for aa faa antall jobber en host kan ta.
+#Set    site_config_clear_rsh_host_list( s )
+#       site_config_add_rsh_host( s , host_name , max_running )
+
+#Get    s = enkf_main_get_site_config( enkf_main )
+#       queue_name = site_config_get_lsf_queue( s )
+#Set    site_config_set_lsf_queue( s , "NORMAL" )
+
+#       site_config_set_job_queue( s , "LOCAL|LSF|RSH" );
+#       site_config_get_job_queue_name( s );
+
+#self.job_script = "..."
+#self.setenv = [["LSF_BINDIR", "/prog/LSF/7.0/linux2.6-glibc2.3-x86_64/bin"], ["LSF_LIBDIR", "/prog/LSF/7.0/linux2.6-glibc2.3-x86_64/lib"]]
+#Get:   s = enkf_main_get_site_config( enkf_main )
+#       h = site_config_get_env_hash( s )
+#Set    site_config_clear_env( s )
+#       site_config_setenv( s , var , value )
+
+#self.update_path = [["PATH", "/prog/LSF/7.0/linux2.6-glibc2.3-x86_64/bin"], ["LD_LIBRARY_PATH", "/prog/LSF/7.0/linux2.6-glibc2.3-x86_64/lib"]]
+#Get:   s = enkf_main_get_site_config( enkf_main )
+#       pathlist  = site_config_get_path_variables( s )
+#       valuelist = site_config_get_path_values( s )
+#Set:   site_config_clear_pathvar( s )
+#       site_config_update_pathvar( s , path , value );

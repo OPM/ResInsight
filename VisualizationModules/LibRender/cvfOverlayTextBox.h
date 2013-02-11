@@ -44,8 +44,8 @@ public:
     virtual Vec2ui  maximumSize();
     virtual Vec2ui  minimumSize();
 
-    virtual void    render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
-    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
+    virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
 
     void            setText(const String& text);
     void            setPixelSize(const Vec2ui& size);
@@ -66,8 +66,8 @@ public:
 
 
 private:
-    void render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software);
-    void renderBackgroundAndBorder(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software);
+    void render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
+    void renderBackgroundAndBorder(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
 
 private:
     Vec2ui              m_size;

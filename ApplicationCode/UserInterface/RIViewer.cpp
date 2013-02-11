@@ -282,6 +282,20 @@ void RIViewer::handlePickAction(int winPosX, int winPosY)
                     {
                         m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
                     }
+#if 0
+                    const RigReservoir* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+                    const RigGridBase* grid = reservoir->grid(gridIndex);
+                    const RigCell& cell = grid->cell(cellIndex);
+                    const caf::SizeTArray8& cellNodeIndices = cell.cornerIndices();
+                    const std::vector<cvf::Vec3d>& nodes = reservoir->mainGrid()->nodes();
+                    for (int i = 0; i < 8; ++i)
+                    {
+                        resultInfo += QString::number(i) + " : ";
+                        for (int j = 0; j < 3; ++j)
+                            resultInfo += QString::number(nodes[cellNodeIndices[i]][j], 'g', 10) + " ";
+                         resultInfo += "\n";
+                    }
+#endif
                 }
             }
         }
@@ -433,7 +447,7 @@ void RIViewer::paintOverlayItems(QPainter* painter)
     if (showAnimBar && m_showAnimProgress)
     {
         m_animationProgress->setMinimum(0);
-        m_animationProgress->setMaximum(frameCount() - 1);
+        m_animationProgress->setMaximum(static_cast<int>(frameCount()) - 1);
         m_animationProgress->setValue(currentFrameIndex());
         m_animationProgress->resize(columnWidth, m_animationProgress->sizeHint().height());
 

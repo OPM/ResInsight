@@ -31,6 +31,7 @@ class Model;
 class Camera;
 class GaussianBlur;
 class UniformFloat;
+class ClipPlaneSet;
 
 
 
@@ -48,8 +49,13 @@ public:
 
     void    addRenderingsToSequence(RenderSequence* renderSequence);
     void    removeRenderingsFromSequence(RenderSequence* renderSequence);
-    void    resize(uint width, uint height);
+    void    resize(int x, int y, uint width, uint height);
     void    prepareForRedraw();
+
+    void    setClipPlaneSet(ClipPlaneSet* clipPlaneSet);
+
+private:
+    void    configureOverrideEffects(bool useClipping);
 
 private:
     ref<Model>              m_highlightModel;       // Model containing the parts that should be highlighted
@@ -63,7 +69,6 @@ private:
     ref<Rendering>          m_mixRendering;         // Rendering used in final mix pass
     ref<UniformFloat>       m_highlightClrUniform;  // Uniform that controls the highlight color used in the mix rendering
     ref<GaussianBlur>       m_blur;                 // Blur helper
-
 };
 
 

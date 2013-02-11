@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <cstddef>
+
 class QString;
 
 namespace caf {
@@ -26,13 +28,13 @@ namespace caf {
 class ProgressInfo
 {
 public:
-    ProgressInfo(int maxProgressValue, const QString& title);
+    ProgressInfo(size_t maxProgressValue, const QString& title);
 
     ~ProgressInfo();
     void setProgressDescription(const QString& description);
-    void setProgress(int progressValue);
+    void setProgress(size_t progressValue);
     void incrementProgress();
-    void setNextProgressIncrement(int nextStepSize);
+    void setNextProgressIncrement(size_t nextStepSize);
 
 };
 
@@ -40,12 +42,12 @@ public:
 class ProgressInfoStatic 
 {
 public:
-    static void start(int maxProgressValue, const QString& title);
+    static void start(size_t maxProgressValue, const QString& title);
 
     static void setProgressDescription(const QString& description);
-    static void setProgress(int progressValue);
+    static void setProgress(size_t progressValue);
     static void incrementProgress();
-    static void setNextProgressIncrement(int nextStepSize);
+    static void setNextProgressIncrement(size_t nextStepSize);
 
     static void finished();
 };

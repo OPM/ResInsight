@@ -39,9 +39,14 @@ namespace cvf {
 /// 
 //--------------------------------------------------------------------------------------------------
 Ray::Ray()
+:   m_origin(Vec3d::ZERO),
+    m_direction(-Vec3d::Z_AXIS),
+    m_minDistance(cvf::UNDEFINED_DOUBLE),
+    m_maxDistance(cvf::UNDEFINED_DOUBLE),
+    m_minDistanceSquared(cvf::UNDEFINED_DOUBLE),
+    m_maxDistanceSquared(cvf::UNDEFINED_DOUBLE),
+    m_distanceLimitedRay(false)
 {
-    m_origin = Vec3d::ZERO;
-    m_direction = -Vec3d::Z_AXIS;
 }
 
 
@@ -52,6 +57,11 @@ Ray::Ray(const Ray& other) : Object()
 {
     m_origin = other.origin();
     m_direction = other.direction();
+    m_minDistance = other.m_minDistance;
+    m_maxDistance = other.m_maxDistance;
+    m_minDistanceSquared = other.m_minDistanceSquared;
+    m_maxDistanceSquared = other.m_maxDistanceSquared;
+    m_distanceLimitedRay = other.m_distanceLimitedRay;
 }
 
 
@@ -60,7 +70,6 @@ Ray::Ray(const Ray& other) : Object()
 //--------------------------------------------------------------------------------------------------
 Ray::~Ray()
 {
-
 }
 
 
@@ -162,6 +171,22 @@ bool Ray::triangleIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, V
         }
     }
 
+    // Distance filtering
+    if (m_distanceLimitedRay)
+    {
+        double distanceSquared = origin().pointDistanceSquared(fp);
+
+        if (m_minDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared < m_minDistanceSquared)
+        {
+            return false;   
+        }
+
+        if (m_maxDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared > m_maxDistanceSquared)
+        {
+            return false;   
+        }
+    }
+
     if (intersectionPoint) 
     {
         *intersectionPoint = fp;
@@ -208,6 +233,22 @@ bool Ray::quadIntersect(const Vec3d& v1, const Vec3d& v2, const Vec3d& v3, const
         if (((fp - pts[i]) * bi_norm) < 0)
         {
             return false;
+        }
+    }
+
+    // Distance filtering
+    if (m_distanceLimitedRay)
+    {
+        double distanceSquared = origin().pointDistanceSquared(fp);
+
+        if (m_minDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared < m_minDistanceSquared)
+        {
+            return false;   
+        }
+
+        if (m_maxDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared > m_maxDistanceSquared)
+        {
+            return false;   
         }
     }
 
@@ -312,6 +353,22 @@ bool Ray::boxIntersect(const BoundingBox& box, Vec3d* intersectionPoint) const
         }
     }
 
+    // Distance filtering
+    if (m_distanceLimitedRay)
+    {
+        double distanceSquared = origin().pointDistanceSquared(hitPoint);
+
+        if (m_minDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared < m_minDistanceSquared)
+        {
+            return false;   
+        }
+
+        if (m_maxDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared > m_maxDistanceSquared)
+        {
+            return false;   
+        }
+    }
+
     if (intersectionPoint)
     {
         *intersectionPoint = hitPoint;
@@ -348,6 +405,22 @@ bool Ray::planeIntersect(const Plane& plane, Vec3d* intersectionPoint) const
         double t = v0/vd;
         if (t >= 0)
         {
+            // Distance filtering
+            if (m_distanceLimitedRay)
+            {
+                double distanceSquared = origin().pointDistanceSquared(m_origin + t*m_direction);
+
+                if (m_minDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared < m_minDistanceSquared)
+                {
+                    return false;   
+                }
+
+                if (m_maxDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD && distanceSquared > m_maxDistanceSquared)
+                {
+                    return false;   
+                }
+            }
+
             if (intersectionPoint)
             {
                 *intersectionPoint = m_origin + t*m_direction;
@@ -364,15 +437,78 @@ bool Ray::planeIntersect(const Plane& plane, Vec3d* intersectionPoint) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String Ray::toString() const
+String Ray::debugString() const
 {
     String str = "Ray: ";
     str += " origin: x=" + String::number(m_origin.x()) + " y=" + String::number(m_origin.y()) + " z=" + String::number(m_origin.z());
     str += " direction: x=" + String::number(m_direction.x()) + " y=" + String::number(m_direction.y()) + " z=" + String::number(m_direction.z());
+    str += " minDist: " + String::number(m_minDistance);
+    str += " maxDist: " + String::number(m_maxDistance);
 
     return str;
 }
 
 
-} // namespace cvf
+//--------------------------------------------------------------------------------------------------
+/// Set the minimum distance (from the origin) that the ray will hit. 
+/// 
+/// Useful for limiting the ray when picking on models with clipping planes.
+/// Set to tsv::UNDEFINED_DOUBLE
+//--------------------------------------------------------------------------------------------------
+void Ray::setMinimumDistance(double distance)
+{
+    m_minDistance = distance;
 
+    if (m_minDistance >= 0 && m_minDistance < cvf::UNDEFINED_DOUBLE_THRESHOLD)
+    {
+        m_minDistanceSquared = m_minDistance*m_minDistance;
+    }
+    else
+    {
+        m_minDistanceSquared = cvf::UNDEFINED_DOUBLE;
+    }
+
+    m_distanceLimitedRay = (m_minDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD) || (m_maxDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Set the maximum distance (from the origin) that the ray will hit. 
+/// 
+/// Useful for limiting the ray when picking on models with clipping planes
+//--------------------------------------------------------------------------------------------------
+void Ray::setMaximumDistance(double distance)
+{
+    m_maxDistance = distance;
+
+    if (m_maxDistance >= 0 && m_maxDistance < cvf::UNDEFINED_DOUBLE_THRESHOLD)
+    {
+        m_maxDistanceSquared = m_maxDistance*m_maxDistance;
+    }
+    else
+    {
+        m_maxDistanceSquared = cvf::UNDEFINED_DOUBLE;
+    }
+
+    m_distanceLimitedRay = (m_minDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD) || (m_maxDistanceSquared < cvf::UNDEFINED_DOUBLE_THRESHOLD);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Minimum distance (from the origin) that the ray will hit. 
+//--------------------------------------------------------------------------------------------------
+double Ray::minimumDistance() const
+{
+    return m_minDistance;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Maximum distance (from the origin) that the ray will hit
+//--------------------------------------------------------------------------------------------------
+double Ray::maximumDistance() const
+{
+    return m_maxDistance;
+}
+
+} // namespace cvf

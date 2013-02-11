@@ -245,6 +245,62 @@ void GeometryUtils::createDisc(double radius, uint numSlices, GeometryBuilder* b
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// Create a disk with a hole in the middle
+//--------------------------------------------------------------------------------------------------
+void GeometryUtils::createDisc(double outerRadius, double innerRadius, uint numSlices, GeometryBuilder* builder)
+{
+    CVF_ASSERT(numSlices >= 4); 
+    CVF_ASSERT(builder);
+
+    double da = 2*PI_D/numSlices;
+
+    Vec3fArray verts;
+    verts.reserve(2*numSlices);
+
+    Vec3f point = Vec3f::ZERO;
+
+    uint i;
+    for (i = 0; i < numSlices; i++) 
+    {
+        // Precompute this one (A = i*da;)
+        double sinA = Math::sin(i*da);
+        double cosA = Math::cos(i*da);
+
+        point.x() = static_cast<float>(-sinA*innerRadius);
+        point.y() = static_cast<float>( cosA*innerRadius);
+
+        verts.add(point);
+
+        point.x() = static_cast<float>(-sinA*outerRadius);
+        point.y() = static_cast<float>( cosA*outerRadius);
+
+        verts.add(point);
+    }
+
+    uint baseNodeIdx = builder->addVertices(verts);
+
+    uint conn[3] = { baseNodeIdx, 0, 0};
+
+    for (i = 0; i < numSlices - 1; ++i) 
+    {
+        uint startIdx = baseNodeIdx + 2*i;
+
+        conn[0] = startIdx + 0;
+        conn[1] = startIdx + 3;
+        conn[2] = startIdx + 1;
+        builder->addTriangle(conn[0], conn[1], conn[2]);
+
+        conn[0] = startIdx + 2;
+        conn[1] = startIdx + 3;
+        conn[2] = startIdx + 0;
+        builder->addTriangle(conn[0], conn[1], conn[2]);
+    }
+
+    builder->addTriangle(baseNodeIdx + 0, baseNodeIdx + 1, baseNodeIdx + numSlices*2 - 1);
+    builder->addTriangle(baseNodeIdx + 0, baseNodeIdx + numSlices*2 - 1, baseNodeIdx + numSlices*2 - 2);
+}
+
 
 // void GeometryUtils::generatePointsOnCircle(double radius, int numPoints, Vec3fArray* generatedPoints)
 // {
@@ -851,7 +907,7 @@ void GeometryUtils::removeUnusedVertices(const UIntValueArray& vertexIndices, UI
     newToOldMapping->squeeze();
 }
 
-bool GeometryUtils::project(const Mat4d& projectionMultViewMatrix, const Vec2ui& viewportPosition, const Vec2ui& viewportSize, const Vec3d& point, Vec3d* out)
+bool GeometryUtils::project(const Mat4d& projectionMultViewMatrix, const Vec2i& viewportPosition, const Vec2ui& viewportSize, const Vec3d& point, Vec3d* out)
 {
     CVF_ASSERT(out);
 

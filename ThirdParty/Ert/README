@@ -1,0 +1,273 @@
+                    _________________________________ 
+                   /                                 \ 
+                   |   ______   ______   _______     |
+                   |  |  ____| |  __  \ |__   __|    |
+                   |  | |__    | |__) |    | |       |
+                   |  |  __|   |  _  /     | |       |
+                   |  | |____  | | \ \     | |       |
+                   |  |______| |_|  \_\    |_|       |
+                   |                                 |
+                   |  Ensemble based Reservoir Tool  |
+                   \_________________________________/
+
+
+------------------------------------------------------------------------
+
+   1. ERT
+   2. ECLIPSE utilities.
+   3. Building ERT
+      3.1 CMake settings you might want to adjust
+   4. The code:
+     4.1 The different libraries
+     4.2 The general structure
+     4.3 Python wrappers
+   5. Tests
+
+------------------------------------------------------------------------
+
+1. ERT
+
+ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
+of reservoir models. The initial motivation for creating ERT was a as
+tool to do assisted history matching with Ensemble Kalman Filter
+(EnKF). Very briefly use of EnKF can be summarized as:
+
+   1. Sample initial reservoir parameters from a (Gaussian) prior
+      distribution.
+
+   2. Simulate the ensemble of of reservoir forward in time through
+      part of the historical period.
+
+   3. Load the results, compare with observed data, update the
+      parameters and the state of reservoir and restart the
+      simulations.
+
+This recipe is quite complex technically, and in particular involves
+the ability to read and write input and output files from the
+reservoir simulator (i.e. ECLIPSE in the case of ERT), run simulations
+with arbitrary external programs, plotting data and so on. This
+implies that a quite significant technical machinery must be in place
+before the EnKF algorithm as such can be utilizied. This in particular
+applies to real industry reservoir models, where typically
+imperfections of all kinds flourish.
+
+The initial motivation for creating ERT was to be able to use the EnKF
+algorithm for history matching. Currently ERT is more used with the
+Ensemble Smoother and also purely as a worklfow manager; herding a
+large collection of reservoir models through the required simulations
+steps.
+
+
+2. ECLIPSE Utilities
+
+ERT has a quite large amount of code devoted to reading and writing
+the ECLIPSE output files (grid/rft/restart/init/summary). In addition
+there is also reasonable support for reading and writing the grdecl
+input files, but there is no general .DATA file parser. The ability to
+read and write ECLIPSE output files is valuable in many reservoir
+applications, and it is possible to only build and use the libecl
+(with support libraries) library for working with ECLIPSE files. In
+fact the default build setup is to only build the ECLIPSE related
+library and utilities. This part of the ERT distribution can also be
+built on Windows with Visual Studio (albeit with maaaany warnings) and
+with MinGW.
+
+
+3. Building ERT
+
+CMake is the build system for ERT. The top level CMakeLists.txt file
+is located in the devel/ directory, and this CMakeLists.txt file
+includes individual CMakeLists.txt files for the different libraries.
+
+Building with CMake is performed like this:
+
+  1. Create a build directory, this can in principle be anywhere in
+     the filesystem. At the same level as the devel/ directory is a
+     practical choice.
+
+  2. Go to the build directory and invoke the command:
+  
+        ccmake <path/to/directory/containing/CMakeLists.txt> 
+
+     Go through several 'configure' steps with CMake and generate
+     native build files.
+
+  3. Exit ccmake and invoke the native build system, i.e. ordinaray
+     make on Linux.
+
+  4. Subsequent builds can be performed using just the native make
+     command, as in step 3.
+
+3.1 CMake settings you might want to adjust
+
+The main setting you should adjust is BUILD_ERT which is default to
+OFF, i.e.  by default only the ECLIPSE related utilities will be
+built. The build system has numerous configurations checks; the
+ECLIPSE utilities should build on Windows, but to build all of ERT you
+will need a Linux (Posix) system.
+
+
+4. The code
+
+The code is mainly written as a collection of libraries written in C.
+
+4.1 The different libraries
+
+The different libraries are:
+
+   libert_util: This library is a collection of utilities of various
+      sorts; if C++ had been chosen as implementation language most of
+      these utilities would probably have been in libstdc++.
+
+   libgeometry: This is a very small geometry library; the main code
+      is a small implementantion of an alorithm to determine whether a
+      point is inside a polyhedron. The ECLIPSE library has some
+      geometry related code which should be moved here.
+
+   libwell: This library will load well information from an ECLIPSE
+      restart file.  This is mainly for the purpose of visualization
+      of the existing wells, and can not be used to update or model
+      the well configuration.
+
+   libecl: This library will read and (partly) write the various
+      binary ECLIPSE files, including GRID/EGRID, summary, INIT,
+      restart and RFT files. There is also support for reading an
+      writing grdecl formatted files, but there is no support for
+      general parsing of the ECLIPSE input format.
+   
+   ----------------------------------------------------------------------------
+
+   librms: This is a library for reading and writing RMS Roff
+      files. It turns out that ECLIPSE file formats is the most common
+      external file format for RMS and the ROFF support is not
+      essential.
+
+   libconfig: This library implements a parser for the ERT config file
+      format, this format is used in the main ERT configuration file,
+      and also in several small special topic configuration files used
+      by ERT. The config format parsed by this library was inspired by
+      the ECLIPSE format, in retrospect that was a mistake - it should
+      have been based on a standard format like xml.
+
+      To confuse things evan further the libconfig library implements
+      /two/ config formats, the 'second format' is implemented in the
+      file conf.c, and only used as format for the observations in
+      ERT.
+
+   libplot: A *very* simple librarry for creating plots, just exactly
+      satisfies the needs of ERT.
+
+   libanalysis: The EnKF algorithm is implemented in this library.
+
+   libjob_queue: This library implements a system to manage and run
+      simulations in the form of external programs. The library has a
+      queue manager, and a system with drivers which communicate with
+      the underlying system. Currently the library has a LSF driver to
+      work with LSF, a LOCAL driver which starts simulations on the
+      current workstation and a RSH driver which submits to a
+      'cluster' of workstation with ssh.
+
+   libenkf: This is the main functionality which is ERT specific; this
+      library is to large.
+
+
+4.2 General structure
+
+The code is written in C, but conventions give a 'scent of object
+oriented'. Common to a very large part of the code is the following:
+
+   - Every file 'xxx' implements a datatype 'xxx_type' - the naming
+     convention is quite strong.
+
+   - All the struct defintions are in the source files, i.e. external
+     scope must access the fields of a structure through accessor
+     functions.
+
+   - All functions which operate on a type 'xxx_type' take a pointer
+     to xxx_type as the first argument, the structure closely resemble
+     the 'self' argument used when implementing Python classes.
+
+   - Memory management is manual; however there are some conventions:
+     * Functions allocating storage have _alloc_ as part of the name.
+     * For all functions xxx_alloc() allocating storage there should
+       be a matching xxx_free() to discard the objects.
+     * Containers can optionally destroy their content is the content
+       is installed with a destructor.
+ 
+   - In libert_util/src/type_macros.h there is a macro based
+     'type-system' which is used to runtime check casts of (void *).
+
+   
+4.3 Python wrappers
+     
+Some of the code, in particular the ECLIPSE related functionality, has
+been wrapped in Python. Using these wrappers it is quite easy work
+with ECLIPSE files. The python wrappers are quite well documented both
+in the devel/python/docs directory and in the Python classes
+themselves.
+
+
+5. Testing
+
+The ERT is very weak on tests, but that is being improved. There are two different 
+categories of tests:
+ 
+     CMake tests: CMake has a system for adding and running tests, and
+         these can be invoked with the command 'make test' after the
+         normal build process has completed, or alternatively the
+         'ctest' test-runner which allows more options on which tests to run.
+
+    Python test: The python directory devel/python/test has several
+         python unittests. These tests test both the Python wrappers
+         and the underlying C code and serve as quite good integration
+         tests. Read the content of devel/python/test/README carfully
+         before you invoke the Python tests, you might have to update
+         the local_(csh|bash) scripts to reflect your build output
+         path.
+
+
+5.1 Test data & labels
+
+Unfortunately a large fraction of the test data is based on Statoil
+internal data, and is not available on GitHub. All the tests which are
+based on Statoil internal test data are labeled with the label
+'Statoil', and using the 'ctest' program you can use the -L and -LE
+options to include/exclude tests based on their label.
+
+   ctest -L Statoil      # Run all the tests with the 'Statoil' label
+   ctest -LE Statoil     # Run all the tests without the 'Statoil' label
+
+The argument to the -L and -LE options are regular expressions,
+i.e. in the case above all tests which have a label matching the
+regexp 'Statoil' will be run. A test can only have one single label,
+but due to to the regexp mechanism we can create a 'list-like'
+structure by chaining labels together; by convention the label
+elements are joined with ':'. In the example
+
+   set_property( TEST test_name PROPERTY LABELS Statoil:Python )
+
+the labels 'Statoil' and 'Python' are applied to the test. The labels
+in use are:
+
+  Statoil: This indicates that the test makes use of Statoil internal
+           test data, and will fail if the Statoil test data have not
+           been made available according to the description in
+           devel/test-data/README.txt
+
+  Python: This indicates that the test is a Python unittest, and the
+          Python interpreter will be the test runner for the test.
+
+5.2 Test names
+
+The tests in the cmake build system follow the naming convention of
+the library which functionality they are testing - i.e. all tests in
+the libecl library have a name starting with 'ecl' and all tests in
+the config library start with 'config'. The options -R and -E to ctest
+can be used to include and exclude tests based on their name
+
+   ctest -R ecl      # Run all tests mathing the regexp 'ecl'
+   ctest -E ecl      # Run all tests NOT matching the regexp 'ecl'
+
+
+The python tests are not yet integrated into this convention....
+  

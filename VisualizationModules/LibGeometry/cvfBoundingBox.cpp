@@ -388,7 +388,7 @@ const BoundingBox BoundingBox::getTransformed(const Mat4d& matrix) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-String BoundingBox::toString() const
+String BoundingBox::debugString() const
 {
     String str = "BoundingBox:";
     str += " min: x=" + String::number(m_min.x()) + " y=" + String::number(m_min.y()) + " z=" + String::number(m_min.z());

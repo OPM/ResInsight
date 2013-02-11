@@ -21,9 +21,7 @@
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
-#include "cvfArray.h"
 
-#include <vector>
 
 
 namespace cvf {
@@ -72,7 +70,6 @@ public:
     virtual size_t      cellIndexFromIJK(size_t i, size_t j, size_t k) const = 0;
     virtual bool        ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_t* k) const = 0;
 
-    // Ta med toleranse?
     virtual bool        cellIJKFromCoordinate(const cvf::Vec3d& coord, size_t* i, size_t* j, size_t* k) const = 0;
 
     virtual void        cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) const = 0;
@@ -81,24 +78,6 @@ public:
 
     virtual size_t      gridPointIndexFromIJK(size_t i, size_t j, size_t k) const = 0;
     virtual cvf::Vec3d  gridPointCoordinate(size_t i, size_t j, size_t k) const = 0;
-
-
-    // Scalar results
-    virtual size_t  scalarSetCount() const = 0;
-    virtual double     cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k) const = 0;
-    virtual double     cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t cellIndex) const = 0;
-    virtual void       cellCornerScalars(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k, double scalars[8]) const = 0;
-
-    // Trenger vi denne? Kan erstattes av cellCornerScalars for kuttplan
-    double              gridPointScalar(size_t scalarSetIndex, size_t i, size_t j, size_t k) const;
-    bool                pointScalar(size_t scalarSetIndex, const cvf::Vec3d& p, double* scalarValue) const;
-
-    // Vector results
-    virtual size_t           vectorSetCount() const = 0;
-    virtual const cvf::Vec3d*   cellVector(size_t vectorSetIndex, size_t i, size_t j, size_t k) const = 0;
-
-    //void filteredCellCenterResultVectors(Vec3dArray& positions, Vec3dArray& resultVectors, const double minPositionDistance, const double resultVectorLengthThreshold) const;
-    //void filteredCellCenterResultVectors(Vec3dArray& positions, Vec3dArray& resultVectors, uint vectorSetIndex, uint stride, const double resultVectorLengthThreshold) const;
 
 
 public:

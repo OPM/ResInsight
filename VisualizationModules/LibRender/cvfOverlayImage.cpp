@@ -111,7 +111,7 @@ cvf::Vec2ui OverlayImage::minimumSize()
 //--------------------------------------------------------------------------------------------------
 /// Render using Shaders
 //--------------------------------------------------------------------------------------------------
-void OverlayImage::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, false);
 }
@@ -120,7 +120,7 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2ui& position, con
 //--------------------------------------------------------------------------------------------------
 /// Render using Fixed Function
 //--------------------------------------------------------------------------------------------------
-void OverlayImage::renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size)
+void OverlayImage::renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)
 {
     render(oglContext, position, size, true);
 }
@@ -129,7 +129,7 @@ void OverlayImage::renderSoftware(OpenGLContext* oglContext, const Vec2ui& posit
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayImage::render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software)
+void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software)
 {
     CVF_CALLSITE_OPENGL(oglContext);
 
@@ -261,6 +261,12 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2ui& position, con
     {
         RenderStateBlending blend;
         blend.applyOpenGL(oglContext);
+    }
+
+    if (!software)
+    {
+        glDisableVertexAttribArray(ShaderProgram::VERTEX);
+        glDisableVertexAttribArray(ShaderProgram::TEX_COORD_2F_0);
     }
 }
 

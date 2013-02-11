@@ -39,6 +39,7 @@ public:
     static void     createBox(const Vec3f& centerPos, float extentX, float extentY, float extentZ, GeometryBuilder* builder);
 
     static void     createDisc(double radius, uint numSlices, GeometryBuilder* builder);
+    static void     createDisc(double outerRadius, double innerRadius, uint numSlices, GeometryBuilder* builder);
     
     static void     createSphere(double radius, uint numSlices, uint numStacks, GeometryBuilder* builder);
 
@@ -57,7 +58,7 @@ public:
 
     static void     removeUnusedVertices(const UIntValueArray& vertexIndices, UIntArray* newVertexIndices, UIntArray* newToOldMapping, uint maxVertexCount);
 
-    static bool     project(const Mat4d& projectionMultViewMatrix, const Vec2ui& viewportPosition, const Vec2ui& viewportSize, const Vec3d& point, Vec3d* out);
+    static bool     project(const Mat4d& projectionMultViewMatrix, const Vec2i& viewportPosition, const Vec2ui& viewportSize, const Vec3d& point, Vec3d* out);
 };
 
 }

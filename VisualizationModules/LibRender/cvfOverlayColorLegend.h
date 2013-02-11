@@ -40,7 +40,7 @@ class TextDrawer;
 //==================================================================================================
 struct OverlayColorLegendLayoutInfo
 {
-    OverlayColorLegendLayoutInfo(const Vec2ui& pos, const Vec2ui& setSize)
+    OverlayColorLegendLayoutInfo(const Vec2i& pos, const Vec2ui& setSize)
     {
         position = pos;
         size = setSize;
@@ -56,7 +56,7 @@ struct OverlayColorLegendLayoutInfo
 
     ref<DoubleArray> tickPixelPos;
 
-    Vec2ui position;
+    Vec2i position;
     Vec2ui size;
 };
 
@@ -76,9 +76,9 @@ public:
     virtual Vec2ui  maximumSize();
     virtual Vec2ui  minimumSize();
 
-    virtual void    render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
-    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size);
-    virtual bool    pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size);
+    virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    virtual bool    pick(int x, int y, const Vec2i& position, const Vec2ui& size);
 
     void            configureLevels(const Color3ubArray& levelColors, const DoubleArray& tickValues);
 
@@ -96,7 +96,7 @@ public:
     String          title() const;
 
 protected:
-    void         render(OpenGLContext* oglContext, const Vec2ui& position, const Vec2ui& size, bool software);
+    void         render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
     virtual void renderLegend(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const MatrixState& matrixState);
     virtual void renderLegendImmediateMode(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout);
     virtual void setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout);

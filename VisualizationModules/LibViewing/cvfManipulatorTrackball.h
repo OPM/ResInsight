@@ -54,8 +54,8 @@ public:
     void            setView(const Vec3d& alongDirection, const Vec3d& upDirection);
 
     NavigationType  activeNavigation() const;
-    void            startNavigation(NavigationType navigationType, int winCoordX, int winCoordY);
-    bool            updateNavigation(int winCoordX, int winCoordY);
+    void            startNavigation(NavigationType navigationType, int x, int y);
+    bool            updateNavigation(int x, int y);
     void            endNavigation();
 
 private:

@@ -89,7 +89,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         {
             caseName = m_reservoirView->eclipseCase()->caseName();
             totCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
-            activeCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->numActiveCells());
+            activeCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->globalMatrixModelActiveCellCount());
             iSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountI());
             jSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountJ());
             kSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountK());

@@ -30,10 +30,8 @@
 #include <iostream>
 #include <cmath>
 
-#ifdef USE_ECL_LIB
 #include "ecl_grid.h"
 #include "well_state.h"
-#endif //USE_ECL_LIB
 #include "util.h"
 
 //==================================================================================================
@@ -93,3 +91,4 @@ bool RifReaderEclipseInput::open(const QString& fileName, RigReservoir* reservoi
     
     return isOk;
 }
+

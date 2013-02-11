@@ -34,11 +34,16 @@ public:
     RigCell();
     ~RigCell(); // Not virtual, to save space. Do not inherit from this class
 
-    caf::SizeTArray8&       cornerIndices()                                 { return m_cornerIndices;}
-    const caf::SizeTArray8& cornerIndices() const                           { return m_cornerIndices;}
+    caf::SizeTArray8&       cornerIndices()                                     { return m_cornerIndices;}
+    const caf::SizeTArray8& cornerIndices() const                               { return m_cornerIndices;}
 
-    bool                    active() const                                      { return m_isActive; }
-    void                    setActive(bool val)                                 { m_isActive = val; }
+    bool                    isActiveInMatrixModel() const                       { return m_activeIndexInMatrixModel != cvf::UNDEFINED_SIZE_T; }
+    size_t                  activeIndexInMatrixModel() const                    { return m_activeIndexInMatrixModel; }
+    void                    setActiveIndexInMatrixModel(size_t val)             { m_activeIndexInMatrixModel = val; }
+
+    bool                    isActiveInFractureModel() const                     { return m_activeIndexInFractureModel != cvf::UNDEFINED_SIZE_T; }
+    size_t                  activeIndexInFractureModel() const                  { return m_activeIndexInFractureModel; }
+    void                    setActiveIndexInFractureModel(size_t val)           { m_activeIndexInFractureModel = val; }
 
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
@@ -49,8 +54,6 @@ public:
     size_t                  cellIndex() const                                   { return m_cellIndex; }
     void                    setCellIndex(size_t val)                            { m_cellIndex = val; }
 
-    size_t                  globalActiveIndex() const                           { return m_globalActiveIndex; }
-    void                    setGlobalActiveIndex(size_t val)                    { m_globalActiveIndex = val; }
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
@@ -63,28 +66,34 @@ public:
     size_t                  mainGridCellIndex() const                           { return m_mainGridCellIndex; }
     void                    setMainGridCellIndex(size_t mainGridCellContainingThisCell) { m_mainGridCellIndex = mainGridCellContainingThisCell; }
 
+    bool                    isInCoarseCell() const                              { return m_isInCoarseCell; }
+    void                    setInCoarseCell(bool isInCoarseCell)                { m_isInCoarseCell = isInCoarseCell; }
+
     void                    setCellFaceFault(cvf::StructGridInterface::FaceType face)       { m_cellFaceFaults[face] = true; }
     bool                    isCellFaceFault(cvf::StructGridInterface::FaceType face) const  { return m_cellFaceFaults[face]; }
 
     cvf::Vec3d              center() const;
     cvf::Vec3d              faceCenter(cvf::StructGridInterface::FaceType face) const;
     bool                    firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const;
-
+    bool                    isLongPyramidCell(double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
 private:
     caf::SizeTArray8        m_cornerIndices;
-    
-    bool                    m_isActive;
-    bool                    m_isInvalid;
-    bool                    m_isWellCell;
 
+    size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
+    RigGridBase*            m_hostGrid;
     RigLocalGrid*           m_subGrid;
+
+    size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
+    size_t                  m_mainGridCellIndex;
+    bool                    m_isInCoarseCell; 
 
     bool                    m_cellFaceFaults[6];
 
-    RigGridBase*            m_hostGrid;
-    size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
-    size_t                  m_mainGridCellIndex;
+    // Result case specific data 
+    bool                    m_isInvalid;
+    bool                    m_isWellCell;
 
-    size_t                  m_globalActiveIndex; ///< This cell's running index of all the active calls in the reservoir. Used for result mapping
-    size_t                  m_cellIndex; ///< This cells index in the grid it belongs to.
+    size_t                  m_activeIndexInMatrixModel;      ///< This cell's running index of all the active calls (matrix) in the reservoir
+    size_t                  m_activeIndexInFractureModel;    ///< This cell's running index of all the active calls (fracture) in the reservoir
+
 };

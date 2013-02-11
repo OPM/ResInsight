@@ -53,6 +53,8 @@
 #include "cafUiProcess.h"
 
 #include "RimUiTreeModelPdm.h"
+#include "RiaImageCompareReporter.h"
+#include "RiaImageFileCompare.h"
 
 namespace caf
 {
@@ -64,6 +66,18 @@ void AppEnum< RIApplication::RINavigationPolicy >::setUp()
     setDefault(RIApplication::NAVIGATION_POLICY_CAD);
 }
 }
+
+
+namespace RegTestNames
+{
+    const QString generatedFolderName   = "RegTestGeneratedImages";
+    const QString diffFolderName        = "RegTestDiffImages";
+    const QString baseFolderName        = "RegTestBaseImages";
+    const QString testProjectName       = "RegressionTest.rip";
+    const QString testFolderFilter      = "TestCase*";
+    const QString imageCompareExeName   = "compare";
+    const QString reportFileName        = "ResInsightRegressionTestReport.html";
+};
 
 
 //==================================================================================================
@@ -214,6 +228,7 @@ bool RIApplication::loadProject(const QString& projectFileName)
 
     m_project->fileName = projectFileName;
     m_project->readFile();
+    m_project->fileName = projectFileName; // Make sure we overwrite the old filename read from the project file 
 
     if (m_project->projectFileVersionString().isEmpty())
     {
@@ -602,11 +617,23 @@ bool RIApplication::parseArguments()
     bool openLatestProject = false;
     QString projectFilename;
     QStringList caseNames;
+    QString regressionTestPath;
 
-    bool isParsingProjectFile = false;
-    bool isParsingCaseNames = false;
-    bool isParsingStartDir = false;
+    enum ArgumentParsingType
+    {
+        PARSE_PROJECT_FILE_NAME,
+        PARSE_CASE_NAMES,
+        PARSE_START_DIR,
+        PARSE_REGRESSION_TEST_PATH,
+        PARSING_NONE
+    };
+
+    ArgumentParsingType argumentParsingType = PARSING_NONE;
+
     bool showHelp = false;
+    bool isSaveSnapshotsForAllViews = false;
+    bool isRunRegressionTest = false;
+    bool isUpdateRegressionTest = false;
     
     int i;
     for (i = 1; i < arguments.size(); i++)
@@ -627,44 +654,70 @@ bool RIApplication::parseArguments()
         }
         else if (arg.toLower() == "-project")
         {
-            isParsingCaseNames = false;
-            isParsingProjectFile = true;
-            isParsingStartDir = false;
+            argumentParsingType = PARSE_PROJECT_FILE_NAME;
 
             foundKnownOption = true;
         }
         else if (arg.toLower() == "-case")
         {
-            isParsingCaseNames = true;
-            isParsingProjectFile = false;
-            isParsingStartDir = false;
+            argumentParsingType = PARSE_CASE_NAMES;
 
             foundKnownOption = true;
         }
         else if (arg.toLower() == "-startdir")
         {
-            isParsingCaseNames = false;
-            isParsingProjectFile = false;
-            isParsingStartDir = true;
+            argumentParsingType = PARSE_START_DIR;
 
             foundKnownOption = true;
         }
+        else if (arg.toLower() == "-savesnapshots")
+        {
+            isSaveSnapshotsForAllViews = true;
 
+            foundKnownOption = true;
+        }
+        else if (arg.toLower() == "-regressiontest")
+        {
+            isRunRegressionTest = true; 
+
+            argumentParsingType = PARSE_REGRESSION_TEST_PATH;
+
+            foundKnownOption = true;
+        }
+        else if (arg.toLower() == "-updateregressiontestbase")
+        {
+            isUpdateRegressionTest = true; 
+
+            argumentParsingType = PARSE_REGRESSION_TEST_PATH;
+
+            foundKnownOption = true;
+        }
+        
         if (!foundKnownOption)
         {
-            if (isParsingProjectFile && QFile::exists(arg))
+            switch (argumentParsingType)
             {
-                projectFilename = arg;
-            }
+            case PARSE_PROJECT_FILE_NAME:
+                if (QFile::exists(arg))
+                {
+                    projectFilename = arg;
+                }
+                break;
+            case PARSE_CASE_NAMES:
+                {
+                    caseNames.append(arg);
+                }
+                break;
 
-            if (isParsingCaseNames)
-            {
-                caseNames.append(arg);
-            }
-
-            if (isParsingStartDir)
-            {
-                m_startupDefaultDirectory = arg;
+            case PARSE_START_DIR:
+                {
+                    m_startupDefaultDirectory = arg;
+                }
+                break;
+            case PARSE_REGRESSION_TEST_PATH:
+                {
+                   regressionTestPath = arg; 
+                }
             }
         }
     }
@@ -675,20 +728,57 @@ bool RIApplication::parseArguments()
         helpText += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
         
         helpText +=
-        "\nParameter            Description\n"
+        "\nParameter              Description\n"
         "-----------------------------------------------------------------\n"
-        "-last                Open last used project\n"
-        "-project <filename>  Open project file <filename>\n"
-        "-case <casename>     Open Eclipse case <casename>\n"
-        "                     (do not include .GRID/.EGRID)\n"
-        "-startdir            The default directory for open/save commands\n"
-
-        "-help                \n"
-        "-?                   Displays help text\n"
+        "-last                    Open last used project\n"
+        "\n"
+        "-project <filename>      Open project file <filename>\n"
+        "\n"
+        "-case <casename>         Open Eclipse case <casename>\n"
+        "                         (do not include .GRID/.EGRID)\n"
+        "\n"
+        "-startdir                The default directory for open/save commands\n"
+        "\n"                      
+        "-savesnapshots           Save snapshot of all views to 'snapshots' folder in project file folder\n"
+        "                         Application closes after snapshots are written to file\n"
+        "\n"
+        "-regressiontest <folder> Run a regression test on all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
+        "                         " + RegTestNames::testProjectName + " files in the sub-folders will be opened and \n"
+        "                         snapshots of all the views is written to the sub-sub-folder " + RegTestNames::generatedFolderName + ". \n"
+        "                         Then difference images is generated in the sub-sub-folder " + RegTestNames::diffFolderName + " based \n"
+        "                         on the images in sub-sub-folder " + RegTestNames::baseFolderName + ".\n"
+        "                         The results are presented in " + RegTestNames::reportFileName + " that is\n"
+        "                         written in the given folder.\n"
+        "\n"
+        "-updateregressiontestbase <folder> For all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
+        "                         Copy the images in the sub-sub-folder " + RegTestNames::generatedFolderName + " to the sub-sub-folder\n" 
+        "                         " + RegTestNames::baseFolderName + " after deleting " + RegTestNames::baseFolderName + " completely.\n"
+        "\n"
+        "-help, -?                Displays help text\n"
         "-----------------------------------------------------------------";
 
         fprintf(stdout, "%s\n", helpText.toAscii().data());
         fflush(stdout);
+
+        return false;
+    }
+
+    if (isRunRegressionTest)
+    {
+        RIMainWindow* mainWnd = RIMainWindow::instance();
+        if (mainWnd)
+        {
+            mainWnd->hideAllDockWindows();
+        }
+
+        runRegressionTest(regressionTestPath);
+
+        return false;
+    }
+
+    if (isUpdateRegressionTest)
+    {
+        updateRegressionTest(regressionTestPath);
 
         return false;
     }
@@ -724,6 +814,15 @@ bool RIApplication::parseArguments()
             }
         }
     }
+
+    if (m_project.notNull() && !m_project->fileName().isEmpty() && isSaveSnapshotsForAllViews)
+    {
+        saveSnapshotForAllViews("snapshots");
+
+        // Returning false will exit the application
+        return false;
+    }
+
 
     return true;
 }
@@ -942,4 +1041,253 @@ QString RIApplication::defaultFileDialogDirectory(const QString& dialogName)
 void RIApplication::setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory)
 {
     m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::saveSnapshotPromtpForFilename()
+{
+    QString startPath;
+    if (!m_project->fileName().isEmpty())
+    {
+        QFileInfo fi(m_project->fileName());
+        startPath = fi.absolutePath();
+    }
+    else
+    {
+        startPath = defaultFileDialogDirectory("IMAGE_SNAPSHOT");
+    }
+
+    startPath += "/image.png";
+
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Image files (*.bmp *.png * *.jpg)"));
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+
+    // Remember the directory to next time
+    setDefaultFileDialogDirectory("IMAGE_SNAPSHOT", QFileInfo(fileName).absolutePath());
+
+    saveSnapshotAs(fileName);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::saveSnapshotAs(const QString& fileName)
+{
+    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    {
+        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
+        if (image.save(fileName))
+        {
+            qDebug() << "Saved snapshot image to " << fileName;
+        }
+        else
+        {
+            qDebug() << "Error when trying to save snapshot image to " << fileName;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::copySnapshotToClipboard()
+{
+    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    {
+        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
+
+        QClipboard* clipboard = QApplication::clipboard();
+        if (clipboard)
+        {
+            clipboard->setImage(image);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
+{
+    RIMainWindow* mainWnd = RIMainWindow::instance();
+    if (!mainWnd) return;
+
+    if (m_project.isNull()) return;
+
+    if (m_project->fileName().isEmpty()) return;
+
+    QFileInfo fi(m_project->fileName());
+    QDir projectDir(fi.absolutePath());
+    
+    if (!projectDir.exists(snapshotFolderName))
+    {
+        if (!projectDir.mkdir(snapshotFolderName)) return;
+    }
+
+    QString snapshotPath = projectDir.absolutePath();
+    snapshotPath += "/" + snapshotFolderName;
+
+    for (size_t i = 0; i < m_project->reservoirs().size(); ++i)
+    {
+        RimReservoir* ri = m_project->reservoirs()[i];
+        if (!ri) continue;
+
+        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        {
+            RimReservoirView* riv = ri->reservoirViews()[j];
+
+            if (riv && riv->viewer())
+            {
+                setActiveReservoirView(riv);
+
+                RIViewer* viewer = riv->viewer();
+                mainWnd->setActiveViewer(viewer);
+
+                // Process all events to avoid a black image when grabbing frame buffer
+                QCoreApplication::processEvents();
+
+                QString fileName = ri->caseName() + "-" + riv->name();
+
+                QString absoluteFileName = caf::Utils::constructFullFileName(snapshotPath, fileName, ".png");
+                saveSnapshotAs(absoluteFileName);
+            }
+        }
+    }
+}
+
+void removeDirectoryWithContent(QDir dirToDelete )
+{
+    QStringList files = dirToDelete.entryList();
+    for (int fIdx = 0; fIdx < files.size(); ++fIdx)
+    {
+        dirToDelete.remove(files[fIdx]);
+    }
+    dirToDelete.rmdir(".");
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::runRegressionTest(const QString& testRootPath)
+{
+    QString generatedFolderName = RegTestNames::generatedFolderName;
+    QString diffFolderName      = RegTestNames::diffFolderName;    
+    QString baseFolderName      = RegTestNames::baseFolderName;    
+    QString regTestProjectName  = RegTestNames::testProjectName; 
+    QString regTestFolderFilter = RegTestNames::testFolderFilter;
+
+    // Find all sub folders
+    
+    QDir testDir(testRootPath); // If string is empty it will end up as cwd
+    testDir.setFilter(QDir::Dirs);
+    QStringList dirNameFilter;
+    dirNameFilter.append(regTestFolderFilter);
+    testDir.setNameFilters(dirNameFilter);
+
+    QFileInfoList folderList = testDir.entryInfoList();
+
+    // delete diff and generated images
+
+
+    for (int i = 0; i < folderList.size(); ++i)
+    {
+        QDir testCaseFolder(folderList[i].filePath());
+
+        QDir genDir(testCaseFolder.filePath(generatedFolderName));
+        removeDirectoryWithContent(genDir);
+
+        QDir diffDir(testCaseFolder.filePath(diffFolderName));
+        removeDirectoryWithContent(diffDir);
+
+        QDir baseDir(testCaseFolder.filePath(baseFolderName));
+    }
+
+    // Generate html report
+
+    RiaImageCompareReporter imageCompareReporter;
+
+    for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
+    {
+        QDir testCaseFolder(folderList[dirIdx].filePath());
+
+        QString testFolderName = testCaseFolder.dirName();
+        QString reportBaseFolderName       = testCaseFolder.filePath(baseFolderName);
+        QString reportGeneratedFolderName  = testCaseFolder.filePath(generatedFolderName);
+        QString reportDiffFolderName       = testCaseFolder.filePath(diffFolderName);
+
+        imageCompareReporter.addImageDirectoryComparisonSet(testFolderName.toStdString(), reportBaseFolderName.toStdString(), reportGeneratedFolderName.toStdString(), reportDiffFolderName.toStdString());
+    }
+
+    imageCompareReporter.generateHTMLReport(testDir.filePath(RegTestNames::reportFileName).toStdString());
+
+    // Generate diff images
+
+    for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
+    {
+        QDir testCaseFolder(folderList[dirIdx].filePath());
+        if (testCaseFolder.exists(regTestProjectName))
+        {
+             loadProject(testCaseFolder.filePath(regTestProjectName));
+             saveSnapshotForAllViews(generatedFolderName);
+
+             QDir baseDir(testCaseFolder.filePath(baseFolderName));
+             QDir genDir(testCaseFolder.filePath(generatedFolderName));
+             QDir diffDir(testCaseFolder.filePath(diffFolderName));
+             if (!diffDir.exists()) testCaseFolder.mkdir(diffFolderName);
+             baseDir.setFilter(QDir::Files);
+             QStringList baseImageFileNames = baseDir.entryList();
+
+             for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
+             {
+                 QString fileName = baseImageFileNames[fIdx];
+                 RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
+                 bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
+                 if (!ok)
+                 {
+                    qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
+                 }
+             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIApplication::updateRegressionTest(const QString& testRootPath)
+{
+    // Find all sub folders
+
+    QDir testDir(testRootPath); // If string is empty it will end up as cwd
+    testDir.setFilter(QDir::Dirs);
+    QStringList dirNameFilter;
+    dirNameFilter.append(RegTestNames::testFolderFilter);
+    testDir.setNameFilters(dirNameFilter);
+
+    QFileInfoList folderList = testDir.entryInfoList();
+
+    for (int i = 0; i < folderList.size(); ++i)
+    {
+        QDir testCaseFolder(folderList[i].filePath());
+
+        QDir baseDir(testCaseFolder.filePath(RegTestNames::baseFolderName));
+        removeDirectoryWithContent(baseDir);
+        testCaseFolder.mkdir(RegTestNames::baseFolderName);
+
+        QDir genDir(testCaseFolder.filePath(RegTestNames::generatedFolderName));
+
+        QStringList imageFileNames = genDir.entryList();
+
+        for (int fIdx = 0; fIdx < imageFileNames.size(); ++fIdx)
+        {
+            QString fileName = imageFileNames[fIdx];
+            QFile::copy(genDir.filePath(fileName), baseDir.filePath(fileName));
+        }
+    }
 }

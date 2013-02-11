@@ -95,7 +95,11 @@ Assert::FailAction AssertHandlerConsole::handleAssert(const char* fileName, int 
     // Does the job on both Windows and Linux (creates a console on Windows if one doesn't exist)
     reportToConsole(fileName, lineNumber, expr, msg);
 
+#ifdef WIN32
+    __debugbreak();
+#else
     abort();
+#endif
 
     // Shouldn't really matter since we always abort
     return Assert::CONTINUE;

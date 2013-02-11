@@ -23,11 +23,12 @@
 #include "cvfMath.h"
 
 #include <vector>
-
 #include <sstream>
 #include <iomanip>
 #include <cstring>
 #include <cctype>
+#include <limits>
+#include <iosfwd>
 
 namespace cvf {
 
@@ -682,25 +683,11 @@ String String::fromUtf8(const char* utfStr)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns a null-terminated sequence of wchar_t characters
 //--------------------------------------------------------------------------------------------------
-const wchar_t* String::ptr() const
+const wchar_t* String::c_str() const
 {
     return m_string.c_str();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-wchar_t* String::ptr()
-{
-    if (m_string.size() < 1) 
-    {
-        return NULL;
-    }
-
-    return &(m_string[0]);
 }
 
 
@@ -738,16 +725,25 @@ String String::number(float n, char format, int precision)
 //--------------------------------------------------------------------------------------------------
 double String::toDouble(bool* ok) const
 {
-    wchar_t* endPtr;
+    double val = 0;
+    std::wstringstream stream(m_string);
+    stream >> val;
 
-    double val = wcstod(ptr(), &endPtr);
+    bool convertOk = !stream.fail();
 
     if (ok)
     {
-        *ok = (endPtr != ptr());
+        *ok = convertOk;
     }
 
-    return val;
+    if (convertOk)
+    {
+        return val;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 
@@ -761,16 +757,16 @@ double String::toDouble(bool* ok) const
 //--------------------------------------------------------------------------------------------------
 double String::toDouble(double defaultValue) const
 {
-    wchar_t* endPtr;
-
-    double val = wcstod(ptr(), &endPtr);
-
-    if (endPtr == ptr())
+    bool ok = false;
+    double val = toDouble(&ok);
+    if (ok)
     {
-        val = defaultValue;
+        return val;
     }
-
-    return val;
+    else
+    {
+        return defaultValue;
+    }
 }
 
 
@@ -783,16 +779,25 @@ double String::toDouble(double defaultValue) const
 //--------------------------------------------------------------------------------------------------
 float String::toFloat(bool* ok) const
 {
-    wchar_t* endPtr;
+    float val = 0;
+    std::wstringstream stream(m_string);
+    stream >> val;
 
-    double val = wcstod(ptr(), &endPtr);
+    bool convertOk = !stream.fail();
 
     if (ok)
     {
-        *ok = (endPtr != ptr());
+        *ok = convertOk;
     }
 
-    return static_cast<float>(val);
+    if (convertOk)
+    {
+        return val;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 
@@ -806,16 +811,16 @@ float String::toFloat(bool* ok) const
 //--------------------------------------------------------------------------------------------------
 float String::toFloat(float defaultValue) const
 {
-    wchar_t* endPtr;
-
-    double val = wcstod(ptr(), &endPtr);
-
-    if (endPtr == ptr())
+    bool ok = false;
+    float val = toFloat(&ok);
+    if (ok)
     {
-        val = defaultValue;
+        return val;
     }
-
-    return static_cast<float>(val);
+    else
+    {
+        return defaultValue;
+    }
 }
 
 
@@ -828,16 +833,25 @@ float String::toFloat(float defaultValue) const
 //--------------------------------------------------------------------------------------------------
 int String::toInt(bool* ok) const
 {
-    wchar_t* endPtr;
+    int val = 0;
+    std::wstringstream stream(m_string);
+    stream >> val;
 
-    long val = wcstol(ptr(), &endPtr, 10);
+    bool convertOk = !stream.fail();
 
     if (ok)
     {
-        *ok = (endPtr != ptr());
+        *ok = convertOk;
     }
 
-    return static_cast<int>(val);
+    if (convertOk)
+    {
+        return val;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 
@@ -851,16 +865,121 @@ int String::toInt(bool* ok) const
 //--------------------------------------------------------------------------------------------------
 int String::toInt(int defaultValue) const
 {
-    wchar_t* endPtr;
-
-    long val = wcstol(ptr(), &endPtr, 10);
-
-    if (endPtr == ptr())
+    bool ok = false;
+    int val = toInt(&ok);
+    if (ok)
     {
-        val = static_cast<long>(defaultValue);
+        return val;
+    }
+    else
+    {
+        return defaultValue;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Convert the contents of the string to an unsigned integer value 
+/// 
+/// \param ok  If not NULL, this will be set to true if conversion is ok, or to false if not
+/// 
+/// \return  Returns the unsigned integer value found at the start of the string. 0 if an error occurred.
+//--------------------------------------------------------------------------------------------------
+uint String::toUInt(bool* ok) const
+{
+    // The functions in the standard library does not honor unsignedness but gladly converts a negative integer
+    // to an unsigned integer, so use our int64 implementation instead
+    bool convertOk = false;
+    int64 val = toInt64(&convertOk);
+    if (convertOk)
+    {
+        if (val > std::numeric_limits<uint>::max() || val < 0)
+        {
+            convertOk = false;
+        }
     }
 
-    return static_cast<int>(val);
+    if (ok)
+    {
+        *ok = convertOk;
+    }
+
+    if (convertOk)
+    {
+        return static_cast<uint>(val);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Convert the contents of the string to an unsigned integer value
+/// 
+/// \param defaultValue  The value returned if the conversion failed.
+/// 
+/// \return  Returns the value found at the start of the string or defaultValue if the 
+///          conversion was not possible.
+//--------------------------------------------------------------------------------------------------
+uint String::toUInt(uint defaultValue) const
+{
+    bool ok = false;
+    uint val = toUInt(&ok);
+    if (ok)
+    {
+        return val;
+    }
+    else
+    {
+        return defaultValue;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int64 String::toInt64(bool* ok) const
+{
+    int64 val = 0;
+    std::wstringstream stream(m_string);
+    stream >> val;
+
+    bool convertOk = !stream.fail();
+
+    if (ok)
+    {
+        *ok = convertOk;
+    }
+
+    if (convertOk)
+    {
+        return val;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int64 String::toInt64(int64 defaultValue) const
+{
+    bool ok = false;
+    int64 val = toInt64(&ok);
+    if (ok)
+    {
+        return val;
+    }
+    else
+    {
+        return defaultValue;
+    }
 }
 
 
@@ -1012,7 +1131,7 @@ struct ArgInfo
 //--------------------------------------------------------------------------------------------------
 static ArgInfo findSmallestArgs(const String &s)
 {
-    const wchar_t* strBegin = s.ptr();
+    const wchar_t* strBegin = s.c_str();
     const wchar_t* strEnd = strBegin + s.size();
 
     ArgInfo argInfo;
@@ -1083,17 +1202,16 @@ static ArgInfo findSmallestArgs(const String &s)
 //--------------------------------------------------------------------------------------------------
 static String replaceArgs(const String &s, const ArgInfo& info, int fieldWidth, const String& arg, const wchar_t& fillChar)
 {
-    const wchar_t* strBegin = s.ptr();
+    const wchar_t* strBegin = s.c_str();
     const wchar_t* strEnd = strBegin + s.size();
 
     unsigned int absFieldWidth = static_cast<unsigned int>(Math::abs(fieldWidth));
     size_t resultLength = s.size() - info.totalArgLength + info.smallestArgCount*CVF_MAX(absFieldWidth, arg.size());
 
-    String result;
-    result.resize(resultLength);
-
-    wchar_t*        resultBuffer = result.ptr();
-    wchar_t*        rc = resultBuffer;
+    std::wstring resultString;
+    resultString.resize(resultLength);
+    wchar_t* resultBuffer = &resultString[0];
+    wchar_t* rc = resultBuffer;
     const wchar_t*  c = strBegin;
     int repl_cnt = 0;
 
@@ -1143,7 +1261,7 @@ static String replaceArgs(const String &s, const ArgInfo& info, int fieldWidth, 
                 }
             }
 
-            memcpy(rc, arg.ptr(), arg.size()*sizeof(wchar_t));
+            memcpy(rc, arg.c_str(), arg.size()*sizeof(wchar_t));
             rc += arg.size();
 
             if (fieldWidth < 0) 
@@ -1168,7 +1286,7 @@ static String replaceArgs(const String &s, const ArgInfo& info, int fieldWidth, 
 
     CVF_ASSERT(rc == resultBuffer + resultLength);
 
-    return result;
+    return String(resultString);
 }
 
 
@@ -1388,6 +1506,7 @@ void String::swap(String& other)
 {
     m_string.swap(other.m_string);
 }
+
 
 } // namespace cvf
 

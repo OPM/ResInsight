@@ -43,6 +43,7 @@
 #include "cafCeetronNavigation.h"
 #include "RimReservoir.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RigGridScalarDataAccess.h"
 
 namespace caf {
 
@@ -136,7 +137,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
 
-    //CAF_PDM_InitFieldNoDefault(&cameraPosition,      "CameraPosition", "", "", "", "");
+    CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
 
   
     this->cellResult()->setReservoirView(this);
@@ -260,6 +261,22 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::clampCurrentTimestep()
+{
+    // Clamp the current timestep to actual possibilities
+    if (this->gridCellResults()) 
+    {
+        if (m_currentTimeStep() > this->gridCellResults()->maxTimeStepCount())
+        {
+            m_currentTimeStep = static_cast<int>(this->gridCellResults()->maxTimeStepCount()) -1;
+        }
+    }
+
+    if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -270,15 +287,10 @@ void RimReservoirView::createDisplayModelAndRedraw()
     {
         m_viewer->animationControl()->slotStop();
 
+        this->clampCurrentTimestep();
+
         createDisplayModel();
         updateDisplayModelVisibility();
-
-        if (m_currentTimeStep < 0 ) m_currentTimeStep = 0;
-
-        if (!this->cellResult()->hasResult() || cellResult->hasStaticResult())
-        {
-            m_currentTimeStep = 0;
-        }
 
         if (m_viewer->frameCount() > 0)
         {
@@ -614,8 +626,7 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
     }
 
-    size_t i;
-    for (i = 0; i < geometriesToRecolor.size(); ++i)
+    for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
     {
 
         if (this->animationMode() && this->cellEdgeResult()->hasResult())
@@ -640,7 +651,7 @@ void RimReservoirView::updateCurrentTimeStep()
         {
             cvf::String modelName = "WellPipeModel";
             std::vector<cvf::Model*> models;
-            for (i = 0; i < frameScene->modelCount(); i++)
+            for (cvf::uint i = 0; i < frameScene->modelCount(); i++)
             {
                 if (frameScene->model(i)->name() == modelName)
                 {
@@ -648,7 +659,7 @@ void RimReservoirView::updateCurrentTimeStep()
                 }
             }
 
-            for (i = 0; i < models.size(); i++)
+            for (size_t i = 0; i < models.size(); i++)
             {
                 frameScene->removeModel(models[i]);
             }
@@ -680,15 +691,16 @@ void RimReservoirView::loadDataAndUpdate()
         if (!m_reservoir->openEclipseGridFile())
         {
             QMessageBox::warning(RIMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName());
+            m_reservoir = NULL;
+            return;
         }
         else
         {
-            RigReservoirCellResults* results = gridCellResults();
-            CVF_ASSERT(results);
-
             RIApplication* app = RIApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
+                RigReservoirCellResults* results = gridCellResults();
+                CVF_ASSERT(results);
                 results->loadOrComputeSOIL();
             }
         }
@@ -696,6 +708,11 @@ void RimReservoirView::loadDataAndUpdate()
 
     CVF_ASSERT(this->cellResult() != NULL);
     this->cellResult()->loadResult();
+
+    if (m_reservoir->reservoirData()->mainGrid()->globalFractureModelActiveCellCount() == 0)
+    {
+        this->cellResult->porosityModel.setUiHidden(true);
+    }
 
     CVF_ASSERT(this->cellEdgeResult() != NULL);
     this->cellEdgeResult()->loadResult();
@@ -707,10 +724,14 @@ void RimReservoirView::loadDataAndUpdate()
     m_geometry->clearGeometryCache();
 
     syncronizeWellsWithResults();
+    this->clampCurrentTimestep();
 
     createDisplayModel();
     updateDisplayModelVisibility();
-    setDefaultView();
+    if (cameraPosition().isIdentity())
+    {
+        setDefaultView();
+    }
     overlayInfoConfig()->update3DInfo();
 
     if (animationMode && m_viewer)
@@ -851,8 +872,13 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         const RigGridBase* grid = reservoir->grid(gridIndex);
         if (this->cellResult()->hasResult())
         {
-            double scalarValue = grid->cellScalar(m_currentTimeStep, this->cellResult()->gridScalarIndex(), cellIndex);
-            resultInfoText->append(QString("Cell result : %1\n").arg(scalarValue));
+            RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+            cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            if (dataAccessObject.notNull())
+            {
+                double scalarValue = dataAccessObject->cellScalar(cellIndex);
+                resultInfoText->append(QString("Cell result : %1\n").arg(scalarValue));
+            }
         }
 
         if (this->cellEdgeResult()->hasResult())
@@ -862,14 +888,18 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             this->cellEdgeResult()->gridScalarIndices(resultIndices);
             this->cellEdgeResult()->gridScalarResultNames(&resultNames);
 
-            size_t idx;
-            for (idx = 0; idx < 6; idx++)
+            for (int idx = 0; idx < 6; idx++)
             {
                 if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 
                 // Cell edge results are static, results are loaded for first time step only
-                double scalarValue = grid->cellScalar(0, resultIndices[idx], cellIndex);
-                resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
+                RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+                cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(porosityModel, 0, resultIndices[idx]);
+                if (dataAccessObject.notNull())
+                {
+                    double scalarValue = dataAccessObject->cellScalar(cellIndex);
+                    resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
+                }
             }
         }
     }
@@ -920,6 +950,7 @@ void RimReservoirView::setupBeforeSave()
     if (m_viewer)
     {
         animationMode = m_viewer->isAnimationActive();
+        cameraPosition = m_viewer->mainCamera()->viewMatrix();
     }
 }
 
@@ -933,7 +964,9 @@ RigReservoirCellResults* RimReservoirView::gridCellResults()
         m_reservoir->reservoirData()->mainGrid()
         )
     {
-        return m_reservoir->reservoirData()->mainGrid()->results();
+        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
+
+        return m_reservoir->reservoirData()->mainGrid()->results(porosityModel);
     }
 
     return NULL;
@@ -1002,7 +1035,8 @@ void RimReservoirView::updateLegends()
     RigReservoir* reservoir = m_reservoir->reservoirData();
     CVF_ASSERT(reservoir);
 
-    RigReservoirCellResults* results = reservoir->mainGrid()->results();
+    RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+    RigReservoirCellResults* results = reservoir->mainGrid()->results(porosityModel);
     CVF_ASSERT(results);
 
     if (this->cellResult()->hasResult())
@@ -1201,7 +1235,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                                 for ( fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
                                 {
                                     size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
-                                    if (grid->cell(fenceCellIndex).active())
+                                    if (grid->cell(fenceCellIndex).isActiveInMatrixModel())
                                     {
                                         (*visibleCells)[fenceCellIndex] = true;
                                     }

@@ -20,6 +20,7 @@
 
 #include "RifReaderMockModel.h"
 #include "RigReservoirCellResults.h"
+#include "RifReaderInterface.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -30,12 +31,12 @@ bool RifReaderMockModel::open(const QString& fileName, RigReservoir* reservoir)
   
     m_reservoir = reservoir;
 
-    RigReservoirCellResults* cellResults = reservoir->mainGrid()->results();
+    RigReservoirCellResults* cellResults = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
 
 
     QList<QDateTime> dates;
 
-    for (size_t i = 0; i < m_reservoirBuilder.timeStepCount(); i++)
+    for (int i = 0; i < static_cast<int>(m_reservoirBuilder.timeStepCount()); i++)
     {
         dates.push_back(QDateTime(QDate(2012+i, 6, 1)));
     }
@@ -50,7 +51,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigReservoir* reservoir)
 
     QList<QDateTime> staticDates;
     staticDates.push_back(dates[0]);
-    for (size_t i = 0; i < m_reservoirBuilder.resultCount(); i++)
+    for (int i = 0; i < static_cast<int>(m_reservoirBuilder.resultCount()); i++)
     {
         QString varEnd;
         if (i == 0) varEnd = "X";
@@ -101,7 +102,7 @@ bool RifReaderMockModel::inputProperty(const QString& propertyName, std::vector<
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::staticResult(const QString& result, std::vector<double>* values)
+bool RifReaderMockModel::staticResult(const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, std::vector<double>* values)
 {
     m_reservoirBuilder.staticResult(m_reservoir.p(), result, values);
 
@@ -111,7 +112,7 @@ bool RifReaderMockModel::staticResult(const QString& result, std::vector<double>
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values)
+bool RifReaderMockModel::dynamicResult(const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
     m_reservoirBuilder.dynamicResult(m_reservoir.p(), result, stepIndex, values);
 

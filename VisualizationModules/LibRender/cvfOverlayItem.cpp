@@ -46,12 +46,12 @@ namespace cvf {
 //--------------------------------------------------------------------------------------------------
 /// Do hit test on the overlay item. Base class only does a check 
 //--------------------------------------------------------------------------------------------------
-bool OverlayItem::pick(uint oglXCoord, uint oglYCoord, const Vec2ui& position, const Vec2ui& size)
+bool OverlayItem::pick(int x, int y, const Vec2i& position, const Vec2ui& size)
 {
-    Rectui oglRect(position, size.x(), size.y());
+    Recti oglRect(position, static_cast<int>(size.x()), static_cast<int>(size.y()));
 
-    if ((oglXCoord > oglRect.min().x()) && (oglXCoord < oglRect.max().x()) &&
-        (oglYCoord > oglRect.min().y()) && (oglYCoord < oglRect.max().y()))
+    if ((x > oglRect.min().x()) && (x < oglRect.max().x()) &&
+        (y > oglRect.min().y()) && (y < oglRect.max().y()))
     {
         return true;
     }

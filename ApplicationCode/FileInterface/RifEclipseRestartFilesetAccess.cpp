@@ -18,13 +18,14 @@
 
 #include "RifEclipseRestartFilesetAccess.h"
 #include "RifEclipseOutputFileTools.h"
+#include "cafProgressInfo.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-RifEclipseRestartFilesetAccess::RifEclipseRestartFilesetAccess(size_t numGrids, size_t numActiveCells)
-    : RifEclipseRestartDataAccess(numGrids, numActiveCells)
+RifEclipseRestartFilesetAccess::RifEclipseRestartFilesetAccess()
+    : RifEclipseRestartDataAccess()
 {
 }
 
@@ -43,18 +44,21 @@ bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
 {
     close();
 
-    size_t numFiles = fileSet.size();
-    size_t i;
+    int numFiles = fileSet.size();
+
+    caf::ProgressInfo progInfo(numFiles,"");
+
+    int i;
     for (i = 0; i < numFiles; i++)
     {
-        cvf::ref<RifEclipseOutputFileTools> fileAccess = new RifEclipseOutputFileTools;
-        if (!fileAccess->open(fileSet[i]))
-        {
-            close();
-            return false;
-        }
+        progInfo.setProgressDescription(fileSet[i]);
 
-        m_files.push_back(fileAccess);
+        ecl_file_type* ecl_file = ecl_file_open(fileSet[i].toAscii().data());
+        if (!ecl_file) return false;
+
+        m_ecl_files.push_back(ecl_file);
+
+        progInfo.incrementProgress();
     }
 
     return true;
@@ -65,34 +69,20 @@ bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::close()
 {
-    m_files.clear();
+    for (size_t i = 0; i < m_ecl_files.size(); i++)
+    {
+        ecl_file_close(m_ecl_files[i]);
+    }
+    m_ecl_files.clear();
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get the number of time steps
 //--------------------------------------------------------------------------------------------------
-size_t RifEclipseRestartFilesetAccess::numTimeSteps()
+size_t RifEclipseRestartFilesetAccess::timeStepCount()
 {
-    return m_files.size();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Get the time step texts
-//--------------------------------------------------------------------------------------------------
-QStringList RifEclipseRestartFilesetAccess::timeStepsText()
-{
-    QStringList timeSteps;
-
-    size_t numSteps = numTimeSteps();
-    size_t i;
-    for (i = 0; i < numSteps; i++)
-    {
-        QStringList stepText;
-        m_files[i]->timeStepsText(&stepText);
-        timeSteps.append(stepText.size() == 1 ? stepText : QStringList(QString("Step %1").arg(i+1)));
-    }
-
-    return timeSteps;
+    return m_ecl_files.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,12 +92,13 @@ QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 {
     QList<QDateTime> timeSteps;
 
-    size_t numSteps = numTimeSteps();
+    size_t numSteps = timeStepCount();
     size_t i;
     for (i = 0; i < numSteps; i++)
     {
         QList<QDateTime> stepTime;
-        m_files[i]->timeSteps(&stepTime);
+
+        RifEclipseOutputFileTools::timeSteps(m_ecl_files[i], &stepTime);
         
         if (stepTime.size() == 1)
         {
@@ -125,29 +116,31 @@ QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
-QStringList RifEclipseRestartFilesetAccess::resultNames()
+void RifEclipseRestartFilesetAccess::resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts)
 {
-    CVF_ASSERT(numTimeSteps() > 0);
+    CVF_ASSERT(timeStepCount() > 0);
 
-    // Get the results found on the first file
-    QStringList resultsList;
-    m_files[0]->keywordsOnFile(&resultsList, m_numActiveCells, 1);
+    std::vector<size_t> valueCountForOneFile;
+    RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_files[0], resultNames, &valueCountForOneFile);
 
-    return resultsList;
+    for (size_t i = 0; i < valueCountForOneFile.size(); i++)
+    {
+        resultDataItemCounts->push_back(valueCountForOneFile[i] * timeStepCount());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get result values for given time step
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t timeStep, std::vector<double>* values)
+bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values)
 {
-    size_t numOccurrences = m_files[timeStep]->numOccurrences(resultName);
+    size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toAscii().data());
 
     // No results for this result variable for current time step found
     if (numOccurrences == 0) return true;
 
-    // Result handling depends on presens of result values for all grids
-    if (m_numGrids != numOccurrences)
+    // Result handling depends on presents of result values for all grids
+    if (gridCount != numOccurrences)
     {
         return false;
     }
@@ -156,7 +149,8 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
     for (i = 0; i < numOccurrences; i++)
     {
         std::vector<double> partValues;
-        if (!m_files[timeStep]->keywordData(resultName, i, &partValues))  // !! don't need to append afterwards
+
+        if (!RifEclipseOutputFileTools::keywordData(m_ecl_files[timeStep], resultName, i, &partValues))
         {
             return false;
         }
@@ -171,15 +165,17 @@ bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-#ifdef USE_ECL_LIB
 void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
 {
     if (!well_info) return;
 
-    size_t i;
-    for (i=0; i < m_files.size(); i++)
+    for (size_t i = 0; i < m_ecl_files.size(); i++)
     {
-        well_info_add_UNRST_wells(well_info, m_files[i]->filePointer());
+        const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
+        int reportNumber = ecl_util_filename_report_nr(fileName);
+        if(reportNumber != -1)
+        {
+            well_info_add_wells(well_info, m_ecl_files[i], reportNumber);
+        }
     }
 }
-#endif

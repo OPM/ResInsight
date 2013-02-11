@@ -19,15 +19,12 @@
 
 #include <QTextStream>
 
-#include "cvfLibCore.h"
+#include "cvfBase.h"
 
 // Includes needed for field editor registration
 #include "cvfColor3.h"
 #include "cafPdmUiColorEditor.h"
-#include "cafFactory.h"
 #include "cafPdmField.h"
-
-#include <typeinfo>
 
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR(caf::PdmUiColorEditor, cvf::Color3f);
 

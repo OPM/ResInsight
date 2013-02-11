@@ -47,6 +47,11 @@ public:
     void            setDirection(const Vec3d& dir);
     const Vec3d&    direction() const;
 
+    void            setMinimumDistance(double distance);
+    double          minimumDistance() const;
+    void            setMaximumDistance(double distance);
+    double          maximumDistance() const;
+
     void            transform(const Mat4d& matrix);
     const Ray       getTransformed(const Mat4d& matrix) const;
 
@@ -55,11 +60,16 @@ public:
     bool            boxIntersect(const BoundingBox& box, Vec3d* intersectionPoint = NULL) const;
     bool            planeIntersect(const Plane& plane, Vec3d* intersectionPoint = NULL) const;
 
-    String          toString() const;
+    String          debugString() const;
 
 private:
-    Vec3d       m_origin;		    ///< Starting point of ray
-    Vec3d		m_direction;		///< Vector specifying ray direction
+    Vec3d       m_origin;		        ///< Starting point of ray
+    Vec3d		m_direction;		    ///< Vector specifying ray direction
+    double      m_minDistance;          ///< Minimum distance for a hit
+    double      m_maxDistance;          ///< Maximum distance for a hit
+    double      m_minDistanceSquared;   
+    double      m_maxDistanceSquared;   
+    bool        m_distanceLimitedRay;
 };
 
 }

@@ -1,0 +1,244 @@
+forward_model:
+--------------
+
+get:
+----
+model_config   = enkf_main_get_model_config( enkf_main )
+forward_model  = model_config_get_forward_model( model_config )
+names          = forward_model_alloc_joblist( forward_model )     <- Allokerer en stringlist() med navnene på jobbene.
+
+
+
+set
+---
+forward_model_clear( forward_model )
+
+forward_model_add_job( forward_model , job_name );
+forward_model_iset_job_arg( forward_model , job_nr , key , value); <- Set argument - observe that the jobs are identified with the index in
+                                                                      the forward model, and not by name.     
+
+more
+----
+s = enkf_main_get_site_config( enkf_main )
+joblist = site_config_get_installed_jobs( s );
+job_names = ext_joblist_alloc_list( joblist );  <- Stringlist
+
+
+
+forward_model_get_job( forward_model , ?NAME?)
+ext_joblist_get_job( joblist , ?NAME?)
+
+ext_job = forward_model_iget_job( forward_model , job_nr )
+arg_string = ext_job_get_private_args_as_string( ext_job );
+ext_job_set_private_args_from_string( ext_job , "KEY1=Value1 , Key2=value2" )
+
+
+ext_job_get_help_text( job );
+
+
+--------------------------------------
+
+
+LOG:
+
+Get
+---
+log_file  = enkf_main_get_log_file( enkf_main )
+log_level = enkf_main_get_log_level( enkf_main )
+
+
+Set
+---
+enkf_main_set_log_file( enkf_main , "log_file" )
+enkf_main_set_log_level( enkf_main , log_level )
+
+
+analysis_config = enkf_main_get_analysis_config( enkf_main )
+log_path = analysis_config_get_log_path( analysis_config );
+analysis_config_set_log_path( analysis_config , log_path );
+
+
+
+
+INITIALIZED
+-----------
+
+enkf_main_is_initialized(enkf_main , active_mask);
+
+active_mask er nå en vector av typen: bool_vector som er implementert i
+libutil. Dersom alle elemementene er aktive kan du sende inn None /
+NULL, ellers må allokere og initialisere en active_mask instans:
+
+mask = bool_vector_alloc(0 , false)
+for index in selectedMembers:
+    bool_vector_iset( mask , index , true )
+
+enkf_main_is_initialized( enkf_main , mask )
+bool_vector_free( mask )
+
+
+
+
+TEMPLATES:
+----------
+Get:
+----
+templates = enkf_main_get_templates( enkf_main );
+s         = ert_templates_alloc_list( templates );   <- Returnerer en stringlist med navn
+template  = ert_templates_get_template( templates , "Navn")
+template_file = ert_template_get_template_file( template ); 
+target_file   = ert_template_get_target_file( template );
+arg_string    = ert_template_get_args_as_string( template )
+
+
+Set: (kan enten gjøres med manuelle add / del eller ved hjelp av clear og add).
+----
+templates = enkf_main_get_templates( enkf_main );
+ert_templates_clear( templates );
+ert_templates_del_template( templates , "Key");
+template = ert_templates_add_template( templates , "Key", "Template_file" , "target_file" , arg_string /* Can be None / NULL */);
+
+template  = ert_templates_get_template( templates , Key)
+ert_template_set_target_file(template , target_file );
+ert_template_set_template_file(template , template_file );
+ert_template_set_args_as_string(template , arg_string);
+
+
+
+
+
+INITIALIZATION
+--------------
+
+enkf_main_initialize_from_existing__( enkf_main , source_case , source_step , source_state , 
+                                      iens_mask , ranking_key /* Will be NULL*/ ,          
+                                      node_list);
+
+
+
+node_list ~ stringlist med de valgt nodene.
+
+iens_mask = bool_vector_alloc(0 , false);   <- Allokereres med false som default.
+iens_mask ~ bool_vector hvor alle de aktive indeksene er satt til true
+ 
+
+
+SCHEDULE_PREDICTION_FILE
+------------------------
+Get:  enkf_main_get_schedule_prediction_file( enkf_main )
+Set:  enkf_main_set_schedule_prediction_file( enkf_main , filename )
+
+
+REFCASE
+-------
+Get:
+ecle_config = enkf_main_get_ecl_config( enkf_main );
+refacse = ecl_config_get_refcase_name( ecl_config )
+
+Set:
+enkf_main_set_refcase( enkf_main , refcase )    ????????????????????   Ikkje load?
+
+
+
+HISTORY_SOURCE
+--------------
+Get:
+m = enkf_main_get_model_config( enkf_main )
+history_source = model_config_get_history_source( m )    <- History_source ~ enum history_source_type fra libsched/src/history.y
+
+
+Set:
+m = enkf_main_get_model_config( enkf_main )
+model_config_get_history_source( m , source)    <- NB Hvis source har en av verdiene REFCASE_HISTORY / REFCASE_SMULATED du maa satt ett REFACSE forst.
+
+
+
+PRE_CLEAR_RUNPATH:
+-----------------
+Get: enkf_main_get_pre_clear_runpath( enkf_main )   <- Return value: true | false
+Set: enkf_main_set_pre_clear_runpath( enkf_main , true | false )
+
+
+
+
+CASE_TABLE
+----------
+model_config = enkf_main_get_model_config( enkf_main );
+
+get: model_config_get_case_table_file( model_config )
+set: enkf_main_set_case_table( model_config , filename );   <- File must exist
+
+
+
+REFCASE - Plotting:
+------------------
+Get:
+
+ecl_config = enkf_main_get_ecl_config( enkf_main )
+ecl_sum    = ecl_config_get_refcase( ecl_config )
+
+Plotting:
+
+ 1. Sjekk om refcase har variabel:  
+
+        ecl_sum_has_general_var( ecl_sum , key)
+
+    hvor 'key' er en summary key, som for eksempel "WWCT:OP_1". Dersom denne funksjonen returnerer true, maa du
+    sporre ecl_sum som en "oversettelse" fra key til en integer index, og siden bruke den indeksen:
+
+        key_index = ecl_sum_get_general_var_index( ecl_sum , key );
+ 
+
+ 2. Alloker en tidsakse:
+
+      time_vector = ecl_sum_alloc_time_vector( ecl_sum , true /* Report_only kan vre true */);
+
+    Denne kan selvflgelig gjenbrukes mellom flere summary plott.
+
+ 3. Alloker datavektor
+
+      data_vektor1 = ecl_sum_alloc_data_vector( ecl_sum , key_index1 , true );
+
+
+ Da har du x og y i en hhv time_t_vector og double_vector - en av joakims hjemmelade datastrukturer:
+
+ size:  xxx_vector_get_size( ) 
+ get1:  xxx_vector_iget( )
+ get2:  xxx_vector_get_ptr()     <- Returnerer en peker til underliggende data.
+
+
+ 4.  xxx_vector_free  () naar du er ferdi.
+
+
+5. (Ekstraoppgave:) en ecl_sum instans kan også loades fra filsystemet (helt utenfor ERT sin database) med
+
+    ecl_sum = ecl_sum_fread_alloc_case( "Navn på en ECLIPSE.DATA fil" )
+
+---------------------
+
+Gen_data:
+size:
+-----
+ensemble_config = enkf_main_get_ensemble_config( enkf_main )
+config_node     = ensemble_config_get_node( ensemble_config , "KEY")
+gen_data_config = enkf_config_node_get_ref( config_node )
+
+size = gen_date_config_get_initial_size( gen_data_config )
+
+Value:
+-----
+value = enkf_node_user_get( enkf_node , "KEY:tall" , &valid)     <----- NB Det er helt avgjørende å sjekke at valid returnerer true,  
+                                                                        gen_data typen er (altfor) fleksibel, og kan endre størrelse runtime. 
+                                                                        At du har sjekket initiell størrelse er derfor desverre ikke tilstrekkelig 
+                                                                        til å validere input.
+
+
+----------------
+Saving:
+
+1. Sette config file: enkf_main_set_user_config_file( enkf_main , "config_file" )   [Denne trengs for "Save AS"]
+2. enkf_main_fprintf_config( enkf_main );
+
+
+
+ 

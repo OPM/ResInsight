@@ -281,18 +281,18 @@ void RiaSocketServer::readCommandFromOctave()
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid() && reservoir->reservoirData()->mainGrid()->results())
+        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid() && reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS))
         {
-            scalarResultIndex = reservoir->reservoirData()->mainGrid()->results()->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T && isSetProperty)
             {
-                scalarResultIndex = reservoir->reservoirData()->mainGrid()->results()->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
+                scalarResultIndex = reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(reservoir->reservoirData()->mainGrid()->results()->cellScalarResults(scalarResultIndex));
+                scalarResultFrames = &(reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndex));
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -368,7 +368,7 @@ void RiaSocketServer::readCommandFromOctave()
             return;
         }
 
-        reservoir->reservoirData()->mainGrid()->calculateActiveCellInfo(activeCellInfo[0], activeCellInfo[1], activeCellInfo[2], activeCellInfo[3],
+        reservoir->reservoirData()->mainGrid()->calculateMatrixModelActiveCellInfo(activeCellInfo[0], activeCellInfo[1], activeCellInfo[2], activeCellInfo[3],
                                                                         activeCellInfo[4], activeCellInfo[5], activeCellInfo[6], activeCellInfo[7]);
 
         // First write timestep count
@@ -441,7 +441,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
     size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->numActiveCells();
+    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->globalMatrixModelActiveCellCount();
     size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
 
     if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
@@ -518,9 +518,9 @@ void RiaSocketServer::readPropertyDataFromOctave()
             if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
                 m_currentReservoir->reservoirData() && 
                 m_currentReservoir->reservoirData()->mainGrid() &&
-                m_currentReservoir->reservoirData()->mainGrid()->results() )
+                m_currentReservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS) )
             {
-                m_currentReservoir->reservoirData()->mainGrid()->results()->recalculateMinMax(m_currentScalarIndex);
+                m_currentReservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->recalculateMinMax(m_currentScalarIndex);
             }
 
             for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)

@@ -21,6 +21,7 @@
 #include "RigMainGrid.h"
 #include "RigCell.h"
 #include "RigReservoirCellResults.h"
+#include "RigGridScalarDataAccess.h"
 
 #include "cvfAssert.h"
 
@@ -28,7 +29,9 @@
 RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
     m_mainGrid(mainGrid),
-    m_indexToStartOfCells(0)
+    m_indexToStartOfCells(0),
+    m_matrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
+    m_fractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
 {
     if (mainGrid == NULL)
     {
@@ -145,13 +148,6 @@ void RigGridBase::initSubCellsMainGridCellIndex()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::scalarSetCount() const
-{
-    return m_mainGrid->results()->resultCount();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -217,49 +213,6 @@ bool RigGridBase::ijkFromCellIndex(size_t cellIndex, size_t* i, size_t* j, size_
 size_t RigGridBase::gridPointIndexFromIJK(size_t i, size_t j, size_t k) const
 {
     return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::cellCornerScalars(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k, double scalars[8]) const
-{
-    
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::vectorSetCount() const
-{
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t i, size_t j, size_t k) const
-{
-    size_t cellIndex = cellIndexFromIJK(i, j, k);
-
-    return cellScalar(timeStepIndex, scalarSetIndex, cellIndex);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double RigGridBase::cellScalar(size_t timeStepIndex, size_t scalarSetIndex, size_t cellIndex) const
-{
-    size_t resultValueIndex = cellIndex;
-    
-    bool useGlobalActiveIndex = m_mainGrid->results()->isUsingGlobalActiveIndex(scalarSetIndex);
-    if (useGlobalActiveIndex)
-    {
-        resultValueIndex = cell(cellIndex).globalActiveIndex();
-        if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
-    }
-    
-    return m_mainGrid->results()->cellScalarResult(timeStepIndex, scalarSetIndex, resultValueIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,7 +310,7 @@ bool RigGridBase::isCellActive(size_t i, size_t j, size_t k) const
 {
     size_t idx = cellIndexFromIJK(i, j, k);
     const RigCell& c = cell(idx);
-    if (!c.active() || c.isInvalid())
+    if (!c.isActiveInMatrixModel() || c.isInvalid())
     {
         return false;
     }
@@ -386,15 +339,6 @@ bool RigGridBase::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, s
     }
 
     return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const cvf::Vec3d* RigGridBase::cellVector(size_t vectorSetIndex, size_t i, size_t j, size_t k) const
-{
-    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -523,6 +467,54 @@ double RigGridBase::characteristicCellSize()
 
     return characteristicCellSize;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::matrixModelActiveCellCount() const
+{
+    return m_matrixModelActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::fractureModelActiveCellCount() const
+{
+    return m_fractureModelActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigGridScalarDataAccess> RigGridBase::dataAccessObject(RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const
+{
+    if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
+        scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        cvf::ref<RigGridScalarDataAccess> dataAccess = RigGridScalarDataAccess::createDataAccessObject(this, porosityModel, timeStepIndex, scalarSetIndex);
+        return dataAccess;
+    }
+
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::setFractureModelActiveCellCount(size_t activeFractureModelCellCount)
+{
+    m_fractureModelActiveCellCount = activeFractureModelCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount)
+{
+    m_matrixModelActiveCellCount = activeMatrixModelCellCount;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

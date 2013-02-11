@@ -24,8 +24,12 @@
 
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
+class RigGridBase;
+class RigMainGrid;
 
 typedef struct ecl_grid_struct ecl_grid_type;
+typedef struct ecl_file_struct ecl_file_type;
+
 
 //==================================================================================================
 //
@@ -41,29 +45,33 @@ public:
     bool                    open(const QString& fileName, RigReservoir* reservoir);
     void                    close();
 
-    const QList<QDateTime>& timeSteps() const;
+    bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
+    bool                    dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
 
-    bool                    staticResult(const QString& result, std::vector<double>* values);
-    bool                    dynamicResult(const QString& result, size_t stepIndex, std::vector<double>* values);
-
-#ifdef USE_ECL_LIB
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigReservoir* reservoir);
-#endif
 
 private:
     void                    ground();
     bool                    buildMetaData(RigReservoir* reservoir);
     void                    readWellCells(RigReservoir* reservoir);
 
-    static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet, size_t numGrids, size_t numActiveCells);
-    static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet, size_t numGrids, size_t numActiveCells);
+    void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
+    
+    int                     findSmallestActiveCellIndexK( const RigGridBase* grid, int cellI, int cellJ);
+
+    static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet);
+    static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet);
+
+    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
 
 private:
-    QString                               m_fileName;         // Name of file used to start accessing Eclipse output files
-    QStringList                           m_fileSet;          // Set of files in filename's path with same base name as filename
+    QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
+    QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename
 
-    QList<QDateTime>                      m_timeSteps;
+    cvf::cref<RigMainGrid>                  m_mainGrid;
 
-    cvf::ref<RifEclipseOutputFileTools>  m_staticResultsAccess;    // File access to static results
-    cvf::ref<RifEclipseRestartDataAccess> m_dynamicResultsAccess;   // File access to dynamic results
+    QList<QDateTime>                        m_timeSteps;
+
+    ecl_file_type*                          m_ecl_file;    // File access to static results
+    cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results
 };

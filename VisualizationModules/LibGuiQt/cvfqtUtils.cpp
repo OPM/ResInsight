@@ -48,13 +48,13 @@ QString	Utils::toQString(const cvf::String& ceeString)
 
     if (sizeof(wchar_t) == 2)
     {
-        const unsigned short* strPtr = reinterpret_cast<const unsigned short*>(ceeString.ptr());
+        const unsigned short* strPtr = reinterpret_cast<const unsigned short*>(ceeString.c_str());
 
         return QString::fromUtf16(strPtr);
     }
     else if (sizeof(wchar_t) == 4)
     {
-        const unsigned int* strPtr = reinterpret_cast<const unsigned int*>(ceeString.ptr());
+        const unsigned int* strPtr = reinterpret_cast<const unsigned int*>(ceeString.c_str());
 
         return QString::fromUcs4(strPtr);
     }

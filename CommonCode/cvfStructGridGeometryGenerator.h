@@ -28,7 +28,7 @@ namespace cvf {
 
 class DrawableGeo;
 class ScalarMapper;
-
+class StructGridScalarDataAccess;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -129,7 +129,7 @@ public:
 
     const StructGridInterface* activeGrid() { return m_grid.p(); }
 
-    void                textureCoordinates(Vec2fArray* textureCoords, size_t timeStepIndex, size_t scalarSetIndex, const ScalarMapper* mapper) const;
+    void                textureCoordinates(Vec2fArray* textureCoords, const StructGridScalarDataAccess* dataAccessObject, const ScalarMapper* mapper) const;
 
     // Mapping between cells and geometry
     ref<cvf::Array<size_t> >    

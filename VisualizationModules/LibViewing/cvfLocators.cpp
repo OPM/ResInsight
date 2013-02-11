@@ -79,12 +79,13 @@ Vec3d LocatorTranslateOnPlane::position() const
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-void LocatorTranslateOnPlane::start(int winCoordX, int winCoordY)
+void LocatorTranslateOnPlane::start(int x, int y)
 {
     CVF_ASSERT(m_camera.notNull());
-    ref<Ray> ray = m_camera->rayFromWinCoord(winCoordX, winCoordY);
+    ref<Ray> ray = m_camera->rayFromWindowCoordinates(x, y);
     
     Vec3d isect(0, 0, 0);
     ray->planeIntersect(m_plane, &isect);
@@ -94,15 +95,16 @@ void LocatorTranslateOnPlane::start(int winCoordX, int winCoordY)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-bool LocatorTranslateOnPlane::update(int winCoordX, int winCoordY)
+bool LocatorTranslateOnPlane::update(int x, int y)
 {
     CVF_ASSERT(m_camera.notNull());
 
     Vec3d oldPos = m_pos;
 
-    ref<Ray> ray = m_camera->rayFromWinCoord(winCoordX, winCoordY);
+    ref<Ray> ray = m_camera->rayFromWindowCoordinates(x, y);
 
     Vec3d isect(0, 0, 0);
     if (ray->planeIntersect(m_plane, &isect))
@@ -139,8 +141,8 @@ LocatorPanWalkRotate::LocatorPanWalkRotate(Camera* camera)
 :   m_camera(camera),
     m_operation(PAN),
     m_pos(0, 0, 0),
-    m_lastWinPosX(0),
-    m_lastWinPosY(0)
+    m_lastPosX(0),
+    m_lastPosY(0)
 {
     CVF_ASSERT(camera);
 }
@@ -183,31 +185,33 @@ Vec3d LocatorPanWalkRotate::position() const
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-void LocatorPanWalkRotate::start(int winCoordX, int winCoordY)
+void LocatorPanWalkRotate::start(int x, int y)
 {
-    m_lastWinPosX = winCoordX;
-    m_lastWinPosY = winCoordY;
+    m_lastPosX = x;
+    m_lastPosY = y;
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// The window coordinates are in OpenGL style coordinates, which means a right handed 
+/// coordinate system with the origin in the lower left corner of the window.
 //--------------------------------------------------------------------------------------------------
-bool LocatorPanWalkRotate::update(int winCoordX, int winCoordY)
+bool LocatorPanWalkRotate::update(int x, int y)
 {
     CVF_ASSERT(m_camera.notNull());
 
-    if (winCoordX == m_lastWinPosX && winCoordY == m_lastWinPosY) return false;
+    if (x == m_lastPosX && y == m_lastPosY) return false;
 
     const double vpPixSizeX = m_camera->viewport()->width();
     const double vpPixSizeY = m_camera->viewport()->height();
     if (vpPixSizeX <= 0 || vpPixSizeY <= 0) return false;
 
     // Normalized movement in screen plane 
-    const double tx = (winCoordX - m_lastWinPosX)/vpPixSizeX;
-    const double ty = (winCoordY - m_lastWinPosY)/vpPixSizeY;
+    const double tx = (x - m_lastPosX)/vpPixSizeX;
+    const double ty = (y - m_lastPosY)/vpPixSizeY;
 
     Vec3d oldPos = m_pos;
 
@@ -220,8 +224,8 @@ bool LocatorPanWalkRotate::update(int winCoordX, int winCoordY)
         updateWalk(ty);
     }
 
-    m_lastWinPosX = winCoordX;
-    m_lastWinPosY = winCoordY;
+    m_lastPosX = x;
+    m_lastPosY = y;
 
     if (m_pos == oldPos)
     {
@@ -261,7 +265,7 @@ void LocatorPanWalkRotate::updatePan(double tx, double ty)
 
         const double nearPlane = m_camera->nearPlane();
         Vec3d vX =  camRight*((tx*vpWorldSizeX)/nearPlane)*camPointDist;
-        Vec3d vY = -camUp*((ty*vpWorldSizeY)/nearPlane)*camPointDist;
+        Vec3d vY =  camUp*((ty*vpWorldSizeY)/nearPlane)*camPointDist;
         
         Vec3d translation = vX + vY;
         m_pos += translation;
@@ -270,7 +274,7 @@ void LocatorPanWalkRotate::updatePan(double tx, double ty)
     else if (projType == Camera::ORTHO)
     {
         Vec3d vX =  camRight*tx*vpWorldSizeX;
-        Vec3d vY = -camUp*ty*vpWorldSizeY;
+        Vec3d vY =  camUp*ty*vpWorldSizeY;
 
         Vec3d translation = vX + vY;
         m_pos += translation;

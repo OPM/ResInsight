@@ -25,6 +25,7 @@
 #include "RifReaderMockModel.h"
 #include "RifReaderEclipseInput.h"
 #include "cafProgressInfo.h"
+#include "RimProject.h"
 
 
 CAF_PDM_SOURCE_INIT(RimResultReservoir, "EclipseCase");
@@ -44,10 +45,10 @@ RimResultReservoir::RimResultReservoir()
 //--------------------------------------------------------------------------------------------------
 bool RimResultReservoir::openEclipseGridFile()
 {
-    caf::ProgressInfo progInfo(20, "Reading Eclipse Grid File");
+    caf::ProgressInfo progInfo(50, "Reading Eclipse Grid File");
 
     progInfo.setProgressDescription("Open Grid File");
-    progInfo.setNextProgressIncrement(19);
+    progInfo.setNextProgressIncrement(48);
     // Early exit if reservoir data is created
     if (m_rigReservoir.notNull()) return true;
 
@@ -56,22 +57,37 @@ bool RimResultReservoir::openEclipseGridFile()
     if (caseName().contains("Result Mock Debug Model"))
     {
         readerInterface = this->createMockModel(this->caseName());
+
+        size_t matrixActiveCellCount = 0;
+        size_t fractureActiveCellCount = 0;
+
+        for (size_t cellIdx = 0; cellIdx < m_rigReservoir->mainGrid()->cells().size(); cellIdx++)
+        {
+            const RigCell& cell = m_rigReservoir->mainGrid()->cells()[cellIdx];
+
+            if (cell.isActiveInMatrixModel())
+            {
+                matrixActiveCellCount++;
+            }
+            if (cell.isActiveInFractureModel())
+            {
+                fractureActiveCellCount++;
+            }
+
+        }
+        m_rigReservoir->mainGrid()->setGlobalMatrixModelActiveCellCount(matrixActiveCellCount);
+        m_rigReservoir->mainGrid()->setGlobalFractureModelActiveCellCount(fractureActiveCellCount);
+
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
     }
     else
     {
-        QString fullCaseName = caseName + ".EGRID";
-
-        QDir dir(caseDirectory.v());
-        if (!dir.exists(fullCaseName))
+        QString fname = createAbsoluteFilenameFromCase(caseName);
+        if (fname.isEmpty())
         {
-            fullCaseName = caseName + ".GRID";
-            if (!dir.exists(fullCaseName))
-            {
-                return false;
-            }
+            return false;
         }
-
-        QString fname = dir.absoluteFilePath(fullCaseName);
 
         RigReservoir* reservoir = new RigReservoir;
         readerInterface = new RifReaderEclipseOutput;
@@ -84,15 +100,15 @@ bool RimResultReservoir::openEclipseGridFile()
         m_rigReservoir = reservoir;
     }
 
-    progInfo.setProgress(19);
+    progInfo.incrementProgress();
 
     CVF_ASSERT(m_rigReservoir.notNull());
     CVF_ASSERT(readerInterface.notNull());
 
-    m_rigReservoir->mainGrid()->results()->setReaderInterface(readerInterface.p());
-
     progInfo.setProgressDescription("Computing Faults");
     m_rigReservoir->computeFaults();
+
+    progInfo.incrementProgress();
     progInfo.setProgressDescription("Computing Cache");
     m_rigReservoir->mainGrid()->computeCachedData();
 
@@ -118,12 +134,12 @@ cvf::ref<RifReaderInterface> RimResultReservoir::createMockModel(QString modelNa
         mockFileInterface->open("", reservoir.p());
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
-            reservoir->mainGrid()->cell(idx).setActive(false);
+            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
-            reservoir->mainGrid()->cell(idx).setActive(false);
+            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
     }
     else if (modelName == "Result Mock Debug Model With Results")
@@ -188,5 +204,45 @@ RimResultReservoir::~RimResultReservoir()
 QString RimResultReservoir::locationOnDisc() const
 {
     return caseDirectory;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimResultReservoir::createAbsoluteFilenameFromCase(const QString& caseName)
+{
+    QString candidate;
+    
+    candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".EGRID");
+    if (QFile::exists(candidate)) return candidate;
+
+    candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".GRID");
+    if (QFile::exists(candidate)) return candidate;
+
+    std::vector<caf::PdmObject*> parentObjects;
+    this->parentObjects(parentObjects);
+
+    QString projectPath;
+    for (size_t i = 0; i < parentObjects.size(); i++)
+    {
+        caf::PdmObject* obj = parentObjects[i];
+        RimProject* proj = dynamic_cast<RimProject*>(obj);
+        if (proj)
+        {
+            QFileInfo fi(proj->fileName);
+            projectPath = fi.path();
+        }
+    }
+
+    if (!projectPath.isEmpty())
+    {
+        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".EGRID");
+        if (QFile::exists(candidate)) return candidate;
+
+        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".GRID");
+        if (QFile::exists(candidate)) return candidate;
+    }
+
+    return QString();
 }
 
