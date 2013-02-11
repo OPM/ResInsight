@@ -68,7 +68,7 @@ void AppEnum< RIApplication::RINavigationPolicy >::setUp()
 }
 
 
-namespace RegTestData
+namespace RegTestNames
 {
     const QString generatedFolderName   = "RegTestGeneratedImages";
     const QString diffFolderName        = "RegTestDiffImages";
@@ -742,17 +742,17 @@ bool RIApplication::parseArguments()
         "-savesnapshots           Save snapshot of all views to 'snapshots' folder in project file folder\n"
         "                         Application closes after snapshots are written to file\n"
         "\n"
-        "-regressiontest <folder> Run a regression test on all sub-folders starting with \"TestCase\" of the given folder: \n"
-        "                         RegressionTest.rip files in the sub-folders will be opened and \n"
-        "                         snapshots of all the views is written to the sub-sub-folder RegTestGeneratedImages. \n"
-        "                         Then difference images is generated in the sub-sub-folder RegTestDiffImages based \n"
-        "                         on the images in sub-sub-folder RegTestBaseImages.\n"
-        "                         The results are presented in ResInsightRegressionTestReport.html that is\n"
+        "-regressiontest <folder> Run a regression test on all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
+        "                         " + RegTestNames::testProjectName + " files in the sub-folders will be opened and \n"
+        "                         snapshots of all the views is written to the sub-sub-folder " + RegTestNames::generatedFolderName + ". \n"
+        "                         Then difference images is generated in the sub-sub-folder " + RegTestNames::diffFolderName + " based \n"
+        "                         on the images in sub-sub-folder " + RegTestNames::baseFolderName + ".\n"
+        "                         The results are presented in " + RegTestNames::reportFileName + " that is\n"
         "                         written in the given folder.\n"
         "\n"
-        "-updateregressiontestbase <folder> For all sub-folders starting with \"TestCase\" of the given folder: \n"
-        "                         Copy the images in the sub-sub-folder RegTestGeneratedImages to the sub-sub-folder\n" 
-        "                         RegTestBaseImages after deleting RegTestBaseImages completely.\n"
+        "-updateregressiontestbase <folder> For all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
+        "                         Copy the images in the sub-sub-folder " + RegTestNames::generatedFolderName + " to the sub-sub-folder\n" 
+        "                         " + RegTestNames::baseFolderName + " after deleting " + RegTestNames::baseFolderName + " completely.\n"
         "\n"
         "-help, -?                Displays help text\n"
         "-----------------------------------------------------------------";
@@ -1170,11 +1170,11 @@ void removeDirectoryWithContent(QDir dirToDelete )
 //--------------------------------------------------------------------------------------------------
 void RIApplication::runRegressionTest(const QString& testRootPath)
 {
-    QString generatedFolderName = RegTestData::generatedFolderName;
-    QString diffFolderName      = RegTestData::diffFolderName;    
-    QString baseFolderName      = RegTestData::baseFolderName;    
-    QString regTestProjectName  = RegTestData::testProjectName; 
-    QString regTestFolderFilter = RegTestData::testFolderFilter;
+    QString generatedFolderName = RegTestNames::generatedFolderName;
+    QString diffFolderName      = RegTestNames::diffFolderName;    
+    QString baseFolderName      = RegTestNames::baseFolderName;    
+    QString regTestProjectName  = RegTestNames::testProjectName; 
+    QString regTestFolderFilter = RegTestNames::testFolderFilter;
 
     // Find all sub folders
     
@@ -1218,7 +1218,7 @@ void RIApplication::runRegressionTest(const QString& testRootPath)
         imageCompareReporter.addImageDirectoryComparisonSet(testFolderName.toStdString(), reportBaseFolderName.toStdString(), reportGeneratedFolderName.toStdString(), reportDiffFolderName.toStdString());
     }
 
-    imageCompareReporter.generateHTMLReport(testDir.filePath(RegTestData::reportFileName).toStdString());
+    imageCompareReporter.generateHTMLReport(testDir.filePath(RegTestNames::reportFileName).toStdString());
 
     // Generate diff images
 
@@ -1240,7 +1240,7 @@ void RIApplication::runRegressionTest(const QString& testRootPath)
              for (int fIdx = 0; fIdx < baseImageFileNames.size(); ++fIdx)
              {
                  QString fileName = baseImageFileNames[fIdx];
-                 RiaImageFileCompare imgComparator(RegTestData::imageCompareExeName);
+                 RiaImageFileCompare imgComparator(RegTestNames::imageCompareExeName);
                  bool ok = imgComparator.runComparison(genDir.filePath(fileName), baseDir.filePath(fileName), diffDir.filePath(fileName));
                  if (!ok)
                  {
@@ -1261,7 +1261,7 @@ void RIApplication::updateRegressionTest(const QString& testRootPath)
     QDir testDir(testRootPath); // If string is empty it will end up as cwd
     testDir.setFilter(QDir::Dirs);
     QStringList dirNameFilter;
-    dirNameFilter.append(RegTestData::testFolderFilter);
+    dirNameFilter.append(RegTestNames::testFolderFilter);
     testDir.setNameFilters(dirNameFilter);
 
     QFileInfoList folderList = testDir.entryInfoList();
@@ -1270,11 +1270,11 @@ void RIApplication::updateRegressionTest(const QString& testRootPath)
     {
         QDir testCaseFolder(folderList[i].filePath());
 
-        QDir baseDir(testCaseFolder.filePath(RegTestData::baseFolderName));
+        QDir baseDir(testCaseFolder.filePath(RegTestNames::baseFolderName));
         removeDirectoryWithContent(baseDir);
-        testCaseFolder.mkdir(RegTestData::baseFolderName);
+        testCaseFolder.mkdir(RegTestNames::baseFolderName);
 
-        QDir genDir(testCaseFolder.filePath(RegTestData::generatedFolderName));
+        QDir genDir(testCaseFolder.filePath(RegTestNames::generatedFolderName));
 
         QStringList imageFileNames = genDir.entryList();
 
