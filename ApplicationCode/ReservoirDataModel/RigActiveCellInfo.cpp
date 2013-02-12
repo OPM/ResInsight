@@ -95,11 +95,6 @@ size_t RigActiveCellInfo::activeIndexInFractureModel(size_t globalCellIndex) con
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setActiveIndexInFractureModel(size_t globalCellIndex, size_t globalActiveCellIndex)
 {
-    if (m_activeInFractureModel.size() == 0)
-    {
-        m_activeInFractureModel.resize(m_activeInMatrixModel.size(), cvf::UNDEFINED_SIZE_T);
-    }
-
     CVF_TIGHT_ASSERT(globalActiveCellIndex < m_activeInFractureModel.size());
 
     m_activeInFractureModel[globalCellIndex] = globalActiveCellIndex;
@@ -138,6 +133,10 @@ void RigActiveCellInfo::computeDerivedData()
         m_globalFractureModelActiveCellCount += m_perGridActiveCellInfo[i].fractureModelActiveCellCount();
     }
 
+    if (m_globalFractureModelActiveCellCount == 0)
+    {
+        m_activeInFractureModel.resize(0);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
