@@ -24,11 +24,7 @@
 #include "cvfAssert.h"
 
 RigMainGrid::RigMainGrid(void)
-    : RigGridBase(this),
-        m_activeCellPositionMin(cvf::Vec3st::UNDEFINED),
-        m_activeCellPositionMax(cvf::Vec3st::UNDEFINED),
-        m_validCellPositionMin(cvf::Vec3st::UNDEFINED),
-        m_validCellPositionMax(cvf::Vec3st::UNDEFINED)
+    : RigGridBase(this)
 {
     m_matrixModelResults = new RigReservoirCellResults(this);
 	m_fractureModelResults = new RigReservoirCellResults(this);
@@ -82,27 +78,9 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
-{
-    min = m_activeCellPositionMin;
-    max = m_activeCellPositionMax;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RigMainGrid::matrixModelActiveCellsBoundingBox() const
 {
     return m_activeCellsBoundingBox;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
-{
-    min = m_validCellPositionMin;
-    max = m_validCellPositionMax;
 }
 
 
@@ -135,41 +113,6 @@ public:
     cvf::Vec3st m_min;
     cvf::Vec3st m_max;
 };
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeActiveAndValidCellRanges()
-{
-    CellRangeBB validBB;
-    CellRangeBB activeBB;
-
-    size_t idx;
-    for (idx = 0; idx < cellCount(); idx++)
-    {
-        const RigCell& c = cell(idx);
-        
-        size_t i, j, k;
-        ijkFromCellIndex(idx, &i, &j, &k);
-
-        if (!c.isInvalid())
-        {
-            validBB.add(i, j, k);
-        }
-
-        if (c.isActiveInMatrixModel())
-        {
-            activeBB.add(i, j, k);
-        }
-    }
-
-    m_validCellPositionMin = validBB.m_min;
-    m_validCellPositionMax = validBB.m_max;
-
-    m_activeCellPositionMin = activeBB.m_min;
-    m_activeCellPositionMax = activeBB.m_max;
-}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -221,7 +164,6 @@ void RigMainGrid::computeCachedData()
 {
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
-    computeActiveAndValidCellRanges();
     computeBoundingBox();
 }
 

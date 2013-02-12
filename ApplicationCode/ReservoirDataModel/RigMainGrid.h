@@ -45,9 +45,6 @@ public:
     RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
-    void                                    matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
-    void                                    validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
-
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
     RigGridBase*                            gridByIndex(size_t localGridIndex);
@@ -73,11 +70,6 @@ private:
 
     cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
     cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
-
-    cvf::Vec3st                             m_activeCellPositionMin;
-    cvf::Vec3st                             m_activeCellPositionMax;
-    cvf::Vec3st                             m_validCellPositionMin;
-    cvf::Vec3st                             m_validCellPositionMax;
 
     cvf::BoundingBox                        m_activeCellsBoundingBox;
 };

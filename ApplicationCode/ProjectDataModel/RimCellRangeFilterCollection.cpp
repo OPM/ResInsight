@@ -97,8 +97,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     }
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -126,9 +124,25 @@ RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
         m_reservoirView->eclipseCase()->reservoirData()->mainGrid())
     {
 
-        RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+        return m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+    }
 
-        return mainGrid;
+    return NULL;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
+{
+    if (m_reservoirView &&
+        m_reservoirView->eclipseCase() &&
+        m_reservoirView->eclipseCase()->reservoirData() &&
+        m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo())
+    {
+
+        return m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo();
     }
 
     return NULL;
@@ -209,3 +223,4 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
 
     return false;
 }
+
