@@ -25,7 +25,20 @@ include_directories(
 )
 
 file( GLOB CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../*.cpp )
-file( GLOB UNIT_TEST_CPP_SOURCES *.cpp )
+
+set( UNIT_TEST_CPP_SOURCES
+    main.cpp
+    RigActiveCellInfo-Test.cpp
+    RigReservoir-Test.cpp
+)
+
+
+#############################################################################
+# Adds folders for Visual Studio solution explorer (and for Xcode explorer)
+#############################################################################
+source_group( "ResInsight"      FILES ${CPP_SOURCES} )
+source_group( "UnitTests"       FILES ${UNIT_TEST_CPP_SOURCES} )
+
 
 
 set( LINK_LIBRARIES
