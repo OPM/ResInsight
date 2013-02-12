@@ -22,8 +22,5 @@ CMakeCache.txt
 /Generated/
 *.qrc.depends
 
-# Unit testing
-*_UnitTests
-
 # Target program
 /ApplicationCode/ResInsight
