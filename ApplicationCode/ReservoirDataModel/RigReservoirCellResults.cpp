@@ -512,17 +512,10 @@ void RigReservoirCellResults::computeDepthRelatedResults()
     std::vector< std::vector<double> >& tops    = cellScalarResults(topsResultGridIndex);
     std::vector< std::vector<double> >& bottom  = cellScalarResults(bottomResultGridIndex);
     
-    bool computeValuesForActiveCellsOnly = m_ownerMainGrid->globalMatrixModelActiveCellCount() > 0;
-
     size_t cellIdx = 0;
     for (cellIdx = 0; cellIdx < m_ownerMainGrid->cells().size(); cellIdx++)
     {
         const RigCell& cell = m_ownerMainGrid->cells()[cellIdx];
-
-        if (computeValuesForActiveCellsOnly && !cell.isActiveInMatrixModel())
-        {
-            continue;
-        }
 
         if (computeDepth)
         {
@@ -653,13 +646,9 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
     if (!m_cellScalarResults[scalarResultIndex].size()) return true;
     
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
-    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalMatrixModelActiveCellCount()) return true;
-    if (firstTimeStepResultValueCount == m_ownerMainGrid->globalFractureModelActiveCellCount()) return true;
     if (firstTimeStepResultValueCount == m_ownerMainGrid->cells().size()) return false;
 
-    CVF_TIGHT_ASSERT(false); // Wrong number of results
-
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
