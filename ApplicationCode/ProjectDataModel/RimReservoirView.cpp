@@ -709,7 +709,7 @@ void RimReservoirView::loadDataAndUpdate()
     CVF_ASSERT(this->cellResult() != NULL);
     this->cellResult()->loadResult();
 
-    if (m_reservoir->reservoirData()->mainGrid()->globalFractureModelActiveCellCount() == 0)
+    if (m_reservoir->reservoirData()->activeCellInfo()->globalFractureModelActiveCellCount() == 0)
     {
         this->cellResult->porosityModel.setUiHidden(true);
     }

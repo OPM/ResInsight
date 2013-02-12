@@ -93,8 +93,7 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
 
         }
 
-        m_rigReservoir->mainGrid()->setGlobalMatrixModelActiveCellCount(matrixActiveCellCount);
-        m_rigReservoir->mainGrid()->setGlobalFractureModelActiveCellCount(fractureActiveCellCount);
+        m_rigReservoir->activeCellInfo()->computeDerivedData();
 
         return;
     }

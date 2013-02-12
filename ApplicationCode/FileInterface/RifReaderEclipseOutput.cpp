@@ -329,9 +329,6 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         progInfo.setProgress(3 + lgrIdx);
     }
 
-    mainGrid->setGlobalMatrixModelActiveCellCount(globalMatrixActiveSize);
-    mainGrid->setGlobalFractureModelActiveCellCount(globalFractureActiveSize);
-
     activeCellInfo->computeDerivedData();
 
     return true;

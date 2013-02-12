@@ -75,9 +75,6 @@ bool RimResultReservoir::openEclipseGridFile()
             }
 
         }
-        m_rigReservoir->mainGrid()->setGlobalMatrixModelActiveCellCount(matrixActiveCellCount);
-        m_rigReservoir->mainGrid()->setGlobalFractureModelActiveCellCount(fractureActiveCellCount);
-
         m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
     }

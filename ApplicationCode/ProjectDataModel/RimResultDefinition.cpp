@@ -63,9 +63,9 @@ void RimResultDefinition::setReservoirView(RimReservoirView* ownerReservoirView)
     // TODO: This code is executed before reservoir is read, and then porosity model is never set to zero
     if (m_reservoirView->eclipseCase() &&
         m_reservoirView->eclipseCase()->reservoirData() &&
-        m_reservoirView->eclipseCase()->reservoirData()->mainGrid() )
+        m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo() )
     {
-        if (m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->globalFractureModelActiveCellCount() == 0)
+        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo()->globalFractureModelActiveCellCount() == 0)
         {
             porosityModel.setUiHidden(true);
         }

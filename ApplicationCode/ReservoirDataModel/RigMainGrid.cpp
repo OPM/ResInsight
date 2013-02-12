@@ -28,9 +28,7 @@ RigMainGrid::RigMainGrid(void)
         m_activeCellPositionMin(cvf::Vec3st::UNDEFINED),
         m_activeCellPositionMax(cvf::Vec3st::UNDEFINED),
         m_validCellPositionMin(cvf::Vec3st::UNDEFINED),
-        m_validCellPositionMax(cvf::Vec3st::UNDEFINED),
-        m_globalMatrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
-        m_globalFractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
+        m_validCellPositionMax(cvf::Vec3st::UNDEFINED)
 {
     m_matrixModelResults = new RigReservoirCellResults(this);
 	m_fractureModelResults = new RigReservoirCellResults(this);
@@ -80,22 +78,6 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::globalMatrixModelActiveCellCount() const
-{
-    return m_globalMatrixModelActiveCellCount;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::globalFractureModelActiveCellCount() const
-{
-    return m_globalFractureModelActiveCellCount;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
