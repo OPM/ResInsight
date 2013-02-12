@@ -58,14 +58,6 @@ public:
     RigGridBase*                            gridByIndex(size_t localGridIndex);
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
     
-    void                                    calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
-                                                                    std::vector<qint32>& i,
-                                                                    std::vector<qint32>& j,
-                                                                    std::vector<qint32>& k,
-                                                                    std::vector<qint32>& parentGridNumber,
-                                                                    std::vector<qint32>& hostCellI,
-                                                                    std::vector<qint32>& hostCellJ,
-                                                                    std::vector<qint32>& hostCellK);
     void                                    computeCachedData();
 
     cvf::BoundingBox                        matrixModelActiveCellsBoundingBox() const;

@@ -56,6 +56,16 @@ private:
     RimReservoir*   findReservoir(const QString &casename);
     void            terminateCurrentConnection();
 
+    void            calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
+        std::vector<qint32>& cellI,
+        std::vector<qint32>& cellJ,
+        std::vector<qint32>& cellK,
+        std::vector<qint32>& parentGridNumber,
+        std::vector<qint32>& hostCellI,
+        std::vector<qint32>& hostCellJ,
+        std::vector<qint32>& hostCellK);
+
+
 private:
     QTcpServer*     m_tcpServer;
     QErrorMessage*  m_errorMessageDialog;

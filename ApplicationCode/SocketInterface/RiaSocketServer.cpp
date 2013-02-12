@@ -368,8 +368,14 @@ void RiaSocketServer::readCommandFromOctave()
             return;
         }
 
-        reservoir->reservoirData()->mainGrid()->calculateMatrixModelActiveCellInfo(activeCellInfo[0], activeCellInfo[1], activeCellInfo[2], activeCellInfo[3],
-                                                                        activeCellInfo[4], activeCellInfo[5], activeCellInfo[6], activeCellInfo[7]);
+        calculateMatrixModelActiveCellInfo(activeCellInfo[0],
+            activeCellInfo[1],
+            activeCellInfo[2],
+            activeCellInfo[3],
+            activeCellInfo[4],
+            activeCellInfo[5],
+            activeCellInfo[6],
+            activeCellInfo[7]);
 
         // First write timestep count
         quint64 timestepCount = (quint64)8;
@@ -608,6 +614,80 @@ void RiaSocketServer::slotReadyRead()
         default:
             CVF_ASSERT(false);
             break;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK)
+{
+    gridNumber.clear();
+    cellI.clear();
+    cellJ.clear();
+    cellK.clear();
+    parentGridNumber.clear();
+    hostCellI.clear();
+    hostCellJ.clear();
+    hostCellK.clear();
+
+    if (!m_currentReservoir || !m_currentReservoir->reservoirData() || !m_currentReservoir->reservoirData()->mainGrid())
+    {
+        return;
+    }
+
+    RigActiveCellInfo* actCellInfo = m_currentReservoir->reservoirData()->activeCellInfo();
+    size_t numMatrixModelActiveCells = actCellInfo->globalMatrixModelActiveCellCount();
+
+    gridNumber.reserve(numMatrixModelActiveCells);
+    cellI.reserve(numMatrixModelActiveCells);
+    cellJ.reserve(numMatrixModelActiveCells);
+    cellK.reserve(numMatrixModelActiveCells);
+    parentGridNumber.reserve(numMatrixModelActiveCells);
+    hostCellI.reserve(numMatrixModelActiveCells);
+    hostCellJ.reserve(numMatrixModelActiveCells);
+    hostCellK.reserve(numMatrixModelActiveCells);
+
+    const std::vector<RigCell>& globalCells = m_currentReservoir->reservoirData()->mainGrid()->cells();
+
+    for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
+    {
+        if (actCellInfo->activeIndexInMatrixModel(cIdx))
+        {
+            RigGridBase* grid = globalCells[cIdx].hostGrid();
+            CVF_ASSERT(grid != NULL);
+            size_t cellIndex = globalCells[cIdx].cellIndex();
+
+            size_t i, j, k;
+            grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+
+            size_t pi, pj, pk;
+            RigGridBase* parentGrid = NULL;
+
+            if (grid->isMainGrid())
+            {
+                pi = i;
+                pj = j;
+                pk = k;
+                parentGrid = grid;
+            }
+            else
+            {
+                size_t parentCellIdx = globalCells[cIdx].parentCellIndex();
+                parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
+                CVF_ASSERT(parentGrid != NULL);
+                parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
+            }
+
+            gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
+            cellI.push_back(static_cast<qint32>(i));
+            cellJ.push_back(static_cast<qint32>(j));
+            cellK.push_back(static_cast<qint32>(k));
+            parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
+            hostCellI.push_back(static_cast<qint32>(pi));
+            hostCellJ.push_back(static_cast<qint32>(pj));
+            hostCellK.push_back(static_cast<qint32>(pk));
+        }
     }
 }
 
