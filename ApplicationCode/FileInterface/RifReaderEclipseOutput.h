@@ -26,6 +26,7 @@ class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
 class RigGridBase;
 class RigMainGrid;
+class RigActiveCellInfo;
 
 typedef struct ecl_grid_struct ecl_grid_type;
 typedef struct ecl_file_struct ecl_file_type;
@@ -60,13 +61,13 @@ private:
     static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet);
     static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet);
 
-    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
+    QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
 
 private:
     QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
     QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename
 
-    cvf::cref<RigMainGrid>                  m_mainGrid;
+    cvf::ref<RigReservoir>                  m_reservoir;
 
     QList<QDateTime>                        m_timeSteps;
 

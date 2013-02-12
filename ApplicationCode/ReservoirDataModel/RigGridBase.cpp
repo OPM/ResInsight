@@ -499,6 +499,13 @@ void RigGridBase::setMatrixModelActiveCellCount(size_t activeMatrixModelCellCoun
     m_matrixModelActiveCellCount = activeMatrixModelCellCount;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigGridBase::mainGridCellIndex(size_t localGridCellIndex) const
+{
+    return m_indexToStartOfCells + localGridCellIndex;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

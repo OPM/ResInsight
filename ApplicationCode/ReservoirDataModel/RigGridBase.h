@@ -48,7 +48,9 @@ public:
     RigCell&                    cell(size_t gridCellIndex);
     const RigCell&              cell(size_t gridCellIndex) const;
     
+    size_t                      mainGridCellIndex(size_t localGridCellIndex) const;
     void                        setIndexToStartOfCells(size_t indexToStartOfCells) { m_indexToStartOfCells = indexToStartOfCells; }
+    
     void                        setGridIndex(size_t index) { m_gridIndex = index; }
     size_t                      gridIndex() { return m_gridIndex; }
 

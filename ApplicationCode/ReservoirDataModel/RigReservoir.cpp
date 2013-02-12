@@ -222,3 +222,91 @@ bool RigReservoir::findSharedSourceFace(cvf::StructGridInterface::FaceType& shar
 
     return false;
 }
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Helper class used to find min/max range for valid and active cells
+//--------------------------------------------------------------------------------------------------
+class CellRangeBB
+{
+public:
+    CellRangeBB()
+        : m_min(cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T),
+        m_max(cvf::Vec3st::ZERO)
+    {
+
+    }
+
+    void add(size_t i, size_t j, size_t k)
+    {
+        if (i < m_min.x()) m_min.x() = i;
+        if (j < m_min.y()) m_min.y() = j;
+        if (k < m_min.z()) m_min.z() = k;
+
+        if (i > m_max.x()) m_max.x() = i;
+        if (j > m_max.y()) m_max.y() = j;
+        if (k > m_max.z()) m_max.z() = k;
+    }
+
+public:
+    cvf::Vec3st m_min;
+    cvf::Vec3st m_max;
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoir::computeActiveCellData()
+{
+    CellRangeBB matrixModelActiveBB;
+    CellRangeBB fractureModelActiveBB;
+
+    size_t idx;
+    for (idx = 0; idx < m_mainGrid->cellCount(); idx++)
+    {
+        const RigCell& c = m_mainGrid->cell(idx);
+
+        size_t i, j, k;
+        m_mainGrid->ijkFromCellIndex(idx, &i, &j, &k);
+
+        if (c.isActiveInMatrixModel())
+        {
+            matrixModelActiveBB.add(i, j, k);
+        }
+
+        if (c.isActiveInFractureModel())
+        {
+            fractureModelActiveBB.add(i, j, k);
+        }
+    }
+
+    m_activeCellInfo.setMatrixModelActiveCellsBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
+    m_activeCellInfo.setFractureModelActiveCellsBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoir::computeCachedData()
+{
+    computeFaults();
+    computeActiveCellData();
+
+    //TODO Set display model offset
+    /*
+    if (m_mainGrid.notNull())
+    {
+        m_mainGrid->setDisplayModelOffset(m_activeCellInfo.m_activeCellPositionMin);
+    }
+    */
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigActiveCellInfo* RigReservoir::activeCellInfo()
+{
+    return &m_activeCellInfo;
+}

@@ -106,7 +106,7 @@ bool RimResultReservoir::openEclipseGridFile()
     CVF_ASSERT(readerInterface.notNull());
 
     progInfo.setProgressDescription("Computing Faults");
-    m_rigReservoir->computeFaults();
+    m_rigReservoir->computeCachedData();
 
     progInfo.incrementProgress();
     progInfo.setProgressDescription("Computing Cache");

@@ -25,6 +25,7 @@
 #include "cvfObject.h"
 #include "RigMainGrid.h"
 #include "RigWellResults.h"
+#include "RigActiveCellInfo.h"
 
 
 class RigReservoir: public cvf::Object
@@ -40,17 +41,20 @@ public:
     void                    allGrids(std::vector<const RigGridBase*>* grids) const;
     const RigGridBase*      grid(size_t index) const;
 
+    void                    computeCachedData();
+
     void                    setWellResults(const cvf::Collection<RigWellResults>& data);
     const cvf::Collection<RigWellResults>&  wellResults() { return m_wellResults; }
 
 
     cvf::UByteArray*        wellCellsInGrid(size_t gridIndex);
-    void                    computeFaults();
 
     RigCell&                cellFromWellResultCell(const RigWellResultCell& wellResultCell);
     bool                    findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
 
+    RigActiveCellInfo*      activeCellInfo();
 
+    /*
     // From RigMainGrid, can this function be moved to Octave socket server?
     void                                    calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
         std::vector<qint32>& i,
@@ -60,11 +64,15 @@ public:
         std::vector<qint32>& hostCellI,
         std::vector<qint32>& hostCellJ,
         std::vector<qint32>& hostCellK);
-
+        */
 
 private:
+    void                    computeFaults();
+    void                    computeActiveCellData();
     void                    computeWellCellsPrGrid();
 
+private:
+    RigActiveCellInfo                   m_activeCellInfo;
     cvf::ref<RigMainGrid>               m_mainGrid;
 
     cvf::Collection<RigWellResults>     m_wellResults;

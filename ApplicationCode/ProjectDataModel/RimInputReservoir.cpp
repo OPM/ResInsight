@@ -114,7 +114,7 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
              {
                  m_gridFileName = filenames[i];
 
-                 m_rigReservoir->computeFaults();
+                 m_rigReservoir->computeCachedData();
                  m_rigReservoir->mainGrid()->computeCachedData();
 
                  break;
@@ -204,7 +204,7 @@ bool RimInputReservoir::openEclipseGridFile()
 
         m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigReservoir->computeFaults();
+        m_rigReservoir->computeCachedData();
         m_rigReservoir->mainGrid()->computeCachedData();
     }
 

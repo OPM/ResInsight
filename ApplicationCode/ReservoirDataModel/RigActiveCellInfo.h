@@ -45,6 +45,7 @@ public:
     // From RigBase
     void                setGridCount(size_t gridCount);
     void                setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount, size_t fractureActiveCellCount);
+    void                gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount, size_t& fractureActiveCellCount);
     void                computeDerivedData();
 
 
