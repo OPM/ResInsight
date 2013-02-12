@@ -28,6 +28,7 @@ class RimReservoirView;
 class RigGridBase;
 class RimCellRangeFilterCollection;
 class RimCellPropertyFilterCollection;
+class RigActiveCellInfo;
 
 class RivReservoirViewPartMgr: public cvf::Object
 {
@@ -77,7 +78,7 @@ private:
     void clearGeometryCache(ReservoirGeometryCacheType geomType);
 
 
-    static void computeNativeVisibility  (cvf::UByteArray* cellVisibility, const RigGridBase* grid, bool invalidCellsIsVisible, bool inactiveCellsIsVisible, bool activeCellsIsVisible, bool mainGridIsVisible);
+    static void computeNativeVisibility  (cvf::UByteArray* cellVisibility, const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, bool invalidCellsIsVisible, bool inactiveCellsIsVisible, bool activeCellsIsVisible, bool mainGridIsVisible);
     static void computeRangeVisibility   (cvf::UByteArray* cellVisibility, const RigGridBase* grid, const cvf::UByteArray* nativeVisibility, const RimCellRangeFilterCollection* rangeFilterColl);
     static void computePropertyVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, size_t timeStepIndex, const cvf::UByteArray* rangeFilterVisibility, RimCellPropertyFilterCollection* propFilterColl);
     static void computeAllWellCellsVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid );

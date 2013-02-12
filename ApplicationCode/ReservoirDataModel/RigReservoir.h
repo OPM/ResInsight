@@ -52,7 +52,8 @@ public:
     RigCell&                cellFromWellResultCell(const RigWellResultCell& wellResultCell);
     bool                    findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
 
-    RigActiveCellInfo*      activeCellInfo();
+    RigActiveCellInfo*          activeCellInfo();
+    const RigActiveCellInfo*    activeCellInfo() const;
 
 
 private:

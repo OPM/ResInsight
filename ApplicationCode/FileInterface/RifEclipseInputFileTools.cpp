@@ -418,7 +418,8 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
-    cvf::ref<RigGridScalarDataAccess> dataAccessObject = reservoir->mainGrid()->dataAccessObject(porosityModel, timeStep, resultIndex);
+    RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo();
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->mainGrid()->dataAccessObject(activeCellInfo, porosityModel, timeStep, resultIndex);
     if (dataAccessObject.isNull())
     {
         return false;

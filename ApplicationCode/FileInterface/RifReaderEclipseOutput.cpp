@@ -119,7 +119,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         if (matrixActiveIndex != -1)
         {
             cell.setActiveIndexInMatrixModel(matrixActiveStartIndex + matrixActiveIndex);
-            activeCellInfo->setActiveIndexInMatrixModel(localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
+            activeCellInfo->setActiveIndexInMatrixModel(cellStartIndex + localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
         }
         else
         {
@@ -130,7 +130,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         if (fractureActiveIndex != -1)
         {
             cell.setActiveIndexInFractureModel(fractureActiveStartIndex + fractureActiveIndex);
-            activeCellInfo->setActiveIndexInFractureModel(localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
+            activeCellInfo->setActiveIndexInFractureModel(cellStartIndex + localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
         }
         else
         {

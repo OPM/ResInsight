@@ -21,53 +21,52 @@
 
 #include "cvfLibCore.h"
 #include "cvfBase.h"
+#include "cvfObject.h"
 #include "cvfAssert.h"
 
 #include "RigMainGrid.h"
 #include "RigReservoirCellResults.h"
+#include "RigActiveCellInfo.h"
+#include "RigGridBase.h"
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigGridScalarDataAccess::RigGridScalarDataAccess(const RigGridBase* grid, bool useGlobalActiveIndex, std::vector<double>* resultValues) :
-    m_grid(grid),
-    m_useGlobalActiveIndex(useGlobalActiveIndex),
+class RigGridAllCellsScalarDataAccess : public cvf::StructGridScalarDataAccess
+{
+public:
+    RigGridAllCellsScalarDataAccess(const RigGridBase* grid, std::vector<double>* resultValues);
+
+    virtual double  cellScalar(size_t i, size_t j, size_t k) const;
+    virtual double  cellScalar(size_t cellIndex) const;
+    virtual void    cellCornerScalars(size_t i, size_t j, size_t k, double scalars[8]) const;
+    virtual double  gridPointScalar(size_t i, size_t j, size_t k) const;
+    virtual bool    pointScalar(const cvf::Vec3d& p, double* scalarValue) const;
+
+    virtual const cvf::Vec3d* cellVector(size_t i, size_t j, size_t k) const;
+
+protected:
+    cvf::cref<RigGridBase>  m_grid;
+    std::vector<double>*    m_resultValues;
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigGridAllCellsScalarDataAccess::RigGridAllCellsScalarDataAccess(const RigGridBase* grid, std::vector<double>* resultValues) :
+m_grid(grid),
     m_resultValues(resultValues)
 {
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigGridScalarDataAccess> RigGridScalarDataAccess::createDataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex)
-{
-    CVF_ASSERT(grid);
-    CVF_ASSERT(grid->mainGrid());
-    CVF_ASSERT(grid->mainGrid()->results(porosityModel));
-
-    if (!grid || !grid->mainGrid() || !grid->mainGrid()->results(porosityModel))
-    {
-        return NULL;
-    }
-
-    bool useGlobalActiveIndex = grid->mainGrid()->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
-
-    std::vector< std::vector<double> > & scalarSetResults = grid->mainGrid()->results(porosityModel)->cellScalarResults(scalarSetIndex);
-    if (timeStepIndex >= scalarSetResults.size())
-    {
-        return NULL;
-    }
-
-    std::vector<double>* resultValues = &(scalarSetResults[timeStepIndex]);
-
-    cvf::ref<RigGridScalarDataAccess> object = new RigGridScalarDataAccess(grid, useGlobalActiveIndex, resultValues);
-    return object;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigGridScalarDataAccess::cellScalar(size_t i, size_t j, size_t k) const
+double RigGridAllCellsScalarDataAccess::cellScalar(size_t i, size_t j, size_t k) const
 {
     size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
 
@@ -77,27 +76,19 @@ double RigGridScalarDataAccess::cellScalar(size_t i, size_t j, size_t k) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigGridScalarDataAccess::cellScalar(size_t cellIndex) const
+double RigGridAllCellsScalarDataAccess::cellScalar(size_t cellIndex) const
 {
     if (m_resultValues->size() == 0 ) return HUGE_VAL;
 
-    size_t resultValueIndex = cellIndex;
+    if (m_resultValues->size() <= cellIndex) return HUGE_VAL;
 
-    if (m_useGlobalActiveIndex)
-    {
-        resultValueIndex = m_grid->cell(cellIndex).activeIndexInMatrixModel();
-        if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
-    }
-
-    if (m_resultValues->size() <= resultValueIndex) return HUGE_VAL;
-
-    return m_resultValues->at(resultValueIndex);
+    return m_resultValues->at(cellIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigGridScalarDataAccess::gridPointScalar(size_t i, size_t j, size_t k) const
+double RigGridAllCellsScalarDataAccess::gridPointScalar(size_t i, size_t j, size_t k) const
 {
     CVF_ASSERT(false);
     return 0.0;
@@ -106,7 +97,7 @@ double RigGridScalarDataAccess::gridPointScalar(size_t i, size_t j, size_t k) co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridScalarDataAccess::cellCornerScalars(size_t i, size_t j, size_t k, double scalars[8]) const
+void RigGridAllCellsScalarDataAccess::cellCornerScalars(size_t i, size_t j, size_t k, double scalars[8]) const
 {
     CVF_ASSERT(false);
 }
@@ -114,7 +105,7 @@ void RigGridScalarDataAccess::cellCornerScalars(size_t i, size_t j, size_t k, do
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigGridScalarDataAccess::pointScalar(const cvf::Vec3d& p, double* scalarValue) const
+bool RigGridAllCellsScalarDataAccess::pointScalar(const cvf::Vec3d& p, double* scalarValue) const
 {
     CVF_ASSERT(false);
     return false;
@@ -123,9 +114,134 @@ bool RigGridScalarDataAccess::pointScalar(const cvf::Vec3d& p, double* scalarVal
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const cvf::Vec3d* RigGridScalarDataAccess::cellVector(size_t i, size_t j, size_t k) const
+const cvf::Vec3d* RigGridAllCellsScalarDataAccess::cellVector(size_t i, size_t j, size_t k) const
 {
     CVF_ASSERT(false);
     return new cvf::Vec3d();
+}
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RigGridMatrixActiveCellsScalarDataAccess : public RigGridAllCellsScalarDataAccess
+{
+public:
+    RigGridMatrixActiveCellsScalarDataAccess(const RigGridBase* grid, std::vector<double>* resultValues, const RigActiveCellInfo* activeCellInfo) : 
+      RigGridAllCellsScalarDataAccess(grid, resultValues),
+        m_activeCellInfo(activeCellInfo)
+      {
+
+      }
+
+    virtual double  cellScalar(size_t cellIndex) const
+    {
+        if (m_resultValues->size() == 0 ) return HUGE_VAL;
+
+        size_t mainGridCellIndex = m_grid->cell(cellIndex).mainGridCellIndex();
+
+        size_t resultValueIndex = m_activeCellInfo->activeIndexInMatrixModel(mainGridCellIndex);
+        if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
+
+        if (m_resultValues->size() <= resultValueIndex) return HUGE_VAL;
+
+        return m_resultValues->at(resultValueIndex);
+    }
+
+protected:
+    const RigActiveCellInfo*    m_activeCellInfo;
+};
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RigGridFractureActiveCellsScalarDataAccess : public RigGridAllCellsScalarDataAccess
+{
+public:
+    RigGridFractureActiveCellsScalarDataAccess(const RigGridBase* grid, std::vector<double>* resultValues, const RigActiveCellInfo* activeCellInfo) : 
+      RigGridAllCellsScalarDataAccess(grid, resultValues),
+          m_activeCellInfo(activeCellInfo)
+      {
+      }
+
+      virtual double  cellScalar(size_t cellIndex) const
+      {
+          if (m_resultValues->size() == 0 ) return HUGE_VAL;
+
+          size_t mainGridCellIndex = m_grid->cell(cellIndex).mainGridCellIndex();
+
+          size_t resultValueIndex = m_activeCellInfo->activeIndexInFractureModel(mainGridCellIndex);
+          if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
+
+          if (m_resultValues->size() <= resultValueIndex) return HUGE_VAL;
+
+          return m_resultValues->at(resultValueIndex);
+      }
+
+protected:
+    const RigActiveCellInfo*    m_activeCellInfo;
+};
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::createDataAccessObject(const RigGridBase* grid,
+    const RigActiveCellInfo* activeCellInfo,
+    RifReaderInterface::PorosityModelResultType porosityModel,
+    size_t timeStepIndex,
+    size_t scalarSetIndex)
+{
+    CVF_ASSERT(grid);
+    CVF_ASSERT(grid->mainGrid());
+    CVF_ASSERT(grid->mainGrid()->results(porosityModel));
+    CVF_ASSERT(activeCellInfo);
+
+    if (!grid || !grid->mainGrid() || !grid->mainGrid()->results(porosityModel) || !activeCellInfo)
+    {
+        return NULL;
+    }
+
+    std::vector< std::vector<double> > & scalarSetResults = grid->mainGrid()->results(porosityModel)->cellScalarResults(scalarSetIndex);
+    if (timeStepIndex >= scalarSetResults.size())
+    {
+        return NULL;
+    }
+
+    std::vector<double>* resultValues = &(scalarSetResults[timeStepIndex]);
+
+
+    bool useGlobalActiveIndex = grid->mainGrid()->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
+    if (useGlobalActiveIndex)
+    {
+        if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+        {
+            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridMatrixActiveCellsScalarDataAccess(grid, resultValues, activeCellInfo);
+            return object;
+        }
+        else
+        {
+            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridFractureActiveCellsScalarDataAccess(grid, resultValues, activeCellInfo);
+            return object;
+        }
+    }
+    else
+    {
+        cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridAllCellsScalarDataAccess(grid, resultValues);
+        return object;
+    }
 }
 

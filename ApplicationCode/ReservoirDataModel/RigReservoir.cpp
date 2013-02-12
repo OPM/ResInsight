@@ -310,3 +310,11 @@ RigActiveCellInfo* RigReservoir::activeCellInfo()
 {
     return &m_activeCellInfo;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigActiveCellInfo* RigReservoir::activeCellInfo() const
+{
+    return &m_activeCellInfo;
+}

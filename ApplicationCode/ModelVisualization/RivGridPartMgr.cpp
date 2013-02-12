@@ -29,6 +29,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RigGridScalarDataAccess.h"
 #include "RigReservoirCellResults.h"
+#include "RigReservoir.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -221,7 +222,10 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-    cvf::ref<RigGridScalarDataAccess> dataAccessObject = m_grid->dataAccessObject(porosityModel, resTimeStepIdx, scalarSetIndex);
+
+    RigActiveCellInfo* activeCellInfo = cellResultSlot->reservoirView()->eclipseCase()->reservoirData()->activeCellInfo();
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = m_grid->dataAccessObject(activeCellInfo, porosityModel, resTimeStepIdx, scalarSetIndex);
+
     if (dataAccessObject.isNull()) return;
 
     // Outer surface

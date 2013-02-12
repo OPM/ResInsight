@@ -20,32 +20,21 @@
 #pragma once
 
 #include "cvfStructGridScalarDataAccess.h"
-#include "RigGridBase.h"
 #include "RifReaderInterface.h"
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class RigGridScalarDataAccess : public cvf::StructGridScalarDataAccess
+class RigActiveCellInfo;
+class RigGridBase;
+
+class RigGridScalarDataAccessFactory
 {
-private:
-    RigGridScalarDataAccess(const RigGridBase* grid, bool useGlobalActiveIndex, std::vector<double>* resultValues);
-
 public:
-    static cvf::ref<RigGridScalarDataAccess> createDataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex);
+    static cvf::ref<cvf::StructGridScalarDataAccess> createDataAccessObject(const RigGridBase* grid,
+        const RigActiveCellInfo* activeCellInfo,
+        RifReaderInterface::PorosityModelResultType porosityModel,
+        size_t timeStepIndex,
+        size_t scalarSetIndex);
 
-    virtual double  cellScalar(size_t i, size_t j, size_t k) const;
-    virtual double  cellScalar(size_t cellIndex) const;
-    virtual void    cellCornerScalars(size_t i, size_t j, size_t k, double scalars[8]) const;
-    virtual double  gridPointScalar(size_t i, size_t j, size_t k) const;
-    virtual bool    pointScalar(const cvf::Vec3d& p, double* scalarValue) const;
-    
-    virtual const cvf::Vec3d* cellVector(size_t i, size_t j, size_t k) const;
-
-private:
-    cvf::cref<RigGridBase>  m_grid;
-    bool                    m_useGlobalActiveIndex;
-    std::vector<double>*    m_resultValues;
 };
+
 

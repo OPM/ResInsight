@@ -870,10 +870,12 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
     {
         const RigReservoir* reservoir = m_reservoir->reservoirData();
         const RigGridBase* grid = reservoir->grid(gridIndex);
+        const RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo();
+
         if (this->cellResult()->hasResult())
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-            cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(activeCellInfo, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
             if (dataAccessObject.notNull())
             {
                 double scalarValue = dataAccessObject->cellScalar(cellIndex);
@@ -894,7 +896,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 
                 // Cell edge results are static, results are loaded for first time step only
                 RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(porosityModel, 0, resultIndices[idx]);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(activeCellInfo, porosityModel, 0, resultIndices[idx]);
                 if (dataAccessObject.notNull())
                 {
                     double scalarValue = dataAccessObject->cellScalar(cellIndex);

@@ -246,10 +246,13 @@ void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometry
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx)
 {
+    RigReservoir* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+    RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo();
+
     switch (geometryType)
     {
     case ACTIVE:
-        computeNativeVisibility(cellVisibility, grid, false, false, true, m_reservoirView->showMainGrid() );
+        computeNativeVisibility(cellVisibility, grid, activeCellInfo, false, false, true, m_reservoirView->showMainGrid() );
         break;
     case ALL_WELL_CELLS:
         computeAllWellCellsVisibility(cellVisibility, grid);
@@ -287,7 +290,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
         }
         break;
     case INACTIVE:
-        computeNativeVisibility(cellVisibility, grid, m_reservoirView->showInvalidCells(), true, false, m_reservoirView->showMainGrid());
+        computeNativeVisibility(cellVisibility, grid, activeCellInfo, m_reservoirView->showInvalidCells(), true, false, m_reservoirView->showMainGrid());
         break;
     case RANGE_FILTERED:
         {
@@ -460,7 +463,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 //--------------------------------------------------------------------------------------------------
 /// Evaluate visibility based on cell state
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, 
+void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, 
     bool invalidCellsIsVisible, 
     bool inactiveCellsIsVisible, 
     bool activeCellsIsVisible,
@@ -468,16 +471,18 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
 {
     CVF_ASSERT(cellVisibility != NULL);
     CVF_ASSERT(grid != NULL);
+    CVF_ASSERT(activeCellInfo != NULL);
     cellVisibility->resize(grid->cellCount());
 
 #pragma omp parallel for 
     for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
     {
         const RigCell& cell = grid->cell(cellIndex);
+        size_t globalCellIndex = cell.mainGridCellIndex();
 
         if (   !invalidCellsIsVisible && cell.isInvalid() 
-            || !inactiveCellsIsVisible && !cell.isActiveInMatrixModel()
-            || !activeCellsIsVisible && cell.isActiveInMatrixModel()
+            || !inactiveCellsIsVisible && !activeCellInfo->isActiveInMatrixModel(globalCellIndex)
+            || !activeCellsIsVisible && activeCellInfo->isActiveInMatrixModel(globalCellIndex)
             || mainGridIsVisible && (cell.subGrid() != NULL)
             || cell.isWellCell()
             )
@@ -600,7 +605,9 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
 
                 RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
-                cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(porosityModel, timeStepIndex, scalarResultIndex);
+                RigActiveCellInfo* activeCellInfo = propFilterColl->reservoirView()->eclipseCase()->reservoirData()->activeCellInfo();
+
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(activeCellInfo, porosityModel, timeStepIndex, scalarResultIndex);
                 CVF_ASSERT(dataAccessObject.notNull());
 
                 #pragma omp parallel for schedule(dynamic)
