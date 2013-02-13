@@ -75,24 +75,6 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
         m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-        size_t matrixActiveCellCount = 0;
-        size_t fractureActiveCellCount = 0;
-
-        for (size_t cellIdx = 0; cellIdx < m_rigReservoir->mainGrid()->cells().size(); cellIdx++)
-        {
-            const RigCell& cell = m_rigReservoir->mainGrid()->cells()[cellIdx];
-
-            if (cell.isActiveInMatrixModel())
-            {
-                matrixActiveCellCount++;
-            }
-            if (cell.isActiveInFractureModel())
-            {
-                fractureActiveCellCount++;
-            }
-
-        }
-
         m_rigReservoir->activeCellInfo()->computeDerivedData();
 
         return;

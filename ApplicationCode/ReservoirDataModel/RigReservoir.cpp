@@ -266,17 +266,15 @@ void RigReservoir::computeActiveCellData()
     size_t idx;
     for (idx = 0; idx < m_mainGrid->cellCount(); idx++)
     {
-        const RigCell& c = m_mainGrid->cell(idx);
-
         size_t i, j, k;
         m_mainGrid->ijkFromCellIndex(idx, &i, &j, &k);
 
-        if (c.isActiveInMatrixModel())
+        if (m_activeCellInfo.activeIndexInMatrixModel(idx))
         {
             matrixModelActiveBB.add(i, j, k);
         }
 
-        if (c.isActiveInFractureModel())
+        if (m_activeCellInfo.activeIndexInFractureModel(idx))
         {
             fractureModelActiveBB.add(i, j, k);
         }

@@ -129,12 +129,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, localCellIdx);
         if (fractureActiveIndex != -1)
         {
-            cell.setActiveIndexInFractureModel(fractureActiveStartIndex + fractureActiveIndex);
             activeCellInfo->setActiveIndexInFractureModel(cellStartIndex + localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
-        }
-        else
-        {
-            cell.setActiveIndexInFractureModel(cvf::UNDEFINED_SIZE_T);
         }
 
         // Parent cell index
