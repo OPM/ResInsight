@@ -42,14 +42,11 @@ public:
     size_t              activeIndexInFractureModel(size_t globalCellIndex) const;
     void                setActiveIndexInFractureModel(size_t globalCellIndex, size_t globalActiveCellIndex);
 
-    // From RigBase
     void                setGridCount(size_t gridCount);
     void                setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount, size_t fractureActiveCellCount);
     void                gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount, size_t& fractureActiveCellCount);
     void                computeDerivedData();
 
-
-    // From RigMainGrid
     size_t              globalMatrixModelActiveCellCount() const;
     size_t              globalFractureModelActiveCellCount() const;
 
@@ -78,22 +75,18 @@ private:
 
 
 private:
+    std::vector<GridActiveCellCounts>   m_perGridActiveCellInfo;
+
     std::vector<size_t>     m_activeInMatrixModel;
     std::vector<size_t>     m_activeInFractureModel;
 
-    std::vector<GridActiveCellCounts>     m_perGridActiveCellInfo;
+    size_t                  m_globalMatrixModelActiveCellCount;
+    size_t                  m_globalFractureModelActiveCellCount;
 
-    // From RigMainGrid
-    size_t                                  m_globalMatrixModelActiveCellCount;
-    size_t                                  m_globalFractureModelActiveCellCount;
+    cvf::Vec3st             m_activeCellPositionMin;
+    cvf::Vec3st             m_activeCellPositionMax;
+    cvf::Vec3st             m_fractureModelActiveCellPositionMin;
+    cvf::Vec3st             m_fractureModelActiveCellPositionMax;
 
-    cvf::Vec3st                             m_activeCellPositionMin;
-    cvf::Vec3st                             m_activeCellPositionMax;
-    cvf::Vec3st                             m_fractureModelActiveCellPositionMin;
-    cvf::Vec3st                             m_fractureModelActiveCellPositionMax;
-
-    // NOT USED
-//    cvf::Vec3st                             m_validCellPositionMin;
-//    cvf::Vec3st                             m_validCellPositionMax;
-    cvf::BoundingBox                        m_matrixActiveCellsBoundingBox;
+    cvf::BoundingBox        m_matrixActiveCellsBoundingBox;
 };
