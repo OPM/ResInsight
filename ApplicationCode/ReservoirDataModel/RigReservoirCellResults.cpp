@@ -16,8 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
-
 #include "RigReservoirCellResults.h"
 #include "RifReaderInterface.h"
 #include "RigMainGrid.h"

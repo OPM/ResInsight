@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 #include "RigCell.h"

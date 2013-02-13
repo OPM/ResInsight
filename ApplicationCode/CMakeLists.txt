@@ -93,18 +93,13 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimUiTreeView.cpp
 )
 
+# Populate the filenames into variable lists
+include ("ReservoirDataModel/CMakeLists_files.cmake")
 list( APPEND CPP_SOURCES
-    ReservoirDataModel/RigCell.cpp
-    ReservoirDataModel/RigGridBase.cpp
-    ReservoirDataModel/RigReservoirCellResults.cpp 
-    ReservoirDataModel/RigLocalGrid.cpp
-    ReservoirDataModel/RigMainGrid.cpp
-    ReservoirDataModel/RigEclipseCase.cpp
-    ReservoirDataModel/RigReservoirBuilderMock.cpp
-    ReservoirDataModel/RigWellResults.cpp
-    ReservoirDataModel/RigGridScalarDataAccess.cpp
-    ReservoirDataModel/RigActiveCellInfo.cpp
+    ${CODE_SOURCE_FILES}
 )
+
+message(${CODE_SOURCE_FILES}) 
 
 list( APPEND CPP_SOURCES
     UserInterface/RICursors.cpp
@@ -157,13 +152,13 @@ qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 
 set( RAW_SOURCES ${CPP_SOURCES} )
 list( REMOVE_ITEM RAW_SOURCES RIStdInclude.cpp)
-list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigReaderInterfaceECL.cpp)
-list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigGridScalarDataAccess.cpp)
-list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigActiveCellInfo.cpp)
+list( REMOVE_ITEM RAW_SOURCES ${CODE_SOURCE_FILES})
+
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivCellEdgeEffectGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivPipeGeometryGenerator.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellPipesPartMgr.cpp)
 list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellHeadPartMgr.cpp)
+
 list( REMOVE_ITEM RAW_SOURCES Application/RiaImageFileCompare.cpp)
 list( REMOVE_ITEM RAW_SOURCES Application/RiaImageCompareReporter.cpp)
 

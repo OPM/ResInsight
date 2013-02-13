@@ -24,7 +24,9 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/CommonCode
 )
 
-file( GLOB CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../*.cpp )
+# Populate the filenames into variable lists
+include ("${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists_files.cmake")
+
 
 set( UNIT_TEST_CPP_SOURCES
     main.cpp
@@ -36,7 +38,6 @@ set( UNIT_TEST_CPP_SOURCES
 #############################################################################
 # Adds folders for Visual Studio solution explorer (and for Xcode explorer)
 #############################################################################
-source_group( "ResInsight"      FILES ${CPP_SOURCES} )
 source_group( "UnitTests"       FILES ${UNIT_TEST_CPP_SOURCES} )
 
 
@@ -58,8 +59,9 @@ set( LINK_LIBRARIES
 
 
 add_executable( ${ProjectName}
-    ${CPP_SOURCES}
+    ${CODE_SOURCE_FILES}
     ${UNIT_TEST_CPP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists_files.cmake
 
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
 )

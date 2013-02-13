@@ -16,8 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
-
 #include "RigReservoirBuilderMock.h"
 #include "RigEclipseCase.h"
 

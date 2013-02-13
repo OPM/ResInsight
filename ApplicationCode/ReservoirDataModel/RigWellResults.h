@@ -18,8 +18,13 @@
 
 #pragma once
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfMath.h"
+
 #include "RimDefines.h"
 #include <QDateTime>
+#include <vector>
 
 struct RigWellResultCell
 {

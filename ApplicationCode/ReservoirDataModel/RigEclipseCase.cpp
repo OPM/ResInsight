@@ -16,7 +16,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
 #include "RigEclipseCase.h"
 #include "RigMainGrid.h"
 #include "RigReservoirCellResults.h"

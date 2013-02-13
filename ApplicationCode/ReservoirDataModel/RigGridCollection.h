@@ -16,19 +16,5 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigLocalGrid.h"
+#pragma once
 
-
-
-RigLocalGrid::RigLocalGrid(RigMainGrid* mainGrid): 
-    RigGridBase(mainGrid),
-    m_parentGrid(NULL), 
-    m_positionInParentGrid(cvf::UNDEFINED_SIZE_T)
-{
-
-}
-
-
-RigLocalGrid::~RigLocalGrid()
-{
-}

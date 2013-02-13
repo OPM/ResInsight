@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "cvfPlane.h"
+#include "cvfRay.h"
 
 static size_t undefinedCornersArray[8] = {cvf::UNDEFINED_SIZE_T,
                                           cvf::UNDEFINED_SIZE_T,
