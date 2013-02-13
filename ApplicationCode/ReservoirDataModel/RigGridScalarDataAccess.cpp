@@ -144,9 +144,8 @@ public:
     {
         if (m_resultValues->size() == 0 ) return HUGE_VAL;
 
-        size_t mainGridCellIndex = m_grid->cell(cellIndex).mainGridCellIndex();
-
-        size_t resultValueIndex = m_activeCellInfo->activeIndexInMatrixModel(mainGridCellIndex);
+        size_t globalGridCellIndex = m_grid->globalGridCellIndex(cellIndex);
+        size_t resultValueIndex = m_activeCellInfo->activeIndexInMatrixModel(globalGridCellIndex);
         if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
 
         if (m_resultValues->size() <= resultValueIndex) return HUGE_VAL;
@@ -179,9 +178,8 @@ public:
       {
           if (m_resultValues->size() == 0 ) return HUGE_VAL;
 
-          size_t mainGridCellIndex = m_grid->cell(cellIndex).mainGridCellIndex();
-
-          size_t resultValueIndex = m_activeCellInfo->activeIndexInFractureModel(mainGridCellIndex);
+          size_t globalGridCellIndex = m_grid->globalGridCellIndex(cellIndex);
+          size_t resultValueIndex = m_activeCellInfo->activeIndexInFractureModel(globalGridCellIndex);
           if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
 
           if (m_resultValues->size() <= resultValueIndex) return HUGE_VAL;

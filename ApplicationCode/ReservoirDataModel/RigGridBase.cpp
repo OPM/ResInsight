@@ -502,7 +502,7 @@ void RigGridBase::setMatrixModelActiveCellCount(size_t activeMatrixModelCellCoun
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::mainGridCellIndex(size_t localGridCellIndex) const
+size_t RigGridBase::globalGridCellIndex(size_t localGridCellIndex) const
 {
     return m_indexToStartOfCells + localGridCellIndex;
 }
