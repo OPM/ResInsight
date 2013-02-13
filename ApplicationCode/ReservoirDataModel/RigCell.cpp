@@ -22,6 +22,8 @@
 #include "cvfPlane.h"
 #include "cvfRay.h"
 
+#include <math.h>
+
 static size_t undefinedCornersArray[8] = {cvf::UNDEFINED_SIZE_T,
                                           cvf::UNDEFINED_SIZE_T,
                                           cvf::UNDEFINED_SIZE_T,

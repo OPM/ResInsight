@@ -29,6 +29,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigGridBase.h"
 #include "RigEclipseCase.h"
+#include <math.h>
 
 
 
