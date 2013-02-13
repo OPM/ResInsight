@@ -33,19 +33,26 @@
 #include "cvfShaderProgram.h"
 #include "cvfRenderStateCullFace.h"
 
-#include <vector>
-#include <QFile>
-#include <QTextStream>
-
-#include "RimReservoirView.h"
-#include "RigGridBase.h"
-#include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
 #include "cvfTextureImage.h"
 #include "cvfTexture.h"
 #include "cvfSampler.h"
 #include "cvfScalarMapper.h"
 #include "cafEffectGenerator.h"
+
+#include <vector>
+
+#include <QFile>
+#include <QTextStream>
+
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+
+#include "RigGridBase.h"
+#include "RigMainGrid.h"
+#include "RigReservoirCellResults.h"
+#include "RigReservoir.h"
+#include "RigActiveCellInfo.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
@@ -87,12 +94,12 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultSlot->legendConfig()->scalarMapper();
 
     const RigGridBase* grid = dynamic_cast<const RigGridBase*>(generator->activeGrid());
-
     CVF_ASSERT(grid != NULL);
 
-    bool cellScalarResultUseGlobalActiveIndex = true;
-    bool edgeScalarResultUseGlobalActiveIndex[6];
+    RigActiveCellInfo* activeCellInfo = cellResultSlot->reservoirView()->eclipseCase()->reservoirData()->activeCellInfo();
+    CVF_ASSERT(activeCellInfo != NULL);
 
+    cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = NULL;
     if (cellResultSlot->hasResult())
     {
         if (!cellResultSlot->hasDynamicResult())
@@ -102,22 +109,29 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         }
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-        cellScalarResultUseGlobalActiveIndex = grid->mainGrid()->results(porosityModel)->isUsingGlobalActiveIndex(cellResultSlot->gridScalarIndex());
+        cellCenterDataAccessObject = grid->dataAccessObject(activeCellInfo, porosityModel, timeStepIndex, cellResultSlot->gridScalarIndex());
     }
+
+    CVF_ASSERT(cellEdgeResultSlot->hasResult());
 
     size_t resultIndices[6];
     cellEdgeResultSlot->gridScalarIndices(resultIndices);
 
-    if (cellEdgeResultSlot->hasResult())
+    cvf::Collection<cvf::StructGridScalarDataAccess> cellEdgeDataAccessObjects;
+
+    size_t cubeFaceIdx;
+    for (cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
     {
-        size_t cubeFaceIdx;
-        for (cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
+        cvf::ref<cvf::StructGridScalarDataAccess> daObj;
+
+        if (resultIndices[cubeFaceIdx] != cvf::UNDEFINED_SIZE_T)
         {
-            if (resultIndices[cubeFaceIdx] != cvf::UNDEFINED_SIZE_T)
-            {
-                edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx] = grid->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->isUsingGlobalActiveIndex(resultIndices[cubeFaceIdx]);
-            }
+            // Assuming static values to be mapped onto cell edge, always using time step zero
+            // TODO: Now hardcoded matrix results, should it be possible to use fracture results?
+            daObj = grid->dataAccessObject(activeCellInfo, RifReaderInterface::MATRIX_RESULTS, 0, resultIndices[cubeFaceIdx]);
         }
+
+        cellEdgeDataAccessObjects.push_back(daObj.p());
     }
 
     double ignoredScalarValue = cellEdgeResultSlot->ignoredScalarValue();
@@ -138,15 +152,14 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         float cellColorTextureCoord = 0.5f; // If no results exists, the texture will have a special color
         size_t cellIndex = quadToCell[quadIdx];
 
-        size_t resultValueIndex = cellIndex;
-        if (cellScalarResultUseGlobalActiveIndex)
         {
-            resultValueIndex = grid->cell(cellIndex).activeIndexInMatrixModel();
-        }
+            double scalarValue = HUGE_VAL;
 
-        {
-            RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-            double scalarValue = grid->mainGrid()->results(porosityModel)->cellScalarResult(timeStepIndex, cellResultSlot->gridScalarIndex(), resultValueIndex);
+            if (cellCenterDataAccessObject.notNull())
+            {
+                scalarValue = cellCenterDataAccessObject->cellScalar(cellIndex);
+            }
+
             if (scalarValue != HUGE_VAL)
             {
                 cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
@@ -168,14 +181,12 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         {
             edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
 
-            resultValueIndex = cellIndex;
-            if (edgeScalarResultUseGlobalActiveIndex[cubeFaceIdx])
+            double scalarValue = HUGE_VAL;
+            if (cellEdgeDataAccessObjects[cubeFaceIdx].notNull())
             {
-                resultValueIndex = grid->cell(cellIndex).activeIndexInMatrixModel();
+                scalarValue = cellEdgeDataAccessObjects[cubeFaceIdx]->cellScalar(cellIndex);
             }
 
-            // Assuming static values to be mapped onto cell edge, always using time step zero
-            double scalarValue = grid->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResult(0, resultIndices[cubeFaceIdx], resultValueIndex);
             if (scalarValue != HUGE_VAL && scalarValue != ignoredScalarValue)
             {
                 edgeColor = edgeResultScalarMapper->mapToTextureCoord(scalarValue)[0];
