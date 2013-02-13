@@ -293,14 +293,7 @@ void RigReservoir::computeCachedData()
 {
     computeFaults();
     computeActiveCellData();
-
-    //TODO Set display model offset
-    /*
-    if (m_mainGrid.notNull())
-    {
-        m_mainGrid->setDisplayModelOffset(m_activeCellInfo.m_activeCellPositionMin);
-    }
-    */
+    computeActiveCellsGeometryBoundingBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -317,4 +310,44 @@ RigActiveCellInfo* RigReservoir::activeCellInfo()
 const RigActiveCellInfo* RigReservoir::activeCellInfo() const
 {
     return &m_activeCellInfo;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoir::computeActiveCellsGeometryBoundingBox()
+{
+    if (m_mainGrid.isNull())
+    {
+        cvf::BoundingBox bb;
+        m_activeCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
+        return;
+    }
+
+    cvf::BoundingBox bb;
+    if (m_mainGrid->nodes().size() == 0)
+    {
+        bb.add(cvf::Vec3d::ZERO);
+    }
+    else
+    {
+        for (size_t i = 0; i < m_mainGrid->cells().size(); i++)
+        {
+            if (m_activeCellInfo.activeIndexInMatrixModel(i))
+            {
+                const RigCell& c = m_mainGrid->cells()[i];
+                const caf::SizeTArray8& indices = c.cornerIndices();
+
+                size_t idx;
+                for (idx = 0; idx < 8; idx++)
+                {
+                    bb.add(m_mainGrid->nodes()[indices[idx]]);
+                }
+            }
+        }
+    }
+
+    m_activeCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
+
+    m_mainGrid->setDisplayModelOffset(bb.min());
 }

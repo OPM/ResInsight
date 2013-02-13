@@ -28,10 +28,11 @@ RigMainGrid::RigMainGrid(void)
 {
     m_matrixModelResults = new RigReservoirCellResults(this);
 	m_fractureModelResults = new RigReservoirCellResults(this);
-
-    m_activeCellsBoundingBox.add(cvf::Vec3d::ZERO);
+    
+    m_displayModelOffset = cvf::Vec3d::ZERO;
+    
     m_gridIndex = 0;
-}
+} 
 
 
 RigMainGrid::~RigMainGrid(void)
@@ -74,86 +75,21 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
     }
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RigMainGrid::matrixModelActiveCellsBoundingBox() const
-{
-    return m_activeCellsBoundingBox;
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// Helper class used to find min/max range for valid and active cells
-//--------------------------------------------------------------------------------------------------
-class CellRangeBB
-{
-public:
-    CellRangeBB()
-        : m_min(cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T),
-        m_max(cvf::Vec3st::ZERO)
-    {
-
-    }
-
-    void add(size_t i, size_t j, size_t k)
-    {
-        if (i < m_min.x()) m_min.x() = i;
-        if (j < m_min.y()) m_min.y() = j;
-        if (k < m_min.z()) m_min.z() = k;
-
-        if (i > m_max.x()) m_max.x() = i;
-        if (j > m_max.y()) m_max.y() = j;
-        if (k > m_max.z()) m_max.z() = k;
-    }
-
-public:
-    cvf::Vec3st m_min;
-    cvf::Vec3st m_max;
-};
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigMainGrid::displayModelOffset() const
 {
-    return m_activeCellsBoundingBox.min();
+    return m_displayModelOffset;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeBoundingBox()
+void RigMainGrid::setDisplayModelOffset(cvf::Vec3d offset)
 {
-    m_activeCellsBoundingBox.reset();
-
-    if (m_nodes.size() == 0)
-    {
-        m_activeCellsBoundingBox.add(cvf::Vec3d::ZERO);
-    }
-    else
-    {
-        size_t i;
-        for (i = 0; i < cellCount(); i++)
-        {
-            const RigCell& c = cell(i);
-            if (c.isActiveInMatrixModel())
-            {
-                const caf::SizeTArray8& indices = c.cornerIndices();
-
-                size_t idx;
-                for (idx = 0; idx < 8; idx++)
-                {
-                    m_activeCellsBoundingBox.add(m_nodes[indices[idx]]);
-                }
-            }
-        }
-    }
+    m_displayModelOffset = offset;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Initialize pointers from grid to parent grid
@@ -164,7 +100,6 @@ void RigMainGrid::computeCachedData()
 {
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
-    computeBoundingBox();
 }
 
 //--------------------------------------------------------------------------------------------------

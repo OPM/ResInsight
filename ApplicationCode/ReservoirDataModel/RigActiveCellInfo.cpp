@@ -203,6 +203,22 @@ void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& matrixAct
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigActiveCellInfo::matrixActiveCellsGeometryBoundingBox() const
+{
+    return m_matrixActiveCellsBoundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigActiveCellInfo::setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox bb)
+{
+    m_matrixActiveCellsBoundingBox = bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::GridActiveCellCounts::matrixModelActiveCellCount() const
 {
     return m_matrixModelActiveCellCount;

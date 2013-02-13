@@ -58,6 +58,8 @@ public:
     void                setFractureModelActiveCellsBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max);
     void                fractureModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
 
+    cvf::BoundingBox    matrixActiveCellsGeometryBoundingBox() const;
+    void                setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox bb);
 
 
 private:
@@ -93,6 +95,5 @@ private:
     // NOT USED
 //    cvf::Vec3st                             m_validCellPositionMin;
 //    cvf::Vec3st                             m_validCellPositionMax;
-//    cvf::BoundingBox                        m_activeCellsBoundingBox;
-
+    cvf::BoundingBox                        m_matrixActiveCellsBoundingBox;
 };

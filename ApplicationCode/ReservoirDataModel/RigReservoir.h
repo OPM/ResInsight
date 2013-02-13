@@ -60,6 +60,8 @@ private:
     void                    computeFaults();
     void                    computeActiveCellData();
     void                    computeWellCellsPrGrid();
+    void                    computeActiveCellsGeometryBoundingBox();
+
 
 private:
     RigActiveCellInfo                   m_activeCellInfo;

@@ -56,12 +56,12 @@ public:
 
     // Overrides
     virtual cvf::Vec3d                      displayModelOffset() const;
+    void                                    setDisplayModelOffset(cvf::Vec3d offset);
 
 private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    computeActiveAndValidCellRanges();
-    void                                    computeBoundingBox();
 
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
@@ -71,6 +71,6 @@ private:
     cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
     cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
 
-    cvf::BoundingBox                        m_activeCellsBoundingBox;
+    cvf::Vec3d                              m_displayModelOffset;
 };
 
