@@ -27,7 +27,7 @@
 #include "RIPreferences.h"
 #include "RIPreferencesDialog.h"
 
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
 #include "RimReservoir.h"
 #include "RimUiTreeModelPdm.h"

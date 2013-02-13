@@ -21,7 +21,7 @@
 #include "RIStdInclude.h"
 #include "gtest/gtest.h"
 
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 #include "RifReaderEclipseOutput.h"
 #include "ecl_file.h"

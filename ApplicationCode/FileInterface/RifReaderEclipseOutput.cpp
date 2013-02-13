@@ -19,7 +19,7 @@
 #include "cvfBase.h"
 
 #include "RigMainGrid.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
 
 #include "RifReaderEclipseOutput.h"

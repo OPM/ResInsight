@@ -99,7 +99,7 @@ list( APPEND CPP_SOURCES
     ReservoirDataModel/RigReservoirCellResults.cpp 
     ReservoirDataModel/RigLocalGrid.cpp
     ReservoirDataModel/RigMainGrid.cpp
-    ReservoirDataModel/RigReservoir.cpp
+    ReservoirDataModel/RigEclipseCase.cpp
     ReservoirDataModel/RigReservoirBuilderMock.cpp
     ReservoirDataModel/RigWellResults.cpp
     ReservoirDataModel/RigGridScalarDataAccess.cpp

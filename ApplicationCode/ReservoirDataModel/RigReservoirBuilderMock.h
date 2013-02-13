@@ -23,7 +23,7 @@
 #include "cvfArray.h"
 #include "cvfVector3.h"
 #include "RigCell.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 class LocalGridRefinement
 {

@@ -50,7 +50,7 @@
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 #include "RigReservoirCellResults.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RigActiveCellInfo.h"
 
 

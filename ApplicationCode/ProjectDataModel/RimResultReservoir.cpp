@@ -18,7 +18,7 @@
 
 #include "RIStdInclude.h"
 #include "RimResultReservoir.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RifReaderEclipseOutput.h"
 #include "RigReservoirCellResults.h"
 #include "RimReservoirView.h"

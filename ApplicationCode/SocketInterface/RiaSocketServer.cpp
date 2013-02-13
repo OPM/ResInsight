@@ -26,7 +26,7 @@
 #include "RIApplication.h"
 #include "RIMainWindow.h"
 #include "RimReservoir.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
 #include "RimInputProperty.h"
 #include "RimInputReservoir.h"

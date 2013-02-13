@@ -24,7 +24,7 @@
 
 #include "RifReaderEclipseInput.h"
 
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
 
 #include "cvfAssert.h"

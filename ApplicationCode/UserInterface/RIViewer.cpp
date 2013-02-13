@@ -28,7 +28,7 @@
 #include "cvfRendering.h"
 #include "cvfDrawableGeo.h"
 #include "RICursors.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 #include "cafUtils.h"
 #include "cafFrameAnimationControl.h"

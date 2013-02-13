@@ -28,7 +28,7 @@
 #include "RigReservoirCellResults.h"
 #include "RigActiveCellInfo.h"
 #include "RigGridBase.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 
 

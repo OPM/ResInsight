@@ -20,7 +20,7 @@
 #include "cvfLibCore.h"
 
 #include "RimReservoir.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RivWellPipesPartMgr.h"
 #include "RigCell.h"
 #include "RivPipeGeometryGenerator.h"

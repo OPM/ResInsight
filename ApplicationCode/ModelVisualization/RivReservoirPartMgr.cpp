@@ -21,7 +21,7 @@
 #include "RivGridPartMgr.h"
 #include "cvfStructGrid.h"
 #include "cvfModelBasicList.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

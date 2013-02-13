@@ -23,7 +23,7 @@
 #include "RimReservoirView.h"
 #include "RimReservoir.h"
 #include "RigReservoirCellResults.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RigMainGrid.h"
 #include "cafPdmUiListEditor.h"
 

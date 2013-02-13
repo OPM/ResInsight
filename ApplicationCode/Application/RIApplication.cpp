@@ -39,7 +39,7 @@
 #include "RimInputReservoir.h"
 #include "RimReservoirView.h"
 
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RigCell.h"
 #include "RigReservoirBuilderMock.h"
 

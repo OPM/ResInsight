@@ -19,7 +19,7 @@
 #include "RIStdInclude.h"
 
 #include "RigReservoirBuilderMock.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 
 /* rand example: guess the number */

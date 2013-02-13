@@ -22,7 +22,7 @@
 #include "RimReservoirView.h"
 #include "RIMainWindow.h"
 #include "RigGridBase.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "RIApplication.h"
 #include "RIPreferences.h"
 

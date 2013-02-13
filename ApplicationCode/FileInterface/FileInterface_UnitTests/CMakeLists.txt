@@ -36,7 +36,7 @@ set( RESERVOIRDATAMODEL_CPP_SOURCES
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigGridBase.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigLocalGrid.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigMainGrid.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoir.cpp
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigEclipseCase.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoirBuilderMock.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoirCellResults.cpp
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigWellResults.cpp

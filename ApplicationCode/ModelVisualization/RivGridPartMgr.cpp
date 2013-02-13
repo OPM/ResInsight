@@ -29,7 +29,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RigGridScalarDataAccess.h"
 #include "RigReservoirCellResults.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 
 //--------------------------------------------------------------------------------------------------

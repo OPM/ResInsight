@@ -20,7 +20,7 @@
 #include "RifReaderEclipseOutput.h"
 #include "RigReservoirCellResults.h"
 
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 #include "cafProgressInfo.h"
 
 #include <vector>

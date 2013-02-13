@@ -21,7 +21,7 @@
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimReservoirView.h"
-#include "RigReservoir.h"
+#include "RigEclipseCase.h"
 
 #include "cafPdmUiSliderEditor.h"
 
