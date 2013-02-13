@@ -234,6 +234,16 @@ size_t RigReservoirCellResults::timeStepCount(size_t scalarResultIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+const std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults( size_t scalarResultIndex ) const
+{
+    CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
+
+    return m_cellScalarResults[scalarResultIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults( size_t scalarResultIndex )
 {
 	CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());

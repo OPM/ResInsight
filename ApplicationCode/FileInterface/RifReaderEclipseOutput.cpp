@@ -372,8 +372,8 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
 
     m_reservoir = reservoir;
     
-    reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(this);
-    reservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(this);
+    reservoir->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(this);
+    reservoir->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(this);
     
     // Build results meta data
     if (!buildMetaData(reservoir)) return false;
@@ -409,8 +409,8 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 
     progInfo.incrementProgress();
 
-    RigReservoirCellResults* matrixModelResults = m_reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
-    RigReservoirCellResults* fractureModelResults = m_reservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS);
+    RigReservoirCellResults* matrixModelResults = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
+    RigReservoirCellResults* fractureModelResults = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
 
     if (m_dynamicResultsAccess.notNull())
     {

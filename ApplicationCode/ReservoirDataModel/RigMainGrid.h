@@ -27,8 +27,6 @@
 
 #include <QtGlobal>
 
-class RigReservoirCellResults;
-
 class RigMainGrid : public RigGridBase
 {
 public:
@@ -41,9 +39,6 @@ public:
 
     std::vector<RigCell>&                   cells() {return m_cells;}
     const std::vector<RigCell>&             cells() const {return m_cells;}
-
-    RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
-    const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
@@ -67,9 +62,6 @@ private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
-
-    cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
-    cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
 
     cvf::Vec3d                              m_displayModelOffset;
 };

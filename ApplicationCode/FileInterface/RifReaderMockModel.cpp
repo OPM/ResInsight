@@ -31,7 +31,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigReservoir* reservoir)
   
     m_reservoir = reservoir;
 
-    RigReservoirCellResults* cellResults = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
+    RigReservoirCellResults* cellResults = reservoir->results(RifReaderInterface::MATRIX_RESULTS);
 
 
     QList<QDateTime> dates;

@@ -68,7 +68,7 @@ TEST(RigReservoirTest, FileOutputToolsTest)
 
 void buildResultInfoString(RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, RimDefines::ResultCatType resultType)
 {
-    RigReservoirCellResults* matrixResults = reservoir->mainGrid()->results(porosityModel);
+    RigReservoirCellResults* matrixResults = reservoir->results(porosityModel);
     {
         QStringList resultNames = matrixResults->resultNames(resultType);
 

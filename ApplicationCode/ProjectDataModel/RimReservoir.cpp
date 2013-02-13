@@ -209,13 +209,13 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
                 reservoirView->createDisplayModelAndRedraw();
             }
 
-            RigReservoirCellResults* matrixModelResults = m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
+            RigReservoirCellResults* matrixModelResults = m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS);
             if (matrixModelResults)
             {
                 matrixModelResults->clearAllResults();
             }
 
-            RigReservoirCellResults* fractureModelResults = m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS);
+            RigReservoirCellResults* fractureModelResults = m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS);
             if (fractureModelResults)
             {
                 fractureModelResults->clearAllResults();

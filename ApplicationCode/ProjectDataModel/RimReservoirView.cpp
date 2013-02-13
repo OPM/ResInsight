@@ -875,7 +875,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         if (this->cellResult()->hasResult())
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(activeCellInfo, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
             if (dataAccessObject.notNull())
             {
                 double scalarValue = dataAccessObject->cellScalar(cellIndex);
@@ -896,7 +896,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 
                 // Cell edge results are static, results are loaded for first time step only
                 RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(activeCellInfo, porosityModel, 0, resultIndices[idx]);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(grid, porosityModel, 0, resultIndices[idx]);
                 if (dataAccessObject.notNull())
                 {
                     double scalarValue = dataAccessObject->cellScalar(cellIndex);
@@ -968,7 +968,7 @@ RigReservoirCellResults* RimReservoirView::gridCellResults()
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
-        return m_reservoir->reservoirData()->mainGrid()->results(porosityModel);
+        return m_reservoir->reservoirData()->results(porosityModel);
     }
 
     return NULL;
@@ -1038,7 +1038,7 @@ void RimReservoirView::updateLegends()
     CVF_ASSERT(reservoir);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-    RigReservoirCellResults* results = reservoir->mainGrid()->results(porosityModel);
+    RigReservoirCellResults* results = reservoir->results(porosityModel);
     CVF_ASSERT(results);
 
     if (this->cellResult()->hasResult())

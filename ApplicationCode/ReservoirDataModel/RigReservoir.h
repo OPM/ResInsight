@@ -27,6 +27,8 @@
 #include "RigWellResults.h"
 #include "RigActiveCellInfo.h"
 
+class RigReservoirCellResults;
+
 
 class RigReservoir: public cvf::Object
 {
@@ -40,6 +42,13 @@ public:
     void                    allGrids(std::vector<RigGridBase*>* grids);
     void                    allGrids(std::vector<const RigGridBase*>* grids) const;
     const RigGridBase*      grid(size_t index) const;
+
+
+    RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
+
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const;
+
 
     void                    computeCachedData();
 
@@ -65,7 +74,12 @@ private:
 
 private:
     RigActiveCellInfo                   m_activeCellInfo;
+
     cvf::ref<RigMainGrid>               m_mainGrid;
+
+    cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
+    cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
+
 
     cvf::Collection<RigWellResults>     m_wellResults;
     cvf::Collection<cvf::UByteArray>    m_wellCellsInGrid;

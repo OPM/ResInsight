@@ -19,16 +19,12 @@
 #include "RIStdInclude.h"
 
 #include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
 
 #include "cvfAssert.h"
 
 RigMainGrid::RigMainGrid(void)
     : RigGridBase(this)
 {
-    m_matrixModelResults = new RigReservoirCellResults(this);
-	m_fractureModelResults = new RigReservoirCellResults(this);
-    
     m_displayModelOffset = cvf::Vec3d::ZERO;
     
     m_gridIndex = 0;
@@ -120,31 +116,5 @@ const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
     if (localGridIndex == 0) return this;
     CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
     return m_localGrids[localGridIndex-1].p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigReservoirCellResults* RigMainGrid::results(RifReaderInterface::PorosityModelResultType porosityModel)
-{
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
-    {
-        return m_matrixModelResults.p();
-    }
-
-    return m_fractureModelResults.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RigReservoirCellResults* RigMainGrid::results(RifReaderInterface::PorosityModelResultType porosityModel) const
-{
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
-    {
-        return m_matrixModelResults.p();
-    }
-
-    return m_fractureModelResults.p();
 }
 

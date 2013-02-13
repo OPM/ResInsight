@@ -471,21 +471,6 @@ size_t RigGridBase::fractureModelActiveCellCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigGridBase::dataAccessObject(const RigActiveCellInfo* activeCellInfo, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const
-{
-    if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
-        scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigGridScalarDataAccessFactory::createDataAccessObject(this, activeCellInfo, porosityModel, timeStepIndex, scalarSetIndex);
-        return dataAccess;
-    }
-
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RigGridBase::setFractureModelActiveCellCount(size_t activeFractureModelCellCount)
 {
     m_fractureModelActiveCellCount = activeFractureModelCellCount;

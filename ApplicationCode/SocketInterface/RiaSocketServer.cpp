@@ -1,4 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
 // 
@@ -281,18 +280,18 @@ void RiaSocketServer::readCommandFromOctave()
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid() && reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS))
+        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS))
         {
-            scalarResultIndex = reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T && isSetProperty)
             {
-                scalarResultIndex = reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
+                scalarResultIndex = reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndex));
+                scalarResultFrames = &(reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndex));
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -523,10 +522,9 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
             if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
                 m_currentReservoir->reservoirData() && 
-                m_currentReservoir->reservoirData()->mainGrid() &&
-                m_currentReservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS) )
+                m_currentReservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS) )
             {
-                m_currentReservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->recalculateMinMax(m_currentScalarIndex);
+                m_currentReservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->recalculateMinMax(m_currentScalarIndex);
             }
 
             for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)

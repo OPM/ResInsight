@@ -212,11 +212,11 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
             ecl_kw_type* eclKeyWordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer,  false , ECL_FLOAT_TYPE);
             if (eclKeyWordData)
             {
-                QString newResultName = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeywords[i].keyword);
+                QString newResultName = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeywords[i].keyword);
 
-                size_t resultIndex = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); // Should really merge with inputProperty object information because we need to use PropertyName, and not keyword
+                size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); // Should really merge with inputProperty object information because we need to use PropertyName, and not keyword
 
-                std::vector< std::vector<double> >& newPropertyData = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+                std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
                 newPropertyData.push_back(std::vector<double>());
                 newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
                 ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
@@ -294,13 +294,13 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigReservoi
     if (eclKeyWordData)
     {
         QString newResultName = resultName;
-        size_t resultIndex = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
+        size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
         if (resultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
+            resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
         }
 
-        std::vector< std::vector<double> >& newPropertyData = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+        std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
         newPropertyData.resize(1);
         newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
@@ -374,7 +374,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 {
     CVF_ASSERT(reservoir);
 
-    size_t resultIndex = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultName);
+    size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -386,7 +386,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
         return false;
     }
 
-    std::vector< std::vector<double> >& resultData = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+    std::vector< std::vector<double> >& resultData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
     if (resultData.size() == 0)
     {
         return false;
@@ -406,7 +406,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
 {
     CVF_ASSERT(reservoir);
 
-    size_t resultIndex = reservoir->mainGrid()->results(porosityModel)->findScalarResultIndex(resultName);
+    size_t resultIndex = reservoir->results(porosityModel)->findScalarResultIndex(resultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -418,8 +418,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
-    RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo();
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->mainGrid()->dataAccessObject(activeCellInfo, porosityModel, timeStep, resultIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(reservoir->mainGrid(), porosityModel, timeStep, resultIndex);
     if (dataAccessObject.isNull())
     {
         return false;
@@ -533,13 +532,13 @@ bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileNam
     if (eclKeyWordData)
     {
         QString newResultName = resultName;
-        size_t resultIndex = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
+        size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
         if (resultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
+            resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
         }
 
-        std::vector< std::vector<double> >& newPropertyData = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+        std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
         newPropertyData.resize(1);
         newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());

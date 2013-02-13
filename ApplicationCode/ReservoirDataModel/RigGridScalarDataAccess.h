@@ -30,11 +30,10 @@ class RigGridScalarDataAccessFactory
 {
 public:
     static cvf::ref<cvf::StructGridScalarDataAccess> createDataAccessObject(const RigGridBase* grid,
-        const RigActiveCellInfo* activeCellInfo,
-        RifReaderInterface::PorosityModelResultType porosityModel,
-        size_t timeStepIndex,
-        size_t scalarSetIndex);
-
+                                                                            const RigReservoir* reservoir,
+                                                                            RifReaderInterface::PorosityModelResultType porosityModel,
+                                                                            size_t timeStepIndex,
+                                                                            size_t scalarSetIndex);
 };
 
 

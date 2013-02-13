@@ -19,6 +19,8 @@
 #include "RIStdInclude.h"
 #include "RigReservoir.h"
 #include "RigMainGrid.h"
+#include "RigReservoirCellResults.h"
+#include "RigGridScalarDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -26,6 +28,9 @@
 RigReservoir::RigReservoir()
 {
     m_mainGrid = new RigMainGrid();
+
+    m_matrixModelResults = new RigReservoirCellResults(m_mainGrid.p());
+    m_fractureModelResults = new RigReservoirCellResults(m_mainGrid.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,4 +353,46 @@ void RigReservoir::computeActiveCellsGeometryBoundingBox()
     m_activeCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
 
     m_mainGrid->setDisplayModelOffset(bb.min());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigReservoirCellResults* RigReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel)
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_matrixModelResults.p();
+    }
+
+    return m_fractureModelResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigReservoirCellResults* RigReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_matrixModelResults.p();
+    }
+
+    return m_fractureModelResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::StructGridScalarDataAccess> RigReservoir::dataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const 
+{
+    if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
+        scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigGridScalarDataAccessFactory::createDataAccessObject(grid, this, porosityModel, timeStepIndex, scalarSetIndex);
+        return dataAccess;
+    }
+
+    return NULL;
+
 }

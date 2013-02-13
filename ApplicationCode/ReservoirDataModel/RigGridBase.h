@@ -99,8 +99,6 @@ public:
     virtual bool isCellValid( size_t i, size_t j, size_t k ) const;
     virtual bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject(const RigActiveCellInfo* activeCellInfo, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const;
-
 private:
     std::string                 m_gridName;
     cvf::Vec3st                 m_gridPointDimensions;

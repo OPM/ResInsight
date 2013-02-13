@@ -72,8 +72,8 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
     if (caseName().contains("Input Mock Debug Model"))
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(this->caseName());
-        m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
         m_rigReservoir->activeCellInfo()->computeDerivedData();
 
@@ -183,8 +183,8 @@ bool RimInputReservoir::openEclipseGridFile()
         CVF_ASSERT(m_rigReservoir.notNull());
         CVF_ASSERT(readerInterface.notNull());
 
-        m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
         m_rigReservoir->computeCachedData();
         m_rigReservoir->mainGrid()->computeCachedData();
     }
@@ -193,8 +193,8 @@ bool RimInputReservoir::openEclipseGridFile()
     RIApplication* app = RIApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
-        RigReservoirCellResults* matrixResults = m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
-        RigReservoirCellResults* fractureResults = m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS);
+        RigReservoirCellResults* matrixResults = m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS);
+        RigReservoirCellResults* fractureResults = m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS);
 
         matrixResults->computeDepthRelatedResults();
         fractureResults->computeDepthRelatedResults();
@@ -286,7 +286,7 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
             {
                 if (fileKeywordSet.count(knownKeywords[fkIt]))
                 {
-                    QString resultName = this->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(knownKeywords[fkIt]);
+                    QString resultName = this->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(knownKeywords[fkIt]);
                     if (RifEclipseInputFileTools::readProperty(filenames[i], this->reservoirData(), knownKeywords[fkIt], resultName))
                     {
                         RimInputProperty* inputProperty = new RimInputProperty;
@@ -361,7 +361,7 @@ void RimInputReservoir::removeProperty(RimInputProperty* inputProperty)
     }
 
     // Remove the results pointed to by this input property
-    RigReservoirCellResults* results = m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
+    RigReservoirCellResults* results = m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS);
     results->removeResult(inputProperty->resultName);
 
     this->removeResult(inputProperty->resultName);

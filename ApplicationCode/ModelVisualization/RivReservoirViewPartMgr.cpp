@@ -605,9 +605,9 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
 
                 RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
-                RigActiveCellInfo* activeCellInfo = propFilterColl->reservoirView()->eclipseCase()->reservoirData()->activeCellInfo();
+                RigReservoir* reservoir = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(activeCellInfo, porosityModel, timeStepIndex, scalarResultIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(grid, porosityModel, timeStepIndex, scalarResultIndex);
                 CVF_ASSERT(dataAccessObject.notNull());
 
                 #pragma omp parallel for schedule(dynamic)

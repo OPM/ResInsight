@@ -58,8 +58,8 @@ bool RimResultReservoir::openEclipseGridFile()
     {
         readerInterface = this->createMockModel(this->caseName());
 
-        m_rigReservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigReservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
     }
     else
     {

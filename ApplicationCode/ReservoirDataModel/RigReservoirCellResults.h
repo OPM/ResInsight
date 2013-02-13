@@ -71,6 +71,7 @@ public:
     void                computeDepthRelatedResults();
 
     // Access the results data
+    const std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex) const;
     std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex);
     double                                                  cellScalarResult(size_t timeStepIndex, size_t scalarResultIndex, size_t resultValueIndex);
 
