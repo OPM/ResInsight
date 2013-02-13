@@ -53,7 +53,7 @@ RimReservoir::RimReservoir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigReservoir* RimReservoir::reservoirData()
+RigEclipseCase* RimReservoir::reservoirData()
 {
     return m_rigReservoir.p();
 }
@@ -61,7 +61,7 @@ RigReservoir* RimReservoir::reservoirData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigReservoir* RimReservoir::reservoirData() const
+const RigEclipseCase* RimReservoir::reservoirData() const
 {
     return m_rigReservoir.p();
 }

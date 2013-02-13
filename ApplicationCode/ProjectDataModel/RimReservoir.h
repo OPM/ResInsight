@@ -26,7 +26,7 @@
 
 class QString;
 
-class RigReservoir;
+class RigEclipseCase;
 class RigGridBase;
 class RimReservoirView;
 
@@ -46,8 +46,8 @@ public:
 
     virtual bool                openEclipseGridFile() = 0;
                                       
-    RigReservoir*               reservoirData();
-    const RigReservoir*         reservoirData() const;
+    RigEclipseCase*               reservoirData();
+    const RigEclipseCase*         reservoirData() const;
                                       
     RimReservoirView*           createAndAddReservoirView();
     void                        removeReservoirView(RimReservoirView* reservoirView);
@@ -71,6 +71,6 @@ protected:
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
 protected:
-    cvf::ref<RigReservoir>            m_rigReservoir;
+    cvf::ref<RigEclipseCase>            m_rigReservoir;
 };
 

@@ -61,9 +61,9 @@ RifEclipseInputFileTools::~RifEclipseInputFileTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoir* reservoir)
+bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseCase* eclipseCase)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
 
     qint64 coordPos = -1;
     qint64 zcornPos = -1;
@@ -154,7 +154,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
 
     progress.setProgress(6);
 
-    RifReaderEclipseOutput::transferGeometry(inputGrid, reservoir);
+    RifReaderEclipseOutput::transferGeometry(inputGrid, eclipseCase);
 
     progress.setProgress(7);
     progress.setProgressDescription("Cleaning up ...");
@@ -176,7 +176,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigReservoi
 //--------------------------------------------------------------------------------------------------
 /// Read known properties from the input file
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QString &fileName, RigReservoir *reservoir)
+std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QString &fileName, RigEclipseCase *reservoir)
 {
     CVF_ASSERT(reservoir);
 
@@ -282,9 +282,9 @@ std::vector< RifKeywordAndFilePos > RifEclipseInputFileTools::findKeywordsOnFile
 /// Reads the property data requested into the \a reservoir, overwriting any previous 
 /// propeties with the same name.
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigReservoir* reservoir, const QString& eclipseKeyWord, const QString& resultName)
+bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseCase* eclipseCase, const QString& eclipseKeyWord, const QString& resultName)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
 
     FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
     if (!filePointer) return false;
@@ -294,13 +294,13 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigReservoi
     if (eclKeyWordData)
     {
         QString newResultName = resultName;
-        size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
+        size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
         if (resultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
+            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
         }
 
-        std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+        std::vector< std::vector<double> >& newPropertyData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
         newPropertyData.resize(1);
         newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
@@ -370,11 +370,11 @@ const std::vector<QString>& RifEclipseInputFileTools::knownPropertyKeywords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigReservoir* reservoir, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
+bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigEclipseCase* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
 
-    size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultName);
+    size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -386,7 +386,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
         return false;
     }
 
-    std::vector< std::vector<double> >& resultData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+    std::vector< std::vector<double> >& resultData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
     if (resultData.size() == 0)
     {
         return false;
@@ -402,11 +402,11 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 /// Create and write a result vector with values for all cells.
 /// undefinedValue is used for cells with no result
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue)
+bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, RigEclipseCase* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
 
-    size_t resultIndex = reservoir->results(porosityModel)->findScalarResultIndex(resultName);
+    size_t resultIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(resultName);
     if (resultIndex == cvf::UNDEFINED_SIZE_T)
     {
         return false;
@@ -418,7 +418,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(reservoir->mainGrid(), porosityModel, timeStep, resultIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(eclipseCase->mainGrid(), porosityModel, timeStep, resultIndex);
     if (dataAccessObject.isNull())
     {
         return false;
@@ -426,11 +426,11 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
 
     std::vector<double> resultData;
     size_t i, j, k;
-    for (k = 0; k < reservoir->mainGrid()->cellCountK(); k++)
+    for (k = 0; k < eclipseCase->mainGrid()->cellCountK(); k++)
     {
-        for (j = 0; j < reservoir->mainGrid()->cellCountJ(); j++)
+        for (j = 0; j < eclipseCase->mainGrid()->cellCountJ(); j++)
         {
-            for (i = 0; i < reservoir->mainGrid()->cellCountI(); i++)
+            for (i = 0; i < eclipseCase->mainGrid()->cellCountI(); i++)
             {
                 double resultValue = dataAccessObject->cellScalar(i, j, k);
                 if (resultValue == HUGE_VAL)
@@ -519,9 +519,9 @@ void RifEclipseInputFileTools::findGridKeywordPositions(const QString& filename,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigReservoir* reservoir, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
+bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigEclipseCase* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
 
     FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
     if (!filePointer) return false;
@@ -532,13 +532,13 @@ bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileNam
     if (eclKeyWordData)
     {
         QString newResultName = resultName;
-        size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
+        size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
         if (resultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
+            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
         }
 
-        std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+        std::vector< std::vector<double> >& newPropertyData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
         newPropertyData.resize(1);
         newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());

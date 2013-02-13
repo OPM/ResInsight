@@ -223,8 +223,8 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
 
-    RigReservoir* reservoir = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
+    RigEclipseCase* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
 
     if (dataAccessObject.isNull()) return;
 

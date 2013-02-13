@@ -96,8 +96,8 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     const RigGridBase* grid = dynamic_cast<const RigGridBase*>(generator->activeGrid());
     CVF_ASSERT(grid != NULL);
 
-    RigReservoir* reservoir = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
-    CVF_ASSERT(reservoir != NULL);
+    RigEclipseCase* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    CVF_ASSERT(eclipseCase != NULL);
 
     cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = NULL;
     if (cellResultSlot->hasResult())
@@ -109,7 +109,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         }
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-        cellCenterDataAccessObject = reservoir->dataAccessObject(grid, porosityModel, timeStepIndex, cellResultSlot->gridScalarIndex());
+        cellCenterDataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, cellResultSlot->gridScalarIndex());
     }
 
     CVF_ASSERT(cellEdgeResultSlot->hasResult());
@@ -128,7 +128,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         {
             // Assuming static values to be mapped onto cell edge, always using time step zero
             // TODO: Now hardcoded matrix results, should it be possible to use fracture results?
-            daObj = reservoir->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, 0, resultIndices[cubeFaceIdx]);
+            daObj = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, 0, resultIndices[cubeFaceIdx]);
         }
 
         cellEdgeDataAccessObjects.push_back(daObj.p());

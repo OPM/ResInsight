@@ -69,15 +69,15 @@ bool RimResultReservoir::openEclipseGridFile()
             return false;
         }
 
-        RigReservoir* reservoir = new RigReservoir;
+        RigEclipseCase* eclipseCase = new RigEclipseCase;
         readerInterface = new RifReaderEclipseOutput;
-        if (!readerInterface->open(fname, reservoir))
+        if (!readerInterface->open(fname, eclipseCase))
         {
-            delete reservoir;
+            delete eclipseCase;
             return false;
         }
 
-        m_rigReservoir = reservoir;
+        m_rigReservoir = eclipseCase;
     }
 
     progInfo.incrementProgress();
@@ -102,7 +102,7 @@ bool RimResultReservoir::openEclipseGridFile()
 cvf::ref<RifReaderInterface> RimResultReservoir::createMockModel(QString modelName)
 {
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
-    cvf::ref<RigReservoir> reservoir = new RigReservoir;
+    cvf::ref<RigEclipseCase> reservoir = new RigEclipseCase;
 
      if (modelName == "Result Mock Debug Model Simple")
     {

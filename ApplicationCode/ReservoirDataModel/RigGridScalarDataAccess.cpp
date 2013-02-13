@@ -200,22 +200,22 @@ protected:
 /// 
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::createDataAccessObject(const RigGridBase* grid,
-    const RigReservoir* reservoir,
+    const RigEclipseCase* eclipseCase,
     RifReaderInterface::PorosityModelResultType porosityModel,
     size_t timeStepIndex,
     size_t scalarSetIndex)
 {
     CVF_ASSERT(grid);
-    CVF_ASSERT(reservoir);
-    CVF_ASSERT(reservoir->results(porosityModel));
-    CVF_ASSERT(reservoir->activeCellInfo());
+    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(eclipseCase->results(porosityModel));
+    CVF_ASSERT(eclipseCase->activeCellInfo());
 
-    if (!grid || !reservoir || !reservoir->results(porosityModel) || !reservoir->activeCellInfo())
+    if (!grid || !eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo())
     {
         return NULL;
     }
 
-    const std::vector< std::vector<double> > & scalarSetResults = reservoir->results(porosityModel)->cellScalarResults(scalarSetIndex);
+    const std::vector< std::vector<double> > & scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(scalarSetIndex);
     if (timeStepIndex >= scalarSetResults.size())
     {
         return NULL;
@@ -224,17 +224,17 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::create
     const std::vector<double>* resultValues = &(scalarSetResults[timeStepIndex]);
 
 
-    bool useGlobalActiveIndex = reservoir->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
+    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
         if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
         {
-            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridMatrixActiveCellsScalarDataAccess(grid, resultValues, reservoir->activeCellInfo());
+            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridMatrixActiveCellsScalarDataAccess(grid, resultValues, eclipseCase->activeCellInfo());
             return object;
         }
         else
         {
-            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridFractureActiveCellsScalarDataAccess(grid, resultValues, reservoir->activeCellInfo());
+            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridFractureActiveCellsScalarDataAccess(grid, resultValues, eclipseCase->activeCellInfo());
             return object;
         }
     }

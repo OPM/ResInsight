@@ -30,11 +30,11 @@
 class RigReservoirCellResults;
 
 
-class RigReservoir: public cvf::Object
+class RigEclipseCase: public cvf::Object
 {
 public:
-    RigReservoir();
-    ~RigReservoir();
+    RigEclipseCase();
+    ~RigEclipseCase();
 
     RigMainGrid*            mainGrid() { return m_mainGrid.p(); }
     const RigMainGrid*      mainGrid() const { return m_mainGrid.p(); }

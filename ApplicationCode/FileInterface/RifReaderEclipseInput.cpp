@@ -57,9 +57,9 @@ RifReaderEclipseInput::~RifReaderEclipseInput()
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseInput::open(const QString& fileName, RigReservoir* reservoir)
+bool RifReaderEclipseInput::open(const QString& fileName, RigEclipseCase* eclipseCase)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
 
     // Make sure everything's closed
     close();
@@ -84,9 +84,9 @@ bool RifReaderEclipseInput::open(const QString& fileName, RigReservoir* reservoi
     //              create InputProperty object
 
     bool isOk = false;
-    if (reservoir->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
+    if (eclipseCase->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
-        isOk = RifEclipseInputFileTools::openGridFile(fileName,  reservoir);
+        isOk = RifEclipseInputFileTools::openGridFile(fileName,  eclipseCase);
     }
     
     return isOk;

@@ -158,7 +158,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
     bool isAutoDetectBranches = m_rimReservoirView->wellCollection()->isAutoDetectingBranches();
     
-    RigReservoir*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+    RigEclipseCase*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
     RigWellResults* wellResults = m_rimWell->wellResults();
 
     const RigWellResultFrame& staticWellFrame = m_rimWell->wellResults()->m_staticWellCells;

@@ -33,17 +33,17 @@ public:
 
     void                    addLocalGridRefinement(const cvf::Vec3st& minCellPosition, const cvf::Vec3st& maxCellPosition, const cvf::Vec3st& singleCellRefinementFactors);
 
-    virtual bool            open( const QString& fileName, RigReservoir* reservoir );
+    virtual bool            open( const QString& fileName, RigEclipseCase* eclipseCase );
     virtual void            close();
                             
     virtual bool            staticResult( const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, std::vector<double>* values );
     virtual bool            dynamicResult( const QString& result, RifReaderInterface::PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values );
 
 private:
-    void                    populateReservoir(RigReservoir* reservoir);
+    void                    populateReservoir(RigEclipseCase* eclipseCase);
     bool                    inputProperty( const QString& propertyName, std::vector<double>* values );
 
     RigReservoirBuilderMock m_reservoirBuilder;
-    cvf::ref<RigReservoir>  m_reservoir;
+    cvf::ref<RigEclipseCase>  m_reservoir;
 };
 

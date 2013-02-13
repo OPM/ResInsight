@@ -25,7 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigReservoir::RigReservoir()
+RigEclipseCase::RigEclipseCase()
 {
     m_mainGrid = new RigMainGrid();
 
@@ -36,7 +36,7 @@ RigReservoir::RigReservoir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigReservoir::~RigReservoir()
+RigEclipseCase::~RigEclipseCase()
 {
 
 }
@@ -44,7 +44,7 @@ RigReservoir::~RigReservoir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::computeFaults()
+void RigEclipseCase::computeFaults()
 {
     std::vector<RigGridBase*> grids;
     allGrids(&grids);
@@ -59,7 +59,7 @@ void RigReservoir::computeFaults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::allGrids(std::vector<RigGridBase*>* grids)
+void RigEclipseCase::allGrids(std::vector<RigGridBase*>* grids)
 {
     CVF_ASSERT(grids);
 
@@ -73,7 +73,7 @@ void RigReservoir::allGrids(std::vector<RigGridBase*>* grids)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::allGrids(std::vector<const RigGridBase*>* grids) const
+void RigEclipseCase::allGrids(std::vector<const RigGridBase*>* grids) const
 {
     CVF_ASSERT(grids);
     size_t i;
@@ -86,7 +86,7 @@ void RigReservoir::allGrids(std::vector<const RigGridBase*>* grids) const
 //--------------------------------------------------------------------------------------------------
 /// Get grid by index. The main grid has index 0, so the first lgr has index 1
 //--------------------------------------------------------------------------------------------------
-const RigGridBase* RigReservoir::grid(size_t index) const
+const RigGridBase* RigEclipseCase::grid(size_t index) const
 {
     return m_mainGrid->gridByIndex(index);
 }
@@ -94,7 +94,7 @@ const RigGridBase* RigReservoir::grid(size_t index) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::computeWellCellsPrGrid()
+void RigEclipseCase::computeWellCellsPrGrid()
 {
     // If we have computed this already, return
     if (m_wellCellsInGrid.size()) return; 
@@ -157,7 +157,7 @@ void RigReservoir::computeWellCellsPrGrid()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::setWellResults(const cvf::Collection<RigWellResults>& data)
+void RigEclipseCase::setWellResults(const cvf::Collection<RigWellResults>& data)
 {
     m_wellResults = data;
     m_wellCellsInGrid.clear();
@@ -167,7 +167,7 @@ void RigReservoir::setWellResults(const cvf::Collection<RigWellResults>& data)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::UByteArray* RigReservoir::wellCellsInGrid(size_t gridIndex)
+cvf::UByteArray* RigEclipseCase::wellCellsInGrid(size_t gridIndex)
 {
     computeWellCellsPrGrid();
     CVF_ASSERT(gridIndex < m_wellCellsInGrid.size());
@@ -178,7 +178,7 @@ cvf::UByteArray* RigReservoir::wellCellsInGrid(size_t gridIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCell& RigReservoir::cellFromWellResultCell(const RigWellResultCell& wellResultCell)
+RigCell& RigEclipseCase::cellFromWellResultCell(const RigWellResultCell& wellResultCell)
 {
     size_t gridIndex     = wellResultCell.m_gridIndex;
     size_t gridCellIndex = wellResultCell.m_gridCellIndex;
@@ -192,7 +192,7 @@ RigCell& RigReservoir::cellFromWellResultCell(const RigWellResultCell& wellResul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoir::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace,const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const
+bool RigEclipseCase::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace,const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const
 {
     size_t gridIndex = sourceWellCellResult.m_gridIndex;
     size_t gridCellIndex = sourceWellCellResult.m_gridCellIndex;
@@ -263,7 +263,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::computeActiveCellData()
+void RigEclipseCase::computeActiveCellData()
 {
     CellRangeBB matrixModelActiveBB;
     CellRangeBB fractureModelActiveBB;
@@ -292,7 +292,7 @@ void RigReservoir::computeActiveCellData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::computeCachedData()
+void RigEclipseCase::computeCachedData()
 {
     computeFaults();
     computeActiveCellData();
@@ -302,7 +302,7 @@ void RigReservoir::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RigReservoir::activeCellInfo()
+RigActiveCellInfo* RigEclipseCase::activeCellInfo()
 {
     return &m_activeCellInfo;
 }
@@ -310,7 +310,7 @@ RigActiveCellInfo* RigReservoir::activeCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigActiveCellInfo* RigReservoir::activeCellInfo() const
+const RigActiveCellInfo* RigEclipseCase::activeCellInfo() const
 {
     return &m_activeCellInfo;
 }
@@ -318,7 +318,7 @@ const RigActiveCellInfo* RigReservoir::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoir::computeActiveCellsGeometryBoundingBox()
+void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
 {
     if (m_mainGrid.isNull())
     {
@@ -358,7 +358,7 @@ void RigReservoir::computeActiveCellsGeometryBoundingBox()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigReservoirCellResults* RigReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel)
+RigReservoirCellResults* RigEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel)
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {
@@ -371,7 +371,7 @@ RigReservoirCellResults* RigReservoir::results(RifReaderInterface::PorosityModel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigReservoirCellResults* RigReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel) const
+const RigReservoirCellResults* RigEclipseCase::results(RifReaderInterface::PorosityModelResultType porosityModel) const
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {
@@ -384,7 +384,7 @@ const RigReservoirCellResults* RigReservoir::results(RifReaderInterface::Porosit
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigReservoir::dataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const 
+cvf::ref<cvf::StructGridScalarDataAccess> RigEclipseCase::dataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const 
 {
     if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
         scalarSetIndex != cvf::UNDEFINED_SIZE_T)

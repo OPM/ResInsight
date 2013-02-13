@@ -835,20 +835,20 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 
     if (m_reservoir)
     {
-        const RigReservoir* reservoir = m_reservoir->reservoirData();
-        if (reservoir)
+        const RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
+        if (eclipseCase)
         {
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
-            if (reservoir->grid(gridIndex)->ijkFromCellIndex(cellIndex, &i, &j, &k))
+            if (eclipseCase->grid(gridIndex)->ijkFromCellIndex(cellIndex, &i, &j, &k))
             {
                 // Adjust to 1-based Eclipse indexing
                 i++;
                 j++;
                 k++;
 
-                cvf::Vec3d domainCoord = point + reservoir->grid(gridIndex)->displayModelOffset();
+                cvf::Vec3d domainCoord = point + eclipseCase->grid(gridIndex)->displayModelOffset();
 
                 pickInfoText->sprintf("Hit grid %u, cell [%u, %u, %u], intersection point: [E: %.2f, N: %.2f, Depth: %.2f]", static_cast<unsigned int>(gridIndex), static_cast<unsigned int>(i), static_cast<unsigned int>(j), static_cast<unsigned int>(k), domainCoord.x(), domainCoord.y(), -domainCoord.z());
                 return true;
@@ -868,14 +868,14 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 
     if (m_reservoir && m_reservoir->reservoirData())
     {
-        const RigReservoir* reservoir = m_reservoir->reservoirData();
-        const RigGridBase* grid = reservoir->grid(gridIndex);
-        const RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo();
+        const RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
+        const RigGridBase* grid = eclipseCase->grid(gridIndex);
+        const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();
 
         if (this->cellResult()->hasResult())
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
             if (dataAccessObject.notNull())
             {
                 double scalarValue = dataAccessObject->cellScalar(cellIndex);
@@ -896,7 +896,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 
                 // Cell edge results are static, results are loaded for first time step only
                 RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = reservoir->dataAccessObject(grid, porosityModel, 0, resultIndices[idx]);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, resultIndices[idx]);
                 if (dataAccessObject.notNull())
                 {
                     double scalarValue = dataAccessObject->cellScalar(cellIndex);
@@ -1034,11 +1034,11 @@ void RimReservoirView::updateLegends()
         return;
     }
 
-    RigReservoir* reservoir = m_reservoir->reservoirData();
-    CVF_ASSERT(reservoir);
+    RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
+    CVF_ASSERT(eclipseCase);
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-    RigReservoirCellResults* results = reservoir->results(porosityModel);
+    RigReservoirCellResults* results = eclipseCase->results(porosityModel);
     CVF_ASSERT(results);
 
     if (this->cellResult()->hasResult())

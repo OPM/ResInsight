@@ -170,15 +170,15 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::populateReservoir(RigReservoir* reservoir)
+void RigReservoirBuilderMock::populateReservoir(RigEclipseCase* eclipseCase)
 {
-    std::vector<cvf::Vec3d>& mainGridNodes = reservoir->mainGrid()->nodes();
+    std::vector<cvf::Vec3d>& mainGridNodes = eclipseCase->mainGrid()->nodes();
     appendNodes(m_minWorldCoordinate, m_maxWorldCoordinate, cellDimension(), mainGridNodes);
     size_t mainGridNodeCount = mainGridNodes.size();
     size_t mainGridCellCount = mainGridNodeCount / 8;
 
     // Must create cells in main grid here, as this information is used when creating LGRs
-    appendCells(0, mainGridCellCount, reservoir->mainGrid(), reservoir->mainGrid()->cells());
+    appendCells(0, mainGridCellCount, eclipseCase->mainGrid(), eclipseCase->mainGrid()->cells());
 
     size_t totalCellCount = mainGridCellCount;
 
@@ -206,9 +206,9 @@ void RigReservoirBuilderMock::populateReservoir(RigReservoir* reservoir)
         }
 
         // Create local grid and set local grid dimensions
-        RigLocalGrid* localGrid = new RigLocalGrid(reservoir->mainGrid());
-        reservoir->mainGrid()->addLocalGrid(localGrid);
-        localGrid->setParentGrid(reservoir->mainGrid());
+        RigLocalGrid* localGrid = new RigLocalGrid(eclipseCase->mainGrid());
+        eclipseCase->mainGrid()->addLocalGrid(localGrid);
+        localGrid->setParentGrid(eclipseCase->mainGrid());
         
         localGrid->setIndexToStartOfCells(mainGridNodes.size() / 8);
         cvf::Vec3st gridPointDimensions(
@@ -221,13 +221,13 @@ void RigReservoirBuilderMock::populateReservoir(RigReservoir* reservoir)
         size_t cellIdx;
         for (cellIdx = 0; cellIdx < mainGridIndicesWithSubGrid.size(); cellIdx++)
         {
-            RigCell& cell = reservoir->mainGrid()->cells()[mainGridIndicesWithSubGrid[cellIdx]];
+            RigCell& cell = eclipseCase->mainGrid()->cells()[mainGridIndicesWithSubGrid[cellIdx]];
             
             caf::SizeTArray8& indices = cell.cornerIndices();
             int nodeIdx;
             for (nodeIdx = 0; nodeIdx < 8; nodeIdx++)
             {
-                bb.add(reservoir->mainGrid()->nodes()[indices[nodeIdx]]);
+                bb.add(eclipseCase->mainGrid()->nodes()[indices[nodeIdx]]);
             }
             // Deactivate cell in main grid
             cell.setSubGrid(localGrid);
@@ -237,13 +237,13 @@ void RigReservoirBuilderMock::populateReservoir(RigReservoir* reservoir)
         appendNodes(bb.min(), bb.max(), lgrCellDimensions, mainGridNodes);
 
         size_t subGridCellCount = (mainGridNodes.size() / 8) - totalCellCount;
-        appendCells(totalCellCount*8, subGridCellCount, localGrid, reservoir->mainGrid()->cells());
+        appendCells(totalCellCount*8, subGridCellCount, localGrid, eclipseCase->mainGrid()->cells());
         totalCellCount += subGridCellCount;
     }
 
-    reservoir->mainGrid()->setGridPointDimensions(m_gridPointDimensions);
+    eclipseCase->mainGrid()->setGridPointDimensions(m_gridPointDimensions);
 
-    addWellData(reservoir, reservoir->mainGrid());
+    addWellData(eclipseCase, eclipseCase->mainGrid());
 }
 
 
@@ -268,7 +268,7 @@ void RigReservoirBuilderMock::setWorldCoordinates(cvf::Vec3d minWorldCoordinate,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::inputProperty(RigReservoir* reservoir, const QString& propertyName, std::vector<double>* values)
+bool RigReservoirBuilderMock::inputProperty(RigEclipseCase* eclipseCase, const QString& propertyName, std::vector<double>* values)
 {
     size_t k;
 
@@ -278,7 +278,7 @@ bool RigReservoirBuilderMock::inputProperty(RigReservoir* reservoir, const QStri
     /* generate secret number: */
     int iSecret = rand() % 20 + 1;
 
-    for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
+    for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
     {
         values->push_back(k * iSecret);
     }
@@ -289,18 +289,18 @@ bool RigReservoirBuilderMock::inputProperty(RigReservoir* reservoir, const QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::staticResult(RigReservoir* reservoir, const QString& result, std::vector<double>* values)
+bool RigReservoirBuilderMock::staticResult(RigEclipseCase* eclipseCase, const QString& result, std::vector<double>* values)
 {
     size_t k;
 
-    for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
+    for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
     {
-        RigCell& cell = reservoir->mainGrid()->cells()[k];
+        RigCell& cell = eclipseCase->mainGrid()->cells()[k];
         if (cell.isActiveInMatrixModel())
         {
-            if (cell.hostGrid() == reservoir->mainGrid())
+            if (cell.hostGrid() == eclipseCase->mainGrid())
             {
-                values->push_back((k * 2) % reservoir->mainGrid()->cells().size());
+                values->push_back((k * 2) % eclipseCase->mainGrid()->cells().size());
             }
             else
             {
@@ -315,7 +315,7 @@ bool RigReservoirBuilderMock::staticResult(RigReservoir* reservoir, const QStrin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QString& result, size_t stepIndex, std::vector<double>* values)
+bool RigReservoirBuilderMock::dynamicResult(RigEclipseCase* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
 {
     int resultIndex = 1;
 
@@ -330,14 +330,14 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
     double offsetValue = 100 * resultIndex;
 
     size_t k;
-    for (k = 0; k < reservoir->mainGrid()->cells().size(); k++)
+    for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
     {
-        RigCell& cell = reservoir->mainGrid()->cells()[k];
+        RigCell& cell = eclipseCase->mainGrid()->cells()[k];
         if (cell.isActiveInMatrixModel())
         {
-            if (cell.hostGrid() == reservoir->mainGrid())
+            if (cell.hostGrid() == eclipseCase->mainGrid())
             {
-                double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % reservoir->mainGrid()->cells().size() );
+                double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->cells().size() );
                 values->push_back(val);
             }
             else
@@ -359,9 +359,9 @@ bool RigReservoirBuilderMock::dynamicResult(RigReservoir* reservoir, const QStri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addWellData(RigReservoir* reservoir, RigGridBase* grid)
+void RigReservoirBuilderMock::addWellData(RigEclipseCase* eclipseCase, RigGridBase* grid)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
     CVF_ASSERT(grid);
 
     cvf::Vec3st dim = grid->gridPointDimensions();
@@ -469,6 +469,6 @@ void RigReservoirBuilderMock::addWellData(RigReservoir* reservoir, RigGridBase* 
         wells.push_back(wellCellsTimeHistory.p());
     }
 
-    reservoir->setWellResults(wells);
+    eclipseCase->setWellResults(wells);
 }
 

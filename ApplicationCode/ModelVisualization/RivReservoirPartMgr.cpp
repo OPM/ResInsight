@@ -26,13 +26,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigReservoir* reservoir)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigEclipseCase* eclipseCase)
 {
     m_allGrids.clear();
-    if (reservoir)
+    if (eclipseCase)
     {
         std::vector<const RigGridBase*> grids;
-        reservoir->allGrids(&grids);
+        eclipseCase->allGrids(&grids);
         for (size_t i = 0; i < grids.size() ; ++i)
         {
             m_allGrids.push_back(new RivGridPartMgr(grids[i], i) );

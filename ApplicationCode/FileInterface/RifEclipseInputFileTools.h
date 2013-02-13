@@ -27,7 +27,7 @@
 #include "RifReaderInterface.h"
 
 
-class RigReservoir;
+class RigEclipseCase;
 class QFile;
 
 
@@ -52,19 +52,19 @@ public:
     RifEclipseInputFileTools();
     virtual ~RifEclipseInputFileTools();
 
-    static bool openGridFile(const QString& fileName, RigReservoir* reservoir);
+    static bool openGridFile(const QString& fileName, RigEclipseCase* eclipseCase);
     
     // Returns map of assigned resultName and Eclipse Keyword.
-    static std::map<QString, QString> readProperties(const QString& fileName, RigReservoir* reservoir);
-    static bool                       readProperty  (const QString& fileName, RigReservoir* reservoir, const QString& eclipseKeyWord, const QString& resultName );
-    static bool                       readPropertyAtFilePosition (const QString& fileName, RigReservoir* reservoir, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName );
+    static std::map<QString, QString> readProperties(const QString& fileName, RigEclipseCase* eclipseCase);
+    static bool                       readProperty  (const QString& fileName, RigEclipseCase* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
+    static bool                       readPropertyAtFilePosition (const QString& fileName, RigEclipseCase* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName );
 
     static std::vector< RifKeywordAndFilePos > findKeywordsOnFile(const QString &fileName);
 
     static const std::vector<QString>& knownPropertyKeywords(); 
 
-    static bool     writePropertyToTextFile(const QString& fileName, RigReservoir* reservoir, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
-    static bool     writeBinaryResultToTextFile(const QString& fileName, RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
+    static bool     writePropertyToTextFile(const QString& fileName, RigEclipseCase* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
+    static bool     writeBinaryResultToTextFile(const QString& fileName, RigEclipseCase* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
 
 private:
     static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);

@@ -55,14 +55,14 @@ public:
 
     void addLocalGridRefinement(const cvf::Vec3st& minCellPosition, const cvf::Vec3st& maxCellPosition, const cvf::Vec3st& singleCellRefinementFactors);
 
-    void populateReservoir(RigReservoir* reservoir);
+    void populateReservoir(RigEclipseCase* eclipseCase);
 
-    bool inputProperty(RigReservoir* reservoir, const QString& propertyName, std::vector<double>* values );
-    bool staticResult(RigReservoir* reservoir, const QString& result, std::vector<double>* values );
-    bool dynamicResult(RigReservoir* reservoir, const QString& result, size_t stepIndex, std::vector<double>* values );
+    bool inputProperty(RigEclipseCase* eclipseCase, const QString& propertyName, std::vector<double>* values );
+    bool staticResult(RigEclipseCase* eclipseCase, const QString& result, std::vector<double>* values );
+    bool dynamicResult(RigEclipseCase* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values );
 
 private:
-    void        addWellData(RigReservoir* reservoir, RigGridBase* grid);
+    void        addWellData(RigEclipseCase* eclipseCase, RigGridBase* grid);
     static void appendCells(size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells);
 	
     static void appendNodes(const cvf::Vec3d& min, const cvf::Vec3d& max, const cvf::Vec3st& cubeDimension, std::vector<cvf::Vec3d>& nodes);

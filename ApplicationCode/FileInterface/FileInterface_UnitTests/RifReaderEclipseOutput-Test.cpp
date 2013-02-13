@@ -247,7 +247,7 @@ TEST(RigReservoirTest, BasicTest)
 TEST(RigReservoirTest, WellTest)
 {
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    cvf::ref<RigReservoir> reservoir = new RigReservoir;
+    cvf::ref<RigEclipseCase> reservoir = new RigEclipseCase;
 
     // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
 #ifdef WIN32

@@ -43,18 +43,18 @@ public:
     RifReaderEclipseOutput();
     virtual ~RifReaderEclipseOutput();
 
-    bool                    open(const QString& fileName, RigReservoir* reservoir);
+    bool                    open(const QString& fileName, RigEclipseCase* eclipseCase);
     void                    close();
 
     bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
     bool                    dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
 
-    static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigReservoir* reservoir);
+    static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCase* eclipseCase);
 
 private:
     void                    ground();
-    bool                    buildMetaData(RigReservoir* reservoir);
-    void                    readWellCells(RigReservoir* reservoir);
+    bool                    buildMetaData(RigEclipseCase* eclipseCase);
+    void                    readWellCells(RigEclipseCase* eclipseCase);
 
     void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
     
@@ -67,7 +67,7 @@ private:
     QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
     QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename
 
-    cvf::ref<RigReservoir>                  m_reservoir;
+    cvf::ref<RigEclipseCase>                  m_reservoir;
 
     QList<QDateTime>                        m_timeSteps;
 
