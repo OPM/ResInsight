@@ -72,17 +72,17 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
     if (caseName().contains("Input Mock Debug Model"))
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(this->caseName());
-        m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-        m_rigReservoir->activeCellInfo()->computeDerivedData();
+        m_rigEclipseCase->activeCellInfo()->computeDerivedData();
 
         return;
     }
 
-    if (m_rigReservoir.isNull()) 
+    if (m_rigEclipseCase.isNull()) 
     {
-        m_rigReservoir = new RigEclipseCase;
+        m_rigEclipseCase = new RigEclipseCase;
     }
 
     // First find and read the grid data 
@@ -94,8 +94,8 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
              {
                  m_gridFileName = filenames[i];
 
-                 m_rigReservoir->computeCachedData();
-                 m_rigReservoir->mainGrid()->computeCachedData();
+                 m_rigEclipseCase->computeCachedData();
+                 m_rigEclipseCase->mainGrid()->computeCachedData();
 
                  break;
              }
@@ -157,7 +157,7 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
 bool RimInputReservoir::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
-    if (m_rigReservoir.isNull())
+    if (m_rigEclipseCase.isNull())
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
@@ -174,25 +174,25 @@ bool RimInputReservoir::openEclipseGridFile()
                 return false;
             }
 
-            m_rigReservoir = eclipseCase;
+            m_rigEclipseCase = eclipseCase;
             loadAndSyncronizeInputProperties();
         }
 
-        CVF_ASSERT(m_rigReservoir.notNull());
+        CVF_ASSERT(m_rigEclipseCase.notNull());
         CVF_ASSERT(readerInterface.notNull());
 
-        m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigReservoir->computeCachedData();
-        m_rigReservoir->mainGrid()->computeCachedData();
+        m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigEclipseCase->computeCachedData();
+        m_rigEclipseCase->mainGrid()->computeCachedData();
     }
 
     
     RIApplication* app = RIApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
-        RigReservoirCellResults* matrixResults = m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS);
-        RigReservoirCellResults* fractureResults = m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS);
+        RigReservoirCellResults* matrixResults = m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+        RigReservoirCellResults* fractureResults = m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
 
         matrixResults->computeDepthRelatedResults();
         fractureResults->computeDepthRelatedResults();
@@ -210,7 +210,7 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
 {
     // Make sure we actually have reservoir data
 
-    CVF_ASSERT(m_rigReservoir.notNull());
+    CVF_ASSERT(m_rigEclipseCase.notNull());
     CVF_ASSERT(this->reservoirData()->mainGrid()->gridPointDimensions() != cvf::Vec3st(0,0,0));
 
     // Then read the properties from all the files referenced by the InputReservoir
@@ -359,7 +359,7 @@ void RimInputReservoir::removeProperty(RimInputProperty* inputProperty)
     }
 
     // Remove the results pointed to by this input property
-    RigReservoirCellResults* results = m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS);
+    RigReservoirCellResults* results = m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
     results->removeResult(inputProperty->resultName);
 
     this->removeResult(inputProperty->resultName);
@@ -400,7 +400,7 @@ cvf::ref<RifReaderInterface> RimInputReservoir::createMockModel(QString modelNam
         m_inputPropertyCollection->inputProperties.push_back(inputProperty);
     }
 
-    m_rigReservoir = reservoir;
+    m_rigEclipseCase = reservoir;
 
     return mockFileInterface.p();
 }

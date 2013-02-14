@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 RimReservoir::RimReservoir()
 {
-    m_rigReservoir = NULL;
+    m_rigEclipseCase = NULL;
 
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Case name", "", "" ,"");
 //     CAF_PDM_InitField(&releaseResultMemory, "ReleaseResultMemory", true, "Release result memory", "", "" ,"");
@@ -55,7 +55,7 @@ RimReservoir::RimReservoir()
 //--------------------------------------------------------------------------------------------------
 RigEclipseCase* RimReservoir::reservoirData()
 {
-    return m_rigReservoir.p();
+    return m_rigEclipseCase.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ RigEclipseCase* RimReservoir::reservoirData()
 //--------------------------------------------------------------------------------------------------
 const RigEclipseCase* RimReservoir::reservoirData() const
 {
-    return m_rigReservoir.p();
+    return m_rigEclipseCase.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
 {
     if (changedField == &releaseResultMemory)
     {
-        if (m_rigReservoir.notNull())
+        if (m_rigEclipseCase.notNull())
         {
             for (size_t i = 0; i < reservoirViews().size(); i++)
             {
@@ -209,13 +209,13 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
                 reservoirView->createDisplayModelAndRedraw();
             }
 
-            RigReservoirCellResults* matrixModelResults = m_rigReservoir->results(RifReaderInterface::MATRIX_RESULTS);
+            RigReservoirCellResults* matrixModelResults = m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
             if (matrixModelResults)
             {
                 matrixModelResults->clearAllResults();
             }
 
-            RigReservoirCellResults* fractureModelResults = m_rigReservoir->results(RifReaderInterface::FRACTURE_RESULTS);
+            RigReservoirCellResults* fractureModelResults = m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
             if (fractureModelResults)
             {
                 fractureModelResults->clearAllResults();

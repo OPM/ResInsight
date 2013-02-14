@@ -46,8 +46,8 @@ public:
 
     virtual bool                openEclipseGridFile() = 0;
                                       
-    RigEclipseCase*               reservoirData();
-    const RigEclipseCase*         reservoirData() const;
+    RigEclipseCase*             reservoirData();
+    const RigEclipseCase*       reservoirData() const;
                                       
     RimReservoirView*           createAndAddReservoirView();
     void                        removeReservoirView(RimReservoirView* reservoirView);
@@ -62,7 +62,7 @@ public:
 
     virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName; }
     
-    virtual QString             locationOnDisc() const      { return QString(); }
+    virtual QString                 locationOnDisc() const      { return QString(); }
 
 protected:
     // Overridden methods
@@ -71,6 +71,6 @@ protected:
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
 protected:
-    cvf::ref<RigEclipseCase>            m_rigReservoir;
+    cvf::ref<RigEclipseCase>        m_rigEclipseCase;
 };
 
