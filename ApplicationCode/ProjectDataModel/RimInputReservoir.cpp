@@ -82,8 +82,7 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
 
     if (m_rigReservoir.isNull()) 
     {
-        RigEclipseCase* eclipseCase = new RigEclipseCase;
-        m_rigReservoir = eclipseCase;
+        m_rigReservoir = new RigEclipseCase;
     }
 
     // First find and read the grid data 
@@ -168,11 +167,10 @@ bool RimInputReservoir::openEclipseGridFile()
         }
         else
         {
-            RigEclipseCase* eclipseCase = new RigEclipseCase;
+            cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
             readerInterface = new RifReaderEclipseInput;
-            if (!readerInterface->open(m_gridFileName, eclipseCase))
+            if (!readerInterface->open(m_gridFileName, eclipseCase.p()))
             {
-                delete eclipseCase;
                 return false;
             }
 

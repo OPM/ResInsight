@@ -69,11 +69,10 @@ bool RimResultReservoir::openEclipseGridFile()
             return false;
         }
 
-        RigEclipseCase* eclipseCase = new RigEclipseCase;
+        cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
         readerInterface = new RifReaderEclipseOutput;
-        if (!readerInterface->open(fname, eclipseCase))
+        if (!readerInterface->open(fname, eclipseCase.p()))
         {
-            delete eclipseCase;
             return false;
         }
 
