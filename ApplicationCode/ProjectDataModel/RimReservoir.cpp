@@ -33,6 +33,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <QString>
+#include "RimProject.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -223,6 +224,30 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
         }
 
         releaseResultMemory = oldValue.toBool();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoir::registerEclipseCase()
+{
+    std::vector<caf::PdmObject*> parentObjects;
+    this->parentObjects(parentObjects);
+
+    RimProject* proj = NULL;
+    for (size_t i = 0; i < parentObjects.size(); i++)
+    {
+        if (proj) continue;
+
+        caf::PdmObject* obj = parentObjects[i];
+        proj = dynamic_cast<RimProject*>(obj);
+    }
+
+    CVF_ASSERT(proj);
+    if (proj)
+    {
+        proj->registerEclipseCase(m_rigEclipseCase.p());
     }
 }
 

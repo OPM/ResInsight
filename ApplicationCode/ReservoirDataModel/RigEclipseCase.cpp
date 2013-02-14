@@ -43,16 +43,9 @@ RigEclipseCase::~RigEclipseCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCase::computeFaults()
+void RigEclipseCase::setMainGrid(RigMainGrid* mainGrid)
 {
-    std::vector<RigGridBase*> grids;
-    allGrids(&grids);
-
-    size_t i;
-    for (i = 0; i < grids.size(); i++)
-    {
-        grids[i]->computeFaults();
-    }
+    m_mainGrid = mainGrid;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,7 +286,6 @@ void RigEclipseCase::computeActiveCellData()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCase::computeCachedData()
 {
-    computeFaults();
     computeActiveCellData();
     computeActiveCellsGeometryBoundingBox();
 }
@@ -395,3 +387,4 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigEclipseCase::dataAccessObject(const
     return NULL;
 
 }
+

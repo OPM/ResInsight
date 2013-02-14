@@ -38,6 +38,7 @@ public:
 
     RigMainGrid*            mainGrid() { return m_mainGrid.p(); }
     const RigMainGrid*      mainGrid() const { return m_mainGrid.p(); }
+    void                    setMainGrid(RigMainGrid* mainGrid);
 
     void                    allGrids(std::vector<RigGridBase*>* grids);
     void                    allGrids(std::vector<const RigGridBase*>* grids) const;
@@ -66,7 +67,6 @@ public:
 
 
 private:
-    void                    computeFaults();
     void                    computeActiveCellData();
     void                    computeWellCellsPrGrid();
     void                    computeActiveCellsGeometryBoundingBox();

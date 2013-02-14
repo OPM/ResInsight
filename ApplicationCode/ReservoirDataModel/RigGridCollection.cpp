@@ -24,9 +24,10 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridCollection::addGrid(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid)
+void RigGridCollection::addCase(RigEclipseCase* eclipseCase)
 {
-    m_caseToGrid.push_back(CaseToGridMap(eclipseCase, mainGrid));
+    cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap(eclipseCase, eclipseCase->mainGrid());
+    m_caseToGrid.push_back(caseAndGrid.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,15 +39,11 @@ void RigGridCollection::removeCase(RigEclipseCase* eclipseCase)
 
     for (size_t i = 0; i < m_caseToGrid.size(); i++)
     {
-        if (m_caseToGrid[i].m_eclipseCase == eclipseCase)
+        if (m_caseToGrid[i]->m_eclipseCase == eclipseCase)
         {
-            indexToErase = i;
+            m_caseToGrid.eraseAt(i);
+            return;
         }
-    }
-
-    if (indexToErase != cvf::UNDEFINED_SIZE_T)
-    {
-        m_caseToGrid.erase(m_caseToGrid.begin() + indexToErase);
     }
 }
 
@@ -57,7 +54,7 @@ RigMainGrid* RigGridCollection::findEqualGrid(RigMainGrid* candidateGrid)
 {
     for (size_t i = 0; i < m_caseToGrid.size(); i++)
     {
-        RigMainGrid* mainGrid = m_caseToGrid.at(i).m_mainGrid.p();
+        RigMainGrid* mainGrid = m_caseToGrid.at(i)->m_mainGrid.p();
         if (RigGridCollection::isEqual(mainGrid, candidateGrid))
         {
             return mainGrid;
@@ -89,4 +86,13 @@ bool RigGridCollection::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigGridCollection::CaseToGridMap::CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid) :
+m_eclipseCase(eclipseCase),
+    m_mainGrid(mainGrid)
+{
 }

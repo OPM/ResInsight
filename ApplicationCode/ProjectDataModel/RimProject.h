@@ -22,6 +22,8 @@
 #include "RimScriptCollection.h"
 
 class RimReservoir;
+class RigGridCollection;
+class RigEclipseCase;
 
 //==================================================================================================
 ///  
@@ -45,6 +47,8 @@ public:
 
     void close();
 
+    void registerEclipseCase(RigEclipseCase* eclipseCase);
+
 protected:
     // Overridden methods
     virtual void initAfterRead();
@@ -52,4 +56,6 @@ protected:
 
 private:
     caf::PdmField<QString> m_projectFileVersionString;
+
+    cvf::ref<RigGridCollection>       m_gridCollection;
 };

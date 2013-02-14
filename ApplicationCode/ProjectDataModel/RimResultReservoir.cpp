@@ -84,12 +84,13 @@ bool RimResultReservoir::openEclipseGridFile()
     CVF_ASSERT(m_rigEclipseCase.notNull());
     CVF_ASSERT(readerInterface.notNull());
 
-    progInfo.setProgressDescription("Computing Faults");
-    m_rigEclipseCase->computeCachedData();
+
+    progInfo.setProgressDescription("Registering Case and Grid");
+    registerEclipseCase();
 
     progInfo.incrementProgress();
-    progInfo.setProgressDescription("Computing Cache");
-    m_rigEclipseCase->mainGrid()->computeCachedData();
+    progInfo.setProgressDescription("Computing Case Cache");
+    m_rigEclipseCase->computeCachedData();
 
     return true;
  }

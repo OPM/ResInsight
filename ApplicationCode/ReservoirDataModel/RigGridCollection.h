@@ -27,10 +27,11 @@
 class RigMainGrid;
 class RigEclipseCase;
 
-class RigGridCollection
+class RigGridCollection : public cvf::Object
 {
 public:
-    void addGrid(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid);
+    void addCase(RigEclipseCase* eclipseCase);
+    
     void removeCase(RigEclipseCase* eclipseCase);
     
     RigMainGrid* findEqualGrid(RigMainGrid* candidateGrid);
@@ -39,14 +40,10 @@ private:
 
     static bool isEqual(RigMainGrid* gridA, RigMainGrid* gridB);
 
-    class CaseToGridMap
+    class CaseToGridMap : public cvf::Object
     {
     public:
-        CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid) :
-            m_eclipseCase(eclipseCase),
-            m_mainGrid(mainGrid)
-        {
-        }
+        CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid);
 
         cvf::ref<RigEclipseCase>    m_eclipseCase;
         cvf::ref<RigMainGrid>       m_mainGrid;
@@ -54,5 +51,5 @@ private:
 
 
 private:
-    std::vector<CaseToGridMap> m_caseToGrid;
+    cvf::Collection<CaseToGridMap> m_caseToGrid;
 };

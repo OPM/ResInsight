@@ -22,6 +22,9 @@
 #include "RIApplication.h"
 #include "RIVersionInfo.h"
 #include "RimScriptCollection.h"
+#include "RigGridCollection.h"
+#include "RigEclipseCase.h"
+
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -38,6 +41,8 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
 
+    m_gridCollection = new RigGridCollection;
+
     initAfterRead();
 }
 
@@ -46,6 +51,8 @@ RimProject::RimProject(void)
 //--------------------------------------------------------------------------------------------------
 RimProject::~RimProject(void)
 {
+    close();
+
     if (scriptCollection()) delete scriptCollection();
 
     reservoirs.deleteAllChildObjects();
@@ -56,6 +63,11 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
+    for (size_t i = 0; i < reservoirs.size(); i++)
+    {
+        m_gridCollection->removeCase(reservoirs[i]->reservoirData());
+    }
+
     reservoirs.deleteAllChildObjects();
 
     fileName = "";
@@ -112,4 +124,36 @@ void RimProject::setUserScriptPath(const QString& scriptDirectory)
 QString RimProject::projectFileVersionString() const
 {
     return m_projectFileVersionString;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::registerEclipseCase(RigEclipseCase* eclipseCase)
+{
+    CVF_ASSERT(eclipseCase);
+
+    RigMainGrid* equalGrid = m_gridCollection->findEqualGrid(eclipseCase->mainGrid());
+
+    if (equalGrid)
+    {
+        // Replace the grid with an already registered grid
+        eclipseCase->setMainGrid(equalGrid);
+    }
+    else
+    {
+        // This is the first insertion of this grid, compute cached data
+        eclipseCase->mainGrid()->computeCachedData();
+
+        std::vector<RigGridBase*> grids;
+        eclipseCase->allGrids(&grids);
+
+        size_t i;
+        for (i = 0; i < grids.size(); i++)
+        {
+            grids[i]->computeFaults();
+        }
+    }
+
+    m_gridCollection->addCase(eclipseCase);
 }

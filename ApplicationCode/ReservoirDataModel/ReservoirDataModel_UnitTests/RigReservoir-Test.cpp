@@ -35,7 +35,7 @@ TEST(RigGridCollection, BasicTest)
     cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
 
     RigGridCollection gridCollection;
-    gridCollection.addGrid(eclipseCase.p(), mainGridA.p());
+    gridCollection.addCase(eclipseCase.p());
 
     int count = mainGridA->refCount();
     EXPECT_TRUE(mainGridA->refCount() == 2);
@@ -60,7 +60,7 @@ TEST(RigGridCollection, EqualTests)
     cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
 
     RigGridCollection gridCollection;
-    gridCollection.addGrid(eclipseCase.p(), mainGridA.p());
+    gridCollection.addCase(eclipseCase.p());
 
 
     cvf::ref<RigMainGrid> mainGridB = new RigMainGrid;
