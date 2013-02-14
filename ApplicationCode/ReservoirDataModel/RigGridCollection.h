@@ -18,3 +18,41 @@
 
 #pragma once
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfCollection.h"
+
+#include <vector>
+
+class RigMainGrid;
+class RigEclipseCase;
+
+class RigGridCollection
+{
+public:
+    void addGrid(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid);
+    void removeCase(RigEclipseCase* eclipseCase);
+    
+    RigMainGrid* findEqualGrid(RigMainGrid* candidateGrid);
+
+private:
+
+    static bool isEqual(RigMainGrid* gridA, RigMainGrid* gridB);
+
+    class CaseToGridMap
+    {
+    public:
+        CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid) :
+            m_eclipseCase(eclipseCase),
+            m_mainGrid(mainGrid)
+        {
+        }
+
+        cvf::ref<RigEclipseCase>    m_eclipseCase;
+        cvf::ref<RigMainGrid>       m_mainGrid;
+    };
+
+
+private:
+    std::vector<CaseToGridMap> m_caseToGrid;
+};

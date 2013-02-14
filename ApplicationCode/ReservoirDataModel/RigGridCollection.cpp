@@ -17,4 +17,76 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigGridCollection.h"
+#include "RigEclipseCase.h"
+#include "RigMainGrid.h"
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGridCollection::addGrid(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid)
+{
+    m_caseToGrid.push_back(CaseToGridMap(eclipseCase, mainGrid));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGridCollection::removeCase(RigEclipseCase* eclipseCase)
+{
+    size_t indexToErase = cvf::UNDEFINED_SIZE_T;
+
+    for (size_t i = 0; i < m_caseToGrid.size(); i++)
+    {
+        if (m_caseToGrid[i].m_eclipseCase == eclipseCase)
+        {
+            indexToErase = i;
+        }
+    }
+
+    if (indexToErase != cvf::UNDEFINED_SIZE_T)
+    {
+        m_caseToGrid.erase(m_caseToGrid.begin() + indexToErase);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RigGridCollection::findEqualGrid(RigMainGrid* candidateGrid)
+{
+    for (size_t i = 0; i < m_caseToGrid.size(); i++)
+    {
+        RigMainGrid* mainGrid = m_caseToGrid.at(i).m_mainGrid.p();
+        if (RigGridCollection::isEqual(mainGrid, candidateGrid))
+        {
+            return mainGrid;
+        }
+    }
+    return NULL;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigGridCollection::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
+{
+    if (gridA == NULL || gridB == NULL) return false;
+
+    if (gridA == gridB) return true;
+
+    if (gridA->gridCount() != gridB->gridCount()) return false;
+
+    if (gridA->nodes().size() != gridB->nodes().size()) return false;
+
+    for (size_t i = 0; i < gridA->nodes().size(); i++)
+    {
+        if (!gridA->nodes()[i].equals(gridB->nodes()[i]))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}

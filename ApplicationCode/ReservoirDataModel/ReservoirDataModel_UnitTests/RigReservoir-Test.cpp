@@ -22,7 +22,68 @@
 #include "gtest/gtest.h"
 
 #include "RigEclipseCase.h"
+#include "RigGridCollection.h"
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigGridCollection, BasicTest)
+{
+    cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
+
+    cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+
+    RigGridCollection gridCollection;
+    gridCollection.addGrid(eclipseCase.p(), mainGridA.p());
+
+    int count = mainGridA->refCount();
+    EXPECT_TRUE(mainGridA->refCount() == 2);
+
+    cvf::ref<RigMainGrid> mainGridB = mainGridA;
+    EXPECT_TRUE(mainGridA->refCount() == 3);
+
+    cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.notNull());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigGridCollection, EqualTests)
+{
+    cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
+    mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 0));
+    mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 1));
+    mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 2));
+
+    cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+
+    RigGridCollection gridCollection;
+    gridCollection.addGrid(eclipseCase.p(), mainGridA.p());
+
+
+    cvf::ref<RigMainGrid> mainGridB = new RigMainGrid;
+    cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.isNull());
+
+    mainGridB->nodes().push_back(cvf::Vec3d(0, 0, 0));
+    existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.isNull());
+
+    // Insert nodes in opposite direction
+    mainGridB->nodes().push_back(cvf::Vec3d(0, 0, 2));
+    mainGridB->nodes().push_back(cvf::Vec3d(0, 0, 1));
+    existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.isNull());
+
+    // Overwrite to match the node structure of mainGridA
+    mainGridB->nodes()[1] = cvf::Vec3d(0, 0, 1);
+    mainGridB->nodes()[2] = cvf::Vec3d(0, 0, 2);
+    existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.notNull());
+
+}
 
 /*
 
