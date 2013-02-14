@@ -247,7 +247,8 @@ void RimReservoir::registerEclipseCase()
     CVF_ASSERT(proj);
     if (proj)
     {
-        proj->registerEclipseCase(m_rigEclipseCase.p());
+
+        proj->registerEclipseCase(this);
     }
 }
 

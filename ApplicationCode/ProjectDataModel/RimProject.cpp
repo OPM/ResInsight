@@ -21,7 +21,7 @@
 #include "RimProject.h"
 #include "RIApplication.h"
 #include "RIVersionInfo.h"
-#include "RimScriptCollection.h"
+
 #include "RigGridCollection.h"
 #include "RigEclipseCase.h"
 
@@ -36,6 +36,8 @@ RimProject::RimProject(void)
     m_projectFileVersionString.setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     
     scriptCollection = new RimScriptCollection();
@@ -69,6 +71,7 @@ void RimProject::close()
     }
 
     reservoirs.deleteAllChildObjects();
+    caseGroups.deleteAllChildObjects();
 
     fileName = "";
 }
@@ -129,24 +132,26 @@ QString RimProject::projectFileVersionString() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::registerEclipseCase(RigEclipseCase* eclipseCase)
+void RimProject::registerEclipseCase(RimReservoir* rimReservoir)
 {
-    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(rimReservoir);
 
-    RigMainGrid* equalGrid = m_gridCollection->findEqualGrid(eclipseCase->mainGrid());
+    RigEclipseCase* rigEclipseCase = rimReservoir->reservoirData();
+
+    RigMainGrid* equalGrid = m_gridCollection->findEqualGrid(rigEclipseCase->mainGrid());
 
     if (equalGrid)
     {
         // Replace the grid with an already registered grid
-        eclipseCase->setMainGrid(equalGrid);
+        rigEclipseCase->setMainGrid(equalGrid);
     }
     else
     {
         // This is the first insertion of this grid, compute cached data
-        eclipseCase->mainGrid()->computeCachedData();
+        rigEclipseCase->mainGrid()->computeCachedData();
 
         std::vector<RigGridBase*> grids;
-        eclipseCase->allGrids(&grids);
+        rigEclipseCase->allGrids(&grids);
 
         size_t i;
         for (i = 0; i < grids.size(); i++)
@@ -155,5 +160,28 @@ void RimProject::registerEclipseCase(RigEclipseCase* eclipseCase)
         }
     }
 
-    m_gridCollection->addCase(eclipseCase);
+    m_gridCollection->addCase(rigEclipseCase);
+
+
+    // Insert in identical grid group
+    bool foundGroup = false;
+
+    for (size_t i = 0; i < caseGroups.size(); i++)
+    {
+        RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+        if (cg->mainGrid() == equalGrid)
+        {
+            cg->addCase(rimReservoir);
+            foundGroup = true;
+        }
+    }
+
+    if (!foundGroup)
+    {
+        RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
+        group->addCase(rimReservoir);
+
+        caseGroups().push_back(group);
+    }
 }

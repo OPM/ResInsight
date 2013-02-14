@@ -18,45 +18,34 @@
 
 #pragma once
 
-#include "cafPdmDocument.h"
-#include "RimScriptCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 class RimReservoir;
-class RigGridCollection;
+class RigMainGrid;
 
 //==================================================================================================
-///  
-///  
+//
+// 
+//
 //==================================================================================================
-class RimProject : public caf::PdmDocument
+class RimIdenticalGridCaseGroup : public caf::PdmObject
 {
-     CAF_PDM_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    caf::PdmPointersField<RimReservoir*>                reservoirs;
-    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
-    caf::PdmField<RimScriptCollection*>                 scriptCollection;
+    RimIdenticalGridCaseGroup();
+    virtual ~RimIdenticalGridCaseGroup();
 
-    void setUserScriptPath(const QString& path);
-    //void updateProjectScriptPath();
+    void addCase(RimReservoir* reservoir);
 
-    QString projectFileVersionString() const;
+    caf::PdmPointersField<RimReservoir*> reservoirs;
 
-    RimProject(void);
-    virtual ~RimProject(void);
-
-    void close();
-
-    void registerEclipseCase(RimReservoir* rimReservoir);
-
-protected:
-    // Overridden methods
-    virtual void initAfterRead();
-    virtual void setupBeforeSave();
+    RigMainGrid* mainGrid();
 
 private:
-    caf::PdmField<QString> m_projectFileVersionString;
+    cvf::ref<RigMainGrid> m_mainGrid;
 
-    cvf::ref<RigGridCollection>       m_gridCollection;
 };
