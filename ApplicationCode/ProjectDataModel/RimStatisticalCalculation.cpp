@@ -20,6 +20,8 @@
 
 #include "RimStatisticalCalculation.h"
 #include "RimReservoirView.h"
+#include "cafPdmUiOrdering.h"
+#include "RimIdenticalGridCaseGroup.h"
 
 
 CAF_PDM_SOURCE_INIT(RimStatisticalCalculation, "RimStatisticalCalculation");
@@ -34,6 +36,7 @@ RimStatisticalCalculation::RimStatisticalCalculation()
     CAF_PDM_InitField(&statisticsMax,       "StatisticsMax",    true, "Maximum", "", "" ,"");
     CAF_PDM_InitField(&statisticsMean,      "StatisticsMean",   true, "Mean", "", "" ,"");
     CAF_PDM_InitField(&statisticsStdDev,    "StatisticsStdDev", true, "Std dev", "", "" ,"");
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,4 +53,101 @@ RimStatisticalCalculation::~RimStatisticalCalculation()
 bool RimStatisticalCalculation::openEclipseGridFile()
 {
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+{
+    // Fields declared in RimCellFilter
+    uiOrdering.add(&caseName);
+
+    // Fields declared in RimResultDefinition
+    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Statistical parameters");
+    group1->add(&statisticsMin);
+    group1->add(&statisticsMax);
+    group1->add(&statisticsMean);
+    group1->add(&statisticsStdDev);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimStatisticalCalculation::parent()
+{
+    std::vector<caf::PdmObject*> parentObjects;
+    this->parentObjects(parentObjects);
+
+    RimIdenticalGridCaseGroup* parentObject = NULL;
+    for (size_t i = 0; i < parentObjects.size(); i++)
+    {
+        if (parentObject) continue;
+
+        caf::PdmObject* obj = parentObjects[i];
+        parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(obj);
+    }
+
+    CVF_ASSERT(parentObject);
+
+    return parentObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::computeStatistics()
+{
+    if (statisticsMin)
+    {
+        createAndComputeMin();
+    }
+    
+    if (statisticsMax)
+    {
+        createAndComputeMax();
+    }
+
+    if (statisticsMean)
+    {
+        createAndComputeMean();
+    }
+
+    if (statisticsStdDev)
+    {
+        createAndComputeStdDev();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::createAndComputeMin()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::createAndComputeMax()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::createAndComputeMean()
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::createAndComputeStdDev()
+{
+
 }

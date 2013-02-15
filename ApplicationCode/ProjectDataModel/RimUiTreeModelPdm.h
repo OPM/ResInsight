@@ -28,6 +28,7 @@ class RimCellPropertyFilter;
 class RimCellRangeFilter;
 class RimReservoirView;
 class RimInputProperty;
+class RimStatisticalCalculation;
 
 //==================================================================================================
 ///
@@ -54,6 +55,8 @@ public:
     RimCellRangeFilter*     addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimReservoirView*       addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     void                    addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
+    
+    RimStatisticalCalculation*       addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 
     void            updateScriptPaths();
 

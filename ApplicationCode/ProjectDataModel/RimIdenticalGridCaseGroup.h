@@ -25,6 +25,7 @@
 
 class RimReservoir;
 class RigMainGrid;
+class RimStatisticalCalculation;
 
 //==================================================================================================
 //
@@ -42,9 +43,11 @@ public:
     void addCase(RimReservoir* reservoir);
 
     caf::PdmPointersField<RimReservoir*> reservoirs;
+    caf::PdmPointersField<RimReservoir*> statisticalReservoirs;
 
     RigMainGrid* mainGrid();
 
+    RimStatisticalCalculation* createAndAppendStatisticalCalculation();
 private:
     cvf::ref<RigMainGrid> m_mainGrid;
 

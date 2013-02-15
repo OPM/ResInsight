@@ -22,6 +22,7 @@
 #include "RimReservoir.h"
 #include "RimReservoirView.h"
 #include "RigEclipseCase.h"
+#include "RimStatisticalCalculation.h"
 
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
@@ -34,6 +35,12 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     CAF_PDM_InitObject("Identical Grids", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&statisticalReservoirs, "StatisticalReservoirs", "",  "", "", "");
+
+    RimStatisticalCalculation* dummyStat = new RimStatisticalCalculation;
+    dummyStat->caseName = "Statistics 1";
+
+    statisticalReservoirs.push_back(dummyStat);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,5 +86,19 @@ RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
     if (m_mainGrid.notNull()) return m_mainGrid.p();
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimStatisticalCalculation* RimIdenticalGridCaseGroup::createAndAppendStatisticalCalculation()
+{
+    RimStatisticalCalculation* newObject = new RimStatisticalCalculation;
+
+    newObject->caseName = "Statistics 1";
+
+    statisticalReservoirs.push_back(newObject);
+
+    return newObject;
 }
 

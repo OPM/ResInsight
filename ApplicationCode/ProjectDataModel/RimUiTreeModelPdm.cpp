@@ -35,6 +35,7 @@
 #include "RimInputPropertyCollection.h"
 #include "cafPdmField.h"
 #include "RimInputReservoir.h"
+#include "RimStatisticalCalculation.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -440,5 +441,45 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     inputReservoir->removeProperty(inputProperty);
 
     delete inputProperty;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimStatisticalCalculation* RimUiTreeModelPdm::addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+{
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    QModelIndex collectionIndex;
+    RimIdenticalGridCaseGroup* caseGroup = NULL;
+    caf::PdmUiTreeItem* parentCollectionItem = NULL;
+    int position = 0;
+
+    if (dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p()))
+    {
+        RimStatisticalCalculation* currentObject = dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p());
+        caseGroup = currentObject->parent();
+        parentCollectionItem = currentItem->parent();
+        position = itemIndex.row();
+        collectionIndex = itemIndex.parent();
+    }
+    else if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()))
+    {
+        caseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p());
+        parentCollectionItem = currentItem;
+        position = parentCollectionItem->childCount();
+        collectionIndex = itemIndex;
+    }
+
+    beginInsertRows(collectionIndex, position, position);
+
+    RimStatisticalCalculation* createdObject = caseGroup->createAndAppendStatisticalCalculation();
+    caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);
+
+    endInsertRows();
+
+    insertedModelIndex = index(position, 0, collectionIndex);
+
+    return createdObject;
 }
 

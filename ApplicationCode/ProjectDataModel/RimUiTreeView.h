@@ -69,6 +69,9 @@ private slots:
 
     void slotCloseCase();
 
+    void slotNewStatisticalCase();
+    void slotComputeStatisticalCases();
+
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 signals:

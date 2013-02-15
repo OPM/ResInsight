@@ -25,6 +25,9 @@
 
 #include "RimReservoir.h"
 
+class RimIdenticalGridCaseGroup;
+class RimResultDefinition;
+
 
 //==================================================================================================
 //
@@ -46,6 +49,15 @@ public:
     caf::PdmField<bool> statisticsMean;
     caf::PdmField<bool> statisticsStdDev;
 
+    RimIdenticalGridCaseGroup* parent();
+
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
+    void computeStatistics();
+
 private:
+    void createAndComputeMin();
+    void createAndComputeMax();
+    void createAndComputeMean();
+    void createAndComputeStdDev();
 
 };

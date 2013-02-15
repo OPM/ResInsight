@@ -31,6 +31,7 @@
 #include "RimInputReservoir.h"
 #include "RimBinaryExportSettings.h"
 #include "RigReservoirCellResults.h"
+#include "RimStatisticalCalculation.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -141,6 +142,19 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
+                menu.exec(event->globalPos());
+            }
+            else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p()))
+            {
+                QMenu menu;
+                menu.addAction(QString("New Statistical Case"), this, SLOT(slotNewStatisticalCase()));
+                menu.exec(event->globalPos());
+            }
+            else if (dynamic_cast<RimStatisticalCalculation*>(uiItem->dataObject().p()))
+            {
+                QMenu menu;
+                menu.addAction(QString("Compute"), this, SLOT(slotComputeStatisticalCases()));
+                menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
@@ -748,5 +762,34 @@ void RimUiTreeView::slotCloseCase()
     {
         myModel->deleteReservoir(currentIndex());
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotNewStatisticalCase()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        QModelIndex insertedIndex;
+        RimStatisticalCalculation* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
+        setCurrentIndex(insertedIndex);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotComputeStatisticalCases()
+{
+    QModelIndex index = currentIndex();
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+
+    RimStatisticalCalculation* statisticalObject = dynamic_cast<RimStatisticalCalculation*>(uiItem->dataObject().p());
+    if (!statisticalObject) return;
+
+    statisticalObject->computeStatistics();
 }
 
