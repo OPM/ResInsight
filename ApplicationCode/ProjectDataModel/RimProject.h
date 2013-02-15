@@ -48,7 +48,8 @@ public:
 
     void close();
 
-    void registerEclipseCase(RimReservoir* rimReservoir);
+    void moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir);
+    void removeEclipseCaseFromAllGroups(RimReservoir* rimReservoir);
 
 protected:
     // Overridden methods
@@ -56,7 +57,7 @@ protected:
     virtual void setupBeforeSave();
 
 private:
-    caf::PdmField<QString> m_projectFileVersionString;
+    caf::PdmField<QString>      m_projectFileVersionString;
 
-    cvf::ref<RigGridCollection>       m_gridCollection;
+    cvf::ref<RigGridCollection> m_gridCollection;
 };

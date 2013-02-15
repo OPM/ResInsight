@@ -132,7 +132,7 @@ QString RimProject::projectFileVersionString() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::registerEclipseCase(RimReservoir* rimReservoir)
+void RimProject::moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
@@ -184,4 +184,36 @@ void RimProject::registerEclipseCase(RimReservoir* rimReservoir)
 
         caseGroups().push_back(group);
     }
+
+    // Remove reservoir from main container
+    reservoirs().removeChildObject(rimReservoir);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::removeEclipseCaseFromAllGroups(RimReservoir* reservoir)
+{
+    m_gridCollection->removeCase(reservoir->reservoirData());
+
+    std::vector<RimIdenticalGridCaseGroup*> emptyCaseGroups;
+    for (size_t i = 0; i < caseGroups.size(); i++)
+    {
+        RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+        cg->reservoirs().removeChildObject(reservoir);
+
+        if (cg->reservoirs().size() == 0)
+        {
+            emptyCaseGroups.push_back(cg);
+        }
+    }
+
+    for (size_t i = 0; i < emptyCaseGroups.size(); i++)
+    {
+        caseGroups().removeChildObject(emptyCaseGroups[i]);
+        delete emptyCaseGroups[i];
+    }
+
+    reservoirs().removeChildObject(reservoir);
 }
