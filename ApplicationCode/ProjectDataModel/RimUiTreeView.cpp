@@ -161,6 +161,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
+                menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.exec(event->globalPos());
             }
         }
@@ -510,12 +511,8 @@ void RimUiTreeView::slotAddView()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
     
-    RimReservoirView* rimView = dynamic_cast<RimReservoirView*>(uiItem->dataObject().p());
-    if (rimView)
-    {
-        QModelIndex insertedIndex;
-        myModel->addReservoirView(index, insertedIndex);
-    }
+    QModelIndex insertedIndex;
+    myModel->addReservoirView(index, insertedIndex);
 
 }
 

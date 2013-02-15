@@ -323,24 +323,37 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
     if (!currentItem) return NULL;
 
-    RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(currentItem->dataObject().p());
-    if (!reservoirView) return NULL;
+    caf::PdmUiTreeItem* collectionItem = NULL;
 
-    RimReservoirView* insertedView = reservoirView->eclipseCase()->createAndAddReservoirView();
-    caf::PdmUiTreeItem* collectionItem = currentItem->parent();
+    if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
+    {
+        collectionItem = currentItem->parent();
+    }
+    else if (dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
+    {
+        collectionItem = currentItem;
+    }
 
-    int viewCount = rowCount(itemIndex.parent());
-    beginInsertRows(itemIndex.parent(), viewCount, viewCount);
+    if (collectionItem)
+    {
+        RimReservoir* rimReservoir = dynamic_cast<RimReservoir*>(collectionItem->dataObject().p());
+        RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
 
-    caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(collectionItem, viewCount, insertedView);
+        int viewCount = rowCount(itemIndex);
+        beginInsertRows(itemIndex, viewCount, viewCount);
 
-    endInsertRows();
+        caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(collectionItem, viewCount, insertedView);
 
-    insertedView->loadDataAndUpdate();
+        endInsertRows();
 
-    rebuildUiSubTree(insertedView);
-    
-    return insertedView;
+        insertedView->loadDataAndUpdate();
+
+        rebuildUiSubTree(insertedView);
+
+        return insertedView;
+    }
+
+    return NULL;
 }
 
 
