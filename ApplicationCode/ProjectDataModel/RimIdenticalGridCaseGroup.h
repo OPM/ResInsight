@@ -40,6 +40,8 @@ public:
     RimIdenticalGridCaseGroup();
     virtual ~RimIdenticalGridCaseGroup();
 
+    caf::PdmField<QString>  name;
+
     void addCase(RimReservoir* reservoir);
 
     caf::PdmPointersField<RimReservoir*> reservoirs;
@@ -48,6 +50,10 @@ public:
     RigMainGrid* mainGrid();
 
     RimStatisticalCalculation* createAndAppendStatisticalCalculation();
+
+protected:
+    virtual caf::PdmFieldHandle*   userDescriptionField();
+
 private:
     cvf::ref<RigMainGrid> m_mainGrid;
 

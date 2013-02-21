@@ -34,6 +34,8 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
     CAF_PDM_InitObject("Identical Grids", "", "", "");
 
+    CAF_PDM_InitField(&name,    "UserDescription",  QString("Identical Grid Case Group"), "Name", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&statisticalReservoirs, "StatisticalReservoirs", "",  "", "", "");
 
@@ -100,5 +102,13 @@ RimStatisticalCalculation* RimIdenticalGridCaseGroup::createAndAppendStatistical
     statisticalReservoirs.push_back(newObject);
 
     return newObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimIdenticalGridCaseGroup::userDescriptionField()
+{
+    return &name;
 }
 
