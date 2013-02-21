@@ -153,6 +153,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             else if (dynamic_cast<RimStatisticalCalculation*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
+                menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Compute"), this, SLOT(slotComputeStatisticalCases()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.exec(event->globalPos());
