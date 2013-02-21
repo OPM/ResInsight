@@ -22,6 +22,9 @@
 #include "RimReservoirView.h"
 #include "cafPdmUiOrdering.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RigEclipseCase.h"
+#include "RifReaderStatisticalCalculation.h"
+#include "RigReservoirCellResults.h"
 
 
 CAF_PDM_SOURCE_INIT(RimStatisticalCalculation, "RimStatisticalCalculation");
@@ -37,6 +40,7 @@ RimStatisticalCalculation::RimStatisticalCalculation()
     CAF_PDM_InitField(&statisticsMean,      "StatisticsMean",   true, "Mean", "", "" ,"");
     CAF_PDM_InitField(&statisticsStdDev,    "StatisticsStdDev", true, "Std dev", "", "" ,"");
 
+    m_readerInterface = new RifReaderStatisticalCalculation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +56,18 @@ RimStatisticalCalculation::~RimStatisticalCalculation()
 //--------------------------------------------------------------------------------------------------
 bool RimStatisticalCalculation::openEclipseGridFile()
 {
+    cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+
+    if (!m_readerInterface->open("dummy", eclipseCase.p()))
+    {
+        return false;
+    }
+
+    m_rigEclipseCase = eclipseCase;
+
+    m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(m_readerInterface.p());
+    m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(m_readerInterface.p());
+   
     return true;
 }
 

@@ -27,6 +27,7 @@
 
 class RimIdenticalGridCaseGroup;
 class RimResultDefinition;
+class RifReaderStatisticalCalculation;
 
 
 //==================================================================================================
@@ -59,5 +60,8 @@ private:
     void createAndComputeMax();
     void createAndComputeMean();
     void createAndComputeStdDev();
+
+private:
+    cvf::ref<RifReaderStatisticalCalculation> m_readerInterface;
 
 };
