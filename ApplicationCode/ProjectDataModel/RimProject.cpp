@@ -201,9 +201,9 @@ void RimProject::removeEclipseCaseFromAllGroups(RimReservoir* reservoir)
     {
         RimIdenticalGridCaseGroup* cg = caseGroups()[i];
 
-        cg->reservoirs().removeChildObject(reservoir);
+        cg->caseCollection()->reservoirs().removeChildObject(reservoir);
 
-        if (cg->reservoirs().size() == 0)
+        if (cg->caseCollection()->reservoirs().size() == 0)
         {
             emptyCaseGroups.push_back(cg);
         }

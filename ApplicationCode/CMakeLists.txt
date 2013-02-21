@@ -54,6 +54,7 @@ list( APPEND CPP_SOURCES
 )
 
 list( APPEND CPP_SOURCES
+    ProjectDataModel/RimCaseCollection.cpp
     ProjectDataModel/RimCellFilter.cpp
     ProjectDataModel/RimCellPropertyFilter.cpp
     ProjectDataModel/RimCellPropertyFilterCollection.cpp

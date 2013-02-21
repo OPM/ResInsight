@@ -1,4 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
 // 
@@ -38,10 +39,10 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Identical Grid Case Group"), "Name", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
-    
-    CAF_PDM_InitFieldNoDefault(&statisticalReservoirCollection, "StatisticalReservoirCollection", "StatisticalReservoirCollection", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Cases", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&statisticalReservoirCollection, "StatisticalReservoirCollection", "Derived Statistics", "", "", "");
 
+    caseCollection = new RimCaseCollection;
     statisticalReservoirCollection = new RimStatisticalCollection;
 
 }
@@ -69,16 +70,10 @@ void RimIdenticalGridCaseGroup::addCase(RimReservoir* reservoir)
     {
         m_mainGrid = incomingMainGrid;
     }
-    else
-    {
-        if (m_mainGrid.p() != incomingMainGrid)
-        {
-            CVF_ASSERT(false);
-            return;
-        }
-    }
 
-    reservoirs.push_back(reservoir);
+    CVF_ASSERT(m_mainGrid.p() == incomingMainGrid);
+ 
+    caseCollection()->reservoirs().push_back(reservoir);
 }
 
 //--------------------------------------------------------------------------------------------------
