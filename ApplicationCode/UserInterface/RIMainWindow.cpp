@@ -177,6 +177,8 @@ void RIMainWindow::createActions()
     // File actions
     m_openAction                = new QAction(QIcon(":/AppLogo48x48.png"), "&Open Eclipse Case", this);
     m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
+    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Multiple Eclipse Folders", this);
+    
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
 
@@ -197,6 +199,7 @@ void RIMainWindow::createActions()
 
     connect(m_openAction,	            SIGNAL(triggered()), SLOT(slotOpenBinaryGridFiles()));
     connect(m_openInputEclipseFileAction,SIGNAL(triggered()), SLOT(slotOpenInputFiles()));
+    connect(m_openMultipleEclipseCasesAction,SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
     connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
     
@@ -264,6 +267,7 @@ void RIMainWindow::createMenus()
     QMenu* fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction(m_openAction);
     fileMenu->addAction(m_openInputEclipseFileAction);
+    fileMenu->addAction(m_openMultipleEclipseCasesAction);
     fileMenu->addAction(m_openProjectAction);
     fileMenu->addAction(m_openLastUsedProjectAction);
 
@@ -1247,5 +1251,71 @@ void RIMainWindow::hideAllDockWindows()
     for (int i = 0; i < dockWidgets.size(); i++)
     {
         dockWidgets[i]->close();
+    }
+}
+
+
+void appendEGRIDFilesRecursively(const QString& folderName, QStringList& gridFileNames)
+{
+    {
+        QDir baseDir(folderName);
+        baseDir.setFilter(QDir::Files);
+
+        QStringList nameFilters;
+        nameFilters << "*.egrid" << ".EGRID";
+        baseDir.setNameFilters(nameFilters);
+
+        QStringList fileNames = baseDir.entryList();
+
+        for (int i = 0; i < fileNames.size(); ++i)
+        {
+            QString fileName = fileNames[i];
+
+            QString absoluteFolderName = baseDir.absoluteFilePath(fileName);
+
+            gridFileNames.append(absoluteFolderName);
+        }
+    }
+
+
+    {
+        QDir baseDir(folderName);
+        baseDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
+
+        QStringList subFolders = baseDir.entryList();
+
+        for (int i = 0; i < subFolders.size(); ++i)
+        {
+            QString folderName = subFolders[i];
+
+            QString absoluteFolderName = baseDir.absoluteFilePath(folderName);
+            appendEGRIDFilesRecursively(absoluteFolderName, gridFileNames);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RIMainWindow::slotOpenMultipleCases()
+{
+    RIApplication* app = RIApplication::instance();
+
+
+    QStringList folderNames;
+    QStringList gridFileNames;
+
+    for (int i = 0; i < folderNames.size(); i++)
+    {
+        QString fileName = folderNames[i];
+
+        appendEGRIDFilesRecursively(fileName, gridFileNames);
+    }
+
+    for (int i = 0; i < gridFileNames.size(); i++)
+    {
+        QString fileName = gridFileNames[i];
+
+        app->addEclipseCase(fileName);
     }
 }

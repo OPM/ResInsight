@@ -1291,3 +1291,28 @@ void RIApplication::updateRegressionTest(const QString& testRootPath)
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RIApplication::addEclipseCase(const QString& fileName)
+{
+    QFileInfo gridFileName(fileName);
+
+    QString caseName = gridFileName.completeBaseName();
+    QString casePath = gridFileName.absolutePath();
+
+    RimResultReservoir* rimResultReservoir = new RimResultReservoir();
+    rimResultReservoir->caseName = caseName;
+    rimResultReservoir->caseFileName = fileName;
+    rimResultReservoir->caseDirectory = casePath;
+
+    m_project->reservoirs.push_back(rimResultReservoir);
+
+    rimResultReservoir->openEclipseGridFile();
+
+    onProjectOpenedOrClosed();
+
+    return true;
+
+}

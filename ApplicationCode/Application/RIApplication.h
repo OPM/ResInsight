@@ -80,6 +80,7 @@ public:
 
     bool                openEclipseCaseFromFile(const QString& fileName);
     bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
+    bool                addEclipseCase(const QString& fileName);
     bool                openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames);
 
     bool                loadLastUsedProject();
