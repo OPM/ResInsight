@@ -23,37 +23,27 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimStatisticalCollection.h"
+#include "RimStatisticalCalculation.h"
 
-class RimReservoir;
-class RigMainGrid;
+
 
 //==================================================================================================
 //
 // 
 //
 //==================================================================================================
-class RimIdenticalGridCaseGroup : public caf::PdmObject
+class RimStatisticalCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimIdenticalGridCaseGroup();
-    virtual ~RimIdenticalGridCaseGroup();
+    RimStatisticalCollection();
+    virtual ~RimStatisticalCollection();
 
-    caf::PdmField<QString>  name;
+    caf::PdmPointersField<RimStatisticalCalculation*> reservoirs;
 
-    void addCase(RimReservoir* reservoir);
-
-    caf::PdmPointersField<RimReservoir*>        reservoirs;
-    caf::PdmField<RimStatisticalCollection*>    statisticalReservoirCollection;
-
-    RigMainGrid* mainGrid();
-
-protected:
-    virtual caf::PdmFieldHandle*   userDescriptionField();
+    RimStatisticalCalculation* createAndAppendStatisticalCalculation();
 
 private:
-    cvf::ref<RigMainGrid> m_mainGrid;
 
 };

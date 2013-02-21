@@ -28,6 +28,7 @@
 class RimIdenticalGridCaseGroup;
 class RimResultDefinition;
 class RifReaderStatisticalCalculation;
+class RimStatisticalCollection;
 
 
 //==================================================================================================
@@ -50,7 +51,7 @@ public:
     caf::PdmField<bool> statisticsMean;
     caf::PdmField<bool> statisticsStdDev;
 
-    RimIdenticalGridCaseGroup* parent();
+    RimStatisticalCollection* parent();
 
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
     void computeStatistics();

@@ -76,6 +76,7 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimWellCollection.cpp
     ProjectDataModel/RimScriptCollection.cpp
     ProjectDataModel/RimStatisticalCalculation.cpp
+    ProjectDataModel/RimStatisticalCollection.cpp
     ProjectDataModel/RimCalcScript.cpp
     ProjectDataModel/RimExportInputPropertySettings.cpp
     ProjectDataModel/RimBinaryExportSettings.cpp

@@ -91,18 +91,18 @@ void RimStatisticalCalculation::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimStatisticalCalculation::parent()
+RimStatisticalCollection* RimStatisticalCalculation::parent()
 {
     std::vector<caf::PdmObject*> parentObjects;
     this->parentObjects(parentObjects);
 
-    RimIdenticalGridCaseGroup* parentObject = NULL;
+    RimStatisticalCollection* parentObject = NULL;
     for (size_t i = 0; i < parentObjects.size(); i++)
     {
         if (parentObject) continue;
 
         caf::PdmObject* obj = parentObjects[i];
-        parentObject = dynamic_cast<RimIdenticalGridCaseGroup*>(obj);
+        parentObject = dynamic_cast<RimStatisticalCollection*>(obj);
     }
 
     CVF_ASSERT(parentObject);
