@@ -50,17 +50,6 @@ list( APPEND CPP_SOURCES
 )
 
 list( APPEND CPP_SOURCES
-	FileInterface/RifEclipseInputFileTools.cpp
-    FileInterface/RifEclipseOutputFileTools.cpp
-    FileInterface/RifEclipseRestartFilesetAccess.cpp
-    FileInterface/RifEclipseRestartDataAccess.cpp
-    FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
-    FileInterface/RifReaderEclipseInput.cpp
-    FileInterface/RifReaderEclipseOutput.cpp
-    FileInterface/RifReaderMockModel.cpp
-)
-
-list( APPEND CPP_SOURCES
     SocketInterface/RiaSocketServer.cpp
 )
 
@@ -97,11 +86,10 @@ list( APPEND CPP_SOURCES
 
 # Populate the filenames into variable lists
 include ("ReservoirDataModel/CMakeLists_files.cmake")
+include ("FileInterface/CMakeLists_files.cmake")
 list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
-
-message(${CODE_SOURCE_FILES}) 
 
 list( APPEND CPP_SOURCES
     UserInterface/RICursors.cpp

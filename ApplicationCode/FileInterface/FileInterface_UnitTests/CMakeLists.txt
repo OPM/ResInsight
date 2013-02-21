@@ -20,15 +20,9 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/CommonCode
 )
 
+include ("${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface/CMakeLists_files.cmake")
 set( FILEINTERFACE_CPP_SOURCES
-    ../RifEclipseInputFileTools.cpp
-    ../RifEclipseOutputFileTools.cpp
-    ../RifEclipseRestartFilesetAccess.cpp
-    ../RifEclipseRestartDataAccess.cpp
-    ../RifEclipseUnifiedRestartFileAccess.cpp
-    ../RifReaderEclipseOutput.cpp
-    ../RifReaderEclipseInput.cpp
-    ../RifReaderMockModel.cpp
+    ${CODE_SOURCE_FILES}
 )
 
 set( RESERVOIRDATAMODEL_CPP_SOURCES
