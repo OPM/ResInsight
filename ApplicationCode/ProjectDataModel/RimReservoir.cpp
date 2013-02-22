@@ -230,24 +230,23 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoir::registerEclipseCase()
+void RimReservoir::computeCachedData()
 {
-    std::vector<caf::PdmObject*> parentObjects;
-    this->parentObjects(parentObjects);
-
-    RimProject* proj = NULL;
-    for (size_t i = 0; i < parentObjects.size(); i++)
+    RigEclipseCase* rigEclipseCase = reservoirData();
+    if (rigEclipseCase)
     {
-        if (proj) continue;
+        rigEclipseCase->computeCachedData();
 
-        caf::PdmObject* obj = parentObjects[i];
-        proj = dynamic_cast<RimProject*>(obj);
-    }
+        rigEclipseCase->mainGrid()->computeCachedData();
 
-    CVF_ASSERT(proj);
-    if (proj)
-    {
-        proj->moveEclipseCaseIntoCaseGroup(this);
+        std::vector<RigGridBase*> grids;
+        rigEclipseCase->allGrids(&grids);
+
+        size_t i;
+        for (i = 0; i < grids.size(); i++)
+        {
+            grids[i]->computeFaults();
+        }
     }
 }
 

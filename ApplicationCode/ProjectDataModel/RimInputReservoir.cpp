@@ -94,9 +94,7 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
              {
                  m_gridFileName = filenames[i];
 
-                 registerEclipseCase();
-
-                 m_rigEclipseCase->computeCachedData();
+                 computeCachedData();
 
                  break;
              }
@@ -176,9 +174,6 @@ bool RimInputReservoir::openEclipseGridFile()
             }
 
             m_rigEclipseCase = eclipseCase;
-            
-            registerEclipseCase();
-            loadAndSyncronizeInputProperties();
         }
 
         CVF_ASSERT(m_rigEclipseCase.notNull());
@@ -186,7 +181,9 @@ bool RimInputReservoir::openEclipseGridFile()
 
         m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigEclipseCase->computeCachedData();
+        
+        computeCachedData();
+        loadAndSyncronizeInputProperties();
     }
 
     

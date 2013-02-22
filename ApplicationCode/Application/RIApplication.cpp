@@ -1253,6 +1253,8 @@ void RIApplication::runRegressionTest(const QString& testRootPath)
                     qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
                  }
              }
+
+             closeProject(false);
         }
     }
 }
@@ -1310,6 +1312,8 @@ bool RIApplication::addEclipseCase(const QString& fileName)
     m_project->reservoirs.push_back(rimResultReservoir);
 
     rimResultReservoir->openEclipseGridFile();
+
+    m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
 
     onProjectOpenedOrClosed();
 

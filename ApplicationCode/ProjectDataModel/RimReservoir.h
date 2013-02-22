@@ -70,7 +70,7 @@ protected:
 
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
-    void registerEclipseCase();
+    void computeCachedData();
 
 protected:
     cvf::ref<RigEclipseCase>        m_rigEclipseCase;
