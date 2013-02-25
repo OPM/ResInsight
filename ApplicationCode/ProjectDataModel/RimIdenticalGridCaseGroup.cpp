@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
-    CAF_PDM_InitObject("Identical Grids", "", "", "");
+    CAF_PDM_InitObject("Grid Case Group", "", "", "");
 
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Identical Grid Case Group"), "Name", "", "", "");
 
