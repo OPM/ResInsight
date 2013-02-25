@@ -137,6 +137,9 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
 
+    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer Background", "", "", "");
+
+
     CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
 
   
@@ -220,6 +223,8 @@ void RimReservoirView::updateViewerWidget()
         RIMainWindow::instance()->setActiveViewer(m_viewer);
 
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
         m_viewer->update();
     }
     else
@@ -356,6 +361,13 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         if (generateDisplayModel)
         {
             createDisplayModelAndRedraw();
+        }
+    }
+    else if (changedField == &backgroundColor ) 
+    {
+        if (viewer() != NULL)
+        {
+            updateViewerWidget();
         }
     }
     else if (changedField == &m_currentTimeStep)

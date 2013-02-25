@@ -110,6 +110,8 @@ public:
     caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
     caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
 
+    caf::PdmField< cvf::Color3f >                       backgroundColor;
+
     caf::PdmField<cvf::Mat4d>                           cameraPosition;
 
     caf::PdmField<int>                                  maximumFrameRate;
