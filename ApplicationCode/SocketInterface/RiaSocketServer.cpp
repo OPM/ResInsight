@@ -650,7 +650,7 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gr
 
     for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
     {
-        if (actCellInfo->activeIndexInMatrixModel(cIdx))
+        if (actCellInfo->isActiveInMatrixModel(cIdx))
         {
             RigGridBase* grid = globalCells[cIdx].hostGrid();
             CVF_ASSERT(grid != NULL);

@@ -266,12 +266,12 @@ void RigEclipseCase::computeActiveCellData()
         size_t i, j, k;
         m_mainGrid->ijkFromCellIndex(idx, &i, &j, &k);
 
-        if (m_activeCellInfo.activeIndexInMatrixModel(idx))
+        if (m_activeCellInfo.isActiveInMatrixModel(idx))
         {
             matrixModelActiveBB.add(i, j, k);
         }
 
-        if (m_activeCellInfo.activeIndexInFractureModel(idx))
+        if (m_activeCellInfo.isActiveInFractureModel(idx))
         {
             fractureModelActiveBB.add(i, j, k);
         }
@@ -325,9 +325,9 @@ void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
     }
     else
     {
-        for (size_t i = 0; i < m_mainGrid->cells().size(); i++)
+        for (size_t i = 0; i < m_mainGrid->cellCount(); i++)
         {
-            if (m_activeCellInfo.activeIndexInMatrixModel(i))
+            if (m_activeCellInfo.isActiveInMatrixModel(i))
             {
                 const RigCell& c = m_mainGrid->cells()[i];
                 const caf::SizeTArray8& indices = c.cornerIndices();
