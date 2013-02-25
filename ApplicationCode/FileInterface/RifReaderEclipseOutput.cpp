@@ -118,12 +118,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, localCellIdx);
         if (matrixActiveIndex != -1)
         {
-            cell.setActiveIndexInMatrixModel(matrixActiveStartIndex + matrixActiveIndex);
             activeCellInfo->setActiveIndexInMatrixModel(cellStartIndex + localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
-        }
-        else
-        {
-            cell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, localCellIdx);

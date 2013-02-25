@@ -152,6 +152,8 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
 
         riCell.setParentCellIndex(0);
 
+        //TODO: Rewrite active cell info in mock models
+        /*
         if (!(i % 5))
         {
             riCell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
@@ -160,6 +162,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
         {
             riCell.setActiveIndexInMatrixModel(activeCellIndex++);
         }
+        */
 
         cells.push_back(riCell);
     }
@@ -242,6 +245,14 @@ void RigReservoirBuilderMock::populateReservoir(RigEclipseCase* eclipseCase)
     eclipseCase->mainGrid()->setGridPointDimensions(m_gridPointDimensions);
 
     addWellData(eclipseCase, eclipseCase->mainGrid());
+
+    // Set all cells active
+    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();
+    activeCellInfo->setGlobalCellCount(eclipseCase->mainGrid()->cells().size());
+    for (size_t i = 0; i < eclipseCase->mainGrid()->cells().size(); i++)
+    {
+        activeCellInfo->setActiveIndexInMatrixModel(i, i);
+    }
 }
 
 
@@ -293,17 +304,8 @@ bool RigReservoirBuilderMock::staticResult(RigEclipseCase* eclipseCase, const QS
 
     for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
     {
-        RigCell& cell = eclipseCase->mainGrid()->cells()[k];
-        if (cell.isActiveInMatrixModel())
         {
-            if (cell.hostGrid() == eclipseCase->mainGrid())
-            {
-                values->push_back((k * 2) % eclipseCase->mainGrid()->cells().size());
-            }
-            else
-            {
-                values->push_back(500);
-            }
+            values->push_back((k * 2) % eclipseCase->mainGrid()->cells().size());
         }
     }
 
@@ -331,17 +333,9 @@ bool RigReservoirBuilderMock::dynamicResult(RigEclipseCase* eclipseCase, const Q
     for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
     {
         RigCell& cell = eclipseCase->mainGrid()->cells()[k];
-        if (cell.isActiveInMatrixModel())
         {
-            if (cell.hostGrid() == eclipseCase->mainGrid())
-            {
-                double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->cells().size() );
-                values->push_back(val);
-            }
-            else
-            {
-                values->push_back(500);
-            }
+            double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->cells().size() );
+            values->push_back(val);
         }
     }
 

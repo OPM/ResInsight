@@ -109,12 +109,16 @@ cvf::ref<RifReaderInterface> RimResultReservoir::createMockModel(QString modelNa
         mockFileInterface->open("", reservoir.p());
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
-            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
+
+            //TODO: Rewrite active cell info in mock models
+            //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
 
         {
             size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
-            reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
+
+            //TODO: Rewrite active cell info in mock models
+            //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
     }
     else if (modelName == "Result Mock Debug Model With Results")

@@ -37,10 +37,6 @@ public:
     caf::SizeTArray8&       cornerIndices()                                     { return m_cornerIndices;}
     const caf::SizeTArray8& cornerIndices() const                               { return m_cornerIndices;}
 
-    bool                    isActiveInMatrixModel() const                       { return m_activeIndexInMatrixModel != cvf::UNDEFINED_SIZE_T; }
-    size_t                  activeIndexInMatrixModel() const                    { return m_activeIndexInMatrixModel; }
-    void                    setActiveIndexInMatrixModel(size_t val)             { m_activeIndexInMatrixModel = val; }
-
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
 
@@ -89,6 +85,4 @@ private:
 
     // Result case specific data 
     bool                    m_isWellCell;
-
-    size_t                  m_activeIndexInMatrixModel;      ///< This cell's running index of all the active calls (matrix) in the reservoir
 };

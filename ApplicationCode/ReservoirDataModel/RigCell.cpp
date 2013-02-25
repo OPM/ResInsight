@@ -42,7 +42,6 @@ RigCell::RigCell() :
     m_hostGrid(NULL),
     m_isInvalid(false),
     m_isWellCell(false),
-    m_activeIndexInMatrixModel(cvf::UNDEFINED_SIZE_T),
     m_cellIndex(cvf::UNDEFINED_SIZE_T),
     m_isInCoarseCell(false)
 {
