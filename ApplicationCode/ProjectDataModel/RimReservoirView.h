@@ -85,97 +85,100 @@ public:
         NO_SURFACE
     };
 
-    // Public fields:
+    // Fields containing child objects :
 
-    caf::PdmField<RimResultSlot*>           cellResult;
-    caf::PdmField<RimCellEdgeResultSlot*>   cellEdgeResult;
-    caf::PdmField<Rim3dOverlayInfoConfig*>  overlayInfoConfig;
+    caf::PdmField<RimResultSlot*>                       cellResult;
+    caf::PdmField<RimCellEdgeResultSlot*>               cellEdgeResult;
 
-    caf::PdmField<double>           scaleZ;
-    caf::PdmField<bool>             showWindow;
-    caf::PdmField<QString>          name;
+    caf::PdmField<RimCellRangeFilterCollection*>        rangeFilterCollection;
+    caf::PdmField<RimCellPropertyFilterCollection*>     propertyFilterCollection;
 
-    // Visibility
-    caf::PdmField<bool>             showInvalidCells;
-    caf::PdmField<bool>             showInactiveCells;
-    caf::PdmField<bool>             showMainGrid;
+    caf::PdmField<RimWellCollection*>                   wellCollection;
 
-    caf::PdmField<RimWellCollection*> wellCollection;
+    caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
 
-    caf::PdmField<RimCellRangeFilterCollection*>    rangeFilterCollection;
-    caf::PdmField<RimCellPropertyFilterCollection*> propertyFilterCollection;
+    // Visualization setup fields
 
-    caf::PdmField< caf::AppEnum< MeshModeType > >    meshMode;
-    caf::PdmField< caf::AppEnum< SurfaceModeType > > surfaceMode;
+    caf::PdmField<QString>                              name;
+    caf::PdmField<double>                               scaleZ;
+    caf::PdmField<bool>                                 showWindow;
+
+    caf::PdmField<bool>                                 showInvalidCells;
+    caf::PdmField<bool>                                 showInactiveCells;
+    caf::PdmField<bool>                                 showMainGrid;
+
+    caf::PdmField< caf::AppEnum< MeshModeType > >       meshMode;
+    caf::PdmField< caf::AppEnum< SurfaceModeType > >    surfaceMode;
+
+    caf::PdmField<cvf::Mat4d>                           cameraPosition;
+
+    caf::PdmField<int>                                  maximumFrameRate;
+    caf::PdmField<bool>                                 animationMode;
+
+    // Access internal objects
+    RigReservoirCellResults*                gridCellResults();
+
+    void                                    setEclipseCase(RimReservoir* reservoir);
+    RimReservoir*                           eclipseCase();
 
     // Animation
-    caf::PdmField<int>              maximumFrameRate;
-    caf::PdmField<bool>             animationMode;
-
-    int                             currentTimeStep()    { return m_currentTimeStep;}
-    void                            setCurrentTimeStep(int frameIdx);
-    void                            updateCurrentTimeStepAndRedraw();
-    void                            endAnimation();
+    int                                     currentTimeStep()    { return m_currentTimeStep;}
+    void                                    setCurrentTimeStep(int frameIdx);
+    void                                    updateCurrentTimeStepAndRedraw();
+    void                                    endAnimation();
 
     // 3D Viewer
-    // Cam pos should be a field, but is not yet supported bu caf::Pdm
-    caf::PdmField<cvf::Mat4d>       cameraPosition;
-    void                            setDefaultView();
-
-    RIViewer*                       viewer();
-    void                            updateViewerWidget();
-    void                            updateViewerWidgetWindowTitle();
+    RIViewer*                               viewer();
+    void                                    updateViewerWidget();
+    void                                    updateViewerWidgetWindowTitle();
+    void                                    setDefaultView();
 
     // Picking info
-    bool                            pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const;
-    void                            appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) const;
+    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const;
+    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) const;
 
-    RigReservoirCellResults*        gridCellResults();
-    
-    void                            setEclipseCase(RimReservoir* reservoir);
-    RimReservoir*                   eclipseCase();
-
-    void                            calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
-
+    // Does this belong here, really ?
+    void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
 
     // Display model generation
 public:
-    void                            loadDataAndUpdate();
-    void                            createDisplayModelAndRedraw();
-    void                            scheduleGeometryRegen(unsigned short geometryType);
-    void                            schedulePipeGeometryRegen();
+    void                                    loadDataAndUpdate();
+    void                                    createDisplayModelAndRedraw();
+    void                                    scheduleGeometryRegen(unsigned short geometryType);
+    void                                    schedulePipeGeometryRegen();
+
+    // Display model generation
+private:
+    void                                    createDisplayModel();
+    void                                    updateDisplayModelVisibility();
+    void                                    updateCurrentTimeStep();
+    void                                    indicesToVisibleGrids(std::vector<size_t>* gridIndices);
+    void                                    updateScaleTransform();
+    void                                    updateStaticCellColors();
+    void                                    updateStaticCellColors(unsigned short geometryType);
+    void                                    updateLegends();
+
+    cvf::ref<RivReservoirViewPartMgr>       m_geometry;
+    cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
 
     // Overridden PDM methods:
 public:
-    virtual caf::PdmFieldHandle*    userDescriptionField()  { return &name;}
-    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name;}
+    virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
-    virtual void                    initAfterRead();
-    virtual void                    setupBeforeSave();
+    virtual void                            initAfterRead();
+    virtual void                            setupBeforeSave();
 
+    // Really private
+private:
+    void                                    syncronizeWellsWithResults();
+    void                                    clampCurrentTimestep();
 
 private:
-    void                            syncronizeWellsWithResults();
-    void                            clampCurrentTimestep();
-
-private:
-    caf::PdmField<int>              m_currentTimeStep;
-    QPointer<RIViewer>              m_viewer;
-    caf::PdmPointer<RimReservoir>   m_reservoir;
+    caf::PdmField<int>                      m_currentTimeStep;
+    QPointer<RIViewer>                      m_viewer;
+    caf::PdmPointer<RimReservoir>           m_reservoir;
 
 
-// Display model generation
-private:
-    void                            createDisplayModel();
-    void                            updateDisplayModelVisibility();
-    void                            updateCurrentTimeStep();
-    void                            indicesToVisibleGrids(std::vector<size_t>* gridIndices);
-    void                            updateScaleTransform();
-    void                            updateStaticCellColors();
-    void                            updateStaticCellColors(unsigned short geometryType);
-    void                            updateLegends();
-
-    cvf::ref<RivReservoirViewPartMgr> m_geometry;
-    cvf::ref<RivReservoirPipesPartMgr> m_pipesPartManager;
 };
 
