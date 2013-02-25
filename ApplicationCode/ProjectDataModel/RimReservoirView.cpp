@@ -1185,6 +1185,13 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
     // If all wells are forced off, return
     if (this->wellCollection()->wellCellVisibility() == RimWellCollection::FORCE_ALL_OFF) return;
 
+    RigActiveCellInfo* activeCellInfo = NULL;
+    if (eclipseCase() && eclipseCase()->reservoirData())
+    {
+        activeCellInfo = eclipseCase()->reservoirData()->activeCellInfo();
+    }
+    CVF_ASSERT(activeCellInfo);
+
     // Loop over the wells and find their contribution
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
@@ -1249,7 +1256,9 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                                 for ( fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
                                 {
                                     size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
-                                    if (grid->cell(fenceCellIndex).isActiveInMatrixModel())
+                                    size_t globalGridCellIndex = grid->globalGridCellIndex(fenceCellIndex);
+
+                                    if (activeCellInfo && activeCellInfo->isActiveInMatrixModel(globalGridCellIndex))
                                     {
                                         (*visibleCells)[fenceCellIndex] = true;
                                     }
