@@ -20,40 +20,40 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/CommonCode
 )
 
+
+# Populate variables from read from CMakeLists_files.cmake
+set (CODE_SOURCE_FILES )
 include ("${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface/CMakeLists_files.cmake")
-set( FILEINTERFACE_CPP_SOURCES
+set( CPP_SOURCES
+    ${CPP_SOURCES}
     ${CODE_SOURCE_FILES}
 )
+source_group( "FileInterface"       FILES ${CODE_SOURCE_FILES} )
 
-set( RESERVOIRDATAMODEL_CPP_SOURCES
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigCell.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigGridBase.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigLocalGrid.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigMainGrid.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigEclipseCase.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoirBuilderMock.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigReservoirCellResults.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigWellResults.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigGridScalarDataAccess.cpp
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/RigActiveCellInfo.cpp
+
+# Populate variables from read from CMakeLists_files.cmake
+set (CODE_SOURCE_FILES )
+include ("${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/CMakeLists_files.cmake")
+set( CPP_SOURCES
+    ${CPP_SOURCES}
+    ${CODE_SOURCE_FILES}
+)
+source_group( "ReservoirDataModel"       FILES ${CODE_SOURCE_FILES} )
+
+
+set( CPP_SOURCES
+    ${CPP_SOURCES}
 
     ${ResInsight_SOURCE_DIR}/cafUserInterface/cafProgressInfo.cpp
 )
 
-set( CPP_SOURCES
-    ${FILEINTERFACE_CPP_SOURCES}
-    ${RESERVOIRDATAMODEL_CPP_SOURCES}
-)
-
-source_group( "FileInterface"       FILES ${FILEINTERFACE_CPP_SOURCES} )
-source_group( "ReservoirDataModel"  FILES ${RESERVOIRDATAMODEL_CPP_SOURCES} )
+source_group( "Headers"             FILES ${CODE_HEADER_FILES} )
 
 set( UNIT_TEST_CPP_SOURCES
     main.cpp
     RifReaderEclipseOutput-Test.cpp
     Ert-Test.cpp
 )
-
 
 set( LINK_LIBRARIES
     CommonCode
@@ -71,18 +71,20 @@ set( LINK_LIBRARIES
     ${QT_LIBRARIES}
 )
 
-
-
 add_executable( ${ProjectName}
+    ${CODE_HEADER_FILES}
+
     ${CPP_SOURCES}
     ${UNIT_TEST_CPP_SOURCES}
 
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
+
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/FileInterface/CMakeLists_files.cmake
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ReservoirDataModel/CMakeLists_files.cmake
 )
 
 set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
-
 
 
 # Copy Dlls
@@ -96,22 +98,5 @@ if (MSVC)
                 "${QT_BINARY_DIR}/${qtlib}4.dll"
                 ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
     endforeach( qtlib )
-
-
-    # DLLs ERT depends on
-#    add_custom_command(TARGET ${ProjectName} POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory
-#            "${PROJECT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/bin/"
-#            ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
-
-
-     # ERT DLLs
- #    set (ERT_MODULES ecl geometry util well)
- #    foreach (ert_module ${ERT_MODULES})
- #        add_custom_command(TARGET ${ProjectName} POST_BUILD
- #            COMMAND ${CMAKE_COMMAND} -E copy_if_different
- #                "${CMAKE_CURRENT_SOURCE_DIR}/../../../ThirdParty/Ert-windows/${ert_module}/lib/lib${ert_module}.dll"
- #                ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIGURATION>)
- #    endforeach()
 
 endif(MSVC)
