@@ -86,7 +86,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
     calculateWellPipeCenterline(pipeBranchesCLCoords, pipeBranchesCellIds);
 
-    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicCellSize();
+    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
 
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)

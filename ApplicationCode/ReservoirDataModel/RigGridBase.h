@@ -55,7 +55,7 @@ public:
     void                        setGridIndex(size_t index) { m_gridIndex = index; }
     size_t                      gridIndex() { return m_gridIndex; }
 
-    double                      characteristicCellSize();
+    double                      characteristicIJCellSize();
 
     std::string                 gridName() const;
     void                        setGridName(const std::string& gridName);

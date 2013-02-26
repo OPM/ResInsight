@@ -435,18 +435,18 @@ cvf::Vec3d RigGridBase::displayModelOffset() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the max size of the charactristic cell sizes
+/// Returns the min size of the I and J charactristic cell sizes
 //--------------------------------------------------------------------------------------------------
-double RigGridBase::characteristicCellSize()
+double RigGridBase::characteristicIJCellSize()
 {
-    double characteristicCellSize = 0;
+    double characteristicCellSize = HUGE_VAL;
 
     double cellSizeI, cellSizeJ, cellSizeK;
     this->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
 
-    if (cellSizeI > characteristicCellSize) characteristicCellSize = cellSizeI;
-    if (cellSizeJ > characteristicCellSize) characteristicCellSize = cellSizeJ;
-    if (cellSizeK > characteristicCellSize) characteristicCellSize = cellSizeK;
+    if (cellSizeI < characteristicCellSize) characteristicCellSize = cellSizeI;
+    if (cellSizeJ < characteristicCellSize) characteristicCellSize = cellSizeJ;
+   
 
     return characteristicCellSize;
 }

@@ -90,7 +90,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.m_wellHead);
 
-    double characteristicCellSize = rigReservoir->mainGrid()->characteristicCellSize();
+    double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
     cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
