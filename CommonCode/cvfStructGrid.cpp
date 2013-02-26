@@ -236,19 +236,19 @@ void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, 
                         cellCornerVertices(cellIndex, cornerVerts);
 
                         iSize += (cornerVerts[faceConnPosI[0]] - cornerVerts[faceConnNegI[0]]).lengthSquared();
-                        iSize += (cornerVerts[faceConnPosI[1]] - cornerVerts[faceConnNegI[1]]).lengthSquared();
+                        iSize += (cornerVerts[faceConnPosI[1]] - cornerVerts[faceConnNegI[3]]).lengthSquared();
                         iSize += (cornerVerts[faceConnPosI[2]] - cornerVerts[faceConnNegI[2]]).lengthSquared();
-                        iSize += (cornerVerts[faceConnPosI[3]] - cornerVerts[faceConnNegI[3]]).lengthSquared();
+                        iSize += (cornerVerts[faceConnPosI[3]] - cornerVerts[faceConnNegI[1]]).lengthSquared();
 
                         jSize += (cornerVerts[faceConnPosJ[0]] - cornerVerts[faceConnNegJ[0]]).lengthSquared();
-                        jSize += (cornerVerts[faceConnPosJ[1]] - cornerVerts[faceConnNegJ[1]]).lengthSquared();
+                        jSize += (cornerVerts[faceConnPosJ[1]] - cornerVerts[faceConnNegJ[3]]).lengthSquared();
                         jSize += (cornerVerts[faceConnPosJ[2]] - cornerVerts[faceConnNegJ[2]]).lengthSquared();
-                        jSize += (cornerVerts[faceConnPosJ[3]] - cornerVerts[faceConnNegJ[3]]).lengthSquared();
+                        jSize += (cornerVerts[faceConnPosJ[3]] - cornerVerts[faceConnNegJ[1]]).lengthSquared();
 
                         kSize += (cornerVerts[faceConnPosK[0]] - cornerVerts[faceConnNegK[0]]).lengthSquared();
-                        kSize += (cornerVerts[faceConnPosK[1]] - cornerVerts[faceConnNegK[1]]).lengthSquared();
+                        kSize += (cornerVerts[faceConnPosK[1]] - cornerVerts[faceConnNegK[3]]).lengthSquared();
                         kSize += (cornerVerts[faceConnPosK[2]] - cornerVerts[faceConnNegK[2]]).lengthSquared();
-                        kSize += (cornerVerts[faceConnPosK[3]] - cornerVerts[faceConnNegK[3]]).lengthSquared();
+                        kSize += (cornerVerts[faceConnPosK[3]] - cornerVerts[faceConnNegK[1]]).lengthSquared();
 
                         cellCount++;
                     }
