@@ -48,6 +48,8 @@ public:
     virtual void        majorTickValues(std::vector<double>* domainValues ) const;
     
 protected:
+    virtual void        rangeUpdated() {}; //< Called when the range is changed. Subclasses can reimplment to recalculate cached values
+
     double              m_rangeMin;
     double              m_rangeMax;
     unsigned int        m_decadeLevelCount;

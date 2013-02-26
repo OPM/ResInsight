@@ -38,6 +38,15 @@ public:
 
     virtual double      normalizedValue( double domainValue ) const;
     virtual double      domainValue( double normalizedPosition ) const;
+
+    //
+protected:
+    virtual void rangeUpdated();
+
+private:
+    double  m_logRange;
+    double  m_logRangeMin;
+    bool    m_hasNegativeRange;
 };
 
 }

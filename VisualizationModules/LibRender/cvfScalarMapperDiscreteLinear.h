@@ -23,6 +23,7 @@
 
 namespace cvf {
 
+    class ScalarMapperDiscreteLog;
 //==================================================================================================
 //
 // Maps scalar values to texture coordinates/colors
@@ -42,8 +43,8 @@ public:
     virtual double      domainValue( double normalizedPosition ) const;
 
 private:
-    double              discretize(double scalarValue) const;
-
+    static double       discretize(double scalarValue, const std::set<double>& sortedLevels);
+    friend ScalarMapperDiscreteLog;
 };
 
 }

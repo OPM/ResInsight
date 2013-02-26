@@ -92,7 +92,7 @@ private:
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
 
     cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_linDiscreteScalarMapper;
-    cvf::ref<cvf::ScalarMapperDiscreteLinear>   m_logDiscreteScalarMapper;
+    cvf::ref<cvf::ScalarMapperDiscreteLog>      m_logDiscreteScalarMapper;
     cvf::ref<cvf::ScalarMapperContinuousLog>    m_logSmoothScalarMapper;
     cvf::ref<cvf::ScalarMapperContinuousLinear> m_linSmoothScalarMapper;
     cvf::ref<cvf::ScalarMapper>                 m_currentScalarMapper;

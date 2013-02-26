@@ -18,6 +18,7 @@
 //##################################################################################################
 
 #include "cvfScalarMapperDiscreteLog.h"
+#include "cvfScalarMapperDiscreteLinear.h"
 #include <cmath>
 #include "cvfMath.h"
 
@@ -31,42 +32,87 @@ namespace cvf {
 /// Maps scalar values to texture coordinates/colors using discrete logarithmic mapping
 //==================================================================================================
 
+ScalarMapperDiscreteLog::ScalarMapperDiscreteLog()
+{
+    m_decadeLevelCount = 2; 
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double ScalarMapperDiscreteLog::normalizedValue(double domainScalarValue) const
+Vec2f ScalarMapperDiscreteLog::mapToTextureCoord(double scalarValue) const
 {
-    double logRangeMax = log10(m_rangeMax);
-    double logRangeMin = log10(m_rangeMin);
-    double logRange = logRangeMax - logRangeMin; 
+    double discVal = ScalarMapperDiscreteLinear::discretize(scalarValue, m_sortedLevels);
+    return ScalarMapperRangeBased::mapToTextureCoord(discVal);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Color3ub ScalarMapperDiscreteLog::mapToColor(double scalarValue) const
+{
+    double discVal = ScalarMapperDiscreteLinear::discretize(scalarValue, m_sortedLevels);
+    return ScalarMapperRangeBased::mapToColor(discVal);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double ScalarMapperDiscreteLog::normalizedValue(double scalarValue) const
+{
+    if (m_hasNegativeRange) scalarValue = -1.0*scalarValue;
+
     double logValue;
 
-    if (domainScalarValue <= 0) logValue = logRangeMin;
-    else                        logValue = log10(domainScalarValue);
+    if (scalarValue <= 0) logValue = std::numeric_limits<double>::min_exponent10;
+    else                  logValue = log10(scalarValue);
 
-    if (logRange != 0)
+    if (m_logRange != 0)
     {
-        return cvf::Math::clamp((logValue - logRangeMin)/logRange, 0.0, 1.0);
+        return cvf::Math::clamp((logValue - m_logRangeMin)/m_logRange, 0.0, 1.0);
     }
     else
     {
         return 0;
     }
-}
+} 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 double ScalarMapperDiscreteLog::domainValue(double normalizedPosition) const
 {
-    double logRangeMax = log10(m_rangeMax);
-    double logRangeMin = log10(m_rangeMin);
-    double logRange = logRangeMax - logRangeMin; 
+    double logValue = normalizedPosition*m_logRange + m_logRangeMin;
+    double domainVal = pow(10, logValue);
 
-    double logValue = normalizedPosition*logRange + logRangeMin;
+    if (m_hasNegativeRange)
+        domainVal *= -1.0;
 
-    return pow(10, logValue);
+    return domainVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ScalarMapperDiscreteLog::rangeUpdated()
+{
+    m_hasNegativeRange = false;
+
+    double transformedRangeMax = m_rangeMax;
+    double transformedRangeMin = m_rangeMin;
+
+    if ( m_rangeMax <= 0 &&  m_rangeMin <= 0)
+    { 
+        m_hasNegativeRange = true;
+
+        transformedRangeMax = -1.0*transformedRangeMax;
+        transformedRangeMin = -1.0*transformedRangeMin;
+    }
+
+    double logRangeMax = (transformedRangeMax > 0) ? log10(transformedRangeMax): std::numeric_limits<double>::min_exponent10;
+    m_logRangeMin      = (transformedRangeMin > 0) ? log10(transformedRangeMin): std::numeric_limits<double>::min_exponent10;
+
+    m_logRange = logRangeMax - m_logRangeMin; 
 }
 
 } // namespace cvf
