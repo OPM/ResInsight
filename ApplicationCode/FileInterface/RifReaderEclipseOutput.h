@@ -54,9 +54,11 @@ public:
 
 private:
     void                    ground();
-    bool                    readActiveCellInfo(RigEclipseCase* eclipseCase);
-    bool                    buildMetaData(RigEclipseCase* eclipseCase);
-    void                    readWellCells(RigEclipseCase* eclipseCase);
+    bool                    readActiveCellInfo();
+    bool                    buildMetaData();
+    void                    readWellCells();
+    
+    bool                    openInitFile();
 
     void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
     
@@ -69,10 +71,10 @@ private:
     QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
     QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename
 
-    cvf::ref<RigEclipseCase>                  m_reservoir;
+    cvf::ref<RigEclipseCase>                m_eclipseCase;
 
     QList<QDateTime>                        m_timeSteps;
 
-    ecl_file_type*                          m_ecl_file;    // File access to static results
+    ecl_file_type*                          m_ecl_init_file;    // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results
 };
