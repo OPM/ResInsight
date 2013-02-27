@@ -430,8 +430,9 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
     progInfo.setNextProgressIncrement(50);
     progInfo.setProgressDescription("Reading meta data");
 
-    // Build results meta data
-    if (!buildMetaData()) return false;
+    // Reading of metadata and well cells is not performed here
+    //if (!buildMetaData()) return false;
+    // readWellCells();
 
     return true;
 }

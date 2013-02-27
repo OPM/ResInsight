@@ -1312,10 +1312,5 @@ void RIMainWindow::slotOpenMultipleCases()
         appendEGRIDFilesRecursively(fileName, gridFileNames);
     }
 
-    for (int i = 0; i < gridFileNames.size(); i++)
-    {
-        QString fileName = gridFileNames[i];
-
-        app->addEclipseCase(fileName);
-    }
+    app->addEclipseCases(gridFileNames);
 }

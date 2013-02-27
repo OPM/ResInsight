@@ -90,6 +90,51 @@ bool RimResultReservoir::openEclipseGridFile()
     return true;
  }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimResultReservoir::openAndReadActiveCellData(RigMainGrid* mainGrid)
+{
+    cvf::ref<RifReaderInterface> readerInterface;
+
+    if (caseName().contains("Result Mock Debug Model"))
+    {
+        readerInterface = this->createMockModel(this->caseName());
+
+        m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+        m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+    }
+    else
+    {
+        QString fname = createAbsoluteFilenameFromCase(caseName);
+        if (fname.isEmpty())
+        {
+            return false;
+        }
+
+        cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+        eclipseCase->setMainGrid(mainGrid);
+
+        readerInterface = new RifReaderEclipseOutput;
+        if (!readerInterface->openAndReadActiveCellData(fname, eclipseCase.p()))
+        {
+            return false;
+        }
+
+        readerInterface->close();
+
+        m_rigEclipseCase = eclipseCase;
+    }
+
+    CVF_ASSERT(m_rigEclipseCase.notNull());
+    CVF_ASSERT(readerInterface.notNull());
+
+    m_rigEclipseCase->computeCachedData();
+
+    return true;
+}
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

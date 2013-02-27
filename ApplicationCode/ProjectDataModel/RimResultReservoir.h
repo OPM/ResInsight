@@ -24,7 +24,8 @@
 #include "cafPdmObject.h"
 #include "RimReservoir.h"
 
- class RifReaderInterface;
+class RifReaderInterface;
+class RigMainGrid;
 
 //==================================================================================================
 //
@@ -45,6 +46,7 @@ public:
     caf::PdmField<QString>      caseDirectory;
 
     virtual bool                openEclipseGridFile();
+    bool                        openAndReadActiveCellData(RigMainGrid* mainGrid);
 
     //virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName;}
 

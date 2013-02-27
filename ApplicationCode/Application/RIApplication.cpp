@@ -1297,26 +1297,64 @@ void RIApplication::updateRegressionTest(const QString& testRootPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::addEclipseCase(const QString& fileName)
+bool RIApplication::addEclipseCases(const QStringList& fileNames)
 {
-    QFileInfo gridFileName(fileName);
+    if (fileNames.size() == 0) return true;
 
-    QString caseName = gridFileName.completeBaseName();
-    QString casePath = gridFileName.absolutePath();
 
-    RimResultReservoir* rimResultReservoir = new RimResultReservoir();
-    rimResultReservoir->caseName = caseName;
-    rimResultReservoir->caseFileName = fileName;
-    rimResultReservoir->caseDirectory = casePath;
+    // First file is read completely including grid.
+    // The main grid from the first case is reused directly in for the other cases. 
+    // When reading active cell info, only the total cell count is tested for consistency
+    RigMainGrid* mainGrid = NULL;
 
-    m_project->reservoirs.push_back(rimResultReservoir);
+    {
+        QString firstFileName = fileNames[0];
+        QFileInfo gridFileName(firstFileName);
 
-    rimResultReservoir->openEclipseGridFile();
+        QString caseName = gridFileName.completeBaseName();
+        QString casePath = gridFileName.absolutePath();
 
-    m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+        RimResultReservoir* rimResultReservoir = new RimResultReservoir();
+        rimResultReservoir->caseName = caseName;
+        rimResultReservoir->caseFileName = firstFileName;
+        rimResultReservoir->caseDirectory = casePath;
+
+        m_project->reservoirs.push_back(rimResultReservoir);
+
+        if (!rimResultReservoir->openEclipseGridFile())
+        {
+            return false;
+        }
+
+        m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+
+        mainGrid = rimResultReservoir->reservoirData()->mainGrid();
+    }
+
+    for (int i = 1; i < fileNames.size(); i++)
+    {
+        QString fileName = fileNames[i];
+        QFileInfo gridFileName(fileName);
+
+        QString caseName = gridFileName.completeBaseName();
+        QString casePath = gridFileName.absolutePath();
+
+        RimResultReservoir* rimResultReservoir = new RimResultReservoir();
+        rimResultReservoir->caseName = caseName;
+        rimResultReservoir->caseFileName = fileName;
+        rimResultReservoir->caseDirectory = casePath;
+
+        m_project->reservoirs.push_back(rimResultReservoir);
+
+        if (!rimResultReservoir->openAndReadActiveCellData(mainGrid))
+        {
+            return false;
+        }
+
+        m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+    }
 
     onProjectOpenedOrClosed();
 
     return true;
-
 }
