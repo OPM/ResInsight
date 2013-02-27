@@ -47,9 +47,9 @@ public:
     virtual ~RifReaderInterface() {}
 
     virtual bool                open(const QString& fileName, RigEclipseCase* eclipseCase) = 0;
+    virtual bool                openWithoutReadingData(const QString& fileName, RigEclipseCase* eclipseCase) { return true; };
     virtual void                close() = 0;
    
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;
     virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
 };
-

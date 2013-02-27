@@ -32,6 +32,8 @@
 
 #include "ecl_grid.h"
 #include "well_state.h"
+#include "ecl_kw_magic.h"
+
 #include "cafProgressInfo.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -189,6 +191,8 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseOutput::RifReaderEclipseOutput()
 {
+    m_ecl_file = NULL;
+
     ground();
 }
 
@@ -216,8 +220,13 @@ void RifReaderEclipseOutput::ground()
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::close()
 {
-    m_ecl_file     = NULL;
-    m_dynamicResultsAccess    = NULL;
+    if (m_ecl_file)
+    {
+        ecl_file_close(m_ecl_file);
+    }
+    m_ecl_file = NULL;
+
+    m_dynamicResultsAccess = NULL;
 
     ground();
 }
@@ -383,6 +392,116 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCase* eclip
     return true;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::openWithoutReadingData(const QString& fileName, RigEclipseCase* eclipseCase)
+{
+    CVF_ASSERT(eclipseCase);
+    caf::ProgressInfo progInfo(100, "");
+
+    close();
+
+    // Get set of files
+    QStringList fileSet;
+    if (!RifEclipseOutputFileTools::fileSet(fileName, &fileSet)) return false;
+
+    // Keep the set of files of interest
+    m_fileSet = fileSet;
+    m_reservoir = eclipseCase;
+
+    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(this);
+    eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(this);
+
+    progInfo.setNextProgressIncrement(50);
+    progInfo.setProgressDescription("Reading active cell information");
+
+    readActiveCellInfo(eclipseCase);
+    
+    progInfo.incrementProgress();
+
+    progInfo.setNextProgressIncrement(50);
+    progInfo.setProgressDescription("Reading meta data");
+
+    // Build results meta data
+    if (!buildMetaData(eclipseCase)) return false;
+
+    return true;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::readActiveCellInfo(RigEclipseCase* eclipseCase)
+{
+    CVF_ASSERT(eclipseCase);
+
+    QString egridFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_EGRID_FILE);
+    if (egridFileName.size() > 0)
+    {
+        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data());
+        if (!ecl_file) return false;
+
+        int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
+        if (actnumKeywordCount > 0)
+        {
+            std::vector<std::vector<int> > actnumValuesPerGrid;
+            actnumValuesPerGrid.resize(actnumKeywordCount);
+
+            size_t globalCellCount = 0;
+            for (size_t gridIdx = 0; gridIdx < actnumKeywordCount; gridIdx++)
+            {
+                RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &actnumValuesPerGrid[gridIdx]);
+
+                globalCellCount += actnumValuesPerGrid[gridIdx].size();
+            }
+
+            RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();
+
+            activeCellInfo->setGlobalCellCount(globalCellCount);
+            activeCellInfo->setGridCount(actnumKeywordCount);
+
+            size_t cellIdx = 0;
+            for (size_t gridIdx = 0; gridIdx < actnumKeywordCount; gridIdx++)
+            {
+                size_t activeMatrixIndex = 0;
+                size_t activeFractureIndex = 0;
+
+                std::vector<int>& actnumValues = actnumValuesPerGrid[gridIdx];
+
+                for (size_t i = 0; i < actnumValues.size(); i++)
+                {
+                    if (actnumValues[i] == 1 || actnumValues[i] == 3)
+                    {
+                        activeCellInfo->setActiveIndexInMatrixModel(cellIdx, activeMatrixIndex++);
+                    }
+
+                    if (actnumValues[i] == 2 || actnumValues[i] == 3)
+                    {
+                        activeCellInfo->setActiveIndexInFractureModel(cellIdx, activeFractureIndex++);
+                    }
+
+                    cellIdx++;
+                }
+
+                activeCellInfo->setGridActiveCellCounts(gridIdx, activeMatrixIndex, activeFractureIndex);
+            }
+
+            activeCellInfo->computeDerivedData();
+        }
+
+        ecl_file_close(ecl_file);
+
+        return true;
+    }
+
+    return false;
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// Build meta data - get states and results info
 //--------------------------------------------------------------------------------------------------
@@ -401,6 +520,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigEclipseCase* eclipseCase)
     {
         return false;
     }
+
 
     progInfo.incrementProgress();
 
@@ -778,17 +898,27 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         QString keyword = keywords[i];
         size_t keywordDataCount = keywordDataItemCounts[i];
 
-        size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalMatrixModelActiveCellCount();
-        size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalMatrixModelActiveCellCount();
-        
-        size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->globalMatrixModelActiveCellCount() + activeCellInfo->globalFractureModelActiveCellCount());
-        size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->globalMatrixModelActiveCellCount() + activeCellInfo->globalFractureModelActiveCellCount());
-
-        if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+        if (activeCellInfo->globalMatrixModelActiveCellCount() > 0)
         {
-            if (timeStepsMatrixRest == 0 || timeStepsMatrixAndFractureRest == 0)
+            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalMatrixModelActiveCellCount();
+            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalMatrixModelActiveCellCount();
+        
+            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->globalMatrixModelActiveCellCount() + activeCellInfo->globalFractureModelActiveCellCount());
+            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->globalMatrixModelActiveCellCount() + activeCellInfo->globalFractureModelActiveCellCount());
+
+            if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
             {
-                if (timeStepCount == timeStepsMatrix || timeStepCount == timeStepsMatrixAndFracture)
+                if (timeStepsMatrixRest == 0 || timeStepsMatrixAndFractureRest == 0)
+                {
+                    if (timeStepCount == timeStepsMatrix || timeStepCount == timeStepsMatrixAndFracture)
+                    {
+                        keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                    }
+                }
+            }
+            else
+            {
+                if (timeStepsMatrixAndFractureRest == 0 && timeStepCount == timeStepsMatrixAndFracture)
                 {
                     keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
                 }
@@ -796,15 +926,13 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         }
         else
         {
-            if (timeStepsMatrixAndFractureRest == 0 && timeStepCount == timeStepsMatrixAndFracture)
-            {
-                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
-            }
+            keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
         }
     }
 
     return keywordsWithCorrectNumberOfDataItems;
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

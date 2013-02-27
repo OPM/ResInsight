@@ -172,6 +172,28 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
+{
+    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
+    if (kwData)
+    {
+        size_t numValues = ecl_kw_get_size(kwData);
+
+        std::vector<int> integerData;
+        integerData.resize(numValues);
+
+        ecl_kw_get_memcpy_int_data(kwData, integerData.data());
+        values->insert(values->end(), integerData.begin(), integerData.end());
+
+        return true;
+    }
+
+    return false;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
