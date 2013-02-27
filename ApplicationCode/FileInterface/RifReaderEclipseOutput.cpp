@@ -191,10 +191,15 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseOutput::RifReaderEclipseOutput()
 {
+    m_fileName.clear();
+    m_fileSet.clear();
+
+    m_timeSteps.clear();
+
+    m_eclipseCase = NULL;
+
     m_ecl_init_file = NULL;
     m_dynamicResultsAccess = NULL;
-
-    ground();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,17 +209,6 @@ RifReaderEclipseOutput::~RifReaderEclipseOutput()
 {
 }
 
-//--------------------------------------------------------------------------------------------------
-/// Ground members
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::ground()
-{
-    m_fileName.clear();
-    m_fileSet.clear();
-
-    m_timeSteps.clear();
-    m_eclipseCase = NULL;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// Close interface (for now, no files are kept open after calling methods, so just clear members)
@@ -231,8 +225,6 @@ void RifReaderEclipseOutput::close()
     {
         m_dynamicResultsAccess->close();
     }
-
-    ground();
 }
 
 //--------------------------------------------------------------------------------------------------

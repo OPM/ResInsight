@@ -53,7 +53,6 @@ public:
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCase* eclipseCase);
 
 private:
-    void                    ground();
     bool                    readActiveCellInfo();
     bool                    buildMetaData();
     void                    readWellCells();
