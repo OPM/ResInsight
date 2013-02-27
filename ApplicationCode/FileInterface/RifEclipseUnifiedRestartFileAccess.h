@@ -49,5 +49,9 @@ public:
     virtual void                readWellData(well_info_type * well_info);
 
 private:
+    bool                        openFile();
+
+private:
+    QString         m_filename;
     ecl_file_type*  m_ecl_file;
 };

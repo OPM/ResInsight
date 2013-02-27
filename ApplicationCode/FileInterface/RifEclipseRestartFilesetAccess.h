@@ -36,6 +36,7 @@ public:
     virtual ~RifEclipseRestartFilesetAccess();
 
     bool                        open(const QStringList& fileSet);
+    void                        setFileSet(const QStringList& fileSet);
     void                        close();
 
     size_t                      timeStepCount();
@@ -47,5 +48,9 @@ public:
     virtual void                readWellData(well_info_type* well_info);
 
 private:
-    std::vector< ecl_file_type* > m_ecl_files;
+    void                        openTimeStep(size_t timeStep);
+
+private:
+    QStringList                     m_fileNames;
+    std::vector< ecl_file_type* >   m_ecl_files;
 };

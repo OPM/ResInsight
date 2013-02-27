@@ -38,12 +38,7 @@ RifEclipseUnifiedRestartFileAccess::RifEclipseUnifiedRestartFileAccess()
 //--------------------------------------------------------------------------------------------------
 RifEclipseUnifiedRestartFileAccess::~RifEclipseUnifiedRestartFileAccess()
 {
-    if (m_ecl_file)
-    {
-        ecl_file_close(m_ecl_file);
-    }
-
-    m_ecl_file = NULL;
+    close();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,9 +46,17 @@ RifEclipseUnifiedRestartFileAccess::~RifEclipseUnifiedRestartFileAccess()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet)
 {
-    QString fileName = fileSet[0];
+    m_filename = fileSet[0];
 
-    m_ecl_file = ecl_file_open(fileName.toAscii().data());
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseUnifiedRestartFileAccess::openFile()
+{
+    m_ecl_file = ecl_file_open(m_filename.toAscii().data());
     if (!m_ecl_file) return false;
 
     return true;
@@ -64,6 +67,12 @@ bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet)
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::close()
 {
+    if (m_ecl_file)
+    {
+        ecl_file_close(m_ecl_file);
+    }
+
+    m_ecl_file = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,6 +80,11 @@ void RifEclipseUnifiedRestartFileAccess::close()
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 {
+    if (!openFile())
+    {
+        return 0;
+    }
+
     return timeSteps().size();
 }
 
@@ -79,10 +93,12 @@ size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 QList<QDateTime> RifEclipseUnifiedRestartFileAccess::timeSteps()
 {
-    CVF_ASSERT(m_ecl_file != NULL);
-
     QList<QDateTime> timeSteps;
-    RifEclipseOutputFileTools::timeSteps(m_ecl_file, &timeSteps);
+
+    if (openFile())
+    {
+        RifEclipseOutputFileTools::timeSteps(m_ecl_file, &timeSteps);
+    }
 
     return timeSteps;
 }
@@ -92,7 +108,10 @@ QList<QDateTime> RifEclipseUnifiedRestartFileAccess::timeSteps()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts)
 {
-    RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_file, resultNames, resultDataItemCounts);
+    if (openFile())
+    {
+        RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_file, resultNames, resultDataItemCounts);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +119,11 @@ void RifEclipseUnifiedRestartFileAccess::resultNames(QStringList* resultNames, s
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values)
 {
+    if (!openFile())
+    {
+        return false;
+    }
+
     size_t numOccurrences   = ecl_file_get_num_named_kw(m_ecl_file, resultName.toAscii().data());
 
     size_t startIndex       = timeStep * gridCount;
@@ -124,8 +148,10 @@ bool RifEclipseUnifiedRestartFileAccess::results(const QString& resultName, size
 void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info)
 {
     if (!well_info) return;
-    CVF_ASSERT(m_ecl_file);
 
-    well_info_add_UNRST_wells(well_info, m_ecl_file);
+    if (openFile())
+    {
+        well_info_add_UNRST_wells(well_info, m_ecl_file);
+    }
 }
 
