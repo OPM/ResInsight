@@ -396,9 +396,16 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCase* eclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openWithoutReadingData(const QString& fileName, RigEclipseCase* eclipseCase)
+bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, RigEclipseCase* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
+
+    // It is required to have a main grid before reading active cell data
+    if (!eclipseCase->mainGrid())
+    {
+        return false;
+    }
+
     caf::ProgressInfo progInfo(100, "");
 
     close();
@@ -417,7 +424,10 @@ bool RifReaderEclipseOutput::openWithoutReadingData(const QString& fileName, Rig
     progInfo.setNextProgressIncrement(50);
     progInfo.setProgressDescription("Reading active cell information");
 
-    readActiveCellInfo(eclipseCase);
+    if (!readActiveCellInfo(eclipseCase))
+    {
+        return false;
+    }
     
     progInfo.incrementProgress();
 
@@ -438,6 +448,7 @@ bool RifReaderEclipseOutput::openWithoutReadingData(const QString& fileName, Rig
 bool RifReaderEclipseOutput::readActiveCellInfo(RigEclipseCase* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(eclipseCase->mainGrid());
 
     QString egridFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_EGRID_FILE);
     if (egridFileName.size() > 0)
@@ -457,6 +468,12 @@ bool RifReaderEclipseOutput::readActiveCellInfo(RigEclipseCase* eclipseCase)
                 RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &actnumValuesPerGrid[gridIdx]);
 
                 globalCellCount += actnumValuesPerGrid[gridIdx].size();
+            }
+
+            // Check if number of cells is matching
+            if (eclipseCase->mainGrid()->cells().size() != globalCellCount)
+            {
+                return false;
             }
 
             RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();

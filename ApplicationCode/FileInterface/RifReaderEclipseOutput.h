@@ -44,7 +44,7 @@ public:
     virtual ~RifReaderEclipseOutput();
 
     bool                    open(const QString& fileName, RigEclipseCase* eclipseCase);
-    virtual bool            openWithoutReadingData(const QString& fileName, RigEclipseCase* eclipseCase);
+    virtual bool            openAndReadActiveCellData(const QString& fileName, RigEclipseCase* eclipseCase);
     void                    close();
 
     bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
