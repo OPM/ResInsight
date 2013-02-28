@@ -308,6 +308,25 @@ void Rendering::renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRe
             item->render(oglContext, rect.min(),  Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height())));
         }
     }
+
+    for (size_t i = 0; i < m_overlayItems.size(); i++)
+    {
+        OverlayItemLayout item = m_overlayItems.at(i);
+        if ((item.corner == OverlayItem::UNMANAGED) )
+        {
+            Vec2ui size = item.overlayItem->sizeHint();
+            Vec2i pos =  item.overlayItem->unmanagedPosition();
+
+            if (useSoftwareRendering)
+            {
+                item.overlayItem->renderSoftware(oglContext, pos, size);
+            }
+            else
+            {
+                item.overlayItem->render(oglContext, pos,  size);
+            }
+        }
+    }
 }
 
 

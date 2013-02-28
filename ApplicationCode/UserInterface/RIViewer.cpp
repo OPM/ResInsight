@@ -62,11 +62,12 @@ RIViewer::RIViewer(const QGLFormat& format, QWidget* parent)
     axisCross->setAxisLabels("E", "N", "Z");
     m_mainRendering->addOverlayItem(axisCross, cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
 
-    setReleaseOGLResourcesEachFrame(true);
+    this->enableOverlyPainting(true);
+    this->setReleaseOGLResourcesEachFrame(true);
 
     QColor c;
     QPalette p = QApplication::palette();
-    QColor frameAndTextColor(255, 255, 255, 200);
+    QColor frameAndTextColor(255, 255, 255, 255);
     p.setColor(QPalette::Window, QColor(144, 173, 208, 180));
     p.setColor(QPalette::WindowText, frameAndTextColor);
 
@@ -427,10 +428,10 @@ cvf::Part* RIViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, c
 void RIViewer::paintOverlayItems(QPainter* painter)
 {
     // No support for overlay items using SW rendering yet.
-    if (!isShadersSupported())
-    {
-        return;
-    }
+    //if (!isShadersSupported())
+    //{
+    //    return;
+    //}
 
     int columnWidth = 200;
     int margin = 5;

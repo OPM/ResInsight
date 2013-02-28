@@ -26,6 +26,8 @@
 #include "cvfRenderQueueSorter.h"
 #include "cvfScene.h"
 #include "cvfModel.h"
+#include "cvfTextureImage.h"
+#include "cvfOverlayImage.h"
 
 #include "cvfqtOpenGLContext.h"
 
@@ -62,7 +64,8 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_maxFarPlaneDistance(cvf::UNDEFINED_DOUBLE),
     m_releaseOGLResourcesEachFrame(false),
     m_paintCounter(0),
-    m_navigationPolicyEnabled(true)
+    m_navigationPolicyEnabled(true),
+    m_isOverlyPaintingEnabled(true)
 {
     m_layoutWidget = parentWidget();
 
@@ -88,6 +91,11 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
 
 
     this->setNavigationPolicy(new caf::CadNavigation);
+
+    m_overlayTextureImage = new cvf::TextureImage;
+    m_overlayImage = new cvf::OverlayImage(m_overlayTextureImage.p());
+    m_overlayImage->setBlending(cvf::OverlayImage::TEXTURE_ALPHA);
+    m_overlayImage->setUnmanagedPosition(cvf::Vec2i(0,0));
 
     setupMainRendering();
     setupRenderingSequence();
@@ -121,6 +129,8 @@ void caf::Viewer::setupMainRendering()
     {
         m_mainRendering->renderEngine()->enableForcedImmediateMode(true);
     }
+
+    updateOverlayImagePresence();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -358,6 +368,7 @@ void caf::Viewer::resizeGL(int width, int height)
 void caf::Viewer::enablePerfInfoHud(bool enable)
 {
     m_showPerfInfoHud = enable;
+    updateOverlayImagePresence();
 }
 
 
@@ -391,6 +402,66 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
         return;
     }
 
+    // If Qt overlay painting is enabled, paint to an QImage, and set it to the cvf::OverlayImage
+
+    if (m_isOverlyPaintingEnabled || m_showPerfInfoHud)
+    {
+        // Set up image to draw to, and painter 
+        if (m_overlayPaintingQImage.size() != this->size())
+        {
+            m_overlayPaintingQImage = QImage(this->size(), QImage::Format_ARGB32);
+        }
+
+        m_overlayPaintingQImage.fill(Qt::transparent);
+        QPainter overlyPainter(&m_overlayPaintingQImage);
+
+        // Call virtual method to allow subclasses to paint on the OpenGlCanvas
+
+        if (m_isOverlyPaintingEnabled)
+        {
+            this->paintOverlayItems(&overlyPainter); 
+        }
+
+        // Draw performance overlay
+
+        if (m_showPerfInfoHud )
+        {
+            cvfqt::PerformanceInfoHud hud;
+            hud.addStrings(m_renderingSequence->performanceInfo());
+            hud.addStrings(*m_mainCamera);
+            hud.addString(QString("PaintCount: %1").arg(m_paintCounter++));
+            hud.draw(&overlyPainter, width(), height());
+        }
+
+        // Convert the QImage into the cvf::TextureImage, 
+        // handling vertical mirroring and (possible) byteswapping
+
+        if (m_overlayTextureImage->height() !=  this->height() || m_overlayTextureImage->width() !=  this->width())
+        {
+            m_overlayTextureImage->allocate(this->width(), this->height());
+        }
+
+        int height =  m_overlayTextureImage->height();
+        int width =  m_overlayTextureImage->width();
+
+#pragma omp parallel for
+        for (int y = 0 ; y < height; ++y)
+        {
+            int negy =  height - 1 - y;
+            for (int x = 0 ; x < width; ++x)
+            {
+                // Should probably do direct conversion on byte level. Would be faster
+                // QImage.bits() and cvf::TextureImage.ptr() (casting away const)
+                QRgb qtRgbaVal = m_overlayPaintingQImage.pixel(x, negy);
+                cvf::Color4ub cvfRgbVal(qRed(qtRgbaVal), qGreen(qtRgbaVal), qBlue(qtRgbaVal), qAlpha(qtRgbaVal)); 
+                m_overlayTextureImage->setPixel(x, y, cvfRgbVal);
+            }
+        }
+
+        m_overlayImage->setImage(m_overlayTextureImage.p());
+        m_overlayImage->setPixelSize(cvf::Vec2ui(this->width(), this->height()));
+    }
+   
 #if QT_VERSION >= 0x040600
     // Qt 4.6
     painter.beginNativePainting();
@@ -417,17 +488,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
     painter.endNativePainting();
 #endif
 
-    // Call virtual method to allow subclasses to paint on the OpenGlCanvas
-    this->paintOverlayItems(&painter); 
-
-    if (m_showPerfInfoHud && isShadersSupported())
-    {
-        cvfqt::PerformanceInfoHud hud;
-        hud.addStrings(m_renderingSequence->performanceInfo());
-        hud.addStrings(*m_mainCamera);
-        hud.addString(QString("PaintCount: %1").arg(m_paintCounter++));
-        hud.draw(&painter, width(), height());
-    }
+ 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -694,5 +755,37 @@ int caf::Viewer::currentFrameIndex()
 {
     if (m_animationControl) return m_animationControl->currentFrame();
     else return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool caf::Viewer::isOverlyPaintingEnabled() const
+{
+    return m_isOverlyPaintingEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::enableOverlyPainting(bool val)
+{
+    m_isOverlyPaintingEnabled = val;
+    updateOverlayImagePresence();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void caf::Viewer::updateOverlayImagePresence()
+{
+    if (m_isOverlyPaintingEnabled || m_showPerfInfoHud)
+    {
+         m_mainRendering->addOverlayItem(m_overlayImage.p(), cvf::OverlayItem::UNMANAGED, cvf::OverlayItem::VERTICAL);
+    }
+    else
+    {
+         m_mainRendering->removeOverlayItem(m_overlayImage.p());
+    }
 }
 

@@ -95,6 +95,7 @@ private:
     cvf::ref<cvf::OverlayScalarMapperLegend> m_legend1;
     cvf::ref<cvf::OverlayScalarMapperLegend> m_legend2;
 
+
     caf::PdmPointer<RimReservoirView> m_reservoirView;
 
 };
