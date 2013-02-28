@@ -44,7 +44,7 @@ public:
 
 private:
     static double       discretize(double scalarValue, const std::set<double>& sortedLevels);
-    friend ScalarMapperDiscreteLog;
+    friend class ScalarMapperDiscreteLog;
 };
 
 }
