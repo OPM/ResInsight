@@ -907,6 +907,24 @@ OverlayItem* Rendering::overlayItemFromWindowCoordinates(int x, int y)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Recti Rendering::overlayItemRect(OverlayItem* item)
+{
+    OverlayItemRectMap itemRectMap;
+    calculateOverlayItemLayout(&itemRectMap);
+    
+    OverlayItemRectMap::iterator it = itemRectMap.find(item);
+    if (it != itemRectMap.end())
+    {
+        return it->second;
+    }
+
+    return cvf::Recti();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rendering::removeOverlayItem(const OverlayItem* overlayItem)
 {
     CVF_UNUSED(overlayItem);
@@ -962,7 +980,6 @@ String Rendering::debugString() const
 
     return str;
 }
-
 
 } // namespace cvf
 

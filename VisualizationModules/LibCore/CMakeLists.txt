@@ -14,6 +14,7 @@ cvfAssert.h
 cvfBase.h
 cvfBase64.h
 cvfCharArray.h
+cvfCodeLocation.h
 cvfCollection.h
 cvfCollection.inl
 cvfColor3.h
@@ -24,6 +25,11 @@ cvfFlags.h
 cvfFlags.inl
 cvfFunctorRange.h
 cvfLibCore.h
+cvfLogDestination.h
+cvfLogDestinationConsole.h
+cvfLogDestinationFile.h
+cvfLogEvent.h
+cvfLogManager.h
 cvfLogger.h
 cvfMath.h
 cvfMath.inl
@@ -31,6 +37,7 @@ cvfMatrix3.h
 cvfMatrix3.inl
 cvfMatrix4.h
 cvfMatrix4.inl
+cvfMutex.h
 cvfObject.h
 cvfObject.inl
 cvfPlane.h
@@ -60,11 +67,17 @@ set(CEE_SOURCE_FILES
 cvfAssert.cpp 
 cvfBase64.cpp
 cvfCharArray.cpp
+cvfCodeLocation.cpp
 cvfColor3.cpp
 cvfColor4.cpp
 cvfDebugTimer.cpp
+cvfLogDestinationConsole.cpp
+cvfLogDestinationFile.cpp
+cvfLogEvent.cpp
+cvfLogManager.cpp
 cvfLogger.cpp
 cvfMath.cpp
+cvfMutex.cpp
 cvfObject.cpp
 cvfPlane.cpp
 cvfPropertySet.cpp

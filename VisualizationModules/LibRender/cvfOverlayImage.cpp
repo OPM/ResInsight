@@ -40,6 +40,7 @@
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
 #endif
+#include "cvfTexture2D_FF.h"
 
 namespace cvf {
 
@@ -164,6 +165,19 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
 
         RenderStateLighting_FF light(false);
         light.applyOpenGL(oglContext);
+
+        // Use fixed function texture setup
+        ref<Texture2D_FF> texture = new Texture2D_FF(m_image.p());
+        texture->setWrapMode(Texture2D_FF::CLAMP);
+        texture->setMinFilter(Texture2D_FF::NEAREST);
+        texture->setMagFilter(Texture2D_FF::NEAREST);
+        texture->setupTexture(oglContext);
+        texture->setupTextureParams(oglContext);
+
+        ref<RenderStateTextureMapping_FF> textureMapping = new RenderStateTextureMapping_FF(texture.p());
+        textureMapping->setTextureFunction(m_blendMode == TEXTURE_ALPHA ? RenderStateTextureMapping_FF::MODULATE : RenderStateTextureMapping_FF::DECAL);
+
+        m_textureBindings = textureMapping;
 #endif
         projCam.applyOpenGL();
     }
@@ -200,6 +214,18 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
             m_shaderProgram->clearUniformApplyTracking();
             m_shaderProgram->applyFixedUniforms(oglContext, projMatrixState);
         }
+
+        if (m_texture->textureOglId() == 0)
+        {
+            m_texture->setupTexture(oglContext);
+        }
+
+        if (m_textureBindings.isNull())
+        {
+            cvf::RenderStateTextureBindings* textureBindings = new cvf::RenderStateTextureBindings;
+            textureBindings->addBinding(m_texture.p(), m_sampler.p(), "u_texture2D");
+            m_textureBindings = textureBindings;
+        }
     }
 
     Vec3f min(1.0f, 1.0f, 0.0f);
@@ -214,12 +240,6 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
     v2[0] = max.x(); v2[1] = min.y(); v2[2] = 0.0f;
     v3[0] = max.x(); v3[1] = max.y(); v3[2] = 0.0f;
     v4[0] = min.x(); v4[1] = max.y(); v4[2] = 0.0f;
-    
-
-    if (m_texture->textureOglId() == 0)
-    {
-        m_texture->setupTexture(oglContext);
-    }
 
     if (m_blendMode != NO_BLENDING)
     {
@@ -233,7 +253,7 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
     if (software)
     {
 #ifndef CVF_OPENGL_ES
-        glColor4f(1.0f, 1.0f, 1.0f, m_alpha);
+        glColor4f(1.0f, 1.0f, 1.0f, m_blendMode == GLOBAL_ALPHA ? m_alpha : 1.0f);
         glBegin(GL_TRIANGLE_FAN);
         glTexCoord2f(textureCoords[0], textureCoords[1]);
         glVertex3fv(v1);
@@ -263,6 +283,17 @@ void OverlayImage::render(OpenGLContext* oglContext, const Vec2i& position, cons
         blend.applyOpenGL(oglContext);
     }
 
+    RenderStateDepth resetDepth;
+    resetDepth.applyOpenGL(oglContext);
+
+    if (software)
+    {
+#ifndef CVF_OPENGL_ES
+        RenderStateTextureMapping_FF resetTextureMapping;
+        resetTextureMapping.applyOpenGL(oglContext);
+#endif
+    }
+
     if (!software)
     {
         glDisableVertexAttribArray(ShaderProgram::VERTEX);
@@ -280,8 +311,7 @@ void OverlayImage::setImage(TextureImage* image)
 
     m_texture = new Texture(image);
 
-    m_textureBindings = new cvf::RenderStateTextureBindings;
-    m_textureBindings->addBinding(m_texture.p(), m_sampler.p(), "u_texture2D");
+    m_textureBindings = NULL;
 }
 
 

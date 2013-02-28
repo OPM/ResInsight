@@ -84,6 +84,7 @@
 
 #include "cvfOpenGLTypes.h"
 #include "cvfString.h"
+#include "cvfCodeLocation.h"
 
 // As long as we're using GLEW we will almost always need the context and context group when doing OpenGL calls
 #include "cvfOpenGLContext.h"
@@ -105,9 +106,9 @@ public:
     static void     clearOpenGLError(OpenGLContext* oglContext);
 
 	static String   mapOpenGLErrorToString(cvfGLenum errorCode);
-    static bool     testAndReportOpenGLError(OpenGLContext* oglContext, const char* operation, const char* fileName, int line);
+    static bool     testAndReportOpenGLError(OpenGLContext* oglContext, const char* operation, const CodeLocation& codeLocation);
 
-    static void     cvf_check_ogl(OpenGLContext* oglContext, const char* fileName, int line);
+    static void     cvf_check_ogl(OpenGLContext* oglContext, const CodeLocation& codeLocation);
     
     static void	    enableCheckOgl(bool enable);
     static bool	    isCheckOglEnabled();
@@ -123,8 +124,8 @@ private:
 #define CVF_OGL_BUFFER_OFFSET(BYTE_OFFSET) ((char*)NULL + (BYTE_OFFSET))
 
 // Define used to log error messages with file and line
-#define CVF_CHECK_OGL(OGL_CTX_PTR)  cvf::OpenGL::cvf_check_ogl(OGL_CTX_PTR, __FILE__, __LINE__)
+#define CVF_CHECK_OGL(OGL_CTX_PTR)  cvf::OpenGL::cvf_check_ogl(OGL_CTX_PTR, CVF_CODE_LOCATION)
 
 #define CVF_CLEAR_OGL_ERROR(OGL_CTX_PTR) cvf::OpenGL::clearOpenGLError(OGL_CTX_PTR)
-#define CVF_TEST_AND_REPORT_OPENGL_ERROR(OGL_CTX_PTR, OPERATION)  cvf::OpenGL::testAndReportOpenGLError(OGL_CTX_PTR, OPERATION, __FILE__, __LINE__)
+#define CVF_TEST_AND_REPORT_OPENGL_ERROR(OGL_CTX_PTR, OPERATION)  cvf::OpenGL::testAndReportOpenGLError(OGL_CTX_PTR, OPERATION, CVF_CODE_LOCATION)
 

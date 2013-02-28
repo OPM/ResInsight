@@ -64,7 +64,8 @@ DrawableText::DrawableText()
     m_borderColor(Color3::BLACK),
     m_drawBackground(true),
     m_drawBorder(true),
-    m_checkPosVisible(true)
+    m_checkPosVisible(true),
+    m_useDepthBuffer(false)
 {
 }
 
@@ -155,6 +156,15 @@ void DrawableText::setDrawBorder(bool drawBorder)
 void DrawableText::setCheckPosVisible(bool checkpos)
 {
     m_checkPosVisible = checkpos;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void DrawableText::setUseDepthBuffer(bool useDepthBuffer)
+{
+    m_useDepthBuffer = useDepthBuffer;
 }
 
 
@@ -323,7 +333,7 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
         if (!m_checkPosVisible || labelAnchorVisible(oglContext, proj, m_positions[pos], shaderProgram == NULL))
         {
             // Note: Need to adjust for the current viewport, as the coords returned from project are in global windows coordinates
-            projCoords.push_back(Vec3f(static_cast<float>(proj.x() - matrixState.viewportPosition().x()), static_cast<float>(proj.y() - matrixState.viewportPosition().y()), 0.0f));
+            projCoords.push_back(Vec3f(static_cast<float>(proj.x() - matrixState.viewportPosition().x()), static_cast<float>(proj.y() - matrixState.viewportPosition().y()), static_cast<float>(1.0 - 2.0*proj.z())));  // Map z into 1 .. -1
             textsToDraw.push_back(m_texts[pos]);
         }
     }
@@ -355,12 +365,13 @@ void DrawableText::renderText(OpenGLContext* oglContext, ShaderProgram* shaderPr
     drawer.setBorderColor(m_borderColor);
     drawer.setDrawBorder(m_drawBorder);
     drawer.setDrawBackground(m_drawBackground);
+    drawer.setUseDepthBuffer(m_useDepthBuffer);
 
     size_t i;
     for (i = 0; i < textsToDraw.size(); i++)
     {
         Vec3f pos = projCoords[i];
-        drawer.addText(textsToDraw[i], Vec2f(pos));
+        drawer.addText(textsToDraw[i], pos);
     }
 
     if (shaderProgram)
@@ -422,5 +433,39 @@ bool DrawableText::labelAnchorVisible(OpenGLContext* oglContext, const Vec3d win
     return false;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool DrawableText::rayIntersect(const Ray& ray, const Camera& camera, Vec3d* intersectionPoint)
+{
+    Vec3d pickCoord2d;
+    camera.project(ray.origin(), &pickCoord2d);
+
+    size_t i;
+    for (i = 0; i < m_positions.size(); i++)
+    {
+        Vec3d proj;
+        camera.project(Vec3d(m_positions[i]), &proj);
+
+        Vec3f posTextDrawer = Vec3f(static_cast<float>(proj.x() - camera.viewport()->x()), static_cast<float>(proj.y() - camera.viewport()->y()), static_cast<float>(1.0 - 2.0*proj.z()));  // Map z into 1 .. -1
+
+        if (TextDrawer::pickText(Vec3f(pickCoord2d), m_texts[i], posTextDrawer, m_font.p()))
+        {
+            if (m_useDepthBuffer)
+            {
+                *intersectionPoint = Vec3d(m_positions[i]);
+            }
+            else
+            {
+                *intersectionPoint = ray.origin();
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
 
 } // namespace cvf
