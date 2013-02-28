@@ -1010,8 +1010,8 @@ bool RifReaderEclipseOutput::openInitFile()
     QString initFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
-        ecl_file_type* ecl_init_file = ecl_file_open(initFileName.toAscii().data());
-        if (ecl_init_file)
+        m_ecl_init_file = ecl_file_open(initFileName.toAscii().data());
+        if (m_ecl_init_file)
         {
             return true;
         }
