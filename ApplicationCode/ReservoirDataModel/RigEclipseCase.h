@@ -40,16 +40,19 @@ public:
     const RigMainGrid*      mainGrid() const { return m_mainGrid.p(); }
     void                    setMainGrid(RigMainGrid* mainGrid);
 
-    void                    allGrids(std::vector<RigGridBase*>* grids);
-    void                    allGrids(std::vector<const RigGridBase*>* grids) const;
+    void                    allGrids(std::vector<RigGridBase*>* grids); // To be removed
+    void                    allGrids(std::vector<const RigGridBase*>* grids) const;// To be removed
     const RigGridBase*      grid(size_t index) const;
-
+    RigGridBase*            grid(size_t index);
+    size_t                  gridCount() const;
 
     RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const;
-
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject(const RigGridBase* grid, 
+                                                               RifReaderInterface::PorosityModelResultType porosityModel, 
+                                                               size_t timeStepIndex, 
+                                                               size_t scalarSetIndex);
 
     void                    computeCachedData();
 

@@ -874,15 +874,15 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 //--------------------------------------------------------------------------------------------------
 /// Get the current scalar value for the display face at the given index
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) const
+void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) 
 {
     CVF_ASSERT(resultInfoText);
 
     if (m_reservoir && m_reservoir->reservoirData())
     {
-        const RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
-        const RigGridBase* grid = eclipseCase->grid(gridIndex);
-        const RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();
+        RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
+        RigGridBase* grid = eclipseCase->grid(gridIndex);
+        RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();
 
         if (this->cellResult()->hasResult())
         {

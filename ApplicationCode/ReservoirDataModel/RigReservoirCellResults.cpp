@@ -253,7 +253,7 @@ std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigReservoirCellResults::cellScalarResult(size_t timeStepIndex, size_t scalarResultIndex, size_t resultValueIndex)
+double RigReservoirCellResults::cellScalarResult( size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex)
 {
     if (scalarResultIndex < resultCount() &&
         timeStepIndex < m_cellScalarResults[scalarResultIndex].size() &&

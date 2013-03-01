@@ -53,7 +53,7 @@ public:
     void                        setIndexToStartOfCells(size_t indexToStartOfCells) { m_indexToStartOfCells = indexToStartOfCells; }
     
     void                        setGridIndex(size_t index) { m_gridIndex = index; }
-    size_t                      gridIndex() { return m_gridIndex; }
+    size_t                      gridIndex() const { return m_gridIndex; }
 
     double                      characteristicIJCellSize();
 

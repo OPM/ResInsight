@@ -83,6 +83,24 @@ const RigGridBase* RigEclipseCase::grid(size_t index) const
     return m_mainGrid->gridByIndex(index);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// Get grid by index. The main grid has index 0, so the first lgr has index 1
+//--------------------------------------------------------------------------------------------------
+RigGridBase* RigEclipseCase::grid(size_t index) 
+{
+    return m_mainGrid->gridByIndex(index);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigEclipseCase::gridCount() const
+{
+    return m_mainGrid->gridCount();
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -375,16 +393,18 @@ const RigReservoirCellResults* RigEclipseCase::results(RifReaderInterface::Poros
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigEclipseCase::dataAccessObject(const RigGridBase* grid, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const 
+cvf::ref<cvf::StructGridScalarDataAccess> RigEclipseCase::dataAccessObject(const RigGridBase* grid, 
+                                                                           RifReaderInterface::PorosityModelResultType porosityModel, 
+                                                                           size_t timeStepIndex, 
+                                                                           size_t scalarSetIndex)
 {
     if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
         scalarSetIndex != cvf::UNDEFINED_SIZE_T)
     {
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigGridScalarDataAccessFactory::createDataAccessObject(grid, this, porosityModel, timeStepIndex, scalarSetIndex);
+        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigGridScalarDataAccessFactory::createPerGridDataAccessObject( this, grid->gridIndex(), porosityModel, timeStepIndex, scalarSetIndex);
         return dataAccess;
     }
 
     return NULL;
 
 }
-

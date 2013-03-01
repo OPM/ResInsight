@@ -432,7 +432,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         {
             for (i = 0; i < eclipseCase->mainGrid()->cellCountI(); i++)
             {
-                double resultValue = dataAccessObject->cellScalar(i, j, k);
+                double resultValue = dataAccessObject->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
                 if (resultValue == HUGE_VAL)
                 {
                     resultValue = undefinedValue;

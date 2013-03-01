@@ -73,7 +73,7 @@ public:
     // Access the results data
     const std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex) const;
     std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex);
-    double                                                  cellScalarResult(size_t timeStepIndex, size_t scalarResultIndex, size_t resultValueIndex);
+    double                                                  cellScalarResult(size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex);
 
     static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
     

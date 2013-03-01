@@ -137,7 +137,7 @@ public:
 
     // Picking info
     bool                                    pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const;
-    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) const;
+    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) ;
 
     // Does this belong here, really ?
     void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
