@@ -21,6 +21,7 @@
 #include "RimReservoirView.h"
 
 #include "RimStatisticalCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
 
 
 CAF_PDM_SOURCE_INIT(RimStatisticalCollection, "RimStatisticalCollection");
@@ -34,8 +35,6 @@ RimStatisticalCollection::RimStatisticalCollection()
     CAF_PDM_InitObject("Derived Statistics", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
-
-    createAndAppendStatisticalCalculation();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,6 +51,12 @@ RimStatisticalCollection::~RimStatisticalCollection()
 RimStatisticalCalculation* RimStatisticalCollection::createAndAppendStatisticalCalculation()
 {
     RimStatisticalCalculation* newObject = new RimStatisticalCalculation;
+    RimIdenticalGridCaseGroup* gridCaseGroup = parent();
+    
+    CVF_ASSERT(gridCaseGroup);
+    CVF_ASSERT(gridCaseGroup->mainGrid());
+
+    newObject->setMainGrid(gridCaseGroup->mainGrid());
 
     newObject->caseName = "Statistics 1";
 
@@ -59,3 +64,25 @@ RimStatisticalCalculation* RimStatisticalCollection::createAndAppendStatisticalC
 
     return newObject;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimStatisticalCollection::parent()
+{
+    std::vector<caf::PdmObject*> parentObjects;
+    this->parentObjects(parentObjects);
+
+    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
+    for (size_t i = 0; i < parentObjects.size(); i++)
+    {
+        if (gridCaseGroup) continue;
+
+        caf::PdmObject* obj = parentObjects[i];
+        gridCaseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(obj);
+    }
+
+    return gridCaseGroup;
+
+}
+

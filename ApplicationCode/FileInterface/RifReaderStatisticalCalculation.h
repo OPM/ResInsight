@@ -32,8 +32,8 @@ public:
 
     virtual void                close() {}
 
-    virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values )                      { return false; }
-    virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values )   { return false; }
+    virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values );
+    virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values );
 
     void setMatrixResultNames(const QStringList& staticResultNames, const QStringList& dynamicResultNames);
     void setFractureResultNames(const QStringList& staticResultNames, const QStringList& dynamicResultNames);

@@ -25,6 +25,8 @@
 #include "RigEclipseCase.h"
 #include "RifReaderStatisticalCalculation.h"
 #include "RigReservoirCellResults.h"
+#include "RigStatistics.h"
+#include "RigMainGrid.h"
 
 
 CAF_PDM_SOURCE_INIT(RimStatisticalCalculation, "RimStatisticalCalculation");
@@ -35,12 +37,16 @@ CAF_PDM_SOURCE_INIT(RimStatisticalCalculation, "RimStatisticalCalculation");
 RimStatisticalCalculation::RimStatisticalCalculation()
     : RimReservoir()
 {
+    CAF_PDM_InitField(&m_resultName, "ResultName", QString("PRESSURE"), "ResultName", "", "", "");
+
     CAF_PDM_InitField(&statisticsMin,       "StatisticsMin",    true, "Minimum", "", "" ,"");
     CAF_PDM_InitField(&statisticsMax,       "StatisticsMax",    true, "Maximum", "", "" ,"");
     CAF_PDM_InitField(&statisticsMean,      "StatisticsMean",   true, "Mean", "", "" ,"");
     CAF_PDM_InitField(&statisticsStdDev,    "StatisticsStdDev", true, "Std dev", "", "" ,"");
 
     m_readerInterface = new RifReaderStatisticalCalculation;
+
+    openEclipseGridFile();   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,11 +57,25 @@ RimStatisticalCalculation::~RimStatisticalCalculation()
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::setMainGrid(RigMainGrid* mainGrid)
+{
+    CVF_ASSERT(mainGrid);
+    CVF_ASSERT(m_rigEclipseCase.notNull());
+
+    m_rigEclipseCase->setMainGrid(mainGrid);
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 bool RimStatisticalCalculation::openEclipseGridFile()
 {
+    if (m_rigEclipseCase.notNull()) return true;
+
     cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
 
     if (!m_readerInterface->open("dummy", eclipseCase.p()))
@@ -115,25 +135,30 @@ RimStatisticalCollection* RimStatisticalCalculation::parent()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticalCalculation::computeStatistics()
 {
-    if (statisticsMin)
+    if (m_rigEclipseCase.isNull())
     {
-        createAndComputeMin();
-    }
-    
-    if (statisticsMax)
-    {
-        createAndComputeMax();
+        openEclipseGridFile();
     }
 
-    if (statisticsMean)
+    cvf::Collection<RigEclipseCase> sourceCases;
+
+    getSourceCases(sourceCases);
+
+    if (sourceCases.size() == 0)
     {
-        createAndComputeMean();
+        return;
     }
 
-    if (statisticsStdDev)
-    {
-        createAndComputeStdDev();
-    }
+    RigStatisticsConfig statisticsConfig;
+
+    std::vector<size_t> timeStepIndices;
+    timeStepIndices.push_back(0);
+    timeStepIndices.push_back(1);
+
+    RigEclipseCase* resultCase = reservoirData();
+
+    RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
+    stat.evaluateStatistics(RimDefines::DYNAMIC_NATIVE, m_resultName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,4 +191,51 @@ void RimStatisticalCalculation::createAndComputeMean()
 void RimStatisticalCalculation::createAndComputeStdDev()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticalCalculation::getSourceCases(cvf::Collection<RigEclipseCase>& sourceCases)
+{
+    RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
+    if (gridCaseGroup)
+    {
+        size_t caseCount = gridCaseGroup->caseCollection->reservoirs.size();
+        for (size_t i = 0; i < caseCount; i++)
+        {
+            CVF_ASSERT(gridCaseGroup->caseCollection);
+            CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]);
+            CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]->reservoirData());
+
+            RigEclipseCase* sourceCase = gridCaseGroup->caseCollection->reservoirs[i]->reservoirData();
+            sourceCases.push_back(sourceCase);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimStatisticalCalculation::caseGroup()
+{
+    RimStatisticalCollection* statColl = parent();
+    if (statColl)
+    {
+        std::vector<caf::PdmObject*> parentObjects;
+        statColl->parentObjects(parentObjects);
+
+        RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
+        for (size_t i = 0; i < parentObjects.size(); i++)
+        {
+            if (gridCaseGroup) continue;
+
+            caf::PdmObject* obj = parentObjects[i];
+            gridCaseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(obj);
+        }
+
+        return gridCaseGroup;
+    }
+
+    return NULL;
 }

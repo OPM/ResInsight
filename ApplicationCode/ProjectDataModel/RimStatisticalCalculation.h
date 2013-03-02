@@ -29,6 +29,7 @@ class RimIdenticalGridCaseGroup;
 class RimResultDefinition;
 class RifReaderStatisticalCalculation;
 class RimStatisticalCollection;
+class RigMainGrid;
 
 
 //==================================================================================================
@@ -44,7 +45,11 @@ public:
     RimStatisticalCalculation();
     virtual ~RimStatisticalCalculation();
 
+    void setMainGrid(RigMainGrid* mainGrid);
+
     virtual bool openEclipseGridFile();
+
+    caf::PdmField<QString> m_resultName;
 
     caf::PdmField<bool> statisticsMin;
     caf::PdmField<bool> statisticsMax;
@@ -57,10 +62,15 @@ public:
     void computeStatistics();
 
 private:
+    RimIdenticalGridCaseGroup* caseGroup();
+
     void createAndComputeMin();
     void createAndComputeMax();
     void createAndComputeMean();
     void createAndComputeStdDev();
+
+    void getSourceCases(cvf::Collection<RigEclipseCase>& sourceCases);
+
 
 private:
     cvf::ref<RifReaderStatisticalCalculation> m_readerInterface;

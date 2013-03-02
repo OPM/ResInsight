@@ -44,9 +44,6 @@ RifReaderStatisticalCalculation::~RifReaderStatisticalCalculation()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderStatisticalCalculation::open(const QString& fileName, RigEclipseCase* eclipseCase)
 {
-    m_matrixDynamicResultNames.push_back("SOIL");
-    m_matrixDynamicResultNames.push_back("PRESSURE");
-
     buildMetaData(eclipseCase);
 
     return true;
@@ -117,5 +114,21 @@ void RifReaderStatisticalCalculation::setFractureResultNames(const QStringList& 
 void RifReaderStatisticalCalculation::setTimeSteps(const QList<QDateTime>& timesteps)
 {
     m_timeSteps = timesteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderStatisticalCalculation::staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values)
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderStatisticalCalculation::dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
+{
+    return false;
 }
 
