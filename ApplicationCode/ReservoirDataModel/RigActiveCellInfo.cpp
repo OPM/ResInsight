@@ -129,8 +129,8 @@ void RigActiveCellInfo::computeDerivedData()
 
     for (size_t i = 0; i < m_activeInFractureModel.size(); i++)
     {
-        if (activeIndexInMatrixModel(i)) m_globalMatrixModelActiveCellCount++;
-        if (activeIndexInFractureModel(i)) m_globalFractureModelActiveCellCount++;
+        if (isActiveInMatrixModel(i)) m_globalMatrixModelActiveCellCount++;
+        if (isActiveInFractureModel(i)) m_globalFractureModelActiveCellCount++;
     }
 }
 
