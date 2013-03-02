@@ -22,8 +22,10 @@
 #include "cvfObject.h"
 #include "cvfCollection.h"
 
-#include <vector>
 #include "RigEclipseCase.h"
+
+#include <vector>
+#include <math.h>
 
 class RigStatisticsEvaluator
 {
