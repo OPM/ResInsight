@@ -459,7 +459,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             actnumValuesPerGrid.resize(actnumKeywordCount);
 
             size_t globalCellCount = 0;
-            for (size_t gridIdx = 0; gridIdx < actnumKeywordCount; gridIdx++)
+            for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
             {
                 RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &actnumValuesPerGrid[gridIdx]);
 
@@ -478,7 +478,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             activeCellInfo->setGridCount(actnumKeywordCount);
 
             size_t cellIdx = 0;
-            for (size_t gridIdx = 0; gridIdx < actnumKeywordCount; gridIdx++)
+            for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
             {
                 size_t activeMatrixIndex = 0;
                 size_t activeFractureIndex = 0;
@@ -810,7 +810,7 @@ void RifReaderEclipseOutput::readWellCells()
 
                     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
                     // Adjust K so index is always in valid grid region
-                    if (cellK >= grids[gridNr]->cellCountK())
+                    if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
                     {
                         cellK -= static_cast<int>(grids[gridNr]->cellCountK());
                     }
@@ -855,7 +855,7 @@ void RifReaderEclipseOutput::readWellCells()
                                     
                                     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
                                     // Adjust K so index is always in valid grid region
-                                    if (cellK >= grids[gridNr]->cellCountK())
+                                    if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
                                     {
                                         cellK -= static_cast<int>(grids[gridNr]->cellCountK());
                                     }
@@ -893,7 +893,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 {
     CVF_ASSERT(activeCellInfo);
 
-    if (keywords.size() != keywordDataItemCounts.size())
+    if (keywords.size() != static_cast<int>(keywordDataItemCounts.size()))
     {
         return QStringList();
     }

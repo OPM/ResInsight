@@ -76,7 +76,7 @@ void RifEclipseRestartFilesetAccess::setFileSet(const QStringList& fileSet)
         m_ecl_files.push_back(NULL);
     }
 
-    CVF_ASSERT(m_fileNames.size() == m_ecl_files.size());
+    CVF_ASSERT(m_fileNames.size() == static_cast<int>(m_ecl_files.size()));
 }
 
 //--------------------------------------------------------------------------------------------------
