@@ -35,7 +35,7 @@ public:
     RifEclipseRestartFilesetAccess();
     virtual ~RifEclipseRestartFilesetAccess();
 
-    bool                        open(const QStringList& fileSet);
+    bool                        open();
     void                        setFileSet(const QStringList& fileSet);
     void                        close();
 

@@ -44,10 +44,8 @@ RifEclipseUnifiedRestartFileAccess::~RifEclipseUnifiedRestartFileAccess()
 //--------------------------------------------------------------------------------------------------
 /// Open file
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet)
+bool RifEclipseUnifiedRestartFileAccess::open()
 {
-    m_filename = fileSet[0];
-
     return true;
 }
 
@@ -153,5 +151,14 @@ void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info)
     {
         well_info_add_UNRST_wells(well_info, m_ecl_file);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseUnifiedRestartFileAccess::setFileSet(const QStringList& fileSet)
+{
+    m_filename = fileSet[0];
+   
 }
 

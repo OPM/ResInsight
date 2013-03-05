@@ -530,7 +530,7 @@ bool RifReaderEclipseOutput::buildMetaData()
         return false;
     }
 
-    m_dynamicResultsAccess->open(m_fileSet);
+    m_dynamicResultsAccess->open();
 
 
     progInfo.incrementProgress();

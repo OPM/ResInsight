@@ -42,8 +42,8 @@ public:
     RifEclipseRestartDataAccess();
     virtual ~RifEclipseRestartDataAccess();
 
-    virtual bool                open(const QStringList& fileSet) = 0;
-    virtual void                setFileSet(const QStringList& fileSet) {};
+    virtual bool                open() = 0;
+    virtual void                setFileSet(const QStringList& fileSet) = 0;
     virtual void                close() = 0;
 
     virtual void                setTimeSteps(const QList<QDateTime>& timeSteps) {};

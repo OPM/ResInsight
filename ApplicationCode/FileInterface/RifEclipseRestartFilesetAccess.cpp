@@ -40,7 +40,7 @@ RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 //--------------------------------------------------------------------------------------------------
 /// Open files
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
+bool RifEclipseRestartFilesetAccess::open()
 {
     if (m_fileNames.size() > 0)
     {

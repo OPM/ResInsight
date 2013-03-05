@@ -37,7 +37,8 @@ public:
     RifEclipseUnifiedRestartFileAccess();
     virtual ~RifEclipseUnifiedRestartFileAccess();
 
-    bool                        open(const QStringList& fileSet);
+    void                        setFileSet(const QStringList& fileSet);
+    bool                        open();
     void                        close();
 
     size_t                      timeStepCount();
