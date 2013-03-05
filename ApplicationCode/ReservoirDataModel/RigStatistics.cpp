@@ -28,7 +28,7 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* cellResults, RimDefi
 {
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
-    QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::PorosityModelResultType::MATRIX_RESULTS)->timeStepDates(0);
+    QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
 
     size_t resultIndexMin = cellResults->addEmptyScalarResult(resultType, resultName);
     cellResults->setTimeStepDates(resultIndexMin, timeStepDates);
