@@ -22,6 +22,7 @@
 #include <QFileDialog>
 #include <QStringListModel>
 #include <QFileIconProvider>
+#include "RIApplication.h"
 
 class FileListModel: public QStringListModel
 {
@@ -94,7 +95,7 @@ RiuMultiCaseImportDialog::~RiuMultiCaseImportDialog()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select an Eclipse case search folder" );
+    QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select an Eclipse case search folder", RIApplication::instance()->defaultFileDialogDirectory("MULTICASEIMPORT"));
     QStringList folderNames = m_searchFolders->stringList();
 
     if (!folderNames.contains(selectedFolder))
@@ -104,6 +105,7 @@ void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
         updateGridFileList();
     }
 
+    RIApplication::instance()->setDefaultFileDialogDirectory("MULTICASEIMPORT", selectedFolder);
 }
 
 //--------------------------------------------------------------------------------------------------
