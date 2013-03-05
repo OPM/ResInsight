@@ -26,11 +26,17 @@
 //--------------------------------------------------------------------------------------------------
 void RigStatistics::addNamedResult(RigReservoirCellResults* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount)
 {
-    size_t resultIndexMin = cellResults->addEmptyScalarResult(resultType, resultName);
-    std::vector< std::vector<double> >& dataValues = cellResults->cellScalarResults(resultIndexMin);
-    dataValues.resize(m_timeStepIndices.size());
+    // Use time step dates from first result in first source case
+    CVF_ASSERT(m_sourceCases.size() > 0);
+    QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::PorosityModelResultType::MATRIX_RESULTS)->timeStepDates(0);
 
-    for (size_t i = 0; i < m_timeStepIndices.size(); i++)
+    size_t resultIndexMin = cellResults->addEmptyScalarResult(resultType, resultName);
+    cellResults->setTimeStepDates(resultIndexMin, timeStepDates);
+    
+    std::vector< std::vector<double> >& dataValues = cellResults->cellScalarResults(resultIndexMin);
+    dataValues.resize(timeStepDates.size());
+
+    for (size_t i = 0; i < timeStepDates.size(); i++)
     {
         dataValues[i].resize(activeCellCount, HUGE_VAL);
     }
