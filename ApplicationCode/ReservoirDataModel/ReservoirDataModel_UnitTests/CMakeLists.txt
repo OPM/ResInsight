@@ -29,6 +29,9 @@ include ("${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists_files.cmake")
 
 
 set( UNIT_TEST_CPP_SOURCES
+
+    ${ResInsight_SOURCE_DIR}/cafUserInterface/cafProgressInfo.cpp
+
     main.cpp
     RigActiveCellInfo-Test.cpp
     RigReservoir-Test.cpp
