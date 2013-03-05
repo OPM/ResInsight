@@ -96,6 +96,7 @@ void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
 {
     QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select an Eclipse case search folder" );
     QStringList folderNames = m_searchFolders->stringList();
+
     if (!folderNames.contains(selectedFolder))
     {
         folderNames.push_back(selectedFolder);
@@ -111,10 +112,21 @@ void RiuMultiCaseImportDialog::on_m_addSearchFolderButton_clicked()
 void RiuMultiCaseImportDialog::on_m_removeSearchFolderButton_clicked()
 {
     QModelIndexList selection = ui->m_searchFolderList->selectionModel()->selectedIndexes();
+    QStringList folderNames = m_searchFolders->stringList();
+
+    QStringList searchFoldersToRemove;
+
     for (int i = 0; i < selection.size(); ++i)
     {
-        ui->m_searchFolderList->model()->removeRow(selection[i].row(), selection[i].parent());
+        searchFoldersToRemove.push_back(folderNames[selection[i].row()]);
     }
+
+    for (int i = 0; i < searchFoldersToRemove.size(); ++i)
+    {
+        folderNames.removeOne(searchFoldersToRemove[i]);
+    }
+
+    m_searchFolders->setStringList(folderNames);
 
     if (selection.size())
     {
@@ -130,6 +142,32 @@ void RiuMultiCaseImportDialog::updateGridFileList()
 
     QStringList folderNames =  m_searchFolders->stringList();
     QStringList gridFileNames;
+
+
+    // Filter the search folders to remove subfolders of existing roots'
+
+    bool okToAdd = true;
+    QStringList searchFoldersToRemove;
+
+    for (int i = 0; i < folderNames.size(); ++i)
+        for (int j = 0; j < folderNames.size(); ++j)
+        {
+            if ( i != j)
+            {
+                if (folderNames[i].startsWith(folderNames[j]))
+                {
+                    // Remove folderNames[i]
+                    searchFoldersToRemove.push_back(folderNames[i]);
+                }
+            }
+        }
+
+    // Remove the subfolders when adding a root
+
+    for (int i = 0; i < searchFoldersToRemove.size(); ++i)
+    {
+        folderNames.removeOne(searchFoldersToRemove[i]);
+    }
 
     for (int i = 0; i < folderNames.size(); i++)
     {
@@ -195,8 +233,28 @@ QStringList RiuMultiCaseImportDialog::eclipseCaseFileNames() const
 void RiuMultiCaseImportDialog::on_m_removeEclipseCaseButton_clicked()
 {
     QModelIndexList selection = ui->m_eclipseCasesList->selectionModel()->selectedIndexes();
-    for (int i = 0; i < selection.size(); ++i)
+    if (selection.size())
     {
-        ui->m_eclipseCasesList->model()->removeRow(selection[i].row(), selection[i].parent());
+        for (int i = 0; i < selection.size(); ++i)
+        {
+            ui->m_eclipseCasesList->model()->removeRow(selection[i].row(), selection[i].parent());
+        }
+
+        QModelIndexList selection = ui->m_eclipseCasesList->selectionModel()->selectedIndexes();
+        QStringList fileNames = m_eclipseGridFiles->stringList();
+
+        QStringList filenamesToRemove;
+
+        for (int i = 0; i < selection.size(); ++i)
+        {
+            filenamesToRemove.push_back(fileNames[selection[i].row()]);
+        }
+
+        for (int i = 0; i < filenamesToRemove.size(); ++i)
+        {
+            fileNames.removeOne(filenamesToRemove[i]);
+        }
+
+        m_eclipseGridFiles->setStringList(fileNames);
     }
 }
