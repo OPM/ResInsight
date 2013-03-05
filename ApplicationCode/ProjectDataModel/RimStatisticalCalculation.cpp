@@ -152,8 +152,12 @@ void RimStatisticalCalculation::computeStatistics()
     RigStatisticsConfig statisticsConfig;
 
     std::vector<size_t> timeStepIndices;
-    timeStepIndices.push_back(0);
-    timeStepIndices.push_back(1);
+
+    size_t timeStepCount = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+    for (size_t i = 0; i < timeStepCount; i++)
+    {
+        timeStepIndices.push_back(i);
+    }
 
     RigEclipseCase* resultCase = reservoirData();
 

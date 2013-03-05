@@ -36,6 +36,7 @@ public:
     RigReservoirCellResults(RigMainGrid* ownerGrid);
 
     void                setReaderInterface(RifReaderInterface* readerInterface);
+    RifReaderInterface* readerInterface();
 
     // Max and min values of the results
     void                recalculateMinMax(size_t scalarResultIndex);
@@ -57,6 +58,7 @@ public:
     void                setTimeStepDates(size_t scalarResultIndex, const QList<QDateTime>& dates);
 
     // Find or create a slot for the results
+    size_t              findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
     size_t              findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
     size_t              findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
     size_t              findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;

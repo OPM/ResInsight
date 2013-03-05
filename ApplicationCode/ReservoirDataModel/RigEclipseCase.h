@@ -48,6 +48,8 @@ public:
 
     RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
+    
+    void                    closeReaderInterface();
 
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject(const RigGridBase* grid, 
                                                                RifReaderInterface::PorosityModelResultType porosityModel, 
@@ -73,7 +75,6 @@ private:
     void                    computeActiveCellData();
     void                    computeWellCellsPrGrid();
     void                    computeActiveCellsGeometryBoundingBox();
-
 
 private:
     RigActiveCellInfo                   m_activeCellInfo;

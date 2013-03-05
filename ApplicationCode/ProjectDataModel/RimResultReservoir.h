@@ -46,7 +46,7 @@ public:
     caf::PdmField<QString>      caseDirectory;
 
     virtual bool                openEclipseGridFile();
-    bool                        openAndReadActiveCellData(RigMainGrid* mainGrid);
+    bool                        openAndReadActiveCellData(RigEclipseCase* mainEclipseCase);
 
     //virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName;}
 

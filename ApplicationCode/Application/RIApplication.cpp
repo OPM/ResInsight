@@ -55,6 +55,7 @@
 #include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "cafProgressInfo.h"
 
 namespace caf
 {
@@ -1305,7 +1306,7 @@ bool RIApplication::addEclipseCases(const QStringList& fileNames)
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RigMainGrid* mainGrid = NULL;
+    RigEclipseCase* mainEclipseCase = NULL;
 
     {
         QString firstFileName = fileNames[0];
@@ -1328,8 +1329,10 @@ bool RIApplication::addEclipseCases(const QStringList& fileNames)
 
         m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
 
-        mainGrid = rimResultReservoir->reservoirData()->mainGrid();
+        mainEclipseCase = rimResultReservoir->reservoirData();
     }
+
+    caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
 
     for (int i = 1; i < fileNames.size(); i++)
     {
@@ -1346,12 +1349,14 @@ bool RIApplication::addEclipseCases(const QStringList& fileNames)
 
         m_project->reservoirs.push_back(rimResultReservoir);
 
-        if (!rimResultReservoir->openAndReadActiveCellData(mainGrid))
+        if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
         {
             return false;
         }
 
         m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+
+        info.setProgress(i);
     }
 
     onProjectOpenedOrClosed();

@@ -93,7 +93,7 @@ bool RimResultReservoir::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimResultReservoir::openAndReadActiveCellData(RigMainGrid* mainGrid)
+bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCase)
 {
     cvf::ref<RifReaderInterface> readerInterface;
 
@@ -113,10 +113,12 @@ bool RimResultReservoir::openAndReadActiveCellData(RigMainGrid* mainGrid)
         }
 
         cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
-        eclipseCase->setMainGrid(mainGrid);
+
+        CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
+        eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
 
         readerInterface = new RifReaderEclipseOutput;
-        if (!readerInterface->openAndReadActiveCellData(fname, eclipseCase.p()))
+        if (!readerInterface->openAndReadActiveCellData(fname, mainEclipseCase, eclipseCase.p()))
         {
             return false;
         }

@@ -44,7 +44,7 @@ public:
     virtual ~RifReaderEclipseOutput();
 
     bool                    open(const QString& fileName, RigEclipseCase* eclipseCase);
-    virtual bool            openAndReadActiveCellData(const QString& fileName, RigEclipseCase* eclipseCase);
+    virtual bool            openAndReadActiveCellData(const QString& fileName, RigEclipseCase* mainEclipseCase, RigEclipseCase* eclipseCase);
     void                    close();
 
     bool                    staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values);
@@ -58,14 +58,15 @@ private:
     void                    readWellCells();
     
     bool                    openInitFile();
+    bool                    openDynamicAccess();
 
     void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
     
-    static RifEclipseRestartDataAccess*   staticResultsAccess(const QStringList& fileSet);
-    static RifEclipseRestartDataAccess*   dynamicResultsAccess(const QStringList& fileSet);
+    static RifEclipseRestartDataAccess*   createDynamicResultsAccess(const QStringList& fileSet);
 
     QStringList             validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, const RigActiveCellInfo* activeCellInfo, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const;
 
+    virtual QList<QDateTime> timeSteps();
 private:
     QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
     QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename

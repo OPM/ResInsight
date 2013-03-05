@@ -20,6 +20,7 @@
 #include "RigReservoirCellResults.h"
 
 #include <QDebug>
+#include "cafProgressInfo.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -36,7 +37,7 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* cellResults, RimDefi
     std::vector< std::vector<double> >& dataValues = cellResults->cellScalarResults(resultIndexMin);
     dataValues.resize(timeStepDates.size());
 
-    for (size_t i = 0; i < timeStepDates.size(); i++)
+    for (int i = 0; i < timeStepDates.size(); i++)
     {
         dataValues[i].resize(activeCellCount, HUGE_VAL);
     }
@@ -109,6 +110,8 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
 
     computeActiveCellUnion();
 
+    buildSourceMetaData(resultType, resultName);
+
     QString minResultName = resultName + "_MIN";
     QString maxResultName = resultName + "_MAX";
     QString meanResultName = resultName + "_MEAN";
@@ -127,6 +130,8 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
 
     if (activeMatrixCellCount > 0)
     {
+        caf::ProgressInfo info(m_timeStepIndices.size(), "Computing Statistics");
+
         for (size_t timeIndicesIdx = 0; timeIndicesIdx < m_timeStepIndices.size(); timeIndicesIdx++)
         {
             size_t timeStepIdx = m_timeStepIndices[timeIndicesIdx];
@@ -142,7 +147,7 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                 {
                     RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
 
-                    size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(resultName);
+                    size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResultForTimeStep(resultType, resultName, timeStepIdx);
 
                     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
                     if (dataAccessObject.notNull())
@@ -227,6 +232,19 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                     }
                 }
             }
+
+            for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
+            {
+                RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
+
+                // When one time step is completed, close all result files.
+                // Microsoft note: On Windows, the maximum number of files open at the same time is 512
+                // http://msdn.microsoft.com/en-us/library/kdfaxaay%28vs.71%29.aspx
+                //
+                eclipseCase->closeReaderInterface();
+            }
+
+            info.setProgress(timeIndicesIdx);
         }
     }
 }
@@ -262,5 +280,29 @@ RigStatistics::RigStatistics(cvf::Collection<RigEclipseCase>& sourceCases, const
     if (sourceCases.size() > 0)
     {
         m_globalCellCount = sourceCases[0]->mainGrid()->cells().size();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName)
+{
+    for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
+    {
+        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
+
+        RigReservoirCellResults* matrixResults = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+        size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+
+            size_t scalarResultIndex = matrixResults->addEmptyScalarResult(resultType, resultName);
+            matrixResults->setTimeStepDates(scalarResultIndex, timeStepDates);
+
+            std::vector< std::vector<double> >& dataValues = matrixResults->cellScalarResults(scalarResultIndex);
+            dataValues.resize(timeStepDates.size());
+        }
     }
 }

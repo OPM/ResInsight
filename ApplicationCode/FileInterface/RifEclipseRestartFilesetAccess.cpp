@@ -42,20 +42,19 @@ RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
 {
-    setFileSet(fileSet);
-
-    int numFiles = fileSet.size();
-
-    caf::ProgressInfo progInfo(numFiles,"");
-
-    int i;
-    for (i = 0; i < numFiles; i++)
+    if (m_fileNames.size() > 0)
     {
-        progInfo.setProgressDescription(fileSet[i]);
+        caf::ProgressInfo progInfo(m_fileNames.size(), "");
 
-        openTimeStep(i);
+        int i;
+        for (i = 0; i < m_fileNames.size(); i++)
+        {
+            progInfo.setProgressDescription(m_fileNames[i]);
 
-        progInfo.incrementProgress();
+            openTimeStep(i);
+
+            progInfo.incrementProgress();
+        }
     }
 
     return true;
@@ -96,11 +95,20 @@ void RifEclipseRestartFilesetAccess::close()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRestartFilesetAccess::setTimeSteps(const QList<QDateTime>& timeSteps)
+{
+    CVF_ASSERT(m_fileNames.size() == timeSteps.size());
+    m_timeSteps = timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Get the number of time steps
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseRestartFilesetAccess::timeStepCount()
 {
-    return m_ecl_files.size();
+    return m_timeSteps.size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,29 +116,31 @@ size_t RifEclipseRestartFilesetAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 {
-    QList<QDateTime> timeSteps;
-
-    size_t numSteps = timeStepCount();
-    size_t i;
-    for (i = 0; i < numSteps; i++)
+    if (m_timeSteps.size() == 0)
     {
-        QList<QDateTime> stepTime;
+        size_t numSteps = m_fileNames.size();
+        size_t i;
+        for (i = 0; i < numSteps; i++)
+        {
+            QList<QDateTime> stepTime;
 
-        openTimeStep(i);
+            openTimeStep(i);
 
-        RifEclipseOutputFileTools::timeSteps(m_ecl_files[i], &stepTime);
+            RifEclipseOutputFileTools::timeSteps(m_ecl_files[i], &stepTime);
         
-        if (stepTime.size() == 1)
-        {
-            timeSteps.push_back(stepTime[0]);
+            if (stepTime.size() == 1)
+            {
+                m_timeSteps.push_back(stepTime[0]);
+            }
+            else
+            {
+                m_timeSteps.push_back(QDateTime());
+            }
         }
-        else
-        {
-            timeSteps.push_back(QDateTime());
-        }
+
     }
 
-    return timeSteps;
+    return m_timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------

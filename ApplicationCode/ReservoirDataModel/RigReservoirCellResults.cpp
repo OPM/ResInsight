@@ -268,6 +268,61 @@ double RigReservoirCellResults::cellScalarResult( size_t scalarResultIndex, size
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RigReservoirCellResults::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
+{
+    size_t resultGridIndex = cvf::UNDEFINED_SIZE_T;
+
+    resultGridIndex = findScalarResultIndex(type, resultName);
+
+    if (resultGridIndex == cvf::UNDEFINED_SIZE_T)  return cvf::UNDEFINED_SIZE_T;
+
+    if (type == RimDefines::GENERATED)
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
+    if (m_readerInterface.notNull())
+    {
+        // Add one more result to result container
+        size_t timeStepCount = m_resultInfos[resultGridIndex].m_timeStepDates.size();
+
+        bool resultLoadingSucess = true;
+
+        if (type == RimDefines::DYNAMIC_NATIVE && timeStepCount > 0)
+        {
+            std::vector<double>& values = m_cellScalarResults[resultGridIndex][timeStepIndex];
+            if (values.size() == 0)
+            {
+                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, timeStepIndex, &values))
+                {
+                    resultLoadingSucess = false;
+                }
+            }
+        }
+        else if (type == RimDefines::STATIC_NATIVE)
+        {
+            std::vector<double>& values = m_cellScalarResults[resultGridIndex][0];
+            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
+            {
+                resultLoadingSucess = false;
+            }
+        }
+
+        if (!resultLoadingSucess)
+        {
+            // Error logging
+            CVF_ASSERT(false);
+        }
+    }
+
+    return resultGridIndex;
+
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -334,6 +389,15 @@ size_t RigReservoirCellResults::findOrLoadScalarResult(RimDefines::ResultCatType
 void RigReservoirCellResults::setReaderInterface(RifReaderInterface* readerInterface)
 {
     m_readerInterface = readerInterface;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RifReaderInterface* RigReservoirCellResults::readerInterface()
+{
+    return m_readerInterface.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -697,12 +761,15 @@ void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const Q
 //--------------------------------------------------------------------------------------------------
 size_t RigReservoirCellResults::maxTimeStepCount() const
 {
-    size_t maxTsCount = 0;
-    for (size_t i = 0; i < m_cellScalarResults.size(); ++i)
+    int maxTsCount = 0;
+
+    std::vector<ResultInfo>::const_iterator it;
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
     {
-       maxTsCount =  m_cellScalarResults[i].size() > maxTsCount ? m_cellScalarResults[i].size() : maxTsCount;
-    }
-    return maxTsCount;
+        maxTsCount = it->m_timeStepDates.size() > maxTsCount ? it->m_timeStepDates.size() : maxTsCount;
+    } 
+
+    return static_cast<size_t>(maxTsCount);
 }
 
 //--------------------------------------------------------------------------------------------------

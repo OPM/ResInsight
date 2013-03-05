@@ -39,6 +39,7 @@ public:
     void                        setFileSet(const QStringList& fileSet);
     void                        close();
 
+    void                        setTimeSteps(const QList<QDateTime>& timeSteps);
     size_t                      timeStepCount();
     QList<QDateTime>            timeSteps();
 
@@ -52,5 +53,7 @@ private:
 
 private:
     QStringList                     m_fileNames;
+    QList<QDateTime>                m_timeSteps;
+
     std::vector< ecl_file_type* >   m_ecl_files;
 };

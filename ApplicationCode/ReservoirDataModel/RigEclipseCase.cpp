@@ -408,3 +408,16 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigEclipseCase::dataAccessObject(const
     return NULL;
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCase::closeReaderInterface()
+{
+    RifReaderInterface* readerInterface = m_matrixModelResults->readerInterface();
+
+    if (readerInterface)
+    {
+        readerInterface->close();
+    }
+}

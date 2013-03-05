@@ -24,6 +24,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QDateTime>
 
 
 class RigEclipseCase;
@@ -47,9 +48,11 @@ public:
     virtual ~RifReaderInterface() {}
 
     virtual bool                open(const QString& fileName, RigEclipseCase* eclipseCase) = 0;
-    virtual bool                openAndReadActiveCellData(const QString& fileName, RigEclipseCase* eclipseCase) { return true; };
+    virtual bool                openAndReadActiveCellData(const QString& fileName, RigEclipseCase* mainEclipseCase, RigEclipseCase* eclipseCase) { return true; };
     virtual void                close() = 0;
    
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;
     virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
+
+    virtual QList<QDateTime>    timeSteps() { QList<QDateTime> timeSteps; return timeSteps; }
 };

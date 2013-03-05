@@ -392,7 +392,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCase* eclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, RigEclipseCase* eclipseCase)
+bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, RigEclipseCase* mainEclipseCase, RigEclipseCase* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -401,8 +401,6 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
     {
         return false;
     }
-
-    caf::ProgressInfo progInfo(100, "");
 
     close();
 
@@ -417,22 +415,20 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
     eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(this);
     eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(this);
 
-    progInfo.setNextProgressIncrement(50);
-    progInfo.setProgressDescription("Reading active cell information");
-
     if (!readActiveCellInfo())
     {
         return false;
     }
     
-    progInfo.incrementProgress();
-
-    progInfo.setNextProgressIncrement(50);
-    progInfo.setProgressDescription("Reading meta data");
 
     // Reading of metadata and well cells is not performed here
     //if (!buildMetaData()) return false;
     // readWellCells();
+
+    m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
+
+    QList<QDateTime> mainCaseTimeSteps = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->readerInterface()->timeSteps();
+    m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
 
     return true;
 }
@@ -528,11 +524,13 @@ bool RifReaderEclipseOutput::buildMetaData()
     progInfo.setNextProgressIncrement(m_fileSet.size());
 
     // Create access object for dynamic results
-    m_dynamicResultsAccess = dynamicResultsAccess(m_fileSet);
+    m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
     if (m_dynamicResultsAccess.isNull())
     {
         return false;
     }
+
+    m_dynamicResultsAccess->open(m_fileSet);
 
 
     progInfo.incrementProgress();
@@ -573,46 +571,46 @@ bool RifReaderEclipseOutput::buildMetaData()
 
     progInfo.incrementProgress();
 
-    if (!openInitFile())
-    {
-        return false;
-    }
+    openInitFile();
     
     progInfo.incrementProgress();
 
-    QStringList resultNames;
-    std::vector<size_t> resultNamesDataItemCounts;
-    RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_init_file, &resultNames, &resultNamesDataItemCounts);
-
+    if (m_ecl_init_file)
     {
-        QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, m_eclipseCase->activeCellInfo(), RifReaderInterface::MATRIX_RESULTS, 1);
+        QStringList resultNames;
+        std::vector<size_t> resultNamesDataItemCounts;
+        RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_init_file, &resultNames, &resultNamesDataItemCounts);
 
-        QList<QDateTime> staticDate;
-        if (m_timeSteps.size() > 0)
         {
-            staticDate.push_back(m_timeSteps.front());
+            QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, m_eclipseCase->activeCellInfo(), RifReaderInterface::MATRIX_RESULTS, 1);
+
+            QList<QDateTime> staticDate;
+            if (m_timeSteps.size() > 0)
+            {
+                staticDate.push_back(m_timeSteps.front());
+            }
+
+            for (int i = 0; i < matrixResultNames.size(); ++i)
+            {
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i]);
+                matrixModelResults->setTimeStepDates(resIndex, staticDate);
+            }
         }
 
-        for (int i = 0; i < matrixResultNames.size(); ++i)
         {
-            size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i]);
-            matrixModelResults->setTimeStepDates(resIndex, staticDate);
-        }
-    }
+            QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, m_eclipseCase->activeCellInfo(), RifReaderInterface::FRACTURE_RESULTS, 1);
 
-    {
-        QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, m_eclipseCase->activeCellInfo(), RifReaderInterface::FRACTURE_RESULTS, 1);
+            QList<QDateTime> staticDate;
+            if (m_timeSteps.size() > 0)
+            {
+                staticDate.push_back(m_timeSteps.front());
+            }
 
-        QList<QDateTime> staticDate;
-        if (m_timeSteps.size() > 0)
-        {
-            staticDate.push_back(m_timeSteps.front());
-        }
-
-        for (int i = 0; i < fractureResultNames.size(); ++i)
-        {
-            size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i]);
-            fractureModelResults->setTimeStepDates(resIndex, staticDate);
+            for (int i = 0; i < fractureResultNames.size(); ++i)
+            {
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i]);
+                fractureModelResults->setTimeStepDates(resIndex, staticDate);
+            }
         }
     }
 
@@ -622,7 +620,7 @@ bool RifReaderEclipseOutput::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// Create results access object (.UNRST or .X0001 ... .XNNNN)
 //--------------------------------------------------------------------------------------------------
-RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const QStringList& fileSet)
+RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess(const QStringList& fileSet)
 {
     RifEclipseRestartDataAccess* resultsAccess = NULL;
 
@@ -631,11 +629,7 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const 
     if (unrstFileName.size() > 0)
     {
         resultsAccess = new RifEclipseUnifiedRestartFileAccess();
-        if (!resultsAccess->open(QStringList(unrstFileName)))
-        {
-            delete resultsAccess;
-            return NULL;
-        }
+        resultsAccess->setFileSet(QStringList(unrstFileName));
     }
     else
     {
@@ -644,16 +638,9 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const 
         if (restartFiles.size() > 0)
         {
             resultsAccess = new RifEclipseRestartFilesetAccess();
-            if (!resultsAccess->open(restartFiles))
-            {
-                delete resultsAccess;
-                return NULL;
-            }
+            resultsAccess->setFileSet(restartFiles);
         }
     }
-
-    // !! could add support for formatted result files
-    // !! consider priorities in case multiple types exist (.UNRST, .XNNNN, ...)
 
     return resultsAccess;
 }
@@ -693,7 +680,16 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
-    CVF_ASSERT(m_dynamicResultsAccess.notNull());
+    if (m_dynamicResultsAccess.isNull())
+    {
+        m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
+    }
+
+    if (m_dynamicResultsAccess.isNull())
+    {
+        CVF_ASSERT(false);
+        return false;
+    }
 
     std::vector<double> fileValues;
     if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
@@ -1018,5 +1014,13 @@ bool RifReaderEclipseOutput::openInitFile()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<QDateTime> RifReaderEclipseOutput::timeSteps()
+{
+    return m_timeSteps;
 }
 

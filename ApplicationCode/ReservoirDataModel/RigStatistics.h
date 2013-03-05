@@ -135,7 +135,7 @@ public:
 private:
     void computeActiveCellUnion();
     void addNamedResult(RigReservoirCellResults* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
-
+    void buildSourceMetaData( RimDefines::ResultCatType resultType, const QString& resultName );
 private:
     cvf::Collection<RigEclipseCase> m_sourceCases;
     std::vector<size_t>             m_timeStepIndices;
