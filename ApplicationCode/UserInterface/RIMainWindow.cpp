@@ -40,6 +40,7 @@
 
 #include "cafPdmUiPropertyView.h"
 #include "RimUiTreeView.h"
+#include "RiuMultiCaseImportDialog.h"
 
 
 
@@ -1255,45 +1256,6 @@ void RIMainWindow::hideAllDockWindows()
 }
 
 
-void appendEGRIDFilesRecursively(const QString& folderName, QStringList& gridFileNames)
-{
-    {
-        QDir baseDir(folderName);
-        baseDir.setFilter(QDir::Files);
-
-        QStringList nameFilters;
-        nameFilters << "*.egrid" << ".EGRID";
-        baseDir.setNameFilters(nameFilters);
-
-        QStringList fileNames = baseDir.entryList();
-
-        for (int i = 0; i < fileNames.size(); ++i)
-        {
-            QString fileName = fileNames[i];
-
-            QString absoluteFolderName = baseDir.absoluteFilePath(fileName);
-
-            gridFileNames.append(absoluteFolderName);
-        }
-    }
-
-
-    {
-        QDir baseDir(folderName);
-        baseDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-
-        QStringList subFolders = baseDir.entryList();
-
-        for (int i = 0; i < subFolders.size(); ++i)
-        {
-            QString folderName = subFolders[i];
-
-            QString absoluteFolderName = baseDir.absoluteFilePath(folderName);
-            appendEGRIDFilesRecursively(absoluteFolderName, gridFileNames);
-        }
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1301,16 +1263,11 @@ void RIMainWindow::slotOpenMultipleCases()
 {
     RIApplication* app = RIApplication::instance();
 
-
-    QStringList folderNames;
-    QStringList gridFileNames;
-
-    for (int i = 0; i < folderNames.size(); i++)
+    RiuMultiCaseImportDialog dialog;
+    int action = dialog.exec();
+    if (action == QDialog::Accepted)
     {
-        QString fileName = folderNames[i];
-
-        appendEGRIDFilesRecursively(fileName, gridFileNames);
+        QStringList gridFileNames = dialog.eclipseCaseFileNames();
+        app->addEclipseCases(gridFileNames);
     }
-
-    app->addEclipseCases(gridFileNames);
 }

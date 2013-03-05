@@ -20,6 +20,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_BINARY_DIR}/Generated
+	${CMAKE_CURRENT_BINARY_DIR}
 )
 
 
@@ -100,7 +101,7 @@ list( APPEND CPP_SOURCES
     UserInterface/RIResultInfoPanel.cpp
     UserInterface/RIViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
-
+	UserInterface/RiuMultiCaseImportDialog.cpp
     UserInterface/RIProcessMonitor.cpp
 
 )
@@ -118,9 +119,17 @@ set ( QT_MOC_HEADERS
     UserInterface/RIViewer.h
     UserInterface/RIProcessMonitor.h
 	SocketInterface/RiaSocketServer.h
+	UserInterface/RiuMultiCaseImportDialog.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
+
+# Define files for the uic compiler
+set ( QT_UI_FILES
+	UserInterface/RiuMultiCaseImportDialog.ui
+)
+
+qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
 #   set( QRC_FILES
@@ -165,6 +174,7 @@ list( REMOVE_ITEM RAW_SOURCES
     FileInterface/RifReaderEclipseInput.cpp
     FileInterface/RifReaderEclipseOutput.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
+    UserInterface/RiuMultiCaseImportDialog.cpp
 
 )
 
@@ -194,6 +204,7 @@ precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH
 add_executable(ResInsight
     ${CPP_SOURCES}
     ${MOC_FILES_CPP}
+	${FORM_FILES_CPP}
     ${QRC_FILES_CPP}
 	${HEADER_FILES}
 )
