@@ -1115,7 +1115,7 @@ bool OverlayNavigationCube::pick(int winCoordX, int winCoordY, const Vec2i& posi
 bool OverlayNavigationCube::updateHighlight(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size)
 {
     // Early out
-    if (winCoordX < position.x() || winCoordY > (position.x() + static_cast<int>(size.x())) ||
+    if (winCoordX < position.x() || winCoordX > (position.x() + static_cast<int>(size.x())) ||
         winCoordY < position.y() || winCoordY > (position.y() + static_cast<int>(size.y())))
     {
         bool redraw = m_hightlightItem != NCI_NONE;
