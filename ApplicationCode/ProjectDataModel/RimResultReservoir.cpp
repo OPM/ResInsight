@@ -35,6 +35,8 @@ CAF_PDM_SOURCE_INIT(RimResultReservoir, "EclipseCase");
 RimResultReservoir::RimResultReservoir()
     : RimReservoir()
 {
+    CAF_PDM_InitObject("Eclipse Case", ":/AppLogo48x48.png", "", "");
+
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
 }

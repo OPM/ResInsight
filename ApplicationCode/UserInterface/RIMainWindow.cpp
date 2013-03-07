@@ -178,7 +178,7 @@ void RIMainWindow::createActions()
     // File actions
     m_openAction                = new QAction(QIcon(":/AppLogo48x48.png"), "&Open Eclipse Case", this);
     m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
-    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/AppLogo48x48.png"), "&Create Grid Case Group from Files", this);
+    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
     
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
@@ -238,7 +238,7 @@ void RIMainWindow::createActions()
     m_viewFromBelow                = new QAction(QIcon(":/UpViewArrow.png"),"Look Up", this);
     m_viewFromBelow->setToolTip("Look Up");
 
-    m_zoomAll                = new QAction(QIcon(),"Zoom all", this);
+    m_zoomAll                = new QAction(QIcon(":/ZoomAll16x16.png"),"Zoom all", this);
     m_zoomAll->setToolTip("Zoom to view all");
 
     connect(m_viewFromNorth,	            SIGNAL(triggered()), SLOT(slotViewFromNorth()));
