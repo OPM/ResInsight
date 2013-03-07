@@ -51,11 +51,6 @@ public:
 
     caf::PdmField<QString> m_resultName;
 
-    caf::PdmField<bool> statisticsMin;
-    caf::PdmField<bool> statisticsMax;
-    caf::PdmField<bool> statisticsMean;
-    caf::PdmField<bool> statisticsStdDev;
-
     RimStatisticalCollection* parent();
 
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
@@ -64,13 +59,7 @@ public:
 private:
     RimIdenticalGridCaseGroup* caseGroup();
 
-    void createAndComputeMin();
-    void createAndComputeMax();
-    void createAndComputeMean();
-    void createAndComputeStdDev();
-
     void getSourceCases(cvf::Collection<RigEclipseCase>& sourceCases);
-
 
 private:
     cvf::ref<RifReaderStatisticalCalculation> m_readerInterface;

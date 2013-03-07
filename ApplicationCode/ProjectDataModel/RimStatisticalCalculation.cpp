@@ -39,11 +39,6 @@ RimStatisticalCalculation::RimStatisticalCalculation()
 {
     CAF_PDM_InitField(&m_resultName, "ResultName", QString("PRESSURE"), "ResultName", "", "", "");
 
-    CAF_PDM_InitField(&statisticsMin,       "StatisticsMin",    true, "Minimum", "", "" ,"");
-    CAF_PDM_InitField(&statisticsMax,       "StatisticsMax",    true, "Maximum", "", "" ,"");
-    CAF_PDM_InitField(&statisticsMean,      "StatisticsMean",   true, "Mean", "", "" ,"");
-    CAF_PDM_InitField(&statisticsStdDev,    "StatisticsStdDev", true, "Std dev", "", "" ,"");
-
     m_readerInterface = new RifReaderStatisticalCalculation;
 
     openEclipseGridFile();   
@@ -96,15 +91,6 @@ bool RimStatisticalCalculation::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticalCalculation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
 {
-    // Fields declared in RimCellFilter
-    uiOrdering.add(&caseName);
-
-    // Fields declared in RimResultDefinition
-    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Statistical parameters");
-    group1->add(&statisticsMin);
-    group1->add(&statisticsMax);
-    group1->add(&statisticsMean);
-    group1->add(&statisticsStdDev);
 
 }
 
@@ -163,38 +149,6 @@ void RimStatisticalCalculation::computeStatistics()
 
     RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
     stat.evaluateStatistics(RimDefines::DYNAMIC_NATIVE, m_resultName);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::createAndComputeMin()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::createAndComputeMax()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::createAndComputeMean()
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::createAndComputeStdDev()
-{
-
 }
 
 //--------------------------------------------------------------------------------------------------
