@@ -118,6 +118,7 @@ void RigStatistics::computeActiveCellUnion()
     }
 
     m_destinationCase->activeCellInfo()->computeDerivedData();
+    m_destinationCase->computeCachedData();
 }
 
 //--------------------------------------------------------------------------------------------------
