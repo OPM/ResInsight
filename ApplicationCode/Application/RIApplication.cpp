@@ -250,11 +250,16 @@ bool RIApplication::loadProject(const QString& projectFileName)
         m_preferences->lastUsedProjectFileName = projectFileName;
         writePreferences();
 
+        caf::ProgressInfo caseProgress(m_project->reservoirs().size() , "Reading Cases");
         size_t i;
         for (i = 0; i < m_project->reservoirs().size(); ++i)
         {
             RimReservoir* ri = m_project->reservoirs()[i];
             CVF_ASSERT(ri);
+
+            caseProgress.setProgressDescription(ri->caseName());
+
+            caf::ProgressInfo viewProgress(ri->reservoirViews().size() , "Creating Views");
 
             size_t j;
             for (j = 0; j < ri->reservoirViews().size(); j++)
@@ -262,8 +267,13 @@ bool RIApplication::loadProject(const QString& projectFileName)
                 RimReservoirView* riv = ri->reservoirViews()[j];
                 CVF_ASSERT(riv);
 
+                viewProgress.setProgressDescription(riv->name());
+
                 riv->loadDataAndUpdate();
+                viewProgress.incrementProgress();
             }
+
+            caseProgress.incrementProgress();
         }
     }
 
