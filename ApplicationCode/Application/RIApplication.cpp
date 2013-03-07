@@ -133,7 +133,7 @@ RIApplication::RIApplication(int& argc, char** argv)
 #ifdef WIN32
     //m_startupDefaultDirectory += "/My Documents/";
 #endif
-
+    setDefaultFileDialogDirectory("MULTICASEIMPORT", "/");
 }
 
 
