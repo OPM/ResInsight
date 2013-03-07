@@ -45,57 +45,76 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* cellResults, RimDefi
 
 //--------------------------------------------------------------------------------------------------
 /// 
+// See also RifReaderEclipseOutput::readActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RigStatistics::computeActiveCellUnion()
 {
-    // Early exit if active cell union is already computed
-    if (m_destinationCase->activeCellInfo()->globalFractureModelActiveCellCount() + 
-        m_destinationCase->activeCellInfo()->globalFractureModelActiveCellCount() > 0)
+    if (m_sourceCases.size() == 0)
     {
         return;
     }
 
-    std::vector<char> activeM(m_globalCellCount, 0);
-    std::vector<char> activeF(m_globalCellCount, 0);
+    RigMainGrid* mainGrid = m_sourceCases[0]->mainGrid();
+    CVF_ASSERT(mainGrid);
 
-    for (size_t cellIdx = 0; cellIdx < m_globalCellCount; cellIdx++)
+    m_destinationCase->activeCellInfo()->setGlobalCellCount(mainGrid->cells().size());
+    m_destinationCase->activeCellInfo()->setGridCount(mainGrid->gridCount());
+
+    size_t globalActiveMatrixIndex = 0;
+    size_t globalActiveFractureIndex = 0;
+
+    for (size_t gridIdx = 0; gridIdx < mainGrid->gridCount(); gridIdx++)
     {
-        for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
+        RigGridBase* grid = mainGrid->gridByIndex(gridIdx);
+
+        std::vector<char> activeM(grid->cellCount(), 0);
+        std::vector<char> activeF(grid->cellCount(), 0);
+
+        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
         {
-            if (activeM[cellIdx] == 0)
+            for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
             {
-                if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInMatrixModel(cellIdx))
+                size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
+
+                if (activeM[localGridCellIdx] == 0)
                 {
-                    activeM[cellIdx] = 1;
+                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInMatrixModel(globalCellIdx))
+                    {
+                        activeM[localGridCellIdx] = 1;
+                    }
+                }
+
+                if (activeF[localGridCellIdx] == 0)
+                {
+                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInFractureModel(globalCellIdx))
+                    {
+                        activeF[localGridCellIdx] = 1;
+                    }
                 }
             }
+        }
 
-            if (activeF[cellIdx] == 0)
+        size_t activeMatrixIndex = 0;
+        size_t activeFractureIndex = 0;
+
+        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
+        {
+            size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
+
+            if (activeM[localGridCellIdx] != 0)
             {
-                if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInFractureModel(cellIdx))
-                {
-                    activeF[cellIdx] = 1;
-                }
+                m_destinationCase->activeCellInfo()->setActiveIndexInMatrixModel(globalCellIdx, globalActiveMatrixIndex++);
+                activeMatrixIndex++;
+            }
+
+            if (activeF[localGridCellIdx] != 0)
+            {
+                m_destinationCase->activeCellInfo()->setActiveIndexInFractureModel(globalCellIdx, globalActiveFractureIndex++);
+                activeFractureIndex++;
             }
         }
-    }
 
-    m_destinationCase->activeCellInfo()->setGlobalCellCount(m_globalCellCount);
-
-    size_t activeMIndex = 0;
-    size_t activeFIndex = 0;
-
-    for (size_t cellIdx = 0; cellIdx < m_globalCellCount; cellIdx++)
-    {
-        if (activeM[cellIdx] != 0)
-        {
-            m_destinationCase->activeCellInfo()->setActiveIndexInMatrixModel(cellIdx, activeMIndex++);
-        }
-
-        if (activeF[cellIdx] != 0)
-        {
-            m_destinationCase->activeCellInfo()->setActiveIndexInFractureModel(cellIdx, activeFIndex++);
-        }
+        m_destinationCase->activeCellInfo()->setGridActiveCellCounts(gridIdx, activeMatrixIndex, activeFractureIndex);
     }
 
     m_destinationCase->activeCellInfo()->computeDerivedData();
