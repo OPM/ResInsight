@@ -42,7 +42,7 @@ RimStatisticalCollection::RimStatisticalCollection()
 //--------------------------------------------------------------------------------------------------
 RimStatisticalCollection::~RimStatisticalCollection()
 {
-
+    reservoirs.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

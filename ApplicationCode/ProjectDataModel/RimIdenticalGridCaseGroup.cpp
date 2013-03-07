@@ -52,7 +52,13 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
 {
+    m_mainGrid = NULL;
 
+    delete caseCollection;
+    caseCollection = NULL;
+
+    delete statisticalReservoirCollection;
+    statisticalReservoirCollection = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
