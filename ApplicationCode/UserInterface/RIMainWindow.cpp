@@ -178,7 +178,7 @@ void RIMainWindow::createActions()
     // File actions
     m_openAction                = new QAction(QIcon(":/AppLogo48x48.png"), "&Open Eclipse Case", this);
     m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
-    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Multiple Eclipse Folders", this);
+    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/AppLogo48x48.png"), "&Create Grid Case Group from Files", this);
     
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
@@ -350,6 +350,7 @@ void RIMainWindow::createToolBars()
     // View toolbar
     m_viewToolBar = addToolBar(tr("View"));
     m_viewToolBar->setObjectName(m_viewToolBar->windowTitle());
+    m_viewToolBar->addAction(m_zoomAll);
     m_viewToolBar->addAction(m_viewFromNorth);
     m_viewToolBar->addAction(m_viewFromSouth);
     m_viewToolBar->addAction(m_viewFromEast);

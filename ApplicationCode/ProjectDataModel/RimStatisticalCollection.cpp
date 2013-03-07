@@ -58,7 +58,7 @@ RimStatisticalCalculation* RimStatisticalCollection::createAndAppendStatisticalC
 
     newObject->setMainGrid(gridCaseGroup->mainGrid());
 
-    newObject->caseName = "Statistics 1";
+    newObject->caseName = QString("Statistics ") + QString::number(reservoirs.size()+1);
 
     reservoirs.push_back(newObject);
 
