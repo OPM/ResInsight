@@ -45,6 +45,11 @@ void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
 //--------------------------------------------------------------------------------------------------
 bool RigActiveCellInfo::isActiveInMatrixModel(size_t globalCellIndex) const
 {
+    if (m_activeInMatrixModel.size() == 0)
+    {
+        return false;
+    }
+
     CVF_TIGHT_ASSERT(globalCellIndex < m_activeInMatrixModel.size());
 
     return m_activeInMatrixModel[globalCellIndex] != cvf::UNDEFINED_SIZE_T;
@@ -55,6 +60,11 @@ bool RigActiveCellInfo::isActiveInMatrixModel(size_t globalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::activeIndexInMatrixModel(size_t globalCellIndex) const
 {
+    if (m_activeInMatrixModel.size() == 0)
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
     CVF_TIGHT_ASSERT(globalCellIndex < m_activeInMatrixModel.size());
 
     return m_activeInMatrixModel[globalCellIndex];
@@ -75,6 +85,11 @@ void RigActiveCellInfo::setActiveIndexInMatrixModel(size_t globalCellIndex, size
 //--------------------------------------------------------------------------------------------------
 bool RigActiveCellInfo::isActiveInFractureModel(size_t globalCellIndex) const
 {
+    if (m_activeInFractureModel.size() == 0)
+    {
+        return false;
+    }
+
     CVF_TIGHT_ASSERT(globalCellIndex < m_activeInFractureModel.size());
 
     return m_activeInFractureModel[globalCellIndex] != cvf::UNDEFINED_SIZE_T;
@@ -85,6 +100,11 @@ bool RigActiveCellInfo::isActiveInFractureModel(size_t globalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::activeIndexInFractureModel(size_t globalCellIndex) const
 {
+    if (m_activeInFractureModel.size() == 0)
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
     CVF_TIGHT_ASSERT(globalCellIndex < m_activeInFractureModel.size());
     
     return m_activeInFractureModel[globalCellIndex];
