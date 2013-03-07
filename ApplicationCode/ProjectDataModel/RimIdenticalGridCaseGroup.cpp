@@ -80,6 +80,11 @@ void RimIdenticalGridCaseGroup::addCase(RimReservoir* reservoir)
     CVF_ASSERT(m_mainGrid.p() == incomingMainGrid);
  
     caseCollection()->reservoirs().push_back(reservoir);
+
+    if (statisticalReservoirCollection->reservoirs().size() == 0)
+    {
+        statisticalReservoirCollection->createAndAppendStatisticalCalculation();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

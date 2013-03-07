@@ -789,5 +789,10 @@ void RimUiTreeView::slotComputeStatisticalCases()
     if (!statisticalObject) return;
 
     statisticalObject->computeStatistics();
+
+    if (statisticalObject->reservoirViews.size() == 0)
+    {
+        slotAddView();
+    }
 }
 
