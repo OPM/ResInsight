@@ -436,6 +436,7 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
 
 //--------------------------------------------------------------------------------------------------
 /// 
+/// See also RigStatistics::computeActiveCellUnion()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::readActiveCellInfo()
 {
@@ -474,6 +475,8 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             activeCellInfo->setGridCount(actnumKeywordCount);
 
             size_t cellIdx = 0;
+            size_t globalActiveMatrixIndex = 0;
+            size_t globalActiveFractureIndex = 0;
             for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
             {
                 size_t activeMatrixIndex = 0;
@@ -485,12 +488,14 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
                 {
                     if (actnumValues[i] == 1 || actnumValues[i] == 3)
                     {
-                        activeCellInfo->setActiveIndexInMatrixModel(cellIdx, activeMatrixIndex++);
+                        activeCellInfo->setActiveIndexInMatrixModel(cellIdx, globalActiveMatrixIndex++);
+                        activeMatrixIndex++;
                     }
 
                     if (actnumValues[i] == 2 || actnumValues[i] == 3)
                     {
-                        activeCellInfo->setActiveIndexInFractureModel(cellIdx, activeFractureIndex++);
+                        activeCellInfo->setActiveIndexInFractureModel(cellIdx, globalActiveFractureIndex++);
+                        activeFractureIndex++;
                     }
 
                     cellIdx++;
