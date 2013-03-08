@@ -71,7 +71,7 @@ private:
     QString                                 m_fileName;         // Name of file used to start accessing Eclipse output files
     QStringList                             m_fileSet;          // Set of files in filename's path with same base name as filename
 
-    cvf::ref<RigEclipseCase>                m_eclipseCase;
+    RigEclipseCase*                         m_eclipseCase;
 
     QList<QDateTime>                        m_timeSteps;
 

@@ -207,6 +207,7 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseOutput::~RifReaderEclipseOutput()
 {
+    close();
 }
 
 
@@ -440,7 +441,7 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::readActiveCellInfo()
 {
-    CVF_ASSERT(m_eclipseCase.notNull());
+    CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_eclipseCase->mainGrid());
 
     QString egridFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_EGRID_FILE);
@@ -521,7 +522,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::buildMetaData()
 {
-    CVF_ASSERT(m_eclipseCase.notNull());
+    CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_fileSet.size() > 0);
 
     caf::ProgressInfo progInfo(m_fileSet.size() + 3,"");
@@ -712,7 +713,7 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::readWellCells()
 {
-    CVF_ASSERT(m_eclipseCase.notNull());
+    CVF_ASSERT(m_eclipseCase);
 
     if (m_dynamicResultsAccess.isNull()) return;
 

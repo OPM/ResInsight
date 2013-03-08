@@ -44,6 +44,6 @@ private:
     bool                    inputProperty( const QString& propertyName, std::vector<double>* values );
 
     RigReservoirBuilderMock m_reservoirBuilder;
-    cvf::ref<RigEclipseCase>  m_reservoir;
+    RigEclipseCase*         m_reservoir;
 };
 
