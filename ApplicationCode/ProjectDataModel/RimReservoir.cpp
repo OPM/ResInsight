@@ -88,6 +88,9 @@ void RimReservoir::initAfterRead()
 RimReservoir::~RimReservoir()
 {
     reservoirViews.deleteAllChildObjects();
+
+    // At this point, we assume that memory should be released
+    CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
 }
 
 //--------------------------------------------------------------------------------------------------
