@@ -91,6 +91,14 @@ bool RigGridCollection::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigGridCollection::clear()
+{
+    m_caseToGrid.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigGridCollection::CaseToGridMap::CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid) :
 m_eclipseCase(eclipseCase),
     m_mainGrid(mainGrid)

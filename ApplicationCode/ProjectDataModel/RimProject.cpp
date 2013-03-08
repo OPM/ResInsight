@@ -65,10 +65,7 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
-    for (size_t i = 0; i < reservoirs.size(); i++)
-    {
-        m_gridCollection->removeCase(reservoirs[i]->reservoirData());
-    }
+    m_gridCollection->clear();
 
     reservoirs.deleteAllChildObjects();
     caseGroups.deleteAllChildObjects();

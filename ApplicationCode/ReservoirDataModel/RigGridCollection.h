@@ -36,6 +36,8 @@ public:
     
     RigMainGrid* findEqualGrid(RigMainGrid* candidateGrid);
 
+    void clear();
+
 private:
 
     static bool isEqual(RigMainGrid* gridA, RigMainGrid* gridB);
