@@ -71,28 +71,28 @@ void RigStatistics::computeActiveCellUnion()
         std::vector<char> activeF(grid->cellCount(), 0);
 
         for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
+    {
+        for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
         {
-            for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
-            {
                 size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
 
                 if (activeM[localGridCellIdx] == 0)
-                {
+            {
                     if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInMatrixModel(globalCellIdx))
-                    {
+                {
                         activeM[localGridCellIdx] = 1;
-                    }
                 }
+            }
 
                 if (activeF[localGridCellIdx] == 0)
-                {
+            {
                     if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInFractureModel(globalCellIdx))
-                    {
+                {
                         activeF[localGridCellIdx] = 1;
-                    }
                 }
             }
         }
+    }
 
         size_t activeMatrixIndex = 0;
         size_t activeFractureIndex = 0;
@@ -102,17 +102,17 @@ void RigStatistics::computeActiveCellUnion()
             size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
 
             if (activeM[localGridCellIdx] != 0)
-            {
+    {
                 m_destinationCase->activeCellInfo()->setActiveIndexInMatrixModel(globalCellIdx, globalActiveMatrixIndex++);
                 activeMatrixIndex++;
-            }
+        }
 
             if (activeF[localGridCellIdx] != 0)
-            {
+        {
                 m_destinationCase->activeCellInfo()->setActiveIndexInFractureModel(globalCellIdx, globalActiveFractureIndex++);
                 activeFractureIndex++;
-            }
         }
+    }
 
         m_destinationCase->activeCellInfo()->setGridActiveCellCounts(gridIdx, activeMatrixIndex, activeFractureIndex);
     }
@@ -121,31 +121,40 @@ void RigStatistics::computeActiveCellUnion()
     m_destinationCase->computeCachedData();
 }
 
+QString createResultNameMin(const QString& resultName)  { return resultName + "_MIN"; }
+QString createResultNameMax(const QString& resultName)  { return resultName + "_MAX"; }
+QString createResultNameMean(const QString& resultName) { return resultName + "_MEAN"; }
+QString createResultNameDev(const QString& resultName)  { return resultName + "_DEV"; }
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, const QString& resultName)
+void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, const QStringList& resultNames)
 {
     CVF_ASSERT(m_destinationCase.notNull());
 
     computeActiveCellUnion();
 
-    buildSourceMetaData(resultType, resultName);
-
-    QString minResultName = resultName + "_MIN";
-    QString maxResultName = resultName + "_MAX";
-    QString meanResultName = resultName + "_MEAN";
-    QString devResultName = resultName + "_DEV";
-
+    size_t activeMatrixCellCount = m_destinationCase->activeCellInfo()->globalMatrixModelActiveCellCount();
     RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
 
-    size_t activeMatrixCellCount = m_destinationCase->activeCellInfo()->globalMatrixModelActiveCellCount();
+    foreach(QString resultName, resultNames)
+    {
+    buildSourceMetaData(resultType, resultName);
+
+        QString minResultName = createResultNameMin(resultName);
+        QString maxResultName = createResultNameMax(resultName);
+        QString meanResultName = createResultNameMean(resultName);
+        QString devResultName = createResultNameDev(resultName);
+
     if (activeMatrixCellCount > 0)
     {
         addNamedResult(matrixResults, resultType, minResultName, activeMatrixCellCount);
         addNamedResult(matrixResults, resultType, maxResultName, activeMatrixCellCount);
         addNamedResult(matrixResults, resultType, meanResultName, activeMatrixCellCount);
         addNamedResult(matrixResults, resultType, devResultName, activeMatrixCellCount);
+    }
     }
 
     if (activeMatrixCellCount > 0)
@@ -161,6 +170,8 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
             {
                 RigGridBase* grid = m_destinationCase->grid(gridIdx);
 
+                foreach(QString resultName, resultNames)
+                {
                 // Build data access objects for source scalar results
                 cvf::Collection<cvf::StructGridScalarDataAccess> dataAccesObjectList;
                 for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
@@ -183,7 +194,7 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                 cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectDev = NULL;
 
                 {
-                    size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, minResultName);
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMin(resultName));
                     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                     {
                         dataAccessObjectMin = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
@@ -191,7 +202,7 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                 }
 
                 {
-                    size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, maxResultName);
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMax(resultName));
                     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                     {
                         dataAccessObjectMax = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
@@ -199,7 +210,7 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                 }
 
                 {
-                    size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, meanResultName);
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMean(resultName));
                     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                     {
                         dataAccessObjectMean = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
@@ -207,7 +218,7 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                 }
 
                 {
-                    size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, devResultName);
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameDev(resultName));
                     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                     {
                         dataAccessObjectDev = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
@@ -251,6 +262,7 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                         }
                     }
                 }
+            }
             }
 
             for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)

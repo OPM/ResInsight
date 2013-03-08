@@ -128,7 +128,7 @@ public:
                   RigEclipseCase* destinationCase);
 
 
-    void evaluateStatistics(RimDefines::ResultCatType resultType, const QString& resultName);
+    void evaluateStatistics(RimDefines::ResultCatType resultType, const QStringList& resultNames);
 
     void debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx);
 

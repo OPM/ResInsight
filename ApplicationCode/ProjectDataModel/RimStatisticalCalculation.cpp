@@ -136,11 +136,13 @@ void RimStatisticalCalculation::computeStatistics()
         return;
     }
 
+    // The first source has been read completely from disk, and contains grid and meta data
+    // Use this information for all cases in the case group
+    size_t timeStepCount = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+
     RigStatisticsConfig statisticsConfig;
 
     std::vector<size_t> timeStepIndices;
-
-    size_t timeStepCount = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
     for (size_t i = 0; i < timeStepCount; i++)
     {
         timeStepIndices.push_back(i);
@@ -149,7 +151,9 @@ void RimStatisticalCalculation::computeStatistics()
     RigEclipseCase* resultCase = reservoirData();
 
     RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
-    stat.evaluateStatistics(RimDefines::DYNAMIC_NATIVE, m_resultName);
+    QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+
+    stat.evaluateStatistics(RimDefines::DYNAMIC_NATIVE, resultNames);
 
     for (size_t i = 0; i < reservoirViews().size(); i++)
     {
@@ -159,6 +163,7 @@ void RimStatisticalCalculation::computeStatistics()
         reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::ACTIVE);
         reservoirView->createDisplayModelAndRedraw();
     }
+
 }
 
 //--------------------------------------------------------------------------------------------------
