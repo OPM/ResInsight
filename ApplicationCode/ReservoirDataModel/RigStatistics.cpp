@@ -25,21 +25,23 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatistics::addNamedResult(RigReservoirCellResults* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount)
+void RigStatistics::addNamedResult(RigReservoirCellResults* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
 {
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
-    QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
 
-    size_t resultIndexMin = cellResults->addEmptyScalarResult(resultType, resultName);
-    cellResults->setTimeStepDates(resultIndexMin, timeStepDates);
-    
-    std::vector< std::vector<double> >& dataValues = cellResults->cellScalarResults(resultIndexMin);
-    dataValues.resize(timeStepDates.size());
+    QList<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+    size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName);
+    CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
-    for (int i = 0; i < timeStepDates.size(); i++)
+    destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates);
+    std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(destinationScalarResultIndex);
+    dataValues.resize(sourceTimeStepDates.size());
+
+    // Initializes the size of the destination dataset to active union cell count
+    for (int i = 0; i < sourceTimeStepDates.size(); i++)
     {
-        dataValues[i].resize(activeCellCount, HUGE_VAL);
+        dataValues[i].resize(activeUnionCellCount, HUGE_VAL);
     }
 }
 
@@ -71,28 +73,28 @@ void RigStatistics::computeActiveCellUnion()
         std::vector<char> activeF(grid->cellCount(), 0);
 
         for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
-    {
-        for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
         {
+            for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
+            {
                 size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
 
                 if (activeM[localGridCellIdx] == 0)
-            {
-                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInMatrixModel(globalCellIdx))
                 {
+                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInMatrixModel(globalCellIdx))
+                    {
                         activeM[localGridCellIdx] = 1;
+                    }
                 }
-            }
 
                 if (activeF[localGridCellIdx] == 0)
-            {
-                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInFractureModel(globalCellIdx))
                 {
+                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInFractureModel(globalCellIdx))
+                    {
                         activeF[localGridCellIdx] = 1;
+                    }
                 }
             }
         }
-    }
 
         size_t activeMatrixIndex = 0;
         size_t activeFractureIndex = 0;
@@ -102,17 +104,17 @@ void RigStatistics::computeActiveCellUnion()
             size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
 
             if (activeM[localGridCellIdx] != 0)
-    {
+            {
                 m_destinationCase->activeCellInfo()->setActiveIndexInMatrixModel(globalCellIdx, globalActiveMatrixIndex++);
                 activeMatrixIndex++;
-        }
+            }
 
             if (activeF[localGridCellIdx] != 0)
-        {
+            {
                 m_destinationCase->activeCellInfo()->setActiveIndexInFractureModel(globalCellIdx, globalActiveFractureIndex++);
                 activeFractureIndex++;
+            }
         }
-    }
 
         m_destinationCase->activeCellInfo()->setGridActiveCellCounts(gridIdx, activeMatrixIndex, activeFractureIndex);
     }
@@ -141,20 +143,20 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
 
     foreach(QString resultName, resultNames)
     {
-    buildSourceMetaData(resultType, resultName);
+        buildSourceMetaData(resultType, resultName);
 
         QString minResultName = createResultNameMin(resultName);
         QString maxResultName = createResultNameMax(resultName);
         QString meanResultName = createResultNameMean(resultName);
         QString devResultName = createResultNameDev(resultName);
 
-    if (activeMatrixCellCount > 0)
-    {
-        addNamedResult(matrixResults, resultType, minResultName, activeMatrixCellCount);
-        addNamedResult(matrixResults, resultType, maxResultName, activeMatrixCellCount);
-        addNamedResult(matrixResults, resultType, meanResultName, activeMatrixCellCount);
-        addNamedResult(matrixResults, resultType, devResultName, activeMatrixCellCount);
-    }
+        if (activeMatrixCellCount > 0)
+        {
+            addNamedResult(matrixResults, resultType, minResultName, activeMatrixCellCount);
+            addNamedResult(matrixResults, resultType, maxResultName, activeMatrixCellCount);
+            addNamedResult(matrixResults, resultType, meanResultName, activeMatrixCellCount);
+            addNamedResult(matrixResults, resultType, devResultName, activeMatrixCellCount);
+        }
     }
 
     if (activeMatrixCellCount > 0)
@@ -172,97 +174,97 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
 
                 foreach(QString resultName, resultNames)
                 {
-                // Build data access objects for source scalar results
-                cvf::Collection<cvf::StructGridScalarDataAccess> dataAccesObjectList;
-                for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
-                {
-                    RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
-
-                    size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResultForTimeStep(resultType, resultName, timeStepIdx);
-
-                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
-                    if (dataAccessObject.notNull())
+                    // Build data access objects for source scalar results
+                    cvf::Collection<cvf::StructGridScalarDataAccess> dataAccesObjectList;
+                    for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                     {
-                        dataAccesObjectList.push_back(dataAccessObject.p());
+                        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
+
+                        size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResultForTimeStep(resultType, resultName, timeStepIdx);
+
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        if (dataAccessObject.notNull())
+                        {
+                            dataAccesObjectList.push_back(dataAccessObject.p());
+                        }
                     }
-                }
 
-                // Build data access objects form destination scalar results
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMin = NULL;
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMax = NULL;
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMean = NULL;
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectDev = NULL;
+                    // Build data access objects form destination scalar results
+                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMin = NULL;
+                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMax = NULL;
+                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMean = NULL;
+                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectDev = NULL;
 
-                {
+                    {
                         size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMin(resultName));
-                    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-                    {
-                        dataAccessObjectMin = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+                        {
+                            dataAccessObjectMin = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        }
                     }
-                }
 
-                {
+                    {
                         size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMax(resultName));
-                    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-                    {
-                        dataAccessObjectMax = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+                        {
+                            dataAccessObjectMax = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        }
                     }
-                }
 
-                {
+                    {
                         size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMean(resultName));
-                    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-                    {
-                        dataAccessObjectMean = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+                        {
+                            dataAccessObjectMean = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        }
                     }
-                }
 
-                {
+                    {
                         size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameDev(resultName));
-                    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-                    {
-                        dataAccessObjectDev = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
-                    }
-                }
-
-                double min, max, mean, dev;
-                std::vector<double> values(dataAccesObjectList.size(), HUGE_VAL);
-                for (size_t cellIdx = 0; cellIdx < grid->cellCount(); cellIdx++)
-                {
-                    size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
-                    if (m_destinationCase->activeCellInfo()->isActiveInMatrixModel(globalGridCellIdx))
-                    {
-                        for (size_t caseIdx = 0; caseIdx < dataAccesObjectList.size(); caseIdx++)
+                        if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                         {
-                            double val = dataAccesObjectList.at(caseIdx)->cellScalar(cellIdx);
-                            values[caseIdx] = val;
-                        }
-
-                        RigStatisticsEvaluator stat(values);
-                        stat.getStatistics(min, max, mean, dev);
-
-                        if (dataAccessObjectMin.notNull())
-                        {
-                            dataAccessObjectMin->setCellScalar(cellIdx, min);
-                        }
-
-                        if (dataAccessObjectMax.notNull())
-                        {
-                            dataAccessObjectMax->setCellScalar(cellIdx, max);
-                        }
-
-                        if (dataAccessObjectMean.notNull())
-                        {
-                            dataAccessObjectMean->setCellScalar(cellIdx, mean);
-                        }
-
-                        if (dataAccessObjectDev.notNull())
-                        {
-                            dataAccessObjectDev->setCellScalar(cellIdx, dev);
+                            dataAccessObjectDev = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
                         }
                     }
+
+                    double min, max, mean, dev;
+                    std::vector<double> values(dataAccesObjectList.size(), HUGE_VAL);
+                    for (size_t cellIdx = 0; cellIdx < grid->cellCount(); cellIdx++)
+                    {
+                        size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
+                        if (m_destinationCase->activeCellInfo()->isActiveInMatrixModel(globalGridCellIdx))
+                        {
+                            for (size_t caseIdx = 0; caseIdx < dataAccesObjectList.size(); caseIdx++)
+                            {
+                                double val = dataAccesObjectList.at(caseIdx)->cellScalar(cellIdx);
+                                values[caseIdx] = val;
+                            }
+
+                            RigStatisticsEvaluator stat(values);
+                            stat.getStatistics(min, max, mean, dev);
+
+                            if (dataAccessObjectMin.notNull())
+                            {
+                                dataAccessObjectMin->setCellScalar(cellIdx, min);
+                            }
+
+                            if (dataAccessObjectMax.notNull())
+                            {
+                                dataAccessObjectMax->setCellScalar(cellIdx, max);
+                            }
+
+                            if (dataAccessObjectMean.notNull())
+                            {
+                                dataAccessObjectMean->setCellScalar(cellIdx, mean);
+                            }
+
+                            if (dataAccessObjectDev.notNull())
+                            {
+                                dataAccessObjectDev->setCellScalar(cellIdx, dev);
+                            }
+                        }
+                    }
                 }
-            }
             }
 
             for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
