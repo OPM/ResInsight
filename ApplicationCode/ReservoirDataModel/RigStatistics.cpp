@@ -143,8 +143,6 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
 
     foreach(QString resultName, resultNames)
     {
-        buildSourceMetaData(resultType, resultName);
-
         QString minResultName = createResultNameMin(resultName);
         QString maxResultName = createResultNameMax(resultName);
         QString meanResultName = createResultNameMean(resultName);
@@ -317,26 +315,3 @@ RigStatistics::RigStatistics(cvf::Collection<RigEclipseCase>& sourceCases, const
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName)
-{
-    for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
-    {
-        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
-
-        RigReservoirCellResults* matrixResults = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
-        size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
-        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-        {
-            QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
-
-            size_t scalarResultIndex = matrixResults->addEmptyScalarResult(resultType, resultName);
-            matrixResults->setTimeStepDates(scalarResultIndex, timeStepDates);
-
-            std::vector< std::vector<double> >& dataValues = matrixResults->cellScalarResults(scalarResultIndex);
-            dataValues.resize(timeStepDates.size());
-        }
-    }
-}
