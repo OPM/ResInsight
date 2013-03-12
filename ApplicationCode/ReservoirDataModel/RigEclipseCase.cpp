@@ -141,7 +141,6 @@ void RigEclipseCase::computeWellCellsPrGrid()
             size_t gridCellIndex    =  wellCells.m_wellHead.m_gridCellIndex;
 
             CVF_ASSERT(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size());
-            grids[gridIndex]->cell(gridCellIndex).setAsWellCell(true);
             m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
 
             size_t sIdx;
@@ -156,7 +155,6 @@ void RigEclipseCase::computeWellCellsPrGrid()
 
                     CVF_ASSERT(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size());
 
-                    grids[gridIndex]->cell(gridCellIndex).setAsWellCell(true);
                     m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
                 }
             }

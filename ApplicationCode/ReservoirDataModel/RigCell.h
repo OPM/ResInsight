@@ -40,12 +40,8 @@ public:
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
 
-    bool                    isWellCell() const                                  { return m_isWellCell; }
-    void                    setAsWellCell(bool isWellCell)                      { m_isWellCell = isWellCell; }
-
     size_t                  cellIndex() const                                   { return m_cellIndex; }
     void                    setCellIndex(size_t val)                            { m_cellIndex = val; }
-
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
@@ -82,7 +78,4 @@ private:
     bool                    m_cellFaceFaults[6];
 
     bool                    m_isInvalid;
-
-    // Result case specific data 
-    bool                    m_isWellCell;
 };
