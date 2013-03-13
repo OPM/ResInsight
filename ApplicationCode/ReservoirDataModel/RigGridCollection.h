@@ -47,8 +47,8 @@ private:
     public:
         CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid);
 
-        cvf::ref<RigEclipseCase>    m_eclipseCase;
-        cvf::ref<RigMainGrid>       m_mainGrid;
+        RigEclipseCase*    m_eclipseCase;
+        RigMainGrid*       m_mainGrid;
     };
 
 

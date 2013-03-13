@@ -54,7 +54,7 @@ RigMainGrid* RigGridCollection::findEqualGrid(RigMainGrid* candidateGrid)
 {
     for (size_t i = 0; i < m_caseToGrid.size(); i++)
     {
-        RigMainGrid* mainGrid = m_caseToGrid.at(i)->m_mainGrid.p();
+        RigMainGrid* mainGrid = m_caseToGrid.at(i)->m_mainGrid;
         if (RigGridCollection::isEqual(mainGrid, candidateGrid))
         {
             return mainGrid;
