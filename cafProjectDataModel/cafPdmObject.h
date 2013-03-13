@@ -126,6 +126,10 @@ public:
     /// 
     void                    parentObjects(std::vector<PdmObject*>& objects) const;
 
+    /// 
+    template <typename T>
+    void                    parentObjectsOfType(std::vector<T*>& objects) const;
+
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
     void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const;
@@ -209,5 +213,25 @@ private:
     friend class PdmPointerImpl;
     std::set<PdmObject**>         m_pointersReferencingMe;
 };
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObject::parentObjectsOfType(std::vector<T*>& objects) const
+{
+    std::vector<caf::PdmFieldHandle*> parentFields;
+    this->parentFields(parentFields);
+
+    for (size_t i = 0; i < parentFields.size(); i++)
+    {
+        T* objectOfType = dynamic_cast<T*>(parentFields[i]->ownerObject());
+        if (objectOfType)
+        {
+            objects.push_back(objectOfType);
+        }
+    }
+}
+
 
 } // End of namespace caf
