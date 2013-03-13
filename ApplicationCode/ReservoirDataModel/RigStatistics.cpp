@@ -134,7 +134,11 @@ QString createResultNameDev(const QString& resultName)  { return resultName + "_
 //--------------------------------------------------------------------------------------------------
 void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName)
 {
-    for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
+    if (m_sourceCases.size() == 0) return;
+
+    QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+
+    for (size_t caseIdx = 1; caseIdx < m_sourceCases.size(); caseIdx++)
     {
         RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
 
@@ -142,8 +146,6 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
         size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
-
             size_t scalarResultIndex = matrixResults->addEmptyScalarResult(resultType, resultName);
             matrixResults->setTimeStepDates(scalarResultIndex, timeStepDates);
 
