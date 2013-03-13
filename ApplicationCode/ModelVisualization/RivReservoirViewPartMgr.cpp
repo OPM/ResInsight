@@ -454,7 +454,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 #pragma omp parallel for
         for (int cellIdx = 0; cellIdx < static_cast<int>(cellVisibility->size()); ++cellIdx)
         {
-            (*cellVisibility)[cellIdx] = (!hasActiveRangeFilters && !(*cellIsWellCellStatuses)[cellIdx]) || (*rangeVisibility)[cellIdx] || (*wellCellsOutsideVisibility)[cellIdx];
+            (*cellVisibility)[cellIdx] = (!hasActiveRangeFilters && (*cellIsWellCellStatuses)[cellIdx]) || (*rangeVisibility)[cellIdx] || (*wellCellsOutsideVisibility)[cellIdx];
         }
         computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
         m_propFilteredWellGeometryFrames[frameIndex]->setCellVisibility(gIdx, cellVisibility.p());
