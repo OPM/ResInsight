@@ -72,12 +72,12 @@ void RimIdenticalGridCaseGroup::addCase(RimReservoir* reservoir)
 
     RigMainGrid* incomingMainGrid = reservoir->reservoirData()->mainGrid();
 
-    if (m_mainGrid.isNull())
+    if (!m_mainGrid)
     {
         m_mainGrid = incomingMainGrid;
     }
 
-    CVF_ASSERT(m_mainGrid.p() == incomingMainGrid);
+    CVF_ASSERT(m_mainGrid == incomingMainGrid);
  
     caseCollection()->reservoirs().push_back(reservoir);
 
@@ -92,7 +92,7 @@ void RimIdenticalGridCaseGroup::addCase(RimReservoir* reservoir)
 //--------------------------------------------------------------------------------------------------
 RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 {
-    if (m_mainGrid.notNull()) return m_mainGrid.p();
+    if (m_mainGrid) return m_mainGrid;
 
     return NULL;
 }

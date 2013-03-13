@@ -55,6 +55,5 @@ protected:
     virtual caf::PdmFieldHandle*   userDescriptionField();
 
 private:
-    cvf::ref<RigMainGrid> m_mainGrid;
-
+    RigMainGrid* m_mainGrid;
 };
