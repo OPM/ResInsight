@@ -220,12 +220,12 @@ private:
 template <typename T>
 void PdmObject::parentObjectsOfType(std::vector<T*>& objects) const
 {
-    std::vector<caf::PdmFieldHandle*> parentFields;
-    this->parentFields(parentFields);
+    std::vector<PdmObject*> parents;
+    this->parentObjects(parents);
 
-    for (size_t i = 0; i < parentFields.size(); i++)
+    for (size_t i = 0; i < parents.size(); i++)
     {
-        T* objectOfType = dynamic_cast<T*>(parentFields[i]->ownerObject());
+        T* objectOfType = dynamic_cast<T*>(parents[i]);
         if (objectOfType)
         {
             objects.push_back(objectOfType);
