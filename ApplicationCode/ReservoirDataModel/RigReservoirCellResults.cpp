@@ -294,6 +294,8 @@ size_t RigReservoirCellResults::findOrLoadScalarResultForTimeStep(RimDefines::Re
 
         if (type == RimDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
+            m_cellScalarResults[resultGridIndex].resize(timeStepCount);
+
             std::vector<double>& values = m_cellScalarResults[resultGridIndex][timeStepIndex];
             if (values.size() == 0)
             {
@@ -305,6 +307,8 @@ size_t RigReservoirCellResults::findOrLoadScalarResultForTimeStep(RimDefines::Re
         }
         else if (type == RimDefines::STATIC_NATIVE)
         {
+            m_cellScalarResults[resultGridIndex].resize(1);
+
             std::vector<double>& values = m_cellScalarResults[resultGridIndex][0];
             if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
             {

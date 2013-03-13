@@ -150,10 +150,26 @@ void RimStatisticalCalculation::computeStatistics()
 
     RigEclipseCase* resultCase = reservoirData();
 
-    RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
-    QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+    QList<QPair<RimDefines::ResultCatType, QString> > resultSpecification;
 
-    stat.evaluateStatistics(RimDefines::DYNAMIC_NATIVE, resultNames);
+    {
+        QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        foreach(QString resultName, resultNames)
+        {
+            resultSpecification.append(qMakePair(RimDefines::DYNAMIC_NATIVE, resultName));
+        }
+    }
+
+    {
+        QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        foreach(QString resultName, resultNames)
+        {
+            resultSpecification.append(qMakePair(RimDefines::STATIC_NATIVE, resultName));
+        }
+    }
+
+    RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
+    stat.evaluateStatistics(resultSpecification);
 
     for (size_t i = 0; i < reservoirViews().size(); i++)
     {

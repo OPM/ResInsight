@@ -27,6 +27,8 @@
 #include <vector>
 #include <math.h>
 
+#include <QPair>
+
 class RigStatisticsEvaluator
 {
 public:
@@ -34,8 +36,8 @@ public:
         : m_values(values),
         m_min(HUGE_VAL),
         m_max(-HUGE_VAL),
-        m_mean(cvf::UNDEFINED_DOUBLE),
-        m_dev(0.0)
+        m_mean(HUGE_VAL),
+        m_dev(HUGE_VAL)
     {
     }
 
@@ -128,13 +130,14 @@ public:
                   RigEclipseCase* destinationCase);
 
 
-    void evaluateStatistics(RimDefines::ResultCatType resultType, const QStringList& resultNames);
+    void evaluateStatistics(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification);
 
     void debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx);
 
 private:
     void computeActiveCellUnion();
     void addNamedResult(RigReservoirCellResults* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
+    void buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName);
 
 private:
     cvf::Collection<RigEclipseCase> m_sourceCases;

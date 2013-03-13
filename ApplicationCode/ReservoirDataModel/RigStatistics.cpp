@@ -132,7 +132,31 @@ QString createResultNameDev(const QString& resultName)  { return resultName + "_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, const QStringList& resultNames)
+void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName)
+{
+    for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
+    {
+        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
+
+        RigReservoirCellResults* matrixResults = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+        size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+
+            size_t scalarResultIndex = matrixResults->addEmptyScalarResult(resultType, resultName);
+            matrixResults->setTimeStepDates(scalarResultIndex, timeStepDates);
+
+            std::vector< std::vector<double> >& dataValues = matrixResults->cellScalarResults(scalarResultIndex);
+            dataValues.resize(timeStepDates.size());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification)
 {
     CVF_ASSERT(m_destinationCase.notNull());
 
@@ -141,8 +165,15 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
     size_t activeMatrixCellCount = m_destinationCase->activeCellInfo()->globalMatrixModelActiveCellCount();
     RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
 
-    foreach(QString resultName, resultNames)
+    for (int i = 0; i < resultSpecification.size(); i++)
     {
+        RimDefines::ResultCatType resultType = resultSpecification[i].first;
+        QString resultName = resultSpecification[i].second;
+
+        // Meta info is loaded from disk for first case only
+        // Build metadata for all other source cases
+        buildSourceMetaData(resultType, resultName);
+
         QString minResultName = createResultNameMin(resultName);
         QString maxResultName = createResultNameMax(resultName);
         QString meanResultName = createResultNameMean(resultName);
@@ -170,22 +201,36 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
             {
                 RigGridBase* grid = m_destinationCase->grid(gridIdx);
 
-                foreach(QString resultName, resultNames)
+                for (int i = 0; i < resultSpecification.size(); i++)
                 {
+                    RimDefines::ResultCatType resultType = resultSpecification[i].first;
+                    QString resultName = resultSpecification[i].second;
+
+                    size_t dataAccessTimeStepIndex = timeStepIdx;
+
+                    // Always evaluate statistics once, and always use time step index zero
+                    if (resultType == RimDefines::STATIC_NATIVE)
+                    {
+                        if (timeIndicesIdx > 0) continue;
+
+                        dataAccessTimeStepIndex = 0;
+                    }
+
                     // Build data access objects for source scalar results
                     cvf::Collection<cvf::StructGridScalarDataAccess> dataAccesObjectList;
                     for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                     {
                         RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
 
-                        size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResultForTimeStep(resultType, resultName, timeStepIdx);
+                        size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
                         if (dataAccessObject.notNull())
                         {
                             dataAccesObjectList.push_back(dataAccessObject.p());
                         }
                     }
+
 
                     // Build data access objects form destination scalar results
                     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMin = NULL;
@@ -194,52 +239,67 @@ void RigStatistics::evaluateStatistics(RimDefines::ResultCatType resultType, con
                     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectDev = NULL;
 
                     {
-                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMin(resultName));
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(resultType, createResultNameMin(resultName));
                         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                         {
-                            dataAccessObjectMin = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                            dataAccessObjectMin = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
                         }
                     }
 
                     {
-                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMax(resultName));
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(resultType, createResultNameMax(resultName));
                         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                         {
-                            dataAccessObjectMax = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                            dataAccessObjectMax = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
                         }
                     }
 
                     {
-                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameMean(resultName));
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(resultType, createResultNameMean(resultName));
                         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                         {
-                            dataAccessObjectMean = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                            dataAccessObjectMean = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
                         }
                     }
 
                     {
-                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, createResultNameDev(resultName));
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(resultType, createResultNameDev(resultName));
                         if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                         {
-                            dataAccessObjectDev = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+                            dataAccessObjectDev = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
                         }
                     }
 
                     double min, max, mean, dev;
-                    std::vector<double> values(dataAccesObjectList.size(), HUGE_VAL);
                     for (size_t cellIdx = 0; cellIdx < grid->cellCount(); cellIdx++)
                     {
+                        std::vector<double> values(dataAccesObjectList.size(), HUGE_VAL);
+
                         size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
                         if (m_destinationCase->activeCellInfo()->isActiveInMatrixModel(globalGridCellIdx))
                         {
+                            bool foundAnyValidValues = false;
                             for (size_t caseIdx = 0; caseIdx < dataAccesObjectList.size(); caseIdx++)
                             {
                                 double val = dataAccesObjectList.at(caseIdx)->cellScalar(cellIdx);
                                 values[caseIdx] = val;
+
+                                if (val != HUGE_VAL)
+                                {
+                                    foundAnyValidValues = true;
+                                }
                             }
 
-                            RigStatisticsEvaluator stat(values);
-                            stat.getStatistics(min, max, mean, dev);
+                            min = HUGE_VAL;
+                            max = HUGE_VAL;
+                            mean = HUGE_VAL;
+                            dev = HUGE_VAL;
+                            
+                            if (foundAnyValidValues)
+                            {
+                                RigStatisticsEvaluator stat(values);
+                                stat.getStatistics(min, max, mean, dev);
+                            }
 
                             if (dataAccessObjectMin.notNull())
                             {
@@ -289,7 +349,7 @@ void RigStatistics::debugOutput(RimDefines::ResultCatType resultType, const QStr
     qDebug() << resultName << "timeIdx : " << timeStepIdx;
 
     RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
-    size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(resultName);
+    size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(resultType, resultName);
 
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = m_destinationCase->dataAccessObject(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
     if (dataAccessObject.isNull()) return;
