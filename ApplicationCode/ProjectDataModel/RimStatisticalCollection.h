@@ -44,7 +44,7 @@ public:
 
     RimStatisticalCalculation* createAndAppendStatisticalCalculation();
 
-    RimIdenticalGridCaseGroup* parent();
+    RimIdenticalGridCaseGroup* parentCaseGroup();
 
 private:
 

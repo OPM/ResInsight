@@ -98,23 +98,17 @@ void RimStatisticalCalculation::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticalCollection* RimStatisticalCalculation::parent()
+RimStatisticalCollection* RimStatisticalCalculation::parentStatisticalCollection()
 {
-    std::vector<caf::PdmObject*> parentObjects;
-    this->parentObjects(parentObjects);
+    std::vector<RimStatisticalCollection*> parentObjects;
+    this->parentObjectsOfType(parentObjects);
 
-    RimStatisticalCollection* parentObject = NULL;
-    for (size_t i = 0; i < parentObjects.size(); i++)
+    if (parentObjects.size() > 0)
     {
-        if (parentObject) continue;
-
-        caf::PdmObject* obj = parentObjects[i];
-        parentObject = dynamic_cast<RimStatisticalCollection*>(obj);
+        return parentObjects[0];
     }
 
-    CVF_ASSERT(parentObject);
-
-    return parentObject;
+    return NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,6 +146,9 @@ void RimStatisticalCalculation::computeStatistics()
 
     QList<QPair<RimDefines::ResultCatType, QString> > resultSpecification;
 
+    resultSpecification.append(qMakePair(RimDefines::DYNAMIC_NATIVE, QString("PRESSURE")));
+
+    /*
     {
         QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
         foreach(QString resultName, resultNames)
@@ -167,6 +164,7 @@ void RimStatisticalCalculation::computeStatistics()
             resultSpecification.append(qMakePair(RimDefines::STATIC_NATIVE, resultName));
         }
     }
+    */
 
     RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
     stat.evaluateStatistics(resultSpecification);
@@ -208,22 +206,10 @@ void RimStatisticalCalculation::getSourceCases(cvf::Collection<RigEclipseCase>& 
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimStatisticalCalculation::caseGroup()
 {
-    RimStatisticalCollection* statColl = parent();
-    if (statColl)
+    RimStatisticalCollection* parentCollection = parentStatisticalCollection();
+    if (parentCollection)
     {
-        std::vector<caf::PdmObject*> parentObjects;
-        statColl->parentObjects(parentObjects);
-
-        RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-        for (size_t i = 0; i < parentObjects.size(); i++)
-        {
-            if (gridCaseGroup) continue;
-
-            caf::PdmObject* obj = parentObjects[i];
-            gridCaseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(obj);
-        }
-
-        return gridCaseGroup;
+        return parentCollection->parentCaseGroup();
     }
 
     return NULL;

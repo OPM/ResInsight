@@ -51,7 +51,7 @@ public:
 
     caf::PdmField<QString> m_resultName;
 
-    RimStatisticalCollection* parent();
+    RimStatisticalCollection* parentStatisticalCollection();
 
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
     void computeStatistics();

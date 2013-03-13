@@ -647,18 +647,18 @@ void RimUiTreeView::slotWriteInputProperty()
     // Find input reservoir for this property
     RimInputReservoir* inputReservoir = NULL;
     {
-        std::vector<caf::PdmObject*> parentObjects;
-        inputProperty->parentObjects(parentObjects);
+        std::vector<RimInputPropertyCollection*> parentObjects;
+        inputProperty->parentObjectsOfType(parentObjects);
         CVF_ASSERT(parentObjects.size() == 1);
 
-        RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(parentObjects[0]);
+        RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
         if (!inputPropertyCollection) return;
 
-        std::vector<caf::PdmObject*> parentObjects2;
-        inputPropertyCollection->parentObjects(parentObjects2);
+        std::vector<RimInputReservoir*> parentObjects2;
+        inputPropertyCollection->parentObjectsOfType(parentObjects2);
         CVF_ASSERT(parentObjects2.size() == 1);
 
-        inputReservoir = dynamic_cast<RimInputReservoir*>(parentObjects2[0]);
+        inputReservoir = parentObjects2[0];
     }
 
     if (!inputReservoir) return;

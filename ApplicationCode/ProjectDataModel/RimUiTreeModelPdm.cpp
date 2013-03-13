@@ -408,13 +408,11 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
     RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(currentItem->dataObject().p());
     CVF_ASSERT(inputPropertyCollection);
     
-    std::vector<caf::PdmObject*> parentObjects;
-    inputPropertyCollection->parentObjects(parentObjects);
-
-
+    std::vector<RimInputReservoir*> parentObjects;
+    inputPropertyCollection->parentObjectsOfType(parentObjects);
     CVF_ASSERT(parentObjects.size() == 1);
 
-    RimInputReservoir* inputReservoir = dynamic_cast<RimInputReservoir*>(parentObjects[0]);
+    RimInputReservoir* inputReservoir = parentObjects[0];
     CVF_ASSERT(inputReservoir);
     if (inputReservoir)
     {
@@ -441,18 +439,18 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     // Remove item from UI tree model before delete of project data structure
     removeRow(itemIndex.row(), itemIndex.parent());
 
-    std::vector<caf::PdmObject*> parentObjects;
-    object->parentObjects(parentObjects);
+    std::vector<RimInputPropertyCollection*> parentObjects;
+    object->parentObjectsOfType(parentObjects);
     CVF_ASSERT(parentObjects.size() == 1);
 
-    RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(parentObjects[0]);
+    RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
     if (!inputPropertyCollection) return;
 
-    std::vector<caf::PdmObject*> parentObjects2;
-    inputPropertyCollection->parentObjects(parentObjects2);
+    std::vector<RimInputReservoir*> parentObjects2;
+    inputPropertyCollection->parentObjectsOfType(parentObjects2);
     CVF_ASSERT(parentObjects2.size() == 1);
 
-    RimInputReservoir* inputReservoir = dynamic_cast<RimInputReservoir*>(parentObjects2[0]);
+    RimInputReservoir* inputReservoir = parentObjects2[0];
     if (!inputReservoir) return;
 
     inputReservoir->removeProperty(inputProperty);
@@ -475,7 +473,7 @@ RimStatisticalCalculation* RimUiTreeModelPdm::addStatisticalCalculation(const QM
     if (dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p()))
     {
         RimStatisticalCalculation* currentObject = dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p());
-        caseGroup = currentObject->parent();
+        caseGroup = currentObject->parentStatisticalCollection();
         parentCollectionItem = currentItem->parent();
         position = itemIndex.row();
         collectionIndex = itemIndex.parent();

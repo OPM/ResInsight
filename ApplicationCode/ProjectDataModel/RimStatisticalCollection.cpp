@@ -51,7 +51,7 @@ RimStatisticalCollection::~RimStatisticalCollection()
 RimStatisticalCalculation* RimStatisticalCollection::createAndAppendStatisticalCalculation()
 {
     RimStatisticalCalculation* newObject = new RimStatisticalCalculation;
-    RimIdenticalGridCaseGroup* gridCaseGroup = parent();
+    RimIdenticalGridCaseGroup* gridCaseGroup = parentCaseGroup();
     
     CVF_ASSERT(gridCaseGroup);
     CVF_ASSERT(gridCaseGroup->mainGrid());
@@ -68,21 +68,16 @@ RimStatisticalCalculation* RimStatisticalCollection::createAndAppendStatisticalC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimStatisticalCollection::parent()
+RimIdenticalGridCaseGroup* RimStatisticalCollection::parentCaseGroup()
 {
-    std::vector<caf::PdmObject*> parentObjects;
-    this->parentObjects(parentObjects);
+    std::vector<RimIdenticalGridCaseGroup*> parentObjects;
+    this->parentObjectsOfType(parentObjects);
 
-    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-    for (size_t i = 0; i < parentObjects.size(); i++)
+    if (parentObjects.size() > 0)
     {
-        if (gridCaseGroup) continue;
-
-        caf::PdmObject* obj = parentObjects[i];
-        gridCaseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(obj);
+        return parentObjects[0];
     }
 
-    return gridCaseGroup;
-
+    return NULL;
 }
 
