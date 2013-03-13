@@ -24,7 +24,6 @@
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
     :   m_globalMatrixModelActiveCellCount(0),
-       // m_globalFractureModelActiveCellCount(0),
         m_activeCellPositionMin(cvf::Vec3d::ZERO),
         m_activeCellPositionMax(cvf::Vec3d::ZERO)
 {
@@ -37,7 +36,6 @@ RigActiveCellInfo::RigActiveCellInfo()
 void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
 {
     m_activeInMatrixModel.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
-   // m_activeInFractureModel.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,47 +77,7 @@ void RigActiveCellInfo::setActiveIndexInMatrixModel(size_t globalCellIndex, size
 
     m_activeInMatrixModel[globalCellIndex] = globalActiveCellIndex;
 }
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigActiveCellInfo::isActiveInFractureModel(size_t globalCellIndex) const
-{
-    if (m_activeInFractureModel.size() == 0)
-    {
-        return false;
-    }
 
-    CVF_TIGHT_ASSERT(globalCellIndex < m_activeInFractureModel.size());
-
-    return m_activeInFractureModel[globalCellIndex] != cvf::UNDEFINED_SIZE_T;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::activeIndexInFractureModel(size_t globalCellIndex) const
-{
-    if (m_activeInFractureModel.size() == 0)
-    {
-        return cvf::UNDEFINED_SIZE_T;
-    }
-
-    CVF_TIGHT_ASSERT(globalCellIndex < m_activeInFractureModel.size());
-    
-    return m_activeInFractureModel[globalCellIndex];
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setActiveIndexInFractureModel(size_t globalCellIndex, size_t globalActiveCellIndex)
-{
-    CVF_TIGHT_ASSERT(globalActiveCellIndex < m_activeInFractureModel.size());
-
-    m_activeInFractureModel[globalCellIndex] = globalActiveCellIndex;
-}
-*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -127,18 +85,6 @@ void RigActiveCellInfo::setGridCount(size_t gridCount)
 {
     m_perGridActiveCellInfo.resize(gridCount);
 }
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount, size_t fractureActiveCellCount)
-{
-    CVF_ASSERT(gridIndex < m_perGridActiveCellInfo.size());
-
-    m_perGridActiveCellInfo[gridIndex].setMatrixModelActiveCellCount(matrixActiveCellCount);
-    //m_perGridActiveCellInfo[gridIndex].setFractureModelActiveCellCount(fractureActiveCellCount);
-}
-*/
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -148,7 +94,6 @@ void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixA
     CVF_ASSERT(gridIndex < m_perGridActiveCellInfo.size());
 
     m_perGridActiveCellInfo[gridIndex].setMatrixModelActiveCellCount(matrixActiveCellCount);
-    //m_perGridActiveCellInfo[gridIndex].setFractureModelActiveCellCount(fractureActiveCellCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,12 +102,10 @@ void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixA
 void RigActiveCellInfo::computeDerivedData()
 {
     m_globalMatrixModelActiveCellCount = 0;
-    //m_globalFractureModelActiveCellCount = 0;
 
     for (size_t i = 0; i < m_perGridActiveCellInfo.size(); i++)
     {
         m_globalMatrixModelActiveCellCount += m_perGridActiveCellInfo[i].matrixModelActiveCellCount();
-       // m_globalFractureModelActiveCellCount += m_perGridActiveCellInfo[i].fractureModelActiveCellCount();
     }
 }
 
@@ -173,15 +116,7 @@ size_t RigActiveCellInfo::globalMatrixModelActiveCellCount() const
 {
     return m_globalMatrixModelActiveCellCount;
 }
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalFractureModelActiveCellCount() const
-{
-    return m_globalFractureModelActiveCellCount;
-}
-*/
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -199,34 +134,6 @@ void RigActiveCellInfo::matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf:
     min = m_activeCellPositionMin;
     max = m_activeCellPositionMax;
 }
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setFractureModelActiveCellsBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max)
-{
-    m_fractureModelActiveCellPositionMin = min;
-    m_fractureModelActiveCellPositionMax = max;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::fractureModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
-{
-    min = m_fractureModelActiveCellPositionMin;
-    max = m_fractureModelActiveCellPositionMax;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount, size_t& fractureActiveCellCount)
-{
-    matrixActiveCellCount = m_perGridActiveCellInfo[gridIndex].matrixModelActiveCellCount();
-    fractureActiveCellCount = m_perGridActiveCellInfo[gridIndex].fractureModelActiveCellCount();
-}
-*/
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -234,7 +141,6 @@ void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& matrixAct
 void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount)
 {
     matrixActiveCellCount = m_perGridActiveCellInfo[gridIndex].matrixModelActiveCellCount();
-    //fractureActiveCellCount = m_perGridActiveCellInfo[gridIndex].fractureModelActiveCellCount();
 }
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -267,20 +173,3 @@ void RigActiveCellInfo::GridActiveCellCounts::setMatrixModelActiveCellCount(size
 {
     m_matrixModelActiveCellCount = activeMatrixModelCellCount;
 }
-/*
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::GridActiveCellCounts::fractureModelActiveCellCount() const
-{
-    return m_fractureModelActiveCellCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::GridActiveCellCounts::setFractureModelActiveCellCount(size_t activeFractureModelCellCount)
-{
-    m_fractureModelActiveCellCount = activeFractureModelCellCount;
-}
-*/

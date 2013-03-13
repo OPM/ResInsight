@@ -38,28 +38,18 @@ public:
     size_t              activeIndexInMatrixModel(size_t globalCellIndex) const;
     void                setActiveIndexInMatrixModel(size_t globalCellIndex, size_t globalActiveCellIndex);
 
-    //bool                isActiveInFractureModel(size_t globalCellIndex) const;
-    //size_t              activeIndexInFractureModel(size_t globalCellIndex) const;
-    //void                setActiveIndexInFractureModel(size_t globalCellIndex, size_t globalActiveCellIndex);
-
     void                setGridCount(size_t gridCount);
-    //void                setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount, size_t fractureActiveCellCount);
     void                setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount);
-   //void                gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount, size_t& fractureActiveCellCount);
-   void                gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount);
+    void                gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount);
     void                computeDerivedData();
 
     size_t              globalMatrixModelActiveCellCount() const;
-    //size_t              globalFractureModelActiveCellCount() const;
 
     void                setMatrixModelActiveCellsBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max);
     void                matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
-    //void                setFractureModelActiveCellsBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max);
-    //void                fractureModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
 
     cvf::BoundingBox    matrixActiveCellsGeometryBoundingBox() const;
     void                setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox bb);
-
 
 private:
     class GridActiveCellCounts
@@ -67,28 +57,21 @@ private:
     public:
         size_t          matrixModelActiveCellCount() const;
         void            setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount);
-        //size_t          fractureModelActiveCellCount() const;
-        //void            setFractureModelActiveCellCount(size_t activeFractureModelCellCount);
 
     private:
         size_t          m_matrixModelActiveCellCount;
-        //size_t          m_fractureModelActiveCellCount;
     };
 
 
 private:
     std::vector<GridActiveCellCounts>   m_perGridActiveCellInfo;
 
-    std::vector<size_t>     m_activeInMatrixModel;
-    //std::vector<size_t>     m_activeInFractureModel;
+    std::vector<size_t>                 m_activeInMatrixModel;
 
-    size_t                  m_globalMatrixModelActiveCellCount;
-    //size_t                  m_globalFractureModelActiveCellCount;
+    size_t                              m_globalMatrixModelActiveCellCount;
 
-    cvf::Vec3st             m_activeCellPositionMin;
-    cvf::Vec3st             m_activeCellPositionMax;
-    //cvf::Vec3st             m_fractureModelActiveCellPositionMin;
-    //cvf::Vec3st             m_fractureModelActiveCellPositionMax;
+    cvf::Vec3st                         m_activeCellPositionMin;
+    cvf::Vec3st                         m_activeCellPositionMax;
 
-    cvf::BoundingBox        m_matrixActiveCellsBoundingBox;
+    cvf::BoundingBox                    m_matrixActiveCellsBoundingBox;
 };

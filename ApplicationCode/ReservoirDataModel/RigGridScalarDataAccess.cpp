@@ -128,59 +128,6 @@ private:
 };
 
 
-
-
-/*
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-class RigGridFractureActiveCellsScalarDataAccess : public cvf::StructGridScalarDataAccess
-{
-public:
-    RigGridFractureActiveCellsScalarDataAccess(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo)
-      : m_grid(grid),
-        m_reservoirResultValues(reservoirResultValues),
-        m_activeCellInfo(activeCellInfo)
-      {
-      }
-
-      virtual double  cellScalar(size_t gridLocalCellIndex) const
-      {
-          if (m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
-
-          size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-          size_t resultValueIndex = m_activeCellInfo->activeIndexInFractureModel(globalGridCellIndex);
-          if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
-
-          CVF_TIGHT_ASSERT (resultValueIndex < m_reservoirResultValues->size());
-
-          return m_reservoirResultValues->at(resultValueIndex);
-      }
-
-      //--------------------------------------------------------------------------------------------------
-      /// 
-      //--------------------------------------------------------------------------------------------------
-      virtual void setCellScalar(size_t gridLocalCellIndex, double scalarValue)
-      {
-          size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-          size_t resultValueIndex = m_activeCellInfo->activeIndexInFractureModel(globalGridCellIndex);
-
-          CVF_TIGHT_ASSERT (resultValueIndex < m_reservoirResultValues->size());
-
-          (*m_reservoirResultValues)[resultValueIndex] = scalarValue;
-      }
-
-private:
-    const RigActiveCellInfo*    m_activeCellInfo;
-    cvf::cref<RigGridBase>      m_grid;
-    std::vector<double>*        m_reservoirResultValues;
-};
-
-
-
-*/
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
