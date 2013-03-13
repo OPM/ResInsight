@@ -40,10 +40,10 @@ TEST(RigGridCollection, BasicTest)
 
     RigGridCollection gridCollection;
     gridCollection.addCase(eclipseCase.p());
-    EXPECT_EQ(mainGridA->refCount(), 3);
+    EXPECT_EQ(mainGridA->refCount(), 2);
 
     cvf::ref<RigMainGrid> mainGridB = mainGridA;
-    EXPECT_EQ(mainGridA->refCount(), 4);
+    EXPECT_EQ(mainGridA->refCount(), 3);
 
     cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid(mainGridB.p());
     EXPECT_TRUE(existingGrid.notNull());
