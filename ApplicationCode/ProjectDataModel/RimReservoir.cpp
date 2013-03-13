@@ -98,6 +98,13 @@ RimReservoir::~RimReservoir()
 //--------------------------------------------------------------------------------------------------
 RimReservoirView* RimReservoir::createAndAddReservoirView()
 {
+    // If parent is collection, and number of views is zero, make sure rig is set to NULL to initiate normal case loading
+    if (parentCaseCollection() != NULL && reservoirViews().size() == 0)
+    {
+        CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
+        m_rigEclipseCase = NULL;
+    }
+
     RimReservoirView* riv = new RimReservoirView();
     riv->setEclipseCase(this);
 
@@ -251,5 +258,22 @@ void RimReservoir::computeCachedData()
             grids[i]->computeFaults();
         }
     }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCaseCollection* RimReservoir::parentCaseCollection()
+{
+    std::vector<RimCaseCollection*> parentObjects;
+    this->parentObjectsOfType(parentObjects);
+
+    if (parentObjects.size() > 0)
+    {
+        return parentObjects[0];
+    }
+
+    return NULL;
 }
 

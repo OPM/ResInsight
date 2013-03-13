@@ -29,6 +29,7 @@ class QString;
 class RigEclipseCase;
 class RigGridBase;
 class RimReservoirView;
+class RimCaseCollection;
 
 //==================================================================================================
 // 
@@ -71,6 +72,9 @@ protected:
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
     void computeCachedData();
+
+private:
+    RimCaseCollection* parentCaseCollection();
 
 protected:
     cvf::ref<RigEclipseCase>        m_rigEclipseCase;
