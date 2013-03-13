@@ -70,7 +70,8 @@ void Rim3dOverlayInfoConfig::setPosition(cvf::Vec2ui position)
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
-    if (!m_reservoirView && m_reservoirView->viewer()) return;
+    if (!m_reservoirView) return;
+    if (!m_reservoirView->viewer()) return;
 
     m_reservoirView->viewer()->showInfoText(showInfoText());
     m_reservoirView->viewer()->showHistogram(false);
