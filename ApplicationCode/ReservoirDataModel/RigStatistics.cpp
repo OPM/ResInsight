@@ -172,9 +172,28 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
         RimDefines::ResultCatType resultType = resultSpecification[i].first;
         QString resultName = resultSpecification[i].second;
 
-        // Meta info is loaded from disk for first case only
-        // Build metadata for all other source cases
-        buildSourceMetaData(resultType, resultName);
+        // Special handling if SOIL is asked for
+        // Build SGAS/SWAT meta data, SOIL is automatically generated as part of RigReservoirCellResults::findOrLoadScalarResultForTimeStep
+        if (resultName.toUpper() == "SOIL")
+        {
+            size_t swatIndex = m_sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, "SWAT");
+            if (swatIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                buildSourceMetaData(resultType, "SWAT");
+            }
+
+            size_t sgasIndex = m_sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, "SGAS");
+            if (sgasIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                buildSourceMetaData(resultType, "SGAS");
+            }
+        }
+        else
+        {
+            // Meta info is loaded from disk for first case only
+            // Build metadata for all other source cases
+            buildSourceMetaData(resultType, resultName);
+        }
 
         QString minResultName = createResultNameMin(resultName);
         QString maxResultName = createResultNameMax(resultName);

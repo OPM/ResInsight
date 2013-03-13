@@ -70,11 +70,13 @@ public:
     void                clearAllResults();
 
     void                loadOrComputeSOIL();
+    void                loadOrComputeSOILForTimeStep(size_t timeStepIndex);
     void                computeDepthRelatedResults();
 
     // Access the results data
-    const std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex) const;
+    const std::vector< std::vector<double> > &              cellScalarResults(size_t scalarResultIndex) const;
     std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex);
+    std::vector<double>&                                    cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
     double                                                  cellScalarResult(size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex);
 
     static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);

@@ -253,6 +253,17 @@ std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+std::vector<double>& RigReservoirCellResults::cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex)
+{
+    CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
+    CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
+
+    return m_cellScalarResults[scalarResultIndex][timeStepIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 double RigReservoirCellResults::cellScalarResult( size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex)
 {
     if (scalarResultIndex < resultCount() &&
@@ -274,6 +285,12 @@ double RigReservoirCellResults::cellScalarResult( size_t scalarResultIndex, size
 //--------------------------------------------------------------------------------------------------
 size_t RigReservoirCellResults::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
 {
+    // Special handling for SOIL
+    if (type == RimDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
+    {
+        loadOrComputeSOILForTimeStep(timeStepIndex);
+    }
+
     size_t resultGridIndex = cvf::UNDEFINED_SIZE_T;
 
     resultGridIndex = findScalarResultIndex(type, resultName);
@@ -287,7 +304,6 @@ size_t RigReservoirCellResults::findOrLoadScalarResultForTimeStep(RimDefines::Re
 
     if (m_readerInterface.notNull())
     {
-        // Add one more result to result container
         size_t timeStepCount = m_resultInfos[resultGridIndex].m_timeStepDates.size();
 
         bool resultLoadingSucess = true;
@@ -453,77 +469,96 @@ size_t RigReservoirCellResults::findScalarResultIndex(const QString& resultName)
 //--------------------------------------------------------------------------------------------------
 void RigReservoirCellResults::loadOrComputeSOIL()
 {
-    size_t soilResultGridIndex = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-
-    if (soilResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    for (size_t timeStepIdx = 0; timeStepIdx < maxTimeStepCount(); timeStepIdx++)
     {
-        size_t scalarIndexSWAT = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-        size_t scalarIndexSGAS = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+        loadOrComputeSOILForTimeStep(timeStepIdx);
+    }
+}
 
-        // Early exit if none of SWAT or SGAS is present
-        if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirCellResults::loadOrComputeSOILForTimeStep(size_t timeStepIndex)
+{
+    size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RimDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
+    size_t scalarIndexSGAS = findOrLoadScalarResultForTimeStep(RimDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
+    
+    // Early exit if none of SWAT or SGAS is present
+    if (scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T)
+    {
+        return;
+    }
+
+    size_t soilResultValueCount = 0;
+    size_t soilTimeStepCount = 0;
+
+    std::vector<double>* swatForTimeStep = NULL;
+    std::vector<double>* sgasForTimeStep = NULL;
+    if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
+    {
+        swatForTimeStep = &(cellScalarResults(scalarIndexSWAT, timeStepIndex));
+        if (swatForTimeStep->size() == 0)
         {
-            return;
+            swatForTimeStep = NULL;
         }
-
-        soilResultGridIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-
-        const std::vector< std::vector<double> >* swat = NULL;
-        const std::vector< std::vector<double> >* sgas = NULL;
-        if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
+        else
         {
-            swat = &(cellScalarResults(scalarIndexSWAT));
-        }
-
-        if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
-        {
-            sgas = &(cellScalarResults(scalarIndexSGAS));
-        }
-
-        size_t soilResultValueCount = 0;
-        size_t soilTimeStepCount = 0;
-        if (swat)
-        {
-            soilResultValueCount = swat->at(0).size();
+            soilResultValueCount = swatForTimeStep->size();
             soilTimeStepCount = m_resultInfos[scalarIndexSWAT].m_timeStepDates.size();
         }
+    }
 
-        if (sgas)
+    if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
+    {
+        sgasForTimeStep = &(cellScalarResults(scalarIndexSGAS, timeStepIndex));
+        if (sgasForTimeStep->size() == 0)
         {
-            soilResultValueCount = qMax(soilResultValueCount, sgas->at(0).size());
-            
+            sgasForTimeStep = NULL;
+        }
+        else
+        {
+            soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep->size());
+
             size_t sgasTimeStepCount = m_resultInfos[scalarIndexSGAS].m_timeStepDates.size();
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
         }
+    }
+    
+    size_t soilResultGridIndex = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+    if (soilResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        soilResultGridIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+        CVF_ASSERT(soilResultGridIndex != cvf::UNDEFINED_SIZE_T);
 
         m_cellScalarResults[soilResultGridIndex].resize(soilTimeStepCount);
 
-        std::vector< std::vector<double> >& soil = cellScalarResults(soilResultGridIndex);
-
-        int timeStepIdx = 0;
-        for (timeStepIdx = 0; timeStepIdx < static_cast<int>(soilTimeStepCount); timeStepIdx++)
+        for (size_t timeStepIdx = 0; timeStepIdx < soilTimeStepCount; timeStepIdx++)
         {
-            soil[timeStepIdx].resize(soilResultValueCount);
-
-#pragma omp parallel for
-            for (int idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
-            {
-                double soilValue = 1.0;
-                if (sgas)
-                {
-                    soilValue -= sgas->at(timeStepIdx)[idx];
-                }
-
-                if (swat)
-                {
-                    soilValue -= swat->at(timeStepIdx)[idx];
-                }
-
-                soil[timeStepIdx][idx] = soilValue;
-            }
+            m_cellScalarResults[soilResultGridIndex][timeStepIdx].resize(soilResultValueCount);
         }
     }
+
+    std::vector<double>& soilForTimeStep = cellScalarResults(soilResultGridIndex, timeStepIndex);
+
+#pragma omp parallel for
+    for (int idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
+    {
+        double soilValue = 1.0;
+        if (sgasForTimeStep)
+        {
+            soilValue -= sgasForTimeStep->at(idx);
+        }
+
+        if (swatForTimeStep)
+        {
+            soilValue -= swatForTimeStep->at(idx);
+        }
+
+        soilForTimeStep[idx] = soilValue;
+    }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
