@@ -56,6 +56,8 @@ void RigStatistics::computeActiveCellUnion()
         return;
     }
 
+    CVF_ASSERT(m_destinationCase);
+
     RigMainGrid* mainGrid = m_sourceCases[0]->mainGrid();
     CVF_ASSERT(mainGrid);
 
@@ -165,7 +167,7 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
 //--------------------------------------------------------------------------------------------------
 void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification)
 {
-    CVF_ASSERT(m_destinationCase.notNull());
+    CVF_ASSERT(m_destinationCase);
 
     computeActiveCellUnion();
 
@@ -372,9 +374,10 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
 //--------------------------------------------------------------------------------------------------
 void RigStatistics::debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx)
 {
+    CVF_ASSERT(m_destinationCase);
+
     qDebug() << resultName << "timeIdx : " << timeStepIdx;
 
-    RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
     size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(resultType, resultName);
 
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = m_destinationCase->dataAccessObject(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
@@ -399,5 +402,7 @@ RigStatistics::RigStatistics(cvf::Collection<RigEclipseCase>& sourceCases, const
     {
         m_globalCellCount = sourceCases[0]->mainGrid()->cells().size();
     }
+
+    CVF_ASSERT(m_destinationCase);
 }
 

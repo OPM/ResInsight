@@ -147,6 +147,6 @@ private:
 
     RigStatisticsConfig             m_statisticsConfig;
 
-    cvf::ref<RigEclipseCase>        m_destinationCase;
+    RigEclipseCase*                 m_destinationCase;
 };
 
