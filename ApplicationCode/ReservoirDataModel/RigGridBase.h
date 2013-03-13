@@ -63,12 +63,7 @@ public:
     void                        computeFaults();
     bool                        isMainGrid() const;
     RigMainGrid*                mainGrid() const { return m_mainGrid; }
-
-    size_t                      matrixModelActiveCellCount() const;
-    void                        setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount);
-    size_t                      fractureModelActiveCellCount() const ;
-    void                        setFractureModelActiveCellCount(size_t activeFractureModelCellCount);
-
+  
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();
     void                        initSubGridParentPointer();
@@ -105,9 +100,6 @@ private:
     size_t                      m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t                      m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     RigMainGrid*                m_mainGrid;
-
-    size_t                      m_matrixModelActiveCellCount;
-    size_t                      m_fractureModelActiveCellCount;
 
 };
 

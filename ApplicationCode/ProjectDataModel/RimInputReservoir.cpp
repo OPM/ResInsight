@@ -75,7 +75,8 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
         m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
-        m_rigEclipseCase->activeCellInfo()->computeDerivedData();
+        m_rigEclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
+        m_rigEclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
 
         return;
     }

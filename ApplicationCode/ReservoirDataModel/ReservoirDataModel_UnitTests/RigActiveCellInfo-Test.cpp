@@ -35,16 +35,10 @@ TEST(RigActiveCellInfo, BasicTest)
     {
         EXPECT_TRUE(rigActiveCellInfo.activeIndexInMatrixModel(i) == cvf::UNDEFINED_SIZE_T);
         EXPECT_FALSE(rigActiveCellInfo.isActiveInMatrixModel(i));
-
-        EXPECT_TRUE(rigActiveCellInfo.activeIndexInFractureModel(i) == cvf::UNDEFINED_SIZE_T);
-        EXPECT_FALSE(rigActiveCellInfo.isActiveInFractureModel(i));
     }
 
     rigActiveCellInfo.setActiveIndexInMatrixModel(3, 1);
     EXPECT_TRUE(rigActiveCellInfo.activeIndexInMatrixModel(3) == 1);
-
-    rigActiveCellInfo.setActiveIndexInFractureModel(9, 3);
-    EXPECT_TRUE(rigActiveCellInfo.activeIndexInFractureModel(9) == 3);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,27 +49,23 @@ TEST(RigActiveCellInfo, GridCellCounts)
     {
         RigActiveCellInfo rigActiveCellInfo;
         rigActiveCellInfo.setGridCount(3);
-        rigActiveCellInfo.setGridActiveCellCounts(0, 0, 0);
-        rigActiveCellInfo.setGridActiveCellCounts(1, 1, 0);
-        rigActiveCellInfo.setGridActiveCellCounts(2, 2, 0);
+        rigActiveCellInfo.setGridActiveCellCounts(0, 0);
+        rigActiveCellInfo.setGridActiveCellCounts(1, 1);
+        rigActiveCellInfo.setGridActiveCellCounts(2, 2);
         rigActiveCellInfo.computeDerivedData();
 
         EXPECT_TRUE(rigActiveCellInfo.globalMatrixModelActiveCellCount() == 3);
-        EXPECT_TRUE(rigActiveCellInfo.globalFractureModelActiveCellCount() == 0);
     }
 
     {
         RigActiveCellInfo rigActiveCellInfo;
         rigActiveCellInfo.setGridCount(3);
-        rigActiveCellInfo.setGridActiveCellCounts(0, 0, 3);
-        rigActiveCellInfo.setGridActiveCellCounts(1, 1, 4);
-        rigActiveCellInfo.setGridActiveCellCounts(2, 2, 5);
+        rigActiveCellInfo.setGridActiveCellCounts(0, 3 );
+        rigActiveCellInfo.setGridActiveCellCounts(1, 4 );
+        rigActiveCellInfo.setGridActiveCellCounts(2, 5 );
         rigActiveCellInfo.computeDerivedData();
 
-        EXPECT_TRUE(rigActiveCellInfo.globalMatrixModelActiveCellCount() == 3);
-        EXPECT_TRUE(rigActiveCellInfo.globalFractureModelActiveCellCount() == 12);
+        EXPECT_TRUE(rigActiveCellInfo.globalMatrixModelActiveCellCount() == 12);
     }
-
-
 }
 

@@ -80,7 +80,8 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     {
         QString caseName;
         QString totCellCount;
-        QString activeCellCount;
+        QString activeCellCountText;
+        QString fractureActiveCellCount;
         QString iSize, jSize, kSize;
         QString propName;
         QString cellEdgeName;
@@ -89,7 +90,12 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         {
             caseName = m_reservoirView->eclipseCase()->caseName();
             totCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
-            activeCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo()->globalMatrixModelActiveCellCount());
+            size_t mxActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalMatrixModelActiveCellCount();
+            size_t frActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalMatrixModelActiveCellCount();
+            if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
+            activeCellCountText += QString::number(mxActCellCount);
+            if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);
+
             iSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountI());
             jSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountJ());
             kSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountK());
@@ -100,7 +106,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         QString infoText = QString(
             "<p><b><center>-- %1 --</center></b><p>  "
             "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>" 
-            "<b>Main Grid I,J,K:</b> %4, %5, %6 <br>").arg(caseName, totCellCount, activeCellCount, iSize, jSize, kSize);
+            "<b>Main Grid I,J,K:</b> %4, %5, %6 <br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize);
 
         if (m_reservoirView->animationMode() && m_reservoirView->cellResult()->hasResult())
         {
@@ -110,9 +116,9 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double p10, p90;
             double mean;
             size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
-            m_reservoirView->gridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-            m_reservoirView->gridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-            m_reservoirView->gridCellResults()->meanCellScalarValues(scalarIndex, mean);
+            m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+            m_reservoirView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            m_reservoirView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
 
             //infoText += QString("<blockquote><b>Min:</b> %1   <b>P10:</b> %2   <b>Mean:</b> %3   <b>P90:</b> %4   <b>Max:</b> %5 </blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
             //infoText += QString("<blockquote><pre>Min: %1   P10: %2   Mean: %3 \n  P90: %4   Max: %5 </pre></blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
@@ -134,7 +140,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             || m_reservoirView->wellCollection()->hasVisibleWellPipes())
         {
             int currentTimeStep = m_reservoirView->currentTimeStep();
-            QDateTime date = m_reservoirView->gridCellResults()->timeStepDate(0, currentTimeStep);
+            QDateTime date = m_reservoirView->currentGridCellResults()->timeStepDate(0, currentTimeStep);
             infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(date.toString("dd.MMM yyyy"));
         }
 
@@ -150,12 +156,12 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double mean;
 
             size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
-            m_reservoirView->gridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-            m_reservoirView->gridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-            m_reservoirView->gridCellResults()->meanCellScalarValues(scalarIndex, mean);
+            m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+            m_reservoirView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            m_reservoirView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
 
             m_reservoirView->viewer()->showHistogram(true);
-            m_reservoirView->viewer()->setHistogram(min, max, m_reservoirView->gridCellResults()->cellScalarValuesHistogram(scalarIndex));
+            m_reservoirView->viewer()->setHistogram(min, max, m_reservoirView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
             m_reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
         }
     }

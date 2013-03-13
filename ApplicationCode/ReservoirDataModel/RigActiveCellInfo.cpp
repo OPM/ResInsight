@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
     :   m_globalMatrixModelActiveCellCount(0),
-        m_globalFractureModelActiveCellCount(0),
+       // m_globalFractureModelActiveCellCount(0),
         m_activeCellPositionMin(cvf::Vec3d::ZERO),
         m_activeCellPositionMax(cvf::Vec3d::ZERO)
 {
@@ -37,7 +37,7 @@ RigActiveCellInfo::RigActiveCellInfo()
 void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
 {
     m_activeInMatrixModel.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
-    m_activeInFractureModel.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
+   // m_activeInFractureModel.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void RigActiveCellInfo::setActiveIndexInMatrixModel(size_t globalCellIndex, size
 
     m_activeInMatrixModel[globalCellIndex] = globalActiveCellIndex;
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ void RigActiveCellInfo::setActiveIndexInFractureModel(size_t globalCellIndex, si
 
     m_activeInFractureModel[globalCellIndex] = globalActiveCellIndex;
 }
-
+*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ void RigActiveCellInfo::setGridCount(size_t gridCount)
 {
     m_perGridActiveCellInfo.resize(gridCount);
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -136,7 +136,19 @@ void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixA
     CVF_ASSERT(gridIndex < m_perGridActiveCellInfo.size());
 
     m_perGridActiveCellInfo[gridIndex].setMatrixModelActiveCellCount(matrixActiveCellCount);
-    m_perGridActiveCellInfo[gridIndex].setFractureModelActiveCellCount(fractureActiveCellCount);
+    //m_perGridActiveCellInfo[gridIndex].setFractureModelActiveCellCount(fractureActiveCellCount);
+}
+*/
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount)
+{
+    CVF_ASSERT(gridIndex < m_perGridActiveCellInfo.size());
+
+    m_perGridActiveCellInfo[gridIndex].setMatrixModelActiveCellCount(matrixActiveCellCount);
+    //m_perGridActiveCellInfo[gridIndex].setFractureModelActiveCellCount(fractureActiveCellCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -145,12 +157,12 @@ void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixA
 void RigActiveCellInfo::computeDerivedData()
 {
     m_globalMatrixModelActiveCellCount = 0;
-    m_globalFractureModelActiveCellCount = 0;
+    //m_globalFractureModelActiveCellCount = 0;
 
     for (size_t i = 0; i < m_perGridActiveCellInfo.size(); i++)
     {
         m_globalMatrixModelActiveCellCount += m_perGridActiveCellInfo[i].matrixModelActiveCellCount();
-        m_globalFractureModelActiveCellCount += m_perGridActiveCellInfo[i].fractureModelActiveCellCount();
+       // m_globalFractureModelActiveCellCount += m_perGridActiveCellInfo[i].fractureModelActiveCellCount();
     }
 }
 
@@ -161,7 +173,7 @@ size_t RigActiveCellInfo::globalMatrixModelActiveCellCount() const
 {
     return m_globalMatrixModelActiveCellCount;
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +181,7 @@ size_t RigActiveCellInfo::globalFractureModelActiveCellCount() const
 {
     return m_globalFractureModelActiveCellCount;
 }
-
+*/
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -187,7 +199,7 @@ void RigActiveCellInfo::matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf:
     min = m_activeCellPositionMin;
     max = m_activeCellPositionMax;
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -214,7 +226,16 @@ void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& matrixAct
     matrixActiveCellCount = m_perGridActiveCellInfo[gridIndex].matrixModelActiveCellCount();
     fractureActiveCellCount = m_perGridActiveCellInfo[gridIndex].fractureModelActiveCellCount();
 }
+*/
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount)
+{
+    matrixActiveCellCount = m_perGridActiveCellInfo[gridIndex].matrixModelActiveCellCount();
+    //fractureActiveCellCount = m_perGridActiveCellInfo[gridIndex].fractureModelActiveCellCount();
+}
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +267,7 @@ void RigActiveCellInfo::GridActiveCellCounts::setMatrixModelActiveCellCount(size
 {
     m_matrixModelActiveCellCount = activeMatrixModelCellCount;
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -262,3 +283,4 @@ void RigActiveCellInfo::GridActiveCellCounts::setFractureModelActiveCellCount(si
 {
     m_fractureModelActiveCellCount = activeFractureModelCellCount;
 }
+*/

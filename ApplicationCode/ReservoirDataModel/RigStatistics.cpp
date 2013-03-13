@@ -59,8 +59,10 @@ void RigStatistics::computeActiveCellUnion()
     RigMainGrid* mainGrid = m_sourceCases[0]->mainGrid();
     CVF_ASSERT(mainGrid);
 
-    m_destinationCase->activeCellInfo()->setGlobalCellCount(mainGrid->cells().size());
-    m_destinationCase->activeCellInfo()->setGridCount(mainGrid->gridCount());
+    m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setGlobalCellCount(mainGrid->cells().size());
+    m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setGlobalCellCount(mainGrid->cells().size());
+    m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setGridCount(mainGrid->gridCount());
+    m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setGridCount(mainGrid->gridCount());
 
     size_t globalActiveMatrixIndex = 0;
     size_t globalActiveFractureIndex = 0;
@@ -80,7 +82,7 @@ void RigStatistics::computeActiveCellUnion()
 
                 if (activeM[localGridCellIdx] == 0)
                 {
-                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInMatrixModel(globalCellIdx))
+                    if (m_sourceCases[caseIdx]->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActiveInMatrixModel(globalCellIdx))
                     {
                         activeM[localGridCellIdx] = 1;
                     }
@@ -88,7 +90,7 @@ void RigStatistics::computeActiveCellUnion()
 
                 if (activeF[localGridCellIdx] == 0)
                 {
-                    if (m_sourceCases[caseIdx]->activeCellInfo()->isActiveInFractureModel(globalCellIdx))
+                    if (m_sourceCases[caseIdx]->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActiveInMatrixModel(globalCellIdx))
                     {
                         activeF[localGridCellIdx] = 1;
                     }
@@ -105,21 +107,24 @@ void RigStatistics::computeActiveCellUnion()
 
             if (activeM[localGridCellIdx] != 0)
             {
-                m_destinationCase->activeCellInfo()->setActiveIndexInMatrixModel(globalCellIdx, globalActiveMatrixIndex++);
+                m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setActiveIndexInMatrixModel(globalCellIdx, globalActiveMatrixIndex++);
                 activeMatrixIndex++;
             }
 
             if (activeF[localGridCellIdx] != 0)
             {
-                m_destinationCase->activeCellInfo()->setActiveIndexInFractureModel(globalCellIdx, globalActiveFractureIndex++);
+                m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setActiveIndexInMatrixModel(globalCellIdx, globalActiveFractureIndex++);
                 activeFractureIndex++;
             }
         }
 
-        m_destinationCase->activeCellInfo()->setGridActiveCellCounts(gridIdx, activeMatrixIndex, activeFractureIndex);
+        m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setGridActiveCellCounts(gridIdx, activeMatrixIndex);
+        m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setGridActiveCellCounts(gridIdx, activeFractureIndex);
     }
 
-    m_destinationCase->activeCellInfo()->computeDerivedData();
+    m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
+    m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
+
     m_destinationCase->computeCachedData();
 }
 
@@ -164,7 +169,7 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
 
     computeActiveCellUnion();
 
-    size_t activeMatrixCellCount = m_destinationCase->activeCellInfo()->globalMatrixModelActiveCellCount();
+    size_t activeMatrixCellCount = m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalMatrixModelActiveCellCount();
     RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
 
     for (int i = 0; i < resultSpecification.size(); i++)
@@ -190,9 +195,9 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
         }
         else
         {
-            // Meta info is loaded from disk for first case only
-            // Build metadata for all other source cases
-            buildSourceMetaData(resultType, resultName);
+        // Meta info is loaded from disk for first case only
+        // Build metadata for all other source cases
+        buildSourceMetaData(resultType, resultName);
         }
 
         QString minResultName = createResultNameMin(resultName);
@@ -297,7 +302,7 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
                         std::vector<double> values(dataAccesObjectList.size(), HUGE_VAL);
 
                         size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
-                        if (m_destinationCase->activeCellInfo()->isActiveInMatrixModel(globalGridCellIdx))
+                    if (m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActiveInMatrixModel(globalGridCellIdx))
                         {
                             bool foundAnyValidValues = false;
                             for (size_t caseIdx = 0; caseIdx < dataAccesObjectList.size(); caseIdx++)

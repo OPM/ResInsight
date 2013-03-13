@@ -28,9 +28,7 @@
 RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
     m_mainGrid(mainGrid),
-    m_indexToStartOfCells(0),
-    m_matrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
-    m_fractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
+    m_indexToStartOfCells(0)
 {
     if (mainGrid == NULL)
     {
@@ -449,38 +447,6 @@ double RigGridBase::characteristicIJCellSize()
    
 
     return characteristicCellSize;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::matrixModelActiveCellCount() const
-{
-    return m_matrixModelActiveCellCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::fractureModelActiveCellCount() const
-{
-    return m_fractureModelActiveCellCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::setFractureModelActiveCellCount(size_t activeFractureModelCellCount)
-{
-    m_fractureModelActiveCellCount = activeFractureModelCellCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount)
-{
-    m_matrixModelActiveCellCount = activeMatrixModelCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------

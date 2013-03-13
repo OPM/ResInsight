@@ -247,7 +247,7 @@ void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometry
 void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx)
 {
     RigEclipseCase* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
-    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();
+    RigActiveCellInfo* activeCellInfo = m_reservoirView->currentActiveCellInfo();
 
     switch (geometryType)
     {

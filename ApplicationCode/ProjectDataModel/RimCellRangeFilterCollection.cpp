@@ -136,13 +136,9 @@ RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 {
-    if (m_reservoirView &&
-        m_reservoirView->eclipseCase() &&
-        m_reservoirView->eclipseCase()->reservoirData() &&
-        m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo())
+    if (m_reservoirView )
     {
-
-        return m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo();
+        return m_reservoirView->currentActiveCellInfo();
     }
 
     return NULL;

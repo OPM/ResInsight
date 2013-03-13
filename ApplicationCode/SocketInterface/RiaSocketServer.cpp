@@ -446,7 +446,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
     size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->activeCellInfo()->globalMatrixModelActiveCellCount();
+    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalMatrixModelActiveCellCount();
     size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
 
     if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
@@ -634,7 +634,7 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gr
         return;
     }
 
-    RigActiveCellInfo* actCellInfo = m_currentReservoir->reservoirData()->activeCellInfo();
+    RigActiveCellInfo* actCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
     size_t numMatrixModelActiveCells = actCellInfo->globalMatrixModelActiveCellCount();
 
     gridNumber.reserve(numMatrixModelActiveCells);

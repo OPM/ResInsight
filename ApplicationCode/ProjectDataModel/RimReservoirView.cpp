@@ -272,11 +272,11 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
 void RimReservoirView::clampCurrentTimestep()
 {
     // Clamp the current timestep to actual possibilities
-    if (this->gridCellResults()) 
+    if (this->currentGridCellResults()) 
     {
-        if (m_currentTimeStep() >= static_cast<int>(this->gridCellResults()->maxTimeStepCount()))
+        if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()))
         {
-            m_currentTimeStep = static_cast<int>(this->gridCellResults()->maxTimeStepCount()) -1;
+            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()) -1;
         }
     }
 
@@ -460,10 +460,10 @@ void RimReservoirView::createDisplayModel()
             || this->propertyFilterCollection()->hasActiveDynamicFilters() 
             || this->wellCollection->hasVisibleWellPipes())
         {
-            CVF_ASSERT(gridCellResults());
+            CVF_ASSERT(currentGridCellResults());
 
             size_t i;
-            for (i = 0; i < gridCellResults()->maxTimeStepCount(); i++)
+            for (i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++)
             {
                 timeStepIndices.push_back(i);
             }
@@ -711,7 +711,7 @@ void RimReservoirView::loadDataAndUpdate()
             RIApplication* app = RIApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
-                RigReservoirCellResults* results = gridCellResults();
+                RigReservoirCellResults* results = currentGridCellResults();
                 CVF_ASSERT(results);
                 results->loadOrComputeSOIL();
             }
@@ -721,7 +721,7 @@ void RimReservoirView::loadDataAndUpdate()
     CVF_ASSERT(this->cellResult() != NULL);
     this->cellResult()->loadResult();
 
-    if (m_reservoir->reservoirData()->activeCellInfo()->globalFractureModelActiveCellCount() == 0)
+    if (m_reservoir->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalMatrixModelActiveCellCount() == 0)
     {
         this->cellResult->porosityModel.setUiHidden(true);
     }
@@ -882,7 +882,6 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
     {
         RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
         RigGridBase* grid = eclipseCase->grid(gridIndex);
-        RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo();
 
         if (this->cellResult()->hasResult())
         {
@@ -971,7 +970,7 @@ void RimReservoirView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RigReservoirCellResults* RimReservoirView::gridCellResults()
+RigReservoirCellResults* RimReservoirView::currentGridCellResults()
 {
     if (m_reservoir &&
         m_reservoir->reservoirData() &&
@@ -981,6 +980,23 @@ RigReservoirCellResults* RimReservoirView::gridCellResults()
         RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
         return m_reservoir->reservoirData()->results(porosityModel);
+    }
+
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigActiveCellInfo* RimReservoirView::currentActiveCellInfo()
+{
+    if (m_reservoir &&
+        m_reservoir->reservoirData()
+        )
+    {
+        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
+
+        return m_reservoir->reservoirData()->activeCellInfo(porosityModel);
     }
 
     return NULL;
@@ -1185,11 +1201,8 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
     // If all wells are forced off, return
     if (this->wellCollection()->wellCellVisibility() == RimWellCollection::FORCE_ALL_OFF) return;
 
-    RigActiveCellInfo* activeCellInfo = NULL;
-    if (eclipseCase() && eclipseCase()->reservoirData())
-    {
-        activeCellInfo = eclipseCase()->reservoirData()->activeCellInfo();
-    }
+    RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
+
     CVF_ASSERT(activeCellInfo);
 
     // Loop over the wells and find their contribution

@@ -540,13 +540,13 @@ void RIMainWindow::refreshAnimationActions()
     {
         enableAnimControls = true;
 
-        if (app->activeReservoirView()->gridCellResults())
+        if (app->activeReservoirView()->currentGridCellResults())
         {
             if (app->activeReservoirView()->cellResult()->hasDynamicResult() 
             || app->activeReservoirView()->propertyFilterCollection()->hasActiveDynamicFilters() 
             || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes())
             {
-                QList<QDateTime> timeStepDates = app->activeReservoirView()->gridCellResults()->timeStepDates(0);
+                QList<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->timeStepDates(0);
                 bool showHoursAndMinutes = false;
                 for (int i = 0; i < timeStepDates.size(); i++)
                 {

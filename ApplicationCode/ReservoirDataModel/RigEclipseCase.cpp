@@ -287,14 +287,14 @@ void RigEclipseCase::computeActiveCellData()
             matrixModelActiveBB.add(i, j, k);
         }
 
-        if (m_activeCellInfo.isActiveInFractureModel(idx))
+        if (m_fractureActiveCellInfo.isActiveInMatrixModel(idx))
         {
             fractureModelActiveBB.add(i, j, k);
         }
     }
 
     m_activeCellInfo.setMatrixModelActiveCellsBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
-    m_activeCellInfo.setFractureModelActiveCellsBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
+    m_fractureActiveCellInfo.setMatrixModelActiveCellsBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,17 +309,27 @@ void RigEclipseCase::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigActiveCellInfo* RigEclipseCase::activeCellInfo()
+RigActiveCellInfo* RigEclipseCase::activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel)
 {
-    return &m_activeCellInfo;
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return &m_activeCellInfo;
+    }
+
+    return &m_fractureActiveCellInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigActiveCellInfo* RigEclipseCase::activeCellInfo() const
+const RigActiveCellInfo* RigEclipseCase::activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const
 {
-    return &m_activeCellInfo;
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return &m_activeCellInfo;
+    }
+
+    return &m_fractureActiveCellInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -331,33 +341,42 @@ void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
     {
         cvf::BoundingBox bb;
         m_activeCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
+        m_fractureActiveCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
         return;
     }
 
-    cvf::BoundingBox bb;
-    if (m_mainGrid->nodes().size() == 0)
-    {
-        bb.add(cvf::Vec3d::ZERO);
-    }
-    else
-    {
-        for (size_t i = 0; i < m_mainGrid->cellCount(); i++)
-        {
-            if (m_activeCellInfo.isActiveInMatrixModel(i))
-            {
-                const RigCell& c = m_mainGrid->cells()[i];
-                const caf::SizeTArray8& indices = c.cornerIndices();
+    RigActiveCellInfo* activeInfos[2];
+    activeInfos[0] = &m_fractureActiveCellInfo;
+    activeInfos[1] = &m_activeCellInfo; // Last, to make this bb.min become display offset
 
-                size_t idx;
-                for (idx = 0; idx < 8; idx++)
+    cvf::BoundingBox bb;
+    for (int acIdx = 0; acIdx < 2; ++acIdx)
+    {
+        bb.reset();
+        if (m_mainGrid->nodes().size() == 0)
+        {
+            bb.add(cvf::Vec3d::ZERO);
+        }
+        else
+        {
+            for (size_t i = 0; i < m_mainGrid->cellCount(); i++)
+            {
+                if (activeInfos[acIdx]->isActiveInMatrixModel(i))
                 {
-                    bb.add(m_mainGrid->nodes()[indices[idx]]);
+                    const RigCell& c = m_mainGrid->cells()[i];
+                    const caf::SizeTArray8& indices = c.cornerIndices();
+
+                    size_t idx;
+                    for (idx = 0; idx < 8; idx++)
+                    {
+                        bb.add(m_mainGrid->nodes()[indices[idx]]);
+                    }
                 }
             }
         }
-    }
 
-    m_activeCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
+        activeInfos[acIdx]->setMatrixActiveCellsGeometryBoundingBox(bb);
+    }
 
     m_mainGrid->setDisplayModelOffset(bb.min());
 }

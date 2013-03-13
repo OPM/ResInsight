@@ -36,55 +36,54 @@ public:
     RigEclipseCase();
     ~RigEclipseCase();
 
-    RigMainGrid*            mainGrid() { return m_mainGrid.p(); }
-    const RigMainGrid*      mainGrid() const { return m_mainGrid.p(); }
-    void                    setMainGrid(RigMainGrid* mainGrid);
+    RigMainGrid*                                mainGrid() { return m_mainGrid.p(); }
+    const RigMainGrid*                          mainGrid() const { return m_mainGrid.p(); }
+    void                                        setMainGrid(RigMainGrid* mainGrid);
 
-    void                    allGrids(std::vector<RigGridBase*>* grids); // To be removed
-    void                    allGrids(std::vector<const RigGridBase*>* grids) const;// To be removed
-    const RigGridBase*      grid(size_t index) const;
-    RigGridBase*            grid(size_t index);
-    size_t                  gridCount() const;
+    void                                        allGrids(std::vector<RigGridBase*>* grids); // To be removed
+    void                                        allGrids(std::vector<const RigGridBase*>* grids) const;// To be removed
+    const RigGridBase*                          grid(size_t index) const;
+    RigGridBase*                                grid(size_t index);
+    size_t                                      gridCount() const;
 
-    RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
-    const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
+    RigReservoirCellResults*		            results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RigReservoirCellResults*              results(RifReaderInterface::PorosityModelResultType porosityModel) const;
+
+    RigActiveCellInfo*                          activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RigActiveCellInfo*                    activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const;
     
-    void                    closeReaderInterface();
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject(const RigGridBase* grid, 
+    cvf::ref<cvf::StructGridScalarDataAccess>   dataAccessObject(const RigGridBase* grid, 
                                                                RifReaderInterface::PorosityModelResultType porosityModel, 
                                                                size_t timeStepIndex, 
                                                                size_t scalarSetIndex);
 
-    void                    computeCachedData();
-
-    void                    setWellResults(const cvf::Collection<RigWellResults>& data);
-    const cvf::Collection<RigWellResults>&  wellResults() { return m_wellResults; }
+     void                                       setWellResults(const cvf::Collection<RigWellResults>& data);
+    const cvf::Collection<RigWellResults>&      wellResults() { return m_wellResults; }
 
 
-    cvf::UByteArray*        wellCellsInGrid(size_t gridIndex);
+    cvf::UByteArray*                            wellCellsInGrid(size_t gridIndex);
 
-    RigCell&                cellFromWellResultCell(const RigWellResultCell& wellResultCell);
-    bool                    findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
+    RigCell&                                    cellFromWellResultCell(const RigWellResultCell& wellResultCell);
+    bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
 
-    RigActiveCellInfo*          activeCellInfo();
-    const RigActiveCellInfo*    activeCellInfo() const;
-
+    void                                        computeCachedData();
+    void                                        closeReaderInterface();
 
 private:
-    void                    computeActiveCellData();
-    void                    computeWellCellsPrGrid();
-    void                    computeActiveCellsGeometryBoundingBox();
+    void                                        computeActiveCellData();
+    void                                        computeWellCellsPrGrid();
+    void                                        computeActiveCellsGeometryBoundingBox();
 
 private:
-    RigActiveCellInfo                   m_activeCellInfo;
+    cvf::ref<RigMainGrid>                       m_mainGrid;
 
-    cvf::ref<RigMainGrid>               m_mainGrid;
+    RigActiveCellInfo                           m_activeCellInfo;
+    RigActiveCellInfo                           m_fractureActiveCellInfo;
 
-    cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
-    cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
+    cvf::ref<RigReservoirCellResults>           m_matrixModelResults;
+    cvf::ref<RigReservoirCellResults>           m_fractureModelResults;
 
-
-    cvf::Collection<RigWellResults>     m_wellResults;
-    cvf::Collection<cvf::UByteArray>    m_wellCellsInGrid;
+    cvf::Collection<RigWellResults>             m_wellResults;
+    cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
 };

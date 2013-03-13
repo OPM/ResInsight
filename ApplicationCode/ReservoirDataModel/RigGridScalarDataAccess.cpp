@@ -130,7 +130,7 @@ private:
 
 
 
-
+/*
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -179,7 +179,7 @@ private:
 
 
 
-
+*/
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -194,11 +194,11 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::create
     CVF_ASSERT(gridIndex < eclipseCase->gridCount());
     CVF_ASSERT(eclipseCase);
     CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo());
+    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
 
     RigGridBase *grid = eclipseCase->grid(gridIndex);
 
-    if ( !eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo())
+    if ( !eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
         return NULL;
     }
@@ -215,16 +215,8 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::create
     bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
-        if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
-        {
-            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridMatrixActiveCellsScalarDataAccess(grid, resultValues, eclipseCase->activeCellInfo());
-            return object;
-        }
-        else
-        {
-            cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridFractureActiveCellsScalarDataAccess(grid, resultValues, eclipseCase->activeCellInfo());
-            return object;
-        }
+        cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridMatrixActiveCellsScalarDataAccess(grid, resultValues, eclipseCase->activeCellInfo(porosityModel));
+        return object;
     }
     else
     {

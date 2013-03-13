@@ -63,9 +63,9 @@ void RimResultDefinition::setReservoirView(RimReservoirView* ownerReservoirView)
     // TODO: This code is executed before reservoir is read, and then porosity model is never set to zero
     if (m_reservoirView->eclipseCase() &&
         m_reservoirView->eclipseCase()->reservoirData() &&
-        m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo() )
+        m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) )
     {
-        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo()->globalFractureModelActiveCellCount() == 0)
+        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalMatrixModelActiveCellCount() == 0)
         {
             porosityModel.setUiHidden(true);
         }
@@ -92,9 +92,9 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
 {
     if (fieldNeedingOptions == &resultVariable)
     {
-        if (m_reservoirView && m_reservoirView->gridCellResults())
+        if (m_reservoirView && m_reservoirView->currentGridCellResults())
         {
-            QStringList varList = m_reservoirView->gridCellResults()->resultNames(resultType());
+            QStringList varList = m_reservoirView->currentGridCellResults()->resultNames(resultType());
             QList<caf::PdmOptionItemInfo> optionList;
             int i;
             for (i = 0; i < varList.size(); ++i)
@@ -119,7 +119,7 @@ size_t RimResultDefinition::gridScalarIndex() const
 {
     if (m_gridScalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        const RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
+        const RigReservoirCellResults* gridCellResults = m_reservoirView->currentGridCellResults();
         if (gridCellResults) m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(resultType(), resultVariable());
     }
     return m_gridScalarResultIndex;
@@ -130,7 +130,7 @@ size_t RimResultDefinition::gridScalarIndex() const
 //--------------------------------------------------------------------------------------------------
 void RimResultDefinition::loadResult()
 {
-    RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
+    RigReservoirCellResults* gridCellResults = m_reservoirView->currentGridCellResults();
     if (gridCellResults)
     {
         m_gridScalarResultIndex = gridCellResults->findOrLoadScalarResult(resultType(), resultVariable);
@@ -148,7 +148,7 @@ void RimResultDefinition::loadResult()
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasStaticResult() const
 {
-    const RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
+    const RigReservoirCellResults* gridCellResults = m_reservoirView->currentGridCellResults();
     if (hasResult() && gridCellResults->timeStepCount(m_gridScalarResultIndex) == 1 )
     {
         return true;
@@ -166,7 +166,7 @@ bool RimResultDefinition::hasResult() const
 {
     if (m_gridScalarResultIndex != cvf::UNDEFINED_SIZE_T) return true;
 
-    const RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
+    const RigReservoirCellResults* gridCellResults = m_reservoirView->currentGridCellResults();
     if (gridCellResults)
     {
         m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(resultType(), resultVariable());
@@ -182,7 +182,7 @@ bool RimResultDefinition::hasResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasDynamicResult() const
 {
-    const RigReservoirCellResults* gridCellResults = m_reservoirView->gridCellResults();
+    const RigReservoirCellResults* gridCellResults = m_reservoirView->currentGridCellResults();
     if (hasResult() && gridCellResults->timeStepCount(m_gridScalarResultIndex) > 1 )
         return true;
     else
