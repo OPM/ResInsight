@@ -498,3 +498,37 @@ RimStatisticalCalculation* RimUiTreeModelPdm::addStatisticalCalculation(const QM
     return createdObject;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+{
+    RimProject* proj = RIApplication::instance()->project();
+    CVF_ASSERT(proj);
+
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()))
+    {
+        QModelIndex rootIndex = itemIndex.parent();
+        caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
+
+        int position = rootTreeItem->childCount();
+
+        beginInsertRows(rootIndex, position, position);
+
+        RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
+        proj->caseGroups().push_back(createdObject);
+
+        caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(rootTreeItem, position, createdObject);
+
+        endInsertRows();
+
+        insertedModelIndex = index(position, 0, rootIndex);
+
+        return createdObject;
+    }
+
+    return NULL;
+}
+

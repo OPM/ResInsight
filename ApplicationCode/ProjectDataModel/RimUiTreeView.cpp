@@ -165,6 +165,12 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.exec(event->globalPos());
             }
+            else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p()))
+            {
+                QMenu menu;
+                menu.addAction(QString("New Case Group"), this, SLOT(slotAddCaseGroup()));
+                menu.exec(event->globalPos());
+            }
         }
     }
 }
@@ -793,6 +799,20 @@ void RimUiTreeView::slotComputeStatisticalCases()
     if (statisticalObject->reservoirViews.size() == 0)
     {
         slotAddView();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotAddCaseGroup()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        QModelIndex insertedIndex;
+        myModel->addCaseGroup(currentIndex(), insertedIndex);
+        setCurrentIndex(insertedIndex);
     }
 }
 

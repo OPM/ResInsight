@@ -29,6 +29,7 @@ class RimCellRangeFilter;
 class RimReservoirView;
 class RimInputProperty;
 class RimStatisticalCalculation;
+class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
 ///
@@ -57,6 +58,7 @@ public:
     void                    addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
     
     RimStatisticalCalculation*       addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimIdenticalGridCaseGroup*       addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 
     void            updateScriptPaths();
 

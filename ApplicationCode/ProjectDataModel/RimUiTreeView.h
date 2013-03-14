@@ -71,6 +71,7 @@ private slots:
 
     void slotNewStatisticalCase();
     void slotComputeStatisticalCases();
+    void slotAddCaseGroup();
 
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
