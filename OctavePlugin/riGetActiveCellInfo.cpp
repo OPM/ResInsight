@@ -52,7 +52,7 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
 
     activeCellCount = byteCount / sizeof(qint32);
 
-    dim_vector dv (2);
+    dim_vector dv (2, 1);
     dv(0) = activeCellCount;
     dv(1) = timestepCount;
     activeCellInfo.resize(dv);
