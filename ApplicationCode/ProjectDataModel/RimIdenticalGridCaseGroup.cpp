@@ -45,6 +45,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     caseCollection = new RimCaseCollection;
     statisticalReservoirCollection = new RimStatisticalCollection;
 
+    m_mainGrid = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
