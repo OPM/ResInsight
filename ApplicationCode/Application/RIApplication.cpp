@@ -1306,7 +1306,7 @@ void RIApplication::updateRegressionTest(const QString& testRootPath)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Make sure changes in this functions is validated to RimIdenticalGridCaseGroup::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RIApplication::addEclipseCases(const QStringList& fileNames)
 {

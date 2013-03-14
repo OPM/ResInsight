@@ -54,6 +54,7 @@ public:
 protected:
     virtual caf::PdmFieldHandle*   userDescriptionField();
 
+    virtual void initAfterRead();
 private:
     RigMainGrid* m_mainGrid;
 };

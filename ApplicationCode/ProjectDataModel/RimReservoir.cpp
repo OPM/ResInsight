@@ -89,8 +89,11 @@ RimReservoir::~RimReservoir()
 {
     reservoirViews.deleteAllChildObjects();
 
-    // At this point, we assume that memory should be released
-    CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
+    if (m_rigEclipseCase.notNull())
+    {
+        // At this point, we assume that memory should be released
+        CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +104,11 @@ RimReservoirView* RimReservoir::createAndAddReservoirView()
     // If parent is collection, and number of views is zero, make sure rig is set to NULL to initiate normal case loading
     if (parentCaseCollection() != NULL && reservoirViews().size() == 0)
     {
-        CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
+        if (m_rigEclipseCase.notNull())
+        {
+            CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
+        }
+
         m_rigEclipseCase = NULL;
     }
 

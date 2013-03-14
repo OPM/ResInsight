@@ -26,6 +26,8 @@
 
 #include "RimStatisticalCalculation.h"
 #include "RimStatisticalCollection.h"
+#include "RimResultReservoir.h"
+#include "cafProgressInfo.h"
 
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
@@ -104,5 +106,57 @@ RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 caf::PdmFieldHandle* RimIdenticalGridCaseGroup::userDescriptionField()
 {
     return &name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///  Make sure changes in this functions is validated to RIApplication::addEclipseCases()
+//--------------------------------------------------------------------------------------------------
+void RimIdenticalGridCaseGroup::initAfterRead()
+{
+    if (caseCollection()->reservoirs().size() == 0)
+    {
+        return;
+    }
+
+    // First file is read completely including grid.
+    // The main grid from the first case is reused directly in for the other cases. 
+    // When reading active cell info, only the total cell count is tested for consistency
+    RigEclipseCase* mainEclipseCase = NULL;
+
+    RimResultReservoir* rimReservoir = dynamic_cast<RimResultReservoir*>(caseCollection()->reservoirs()[0]);
+    CVF_ASSERT(rimReservoir);
+        
+    rimReservoir->openEclipseGridFile();
+
+    mainEclipseCase = rimReservoir->reservoirData();
+    CVF_ASSERT(mainEclipseCase);
+
+    
+    // Read active cell info from all source cases
+    caf::ProgressInfo info(caseCollection()->reservoirs().size(), "Case group - Reading Active Cell data");
+    for (size_t i = 1; i < caseCollection()->reservoirs().size(); i++)
+    {
+        RimResultReservoir* rimReservoir = dynamic_cast<RimResultReservoir*>(caseCollection()->reservoirs()[i]);
+        CVF_ASSERT(rimReservoir);
+
+        if (!rimReservoir->openAndReadActiveCellData(mainEclipseCase))
+        {
+            CVF_ASSERT(false);
+        }
+
+        info.setProgress(i);
+    }
+
+
+    // Set main grid for statistical calculations
+    for (size_t i = 0; i < statisticalReservoirCollection()->reservoirs().size(); i++)
+    {
+        RimStatisticalCalculation* rimReservoir = dynamic_cast<RimStatisticalCalculation*>(statisticalReservoirCollection()->reservoirs()[i]);
+        CVF_ASSERT(rimReservoir);
+
+        rimReservoir->setMainGrid(mainEclipseCase->mainGrid());
+    }
+
+    m_mainGrid = mainEclipseCase->mainGrid();
 }
 
