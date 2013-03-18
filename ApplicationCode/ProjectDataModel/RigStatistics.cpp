@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+#include "RIStdInclude.h"
 
 #include "RigStatistics.h"
 #include "RigReservoirCellResults.h"

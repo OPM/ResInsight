@@ -86,6 +86,7 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimUiTreeModelPdm.cpp
     ProjectDataModel/RimUiTreeView.cpp
 	ProjectDataModel/RimReservoirCellResultsCacher.cpp
+	ProjectDataModel/RigStatistics.cpp
 )
 
 # Populate the filenames into variable lists
@@ -153,20 +154,20 @@ qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 #############################################################################
 
 set( RAW_SOURCES ${CPP_SOURCES} )
-list( REMOVE_ITEM RAW_SOURCES RIStdInclude.cpp)
-list( REMOVE_ITEM RAW_SOURCES ${CODE_SOURCE_FILES})
 
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivCellEdgeEffectGenerator.cpp)
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivPipeGeometryGenerator.cpp)
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellPipesPartMgr.cpp)
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellHeadPartMgr.cpp)
+list( REMOVE_ITEM RAW_SOURCES 
+	RIStdInclude.cpp
 
-list( REMOVE_ITEM RAW_SOURCES Application/RiaImageFileCompare.cpp)
-list( REMOVE_ITEM RAW_SOURCES Application/RiaImageCompareReporter.cpp)
+	${CODE_SOURCE_FILES}
 
-
-
-list( REMOVE_ITEM RAW_SOURCES     
+	ModelVisualization/RivCellEdgeEffectGenerator.cpp
+	ModelVisualization/RivPipeGeometryGenerator.cpp
+	ModelVisualization/RivWellPipesPartMgr.cpp
+	ModelVisualization/RivWellHeadPartMgr.cpp
+	
+	Application/RiaImageFileCompare.cpp
+	Application/RiaImageCompareReporter.cpp
+	    
     FileInterface/RifEclipseInputFileTools.cpp
     FileInterface/RifEclipseOutputFileTools.cpp
     FileInterface/RifEclipseRestartFilesetAccess.cpp
@@ -174,9 +175,9 @@ list( REMOVE_ITEM RAW_SOURCES
     FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
     FileInterface/RifReaderEclipseInput.cpp
     FileInterface/RifReaderEclipseOutput.cpp
+
     UserInterface/RiuSimpleHistogramWidget.cpp
     UserInterface/RiuMultiCaseImportDialog.cpp
-
 )
 
 include( CustomPCH.cmake )
