@@ -22,7 +22,8 @@
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-
+#include "RimReservoirCellResultsCacher.h"
+#include "RifReaderInterface.h"
 
 class QString;
 
@@ -30,12 +31,11 @@ class RigEclipseCase;
 class RigGridBase;
 class RimReservoirView;
 class RimCaseCollection;
+//class RimReservoirCellResultsCacher;
 
 //==================================================================================================
 // 
 // Interface for reservoirs. 
-// As this is a pure virtual class, the factory macros are not relevant (nor possible) to use
-// CAF_PDM_HEADER_INIT and CAF_PDM_SOURCE_INIT
 // 
 //==================================================================================================
 class RimReservoir : public caf::PdmObject
@@ -45,38 +45,45 @@ public:
     RimReservoir();
     virtual ~RimReservoir();
 
-    virtual bool                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
-                                      
-    RigEclipseCase*             reservoirData();
-    const RigEclipseCase*       reservoirData() const;
-                                      
-    RimReservoirView*           createAndAddReservoirView();
-    void                        removeReservoirView(RimReservoirView* reservoirView);
+    // Fields:                                        
+    caf::PdmField<QString>                      caseName;
+    caf::PdmField<bool>                         releaseResultMemory;
+    caf::PdmPointersField<RimReservoirView*>    reservoirViews;
 
-    void                        removeResult(const QString& resultName);
-                                      
-    // Fields:                        
-    caf::PdmField<QString>      caseName;
-    caf::PdmField<bool>         releaseResultMemory;
+    virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
+                                                      
+    RigEclipseCase*                             reservoirData();
+    const RigEclipseCase*                       reservoirData() const;
 
-    caf::PdmPointersField<RimReservoirView*> reservoirViews;
+    RimReservoirCellResultsCacher*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
+                                                      
+    RimReservoirView*                           createAndAddReservoirView();
+    void                                        removeReservoirView(RimReservoirView* reservoirView);
 
-    virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName; }
-    
-    virtual QString                 locationOnDisc() const      { return QString(); }
+    void                                        removeResult(const QString& resultName);
 
+    virtual QString                             locationOnDisc() const      { return QString(); }
+                                                     
+    // Overridden methods from PdmObject
+public:
+    virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseName; }
 protected:
-    // Overridden methods
-    virtual void                    initAfterRead();
+    virtual void                                initAfterRead();
+    virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-
-    void computeCachedData();
+    // Internal methods
+protected:
+    void                                        computeCachedData();
+    void                                        setReservoirData(RigEclipseCase* eclipseCase);
 
 private:
-    RimCaseCollection* parentCaseCollection();
+    RimCaseCollection*                          parentCaseCollection();
 
-protected:
-    cvf::ref<RigEclipseCase>        m_rigEclipseCase;
+private:
+    cvf::ref<RigEclipseCase>                    m_rigEclipseCase;
+
+private:
+    caf::PdmField<RimReservoirCellResultsCacher*> m_matrixModelResults;
+    caf::PdmField<RimReservoirCellResultsCacher*> m_fractureModelResults;
 
 };

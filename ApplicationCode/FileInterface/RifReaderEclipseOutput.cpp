@@ -377,9 +377,6 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCase* eclip
 
     m_eclipseCase = eclipseCase;
     
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(this);
-    eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(this);
-    
     // Build results meta data
     if (!buildMetaData()) return false;
     progInfo.incrementProgress();
@@ -397,7 +394,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCase* eclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, RigEclipseCase* mainEclipseCase, RigEclipseCase* eclipseCase)
+bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCase* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -417,8 +414,6 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
     m_fileSet = fileSet;
     m_eclipseCase = eclipseCase;
 
-    eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(this);
-    eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(this);
 
     if (!readActiveCellInfo())
     {
@@ -432,7 +427,6 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
 
     m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
 
-    std::vector<QDateTime> mainCaseTimeSteps = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->readerInterface()->timeSteps();
     m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
 
     return true;

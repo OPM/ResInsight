@@ -272,11 +272,11 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
 void RimReservoirView::clampCurrentTimestep()
 {
     // Clamp the current timestep to actual possibilities
-    if (this->currentGridCellResults()) 
+    if (this->currentGridCellResults()->cellResults()) 
     {
-        if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()))
+        if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()))
         {
-            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->maxTimeStepCount()) -1;
+            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()) -1;
         }
     }
 
@@ -463,7 +463,7 @@ void RimReservoirView::createDisplayModel()
             CVF_ASSERT(currentGridCellResults());
 
             size_t i;
-            for (i = 0; i < currentGridCellResults()->maxTimeStepCount(); i++)
+            for (i = 0; i < currentGridCellResults()->cellResults()->maxTimeStepCount(); i++)
             {
                 timeStepIndices.push_back(i);
             }
@@ -711,7 +711,7 @@ void RimReservoirView::loadDataAndUpdate()
             RIApplication* app = RIApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
-                RigReservoirCellResults* results = currentGridCellResults();
+                RimReservoirCellResultsCacher* results = currentGridCellResults();
                 CVF_ASSERT(results);
                 results->loadOrComputeSOIL();
             }
@@ -970,16 +970,13 @@ void RimReservoirView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RigReservoirCellResults* RimReservoirView::currentGridCellResults()
+RimReservoirCellResultsCacher* RimReservoirView::currentGridCellResults()
 {
-    if (m_reservoir &&
-        m_reservoir->reservoirData() &&
-        m_reservoir->reservoirData()->mainGrid()
-        )
+    if (m_reservoir)
     {
         RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
-        return m_reservoir->reservoirData()->results(porosityModel);
+        return m_reservoir->results(porosityModel);
     }
 
     return NULL;

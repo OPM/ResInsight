@@ -59,7 +59,7 @@ public:
 private:
     RimIdenticalGridCaseGroup* caseGroup();
 
-    void getSourceCases(cvf::Collection<RigEclipseCase>& sourceCases);
+    void getSourceCases(std::vector<RimReservoir*>& sourceCases);
 
 private:
     cvf::ref<RifReaderStatisticalCalculation> m_readerInterface;

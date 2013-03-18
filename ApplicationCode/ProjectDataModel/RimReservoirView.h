@@ -118,7 +118,7 @@ public:
     caf::PdmField<bool>                                 animationMode;
 
     // Access internal objects
-    RigReservoirCellResults*                currentGridCellResults();
+    RimReservoirCellResultsCacher*          currentGridCellResults();
     RigActiveCellInfo*                      currentActiveCellInfo();
 
     void                                    setEclipseCase(RimReservoir* reservoir);

@@ -280,18 +280,18 @@ void RiaSocketServer::readCommandFromOctave()
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS))
+        if (reservoir && reservoir->results(RifReaderInterface::MATRIX_RESULTS))
         {
-            scalarResultIndex = reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T && isSetProperty)
             {
-                scalarResultIndex = reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
+                scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(reservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndex));
+                scalarResultFrames = &(reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->cellScalarResults(scalarResultIndex));
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }

@@ -52,7 +52,7 @@ bool RimResultReservoir::openEclipseGridFile()
     progInfo.setProgressDescription("Open Grid File");
     progInfo.setNextProgressIncrement(48);
     // Early exit if reservoir data is created
-    if (m_rigEclipseCase.notNull()) return true;
+    if (this->reservoirData()) return true;
 
     cvf::ref<RifReaderInterface> readerInterface;
 
@@ -60,8 +60,6 @@ bool RimResultReservoir::openEclipseGridFile()
     {
         readerInterface = this->createMockModel(this->caseName());
 
-        m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
     }
     else
     {
@@ -78,12 +76,15 @@ bool RimResultReservoir::openEclipseGridFile()
             return false;
         }
 
-        m_rigEclipseCase = eclipseCase;
+        this->setReservoirData( eclipseCase.p() );
     }
+
+    results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+    results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
     progInfo.incrementProgress();
 
-    CVF_ASSERT(m_rigEclipseCase.notNull());
+    CVF_ASSERT(this->reservoirData());
     CVF_ASSERT(readerInterface.notNull());
 
     progInfo.setProgressDescription("Computing Case Cache");
@@ -102,9 +103,6 @@ bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCa
     if (caseName().contains("Result Mock Debug Model"))
     {
         readerInterface = this->createMockModel(this->caseName());
-
-        m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
-        m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
     }
     else
     {
@@ -127,13 +125,16 @@ bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCa
 
         readerInterface->close();
 
-        m_rigEclipseCase = eclipseCase;
+        this->setReservoirData( eclipseCase.p() );
     }
 
-    CVF_ASSERT(m_rigEclipseCase.notNull());
+    results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
+    results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+
+    CVF_ASSERT(this->reservoirData());
     CVF_ASSERT(readerInterface.notNull());
 
-    m_rigEclipseCase->computeCachedData();
+    reservoirData()->computeCachedData();
 
     return true;
 }
@@ -212,7 +213,7 @@ cvf::ref<RifReaderInterface> RimResultReservoir::createMockModel(QString modelNa
 
     }
 
-    m_rigEclipseCase = reservoir;
+    this->setReservoirData( reservoir.p() );
 
     return mockFileInterface.p();
 }

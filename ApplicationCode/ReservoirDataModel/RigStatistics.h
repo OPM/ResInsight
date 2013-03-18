@@ -22,12 +22,17 @@
 #include "cvfObject.h"
 #include "cvfCollection.h"
 
-#include "RigEclipseCase.h"
+
 
 #include <vector>
 #include <math.h>
 
 #include <QPair>
+#include "RimDefines.h"
+
+class RimReservoir;
+class RigEclipseCase;
+class RigReservoirCellResults;
 
 class RigStatisticsEvaluator
 {
@@ -124,7 +129,7 @@ public:
 class RigStatistics
 {
 public:
-    RigStatistics(cvf::Collection<RigEclipseCase>& sourceCases,
+    RigStatistics(const std::vector<RimReservoir*>& sourceCases,
                   const std::vector<size_t>& timeStepIndices,
                   const RigStatisticsConfig& statisticsConfig,
                   RigEclipseCase* destinationCase);
@@ -140,7 +145,7 @@ private:
     void buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName);
 
 private:
-    cvf::Collection<RigEclipseCase> m_sourceCases;
+    std::vector<RimReservoir*>       m_sourceCases;
     std::vector<size_t>             m_timeStepIndices;
 
     size_t                          m_globalCellCount;

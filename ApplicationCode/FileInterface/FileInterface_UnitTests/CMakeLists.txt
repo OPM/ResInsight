@@ -18,6 +18,9 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/cafProjectDataModel
 
     ${ResInsight_SOURCE_DIR}/CommonCode
+
+	#Remove when RigStatistics is out
+    ${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
 )
 
 

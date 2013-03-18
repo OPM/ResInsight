@@ -133,7 +133,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
         if (m_reservoirView && m_reservoirView->currentGridCellResults())
         {
             QStringList varList;
-            varList = m_reservoirView->currentGridCellResults()->resultNames(RimDefines::STATIC_NATIVE);
+            varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RimDefines::STATIC_NATIVE);
 
             //TODO: Must also handle input properties
             //varList += m_reservoirView->gridCellResults()->resultNames(RimDefines::INPUT_PROPERTY);
@@ -208,7 +208,7 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
     if (m_reservoirView && m_reservoirView->currentGridCellResults() && !resultVariable().isEmpty())
     {
         QStringList varList;
-        varList = m_reservoirView->currentGridCellResults()->resultNames(RimDefines::STATIC_NATIVE);
+        varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RimDefines::STATIC_NATIVE);
         //TODO: Must handle Input properties
 
         int i;
@@ -313,7 +313,7 @@ void RimCellEdgeResultSlot::minMaxCellEdgeValues(double& min, double& max)
 
         {
             double cMin, cMax;
-            m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
 
             globalMin = CVF_MIN(globalMin, cMin);
             globalMax = CVF_MAX(globalMax, cMax);

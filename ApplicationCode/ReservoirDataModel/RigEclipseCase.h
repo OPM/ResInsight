@@ -68,7 +68,7 @@ public:
     bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
 
     void                                        computeCachedData();
-    void                                        closeReaderInterface();
+    //void                                        closeReaderInterface();
 
 private:
     void                                        computeActiveCellData();

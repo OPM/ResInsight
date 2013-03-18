@@ -425,7 +425,7 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigEclipseCase::dataAccessObject(const
     return NULL;
 
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -438,3 +438,4 @@ void RigEclipseCase::closeReaderInterface()
         readerInterface->close();
     }
 }
+*/

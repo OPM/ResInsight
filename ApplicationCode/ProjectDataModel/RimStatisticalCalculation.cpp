@@ -60,9 +60,9 @@ RimStatisticalCalculation::~RimStatisticalCalculation()
 void RimStatisticalCalculation::setMainGrid(RigMainGrid* mainGrid)
 {
     CVF_ASSERT(mainGrid);
-    CVF_ASSERT(m_rigEclipseCase.notNull());
+    CVF_ASSERT(this->reservoirData());
 
-    m_rigEclipseCase->setMainGrid(mainGrid);
+    reservoirData()->setMainGrid(mainGrid);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ void RimStatisticalCalculation::setMainGrid(RigMainGrid* mainGrid)
 //--------------------------------------------------------------------------------------------------
 bool RimStatisticalCalculation::openEclipseGridFile()
 {
-    if (m_rigEclipseCase.notNull()) return true;
+    if (this->reservoirData()) return true;
 
     cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
 
@@ -79,10 +79,10 @@ bool RimStatisticalCalculation::openEclipseGridFile()
         return false;
     }
 
-    m_rigEclipseCase = eclipseCase;
+    this->setReservoirData( eclipseCase.p() );
 
-    m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(m_readerInterface.p());
-    m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(m_readerInterface.p());
+    results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(m_readerInterface.p());
+    results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(m_readerInterface.p());
    
     return true;
 }
@@ -116,12 +116,12 @@ RimStatisticalCollection* RimStatisticalCalculation::parentStatisticalCollection
 //--------------------------------------------------------------------------------------------------
 void RimStatisticalCalculation::computeStatistics()
 {
-    if (m_rigEclipseCase.isNull())
+    if (this->reservoirData() == NULL)
     {
         openEclipseGridFile();
     }
 
-    cvf::Collection<RigEclipseCase> sourceCases;
+    std::vector<RimReservoir*> sourceCases;
 
     getSourceCases(sourceCases);
 
@@ -132,7 +132,7 @@ void RimStatisticalCalculation::computeStatistics()
 
     // The first source has been read completely from disk, and contains grid and meta data
     // Use this information for all cases in the case group
-    size_t timeStepCount = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount();
+    size_t timeStepCount = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->maxTimeStepCount();
 
     RigStatisticsConfig statisticsConfig;
 
@@ -183,7 +183,7 @@ void RimStatisticalCalculation::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::getSourceCases(cvf::Collection<RigEclipseCase>& sourceCases)
+void RimStatisticalCalculation::getSourceCases(std::vector<RimReservoir*>& sourceCases)
 {
     RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
     if (gridCaseGroup)
@@ -195,7 +195,7 @@ void RimStatisticalCalculation::getSourceCases(cvf::Collection<RigEclipseCase>& 
             CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]);
             CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]->reservoirData());
 
-            RigEclipseCase* sourceCase = gridCaseGroup->caseCollection->reservoirs[i]->reservoirData();
+            RimReservoir* sourceCase = gridCaseGroup->caseCollection->reservoirs[i];
             sourceCases.push_back(sourceCase);
         }
     }

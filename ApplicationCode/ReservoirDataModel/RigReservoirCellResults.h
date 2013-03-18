@@ -35,49 +35,45 @@ class RigReservoirCellResults : public cvf::Object
 public:
     RigReservoirCellResults(RigMainGrid* ownerGrid);
 
-    void                setReaderInterface(RifReaderInterface* readerInterface);
-    RifReaderInterface* readerInterface();
+    //void                                               setReaderInterface(RifReaderInterface* readerInterface);
+    //RifReaderInterface*                                readerInterface();
 
     // Max and min values of the results
-    void                recalculateMinMax(size_t scalarResultIndex);
-    void                minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
-    void                minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
-    const std::vector<size_t>& cellScalarValuesHistogram(size_t scalarResultIndex);
-    void                p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90);
-    void                meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
+    void                                               recalculateMinMax(size_t scalarResultIndex);
+    void                                               minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
+    void                                               minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
+    const std::vector<size_t>&                         cellScalarValuesHistogram(size_t scalarResultIndex);
+    void                                               p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90);
+    void                                               meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
 
     // Access meta-information about the results
-    size_t              resultCount() const;
-    size_t              timeStepCount(size_t scalarResultIndex) const; 
-    size_t              maxTimeStepCount() const; 
-    QStringList         resultNames(RimDefines::ResultCatType type) const;
-    bool                isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
+    size_t                                             resultCount() const;
+    size_t                                             timeStepCount(size_t scalarResultIndex) const; 
+    size_t                                             maxTimeStepCount() const; 
+    QStringList                                        resultNames(RimDefines::ResultCatType type) const;
+    bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
 
-    QDateTime           timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
-    std::vector<QDateTime>    timeStepDates(size_t scalarResultIndex) const;
-    void                setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates);
+    QDateTime                                          timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
+    std::vector<QDateTime>                             timeStepDates(size_t scalarResultIndex) const;
+    void                                               setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates);
 
     // Find or create a slot for the results
-    size_t              findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
-    size_t              findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
-    size_t              findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
-    size_t              findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;
-    size_t              findScalarResultIndex(const QString& resultName) const;
-    size_t              addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName);
-    QString             makeResultNameUnique(const QString& resultNameProposal) const;
 
-    void                removeResult(const QString& resultName);
-    void                clearAllResults();
+    size_t                                             findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;
+    size_t                                             findScalarResultIndex(const QString& resultName) const;
 
-    void                loadOrComputeSOIL();
-    void                loadOrComputeSOILForTimeStep(size_t timeStepIndex);
-    void                computeDepthRelatedResults();
+    size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+    QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
+
+    void                                               removeResult(const QString& resultName);
+    void                                               clearAllResults();
+
 
     // Access the results data
-    const std::vector< std::vector<double> > &              cellScalarResults(size_t scalarResultIndex) const;
-    std::vector< std::vector<double> > &                    cellScalarResults(size_t scalarResultIndex);
-    std::vector<double>&                                    cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
-    double                                                  cellScalarResult(size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex);
+    const std::vector< std::vector<double> > &         cellScalarResults(size_t scalarResultIndex) const;
+    std::vector< std::vector<double> > &               cellScalarResults(size_t scalarResultIndex);
+    std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
+    double                                             cellScalarResult(size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex);
 
     static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
 
@@ -97,8 +93,10 @@ public:
 
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
     
-private:
-    size_t              addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, size_t resultValueCount);
+public:
+    size_t                                                  addStaticScalarResult(RimDefines::ResultCatType type, 
+                                                                                  const QString& resultName, 
+                                                                                  size_t resultValueCount);
 
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
@@ -113,7 +111,7 @@ private:
 
 private:
     std::vector<ResultInfo>                                 m_resultInfos;
-    cvf::ref<RifReaderInterface>                            m_readerInterface;
+
     RigMainGrid*                                            m_ownerMainGrid;
 
 };

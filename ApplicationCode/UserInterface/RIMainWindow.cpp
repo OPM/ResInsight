@@ -546,7 +546,7 @@ void RIMainWindow::refreshAnimationActions()
             || app->activeReservoirView()->propertyFilterCollection()->hasActiveDynamicFilters() 
             || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes())
             {
-                std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->timeStepDates(0);
+                std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->cellResults()->timeStepDates(0);
                 bool showHoursAndMinutes = false;
                 for (int i = 0; i < timeStepDates.size(); i++)
                 {

@@ -34,6 +34,7 @@
 
 #include <QString>
 #include "RimProject.h"
+#include "RimReservoirCellResultsCacher.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoir, "RimReservoir");
 
@@ -42,15 +43,33 @@ CAF_PDM_SOURCE_INIT(RimReservoir, "RimReservoir");
 //--------------------------------------------------------------------------------------------------
 RimReservoir::RimReservoir()
 {
-    m_rigEclipseCase = NULL;
-
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Case name", "", "" ,"");
-//     CAF_PDM_InitField(&releaseResultMemory, "ReleaseResultMemory", true, "Release result memory", "", "" ,"");
-//     releaseResultMemory.setIOReadable(false);
-//     releaseResultMemory.setIOWritable(false);
-//     releaseResultMemory.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
+
+    m_matrixModelResults = new RimReservoirCellResultsCacher;
+    m_fractureModelResults = new RimReservoirCellResultsCacher;
+
+    this->setReservoirData( NULL );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimReservoir::~RimReservoir()
+{
+    reservoirViews.deleteAllChildObjects();
+
+    delete m_matrixModelResults();
+    delete m_fractureModelResults();
+
+    if (this->reservoirData())
+    {
+        // At this point, we assume that memory should be released
+        CVF_ASSERT(this->reservoirData()->refCount() == 1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,31 +106,17 @@ void RimReservoir::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoir::~RimReservoir()
-{
-    reservoirViews.deleteAllChildObjects();
-
-    if (m_rigEclipseCase.notNull())
-    {
-        // At this point, we assume that memory should be released
-        CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimReservoirView* RimReservoir::createAndAddReservoirView()
 {
     // If parent is collection, and number of views is zero, make sure rig is set to NULL to initiate normal case loading
     if (parentCaseCollection() != NULL && reservoirViews().size() == 0)
     {
-        if (m_rigEclipseCase.notNull())
+        if (this->reservoirData())
         {
-            CVF_ASSERT(m_rigEclipseCase->refCount() == 1);
+            CVF_ASSERT(this->reservoirData()->refCount() == 1);
         }
 
-        m_rigEclipseCase = NULL;
+        this->setReservoirData( NULL );
     }
 
     RimReservoirView* riv = new RimReservoirView();
@@ -207,7 +212,7 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
 {
     if (changedField == &releaseResultMemory)
     {
-        if (m_rigEclipseCase.notNull())
+        if (this->reservoirData())
         {
             for (size_t i = 0; i < reservoirViews().size(); i++)
             {
@@ -229,13 +234,13 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
                 reservoirView->createDisplayModelAndRedraw();
             }
 
-            RigReservoirCellResults* matrixModelResults = m_rigEclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+            RigReservoirCellResults* matrixModelResults = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
             if (matrixModelResults)
             {
                 matrixModelResults->clearAllResults();
             }
 
-            RigReservoirCellResults* fractureModelResults = m_rigEclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
+            RigReservoirCellResults* fractureModelResults = reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS);
             if (fractureModelResults)
             {
                 fractureModelResults->clearAllResults();
@@ -284,5 +289,40 @@ RimCaseCollection* RimReservoir::parentCaseCollection()
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoir::setReservoirData(RigEclipseCase* eclipseCase)
+{
+    m_rigEclipseCase  = eclipseCase;
+    if (this->reservoirData())
+    {
+        m_fractureModelResults()->setCellResults(reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS));
+        m_matrixModelResults()->setCellResults(reservoirData()->results(RifReaderInterface::MATRIX_RESULTS));
+        m_fractureModelResults()->setMainGrid(this->reservoirData()->mainGrid());
+        m_matrixModelResults()->setMainGrid(this->reservoirData()->mainGrid());
+    }
+    else
+    {
+        m_fractureModelResults()->setCellResults(NULL);
+        m_matrixModelResults()->setCellResults(NULL);
+        m_fractureModelResults()->setMainGrid(NULL);
+        m_matrixModelResults()->setMainGrid(NULL);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimReservoirCellResultsCacher* RimReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel)
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_matrixModelResults();
+    }
+
+    return m_fractureModelResults();
 }
 

@@ -18,7 +18,11 @@
 
 #include "RigStatistics.h"
 #include "RigReservoirCellResults.h"
+#include "RimReservoirView.h"
+#include "RimReservoir.h"
+#include "RigEclipseCase.h"
 
+//#include "RigEclipseCase.h"
 #include <QDebug>
 #include "cafProgressInfo.h"
 
@@ -30,13 +34,15 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* destinationCellResul
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+    std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
+
     size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
     destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates);
     std::vector< std::vector<double> >& dataValues = destinationCellResults->cellScalarResults(destinationScalarResultIndex);
     dataValues.resize(sourceTimeStepDates.size());
+
 
     // Initializes the size of the destination dataset to active union cell count
     for (int i = 0; i < sourceTimeStepDates.size(); i++)
@@ -58,7 +64,7 @@ void RigStatistics::computeActiveCellUnion()
 
     CVF_ASSERT(m_destinationCase);
 
-    RigMainGrid* mainGrid = m_sourceCases[0]->mainGrid();
+    RigMainGrid* mainGrid = m_sourceCases[0]->reservoirData()->mainGrid();
     CVF_ASSERT(mainGrid);
 
     m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setGlobalCellCount(mainGrid->cells().size());
@@ -84,7 +90,7 @@ void RigStatistics::computeActiveCellUnion()
 
                 if (activeM[localGridCellIdx] == 0)
                 {
-                    if (m_sourceCases[caseIdx]->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActiveInMatrixModel(globalCellIdx))
+                    if (m_sourceCases[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActiveInMatrixModel(globalCellIdx))
                     {
                         activeM[localGridCellIdx] = 1;
                     }
@@ -92,7 +98,7 @@ void RigStatistics::computeActiveCellUnion()
 
                 if (activeF[localGridCellIdx] == 0)
                 {
-                    if (m_sourceCases[caseIdx]->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActiveInMatrixModel(globalCellIdx))
+                    if (m_sourceCases[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActiveInMatrixModel(globalCellIdx))
                     {
                         activeF[localGridCellIdx] = 1;
                     }
@@ -143,20 +149,20 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
 {
     if (m_sourceCases.size() == 0) return;
 
-    std::vector<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+    std::vector<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
 
     for (size_t caseIdx = 1; caseIdx < m_sourceCases.size(); caseIdx++)
     {
-        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
+        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx)->reservoirData();
 
-        RigReservoirCellResults* matrixResults = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+        RimReservoirCellResultsCacher* matrixResults = m_sourceCases[caseIdx]->results(RifReaderInterface::MATRIX_RESULTS);
         size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            size_t scalarResultIndex = matrixResults->addEmptyScalarResult(resultType, resultName);
-            matrixResults->setTimeStepDates(scalarResultIndex, timeStepDates);
+            size_t scalarResultIndex = matrixResults->cellResults()->addEmptyScalarResult(resultType, resultName);
+            matrixResults->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates);
 
-            std::vector< std::vector<double> >& dataValues = matrixResults->cellScalarResults(scalarResultIndex);
+            std::vector< std::vector<double> >& dataValues = matrixResults->cellResults()->cellScalarResults(scalarResultIndex);
             dataValues.resize(timeStepDates.size());
         }
     }
@@ -183,13 +189,13 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
         // Build SGAS/SWAT meta data, SOIL is automatically generated as part of RigReservoirCellResults::findOrLoadScalarResultForTimeStep
         if (resultName.toUpper() == "SOIL")
         {
-            size_t swatIndex = m_sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, "SWAT");
+            size_t swatIndex = m_sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->findScalarResultIndex(resultType, "SWAT");
             if (swatIndex != cvf::UNDEFINED_SIZE_T)
             {
                 buildSourceMetaData(resultType, "SWAT");
             }
 
-            size_t sgasIndex = m_sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, "SGAS");
+            size_t sgasIndex = m_sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->findScalarResultIndex(resultType, "SGAS");
             if (sgasIndex != cvf::UNDEFINED_SIZE_T)
             {
                 buildSourceMetaData(resultType, "SGAS");
@@ -248,11 +254,11 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
                     cvf::Collection<cvf::StructGridScalarDataAccess> dataAccesObjectList;
                     for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                     {
-                        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
+                        RimReservoir* eclipseCase = m_sourceCases.at(caseIdx);
 
                         size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->reservoirData()->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
                         if (dataAccessObject.notNull())
                         {
                             dataAccesObjectList.push_back(dataAccessObject.p());
@@ -355,13 +361,13 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
 
             for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
             {
-                RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx);
+                RimReservoir* eclipseCase = m_sourceCases.at(caseIdx);
 
                 // When one time step is completed, close all result files.
                 // Microsoft note: On Windows, the maximum number of files open at the same time is 512
                 // http://msdn.microsoft.com/en-us/library/kdfaxaay%28vs.71%29.aspx
                 //
-                eclipseCase->closeReaderInterface();
+                eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->readerInterface()->close();
             }
 
             info.setProgress(timeIndicesIdx);
@@ -378,7 +384,7 @@ void RigStatistics::debugOutput(RimDefines::ResultCatType resultType, const QStr
 
     qDebug() << resultName << "timeIdx : " << timeStepIdx;
 
-    size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(resultType, resultName);
+    size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, resultName);
 
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = m_destinationCase->dataAccessObject(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
     if (dataAccessObject.isNull()) return;
@@ -392,7 +398,8 @@ void RigStatistics::debugOutput(RimDefines::ResultCatType resultType, const QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStatistics::RigStatistics(cvf::Collection<RigEclipseCase>& sourceCases, const std::vector<size_t>& timeStepIndices, const RigStatisticsConfig& statisticsConfig, RigEclipseCase* destinationCase) :   m_sourceCases(sourceCases),
+RigStatistics::RigStatistics(const std::vector<RimReservoir*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RigStatisticsConfig& statisticsConfig, RigEclipseCase* destinationCase) 
+    :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),
     m_globalCellCount(0),
@@ -400,7 +407,7 @@ RigStatistics::RigStatistics(cvf::Collection<RigEclipseCase>& sourceCases, const
 {
     if (sourceCases.size() > 0)
     {
-        m_globalCellCount = sourceCases[0]->mainGrid()->cells().size();
+        m_globalCellCount = sourceCases[0]->reservoirData()->mainGrid()->cells().size();
     }
 
     CVF_ASSERT(m_destinationCase);

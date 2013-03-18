@@ -26,6 +26,8 @@
 
 class RimReservoirCellResultsCacheEntryInfo;
 class RigReservoirCellResults;
+class RifReaderInterface;
+class RigMainGrid;
 
 class RimReservoirCellResultsCacher : public caf::PdmObject
 {
@@ -34,23 +36,37 @@ public:
     RimReservoirCellResultsCacher();
     virtual ~RimReservoirCellResultsCacher();
 
-    //RigReservoirCellResults* cellResults() const { return m_cellResults; }
-    void setCellResults(RigReservoirCellResults* cellResults) { m_cellResults = cellResults; }
+    // Fields
+    caf::PdmField<QString>      m_resultCacheFileName;
+    caf::PdmPointersField<RimReservoirCellResultsCacheEntryInfo*> 
+                                m_resultCacheMetaData;
 
+    RigReservoirCellResults*       cellResults()  { return m_cellResults; }
+    const RigReservoirCellResults* cellResults() const  { return m_cellResults; }
 
-    virtual void setupBeforeSave();
+    void                        setCellResults(RigReservoirCellResults* cellResults);
+    void                        setMainGrid(RigMainGrid* mainGrid);
 
-    caf::PdmField<QString>                                  m_resultCacheFileName;
-    caf::PdmPointersField<RimReservoirCellResultsCacheEntryInfo*> m_resultCacheMetaData;
+    void                        setReaderInterface(RifReaderInterface* readerInterface);
+    RifReaderInterface*         readerInterface();
 
-    
+    void                        loadOrComputeSOIL();
+    void                        loadOrComputeSOILForTimeStep(size_t timeStepIndex);
+    void                        computeDepthRelatedResults();
+
+    size_t                      findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
+    size_t                      findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+    size_t                      findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+
+    // Overridden methods from PdmObject
+    virtual void                setupBeforeSave();
 
 private:
-    QString getValidCacheFileName();
-    QString getCacheDirectoryPath();
-
-    RigReservoirCellResults* m_cellResults;
-
+    QString                     getValidCacheFileName();
+    QString                     getCacheDirectoryPath();
+    cvf::ref<RifReaderInterface>                            m_readerInterface;
+    RigReservoirCellResults*    m_cellResults;
+    RigMainGrid*                m_ownerMainGrid;
 };
 
 class RimReservoirCellResultsCacheEntryInfo : public caf::PdmObject

@@ -117,9 +117,9 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double p10, p90;
             double mean;
             size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
-            m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-            m_reservoirView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-            m_reservoirView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
+            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+            m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
 
             //infoText += QString("<blockquote><b>Min:</b> %1   <b>P10:</b> %2   <b>Mean:</b> %3   <b>P90:</b> %4   <b>Max:</b> %5 </blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
             //infoText += QString("<blockquote><pre>Min: %1   P10: %2   Mean: %3 \n  P90: %4   Max: %5 </pre></blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
@@ -141,7 +141,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             || m_reservoirView->wellCollection()->hasVisibleWellPipes())
         {
             int currentTimeStep = m_reservoirView->currentTimeStep();
-            QDateTime date = m_reservoirView->currentGridCellResults()->timeStepDate(0, currentTimeStep);
+            QDateTime date = m_reservoirView->currentGridCellResults()->cellResults()->timeStepDate(0, currentTimeStep);
             infoText += QString("<b>Time Step:</b> %1    <b>Time:</b> %2").arg(currentTimeStep).arg(date.toString("dd.MMM yyyy"));
         }
 
@@ -157,12 +157,12 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double mean;
 
             size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
-            m_reservoirView->currentGridCellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-            m_reservoirView->currentGridCellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
-            m_reservoirView->currentGridCellResults()->meanCellScalarValues(scalarIndex, mean);
+            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+            m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
+            m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
 
             m_reservoirView->viewer()->showHistogram(true);
-            m_reservoirView->viewer()->setHistogram(min, max, m_reservoirView->currentGridCellResults()->cellScalarValuesHistogram(scalarIndex));
+            m_reservoirView->viewer()->setHistogram(min, max, m_reservoirView->currentGridCellResults()->cellResults()->cellScalarValuesHistogram(scalarIndex));
             m_reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
         }
     }
