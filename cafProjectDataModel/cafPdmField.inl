@@ -422,6 +422,25 @@ void PdmPointersField<DataType*>::insert(size_t indexAfter, DataType* pointer)
     if (pointer) pointer->addParentField(this);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+void PdmPointersField<DataType*>::insert(size_t indexAfter, const std::vector<PdmPointer<DataType> >& objects)
+{
+    m_pointers.insert(m_pointers.begin()+indexAfter, objects.begin(), objects.end());
+
+    typename std::vector< PdmPointer< DataType > >::iterator it;
+    for (it = m_pointers.begin()+indexAfter; it != m_pointers.end(); ++it)
+    {
+        if (!it->isNull()) 
+        {
+            (*it)->addParentField(this);
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

@@ -24,7 +24,7 @@ include_directories(
 )
 
 
-# Use all cpp and h files in the subdirectories
+# Use all h files in the subdirectories to make them available in the project
 file( GLOB_RECURSE HEADER_FILES *.h )
 
 list( APPEND CPP_SOURCES
@@ -85,6 +85,7 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/Rim3dOverlayInfoConfig.cpp
     ProjectDataModel/RimUiTreeModelPdm.cpp
     ProjectDataModel/RimUiTreeView.cpp
+	ProjectDataModel/RimReservoirCellResultsCacher.cpp
 )
 
 # Populate the filenames into variable lists

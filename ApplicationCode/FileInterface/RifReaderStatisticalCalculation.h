@@ -28,23 +28,23 @@ public:
     virtual ~RifReaderStatisticalCalculation();
 
     // Virtual interface implementation
-    virtual bool                open(const QString& fileName, RigEclipseCase* eclipseCase);
+    virtual bool        open(const QString& fileName, RigEclipseCase* eclipseCase);
 
-    virtual void                close() {}
+    virtual void        close() {}
 
-    virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values );
-    virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values );
+    virtual bool        staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values );
+    virtual bool        dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values );
 
-    void setMatrixResultNames(const QStringList& staticResultNames, const QStringList& dynamicResultNames);
-    void setFractureResultNames(const QStringList& staticResultNames, const QStringList& dynamicResultNames);
+    void                setMatrixResultNames(const QStringList& staticResultNames, const QStringList& dynamicResultNames);
+    void                setFractureResultNames(const QStringList& staticResultNames, const QStringList& dynamicResultNames);
 
-    void setTimeSteps(const QList<QDateTime>& timesteps);
-
-private:
-    void buildMetaData(RigEclipseCase* eclipseCase);
+    void                setTimeSteps(const std::vector<QDateTime>& timesteps);
 
 private:
-    QList<QDateTime>    m_timeSteps;
+    void                buildMetaData(RigEclipseCase* eclipseCase);
+
+private:
+    std::vector<QDateTime>    m_timeSteps;
     
     QStringList         m_matrixDynamicResultNames;
     QStringList         m_fractureDynamicResultNames;

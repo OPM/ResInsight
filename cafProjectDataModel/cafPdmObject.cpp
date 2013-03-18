@@ -37,29 +37,6 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 void PdmObject::readFields (QXmlStreamReader& xmlStream )
 {
-    if (!xmlStream.isStartElement())
-    {
-        // Error
-        return ;
-    }
-/*  
-   Attributes will not be used ...  
-
-   QXmlStreamAttributes attribs = xmlStream.attributes();
-   int i;
-   for (i = 0; i < attribs.size(); ++i)
-   {
-       QString name = attribs[i].name().toString();
-
-       PdmFieldBase* field = findField(name);
-
-       if (field)
-       {
-           //field->readFieldData(attribs[i].value().toString());
-       }
-   }
-   */
-
    bool isObjectFinished = false;
    QXmlStreamReader::TokenType type;
    while(!isObjectFinished)

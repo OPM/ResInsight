@@ -109,7 +109,7 @@ public:
 
     void computeStaticWellCellPath();
 
-    void computeMappingFromResultTimeIndicesToWellTimeIndices(const QList<QDateTime>& resultTimes);
+    void computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
 
 public:
     QString                             m_wellName;

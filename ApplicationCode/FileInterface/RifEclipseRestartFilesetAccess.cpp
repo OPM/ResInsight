@@ -97,7 +97,7 @@ void RifEclipseRestartFilesetAccess::close()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::setTimeSteps(const QList<QDateTime>& timeSteps)
+void RifEclipseRestartFilesetAccess::setTimeSteps(const std::vector<QDateTime>& timeSteps)
 {
     CVF_ASSERT(m_fileNames.size() == timeSteps.size());
     m_timeSteps = timeSteps;
@@ -114,7 +114,7 @@ size_t RifEclipseRestartFilesetAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 /// Get the time steps
 //--------------------------------------------------------------------------------------------------
-QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
+std::vector<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 {
     if (m_timeSteps.size() == 0)
     {
@@ -122,7 +122,7 @@ QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
         size_t i;
         for (i = 0; i < numSteps; i++)
         {
-            QList<QDateTime> stepTime;
+            std::vector<QDateTime> stepTime;
 
             openTimeStep(i);
 

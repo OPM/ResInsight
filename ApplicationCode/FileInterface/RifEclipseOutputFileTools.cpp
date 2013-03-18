@@ -46,7 +46,7 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps, bool* detectedFractionOfDay )
+void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, bool* detectedFractionOfDay )
 {
     CVF_ASSERT(timeSteps);
     CVF_ASSERT(ecl_file);
@@ -84,7 +84,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
         }
     }
 
-    QList<QDateTime> timeStepsFound;
+    std::vector<QDateTime> timeStepsFound;
    
     if (hasFractionOfDay)
     {
@@ -110,7 +110,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
                 reportDate = reportDate.addDays(floorDayValue);
 
                 QDateTime reportDateTime(reportDate, time);
-                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
                 {
                     timeStepsFound.push_back(reportDateTime);
                 }
@@ -132,7 +132,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
                 CVF_ASSERT(reportDate.isValid());
                 
                 QDateTime reportDateTime(reportDate);
-                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
                 {
                     timeStepsFound.push_back(reportDateTime);
                 }

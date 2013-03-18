@@ -54,5 +54,5 @@ public:
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;
     virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
 
-    virtual QList<QDateTime>    timeSteps() { QList<QDateTime> timeSteps; return timeSteps; }
+    virtual std::vector<QDateTime>    timeSteps() { std::vector<QDateTime> timeSteps; return timeSteps; }
 };

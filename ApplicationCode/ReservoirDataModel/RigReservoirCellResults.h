@@ -54,8 +54,8 @@ public:
     bool                isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
 
     QDateTime           timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const;
-    QList<QDateTime>    timeStepDates(size_t scalarResultIndex) const;
-    void                setTimeStepDates(size_t scalarResultIndex, const QList<QDateTime>& dates);
+    std::vector<QDateTime>    timeStepDates(size_t scalarResultIndex) const;
+    void                setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates);
 
     // Find or create a slot for the results
     size_t              findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
@@ -80,19 +80,8 @@ public:
     double                                                  cellScalarResult(size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex);
 
     static RifReaderInterface::PorosityModelResultType convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel);
-    
-private:
-    size_t              addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, size_t resultValueCount);
 
-private:
-    std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results for each timestep for each Result index (ResultVariable)
-    std::vector< std::pair<double, double> >                m_maxMinValues; ///< Max min values for each Result index
-    std::vector< std::vector<size_t> >                      m_histograms; ///< Histogram for each Result Index
-    std::vector< std::pair<double, double> >                m_p10p90; ///< P10 and p90 values for each Result Index
-    std::vector< double >                                   m_meanValues; ///< Mean value for each Result Index
-
-    std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs; ///< Max min values for each timestep and Result index
-
+public:
     class ResultInfo
     {
     public:
@@ -103,9 +92,26 @@ private:
         RimDefines::ResultCatType   m_resultType;
         QString                     m_resultName;
         size_t                      m_gridScalarResultIndex;
-        QList<QDateTime>            m_timeStepDates;
+        std::vector<QDateTime>            m_timeStepDates;
     };
 
+    const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
+    
+private:
+    size_t              addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, size_t resultValueCount);
+
+private:
+    std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
+    std::vector< std::pair<double, double> >                m_maxMinValues;      ///< Max min values for each Result index
+    std::vector< std::vector<size_t> >                      m_histograms;        ///< Histogram for each Result Index
+    std::vector< std::pair<double, double> >                m_p10p90;            ///< P10 and p90 values for each Result Index
+    std::vector< double >                                   m_meanValues;        ///< Mean value for each Result Index
+
+    std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs;  ///< Max min values for each Result index and timestep
+
+
+
+private:
     std::vector<ResultInfo>                                 m_resultInfos;
     cvf::ref<RifReaderInterface>                            m_readerInterface;
     RigMainGrid*                                            m_ownerMainGrid;

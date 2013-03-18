@@ -30,7 +30,7 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* destinationCellResul
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
 
-    QList<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+    std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
     size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
@@ -143,7 +143,7 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
 {
     if (m_sourceCases.size() == 0) return;
 
-    QList<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
+    std::vector<QDateTime> timeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(0);
 
     for (size_t caseIdx = 1; caseIdx < m_sourceCases.size(); caseIdx++)
     {

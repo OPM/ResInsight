@@ -37,7 +37,7 @@ const RigWellResultFrame& RigWellResults::wellResultFrame(size_t resultTimeStepI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellResults::computeMappingFromResultTimeIndicesToWellTimeIndices(const QList<QDateTime>& resultTimes)
+void RigWellResults::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes)
 {
     m_resultTimeStepIndexToWellTimeStepIndex.clear();
     if (m_wellCellsTimeSteps.size() == 0) return;

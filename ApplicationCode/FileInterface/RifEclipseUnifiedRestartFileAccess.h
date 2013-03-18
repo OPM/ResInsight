@@ -42,7 +42,7 @@ public:
     void                        close();
 
     size_t                      timeStepCount();
-    QList<QDateTime>            timeSteps();
+    std::vector<QDateTime>            timeSteps();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
     bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);

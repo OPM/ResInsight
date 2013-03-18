@@ -70,7 +70,7 @@ void RifReaderStatisticalCalculation::buildMetaData(RigEclipseCase* eclipseCase)
         fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
     }
 
-    QList<QDateTime> staticDate;
+    std::vector<QDateTime> staticDate;
     if (m_timeSteps.size() > 0)
     {
         staticDate.push_back(m_timeSteps.front());
@@ -111,7 +111,7 @@ void RifReaderStatisticalCalculation::setFractureResultNames(const QStringList& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderStatisticalCalculation::setTimeSteps(const QList<QDateTime>& timesteps)
+void RifReaderStatisticalCalculation::setTimeSteps(const std::vector<QDateTime>& timesteps)
 {
     m_timeSteps = timesteps;
 }

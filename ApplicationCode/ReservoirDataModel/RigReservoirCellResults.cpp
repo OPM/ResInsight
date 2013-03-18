@@ -777,18 +777,18 @@ QDateTime RigReservoirCellResults::timeStepDate(size_t scalarResultIndex, size_t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<QDateTime> RigReservoirCellResults::timeStepDates(size_t scalarResultIndex) const
+std::vector<QDateTime> RigReservoirCellResults::timeStepDates(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() )
         return  m_resultInfos[scalarResultIndex].m_timeStepDates;
     else
-        return QList<QDateTime>();
+        return std::vector<QDateTime>();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const QList<QDateTime>& dates)
+void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates)
 {
     CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
 

@@ -34,7 +34,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCase* eclipseCa
     RigReservoirCellResults* cellResults = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
 
 
-    QList<QDateTime> dates;
+    std::vector<QDateTime> dates;
 
     for (int i = 0; i < static_cast<int>(m_reservoirBuilder.timeStepCount()); i++)
     {
@@ -49,7 +49,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCase* eclipseCa
 
     if (m_reservoirBuilder.timeStepCount() == 0) return true;
 
-    QList<QDateTime> staticDates;
+    std::vector<QDateTime> staticDates;
     staticDates.push_back(dates[0]);
     for (int i = 0; i < static_cast<int>(m_reservoirBuilder.resultCount()); i++)
     {

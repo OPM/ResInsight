@@ -432,7 +432,7 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
 
     m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
 
-    QList<QDateTime> mainCaseTimeSteps = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->readerInterface()->timeSteps();
+    std::vector<QDateTime> mainCaseTimeSteps = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->readerInterface()->timeSteps();
     m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
 
     return true;
@@ -608,7 +608,7 @@ bool RifReaderEclipseOutput::buildMetaData()
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
                                                                             RifReaderInterface::MATRIX_RESULTS, 1);
 
-            QList<QDateTime> staticDate;
+            std::vector<QDateTime> staticDate;
             if (m_timeSteps.size() > 0)
             {
                 staticDate.push_back(m_timeSteps.front());
@@ -627,7 +627,7 @@ bool RifReaderEclipseOutput::buildMetaData()
                                                                             m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
                                                                             RifReaderInterface::FRACTURE_RESULTS, 1);
 
-            QList<QDateTime> staticDate;
+            std::vector<QDateTime> staticDate;
             if (m_timeSteps.size() > 0)
             {
                 staticDate.push_back(m_timeSteps.front());
@@ -1045,7 +1045,7 @@ bool RifReaderEclipseOutput::openInitFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<QDateTime> RifReaderEclipseOutput::timeSteps()
+std::vector<QDateTime> RifReaderEclipseOutput::timeSteps()
 {
     return m_timeSteps;
 }

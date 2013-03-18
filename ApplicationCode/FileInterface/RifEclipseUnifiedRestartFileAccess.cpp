@@ -89,9 +89,9 @@ size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 /// Get the time steps
 //--------------------------------------------------------------------------------------------------
-QList<QDateTime> RifEclipseUnifiedRestartFileAccess::timeSteps()
+std::vector<QDateTime> RifEclipseUnifiedRestartFileAccess::timeSteps()
 {
-    QList<QDateTime> timeSteps;
+    std::vector<QDateTime> timeSteps;
 
     if (openFile())
     {

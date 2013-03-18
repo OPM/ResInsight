@@ -22,6 +22,8 @@
 #include "cafPdmPointer.h"
 #include "cafUiTreeModelPdm.h"
 
+#include <QMimeData>
+
 class QFileSystemWatcher;
 
 class RimCellPropertyFilter;
@@ -31,6 +33,55 @@ class RimInputProperty;
 class RimStatisticalCalculation;
 class RimIdenticalGridCaseGroup;
 
+//--------------------------------------------------------------------------------------------------
+/// MimeData class used to carry a QModelIndexList
+//--------------------------------------------------------------------------------------------------
+class MimeDataWithIndexes : public QMimeData
+{
+    Q_OBJECT
+
+public:
+    MimeDataWithIndexes()
+    {
+    }
+
+    MimeDataWithIndexes(const MimeDataWithIndexes & other)
+    {
+        setIndexes(other.indexes());
+    }
+
+    void setIndexes(const QModelIndexList & indexes)
+    {
+        m_indexes = indexes;
+    }
+
+    const QModelIndexList& indexes() const { return m_indexes; }
+
+    virtual bool hasFormat( const QString &mimetype ) const
+    {
+        return (mimetype == formatName());
+    }
+
+    virtual QStringList formats() const
+    {
+        QStringList supportedFormats = QMimeData::formats();
+        supportedFormats << formatName();
+
+        return supportedFormats;
+    }
+
+    static QString formatName()
+    {
+        return "MimeDataWithIndexes";
+    }
+
+private:
+    QModelIndexList m_indexes;
+};
+
+Q_DECLARE_METATYPE(MimeDataWithIndexes)
+
+    
 //==================================================================================================
 ///
 ///

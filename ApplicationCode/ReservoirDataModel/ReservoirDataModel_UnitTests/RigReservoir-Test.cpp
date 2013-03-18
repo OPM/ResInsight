@@ -110,7 +110,7 @@ TEST(RigReservoirTest, BasicTest)
     }
 
     int resultTimeStepCount = 2 * wellTimeStepCount;
-    QList<QDateTime> resultTimes;
+    std::vector<QDateTime> resultTimes;
     for (i = 0; i < resultTimeStepCount; i++)
     {
         resultTimes.push_back(QDateTime(wellStartTime).addMonths(i * 6));

@@ -40,12 +40,12 @@ class RimCaseCollection;
 //==================================================================================================
 class RimReservoir : public caf::PdmObject
 {
-
+    CAF_PDM_HEADER_INIT;
 public:
     RimReservoir();
     virtual ~RimReservoir();
 
-    virtual bool                openEclipseGridFile() = 0;
+    virtual bool                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
                                       
     RigEclipseCase*             reservoirData();
     const RigEclipseCase*       reservoirData() const;
@@ -78,5 +78,5 @@ private:
 
 protected:
     cvf::ref<RigEclipseCase>        m_rigEclipseCase;
-};
 
+};

@@ -48,7 +48,7 @@ public:
     static bool         keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values);
 
 //    static void         timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps);
-    static void         timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps, bool* detectedFractionOfDay = NULL);
+    static void         timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, bool* detectedFractionOfDay = NULL);
 
     static bool         fileSet(const QString& fileName, QStringList* fileSet);
 
