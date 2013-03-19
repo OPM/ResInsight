@@ -107,6 +107,7 @@ public:
     RimCellRangeFilter*     addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimReservoirView*       addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     void                    addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
+    void                    addCases(const QModelIndex& itemIndex, caf::PdmObjectGroup& cases);
     
     RimStatisticalCalculation*       addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimIdenticalGridCaseGroup*       addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);

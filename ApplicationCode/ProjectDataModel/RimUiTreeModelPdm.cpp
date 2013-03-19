@@ -535,3 +535,50 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
     return NULL;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::addCases(const QModelIndex& itemIndex, caf::PdmObjectGroup& cases)
+{
+    RimProject* proj = RIApplication::instance()->project();
+    CVF_ASSERT(proj);
+
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
+    RimCaseCollection* caseCollection = NULL;
+
+    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()))
+    {
+        gridCaseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p());
+        caseCollection = gridCaseGroup->caseCollection();
+    }
+    else if (dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
+    {
+        caseCollection = dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p());
+        gridCaseGroup = caseCollection->parentCaseGroup();
+    }
+    else if (dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
+    {
+        RimReservoir* rimReservoir = dynamic_cast<RimReservoir*>(currentItem->dataObject().p());
+        caseCollection = rimReservoir->parentCaseCollection();
+        gridCaseGroup = caseCollection->parentCaseGroup();
+    }
+    else
+    {
+        return;
+    }
+
+    CVF_ASSERT(caseCollection);
+    CVF_ASSERT(gridCaseGroup);
+
+    //itemCount = caseCollection->reservoirs().size();
+
+    if (gridCaseGroup)
+    {
+         proj->copyFromCaseList(gridCaseGroup, cases);
+     
+         rebuildUiSubTree(caseCollection);
+    }
+}
+

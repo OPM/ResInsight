@@ -85,10 +85,9 @@ signals:
 
 private:
 
-    void createPdmObjectsFromClipboard();
+    void createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGroup);
 
     virtual void keyPressEvent(QKeyEvent* keyEvent);
-    caf::PdmObjectGroup* m_pdmObjectsFromClipboard;
 };
 
 

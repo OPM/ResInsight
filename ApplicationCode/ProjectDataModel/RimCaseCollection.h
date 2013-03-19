@@ -41,6 +41,8 @@ public:
 
     caf::PdmPointersField<RimReservoir*> reservoirs;
 
+    RimIdenticalGridCaseGroup* parentCaseGroup();
+
 private:
 
 };

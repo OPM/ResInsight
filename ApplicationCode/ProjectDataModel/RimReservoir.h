@@ -63,6 +63,8 @@ public:
     void                                        removeResult(const QString& resultName);
 
     virtual QString                             locationOnDisc() const      { return QString(); }
+
+    RimCaseCollection*                          parentCaseCollection();
                                                      
     // Overridden methods from PdmObject
 public:
@@ -76,8 +78,6 @@ protected:
     void                                        computeCachedData();
     void                                        setReservoirData(RigEclipseCase* eclipseCase);
 
-private:
-    RimCaseCollection*                          parentCaseCollection();
 
 private:
     cvf::ref<RigEclipseCase>                    m_rigEclipseCase;

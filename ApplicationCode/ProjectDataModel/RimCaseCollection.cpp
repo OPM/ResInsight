@@ -22,6 +22,7 @@
 #include "RimCaseCollection.h"
 
 #include "RimReservoirView.h"
+#include "RimIdenticalGridCaseGroup.h"
 
 CAF_PDM_SOURCE_INIT(RimCaseCollection, "RimCaseCollection");
 
@@ -41,4 +42,20 @@ RimCaseCollection::RimCaseCollection()
 RimCaseCollection::~RimCaseCollection()
 {
     reservoirs.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimCaseCollection::parentCaseGroup()
+{
+    std::vector<RimIdenticalGridCaseGroup*> parentObjects;
+    this->parentObjectsOfType(parentObjects);
+
+    if (parentObjects.size() > 0)
+    {
+        return parentObjects[0];
+    }
+
+    return NULL;
 }
