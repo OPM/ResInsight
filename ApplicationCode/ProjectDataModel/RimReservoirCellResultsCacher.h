@@ -37,36 +37,37 @@ public:
     virtual ~RimReservoirCellResultsCacher();
 
     // Fields
-    caf::PdmField<QString>      m_resultCacheFileName;
+    caf::PdmField<QString>          m_resultCacheFileName;
     caf::PdmPointersField<RimReservoirCellResultsCacheEntryInfo*> 
-                                m_resultCacheMetaData;
+                                    m_resultCacheMetaData;
 
-    RigReservoirCellResults*       cellResults()  { return m_cellResults; }
-    const RigReservoirCellResults* cellResults() const  { return m_cellResults; }
+    RigReservoirCellResults*        cellResults()  { return m_cellResults; }
+    const RigReservoirCellResults*  cellResults() const  { return m_cellResults; }
 
-    void                        setCellResults(RigReservoirCellResults* cellResults);
-    void                        setMainGrid(RigMainGrid* mainGrid);
+    void                            setCellResults(RigReservoirCellResults* cellResults);
+    void                            setMainGrid(RigMainGrid* mainGrid);
 
-    void                        setReaderInterface(RifReaderInterface* readerInterface);
-    RifReaderInterface*         readerInterface();
+    void                            setReaderInterface(RifReaderInterface* readerInterface);
+    RifReaderInterface*             readerInterface();
 
-    void                        loadOrComputeSOIL();
-    void                        loadOrComputeSOILForTimeStep(size_t timeStepIndex);
-    void                        computeDepthRelatedResults();
+    void                            loadOrComputeSOIL();
+    void                            loadOrComputeSOILForTimeStep(size_t timeStepIndex);
+    void                            computeDepthRelatedResults();
 
-    size_t                      findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
-    size_t                      findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
-    size_t                      findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
+    size_t                          findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
+    size_t                          findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+    size_t                          findOrLoadScalarResult(const QString& resultName); ///< Simplified search. Assumes unique names across types.
 
     // Overridden methods from PdmObject
-    virtual void                setupBeforeSave();
+    virtual void                    setupBeforeSave();
 
 private:
-    QString                     getValidCacheFileName();
-    QString                     getCacheDirectoryPath();
-    cvf::ref<RifReaderInterface>                            m_readerInterface;
-    RigReservoirCellResults*    m_cellResults;
-    RigMainGrid*                m_ownerMainGrid;
+    QString                         getValidCacheFileName();
+    QString                         getCacheDirectoryPath();
+
+    cvf::ref<RifReaderInterface>    m_readerInterface;
+    RigReservoirCellResults*        m_cellResults;
+    RigMainGrid*                    m_ownerMainGrid;
 };
 
 class RimReservoirCellResultsCacheEntryInfo : public caf::PdmObject

@@ -50,6 +50,10 @@ RimReservoirCellResultsCacher::~RimReservoirCellResultsCacher()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// This override populates the metainfo regarding the cell results data in the RigReservoirCellResults
+/// object. This metainfo will then be written to the project file when saving, and thus read on project file open.
+/// This method then writes the actual double arrays to the data file in a simple format:
+/// MagicNumber<uint32>, Version<uint32>, ResultVariables< Array < TimeStep< CellDataArraySize<uint64>, CellData< Array<double > > > >
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsCacher::setupBeforeSave()
@@ -71,13 +75,15 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
         QDataStream stream(&cacheFile);
         stream.setVersion(QDataStream::Qt_4_0);
         stream << (quint32)0xCEECAC4E; // magic number
-        stream << (qint32)1; // Version
+        stream << (quint32)1; // Version number. Increment if needing to extend the format in ways that can not be handled generically by the reader
 
         for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx)
         {
             size_t timestepCount = m_cellResults->cellScalarResults(resInfo[rIdx].m_gridScalarResultIndex).size();
+            
             if (timestepCount)
             {
+                // Create and setup the cache information for this result
                 RimReservoirCellResultsCacheEntryInfo*  cacheEntry = new RimReservoirCellResultsCacheEntryInfo;
                 m_resultCacheMetaData.push_back(cacheEntry);
 
@@ -85,8 +91,11 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
                 cacheEntry->m_resultName = resInfo[rIdx].m_resultName;
                 cacheEntry->m_timeStepDates = resInfo[rIdx].m_timeStepDates;
 
+                // Take note of the file position for fast lookup later
                 cacheEntry->m_filePosition = cacheFile.pos();
 
+                // Write all the scalar values for each time step to the stream, 
+                // starting with the number of values 
                 for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].m_timeStepDates.size() ; ++tsIdx)
                 {
                     const std::vector<double>* data = NULL;
@@ -97,8 +106,8 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
 
                     if (data && data->size())
                     {
-                        cacheEntry->m_timeStepHasData.v().push_back(1);
 
+                        stream << (quint64)(data->size());
                         for (size_t cIdx = 0; cIdx < data->size(); ++cIdx)
                         {
                             stream << (*data)[cIdx];
@@ -106,7 +115,7 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
                     }
                     else
                     {
-                        cacheEntry->m_timeStepHasData.v().push_back(0);
+                        stream << (quint64)0;
                     }
                 }
             }

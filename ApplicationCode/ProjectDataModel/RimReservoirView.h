@@ -51,7 +51,6 @@ namespace cvf
     class ModelBasicList;
 }
 
-
 enum ViewState
 {
     GEOMETRY_ONLY,
