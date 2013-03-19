@@ -24,6 +24,7 @@
 
 #include "RigGridCollection.h"
 #include "RigEclipseCase.h"
+#include "RimResultReservoir.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
@@ -134,31 +135,8 @@ void RimProject::moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir)
     CVF_ASSERT(rimReservoir);
 
     RigEclipseCase* rigEclipseCase = rimReservoir->reservoirData();
-
-    RigMainGrid* equalGrid = m_gridCollection->findEqualGrid(rigEclipseCase->mainGrid());
-
-    if (equalGrid)
-    {
-        // Replace the grid with an already registered grid
-        rigEclipseCase->setMainGrid(equalGrid);
-    }
-    else
-    {
-        // This is the first insertion of this grid, compute cached data
-        rigEclipseCase->mainGrid()->computeCachedData();
-
-        std::vector<RigGridBase*> grids;
-        rigEclipseCase->allGrids(&grids);
-
-        size_t i;
-        for (i = 0; i < grids.size(); i++)
-        {
-            grids[i]->computeFaults();
-        }
-    }
-
-    m_gridCollection->addCase(rigEclipseCase);
-
+    RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
+    CVF_ASSERT(equalGrid);
 
     // Insert in identical grid group
     bool foundGroup = false;
@@ -213,4 +191,97 @@ void RimProject::removeEclipseCaseFromAllGroups(RimReservoir* reservoir)
     }
 
     reservoirs().removeChildObject(reservoir);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RimProject::registerCaseInGridCollection(RigEclipseCase* rigEclipseCase)
+{
+    CVF_ASSERT(rigEclipseCase);
+
+    RigMainGrid* equalGrid = m_gridCollection->findEqualGrid(rigEclipseCase->mainGrid());
+
+    if (equalGrid)
+    {
+        // Replace the grid with an already registered grid
+        rigEclipseCase->setMainGrid(equalGrid);
+    }
+    else
+    {
+        // This is the first insertion of this grid, compute cached data
+        rigEclipseCase->mainGrid()->computeCachedData();
+
+        std::vector<RigGridBase*> grids;
+        rigEclipseCase->allGrids(&grids);
+
+        size_t i;
+        for (i = 0; i < grids.size(); i++)
+        {
+            grids[i]->computeFaults();
+        }
+
+        equalGrid = rigEclipseCase->mainGrid();
+    }
+
+    m_gridCollection->addCase(rigEclipseCase);
+
+    return equalGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::insertCaseInCaseGroup(RimReservoir* rimReservoir, RimIdenticalGridCaseGroup* caseGroup)
+{
+    CVF_ASSERT(rimReservoir);
+
+    RigEclipseCase* rigEclipseCase = rimReservoir->reservoirData();
+    registerCaseInGridCollection(rigEclipseCase);
+
+    caseGroup->addCase(rimReservoir);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::copyFromCaseList(RimIdenticalGridCaseGroup* caseGroup, const caf::PdmObjectGroup& caseList)
+{
+    std::vector<caf::PdmPointer<RimReservoir> > typedObjects;
+    caseList.createCopyByType(&typedObjects);
+
+    if (typedObjects.size() == 0) return;
+
+    RigEclipseCase* mainEclipseCase = NULL;
+    if (caseGroup->caseCollection()->reservoirs().size() > 0)
+    {
+        RimReservoir* mainReservoir = caseGroup->caseCollection()->reservoirs()[0];;
+        mainEclipseCase = mainReservoir->reservoirData();
+    }
+
+    for (size_t i = 0; i < typedObjects.size(); i++)
+    {
+        RimReservoir* rimReservoir = typedObjects[i];
+        caf::PdmObjectGroup::initAfterReadTraversal(rimReservoir);
+
+        RimResultReservoir* rimResultReservoir = dynamic_cast<RimResultReservoir*>(rimReservoir);
+        if (rimResultReservoir)
+        {
+            if (caseGroup->mainGrid() == NULL)
+            {
+                rimResultReservoir->openEclipseGridFile();
+                mainEclipseCase = rimResultReservoir->reservoirData();
+            }
+            else
+            {
+                 if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
+                 {
+                     CVF_ASSERT(false);
+                 }
+            }
+
+            insertCaseInCaseGroup(rimResultReservoir, caseGroup);
+        }
+    }
 }

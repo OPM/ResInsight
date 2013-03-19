@@ -40,6 +40,17 @@ RimUiTreeView::RimUiTreeView(QWidget *parent /*= 0*/)
     : QTreeView(parent)
 {
     setHeaderHidden(true);
+
+    m_pdmObjectsFromClipboard = new caf::PdmObjectGroup;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimUiTreeView::~RimUiTreeView()
+{
+    delete m_pdmObjectsFromClipboard;
+    m_pdmObjectsFromClipboard = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,6 +172,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             else if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
+                menu.addAction(QString("Copy"), this, SLOT(slotCopyPdmObjectToClipboard()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.exec(event->globalPos());
@@ -169,6 +181,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("New Case Group"), this, SLOT(slotAddCaseGroup()));
+                menu.addAction(QString("Paste"), this, SLOT(slotPasteEclipseCases()));
                 menu.exec(event->globalPos());
             }
         }
@@ -814,5 +827,109 @@ void RimUiTreeView::slotAddCaseGroup()
         myModel->addCaseGroup(currentIndex(), insertedIndex);
         setCurrentIndex(insertedIndex);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotCopyPdmObjectToClipboard()
+{
+    QItemSelectionModel* m = selectionModel();
+
+    QModelIndexList mil = m->selectedRows();
+    if (mil.size() == 0)
+    {
+        return;
+    }
+
+    MimeDataWithIndexes* myObject = new MimeDataWithIndexes;
+    myObject->setIndexes(mil);
+    
+    QClipboard* clipboard = QApplication::clipboard();
+    if (clipboard)
+    {
+        clipboard->setMimeData(myObject);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotPasteEclipseCases()
+{
+    if (!currentIndex().isValid()) return;
+
+    createPdmObjectsFromClipboard();
+    if (m_pdmObjectsFromClipboard->objects().size() == 0) return;
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+
+    RimIdenticalGridCaseGroup* destinationGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p());
+    if (!destinationGroup) return;
+
+
+    RimProject* proj = RIApplication::instance()->project();
+    proj->copyFromCaseList(destinationGroup, *m_pdmObjectsFromClipboard);
+
+    myModel->rebuildUiSubTree(destinationGroup);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::createPdmObjectsFromClipboard()
+{
+    m_pdmObjectsFromClipboard->objects().clear();
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (!myModel) return;
+
+    QClipboard* clipboard = QApplication::clipboard();
+    if (!clipboard) return;
+
+    const MimeDataWithIndexes* mdWithIndexes = dynamic_cast<const MimeDataWithIndexes*>(clipboard->mimeData());
+    if (!mdWithIndexes) return;
+
+    QModelIndexList indexList = mdWithIndexes->indexes();
+    for (int i = 0; i < indexList.size(); i++)
+    {
+        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(indexList.at(i));
+        m_pdmObjectsFromClipboard->addObject(uiItem->dataObject().p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+
+    if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
+    {
+        if (keyEvent->matches(QKeySequence::Copy))
+        {
+            slotCopyPdmObjectToClipboard();
+            keyEvent->setAccepted(true);
+            
+            return;
+        }
+    }
+
+    if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p()))
+    {
+        if (keyEvent->matches(QKeySequence::Paste))
+        {
+            slotPasteEclipseCases();
+            keyEvent->setAccepted(true);
+
+            return;
+        }
+    }
+
+    QTreeView::keyPressEvent(keyEvent);
 }
 

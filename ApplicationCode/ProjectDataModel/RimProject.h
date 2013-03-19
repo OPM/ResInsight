@@ -48,8 +48,14 @@ public:
 
     void close();
 
+    void copyFromCaseList(RimIdenticalGridCaseGroup* caseGroup, const caf::PdmObjectGroup& caseList);
+    void insertCaseInCaseGroup(RimReservoir* rimReservoir, RimIdenticalGridCaseGroup* caseGroup);
+
     void moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir);
     void removeEclipseCaseFromAllGroups(RimReservoir* rimReservoir);
+    
+private:
+    RigMainGrid* registerCaseInGridCollection(RigEclipseCase* rigEclipseCase);
 
 protected:
     // Overridden methods

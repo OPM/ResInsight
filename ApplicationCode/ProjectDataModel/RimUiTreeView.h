@@ -23,6 +23,7 @@
 #include <QTreeView>
 
 class QItemSelection;
+class PdmObjectGroup;
 
 //==================================================================================================
 ///
@@ -34,6 +35,7 @@ class RimUiTreeView : public QTreeView
 
 public:
     RimUiTreeView(QWidget *parent = 0);
+    ~RimUiTreeView();
 
     virtual void setModel(QAbstractItemModel* model);
 
@@ -73,11 +75,20 @@ private slots:
     void slotComputeStatisticalCases();
     void slotAddCaseGroup();
 
+    void slotCopyPdmObjectToClipboard();
+    void slotPasteEclipseCases();
+
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
-};
 
+private:
+
+    void createPdmObjectsFromClipboard();
+
+    virtual void keyPressEvent(QKeyEvent* keyEvent);
+    caf::PdmObjectGroup* m_pdmObjectsFromClipboard;
+};
 
 

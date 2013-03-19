@@ -72,6 +72,34 @@ void PdmObjectGroup::addObject(PdmObject * obj)
     objects.push_back(obj);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectGroup::initAfterReadTraversal(PdmObject* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObject*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        PdmObjectGroup::initAfterReadTraversal(children[cIdx]);
+        if (children[cIdx]) children[cIdx]->initAfterRead();
+    }
+
+    object->initAfterRead();
+}
+
+
 
 CAF_PDM_SOURCE_INIT(PdmDocument, "PdmDocument");
 
@@ -157,29 +185,6 @@ void PdmDocument::writeFile(QIODevice* xmlFile)
     xmlStream.writeEndDocument();
 }
 
-void PdmDocument::initAfterReadTraversal(PdmObject* object)
-{
-    if (object == NULL) return;
-
-    std::vector<PdmFieldHandle*> fields;
-    object->fields(fields);
-
-    std::vector<PdmObject*> children;
-    size_t fIdx;
-    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
-    {
-        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
-    }
-
-    size_t cIdx;
-    for (cIdx = 0; cIdx < children.size(); ++cIdx)
-    {
-        PdmDocument::initAfterReadTraversal(children[cIdx]);
-        if (children[cIdx]) children[cIdx]->initAfterRead();
-    }
-
-    object->initAfterRead();
-}
 
 void PdmDocument::setupBeforeSaveTraversal(PdmObject * object)
 {
