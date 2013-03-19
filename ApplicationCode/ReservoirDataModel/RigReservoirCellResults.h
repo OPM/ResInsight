@@ -49,7 +49,7 @@ public:
     // Access meta-information about the results
     size_t                                             resultCount() const;
     size_t                                             timeStepCount(size_t scalarResultIndex) const; 
-    size_t                                             maxTimeStepCount() const; 
+    size_t                                             maxTimeStepCount(size_t* scalarResultIndex = NULL) const; 
     QStringList                                        resultNames(RimDefines::ResultCatType type) const;
     bool                                               isUsingGlobalActiveIndex(size_t scalarResultIndex) const;
 

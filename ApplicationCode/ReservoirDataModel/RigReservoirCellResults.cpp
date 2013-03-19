@@ -434,17 +434,26 @@ void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::maxTimeStepCount() const
+size_t RigReservoirCellResults::maxTimeStepCount(size_t* scalarResultIndexWithMostTimeSteps) const
 {
     size_t maxTsCount = 0;
+    size_t scalarResultIndexWithMaxTsCount = cvf::UNDEFINED_SIZE_T;
 
-    std::vector<ResultInfo>::const_iterator it;
-    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    for (size_t i = 0; i < m_resultInfos.size(); i++)
     {
-        maxTsCount = it->m_timeStepDates.size() > maxTsCount ? it->m_timeStepDates.size() : maxTsCount;
-    } 
+        if (m_resultInfos[i].m_timeStepDates.size() > maxTsCount)
+        {
+            maxTsCount = m_resultInfos[i].m_timeStepDates.size();
+            scalarResultIndexWithMaxTsCount = i;
+        }
+    }
 
-    return static_cast<size_t>(maxTsCount);
+    if (scalarResultIndexWithMostTimeSteps)
+    {
+        *scalarResultIndexWithMostTimeSteps = scalarResultIndexWithMaxTsCount;
+    }
+
+    return maxTsCount;
 }
 
 //--------------------------------------------------------------------------------------------------
