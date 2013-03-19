@@ -513,7 +513,8 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
         QModelIndex rootIndex = itemIndex.parent();
         caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
 
-        int position = rootTreeItem->childCount();
+        // New case group is inserted before the last item, the script item
+        int position = rootTreeItem->childCount() - 1;
 
         beginInsertRows(rootIndex, position, position);
 
@@ -523,6 +524,8 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
         caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(rootTreeItem, position, createdObject);
 
         endInsertRows();
+
+        rebuildUiSubTree(createdObject);
 
         insertedModelIndex = index(position, 0, rootIndex);
 
