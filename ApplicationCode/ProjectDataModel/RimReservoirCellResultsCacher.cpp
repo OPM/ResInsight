@@ -73,7 +73,7 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
         stream << (quint32)0xCEECAC4E; // magic number
         stream << (qint32)1; // Version
 
-        for (int rIdx = 0; rIdx < resInfo.size(); ++rIdx)
+        for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx)
         {
             size_t timestepCount = m_cellResults->cellScalarResults(resInfo[rIdx].m_gridScalarResultIndex).size();
             if (timestepCount)
@@ -87,7 +87,7 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
 
                 cacheEntry->m_filePosition = cacheFile.pos();
 
-                for (int tsIdx = 0; tsIdx < resInfo[rIdx].m_timeStepDates.size() ; ++tsIdx)
+                for (size_t tsIdx = 0; tsIdx < resInfo[rIdx].m_timeStepDates.size() ; ++tsIdx)
                 {
                     const std::vector<double>* data = NULL;
                     if (tsIdx < timestepCount)
