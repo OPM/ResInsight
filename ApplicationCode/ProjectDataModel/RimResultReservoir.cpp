@@ -117,15 +117,26 @@ bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCa
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
 
-        readerInterface = new RifReaderEclipseOutput;
-        if (!readerInterface->openAndReadActiveCellData(fname, mainEclipseCase, eclipseCase.p()))
+        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
+        mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+        if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
         {
             return false;
         }
 
-        readerInterface->close();
+        std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+
+        cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
+        if (!readerEclipseOutput->openAndReadActiveCellData(fname, timeStepDates, eclipseCase.p()))
+        {
+            return false;
+        }
+
+        readerEclipseOutput->close();
 
         this->setReservoirData( eclipseCase.p() );
+
+        readerInterface = readerEclipseOutput;
     }
 
     results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
