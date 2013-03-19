@@ -46,6 +46,9 @@ RigEclipseCase::~RigEclipseCase()
 void RigEclipseCase::setMainGrid(RigMainGrid* mainGrid)
 {
     m_mainGrid = mainGrid;
+
+    m_matrixModelResults->setMainGrid(m_mainGrid.p());
+    m_fractureModelResults->setMainGrid(m_mainGrid.p());
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -38,6 +38,8 @@ public:
     //void                                               setReaderInterface(RifReaderInterface* readerInterface);
     //RifReaderInterface*                                readerInterface();
 
+    void                                              setMainGrid(RigMainGrid* ownerGrid);
+
     // Max and min values of the results
     void                                               recalculateMinMax(size_t scalarResultIndex);
     void                                               minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
