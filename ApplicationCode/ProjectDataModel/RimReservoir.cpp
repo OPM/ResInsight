@@ -47,10 +47,12 @@ RimReservoir::RimReservoir()
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
+    m_matrixModelResults.setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
+    m_fractureModelResults.setUiHidden(true);
 
-    m_matrixModelResults = new RimReservoirCellResultsCacher;
-    m_fractureModelResults = new RimReservoirCellResultsCacher;
+    m_matrixModelResults = new RimReservoirCellResultsStorage;
+    m_fractureModelResults = new RimReservoirCellResultsStorage;
 
     this->setReservoirData( NULL );
 }
@@ -316,7 +318,7 @@ void RimReservoir::setReservoirData(RigEclipseCase* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsCacher* RimReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel)
+RimReservoirCellResultsStorage* RimReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel)
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {

@@ -191,8 +191,8 @@ bool RimInputReservoir::openEclipseGridFile()
     RIApplication* app = RIApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
-        RimReservoirCellResultsCacher* matrixResults = results(RifReaderInterface::MATRIX_RESULTS);
-        RimReservoirCellResultsCacher* fractureResults = results(RifReaderInterface::FRACTURE_RESULTS);
+        RimReservoirCellResultsStorage* matrixResults = results(RifReaderInterface::MATRIX_RESULTS);
+        RimReservoirCellResultsStorage* fractureResults = results(RifReaderInterface::FRACTURE_RESULTS);
 
         matrixResults->computeDepthRelatedResults();
         fractureResults->computeDepthRelatedResults();

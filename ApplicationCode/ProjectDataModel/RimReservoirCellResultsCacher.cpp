@@ -23,12 +23,12 @@
 #include "RigMainGrid.h"
 #include "RigCell.h"
 
-CAF_PDM_SOURCE_INIT(RimReservoirCellResultsCacher, "ReservoirCellResultCacher");
+CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsCacher::RimReservoirCellResultsCacher()
+RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     : m_cellResults(NULL), 
       m_ownerMainGrid(NULL)
 {
@@ -44,7 +44,7 @@ RimReservoirCellResultsCacher::RimReservoirCellResultsCacher()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsCacher::~RimReservoirCellResultsCacher()
+RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 {
     m_resultCacheMetaData.deleteAllChildObjects();
 }
@@ -56,7 +56,7 @@ RimReservoirCellResultsCacher::~RimReservoirCellResultsCacher()
 /// MagicNumber<uint32>, Version<uint32>, ResultVariables< Array < TimeStep< CellDataArraySize<uint64>, CellData< Array<double > > > >
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsCacher::setupBeforeSave()
+void RimReservoirCellResultsStorage::setupBeforeSave()
 {
     if (!m_cellResults) return;
 
@@ -90,7 +90,7 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
             if (timestepCount)
             {
                 // Create and setup the cache information for this result
-                RimReservoirCellResultsCacheEntryInfo*  cacheEntry = new RimReservoirCellResultsCacheEntryInfo;
+                RimReservoirCellResultsStorageEntryInfo*  cacheEntry = new RimReservoirCellResultsStorageEntryInfo;
                 m_resultCacheMetaData.push_back(cacheEntry);
 
                 cacheEntry->m_resultType = resInfo[rIdx].m_resultType;
@@ -132,7 +132,7 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimReservoirCellResultsCacher::getValidCacheFileName()
+QString RimReservoirCellResultsStorage::getValidCacheFileName()
 {
     QString cacheFileName;
     if (m_resultCacheFileName().isEmpty())
@@ -155,7 +155,7 @@ QString RimReservoirCellResultsCacher::getValidCacheFileName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimReservoirCellResultsCacher::getCacheDirectoryPath()
+QString RimReservoirCellResultsStorage::getCacheDirectoryPath()
 {
     QString cacheDirPath;
     QString projectFileName = RIApplication::instance()->project()->fileName();
@@ -168,7 +168,7 @@ QString RimReservoirCellResultsCacher::getCacheDirectoryPath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsCacher::setReaderInterface(RifReaderInterface* readerInterface)
+void RimReservoirCellResultsStorage::setReaderInterface(RifReaderInterface* readerInterface)
 {
     m_readerInterface = readerInterface;
 }
@@ -177,7 +177,7 @@ void RimReservoirCellResultsCacher::setReaderInterface(RifReaderInterface* reade
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderInterface* RimReservoirCellResultsCacher::readerInterface()
+RifReaderInterface* RimReservoirCellResultsStorage::readerInterface()
 {
     return m_readerInterface.p();
 }
@@ -185,7 +185,7 @@ RifReaderInterface* RimReservoirCellResultsCacher::readerInterface()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimReservoirCellResultsCacher::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
+size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
 {
     // Special handling for SOIL
     if (type == RimDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
@@ -248,7 +248,7 @@ size_t RimReservoirCellResultsCacher::findOrLoadScalarResultForTimeStep(RimDefin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimReservoirCellResultsCacher::findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName)
+size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName)
 {
     size_t resultGridIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -308,7 +308,7 @@ size_t RimReservoirCellResultsCacher::findOrLoadScalarResult(RimDefines::ResultC
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsCacher::loadOrComputeSOIL()
+void RimReservoirCellResultsStorage::loadOrComputeSOIL()
 {
     for (size_t timeStepIdx = 0; timeStepIdx < m_cellResults->maxTimeStepCount(); timeStepIdx++)
     {
@@ -320,7 +320,7 @@ void RimReservoirCellResultsCacher::loadOrComputeSOIL()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsCacher::loadOrComputeSOILForTimeStep(size_t timeStepIndex)
+void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeStepIndex)
 {
     size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RimDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
     size_t scalarIndexSGAS = findOrLoadScalarResultForTimeStep(RimDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
@@ -404,7 +404,7 @@ void RimReservoirCellResultsCacher::loadOrComputeSOILForTimeStep(size_t timeStep
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsCacher::computeDepthRelatedResults()
+void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 {
     size_t depthResultGridIndex  = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DEPTH");
     size_t dxResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
@@ -509,7 +509,7 @@ void RimReservoirCellResultsCacher::computeDepthRelatedResults()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimReservoirCellResultsCacher::findOrLoadScalarResult(const QString& resultName)
+size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
 {
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -536,7 +536,7 @@ size_t RimReservoirCellResultsCacher::findOrLoadScalarResult(const QString& resu
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsCacher::setCellResults(RigReservoirCellResults* cellResults)
+void RimReservoirCellResultsStorage::setCellResults(RigReservoirCellResults* cellResults)
 {
     m_cellResults = cellResults;
 }
@@ -544,18 +544,18 @@ void RimReservoirCellResultsCacher::setCellResults(RigReservoirCellResults* cell
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsCacher::setMainGrid(RigMainGrid* mainGrid)
+void RimReservoirCellResultsStorage::setMainGrid(RigMainGrid* mainGrid)
 {
     m_ownerMainGrid = mainGrid;
 }
 
 
-CAF_PDM_SOURCE_INIT(RimReservoirCellResultsCacheEntryInfo, "ResultCacheEntryInfo");
+CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorageEntryInfo, "ResultStorageEntryInfo");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsCacheEntryInfo::RimReservoirCellResultsCacheEntryInfo()
+RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo()
 {
     CAF_PDM_InitObject("Cache Entry", "", "", "");
 
@@ -569,7 +569,7 @@ RimReservoirCellResultsCacheEntryInfo::RimReservoirCellResultsCacheEntryInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsCacheEntryInfo::~RimReservoirCellResultsCacheEntryInfo()
+RimReservoirCellResultsStorageEntryInfo::~RimReservoirCellResultsStorageEntryInfo()
 {
 
 }

@@ -24,21 +24,21 @@
 #include "cafAppEnum.h"
 #include "RimDefines.h"
 
-class RimReservoirCellResultsCacheEntryInfo;
+class RimReservoirCellResultsStorageEntryInfo;
 class RigReservoirCellResults;
 class RifReaderInterface;
 class RigMainGrid;
 
-class RimReservoirCellResultsCacher : public caf::PdmObject
+class RimReservoirCellResultsStorage : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimReservoirCellResultsCacher();
-    virtual ~RimReservoirCellResultsCacher();
+    RimReservoirCellResultsStorage();
+    virtual ~RimReservoirCellResultsStorage();
 
     // Fields
     caf::PdmField<QString>          m_resultCacheFileName;
-    caf::PdmPointersField<RimReservoirCellResultsCacheEntryInfo*> 
+    caf::PdmPointersField<RimReservoirCellResultsStorageEntryInfo*> 
                                     m_resultCacheMetaData;
 
     RigReservoirCellResults*        cellResults()  { return m_cellResults; }
@@ -70,12 +70,12 @@ private:
     RigMainGrid*                    m_ownerMainGrid;
 };
 
-class RimReservoirCellResultsCacheEntryInfo : public caf::PdmObject
+class RimReservoirCellResultsStorageEntryInfo : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimReservoirCellResultsCacheEntryInfo();
-    virtual ~RimReservoirCellResultsCacheEntryInfo();
+    RimReservoirCellResultsStorageEntryInfo();
+    virtual ~RimReservoirCellResultsStorageEntryInfo();
 
     caf::PdmField<caf::AppEnum< RimDefines::ResultCatType> > m_resultType;
     caf::PdmField<QString>                                   m_resultName;

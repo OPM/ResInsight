@@ -156,7 +156,7 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
     {
         RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx)->reservoirData();
 
-        RimReservoirCellResultsCacher* matrixResults = m_sourceCases[caseIdx]->results(RifReaderInterface::MATRIX_RESULTS);
+        RimReservoirCellResultsStorage* matrixResults = m_sourceCases[caseIdx]->results(RifReaderInterface::MATRIX_RESULTS);
         size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {

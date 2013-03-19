@@ -711,7 +711,7 @@ void RimReservoirView::loadDataAndUpdate()
             RIApplication* app = RIApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
-                RimReservoirCellResultsCacher* results = currentGridCellResults();
+                RimReservoirCellResultsStorage* results = currentGridCellResults();
                 CVF_ASSERT(results);
                 results->loadOrComputeSOIL();
             }
@@ -970,7 +970,7 @@ void RimReservoirView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsCacher* RimReservoirView::currentGridCellResults()
+RimReservoirCellResultsStorage* RimReservoirView::currentGridCellResults()
 {
     if (m_reservoir)
     {

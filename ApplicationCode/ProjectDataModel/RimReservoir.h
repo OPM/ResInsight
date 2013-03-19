@@ -55,7 +55,7 @@ public:
     RigEclipseCase*                             reservoirData();
     const RigEclipseCase*                       reservoirData() const;
 
-    RimReservoirCellResultsCacher*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
+    RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
     RimReservoirView*                           createAndAddReservoirView();
     void                                        removeReservoirView(RimReservoirView* reservoirView);
@@ -83,7 +83,7 @@ private:
     cvf::ref<RigEclipseCase>                    m_rigEclipseCase;
 
 private:
-    caf::PdmField<RimReservoirCellResultsCacher*> m_matrixModelResults;
-    caf::PdmField<RimReservoirCellResultsCacher*> m_fractureModelResults;
+    caf::PdmField<RimReservoirCellResultsStorage*> m_matrixModelResults;
+    caf::PdmField<RimReservoirCellResultsStorage*> m_fractureModelResults;
 
 };

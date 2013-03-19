@@ -119,7 +119,7 @@ size_t RimResultDefinition::gridScalarIndex() const
 {
     if (m_gridScalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        const RimReservoirCellResultsCacher* gridCellResults = m_reservoirView->currentGridCellResults();
+        const RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->currentGridCellResults();
         if (gridCellResults) m_gridScalarResultIndex = gridCellResults->cellResults()->findScalarResultIndex(resultType(), resultVariable());
     }
     return m_gridScalarResultIndex;
@@ -130,7 +130,7 @@ size_t RimResultDefinition::gridScalarIndex() const
 //--------------------------------------------------------------------------------------------------
 void RimResultDefinition::loadResult()
 {
-    RimReservoirCellResultsCacher* gridCellResults = m_reservoirView->currentGridCellResults();
+    RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->currentGridCellResults();
     if (gridCellResults)
     {
         m_gridScalarResultIndex = gridCellResults->findOrLoadScalarResult(resultType(), resultVariable);
@@ -148,7 +148,7 @@ void RimResultDefinition::loadResult()
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasStaticResult() const
 {
-    const RimReservoirCellResultsCacher* gridCellResults = m_reservoirView->currentGridCellResults();
+    const RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->currentGridCellResults();
     if (hasResult() && gridCellResults->cellResults()->timeStepCount(m_gridScalarResultIndex) == 1 )
     {
         return true;

@@ -143,7 +143,7 @@ void RimCellPropertyFilter::setDefaultValues()
     size_t scalarIndex = resultDefinition->gridScalarIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
     {
-        RimReservoirCellResultsCacher* results = m_parentContainer->reservoirView()->currentGridCellResults();
+        RimReservoirCellResultsStorage* results = m_parentContainer->reservoirView()->currentGridCellResults();
         if (results)
         {
             results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
