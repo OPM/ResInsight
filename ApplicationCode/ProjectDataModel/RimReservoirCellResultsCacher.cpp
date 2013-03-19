@@ -70,7 +70,13 @@ void RimReservoirCellResultsCacher::setupBeforeSave()
         QString newValidCacheFileName = getValidCacheFileName();
         QFile cacheFile(newValidCacheFileName);
 
-        if (!cacheFile.open(QIODevice::WriteOnly)) qWarning() << "Saving project: Can't open the cache file : " + newValidCacheFileName; 
+        if (!cacheFile.open(QIODevice::WriteOnly)) 
+        {
+            qWarning() << "Saving project: Can't open the cache file : " + newValidCacheFileName; 
+            return;
+        }
+
+        m_resultCacheFileName = newValidCacheFileName;
 
         QDataStream stream(&cacheFile);
         stream.setVersion(QDataStream::Qt_4_0);
