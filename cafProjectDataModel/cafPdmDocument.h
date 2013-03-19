@@ -77,9 +77,6 @@ public:
             xmlStream.setAutoFormatting(true);
 
             typedObjectGroup.writeFields(xmlStream);
-
-            // Call clear to avoid destruction of objects
-            typedObjectGroup.objects().clear();
         }
 
         // Read back XML into object group, factory methods will be called that will create new objects
@@ -92,9 +89,6 @@ public:
             T* obj = dynamic_cast<T*>(destinationObjectGroup.objects[it]);
             if (obj) copyOfTypedObjects->push_back(obj);
         }
-
-        // Call clear to avoid destruction of objects
-        destinationObjectGroup.objects().clear();
     }
 };
 
