@@ -548,7 +548,7 @@ void RIMainWindow::refreshAnimationActions()
             {
                 std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->cellResults()->timeStepDates(0);
                 bool showHoursAndMinutes = false;
-                for (int i = 0; i < timeStepDates.size(); i++)
+                for (size_t i = 0; i < timeStepDates.size(); i++)
                 {
                     if (timeStepDates[i].time().hour() != 0.0 || timeStepDates[i].time().minute() != 0.0)
                     {
@@ -562,7 +562,7 @@ void RIMainWindow::refreshAnimationActions()
                     formatString += " - hh:mm";
                 }
 
-                for (int i = 0; i < timeStepDates.size(); i++)
+                for (size_t i = 0; i < timeStepDates.size(); i++)
                 {
                     timeStepStrings += timeStepDates[i].toString(formatString);
                 }

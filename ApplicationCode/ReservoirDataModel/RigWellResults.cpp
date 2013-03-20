@@ -54,7 +54,7 @@ void RigWellResults::computeMappingFromResultTimeIndicesToWellTimeIndices(const 
         }
 
         qDebug() << "Result TimeStamps";
-        for (int i = 0; i < resultTimes.size(); i++)
+        for (size_t i = 0; i < resultTimes.size(); i++)
         {
             qDebug() << resultTimes[i].toString();
         }
@@ -65,7 +65,7 @@ void RigWellResults::computeMappingFromResultTimeIndicesToWellTimeIndices(const 
     size_t wellIdx = 0;
     size_t activeWellIdx = cvf::UNDEFINED_SIZE_T;
 
-    while (wellIdx <= m_wellCellsTimeSteps.size() && resultIdx < resultTimes.size())
+    while (wellIdx <= m_wellCellsTimeSteps.size() && resultIdx < static_cast<int>(resultTimes.size()))
     {
         if (wellIdx < m_wellCellsTimeSteps.size() && m_wellCellsTimeSteps[wellIdx].m_timestamp <= resultTimes[resultIdx])
         {

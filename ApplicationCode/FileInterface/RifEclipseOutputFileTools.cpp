@@ -102,12 +102,12 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
                 double floorDayValue = cvf::Math::floor(dayValue);
                 double dayFraction = dayValue - floorDayValue;
 
-                int seconds = (dayFraction * 24.0 * 60.0 * 60.0);
+                int seconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0);
                 QTime time(0, 0);
                 time = time.addSecs(seconds);
 
                 QDate reportDate = simulationStart;
-                reportDate = reportDate.addDays(floorDayValue);
+                reportDate = reportDate.addDays(static_cast<int>(floorDayValue));
 
                 QDateTime reportDateTime(reportDate, time);
                 if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())

@@ -18,6 +18,8 @@
 
 #include "RIStdInclude.h"
 
+#include "cafPdmDocument.h"
+
 #include "RimUiTreeView.h"
 #include "RimUiTreeModelPdm.h"
 #include "RimReservoirView.h"

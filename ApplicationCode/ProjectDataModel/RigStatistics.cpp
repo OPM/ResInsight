@@ -46,7 +46,7 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* destinationCellResul
 
 
     // Initializes the size of the destination dataset to active union cell count
-    for (int i = 0; i < sourceTimeStepDates.size(); i++)
+    for (size_t i = 0; i < sourceTimeStepDates.size(); i++)
     {
         dataValues[i].resize(activeUnionCellCount, HUGE_VAL);
     }

@@ -23,7 +23,10 @@
 #include <QTreeView>
 
 class QItemSelection;
-class PdmObjectGroup;
+
+namespace caf {
+    class PdmObjectGroup;
+}
 
 //==================================================================================================
 ///

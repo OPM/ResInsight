@@ -20,6 +20,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
+#include "cafPdmDocument.h"
 #include "cafUiTreeModelPdm.h"
 
 #include <QMimeData>
@@ -45,7 +46,8 @@ public:
     {
     }
 
-    MimeDataWithIndexes(const MimeDataWithIndexes & other)
+
+    MimeDataWithIndexes(const MimeDataWithIndexes & other) : QMimeData()
     {
         setIndexes(other.indexes());
     }
