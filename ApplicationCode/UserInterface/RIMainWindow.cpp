@@ -375,6 +375,17 @@ void RIMainWindow::createDockPanels()
 
         m_treeView = new RimUiTreeView(dockWidget);
         m_treeView->setModel(m_treeModelPdm);
+        m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+        // Must be enabled for drag and drop
+        /*
+        m_treeView->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_treeView->setDragEnabled(true);
+        m_treeView->viewport()->setAcceptDrops(true);
+        m_treeView->setDropIndicatorShown(true);
+        m_treeView->setDragDropMode(QAbstractItemView::InternalMove);
+        */
+
 
         dockWidget->setWidget(m_treeView);
 

@@ -567,21 +567,25 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
     else if (dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
     {
         caseCollection = dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p());
+        CVF_ASSERT(caseCollection);
+
         gridCaseGroup = caseCollection->parentCaseGroup();
     }
     else if (dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
     {
         RimReservoir* rimReservoir = dynamic_cast<RimReservoir*>(currentItem->dataObject().p());
+        CVF_ASSERT(rimReservoir);
+
         caseCollection = rimReservoir->parentCaseCollection();
-        gridCaseGroup = caseCollection->parentCaseGroup();
+        if (caseCollection)
+        {
+            gridCaseGroup = caseCollection->parentCaseGroup();
+        }
     }
     else
     {
         return;
     }
-
-    CVF_ASSERT(caseCollection);
-    CVF_ASSERT(gridCaseGroup);
 
     if (gridCaseGroup)
     {
