@@ -93,6 +93,19 @@ void RimIdenticalGridCaseGroup::addCase(RimReservoir* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimIdenticalGridCaseGroup::removeCase(RimReservoir* reservoir)
+{
+    caseCollection()->reservoirs().removeChildObject(reservoir);
+
+    if (caseCollection()->reservoirs().size() == 0)
+    {
+        m_mainGrid = NULL;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigMainGrid* RimIdenticalGridCaseGroup::mainGrid()
 {
     if (m_mainGrid) return m_mainGrid;

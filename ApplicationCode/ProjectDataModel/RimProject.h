@@ -51,7 +51,7 @@ public:
     void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimReservoir* rimReservoir);
 
     void moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir);
-    void removeEclipseCaseFromAllGroups(RimReservoir* rimReservoir);
+    void removeCaseFromAllGroups(RimReservoir* rimReservoir);
     
 private:
     RigMainGrid* registerCaseInGridCollection(RigEclipseCase* rigEclipseCase);

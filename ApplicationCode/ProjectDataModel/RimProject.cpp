@@ -167,27 +167,15 @@ void RimProject::moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::removeEclipseCaseFromAllGroups(RimReservoir* reservoir)
+void RimProject::removeCaseFromAllGroups(RimReservoir* reservoir)
 {
     m_gridCollection->removeCase(reservoir->reservoirData());
 
-    std::vector<RimIdenticalGridCaseGroup*> emptyCaseGroups;
     for (size_t i = 0; i < caseGroups.size(); i++)
     {
         RimIdenticalGridCaseGroup* cg = caseGroups()[i];
 
-        cg->caseCollection()->reservoirs().removeChildObject(reservoir);
-
-        if (cg->caseCollection()->reservoirs().size() == 0)
-        {
-            emptyCaseGroups.push_back(cg);
-        }
-    }
-
-    for (size_t i = 0; i < emptyCaseGroups.size(); i++)
-    {
-        caseGroups().removeChildObject(emptyCaseGroups[i]);
-        delete emptyCaseGroups[i];
+        cg->removeCase(reservoir);
     }
 
     reservoirs().removeChildObject(reservoir);

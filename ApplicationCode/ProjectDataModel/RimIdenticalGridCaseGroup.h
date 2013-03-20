@@ -45,6 +45,7 @@ public:
     caf::PdmField<QString>  name;
 
     void addCase(RimReservoir* reservoir);
+    void removeCase(RimReservoir* reservoir);
 
     caf::PdmField<RimCaseCollection*>           caseCollection;
     caf::PdmField<RimStatisticalCollection*>    statisticalReservoirCollection;

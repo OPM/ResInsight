@@ -220,7 +220,7 @@ void RimUiTreeModelPdm::deleteReservoir(const QModelIndex& itemIndex)
     removeRow(itemIndex.row(), itemIndex.parent());
 
     RimProject* proj = RIApplication::instance()->project();
-    proj->removeEclipseCaseFromAllGroups(reservoir);
+    proj->removeCaseFromAllGroups(reservoir);
 
     delete reservoir;
 }
