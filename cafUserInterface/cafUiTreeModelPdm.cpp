@@ -426,6 +426,7 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
         return NULL;
     }
 
+    // NOTE: if position is -1, the item is appended to the parent tree item
     PdmUiTreeItem* objectTreeItem = new PdmUiTreeItem(parentTreeItem, position, object);
 
     std::vector<caf::PdmFieldHandle*> fields;
@@ -445,7 +446,8 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
             caf::PdmObject* childObj = children[i];
             assert(childObj);
 
-            UiTreeItemBuilderPdm::buildViewItems(objectTreeItem, position, childObj);
+            // NOTE: -1 as second argument indicates that child objects will be appended to collection
+            UiTreeItemBuilderPdm::buildViewItems(objectTreeItem, -1, childObj);
         }
     }
 
