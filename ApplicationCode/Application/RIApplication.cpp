@@ -250,11 +250,32 @@ bool RIApplication::loadProject(const QString& projectFileName)
         m_preferences->lastUsedProjectFileName = projectFileName;
         writePreferences();
 
-        caf::ProgressInfo caseProgress(m_project->reservoirs().size() , "Reading Cases");
-        size_t i;
-        for (i = 0; i < m_project->reservoirs().size(); ++i)
+        std::vector<RimReservoir*> casesToLoad;
+
+        // Add all "native" cases in the project
+        for (size_t cIdx = 0; cIdx < m_project->reservoirs().size(); ++cIdx)
         {
-            RimReservoir* ri = m_project->reservoirs()[i];
+            casesToLoad.push_back(m_project->reservoirs()[cIdx]);
+        }
+
+        // Add all statistics cases as well
+        for (size_t cgIdx = 0; cgIdx < m_project->caseGroups().size(); ++cgIdx)
+        {
+            if (m_project->caseGroups[cgIdx]->statisticalReservoirCollection())
+            {
+                caf::PdmPointersField<RimStatisticalCalculation*> & statCases = m_project->caseGroups[cgIdx]->statisticalReservoirCollection()->reservoirs();
+                for (size_t scIdx = 0; scIdx < statCases.size(); ++scIdx)
+                {
+                    casesToLoad.push_back(statCases[scIdx]);
+                }
+            }
+        }
+
+        caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
+
+        for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
+        {
+            RimReservoir* ri = casesToLoad[cIdx];
             CVF_ASSERT(ri);
 
             caseProgress.setProgressDescription(ri->caseName());
