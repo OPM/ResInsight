@@ -30,10 +30,10 @@ namespace caf
 
 //--------------------------------------------------------------------------------------------------
 /// Reads all the fields into this PdmObject
-/// Assumes xmlStream points to the start element token of the containing object.
+/// Assumes xmlStream points to the start element token of the PdmObject for which to read fields.
 /// ( and not first token of object content)
 /// This makes attribute based field storage possible.
-/// Leaves the xmlStream pointing to the EndElement corresponding to the start element.
+/// Leaves the xmlStream pointing to the EndElement of the PdmObject.
 //--------------------------------------------------------------------------------------------------
 void PdmObject::readFields (QXmlStreamReader& xmlStream )
 {
@@ -48,6 +48,11 @@ void PdmObject::readFields (QXmlStreamReader& xmlStream )
        case QXmlStreamReader::StartElement:
            {
                QString name = xmlStream.name().toString();
+               if (name == QString("SimpleObjPtrField"))
+               {
+                   int a;
+                   a = 2 + 7;
+               }
                PdmFieldHandle* currentField = findField(name);
                if (currentField)
                {
@@ -76,6 +81,7 @@ void PdmObject::readFields (QXmlStreamReader& xmlStream )
        case QXmlStreamReader::EndElement:
            {
                // End of object.
+               QString name = xmlStream.name().toString(); // For debugging
                isObjectFinished = true;
            }
            break;
