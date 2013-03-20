@@ -611,6 +611,12 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(caseCollectionUiItem, -1, rimResultReservoir);
                 endInsertRows();
             }
+
+            for (size_t i = 0; i < rimResultReservoir->reservoirViews.size(); i++)
+            {
+                RimReservoirView* riv = rimResultReservoir->reservoirViews()[i];
+                riv->loadDataAndUpdate();
+            }
         }
     }
 }
