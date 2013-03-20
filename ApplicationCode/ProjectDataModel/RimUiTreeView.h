@@ -79,7 +79,7 @@ private slots:
     void slotAddCaseGroup();
 
     void slotCopyPdmObjectToClipboard();
-    void slotPasteEclipseCases();
+    void slotPastePdmObjects();
 
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 

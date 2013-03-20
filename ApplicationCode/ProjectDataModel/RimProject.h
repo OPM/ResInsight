@@ -48,8 +48,7 @@ public:
 
     void close();
 
-    void copyFromCaseList(RimIdenticalGridCaseGroup* caseGroup, const caf::PdmObjectGroup& caseList);
-    void insertCaseInCaseGroup(RimReservoir* rimReservoir, RimIdenticalGridCaseGroup* caseGroup);
+    void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimReservoir* rimReservoir);
 
     void moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir);
     void removeEclipseCaseFromAllGroups(RimReservoir* rimReservoir);

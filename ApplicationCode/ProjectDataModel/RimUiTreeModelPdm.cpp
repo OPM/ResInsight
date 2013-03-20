@@ -36,6 +36,7 @@
 #include "cafPdmField.h"
 #include "RimInputReservoir.h"
 #include "RimStatisticalCalculation.h"
+#include "RimResultReservoir.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -534,7 +535,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeModelPdm::addCases(const QModelIndex& itemIndex, caf::PdmObjectGroup& cases)
+void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects)
 {
     RimProject* proj = RIApplication::instance()->project();
     CVF_ASSERT(proj);
@@ -568,13 +569,49 @@ void RimUiTreeModelPdm::addCases(const QModelIndex& itemIndex, caf::PdmObjectGro
     CVF_ASSERT(caseCollection);
     CVF_ASSERT(gridCaseGroup);
 
-    //itemCount = caseCollection->reservoirs().size();
-
     if (gridCaseGroup)
     {
-         proj->copyFromCaseList(gridCaseGroup, cases);
-     
-         rebuildUiSubTree(caseCollection);
+        std::vector<caf::PdmPointer<RimResultReservoir> > typedObjects;
+        pdmObjects.createCopyByType(&typedObjects);
+
+        RigEclipseCase* mainEclipseCase = NULL;
+        if (gridCaseGroup->caseCollection()->reservoirs().size() > 0)
+        {
+            RimReservoir* mainReservoir = gridCaseGroup->caseCollection()->reservoirs()[0];;
+            mainEclipseCase = mainReservoir->reservoirData();
+        }
+
+        for (size_t i = 0; i < typedObjects.size(); i++)
+        {
+            RimResultReservoir* rimResultReservoir = typedObjects[i];
+
+            if (gridCaseGroup->mainGrid() == NULL)
+            {
+                rimResultReservoir->openEclipseGridFile();
+                mainEclipseCase = rimResultReservoir->reservoirData();
+            }
+            else
+            {
+                if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
+                {
+                    CVF_ASSERT(false);
+                }
+            }
+
+            proj->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
+
+            caf::PdmObjectGroup::initAfterReadTraversal(rimResultReservoir);
+
+            {
+                QModelIndex rootIndex = getModelIndexFromPdmObject(caseCollection);
+                caf::PdmUiTreeItem* caseCollectionUiItem = getTreeItemFromIndex(rootIndex);
+
+                int position = rowCount(rootIndex);
+                beginInsertRows(rootIndex, position, position);
+                caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(caseCollectionUiItem, -1, rimResultReservoir);
+                endInsertRows();
+            }
+        }
     }
 }
 

@@ -171,7 +171,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("Copy"), this, SLOT(slotCopyPdmObjectToClipboard()));
-                menu.addAction(QString("Paste"), this, SLOT(slotPasteEclipseCases()));
+                menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.exec(event->globalPos());
@@ -180,13 +180,13 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("New Case Group"), this, SLOT(slotAddCaseGroup()));
-                menu.addAction(QString("Paste"), this, SLOT(slotPasteEclipseCases()));
+                menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
-                menu.addAction(QString("Paste"), this, SLOT(slotPasteEclipseCases()));
+                menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
                 menu.exec(event->globalPos());
             }
         }
@@ -863,7 +863,7 @@ void RimUiTreeView::slotCopyPdmObjectToClipboard()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::slotPasteEclipseCases()
+void RimUiTreeView::slotPastePdmObjects()
 {
     if (!currentIndex().isValid()) return;
 
@@ -874,7 +874,7 @@ void RimUiTreeView::slotPasteEclipseCases()
     createPdmObjectsFromClipboard(&objectGroup);
     if (objectGroup.objects().size() == 0) return;
 
-    myModel->addCases(currentIndex(), objectGroup);
+    myModel->addObjects(currentIndex(), objectGroup);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -924,7 +924,7 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
     {
         if (keyEvent->matches(QKeySequence::Paste))
         {
-            slotPasteEclipseCases();
+            slotPastePdmObjects();
             keyEvent->setAccepted(true);
 
             return;

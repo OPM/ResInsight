@@ -233,7 +233,7 @@ RigMainGrid* RimProject::registerCaseInGridCollection(RigEclipseCase* rigEclipse
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::insertCaseInCaseGroup(RimReservoir* rimReservoir, RimIdenticalGridCaseGroup* caseGroup)
+void RimProject::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimReservoir* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
@@ -243,45 +243,3 @@ void RimProject::insertCaseInCaseGroup(RimReservoir* rimReservoir, RimIdenticalG
     caseGroup->addCase(rimReservoir);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimProject::copyFromCaseList(RimIdenticalGridCaseGroup* caseGroup, const caf::PdmObjectGroup& caseList)
-{
-    std::vector<caf::PdmPointer<RimReservoir> > typedObjects;
-    caseList.createCopyByType(&typedObjects);
-
-    if (typedObjects.size() == 0) return;
-
-    RigEclipseCase* mainEclipseCase = NULL;
-    if (caseGroup->caseCollection()->reservoirs().size() > 0)
-    {
-        RimReservoir* mainReservoir = caseGroup->caseCollection()->reservoirs()[0];;
-        mainEclipseCase = mainReservoir->reservoirData();
-    }
-
-    for (size_t i = 0; i < typedObjects.size(); i++)
-    {
-        RimReservoir* rimReservoir = typedObjects[i];
-        caf::PdmObjectGroup::initAfterReadTraversal(rimReservoir);
-
-        RimResultReservoir* rimResultReservoir = dynamic_cast<RimResultReservoir*>(rimReservoir);
-        if (rimResultReservoir)
-        {
-            if (caseGroup->mainGrid() == NULL)
-            {
-                rimResultReservoir->openEclipseGridFile();
-                mainEclipseCase = rimResultReservoir->reservoirData();
-            }
-            else
-            {
-                 if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
-                 {
-                     CVF_ASSERT(false);
-                 }
-            }
-
-            insertCaseInCaseGroup(rimResultReservoir, caseGroup);
-        }
-    }
-}
