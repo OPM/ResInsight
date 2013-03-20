@@ -34,6 +34,7 @@
 #include "RimBinaryExportSettings.h"
 #include "RigReservoirCellResults.h"
 #include "RimStatisticalCalculation.h"
+#include "RimResultReservoir.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -783,7 +784,26 @@ void RimUiTreeView::slotCloseCase()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
-        myModel->deleteReservoir(currentIndex());
+        QItemSelectionModel* m = selectionModel();
+        CVF_ASSERT(m);
+
+        caf::PdmObjectGroup group;
+
+        QModelIndexList mil = m->selectedRows();
+        for (int i = 0; i < mil.size(); i++)
+        {
+            caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mil.at(i));
+            group.addObject(uiItem->dataObject().p());
+        }
+
+        std::vector<caf::PdmPointer<RimResultReservoir> > typedObjects;
+        group.objectsByType(&typedObjects);
+
+        for (size_t i = 0; i < typedObjects.size(); i++)
+        {
+            RimReservoir* rimReservoir = typedObjects[i];
+            myModel->deleteReservoir(rimReservoir);
+        }
     }
 }
 

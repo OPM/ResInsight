@@ -140,6 +140,9 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     {
         propertyFilterCollection->reservoirView()->createDisplayModelAndRedraw();
     }
+
+    clearClipboard();
+
     return true;
 }
 
@@ -178,6 +181,8 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
         rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
     }    
 
+    clearClipboard();
+
     return true;
 }
 
@@ -200,29 +205,36 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
     reservoirView->eclipseCase()->removeReservoirView(reservoirView);
     delete reservoirView;
 
+    clearClipboard();
+
     return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeModelPdm::deleteReservoir(const QModelIndex& itemIndex)
+void RimUiTreeModelPdm::deleteReservoir(RimReservoir* reservoir)
 {
-    CVF_ASSERT(itemIndex.isValid());
+    RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
+    QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
+    if (!caseCollectionModelIndex.isValid()) return;
 
-    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
-    CVF_ASSERT(uiItem);
+    QModelIndex mi = getModelIndexFromPdmObjectRecursive(caseCollectionModelIndex, reservoir);
+    if (mi.isValid())
+    {
+        caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
+        CVF_ASSERT(uiItem);
 
-    RimReservoir* reservoir = dynamic_cast<RimReservoir*>(uiItem->dataObject().p());
-    CVF_ASSERT(reservoir);
-
-    // Remove Ui items pointing at the pdm object to delete
-    removeRow(itemIndex.row(), itemIndex.parent());
+        // Remove Ui items pointing at the pdm object to delete
+        removeRow(mi.row(), mi.parent());
+    }
 
     RimProject* proj = RIApplication::instance()->project();
     proj->removeCaseFromAllGroups(reservoir);
 
     delete reservoir;
+
+    clearClipboard();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -456,6 +468,8 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     inputReservoir->removeProperty(inputProperty);
 
     delete inputProperty;
+
+    clearClipboard();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -658,6 +672,26 @@ bool RimUiTreeModelPdm::deleteObjectFromPdmPointersField(const QModelIndex& item
         }
     }
 
+    clearClipboard();
+
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::clearClipboard()
+{
+    // We use QModelIndex to identify a selection on the clipboard
+    // When we delete or move an entity, the clipboard data might be invalid
+
+    QClipboard* clipboard = QApplication::clipboard();
+    if (clipboard)
+    {
+        if (dynamic_cast<const MimeDataWithIndexes*>(clipboard->mimeData()))
+        {
+            clipboard->clear();
+        }
+    }
 }
 

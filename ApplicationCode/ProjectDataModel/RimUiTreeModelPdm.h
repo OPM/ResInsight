@@ -29,6 +29,7 @@ class QFileSystemWatcher;
 
 class RimCellPropertyFilter;
 class RimCellRangeFilter;
+class RimReservoir;
 class RimReservoirView;
 class RimInputProperty;
 class RimStatisticalCalculation;
@@ -103,7 +104,7 @@ public:
     bool            deletePropertyFilter(const QModelIndex& itemIndex);
     bool            deleteReservoirView(const QModelIndex& itemIndex);
     void            deleteInputProperty(const QModelIndex& itemIndex);
-    void            deleteReservoir(const QModelIndex& itemIndex);
+    void            deleteReservoir(RimReservoir* reservoir);
 
     RimCellPropertyFilter*  addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*     addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
@@ -120,6 +121,7 @@ public:
 
 private slots:
     void            slotRefreshScriptTree(QString path);
+    void            clearClipboard();
 
 private:
     QFileSystemWatcher* m_scriptChangeDetector;

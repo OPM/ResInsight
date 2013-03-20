@@ -65,7 +65,7 @@ public:
     virtual bool            insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
     virtual bool            removeRows(int position, int rows, const QModelIndex &parent = QModelIndex());
 
-private:
+protected:
     QModelIndex getModelIndexFromPdmObjectRecursive(const QModelIndex& root, const PdmObject * object) const;
 
 private:
