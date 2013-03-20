@@ -76,7 +76,9 @@ private slots:
 
     void slotNewStatisticalCase();
     void slotComputeStatisticalCases();
+    
     void slotAddCaseGroup();
+    void slotDeleteObjectFromPdmPointersField();
 
     void slotCopyPdmObjectToClipboard();
     void slotPastePdmObjects();

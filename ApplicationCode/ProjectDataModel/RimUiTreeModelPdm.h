@@ -114,6 +114,8 @@ public:
     RimStatisticalCalculation*       addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimIdenticalGridCaseGroup*       addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 
+    bool            deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
+
     void            updateScriptPaths();
 
 private slots:

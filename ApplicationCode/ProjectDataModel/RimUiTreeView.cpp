@@ -181,6 +181,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 QMenu menu;
                 menu.addAction(QString("New Case Group"), this, SLOT(slotAddCaseGroup()));
                 menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
+                menu.addAction(QString("Close"), this, SLOT(slotDeleteObjectFromPdmPointersField()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p()))
@@ -833,6 +834,18 @@ void RimUiTreeView::slotAddCaseGroup()
         setCurrentIndex(insertedIndex);
 
         setExpanded(insertedIndex, true);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotDeleteObjectFromPdmPointersField()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        myModel->deleteObjectFromPdmPointersField(currentIndex());
     }
 }
 

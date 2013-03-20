@@ -615,3 +615,43 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeModelPdm::deleteObjectFromPdmPointersField(const QModelIndex& itemIndex)
+{
+    if (!itemIndex.isValid())
+    {
+        return false;
+    }
+
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+    CVF_ASSERT(currentItem);
+
+    caf::PdmObject* currentPdmObject = currentItem->dataObject().p();
+    CVF_ASSERT(currentPdmObject);
+
+    std::vector<caf::PdmFieldHandle*> parentFields;
+    currentPdmObject->parentFields(parentFields);
+
+    if (parentFields.size() == 1)
+    {
+        beginRemoveRows(itemIndex.parent(), itemIndex.row(), itemIndex.row());
+        if (currentItem->parent())
+        {
+            currentItem->parent()->removeChildren(itemIndex.row(), 1);
+        }
+        endRemoveRows();
+
+        caf::PdmPointersField<RimIdenticalGridCaseGroup*>* caseGroup = dynamic_cast<caf::PdmPointersField<RimIdenticalGridCaseGroup*> *>(parentFields[0]);
+        if (caseGroup)
+        {
+            caseGroup->removeChildObject(currentPdmObject);
+
+            delete currentPdmObject;
+        }
+    }
+
+    return true;
+}
+
