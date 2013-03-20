@@ -92,7 +92,6 @@ void PdmObjectGroup::initAfterReadTraversal(PdmObject* object)
     for (cIdx = 0; cIdx < children.size(); ++cIdx)
     {
         PdmObjectGroup::initAfterReadTraversal(children[cIdx]);
-        if (children[cIdx]) children[cIdx]->initAfterRead();
     }
 
     object->initAfterRead();
@@ -203,7 +202,6 @@ void PdmDocument::setupBeforeSaveTraversal(PdmObject * object)
     for (cIdx = 0; cIdx < children.size(); ++cIdx)
     {
         PdmDocument::setupBeforeSaveTraversal(children[cIdx]);
-        if (children[cIdx]) children[cIdx]->setupBeforeSave();
     }
 
     object->setupBeforeSave();
