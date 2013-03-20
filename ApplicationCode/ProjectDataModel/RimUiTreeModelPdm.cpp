@@ -346,13 +346,12 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
         int viewCount = rowCount(collectionIndex);
         beginInsertRows(collectionIndex, viewCount, viewCount);
 
-        caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(collectionItem, viewCount, insertedView);
-
+        // NOTE: -1 as second argument indicates append
+        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, -1, insertedView);
+        
         endInsertRows();
 
         insertedView->loadDataAndUpdate();
-
-        rebuildUiSubTree(insertedView);
 
         return insertedView;
     }
@@ -521,11 +520,8 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
         RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
         proj->caseGroups().push_back(createdObject);
 
-        caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(rootTreeItem, position, createdObject);
-
+        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
         endInsertRows();
-
-        rebuildUiSubTree(createdObject);
 
         insertedModelIndex = index(position, 0, rootIndex);
 
