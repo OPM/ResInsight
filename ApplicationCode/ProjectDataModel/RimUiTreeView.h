@@ -89,10 +89,13 @@ signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
 
 private:
-
     void createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGroup);
+    bool hasClipboardValidData();
 
     virtual void keyPressEvent(QKeyEvent* keyEvent);
+
+private:
+    QAction* m_pasteAction;
 };
 
 

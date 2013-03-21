@@ -43,6 +43,9 @@ RimUiTreeView::RimUiTreeView(QWidget *parent /*= 0*/)
     : QTreeView(parent)
 {
     setHeaderHidden(true);
+
+    m_pasteAction = new QAction(QString("Paste"), this);
+    connect(m_pasteAction, SIGNAL(triggered()), SLOT(slotPastePdmObjects()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,12 +60,15 @@ RimUiTreeView::~RimUiTreeView()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
 {
+    m_pasteAction->setEnabled(hasClipboardValidData());
+
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
         caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
         if (uiItem && uiItem->dataObject())
         {
+
             // Range filters
             if (dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
             {
@@ -172,7 +178,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("Copy"), this, SLOT(slotCopyPdmObjectToClipboard()));
-                menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
+                menu.addAction(m_pasteAction);
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
@@ -182,14 +188,14 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
-                menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
+                menu.addAction(m_pasteAction);
                 menu.addAction(QString("Close"), this, SLOT(slotDeleteObjectFromPdmPointersField()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
-                menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
+                menu.addAction(m_pasteAction);
                 menu.exec(event->globalPos());
             }
         }
@@ -966,5 +972,22 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
     }
 
     QTreeView::keyPressEvent(keyEvent);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeView::hasClipboardValidData()
+{
+    QClipboard* clipboard = QApplication::clipboard();
+    if (clipboard)
+    {
+        if (dynamic_cast<const MimeDataWithIndexes*>(clipboard->mimeData()))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
