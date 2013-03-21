@@ -96,8 +96,9 @@ class RimUiTreeModelPdm : public caf::UiTreeModelPdm
 public:
     RimUiTreeModelPdm(QObject* parent);
 
-    // Overrides
-    virtual bool    insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
+
+    // TO BE DELETED, NOT USED
+    virtual bool    insertRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
 
     // Special edit methods
     bool            deleteRangeFilter(const QModelIndex& itemIndex);
@@ -118,6 +119,12 @@ public:
     bool            deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
 
     void            updateScriptPaths();
+
+    virtual Qt::DropActions supportedDropActions() const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    virtual QMimeData * mimeData(const QModelIndexList &indexes) const;
+    virtual QStringList mimeTypes() const;
 
 private slots:
     void            slotRefreshScriptTree(QString path);

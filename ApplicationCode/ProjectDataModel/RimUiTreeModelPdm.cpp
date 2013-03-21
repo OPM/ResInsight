@@ -51,9 +51,9 @@ RimUiTreeModelPdm::RimUiTreeModelPdm(QObject* parent)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// TO BE DELETED
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeModelPdm::insertRows(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
+bool RimUiTreeModelPdm::insertRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
 {
     caf::PdmUiTreeItem* parentItem = getTreeItemFromIndex(parent);
     
@@ -126,7 +126,7 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     bool wasSomeFilterActive = propertyFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRow(itemIndex.row(), itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
 
     propertyFilterCollection->remove(propertyFilter);
     delete propertyFilter;
@@ -166,7 +166,7 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
     bool wasSomeFilterActive = rangeFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRow(itemIndex.row(), itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
 
     rangeFilterCollection->remove(rangeFilter);
     delete rangeFilter;
@@ -200,7 +200,7 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
     CVF_ASSERT(reservoirView);
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRow(itemIndex.row(), itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
 
     reservoirView->eclipseCase()->removeReservoirView(reservoirView);
     delete reservoirView;
@@ -226,7 +226,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimReservoir* reservoir)
         CVF_ASSERT(uiItem);
 
         // Remove Ui items pointing at the pdm object to delete
-        removeRow(mi.row(), mi.parent());
+        removeRows_special(mi.row(), 1, mi.parent());
     }
 
     RimProject* proj = RIApplication::instance()->project();
@@ -449,7 +449,7 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     if (!inputProperty) return;
 
     // Remove item from UI tree model before delete of project data structure
-    removeRow(itemIndex.row(), itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
 
     std::vector<RimInputPropertyCollection*> parentObjects;
     object->parentObjectsOfType(parentObjects);
@@ -581,8 +581,8 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
         caseCollection = rimReservoir->parentCaseCollection();
         if (caseCollection)
         {
-            gridCaseGroup = caseCollection->parentCaseGroup();
-        }
+        gridCaseGroup = caseCollection->parentCaseGroup();
+    }
     }
     else
     {
@@ -699,5 +699,99 @@ void RimUiTreeModelPdm::clearClipboard()
             clipboard->clear();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Qt::DropActions RimUiTreeModelPdm::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Qt::ItemFlags RimUiTreeModelPdm::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags defaultFlags = caf::UiTreeModelPdm::flags(index);
+    if (index.isValid())
+    {
+        caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(index);
+        CVF_ASSERT(currentItem);
+        CVF_ASSERT(currentItem->dataObject().p());
+
+        if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
+            dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
+        {
+            return Qt::ItemIsDropEnabled | defaultFlags;
+        }
+        else if (dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
+        {
+            // TODO: Remember to handle reservoir holding the main grid
+            return Qt::ItemIsDragEnabled | defaultFlags;
+        }
+    }
+
+    return defaultFlags;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(data);
+    if (myMimeData && parent.isValid())
+    {
+        caf::PdmObjectGroup pog;
+
+        for (int i = 0; i < myMimeData->indexes().size(); i++)
+        {
+            QModelIndex mi = myMimeData->indexes().at(i);
+            caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(mi);
+            caf::PdmObject* pdmObj = currentItem->dataObject().p();
+
+            pog.objects().push_back(pdmObj);
+        }
+
+        addObjects(parent, pog);
+
+        if (action == Qt::MoveAction)
+        {
+            std::vector<caf::PdmPointer<RimResultReservoir> > typedObjects;
+            pog.objectsByType(&typedObjects);
+
+            for (size_t i = 0; i < typedObjects.size(); i++)
+            {
+                RimReservoir* rimReservoir = typedObjects[i];
+                deleteReservoir(rimReservoir);
+            }
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QMimeData* RimUiTreeModelPdm::mimeData(const QModelIndexList &indexes) const
+{
+    MimeDataWithIndexes* myObj = new MimeDataWithIndexes();
+    myObj->setIndexes(indexes);
+    return myObj;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList RimUiTreeModelPdm::mimeTypes() const
+{
+    QStringList types;
+    types << MimeDataWithIndexes::formatName();
+    return types;
 }
 

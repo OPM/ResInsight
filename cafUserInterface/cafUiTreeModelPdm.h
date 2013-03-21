@@ -62,8 +62,10 @@ public:
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-    virtual bool            insertRows(int position, int rows, const QModelIndex &parent = QModelIndex());
-    virtual bool            removeRows(int position, int rows, const QModelIndex &parent = QModelIndex());
+    // TO BE DELETED, NOT USED
+    virtual bool            insertRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
+
+    virtual bool            removeRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
 
 protected:
     QModelIndex getModelIndexFromPdmObjectRecursive(const QModelIndex& root, const PdmObject * object) const;

@@ -293,9 +293,9 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// TO BE DELETED
 //--------------------------------------------------------------------------------------------------
-bool UiTreeModelPdm::insertRows(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
+bool UiTreeModelPdm::insertRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
 {
     PdmUiTreeItem* parentItem = getTreeItemFromIndex(parent);
     
@@ -311,7 +311,7 @@ bool UiTreeModelPdm::insertRows(int position, int rows, const QModelIndex &paren
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool UiTreeModelPdm::removeRows(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
+bool UiTreeModelPdm::removeRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
 {
     if (rows <= 0) return true;
 
@@ -344,7 +344,7 @@ void UiTreeModelPdm::rebuildUiSubTree(PdmObject* root)
     QModelIndex item = getModelIndexFromPdmObject(root);
     if (item.isValid())
     {
-       this->removeRows(0, rowCount(item), item);
+       this->removeRows_special(0, rowCount(item), item);
        PdmUiTreeItem* treeItem = getTreeItemFromIndex(item);
 
 
