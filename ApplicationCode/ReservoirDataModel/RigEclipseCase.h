@@ -51,6 +51,7 @@ public:
 
     RigActiveCellInfo*                          activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigActiveCellInfo*                    activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const;
+    void                                        setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo);
     
 
     cvf::ref<cvf::StructGridScalarDataAccess>   dataAccessObject(const RigGridBase* grid, 
@@ -78,8 +79,8 @@ private:
 private:
     cvf::ref<RigMainGrid>                       m_mainGrid;
 
-    RigActiveCellInfo                           m_activeCellInfo;
-    RigActiveCellInfo                           m_fractureActiveCellInfo;
+    cvf::ref<RigActiveCellInfo>                 m_activeCellInfo;
+    cvf::ref<RigActiveCellInfo>                 m_fractureActiveCellInfo;
 
     cvf::ref<RigReservoirCellResults>           m_matrixModelResults;
     cvf::ref<RigReservoirCellResults>           m_fractureModelResults;

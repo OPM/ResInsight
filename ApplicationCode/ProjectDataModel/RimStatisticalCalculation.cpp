@@ -121,6 +121,10 @@ void RimStatisticalCalculation::computeStatistics()
         openEclipseGridFile();
     }
 
+    RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
+    CVF_ASSERT(gridCaseGroup);
+    gridCaseGroup->computeUnionOfActiveCells();
+
     std::vector<RimReservoir*> sourceCases;
 
     getSourceCases(sourceCases);

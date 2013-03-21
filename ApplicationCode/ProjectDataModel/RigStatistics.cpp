@@ -52,90 +52,6 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* destinationCellResul
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-// See also RifReaderEclipseOutput::readActiveCellInfo()
-//--------------------------------------------------------------------------------------------------
-void RigStatistics::computeActiveCellUnion()
-{
-    if (m_sourceCases.size() == 0)
-    {
-        return;
-    }
-
-    CVF_ASSERT(m_destinationCase);
-
-    RigMainGrid* mainGrid = m_sourceCases[0]->reservoirData()->mainGrid();
-    CVF_ASSERT(mainGrid);
-
-    m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setGlobalCellCount(mainGrid->cells().size());
-    m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setGlobalCellCount(mainGrid->cells().size());
-    m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setGridCount(mainGrid->gridCount());
-    m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setGridCount(mainGrid->gridCount());
-
-    size_t globalActiveMatrixIndex = 0;
-    size_t globalActiveFractureIndex = 0;
-
-    for (size_t gridIdx = 0; gridIdx < mainGrid->gridCount(); gridIdx++)
-    {
-        RigGridBase* grid = mainGrid->gridByIndex(gridIdx);
-
-        std::vector<char> activeM(grid->cellCount(), 0);
-        std::vector<char> activeF(grid->cellCount(), 0);
-
-        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
-        {
-            for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
-            {
-                size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
-
-                if (activeM[localGridCellIdx] == 0)
-                {
-                    if (m_sourceCases[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActiveInMatrixModel(globalCellIdx))
-                    {
-                        activeM[localGridCellIdx] = 1;
-                    }
-                }
-
-                if (activeF[localGridCellIdx] == 0)
-                {
-                    if (m_sourceCases[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActiveInMatrixModel(globalCellIdx))
-                    {
-                        activeF[localGridCellIdx] = 1;
-                    }
-                }
-            }
-        }
-
-        size_t activeMatrixIndex = 0;
-        size_t activeFractureIndex = 0;
-
-        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
-        {
-            size_t globalCellIdx = grid->globalGridCellIndex(localGridCellIdx);
-
-            if (activeM[localGridCellIdx] != 0)
-            {
-                m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setActiveIndexInMatrixModel(globalCellIdx, globalActiveMatrixIndex++);
-                activeMatrixIndex++;
-            }
-
-            if (activeF[localGridCellIdx] != 0)
-            {
-                m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setActiveIndexInMatrixModel(globalCellIdx, globalActiveFractureIndex++);
-                activeFractureIndex++;
-            }
-        }
-
-        m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->setGridActiveCellCounts(gridIdx, activeMatrixIndex);
-        m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->setGridActiveCellCounts(gridIdx, activeFractureIndex);
-    }
-
-    m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
-    m_destinationCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
-
-    m_destinationCase->computeCachedData();
-}
 
 QString createResultNameMin(const QString& resultName)  { return resultName + "_MIN"; }
 QString createResultNameMax(const QString& resultName)  { return resultName + "_MAX"; }
@@ -175,8 +91,6 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
 void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification)
 {
     CVF_ASSERT(m_destinationCase);
-
-    computeActiveCellUnion();
 
     size_t activeMatrixCellCount = m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalMatrixModelActiveCellCount();
     RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);

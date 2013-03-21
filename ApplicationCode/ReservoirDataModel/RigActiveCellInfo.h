@@ -27,7 +27,7 @@
 
 
 
-class RigActiveCellInfo
+class RigActiveCellInfo : public cvf::Object
 {
 public:
     RigActiveCellInfo();

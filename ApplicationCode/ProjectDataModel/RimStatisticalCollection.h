@@ -42,8 +42,6 @@ public:
 
     caf::PdmPointersField<RimStatisticalCalculation*> reservoirs;
 
-    RimStatisticalCalculation* createAndAppendStatisticalCalculation();
-
     RimIdenticalGridCaseGroup* parentCaseGroup();
 
 private:

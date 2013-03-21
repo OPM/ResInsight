@@ -505,10 +505,13 @@ void RigReservoirCellResults::removeResult(const QString& resultName)
 //--------------------------------------------------------------------------------------------------
 void RigReservoirCellResults::clearAllResults()
 {
-    for (size_t i = 0; i < m_cellScalarResults.size(); i++)
-    {
-        m_cellScalarResults[i].clear();
-    }
+    m_cellScalarResults.clear();
+    m_maxMinValues.clear();
+    m_histograms.clear();
+    m_p10p90.clear();
+    m_meanValues.clear();   
+    m_maxMinValuesPrTs.clear();
+    m_resultInfos.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

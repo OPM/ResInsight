@@ -480,21 +480,22 @@ RimStatisticalCalculation* RimUiTreeModelPdm::addStatisticalCalculation(const QM
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
     QModelIndex collectionIndex;
-    RimStatisticalCollection* caseGroup = NULL;
+    RimIdenticalGridCaseGroup* caseGroup = NULL;
     caf::PdmUiTreeItem* parentCollectionItem = NULL;
     int position = 0;
 
     if (dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p()))
     {
         RimStatisticalCalculation* currentObject = dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p());
-        caseGroup = currentObject->parentStatisticalCollection();
+        caseGroup = currentObject->parentStatisticalCollection()->parentCaseGroup();
         parentCollectionItem = currentItem->parent();
         position = itemIndex.row();
         collectionIndex = itemIndex.parent();
     }
     else if (dynamic_cast<RimStatisticalCollection*>(currentItem->dataObject().p()))
     {
-        caseGroup = dynamic_cast<RimStatisticalCollection*>(currentItem->dataObject().p());
+        RimStatisticalCollection* statColl = dynamic_cast<RimStatisticalCollection*>(currentItem->dataObject().p());
+        caseGroup = statColl->parentCaseGroup();
         parentCollectionItem = currentItem;
         position = parentCollectionItem->childCount();
         collectionIndex = itemIndex;

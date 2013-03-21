@@ -28,6 +28,7 @@
 
 class RimReservoir;
 class RigMainGrid;
+class RigActiveCellInfo;
 
 //==================================================================================================
 //
@@ -47,15 +48,29 @@ public:
     void addCase(RimReservoir* reservoir);
     void removeCase(RimReservoir* reservoir);
 
+    RimStatisticalCalculation* createAndAppendStatisticalCalculation();
+
     caf::PdmField<RimCaseCollection*>           caseCollection;
     caf::PdmField<RimStatisticalCollection*>    statisticalReservoirCollection;
 
     RigMainGrid* mainGrid();
 
+    void computeUnionOfActiveCells();
+
 protected:
     virtual caf::PdmFieldHandle*   userDescriptionField();
 
     virtual void initAfterRead();
+
+private:
+    void updateMainGridAndActiveCellsForStatisticsCases();
+    void clearStatisticsResults();
+    void clearActiveCellUnions();
+
+
 private:
     RigMainGrid* m_mainGrid;
+    
+    cvf::ref<RigActiveCellInfo> m_unionOfMatrixActiveCells;
+    cvf::ref<RigActiveCellInfo> m_unionOfFractureActiveCells;
 };

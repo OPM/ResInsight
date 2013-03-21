@@ -45,7 +45,7 @@ bool RigActiveCellInfo::isActiveInMatrixModel(size_t globalCellIndex) const
 {
     if (m_activeInMatrixModel.size() == 0)
     {
-        return false;
+        return true;
     }
 
     CVF_TIGHT_ASSERT(globalCellIndex < m_activeInMatrixModel.size());
@@ -60,7 +60,7 @@ size_t RigActiveCellInfo::activeIndexInMatrixModel(size_t globalCellIndex) const
 {
     if (m_activeInMatrixModel.size() == 0)
     {
-        return cvf::UNDEFINED_SIZE_T;
+        return globalCellIndex;
     }
 
     CVF_TIGHT_ASSERT(globalCellIndex < m_activeInMatrixModel.size());

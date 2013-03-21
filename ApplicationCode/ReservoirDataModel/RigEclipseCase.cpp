@@ -30,6 +30,9 @@ RigEclipseCase::RigEclipseCase()
 
     m_matrixModelResults = new RigReservoirCellResults(m_mainGrid.p());
     m_fractureModelResults = new RigReservoirCellResults(m_mainGrid.p());
+
+    m_activeCellInfo = new RigActiveCellInfo;
+    m_fractureActiveCellInfo = new RigActiveCellInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -285,19 +288,19 @@ void RigEclipseCase::computeActiveCellData()
         size_t i, j, k;
         m_mainGrid->ijkFromCellIndex(idx, &i, &j, &k);
 
-        if (m_activeCellInfo.isActiveInMatrixModel(idx))
+        if (m_activeCellInfo->isActiveInMatrixModel(idx))
         {
             matrixModelActiveBB.add(i, j, k);
         }
 
-        if (m_fractureActiveCellInfo.isActiveInMatrixModel(idx))
+        if (m_fractureActiveCellInfo->isActiveInMatrixModel(idx))
         {
             fractureModelActiveBB.add(i, j, k);
         }
     }
 
-    m_activeCellInfo.setMatrixModelActiveCellsBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
-    m_fractureActiveCellInfo.setMatrixModelActiveCellsBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
+    m_activeCellInfo->setMatrixModelActiveCellsBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
+    m_fractureActiveCellInfo->setMatrixModelActiveCellsBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,10 +319,10 @@ RigActiveCellInfo* RigEclipseCase::activeCellInfo(RifReaderInterface::PorosityMo
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {
-        return &m_activeCellInfo;
+        return m_activeCellInfo.p();
     }
 
-    return &m_fractureActiveCellInfo;
+    return m_fractureActiveCellInfo.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -329,11 +332,27 @@ const RigActiveCellInfo* RigEclipseCase::activeCellInfo(RifReaderInterface::Poro
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {
-        return &m_activeCellInfo;
+        return m_activeCellInfo.p();
     }
 
-    return &m_fractureActiveCellInfo;
+    return m_fractureActiveCellInfo.p();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigEclipseCase::setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo)
+{
+    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
+    {
+        m_activeCellInfo = activeCellInfo;
+    }
+    else
+    {
+        m_fractureActiveCellInfo = activeCellInfo;
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -343,14 +362,14 @@ void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
     if (m_mainGrid.isNull())
     {
         cvf::BoundingBox bb;
-        m_activeCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
-        m_fractureActiveCellInfo.setMatrixActiveCellsGeometryBoundingBox(bb);
+        m_activeCellInfo->setMatrixActiveCellsGeometryBoundingBox(bb);
+        m_fractureActiveCellInfo->setMatrixActiveCellsGeometryBoundingBox(bb);
         return;
     }
 
     RigActiveCellInfo* activeInfos[2];
-    activeInfos[0] = &m_fractureActiveCellInfo;
-    activeInfos[1] = &m_activeCellInfo; // Last, to make this bb.min become display offset
+    activeInfos[0] = m_fractureActiveCellInfo.p();
+    activeInfos[1] = m_activeCellInfo.p(); // Last, to make this bb.min become display offset
 
     cvf::BoundingBox bb;
     for (int acIdx = 0; acIdx < 2; ++acIdx)
@@ -428,6 +447,8 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigEclipseCase::dataAccessObject(const
     return NULL;
 
 }
+
+
 /*
 //--------------------------------------------------------------------------------------------------
 /// 

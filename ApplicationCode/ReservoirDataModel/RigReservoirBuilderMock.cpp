@@ -18,6 +18,7 @@
 
 #include "RigReservoirBuilderMock.h"
 #include "RigEclipseCase.h"
+#include "RigActiveCellInfo.h"
 
 
 /* rand example: guess the number */

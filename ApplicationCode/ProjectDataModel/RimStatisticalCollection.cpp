@@ -48,26 +48,6 @@ RimStatisticalCollection::~RimStatisticalCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticalCalculation* RimStatisticalCollection::createAndAppendStatisticalCalculation()
-{
-    RimStatisticalCalculation* newObject = new RimStatisticalCalculation;
-    RimIdenticalGridCaseGroup* gridCaseGroup = parentCaseGroup();
-    
-    CVF_ASSERT(gridCaseGroup);
-    CVF_ASSERT(gridCaseGroup->mainGrid());
-
-    newObject->setMainGrid(gridCaseGroup->mainGrid());
-
-    newObject->caseName = QString("Statistics ") + QString::number(reservoirs.size()+1);
-
-    reservoirs.push_back(newObject);
-
-    return newObject;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimStatisticalCollection::parentCaseGroup()
 {
     std::vector<RimIdenticalGridCaseGroup*> parentObjects;
