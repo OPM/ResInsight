@@ -214,7 +214,7 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
             {
                 QString newResultName = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeywords[i].keyword);
 
-                size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); // Should really merge with inputProperty object information because we need to use PropertyName, and not keyword
+                size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false); // Should really merge with inputProperty object information because we need to use PropertyName, and not keyword
 
                 std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
                 newPropertyData.push_back(std::vector<double>());
@@ -297,7 +297,7 @@ bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseC
         size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
         if (resultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
+            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false); 
         }
 
         std::vector< std::vector<double> >& newPropertyData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
@@ -535,7 +535,7 @@ bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileNam
         size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
         if (resultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName); 
+            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false); 
         }
 
         std::vector< std::vector<double> >& newPropertyData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);

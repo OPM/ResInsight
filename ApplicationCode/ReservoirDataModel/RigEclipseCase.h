@@ -59,20 +59,18 @@ public:
                                                                size_t timeStepIndex, 
                                                                size_t scalarSetIndex);
 
-     void                                       setWellResults(const cvf::Collection<RigWellResults>& data);
+    void                                        setWellResults(const cvf::Collection<RigWellResults>& data);
     const cvf::Collection<RigWellResults>&      wellResults() { return m_wellResults; }
-
 
     cvf::UByteArray*                            wellCellsInGrid(size_t gridIndex);
 
     RigCell&                                    cellFromWellResultCell(const RigWellResultCell& wellResultCell);
     bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
 
-    void                                        computeCachedData();
-    //void                                        closeReaderInterface();
+    void                                        computeActiveCellBoundingBoxes();
 
 private:
-    void                                        computeActiveCellData();
+    void                                        computeActiveCellIJKBBox();
     void                                        computeWellCellsPrGrid();
     void                                        computeActiveCellsGeometryBoundingBox();
 

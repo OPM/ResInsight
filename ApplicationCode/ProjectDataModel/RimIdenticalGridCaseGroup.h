@@ -54,20 +54,20 @@ public:
     caf::PdmField<RimCaseCollection*>           caseCollection;
     caf::PdmField<RimStatisticalCollection*>    statisticalReservoirCollection;
 
+    void loadMainCaseAndActiveCellInfo();
+
     RigMainGrid* mainGrid();
+    RigActiveCellInfo* unionOfActiveCells(RifReaderInterface::PorosityModelResultType porosityType);
 
     void computeUnionOfActiveCells();
 
 protected:
     virtual caf::PdmFieldHandle*   userDescriptionField();
 
-    virtual void initAfterRead();
-
 private:
     void updateMainGridAndActiveCellsForStatisticsCases();
     void clearStatisticsResults();
     void clearActiveCellUnions();
-
 
 private:
     RigMainGrid* m_mainGrid;

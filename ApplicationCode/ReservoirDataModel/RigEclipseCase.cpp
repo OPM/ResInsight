@@ -277,7 +277,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCase::computeActiveCellData()
+void RigEclipseCase::computeActiveCellIJKBBox()
 {
     CellRangeBB matrixModelActiveBB;
     CellRangeBB fractureModelActiveBB;
@@ -306,9 +306,9 @@ void RigEclipseCase::computeActiveCellData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCase::computeCachedData()
+void RigEclipseCase::computeActiveCellBoundingBoxes()
 {
-    computeActiveCellData();
+    computeActiveCellIJKBBox();
     computeActiveCellsGeometryBoundingBox();
 }
 

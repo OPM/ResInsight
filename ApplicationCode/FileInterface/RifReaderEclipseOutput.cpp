@@ -564,7 +564,7 @@ bool RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i]);
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
@@ -577,7 +577,7 @@ bool RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i]);
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
@@ -610,7 +610,7 @@ bool RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i]);
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepDates(resIndex, staticDate);
             }
         }
@@ -629,7 +629,7 @@ bool RifReaderEclipseOutput::buildMetaData()
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i]);
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepDates(resIndex, staticDate);
             }
         }

@@ -286,7 +286,7 @@ void RiaSocketServer::readCommandFromOctave()
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T && isSetProperty)
             {
-                scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
+                scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName, true);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)

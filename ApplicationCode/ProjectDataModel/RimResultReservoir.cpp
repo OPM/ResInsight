@@ -145,7 +145,7 @@ bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCa
     CVF_ASSERT(this->reservoirData());
     CVF_ASSERT(readerInterface.notNull());
 
-    reservoirData()->computeCachedData();
+    reservoirData()->computeActiveCellBoundingBoxes();
 
     return true;
 }

@@ -43,7 +43,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCase* eclipseCa
 
     for (size_t i = 0; i < m_reservoirBuilder.resultCount(); i++)
     {
-        size_t resIdx = cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, QString("Dynamic_Result_%1").arg(i));
+        size_t resIdx = cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, QString("Dynamic_Result_%1").arg(i), false);
         cellResults->setTimeStepDates(resIdx, dates);
     }
 
@@ -59,7 +59,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCase* eclipseCa
         int resIndex = 0;
         if (i > 1) resIndex = i;
 
-        size_t resIdx = cellResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, QString("Static_Result_%1%2").arg(resIndex).arg(varEnd));
+        size_t resIdx = cellResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, QString("Static_Result_%1%2").arg(resIndex).arg(varEnd), false);
         cellResults->setTimeStepDates(resIdx, staticDates);
     }
 
@@ -68,7 +68,7 @@ bool RifReaderMockModel::open(const QString& fileName, RigEclipseCase* eclipseCa
     { \
         size_t resIdx; \
         QString resultName(Name); \
-        resIdx = cellResults->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, resultName); \
+        resIdx = cellResults->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, resultName, false); \
         cellResults->setTimeStepDates(resIdx, staticDates); \
         cellResults->cellScalarResults(resIdx).resize(1); \
         std::vector<double>& values = cellResults->cellScalarResults(resIdx)[0]; \

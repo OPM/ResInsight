@@ -51,6 +51,8 @@ public:
     cvf::BoundingBox    matrixActiveCellsGeometryBoundingBox() const;
     void                setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox bb);
 
+    void                clear();
+
 private:
     class GridActiveCellCounts
     {

@@ -60,13 +60,13 @@ void RifReaderStatisticalCalculation::buildMetaData(RigEclipseCase* eclipseCase)
     // Dynamic results
     for (int i = 0; i < m_matrixDynamicResultNames.size(); ++i)
     {
-        size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, m_matrixDynamicResultNames[i]);
+        size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, m_matrixDynamicResultNames[i], true);
         matrixModelResults->setTimeStepDates(resIndex, m_timeSteps);
     }
 
     for (int i = 0; i < m_fractureDynamicResultNames.size(); ++i)
     {
-        size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, m_fractureDynamicResultNames[i]);
+        size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, m_fractureDynamicResultNames[i], true);
         fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
     }
 
@@ -79,13 +79,13 @@ void RifReaderStatisticalCalculation::buildMetaData(RigEclipseCase* eclipseCase)
     // Static results
     for (int i = 0; i < m_fractureStaticResultNames.size(); ++i)
     {
-        size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, m_fractureStaticResultNames[i]);
+        size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, m_fractureStaticResultNames[i], true);
         fractureModelResults->setTimeStepDates(resIndex, staticDate);
     }
 
     for (int i = 0; i < m_matrixStaticResultNames.size(); ++i)
     {
-        size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, m_matrixStaticResultNames[i]);
+        size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, m_matrixStaticResultNames[i], true);
         matrixModelResults->setTimeStepDates(resIndex, staticDate);
     }
 }

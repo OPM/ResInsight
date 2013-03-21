@@ -35,10 +35,7 @@ class RigReservoirCellResults : public cvf::Object
 public:
     RigReservoirCellResults(RigMainGrid* ownerGrid);
 
-    //void                                               setReaderInterface(RifReaderInterface* readerInterface);
-    //RifReaderInterface*                                readerInterface();
-
-    void                                              setMainGrid(RigMainGrid* ownerGrid);
+    void                                               setMainGrid(RigMainGrid* ownerGrid);
 
     // Max and min values of the results
     void                                               recalculateMinMax(size_t scalarResultIndex);
@@ -64,14 +61,14 @@ public:
     size_t                                             findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const;
     size_t                                             findScalarResultIndex(const QString& resultName) const;
 
-    size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName);
+    size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
     void                                               removeResult(const QString& resultName);
     void                                               clearAllResults();
 
-
     // Access the results data
+
     const std::vector< std::vector<double> > &         cellScalarResults(size_t scalarResultIndex) const;
     std::vector< std::vector<double> > &               cellScalarResults(size_t scalarResultIndex);
     std::vector<double>&                               cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex);
@@ -83,14 +80,15 @@ public:
     class ResultInfo
     {
     public:
-        ResultInfo(RimDefines::ResultCatType resultType, QString resultName, size_t gridScalarResultIndex)
-            : m_resultType(resultType), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex) { }
+        ResultInfo(RimDefines::ResultCatType resultType, bool needsToBeStored, QString resultName, size_t gridScalarResultIndex)
+            : m_resultType(resultType), m_needsToBeStored(needsToBeStored), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex) { }
 
     public:
         RimDefines::ResultCatType   m_resultType;
+        bool                        m_needsToBeStored;
         QString                     m_resultName;
         size_t                      m_gridScalarResultIndex;
-        std::vector<QDateTime>            m_timeStepDates;
+        std::vector<QDateTime>      m_timeStepDates;
     };
 
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
@@ -98,6 +96,7 @@ public:
 public:
     size_t                                                  addStaticScalarResult(RimDefines::ResultCatType type, 
                                                                                   const QString& resultName, 
+                                                                                  bool needsToBeStored,
                                                                                   size_t resultValueCount);
 
 private:

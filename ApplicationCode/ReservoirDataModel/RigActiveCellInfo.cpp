@@ -161,6 +161,19 @@ void RigActiveCellInfo::setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigActiveCellInfo::clear()
+{
+    m_perGridActiveCellInfo.clear();
+    m_activeInMatrixModel.clear();
+    m_globalMatrixModelActiveCellCount = 0;
+    m_activeCellPositionMin = cvf::Vec3st(0,0,0);
+    m_activeCellPositionMax = cvf::Vec3st(0,0,0);
+    m_matrixActiveCellsBoundingBox.reset();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::GridActiveCellCounts::matrixModelActiveCellCount() const
 {
     return m_matrixModelActiveCellCount;

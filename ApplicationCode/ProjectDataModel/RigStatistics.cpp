@@ -37,7 +37,7 @@ void RigStatistics::addNamedResult(RigReservoirCellResults* destinationCellResul
 
     std::vector<QDateTime> sourceTimeStepDates = m_sourceCases[0]->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->timeStepDates(0);
 
-    size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName);
+    size_t destinationScalarResultIndex = destinationCellResults->addEmptyScalarResult(resultType, resultName, true);
     CVF_ASSERT(destinationScalarResultIndex != cvf::UNDEFINED_SIZE_T);
 
     destinationCellResults->setTimeStepDates(destinationScalarResultIndex, sourceTimeStepDates);
@@ -76,7 +76,7 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
         size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
-            size_t scalarResultIndex = matrixResults->cellResults()->addEmptyScalarResult(resultType, resultName);
+            size_t scalarResultIndex = matrixResults->cellResults()->addEmptyScalarResult(resultType, resultName, false);
             matrixResults->cellResults()->setTimeStepDates(scalarResultIndex, timeStepDates);
 
             std::vector< std::vector<double> >& dataValues = matrixResults->cellResults()->cellScalarResults(scalarResultIndex);

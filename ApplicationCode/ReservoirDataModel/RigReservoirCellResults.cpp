@@ -337,7 +337,7 @@ size_t RigReservoirCellResults::findScalarResultIndex(const QString& resultName)
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
 /// if resultName already exists, it returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName)
+size_t RigReservoirCellResults::addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
 {
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -346,7 +346,7 @@ size_t RigReservoirCellResults::addEmptyScalarResult(RimDefines::ResultCatType t
     {
         scalarResultIndex = this->resultCount();
         m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-        ResultInfo resInfo(type, resultName, scalarResultIndex);
+        ResultInfo resInfo(type, needsToBeStored, resultName, scalarResultIndex);
         m_resultInfos.push_back(resInfo);
     }
 
@@ -435,9 +435,8 @@ void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const s
 
     m_resultInfos[scalarResultIndex].m_timeStepDates = dates;
 
-    // We need this. But not yet ...
-    //std::vector< std::vector<double> >& dataValues = this->cellScalarResults(scalarResultIndex);
-    //dataValues.resize(dates.size());
+    std::vector< std::vector<double> >& dataValues = this->cellScalarResults(scalarResultIndex);
+    dataValues.resize(dates.size());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -517,9 +516,9 @@ void RigReservoirCellResults::clearAllResults()
 //--------------------------------------------------------------------------------------------------
 /// Add a result with given type and name, and allocate one result vector for the static result values
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, size_t resultValueCount)
+size_t RigReservoirCellResults::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
 {
-    size_t resultIdx = addEmptyScalarResult(type, resultName);
+    size_t resultIdx = addEmptyScalarResult(type, resultName, needsToBeStored);
     
     m_cellScalarResults[resultIdx].push_back(std::vector<double>());
     m_cellScalarResults[resultIdx][0].resize(resultValueCount, HUGE_VAL);

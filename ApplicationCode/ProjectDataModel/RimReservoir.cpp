@@ -261,7 +261,7 @@ void RimReservoir::computeCachedData()
     RigEclipseCase* rigEclipseCase = reservoirData();
     if (rigEclipseCase)
     {
-        rigEclipseCase->computeCachedData();
+        rigEclipseCase->computeActiveCellBoundingBoxes();
 
         rigEclipseCase->mainGrid()->computeCachedData();
 

@@ -51,7 +51,8 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     m_mainGrid = NULL;
 
-    clearActiveCellUnions();
+    m_unionOfMatrixActiveCells = new RigActiveCellInfo;
+    m_unionOfFractureActiveCells = new RigActiveCellInfo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,51 +137,50 @@ caf::PdmFieldHandle* RimIdenticalGridCaseGroup::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///  Make sure changes in this functions is validated to RIApplication::addEclipseCases()
 //--------------------------------------------------------------------------------------------------
-void RimIdenticalGridCaseGroup::initAfterRead()
+void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 {
     if (caseCollection()->reservoirs().size() == 0)
     {
         return;
     }
 
-    // First file is read completely including grid.
-    // The main grid from the first case is reused directly in for the other cases. 
+    // Read the main case completely including grid.
+    // The mainGrid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RigEclipseCase* mainEclipseCase = NULL;
 
-    RimResultReservoir* rimReservoir = dynamic_cast<RimResultReservoir*>(caseCollection()->reservoirs()[0]);
-    CVF_ASSERT(rimReservoir);
-        
-    rimReservoir->openEclipseGridFile();
-
-    mainEclipseCase = rimReservoir->reservoirData();
+    RimReservoir* mainCase = caseCollection()->reservoirs[0];
+    mainCase->openEclipseGridFile();
+    RigEclipseCase* mainEclipseCase = mainCase->reservoirData();
     CVF_ASSERT(mainEclipseCase);
 
-    
     // Read active cell info from all source cases
-    caf::ProgressInfo info(caseCollection()->reservoirs().size(), "Case group - Reading Active Cell data");
-    for (size_t i = 1; i < caseCollection()->reservoirs().size(); i++)
+    
+    caf::ProgressInfo info(caseCollection()->reservoirs.size(), "Case group - Reading Active Cell data");
+    for (size_t i = 1; i < caseCollection()->reservoirs.size(); i++)
     {
-        RimResultReservoir* rimReservoir = dynamic_cast<RimResultReservoir*>(caseCollection()->reservoirs()[i]);
-        CVF_ASSERT(rimReservoir);
+        RimResultReservoir* rimReservoir = dynamic_cast<RimResultReservoir*>(caseCollection()->reservoirs[i]);
+        if(!rimReservoir) continue; // Input reservoir
 
         if (!rimReservoir->openAndReadActiveCellData(mainEclipseCase))
         {
             CVF_ASSERT(false);
         }
 
-        info.setProgress(i);
+        info.incrementProgress();
     }
 
+    m_mainGrid = mainEclipseCase->mainGrid();
+
+    // Check if we need to calculate the union of the active cells
 
     bool foundResultsInCache = false;
-    for (size_t i = 0; i < statisticalReservoirCollection()->reservoirs().size(); i++)
+    for (size_t i = 0; i < statisticalReservoirCollection()->reservoirs.size(); i++)
     {
-        RimStatisticalCalculation* rimReservoir = statisticalReservoirCollection()->reservoirs()[i];
+        RimStatisticalCalculation* rimReservoir = statisticalReservoirCollection()->reservoirs[i];
 
         // Check if any results are stored in cache
-        if (rimReservoir->results(RifReaderInterface::MATRIX_RESULTS)->m_resultCacheMetaData.size() > 0 ||
-            rimReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->m_resultCacheMetaData.size() > 0)
+        if (rimReservoir->results(RifReaderInterface::MATRIX_RESULTS)->storedResultsCount() > 0 ||
+            rimReservoir->results(RifReaderInterface::FRACTURE_RESULTS)->storedResultsCount() > 0)
         {
             foundResultsInCache = true;
             break;
@@ -192,10 +192,21 @@ void RimIdenticalGridCaseGroup::initAfterRead()
         computeUnionOfActiveCells();
     }
 
-    m_mainGrid = mainEclipseCase->mainGrid();
+    // "Load" the statistical cases
 
-    updateMainGridAndActiveCellsForStatisticsCases();
+    for (size_t i = 0; i < statisticalReservoirCollection()->reservoirs.size(); i++)
+    {
+        RimStatisticalCalculation* rimReservoir = statisticalReservoirCollection()->reservoirs[i];
+
+        rimReservoir->openEclipseGridFile();
+
+        if (i == 0)
+        {
+            rimReservoir->reservoirData()->computeActiveCellBoundingBoxes();
+        }
+    }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -209,12 +220,10 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
     if (caseCollection->reservoirs.size() == 0 || !m_mainGrid)
     {
-        m_unionOfMatrixActiveCells = new RigActiveCellInfo;
-        m_unionOfFractureActiveCells = new RigActiveCellInfo;
+        this->clearActiveCellUnions();
 
         return;
     }
-
 
     m_unionOfMatrixActiveCells->setGlobalCellCount(m_mainGrid->cells().size());
     m_unionOfFractureActiveCells->setGlobalCellCount(m_mainGrid->cells().size());
@@ -291,11 +300,9 @@ RimStatisticalCalculation* RimIdenticalGridCaseGroup::createAndAppendStatistical
     RimStatisticalCalculation* newObject = new RimStatisticalCalculation;
 
     newObject->caseName = QString("Statistics ") + QString::number(statisticalReservoirCollection()->reservoirs.size()+1);
-    newObject->setMainGrid(this->mainGrid());
-    newObject->reservoirData()->setActiveCellInfo(RifReaderInterface::MATRIX_RESULTS, m_unionOfMatrixActiveCells.p());
-    newObject->reservoirData()->setActiveCellInfo(RifReaderInterface::FRACTURE_RESULTS, m_unionOfFractureActiveCells.p());
-
     statisticalReservoirCollection()->reservoirs.push_back(newObject);
+
+    newObject->openEclipseGridFile();
 
     return newObject;
 }
@@ -309,13 +316,11 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
     {
         RimStatisticalCalculation* rimStaticsCase = statisticalReservoirCollection->reservoirs[i];
 
-        rimStaticsCase->setMainGrid(this->mainGrid());
-        rimStaticsCase->reservoirData()->setActiveCellInfo(RifReaderInterface::MATRIX_RESULTS, m_unionOfMatrixActiveCells.p());
-        rimStaticsCase->reservoirData()->setActiveCellInfo(RifReaderInterface::FRACTURE_RESULTS, m_unionOfFractureActiveCells.p());
+        rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
 
         if (i == 0)
         {
-            rimStaticsCase->reservoirData()->computeCachedData();
+            rimStaticsCase->reservoirData()->computeActiveCellBoundingBoxes();
         }
     }
 }
@@ -338,8 +343,8 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::clearActiveCellUnions()
 {
-    m_unionOfMatrixActiveCells = new RigActiveCellInfo;
-    m_unionOfFractureActiveCells = new RigActiveCellInfo;
+    m_unionOfMatrixActiveCells->clear();
+    m_unionOfFractureActiveCells->clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,3 +366,14 @@ bool RimIdenticalGridCaseGroup::contains(RimReservoir* reservoir) const
     return false;
 }
 
+RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RifReaderInterface::PorosityModelResultType porosityType)
+{
+    if (porosityType == RifReaderInterface::MATRIX_RESULTS)
+    {
+        return m_unionOfMatrixActiveCells.p();
+    }
+    else
+    {
+        return m_unionOfFractureActiveCells.p();
+    }
+}

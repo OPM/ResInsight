@@ -40,9 +40,6 @@ RimStatisticalCalculation::RimStatisticalCalculation()
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
     CAF_PDM_InitField(&m_resultName, "ResultName", QString("PRESSURE"), "ResultName", "", "", "");
 
-    m_readerInterface = new RifReaderStatisticalCalculation;
-
-    openEclipseGridFile();   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,16 +71,20 @@ bool RimStatisticalCalculation::openEclipseGridFile()
 
     cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
 
-    if (!m_readerInterface->open("dummy", eclipseCase.p()))
-    {
-        return false;
-    }
+    CVF_ASSERT(parentStatisticalCollection());
+
+    RimIdenticalGridCaseGroup* gridCaseGroup = parentStatisticalCollection()->parentCaseGroup();
+    CVF_ASSERT(gridCaseGroup);
+
+    RigMainGrid* mainGrid = gridCaseGroup->mainGrid();
+
+    eclipseCase->setMainGrid(mainGrid);
+
+    eclipseCase->setActiveCellInfo(RifReaderInterface::MATRIX_RESULTS, gridCaseGroup->unionOfActiveCells(RifReaderInterface::MATRIX_RESULTS));
+    eclipseCase->setActiveCellInfo(RifReaderInterface::FRACTURE_RESULTS, gridCaseGroup->unionOfActiveCells(RifReaderInterface::FRACTURE_RESULTS));
 
     this->setReservoirData( eclipseCase.p() );
 
-    results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(m_readerInterface.p());
-    results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(m_readerInterface.p());
-   
     return true;
 }
 
@@ -150,11 +151,11 @@ void RimStatisticalCalculation::computeStatistics()
 
     QList<QPair<RimDefines::ResultCatType, QString> > resultSpecification;
 
-    resultSpecification.append(qMakePair(RimDefines::DYNAMIC_NATIVE, QString("PRESSURE")));
+    //resultSpecification.append(qMakePair(RimDefines::DYNAMIC_NATIVE, QString("PRESSURE")));
 
-    /*
+    
     {
-        QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->resultNames(RimDefines::DYNAMIC_NATIVE);
         foreach(QString resultName, resultNames)
         {
             resultSpecification.append(qMakePair(RimDefines::DYNAMIC_NATIVE, resultName));
@@ -162,13 +163,13 @@ void RimStatisticalCalculation::computeStatistics()
     }
 
     {
-        QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        QStringList resultNames = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->resultNames(RimDefines::STATIC_NATIVE);
         foreach(QString resultName, resultNames)
         {
             resultSpecification.append(qMakePair(RimDefines::STATIC_NATIVE, resultName));
         }
     }
-    */
+    
 
     RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
     stat.evaluateStatistics(resultSpecification);

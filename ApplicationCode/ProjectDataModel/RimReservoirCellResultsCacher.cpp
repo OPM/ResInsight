@@ -22,6 +22,7 @@
 #include "RIApplication.h"
 #include "RigMainGrid.h"
 #include "RigCell.h"
+#include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
@@ -58,16 +59,36 @@ RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsStorage::setupBeforeSave()
 {
+    m_resultCacheMetaData.deleteAllChildObjects();
+    QString newValidCacheFileName = getValidCacheFileName();
+
+    // Delete the storage file
+
+    QFileInfo storageFileInfo(newValidCacheFileName);
+    if (storageFileInfo.exists())
+    {
+        QDir storageDir = storageFileInfo.dir();
+        storageDir.remove(storageFileInfo.fileName()); 
+    }
+
     if (!m_cellResults) return;
 
     const std::vector<RigReservoirCellResults::ResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
-    m_resultCacheMetaData.deleteAllChildObjects();
 
-    if(resInfo.size())
+    bool hasResultsToStore = false;
+    for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 
+    {
+        if (resInfo[rIdx].m_needsToBeStored) 
+        {
+            hasResultsToStore = true; 
+            break;
+        }
+    }
+
+    if(resInfo.size() && hasResultsToStore)
     {
         QDir::root().mkpath(getCacheDirectoryPath());
 
-        QString newValidCacheFileName = getValidCacheFileName();
         QFile cacheFile(newValidCacheFileName);
 
         if (!cacheFile.open(QIODevice::WriteOnly)) 
@@ -79,16 +100,22 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
         m_resultCacheFileName = newValidCacheFileName;
 
         QDataStream stream(&cacheFile);
-        stream.setVersion(QDataStream::Qt_4_0);
+        stream.setVersion(QDataStream::Qt_4_6);
         stream << (quint32)0xCEECAC4E; // magic number
         stream << (quint32)1; // Version number. Increment if needing to extend the format in ways that can not be handled generically by the reader
 
+        caf::ProgressInfo progInfo(resInfo.size(), "Saving generated and imported properties");
+
         for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx)
         {
+            // If there is no data, we do not store anything for the current result variable
+            // (Even not the metadata, of cause)
             size_t timestepCount = m_cellResults->cellScalarResults(resInfo[rIdx].m_gridScalarResultIndex).size();
             
-            if (timestepCount)
+            if (timestepCount && resInfo[rIdx].m_needsToBeStored)
             {
+                progInfo.setProgressDescription(resInfo[rIdx].m_resultName);
+
                 // Create and setup the cache information for this result
                 RimReservoirCellResultsStorageEntryInfo*  cacheEntry = new RimReservoirCellResultsStorageEntryInfo;
                 m_resultCacheMetaData.push_back(cacheEntry);
@@ -125,9 +152,12 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
                     }
                 }
             }
+
+            progInfo.incrementProgress();
         }
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -256,7 +286,15 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
 
     if (resultGridIndex == cvf::UNDEFINED_SIZE_T)  return cvf::UNDEFINED_SIZE_T;
 
-    if (m_cellResults->cellScalarResults(resultGridIndex).size()) return resultGridIndex;
+    // If we have any results on any timestep, assume we have loaded results already
+
+    for (size_t tsIdx = 0; tsIdx < m_cellResults->timeStepCount(resultGridIndex); ++tsIdx)
+    {
+        if (m_cellResults->cellScalarResults(resultGridIndex, tsIdx).size())
+        {
+            return resultGridIndex;
+        }
+    }
 
     if (type == RimDefines::GENERATED)
     {
@@ -369,7 +407,7 @@ void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeSte
     size_t soilResultGridIndex = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
     if (soilResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        soilResultGridIndex = m_cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+        soilResultGridIndex = m_cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
         CVF_ASSERT(soilResultGridIndex != cvf::UNDEFINED_SIZE_T);
 
         m_cellResults->cellScalarResults(soilResultGridIndex).resize(soilTimeStepCount);
@@ -424,37 +462,37 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 
     if (depthResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        depthResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DEPTH", resultValueCount);
+         depthResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DEPTH", false, resultValueCount);
         computeDepth = true;
     }
 
     if (dxResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        dxResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DX", resultValueCount);
+        dxResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DX", false, resultValueCount);
         computeDx = true;
     }
 
     if (dyResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        dyResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DY", resultValueCount);
+        dyResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DY", false, resultValueCount);
         computeDy = true;
     }
 
     if (dzResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        dzResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DZ", resultValueCount);
+        dzResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DZ", false, resultValueCount);
         computeDz = true;
     }
 
     if (topsResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        topsResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "TOPS", resultValueCount);
+        topsResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "TOPS", false, resultValueCount);
         computeTops = true;
     }
 
     if (bottomResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-        bottomResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "BOTTOM", resultValueCount);
+        bottomResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "BOTTOM", false, resultValueCount);
         computeBottom = true;
     }
 
@@ -539,6 +577,84 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
 void RimReservoirCellResultsStorage::setCellResults(RigReservoirCellResults* cellResults)
 {
     m_cellResults = cellResults;
+
+    if (m_cellResults == NULL) 
+        return;
+
+    // Now that we have got the results container, we can finally 
+    // Read data from the internal storage and populate it
+
+    if (m_resultCacheFileName().isEmpty()) 
+        return;
+
+    // Get the name of the cache name relative to the current project file position
+    QString newValidCacheFileName = getValidCacheFileName();
+
+    QFile storageFile(newValidCacheFileName);
+
+    // Warn if we thought we were to find some data on the storage file
+
+    if (!storageFile.exists() && m_resultCacheMetaData.size())
+    {
+        qWarning() << "Reading stored results: Missing the storage file : " + newValidCacheFileName; 
+        return;
+    }
+
+    if (!storageFile.open(QIODevice::ReadOnly)) 
+    {
+        qWarning() << "Reading stored results: Can't open the file : " + newValidCacheFileName; 
+        return;
+    }
+
+    QDataStream stream(&storageFile);
+    stream.setVersion(QDataStream::Qt_4_6);
+    quint32 magicNumber = 0;
+    quint32 versionNumber = 0;
+    stream >> magicNumber;
+
+    if (magicNumber != 0xCEECAC4E)
+    {
+        qWarning() << "Reading stored results: The storage file has wrong type "; 
+        return;
+    }
+
+    stream >> versionNumber;
+    if (versionNumber > 1 )
+    {
+        qWarning() << "Reading stored results: The storage file has been written by a newer version of ResInsight"; 
+        return;
+    }
+
+    caf::ProgressInfo progress(m_resultCacheMetaData.size(), "Reading internally stored results");
+    // Fill the object with data from the storage
+
+    for (size_t rIdx = 0; rIdx < m_resultCacheMetaData.size(); ++rIdx)
+    {
+        RimReservoirCellResultsStorageEntryInfo* resInfo = m_resultCacheMetaData[rIdx];
+        size_t resultIndex = m_cellResults->addEmptyScalarResult(resInfo->m_resultType(), resInfo->m_resultName(), true);
+
+        m_cellResults->setTimeStepDates(resultIndex, resInfo->m_timeStepDates());
+
+        progress.setProgressDescription(resInfo->m_resultName);
+
+        for (size_t tsIdx = 0; tsIdx < resInfo->m_timeStepDates().size(); ++tsIdx)
+        {
+            std::vector<double>* data = NULL;
+           
+            data = &(m_cellResults->cellScalarResults(rIdx, tsIdx));
+
+            quint64 cellCount = 0;
+            stream >> cellCount;
+            data->resize(cellCount, HUGE_VAL);
+
+            for (size_t cIdx = 0; cIdx < cellCount; ++cIdx)
+            {
+                stream >> (*data)[cIdx];
+            }
+        }
+
+        progress.incrementProgress();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -547,6 +663,14 @@ void RimReservoirCellResultsStorage::setCellResults(RigReservoirCellResults* cel
 void RimReservoirCellResultsStorage::setMainGrid(RigMainGrid* mainGrid)
 {
     m_ownerMainGrid = mainGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RimReservoirCellResultsStorage::storedResultsCount()
+{
+    return m_resultCacheMetaData.size();
 }
 
 
