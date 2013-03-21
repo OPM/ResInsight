@@ -98,43 +98,41 @@ public:
 
 
     // TO BE DELETED, NOT USED
-    virtual bool    insertRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
+    virtual bool                insertRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
 
     // Special edit methods
-    bool            deleteRangeFilter(const QModelIndex& itemIndex);
-    bool            deletePropertyFilter(const QModelIndex& itemIndex);
-    bool            deleteReservoirView(const QModelIndex& itemIndex);
-    void            deleteInputProperty(const QModelIndex& itemIndex);
-    void            deleteReservoir(RimReservoir* reservoir);
+    bool                        deleteRangeFilter(const QModelIndex& itemIndex);
+    bool                        deletePropertyFilter(const QModelIndex& itemIndex);
+    bool                        deleteReservoirView(const QModelIndex& itemIndex);
+    void                        deleteInputProperty(const QModelIndex& itemIndex);
+    void                        deleteReservoir(RimReservoir* reservoir);
 
-    RimCellPropertyFilter*  addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    RimCellRangeFilter*     addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    RimReservoirView*       addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    void                    addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
-    void                    addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
+    RimCellPropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimReservoirView*           addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
+    void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
-    RimStatisticalCalculation*       addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    RimIdenticalGridCaseGroup*       addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimStatisticalCalculation*  addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimIdenticalGridCaseGroup*  addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 
-    bool            deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
+    bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
 
-    void            updateScriptPaths();
+    void                        updateScriptPaths();
 
-    virtual Qt::DropActions supportedDropActions() const;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-    virtual QMimeData * mimeData(const QModelIndexList &indexes) const;
-    virtual QStringList mimeTypes() const;
+    virtual Qt::DropActions     supportedDropActions() const;
+    virtual Qt::ItemFlags       flags(const QModelIndex &index) const;
+    virtual bool                dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
+    virtual QMimeData*          mimeData(const QModelIndexList &indexes) const;
+    virtual QStringList         mimeTypes() const;
 
 private slots:
-    void            slotRefreshScriptTree(QString path);
-    void            clearClipboard();
+    void                        slotRefreshScriptTree(QString path);
 
 private:
-    QFileSystemWatcher* m_scriptChangeDetector;
+    void                        clearClipboard();
+
+private:
+    QFileSystemWatcher*         m_scriptChangeDetector;
 };
-
-
-
-
 
