@@ -523,7 +523,8 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
 
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
-    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
+        dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
     {
         QModelIndex rootIndex = itemIndex.parent();
         caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();

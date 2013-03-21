@@ -175,12 +175,13 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+                menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
                 menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
-                menu.addAction(QString("New Case Group"), this, SLOT(slotAddCaseGroup()));
+                menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
                 menu.addAction(QString("Paste"), this, SLOT(slotPastePdmObjects()));
                 menu.addAction(QString("Close"), this, SLOT(slotDeleteObjectFromPdmPointersField()));
                 menu.exec(event->globalPos());
