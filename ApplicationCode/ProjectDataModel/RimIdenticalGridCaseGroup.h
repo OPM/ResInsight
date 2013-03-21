@@ -47,6 +47,7 @@ public:
 
     void addCase(RimReservoir* reservoir);
     void removeCase(RimReservoir* reservoir);
+    bool contains(RimReservoir* reservoir) const;
 
     RimStatisticalCalculation* createAndAppendStatisticalCalculation();
 

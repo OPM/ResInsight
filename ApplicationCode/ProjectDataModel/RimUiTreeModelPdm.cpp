@@ -605,6 +605,11 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
         {
             RimResultReservoir* rimResultReservoir = typedObjects[i];
 
+            if (gridCaseGroup->contains(rimResultReservoir))
+            {
+                continue;
+            }
+
             if (gridCaseGroup->mainGrid() == NULL)
             {
                 rimResultReservoir->openEclipseGridFile();

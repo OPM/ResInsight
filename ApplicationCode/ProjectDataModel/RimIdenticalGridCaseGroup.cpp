@@ -342,3 +342,22 @@ void RimIdenticalGridCaseGroup::clearActiveCellUnions()
     m_unionOfFractureActiveCells = new RigActiveCellInfo;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimIdenticalGridCaseGroup::contains(RimReservoir* reservoir) const
+{
+    CVF_ASSERT(reservoir);
+
+    for (size_t i = 0; i < caseCollection()->reservoirs().size(); i++)
+    {
+        RimReservoir* rimReservoir = caseCollection()->reservoirs()[i];
+        if (reservoir->caseName == reservoir->caseName)
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
