@@ -172,7 +172,7 @@ RimReservoirView::~RimReservoirView()
 
     if (m_viewer)
     {
-        RIMainWindow::instance()->removeViewer(m_viewer);
+        RiuMainWindow::instance()->removeViewer(m_viewer);
     }
 
     m_geometry->clearGeometryCache();
@@ -194,10 +194,10 @@ void RimReservoirView::updateViewerWidget()
             QGLFormat glFormat;
             glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
 
-            m_viewer = new RIViewer(glFormat, NULL);
+            m_viewer = new RiuViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
 
-            RIMainWindow::instance()->addViewer(m_viewer);
+            RiuMainWindow::instance()->addViewer(m_viewer);
             m_viewer->setMinNearPlaneDistance(10);
             this->cellResult()->legendConfig->recreateLegend();
             this->cellEdgeResult()->legendConfig->recreateLegend();
@@ -220,7 +220,7 @@ void RimReservoirView::updateViewerWidget()
             isViewerCreated = true;
         }
 
-        RIMainWindow::instance()->setActiveViewer(m_viewer);
+        RiuMainWindow::instance()->setActiveViewer(m_viewer);
 
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
         m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
@@ -303,7 +303,7 @@ void RimReservoirView::createDisplayModelAndRedraw()
         }
     }
 
-    RIMainWindow::instance()->refreshAnimationActions(); 
+    RiuMainWindow::instance()->refreshAnimationActions(); 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -702,7 +702,7 @@ void RimReservoirView::loadDataAndUpdate()
     {
         if (!m_reservoir->openEclipseGridFile())
         {
-            QMessageBox::warning(RIMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName());
+            QMessageBox::warning(RiuMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName());
             m_reservoir = NULL;
             return;
         }
@@ -832,7 +832,7 @@ void RimReservoirView::updateStaticCellColors(unsigned short geometryType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIViewer* RimReservoirView::viewer()
+RiuViewer* RimReservoirView::viewer()
 {
     return m_viewer;
 }

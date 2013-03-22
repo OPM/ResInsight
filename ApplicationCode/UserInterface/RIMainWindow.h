@@ -32,9 +32,9 @@ class QLabel;
 class QLineEdit;
 class QItemSelection;
 
-class RIViewer;
-class RIResultInfoPanel;
-class RIProcessMonitor;
+class RiuViewer;
+class RiuResultInfoPanel;
+class RiuProcessMonitor;
 class RimUiTreeModelPdm;
 
 namespace caf
@@ -52,13 +52,13 @@ namespace caf
 // 
 //
 //==================================================================================================
-class RIMainWindow : public QMainWindow
+class RiuMainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    RIMainWindow();
-    static RIMainWindow* instance();
+    RiuMainWindow();
+    static RiuMainWindow* instance();
     
     void		    initializeGuiNewProjectLoaded();
     void		    cleanupGuiBeforeProjectClose();
@@ -66,9 +66,9 @@ public:
     void		    refreshGuiLightweight();
     void		    refreshToolbars();
 
-    void            removeViewer( RIViewer* viewer );
-    void            addViewer(RIViewer* viewer);
-    void            setActiveViewer(RIViewer* subWindow);
+    void            removeViewer( RiuViewer* viewer );
+    void            addViewer(RiuViewer* viewer);
+    void            setActiveViewer(RiuViewer* subWindow);
 
     void            setResultInfo(const QString& info) const;
 
@@ -76,7 +76,7 @@ public:
 
     RimUiTreeModelPdm* uiPdmModel() { return m_treeModelPdm;}
 
-    RIProcessMonitor* processMonitor();
+    RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
 
@@ -95,10 +95,10 @@ private:
 
     void            updateMRUList(const QString &fileName, bool remove = false);
     
-    QMdiSubWindow*  findMdiSubWindow(RIViewer* viewer);
+    QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
 
 private:
-    static RIMainWindow*    sm_mainWindowInstance;
+    static RiuMainWindow*    sm_mainWindowInstance;
     
     QByteArray			    m_initialDockAndToolbarLayout;	// Initial dock window and toolbar layout, used to reset GUI
 
@@ -150,9 +150,9 @@ private:
 
     QFrame*             m_CentralFrame;
     QMdiArea*           m_mdiArea;
-    RIViewer*           m_mainViewer;
-    RIResultInfoPanel*  m_resultInfoPanel;
-    RIProcessMonitor*   m_processMonitor;
+    RiuViewer*           m_mainViewer;
+    RiuResultInfoPanel*  m_resultInfoPanel;
+    RiuProcessMonitor*   m_processMonitor;
     
     QMenu*              m_windowMenu;
 

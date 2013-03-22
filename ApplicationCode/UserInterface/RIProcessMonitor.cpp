@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIProcessMonitor::RIProcessMonitor(QDockWidget* pParent)
+RiuProcessMonitor::RiuProcessMonitor(QDockWidget* pParent)
     : QWidget(pParent)
 {
     m_monitoredProcess = NULL;
@@ -70,7 +70,7 @@ RIProcessMonitor::RIProcessMonitor(QDockWidget* pParent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIProcessMonitor::~RIProcessMonitor()
+RiuProcessMonitor::~RiuProcessMonitor()
 {
 
 }
@@ -79,7 +79,7 @@ RIProcessMonitor::~RIProcessMonitor()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
+void RiuProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
 {
     setStatusMsg("N/A", caf::PROCESS_STATE_NORMAL);
 
@@ -102,7 +102,7 @@ void RIProcessMonitor::startMonitorWorkProcess(caf::UiProcess* pProcess)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::stopMonitorWorkProcess()
+void RiuProcessMonitor::stopMonitorWorkProcess()
 {
     m_monitoredProcess = NULL;
 
@@ -118,7 +118,7 @@ void RIProcessMonitor::stopMonitorWorkProcess()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::setStatusMsg(const QString& sStatusMsg, int iStatusMsgType)
+void RiuProcessMonitor::setStatusMsg(const QString& sStatusMsg, int iStatusMsgType)
 {
     if (!m_labelStatus) return;
 
@@ -138,7 +138,7 @@ void RIProcessMonitor::setStatusMsg(const QString& sStatusMsg, int iStatusMsgTyp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::addStringToLog(const QString& sTxt)
+void RiuProcessMonitor::addStringToLog(const QString& sTxt)
 {
     m_textEdit->moveCursor(QTextCursor::End);
     m_textEdit->insertPlainText(sTxt);
@@ -150,7 +150,7 @@ void RIProcessMonitor::addStringToLog(const QString& sTxt)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::slotShowProcStatusMsg(const QString& sMsg, int iStatusMsgType)
+void RiuProcessMonitor::slotShowProcStatusMsg(const QString& sMsg, int iStatusMsgType)
 {
     setStatusMsg(sMsg, iStatusMsgType);
 }
@@ -159,7 +159,7 @@ void RIProcessMonitor::slotShowProcStatusMsg(const QString& sMsg, int iStatusMsg
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::slotProcReadyReadStdOut()
+void RiuProcessMonitor::slotProcReadyReadStdOut()
 {
     if (!m_monitoredProcess) return;
 
@@ -174,7 +174,7 @@ void RIProcessMonitor::slotProcReadyReadStdOut()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::slotProcReadyReadStdErr()
+void RiuProcessMonitor::slotProcReadyReadStdErr()
 {
     if (!m_monitoredProcess) return;
 
@@ -188,7 +188,7 @@ void RIProcessMonitor::slotProcReadyReadStdErr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::slotTerminateProcess()
+void RiuProcessMonitor::slotTerminateProcess()
 {
     addStringToLog("Process terminated by user\n");
 
@@ -199,7 +199,7 @@ void RIProcessMonitor::slotTerminateProcess()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIProcessMonitor::slotClearTextEdit()
+void RiuProcessMonitor::slotClearTextEdit()
 {
     m_textEdit->clear();
 }

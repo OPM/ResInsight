@@ -91,7 +91,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
             m_legendConfigData.v().erase(it);
             m_legendConfigData.v().push_back(this->legendConfig());
             this->legendConfig = newLegend;
-            RIMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
+            RiuMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
             found = true;
             break;
         }
@@ -105,7 +105,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
          newLegend->resultVariableName = resultVarNameOfNewLegend;
          m_legendConfigData.v().push_back(this->legendConfig());
          this->legendConfig = newLegend;
-         RIMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
+         RiuMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
 
     }
 }

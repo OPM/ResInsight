@@ -39,7 +39,7 @@
 #include "RivReservoirViewPartMgr.h"
 #include "RivReservoirPipesPartMgr.h"
 
-class RIViewer;
+class RiuViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class RivReservoirViewPartMgr;
@@ -130,7 +130,7 @@ public:
     void                                    endAnimation();
 
     // 3D Viewer
-    RIViewer*                               viewer();
+    RiuViewer*                               viewer();
     void                                    updateViewerWidget();
     void                                    updateViewerWidgetWindowTitle();
     void                                    setDefaultView();
@@ -178,7 +178,7 @@ private:
 
 private:
     caf::PdmField<int>                      m_currentTimeStep;
-    QPointer<RIViewer>                      m_viewer;
+    QPointer<RiuViewer>                      m_viewer;
     caf::PdmPointer<RimCase>           m_reservoir;
 
 

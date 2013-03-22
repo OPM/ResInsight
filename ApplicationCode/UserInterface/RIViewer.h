@@ -41,13 +41,13 @@ namespace cvf
 // RIViewer
 //
 //==================================================================================================
-class RIViewer : public caf::Viewer
+class RiuViewer : public caf::Viewer
 {
     Q_OBJECT
 
 public:
-    RIViewer(const QGLFormat& format, QWidget* parent);
-    ~RIViewer();
+    RiuViewer(const QGLFormat& format, QWidget* parent);
+    ~RiuViewer();
 
     void            setColorLegend1(cvf::OverlayScalarMapperLegend* legend);
     void            setColorLegend2(cvf::OverlayScalarMapperLegend* legend);

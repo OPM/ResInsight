@@ -32,12 +32,12 @@ namespace caf
 // 
 //
 //==================================================================================================
-class RIPreferencesDialog : public QDialog
+class RiuPreferencesDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    RIPreferencesDialog(QWidget* parent, caf::PdmObject* object, const QString& windowTitle);
+    RiuPreferencesDialog(QWidget* parent, caf::PdmObject* object, const QString& windowTitle);
 
 private:
     void setupUi();

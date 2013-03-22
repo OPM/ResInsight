@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RICursors::RICursors()
+RiuCursors::RiuCursors()
 {
     m_cursors[FILTER_BOX]   = cursorFromFile(":/Cursors/curFilterBox.bmp",      10, 10);
 	m_cursors[NORMAL]		= cursorFromFile(":/Cursors/curNormal.bmp",		    10, 10);
@@ -53,10 +53,10 @@ RICursors::RICursors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QCursor RICursors::get(CursorIndex cursorIdx)
+QCursor RiuCursors::get(CursorIndex cursorIdx)
 {
 	// Create our single instance in a local static variable
-	static RICursors myStaticInstance;
+	static RiuCursors myStaticInstance;
 	
     return myStaticInstance.m_cursors[cursorIdx];
 }
@@ -65,7 +65,7 @@ QCursor RICursors::get(CursorIndex cursorIdx)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QCursor	RICursors::cursorFromFile(const QString& fileName, int hotspotX, int hotspotY)
+QCursor	RiuCursors::cursorFromFile(const QString& fileName, int hotspotX, int hotspotY)
 {
 	QImage image(fileName);
 	if (image.width() == 0 || image.height() == 0)

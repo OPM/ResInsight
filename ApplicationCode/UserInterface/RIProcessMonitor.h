@@ -34,7 +34,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RIProcessMonitor : public QWidget
+class RiuProcessMonitor : public QWidget
 {
     Q_OBJECT
 
@@ -46,8 +46,8 @@ private:
     caf::UiProcess* m_monitoredProcess;     // Pointer to the process we're monitoring. Needed to fetch text
 
 public:
-    RIProcessMonitor(QDockWidget* pParent);
-    ~RIProcessMonitor();
+    RiuProcessMonitor(QDockWidget* pParent);
+    ~RiuProcessMonitor();
 
     void                    startMonitorWorkProcess(caf::UiProcess* process);
     void                    stopMonitorWorkProcess();

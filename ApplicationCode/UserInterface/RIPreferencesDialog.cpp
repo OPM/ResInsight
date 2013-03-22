@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIPreferencesDialog::RIPreferencesDialog(QWidget* parent, caf::PdmObject* object, const QString& windowTitle)
+RiuPreferencesDialog::RiuPreferencesDialog(QWidget* parent, caf::PdmObject* object, const QString& windowTitle)
     : QDialog(parent)
 {
     CVF_ASSERT(object);
@@ -44,7 +44,7 @@ RIPreferencesDialog::RIPreferencesDialog(QWidget* parent, caf::PdmObject* object
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIPreferencesDialog::setupUi()
+void RiuPreferencesDialog::setupUi()
 {
     setWindowTitle(m_windowTitle);
 

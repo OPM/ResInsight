@@ -437,7 +437,7 @@ void RimUiTreeView::slotEditScript()
             
             if (!myProcess->waitForStarted(1000))
             {
-                QMessageBox::warning(RIMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+                QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
             }
         }
     }
@@ -494,7 +494,7 @@ void RimUiTreeView::slotNewScript()
 
         if (!myProcess->waitForStarted(1000))
         {
-            QMessageBox::warning(RIMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
+            QMessageBox::warning(RiuMainWindow::instance(), "Script editor", "Failed to start script editor executable\n" + scriptEditor);
         }
     }
 }
@@ -676,7 +676,7 @@ void RimUiTreeView::slotWriteInputProperty()
 
         if (!isResolved)
         {
-            QMessageBox::warning(RIMainWindow::instance(), "Export failure", "Property is not resolved, and then it is not possible to export the property.");
+            QMessageBox::warning(RiuMainWindow::instance(), "Export failure", "Property is not resolved, and then it is not possible to export the property.");
 
             return;
         }
@@ -724,7 +724,7 @@ void RimUiTreeView::slotWriteInputProperty()
         exportSettings.fileName = outputFileName;
     }
 
-    RIPreferencesDialog preferencesDialog(this, &exportSettings, "Export Eclipse Property to Text File");
+    RiuPreferencesDialog preferencesDialog(this, &exportSettings, "Export Eclipse Property to Text File");
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
         bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->reservoirData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
@@ -777,7 +777,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
         exportSettings.fileName = outputFileName;
     }
 
-    RIPreferencesDialog preferencesDialog(this, &exportSettings, "Export Binary Eclipse Data to Text File");
+    RiuPreferencesDialog preferencesDialog(this, &exportSettings, "Export Binary Eclipse Data to Text File");
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = resultSlot->reservoirView()->currentTimeStep();

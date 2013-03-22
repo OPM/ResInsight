@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIResultInfoPanel::RIResultInfoPanel(QDockWidget* parent)
+RiuResultInfoPanel::RiuResultInfoPanel(QDockWidget* parent)
 :   QWidget(parent)
 {
 	m_textEdit = new QTextEdit(this);
@@ -49,7 +49,7 @@ RIResultInfoPanel::RIResultInfoPanel(QDockWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIResultInfoPanel::setInfo(const QString& info)
+void RiuResultInfoPanel::setInfo(const QString& info)
 {
     QString tmp(info);
 
@@ -62,7 +62,7 @@ void RIResultInfoPanel::setInfo(const QString& info)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIResultInfoPanel::convertStringToHTML(QString* str)
+void RiuResultInfoPanel::convertStringToHTML(QString* str)
 {
 	str->replace("\n", "<br>");
 	str->replace(" ", "&nbsp;");
@@ -72,7 +72,7 @@ void RIResultInfoPanel::convertStringToHTML(QString* str)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QSize RIResultInfoPanel::sizeHint () const
+QSize RiuResultInfoPanel::sizeHint () const
 {
     // As small as possible fow now
     return QSize(20, 20);

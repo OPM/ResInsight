@@ -54,7 +54,7 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIViewer::RIViewer(const QGLFormat& format, QWidget* parent)
+RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 : caf::Viewer(format, parent)
 {
     cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
@@ -113,7 +113,7 @@ RIViewer::RIViewer(const QGLFormat& format, QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIViewer::~RIViewer()
+RiuViewer::~RiuViewer()
 {
     m_reservoirView->showWindow = false;
     m_reservoirView->cameraPosition = m_mainCamera->viewMatrix();
@@ -128,7 +128,7 @@ RIViewer::~RIViewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setColorLegend1(cvf::OverlayScalarMapperLegend* legend)
+void RiuViewer::setColorLegend1(cvf::OverlayScalarMapperLegend* legend)
 {
     m_mainRendering->removeOverlayItem(m_legend1.p());
 
@@ -141,7 +141,7 @@ void RIViewer::setColorLegend1(cvf::OverlayScalarMapperLegend* legend)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setColorLegend2(cvf::OverlayScalarMapperLegend* legend)
+void RiuViewer::setColorLegend2(cvf::OverlayScalarMapperLegend* legend)
 {
     m_mainRendering->removeOverlayItem(m_legend2.p());
 
@@ -153,7 +153,7 @@ void RIViewer::setColorLegend2(cvf::OverlayScalarMapperLegend* legend)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RIViewer::updateLegends()
+void RiuViewer::updateLegends()
 {
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
@@ -175,7 +175,7 @@ void RIViewer::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setDefaultView()
+void RiuViewer::setDefaultView()
 {
     cvf::BoundingBox bb;
 
@@ -211,7 +211,7 @@ void RIViewer::setDefaultView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::mouseReleaseEvent(QMouseEvent* event)
+void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 {
     m_mouseState.updateFromMouseEvent(event);
 
@@ -233,7 +233,7 @@ void RIViewer::mouseReleaseEvent(QMouseEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::keyPressEvent(QKeyEvent* event)
+void RiuViewer::keyPressEvent(QKeyEvent* event)
 {
     // Trap escape key so we can get out of direct button press actions
     if (event->key() == Qt::Key_Escape)
@@ -246,11 +246,11 @@ void RIViewer::keyPressEvent(QKeyEvent* event)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::handlePickAction(int winPosX, int winPosY)
+void RiuViewer::handlePickAction(int winPosX, int winPosY)
 {
     RiaApplication* app = RiaApplication::instance();
 
-    RIMainWindow* mainWnd = RIMainWindow::instance();
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (!mainWnd) return;
 
     QString pickInfo = "No hits";
@@ -310,7 +310,7 @@ void RIViewer::handlePickAction(int winPosX, int winPosY)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::slotEndAnimation()
+void RiuViewer::slotEndAnimation()
 {
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
@@ -328,7 +328,7 @@ void RIViewer::slotEndAnimation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::slotSetCurrentFrame(int frameIndex)
+void RiuViewer::slotSetCurrentFrame(int frameIndex)
 {
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
@@ -343,7 +343,7 @@ void RIViewer::slotSetCurrentFrame(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RIViewer::pointOfInterest()
+cvf::Vec3d RiuViewer::pointOfInterest()
 {
     return m_navigationPolicy->pointOfInterest();
 }
@@ -351,7 +351,7 @@ cvf::Vec3d RIViewer::pointOfInterest()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setPointOfInterest(cvf::Vec3d poi)
+void RiuViewer::setPointOfInterest(cvf::Vec3d poi)
 {
     m_navigationPolicy->setPointOfInterest(poi);
 }
@@ -359,7 +359,7 @@ void RIViewer::setPointOfInterest(cvf::Vec3d poi)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setOwnerReservoirView(RimReservoirView * owner)
+void RiuViewer::setOwnerReservoirView(RimReservoirView * owner)
 {
     m_reservoirView = owner;
 }
@@ -367,7 +367,7 @@ void RIViewer::setOwnerReservoirView(RimReservoirView * owner)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setEnableMask(unsigned int mask)
+void RiuViewer::setEnableMask(unsigned int mask)
 {
     m_mainRendering->setEnableMask(mask);
 }
@@ -375,7 +375,7 @@ void RIViewer::setEnableMask(unsigned int mask)
 //--------------------------------------------------------------------------------------------------
 /// Perform picking and return the index of the face that was hit, if a drawable geo was hit
 //--------------------------------------------------------------------------------------------------
-cvf::Part* RIViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint)
+cvf::Part* RiuViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint)
 {
     CVF_ASSERT(faceHit);
 
@@ -425,7 +425,7 @@ cvf::Part* RIViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::paintOverlayItems(QPainter* painter)
+void RiuViewer::paintOverlayItems(QPainter* painter)
 {
     // No support for overlay items using SW rendering yet.
     //if (!isShadersSupported())
@@ -475,7 +475,7 @@ void RIViewer::paintOverlayItems(QPainter* painter)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setInfoText(QString text)
+void RiuViewer::setInfoText(QString text)
 {
     m_InfoLabel->setText(text);
 }
@@ -483,7 +483,7 @@ void RIViewer::setInfoText(QString text)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::showInfoText(bool enable)
+void RiuViewer::showInfoText(bool enable)
 {
     m_showInfoText = enable;
 }
@@ -491,7 +491,7 @@ void RIViewer::showInfoText(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setHistogram(double min, double max, const std::vector<size_t>& histogram)
+void RiuViewer::setHistogram(double min, double max, const std::vector<size_t>& histogram)
 {
     m_histogramWidget->setHistogramData(min, max, histogram);
 }
@@ -499,7 +499,7 @@ void RIViewer::setHistogram(double min, double max, const std::vector<size_t>& h
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::setHistogramPercentiles(double pmin, double pmax, double mean)
+void RiuViewer::setHistogramPercentiles(double pmin, double pmax, double mean)
 {
     m_histogramWidget->setPercentiles(pmin, pmax);
     m_histogramWidget->setMean(mean);
@@ -508,7 +508,7 @@ void RIViewer::setHistogramPercentiles(double pmin, double pmax, double mean)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::showAnimationProgress(bool enable)
+void RiuViewer::showAnimationProgress(bool enable)
 {
     m_showAnimProgress = enable;
 }
@@ -516,7 +516,7 @@ void RIViewer::showAnimationProgress(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIViewer::showHistogram(bool enable)
+void RiuViewer::showHistogram(bool enable)
 {
     m_showHistogram = enable;
 }

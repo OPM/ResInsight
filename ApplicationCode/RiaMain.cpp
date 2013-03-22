@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 
-    RIMainWindow window;
+    RiuMainWindow window;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     window.setWindowTitle("ResInsight " + platform);
     window.resize(1000, 800);

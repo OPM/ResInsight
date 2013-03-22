@@ -27,7 +27,7 @@
 // Singleton for getting the cursors
 //
 //==================================================================================================
-class RICursors
+class RiuCursors
 {
 public:
     enum CursorIndex
@@ -48,7 +48,7 @@ public:
 	static QCursor get(CursorIndex cursorIdx);
 
 private:
-	RICursors();
+	RiuCursors();
 	static QCursor cursorFromFile(const QString& fileName, int hotspotX = -1, int hotspotY = -1);
 
 private:

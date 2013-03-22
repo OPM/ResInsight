@@ -30,12 +30,12 @@ class QTextEdit;
 // RIResultInfoPanel 
 //
 //==================================================================================================
-class RIResultInfoPanel : public QWidget
+class RiuResultInfoPanel : public QWidget
 {
 	Q_OBJECT
 
 public:
-	RIResultInfoPanel(QDockWidget* parent);
+	RiuResultInfoPanel(QDockWidget* parent);
 
 	void			setInfo(const QString& info);
 
