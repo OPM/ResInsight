@@ -335,6 +335,14 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         RimStatisticalCalculation* rimStaticsCase = statisticalReservoirCollection->reservoirs[i];
         rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
         rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
+
+        for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
+        {
+            RimReservoirView* rimReservoirView = rimStaticsCase->reservoirViews[j];
+            rimReservoirView->cellResult()->resultVariable = RimDefines::undefinedResultName();
+            rimReservoirView->cellEdgeResult()->resultVariable = RimDefines::undefinedResultName();
+            rimReservoirView->loadDataAndUpdate();
+        }
     }
 }
 
