@@ -19,7 +19,7 @@
 #include "RiaStdInclude.h"
 
 #include "RIViewer.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RIMainWindow.h"
 
 #include "cvfqtOpenGLContext.h"

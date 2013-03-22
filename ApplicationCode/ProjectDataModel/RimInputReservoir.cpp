@@ -34,8 +34,8 @@
 #include "RifEclipseInputFileTools.h"
 #include "cafProgressInfo.h"
 
-#include "RIApplication.h"
-#include "RIPreferences.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 
 CAF_PDM_SOURCE_INIT(RimInputCase, "RimInputReservoir");

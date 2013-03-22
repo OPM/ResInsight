@@ -23,7 +23,7 @@
 #include <stdlib.h>
 
 #include "RiaSocketServer.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RIMainWindow.h"
 #include "RimReservoir.h"
 #include "RigEclipseCase.h"

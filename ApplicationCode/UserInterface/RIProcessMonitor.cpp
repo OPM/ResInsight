@@ -20,7 +20,7 @@
 
 #include "RIProcessMonitor.h"
 #include "cafUiProcess.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 
 
 //--------------------------------------------------------------------------------------------------

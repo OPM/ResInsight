@@ -19,7 +19,7 @@
 #pragma once
 
 #include "cafPdmObject.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 
 class RiaPreferences : public caf::PdmObject
 {

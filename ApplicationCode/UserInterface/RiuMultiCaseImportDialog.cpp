@@ -22,7 +22,7 @@
 #include <QFileDialog>
 #include <QStringListModel>
 #include <QFileIconProvider>
-#include "RIApplication.h"
+#include "RiaApplication.h"
 
 class FileListModel: public QStringListModel
 {

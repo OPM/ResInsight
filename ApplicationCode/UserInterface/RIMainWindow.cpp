@@ -19,12 +19,12 @@
 #include "RiaStdInclude.h"
 #include "RiaBaseDefs.h"
 
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RIMainWindow.h"
 #include "RIViewer.h"
 #include "RIResultInfoPanel.h"
 #include "RIProcessMonitor.h"
-#include "RIPreferences.h"
+#include "RiaPreferences.h"
 #include "RIPreferencesDialog.h"
 
 #include "RigEclipseCase.h"
@@ -500,7 +500,7 @@ void RIMainWindow::slotRefreshFileActions()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotRefreshEditActions()
 {
-//     RIApplication* app = RIApplication::instance();
+//     RiaApplication* app = RiaApplication::instance();
 //     RISceneManager* proj = app->project();
 }
 
@@ -510,7 +510,7 @@ void RIMainWindow::slotRefreshEditActions()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotRefreshViewActions()
 {
-//     RIApplication* app = RIApplication::instance();
+//     RiaApplication* app = RiaApplication::instance();
 //     RISceneManager* proj = app->project();
 
     bool enabled = true;

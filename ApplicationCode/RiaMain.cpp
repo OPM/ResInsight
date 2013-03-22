@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RIMainWindow.h"
 
 

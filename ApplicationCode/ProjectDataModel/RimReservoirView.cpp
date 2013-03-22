@@ -23,8 +23,8 @@
 #include "RIMainWindow.h"
 #include "RigGridBase.h"
 #include "RigEclipseCase.h"
-#include "RIApplication.h"
-#include "RIPreferences.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "cafEffectGenerator.h"
 #include "cafFrameAnimationControl.h"

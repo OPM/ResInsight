@@ -135,7 +135,7 @@ caf::PdmFieldHandle* RimIdenticalGridCaseGroup::userDescriptionField()
 }
 
 //--------------------------------------------------------------------------------------------------
-///  Make sure changes in this functions is validated to RIApplication::addEclipseCases()
+///  Make sure changes in this functions is validated to RiaApplication::addEclipseCases()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 {

@@ -24,7 +24,7 @@
 #include "RimUiTreeModelPdm.h"
 #include "RimReservoirView.h"
 #include "RimCalcScript.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RIMainWindow.h"
 #include "RimInputPropertyCollection.h"
 #include "RimExportInputPropertySettings.h"

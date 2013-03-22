@@ -29,11 +29,11 @@
 #include "RiaVersionInfo.h"
 #include "RiaBaseDefs.h"
 
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RIMainWindow.h"
 #include "RIViewer.h"
 #include "RIProcessMonitor.h"
-#include "RIPreferences.h"
+#include "RiaPreferences.h"
 
 #include "RimResultReservoir.h"
 #include "RimInputReservoir.h"
@@ -83,7 +83,7 @@ namespace RegTestNames
 
 //==================================================================================================
 ///
-/// \class RIApplication
+/// \class RiaApplication
 ///
 /// Application class
 ///

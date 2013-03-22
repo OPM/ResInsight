@@ -19,7 +19,7 @@
 #include "RiaStdInclude.h"
 #include "RimReservoirCellResultsCacher.h"
 #include "RigReservoirCellResults.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RigMainGrid.h"
 #include "RigCell.h"
 #include "cafProgressInfo.h"

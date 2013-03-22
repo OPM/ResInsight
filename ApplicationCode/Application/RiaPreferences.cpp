@@ -17,10 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
-#include "RIPreferences.h"
+#include "RiaPreferences.h"
 #include "cafPdmUiFilePathEditor.h"
 
-CAF_PDM_SOURCE_INIT(RiaPreferences, "RIPreferences");
+CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

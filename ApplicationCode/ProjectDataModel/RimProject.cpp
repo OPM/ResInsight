@@ -19,7 +19,7 @@
 #include "RiaStdInclude.h"
 
 #include "RimProject.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
 #include "RigGridCollection.h"

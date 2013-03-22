@@ -29,7 +29,7 @@
 #include "RimReservoirView.h"
 #include "RIViewer.h"
 #include "RimCalcScript.h"
-#include "RIApplication.h"
+#include "RiaApplication.h"
 #include "RIMainWindow.h"
 #include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"

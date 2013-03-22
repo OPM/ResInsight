@@ -33,8 +33,8 @@ list( APPEND CPP_SOURCES
 )
 
 list( APPEND CPP_SOURCES
-    Application/RIApplication.cpp
-    Application/RIPreferences.cpp
+    Application/RiaApplication.cpp
+    Application/RiaPreferences.cpp
 	Application/RiaImageFileCompare.cpp
 	Application/RiaImageCompareReporter.cpp
 )
@@ -110,7 +110,7 @@ list( APPEND CPP_SOURCES
 
 # Define files for MOC-ing
 set ( QT_MOC_HEADERS
-    Application/RIApplication.h
+    Application/RiaApplication.h
     
     ProjectDataModel/RimUiTreeModelPdm.h
     ProjectDataModel/RimUiTreeView.h
