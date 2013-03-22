@@ -238,7 +238,7 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
     }
     else
     {
-        RimProject* proj = RIApplication::instance()->project();
+        RimProject* proj = RiaApplication::instance()->project();
         proj->removeCaseFromAllGroups(reservoir);
     }
 
@@ -388,7 +388,7 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::updateScriptPaths()
 {
-    RimProject* proj = RIApplication::instance()->project();
+    RimProject* proj = RiaApplication::instance()->project();
 
     if (!proj || !proj->scriptCollection()) return;
 
@@ -408,7 +408,7 @@ void RimUiTreeModelPdm::updateScriptPaths()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::slotRefreshScriptTree(QString path)
 {
-    RimProject* proj = RIApplication::instance()->project();
+    RimProject* proj = RiaApplication::instance()->project();
 
     if (!proj || !proj->scriptCollection()) return;
 
@@ -535,7 +535,7 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
 {
-    RimProject* proj = RIApplication::instance()->project();
+    RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
@@ -570,7 +570,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects)
 {
-    RimProject* proj = RIApplication::instance()->project();
+    RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);

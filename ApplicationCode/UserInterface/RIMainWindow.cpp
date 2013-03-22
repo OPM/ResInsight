@@ -96,7 +96,7 @@ RIMainWindow::RIMainWindow()
     slotRefreshEditActions();
 
     // Set pdm root so scripts are displayed
-    setPdmRoot(RIApplication::instance()->project());
+    setPdmRoot(RiaApplication::instance()->project());
 }
 
 
@@ -116,7 +116,7 @@ void RIMainWindow::initializeGuiNewProjectLoaded()
     slotRefreshFileActions();
     slotRefreshEditActions();
     refreshAnimationActions();
-    setPdmRoot(RIApplication::instance()->project());
+    setPdmRoot(RiaApplication::instance()->project());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,7 +157,7 @@ void RIMainWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::closeEvent(QCloseEvent* event)
 {
-    if (!RIApplication::instance()->closeProject(true))
+    if (!RiaApplication::instance()->closeProject(true))
     {
         event->ignore();
         return;
@@ -486,7 +486,7 @@ void RIMainWindow::setResultInfo(const QString& info) const
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotRefreshFileActions()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     bool projectExists = true;
     m_saveProjectAction->setEnabled(projectExists);
@@ -528,9 +528,9 @@ void RIMainWindow::slotRefreshViewActions()
 void RIMainWindow::refreshAnimationActions()
 {
     caf::FrameAnimationControl* ac = NULL;
-    if (RIApplication::instance()->activeReservoirView() && RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        ac = RIApplication::instance()->activeReservoirView()->viewer()->animationControl();
+        ac = RiaApplication::instance()->activeReservoirView()->viewer()->animationControl();
     }
 
     m_animationToolBar->connectAnimationControl(ac);
@@ -538,7 +538,7 @@ void RIMainWindow::refreshAnimationActions()
     QStringList timeStepStrings;
     int currentTimeStepIndex = 0;
 
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     bool enableAnimControls = false;
     if (app->activeReservoirView() && 
@@ -573,7 +573,7 @@ void RIMainWindow::refreshAnimationActions()
                 {
                     timeStepStrings += timeStepDates[i].toString(formatString);
                 }
-                currentTimeStepIndex = RIApplication::instance()->activeReservoirView()->currentTimeStep();
+                currentTimeStepIndex = RiaApplication::instance()->activeReservoirView()->currentTimeStep();
             }
             else
             {
@@ -598,7 +598,7 @@ void RIMainWindow::slotAbout()
     cvfqt::BasicAboutDialog dlg(this);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
-    dlg.setApplicationVersion(RIApplication::getVersionStringApp(true));
+    dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
     dlg.setCopyright("Copyright 2012 Statoil ASA, Ceetron AS");
     dlg.showCeeVizVersion(false);
 
@@ -630,7 +630,7 @@ void RIMainWindow::slotOpenBinaryGridFiles()
 {
     if (checkForDocumentModifications())
     {
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
 
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
         QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
@@ -658,7 +658,7 @@ void RIMainWindow::slotOpenInputFiles()
 {
     if (checkForDocumentModifications())
     {
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
         QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
         QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
 
@@ -679,7 +679,7 @@ void RIMainWindow::slotOpenProject()
 {
     if (checkForDocumentModifications())
     {
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
         QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rip)");
 
@@ -699,7 +699,7 @@ void RIMainWindow::slotOpenProject()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotOpenLastUsedProject()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     app->loadLastUsedProject();
 }
 
@@ -708,7 +708,7 @@ void RIMainWindow::slotOpenLastUsedProject()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotMockModel()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     app->createMockModel();
 
     //m_mainViewer->setDefaultView();
@@ -719,7 +719,7 @@ void RIMainWindow::slotMockModel()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotMockResultsModel()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     app->createResultsMockModel();
 
     //m_mainViewer->setDefaultView();
@@ -731,7 +731,7 @@ void RIMainWindow::slotMockResultsModel()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotMockLargeResultsModel()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     app->createLargeResultsMockModel();
 }
 
@@ -741,7 +741,7 @@ void RIMainWindow::slotMockLargeResultsModel()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotInputMockModel()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     app->createInputMockModel();
 }
 
@@ -751,7 +751,7 @@ void RIMainWindow::slotInputMockModel()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotSetCurrentFrame(int frameIndex)
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
    // app->setTimeStep(frameIndex);
 }
 
@@ -760,7 +760,7 @@ void RIMainWindow::slotSetCurrentFrame(int frameIndex)
 //--------------------------------------------------------------------------------------------------
 bool RIMainWindow::checkForDocumentModifications()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 //     RISceneManager* project = app->sceneManager();
 //     if (project && project->isModified())
 //     {
@@ -790,7 +790,7 @@ bool RIMainWindow::checkForDocumentModifications()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotCloseProject()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     bool ret = app->closeProject(true);
 }
 
@@ -854,7 +854,7 @@ void RIMainWindow::addViewer(RIViewer* viewer)
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotSaveProject()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     app->saveProject();
 }
@@ -864,7 +864,7 @@ void RIMainWindow::slotSaveProject()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotSaveProjectAs()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     app->saveProjectPromptForFileName();
 }
@@ -893,9 +893,9 @@ void RIMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotViewFromNorth()
 {
-    if (RIApplication::instance()->activeReservoirView() &&  RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        RIApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,-1,0), cvf::Vec3d(0,0,1));
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,-1,0), cvf::Vec3d(0,0,1));
     }
 }
 
@@ -904,9 +904,9 @@ void RIMainWindow::slotViewFromNorth()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotViewFromSouth()
 {
-    if (RIApplication::instance()->activeReservoirView() &&  RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        RIApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,1,0), cvf::Vec3d(0,0,1));
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,1,0), cvf::Vec3d(0,0,1));
     }
 }
 
@@ -915,9 +915,9 @@ void RIMainWindow::slotViewFromSouth()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotViewFromEast()
 {
-    if (RIApplication::instance()->activeReservoirView() &&  RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        RIApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(-1,0,0), cvf::Vec3d(0,0,1));
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(-1,0,0), cvf::Vec3d(0,0,1));
     }
 }
 
@@ -926,9 +926,9 @@ void RIMainWindow::slotViewFromEast()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotViewFromWest()
 {
-    if (RIApplication::instance()->activeReservoirView() &&  RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        RIApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(1,0,0), cvf::Vec3d(0,0,1));
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(1,0,0), cvf::Vec3d(0,0,1));
     }
 }
 
@@ -937,9 +937,9 @@ void RIMainWindow::slotViewFromWest()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotViewFromAbove()
 {
-    if (RIApplication::instance()->activeReservoirView() &&  RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        RIApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,1,0));
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,0,-1), cvf::Vec3d(0,1,0));
     }
 }
 
@@ -948,9 +948,9 @@ void RIMainWindow::slotViewFromAbove()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotViewFromBelow()
 {
-    if (RIApplication::instance()->activeReservoirView() &&  RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        RIApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,0,1), cvf::Vec3d(0,1,0));
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView(cvf::Vec3d(0,0,1), cvf::Vec3d(0,1,0));
     }
 }
 
@@ -959,9 +959,9 @@ void RIMainWindow::slotViewFromBelow()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotZoomAll()
 {
-    if (RIApplication::instance()->activeReservoirView() &&  RIApplication::instance()->activeReservoirView()->viewer())
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
     {
-        RIApplication::instance()->activeReservoirView()->viewer()->zoomAll();
+        RiaApplication::instance()->activeReservoirView()->viewer()->zoomAll();
     }
 }
 
@@ -970,7 +970,7 @@ void RIMainWindow::slotZoomAll()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 {
-    RimProject * proj = RIApplication::instance()->project();
+    RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
 
     size_t i;
@@ -989,8 +989,8 @@ void RIMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                 riv->viewer()->layoutWidget() &&
                 riv->viewer()->layoutWidget()->parent() == subWindow)
             {
-                RimReservoirView* previousActiveReservoirView = RIApplication::instance()->activeReservoirView();
-                RIApplication::instance()->setActiveReservoirView(riv);
+                RimReservoirView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+                RiaApplication::instance()->setActiveReservoirView(riv);
                 if (previousActiveReservoirView && previousActiveReservoirView != riv)
                 {
                     QModelIndex previousViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(previousActiveReservoirView);
@@ -1052,7 +1052,7 @@ void RIMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotUseShaders(bool enable)
 {
-    RIApplication::instance()->setUseShaders(enable);
+    RiaApplication::instance()->setUseShaders(enable);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1060,7 +1060,7 @@ void RIMainWindow::slotUseShaders(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotShowPerformanceInfo(bool enable)
 {
-    RIApplication::instance()->setShowPerformanceInfo(enable);
+    RiaApplication::instance()->setShowPerformanceInfo(enable);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1068,7 +1068,7 @@ void RIMainWindow::slotShowPerformanceInfo(bool enable)
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotRefreshDebugActions()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1076,7 +1076,7 @@ void RIMainWindow::slotRefreshDebugActions()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotEditPreferences()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     RIPreferencesDialog preferencesDialog(this, app->preferences(), "Preferences");
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
@@ -1105,9 +1105,9 @@ void RIMainWindow::setActiveViewer(RIViewer* viewer)
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotFramerateChanged(double frameRate)
 {
-    if (RIApplication::instance()->activeReservoirView() != NULL)
+    if (RiaApplication::instance()->activeReservoirView() != NULL)
     {
-        RIApplication::instance()->activeReservoirView()->maximumFrameRate.setValueFromUi(QVariant(frameRate));
+        RiaApplication::instance()->activeReservoirView()->maximumFrameRate.setValueFromUi(QVariant(frameRate));
     }
 }
 
@@ -1141,7 +1141,7 @@ void RIMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous)
 {
-    RimReservoirView* activeReservoirView = RIApplication::instance()->activeReservoirView();
+    RimReservoirView* activeReservoirView = RiaApplication::instance()->activeReservoirView();
     QModelIndex activeViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(activeReservoirView);
 
     QModelIndex tmp = current;
@@ -1159,7 +1159,7 @@ void RIMainWindow::slotCurrentChanged(const QModelIndex & current, const QModelI
             // show new reservoir view and set this as activate view
             if (rimReservoirView != activeReservoirView)
             {
-                RIApplication::instance()->setActiveReservoirView(rimReservoirView);
+                RiaApplication::instance()->setActiveReservoirView(rimReservoirView);
 
                 // Set focus in MDI area to this window if it exists
                 if (rimReservoirView->viewer())
@@ -1225,7 +1225,7 @@ void RIMainWindow::slotNewObjectPropertyView()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotSnapshotToFile()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     app->saveSnapshotPromtpForFilename();
 }
@@ -1235,7 +1235,7 @@ void RIMainWindow::slotSnapshotToFile()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotSnapshotToClipboard()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     app->copySnapshotToClipboard();
 }
@@ -1245,7 +1245,7 @@ void RIMainWindow::slotSnapshotToClipboard()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotSnapshotAllViewsToFile()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     app->saveSnapshotForAllViews("snapshots");
 }
@@ -1269,7 +1269,7 @@ void RIMainWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 void RIMainWindow::slotOpenMultipleCases()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     /*
     RiuMultiCaseImportDialog dialog;

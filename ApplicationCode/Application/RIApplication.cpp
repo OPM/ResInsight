@@ -60,11 +60,11 @@
 namespace caf
 {
 template<>
-void AppEnum< RIApplication::RINavigationPolicy >::setUp()
+void AppEnum< RiaApplication::RINavigationPolicy >::setUp()
 {
-    addItem(RIApplication::NAVIGATION_POLICY_CEETRON,  "NAVIGATION_POLICY_CEETRON",    "Ceetron");
-    addItem(RIApplication::NAVIGATION_POLICY_CAD,      "NAVIGATION_POLICY_CAD",        "CAD");
-    setDefault(RIApplication::NAVIGATION_POLICY_CAD);
+    addItem(RiaApplication::NAVIGATION_POLICY_CEETRON,  "NAVIGATION_POLICY_CEETRON",    "Ceetron");
+    addItem(RiaApplication::NAVIGATION_POLICY_CAD,      "NAVIGATION_POLICY_CAD",        "CAD");
+    setDefault(RiaApplication::NAVIGATION_POLICY_CAD);
 }
 }
 
@@ -93,7 +93,7 @@ namespace RegTestNames
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIApplication::RIApplication(int& argc, char** argv)
+RiaApplication::RiaApplication(int& argc, char** argv)
 :   QApplication(argc, argv)
 {
     // USed to get registry settings in the right place
@@ -106,7 +106,7 @@ RIApplication::RIApplication(int& argc, char** argv)
 
     //cvf::Trace::enable(false);
 
-    m_preferences = new RIPreferences;
+    m_preferences = new RiaPreferences;
     readPreferences();
     applyPreferences();
 
@@ -140,7 +140,7 @@ RIApplication::RIApplication(int& argc, char** argv)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIApplication::~RIApplication()
+RiaApplication::~RiaApplication()
 {
     delete m_preferences;
 }
@@ -149,16 +149,16 @@ RIApplication::~RIApplication()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIApplication* RIApplication::instance()
+RiaApplication* RiaApplication::instance()
 {
-    return static_cast<RIApplication*>qApp;
+    return static_cast<RiaApplication*>qApp;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::setWindowCaptionFromAppState()
+void RiaApplication::setWindowCaptionFromAppState()
 {
     RIMainWindow* mainWnd = RIMainWindow::instance();
     if (!mainWnd) return;
@@ -186,7 +186,7 @@ void RIApplication::setWindowCaptionFromAppState()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::processNonGuiEvents()
+void RiaApplication::processNonGuiEvents()
 {
     processEvents(QEventLoop::ExcludeUserInputEvents);
 }
@@ -195,7 +195,7 @@ void RIApplication::processNonGuiEvents()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const char* RIApplication::getVersionStringApp(bool includeCrtInfo)
+const char* RiaApplication::getVersionStringApp(bool includeCrtInfo)
 {
     // Use static buf so we can return ptr
     static char szBuf[1024];
@@ -221,7 +221,7 @@ const char* RIApplication::getVersionStringApp(bool includeCrtInfo)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::loadProject(const QString& projectFileName)
+bool RiaApplication::loadProject(const QString& projectFileName)
 {
     // First Close the current project
 
@@ -330,7 +330,7 @@ bool RIApplication::loadProject(const QString& projectFileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::loadLastUsedProject()
+bool RiaApplication::loadLastUsedProject()
 {
     return loadProject(m_preferences->lastUsedProjectFileName);
 }
@@ -339,7 +339,7 @@ bool RIApplication::loadLastUsedProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::saveProject()
+bool RiaApplication::saveProject()
 {
     CVF_ASSERT(m_project.notNull());
 
@@ -357,11 +357,11 @@ bool RIApplication::saveProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::saveProjectPromptForFileName()
+bool RiaApplication::saveProjectPromptForFileName()
 {
     //if (m_project.isNull()) return true;
 
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     QString startPath;
     if (!m_project->fileName().isEmpty())
@@ -396,7 +396,7 @@ bool RIApplication::saveProjectPromptForFileName()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::saveProjectAs(const QString& fileName)
+bool RiaApplication::saveProjectAs(const QString& fileName)
 {
     m_project->fileName = fileName;
     m_project->writeFile();
@@ -411,7 +411,7 @@ bool RIApplication::saveProjectAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::closeProject(bool askToSaveIfDirty)
+bool RiaApplication::closeProject(bool askToSaveIfDirty)
 {
     RIMainWindow* mainWnd = RIMainWindow::instance();
 
@@ -451,7 +451,7 @@ bool RIApplication::closeProject(bool askToSaveIfDirty)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::onProjectOpenedOrClosed()
+void RiaApplication::onProjectOpenedOrClosed()
 {
     RIMainWindow* mainWnd = RIMainWindow::instance();
     if (!mainWnd) return;
@@ -466,7 +466,7 @@ void RIApplication::onProjectOpenedOrClosed()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RIApplication::currentProjectFileName() const
+QString RiaApplication::currentProjectFileName() const
 {
     return m_project->fileName();
 }
@@ -475,7 +475,7 @@ QString RIApplication::currentProjectFileName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::openEclipseCaseFromFile(const QString& fileName)
+bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 {
     if (!QFile::exists(fileName)) return false;
 
@@ -489,7 +489,7 @@ bool RIApplication::openEclipseCaseFromFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
+bool RiaApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
 {
     QFileInfo gridFileName(caseFileName);
     QString casePath = gridFileName.absolutePath();
@@ -527,7 +527,7 @@ bool RIApplication::openEclipseCase(const QString& caseName, const QString& case
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
+bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
     rimInputReservoir->caseName = caseName;
@@ -557,7 +557,7 @@ bool RIApplication::openInputEclipseCase(const QString& caseName, const QStringL
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::createMockModel()
+void RiaApplication::createMockModel()
 {
     openEclipseCase("Result Mock Debug Model Simple", "Result Mock Debug Model Simple");
 }
@@ -565,7 +565,7 @@ void RIApplication::createMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::createResultsMockModel()
+void RiaApplication::createResultsMockModel()
 {
     openEclipseCase("Result Mock Debug Model With Results", "Result Mock Debug Model With Results");
 }
@@ -574,7 +574,7 @@ void RIApplication::createResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::createLargeResultsMockModel()
+void RiaApplication::createLargeResultsMockModel()
 {
     openEclipseCase("Result Mock Debug Model Large With Results", "Result Mock Debug Model Large With Results");
 }
@@ -582,7 +582,7 @@ void RIApplication::createLargeResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::createInputMockModel()
+void RiaApplication::createInputMockModel()
 {
     openInputEclipseCase("Input Mock Debug Model Simple", QStringList("Input Mock Debug Model Simple"));
 }
@@ -590,7 +590,7 @@ void RIApplication::createInputMockModel()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RimReservoirView* RIApplication::activeReservoirView() const
+const RimReservoirView* RiaApplication::activeReservoirView() const
 {
     return m_activeReservoirView;
 }
@@ -598,7 +598,7 @@ const RimReservoirView* RIApplication::activeReservoirView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RIApplication::activeReservoirView()
+RimReservoirView* RiaApplication::activeReservoirView()
 {
    return m_activeReservoirView;
 }
@@ -606,7 +606,7 @@ RimReservoirView* RIApplication::activeReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::setActiveReservoirView(RimReservoirView* rv)
+void RiaApplication::setActiveReservoirView(RimReservoirView* rv)
 {
     m_activeReservoirView = rv;
 }
@@ -614,7 +614,7 @@ void RIApplication::setActiveReservoirView(RimReservoirView* rv)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::setUseShaders(bool enable)
+void RiaApplication::setUseShaders(bool enable)
 {
     m_preferences->useShaders = enable;
     writePreferences();
@@ -623,7 +623,7 @@ void RIApplication::setUseShaders(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::useShaders() const
+bool RiaApplication::useShaders() const
 {
     if (!m_preferences->useShaders) return false;
 
@@ -637,7 +637,7 @@ bool RIApplication::useShaders() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIApplication::RINavigationPolicy RIApplication::navigationPolicy() const
+RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 {
     return m_preferences->navigationPolicy();
 }
@@ -646,7 +646,7 @@ RIApplication::RINavigationPolicy RIApplication::navigationPolicy() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::setShowPerformanceInfo(bool enable)
+void RiaApplication::setShowPerformanceInfo(bool enable)
 {
     m_preferences->showHud = enable;
     writePreferences();
@@ -656,7 +656,7 @@ void RIApplication::setShowPerformanceInfo(bool enable)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::showPerformanceInfo() const
+bool RiaApplication::showPerformanceInfo() const
 {
     return m_preferences->showHud;
 }
@@ -665,7 +665,7 @@ bool RIApplication::showPerformanceInfo() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::parseArguments()
+bool RiaApplication::parseArguments()
 {
     QStringList arguments = QCoreApplication::arguments();
 
@@ -885,7 +885,7 @@ bool RIApplication::parseArguments()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RIApplication::scriptDirectory() const
+QString RiaApplication::scriptDirectory() const
 {
     return m_preferences->scriptDirectory();
 }
@@ -893,7 +893,7 @@ QString RIApplication::scriptDirectory() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RIApplication::scriptEditorPath() const
+QString RiaApplication::scriptEditorPath() const
 {
     return m_preferences->scriptEditorExecutable();
 }
@@ -901,7 +901,7 @@ QString RIApplication::scriptEditorPath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RIApplication::octavePath() const
+QString RiaApplication::octavePath() const
 {
     return m_preferences->octaveExecutable();
 }
@@ -909,7 +909,7 @@ QString RIApplication::octavePath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
+void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     RIMainWindow::instance()->processMonitor()->stopMonitorWorkProcess();
 
@@ -943,7 +943,7 @@ void RIApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::launchProcess(const QString& program, const QStringList& arguments)
+bool RiaApplication::launchProcess(const QString& program, const QStringList& arguments)
 {
     if (m_workerProcess == NULL)
     {
@@ -977,7 +977,7 @@ bool RIApplication::launchProcess(const QString& program, const QStringList& arg
 //--------------------------------------------------------------------------------------------------
 /// Read fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RIApplication::readPreferences()
+void RiaApplication::readPreferences()
 {
     QSettings settings;
     std::vector<caf::PdmFieldHandle*> fields;
@@ -999,7 +999,7 @@ void RIApplication::readPreferences()
 //--------------------------------------------------------------------------------------------------
 /// Write fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RIApplication::writePreferences()
+void RiaApplication::writePreferences()
 {
     QSettings settings;
 
@@ -1018,7 +1018,7 @@ void RIApplication::writePreferences()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIPreferences* RIApplication::preferences()
+RiaPreferences* RiaApplication::preferences()
 {
     return m_preferences;
 }
@@ -1026,7 +1026,7 @@ RIPreferences* RIApplication::preferences()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::applyPreferences()
+void RiaApplication::applyPreferences()
 {
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
@@ -1063,7 +1063,7 @@ void RIApplication::applyPreferences()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::terminateProcess()
+void RiaApplication::terminateProcess()
 {
     if (m_workerProcess)
     {
@@ -1076,7 +1076,7 @@ void RIApplication::terminateProcess()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RIApplication::defaultFileDialogDirectory(const QString& dialogName)
+QString RiaApplication::defaultFileDialogDirectory(const QString& dialogName)
 {
     QString defaultDirectory = m_startupDefaultDirectory;
     std::map<QString, QString>::iterator it;
@@ -1093,7 +1093,7 @@ QString RIApplication::defaultFileDialogDirectory(const QString& dialogName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory)
+void RiaApplication::setDefaultFileDialogDirectory(const QString& dialogName, const QString& defaultDirectory)
 {
     m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
 }
@@ -1101,7 +1101,7 @@ void RIApplication::setDefaultFileDialogDirectory(const QString& dialogName, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::saveSnapshotPromtpForFilename()
+void RiaApplication::saveSnapshotPromtpForFilename()
 {
     QString startPath;
     if (!m_project->fileName().isEmpty())
@@ -1131,7 +1131,7 @@ void RIApplication::saveSnapshotPromtpForFilename()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::saveSnapshotAs(const QString& fileName)
+void RiaApplication::saveSnapshotAs(const QString& fileName)
 {
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
@@ -1150,7 +1150,7 @@ void RIApplication::saveSnapshotAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::copySnapshotToClipboard()
+void RiaApplication::copySnapshotToClipboard()
 {
     if (m_activeReservoirView && m_activeReservoirView->viewer())
     {
@@ -1167,7 +1167,7 @@ void RIApplication::copySnapshotToClipboard()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
+void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 {
     RIMainWindow* mainWnd = RIMainWindow::instance();
     if (!mainWnd) return;
@@ -1229,7 +1229,7 @@ void removeDirectoryWithContent(QDir dirToDelete )
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::runRegressionTest(const QString& testRootPath)
+void RiaApplication::runRegressionTest(const QString& testRootPath)
 {
     QString generatedFolderName = RegTestNames::generatedFolderName;
     QString diffFolderName      = RegTestNames::diffFolderName;    
@@ -1317,7 +1317,7 @@ void RIApplication::runRegressionTest(const QString& testRootPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIApplication::updateRegressionTest(const QString& testRootPath)
+void RiaApplication::updateRegressionTest(const QString& testRootPath)
 {
     // Find all sub folders
 
@@ -1352,7 +1352,7 @@ void RIApplication::updateRegressionTest(const QString& testRootPath)
 //--------------------------------------------------------------------------------------------------
 /// Make sure changes in this functions is validated to RimIdenticalGridCaseGroup::initAfterRead()
 //--------------------------------------------------------------------------------------------------
-bool RIApplication::addEclipseCases(const QStringList& fileNames)
+bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 {
     if (fileNames.size() == 0) return true;
 

@@ -188,7 +188,7 @@ bool RimInputCase::openEclipseGridFile()
     }
 
     
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     if (app->preferences()->autocomputeDepthRelatedProperties)
     {
         RimReservoirCellResultsStorage* matrixResults = results(RifReaderInterface::MATRIX_RESULTS);

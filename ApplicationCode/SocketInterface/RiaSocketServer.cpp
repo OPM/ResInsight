@@ -155,14 +155,14 @@ RimCase* RiaSocketServer::findReservoir(const QString& caseName)
 {
     if (caseName.isEmpty())
     {
-        if (RIApplication::instance()->activeReservoirView())
+        if (RiaApplication::instance()->activeReservoirView())
         {
-            return RIApplication::instance()->activeReservoirView()->eclipseCase();
+            return RiaApplication::instance()->activeReservoirView()->eclipseCase();
         }
     }
     else
     {
-        RimProject* project =  RIApplication::instance()->project();
+        RimProject* project =  RiaApplication::instance()->project();
         if (!project) return NULL;
 
        bool isInt = false;

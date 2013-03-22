@@ -219,7 +219,7 @@ void RIViewer::mouseReleaseEvent(QMouseEvent* event)
 
     // Get the currently set button press action
     // We get it here since left click performs it, while we let a clean right click cancel it
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     // Picking
     if (event->button() == Qt::LeftButton)
@@ -248,7 +248,7 @@ void RIViewer::keyPressEvent(QKeyEvent* event)
 //--------------------------------------------------------------------------------------------------
 void RIViewer::handlePickAction(int winPosX, int winPosY)
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
 
     RIMainWindow* mainWnd = RIMainWindow::instance();
     if (!mainWnd) return;

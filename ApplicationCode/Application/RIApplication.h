@@ -34,7 +34,7 @@ class RigCaseData;
 class RimCase;
 class Drawable;
 class RiaSocketServer;
-class RIPreferences;
+class RiaPreferences;
 
 namespace caf
 {
@@ -46,7 +46,7 @@ namespace caf
 // 
 //
 //==================================================================================================
-class RIApplication : public QApplication
+class RiaApplication : public QApplication
 {
     Q_OBJECT
 
@@ -58,9 +58,9 @@ public:
     };
 
 public:
-    RIApplication(int& argc, char** argv);
-    ~RIApplication();
-    static RIApplication* instance();
+    RiaApplication(int& argc, char** argv);
+    ~RiaApplication();
+    static RiaApplication* instance();
 
     bool                    parseArguments();
 
@@ -116,7 +116,7 @@ public:
     bool                launchProcess(const QString& program, const QStringList& arguments);
     void                terminateProcess();
     
-    RIPreferences*      preferences();
+    RiaPreferences*      preferences();
     void                readPreferences();
     void                writePreferences();
     void                applyPreferences();
@@ -139,7 +139,7 @@ private:
 
     caf::UiProcess*                 m_workerProcess;
 
-    RIPreferences*                  m_preferences;
+    RiaPreferences*                  m_preferences;
 
     std::map<QString, QString>      m_fileDialogDefaultDirectories;
     QString                         m_startupDefaultDirectory;

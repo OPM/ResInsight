@@ -23,7 +23,7 @@
 
 int main(int argc, char *argv[])
 {
-    RIApplication app(argc, argv);
+    RiaApplication app(argc, argv);
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
 

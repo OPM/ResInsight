@@ -192,7 +192,7 @@ void RIProcessMonitor::slotTerminateProcess()
 {
     addStringToLog("Process terminated by user\n");
 
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     app->terminateProcess();
 }
 

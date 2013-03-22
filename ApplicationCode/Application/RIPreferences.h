@@ -21,16 +21,16 @@
 #include "cafPdmObject.h"
 #include "RIApplication.h"
 
-class RIPreferences : public caf::PdmObject
+class RiaPreferences : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RIPreferences(void);
-    virtual ~RIPreferences(void);
+    RiaPreferences(void);
+    virtual ~RiaPreferences(void);
 
 public: // Pdm Fields
-    caf::PdmField<caf::AppEnum< RIApplication::RINavigationPolicy > > navigationPolicy;
+    caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
 
     caf::PdmField<QString>  scriptDirectory;
     caf::PdmField<QString>  scriptEditorExecutable;

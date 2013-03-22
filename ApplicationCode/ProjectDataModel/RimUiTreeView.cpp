@@ -117,7 +117,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             }
             else if (dynamic_cast<RimCalcScript*>(uiItem->dataObject().p()))
             {
-                RIApplication* app = RIApplication::instance();
+                RiaApplication* app = RiaApplication::instance();
 
                 QMenu menu;
                 {
@@ -425,7 +425,7 @@ void RimUiTreeView::slotEditScript()
     {
         RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
 
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
         QString scriptEditor = app->scriptEditorPath();
         if (!scriptEditor.isEmpty())
         {
@@ -482,7 +482,7 @@ void RimUiTreeView::slotNewScript()
         num++;
     }
 
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     QString scriptEditor = app->scriptEditorPath();
     if (!scriptEditor.isEmpty())
     {
@@ -512,7 +512,7 @@ void RimUiTreeView::slotExecuteScript()
     {
         RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
 
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
         QString octavePath = app->octavePath();
         if (!octavePath.isEmpty())
         {
@@ -539,7 +539,7 @@ void RimUiTreeView::slotExecuteScript()
             arguments.append("-q");
             arguments << calcScript->absolutePath();
 
-            RIApplication::instance()->launchProcess(octavePath, arguments);
+            RiaApplication::instance()->launchProcess(octavePath, arguments);
         }
     }
 }
@@ -568,7 +568,7 @@ void RimUiTreeView::slotDeleteView()
     {
         myModel->deleteReservoirView(currentIndex());
 
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
         app->setActiveReservoirView(NULL);
     }
 }
@@ -618,7 +618,7 @@ void RimUiTreeView::setModel(QAbstractItemModel* model)
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotAddInputProperty()
 {
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
     QStringList fileNames = QFileDialog::getOpenFileNames(this, "Select Eclipse Input Property Files", defaultDir, "All Files (*.* *)");
 
@@ -707,7 +707,7 @@ void RimUiTreeView::slotWriteInputProperty()
     {
         QString projectFolder;
 
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
         QString projectFileName = app->currentProjectFileName();
         if (!projectFileName.isEmpty())
         {   
@@ -760,7 +760,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
     {
         QString projectFolder;
 
-        RIApplication* app = RIApplication::instance();
+        RiaApplication* app = RiaApplication::instance();
         QString projectFileName = app->currentProjectFileName();
         if (!projectFileName.isEmpty())
         {   

@@ -82,8 +82,8 @@ CAF_PDM_SOURCE_INIT(RimReservoirView, "ReservoirView");
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::RimReservoirView()
 {
-    RIApplication* app = RIApplication::instance();
-    RIPreferences* preferences = app->preferences();
+    RiaApplication* app = RiaApplication::instance();
+    RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
     CAF_PDM_InitObject("Reservoir View", ":/ReservoirView.png", "", "");
@@ -192,7 +192,7 @@ void RimReservoirView::updateViewerWidget()
         if (!m_viewer)
         {
             QGLFormat glFormat;
-            glFormat.setDirectRendering(RIApplication::instance()->useShaders());
+            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
 
             m_viewer = new RIViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
@@ -204,7 +204,7 @@ void RimReservoirView::updateViewerWidget()
             m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
             m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
 
-            if (RIApplication::instance()->navigationPolicy() == RIApplication::NAVIGATION_POLICY_CEETRON)
+            if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
             {
                 m_viewer->setNavigationPolicy(new caf::CeetronNavigation);
             }
@@ -213,7 +213,7 @@ void RimReservoirView::updateViewerWidget()
                 m_viewer->setNavigationPolicy(new caf::CadNavigation);
             }
 
-            m_viewer->enablePerfInfoHud(RIApplication::instance()->showPerformanceInfo());
+            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
 
             //m_viewer->layoutWidget()->showMaximized();
 
@@ -708,7 +708,7 @@ void RimReservoirView::loadDataAndUpdate()
         }
         else
         {
-            RIApplication* app = RIApplication::instance();
+            RiaApplication* app = RiaApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
                 RimReservoirCellResultsStorage* results = currentGridCellResults();

@@ -82,7 +82,7 @@ void RimProject::initAfterRead()
     //
     // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
     // 
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     QString scriptDirectory = app->scriptDirectory();
 
     this->setUserScriptPath(scriptDirectory);

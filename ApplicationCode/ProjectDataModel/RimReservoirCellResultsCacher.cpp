@@ -188,7 +188,7 @@ QString RimReservoirCellResultsStorage::getValidCacheFileName()
 QString RimReservoirCellResultsStorage::getCacheDirectoryPath()
 {
     QString cacheDirPath;
-    QString projectFileName = RIApplication::instance()->project()->fileName();
+    QString projectFileName = RiaApplication::instance()->project()->fileName();
     QFileInfo fileInfo(projectFileName);
     cacheDirPath = fileInfo.canonicalPath();
     cacheDirPath += "/" + fileInfo.completeBaseName() + "_cache";

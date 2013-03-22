@@ -20,13 +20,13 @@
 #include "RIPreferences.h"
 #include "cafPdmUiFilePathEditor.h"
 
-CAF_PDM_SOURCE_INIT(RIPreferences, "RIPreferences");
+CAF_PDM_SOURCE_INIT(RiaPreferences, "RIPreferences");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIPreferences::RIPreferences(void)
+RiaPreferences::RiaPreferences(void)
 {
-    CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RIApplication::RINavigationPolicy>(RIApplication::NAVIGATION_POLICY_CAD), "Navigation mode", "", "", "");
+    CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaApplication::RINavigationPolicy>(RiaApplication::NAVIGATION_POLICY_CAD), "Navigation mode", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&scriptDirectory,        "scriptDirectory", "Shared Script Folder", "", "", "");
     scriptDirectory.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -53,7 +53,7 @@ RIPreferences::RIPreferences(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIPreferences::~RIPreferences(void)
+RiaPreferences::~RiaPreferences(void)
 {
 
 }
@@ -61,7 +61,7 @@ RIPreferences::~RIPreferences(void)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
     if (field == &scriptDirectory)
     {
@@ -76,7 +76,7 @@ void RIPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RIPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
 {
     uiOrdering.add(&navigationPolicy);
 
