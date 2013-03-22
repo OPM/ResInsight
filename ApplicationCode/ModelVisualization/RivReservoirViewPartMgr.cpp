@@ -20,9 +20,9 @@
 #include "RivReservoirViewPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "RimReservoirView.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RigGridBase.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RigGridScalarDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------

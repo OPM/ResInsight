@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RifReaderInterface.h"
 #include "RigMainGrid.h"
 

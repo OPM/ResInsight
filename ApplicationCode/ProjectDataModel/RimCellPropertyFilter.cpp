@@ -22,7 +22,7 @@
 #include "RimCellPropertyFilter.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RigGridBase.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 

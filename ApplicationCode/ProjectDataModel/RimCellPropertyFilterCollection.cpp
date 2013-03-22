@@ -22,7 +22,7 @@
 
 #include "RimReservoirView.h"
 #include "RigGridBase.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
 
 CAF_PDM_SOURCE_INIT(RimCellPropertyFilterCollection, "CellPropertyFilters");

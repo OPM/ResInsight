@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigWellResults.h"
+#include "RigSingleWellResultsData.h"
 #include <map>
 
 #include <QDebug>

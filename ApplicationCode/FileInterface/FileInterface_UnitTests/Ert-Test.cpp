@@ -37,7 +37,7 @@
 
 #include "gtest/gtest.h"
 
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RifReaderEclipseInput.h"
 
 #if 0

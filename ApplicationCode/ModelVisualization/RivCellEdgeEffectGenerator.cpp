@@ -49,8 +49,8 @@
 
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
-#include "RigEclipseCase.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 #include "RigActiveCellInfo.h"
 
 

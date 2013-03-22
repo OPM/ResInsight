@@ -25,10 +25,10 @@
 #include "cvfAssert.h"
 
 #include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RigActiveCellInfo.h"
 #include "RigGridBase.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include <math.h>
 
 //--------------------------------------------------------------------------------------------------

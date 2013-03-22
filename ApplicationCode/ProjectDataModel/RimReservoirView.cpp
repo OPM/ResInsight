@@ -22,7 +22,7 @@
 #include "RimReservoirView.h"
 #include "RIMainWindow.h"
 #include "RigGridBase.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
@@ -32,7 +32,7 @@
 #include "RimCellRangeFilterCollection.h"
 
 #include "cvfStructGridGeometryGenerator.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RivCellEdgeEffectGenerator.h"
 #include "RimCellEdgeResultSlot.h"
 #include "cvfqtUtils.h"

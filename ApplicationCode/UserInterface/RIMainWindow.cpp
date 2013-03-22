@@ -27,8 +27,8 @@
 #include "RiaPreferences.h"
 #include "RIPreferencesDialog.h"
 
-#include "RigEclipseCase.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
 #include "RimCase.h"
 #include "RimUiTreeModelPdm.h"
 

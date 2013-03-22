@@ -21,7 +21,7 @@
 #include "RimCellRangeFilterCollection.h"
 
 #include "RimReservoirView.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 
 
 

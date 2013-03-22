@@ -32,7 +32,7 @@
 #include "RifEclipseInputFileTools.h"
 #include "RimInputCase.h"
 #include "RimBinaryExportSettings.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RimStatisticsCase.h"
 #include "RimResultCase.h"
 

@@ -16,9 +16,9 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RigGridScalarDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigCaseData::dataAccessObject(const Ri
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCase::closeReaderInterface()
+void RigCaseData::closeReaderInterface()
 {
     RifReaderInterface* readerInterface = m_matrixModelResults->readerInterface();
 

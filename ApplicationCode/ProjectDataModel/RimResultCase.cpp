@@ -18,9 +18,9 @@
 
 #include "RiaStdInclude.h"
 #include "RimResultCase.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RifReaderEclipseOutput.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RimReservoirView.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderEclipseInput.h"

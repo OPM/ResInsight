@@ -22,9 +22,9 @@
 #include "RimReservoirView.h"
 #include "RIViewer.h"
 #include "RimCase.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");
 

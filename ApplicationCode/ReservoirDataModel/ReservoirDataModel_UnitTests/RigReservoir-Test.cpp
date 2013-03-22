@@ -21,8 +21,8 @@
 #include "RiaStdInclude.h"
 #include "gtest/gtest.h"
 
-#include "RigEclipseCase.h"
-#include "RigGridCollection.h"
+#include "RigCaseData.h"
+#include "RigGridManager.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ TEST(RigGridManager, EqualTests)
 //--------------------------------------------------------------------------------------------------
 TEST(RigReservoirTest, BasicTest)
 {
-    cvf::ref<RigWellResults> wellCellTimeHistory = new RigWellResults;
+    cvf::ref<RigSingleWellResultsData> wellCellTimeHistory = new RigSingleWellResultsData;
 
     QDateTime wellStartTime = QDateTime::currentDateTime();
 

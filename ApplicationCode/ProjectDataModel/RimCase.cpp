@@ -24,9 +24,9 @@
 #include "RimCase.h"
 #include "RimReservoirView.h"
 
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
 #include "cvfAssert.h"
 

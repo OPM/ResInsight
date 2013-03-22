@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigReservoirBuilderMock.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RigActiveCellInfo.h"
 
 

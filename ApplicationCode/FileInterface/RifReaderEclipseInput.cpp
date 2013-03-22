@@ -19,8 +19,8 @@
 #include "cvfBase.h"
 
 #include "RigMainGrid.h"
-#include "RigEclipseCase.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
 
 #include "RifReaderEclipseInput.h"
 #include "RifReaderEclipseOutput.h"

@@ -19,7 +19,7 @@
 #include "RiaStdInclude.h"
 
 #include "RifReaderMockModel.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RifReaderInterface.h"
 
 //--------------------------------------------------------------------------------------------------

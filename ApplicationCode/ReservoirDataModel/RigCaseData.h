@@ -24,7 +24,7 @@
 #include "cvfAssert.h"
 #include "cvfObject.h"
 #include "RigMainGrid.h"
-#include "RigWellResults.h"
+#include "RigSingleWellResultsData.h"
 #include "RigActiveCellInfo.h"
 
 class RigCaseCellResultsData;

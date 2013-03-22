@@ -22,8 +22,8 @@
 
 #include "RimReservoirView.h"
 #include "RimCase.h"
-#include "RigReservoirCellResults.h"
-#include "RigEclipseCase.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 #include "RigMainGrid.h"
 #include "cafPdmUiListEditor.h"
 

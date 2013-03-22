@@ -36,7 +36,7 @@
 
 #include "RimReservoirView.h"
 
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "RigCell.h"
 
 #include "RivPipeGeometryGenerator.h"

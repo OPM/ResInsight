@@ -24,7 +24,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 
-#include "RigWellResults.h"
+#include "RigSingleWellResultsData.h"
 
 class RimReservoirView;
 //==================================================================================================

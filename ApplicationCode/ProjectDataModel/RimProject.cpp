@@ -22,8 +22,8 @@
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
-#include "RigGridCollection.h"
-#include "RigEclipseCase.h"
+#include "RigGridManager.h"
+#include "RigCaseData.h"
 #include "RimResultCase.h"
 
 

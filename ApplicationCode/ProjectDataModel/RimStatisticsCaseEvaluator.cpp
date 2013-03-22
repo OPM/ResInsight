@@ -18,12 +18,12 @@
 #include "RiaStdInclude.h"
 
 #include "RimStatisticsCaseEvaluator.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RimReservoirView.h"
 #include "RimCase.h"
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 
-//#include "RigEclipseCase.h"
+//#include "RigCaseData.h"
 #include <QDebug>
 #include "cafProgressInfo.h"
 
@@ -179,7 +179,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
         QString resultName = resultSpecification[i].second;
 
         // Special handling if SOIL is asked for
-        // Build SGAS/SWAT meta data, SOIL is automatically generated as part of RigReservoirCellResults::findOrLoadScalarResultForTimeStep
+        // Build SGAS/SWAT meta data, SOIL is automatically generated as part of RigCaseCellResultsData::findOrLoadScalarResultForTimeStep
         if (resultName.toUpper() == "SOIL")
         {
             size_t swatIndex = m_sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->findScalarResultIndex(resultType, "SWAT");

@@ -18,9 +18,9 @@
 
 #include "RifEclipseInputFileTools.h"
 #include "RifReaderEclipseOutput.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 #include "cafProgressInfo.h"
 
 #include <vector>

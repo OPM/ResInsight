@@ -16,8 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigGridCollection.h"
-#include "RigEclipseCase.h"
+#include "RigGridManager.h"
+#include "RigCaseData.h"
 #include "RigMainGrid.h"
 
 

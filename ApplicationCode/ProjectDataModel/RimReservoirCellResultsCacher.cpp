@@ -18,7 +18,7 @@
 
 #include "RiaStdInclude.h"
 #include "RimReservoirCellResultsCacher.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RiaApplication.h"
 #include "RigMainGrid.h"
 #include "RigCell.h"
@@ -51,7 +51,7 @@ RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This override populates the metainfo regarding the cell results data in the RigReservoirCellResults
+/// This override populates the metainfo regarding the cell results data in the RigCaseCellResultsData
 /// object. This metainfo will then be written to the project file when saving, and thus read on project file open.
 /// This method then writes the actual double arrays to the data file in a simple format:
 /// MagicNumber<uint32>, Version<uint32>, ResultVariables< Array < TimeStep< CellDataArraySize<uint64>, CellData< Array<double > > > >

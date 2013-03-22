@@ -21,12 +21,12 @@
 #include "RiaStdInclude.h"
 #include "gtest/gtest.h"
 
-#include "RigEclipseCase.h"
+#include "RigCaseData.h"
 
 #include "RifReaderEclipseOutput.h"
 #include "ecl_file.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
 
 
@@ -68,7 +68,7 @@ TEST(RigReservoirTest, FileOutputToolsTest)
 
 void buildResultInfoString(RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, RimDefines::ResultCatType resultType)
 {
-    RigReservoirCellResults* matrixResults = reservoir->results(porosityModel);
+    RigCaseCellResultsData* matrixResults = reservoir->results(porosityModel);
     {
         QStringList resultNames = matrixResults->resultNames(resultType);
 
