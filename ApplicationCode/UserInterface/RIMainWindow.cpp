@@ -16,8 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
-#include "RIBaseDefs.h"
+#include "RiaStdInclude.h"
+#include "RiaBaseDefs.h"
 
 #include "RIApplication.h"
 #include "RIMainWindow.h"

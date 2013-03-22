@@ -4,8 +4,8 @@ project (ApplicationCode)
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RIVersionInfo.h.cmake
-                ${CMAKE_BINARY_DIR}/Generated/RIVersionInfo.h
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
+                ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
 
 
@@ -28,8 +28,8 @@ include_directories(
 file( GLOB_RECURSE HEADER_FILES *.h )
 
 list( APPEND CPP_SOURCES
-    RIMain.cpp
-    RIStdInclude.cpp
+    RiaMain.cpp
+    RiaStdInclude.cpp
 )
 
 list( APPEND CPP_SOURCES
@@ -156,7 +156,7 @@ qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 set( RAW_SOURCES ${CPP_SOURCES} )
 
 list( REMOVE_ITEM RAW_SOURCES 
-	RIStdInclude.cpp
+	RiaStdInclude.cpp
 
 	${CODE_SOURCE_FILES}
 
@@ -190,7 +190,7 @@ set( ALL_INCLUDES
     ${QT_INCLUDES}
 )
 
-set( PCH_NAME RIStdInclude )
+set( PCH_NAME RiaStdInclude )
 set( GCC_PCH_TARGET gccPCH )
 set( PCH_COMPILER_DEFINE EMPTY )
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

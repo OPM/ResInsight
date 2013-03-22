@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "cafLog.h"
 #include "cafEffectCache.h"
@@ -26,8 +26,8 @@
 
 #include "cvfStructGridGeometryGenerator.h"
 
-#include "RIVersionInfo.h"
-#include "RIBaseDefs.h"
+#include "RiaVersionInfo.h"
+#include "RiaBaseDefs.h"
 
 #include "RIApplication.h"
 #include "RIMainWindow.h"

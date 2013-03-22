@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "RivReservoirPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "cvfStructGrid.h"

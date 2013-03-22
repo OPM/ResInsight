@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "RimReservoirView.h"

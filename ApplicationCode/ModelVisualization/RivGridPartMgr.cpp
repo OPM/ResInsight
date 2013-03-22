@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "RivGridPartMgr.h"
 #include "cvfPart.h"
 #include "cafEffectGenerator.h"

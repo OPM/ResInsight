@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimProject.h"
 #include "RIApplication.h"
-#include "RIVersionInfo.h"
+#include "RiaVersionInfo.h"
 
 #include "RigGridCollection.h"
 #include "RigEclipseCase.h"

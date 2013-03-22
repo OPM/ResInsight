@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "RimResultReservoir.h"
 #include "RigEclipseCase.h"
 #include "RifReaderEclipseOutput.h"

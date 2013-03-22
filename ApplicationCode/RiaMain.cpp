@@ -16,5 +16,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
+#include "RIApplication.h"
+#include "RIMainWindow.h"
+
+
+int main(int argc, char *argv[])
+{
+    RiaApplication app(argc, argv);
+
+    QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+
+    RIMainWindow window;
+    QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
+    window.setWindowTitle("ResInsight " + platform);
+    window.resize(1000, 800);
+    window.show();
+
+    if (app.parseArguments())
+    {
+        return app.exec();
+    }
+
+    return 0;
+}
 

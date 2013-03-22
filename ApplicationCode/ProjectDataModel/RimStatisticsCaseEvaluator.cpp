@@ -15,7 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimStatisticsCaseEvaluator.h"
 #include "RigReservoirCellResults.h"

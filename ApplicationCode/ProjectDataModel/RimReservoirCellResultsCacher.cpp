@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "RimReservoirCellResultsCacher.h"
 #include "RigReservoirCellResults.h"
 #include "RIApplication.h"
