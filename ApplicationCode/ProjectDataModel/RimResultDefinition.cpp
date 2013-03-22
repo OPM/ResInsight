@@ -21,7 +21,7 @@
 #include "RimResultDefinition.h"
 
 #include "RimReservoirView.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RigReservoirCellResults.h"
 #include "RigEclipseCase.h"
 #include "RigMainGrid.h"

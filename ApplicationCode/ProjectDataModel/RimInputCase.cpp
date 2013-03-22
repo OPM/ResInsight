@@ -18,7 +18,7 @@
 
 #include "RiaStdInclude.h"
 
-#include "RimInputReservoir.h"
+#include "RimInputCase.h"
 #include "RimInputProperty.h"
 #include "RimReservoirView.h"
 
@@ -45,7 +45,7 @@ CAF_PDM_SOURCE_INIT(RimInputCase, "RimInputReservoir");
 RimInputCase::RimInputCase()
     : RimCase()
 {
-    CAF_PDM_InitObject("RimInputReservoir", ":/EclipseInput48x48.png", "", "");
+    CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
     CAF_PDM_InitFieldNoDefault(&m_additionalFileNames, "AdditionalFileNames", "Additional files", "", "" ,"");
 

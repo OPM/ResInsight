@@ -25,11 +25,11 @@
 #include "RiaSocketServer.h"
 #include "RiaApplication.h"
 #include "RIMainWindow.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
 #include "RimInputProperty.h"
-#include "RimInputReservoir.h"
+#include "RimInputCase.h"
 #include "RimUiTreeModelPdm.h"
 
 //--------------------------------------------------------------------------------------------------

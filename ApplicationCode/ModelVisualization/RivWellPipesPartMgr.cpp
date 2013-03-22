@@ -19,7 +19,7 @@
 
 #include "cvfLibCore.h"
 
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RigEclipseCase.h"
 #include "RivWellPipesPartMgr.h"
 #include "RigCell.h"

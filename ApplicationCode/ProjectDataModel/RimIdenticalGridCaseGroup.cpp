@@ -20,14 +20,14 @@
 #include "RiaStdInclude.h"
 
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RimReservoirView.h"
 #include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
 
 #include "RimStatisticsCase.h"
 #include "RimStatisticsCaseCollection.h"
-#include "RimResultReservoir.h"
+#include "RimResultCase.h"
 #include "cafProgressInfo.h"
 #include "RigActiveCellInfo.h"
 

@@ -29,7 +29,7 @@
 
 #include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RimUiTreeModelPdm.h"
 
 #include "cvfqtBasicAboutDialog.h"

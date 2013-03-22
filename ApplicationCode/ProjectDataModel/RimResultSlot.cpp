@@ -21,7 +21,7 @@
 #include "RimResultSlot.h"
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RIMainWindow.h"
 #include "RimUiTreeModelPdm.h"
 

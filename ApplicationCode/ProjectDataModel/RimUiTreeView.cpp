@@ -30,11 +30,11 @@
 #include "RimExportInputPropertySettings.h"
 #include "RIPreferencesDialog.h"
 #include "RifEclipseInputFileTools.h"
-#include "RimInputReservoir.h"
+#include "RimInputCase.h"
 #include "RimBinaryExportSettings.h"
 #include "RigReservoirCellResults.h"
 #include "RimStatisticsCase.h"
-#include "RimResultReservoir.h"
+#include "RimResultCase.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

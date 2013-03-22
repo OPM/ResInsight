@@ -41,7 +41,7 @@
 
 #include "cafCadNavigation.h"
 #include "cafCeetronNavigation.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RigGridScalarDataAccess.h"
 

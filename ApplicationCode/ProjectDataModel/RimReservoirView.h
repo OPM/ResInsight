@@ -23,7 +23,7 @@
 #include <QPointer>
 #include <QString>
 
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilter.h"

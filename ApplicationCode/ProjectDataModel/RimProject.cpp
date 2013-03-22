@@ -24,7 +24,7 @@
 
 #include "RigGridCollection.h"
 #include "RigEclipseCase.h"
-#include "RimResultReservoir.h"
+#include "RimResultCase.h"
 
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");

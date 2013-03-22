@@ -22,7 +22,7 @@
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 
 class RifReaderInterface;
 class RigMainGrid;

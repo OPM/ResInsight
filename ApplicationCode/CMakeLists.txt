@@ -64,12 +64,12 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimDefines.cpp
     ProjectDataModel/RimLegendConfig.cpp
     ProjectDataModel/RimProject.cpp
-    ProjectDataModel/RimReservoir.cpp
+    ProjectDataModel/RimCase.cpp
     ProjectDataModel/RimIdenticalGridCaseGroup.cpp
     ProjectDataModel/RimInputProperty.cpp
     ProjectDataModel/RimInputPropertyCollection.cpp
-    ProjectDataModel/RimInputReservoir.cpp
-    ProjectDataModel/RimResultReservoir.cpp
+    ProjectDataModel/RimInputCase.cpp
+    ProjectDataModel/RimResultCase.cpp
     ProjectDataModel/RimReservoirView.cpp
     ProjectDataModel/RimResultDefinition.cpp
     ProjectDataModel/RimResultSlot.cpp

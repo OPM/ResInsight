@@ -21,7 +21,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirView.h"
 #include "RIViewer.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RigEclipseCase.h"
 #include "RigMainGrid.h"
 #include "RigReservoirCellResults.h"

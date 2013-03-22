@@ -35,8 +35,8 @@
 #include "RIProcessMonitor.h"
 #include "RiaPreferences.h"
 
-#include "RimResultReservoir.h"
-#include "RimInputReservoir.h"
+#include "RimResultCase.h"
+#include "RimInputCase.h"
 #include "RimReservoirView.h"
 
 #include "RigEclipseCase.h"

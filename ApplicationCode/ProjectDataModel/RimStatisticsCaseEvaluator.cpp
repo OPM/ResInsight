@@ -20,7 +20,7 @@
 #include "RimStatisticsCaseEvaluator.h"
 #include "RigReservoirCellResults.h"
 #include "RimReservoirView.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RigEclipseCase.h"
 
 //#include "RigEclipseCase.h"

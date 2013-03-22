@@ -21,7 +21,7 @@
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderMockModel.h"
 
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RimReservoirView.h"
 
 #include "RigEclipseCase.h"

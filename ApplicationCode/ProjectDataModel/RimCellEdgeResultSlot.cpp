@@ -21,7 +21,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RimReservoirView.h"
 #include "RigReservoirCellResults.h"
 #include "RigEclipseCase.h"
