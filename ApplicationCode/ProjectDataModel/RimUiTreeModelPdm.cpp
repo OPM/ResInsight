@@ -35,7 +35,7 @@
 #include "RimInputPropertyCollection.h"
 #include "cafPdmField.h"
 #include "RimInputReservoir.h"
-#include "RimStatisticalCalculation.h"
+#include "RimStatisticsCase.h"
 #include "RimResultReservoir.h"
 
 //--------------------------------------------------------------------------------------------------

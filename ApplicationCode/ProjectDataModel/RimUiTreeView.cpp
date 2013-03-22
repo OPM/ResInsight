@@ -33,7 +33,7 @@
 #include "RimInputReservoir.h"
 #include "RimBinaryExportSettings.h"
 #include "RigReservoirCellResults.h"
-#include "RimStatisticalCalculation.h"
+#include "RimStatisticsCase.h"
 #include "RimResultReservoir.h"
 
 //--------------------------------------------------------------------------------------------------

@@ -25,8 +25,8 @@
 #include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
 
-#include "RimStatisticalCalculation.h"
-#include "RimStatisticalCollection.h"
+#include "RimStatisticsCase.h"
+#include "RimStatisticsCaseCollection.h"
 #include "RimResultReservoir.h"
 #include "cafProgressInfo.h"
 #include "RigActiveCellInfo.h"

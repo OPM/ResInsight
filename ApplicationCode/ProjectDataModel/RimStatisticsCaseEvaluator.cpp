@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RIStdInclude.h"
 
-#include "RigStatistics.h"
+#include "RimStatisticsCaseEvaluator.h"
 #include "RigReservoirCellResults.h"
 #include "RimReservoirView.h"
 #include "RimReservoir.h"

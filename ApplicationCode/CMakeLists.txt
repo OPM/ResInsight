@@ -77,8 +77,8 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimWell.cpp
     ProjectDataModel/RimWellCollection.cpp
     ProjectDataModel/RimScriptCollection.cpp
-    ProjectDataModel/RimStatisticalCalculation.cpp
-    ProjectDataModel/RimStatisticalCollection.cpp
+    ProjectDataModel/RimStatisticsCase.cpp
+    ProjectDataModel/RimStatisticsCaseCollection.cpp
     ProjectDataModel/RimCalcScript.cpp
     ProjectDataModel/RimExportInputPropertySettings.cpp
     ProjectDataModel/RimBinaryExportSettings.cpp
@@ -86,7 +86,7 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimUiTreeModelPdm.cpp
     ProjectDataModel/RimUiTreeView.cpp
 	ProjectDataModel/RimReservoirCellResultsCacher.cpp
-	ProjectDataModel/RigStatistics.cpp
+	ProjectDataModel/RimStatisticsCaseEvaluator.cpp
 )
 
 # Populate the filenames into variable lists

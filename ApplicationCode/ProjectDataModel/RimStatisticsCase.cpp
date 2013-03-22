@@ -18,13 +18,13 @@
 
 #include "RIStdInclude.h"
 
-#include "RimStatisticalCalculation.h"
+#include "RimStatisticsCase.h"
 #include "RimReservoirView.h"
 #include "cafPdmUiOrdering.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RigEclipseCase.h"
 #include "RigReservoirCellResults.h"
-#include "RigStatistics.h"
+#include "RimStatisticsCaseEvaluator.h"
 #include "RigMainGrid.h"
 
 

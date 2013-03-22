@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimStatisticalCollection.h"
+#include "RimStatisticsCaseCollection.h"
 #include "RimCaseCollection.h"
 
 class RimReservoir;

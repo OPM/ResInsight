@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimStatisticalCalculation.h"
+#include "RimStatisticsCase.h"
 
 
 //==================================================================================================

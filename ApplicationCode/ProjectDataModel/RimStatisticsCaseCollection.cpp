@@ -20,7 +20,7 @@
 
 #include "RimReservoirView.h"
 
-#include "RimStatisticalCollection.h"
+#include "RimStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 
 
