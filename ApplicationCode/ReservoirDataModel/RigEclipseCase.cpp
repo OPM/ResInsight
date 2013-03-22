@@ -61,6 +61,11 @@ void RigEclipseCase::allGrids(std::vector<RigGridBase*>* grids)
 {
     CVF_ASSERT(grids);
 
+    if (m_mainGrid.isNull())
+    {
+        return;
+    }
+
     size_t i;
     for (i = 0; i < m_mainGrid->gridCount(); i++)
     {
@@ -74,6 +79,12 @@ void RigEclipseCase::allGrids(std::vector<RigGridBase*>* grids)
 void RigEclipseCase::allGrids(std::vector<const RigGridBase*>* grids) const
 {
     CVF_ASSERT(grids);
+
+    if (m_mainGrid.isNull())
+    {
+        return;
+    }
+
     size_t i;
     for (i = 0; i < m_mainGrid->gridCount(); i++)
     {
@@ -86,6 +97,7 @@ void RigEclipseCase::allGrids(std::vector<const RigGridBase*>* grids) const
 //--------------------------------------------------------------------------------------------------
 const RigGridBase* RigEclipseCase::grid(size_t index) const
 {
+    CVF_ASSERT(m_mainGrid.notNull());
     return m_mainGrid->gridByIndex(index);
 }
 
@@ -95,6 +107,7 @@ const RigGridBase* RigEclipseCase::grid(size_t index) const
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigEclipseCase::grid(size_t index) 
 {
+    CVF_ASSERT(m_mainGrid.notNull());
     return m_mainGrid->gridByIndex(index);
 }
 
@@ -103,6 +116,7 @@ RigGridBase* RigEclipseCase::grid(size_t index)
 //--------------------------------------------------------------------------------------------------
 size_t RigEclipseCase::gridCount() const
 {
+    CVF_ASSERT(m_mainGrid.notNull());
     return m_mainGrid->gridCount();
 }
 
@@ -279,28 +293,30 @@ public:
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCase::computeActiveCellIJKBBox()
 {
-    CellRangeBB matrixModelActiveBB;
-    CellRangeBB fractureModelActiveBB;
-
-    size_t idx;
-    for (idx = 0; idx < m_mainGrid->cellCount(); idx++)
+    if (m_mainGrid.notNull() && m_activeCellInfo.notNull() && m_fractureActiveCellInfo.notNull())
     {
-        size_t i, j, k;
-        m_mainGrid->ijkFromCellIndex(idx, &i, &j, &k);
+        CellRangeBB matrixModelActiveBB;
+        CellRangeBB fractureModelActiveBB;
 
-        if (m_activeCellInfo->isActive(idx))
+        size_t idx;
+        for (idx = 0; idx < m_mainGrid->cellCount(); idx++)
         {
-            matrixModelActiveBB.add(i, j, k);
-        }
+            size_t i, j, k;
+            m_mainGrid->ijkFromCellIndex(idx, &i, &j, &k);
 
-        if (m_fractureActiveCellInfo->isActive(idx))
-        {
-            fractureModelActiveBB.add(i, j, k);
+            if (m_activeCellInfo->isActive(idx))
+            {
+                matrixModelActiveBB.add(i, j, k);
+            }
+
+            if (m_fractureActiveCellInfo->isActive(idx))
+            {
+                fractureModelActiveBB.add(i, j, k);
+            }
         }
+        m_activeCellInfo->setIJKBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
+        m_fractureActiveCellInfo->setIJKBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
     }
-
-    m_activeCellInfo->setIJKBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
-    m_fractureActiveCellInfo->setIJKBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -359,6 +375,11 @@ void RigEclipseCase::setActiveCellInfo(RifReaderInterface::PorosityModelResultTy
 //--------------------------------------------------------------------------------------------------
 void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
 {
+    if (m_activeCellInfo.notNull() || m_fractureActiveCellInfo.notNull())
+    {
+        return;
+    }
+
     if (m_mainGrid.isNull())
     {
         cvf::BoundingBox bb;
