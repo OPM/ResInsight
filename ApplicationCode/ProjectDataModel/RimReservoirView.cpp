@@ -17,10 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
-#include "RIViewer.h"
+#include "RiuViewer.h"
 
 #include "RimReservoirView.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 #include "RigGridBase.h"
 #include "RigCaseData.h"
 #include "RiaApplication.h"

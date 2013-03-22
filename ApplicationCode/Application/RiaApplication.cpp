@@ -30,9 +30,9 @@
 #include "RiaBaseDefs.h"
 
 #include "RiaApplication.h"
-#include "RIMainWindow.h"
-#include "RIViewer.h"
-#include "RIProcessMonitor.h"
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+#include "RiuProcessMonitor.h"
 #include "RiaPreferences.h"
 
 #include "RimResultCase.h"

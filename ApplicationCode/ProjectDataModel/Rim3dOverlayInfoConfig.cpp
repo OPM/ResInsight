@@ -20,7 +20,7 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirView.h"
-#include "RIViewer.h"
+#include "RiuViewer.h"
 #include "RimCase.h"
 #include "RigCaseData.h"
 #include "RigMainGrid.h"

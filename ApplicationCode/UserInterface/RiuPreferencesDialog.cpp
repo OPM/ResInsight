@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
-#include "RIPreferencesDialog.h"
+#include "RiuPreferencesDialog.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmObject.h"

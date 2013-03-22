@@ -18,7 +18,7 @@
 
 #include "RiaStdInclude.h"
 
-#include "RIProcessMonitor.h"
+#include "RiuProcessMonitor.h"
 #include "cafUiProcess.h"
 #include "RiaApplication.h"
 

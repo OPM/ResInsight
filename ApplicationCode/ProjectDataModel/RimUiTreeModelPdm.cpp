@@ -27,10 +27,10 @@
 #include "RimCellPropertyFilterCollection.h"
 
 #include "RimReservoirView.h"
-#include "RIViewer.h"
+#include "RiuViewer.h"
 #include "RimCalcScript.h"
 #include "RiaApplication.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 #include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"
 #include "cafPdmField.h"

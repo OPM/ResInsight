@@ -97,14 +97,14 @@ list( APPEND CPP_SOURCES
 )
 
 list( APPEND CPP_SOURCES
-    UserInterface/RICursors.cpp
-    UserInterface/RIMainWindow.cpp
-    UserInterface/RIPreferencesDialog.cpp
-    UserInterface/RIResultInfoPanel.cpp
-    UserInterface/RIViewer.cpp
+    UserInterface/RiuCursors.cpp
+    UserInterface/RiuMainWindow.cpp
+    UserInterface/RiuPreferencesDialog.cpp
+    UserInterface/RiuResultInfoPanel.cpp
+    UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
 	UserInterface/RiuMultiCaseImportDialog.cpp
-    UserInterface/RIProcessMonitor.cpp
+    UserInterface/RiuProcessMonitor.cpp
 
 )
 
@@ -115,11 +115,11 @@ set ( QT_MOC_HEADERS
     ProjectDataModel/RimUiTreeModelPdm.h
     ProjectDataModel/RimUiTreeView.h
     
-    UserInterface/RIMainWindow.h
-    UserInterface/RIPreferencesDialog.h
-    UserInterface/RIResultInfoPanel.h
-    UserInterface/RIViewer.h
-    UserInterface/RIProcessMonitor.h
+    UserInterface/RiuMainWindow.h
+    UserInterface/RiuPreferencesDialog.h
+    UserInterface/RiuResultInfoPanel.h
+    UserInterface/RiuViewer.h
+    UserInterface/RiuProcessMonitor.h
 	SocketInterface/RiaSocketServer.h
 	UserInterface/RiuMultiCaseImportDialog.h
 )

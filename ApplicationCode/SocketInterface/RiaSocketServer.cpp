@@ -24,7 +24,7 @@
 
 #include "RiaSocketServer.h"
 #include "RiaApplication.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 #include "RimCase.h"
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"

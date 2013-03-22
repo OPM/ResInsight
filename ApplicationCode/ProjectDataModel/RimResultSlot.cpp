@@ -22,7 +22,7 @@
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
 #include "RimCase.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 #include "RimUiTreeModelPdm.h"
 
 

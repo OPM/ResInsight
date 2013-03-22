@@ -18,7 +18,7 @@
 
 #include "RiaStdInclude.h"
 
-#include "RICursors.h"
+#include "RiuCursors.h"
 
 #include <QtCore/QString>
 #include <QtGui/QBitmap>

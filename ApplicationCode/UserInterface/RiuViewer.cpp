@@ -18,16 +18,16 @@
 
 #include "RiaStdInclude.h"
 
-#include "RIViewer.h"
+#include "RiuViewer.h"
 #include "RiaApplication.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 
 #include "cvfqtOpenGLContext.h"
 #include "cvfqtPerformanceInfoHud.h"
 #include "cvfCamera.h"
 #include "cvfRendering.h"
 #include "cvfDrawableGeo.h"
-#include "RICursors.h"
+#include "RiuCursors.h"
 #include "RigCaseData.h"
 
 #include "cafUtils.h"
@@ -44,7 +44,7 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 
 //==================================================================================================
 ///
-/// \class RIViewer
+/// \class RiuViewer
 /// \ingroup ResInsight
 ///
 /// 

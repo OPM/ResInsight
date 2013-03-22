@@ -17,13 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
-#include "RIResultInfoPanel.h"
+#include "RiuResultInfoPanel.h"
 
 
 
 //==================================================================================================
 ///
-/// \class RIResultInfoPanel
+/// \class RiuResultInfoPanel
 /// \ingroup ResInsight
 ///
 /// 

@@ -22,7 +22,7 @@
 #include "RimScriptCollection.h"
 #include "cafPdmField.h"
 #include "cafUtils.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 #include "RimUiTreeModelPdm.h"
 #include "cafPdmUiFilePathEditor.h"
 

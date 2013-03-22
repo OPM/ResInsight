@@ -20,12 +20,12 @@
 #include "RiaBaseDefs.h"
 
 #include "RiaApplication.h"
-#include "RIMainWindow.h"
-#include "RIViewer.h"
-#include "RIResultInfoPanel.h"
-#include "RIProcessMonitor.h"
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
+#include "RiuResultInfoPanel.h"
+#include "RiuProcessMonitor.h"
 #include "RiaPreferences.h"
-#include "RIPreferencesDialog.h"
+#include "RiuPreferencesDialog.h"
 
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
@@ -46,7 +46,7 @@
 
 //==================================================================================================
 ///
-/// \class RIMainWindow
+/// \class RiuMainWindow
 ///
 /// Contains our main window
 ///

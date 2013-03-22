@@ -18,7 +18,7 @@
 
 #include "RiaStdInclude.h"
 #include "RiaApplication.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 
 
 int main(int argc, char *argv[])
