@@ -24,6 +24,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(RigActiveCellInfo, BasicTest)
 {
     RigActiveCellInfo rigActiveCellInfo;
@@ -33,12 +36,12 @@ TEST(RigActiveCellInfo, BasicTest)
 
     for (size_t i = 0; i < globalActiveCellCount; i++)
     {
-        EXPECT_TRUE(rigActiveCellInfo.activeIndexInMatrixModel(i) == cvf::UNDEFINED_SIZE_T);
-        EXPECT_FALSE(rigActiveCellInfo.isActiveInMatrixModel(i));
+        EXPECT_TRUE(rigActiveCellInfo.cellResultIndex(i) == cvf::UNDEFINED_SIZE_T);
+        EXPECT_FALSE(rigActiveCellInfo.isActive(i));
     }
 
-    rigActiveCellInfo.setActiveIndexInMatrixModel(3, 1);
-    EXPECT_TRUE(rigActiveCellInfo.activeIndexInMatrixModel(3) == 1);
+    rigActiveCellInfo.setCellResultIndex(3, 1);
+    EXPECT_TRUE(rigActiveCellInfo.cellResultIndex(3) == 1);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +57,7 @@ TEST(RigActiveCellInfo, GridCellCounts)
         rigActiveCellInfo.setGridActiveCellCounts(2, 2);
         rigActiveCellInfo.computeDerivedData();
 
-        EXPECT_TRUE(rigActiveCellInfo.globalMatrixModelActiveCellCount() == 3);
+        EXPECT_TRUE(rigActiveCellInfo.globalActiveCellCount() == 3);
     }
 
     {
@@ -65,7 +68,6 @@ TEST(RigActiveCellInfo, GridCellCounts)
         rigActiveCellInfo.setGridActiveCellCounts(2, 5 );
         rigActiveCellInfo.computeDerivedData();
 
-        EXPECT_TRUE(rigActiveCellInfo.globalMatrixModelActiveCellCount() == 12);
+        EXPECT_TRUE(rigActiveCellInfo.globalActiveCellCount() == 12);
     }
 }
-
