@@ -21,9 +21,6 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfCollection.h"
-
-
-
 #include <vector>
 #include <math.h>
 
@@ -33,80 +30,6 @@
 class RimReservoir;
 class RigEclipseCase;
 class RigReservoirCellResults;
-
-class RimStatisticsEvaluator
-{
-public:
-    RimStatisticsEvaluator(const std::vector<double>& values)
-        : m_values(values),
-        m_min(HUGE_VAL),
-        m_max(-HUGE_VAL),
-        m_mean(HUGE_VAL),
-        m_dev(HUGE_VAL)
-    {
-    }
-
-
-    void getStatistics(double& min, double& max, double& mean, double& dev, double& range)
-    {
-        evaluate();
-
-        min = m_min;
-        max = m_max;
-        mean = m_mean;
-        dev = m_dev;
-
-        range = m_max - m_min;
-    }
-
-private:
-    void evaluate()
-    {
-        double sum = 0.0;
-        double sumSquared = 0.0;
-
-        size_t validValueCount = 0;
-
-        for (size_t i = 0; i < m_values.size(); i++)
-        {
-            double val = m_values[i];
-            if (val == HUGE_VAL) continue;
-
-            validValueCount++;
-
-            if (val < m_min) m_min = val;
-            if (val > m_max) m_max = val;
-
-            sum += val;
-            sumSquared += (val * val);
-        }
-
-        if (validValueCount > 0)
-        {
-            m_mean = sum / validValueCount;
-
-
-            // http://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
-            // Running standard deviation
-
-            double s0 = validValueCount;
-            double s1 = sum;
-            double s2 = sumSquared;
-
-            m_dev = cvf::Math::sqrt( (s0 * s2) - (s1 * s1) ) / s0;
-        }
-    }
-
-
-private:
-    const std::vector<double>& m_values;
-
-    double m_min;
-    double m_max;
-    double m_mean;
-    double m_dev;
-};
-
 
 
 class RimStatisticsConfig
