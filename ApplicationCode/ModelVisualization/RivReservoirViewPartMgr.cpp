@@ -487,8 +487,8 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
         size_t globalCellIndex = cell.mainGridCellIndex();
 
         if (   !invalidCellsIsVisible && cell.isInvalid() 
-            || !inactiveCellsIsVisible && !activeCellInfo->isActiveInMatrixModel(globalCellIndex)
-            || !activeCellsIsVisible && activeCellInfo->isActiveInMatrixModel(globalCellIndex)
+            || !inactiveCellsIsVisible && !activeCellInfo->isActive(globalCellIndex)
+            || !activeCellsIsVisible && activeCellInfo->isActive(globalCellIndex)
             || mainGridIsVisible && (cell.subGrid() != NULL)
             || (*cellIsInWellStatuses)[cellIndex]
             )

@@ -34,22 +34,22 @@ public:
 
     void                setGlobalCellCount(size_t globalCellCount);
 
-    bool                isActiveInMatrixModel(size_t globalCellIndex) const;
-    size_t              activeIndexInMatrixModel(size_t globalCellIndex) const;
-    void                setActiveIndexInMatrixModel(size_t globalCellIndex, size_t globalActiveCellIndex);
+    bool                isActive(size_t globalCellIndex) const;
+    size_t              cellResultIndex(size_t globalCellIndex) const;
+    void                setCellResultIndex(size_t globalCellIndex, size_t globalActiveCellIndex);
 
     void                setGridCount(size_t gridCount);
-    void                setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount);
-    void                gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount);
+    void                setGridActiveCellCounts(size_t gridIndex, size_t activeCellCount);
+    void                gridActiveCellCounts(size_t gridIndex, size_t& activeCellCount);
     void                computeDerivedData();
 
-    size_t              globalMatrixModelActiveCellCount() const;
+    size_t              globalActiveCellCount() const;
 
-    void                setMatrixModelActiveCellsBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max);
-    void                matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
+    void                setIJKBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max);
+    void                IJKBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
 
-    cvf::BoundingBox    matrixActiveCellsGeometryBoundingBox() const;
-    void                setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox bb);
+    cvf::BoundingBox    geometryBoundingBox() const;
+    void                setGeometryBoundingBox(cvf::BoundingBox bb);
 
     void                clear();
 
@@ -57,23 +57,23 @@ private:
     class GridActiveCellCounts
     {
     public:
-        size_t          matrixModelActiveCellCount() const;
-        void            setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount);
+        size_t          activeCellCount() const;
+        void            setActiveCellCount(size_t activeCellCount);
 
     private:
-        size_t          m_matrixModelActiveCellCount;
+        size_t          m_activeCellCount;
     };
 
 
 private:
     std::vector<GridActiveCellCounts>   m_perGridActiveCellInfo;
 
-    std::vector<size_t>                 m_activeInMatrixModel;
+    std::vector<size_t>                 m_cellIndexToResultIndex;
 
-    size_t                              m_globalMatrixModelActiveCellCount;
+    size_t                              m_globalActiveCellCount;
 
     cvf::Vec3st                         m_activeCellPositionMin;
     cvf::Vec3st                         m_activeCellPositionMax;
 
-    cvf::BoundingBox                    m_matrixActiveCellsBoundingBox;
+    cvf::BoundingBox                    m_activeCellsBoundingBox;
 };

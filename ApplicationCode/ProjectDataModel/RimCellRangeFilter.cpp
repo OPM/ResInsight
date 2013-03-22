@@ -119,7 +119,7 @@ void RimCellRangeFilter::setDefaultValues()
     if (actCellInfo)
     {
         cvf::Vec3st min, max;
-        actCellInfo->matrixModelActiveCellsBoundingBox(min, max);
+        actCellInfo->IJKBoundingBox(min, max);
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;
@@ -165,7 +165,7 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
     if (actCellInfo)
     {
         cvf::Vec3st min, max;
-        actCellInfo->matrixModelActiveCellsBoundingBox(min, max);
+        actCellInfo->IJKBoundingBox(min, max);
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;

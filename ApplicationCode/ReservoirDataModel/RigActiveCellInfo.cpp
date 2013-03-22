@@ -23,7 +23,7 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
-    :   m_globalMatrixModelActiveCellCount(0),
+    :   m_globalActiveCellCount(0),
         m_activeCellPositionMin(cvf::Vec3d::ZERO),
         m_activeCellPositionMax(cvf::Vec3d::ZERO)
 {
@@ -35,47 +35,47 @@ RigActiveCellInfo::RigActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
 {
-    m_activeInMatrixModel.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
+    m_cellIndexToResultIndex.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigActiveCellInfo::isActiveInMatrixModel(size_t globalCellIndex) const
+bool RigActiveCellInfo::isActive(size_t globalCellIndex) const
 {
-    if (m_activeInMatrixModel.size() == 0)
+    if (m_cellIndexToResultIndex.size() == 0)
     {
         return true;
     }
 
-    CVF_TIGHT_ASSERT(globalCellIndex < m_activeInMatrixModel.size());
+    CVF_TIGHT_ASSERT(globalCellIndex < m_cellIndexToResultIndex.size());
 
-    return m_activeInMatrixModel[globalCellIndex] != cvf::UNDEFINED_SIZE_T;
+    return m_cellIndexToResultIndex[globalCellIndex] != cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::activeIndexInMatrixModel(size_t globalCellIndex) const
+size_t RigActiveCellInfo::cellResultIndex(size_t globalCellIndex) const
 {
-    if (m_activeInMatrixModel.size() == 0)
+    if (m_cellIndexToResultIndex.size() == 0)
     {
         return globalCellIndex;
     }
 
-    CVF_TIGHT_ASSERT(globalCellIndex < m_activeInMatrixModel.size());
+    CVF_TIGHT_ASSERT(globalCellIndex < m_cellIndexToResultIndex.size());
 
-    return m_activeInMatrixModel[globalCellIndex];
+    return m_cellIndexToResultIndex[globalCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setActiveIndexInMatrixModel(size_t globalCellIndex, size_t globalActiveCellIndex)
+void RigActiveCellInfo::setCellResultIndex(size_t globalCellIndex, size_t globalActiveCellIndex)
 {
-    CVF_TIGHT_ASSERT(globalActiveCellIndex < m_activeInMatrixModel.size());
+    CVF_TIGHT_ASSERT(globalActiveCellIndex < m_cellIndexToResultIndex.size());
 
-    m_activeInMatrixModel[globalCellIndex] = globalActiveCellIndex;
+    m_cellIndexToResultIndex[globalCellIndex] = globalActiveCellIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,11 +89,11 @@ void RigActiveCellInfo::setGridCount(size_t gridCount)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixActiveCellCount)
+void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t activeCellCount)
 {
     CVF_ASSERT(gridIndex < m_perGridActiveCellInfo.size());
 
-    m_perGridActiveCellInfo[gridIndex].setMatrixModelActiveCellCount(matrixActiveCellCount);
+    m_perGridActiveCellInfo[gridIndex].setActiveCellCount(activeCellCount);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,26 +101,26 @@ void RigActiveCellInfo::setGridActiveCellCounts(size_t gridIndex, size_t matrixA
 //--------------------------------------------------------------------------------------------------
 void RigActiveCellInfo::computeDerivedData()
 {
-    m_globalMatrixModelActiveCellCount = 0;
+    m_globalActiveCellCount = 0;
 
     for (size_t i = 0; i < m_perGridActiveCellInfo.size(); i++)
     {
-        m_globalMatrixModelActiveCellCount += m_perGridActiveCellInfo[i].matrixModelActiveCellCount();
+        m_globalActiveCellCount += m_perGridActiveCellInfo[i].activeCellCount();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalMatrixModelActiveCellCount() const
+size_t RigActiveCellInfo::globalActiveCellCount() const
 {
-    return m_globalMatrixModelActiveCellCount;
+    return m_globalActiveCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setMatrixModelActiveCellsBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max)
+void RigActiveCellInfo::setIJKBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max)
 {
     m_activeCellPositionMin = min;
     m_activeCellPositionMax = max;
@@ -129,7 +129,7 @@ void RigActiveCellInfo::setMatrixModelActiveCellsBoundingBox(const cvf::Vec3st& 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
+void RigActiveCellInfo::IJKBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
 {
     min = m_activeCellPositionMin;
     max = m_activeCellPositionMax;
@@ -138,24 +138,24 @@ void RigActiveCellInfo::matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& matrixActiveCellCount)
+void RigActiveCellInfo::gridActiveCellCounts(size_t gridIndex, size_t& activeCellCount)
 {
-    matrixActiveCellCount = m_perGridActiveCellInfo[gridIndex].matrixModelActiveCellCount();
+    activeCellCount = m_perGridActiveCellInfo[gridIndex].activeCellCount();
 }
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RigActiveCellInfo::matrixActiveCellsGeometryBoundingBox() const
+cvf::BoundingBox RigActiveCellInfo::geometryBoundingBox() const
 {
-    return m_matrixActiveCellsBoundingBox;
+    return m_activeCellsBoundingBox;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox bb)
+void RigActiveCellInfo::setGeometryBoundingBox(cvf::BoundingBox bb)
 {
-    m_matrixActiveCellsBoundingBox = bb;
+    m_activeCellsBoundingBox = bb;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,25 +164,25 @@ void RigActiveCellInfo::setMatrixActiveCellsGeometryBoundingBox(cvf::BoundingBox
 void RigActiveCellInfo::clear()
 {
     m_perGridActiveCellInfo.clear();
-    m_activeInMatrixModel.clear();
-    m_globalMatrixModelActiveCellCount = 0;
+    m_cellIndexToResultIndex.clear();
+    m_globalActiveCellCount = 0;
     m_activeCellPositionMin = cvf::Vec3st(0,0,0);
     m_activeCellPositionMax = cvf::Vec3st(0,0,0);
-    m_matrixActiveCellsBoundingBox.reset();
+    m_activeCellsBoundingBox.reset();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::GridActiveCellCounts::matrixModelActiveCellCount() const
+size_t RigActiveCellInfo::GridActiveCellCounts::activeCellCount() const
 {
-    return m_matrixModelActiveCellCount;
+    return m_activeCellCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::GridActiveCellCounts::setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount)
+void RigActiveCellInfo::GridActiveCellCounts::setActiveCellCount(size_t activeCellCount)
 {
-    m_matrixModelActiveCellCount = activeMatrixModelCellCount;
+    m_activeCellCount = activeCellCount;
 }

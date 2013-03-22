@@ -213,7 +213,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 {
-    if (m_unionOfMatrixActiveCells->globalMatrixModelActiveCellCount() > 0)
+    if (m_unionOfMatrixActiveCells->globalActiveCellCount() > 0)
     {
         return;
     }
@@ -248,7 +248,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeM[localGridCellIdx] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActiveInMatrixModel(globalCellIdx))
+                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(globalCellIdx))
                     {
                         activeM[localGridCellIdx] = 1;
                     }
@@ -256,7 +256,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
                 if (activeF[localGridCellIdx] == 0)
                 {
-                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActiveInMatrixModel(globalCellIdx))
+                    if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(globalCellIdx))
                     {
                         activeF[localGridCellIdx] = 1;
                     }
@@ -273,13 +273,13 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
             if (activeM[localGridCellIdx] != 0)
             {
-                m_unionOfMatrixActiveCells->setActiveIndexInMatrixModel(globalCellIdx, globalActiveMatrixIndex++);
+                m_unionOfMatrixActiveCells->setCellResultIndex(globalCellIdx, globalActiveMatrixIndex++);
                 activeMatrixIndex++;
             }
 
             if (activeF[localGridCellIdx] != 0)
             {
-                m_unionOfFractureActiveCells->setActiveIndexInMatrixModel(globalCellIdx, globalActiveFractureIndex++);
+                m_unionOfFractureActiveCells->setCellResultIndex(globalCellIdx, globalActiveFractureIndex++);
                 activeFractureIndex++;
             }
         }

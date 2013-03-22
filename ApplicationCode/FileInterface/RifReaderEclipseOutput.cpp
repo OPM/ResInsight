@@ -120,13 +120,13 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, localCellIdx);
         if (matrixActiveIndex != -1)
         {
-            activeCellInfo->setActiveIndexInMatrixModel(cellStartIndex + localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
+            activeCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
         }
 
         int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, localCellIdx);
         if (fractureActiveIndex != -1)
         {
-            fractureActiveCellInfo->setActiveIndexInMatrixModel(cellStartIndex + localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
+            fractureActiveCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
         }
 
         // Parent cell index
@@ -490,13 +490,13 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
                 {
                     if (actnumValues[i] == 1 || actnumValues[i] == 3)
                     {
-                        activeCellInfo->setActiveIndexInMatrixModel(cellIdx, globalActiveMatrixIndex++);
+                        activeCellInfo->setCellResultIndex(cellIdx, globalActiveMatrixIndex++);
                         activeMatrixIndex++;
                     }
 
                     if (actnumValues[i] == 2 || actnumValues[i] == 3)
                     {
-                        fractureActiveCellInfo->setActiveIndexInMatrixModel(cellIdx, globalActiveFractureIndex++);
+                        fractureActiveCellInfo->setCellResultIndex(cellIdx, globalActiveFractureIndex++);
                         activeFractureIndex++;
                     }
 
@@ -919,7 +919,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 
     if (matrixOrFracture == RifReaderInterface::FRACTURE_RESULTS)
     {
-        if (fractureActiveCellInfo->globalMatrixModelActiveCellCount() == 0)
+        if (fractureActiveCellInfo->globalActiveCellCount() == 0)
         {
             return QStringList();
         }
@@ -932,13 +932,13 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         QString keyword = keywords[i];
         size_t keywordDataCount = keywordDataItemCounts[i];
 
-        if (activeCellInfo->globalMatrixModelActiveCellCount() > 0)
+        if (activeCellInfo->globalActiveCellCount() > 0)
         {
-            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalMatrixModelActiveCellCount();
-            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalMatrixModelActiveCellCount();
+            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalActiveCellCount();
+            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalActiveCellCount();
         
-            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->globalMatrixModelActiveCellCount() + fractureActiveCellInfo->globalMatrixModelActiveCellCount());
-            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->globalMatrixModelActiveCellCount() + fractureActiveCellInfo->globalMatrixModelActiveCellCount());
+            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
+            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
 
             if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
             {
@@ -976,7 +976,7 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityMod
     RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
 
 
-    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->globalMatrixModelActiveCellCount() == 0)
+    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->globalActiveCellCount() == 0)
     {
         destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end());
     }

@@ -92,7 +92,7 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
 {
     CVF_ASSERT(m_destinationCase);
 
-    size_t activeMatrixCellCount = m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalMatrixModelActiveCellCount();
+    size_t activeMatrixCellCount = m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalActiveCellCount();
     RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
 
     for (int i = 0; i < resultSpecification.size(); i++)
@@ -225,7 +225,7 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
                         std::vector<double> values(dataAccesObjectList.size(), HUGE_VAL);
 
                         size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
-                    if (m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActiveInMatrixModel(globalGridCellIdx))
+                    if (m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(globalGridCellIdx))
                         {
                             bool foundAnyValidValues = false;
                             for (size_t caseIdx = 0; caseIdx < dataAccesObjectList.size(); caseIdx++)

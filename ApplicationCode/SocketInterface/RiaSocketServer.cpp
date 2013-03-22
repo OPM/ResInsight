@@ -446,7 +446,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
     size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalMatrixModelActiveCellCount();
+    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalActiveCellCount();
     size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
 
     if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
@@ -635,7 +635,7 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gr
     }
 
     RigActiveCellInfo* actCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-    size_t numMatrixModelActiveCells = actCellInfo->globalMatrixModelActiveCellCount();
+    size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
 
     gridNumber.reserve(numMatrixModelActiveCells);
     cellI.reserve(numMatrixModelActiveCells);
@@ -650,7 +650,7 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gr
 
     for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
     {
-        if (actCellInfo->isActiveInMatrixModel(cIdx))
+        if (actCellInfo->isActive(cIdx))
         {
             RigGridBase* grid = globalCells[cIdx].hostGrid();
             CVF_ASSERT(grid != NULL);

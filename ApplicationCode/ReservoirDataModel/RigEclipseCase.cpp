@@ -288,19 +288,19 @@ void RigEclipseCase::computeActiveCellIJKBBox()
         size_t i, j, k;
         m_mainGrid->ijkFromCellIndex(idx, &i, &j, &k);
 
-        if (m_activeCellInfo->isActiveInMatrixModel(idx))
+        if (m_activeCellInfo->isActive(idx))
         {
             matrixModelActiveBB.add(i, j, k);
         }
 
-        if (m_fractureActiveCellInfo->isActiveInMatrixModel(idx))
+        if (m_fractureActiveCellInfo->isActive(idx))
         {
             fractureModelActiveBB.add(i, j, k);
         }
     }
 
-    m_activeCellInfo->setMatrixModelActiveCellsBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
-    m_fractureActiveCellInfo->setMatrixModelActiveCellsBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
+    m_activeCellInfo->setIJKBoundingBox(matrixModelActiveBB.m_min, matrixModelActiveBB.m_max);
+    m_fractureActiveCellInfo->setIJKBoundingBox(fractureModelActiveBB.m_min, fractureModelActiveBB.m_max);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,8 +362,8 @@ void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
     if (m_mainGrid.isNull())
     {
         cvf::BoundingBox bb;
-        m_activeCellInfo->setMatrixActiveCellsGeometryBoundingBox(bb);
-        m_fractureActiveCellInfo->setMatrixActiveCellsGeometryBoundingBox(bb);
+        m_activeCellInfo->setGeometryBoundingBox(bb);
+        m_fractureActiveCellInfo->setGeometryBoundingBox(bb);
         return;
     }
 
@@ -383,7 +383,7 @@ void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
         {
             for (size_t i = 0; i < m_mainGrid->cellCount(); i++)
             {
-                if (activeInfos[acIdx]->isActiveInMatrixModel(i))
+                if (activeInfos[acIdx]->isActive(i))
                 {
                     const RigCell& c = m_mainGrid->cells()[i];
                     const caf::SizeTArray8& indices = c.cornerIndices();
@@ -397,7 +397,7 @@ void RigEclipseCase::computeActiveCellsGeometryBoundingBox()
             }
         }
 
-        activeInfos[acIdx]->setMatrixActiveCellsGeometryBoundingBox(bb);
+        activeInfos[acIdx]->setGeometryBoundingBox(bb);
     }
 
     m_mainGrid->setDisplayModelOffset(bb.min());

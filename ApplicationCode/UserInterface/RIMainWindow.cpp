@@ -1271,6 +1271,7 @@ void RIMainWindow::slotOpenMultipleCases()
 {
     RIApplication* app = RIApplication::instance();
 
+    /*
     RiuMultiCaseImportDialog dialog;
     int action = dialog.exec();
     if (action == QDialog::Accepted)
@@ -1278,4 +1279,26 @@ void RIMainWindow::slotOpenMultipleCases()
         QStringList gridFileNames = dialog.eclipseCaseFileNames();
         app->addEclipseCases(gridFileNames);
     }
+    */
+
+
+    QStringList gridFileNames;
+
+    if (1)
+    {
+        gridFileNames += "Result Mock Debug Model With Results";
+        gridFileNames += "Result Mock Debug Model With Results";
+        gridFileNames += "Result Mock Debug Model With Results";
+    }
+    else
+    {
+        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real0/BRUGGE_0000.EGRID";
+        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real10/BRUGGE_0010.EGRID";
+        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real30/BRUGGE_0030.EGRID";
+        gridFileNames += "d:/Models/Statoil/MultipleRealisations/Case_with_10_timesteps/Real40/BRUGGE_0040.EGRID";
+    }
+
+    app->addEclipseCases(gridFileNames);
+
+
 }

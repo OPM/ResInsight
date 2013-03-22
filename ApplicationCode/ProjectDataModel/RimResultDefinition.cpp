@@ -65,7 +65,7 @@ void RimResultDefinition::setReservoirView(RimReservoirView* ownerReservoirView)
         m_reservoirView->eclipseCase()->reservoirData() &&
         m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) )
     {
-        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalMatrixModelActiveCellCount() == 0)
+        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
         {
             porosityModel.setUiHidden(true);
         }

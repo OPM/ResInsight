@@ -102,7 +102,7 @@ public:
           if (m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
           size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-          size_t resultValueIndex = m_activeCellInfo->activeIndexInMatrixModel(globalGridCellIndex);
+          size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
           if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
 
           CVF_TIGHT_ASSERT(resultValueIndex < m_reservoirResultValues->size());
@@ -116,7 +116,7 @@ public:
       virtual void setCellScalar(size_t gridLocalCellIndex, double scalarValue)
       {
           size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-          size_t resultValueIndex = m_activeCellInfo->activeIndexInMatrixModel(globalGridCellIndex);
+          size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
 
           CVF_TIGHT_ASSERT(resultValueIndex < m_reservoirResultValues->size());
 

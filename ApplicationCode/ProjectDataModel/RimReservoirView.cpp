@@ -721,7 +721,7 @@ void RimReservoirView::loadDataAndUpdate()
     CVF_ASSERT(this->cellResult() != NULL);
     this->cellResult()->loadResult();
 
-    if (m_reservoir->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalMatrixModelActiveCellCount() == 0)
+    if (m_reservoir->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
     {
         this->cellResult->porosityModel.setUiHidden(true);
     }
@@ -1268,7 +1268,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                                     size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
                                     size_t globalGridCellIndex = grid->globalGridCellIndex(fenceCellIndex);
 
-                                    if (activeCellInfo && activeCellInfo->isActiveInMatrixModel(globalGridCellIndex))
+                                    if (activeCellInfo && activeCellInfo->isActive(globalGridCellIndex))
                                     {
                                         (*visibleCells)[fenceCellIndex] = true;
                                     }
