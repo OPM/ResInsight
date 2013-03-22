@@ -51,8 +51,8 @@ public:
 
     RimStatisticsCase* createAndAppendStatisticsCase();
 
-    caf::PdmField<RimCaseCollection*>           caseCollection;
-    caf::PdmField<RimStatisticsCaseCollection*> statisticsCaseCollection;
+    caf::PdmField<RimCaseCollection*> caseCollection;
+    caf::PdmField<RimCaseCollection*> statisticsCaseCollection;
 
     void loadMainCaseAndActiveCellInfo();
 
@@ -60,6 +60,8 @@ public:
     RigActiveCellInfo* unionOfActiveCells(RifReaderInterface::PorosityModelResultType porosityType);
 
     void computeUnionOfActiveCells();
+
+    static bool isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection);
 
 protected:
     virtual caf::PdmFieldHandle*   userDescriptionField();

@@ -286,7 +286,7 @@ bool RIApplication::loadProject(const QString& projectFileName)
     {
         if (m_project->caseGroups[cgIdx]->statisticsCaseCollection())
         {
-            caf::PdmPointersField<RimStatisticsCase*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->cases();
+            caf::PdmPointersField<RimReservoir*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->reservoirs();
             for (size_t scIdx = 0; scIdx < statCases.size(); ++scIdx)
             {
                 casesToLoad.push_back(statCases[scIdx]);

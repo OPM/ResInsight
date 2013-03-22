@@ -47,7 +47,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Cases", ":/Cases16x16.png", "", "");
  
     caseCollection = new RimCaseCollection;
-    statisticsCaseCollection = new RimStatisticsCaseCollection;
+    statisticsCaseCollection = new RimCaseCollection;
 
     m_mainGrid = NULL;
 
@@ -89,7 +89,7 @@ void RimIdenticalGridCaseGroup::addCase(RimReservoir* reservoir)
  
     caseCollection()->reservoirs().push_back(reservoir);
 
-    if (statisticsCaseCollection->cases().size() == 0)
+    if (statisticsCaseCollection->reservoirs().size() == 0)
     {
         createAndAppendStatisticsCase();
     }
@@ -174,9 +174,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // Check if we need to calculate the union of the active cells
 
     bool foundResultsInCache = false;
-    for (size_t i = 0; i < statisticsCaseCollection()->cases.size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection()->reservoirs.size(); i++)
     {
-        RimStatisticsCase* rimReservoir = statisticsCaseCollection()->cases[i];
+        RimReservoir* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         // Check if any results are stored in cache
         if (rimReservoir->results(RifReaderInterface::MATRIX_RESULTS)->storedResultsCount() > 0 ||
@@ -194,9 +194,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
     // "Load" the statistical cases
 
-    for (size_t i = 0; i < statisticsCaseCollection()->cases.size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection()->reservoirs.size(); i++)
     {
-        RimStatisticsCase* rimReservoir = statisticsCaseCollection()->cases[i];
+        RimReservoir* rimReservoir = statisticsCaseCollection()->reservoirs[i];
 
         rimReservoir->openEclipseGridFile();
 
@@ -297,14 +297,14 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 //--------------------------------------------------------------------------------------------------
 RimStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 {
-    RimStatisticsCase* newObject = new RimStatisticsCase;
+    RimStatisticsCase* newStatisticsCase = new RimStatisticsCase;
 
-    newObject->caseName = QString("Statistics ") + QString::number(statisticsCaseCollection()->cases.size()+1);
-    statisticsCaseCollection()->cases.push_back(newObject);
+    newStatisticsCase->caseName = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
+    statisticsCaseCollection()->reservoirs.push_back(newStatisticsCase);
 
-    newObject->openEclipseGridFile();
+    newStatisticsCase->openEclipseGridFile();
 
-    return newObject;
+    return newStatisticsCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,9 +312,9 @@ RimStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 {
-    for (size_t i = 0; i < statisticsCaseCollection->cases().size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection->reservoirs().size(); i++)
     {
-        RimStatisticsCase* rimStaticsCase = statisticsCaseCollection->cases[i];
+        RimReservoir* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
 
         rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
 
@@ -330,9 +330,11 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::clearStatisticsResults()
 {
-    for (size_t i = 0; i < statisticsCaseCollection->cases().size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection->reservoirs().size(); i++)
     {
-        RimStatisticsCase* rimStaticsCase = statisticsCaseCollection->cases[i];
+        RimReservoir* rimStaticsCase = statisticsCaseCollection->reservoirs[i];
+        if (!rimStaticsCase) continue;
+
         rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
         rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
 
@@ -384,4 +386,22 @@ RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RifReaderInterf
     {
         return m_unionOfFractureActiveCells.p();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimIdenticalGridCaseGroup::isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection)
+{
+    std::vector<caf::PdmFieldHandle*> fields;
+    rimCaseCollection->parentFields(fields);
+    if (fields.size() == 1)
+    {
+        if (fields[0]->keyword() == "StatisticsCaseCollection")
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

@@ -57,6 +57,7 @@ QString createResultNameMin(const QString& resultName)  { return resultName + "_
 QString createResultNameMax(const QString& resultName)  { return resultName + "_MAX"; }
 QString createResultNameMean(const QString& resultName) { return resultName + "_MEAN"; }
 QString createResultNameDev(const QString& resultName)  { return resultName + "_DEV"; }
+QString createResultNameRange(const QString& resultName)  { return resultName + "_RANGE"; }
 
 
 //--------------------------------------------------------------------------------------------------
@@ -127,6 +128,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
         QString maxResultName = createResultNameMax(resultName);
         QString meanResultName = createResultNameMean(resultName);
         QString devResultName = createResultNameDev(resultName);
+        QString rangeResultName = createResultNameRange(resultName);
 
         if (activeMatrixCellCount > 0)
         {
@@ -134,6 +136,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
             addNamedResult(matrixResults, resultType, maxResultName, activeMatrixCellCount);
             addNamedResult(matrixResults, resultType, meanResultName, activeMatrixCellCount);
             addNamedResult(matrixResults, resultType, devResultName, activeMatrixCellCount);
+            addNamedResult(matrixResults, resultType, rangeResultName, activeMatrixCellCount);
         }
     }
 
@@ -186,6 +189,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
                     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMax = NULL;
                     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectMean = NULL;
                     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectDev = NULL;
+                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectRange = NULL;
 
                     {
                         size_t scalarResultIndex = matrixResults->findScalarResultIndex(resultType, createResultNameMin(resultName));
@@ -219,13 +223,21 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
                         }
                     }
 
-                    double min, max, mean, dev;
+                    {
+                        size_t scalarResultIndex = matrixResults->findScalarResultIndex(resultType, createResultNameRange(resultName));
+                        if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+                        {
+                            dataAccessObjectRange = m_destinationCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, dataAccessTimeStepIndex, scalarResultIndex);
+                        }
+                    }
+
+                    double min, max, mean, dev, range;
                     for (size_t cellIdx = 0; cellIdx < grid->cellCount(); cellIdx++)
                     {
                         std::vector<double> values(dataAccesObjectList.size(), HUGE_VAL);
 
                         size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
-                    if (m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(globalGridCellIdx))
+                        if (m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(globalGridCellIdx))
                         {
                             bool foundAnyValidValues = false;
                             for (size_t caseIdx = 0; caseIdx < dataAccesObjectList.size(); caseIdx++)
@@ -243,11 +255,12 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
                             max = HUGE_VAL;
                             mean = HUGE_VAL;
                             dev = HUGE_VAL;
+                            range = HUGE_VAL;
                             
                             if (foundAnyValidValues)
                             {
                                 RimStatisticsEvaluator stat(values);
-                                stat.getStatistics(min, max, mean, dev);
+                                stat.getStatistics(min, max, mean, dev, range);
                             }
 
                             if (dataAccessObjectMin.notNull())
@@ -268,6 +281,11 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
                             if (dataAccessObjectDev.notNull())
                             {
                                 dataAccessObjectDev->setCellScalar(cellIdx, dev);
+                            }
+
+                            if (dataAccessObjectRange.notNull())
+                            {
+                                dataAccessObjectRange->setCellScalar(cellIdx, range);
                             }
                         }
                     }

@@ -47,7 +47,7 @@ public:
     }
 
 
-    void getStatistics(double& min, double& max, double& mean, double& dev)
+    void getStatistics(double& min, double& max, double& mean, double& dev, double& range)
     {
         evaluate();
 
@@ -55,6 +55,8 @@ public:
         max = m_max;
         mean = m_mean;
         dev = m_dev;
+
+        range = m_max - m_min;
     }
 
 private:

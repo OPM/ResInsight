@@ -98,9 +98,9 @@ void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCaseCollection* RimStatisticsCase::parentStatisticsCaseCollection()
+RimCaseCollection* RimStatisticsCase::parentStatisticsCaseCollection()
 {
-    std::vector<RimStatisticsCaseCollection*> parentObjects;
+    std::vector<RimCaseCollection*> parentObjects;
     this->parentObjectsOfType(parentObjects);
 
     if (parentObjects.size() > 0)
@@ -210,7 +210,7 @@ void RimStatisticsCase::getSourceCases(std::vector<RimReservoir*>& sourceCases)
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup* RimStatisticsCase::caseGroup()
 {
-    RimStatisticsCaseCollection* parentCollection = parentStatisticsCaseCollection();
+    RimCaseCollection* parentCollection = parentStatisticsCaseCollection();
     if (parentCollection)
     {
         return parentCollection->parentCaseGroup();

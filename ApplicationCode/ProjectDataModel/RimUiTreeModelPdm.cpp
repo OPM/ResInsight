@@ -229,8 +229,18 @@ void RimUiTreeModelPdm::deleteReservoir(RimReservoir* reservoir)
         removeRows_special(mi.row(), 1, mi.parent());
     }
 
-    RimProject* proj = RIApplication::instance()->project();
-    proj->removeCaseFromAllGroups(reservoir);
+    if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+    {
+        RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
+        CVF_ASSERT(caseGroup);
+
+        caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(reservoir);
+    }
+    else
+    {
+        RimProject* proj = RIApplication::instance()->project();
+        proj->removeCaseFromAllGroups(reservoir);
+    }
 
     delete reservoir;
 
@@ -492,25 +502,32 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
         position = itemIndex.row();
         collectionIndex = itemIndex.parent();
     }
-    else if (dynamic_cast<RimStatisticsCaseCollection*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
     {
-        RimStatisticsCaseCollection* statColl = dynamic_cast<RimStatisticsCaseCollection*>(currentItem->dataObject().p());
+        RimCaseCollection* statColl = dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p());
         caseGroup = statColl->parentCaseGroup();
         parentCollectionItem = currentItem;
         position = parentCollectionItem->childCount();
         collectionIndex = itemIndex;
     }
 
-    beginInsertRows(collectionIndex, position, position);
+    if (parentCollectionItem && caseGroup)
+    {
+        beginInsertRows(collectionIndex, position, position);
 
-    RimStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
-    caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);
+        RimStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
+        caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);
 
-    endInsertRows();
+        endInsertRows();
 
-    insertedModelIndex = index(position, 0, collectionIndex);
+        insertedModelIndex = index(position, 0, collectionIndex);
 
-    return createdObject;
+        return createdObject;
+    }
+    else
+    {
+        return NULL;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

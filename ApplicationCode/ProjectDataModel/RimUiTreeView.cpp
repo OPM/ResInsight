@@ -196,6 +196,14 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(m_pasteAction);
+
+                // Check if parent field is a StatisticsCaseCollection
+                RimCaseCollection* rimCaseCollection = dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p());
+                if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(rimCaseCollection))
+                {
+                    menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
+                }
+
                 menu.exec(event->globalPos());
             }
         }
@@ -803,7 +811,7 @@ void RimUiTreeView::slotCloseCase()
             group.addObject(uiItem->dataObject().p());
         }
 
-        std::vector<caf::PdmPointer<RimResultReservoir> > typedObjects;
+        std::vector<caf::PdmPointer<RimReservoir> > typedObjects;
         group.objectsByType(&typedObjects);
 
         for (size_t i = 0; i < typedObjects.size(); i++)
