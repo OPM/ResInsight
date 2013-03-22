@@ -83,6 +83,6 @@ private:
     cvf::ref<RigReservoirCellResults>           m_matrixModelResults;
     cvf::ref<RigReservoirCellResults>           m_fractureModelResults;
 
-    cvf::Collection<RigWellResults>             m_wellResults;
+    cvf::Collection<RigWellResults>             m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
 };
