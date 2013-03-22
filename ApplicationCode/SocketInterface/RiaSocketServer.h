@@ -27,7 +27,7 @@ class QTcpServer;
 class QTcpSocket;
 class QNetworkSession;
 class QErrorMessage;
-class RimReservoir;
+class RimCase;
 
 
 class RiaSocketServer : public QObject
@@ -53,7 +53,7 @@ private:
 
 
     void            handleClientConnection( QTcpSocket* clientToHandle);
-    RimReservoir*   findReservoir(const QString &casename);
+    RimCase*   findReservoir(const QString &casename);
     void            terminateCurrentConnection();
 
     void            calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
@@ -80,7 +80,7 @@ private:
     quint64         m_bytesPerTimeStepToRead;
     size_t          m_currentTimeStepToRead;
     std::vector< std::vector<double> >* m_scalarResultsToAdd;
-    RimReservoir*   m_currentReservoir;
+    RimCase*   m_currentReservoir;
     size_t          m_currentScalarIndex;
     QString         m_currentPropertyName;
     bool            m_invalidActiveCellCountDetected;

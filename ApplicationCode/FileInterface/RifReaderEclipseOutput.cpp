@@ -231,7 +231,7 @@ void RifReaderEclipseOutput::close()
 //--------------------------------------------------------------------------------------------------
 /// Read geometry from file given by name into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigEclipseCase* eclipseCase)
+bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -337,7 +337,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCase* eclipseCase)
+bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
     caf::ProgressInfo progInfo(100, "");
@@ -394,7 +394,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigEclipseCase* eclip
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCase* eclipseCase)
+bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -544,8 +544,8 @@ bool RifReaderEclipseOutput::buildMetaData()
 
     progInfo.incrementProgress();
 
-    RigReservoirCellResults* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
-    RigReservoirCellResults* fractureModelResults = m_eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
+    RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+    RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
 
     if (m_dynamicResultsAccess.notNull())
     {
@@ -741,7 +741,7 @@ void RifReaderEclipseOutput::readWellCells()
     std::vector<RigGridBase*> grids;
     m_eclipseCase->allGrids(&grids);
 
-    cvf::Collection<RigWellResults> wells;
+    cvf::Collection<RigSingleWellResultsData> wells;
     caf::ProgressInfo progress(well_info_get_num_wells(ert_well_info), "");
 
     int wellIdx;
@@ -750,7 +750,7 @@ void RifReaderEclipseOutput::readWellCells()
         const char* wellName = well_info_iget_well_name(ert_well_info, wellIdx);
         CVF_ASSERT(wellName);
 
-        cvf::ref<RigWellResults> wellResults = new RigWellResults;
+        cvf::ref<RigSingleWellResultsData> wellResults = new RigSingleWellResultsData;
         wellResults->m_wellName = wellName;
 
         well_ts_type* ert_well_time_series = well_info_get_ts(ert_well_info , wellName);

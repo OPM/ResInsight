@@ -27,7 +27,7 @@
 
 class QString;
 
-class RigEclipseCase;
+class RigCaseData;
 class RigGridBase;
 class RimReservoirView;
 class RimCaseCollection;
@@ -38,12 +38,12 @@ class RimCaseCollection;
 // Interface for reservoirs. 
 // 
 //==================================================================================================
-class RimReservoir : public caf::PdmObject
+class RimCase : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
-    RimReservoir();
-    virtual ~RimReservoir();
+    RimCase();
+    virtual ~RimCase();
 
     // Fields:                                        
     caf::PdmField<QString>                      caseName;
@@ -52,8 +52,8 @@ public:
 
     virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
                                                       
-    RigEclipseCase*                             reservoirData();
-    const RigEclipseCase*                       reservoirData() const;
+    RigCaseData*                             reservoirData();
+    const RigCaseData*                       reservoirData() const;
 
     RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
@@ -76,11 +76,11 @@ protected:
     // Internal methods
 protected:
     void                                        computeCachedData();
-    void                                        setReservoirData(RigEclipseCase* eclipseCase);
+    void                                        setReservoirData(RigCaseData* eclipseCase);
 
 
 private:
-    cvf::ref<RigEclipseCase>                    m_rigEclipseCase;
+    cvf::ref<RigCaseData>                    m_rigEclipseCase;
 
 private:
     caf::PdmField<RimReservoirCellResultsStorage*> m_matrixModelResults;

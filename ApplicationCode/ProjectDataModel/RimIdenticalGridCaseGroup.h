@@ -26,7 +26,7 @@
 #include "RimStatisticsCaseCollection.h"
 #include "RimCaseCollection.h"
 
-class RimReservoir;
+class RimCase;
 class RigMainGrid;
 class RigActiveCellInfo;
 
@@ -45,9 +45,9 @@ public:
 
     caf::PdmField<QString>  name;
 
-    void addCase(RimReservoir* reservoir);
-    void removeCase(RimReservoir* reservoir);
-    bool contains(RimReservoir* reservoir) const;
+    void addCase(RimCase* reservoir);
+    void removeCase(RimCase* reservoir);
+    bool contains(RimCase* reservoir) const;
 
     RimStatisticsCase* createAndAppendStatisticsCase();
 

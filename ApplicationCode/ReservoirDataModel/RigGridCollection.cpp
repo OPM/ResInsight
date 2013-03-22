@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridCollection::addCase(RigEclipseCase* eclipseCase)
+void RigGridManager::addCase(RigCaseData* eclipseCase)
 {
     cvf::ref<CaseToGridMap> caseAndGrid = new CaseToGridMap(eclipseCase, eclipseCase->mainGrid());
     m_caseToGrid.push_back(caseAndGrid.p());
@@ -33,7 +33,7 @@ void RigGridCollection::addCase(RigEclipseCase* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridCollection::removeCase(RigEclipseCase* eclipseCase)
+void RigGridManager::removeCase(RigCaseData* eclipseCase)
 {
     size_t indexToErase = cvf::UNDEFINED_SIZE_T;
 
@@ -50,12 +50,12 @@ void RigGridCollection::removeCase(RigEclipseCase* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RigGridCollection::findEqualGrid(RigMainGrid* candidateGrid)
+RigMainGrid* RigGridManager::findEqualGrid(RigMainGrid* candidateGrid)
 {
     for (size_t i = 0; i < m_caseToGrid.size(); i++)
     {
         RigMainGrid* mainGrid = m_caseToGrid.at(i)->m_mainGrid;
-        if (RigGridCollection::isEqual(mainGrid, candidateGrid))
+        if (RigGridManager::isEqual(mainGrid, candidateGrid))
         {
             return mainGrid;
         }
@@ -67,7 +67,7 @@ RigMainGrid* RigGridCollection::findEqualGrid(RigMainGrid* candidateGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigGridCollection::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
+bool RigGridManager::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
 {
     if (gridA == NULL || gridB == NULL) return false;
 
@@ -91,7 +91,7 @@ bool RigGridCollection::isEqual(RigMainGrid* gridA, RigMainGrid* gridB)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigGridCollection::clear()
+void RigGridManager::clear()
 {
     m_caseToGrid.clear();
 }
@@ -99,7 +99,7 @@ void RigGridCollection::clear()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigGridCollection::CaseToGridMap::CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid) :
+RigGridManager::CaseToGridMap::CaseToGridMap(RigCaseData* eclipseCase, RigMainGrid* mainGrid) :
 m_eclipseCase(eclipseCase),
     m_mainGrid(mainGrid)
 {

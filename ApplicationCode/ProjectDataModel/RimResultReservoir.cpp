@@ -28,12 +28,12 @@
 #include "RimProject.h"
 
 
-CAF_PDM_SOURCE_INIT(RimResultReservoir, "EclipseCase");
+CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultReservoir::RimResultReservoir()
-    : RimReservoir()
+RimResultCase::RimResultCase()
+    : RimCase()
 {
     CAF_PDM_InitObject("Eclipse Case", ":/AppLogo48x48.png", "", "");
 
@@ -45,7 +45,7 @@ RimResultReservoir::RimResultReservoir()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimResultReservoir::openEclipseGridFile()
+bool RimResultCase::openEclipseGridFile()
 {
     caf::ProgressInfo progInfo(50, "Reading Eclipse Grid File");
 
@@ -69,7 +69,7 @@ bool RimResultReservoir::openEclipseGridFile()
             return false;
         }
 
-        cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
         readerInterface = new RifReaderEclipseOutput;
         if (!readerInterface->open(fname, eclipseCase.p()))
         {
@@ -96,7 +96,7 @@ bool RimResultReservoir::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCase)
+bool RimResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
 {
     cvf::ref<RifReaderInterface> readerInterface;
 
@@ -112,7 +112,7 @@ bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCa
             return false;
         }
 
-        cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
 
         CVF_ASSERT(mainEclipseCase && mainEclipseCase->mainGrid());
         eclipseCase->setMainGrid(mainEclipseCase->mainGrid());
@@ -155,10 +155,10 @@ bool RimResultReservoir::openAndReadActiveCellData(RigEclipseCase* mainEclipseCa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RifReaderInterface> RimResultReservoir::createMockModel(QString modelName)
+cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
 {
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
-    cvf::ref<RigEclipseCase> reservoir = new RigEclipseCase;
+    cvf::ref<RigCaseData> reservoir = new RigCaseData;
 
      if (modelName == "Result Mock Debug Model Simple")
     {
@@ -233,7 +233,7 @@ cvf::ref<RifReaderInterface> RimResultReservoir::createMockModel(QString modelNa
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultReservoir::~RimResultReservoir()
+RimResultCase::~RimResultCase()
 {
     reservoirViews.deleteAllChildObjects();
 }
@@ -241,7 +241,7 @@ RimResultReservoir::~RimResultReservoir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimResultReservoir::locationOnDisc() const
+QString RimResultCase::locationOnDisc() const
 {
     return caseDirectory;
 }
@@ -249,7 +249,7 @@ QString RimResultReservoir::locationOnDisc() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimResultReservoir::createAbsoluteFilenameFromCase(const QString& caseName)
+QString RimResultCase::createAbsoluteFilenameFromCase(const QString& caseName)
 {
     QString candidate;
     

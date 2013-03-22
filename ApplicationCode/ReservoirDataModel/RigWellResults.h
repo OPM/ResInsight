@@ -99,7 +99,7 @@ public:
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigWellResults : public cvf::Object
+class RigSingleWellResultsData : public cvf::Object
 {
 public:
     bool hasWellResult(size_t resultTimeStepIndex) const;

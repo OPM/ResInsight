@@ -32,13 +32,13 @@ class RigMainGrid;
 // 
 //
 //==================================================================================================
-class RimResultReservoir : public RimReservoir
+class RimResultCase : public RimCase
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimResultReservoir();
-    virtual ~RimResultReservoir();
+    RimResultCase();
+    virtual ~RimResultCase();
 
 
     // Fields:                        
@@ -46,7 +46,7 @@ public:
     caf::PdmField<QString>      caseDirectory;
 
     virtual bool                openEclipseGridFile();
-    bool                        openAndReadActiveCellData(RigEclipseCase* mainEclipseCase);
+    bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
 
     //virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName;}
 

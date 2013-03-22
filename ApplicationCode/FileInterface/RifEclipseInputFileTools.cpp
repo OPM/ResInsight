@@ -61,7 +61,7 @@ RifEclipseInputFileTools::~RifEclipseInputFileTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseCase* eclipseCase)
+bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -176,7 +176,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigEclipseC
 //--------------------------------------------------------------------------------------------------
 /// Read known properties from the input file
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QString &fileName, RigEclipseCase *reservoir)
+std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QString &fileName, RigCaseData *reservoir)
 {
     CVF_ASSERT(reservoir);
 
@@ -282,7 +282,7 @@ std::vector< RifKeywordAndFilePos > RifEclipseInputFileTools::findKeywordsOnFile
 /// Reads the property data requested into the \a reservoir, overwriting any previous 
 /// propeties with the same name.
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigEclipseCase* eclipseCase, const QString& eclipseKeyWord, const QString& resultName)
+bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -370,7 +370,7 @@ const std::vector<QString>& RifEclipseInputFileTools::knownPropertyKeywords()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigEclipseCase* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
+bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, RigCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -402,7 +402,7 @@ bool RifEclipseInputFileTools::writePropertyToTextFile(const QString& fileName, 
 /// Create and write a result vector with values for all cells.
 /// undefinedValue is used for cells with no result
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, RigEclipseCase* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue)
+bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileName, RigCaseData* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -519,7 +519,7 @@ void RifEclipseInputFileTools::findGridKeywordPositions(const QString& filename,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigEclipseCase* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
+bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
 {
     CVF_ASSERT(eclipseCase);
 

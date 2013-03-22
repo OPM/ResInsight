@@ -36,13 +36,13 @@ class RifReaderInterface;
 // 
 //
 //==================================================================================================
-class RimInputReservoir : public RimReservoir
+class RimInputCase : public RimCase
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimInputReservoir();
-    virtual ~RimInputReservoir();
+    RimInputCase();
+    virtual ~RimInputCase();
 
     // Fields
     caf::PdmField<std::vector<QString> >       m_additionalFileNames;

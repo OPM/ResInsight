@@ -273,7 +273,7 @@ bool RIApplication::loadProject(const QString& projectFileName)
 
     // Now load the ReservoirViews for the cases
 
-    std::vector<RimReservoir*> casesToLoad;
+    std::vector<RimCase*> casesToLoad;
 
     // Add all "native" cases in the project
     for (size_t cIdx = 0; cIdx < m_project->reservoirs().size(); ++cIdx)
@@ -286,7 +286,7 @@ bool RIApplication::loadProject(const QString& projectFileName)
     {
         if (m_project->caseGroups[cgIdx]->statisticsCaseCollection())
         {
-            caf::PdmPointersField<RimReservoir*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->reservoirs();
+            caf::PdmPointersField<RimCase*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->reservoirs();
             for (size_t scIdx = 0; scIdx < statCases.size(); ++scIdx)
             {
                 casesToLoad.push_back(statCases[scIdx]);
@@ -298,7 +298,7 @@ bool RIApplication::loadProject(const QString& projectFileName)
 
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
-        RimReservoir* ri = casesToLoad[cIdx];
+        RimCase* ri = casesToLoad[cIdx];
         CVF_ASSERT(ri);
 
         caseProgress.setProgressDescription(ri->caseName());
@@ -494,7 +494,7 @@ bool RIApplication::openEclipseCase(const QString& caseName, const QString& case
     QFileInfo gridFileName(caseFileName);
     QString casePath = gridFileName.absolutePath();
 
-    RimResultReservoir* rimResultReservoir = new RimResultReservoir();
+    RimResultCase* rimResultReservoir = new RimResultCase();
     rimResultReservoir->caseName = caseName;
     rimResultReservoir->caseFileName = caseFileName;
     rimResultReservoir->caseDirectory = casePath;
@@ -529,7 +529,7 @@ bool RIApplication::openEclipseCase(const QString& caseName, const QString& case
 //--------------------------------------------------------------------------------------------------
 bool RIApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
 {
-    RimInputReservoir* rimInputReservoir = new RimInputReservoir();
+    RimInputCase* rimInputReservoir = new RimInputCase();
     rimInputReservoir->caseName = caseName;
     rimInputReservoir->openDataFileSet(caseFileNames);
 
@@ -1189,7 +1189,7 @@ void RIApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
     for (size_t i = 0; i < m_project->reservoirs().size(); ++i)
     {
-        RimReservoir* ri = m_project->reservoirs()[i];
+        RimCase* ri = m_project->reservoirs()[i];
         if (!ri) continue;
 
         for (size_t j = 0; j < ri->reservoirViews().size(); j++)
@@ -1360,7 +1360,7 @@ bool RIApplication::addEclipseCases(const QStringList& fileNames)
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RigEclipseCase* mainEclipseCase = NULL;
+    RigCaseData* mainEclipseCase = NULL;
 
     {
         QString firstFileName = fileNames[0];
@@ -1369,7 +1369,7 @@ bool RIApplication::addEclipseCases(const QStringList& fileNames)
         QString caseName = gridFileName.completeBaseName();
         QString casePath = gridFileName.absolutePath();
 
-        RimResultReservoir* rimResultReservoir = new RimResultReservoir();
+        RimResultCase* rimResultReservoir = new RimResultCase();
         rimResultReservoir->caseName = caseName;
         rimResultReservoir->caseFileName = firstFileName;
         rimResultReservoir->caseDirectory = casePath;
@@ -1396,7 +1396,7 @@ bool RIApplication::addEclipseCases(const QStringList& fileNames)
         QString caseName = gridFileName.completeBaseName();
         QString casePath = gridFileName.absolutePath();
 
-        RimResultReservoir* rimResultReservoir = new RimResultReservoir();
+        RimResultCase* rimResultReservoir = new RimResultCase();
         rimResultReservoir->caseName = caseName;
         rimResultReservoir->caseFileName = fileName;
         rimResultReservoir->caseDirectory = casePath;

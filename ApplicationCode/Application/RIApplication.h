@@ -30,8 +30,8 @@
 #include "RimProject.h"
 
 class RIProcess;
-class RigEclipseCase;
-class RimReservoir;
+class RigCaseData;
+class RimCase;
 class Drawable;
 class RiaSocketServer;
 class RIPreferences;

@@ -57,7 +57,7 @@ RifReaderEclipseInput::~RifReaderEclipseInput()
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseInput::open(const QString& fileName, RigEclipseCase* eclipseCase)
+bool RifReaderEclipseInput::open(const QString& fileName, RigCaseData* eclipseCase)
 {
     CVF_ASSERT(eclipseCase);
 

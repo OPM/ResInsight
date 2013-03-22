@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigEclipseCase* eclipseCase)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase)
 {
     m_allGrids.clear();
     if (eclipseCase)

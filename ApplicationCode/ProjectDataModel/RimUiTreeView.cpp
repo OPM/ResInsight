@@ -174,7 +174,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.exec(event->globalPos());
             }
-            else if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
                 menu.addAction(QString("Copy"), this, SLOT(slotCopyPdmObjectToClipboard()));
@@ -686,7 +686,7 @@ void RimUiTreeView::slotWriteInputProperty()
     exportSettings.eclipseKeyword = inputProperty->eclipseKeyword;
 
     // Find input reservoir for this property
-    RimInputReservoir* inputReservoir = NULL;
+    RimInputCase* inputReservoir = NULL;
     {
         std::vector<RimInputPropertyCollection*> parentObjects;
         inputProperty->parentObjectsOfType(parentObjects);
@@ -695,7 +695,7 @@ void RimUiTreeView::slotWriteInputProperty()
         RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
         if (!inputPropertyCollection) return;
 
-        std::vector<RimInputReservoir*> parentObjects2;
+        std::vector<RimInputCase*> parentObjects2;
         inputPropertyCollection->parentObjectsOfType(parentObjects2);
         CVF_ASSERT(parentObjects2.size() == 1);
 
@@ -781,7 +781,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = resultSlot->reservoirView()->currentTimeStep();
-        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
 
         bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, resultSlot->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, resultSlot->resultVariable, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
@@ -811,12 +811,12 @@ void RimUiTreeView::slotCloseCase()
             group.addObject(uiItem->dataObject().p());
         }
 
-        std::vector<caf::PdmPointer<RimReservoir> > typedObjects;
+        std::vector<caf::PdmPointer<RimCase> > typedObjects;
         group.objectsByType(&typedObjects);
 
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
-            RimReservoir* rimReservoir = typedObjects[i];
+            RimCase* rimReservoir = typedObjects[i];
             myModel->deleteReservoir(rimReservoir);
         }
     }
@@ -955,7 +955,7 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    if (dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
+    if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
     {
         if (keyEvent->matches(QKeySequence::Copy))
         {
@@ -968,7 +968,7 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
 
     if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p())
         || dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p())
-        || dynamic_cast<RimReservoir*>(uiItem->dataObject().p()))
+        || dynamic_cast<RimCase*>(uiItem->dataObject().p()))
     {
         if (keyEvent->matches(QKeySequence::Paste))
         {

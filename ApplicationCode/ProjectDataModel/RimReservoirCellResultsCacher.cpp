@@ -73,7 +73,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
 
     if (!m_cellResults) return;
 
-    const std::vector<RigReservoirCellResults::ResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
+    const std::vector<RigCaseCellResultsData::ResultInfo>&  resInfo = m_cellResults->infoForEachResultIndex();
 
     bool hasResultsToStore = false;
     for (size_t rIdx = 0; rIdx < resInfo.size(); ++rIdx) 
@@ -574,7 +574,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::setCellResults(RigReservoirCellResults* cellResults)
+void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cellResults)
 {
     m_cellResults = cellResults;
 

@@ -151,7 +151,7 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 //--------------------------------------------------------------------------------------------------
 /// Find the requested reservoir: Current, by index or by name
 //--------------------------------------------------------------------------------------------------
-RimReservoir* RiaSocketServer::findReservoir(const QString& caseName)
+RimCase* RiaSocketServer::findReservoir(const QString& caseName)
 {
     if (caseName.isEmpty())
     {
@@ -241,7 +241,7 @@ void RiaSocketServer::readCommandFromOctave()
 
     QString caseName;
     QString propertyName;
-    RimReservoir* reservoir = NULL;
+    RimCase* reservoir = NULL;
 
     // Find the correct arguments
 
@@ -502,7 +502,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
         if (m_currentReservoir != NULL)
         {
             // Create a new input property if we have an input reservoir
-            RimInputReservoir* inputRes = dynamic_cast<RimInputReservoir*>(m_currentReservoir);
+            RimInputCase* inputRes = dynamic_cast<RimInputCase*>(m_currentReservoir);
             if (inputRes)
             {
                 RimInputProperty* inputProperty = NULL;

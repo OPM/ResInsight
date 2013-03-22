@@ -22,8 +22,8 @@
 #include "RimScriptCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 
-class RimReservoir;
-class RigGridCollection;
+class RimCase;
+class RigGridManager;
 
 //==================================================================================================
 ///  
@@ -34,7 +34,7 @@ class RimProject : public caf::PdmDocument
      CAF_PDM_HEADER_INIT;
 
 public:
-    caf::PdmPointersField<RimReservoir*>                reservoirs;
+    caf::PdmPointersField<RimCase*>                reservoirs;
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
 
@@ -48,13 +48,13 @@ public:
 
     void close();
 
-    void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimReservoir* rimReservoir);
+    void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
 
-    void moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir);
-    void removeCaseFromAllGroups(RimReservoir* rimReservoir);
+    void moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
+    void removeCaseFromAllGroups(RimCase* rimReservoir);
     
 private:
-    RigMainGrid* registerCaseInGridCollection(RigEclipseCase* rigEclipseCase);
+    RigMainGrid* registerCaseInGridCollection(RigCaseData* rigEclipseCase);
 
 protected:
     // Overridden methods
@@ -64,5 +64,5 @@ protected:
 private:
     caf::PdmField<QString>      m_projectFileVersionString;
 
-    cvf::ref<RigGridCollection> m_gridCollection;
+    cvf::ref<RigGridManager> m_gridCollection;
 };

@@ -120,8 +120,8 @@ public:
     RimReservoirCellResultsStorage*          currentGridCellResults();
     RigActiveCellInfo*                      currentActiveCellInfo();
 
-    void                                    setEclipseCase(RimReservoir* reservoir);
-    RimReservoir*                           eclipseCase();
+    void                                    setEclipseCase(RimCase* reservoir);
+    RimCase*                           eclipseCase();
 
     // Animation
     int                                     currentTimeStep()    { return m_currentTimeStep;}
@@ -179,7 +179,7 @@ private:
 private:
     caf::PdmField<int>                      m_currentTimeStep;
     QPointer<RIViewer>                      m_viewer;
-    caf::PdmPointer<RimReservoir>           m_reservoir;
+    caf::PdmPointer<RimCase>           m_reservoir;
 
 
 };

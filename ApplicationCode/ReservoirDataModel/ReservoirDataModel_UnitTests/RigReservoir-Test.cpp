@@ -28,17 +28,17 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RigGridCollection, BasicTest)
+TEST(RigGridManager, BasicTest)
 {
     cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
 
-    cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
     eclipseCase->setMainGrid(mainGridA.p());
 
     int count = mainGridA->refCount();
     EXPECT_EQ(mainGridA->refCount(), 2);
 
-    RigGridCollection gridCollection;
+    RigGridManager gridCollection;
     gridCollection.addCase(eclipseCase.p());
     EXPECT_EQ(mainGridA->refCount(), 2);
 
@@ -52,18 +52,18 @@ TEST(RigGridCollection, BasicTest)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(RigGridCollection, EqualTests)
+TEST(RigGridManager, EqualTests)
 {
     cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
     mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 0));
     mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 1));
     mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 2));
 
-    cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
     eclipseCase->setMainGrid(mainGridA.p());
 
 
-    RigGridCollection gridCollection;
+    RigGridManager gridCollection;
     gridCollection.addCase(eclipseCase.p());
 
 

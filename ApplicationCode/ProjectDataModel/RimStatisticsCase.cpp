@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT(RimStatisticsCase, "RimStatisticalCalculation");
 /// 
 //--------------------------------------------------------------------------------------------------
 RimStatisticsCase::RimStatisticsCase()
-    : RimReservoir()
+    : RimCase()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
     CAF_PDM_InitField(&m_resultName, "ResultName", QString("PRESSURE"), "ResultName", "", "", "");
@@ -68,7 +68,7 @@ bool RimStatisticsCase::openEclipseGridFile()
 {
     if (this->reservoirData()) return true;
 
-    cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
 
     CVF_ASSERT(parentStatisticsCaseCollection());
 
@@ -125,7 +125,7 @@ void RimStatisticsCase::computeStatistics()
     CVF_ASSERT(gridCaseGroup);
     gridCaseGroup->computeUnionOfActiveCells();
 
-    std::vector<RimReservoir*> sourceCases;
+    std::vector<RimCase*> sourceCases;
 
     getSourceCases(sourceCases);
 
@@ -146,7 +146,7 @@ void RimStatisticsCase::computeStatistics()
         timeStepIndices.push_back(i);
     }
 
-    RigEclipseCase* resultCase = reservoirData();
+    RigCaseData* resultCase = reservoirData();
 
     QList<QPair<RimDefines::ResultCatType, QString> > resultSpecification;
 
@@ -187,7 +187,7 @@ void RimStatisticsCase::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::getSourceCases(std::vector<RimReservoir*>& sourceCases)
+void RimStatisticsCase::getSourceCases(std::vector<RimCase*>& sourceCases)
 {
     RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
     if (gridCaseGroup)
@@ -199,7 +199,7 @@ void RimStatisticsCase::getSourceCases(std::vector<RimReservoir*>& sourceCases)
             CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]);
             CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]->reservoirData());
 
-            RimReservoir* sourceCase = gridCaseGroup->caseCollection->reservoirs[i];
+            RimCase* sourceCase = gridCaseGroup->caseCollection->reservoirs[i];
             sourceCases.push_back(sourceCase);
         }
     }

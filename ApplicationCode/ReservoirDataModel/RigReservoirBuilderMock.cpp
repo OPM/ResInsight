@@ -172,7 +172,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::populateReservoir(RigEclipseCase* eclipseCase)
+void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 {
     std::vector<cvf::Vec3d>& mainGridNodes = eclipseCase->mainGrid()->nodes();
     appendNodes(m_minWorldCoordinate, m_maxWorldCoordinate, cellDimension(), mainGridNodes);
@@ -278,7 +278,7 @@ void RigReservoirBuilderMock::setWorldCoordinates(cvf::Vec3d minWorldCoordinate,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::inputProperty(RigEclipseCase* eclipseCase, const QString& propertyName, std::vector<double>* values)
+bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values)
 {
     size_t k;
 
@@ -299,7 +299,7 @@ bool RigReservoirBuilderMock::inputProperty(RigEclipseCase* eclipseCase, const Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::staticResult(RigEclipseCase* eclipseCase, const QString& result, std::vector<double>* values)
+bool RigReservoirBuilderMock::staticResult(RigCaseData* eclipseCase, const QString& result, std::vector<double>* values)
 {
     size_t k;
 
@@ -316,7 +316,7 @@ bool RigReservoirBuilderMock::staticResult(RigEclipseCase* eclipseCase, const QS
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::dynamicResult(RigEclipseCase* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
+bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values)
 {
     int resultIndex = 1;
 
@@ -352,19 +352,19 @@ bool RigReservoirBuilderMock::dynamicResult(RigEclipseCase* eclipseCase, const Q
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addWellData(RigEclipseCase* eclipseCase, RigGridBase* grid)
+void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase* grid)
 {
     CVF_ASSERT(eclipseCase);
     CVF_ASSERT(grid);
 
     cvf::Vec3st dim = grid->gridPointDimensions();
 
-    cvf::Collection<RigWellResults> wells;
+    cvf::Collection<RigSingleWellResultsData> wells;
 
     int wellIdx;
     for (wellIdx = 0; wellIdx < 1; wellIdx++)
     {
-        cvf::ref<RigWellResults> wellCellsTimeHistory = new RigWellResults;
+        cvf::ref<RigSingleWellResultsData> wellCellsTimeHistory = new RigSingleWellResultsData;
         wellCellsTimeHistory->m_wellName = QString("Well %1").arg(wellIdx);
 
         wellCellsTimeHistory->m_wellCellsTimeSteps.resize(m_timeStepCount);

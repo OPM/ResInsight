@@ -44,7 +44,7 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
 
-    m_gridCollection = new RigGridCollection;
+    m_gridCollection = new RigGridManager;
 
     initAfterRead();
 }
@@ -130,11 +130,11 @@ QString RimProject::projectFileVersionString() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir)
+void RimProject::moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
-    RigEclipseCase* rigEclipseCase = rimReservoir->reservoirData();
+    RigCaseData* rigEclipseCase = rimReservoir->reservoirData();
     RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
     CVF_ASSERT(equalGrid);
 
@@ -167,7 +167,7 @@ void RimProject::moveEclipseCaseIntoCaseGroup(RimReservoir* rimReservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::removeCaseFromAllGroups(RimReservoir* reservoir)
+void RimProject::removeCaseFromAllGroups(RimCase* reservoir)
 {
     m_gridCollection->removeCase(reservoir->reservoirData());
 
@@ -185,7 +185,7 @@ void RimProject::removeCaseFromAllGroups(RimReservoir* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigMainGrid* RimProject::registerCaseInGridCollection(RigEclipseCase* rigEclipseCase)
+RigMainGrid* RimProject::registerCaseInGridCollection(RigCaseData* rigEclipseCase)
 {
     CVF_ASSERT(rigEclipseCase);
 
@@ -221,11 +221,11 @@ RigMainGrid* RimProject::registerCaseInGridCollection(RigEclipseCase* rigEclipse
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimReservoir* rimReservoir)
+void RimProject::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir)
 {
     CVF_ASSERT(rimReservoir);
 
-    RigEclipseCase* rigEclipseCase = rimReservoir->reservoirData();
+    RigCaseData* rigEclipseCase = rimReservoir->reservoirData();
     registerCaseInGridCollection(rigEclipseCase);
 
     caseGroup->addCase(rimReservoir);

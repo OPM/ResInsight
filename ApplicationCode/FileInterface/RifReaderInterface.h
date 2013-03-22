@@ -27,7 +27,7 @@
 #include <QDateTime>
 
 
-class RigEclipseCase;
+class RigCaseData;
 
 //==================================================================================================
 //
@@ -47,7 +47,7 @@ public:
     RifReaderInterface() {}
     virtual ~RifReaderInterface() {}
 
-    virtual bool                open(const QString& fileName, RigEclipseCase* eclipseCase) = 0;
+    virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
    
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;

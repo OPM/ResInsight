@@ -166,7 +166,7 @@ bool RimResultDefinition::hasResult() const
 {
     if (m_gridScalarResultIndex != cvf::UNDEFINED_SIZE_T) return true;
 
-    const RigReservoirCellResults* gridCellResults = m_reservoirView->currentGridCellResults()->cellResults();
+    const RigCaseCellResultsData* gridCellResults = m_reservoirView->currentGridCellResults()->cellResults();
     if (gridCellResults)
     {
         m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(resultType(), resultVariable());
@@ -182,7 +182,7 @@ bool RimResultDefinition::hasResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasDynamicResult() const
 {
-    const RigReservoirCellResults* gridCellResults = m_reservoirView->currentGridCellResults()->cellResults();
+    const RigCaseCellResultsData* gridCellResults = m_reservoirView->currentGridCellResults()->cellResults();
     if (hasResult() && gridCellResults->timeStepCount(m_gridScalarResultIndex) > 1 )
         return true;
     else

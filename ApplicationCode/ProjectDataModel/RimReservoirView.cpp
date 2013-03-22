@@ -847,7 +847,7 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 
     if (m_reservoir)
     {
-        const RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
+        const RigCaseData* eclipseCase = m_reservoir->reservoirData();
         if (eclipseCase)
         {
             size_t i = 0;
@@ -880,12 +880,12 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 
     if (m_reservoir && m_reservoir->reservoirData())
     {
-        RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
+        RigCaseData* eclipseCase = m_reservoir->reservoirData();
         RigGridBase* grid = eclipseCase->grid(gridIndex);
 
         if (this->cellResult()->hasResult())
         {
-            RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
             cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
             if (dataAccessObject.notNull())
             {
@@ -906,7 +906,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 
                 // Cell edge results are static, results are loaded for first time step only
-                RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
                 cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, resultIndices[idx]);
                 if (dataAccessObject.notNull())
                 {
@@ -974,7 +974,7 @@ RimReservoirCellResultsStorage* RimReservoirView::currentGridCellResults()
 {
     if (m_reservoir)
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
         return m_reservoir->results(porosityModel);
     }
@@ -991,7 +991,7 @@ RigActiveCellInfo* RimReservoirView::currentActiveCellInfo()
         m_reservoir->reservoirData()
         )
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
         return m_reservoir->reservoirData()->activeCellInfo(porosityModel);
     }
@@ -1059,11 +1059,11 @@ void RimReservoirView::updateLegends()
         return;
     }
 
-    RigEclipseCase* eclipseCase = m_reservoir->reservoirData();
+    RigCaseData* eclipseCase = m_reservoir->reservoirData();
     CVF_ASSERT(eclipseCase);
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-    RigReservoirCellResults* results = eclipseCase->results(porosityModel);
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+    RigCaseCellResultsData* results = eclipseCase->results(porosityModel);
     CVF_ASSERT(results);
 
     if (this->cellResult()->hasResult())
@@ -1112,7 +1112,7 @@ void RimReservoirView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::setEclipseCase(RimReservoir* reservoir)
+void RimReservoirView::setEclipseCase(RimCase* reservoir)
 {
     m_reservoir = reservoir;
 }
@@ -1120,7 +1120,7 @@ void RimReservoirView::setEclipseCase(RimReservoir* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoir* RimReservoirView::eclipseCase()
+RimCase* RimReservoirView::eclipseCase()
 {
     return m_reservoir;
 }
@@ -1142,7 +1142,7 @@ void RimReservoirView::syncronizeWellsWithResults()
 {
     if (!(m_reservoir && m_reservoir->reservoirData()) ) return;
 
-    cvf::Collection<RigWellResults> wellResults = m_reservoir->reservoirData()->wellResults();
+    cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
 
     // Find corresponding well from well result, or create a new
     size_t wIdx;
@@ -1164,7 +1164,7 @@ void RimReservoirView::syncronizeWellsWithResults()
     for (wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimWell* well = this->wellCollection()->wells()[wIdx];
-        RigWellResults* wellRes = well->wellResults();
+        RigSingleWellResultsData* wellRes = well->wellResults();
         if (wellRes == NULL)
         {
             delete well;
@@ -1208,7 +1208,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
         RimWell* well =  this->wellCollection()->wells()[wIdx];
         if (this->wellCollection()->wellCellVisibility() == RimWellCollection::FORCE_ALL_ON || well->showWellCells())
         {
-            RigWellResults* wres = well->wellResults();
+            RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;
 
             const std::vector< RigWellResultFrame >& wellResFrames = wres->m_wellCellsTimeSteps;

@@ -213,7 +213,7 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeModelPdm::deleteReservoir(RimReservoir* reservoir)
+void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
 {
     RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
     QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
@@ -355,7 +355,7 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
         collectionItem = currentItem->parent();
         collectionIndex = itemIndex.parent();
     }
-    else if (dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
     {
         collectionItem = currentItem;
         collectionIndex = itemIndex;
@@ -363,7 +363,7 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
 
     if (collectionItem)
     {
-        RimReservoir* rimReservoir = dynamic_cast<RimReservoir*>(collectionItem->dataObject().p());
+        RimCase* rimReservoir = dynamic_cast<RimCase*>(collectionItem->dataObject().p());
         RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
 
         int viewCount = rowCount(collectionIndex);
@@ -430,11 +430,11 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
     RimInputPropertyCollection* inputPropertyCollection = dynamic_cast<RimInputPropertyCollection*>(currentItem->dataObject().p());
     CVF_ASSERT(inputPropertyCollection);
     
-    std::vector<RimInputReservoir*> parentObjects;
+    std::vector<RimInputCase*> parentObjects;
     inputPropertyCollection->parentObjectsOfType(parentObjects);
     CVF_ASSERT(parentObjects.size() == 1);
 
-    RimInputReservoir* inputReservoir = parentObjects[0];
+    RimInputCase* inputReservoir = parentObjects[0];
     CVF_ASSERT(inputReservoir);
     if (inputReservoir)
     {
@@ -468,11 +468,11 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
     RimInputPropertyCollection* inputPropertyCollection = parentObjects[0];
     if (!inputPropertyCollection) return;
 
-    std::vector<RimInputReservoir*> parentObjects2;
+    std::vector<RimInputCase*> parentObjects2;
     inputPropertyCollection->parentObjectsOfType(parentObjects2);
     CVF_ASSERT(parentObjects2.size() == 1);
 
-    RimInputReservoir* inputReservoir = parentObjects2[0];
+    RimInputCase* inputReservoir = parentObjects2[0];
     if (!inputReservoir) return;
 
     inputReservoir->removeProperty(inputProperty);
@@ -541,7 +541,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
     if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
-        dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
+        dynamic_cast<RimCase*>(currentItem->dataObject().p()))
     {
         QModelIndex rootIndex = itemIndex.parent();
         caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
@@ -590,9 +590,9 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
 
         gridCaseGroup = caseCollection->parentCaseGroup();
     }
-    else if (dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
     {
-        RimReservoir* rimReservoir = dynamic_cast<RimReservoir*>(currentItem->dataObject().p());
+        RimCase* rimReservoir = dynamic_cast<RimCase*>(currentItem->dataObject().p());
         CVF_ASSERT(rimReservoir);
 
         caseCollection = rimReservoir->parentCaseCollection();
@@ -608,19 +608,19 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
 
     if (gridCaseGroup)
     {
-        std::vector<caf::PdmPointer<RimResultReservoir> > typedObjects;
+        std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
         pdmObjects.createCopyByType(&typedObjects);
 
-        RigEclipseCase* mainEclipseCase = NULL;
+        RigCaseData* mainEclipseCase = NULL;
         if (gridCaseGroup->caseCollection()->reservoirs().size() > 0)
         {
-            RimReservoir* mainReservoir = gridCaseGroup->caseCollection()->reservoirs()[0];;
+            RimCase* mainReservoir = gridCaseGroup->caseCollection()->reservoirs()[0];;
             mainEclipseCase = mainReservoir->reservoirData();
         }
 
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
-            RimResultReservoir* rimResultReservoir = typedObjects[i];
+            RimResultCase* rimResultReservoir = typedObjects[i];
 
             if (gridCaseGroup->contains(rimResultReservoir))
             {
@@ -748,7 +748,7 @@ Qt::ItemFlags RimUiTreeModelPdm::flags(const QModelIndex &index) const
         {
             return Qt::ItemIsDropEnabled | defaultFlags;
         }
-        else if (dynamic_cast<RimReservoir*>(currentItem->dataObject().p()))
+        else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
         {
             // TODO: Remember to handle reservoir holding the main grid
             return Qt::ItemIsDragEnabled | defaultFlags;
@@ -781,12 +781,12 @@ bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction actio
 
         if (action == Qt::MoveAction)
         {
-            std::vector<caf::PdmPointer<RimResultReservoir> > typedObjects;
+            std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
             pog.objectsByType(&typedObjects);
 
             for (size_t i = 0; i < typedObjects.size(); i++)
             {
-                RimReservoir* rimReservoir = typedObjects[i];
+                RimCase* rimReservoir = typedObjects[i];
                 deleteReservoir(rimReservoir);
             }
         }

@@ -30,10 +30,10 @@ class RigMainGrid;
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
 //==================================================================================================
-class RigReservoirCellResults : public cvf::Object
+class RigCaseCellResultsData : public cvf::Object
 {
 public:
-    RigReservoirCellResults(RigMainGrid* ownerGrid);
+    RigCaseCellResultsData(RigMainGrid* ownerGrid);
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
 

@@ -133,7 +133,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::createPerGridDataAccessObject(RigEclipseCase* eclipseCase,
+cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::createPerGridDataAccessObject(RigCaseData* eclipseCase,
                                                                                                         size_t gridIndex,
                                                                                                         RifReaderInterface::PorosityModelResultType porosityModel,
                                                                                                         size_t timeStepIndex,

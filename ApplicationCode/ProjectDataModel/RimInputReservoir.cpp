@@ -38,12 +38,12 @@
 #include "RIPreferences.h"
 
 
-CAF_PDM_SOURCE_INIT(RimInputReservoir, "RimInputReservoir");
+CAF_PDM_SOURCE_INIT(RimInputCase, "RimInputReservoir");
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputReservoir::RimInputReservoir()
-    : RimReservoir()
+RimInputCase::RimInputCase()
+    : RimCase()
 {
     CAF_PDM_InitObject("RimInputReservoir", ":/EclipseInput48x48.png", "", "");
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
@@ -58,7 +58,7 @@ RimInputReservoir::RimInputReservoir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimInputReservoir::~RimInputReservoir()
+RimInputCase::~RimInputCase()
 {
     delete m_inputPropertyCollection;
 }
@@ -67,7 +67,7 @@ RimInputReservoir::~RimInputReservoir()
 /// Open the supplied file set. If no grid data has been read, it will first find the possible 
 /// grid data among the files then read all supported properties from the files matching the grid
 //--------------------------------------------------------------------------------------------------
-void RimInputReservoir::openDataFileSet(const QStringList& filenames)
+void RimInputCase::openDataFileSet(const QStringList& filenames)
 {
     if (caseName().contains("Input Mock Debug Model"))
     {
@@ -83,7 +83,7 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
 
     if (this->reservoirData() == NULL) 
     {
-        this->setReservoirData(new RigEclipseCase);
+        this->setReservoirData(new RigCaseData);
     }
 
     // First find and read the grid data 
@@ -154,7 +154,7 @@ void RimInputReservoir::openDataFileSet(const QStringList& filenames)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimInputReservoir::openEclipseGridFile()
+bool RimInputCase::openEclipseGridFile()
 {
     // Early exit if reservoir data is created
     if (this->reservoirData() == NULL)
@@ -167,7 +167,7 @@ bool RimInputReservoir::openEclipseGridFile()
         }
         else
         {
-            cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
+            cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
             readerInterface = new RifReaderEclipseInput;
             if (!readerInterface->open(m_gridFileName, eclipseCase.p()))
             {
@@ -206,7 +206,7 @@ bool RimInputReservoir::openEclipseGridFile()
 /// Loads input property data from the gridFile and additional files
 /// Creates new InputProperties if necessary, and flags the unused ones as obsolete
 //--------------------------------------------------------------------------------------------------
-void RimInputReservoir::loadAndSyncronizeInputProperties()
+void RimInputCase::loadAndSyncronizeInputProperties()
 {
     // Make sure we actually have reservoir data
 
@@ -313,7 +313,7 @@ void RimInputReservoir::loadAndSyncronizeInputProperties()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimInputReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimInputCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
 
 }
@@ -321,7 +321,7 @@ void RimInputReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimInputReservoir::addFiles(const QStringList& newFileNames)
+void RimInputCase::addFiles(const QStringList& newFileNames)
 {
 
 }
@@ -330,7 +330,7 @@ void RimInputReservoir::addFiles(const QStringList& newFileNames)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimInputReservoir::removeFiles(const QStringList& obsoleteFileNames)
+void RimInputCase::removeFiles(const QStringList& obsoleteFileNames)
 {
 
 }
@@ -338,7 +338,7 @@ void RimInputReservoir::removeFiles(const QStringList& obsoleteFileNames)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimInputReservoir::removeProperty(RimInputProperty* inputProperty)
+void RimInputCase::removeProperty(RimInputProperty* inputProperty)
 {
     bool isPropertyFileReferencedByOthers = false;
 
@@ -359,7 +359,7 @@ void RimInputReservoir::removeProperty(RimInputProperty* inputProperty)
     }
 
     // Remove the results pointed to by this input property
-    RigReservoirCellResults* results = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
+    RigCaseCellResultsData* results = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
     results->removeResult(inputProperty->resultName);
 
     this->removeResult(inputProperty->resultName);
@@ -368,9 +368,9 @@ void RimInputReservoir::removeProperty(RimInputProperty* inputProperty)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RifReaderInterface> RimInputReservoir::createMockModel(QString modelName)
+cvf::ref<RifReaderInterface> RimInputCase::createMockModel(QString modelName)
 {
-    cvf::ref<RigEclipseCase> reservoir = new RigEclipseCase;
+    cvf::ref<RigCaseData> reservoir = new RigCaseData;
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
 
     if (modelName == "Input Mock Debug Model Simple")
@@ -412,7 +412,7 @@ cvf::ref<RifReaderInterface> RimInputReservoir::createMockModel(QString modelNam
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimInputReservoir::locationOnDisc() const
+QString RimInputCase::locationOnDisc() const
 {
     if (m_gridFileName().isEmpty()) return QString();
 

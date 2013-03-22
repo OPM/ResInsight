@@ -36,12 +36,12 @@
 #include "RimProject.h"
 #include "RimReservoirCellResultsCacher.h"
 
-CAF_PDM_SOURCE_INIT(RimReservoir, "RimReservoir");
+CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 
 //------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoir::RimReservoir()
+RimCase::RimCase()
 {
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Case name", "", "" ,"");
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
@@ -60,7 +60,7 @@ RimReservoir::RimReservoir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoir::~RimReservoir()
+RimCase::~RimCase()
 {
     reservoirViews.deleteAllChildObjects();
 
@@ -77,7 +77,7 @@ RimReservoir::~RimReservoir()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigEclipseCase* RimReservoir::reservoirData()
+RigCaseData* RimCase::reservoirData()
 {
     return m_rigEclipseCase.p();
 }
@@ -85,7 +85,7 @@ RigEclipseCase* RimReservoir::reservoirData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigEclipseCase* RimReservoir::reservoirData() const
+const RigCaseData* RimCase::reservoirData() const
 {
     return m_rigEclipseCase.p();
 }
@@ -93,7 +93,7 @@ const RigEclipseCase* RimReservoir::reservoirData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoir::initAfterRead()
+void RimCase::initAfterRead()
 {
     size_t j;
     for (j = 0; j < reservoirViews().size(); j++)
@@ -108,7 +108,7 @@ void RimReservoir::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirView* RimReservoir::createAndAddReservoirView()
+RimReservoirView* RimCase::createAndAddReservoirView()
 {
     // If parent is collection, and number of views is zero, make sure rig is set to NULL to initiate normal case loading
     if (parentCaseCollection() != NULL && reservoirViews().size() == 0)
@@ -135,7 +135,7 @@ RimReservoirView* RimReservoir::createAndAddReservoirView()
 //--------------------------------------------------------------------------------------------------
 /// TODO: Move this functionality to PdmPointersField
 //--------------------------------------------------------------------------------------------------
-void RimReservoir::removeReservoirView(RimReservoirView* reservoirView)
+void RimCase::removeReservoirView(RimReservoirView* reservoirView)
 {
     std::vector<size_t> indices;
 
@@ -159,7 +159,7 @@ void RimReservoir::removeReservoirView(RimReservoirView* reservoirView)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoir::removeResult(const QString& resultName)
+void RimCase::removeResult(const QString& resultName)
 {
     size_t i;
     for (i = 0; i < reservoirViews().size(); i++)
@@ -210,7 +210,7 @@ void RimReservoir::removeResult(const QString& resultName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &releaseResultMemory)
     {
@@ -236,13 +236,13 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
                 reservoirView->createDisplayModelAndRedraw();
             }
 
-            RigReservoirCellResults* matrixModelResults = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
+            RigCaseCellResultsData* matrixModelResults = reservoirData()->results(RifReaderInterface::MATRIX_RESULTS);
             if (matrixModelResults)
             {
                 matrixModelResults->clearAllResults();
             }
 
-            RigReservoirCellResults* fractureModelResults = reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS);
+            RigCaseCellResultsData* fractureModelResults = reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS);
             if (fractureModelResults)
             {
                 fractureModelResults->clearAllResults();
@@ -256,9 +256,9 @@ void RimReservoir::fieldChangedByUi(const caf::PdmFieldHandle* changedField, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoir::computeCachedData()
+void RimCase::computeCachedData()
 {
-    RigEclipseCase* rigEclipseCase = reservoirData();
+    RigCaseData* rigEclipseCase = reservoirData();
     if (rigEclipseCase)
     {
         rigEclipseCase->computeActiveCellBoundingBoxes();
@@ -280,7 +280,7 @@ void RimReservoir::computeCachedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimCaseCollection* RimReservoir::parentCaseCollection()
+RimCaseCollection* RimCase::parentCaseCollection()
 {
     std::vector<RimCaseCollection*> parentObjects;
     this->parentObjectsOfType(parentObjects);
@@ -296,7 +296,7 @@ RimCaseCollection* RimReservoir::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoir::setReservoirData(RigEclipseCase* eclipseCase)
+void RimCase::setReservoirData(RigCaseData* eclipseCase)
 {
     m_rigEclipseCase  = eclipseCase;
     if (this->reservoirData())
@@ -318,7 +318,7 @@ void RimReservoir::setReservoirData(RigEclipseCase* eclipseCase)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoirCellResultsStorage* RimReservoir::results(RifReaderInterface::PorosityModelResultType porosityModel)
+RimReservoirCellResultsStorage* RimCase::results(RifReaderInterface::PorosityModelResultType porosityModel)
 {
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {

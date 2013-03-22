@@ -107,7 +107,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsCaseEvaluator::addNamedResult(RigReservoirCellResults* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
+void RimStatisticsCaseEvaluator::addNamedResult(RigCaseCellResultsData* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
 {
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
@@ -148,7 +148,7 @@ void RimStatisticsCaseEvaluator::buildSourceMetaData(RimDefines::ResultCatType r
 
     for (size_t caseIdx = 1; caseIdx < m_sourceCases.size(); caseIdx++)
     {
-        RigEclipseCase* eclipseCase = m_sourceCases.at(caseIdx)->reservoirData();
+        RigCaseData* eclipseCase = m_sourceCases.at(caseIdx)->reservoirData();
 
         RimReservoirCellResultsStorage* matrixResults = m_sourceCases[caseIdx]->results(RifReaderInterface::MATRIX_RESULTS);
         size_t scalarResultIndex = matrixResults->findOrLoadScalarResult(resultType, resultName);
@@ -171,7 +171,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
     CVF_ASSERT(m_destinationCase);
 
     size_t activeMatrixCellCount = m_destinationCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalActiveCellCount();
-    RigReservoirCellResults* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
+    RigCaseCellResultsData* matrixResults = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS);
 
     for (int i = 0; i < resultSpecification.size(); i++)
     {
@@ -249,7 +249,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
                     cvf::Collection<cvf::StructGridScalarDataAccess> dataAccesObjectList;
                     for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                     {
-                        RimReservoir* eclipseCase = m_sourceCases.at(caseIdx);
+                        RimCase* eclipseCase = m_sourceCases.at(caseIdx);
 
                         size_t scalarResultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
@@ -371,7 +371,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines
 
             for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
             {
-                RimReservoir* eclipseCase = m_sourceCases.at(caseIdx);
+                RimCase* eclipseCase = m_sourceCases.at(caseIdx);
 
                 // When one time step is completed, close all result files.
                 // Microsoft note: On Windows, the maximum number of files open at the same time is 512
@@ -408,7 +408,7 @@ void RimStatisticsCaseEvaluator::debugOutput(RimDefines::ResultCatType resultTyp
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimReservoir*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigEclipseCase* destinationCase) 
+RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimCase*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigCaseData* destinationCase) 
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),

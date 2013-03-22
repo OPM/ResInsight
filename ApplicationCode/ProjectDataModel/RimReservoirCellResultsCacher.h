@@ -25,7 +25,7 @@
 #include "RimDefines.h"
 
 class RimReservoirCellResultsStorageEntryInfo;
-class RigReservoirCellResults;
+class RigCaseCellResultsData;
 class RifReaderInterface;
 class RigMainGrid;
 
@@ -36,9 +36,9 @@ public:
     RimReservoirCellResultsStorage();
     virtual ~RimReservoirCellResultsStorage();
 
-    void                            setCellResults(RigReservoirCellResults* cellResults);
-    RigReservoirCellResults*        cellResults()  { return m_cellResults; }
-    const RigReservoirCellResults*  cellResults() const  { return m_cellResults; }
+    void                            setCellResults(RigCaseCellResultsData* cellResults);
+    RigCaseCellResultsData*        cellResults()  { return m_cellResults; }
+    const RigCaseCellResultsData*  cellResults() const  { return m_cellResults; }
 
     size_t                          storedResultsCount();
 
@@ -70,7 +70,7 @@ private:
         m_resultCacheMetaData;
 
     cvf::ref<RifReaderInterface>    m_readerInterface;
-    RigReservoirCellResults*        m_cellResults;
+    RigCaseCellResultsData*        m_cellResults;
     RigMainGrid*                    m_ownerMainGrid;
 };
 

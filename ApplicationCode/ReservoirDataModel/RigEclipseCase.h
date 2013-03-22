@@ -27,14 +27,14 @@
 #include "RigWellResults.h"
 #include "RigActiveCellInfo.h"
 
-class RigReservoirCellResults;
+class RigCaseCellResultsData;
 
 
-class RigEclipseCase: public cvf::Object
+class RigCaseData: public cvf::Object
 {
 public:
-    RigEclipseCase();
-    ~RigEclipseCase();
+    RigCaseData();
+    ~RigCaseData();
 
     RigMainGrid*                                mainGrid() { return m_mainGrid.p(); }
     const RigMainGrid*                          mainGrid() const { return m_mainGrid.p(); }
@@ -46,8 +46,8 @@ public:
     RigGridBase*                                grid(size_t index);
     size_t                                      gridCount() const;
 
-    RigReservoirCellResults*		            results(RifReaderInterface::PorosityModelResultType porosityModel);
-    const RigReservoirCellResults*              results(RifReaderInterface::PorosityModelResultType porosityModel) const;
+    RigCaseCellResultsData*		            results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RigCaseCellResultsData*              results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
     RigActiveCellInfo*                          activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigActiveCellInfo*                    activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const;
@@ -59,8 +59,8 @@ public:
                                                                size_t timeStepIndex, 
                                                                size_t scalarSetIndex);
 
-    void                                        setWellResults(const cvf::Collection<RigWellResults>& data);
-    const cvf::Collection<RigWellResults>&      wellResults() { return m_wellResults; }
+    void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
+    const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
 
     cvf::UByteArray*                            wellCellsInGrid(size_t gridIndex);
 
@@ -80,9 +80,9 @@ private:
     cvf::ref<RigActiveCellInfo>                 m_activeCellInfo;
     cvf::ref<RigActiveCellInfo>                 m_fractureActiveCellInfo;
 
-    cvf::ref<RigReservoirCellResults>           m_matrixModelResults;
-    cvf::ref<RigReservoirCellResults>           m_fractureModelResults;
+    cvf::ref<RigCaseCellResultsData>           m_matrixModelResults;
+    cvf::ref<RigCaseCellResultsData>           m_fractureModelResults;
 
-    cvf::Collection<RigWellResults>             m_wellResults;     //< A WellResults object for each well in the reservoir
+    cvf::Collection<RigSingleWellResultsData>             m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
 };

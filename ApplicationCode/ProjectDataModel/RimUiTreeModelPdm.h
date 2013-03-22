@@ -29,7 +29,7 @@ class QFileSystemWatcher;
 
 class RimCellPropertyFilter;
 class RimCellRangeFilter;
-class RimReservoir;
+class RimCase;
 class RimReservoirView;
 class RimInputProperty;
 class RimStatisticsCase;
@@ -105,7 +105,7 @@ public:
     bool                        deletePropertyFilter(const QModelIndex& itemIndex);
     bool                        deleteReservoirView(const QModelIndex& itemIndex);
     void                        deleteInputProperty(const QModelIndex& itemIndex);
-    void                        deleteReservoir(RimReservoir* reservoir);
+    void                        deleteReservoir(RimCase* reservoir);
 
     RimCellPropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);

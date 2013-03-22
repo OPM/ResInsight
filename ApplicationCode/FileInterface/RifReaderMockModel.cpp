@@ -25,13 +25,13 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::open(const QString& fileName, RigEclipseCase* eclipseCase)
+bool RifReaderMockModel::open(const QString& fileName, RigCaseData* eclipseCase)
 {
     m_reservoirBuilder.populateReservoir(eclipseCase);
   
     m_reservoir = eclipseCase;
 
-    RigReservoirCellResults* cellResults = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+    RigCaseCellResultsData* cellResults = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
 
 
     std::vector<QDateTime> dates;
@@ -170,7 +170,7 @@ void RifReaderMockModel::addLocalGridRefinement(const cvf::Vec3st& minCellPositi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifReaderMockModel::populateReservoir(RigEclipseCase* eclipseCase)
+void RifReaderMockModel::populateReservoir(RigCaseData* eclipseCase)
 {
     m_reservoirBuilder.populateReservoir(eclipseCase);
 }

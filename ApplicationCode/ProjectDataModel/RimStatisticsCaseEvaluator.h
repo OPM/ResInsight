@@ -27,9 +27,9 @@
 #include <QPair>
 #include "RimDefines.h"
 
-class RimReservoir;
-class RigEclipseCase;
-class RigReservoirCellResults;
+class RimCase;
+class RigCaseData;
+class RigCaseCellResultsData;
 
 
 class RimStatisticsConfig
@@ -54,10 +54,10 @@ public:
 class RimStatisticsCaseEvaluator
 {
 public:
-    RimStatisticsCaseEvaluator(const std::vector<RimReservoir*>& sourceCases,
+    RimStatisticsCaseEvaluator(const std::vector<RimCase*>& sourceCases,
                                const std::vector<size_t>& timeStepIndices,
                                const RimStatisticsConfig& statisticsConfig,
-                               RigEclipseCase* destinationCase);
+                               RigCaseData* destinationCase);
 
 
     void evaluateForResults(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification);
@@ -65,15 +65,15 @@ public:
     void debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx);
 
 private:
-    void addNamedResult(RigReservoirCellResults* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
+    void addNamedResult(RigCaseCellResultsData* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
     void buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName);
 
 private:
-    std::vector<RimReservoir*>  m_sourceCases;
+    std::vector<RimCase*>  m_sourceCases;
     std::vector<size_t>         m_timeStepIndices;
 
     size_t                      m_globalCellCount;
     RimStatisticsConfig         m_statisticsConfig;
-    RigEclipseCase*             m_destinationCase;
+    RigCaseData*             m_destinationCase;
 };
 

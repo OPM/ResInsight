@@ -96,7 +96,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     const RigGridBase* grid = dynamic_cast<const RigGridBase*>(generator->activeGrid());
     CVF_ASSERT(grid != NULL);
 
-    RigEclipseCase* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
     CVF_ASSERT(eclipseCase != NULL);
 
     cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = NULL;
@@ -108,7 +108,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
             timeStepIndex = 0;
         }
 
-        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
         cellCenterDataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, cellResultSlot->gridScalarIndex());
     }
 

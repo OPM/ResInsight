@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigWellResultFrame& RigWellResults::wellResultFrame(size_t resultTimeStepIndex) const
+const RigWellResultFrame& RigSingleWellResultsData::wellResultFrame(size_t resultTimeStepIndex) const
 {
     CVF_ASSERT(resultTimeStepIndex < m_resultTimeStepIndexToWellTimeStepIndex.size());
 
@@ -37,7 +37,7 @@ const RigWellResultFrame& RigWellResults::wellResultFrame(size_t resultTimeStepI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellResults::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes)
+void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes)
 {
     m_resultTimeStepIndexToWellTimeStepIndex.clear();
     if (m_wellCellsTimeSteps.size() == 0) return;
@@ -83,7 +83,7 @@ void RigWellResults::computeMappingFromResultTimeIndicesToWellTimeIndices(const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigWellResults::hasWellResult(size_t resultTimeStepIndex) const
+bool RigSingleWellResultsData::hasWellResult(size_t resultTimeStepIndex) const
 {
     size_t wellTimeStepIndex = m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex];
 
@@ -93,7 +93,7 @@ bool RigWellResults::hasWellResult(size_t resultTimeStepIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigWellResults::firstResultTimeStep() const
+size_t RigSingleWellResultsData::firstResultTimeStep() const
 {
     size_t i = 0;
     for(i = 0; i < m_resultTimeStepIndexToWellTimeStepIndex.size(); ++i)
@@ -108,7 +108,7 @@ size_t RigWellResults::firstResultTimeStep() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigWellResults::computeStaticWellCellPath()
+void RigSingleWellResultsData::computeStaticWellCellPath()
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 

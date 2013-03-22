@@ -36,7 +36,7 @@ class RigMainGrid;
 // 
 //
 //==================================================================================================
-class RimStatisticsCase : public RimReservoir
+class RimStatisticsCase : public RimCase
 {
     CAF_PDM_HEADER_INIT;
 
@@ -58,6 +58,6 @@ public:
 private:
     RimIdenticalGridCaseGroup* caseGroup();
 
-    void getSourceCases(std::vector<RimReservoir*>& sourceCases);
+    void getSourceCases(std::vector<RimCase*>& sourceCases);
 
 };

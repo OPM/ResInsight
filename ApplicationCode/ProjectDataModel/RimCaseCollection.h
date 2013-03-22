@@ -39,7 +39,7 @@ public:
     RimCaseCollection();
     virtual ~RimCaseCollection();
 
-    caf::PdmPointersField<RimReservoir*> reservoirs;
+    caf::PdmPointersField<RimCase*> reservoirs;
 
     RimIdenticalGridCaseGroup* parentCaseGroup();
 

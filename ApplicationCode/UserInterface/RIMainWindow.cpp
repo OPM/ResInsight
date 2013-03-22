@@ -976,7 +976,7 @@ void RIMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     size_t i;
     for (i = 0; i < proj->reservoirs().size(); ++i)
     {
-        RimReservoir* ri = proj->reservoirs()[i];
+        RimCase* ri = proj->reservoirs()[i];
         if (!ri) continue;
 
         size_t j;

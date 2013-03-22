@@ -27,7 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigReservoirCellResults::RigReservoirCellResults(RigMainGrid* ownerGrid)
+RigCaseCellResultsData::RigCaseCellResultsData(RigMainGrid* ownerGrid)
 {
     CVF_ASSERT(ownerGrid != NULL);
     m_ownerMainGrid = ownerGrid;
@@ -37,7 +37,7 @@ RigReservoirCellResults::RigReservoirCellResults(RigMainGrid* ownerGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::setMainGrid(RigMainGrid* ownerGrid)
+void RigCaseCellResultsData::setMainGrid(RigMainGrid* ownerGrid)
 {
     m_ownerMainGrid = ownerGrid;
 }
@@ -45,7 +45,7 @@ void RigReservoirCellResults::setMainGrid(RigMainGrid* ownerGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::minMaxCellScalarValues( size_t scalarResultIndex, double& min, double& max )
+void RigCaseCellResultsData::minMaxCellScalarValues( size_t scalarResultIndex, double& min, double& max )
 {
     min = HUGE_VAL;
     max = -HUGE_VAL;
@@ -83,7 +83,7 @@ void RigReservoirCellResults::minMaxCellScalarValues( size_t scalarResultIndex, 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max)
+void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max)
 {
     min = HUGE_VAL;
     max = -HUGE_VAL;
@@ -137,7 +137,7 @@ void RigReservoirCellResults::minMaxCellScalarValues(size_t scalarResultIndex, s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigReservoirCellResults::cellScalarValuesHistogram(size_t scalarResultIndex)
+const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(size_t scalarResultIndex)
 {
     CVF_ASSERT(scalarResultIndex < resultCount());
 
@@ -178,7 +178,7 @@ const std::vector<size_t>& RigReservoirCellResults::cellScalarValuesHistogram(si
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
+void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
 {
     const std::vector<size_t>& histogr = cellScalarValuesHistogram( scalarResultIndex);
     p10 = m_p10p90[scalarResultIndex].first;
@@ -188,7 +188,7 @@ void RigReservoirCellResults::p10p90CellScalarValues(size_t scalarResultIndex, d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
+void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, double& meanValue)
 {
     CVF_ASSERT(scalarResultIndex < resultCount());
 
@@ -224,7 +224,7 @@ void RigReservoirCellResults::meanCellScalarValues(size_t scalarResultIndex, dou
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::resultCount() const
+size_t RigCaseCellResultsData::resultCount() const
 {
 	return m_cellScalarResults.size();
 }
@@ -232,7 +232,7 @@ size_t RigReservoirCellResults::resultCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::timeStepCount(size_t scalarResultIndex) const
+size_t RigCaseCellResultsData::timeStepCount(size_t scalarResultIndex) const
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
@@ -242,7 +242,7 @@ size_t RigReservoirCellResults::timeStepCount(size_t scalarResultIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults( size_t scalarResultIndex ) const
+const std::vector< std::vector<double> > & RigCaseCellResultsData::cellScalarResults( size_t scalarResultIndex ) const
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
@@ -252,7 +252,7 @@ const std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults( size_t scalarResultIndex )
+std::vector< std::vector<double> > & RigCaseCellResultsData::cellScalarResults( size_t scalarResultIndex )
 {
 	CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
 
@@ -262,7 +262,7 @@ std::vector< std::vector<double> > & RigReservoirCellResults::cellScalarResults(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<double>& RigReservoirCellResults::cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex)
+std::vector<double>& RigCaseCellResultsData::cellScalarResults(size_t scalarResultIndex, size_t timeStepIndex)
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < resultCount());
     CVF_TIGHT_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size());
@@ -273,7 +273,7 @@ std::vector<double>& RigReservoirCellResults::cellScalarResults(size_t scalarRes
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigReservoirCellResults::cellScalarResult( size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex)
+double RigCaseCellResultsData::cellScalarResult( size_t scalarResultIndex, size_t timeStepIndex, size_t resultValueIndex)
 {
     if (scalarResultIndex < resultCount() &&
         timeStepIndex < m_cellScalarResults[scalarResultIndex].size() &&
@@ -292,7 +292,7 @@ double RigReservoirCellResults::cellScalarResult( size_t scalarResultIndex, size
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const
+size_t RigCaseCellResultsData::findScalarResultIndex(RimDefines::ResultCatType type, const QString& resultName) const
 {
     std::vector<ResultInfo>::const_iterator it;
     for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
@@ -309,7 +309,7 @@ size_t RigReservoirCellResults::findScalarResultIndex(RimDefines::ResultCatType 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::findScalarResultIndex(const QString& resultName) const
+size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) const
 {
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -337,7 +337,7 @@ size_t RigReservoirCellResults::findScalarResultIndex(const QString& resultName)
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
 /// if resultName already exists, it returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
+size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
 {
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -356,7 +356,7 @@ size_t RigReservoirCellResults::addEmptyScalarResult(RimDefines::ResultCatType t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RigReservoirCellResults::resultNames(RimDefines::ResultCatType resType) const
+QStringList RigCaseCellResultsData::resultNames(RimDefines::ResultCatType resType) const
 {
     QStringList varList;
     std::vector<ResultInfo>::const_iterator it;
@@ -373,7 +373,7 @@ QStringList RigReservoirCellResults::resultNames(RimDefines::ResultCatType resTy
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::recalculateMinMax(size_t scalarResultIndex)
+void RigCaseCellResultsData::recalculateMinMax(size_t scalarResultIndex)
 {
     // Make sure cached max min values are recalculated next time asked for, since
     // the data could be changed.
@@ -392,7 +392,7 @@ void RigReservoirCellResults::recalculateMinMax(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// Returns whether the result data in question is addressed by Active Cell Index
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex) const
+bool RigCaseCellResultsData::isUsingGlobalActiveIndex(size_t scalarResultIndex) const
 {
     CVF_TIGHT_ASSERT(scalarResultIndex < m_cellScalarResults.size());
 
@@ -407,7 +407,7 @@ bool RigReservoirCellResults::isUsingGlobalActiveIndex(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QDateTime RigReservoirCellResults::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
+QDateTime RigCaseCellResultsData::timeStepDate(size_t scalarResultIndex, size_t timeStepIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() && (size_t)(m_resultInfos[scalarResultIndex].m_timeStepDates.size()) > timeStepIndex)
         return m_resultInfos[scalarResultIndex].m_timeStepDates[static_cast<int>(timeStepIndex)];
@@ -418,7 +418,7 @@ QDateTime RigReservoirCellResults::timeStepDate(size_t scalarResultIndex, size_t
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RigReservoirCellResults::timeStepDates(size_t scalarResultIndex) const
+std::vector<QDateTime> RigCaseCellResultsData::timeStepDates(size_t scalarResultIndex) const
 {
     if (scalarResultIndex < m_resultInfos.size() )
         return  m_resultInfos[scalarResultIndex].m_timeStepDates;
@@ -429,7 +429,7 @@ std::vector<QDateTime> RigReservoirCellResults::timeStepDates(size_t scalarResul
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates)
+void RigCaseCellResultsData::setTimeStepDates(size_t scalarResultIndex, const std::vector<QDateTime>& dates)
 {
     CVF_ASSERT(scalarResultIndex < m_resultInfos.size() );
 
@@ -442,7 +442,7 @@ void RigReservoirCellResults::setTimeStepDates(size_t scalarResultIndex, const s
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::maxTimeStepCount(size_t* scalarResultIndexWithMostTimeSteps) const
+size_t RigCaseCellResultsData::maxTimeStepCount(size_t* scalarResultIndexWithMostTimeSteps) const
 {
     size_t maxTsCount = 0;
     size_t scalarResultIndexWithMaxTsCount = cvf::UNDEFINED_SIZE_T;
@@ -467,7 +467,7 @@ size_t RigReservoirCellResults::maxTimeStepCount(size_t* scalarResultIndexWithMo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigReservoirCellResults::makeResultNameUnique(const QString& resultNameProposal) const
+QString RigCaseCellResultsData::makeResultNameUnique(const QString& resultNameProposal) const
 {
     QString newResultName = resultNameProposal;
     size_t resultIndex = cvf::UNDEFINED_SIZE_T;
@@ -489,7 +489,7 @@ QString RigReservoirCellResults::makeResultNameUnique(const QString& resultNameP
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::removeResult(const QString& resultName)
+void RigCaseCellResultsData::removeResult(const QString& resultName)
 {
     size_t resultIdx = findScalarResultIndex(resultName);
     if (resultIdx == cvf::UNDEFINED_SIZE_T) return;
@@ -502,7 +502,7 @@ void RigReservoirCellResults::removeResult(const QString& resultName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigReservoirCellResults::clearAllResults()
+void RigCaseCellResultsData::clearAllResults()
 {
     m_cellScalarResults.clear();
     m_maxMinValues.clear();
@@ -516,7 +516,7 @@ void RigReservoirCellResults::clearAllResults()
 //--------------------------------------------------------------------------------------------------
 /// Add a result with given type and name, and allocate one result vector for the static result values
 //--------------------------------------------------------------------------------------------------
-size_t RigReservoirCellResults::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
+size_t RigCaseCellResultsData::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
 {
     size_t resultIdx = addEmptyScalarResult(type, resultName, needsToBeStored);
     
@@ -529,7 +529,7 @@ size_t RigReservoirCellResults::addStaticScalarResult(RimDefines::ResultCatType 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RifReaderInterface::PorosityModelResultType RigReservoirCellResults::convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel)
+RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromProjectModelPorosityModel(RimDefines::PorosityModelType porosityModel)
 {
     if (porosityModel == RimDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
     

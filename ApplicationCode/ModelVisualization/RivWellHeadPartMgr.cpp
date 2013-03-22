@@ -72,11 +72,11 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView.isNull()) return;
 
-    RigEclipseCase* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+    RigCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
 
     RimWell* well = m_rimWell;
 
-    RigWellResults* wellResults = well->wellResults();
+    RigSingleWellResultsData* wellResults = well->wellResults();
 
     if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0)
     {

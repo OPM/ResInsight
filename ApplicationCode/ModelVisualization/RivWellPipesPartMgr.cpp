@@ -158,8 +158,8 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
     bool isAutoDetectBranches = m_rimReservoirView->wellCollection()->isAutoDetectingBranches();
     
-    RigEclipseCase*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
-    RigWellResults* wellResults = m_rimWell->wellResults();
+    RigCaseData*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+    RigSingleWellResultsData* wellResults = m_rimWell->wellResults();
 
     const RigWellResultFrame& staticWellFrame = m_rimWell->wellResults()->m_staticWellCells;
 
@@ -357,7 +357,7 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     if (m_rimWell == NULL) return;
 
-    RigWellResults* wRes = m_rimWell->wellResults();
+    RigSingleWellResultsData* wRes = m_rimWell->wellResults();
     if (wRes == NULL) return;
 
     if (frameIndex < wRes->firstResultTimeStep()) return; // Or reset colors or something

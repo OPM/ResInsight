@@ -41,8 +41,8 @@ public:
     
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
     
-    void                                setWellResults(RigWellResults* wellResults) { m_wellResults = wellResults;}
-    RigWellResults*                     wellResults() { return m_wellResults.p();}
+    void                                setWellResults(RigSingleWellResultsData* wellResults) { m_wellResults = wellResults;}
+    RigSingleWellResultsData*                     wellResults() { return m_wellResults.p();}
     
     virtual caf::PdmFieldHandle*        userDescriptionField();
 
@@ -61,7 +61,7 @@ public:
     caf::PdmField<double>               pipeRadiusScaleFactor;
 
 private:
-    cvf::ref<RigWellResults>            m_wellResults;
+    cvf::ref<RigSingleWellResultsData>            m_wellResults;
 
     RimReservoirView*                   m_reservoirView;
 };

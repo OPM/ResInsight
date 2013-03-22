@@ -30,7 +30,7 @@ class RigGridScalarDataAccessFactory
 {
 public:
     static cvf::ref<cvf::StructGridScalarDataAccess> 
-        createPerGridDataAccessObject(RigEclipseCase* eclipseCase,
+        createPerGridDataAccessObject(RigCaseData* eclipseCase,
                                       size_t gridIndex,
                                       RifReaderInterface::PorosityModelResultType porosityModel,
                                       size_t timeStepIndex,

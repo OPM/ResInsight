@@ -25,14 +25,14 @@
 #include <vector>
 
 class RigMainGrid;
-class RigEclipseCase;
+class RigCaseData;
 
-class RigGridCollection : public cvf::Object
+class RigGridManager : public cvf::Object
 {
 public:
-    void addCase(RigEclipseCase* eclipseCase);
+    void addCase(RigCaseData* eclipseCase);
     
-    void removeCase(RigEclipseCase* eclipseCase);
+    void removeCase(RigCaseData* eclipseCase);
     
     RigMainGrid* findEqualGrid(RigMainGrid* candidateGrid);
 
@@ -45,9 +45,9 @@ private:
     class CaseToGridMap : public cvf::Object
     {
     public:
-        CaseToGridMap(RigEclipseCase* eclipseCase, RigMainGrid* mainGrid);
+        CaseToGridMap(RigCaseData* eclipseCase, RigMainGrid* mainGrid);
 
-        RigEclipseCase*    m_eclipseCase;
+        RigCaseData*    m_eclipseCase;
         RigMainGrid*       m_mainGrid;
     };
 

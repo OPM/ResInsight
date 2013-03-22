@@ -125,7 +125,7 @@ void RivReservoirViewPartMgr::scheduleGeometryRegen(ReservoirGeometryCacheType g
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geomType)
 {
-    RigEclipseCase* eclipseCase = NULL;
+    RigCaseData* eclipseCase = NULL;
     if (m_reservoirView != NULL && m_reservoirView->eclipseCase())
     {
         eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
@@ -224,7 +224,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometryType)
 {
-    RigEclipseCase* res = m_reservoirView->eclipseCase()->reservoirData();
+    RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
     m_geometries[geometryType].clearAndSetReservoir(res);
     m_geometries[geometryType].setTransform(m_scaleTransform.p());
     std::vector<RigGridBase*> grids;
@@ -246,7 +246,7 @@ void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometry
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx)
 {
-    RigEclipseCase* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
+    RigCaseData* eclipseCase = m_reservoirView->eclipseCase()->reservoirData();
     RigActiveCellInfo* activeCellInfo = m_reservoirView->currentActiveCellInfo();
 
     switch (geometryType)
@@ -370,7 +370,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::createPropertyFilteredGeometry(size_t frameIndex)
 {
-    RigEclipseCase* res = m_reservoirView->eclipseCase()->reservoirData();
+    RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
 
     if ( frameIndex >= m_propFilteredGeometryFrames.size())
     { 
@@ -418,7 +418,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredGeometry(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameIndex)
 {
-    RigEclipseCase* res = m_reservoirView->eclipseCase()->reservoirData();
+    RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
 
     if ( frameIndex >= m_propFilteredWellGeometryFrames.size())
     { 
@@ -606,8 +606,8 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 
                 const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
 
-                RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
-                RigEclipseCase* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
+                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
+                RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
                 cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, scalarResultIndex);
                 CVF_ASSERT(dataAccessObject.notNull());
