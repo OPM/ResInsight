@@ -43,11 +43,11 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&statisticalReservoirCollection, "StatisticalReservoirCollection", "Derived Statistics", ":/Histograms16x16.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "Derived Statistics", ":/Histograms16x16.png", "", "");
     CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Cases", ":/Cases16x16.png", "", "");
  
     caseCollection = new RimCaseCollection;
-    statisticalReservoirCollection = new RimStatisticalCollection;
+    statisticsCaseCollection = new RimStatisticsCaseCollection;
 
     m_mainGrid = NULL;
 
@@ -65,8 +65,8 @@ RimIdenticalGridCaseGroup::~RimIdenticalGridCaseGroup()
     delete caseCollection;
     caseCollection = NULL;
 
-    delete statisticalReservoirCollection;
-    statisticalReservoirCollection = NULL;
+    delete statisticsCaseCollection;
+    statisticsCaseCollection = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,9 +89,9 @@ void RimIdenticalGridCaseGroup::addCase(RimReservoir* reservoir)
  
     caseCollection()->reservoirs().push_back(reservoir);
 
-    if (statisticalReservoirCollection->reservoirs().size() == 0)
+    if (statisticsCaseCollection->cases().size() == 0)
     {
-        createAndAppendStatisticalCalculation();
+        createAndAppendStatisticsCase();
     }
 
     clearActiveCellUnions();
@@ -174,9 +174,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     // Check if we need to calculate the union of the active cells
 
     bool foundResultsInCache = false;
-    for (size_t i = 0; i < statisticalReservoirCollection()->reservoirs.size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection()->cases.size(); i++)
     {
-        RimStatisticalCalculation* rimReservoir = statisticalReservoirCollection()->reservoirs[i];
+        RimStatisticsCase* rimReservoir = statisticsCaseCollection()->cases[i];
 
         // Check if any results are stored in cache
         if (rimReservoir->results(RifReaderInterface::MATRIX_RESULTS)->storedResultsCount() > 0 ||
@@ -194,9 +194,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
     // "Load" the statistical cases
 
-    for (size_t i = 0; i < statisticalReservoirCollection()->reservoirs.size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection()->cases.size(); i++)
     {
-        RimStatisticalCalculation* rimReservoir = statisticalReservoirCollection()->reservoirs[i];
+        RimStatisticsCase* rimReservoir = statisticsCaseCollection()->cases[i];
 
         rimReservoir->openEclipseGridFile();
 
@@ -295,12 +295,12 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticalCalculation* RimIdenticalGridCaseGroup::createAndAppendStatisticalCalculation()
+RimStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 {
-    RimStatisticalCalculation* newObject = new RimStatisticalCalculation;
+    RimStatisticsCase* newObject = new RimStatisticsCase;
 
-    newObject->caseName = QString("Statistics ") + QString::number(statisticalReservoirCollection()->reservoirs.size()+1);
-    statisticalReservoirCollection()->reservoirs.push_back(newObject);
+    newObject->caseName = QString("Statistics ") + QString::number(statisticsCaseCollection()->cases.size()+1);
+    statisticsCaseCollection()->cases.push_back(newObject);
 
     newObject->openEclipseGridFile();
 
@@ -312,9 +312,9 @@ RimStatisticalCalculation* RimIdenticalGridCaseGroup::createAndAppendStatistical
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 {
-    for (size_t i = 0; i < statisticalReservoirCollection->reservoirs().size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection->cases().size(); i++)
     {
-        RimStatisticalCalculation* rimStaticsCase = statisticalReservoirCollection->reservoirs[i];
+        RimStatisticsCase* rimStaticsCase = statisticsCaseCollection->cases[i];
 
         rimStaticsCase->reservoirData()->setMainGrid(this->mainGrid());
 
@@ -330,9 +330,9 @@ void RimIdenticalGridCaseGroup::updateMainGridAndActiveCellsForStatisticsCases()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::clearStatisticsResults()
 {
-    for (size_t i = 0; i < statisticalReservoirCollection->reservoirs().size(); i++)
+    for (size_t i = 0; i < statisticsCaseCollection->cases().size(); i++)
     {
-        RimStatisticalCalculation* rimStaticsCase = statisticalReservoirCollection->reservoirs[i];
+        RimStatisticsCase* rimStaticsCase = statisticsCaseCollection->cases[i];
         rimStaticsCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->clearAllResults();
         rimStaticsCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->clearAllResults();
 

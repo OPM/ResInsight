@@ -34,10 +34,10 @@ class RimReservoir;
 class RigEclipseCase;
 class RigReservoirCellResults;
 
-class RigStatisticsEvaluator
+class RimStatisticsEvaluator
 {
 public:
-    RigStatisticsEvaluator(const std::vector<double>& values)
+    RimStatisticsEvaluator(const std::vector<double>& values)
         : m_values(values),
         m_min(HUGE_VAL),
         m_max(-HUGE_VAL),
@@ -107,10 +107,10 @@ private:
 
 
 
-class RigStatisticsConfig
+class RimStatisticsConfig
 {
 public:
-    RigStatisticsConfig()
+    RimStatisticsConfig()
         : m_min(true),
         m_max(true),
         m_mean(true),
@@ -126,16 +126,16 @@ public:
 };
 
 
-class RigStatistics
+class RimStatisticsCaseEvaluator
 {
 public:
-    RigStatistics(const std::vector<RimReservoir*>& sourceCases,
-                  const std::vector<size_t>& timeStepIndices,
-                  const RigStatisticsConfig& statisticsConfig,
-                  RigEclipseCase* destinationCase);
+    RimStatisticsCaseEvaluator(const std::vector<RimReservoir*>& sourceCases,
+                               const std::vector<size_t>& timeStepIndices,
+                               const RimStatisticsConfig& statisticsConfig,
+                               RigEclipseCase* destinationCase);
 
 
-    void evaluateStatistics(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification);
+    void evaluateForResults(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification);
 
     void debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx);
 
@@ -144,13 +144,11 @@ private:
     void buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName);
 
 private:
-    std::vector<RimReservoir*>       m_sourceCases;
-    std::vector<size_t>             m_timeStepIndices;
+    std::vector<RimReservoir*>  m_sourceCases;
+    std::vector<size_t>         m_timeStepIndices;
 
-    size_t                          m_globalCellCount;
-
-    RigStatisticsConfig             m_statisticsConfig;
-
-    RigEclipseCase*                 m_destinationCase;
+    size_t                      m_globalCellCount;
+    RimStatisticsConfig         m_statisticsConfig;
+    RigEclipseCase*             m_destinationCase;
 };
 

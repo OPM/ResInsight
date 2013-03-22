@@ -160,17 +160,17 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
                 menu.exec(event->globalPos());
             }
-            else if (dynamic_cast<RimStatisticalCollection*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimStatisticsCaseCollection*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
-                menu.addAction(QString("New Statistical Case"), this, SLOT(slotNewStatisticalCase()));
+                menu.addAction(QString("New Statistcs Case"), this, SLOT(slotNewStatisticsCase()));
                 menu.exec(event->globalPos());
             }
-            else if (dynamic_cast<RimStatisticalCalculation*>(uiItem->dataObject().p()))
+            else if (dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
-                menu.addAction(QString("Compute"), this, SLOT(slotComputeStatisticalCases()));
+                menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.exec(event->globalPos());
             }
@@ -817,13 +817,13 @@ void RimUiTreeView::slotCloseCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::slotNewStatisticalCase()
+void RimUiTreeView::slotNewStatisticsCase()
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
         QModelIndex insertedIndex;
-        RimStatisticalCalculation* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
+        RimStatisticsCase* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
         setCurrentIndex(insertedIndex);
     }
 }
@@ -831,18 +831,18 @@ void RimUiTreeView::slotNewStatisticalCase()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::slotComputeStatisticalCases()
+void RimUiTreeView::slotComputeStatistics()
 {
     QModelIndex index = currentIndex();
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    RimStatisticalCalculation* statisticalObject = dynamic_cast<RimStatisticalCalculation*>(uiItem->dataObject().p());
-    if (!statisticalObject) return;
+    RimStatisticsCase* statisticsCase = dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p());
+    if (!statisticsCase) return;
 
-    statisticalObject->computeStatistics();
+    statisticsCase->computeStatistics();
 
-    if (statisticalObject->reservoirViews.size() == 0)
+    if (statisticsCase->reservoirViews.size() == 0)
     {
         slotAddView();
     }

@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatistics::addNamedResult(RigReservoirCellResults* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
+void RimStatisticsCaseEvaluator::addNamedResult(RigReservoirCellResults* destinationCellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeUnionCellCount)
 {
     // Use time step dates from first result in first source case
     CVF_ASSERT(m_sourceCases.size() > 0);
@@ -62,7 +62,7 @@ QString createResultNameDev(const QString& resultName)  { return resultName + "_
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName)
+void RimStatisticsCaseEvaluator::buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName)
 {
     if (m_sourceCases.size() == 0) return;
 
@@ -88,7 +88,7 @@ void RigStatistics::buildSourceMetaData(RimDefines::ResultCatType resultType, co
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification)
+void RimStatisticsCaseEvaluator::evaluateForResults(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification)
 {
     CVF_ASSERT(m_destinationCase);
 
@@ -246,7 +246,7 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
                             
                             if (foundAnyValidValues)
                             {
-                                RigStatisticsEvaluator stat(values);
+                                RimStatisticsEvaluator stat(values);
                                 stat.getStatistics(min, max, mean, dev);
                             }
 
@@ -293,7 +293,7 @@ void RigStatistics::evaluateStatistics(const QList<QPair<RimDefines::ResultCatTy
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigStatistics::debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx)
+void RimStatisticsCaseEvaluator::debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx)
 {
     CVF_ASSERT(m_destinationCase);
 
@@ -313,7 +313,7 @@ void RigStatistics::debugOutput(RimDefines::ResultCatType resultType, const QStr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigStatistics::RigStatistics(const std::vector<RimReservoir*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RigStatisticsConfig& statisticsConfig, RigEclipseCase* destinationCase) 
+RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimReservoir*>& sourceCases, const std::vector<size_t>& timeStepIndices, const RimStatisticsConfig& statisticsConfig, RigEclipseCase* destinationCase) 
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),

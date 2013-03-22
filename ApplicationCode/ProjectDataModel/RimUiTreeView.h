@@ -74,8 +74,8 @@ private slots:
 
     void slotCloseCase();
 
-    void slotNewStatisticalCase();
-    void slotComputeStatisticalCases();
+    void slotNewStatisticsCase();
+    void slotComputeStatistics();
     
     void slotAddCaseGroup();
     void slotDeleteObjectFromPdmPointersField();

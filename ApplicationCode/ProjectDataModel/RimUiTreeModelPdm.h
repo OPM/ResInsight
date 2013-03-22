@@ -32,7 +32,7 @@ class RimCellRangeFilter;
 class RimReservoir;
 class RimReservoirView;
 class RimInputProperty;
-class RimStatisticalCalculation;
+class RimStatisticsCase;
 class RimIdenticalGridCaseGroup;
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ public:
     void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
     void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
-    RimStatisticalCalculation*  addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimStatisticsCase*  addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimIdenticalGridCaseGroup*  addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
 
     bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);

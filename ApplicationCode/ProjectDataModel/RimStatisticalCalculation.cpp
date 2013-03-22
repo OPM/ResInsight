@@ -23,18 +23,17 @@
 #include "cafPdmUiOrdering.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RigEclipseCase.h"
-#include "RifReaderStatisticalCalculation.h"
 #include "RigReservoirCellResults.h"
 #include "RigStatistics.h"
 #include "RigMainGrid.h"
 
 
-CAF_PDM_SOURCE_INIT(RimStatisticalCalculation, "RimStatisticalCalculation");
+CAF_PDM_SOURCE_INIT(RimStatisticsCase, "RimStatisticalCalculation");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticalCalculation::RimStatisticalCalculation()
+RimStatisticsCase::RimStatisticsCase()
     : RimReservoir()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
@@ -45,7 +44,7 @@ RimStatisticalCalculation::RimStatisticalCalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticalCalculation::~RimStatisticalCalculation()
+RimStatisticsCase::~RimStatisticsCase()
 {
 
 }
@@ -54,7 +53,7 @@ RimStatisticalCalculation::~RimStatisticalCalculation()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::setMainGrid(RigMainGrid* mainGrid)
+void RimStatisticsCase::setMainGrid(RigMainGrid* mainGrid)
 {
     CVF_ASSERT(mainGrid);
     CVF_ASSERT(this->reservoirData());
@@ -65,15 +64,15 @@ void RimStatisticalCalculation::setMainGrid(RigMainGrid* mainGrid)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimStatisticalCalculation::openEclipseGridFile()
+bool RimStatisticsCase::openEclipseGridFile()
 {
     if (this->reservoirData()) return true;
 
     cvf::ref<RigEclipseCase> eclipseCase = new RigEclipseCase;
 
-    CVF_ASSERT(parentStatisticalCollection());
+    CVF_ASSERT(parentStatisticsCaseCollection());
 
-    RimIdenticalGridCaseGroup* gridCaseGroup = parentStatisticalCollection()->parentCaseGroup();
+    RimIdenticalGridCaseGroup* gridCaseGroup = parentStatisticsCaseCollection()->parentCaseGroup();
     CVF_ASSERT(gridCaseGroup);
 
     RigMainGrid* mainGrid = gridCaseGroup->mainGrid();
@@ -91,7 +90,7 @@ bool RimStatisticalCalculation::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
 {
 
 }
@@ -99,9 +98,9 @@ void RimStatisticalCalculation::defineUiOrdering(QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticalCollection* RimStatisticalCalculation::parentStatisticalCollection()
+RimStatisticsCaseCollection* RimStatisticsCase::parentStatisticsCaseCollection()
 {
-    std::vector<RimStatisticalCollection*> parentObjects;
+    std::vector<RimStatisticsCaseCollection*> parentObjects;
     this->parentObjectsOfType(parentObjects);
 
     if (parentObjects.size() > 0)
@@ -115,7 +114,7 @@ RimStatisticalCollection* RimStatisticalCalculation::parentStatisticalCollection
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::computeStatistics()
+void RimStatisticsCase::computeStatistics()
 {
     if (this->reservoirData() == NULL)
     {
@@ -139,7 +138,7 @@ void RimStatisticalCalculation::computeStatistics()
     // Use this information for all cases in the case group
     size_t timeStepCount = sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->maxTimeStepCount();
 
-    RigStatisticsConfig statisticsConfig;
+    RimStatisticsConfig statisticsConfig;
 
     std::vector<size_t> timeStepIndices;
     for (size_t i = 0; i < timeStepCount; i++)
@@ -171,8 +170,8 @@ void RimStatisticalCalculation::computeStatistics()
     }
     
 
-    RigStatistics stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
-    stat.evaluateStatistics(resultSpecification);
+    RimStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
+    stat.evaluateForResults(resultSpecification);
 
     for (size_t i = 0; i < reservoirViews().size(); i++)
     {
@@ -188,7 +187,7 @@ void RimStatisticalCalculation::computeStatistics()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimStatisticalCalculation::getSourceCases(std::vector<RimReservoir*>& sourceCases)
+void RimStatisticsCase::getSourceCases(std::vector<RimReservoir*>& sourceCases)
 {
     RimIdenticalGridCaseGroup* gridCaseGroup = caseGroup();
     if (gridCaseGroup)
@@ -209,9 +208,9 @@ void RimStatisticalCalculation::getSourceCases(std::vector<RimReservoir*>& sourc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimStatisticalCalculation::caseGroup()
+RimIdenticalGridCaseGroup* RimStatisticsCase::caseGroup()
 {
-    RimStatisticalCollection* parentCollection = parentStatisticalCollection();
+    RimStatisticsCaseCollection* parentCollection = parentStatisticsCaseCollection();
     if (parentCollection)
     {
         return parentCollection->parentCaseGroup();

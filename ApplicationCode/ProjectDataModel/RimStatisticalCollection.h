@@ -32,15 +32,15 @@
 // 
 //
 //==================================================================================================
-class RimStatisticalCollection : public caf::PdmObject
+class RimStatisticsCaseCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStatisticalCollection();
-    virtual ~RimStatisticalCollection();
+    RimStatisticsCaseCollection();
+    virtual ~RimStatisticsCaseCollection();
 
-    caf::PdmPointersField<RimStatisticalCalculation*> reservoirs;
+    caf::PdmPointersField<RimStatisticsCase*> cases;
 
     RimIdenticalGridCaseGroup* parentCaseGroup();
 

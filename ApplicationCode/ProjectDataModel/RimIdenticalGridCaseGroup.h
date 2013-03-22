@@ -49,10 +49,10 @@ public:
     void removeCase(RimReservoir* reservoir);
     bool contains(RimReservoir* reservoir) const;
 
-    RimStatisticalCalculation* createAndAppendStatisticalCalculation();
+    RimStatisticsCase* createAndAppendStatisticsCase();
 
     caf::PdmField<RimCaseCollection*>           caseCollection;
-    caf::PdmField<RimStatisticalCollection*>    statisticalReservoirCollection;
+    caf::PdmField<RimStatisticsCaseCollection*> statisticsCaseCollection;
 
     void loadMainCaseAndActiveCellInfo();
 

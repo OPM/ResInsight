@@ -27,8 +27,7 @@
 
 class RimIdenticalGridCaseGroup;
 class RimResultDefinition;
-class RifReaderStatisticalCalculation;
-class RimStatisticalCollection;
+class RimStatisticsCaseCollection;
 class RigMainGrid;
 
 
@@ -37,13 +36,13 @@ class RigMainGrid;
 // 
 //
 //==================================================================================================
-class RimStatisticalCalculation : public RimReservoir
+class RimStatisticsCase : public RimReservoir
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStatisticalCalculation();
-    virtual ~RimStatisticalCalculation();
+    RimStatisticsCase();
+    virtual ~RimStatisticsCase();
 
     void setMainGrid(RigMainGrid* mainGrid);
 
@@ -51,7 +50,7 @@ public:
 
     caf::PdmField<QString> m_resultName;
 
-    RimStatisticalCollection* parentStatisticalCollection();
+    RimStatisticsCaseCollection* parentStatisticsCaseCollection();
 
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
     void computeStatistics();
@@ -60,8 +59,5 @@ private:
     RimIdenticalGridCaseGroup* caseGroup();
 
     void getSourceCases(std::vector<RimReservoir*>& sourceCases);
-
-private:
-    cvf::ref<RifReaderStatisticalCalculation> m_readerInterface;
 
 };

@@ -475,7 +475,7 @@ void RimUiTreeModelPdm::deleteInputProperty(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimStatisticalCalculation* RimUiTreeModelPdm::addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
 {
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
 
@@ -484,17 +484,17 @@ RimStatisticalCalculation* RimUiTreeModelPdm::addStatisticalCalculation(const QM
     caf::PdmUiTreeItem* parentCollectionItem = NULL;
     int position = 0;
 
-    if (dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p()))
+    if (dynamic_cast<RimStatisticsCase*>(currentItem->dataObject().p()))
     {
-        RimStatisticalCalculation* currentObject = dynamic_cast<RimStatisticalCalculation*>(currentItem->dataObject().p());
-        caseGroup = currentObject->parentStatisticalCollection()->parentCaseGroup();
+        RimStatisticsCase* currentObject = dynamic_cast<RimStatisticsCase*>(currentItem->dataObject().p());
+        caseGroup = currentObject->parentStatisticsCaseCollection()->parentCaseGroup();
         parentCollectionItem = currentItem->parent();
         position = itemIndex.row();
         collectionIndex = itemIndex.parent();
     }
-    else if (dynamic_cast<RimStatisticalCollection*>(currentItem->dataObject().p()))
+    else if (dynamic_cast<RimStatisticsCaseCollection*>(currentItem->dataObject().p()))
     {
-        RimStatisticalCollection* statColl = dynamic_cast<RimStatisticalCollection*>(currentItem->dataObject().p());
+        RimStatisticsCaseCollection* statColl = dynamic_cast<RimStatisticsCaseCollection*>(currentItem->dataObject().p());
         caseGroup = statColl->parentCaseGroup();
         parentCollectionItem = currentItem;
         position = parentCollectionItem->childCount();
@@ -503,7 +503,7 @@ RimStatisticalCalculation* RimUiTreeModelPdm::addStatisticalCalculation(const QM
 
     beginInsertRows(collectionIndex, position, position);
 
-    RimStatisticalCalculation* createdObject = caseGroup->createAndAppendStatisticalCalculation();
+    RimStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
     caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);
 
     endInsertRows();
