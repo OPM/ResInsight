@@ -266,6 +266,9 @@ set (RESINSIGHT_LICENSE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
   )
 
+# bundle libraries together with private installation
+if (PRIVATE_INSTALL)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # tell binary to first attempt to load libraries from its own directory
   set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
@@ -303,3 +306,14 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
 endif()
 
+else (PRIVATE_INSTALL)
+  # binaries go in /usr/bin
+  install (TARGETS ResInsight
+	DESTINATION bin
+	)
+  # license go in /usr/share/doc
+  install (FILES ${RESINSIGHT_LICENSE_FILES}
+	DESTINATION share/doc/ResInsight
+	)
+  # no bundled libraries for system install
+endif (PRIVATE_INSTALL)
