@@ -316,4 +316,19 @@ else (PRIVATE_INSTALL)
 	DESTINATION share/doc/ResInsight
 	)
   # no bundled libraries for system install
+  # application icon
+  install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png
+	DESTINATION share/icons/hicolor/48x48/apps
+	RENAME ResInsight.png
+	)
+  # desktop environment icon; remember to call `update-desktop-database`
+  # in package post-install scripts
+  configure_file (
+	${CMAKE_CURRENT_SOURCE_DIR}/resinsight.desktop.in
+	${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
+	@ONLY
+	)
+  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
+	DESTINATION share/applications
+	)
 endif (PRIVATE_INSTALL)
