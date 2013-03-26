@@ -262,7 +262,8 @@ endif(MSVC)
 #############################################################################
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set_target_properties(ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_FINAL_INSTALL_PATH};.")
+  # tell binary to first attempt to load libraries from its own directory
+  set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
 
     # Find Qt libraries and sym links
     file (GLOB RESINSIGHT_FILES
@@ -275,6 +276,9 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # put a .exe.local file in the target directory to pick up DLLs from there
+  install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
+
     set (RESINSIGHT_FILES
             ${QT_BINARY_DIR}/QtCore4.dll
             ${QT_BINARY_DIR}/QtGui4.dll
