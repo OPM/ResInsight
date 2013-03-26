@@ -261,6 +261,11 @@ endif(MSVC)
 # Install 
 #############################################################################
 
+set (RESINSIGHT_LICENSE_FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
+  ${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
+  )
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   # tell binary to first attempt to load libraries from its own directory
   set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
@@ -287,10 +292,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         )
 endif()
 
-set (RESINSIGHT_FILES ${RESINSIGHT_FILES} 
-            ${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
-            ${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
-    )
+set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
 
 install(TARGETS ResInsight DESTINATION ${RESINSIGHT_FINAL_NAME})
