@@ -8,7 +8,8 @@ set(CPP_SOURCES
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set(RPATH_COMMAND "-Wl,-rpath=${RESINSIGHT_FINAL_INSTALL_PATH} -Wl,-rpath=.")
+  # since the compiler passes the option to the linker, double quoting is necessary
+  set (RPATH_COMMAND "-Wl,-rpath,'\\$$ORIGIN'")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -103,4 +104,23 @@ else()
   )
 endif()
 
+if (PRIVATE_INSTALL)
 install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME})
+else (PRIVATE_INSTALL)
+  # probe for site location of .oct files
+  if (NOT OCTAVE_SITE_OCT_DIR)
+	find_program (OCTAVE_CONFIG_COMMAND
+	  octave-config
+	  DOC "Path to Octave component and library information retrieval"
+	  )
+	exec_program (${OCTAVE_CONFIG_COMMAND}
+	  ARGS --oct-site-dir
+	  OUTPUT_VARIABLE OCTAVE_SITE_OCT_DIR
+	  )
+	set (OCTAVE_SITE_OCT_DIR "${OCTAVE_SITE_OCT_DIR}" CACHE LOCATION "Octave plugin directory")
+  endif (NOT OCTAVE_SITE_OCT_DIR)
+
+  install (FILES ${OCTAVE_BINARY_OCT_FILES}
+	DESTINATION ${OCTAVE_SITE_OCT_DIR}
+	)
+endif (PRIVATE_INSTALL)
