@@ -43,37 +43,38 @@ public:
     RimIdenticalGridCaseGroup();
     virtual ~RimIdenticalGridCaseGroup();
 
-    caf::PdmField<QString>  name;
+    caf::PdmField<QString>              name;
+    caf::PdmField<RimCaseCollection*>   caseCollection;
+    caf::PdmField<RimCaseCollection*>   statisticsCaseCollection;
 
-    void addCase(RimCase* reservoir);
-    void removeCase(RimCase* reservoir);
-    bool contains(RimCase* reservoir) const;
+    void                                addCase(RimCase* reservoir);
+    void                                removeCase(RimCase* reservoir);
+    bool                                contains(RimCase* reservoir) const;
 
-    RimStatisticsCase* createAndAppendStatisticsCase();
+    RimStatisticsCase*                  createAndAppendStatisticsCase();
 
-    caf::PdmField<RimCaseCollection*> caseCollection;
-    caf::PdmField<RimCaseCollection*> statisticsCaseCollection;
 
-    void loadMainCaseAndActiveCellInfo();
+    RimCase*                            mainCase();
+    void                                loadMainCaseAndActiveCellInfo();
 
-    RigMainGrid* mainGrid();
-    RigActiveCellInfo* unionOfActiveCells(RifReaderInterface::PorosityModelResultType porosityType);
+    RigMainGrid*                        mainGrid();
 
-    void computeUnionOfActiveCells();
+    RigActiveCellInfo*                  unionOfActiveCells(RifReaderInterface::PorosityModelResultType porosityType);
+    void                                computeUnionOfActiveCells();
 
-    static bool isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection);
+    static bool                         isStatisticsCaseCollection(RimCaseCollection* rimCaseCollection);
 
 protected:
-    virtual caf::PdmFieldHandle*   userDescriptionField();
+    virtual caf::PdmFieldHandle*        userDescriptionField();
 
 private:
-    void updateMainGridAndActiveCellsForStatisticsCases();
-    void clearStatisticsResults();
-    void clearActiveCellUnions();
+    void                                updateMainGridAndActiveCellsForStatisticsCases();
+    void                                clearStatisticsResults();
+    void                                clearActiveCellUnions();
 
 private:
-    RigMainGrid* m_mainGrid;
+    RigMainGrid*                        m_mainGrid;
     
-    cvf::ref<RigActiveCellInfo> m_unionOfMatrixActiveCells;
-    cvf::ref<RigActiveCellInfo> m_unionOfFractureActiveCells;
+    cvf::ref<RigActiveCellInfo>         m_unionOfMatrixActiveCells;
+    cvf::ref<RigActiveCellInfo>         m_unionOfFractureActiveCells;
 };

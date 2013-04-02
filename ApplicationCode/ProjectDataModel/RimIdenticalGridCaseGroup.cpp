@@ -405,3 +405,18 @@ bool RimIdenticalGridCaseGroup::isStatisticsCaseCollection(RimCaseCollection* ri
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCase* RimIdenticalGridCaseGroup::mainCase()
+{
+    if(caseCollection()->reservoirs().size())
+    {
+        return caseCollection()->reservoirs()[0];
+    }
+    else
+    {
+        return NULL;
+    }
+}

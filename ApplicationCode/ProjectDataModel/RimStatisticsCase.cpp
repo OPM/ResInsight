@@ -58,6 +58,13 @@ RimStatisticsCase::RimStatisticsCase()
     CAF_PDM_InitFieldNoDefault(&m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&m_selectedFractureDynamicProperties, "FractureDynamicPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedFractureStaticProperties, "FractureStaticPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedFractureInputProperties, "FractureInputPropertiesToCalculate", "", "", "", "");
+
+
+
     CAF_PDM_InitField(&m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "");
 
@@ -66,6 +73,7 @@ RimStatisticsCase::RimStatisticsCase()
     CAF_PDM_InitField(&m_highPercentile, "HighPercentile", 90.0, "High", "", "", "");
 
 
+    updateSelectionListVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,12 +254,74 @@ void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 
 }
 
+QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
+{
+    QList<caf::PdmOptionItemInfo> optionList;
+    int i;
+    for (i = 0; i < varList.size(); ++i)
+    {
+        optionList.push_back(caf::PdmOptionItemInfo( varList[i], varList[i]));
+    }
+    return optionList;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimStatisticsCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     QList<caf::PdmOptionItemInfo> options;
+    if (useOptionsOnly) *useOptionsOnly = true;
+
+    RimIdenticalGridCaseGroup* idgcg = caseGroup();
+    if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->reservoirData())) 
+    {
+        return options;
+    }
+
+    RigCaseData* caseData = idgcg->mainCase()->reservoirData();
+
+    if (&m_selectedDynamicProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        return toOptionList(varList);
+    } 
+    else if (&m_selectedStaticProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        return toOptionList(varList);
+    } 
+    else if (&m_selectedGeneratedProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::GENERATED);
+        return toOptionList(varList);
+    } 
+    else if (&m_selectedInputProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::INPUT_PROPERTY);
+        return toOptionList(varList);
+    }
+    else if (&m_selectedFractureDynamicProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        return toOptionList(varList);
+    } 
+    else if (&m_selectedFractureStaticProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        return toOptionList(varList);
+    } 
+    else if (&m_selectedFractureGeneratedProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::GENERATED);
+        return toOptionList(varList);
+    } 
+    else if (&m_selectedFractureInputProperties == fieldNeedingOptions)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::INPUT_PROPERTY);
+        return toOptionList(varList);
+    }
+
     return options;
 }
 
@@ -260,5 +330,24 @@ QList<caf::PdmOptionItemInfo> RimStatisticsCase::calculateValueOptions(const caf
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (&m_resultType == changedField || &m_porosityModel == changedField)
+    {
+        updateSelectionListVisibilities();
+    }
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::updateSelectionListVisibilities()
+{
+    m_selectedDynamicProperties.setUiHidden(            !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedStaticProperties.setUiHidden(             !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedGeneratedProperties.setUiHidden(          !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedInputProperties.setUiHidden(              !(m_porosityModel() == RimDefines::MATRIX_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+
+    m_selectedFractureDynamicProperties.setUiHidden(    !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::DYNAMIC_NATIVE));
+    m_selectedFractureStaticProperties.setUiHidden(     !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
+    m_selectedFractureGeneratedProperties.setUiHidden(  !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
+    m_selectedFractureInputProperties.setUiHidden(      !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
 }
