@@ -27,6 +27,17 @@
 #include "RimStatisticsCaseEvaluator.h"
 #include "RigMainGrid.h"
 
+namespace caf {
+    template<>
+    void caf::AppEnum<RimStatisticsCase::PercentileCalcType>::setUp()
+    {
+        addItem(RimStatisticsCase::EXACT,           "ExactPercentile",         "Exact");
+        addItem(RimStatisticsCase::HISTOGRAM_ESTIMATED,           "HistogramEstimatedPercentile",         "Estimated (Faster for large case counts)");
+        setDefault(RimStatisticsCase::EXACT);
+    }
+}
+
+
 
 CAF_PDM_SOURCE_INIT(RimStatisticsCase, "RimStatisticalCalculation");
 
@@ -37,7 +48,23 @@ RimStatisticsCase::RimStatisticsCase()
     : RimCase()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
-    CAF_PDM_InitField(&m_resultName, "ResultName", QString("PRESSURE"), "ResultName", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
+    m_resultType.setIOWritable(false);
+    CAF_PDM_InitFieldNoDefault(&m_porosityModel, "PorosityModel", "Porosity Model", "", "", "");
+    m_porosityModel.setIOWritable(false);
+
+    CAF_PDM_InitFieldNoDefault(&m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedStaticProperties, "StaticPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "");
+
+    CAF_PDM_InitField(&m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "");
+
+    CAF_PDM_InitField(&m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "");
+    CAF_PDM_InitField(&m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "");
+    CAF_PDM_InitField(&m_highPercentile, "HighPercentile", 90.0, "High", "", "", "");
+
 
 }
 
@@ -85,14 +112,6 @@ bool RimStatisticsCase::openEclipseGridFile()
     this->setReservoirData( eclipseCase.p() );
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
-{
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,4 +236,29 @@ RimIdenticalGridCaseGroup* RimStatisticsCase::caseGroup()
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+{
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimStatisticsCase::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+
 }

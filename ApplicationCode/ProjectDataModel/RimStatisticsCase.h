@@ -46,14 +46,36 @@ public:
 
     void setMainGrid(RigMainGrid* mainGrid);
 
-    virtual bool openEclipseGridFile();
+    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
+    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
 
-    caf::PdmField<QString> m_resultName;
+    caf::PdmField<std::vector<QString> > m_selectedDynamicProperties;
+    caf::PdmField<std::vector<QString> > m_selectedStaticProperties;
+    caf::PdmField<std::vector<QString> > m_selectedGeneratedProperties;
+    caf::PdmField<std::vector<QString> > m_selectedInputProperties;
+
+    enum PercentileCalcType
+    {
+        EXACT,
+        HISTOGRAM_ESTIMATED
+    };
+    
+    caf::PdmField< bool > m_calculatePercentiles;
+    caf::PdmField< caf::AppEnum< PercentileCalcType > >      m_percentileCalculationType;
+    caf::PdmField<double > m_lowPercentile;
+    caf::PdmField<double > m_midPercentile;
+    caf::PdmField<double > m_highPercentile;
+    
+
+    void computeStatistics();
+    virtual bool openEclipseGridFile();
 
     RimCaseCollection* parentStatisticsCaseCollection();
 
+    // Pdm system overrides
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
-    void computeStatistics();
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
     RimIdenticalGridCaseGroup* caseGroup();
