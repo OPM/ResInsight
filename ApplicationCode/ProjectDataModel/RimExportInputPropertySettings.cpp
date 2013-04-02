@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimExportInputPropertySettings.h"
 #include "cafPdmUiFilePathEditor.h"

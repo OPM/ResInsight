@@ -32,7 +32,7 @@ class RimCellPropertyFilterCollection;
 class RimResultDefinition;
 
 class RigGridBase;
-class RigReservoirCellResults;
+class RigCaseCellResultsData;
 
 namespace cvf
 {

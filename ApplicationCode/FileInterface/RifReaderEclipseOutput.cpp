@@ -19,8 +19,8 @@
 #include "cvfBase.h"
 
 #include "RigMainGrid.h"
-#include "RigReservoir.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
 
 #include "RifReaderEclipseOutput.h"
 #include "RifEclipseOutputFileTools.h"
@@ -32,6 +32,8 @@
 
 #include "ecl_grid.h"
 #include "well_state.h"
+#include "ecl_kw_magic.h"
+
 #include "cafProgressInfo.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -84,8 +86,10 @@ static const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 // Static functions
 //**************************************************************************************************
 
-bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const ecl_grid_type* localEclGrid, size_t matrixActiveStartIndex, size_t fractureActiveStartIndex)
+bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellInfo, RigActiveCellInfo* fractureActiveCellInfo, RigGridBase* localGrid, const ecl_grid_type* localEclGrid, size_t matrixActiveStartIndex, size_t fractureActiveStartIndex)
 {
+    CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
+
     int cellCount = ecl_grid_get_global_size(localEclGrid);
     size_t cellStartIndex = mainGrid->cells().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
@@ -103,39 +107,31 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
     // Loop over cells and fill them with data
 
 #pragma omp parallel for
-    for (int gIdx = 0; gIdx < cellCount; ++gIdx)
+    for (int localCellIdx = 0; localCellIdx < cellCount; ++localCellIdx)
     {
-        RigCell& cell = mainGrid->cells()[cellStartIndex + gIdx];
+        RigCell& cell = mainGrid->cells()[cellStartIndex + localCellIdx];
 
-        bool invalid = ecl_grid_cell_invalid1(localEclGrid, gIdx);
+        bool invalid = ecl_grid_cell_invalid1(localEclGrid, localCellIdx);
         cell.setInvalid(invalid);
-        cell.setCellIndex(gIdx);
+        cell.setCellIndex(localCellIdx);
 
         // Active cell index
 
-        int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, gIdx);
+        int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, localCellIdx);
         if (matrixActiveIndex != -1)
         {
-            cell.setActiveIndexInMatrixModel(matrixActiveStartIndex + matrixActiveIndex);
-        }
-        else
-        {
-            cell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
+            activeCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
         }
 
-        int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, gIdx);
+        int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, localCellIdx);
         if (fractureActiveIndex != -1)
         {
-            cell.setActiveIndexInFractureModel(fractureActiveStartIndex + fractureActiveIndex);
-        }
-        else
-        {
-            cell.setActiveIndexInFractureModel(cvf::UNDEFINED_SIZE_T);
+            fractureActiveCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
         }
 
         // Parent cell index
 
-        int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gIdx);
+        int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, localCellIdx);
         if (parentCellIndex == -1)
         {
             cell.setParentCellIndex(cvf::UNDEFINED_SIZE_T);
@@ -146,21 +142,21 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         }
     
         // Coarse cell info
-        ecl_coarse_cell_type * coarseCellData = ecl_grid_get_cell_coarse_group1( localEclGrid , gIdx);
+        ecl_coarse_cell_type * coarseCellData = ecl_grid_get_cell_coarse_group1( localEclGrid , localCellIdx);
         cell.setInCoarseCell(coarseCellData != NULL);
 
         // Corner coordinates
         int cIdx;
         for (cIdx = 0; cIdx < 8; ++cIdx)
         {
-            double * point = mainGrid->nodes()[nodeStartIndex + gIdx * 8 + cellMappingECLRi[cIdx]].ptr();
-            ecl_grid_get_corner_xyz1(localEclGrid, gIdx, cIdx, &(point[0]), &(point[1]), &(point[2]));
+            double * point = mainGrid->nodes()[nodeStartIndex + localCellIdx * 8 + cellMappingECLRi[cIdx]].ptr();
+            ecl_grid_get_corner_xyz1(localEclGrid, localCellIdx, cIdx, &(point[0]), &(point[1]), &(point[2]));
             point[2] = -point[2];
-            cell.cornerIndices()[cIdx] = nodeStartIndex + gIdx*8 + cIdx;
+            cell.cornerIndices()[cIdx] = nodeStartIndex + localCellIdx*8 + cIdx;
         }
 
         // Sub grid in cell
-        const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, gIdx);
+        const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, localCellIdx);
         if (subGrid != NULL)
         {
             int subGridFileIndex = ecl_grid_get_grid_nr(subGrid);
@@ -169,7 +165,9 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
         }
 
         // Mark inactive long pyramid looking cells as invalid
-        if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
+        // Forslag
+        //if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
+        if (!invalid)
         {
             cell.setInvalid(cell.isLongPyramidCell());
         }
@@ -193,7 +191,15 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigGridBase* localGrid, const e
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseOutput::RifReaderEclipseOutput()
 {
-    ground();
+    m_fileName.clear();
+    m_fileSet.clear();
+
+    m_timeSteps.clear();
+
+    m_eclipseCase = NULL;
+
+    m_ecl_init_file = NULL;
+    m_dynamicResultsAccess = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,37 +207,33 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 //--------------------------------------------------------------------------------------------------
 RifReaderEclipseOutput::~RifReaderEclipseOutput()
 {
+    close();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// Ground members
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::ground()
-{
-    m_fileName.clear();
-    m_fileSet.clear();
-
-    m_timeSteps.clear();
-    m_mainGrid = NULL;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// Close interface (for now, no files are kept open after calling methods, so just clear members)
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::close()
 {
-    m_ecl_file     = NULL;
-    m_dynamicResultsAccess    = NULL;
+    if (m_ecl_init_file)
+    {
+        ecl_file_close(m_ecl_init_file);
+    }
+    m_ecl_init_file = NULL;
 
-    ground();
+    if (m_dynamicResultsAccess.notNull())
+    {
+        m_dynamicResultsAccess->close();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Read geometry from file given by name into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigReservoir* reservoir)
+bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, RigCaseData* eclipseCase)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
 
     if (!mainEclGrid)
     {
@@ -239,7 +241,12 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         return false;
     }
 
-    RigMainGrid* mainGrid = reservoir->mainGrid();
+    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS);
+
+    CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
+
+    RigMainGrid* mainGrid = eclipseCase->mainGrid();
     {
         cvf::Vec3st  gridPointDim(0,0,0);
         gridPointDim.x() = ecl_grid_get_nx(mainEclGrid) + 1;
@@ -273,6 +280,9 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 
         totalCellCount += ecl_grid_get_global_size(localEclGrid);
     }
+    
+    activeCellInfo->setGlobalCellCount(totalCellCount);
+    fractureActiveCellInfo->setGlobalCellCount(totalCellCount);
 
     // Reserve room for the cells and nodes and fill them with data
 
@@ -283,15 +293,20 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     progInfo.setProgressDescription("Main Grid");
     progInfo.setNextProgressIncrement(3);
 
-    transferGridCellData(mainGrid, mainGrid, mainEclGrid, 0, 0);
+    transferGridCellData(mainGrid, activeCellInfo, fractureActiveCellInfo, mainGrid, mainEclGrid, 0, 0);
 
     progInfo.setProgress(3);
 
     size_t globalMatrixActiveSize = ecl_grid_get_nactive(mainEclGrid);
     size_t globalFractureActiveSize = ecl_grid_get_nactive_fracture(mainEclGrid);
 
-    mainGrid->setMatrixModelActiveCellCount(globalMatrixActiveSize);
-    mainGrid->setFractureModelActiveCellCount(globalFractureActiveSize);
+    activeCellInfo->setGridCount(1 + numLGRs);
+    fractureActiveCellInfo->setGridCount(1 + numLGRs);
+
+    activeCellInfo->setGridActiveCellCounts(0, globalMatrixActiveSize);
+    fractureActiveCellInfo->setGridActiveCellCounts(0, globalFractureActiveSize);
+
+ 
 
     for (lgrIdx = 0; lgrIdx < numLGRs; ++lgrIdx)
     {
@@ -300,22 +315,21 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
         RigLocalGrid* localGrid = static_cast<RigLocalGrid*>(mainGrid->gridByIndex(lgrIdx+1));
 
-        transferGridCellData(mainGrid, localGrid, localEclGrid, globalMatrixActiveSize, globalFractureActiveSize);
+        transferGridCellData(mainGrid, activeCellInfo, fractureActiveCellInfo, localGrid, localEclGrid, globalMatrixActiveSize, globalFractureActiveSize);
 
-        int activeCellCount = ecl_grid_get_nactive(localEclGrid);
-        localGrid->setMatrixModelActiveCellCount(activeCellCount);
-        globalMatrixActiveSize += activeCellCount;
+        int matrixActiveCellCount = ecl_grid_get_nactive(localEclGrid);
+        globalMatrixActiveSize += matrixActiveCellCount;
 
-        activeCellCount = ecl_grid_get_nactive_fracture(localEclGrid);
-        localGrid->setFractureModelActiveCellCount(activeCellCount);
-        globalFractureActiveSize += activeCellCount;
+        int fractureActiveCellCount = ecl_grid_get_nactive_fracture(localEclGrid);
+        globalFractureActiveSize += fractureActiveCellCount;
 
+        activeCellInfo->setGridActiveCellCounts(lgrIdx + 1, matrixActiveCellCount);
+        fractureActiveCellInfo->setGridActiveCellCounts(lgrIdx + 1, fractureActiveCellCount);
         progInfo.setProgress(3 + lgrIdx);
     }
 
-
-    mainGrid->setGlobalMatrixModelActiveCellCount(globalMatrixActiveSize);
-    mainGrid->setGlobalFractureModelActiveCellCount(globalFractureActiveSize);
+    activeCellInfo->computeDerivedData();
+    fractureActiveCellInfo->computeDerivedData();
 
     return true;
 }
@@ -323,9 +337,9 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 //--------------------------------------------------------------------------------------------------
 /// Open file and read geometry into given reservoir object
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservoir)
+bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseCase)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(eclipseCase);
     caf::ProgressInfo progInfo(100, "");
 
     progInfo.setProgressDescription("Reading Grid");
@@ -351,7 +365,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
     progInfo.setNextProgressIncrement(10);
     progInfo.setProgressDescription("Transferring grid geometry");
 
-    if (!transferGeometry(mainEclGrid, reservoir)) return false;
+    if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
     progInfo.incrementProgress();
 
     progInfo.setProgressDescription("Releasing reader memory");
@@ -361,30 +375,157 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigReservoir* reservo
     progInfo.setProgressDescription("Reading Result index");
     progInfo.setNextProgressIncrement(60);
 
-    m_mainGrid = reservoir->mainGrid();
-    
-    reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(this);
-    reservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(this);
+    m_eclipseCase = eclipseCase;
     
     // Build results meta data
-    if (!buildMetaData(reservoir)) return false;
+    if (!buildMetaData()) return false;
     progInfo.incrementProgress();
 
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
     
-    readWellCells(reservoir);
+    readWellCells();
 
 
     return true;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase)
+{
+    CVF_ASSERT(eclipseCase);
+
+    // It is required to have a main grid before reading active cell data
+    if (!eclipseCase->mainGrid())
+    {
+        return false;
+    }
+
+    close();
+
+    // Get set of files
+    QStringList fileSet;
+    if (!RifEclipseOutputFileTools::fileSet(fileName, &fileSet)) return false;
+
+    // Keep the set of files of interest
+    m_fileSet = fileSet;
+    m_eclipseCase = eclipseCase;
+
+
+    if (!readActiveCellInfo())
+    {
+        return false;
+    }
+    
+
+    // Reading of metadata and well cells is not performed here
+    //if (!buildMetaData()) return false;
+    // readWellCells();
+
+    m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
+
+    m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
+
+    return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+/// See also RigStatistics::computeActiveCellUnion()
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::readActiveCellInfo()
+{
+    CVF_ASSERT(m_eclipseCase);
+    CVF_ASSERT(m_eclipseCase->mainGrid());
+
+    QString egridFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_EGRID_FILE);
+    if (egridFileName.size() > 0)
+    {
+        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data());
+        if (!ecl_file) return false;
+
+        int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
+        if (actnumKeywordCount > 0)
+        {
+            std::vector<std::vector<int> > actnumValuesPerGrid;
+            actnumValuesPerGrid.resize(actnumKeywordCount);
+
+            size_t globalCellCount = 0;
+            for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
+            {
+                RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &actnumValuesPerGrid[gridIdx]);
+
+                globalCellCount += actnumValuesPerGrid[gridIdx].size();
+            }
+
+            // Check if number of cells is matching
+            if (m_eclipseCase->mainGrid()->cells().size() != globalCellCount)
+            {
+                return false;
+            }
+
+            RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+            RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS);
+
+            activeCellInfo->setGlobalCellCount(globalCellCount);
+            fractureActiveCellInfo->setGlobalCellCount(globalCellCount);
+            activeCellInfo->setGridCount(actnumKeywordCount);
+            fractureActiveCellInfo->setGridCount(actnumKeywordCount);
+
+            size_t cellIdx = 0;
+            size_t globalActiveMatrixIndex = 0;
+            size_t globalActiveFractureIndex = 0;
+            for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
+            {
+                size_t activeMatrixIndex = 0;
+                size_t activeFractureIndex = 0;
+
+                std::vector<int>& actnumValues = actnumValuesPerGrid[gridIdx];
+
+                for (size_t i = 0; i < actnumValues.size(); i++)
+                {
+                    if (actnumValues[i] == 1 || actnumValues[i] == 3)
+                    {
+                        activeCellInfo->setCellResultIndex(cellIdx, globalActiveMatrixIndex++);
+                        activeMatrixIndex++;
+                    }
+
+                    if (actnumValues[i] == 2 || actnumValues[i] == 3)
+                    {
+                        fractureActiveCellInfo->setCellResultIndex(cellIdx, globalActiveFractureIndex++);
+                        activeFractureIndex++;
+                    }
+
+                    cellIdx++;
+                }
+
+                activeCellInfo->setGridActiveCellCounts(gridIdx, activeMatrixIndex);
+                fractureActiveCellInfo->setGridActiveCellCounts(gridIdx, activeFractureIndex);
+            }
+
+            activeCellInfo->computeDerivedData();
+            fractureActiveCellInfo->computeDerivedData();
+        }
+
+        ecl_file_close(ecl_file);
+
+        return true;
+    }
+
+    return false;
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// Build meta data - get states and results info
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
+bool RifReaderEclipseOutput::buildMetaData()
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_fileSet.size() > 0);
 
     caf::ProgressInfo progInfo(m_fileSet.size() + 3,"");
@@ -392,16 +533,19 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
     progInfo.setNextProgressIncrement(m_fileSet.size());
 
     // Create access object for dynamic results
-    m_dynamicResultsAccess = dynamicResultsAccess(m_fileSet);
+    m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
     if (m_dynamicResultsAccess.isNull())
     {
         return false;
     }
 
+    m_dynamicResultsAccess->open();
+
+
     progInfo.incrementProgress();
 
-    RigReservoirCellResults* matrixModelResults = reservoir->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS);
-    RigReservoirCellResults* fractureModelResults = reservoir->mainGrid()->results(RifReaderInterface::FRACTURE_RESULTS);
+    RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
+    RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
 
     if (m_dynamicResultsAccess.notNull())
     {
@@ -413,21 +557,27 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
         m_dynamicResultsAccess->resultNames(&resultNames, &resultNamesDataItemCounts);
 
         {
-            QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::MATRIX_RESULTS, m_dynamicResultsAccess->timeStepCount());
+            QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
+                                                                            RifReaderInterface::MATRIX_RESULTS, m_dynamicResultsAccess->timeStepCount());
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i]);
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
 
         {
-            QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::FRACTURE_RESULTS, m_dynamicResultsAccess->timeStepCount());
+            QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
+                                                                            RifReaderInterface::FRACTURE_RESULTS, m_dynamicResultsAccess->timeStepCount());
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i]);
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
@@ -436,22 +586,23 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 
     progInfo.incrementProgress();
 
-    QString initFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_INIT_FILE);
-    if (initFileName.size() > 0)
+    openInitFile();
+    
+    progInfo.incrementProgress();
+
+    if (m_ecl_init_file)
     {
-        ecl_file_type* ecl_file = ecl_file_open(initFileName.toAscii().data());
-        if (!ecl_file) return false;
-
-        progInfo.incrementProgress();
-
         QStringList resultNames;
         std::vector<size_t> resultNamesDataItemCounts;
-        RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ecl_file, &resultNames, &resultNamesDataItemCounts);
+        RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_init_file, &resultNames, &resultNamesDataItemCounts);
 
         {
-            QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::MATRIX_RESULTS, 1);
+            QStringList matrixResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
+                                                                            RifReaderInterface::MATRIX_RESULTS, 1);
 
-            QList<QDateTime> staticDate;
+            std::vector<QDateTime> staticDate;
             if (m_timeSteps.size() > 0)
             {
                 staticDate.push_back(m_timeSteps.front());
@@ -459,15 +610,18 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
-                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i]);
+                size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
                 matrixModelResults->setTimeStepDates(resIndex, staticDate);
             }
         }
 
         {
-            QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, RifReaderInterface::FRACTURE_RESULTS, 1);
+            QStringList fractureResultNames = validKeywordsForPorosityModel(resultNames, resultNamesDataItemCounts, 
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS),
+                                                                            m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS), 
+                                                                            RifReaderInterface::FRACTURE_RESULTS, 1);
 
-            QList<QDateTime> staticDate;
+            std::vector<QDateTime> staticDate;
             if (m_timeSteps.size() > 0)
             {
                 staticDate.push_back(m_timeSteps.front());
@@ -475,12 +629,10 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
-                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i]);
+                size_t resIndex = fractureModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, fractureResultNames[i], false);
                 fractureModelResults->setTimeStepDates(resIndex, staticDate);
             }
         }
-
-        m_ecl_file = ecl_file;
     }
 
     return true;
@@ -489,7 +641,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// Create results access object (.UNRST or .X0001 ... .XNNNN)
 //--------------------------------------------------------------------------------------------------
-RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const QStringList& fileSet)
+RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess(const QStringList& fileSet)
 {
     RifEclipseRestartDataAccess* resultsAccess = NULL;
 
@@ -498,11 +650,7 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const 
     if (unrstFileName.size() > 0)
     {
         resultsAccess = new RifEclipseUnifiedRestartFileAccess();
-        if (!resultsAccess->open(QStringList(unrstFileName)))
-        {
-            delete resultsAccess;
-            return NULL;
-        }
+        resultsAccess->setFileSet(QStringList(unrstFileName));
     }
     else
     {
@@ -511,16 +659,9 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const 
         if (restartFiles.size() > 0)
         {
             resultsAccess = new RifEclipseRestartFilesetAccess();
-            if (!resultsAccess->open(restartFiles))
-            {
-                delete resultsAccess;
-                return NULL;
-            }
+            resultsAccess->setFileSet(restartFiles);
         }
     }
-
-    // !! could add support for formatted result files
-    // !! consider priorities in case multiple types exist (.UNRST, .XNNNN, ...)
 
     return resultsAccess;
 }
@@ -531,16 +672,22 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::dynamicResultsAccess(const 
 bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values)
 {
     CVF_ASSERT(values);
-    CVF_ASSERT(m_ecl_file);
+
+    if (!openInitFile())
+    {
+        return false;
+    }
+
+    CVF_ASSERT(m_ecl_init_file);
 
     std::vector<double> fileValues;
 
-    size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_file, result.toAscii().data());
+    size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
     size_t i;
     for (i = 0; i < numOccurrences; i++)
     {
         std::vector<double> partValues;
-        RifEclipseOutputFileTools::keywordData(m_ecl_file, result, i, &partValues);
+        RifEclipseOutputFileTools::keywordData(m_ecl_init_file, result, i, &partValues);
         fileValues.insert(fileValues.end(), partValues.begin(), partValues.end());
     }
 
@@ -554,10 +701,19 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
 //--------------------------------------------------------------------------------------------------
 bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values)
 {
-    CVF_ASSERT(m_dynamicResultsAccess.notNull());
+    if (m_dynamicResultsAccess.isNull())
+    {
+        m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
+    }
+
+    if (m_dynamicResultsAccess.isNull())
+    {
+        CVF_ASSERT(false);
+        return false;
+    }
 
     std::vector<double> fileValues;
-    if (!m_dynamicResultsAccess->results(result, stepIndex, m_mainGrid->gridCount(), &fileValues))
+    if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
     {
         return false;
     }
@@ -570,9 +726,9 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
+void RifReaderEclipseOutput::readWellCells()
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(m_eclipseCase);
 
     if (m_dynamicResultsAccess.isNull()) return;
 
@@ -581,11 +737,11 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
 
     m_dynamicResultsAccess->readWellData(ert_well_info);
 
-    RigMainGrid* mainGrid = reservoir->mainGrid();
+    RigMainGrid* mainGrid = m_eclipseCase->mainGrid();
     std::vector<RigGridBase*> grids;
-    reservoir->allGrids(&grids);
+    m_eclipseCase->allGrids(&grids);
 
-    cvf::Collection<RigWellResults> wells;
+    cvf::Collection<RigSingleWellResultsData> wells;
     caf::ProgressInfo progress(well_info_get_num_wells(ert_well_info), "");
 
     int wellIdx;
@@ -594,7 +750,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
         const char* wellName = well_info_iget_well_name(ert_well_info, wellIdx);
         CVF_ASSERT(wellName);
 
-        cvf::ref<RigWellResults> wellResults = new RigWellResults;
+        cvf::ref<RigSingleWellResultsData> wellResults = new RigSingleWellResultsData;
         wellResults->m_wellName = wellName;
 
         well_ts_type* ert_well_time_series = well_info_get_ts(ert_well_info , wellName);
@@ -671,7 +827,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
 
                     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
                     // Adjust K so index is always in valid grid region
-                    if (cellK >= grids[gridNr]->cellCountK())
+                    if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
                     {
                         cellK -= static_cast<int>(grids[gridNr]->cellCountK());
                     }
@@ -716,7 +872,7 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
                                     
                                     // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
                                     // Adjust K so index is always in valid grid region
-                                    if (cellK >= grids[gridNr]->cellCountK())
+                                    if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
                                     {
                                         cellK -= static_cast<int>(grids[gridNr]->cellCountK());
                                     }
@@ -743,41 +899,27 @@ void RifReaderEclipseOutput::readWellCells(RigReservoir* reservoir)
 
     well_info_free(ert_well_info);
 
-    reservoir->setWellResults(wells);
+    m_eclipseCase->setWellResults(wells);
 }
 
-//--------------------------------------------------------------------------------------------------
-// For case DUALPORO, the well K index is reported outside the grid. If this happens,
-// for the given IJ position, search from K=0 and upwards for first active cell.
-//--------------------------------------------------------------------------------------------------
-int RifReaderEclipseOutput::findSmallestActiveCellIndexK(const RigGridBase* grid, int cellI, int cellJ)
-{
-    if (!grid) return -1;
-
-    for (int candidateCellK = 0; candidateCellK < grid->cellCountK(); candidateCellK++ )
-    {
-        if (grid->isCellActive(cellI, cellJ, candidateCellK))
-        {
-            return candidateCellK;
-        }
-    }
-
-    return -1;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, PorosityModelResultType matrixOrFracture, size_t timeStepCount) const
+QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringList& keywords, const std::vector<size_t>& keywordDataItemCounts, 
+                                                                  const RigActiveCellInfo* activeCellInfo, const RigActiveCellInfo* fractureActiveCellInfo, 
+                                                                  PorosityModelResultType matrixOrFracture, size_t timeStepCount) const
 {
-    if (keywords.size() != keywordDataItemCounts.size())
+    CVF_ASSERT(activeCellInfo);
+
+    if (keywords.size() != static_cast<int>(keywordDataItemCounts.size()))
     {
         return QStringList();
     }
 
     if (matrixOrFracture == RifReaderInterface::FRACTURE_RESULTS)
     {
-        if (m_mainGrid->globalFractureModelActiveCellCount() == 0)
+        if (fractureActiveCellInfo->globalActiveCellCount() == 0)
         {
             return QStringList();
         }
@@ -790,17 +932,27 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         QString keyword = keywords[i];
         size_t keywordDataCount = keywordDataItemCounts[i];
 
-        size_t timeStepsMatrix = keywordDataItemCounts[i] / m_mainGrid->globalMatrixModelActiveCellCount();
-        size_t timeStepsMatrixRest = keywordDataItemCounts[i] % m_mainGrid->globalMatrixModelActiveCellCount();
-        
-        size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (m_mainGrid->globalMatrixModelActiveCellCount() + m_mainGrid->globalFractureModelActiveCellCount());
-        size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (m_mainGrid->globalMatrixModelActiveCellCount() + m_mainGrid->globalFractureModelActiveCellCount());
-
-        if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+        if (activeCellInfo->globalActiveCellCount() > 0)
         {
-            if (timeStepsMatrixRest == 0 || timeStepsMatrixAndFractureRest == 0)
+            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalActiveCellCount();
+            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalActiveCellCount();
+        
+            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
+            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
+
+            if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
             {
-                if (timeStepCount == timeStepsMatrix || timeStepCount == timeStepsMatrixAndFracture)
+                if (timeStepsMatrixRest == 0 || timeStepsMatrixAndFractureRest == 0)
+                {
+                    if (timeStepCount == timeStepsMatrix || timeStepCount == timeStepsMatrixAndFracture)
+                    {
+                        keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                    }
+                }
+            }
+            else
+            {
+                if (timeStepsMatrixAndFractureRest == 0 && timeStepCount == timeStepsMatrixAndFracture)
                 {
                     keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
                 }
@@ -808,57 +960,87 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         }
         else
         {
-            if (timeStepsMatrixAndFractureRest == 0 && timeStepCount == timeStepsMatrixAndFracture)
-            {
-                keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
-            }
+            keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
         }
     }
 
     return keywordsWithCorrectNumberOfDataItems;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* destinationResultValues, const std::vector<double>& sourceResultValues)
 {
-    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
+
+
+    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->globalActiveCellCount() == 0)
     {
-        if (m_mainGrid->globalFractureModelActiveCellCount() == 0)
-        {
-            destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end());
-        }
-        else
-        {
-            size_t dataItemCount = 0;
-            size_t sourceStartPosition = 0;
-
-            for (size_t i = 0; i < m_mainGrid->gridCount(); i++)
-            {
-                size_t matrixActiveCellCount = m_mainGrid->gridByIndex(i)->matrixModelActiveCellCount();
-                size_t fractureActiveCellCount = m_mainGrid->gridByIndex(i)->matrixModelActiveCellCount();
-
-                destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin() + sourceStartPosition, sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount);
-
-                sourceStartPosition += (matrixActiveCellCount + fractureActiveCellCount);
-            }
-        }
+        destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end());
     }
     else
     {
+        RigActiveCellInfo* actCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS); 
+
         size_t dataItemCount = 0;
         size_t sourceStartPosition = 0;
 
-        for (size_t i = 0; i < m_mainGrid->gridCount(); i++)
+        for (size_t i = 0; i < m_eclipseCase->mainGrid()->gridCount(); i++)
         {
-            size_t matrixActiveCellCount = m_mainGrid->gridByIndex(i)->matrixModelActiveCellCount();
-            size_t fractureActiveCellCount = m_mainGrid->gridByIndex(i)->matrixModelActiveCellCount();
+            size_t matrixActiveCellCount = 0;
+            size_t fractureActiveCellCount = 0;
+           
+            actCellInfo->gridActiveCellCounts(i, matrixActiveCellCount);
+            fracActCellInfo->gridActiveCellCounts(i, fractureActiveCellCount);
 
-            destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount, sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount + fractureActiveCellCount);
+            if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
+            {
+                destinationResultValues->insert(destinationResultValues->end(), 
+                                                sourceResultValues.begin() + sourceStartPosition, 
+                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount);
+            }
+            else
+            {
+                destinationResultValues->insert(destinationResultValues->end(), 
+                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount, 
+                                                sourceResultValues.begin() + sourceStartPosition + matrixActiveCellCount + fractureActiveCellCount);
+            }
 
             sourceStartPosition += (matrixActiveCellCount + fractureActiveCellCount);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifReaderEclipseOutput::openInitFile()
+{
+    if (m_ecl_init_file)
+    {
+        return true;
+    }
+
+    QString initFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_INIT_FILE);
+    if (initFileName.size() > 0)
+    {
+        m_ecl_init_file = ecl_file_open(initFileName.toAscii().data());
+        if (m_ecl_init_file)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RifReaderEclipseOutput::timeSteps()
+{
+    return m_timeSteps;
 }
 

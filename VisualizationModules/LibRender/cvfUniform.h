@@ -62,6 +62,7 @@ protected:
 
 private:
     CharArray   m_name;
+    CVF_DISABLE_COPY_AND_ASSIGN(Uniform);
 };
 
 
@@ -85,6 +86,7 @@ public:
 
 private:
     IntArray  m_data;
+    CVF_DISABLE_COPY_AND_ASSIGN(UniformInt);
 };
 
 
@@ -120,6 +122,7 @@ public:
 
 private:
     FloatArray  m_data;
+    CVF_DISABLE_COPY_AND_ASSIGN(UniformFloat);
 };
 
 
@@ -129,7 +132,7 @@ private:
 // 
 //
 //==================================================================================================
-class UniformMatrixf: public Uniform
+class UniformMatrixf : public Uniform
 {
 public:
     UniformMatrixf(const char* name);
@@ -142,6 +145,7 @@ public:
 
 private:
     FloatArray  m_data;
+    CVF_DISABLE_COPY_AND_ASSIGN(UniformMatrixf);
 };
 
 

@@ -58,9 +58,9 @@ private:
     friend class OpenGLContextGroup;
 };
 
-#define CVF_LOG_RENDER_ERROR(OGL_CTX_PTR, THE_MESSAGE) OGL_CTX_PTR->group()->logger()->error((THE_MESSAGE), __FILE__, __LINE__ )
+#define CVF_LOG_RENDER_ERROR(OGL_CTX_PTR, THE_MESSAGE) OGL_CTX_PTR->group()->logger()->error((THE_MESSAGE), CVF_CODE_LOCATION)
 
-#define CVF_LOG_RENDER_DEBUG(OGL_CTX_PTR, THE_MESSAGE) OGL_CTX_PTR->group()->logger()->debug((THE_MESSAGE), __FILE__, __LINE__ )
+#define CVF_LOG_RENDER_DEBUG(OGL_CTX_PTR, THE_MESSAGE) OGL_CTX_PTR->group()->logger()->debug((THE_MESSAGE), CVF_CODE_LOCATION)
 #define CVF_SHOULD_LOG_RENDER_DEBUG(OGL_CTX_PTR)       OGL_CTX_PTR->group()->logger()->isDebugEnabled()
 
 

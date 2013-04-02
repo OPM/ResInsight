@@ -18,15 +18,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "gtest/gtest.h"
 
-#include "RigReservoir.h"
+#include "RigCaseData.h"
 
 #include "RifReaderEclipseOutput.h"
 #include "ecl_file.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
 
 
@@ -68,7 +68,7 @@ TEST(RigReservoirTest, FileOutputToolsTest)
 
 void buildResultInfoString(RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, RimDefines::ResultCatType resultType)
 {
-    RigReservoirCellResults* matrixResults = reservoir->mainGrid()->results(porosityModel);
+    RigCaseCellResultsData* matrixResults = reservoir->results(porosityModel);
     {
         QStringList resultNames = matrixResults->resultNames(resultType);
 
@@ -247,7 +247,7 @@ TEST(RigReservoirTest, BasicTest)
 TEST(RigReservoirTest, WellTest)
 {
     cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    cvf::ref<RigReservoir> reservoir = new RigReservoir;
+    cvf::ref<RigCaseData> reservoir = new RigCaseData;
 
     // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
 #ifdef WIN32

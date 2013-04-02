@@ -40,28 +40,42 @@ RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 //--------------------------------------------------------------------------------------------------
 /// Open files
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
+bool RifEclipseRestartFilesetAccess::open()
 {
-    close();
-
-    int numFiles = fileSet.size();
-
-    caf::ProgressInfo progInfo(numFiles,"");
-
-    int i;
-    for (i = 0; i < numFiles; i++)
+    if (m_fileNames.size() > 0)
     {
-        progInfo.setProgressDescription(fileSet[i]);
+        caf::ProgressInfo progInfo(m_fileNames.size(), "");
 
-        ecl_file_type* ecl_file = ecl_file_open(fileSet[i].toAscii().data());
-        if (!ecl_file) return false;
+        int i;
+        for (i = 0; i < m_fileNames.size(); i++)
+        {
+            progInfo.setProgressDescription(m_fileNames[i]);
 
-        m_ecl_files.push_back(ecl_file);
+            openTimeStep(i);
 
-        progInfo.incrementProgress();
+            progInfo.incrementProgress();
+        }
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRestartFilesetAccess::setFileSet(const QStringList& fileSet)
+{
+    close();
+    m_ecl_files.clear();
+
+    m_fileNames = fileSet;
+
+    for (int i = 0; i < m_fileNames.size(); i++)
+    {
+        m_ecl_files.push_back(NULL);
+    }
+
+    CVF_ASSERT(m_fileNames.size() == static_cast<int>(m_ecl_files.size()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,10 +85,22 @@ void RifEclipseRestartFilesetAccess::close()
 {
     for (size_t i = 0; i < m_ecl_files.size(); i++)
     {
-        ecl_file_close(m_ecl_files[i]);
-    }
-    m_ecl_files.clear();
+        if (m_ecl_files[i])
+        {
+            ecl_file_close(m_ecl_files[i]);
+        }
 
+        m_ecl_files[i] = NULL;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRestartFilesetAccess::setTimeSteps(const std::vector<QDateTime>& timeSteps)
+{
+    CVF_ASSERT(m_fileNames.size() == timeSteps.size());
+    m_timeSteps = timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,35 +108,39 @@ void RifEclipseRestartFilesetAccess::close()
 //--------------------------------------------------------------------------------------------------
 size_t RifEclipseRestartFilesetAccess::timeStepCount()
 {
-    return m_ecl_files.size();
+    return m_timeSteps.size();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get the time steps
 //--------------------------------------------------------------------------------------------------
-QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
+std::vector<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 {
-    QList<QDateTime> timeSteps;
-
-    size_t numSteps = timeStepCount();
-    size_t i;
-    for (i = 0; i < numSteps; i++)
+    if (m_timeSteps.size() == 0)
     {
-        QList<QDateTime> stepTime;
+        size_t numSteps = m_fileNames.size();
+        size_t i;
+        for (i = 0; i < numSteps; i++)
+        {
+            std::vector<QDateTime> stepTime;
 
-        RifEclipseOutputFileTools::timeSteps(m_ecl_files[i], &stepTime);
+            openTimeStep(i);
+
+            RifEclipseOutputFileTools::timeSteps(m_ecl_files[i], &stepTime);
         
-        if (stepTime.size() == 1)
-        {
-            timeSteps.push_back(stepTime[0]);
+            if (stepTime.size() == 1)
+            {
+                m_timeSteps.push_back(stepTime[0]);
+            }
+            else
+            {
+                m_timeSteps.push_back(QDateTime());
+            }
         }
-        else
-        {
-            timeSteps.push_back(QDateTime());
-        }
+
     }
 
-    return timeSteps;
+    return m_timeSteps;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -119,6 +149,8 @@ QList<QDateTime> RifEclipseRestartFilesetAccess::timeSteps()
 void RifEclipseRestartFilesetAccess::resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts)
 {
     CVF_ASSERT(timeStepCount() > 0);
+
+    openTimeStep(0);
 
     std::vector<size_t> valueCountForOneFile;
     RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(m_ecl_files[0], resultNames, &valueCountForOneFile);
@@ -134,28 +166,35 @@ void RifEclipseRestartFilesetAccess::resultNames(QStringList* resultNames, std::
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseRestartFilesetAccess::results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values)
 {
-    size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toAscii().data());
+    if (timeStep >= timeStepCount())
+    {
+        return false;
+    }
+
+    openTimeStep(timeStep);
+
+    size_t fileGridCount = ecl_file_get_num_named_kw(m_ecl_files[timeStep], resultName.toAscii().data());
 
     // No results for this result variable for current time step found
-    if (numOccurrences == 0) return true;
+    if (fileGridCount == 0) return true;
 
     // Result handling depends on presents of result values for all grids
-    if (gridCount != numOccurrences)
+    if (gridCount != fileGridCount)
     {
         return false;
     }
 
     size_t i;
-    for (i = 0; i < numOccurrences; i++)
+    for (i = 0; i < fileGridCount; i++)
     {
-        std::vector<double> partValues;
+        std::vector<double> gridValues;
 
-        if (!RifEclipseOutputFileTools::keywordData(m_ecl_files[timeStep], resultName, i, &partValues))
+        if (!RifEclipseOutputFileTools::keywordData(m_ecl_files[timeStep], resultName, i, &gridValues))
         {
             return false;
         }
 
-        values->insert(values->end(), partValues.begin(), partValues.end());
+        values->insert(values->end(), gridValues.begin(), gridValues.end());
     }
 
     return true;
@@ -171,6 +210,8 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
 
     for (size_t i = 0; i < m_ecl_files.size(); i++)
     {
+        openTimeStep(i);
+
         const char* fileName = ecl_file_get_src_file(m_ecl_files[i]);
         int reportNumber = ecl_util_filename_report_nr(fileName);
         if(reportNumber != -1)
@@ -179,3 +220,20 @@ void RifEclipseRestartFilesetAccess::readWellData(well_info_type* well_info)
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
+{
+    CVF_ASSERT(timeStep < m_ecl_files.size());
+
+    if (m_ecl_files[timeStep] == NULL)
+    {
+        int index = static_cast<int>(timeStep);
+        ecl_file_type* ecl_file = ecl_file_open(m_fileNames[index].toAscii().data());
+
+        m_ecl_files[timeStep] = ecl_file;
+    }
+}
+

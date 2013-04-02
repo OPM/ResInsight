@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimCellRangeFilterCollection.h"
 
 #include "RimReservoirView.h"
-#include "RigReservoir.h"
+#include "RigCaseData.h"
 
 
 
@@ -97,8 +97,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     }
 }
 
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -126,9 +124,21 @@ RigMainGrid* RimCellRangeFilterCollection::mainGrid() const
         m_reservoirView->eclipseCase()->reservoirData()->mainGrid())
     {
 
-        RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+        return m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+    }
 
-        return mainGrid;
+    return NULL;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
+{
+    if (m_reservoirView )
+    {
+        return m_reservoirView->currentActiveCellInfo();
     }
 
     return NULL;
@@ -209,3 +219,4 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
 
     return false;
 }
+

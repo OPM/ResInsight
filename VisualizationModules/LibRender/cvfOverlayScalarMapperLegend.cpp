@@ -686,7 +686,14 @@ void OverlayScalarMapperLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
         if (m_scalarMapper.isNull()) t = 0;
         else                         t = m_scalarMapper->normalizedValue(m_tickValues[i]);
         t = Math::clamp(t, 0.0, 1.1);
-        layout->tickPixelPos->set(i, t*layout->legendRect.height());
+        if (i != numTicks -1)
+        {
+            layout->tickPixelPos->set(i, t*layout->legendRect.height());
+        }
+        else
+        {
+            layout->tickPixelPos->set(i, layout->legendRect.height());  // Make sure we get a value at the top even if the scalarmapper range is zero
+        }
     }
 }
 

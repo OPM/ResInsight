@@ -23,7 +23,13 @@
         <file>octave.png</file>
         <file>Folder.png</file>
         <file>EclipseInput48x48.png</file>
-    </qresource>
+		<file>Cases16x16.png</file>
+		<file>CreateGridCaseGroup16x16.png</file>
+		<file>GridCaseGroup16x16.png</file>
+		<file>Histogram16x16.png</file>
+		<file>Histograms16x16.png</file>
+		<file>ZoomAll16x16.png</file>
+	</qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>
         <file>vs_CellFace.glsl</file>

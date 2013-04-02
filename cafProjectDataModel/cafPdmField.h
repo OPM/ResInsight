@@ -212,6 +212,7 @@ public:
     void                push_back(DataType* pointer);
     void                set(size_t index, DataType* pointer);
     void                insert(size_t indexAfter, DataType* pointer);
+    void                insert(size_t indexAfter, const std::vector<PdmPointer<DataType> >& objects);
 
     void                clear();
     void                erase(size_t index);

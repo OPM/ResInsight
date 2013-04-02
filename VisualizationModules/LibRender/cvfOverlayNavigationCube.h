@@ -26,6 +26,8 @@
 #include "cvfBoundingBox.h"
 #include "cvfCollection.h"
 
+#include <map>
+
 namespace cvf {
 
 class Camera;
@@ -35,7 +37,7 @@ class Font;
 class ShaderProgram;
 class MatrixState;
 class TextureImage;
-
+class RenderState;
 
 //==================================================================================================
 //
@@ -45,8 +47,8 @@ class TextureImage;
 class OverlayNavigationCube: public OverlayItem
 {
 public:
-    enum NavCubeFace {
-        NCF_NONE,
+    enum NavCubeFace 
+    {
         NCF_X_POS,
         NCF_X_NEG,
         NCF_Y_POS,
@@ -55,8 +57,31 @@ public:
         NCF_Z_NEG
     };
 
-    // Note that the order of the items starting at the VT_NCFI_BOTTOM_LEFT is important (in a CCW order)
-    enum NavCubeFaceItem {
+public:
+    OverlayNavigationCube(Camera* camera, Font* font);
+    ~OverlayNavigationCube();
+
+    virtual Vec2ui      sizeHint();
+    virtual Vec2ui      maximumSize();
+    virtual Vec2ui      minimumSize();
+
+    virtual void        render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    virtual void        renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    virtual bool        pick(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size);
+
+    bool                updateHighlight(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size);
+    bool                processSelection(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size, Vec3d* viewDir, Vec3d* up);
+
+    void                setSize(const Vec2ui& size);
+    void                setHome(const Vec3d& viewDirection, const Vec3d& up);
+    void                setAxisLabels(const String& xLabel, const String& yLabel, const String& zlabel);
+    void                setAxisLabelsColor(const Color3f& color);
+    void                setFaceTexture(NavCubeFace face, TextureImage* texture);
+
+private:
+    // Note that the order of the items starting at the NCFI_BOTTOM_LEFT is important (in a CCW order)
+    enum NavCubeFaceItem 
+    {
         NCFI_NONE,
         NCFI_CENTER,
         NCFI_BOTTOM_LEFT,
@@ -111,77 +136,76 @@ public:
         NCI_ROTATE_CCW
     };
 
-public:
-    OverlayNavigationCube(Camera* camera, Font* font);
-    ~OverlayNavigationCube();
+private:
+    void                render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
+    void                createAxisGeometry(bool software);
+    void                renderAxis(OpenGLContext* oglContext, const MatrixState& matrixState);
+    void                renderAxisImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState);
+    void                renderAxisLabels(OpenGLContext* oglContext, bool software, const MatrixState& matrixState);
+    void                renderCubeGeos(OpenGLContext* oglContext, bool software, const MatrixState& matrixState);
+    void                render2dItems(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
 
-    virtual Vec2ui  sizeHint();
-    virtual Vec2ui  maximumSize();
-    virtual Vec2ui  minimumSize();
+    void                createCubeGeos();
+    void                createCubeFaceGeos(NavCubeFace face, Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4);
+    ref<DrawableGeo>    createQuadGeo(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& v4, const Vec2f& t1, const Vec2f& t2, const Vec2f& t3, const Vec2f& t4);
+    void                navCubeCornerPoints(Vec3f points[8]);
+    void                create2dGeos();
+    ref<DrawableGeo>    create2dArrow(const Vec3f& start, const Vec3f& end);
 
-    virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
-    virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
+    NavCubeItem         navCubeItem(NavCubeFace face, NavCubeFaceItem item) const;
 
-    void            setSize(const Vec2ui& size);
-    void            updateHighlight(int winCoordX, int winCoordY);
-    void            processSelection(int winCoordX, int winCoordY, const BoundingBox& boundingBox, Vec3d* eye, Vec3d* viewDirection);
+    void                configureLocalCamera(Camera* camera, const Vec2i& position, const Vec2ui& size);
 
-    void            setAxisLabels(const String& xLabel, const String& yLabel, const String& zlabel);
-    void            setAxisLabelsColor(const Color3f& color);
+    void                viewConfigurationFromNavCubeItem(NavCubeItem item, Vec3d* viewDir, Vec3d* up);
+    Vec3d               computeNewUpVector(const Vec3d& viewFrom, const Vec3d currentUp) const;
+
+    size_t              pickItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size);
+    NavCubeItem         pick2dItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size);
+
+    void                updateTextureBindings(OpenGLContext* oglContext, bool software);
+    bool                isFaceAlignedViewPoint() const;
+
+    static Vec3d        snapToAxis(const Vec3d& vector, const Vec3d* pPreferIfEqual = NULL);
+    static bool         vectorsParallelFuzzy(Vec3d v1, Vec3d v2);
+    static int          findClosestAxis(const Vec3d& vector);
 
 private:
-    void render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software, const Mat4d& viewMatrix);
-    void createAxisGeometry(bool software);
-    void renderAxis(OpenGLContext* oglContext, const MatrixState& matrixState);
-    void renderAxisImmediateMode(OpenGLContext* oglContext, const MatrixState& matrixState);
-    void renderAxisLabels(OpenGLContext* oglContext, bool software, const MatrixState& matrixState);
-    void renderCubeGeos(OpenGLContext* oglContext, bool software, const MatrixState& matrixState);
+    ref<Camera>                 m_camera;                   // This camera's view matrix will be used to orient the axis cross
+    ref<Font>                   m_font;
+    String                      m_xLabel;                   // Label to display on x axis, default 'x'
+    String                      m_yLabel;           
+    String                      m_zLabel;
+    Color3f                     m_textColor;                // Text color 
 
-    void createCubeGeos();
-    void createCubeFaceGeos(NavCubeFace face, Vec3f p1, Vec3f p2, Vec3f p3, Vec3f p4);//, const String& name, const Color3f& baseColor, TextureImage* texture);
-    void navCubeCornerPoints(Vec3f points[8]);
-    ref<DrawableGeo> createQuadGeo(const Vec3f& v1, const Vec3f& v2, const Vec3f& v3, const Vec3f& v4);
+    Vec2ui                      m_size;                     // Pixel size of the nav cube area
 
-    NavCubeItem navCubeItem(NavCubeFace face, NavCubeFaceItem item) const;
-    void        faceOrientation(NavCubeFace face, Vec3f* normal, Vec3f* upVector, Vec3f* rightVector) const;
+    Vec3d                       m_homeViewDirection;
+    Vec3d                       m_homeUp;
 
-private:
-    ref<Camera>             m_camera;       // This camera's view matrix will be used to orient the axis cross
-    String                  m_xLabel;       // Label to display on x axis, default 'x'
-    String                  m_yLabel;       
-    String                  m_zLabel;
-    Color3f                 m_textColor;    // Text color 
-    ref<Font>               m_font;
+    Collection<DrawableGeo>     m_cubeGeos;                 // These arrays have the same length
+    std::vector<NavCubeItem>    m_cubeItemType;             // These arrays have the same length
+    std::vector<NavCubeFace>    m_cubeGeoFace;              // These arrays have the same length
 
-    Vec2ui                  m_size;         // Pixel size of the axis area
+    ref<DrawableGeo>            m_homeGeo;                  // These arrays have the same length
+    Collection<DrawableGeo>     m_2dGeos;                   // These arrays have the same length
+    std::vector<NavCubeItem>    m_2dItemType;
 
-    Collection<DrawableGeo>     m_cubeGeos;
-    std::vector<NavCubeItem>    m_cubeItemType;
     ref<ShaderProgram>          m_cubeGeoShader;
+    ref<ShaderProgram>          m_cubeGeoTextureShader;
     ref<DrawableVectors>        m_axis;
 
-    NavCubeItem	            m_hightlightItem;	///< The currently highlighted cube item (face, corner, edge, buttons)
-    Vec3f		            m_upVector;			///< Specify the up vector, which is used for the orientation of the text and textures on the faces
-    Vec3f                   m_frontVector;		///< Specify the front vector, which is used for the orientation of the top and bottom faces
+    NavCubeItem	                m_hightlightItem;	        ///< The currently highlighted cube item (face, corner, edge, buttons)
+    Vec3f		                m_upVector;			        ///< Specify the up vector, which is used for the orientation of the text and textures on the faces
+    Vec3f                       m_frontVector;		        ///< Specify the front vector, which is used for the orientation of the top and bottom faces
 
-    String          		m_xPosAxisName;	///< The name of the X_POS face
-    String          		m_xNegAxisName;	///< The name of the X_NEG face
-    String          		m_yPosAxisName;	///< The name of the Y_POS face
-    String          		m_yNegAxisName;	///< The name of the Y_NEG face
-    String          		m_zPosAxisName;	///< The name of the Z_POS face
-    String          		m_zNegAxisName;	///< The name of the Z_NEG face
+    Color3f         		    m_xFaceColor;		        ///< The color of the X_POS and X_NEG faces
+    Color3f         		    m_yFaceColor;		        ///< The color of the Y_POS and Y_NEG faces
+    Color3f         		    m_zFaceColor;		        ///< The color of the Z_POS and Z_NEG faces
+    Color3f                     m_itemHighlightColor;
+    Color3f                     m_2dItemsColor;
 
-    ref<TextureImage>		m_texturePosXAxis;	///< The texture to draw on the X_POS face. If NULL, the specified text will be drawn.
-    ref<TextureImage>		m_textureNegXAxis;	///< The texture to draw on the X_NEG face. If NULL, the specified text will be drawn.
-    ref<TextureImage>		m_texturePosYAxis;	///< The texture to draw on the Y_POS face. If NULL, the specified text will be drawn.
-    ref<TextureImage>		m_textureNegYAxis;	///< The texture to draw on the Y_NEG face. If NULL, the specified text will be drawn.
-    ref<TextureImage>		m_texturePosZAxis;	///< The texture to draw on the Z_POS face. If NULL, the specified text will be drawn.
-    ref<TextureImage>		m_textureNegZAxis;	///< The texture to draw on the Z_NEG face. If NULL, the specified text will be drawn.
-
-    Color3f         		m_xFaceColor;		///< The color of the X_POS and X_NEG faces
-    Color3f         		m_yFaceColor;		///< The color of the Y_POS and Y_NEG faces
-    Color3f         		m_zFaceColor;		///< The color of the Z_POS and Z_NEG faces
+    std::map<NavCubeFace, ref<TextureImage> >   m_faceTextures;
+    std::map<NavCubeFace, ref<RenderState> >    m_faceTextureBindings;
 };
 
 }
-

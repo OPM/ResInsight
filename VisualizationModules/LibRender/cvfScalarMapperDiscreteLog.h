@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "cvfScalarMapperDiscreteLinear.h"
+#include "cvfScalarMapperRangeBased.h"
 
 namespace cvf {
 
@@ -29,14 +29,24 @@ namespace cvf {
 //
 //==================================================================================================
 
-class ScalarMapperDiscreteLog : public ScalarMapperDiscreteLinear
+class ScalarMapperDiscreteLog : public ScalarMapperRangeBased
 {
 public:
-    ScalarMapperDiscreteLog() {m_decadeLevelCount = 2; }
+    ScalarMapperDiscreteLog();
 
     // Implementing the Scalarmapper interface
-
+    virtual Vec2f       mapToTextureCoord(double scalarValue) const;
+    virtual Color3ub    mapToColor(double scalarValue) const;
     virtual double      normalizedValue( double domainValue ) const;
     virtual double      domainValue( double normalizedPosition ) const;
+
+    //
+protected:
+    virtual void rangeUpdated();
+
+private:
+    double  m_logRange;
+    double  m_logRangeMin;
+    bool    m_hasNegativeRange;
 };
 }

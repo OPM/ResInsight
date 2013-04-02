@@ -30,16 +30,8 @@ namespace cvf {
 class StructGridScalarDataAccess : public Object
 {
 public:
-    virtual double     cellScalar(size_t i, size_t j, size_t k) const = 0;
-    virtual double     cellScalar(size_t cellIndex) const = 0;
-    virtual void       cellCornerScalars(size_t i, size_t j, size_t k, double scalars[8]) const = 0;
-
-    // Trenger vi denne? Kan erstattes av cellCornerScalars for kuttplan
-    virtual double              gridPointScalar(size_t i, size_t j, size_t k) const = 0;
-    virtual bool                pointScalar(const cvf::Vec3d& p, double* scalarValue) const = 0;
-
-    // Vector results
-    virtual const cvf::Vec3d*   cellVector(size_t i, size_t j, size_t k) const = 0;
+    virtual double cellScalar(size_t cellIndex) const = 0;
+    virtual void   setCellScalar(size_t cellIndex, double value) = 0;
 };
 
 
