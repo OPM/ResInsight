@@ -1269,9 +1269,8 @@ void RiuMainWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotOpenMultipleCases()
 {
+#if 1
     RiaApplication* app = RiaApplication::instance();
-
-    /*
     RiuMultiCaseImportDialog dialog;
     int action = dialog.exec();
     if (action == QDialog::Accepted)
@@ -1279,8 +1278,9 @@ void RiuMainWindow::slotOpenMultipleCases()
         QStringList gridFileNames = dialog.eclipseCaseFileNames();
         app->addEclipseCases(gridFileNames);
     }
-    */
 
+#else  // Code to fast generate a test project
+    RiaApplication* app = RiaApplication::instance();
 
     QStringList gridFileNames;
 
@@ -1299,6 +1299,6 @@ void RiuMainWindow::slotOpenMultipleCases()
     }
 
     app->addEclipseCases(gridFileNames);
-
+#endif
 
 }
