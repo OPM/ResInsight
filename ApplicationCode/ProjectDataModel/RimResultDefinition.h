@@ -26,7 +26,7 @@
 
 
 class RimReservoirView;
-class RigReservoirCellResults;
+class RigCaseCellResultsData;
 
 //==================================================================================================
 ///  

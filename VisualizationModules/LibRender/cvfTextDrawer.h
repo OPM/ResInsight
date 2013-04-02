@@ -55,6 +55,7 @@ public:
     virtual ~TextDrawer();
 
     void    addText(const String& text, const Vec2f& pos);
+    void    addText(const String& text, const Vec3f& pos);
     void    removeAllTexts();
 
     void    setVerticalAlignment(Alignment alignment);
@@ -63,15 +64,20 @@ public:
     void    setBorderColor(const Color3f& color);
     void    setDrawBackground(bool drawBackground);
     void    setDrawBorder(bool drawBorder);
+    void    setUseDepthBuffer(bool useDepthBuffer);
 
     Color3f textColor() const;
     Color3f backgroundColor() const;
     Color3f borderColor() const;
     bool    drawBackground() const;
     bool    drawBorder() const;
+    bool    useDepthBuffer() const;
+   
 
     void    render(OpenGLContext* oglContext, const MatrixState& matrixState);
     void    renderSoftware(OpenGLContext* oglContext, const MatrixState& matrixState);
+
+    static bool pickText(const Vec3f& pickCoord2d, const String& text, const Vec3f& pos, Font* font);
 
 private:
     void doRender2d(OpenGLContext* oglContext, const MatrixState& matrixState, bool softwareRendering);
@@ -87,6 +93,7 @@ private:
     Color3f             m_textColor;        
     Color3f             m_backgroundColor;  
     Color3f             m_borderColor;      
+    bool                m_useDepthBuffer;
 
     short               m_verticalAlignment;// Vertical alignment for horizontal text
 };

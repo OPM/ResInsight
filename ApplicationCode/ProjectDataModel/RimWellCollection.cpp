@@ -16,13 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 
-#include "RigWellResults.h"
+#include "RigSingleWellResultsData.h"
 #include "RimWellCollection.h"
 #include "RimWell.h"
 #include "RimReservoirView.h"

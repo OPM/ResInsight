@@ -43,7 +43,8 @@ public:
         TOP_LEFT,       
         TOP_RIGHT,      
         BOTTOM_LEFT,    
-        BOTTOM_RIGHT    
+        BOTTOM_RIGHT,
+        UNMANAGED
     };
 
     enum LayoutDirection
@@ -56,10 +57,17 @@ public:
     virtual Vec2ui  sizeHint()  = 0;        // In Pixels
     virtual Vec2ui  maximumSize() = 0;      // In Pixels
     virtual Vec2ui  minimumSize() = 0;      // In Pixels
+    
+    cvf::Vec2i      unmanagedPosition() const            { return m_unmanagedPosition; }
+    void            setUnmanagedPosition(cvf::Vec2i val) { m_unmanagedPosition = val;  }
 
     virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) = 0;
     virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) = 0;
     virtual bool    pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size);
+
+private:
+    Vec2i m_unmanagedPosition;
+
 };
 
 }

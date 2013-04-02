@@ -57,7 +57,6 @@ public:
     size_t           cellCountK() const;
 
     virtual bool        isCellValid(size_t i, size_t j, size_t k) const = 0;
-    virtual bool        isCellActive(size_t i, size_t j, size_t k) const = 0;
 
     virtual cvf::Vec3d  minCoordinate() const = 0;
     virtual cvf::Vec3d  maxCoordinate() const = 0;

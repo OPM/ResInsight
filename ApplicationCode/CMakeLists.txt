@@ -4,8 +4,8 @@ project (ApplicationCode)
 
 # NB: The generated file is written to Cmake binary folder to avoid source tree pollution
 # This folder is added to include_directories
-CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RIVersionInfo.h.cmake
-                ${CMAKE_BINARY_DIR}/Generated/RIVersionInfo.h
+CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RiaVersionInfo.h.cmake
+                ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
 )
 
 
@@ -20,20 +20,21 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_BINARY_DIR}/Generated
+	${CMAKE_CURRENT_BINARY_DIR}
 )
 
 
-# Use all cpp and h files in the subdirectories
+# Use all h files in the subdirectories to make them available in the project
 file( GLOB_RECURSE HEADER_FILES *.h )
 
 list( APPEND CPP_SOURCES
-    RIMain.cpp
-    RIStdInclude.cpp
+    RiaMain.cpp
+    RiaStdInclude.cpp
 )
 
 list( APPEND CPP_SOURCES
-    Application/RIApplication.cpp
-    Application/RIPreferences.cpp
+    Application/RiaApplication.cpp
+    Application/RiaPreferences.cpp
 	Application/RiaImageFileCompare.cpp
 	Application/RiaImageCompareReporter.cpp
 )
@@ -50,21 +51,11 @@ list( APPEND CPP_SOURCES
 )
 
 list( APPEND CPP_SOURCES
-	FileInterface/RifEclipseInputFileTools.cpp
-    FileInterface/RifEclipseOutputFileTools.cpp
-    FileInterface/RifEclipseRestartFilesetAccess.cpp
-    FileInterface/RifEclipseRestartDataAccess.cpp
-    FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
-    FileInterface/RifReaderEclipseInput.cpp
-    FileInterface/RifReaderEclipseOutput.cpp
-    FileInterface/RifReaderMockModel.cpp
-)
-
-list( APPEND CPP_SOURCES
     SocketInterface/RiaSocketServer.cpp
 )
 
 list( APPEND CPP_SOURCES
+    ProjectDataModel/RimCaseCollection.cpp
     ProjectDataModel/RimCellFilter.cpp
     ProjectDataModel/RimCellPropertyFilter.cpp
     ProjectDataModel/RimCellPropertyFilterCollection.cpp
@@ -73,11 +64,12 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimDefines.cpp
     ProjectDataModel/RimLegendConfig.cpp
     ProjectDataModel/RimProject.cpp
-    ProjectDataModel/RimReservoir.cpp
+    ProjectDataModel/RimCase.cpp
+    ProjectDataModel/RimIdenticalGridCaseGroup.cpp
     ProjectDataModel/RimInputProperty.cpp
     ProjectDataModel/RimInputPropertyCollection.cpp
-    ProjectDataModel/RimInputReservoir.cpp
-    ProjectDataModel/RimResultReservoir.cpp
+    ProjectDataModel/RimInputCase.cpp
+    ProjectDataModel/RimResultCase.cpp
     ProjectDataModel/RimReservoirView.cpp
     ProjectDataModel/RimResultDefinition.cpp
     ProjectDataModel/RimResultSlot.cpp
@@ -85,54 +77,61 @@ list( APPEND CPP_SOURCES
     ProjectDataModel/RimWell.cpp
     ProjectDataModel/RimWellCollection.cpp
     ProjectDataModel/RimScriptCollection.cpp
+    ProjectDataModel/RimStatisticsCase.cpp
+    ProjectDataModel/RimStatisticsCaseCollection.cpp
     ProjectDataModel/RimCalcScript.cpp
     ProjectDataModel/RimExportInputPropertySettings.cpp
     ProjectDataModel/RimBinaryExportSettings.cpp
     ProjectDataModel/Rim3dOverlayInfoConfig.cpp
     ProjectDataModel/RimUiTreeModelPdm.cpp
     ProjectDataModel/RimUiTreeView.cpp
+	ProjectDataModel/RimReservoirCellResultsCacher.cpp
+	ProjectDataModel/RimStatisticsCaseEvaluator.cpp
+)
+
+# Populate the filenames into variable lists
+include ("ReservoirDataModel/CMakeLists_files.cmake")
+include ("FileInterface/CMakeLists_files.cmake")
+list( APPEND CPP_SOURCES
+    ${CODE_SOURCE_FILES}
 )
 
 list( APPEND CPP_SOURCES
-    ReservoirDataModel/RigCell.cpp
-    ReservoirDataModel/RigGridBase.cpp
-    ReservoirDataModel/RigReservoirCellResults.cpp 
-    ReservoirDataModel/RigLocalGrid.cpp
-    ReservoirDataModel/RigMainGrid.cpp
-    ReservoirDataModel/RigReservoir.cpp
-    ReservoirDataModel/RigReservoirBuilderMock.cpp
-    ReservoirDataModel/RigWellResults.cpp
-    ReservoirDataModel/RigGridScalarDataAccess.cpp
-)
-
-list( APPEND CPP_SOURCES
-    UserInterface/RICursors.cpp
-    UserInterface/RIMainWindow.cpp
-    UserInterface/RIPreferencesDialog.cpp
-    UserInterface/RIResultInfoPanel.cpp
-    UserInterface/RIViewer.cpp
+    UserInterface/RiuCursors.cpp
+    UserInterface/RiuMainWindow.cpp
+    UserInterface/RiuPreferencesDialog.cpp
+    UserInterface/RiuResultInfoPanel.cpp
+    UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
-
-    UserInterface/RIProcessMonitor.cpp
+	UserInterface/RiuMultiCaseImportDialog.cpp
+    UserInterface/RiuProcessMonitor.cpp
 
 )
 
 # Define files for MOC-ing
 set ( QT_MOC_HEADERS
-    Application/RIApplication.h
+    Application/RiaApplication.h
     
     ProjectDataModel/RimUiTreeModelPdm.h
     ProjectDataModel/RimUiTreeView.h
     
-    UserInterface/RIMainWindow.h
-    UserInterface/RIPreferencesDialog.h
-    UserInterface/RIResultInfoPanel.h
-    UserInterface/RIViewer.h
-    UserInterface/RIProcessMonitor.h
+    UserInterface/RiuMainWindow.h
+    UserInterface/RiuPreferencesDialog.h
+    UserInterface/RiuResultInfoPanel.h
+    UserInterface/RiuViewer.h
+    UserInterface/RiuProcessMonitor.h
 	SocketInterface/RiaSocketServer.h
+	UserInterface/RiuMultiCaseImportDialog.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
+
+# Define files for the uic compiler
+set ( QT_UI_FILES
+	UserInterface/RiuMultiCaseImportDialog.ui
+)
+
+qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
 
 # NOTE! Resources in subfolders must append to QRC_FILES using the following statement
 #   set( QRC_FILES
@@ -155,19 +154,20 @@ qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 #############################################################################
 
 set( RAW_SOURCES ${CPP_SOURCES} )
-list( REMOVE_ITEM RAW_SOURCES RIStdInclude.cpp)
-list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigReaderInterfaceECL.cpp)
-list( REMOVE_ITEM RAW_SOURCES ReservoirDataModel/RigGridScalarDataAccess.cpp)
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivCellEdgeEffectGenerator.cpp)
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivPipeGeometryGenerator.cpp)
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellPipesPartMgr.cpp)
-list( REMOVE_ITEM RAW_SOURCES ModelVisualization/RivWellHeadPartMgr.cpp)
-list( REMOVE_ITEM RAW_SOURCES Application/RiaImageFileCompare.cpp)
-list( REMOVE_ITEM RAW_SOURCES Application/RiaImageCompareReporter.cpp)
 
+list( REMOVE_ITEM RAW_SOURCES 
+	RiaStdInclude.cpp
 
+	${CODE_SOURCE_FILES}
 
-list( REMOVE_ITEM RAW_SOURCES     
+	ModelVisualization/RivCellEdgeEffectGenerator.cpp
+	ModelVisualization/RivPipeGeometryGenerator.cpp
+	ModelVisualization/RivWellPipesPartMgr.cpp
+	ModelVisualization/RivWellHeadPartMgr.cpp
+	
+	Application/RiaImageFileCompare.cpp
+	Application/RiaImageCompareReporter.cpp
+	    
     FileInterface/RifEclipseInputFileTools.cpp
     FileInterface/RifEclipseOutputFileTools.cpp
     FileInterface/RifEclipseRestartFilesetAccess.cpp
@@ -175,8 +175,9 @@ list( REMOVE_ITEM RAW_SOURCES
     FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
     FileInterface/RifReaderEclipseInput.cpp
     FileInterface/RifReaderEclipseOutput.cpp
-    UserInterface/RiuSimpleHistogramWidget.cpp
 
+    UserInterface/RiuSimpleHistogramWidget.cpp
+    UserInterface/RiuMultiCaseImportDialog.cpp
 )
 
 include( CustomPCH.cmake )
@@ -189,7 +190,7 @@ set( ALL_INCLUDES
     ${QT_INCLUDES}
 )
 
-set( PCH_NAME RIStdInclude )
+set( PCH_NAME RiaStdInclude )
 set( GCC_PCH_TARGET gccPCH )
 set( PCH_COMPILER_DEFINE EMPTY )
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -205,6 +206,7 @@ precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH
 add_executable(ResInsight
     ${CPP_SOURCES}
     ${MOC_FILES_CPP}
+	${FORM_FILES_CPP}
     ${QRC_FILES_CPP}
 	${HEADER_FILES}
 )

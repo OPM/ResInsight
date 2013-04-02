@@ -113,6 +113,7 @@ public:
     OverlayItem*            overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction);
     const OverlayItem*      overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction) const;
     OverlayItem*            overlayItemFromWindowCoordinates(int x, int y);
+    Recti                   overlayItemRect(OverlayItem* item);
     void                    removeOverlayItem(const OverlayItem* overlayItem);
     void                    removeAllOverlayItems();
 

@@ -44,7 +44,8 @@ public:
     void                         removeNullPtrs();
     void                         addObject(PdmObject * obj);
 
-    // Needs renaming to objectsByType
+    static void                  initAfterReadTraversal(PdmObject * root);
+
     template <typename T>
     void objectsByType(std::vector<PdmPointer<T> >* typedObjects ) const
     {
@@ -57,6 +58,38 @@ public:
         }
     }
 
+    template <typename T>
+    void createCopyByType(std::vector<PdmPointer<T> >* copyOfTypedObjects) const
+    {
+        std::vector<PdmPointer<T> > sourceTypedObjects;
+        objectsByType(&sourceTypedObjects);
+
+        QString encodedXml;
+        {
+            // Write original objects to XML file
+            PdmObjectGroup typedObjectGroup;
+            for (size_t i = 0; i < sourceTypedObjects.size(); i++)
+            {
+                typedObjectGroup.addObject(sourceTypedObjects[i]);
+            }
+
+            QXmlStreamWriter xmlStream(&encodedXml);
+            xmlStream.setAutoFormatting(true);
+
+            typedObjectGroup.writeFields(xmlStream);
+        }
+
+        // Read back XML into object group, factory methods will be called that will create new objects
+        PdmObjectGroup destinationObjectGroup;
+        QXmlStreamReader xmlStream(encodedXml);
+        destinationObjectGroup.readFields(xmlStream);
+        
+        for (size_t it = 0; it < destinationObjectGroup.objects.size(); it++)
+        {
+            T* obj = dynamic_cast<T*>(destinationObjectGroup.objects[it]);
+            if (obj) copyOfTypedObjects->push_back(obj);
+        }
+    }
 };
 
 //==================================================================================================
@@ -78,7 +111,6 @@ class PdmDocument: public PdmObjectGroup
     void                writeFile(QIODevice* device);
 
 private:
-    static void         initAfterReadTraversal(PdmObject * root);
     static void         setupBeforeSaveTraversal(PdmObject * root);
 };
 

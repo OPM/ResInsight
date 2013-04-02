@@ -69,6 +69,7 @@ public:
 
     std::vector<String> split(const String& delimiters = " ") const;
     size_t              find(const String& str, size_t start = 0) const;
+    bool                startsWith(const String& str) const;
     String              subString(size_t start, size_t length = npos) const;
 	void                replace(const String& before, const String& after);
 

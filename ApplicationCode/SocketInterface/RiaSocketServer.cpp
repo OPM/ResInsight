@@ -1,4 +1,3 @@
-/////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
 // 
@@ -16,7 +15,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include <QtGui>
 #include <QtNetwork>
@@ -24,13 +23,13 @@
 #include <stdlib.h>
 
 #include "RiaSocketServer.h"
-#include "RIApplication.h"
-#include "RIMainWindow.h"
-#include "RimReservoir.h"
-#include "RigReservoir.h"
-#include "RigReservoirCellResults.h"
+#include "RiaApplication.h"
+#include "RiuMainWindow.h"
+#include "RimCase.h"
+#include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
 #include "RimInputProperty.h"
-#include "RimInputReservoir.h"
+#include "RimInputCase.h"
 #include "RimUiTreeModelPdm.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -48,7 +47,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
   m_invalidActiveCellCountDetected(false),
   m_readState(ReadingCommand)
 {
-    m_errorMessageDialog = new QErrorMessage(RIMainWindow::instance());
+    m_errorMessageDialog = new QErrorMessage(RiuMainWindow::instance());
 
     // TCP server setup
 
@@ -152,18 +151,18 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 //--------------------------------------------------------------------------------------------------
 /// Find the requested reservoir: Current, by index or by name
 //--------------------------------------------------------------------------------------------------
-RimReservoir* RiaSocketServer::findReservoir(const QString& caseName)
+RimCase* RiaSocketServer::findReservoir(const QString& caseName)
 {
     if (caseName.isEmpty())
     {
-        if (RIApplication::instance()->activeReservoirView())
+        if (RiaApplication::instance()->activeReservoirView())
         {
-            return RIApplication::instance()->activeReservoirView()->eclipseCase();
+            return RiaApplication::instance()->activeReservoirView()->eclipseCase();
         }
     }
     else
     {
-        RimProject* project =  RIApplication::instance()->project();
+        RimProject* project =  RiaApplication::instance()->project();
         if (!project) return NULL;
 
        bool isInt = false;
@@ -242,7 +241,7 @@ void RiaSocketServer::readCommandFromOctave()
 
     QString caseName;
     QString propertyName;
-    RimReservoir* reservoir = NULL;
+    RimCase* reservoir = NULL;
 
     // Find the correct arguments
 
@@ -281,18 +280,18 @@ void RiaSocketServer::readCommandFromOctave()
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid() && reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS))
+        if (reservoir && reservoir->results(RifReaderInterface::MATRIX_RESULTS))
         {
-            scalarResultIndex = reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T && isSetProperty)
             {
-                scalarResultIndex = reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::GENERATED, propertyName);
+                scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName, true);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(reservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(scalarResultIndex));
+                scalarResultFrames = &(reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->cellScalarResults(scalarResultIndex));
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -368,8 +367,14 @@ void RiaSocketServer::readCommandFromOctave()
             return;
         }
 
-        reservoir->reservoirData()->mainGrid()->calculateMatrixModelActiveCellInfo(activeCellInfo[0], activeCellInfo[1], activeCellInfo[2], activeCellInfo[3],
-                                                                        activeCellInfo[4], activeCellInfo[5], activeCellInfo[6], activeCellInfo[7]);
+        calculateMatrixModelActiveCellInfo(activeCellInfo[0],
+            activeCellInfo[1],
+            activeCellInfo[2],
+            activeCellInfo[3],
+            activeCellInfo[4],
+            activeCellInfo[5],
+            activeCellInfo[6],
+            activeCellInfo[7]);
 
         // First write timestep count
         quint64 timestepCount = (quint64)8;
@@ -441,7 +446,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
     size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->mainGrid()->globalMatrixModelActiveCellCount();
+    size_t gridActiveCellCount = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalActiveCellCount();
     size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
 
     if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
@@ -497,7 +502,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
         if (m_currentReservoir != NULL)
         {
             // Create a new input property if we have an input reservoir
-            RimInputReservoir* inputRes = dynamic_cast<RimInputReservoir*>(m_currentReservoir);
+            RimInputCase* inputRes = dynamic_cast<RimInputCase*>(m_currentReservoir);
             if (inputRes)
             {
                 RimInputProperty* inputProperty = NULL;
@@ -509,7 +514,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
                     inputProperty->eclipseKeyword = "";
                     inputProperty->fileName = "";
                     inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
-                    RimUiTreeModelPdm* treeModel = RIMainWindow::instance()->uiPdmModel();
+                    RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
                     treeModel->rebuildUiSubTree(inputRes->m_inputPropertyCollection());
                 }
                 inputProperty->resolvedState = RimInputProperty::RESOLVED_NOT_SAVED;
@@ -517,10 +522,9 @@ void RiaSocketServer::readPropertyDataFromOctave()
 
             if( m_currentScalarIndex != cvf::UNDEFINED_SIZE_T &&
                 m_currentReservoir->reservoirData() && 
-                m_currentReservoir->reservoirData()->mainGrid() &&
-                m_currentReservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS) )
+                m_currentReservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS) )
             {
-                m_currentReservoir->reservoirData()->mainGrid()->results(RifReaderInterface::MATRIX_RESULTS)->recalculateMinMax(m_currentScalarIndex);
+                m_currentReservoir->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->recalculateMinMax(m_currentScalarIndex);
             }
 
             for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -608,6 +612,80 @@ void RiaSocketServer::slotReadyRead()
         default:
             CVF_ASSERT(false);
             break;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK)
+{
+    gridNumber.clear();
+    cellI.clear();
+    cellJ.clear();
+    cellK.clear();
+    parentGridNumber.clear();
+    hostCellI.clear();
+    hostCellJ.clear();
+    hostCellK.clear();
+
+    if (!m_currentReservoir || !m_currentReservoir->reservoirData() || !m_currentReservoir->reservoirData()->mainGrid())
+    {
+        return;
+    }
+
+    RigActiveCellInfo* actCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
+
+    gridNumber.reserve(numMatrixModelActiveCells);
+    cellI.reserve(numMatrixModelActiveCells);
+    cellJ.reserve(numMatrixModelActiveCells);
+    cellK.reserve(numMatrixModelActiveCells);
+    parentGridNumber.reserve(numMatrixModelActiveCells);
+    hostCellI.reserve(numMatrixModelActiveCells);
+    hostCellJ.reserve(numMatrixModelActiveCells);
+    hostCellK.reserve(numMatrixModelActiveCells);
+
+    const std::vector<RigCell>& globalCells = m_currentReservoir->reservoirData()->mainGrid()->cells();
+
+    for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
+    {
+        if (actCellInfo->isActive(cIdx))
+        {
+            RigGridBase* grid = globalCells[cIdx].hostGrid();
+            CVF_ASSERT(grid != NULL);
+            size_t cellIndex = globalCells[cIdx].cellIndex();
+
+            size_t i, j, k;
+            grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+
+            size_t pi, pj, pk;
+            RigGridBase* parentGrid = NULL;
+
+            if (grid->isMainGrid())
+            {
+                pi = i;
+                pj = j;
+                pk = k;
+                parentGrid = grid;
+            }
+            else
+            {
+                size_t parentCellIdx = globalCells[cIdx].parentCellIndex();
+                parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
+                CVF_ASSERT(parentGrid != NULL);
+                parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
+            }
+
+            gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
+            cellI.push_back(static_cast<qint32>(i));
+            cellJ.push_back(static_cast<qint32>(j));
+            cellK.push_back(static_cast<qint32>(k));
+            parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
+            hostCellI.push_back(static_cast<qint32>(pi));
+            hostCellJ.push_back(static_cast<qint32>(pj));
+            hostCellK.push_back(static_cast<qint32>(pk));
+        }
     }
 }
 

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
@@ -405,13 +405,13 @@ void RimLegendConfig::recreateLegend()
 //--------------------------------------------------------------------------------------------------
 double RimLegendConfig::adjust(double domainValue, double precision)
 {
-    double decadeValue = cvf::Math::abs(domainValue);
-    double threshold = 1e-6;
-    if (decadeValue < threshold)
+    double absDomainValue = cvf::Math::abs(domainValue);
+    if (absDomainValue == 0.0)
     {
         return 0.0;
     }
-    double logDecValue = log10(decadeValue);
+
+    double logDecValue = log10(absDomainValue);
     logDecValue = cvf::Math::ceil(logDecValue);
 
     double factor = pow(10.0, precision - logDecValue);

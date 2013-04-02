@@ -26,9 +26,6 @@
 #include "cvfVector3.h"
 
 #include "cvfOpenGL.h"
-
-//#include "cvfManipulatorTrackball.h"
-
 #include "cafOpenGLWidget.h"
 
 
@@ -39,6 +36,8 @@ namespace cvf {
     class RenderSequence;
     class OverlayScalarMapperLegend;
     class HitItemCollection;
+    class OverlayImage;
+    class TextureImage;
 }
 
 namespace caf {
@@ -100,6 +99,11 @@ public:
 
     bool                    rayPick(int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints) ;
 
+    // QPainter based drawing on top of the OpenGL graphics
+
+    bool                    isOverlyPaintingEnabled() const;
+    void                    enableOverlyPainting(bool val);
+
     // Performance information for debugging etc.
     void	                enablePerfInfoHud(bool enable);
     bool	                isPerfInfoHudEnabled();
@@ -131,10 +135,9 @@ protected:
     virtual void            paintEvent(QPaintEvent* event);
 
     // Support the navigation policy concept
-    virtual bool            event( QEvent* e );
-    cvf::ref<caf::NavigationPolicy> 
-                            m_navigationPolicy;
-    bool                    m_navigationPolicyEnabled;
+    virtual bool                        event( QEvent* e );
+    cvf::ref<caf::NavigationPolicy>     m_navigationPolicy;
+    bool                                m_navigationPolicyEnabled;
 
     // Actual rendering objects
     cvf::ref<cvf::RenderSequence>       m_renderingSequence;
@@ -142,31 +145,35 @@ protected:
     cvf::ref<cvf::Camera>               m_mainCamera;
     cvf::ref<cvf::Rendering>            m_mainRendering;
 
-    double                  m_minNearPlaneDistance;
-    double                  m_maxFarPlaneDistance;
+    double                              m_minNearPlaneDistance;
+    double                              m_maxFarPlaneDistance;
 
 private:
-    void                    updateCamera(int width, int height);
+    void                                updateCamera(int width, int height);
 
-    void                    releaseOGlResourcesForCurrentFrame();
-    void                    debugShowRenderingSequencePartNames();
+    void                                releaseOGlResourcesForCurrentFrame();
+    void                                debugShowRenderingSequencePartNames();
 
-    bool                    m_showPerfInfoHud;
-    size_t                  m_paintCounter;
-    bool                    m_releaseOGLResourcesEachFrame;
-    QPointer<QWidget>       m_layoutWidget;
+    bool                                m_showPerfInfoHud;
+    size_t                              m_paintCounter;
+    bool                                m_releaseOGLResourcesEachFrame;
+    QPointer<QWidget>                   m_layoutWidget;
 
+    bool                                m_isOverlyPaintingEnabled;
+    cvf::ref<cvf::TextureImage>         m_overlayTextureImage;
+    cvf::ref<cvf::OverlayImage>         m_overlayImage;
+    QImage                              m_overlayPaintingQImage;
+    void                                updateOverlayImagePresence();
 
     // System to make sure we share OpenGL resources
-    static Viewer*      sharedWidget();
-    static cvf::OpenGLContextGroup* contextGroup();
-    static std::list<Viewer*> 
-                            sm_viewers;
+    static Viewer*                      sharedWidget();
+    static cvf::OpenGLContextGroup*     contextGroup();
+    static std::list<Viewer*>           sm_viewers;
     static cvf::ref<cvf::OpenGLContextGroup> 
-                            sm_openGLContextGroup;
+                                        sm_openGLContextGroup;
 
-    caf::FrameAnimationControl* m_animationControl;
-    cvf::Collection<cvf::Scene> m_frameScenes;
+    caf::FrameAnimationControl*         m_animationControl;
+    cvf::Collection<cvf::Scene>         m_frameScenes;
 };
 
 } // End namespace caf

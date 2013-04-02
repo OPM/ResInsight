@@ -19,7 +19,8 @@
 
 #include "cvfBase.h"
 #include "cvfLogger.h"
-#include "cvfTrace.h"
+#include "cvfLogEvent.h"
+#include "cvfLogDestination.h"
 
 namespace cvf {
 
@@ -31,17 +32,20 @@ namespace cvf {
 /// \ingroup Core
 ///
 /// Logger class
-/// 
-/// Currently, output is written using Trace, and special formatting of the string makes it possible
-/// to navigate to source code using F4 in Visual Studio. See http://msdn.microsoft.com/en-us/library/yxkt8b26.aspx
 ///
+/// Note that in itself, the Logger is not thread safe. This means that logger configuration, such
+/// as setting the logging level and specifying the log destination, must be done in a single
+/// threaded environment.
+/// 
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
-Logger::Logger()
-:   m_debugLogging(false)
+Logger::Logger(const String& loggerName, int logLevel, LogDestination* logDestination)
+:   m_name(loggerName),
+    m_logLevel(logLevel),
+    m_destination(logDestination)
 {
 }
 
@@ -51,61 +55,144 @@ Logger::Logger()
 //--------------------------------------------------------------------------------------------------
 Logger::~Logger()
 {
-
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// Use file and line to create a specially formatted string for Visual Studio. 
 /// 
-/// \param message  The actual error message 
-/// \param fileName Use system macro __FILE__ for source code file name
-/// \param line     Use system macro __LINE__ for source code line number
+//--------------------------------------------------------------------------------------------------
+const String& Logger::name() const
+{
+    return m_name;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Set the logging level of this logger
 ///
-/// __FILE__ and __LINE__ are used to create the variables used to navigate to the line in the 
-/// source code file the error message was logged at.
+/// Set a level of 0 to disable all logging for this logger. 
 //--------------------------------------------------------------------------------------------------
-void Logger::error(const String& message, const char* fileName, int lineNumber)
+void Logger::setLevel(int logLevel)
 {
-    String tmp;
-    tmp = String(fileName) + "(" + String(lineNumber) + "): error: " + message;
-
-    Trace::show(tmp);
+    m_logLevel = logLevel;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Logger::enableDebug(bool enableDebugLogging)
+int Logger::level() const
 {
-    m_debugLogging = enableDebugLogging;
+    return m_logLevel;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool Logger::isDebugEnabled() const
+LogDestination* Logger::destination()
 {
-    return m_debugLogging;
+    return m_destination.p();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Logger::debug(const String& message, const char* /*fileName*/, int /*lineNumber*/)
+void Logger::setDestination(LogDestination* logDestination)
 {
-    if (m_debugLogging)
+    m_destination = logDestination;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Logger::error(const String& message)
+{
+    error(message, CodeLocation());
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Logger::error(const String& message, const CodeLocation& location)
+{
+    if (m_logLevel >= LL_ERROR && m_destination.notNull())
     {
-        // For now, don't report file and line
-        String tmp;
-        tmp = "debug: " + message;
-
-        Trace::show(tmp);
+        log(message, LL_ERROR, location);
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Logger::warning(const String& message)
+{
+    warning(message, CodeLocation());
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Logger::warning(const String& message, const CodeLocation& location)
+{
+    if (m_logLevel >= LL_WARNING && m_destination.notNull())
+    {
+        log(message, LL_WARNING, location);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Logger::info(const String& message)
+{
+    info(message, CodeLocation());
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Logger::info(const String& message, const CodeLocation& location)
+{
+    if (m_logLevel >= LL_INFO && m_destination.notNull())
+    {
+        log(message, LL_INFO, location);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Logger::debug(const String& message, const CodeLocation& location)
+{
+    if (m_logLevel >= LL_DEBUG && m_destination.notNull())
+    {
+        log(message, LL_DEBUG, location);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Logger::log(const String& message, Logger::Level messageLevel, const CodeLocation& location)
+{
+    if (m_logLevel >= messageLevel && m_destination.notNull())
+    {
+        m_destination->log(LogEvent(m_name, message, messageLevel, location));
+    }
+}
+
+
+
 
 
 } // namespace cvf

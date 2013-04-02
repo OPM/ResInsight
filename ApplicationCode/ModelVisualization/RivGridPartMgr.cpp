@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "RivGridPartMgr.h"
 #include "cvfPart.h"
 #include "cafEffectGenerator.h"
@@ -28,7 +28,8 @@
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RigGridScalarDataAccess.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -220,8 +221,11 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     size_t resTimeStepIdx = timeStepIndex;
     if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-    cvf::ref<RigGridScalarDataAccess> dataAccessObject = m_grid->dataAccessObject(porosityModel, resTimeStepIdx, scalarSetIndex);
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+
+    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
+
     if (dataAccessObject.isNull()) return;
 
     // Outer surface

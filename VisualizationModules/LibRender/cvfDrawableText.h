@@ -30,6 +30,7 @@ class Font;
 class DrawableGeo;
 class ShaderProgram;
 class BufferObjectManaged;
+class Camera;
 
 
 //==================================================================================================
@@ -55,6 +56,7 @@ public:
     void                        setDrawBackground(bool drawBackground);
     void                        setDrawBorder(bool drawBorder);
     void                        setCheckPosVisible(bool checkpos);
+    void                        setUseDepthBuffer(bool useDepthBuffer);
 
     virtual void                createUploadBufferObjectsGPU(OpenGLContext* /*oglContext*/) {}
     virtual void                releaseBufferObjectsGPU() {}
@@ -69,6 +71,7 @@ public:
     virtual BoundingBox         boundingBox() const;
 
     virtual bool                rayIntersectCreateDetail(const Ray& ray, Vec3d* intersectionPoint, ref<HitDetail>* hitDetail) const;
+    bool                        rayIntersect(const Ray& ray, const Camera& camera, Vec3d* intersectionPoint);
 
     // TO BE REMOVED!
     virtual void                renderFixedFunction(OpenGLContext* oglContext, const MatrixState& matrixState) { renderSoftware(oglContext, matrixState); }
@@ -92,6 +95,7 @@ private:
     bool                        m_drawBackground;
     bool                        m_drawBorder;
     bool                        m_checkPosVisible;
+    bool                        m_useDepthBuffer;
 
     BoundingBox                 m_boundingBox;      //
 };

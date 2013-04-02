@@ -34,6 +34,7 @@
 #include "cvfMatrixState.h"
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStateBlending.h"
+#include "cvfRenderStatePolygonOffset.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
@@ -60,7 +61,8 @@ TextDrawer::TextDrawer(Font* font)
     m_textColor(Color3::GRAY),
     m_backgroundColor(1.0f, 1.0f, 0.8f),
     m_borderColor(Color3::DARK_GRAY),
-    m_verticalAlignment(0)  // BASELINE
+    m_useDepthBuffer(false),
+    m_verticalAlignment(0)      // BASELINE
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -85,6 +87,22 @@ void TextDrawer::addText(const String& text, const Vec2f& pos)
 
     m_texts.push_back(text);
     m_positions.push_back(Vec3f(pos));
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Add text to be drawn
+/// 
+/// Note: The Z coordinate needs to correspond with the orthographic projection that is setup
+/// to render the text. So the range should be <1..-1> with 1 being closest to the near plane.
+//--------------------------------------------------------------------------------------------------
+void TextDrawer::addText(const String& text, const Vec3f& pos)
+{
+    CVF_ASSERT(!text.isEmpty());
+    CVF_ASSERT(!pos.isUndefined());
+
+    m_texts.push_back(text);
+    m_positions.push_back(pos);
 }
 
 
@@ -193,6 +211,15 @@ void TextDrawer::setDrawBorder(bool drawBorder)
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void TextDrawer::setUseDepthBuffer(bool useDepthBuffer)
+{
+    m_useDepthBuffer = useDepthBuffer;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Returns the color used to draw the text
 //--------------------------------------------------------------------------------------------------
 Color3f TextDrawer::textColor() const
@@ -284,7 +311,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     MatrixState projMatrixState(projCam);
 
     // Turn off depth test
-    RenderStateDepth depth(false, RenderStateDepth::LESS, false);
+    RenderStateDepth depth(m_useDepthBuffer, RenderStateDepth::LESS, m_useDepthBuffer);
     depth.applyOpenGL(oglContext);
 
     // Setup viewport
@@ -322,6 +349,13 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     // -------------------------------------------------------------------------
     if (m_drawBackground || m_drawBorder)
     {
+        if (m_useDepthBuffer)
+        {
+            RenderStatePolygonOffset polygonOffset;
+            polygonOffset.configurePolygonPositiveOffset();
+            polygonOffset.applyOpenGL(oglContext);
+        }
+
         ref<ShaderProgram> backgroundShader;
 
         if (!softwareRendering)
@@ -353,10 +387,10 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
             Vec3f max = Vec3f(min.x() + static_cast<float>(textExtent.x()) + offset.x()*2.0f, min.y() + static_cast<float>(textExtent.y()) + offset.y()*2.0f, 0.0f);
 
             // Draw the background triangle
-            v1[0] = min.x(); v1[1] = min.y();
-            v2[0] = max.x(); v2[1] = min.y();
-            v3[0] = max.x(); v3[1] = max.y();
-            v4[0] = min.x(); v4[1] = max.y();
+            v1[0] = min.x(); v1[1] = min.y(); v1[2] = pos.z();
+            v2[0] = max.x(); v2[1] = min.y(); v2[2] = pos.z();
+            v3[0] = max.x(); v3[1] = max.y(); v3[2] = pos.z();
+            v4[0] = min.x(); v4[1] = max.y(); v4[2] = pos.z();
 
             if (m_drawBackground)
             {
@@ -407,6 +441,12 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                     glDrawElements(GL_LINES, 8, GL_UNSIGNED_SHORT, lineConnects);
                 }
             }
+        }
+
+        if (m_useDepthBuffer)
+        {
+            RenderStatePolygonOffset resetPolygonOffset;
+            resetPolygonOffset.applyOpenGL(oglContext);
         }
     }
 
@@ -459,7 +499,6 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
         // Need to round off to integer positions to avoid buggy text drawing on iPad2
         pos.x() = cvf::Math::floor(pos.x());
         pos.y() = cvf::Math::floor(pos.y());
-        pos.z() = cvf::Math::floor(pos.z());
 
         // Cursor incrementor
         Vec2f cursor(pos);
@@ -484,18 +523,22 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
                 // Lower left corner
                 v1[0] = cursor.x() + static_cast<float>(glyph->horizontalBearingX());
                 v1[1] = cursor.y() + static_cast<float>(glyph->horizontalBearingY()) - textureHeight + static_cast<float>(m_verticalAlignment);
+                v1[2] = pos.z();
 
                 // Lower right corner
                 v2[0] = v1[0] + textureWidth;
                 v2[1] = v1[1];
+                v2[2] = pos.z();
 
                 // Upper right corner
                 v3[0] = v2[0];
                 v3[1] = v1[1] + textureHeight;
+                v3[2] = pos.z();
 
                 // Upper left corner
                 v4[0] = v1[0];
                 v4[1] = v3[1];
+                v4[2] = pos.z();
 
                 glyph->setupAndBindTexture(oglContext, softwareRendering);
 
@@ -589,6 +632,34 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
     resetDepth.applyOpenGL(oglContext);
 
     CVF_CHECK_OGL(oglContext);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool TextDrawer::pickText(const Vec3f& pickCoord2d, const String& text, const Vec3f& pos, Font* font)
+{
+    // Figure out margin
+    ref<Glyph> glyph = font->getGlyph(L'A');
+    float charHeight = static_cast<float>(glyph->height());
+    float charWidth  = static_cast<float>(glyph->width());
+
+    float offsetX = cvf::Math::floor(charWidth/2.0f);
+    float offsetY = cvf::Math::floor(charHeight/2.0f);
+
+    Vec2ui textExtent = font->textExtent(text);
+
+    Vec3f min = pos;
+    Vec3f max = Vec3f(min.x() + static_cast<float>(textExtent.x()) + offsetX*2.0f, min.y() + static_cast<float>(textExtent.y()) + offsetY*2.0f, 0.0f);
+
+    if (pickCoord2d.x() > min.x() && pickCoord2d.x() < max.x() &&
+        pickCoord2d.y() > min.y() && pickCoord2d.y() < max.y())
+    {
+        return true;
+    }
+
+    return false;
 }
 
 }  // namespace cvf

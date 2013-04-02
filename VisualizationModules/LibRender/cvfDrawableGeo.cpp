@@ -1273,8 +1273,6 @@ BoundingBox DrawableGeo::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 bool DrawableGeo::rayIntersect(const Ray& ray, Vec3d* intersectionPoint, uint* faceHit) const
 {
-    CVF_ASSERT(intersectionPoint);
-
     bool anyHits = false;
     double minDistSquared = 1.0e300;
 
@@ -1314,19 +1312,23 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3d* intersectionPoint, uint* f
                 double distSquared = (ray.origin() - localIntersect).lengthSquared();
                 #pragma omp critical
 		{
-                    if (distSquared < minDistSquared)
+                if (distSquared < minDistSquared)
+                {
+                    if (intersectionPoint)
                     {
-                        *intersectionPoint = localIntersect;
-                        minDistSquared = distSquared;
-
-                        if (faceHit)
-                        {
-                            *faceHit = i + accumulatedFaceCount;
-                        }
+                    *intersectionPoint = localIntersect;
                     }
-                    anyHits = true;
-		}
+                    
+                    minDistSquared = distSquared;
+
+                    if (faceHit)
+                    {
+                            *faceHit = i + accumulatedFaceCount;
+                    }
+                }
+                anyHits = true;
             }
+        }
         } // End omp parallel for
         accumulatedFaceCount += numPrimFaces;
     }

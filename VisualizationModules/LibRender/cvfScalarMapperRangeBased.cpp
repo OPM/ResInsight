@@ -56,6 +56,7 @@ void ScalarMapperRangeBased::setRange(double min, double max)
     m_rangeMin = min;
     m_rangeMax = max;
     updateSortedLevels();
+    rangeUpdated();
 }
 
 
@@ -160,7 +161,8 @@ bool ScalarMapperRangeBased::updateTexture(TextureImage* image) const
 
 // Then calculate a stepsize that is humanly understandable
 // basically rounded to whole or half of the decade in question
-
+// decadeParts - The number of steps wanted within a decade
+// decadeValue - The value used to describe the current decade to round off within
 static double adjust(double domainValue, double decadeValue, unsigned int decadeParts = 2)
 {
     if (decadeValue == 0) return domainValue; // Conceptually correct
@@ -200,7 +202,7 @@ void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues)
 
     if (m_userDefinedLevelValues.empty())
     {
-        domainValues->push_back(m_rangeMin);
+        domainValues->push_back(domainValue(0));
         if (m_levelCount > 1)
         {
             double stepSizeNorm = 1.0/m_levelCount;
@@ -213,17 +215,19 @@ void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues)
                 {
                     double prevNormPos = normalizedValue(prevDomValue);
                     double newNormPos = prevNormPos + stepSizeNorm;
+
                     double domValue = domainValue(newNormPos);
                     double domStep = domValue - prevDomValue;
                     double newLevel;
 
-                    newLevel = prevDomValue + adjust(domStep, domStep, m_decadeLevelCount);
+                    //newLevel = prevDomValue + adjust(domStep, domStep, m_decadeLevelCount);
+                    newLevel = domValue;
 
                     // Must handle first level specially to get a good absolute staring point
                     // For log domain this must be done all the time, and it does not hamper linear, so.. do it always
                     newLevel = adjust(newLevel, domStep, m_decadeLevelCount);
 
-                    if (newLevel > m_rangeMax - domStep*0.4) break;
+                    if (normalizedValue(newLevel) > 1.0 - stepSizeNorm*0.4) break;
 
                     domainValues->push_back(newLevel);
                     prevDomValue = newLevel;
@@ -237,7 +241,7 @@ void ScalarMapperRangeBased::majorTickValues( std::vector<double>* domainValues)
                 }
             }
         }
-        domainValues->push_back(m_rangeMax);
+        domainValues->push_back(domainValue(1));
     }
     else
     {

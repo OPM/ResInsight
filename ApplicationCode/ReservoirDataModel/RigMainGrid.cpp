@@ -16,28 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
-
 #include "RigMainGrid.h"
-#include "RigReservoirCellResults.h"
 
 #include "cvfAssert.h"
 
 RigMainGrid::RigMainGrid(void)
-    : RigGridBase(this),
-        m_activeCellPositionMin(cvf::Vec3st::UNDEFINED),
-        m_activeCellPositionMax(cvf::Vec3st::UNDEFINED),
-        m_validCellPositionMin(cvf::Vec3st::UNDEFINED),
-        m_validCellPositionMax(cvf::Vec3st::UNDEFINED),
-        m_globalMatrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
-        m_globalFractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
+    : RigGridBase(this)
 {
-    m_matrixModelResults = new RigReservoirCellResults(this);
-	m_fractureModelResults = new RigReservoirCellResults(this);
-
-    m_activeCellsBoundingBox.add(cvf::Vec3d::ZERO);
+    m_displayModelOffset = cvf::Vec3d::ZERO;
+    
     m_gridIndex = 0;
-}
+} 
 
 
 RigMainGrid::~RigMainGrid(void)
@@ -83,152 +72,18 @@ void RigMainGrid::initAllSubCellsMainGridCellIndex()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::globalMatrixModelActiveCellCount() const
-{
-    return m_globalMatrixModelActiveCellCount;
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigMainGrid::globalFractureModelActiveCellCount() const
-{
-    return m_globalFractureModelActiveCellCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
-{
-    min = m_activeCellPositionMin;
-    max = m_activeCellPositionMax;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RigMainGrid::matrixModelActiveCellsBoundingBox() const
-{
-    return m_activeCellsBoundingBox;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const
-{
-    min = m_validCellPositionMin;
-    max = m_validCellPositionMax;
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// Helper class used to find min/max range for valid and active cells
-//--------------------------------------------------------------------------------------------------
-class CellRangeBB
-{
-public:
-    CellRangeBB()
-        : m_min(cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T),
-        m_max(cvf::Vec3st::ZERO)
-    {
-
-    }
-
-    void add(size_t i, size_t j, size_t k)
-    {
-        if (i < m_min.x()) m_min.x() = i;
-        if (j < m_min.y()) m_min.y() = j;
-        if (k < m_min.z()) m_min.z() = k;
-
-        if (i > m_max.x()) m_max.x() = i;
-        if (j > m_max.y()) m_max.y() = j;
-        if (k > m_max.z()) m_max.z() = k;
-    }
-
-public:
-    cvf::Vec3st m_min;
-    cvf::Vec3st m_max;
-};
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeActiveAndValidCellRanges()
-{
-    CellRangeBB validBB;
-    CellRangeBB activeBB;
-
-    size_t idx;
-    for (idx = 0; idx < cellCount(); idx++)
-    {
-        const RigCell& c = cell(idx);
-        
-        size_t i, j, k;
-        ijkFromCellIndex(idx, &i, &j, &k);
-
-        if (!c.isInvalid())
-        {
-            validBB.add(i, j, k);
-        }
-
-        if (c.isActiveInMatrixModel())
-        {
-            activeBB.add(i, j, k);
-        }
-    }
-
-    m_validCellPositionMin = validBB.m_min;
-    m_validCellPositionMax = validBB.m_max;
-
-    m_activeCellPositionMin = activeBB.m_min;
-    m_activeCellPositionMax = activeBB.m_max;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RigMainGrid::displayModelOffset() const
 {
-    return m_activeCellsBoundingBox.min();
+    return m_displayModelOffset;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeBoundingBox()
+void RigMainGrid::setDisplayModelOffset(cvf::Vec3d offset)
 {
-    m_activeCellsBoundingBox.reset();
-
-    if (m_nodes.size() == 0)
-    {
-        m_activeCellsBoundingBox.add(cvf::Vec3d::ZERO);
-    }
-    else
-    {
-        size_t i;
-        for (i = 0; i < cellCount(); i++)
-        {
-            const RigCell& c = cell(i);
-            if (c.isActiveInMatrixModel())
-            {
-                const caf::SizeTArray8& indices = c.cornerIndices();
-
-                size_t idx;
-                for (idx = 0; idx < 8; idx++)
-                {
-                    m_activeCellsBoundingBox.add(m_nodes[indices[idx]]);
-                }
-            }
-        }
-    }
+    m_displayModelOffset = offset;
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// Initialize pointers from grid to parent grid
@@ -239,83 +94,6 @@ void RigMainGrid::computeCachedData()
 {
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
-    computeActiveAndValidCellRanges();
-    computeBoundingBox();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-///
-///
-//--------------------------------------------------------------------------------------------------
-void RigMainGrid::calculateMatrixModelActiveCellInfo(std::vector<qint32> &gridNumber,
-                                          std::vector<qint32> &cellI,
-                                          std::vector<qint32> &cellJ,
-                                          std::vector<qint32> &cellK,
-                                          std::vector<qint32> &parentGridNumber,
-                                          std::vector<qint32> &hostCellI,
-                                          std::vector<qint32> &hostCellJ,
-                                          std::vector<qint32> &hostCellK)
-{
-    size_t numMatrixModelActiveCells = this->globalMatrixModelActiveCellCount();
-
-    gridNumber.clear();
-    cellI.clear();
-    cellJ.clear();
-    cellK.clear();
-    parentGridNumber.clear();
-    hostCellI.clear();
-    hostCellJ.clear();
-    hostCellK.clear();
-
-    gridNumber.reserve(numMatrixModelActiveCells);
-    cellI.reserve(numMatrixModelActiveCells);
-    cellJ.reserve(numMatrixModelActiveCells);
-    cellK.reserve(numMatrixModelActiveCells);
-    parentGridNumber.reserve(numMatrixModelActiveCells);
-    hostCellI.reserve(numMatrixModelActiveCells);
-    hostCellJ.reserve(numMatrixModelActiveCells);
-    hostCellK.reserve(numMatrixModelActiveCells);
-
-    for (size_t cIdx = 0; cIdx < m_cells.size(); ++cIdx)
-    {
-        if (m_cells[cIdx].isActiveInMatrixModel())
-        {
-            RigGridBase* grid = m_cells[cIdx].hostGrid();
-            CVF_ASSERT(grid != NULL);
-            size_t cellIndex = m_cells[cIdx].cellIndex();
-            
-            size_t i, j, k;
-            grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-
-            size_t pi, pj, pk;
-            RigGridBase* parentGrid = NULL;
-
-            if (grid->isMainGrid())
-            {
-                pi = i;
-                pj = j;
-                pk = k;
-                parentGrid = grid;
-            }
-            else
-            {
-                size_t parentCellIdx = m_cells[cIdx].parentCellIndex();
-                parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
-                CVF_ASSERT(parentGrid != NULL);
-                parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
-            }
-
-            gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
-            cellI.push_back(static_cast<qint32>(i));
-            cellJ.push_back(static_cast<qint32>(j));
-            cellK.push_back(static_cast<qint32>(k));
-            parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
-            hostCellI.push_back(static_cast<qint32>(pi));
-            hostCellJ.push_back(static_cast<qint32>(pj));
-            hostCellK.push_back(static_cast<qint32>(pk));
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -336,31 +114,5 @@ const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
     if (localGridIndex == 0) return this;
     CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
     return m_localGrids[localGridIndex-1].p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RigReservoirCellResults* RigMainGrid::results(RifReaderInterface::PorosityModelResultType porosityModel)
-{
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
-    {
-        return m_matrixModelResults.p();
-    }
-
-    return m_fractureModelResults.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RigReservoirCellResults* RigMainGrid::results(RifReaderInterface::PorosityModelResultType porosityModel) const
-{
-    if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
-    {
-        return m_matrixModelResults.p();
-    }
-
-    return m_fractureModelResults.p();
 }
 

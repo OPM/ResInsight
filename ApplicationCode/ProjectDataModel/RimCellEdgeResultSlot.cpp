@@ -16,15 +16,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimCellEdgeResultSlot.h"
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "RimReservoirView.h"
-#include "RigReservoirCellResults.h"
-#include "RigReservoir.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 
 #include "cafPdmUiListEditor.h"
 
@@ -71,7 +71,7 @@ void RimCellEdgeResultSlot::setReservoirView(RimReservoirView* ownerReservoirVie
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeResultSlot::loadResult()
 {
-    CVF_ASSERT(m_reservoirView && m_reservoirView->gridCellResults());
+    CVF_ASSERT(m_reservoirView && m_reservoirView->currentGridCellResults());
 
     resetResultIndices();
     QStringList vars = findResultVariableNames();
@@ -80,7 +80,7 @@ void RimCellEdgeResultSlot::loadResult()
     int i;
     for (i = 0; i < vars.size(); ++i)
     {
-         size_t resultindex = m_reservoirView->gridCellResults()->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, vars[i]);
+         size_t resultindex = m_reservoirView->currentGridCellResults()->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, vars[i]);
          int cubeFaceIdx;
          for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
          {
@@ -130,10 +130,10 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
 {
     if (fieldNeedingOptions == &resultVariable)
     {
-        if (m_reservoirView && m_reservoirView->gridCellResults())
+        if (m_reservoirView && m_reservoirView->currentGridCellResults())
         {
             QStringList varList;
-            varList = m_reservoirView->gridCellResults()->resultNames(RimDefines::STATIC_NATIVE);
+            varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RimDefines::STATIC_NATIVE);
 
             //TODO: Must also handle input properties
             //varList += m_reservoirView->gridCellResults()->resultNames(RimDefines::INPUT_PROPERTY);
@@ -205,10 +205,10 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
 {
     QStringList varNames;
     
-    if (m_reservoirView && m_reservoirView->gridCellResults() && !resultVariable().isEmpty())
+    if (m_reservoirView && m_reservoirView->currentGridCellResults() && !resultVariable().isEmpty())
     {
         QStringList varList;
-        varList = m_reservoirView->gridCellResults()->resultNames(RimDefines::STATIC_NATIVE);
+        varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(RimDefines::STATIC_NATIVE);
         //TODO: Must handle Input properties
 
         int i;
@@ -313,7 +313,7 @@ void RimCellEdgeResultSlot::minMaxCellEdgeValues(double& min, double& max)
 
         {
             double cMin, cMax;
-            m_reservoirView->gridCellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
+            m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(resultIndices[idx], cMin, cMax);
 
             globalMin = CVF_MIN(globalMin, cMin);
             globalMax = CVF_MAX(globalMax, cMax);

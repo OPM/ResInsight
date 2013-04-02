@@ -37,23 +37,11 @@ public:
     caf::SizeTArray8&       cornerIndices()                                     { return m_cornerIndices;}
     const caf::SizeTArray8& cornerIndices() const                               { return m_cornerIndices;}
 
-    bool                    isActiveInMatrixModel() const                       { return m_activeIndexInMatrixModel != cvf::UNDEFINED_SIZE_T; }
-    size_t                  activeIndexInMatrixModel() const                    { return m_activeIndexInMatrixModel; }
-    void                    setActiveIndexInMatrixModel(size_t val)             { m_activeIndexInMatrixModel = val; }
-
-    bool                    isActiveInFractureModel() const                     { return m_activeIndexInFractureModel != cvf::UNDEFINED_SIZE_T; }
-    size_t                  activeIndexInFractureModel() const                  { return m_activeIndexInFractureModel; }
-    void                    setActiveIndexInFractureModel(size_t val)           { m_activeIndexInFractureModel = val; }
-
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
 
-    bool                    isWellCell() const                                  { return m_isWellCell; }
-    void                    setAsWellCell(bool isWellCell)                      { m_isWellCell = isWellCell; }
-
     size_t                  cellIndex() const                                   { return m_cellIndex; }
     void                    setCellIndex(size_t val)                            { m_cellIndex = val; }
-
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
@@ -89,11 +77,5 @@ private:
 
     bool                    m_cellFaceFaults[6];
 
-    // Result case specific data 
     bool                    m_isInvalid;
-    bool                    m_isWellCell;
-
-    size_t                  m_activeIndexInMatrixModel;      ///< This cell's running index of all the active calls (matrix) in the reservoir
-    size_t                  m_activeIndexInFractureModel;    ///< This cell's running index of all the active calls (fracture) in the reservoir
-
 };

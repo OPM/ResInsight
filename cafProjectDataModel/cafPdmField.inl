@@ -19,6 +19,7 @@
 
 #include "cafPdmObject.h"
 #include <vector>
+#include <iostream>
 #include "cafPdmUiFieldEditorHandle.h"
 
 namespace caf
@@ -226,26 +227,66 @@ template<typename DataType >
 void caf::PdmField<DataType*>::readFieldData(QXmlStreamReader& xmlStream)
 {
     PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
-    if (!xmlStream.isStartElement()) return; // Todo: Error handling
-
-    QString className = xmlStream.name().toString();
-
-    if (m_fieldValue.isNull())
+    if (!xmlStream.isStartElement())
     {
-        m_fieldValue.setRawPtr(caf::PdmObjectFactory::instance()->create(className));
-        if (m_fieldValue.notNull())
-        {
-            m_fieldValue.rawPtr()->addParentField(this);
-        }
+        return; // This happens when the field is "shortcut" empty (written like: <ElementName/>) 
     }
 
-    if (m_fieldValue.isNull()) return; // Warning: Unknown className read
+    QString className = xmlStream.name().toString();
+    PdmObject* obj = NULL;
 
-    if (xmlStream.name() != m_fieldValue.rawPtr()->classKeyword()) return; // Error: Field contains different class type than on file
+    // Create an object if needed 
+    if (m_fieldValue.isNull())
+    {
+        obj = caf::PdmObjectFactory::instance()->create(className);
 
-    m_fieldValue.rawPtr()->readFields(xmlStream);
+        if (obj == NULL)
+        {
+            std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Unknown object type with class name: " << className.toLatin1().data() << " found while reading the field : " << this->keyword().toLatin1().data() << std::endl;
 
-    // Make stream point to end of element
+            xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
+            xmlStream.skipCurrentElement(); // Skip to the endelement of this field
+            return;
+        }
+        else
+        {
+            if (dynamic_cast<DataType *>(obj) == NULL)
+            {
+                assert(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
+
+                xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
+                xmlStream.skipCurrentElement(); // Skip to the endelement of this field
+
+                return;
+            }
+
+            m_fieldValue.setRawPtr(obj);
+            obj->addParentField(this);
+        }
+    }
+    else
+    {
+        obj = m_fieldValue.rawPtr();
+    }
+
+    if (className != obj->classKeyword())
+    {
+        // Error: Field contains different class type than on file
+        std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Unknown object type with class name: " << className.toLatin1().data() << " found while reading the field : " << this->keyword().toLatin1().data() << std::endl;
+        std::cout << "                     Expected class name: " << obj->classKeyword().toLatin1().data() << std::endl;
+
+        xmlStream.skipCurrentElement(); // Skip to the endelement of the object we was supposed to read
+        xmlStream.skipCurrentElement(); // Skip to the endelement of this field
+
+        return; 
+    }
+
+    // Everything seems ok, so read the contents of the object:
+
+    obj->readFields(xmlStream);
+    
+    // Make stream point to endElement of this field
+
     QXmlStreamReader::TokenType type;
     type = xmlStream.readNext();
     PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
@@ -422,6 +463,25 @@ void PdmPointersField<DataType*>::insert(size_t indexAfter, DataType* pointer)
     if (pointer) pointer->addParentField(this);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
+void PdmPointersField<DataType*>::insert(size_t indexAfter, const std::vector<PdmPointer<DataType> >& objects)
+{
+    m_pointers.insert(m_pointers.begin()+indexAfter, objects.begin(), objects.end());
+
+    typename std::vector< PdmPointer< DataType > >::iterator it;
+    for (it = m_pointers.begin()+indexAfter; it != m_pointers.end(); ++it)
+    {
+        if (!it->isNull()) 
+        {
+            (*it)->addParentField(this);
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -521,8 +581,17 @@ template<typename DataType>
         {
             // Warning: Unknown className read
             // Skip to corresponding end element
-            xmlStream.skipCurrentElement();
+
+            std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Unknown object type with class name: " << className.toLatin1().data() << " found while reading the field : " << this->keyword().toLatin1().data() << std::endl;
+
+            // Skip to EndElement of the object
+            xmlStream.skipCurrentElement(); 
+
+            // Jump off the end element, and head for next start element (or the final EndElement of the field)
+            QXmlStreamReader::TokenType type;
+            type = xmlStream.readNext();
             PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
+
             continue; 
         }
 
@@ -530,18 +599,24 @@ template<typename DataType>
 
         if (currentObject == NULL)
         {
-            // Warning: Inconsistency in factory !! Assert ?
-            // Skip to corresponding end element
+            assert(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
+
+            // Skip to EndElement of the object
             xmlStream.skipCurrentElement();
+
+            // Jump off the end element, and head for next start element (or the final EndElement of the field)
+            QXmlStreamReader::TokenType type;
+            type = xmlStream.readNext();
             PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
+
             continue; 
         }
 
         currentObject->readFields(xmlStream);
         this->push_back(currentObject);
 
-        // Skip comments and for some reason: Characters. The last bit should not be correct, 
-        // but Qt reports a character token between EndElement and StartElement
+        // Jump off the end element, and head for next start element (or the final EndElement of the field)
+        // Qt reports a character token between EndElements and StartElements so skip it
 
         QXmlStreamReader::TokenType type;
         type = xmlStream.readNext();

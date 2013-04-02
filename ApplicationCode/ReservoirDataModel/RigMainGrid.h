@@ -27,8 +27,6 @@
 
 #include <QtGlobal>
 
-class RigReservoirCellResults;
-
 class RigMainGrid : public RigGridBase
 {
 public:
@@ -42,59 +40,29 @@ public:
     std::vector<RigCell>&                   cells() {return m_cells;}
     const std::vector<RigCell>&             cells() const {return m_cells;}
 
-    RigReservoirCellResults*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
-    const RigReservoirCellResults*          results(RifReaderInterface::PorosityModelResultType porosityModel) const;
-
-    size_t                                  globalMatrixModelActiveCellCount() const;
-    size_t                                  globalFractureModelActiveCellCount() const;
-    void                                    setGlobalMatrixModelActiveCellCount  (size_t globalMatrixModelActiveCellCount)   { m_globalMatrixModelActiveCellCount   = globalMatrixModelActiveCellCount;  }
-    void                                    setGlobalFractureModelActiveCellCount(size_t globalFractureModelActiveCellCount) { m_globalFractureModelActiveCellCount = globalFractureModelActiveCellCount;}
-
-    void                                    matrixModelActiveCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
-    void                                    validCellsBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
-
     void                                    addLocalGrid(RigLocalGrid* localGrid);
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
     RigGridBase*                            gridByIndex(size_t localGridIndex);
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
     
-    void                                    calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
-                                                                    std::vector<qint32>& i,
-                                                                    std::vector<qint32>& j,
-                                                                    std::vector<qint32>& k,
-                                                                    std::vector<qint32>& parentGridNumber,
-                                                                    std::vector<qint32>& hostCellI,
-                                                                    std::vector<qint32>& hostCellJ,
-                                                                    std::vector<qint32>& hostCellK);
     void                                    computeCachedData();
 
     cvf::BoundingBox                        matrixModelActiveCellsBoundingBox() const;
 
     // Overrides
     virtual cvf::Vec3d                      displayModelOffset() const;
+    void                                    setDisplayModelOffset(cvf::Vec3d offset);
 
 private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
     void                                    computeActiveAndValidCellRanges();
-    void                                    computeBoundingBox();
 
 private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
 
-    cvf::ref<RigReservoirCellResults>       m_matrixModelResults;
-    cvf::ref<RigReservoirCellResults>       m_fractureModelResults;
-
-    size_t                                  m_globalMatrixModelActiveCellCount;
-    size_t                                  m_globalFractureModelActiveCellCount;
-
-    cvf::Vec3st                             m_activeCellPositionMin;
-    cvf::Vec3st                             m_activeCellPositionMax;
-    cvf::Vec3st                             m_validCellPositionMin;
-    cvf::Vec3st                             m_validCellPositionMax;
-
-    cvf::BoundingBox                        m_activeCellsBoundingBox;
+    cvf::Vec3d                              m_displayModelOffset;
 };
 

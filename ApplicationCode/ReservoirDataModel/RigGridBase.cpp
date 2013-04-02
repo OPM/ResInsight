@@ -16,11 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
 #include "RigGridBase.h"
 #include "RigMainGrid.h"
 #include "RigCell.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RigGridScalarDataAccess.h"
 
 #include "cvfAssert.h"
@@ -29,9 +28,7 @@
 RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     m_gridPointDimensions(0,0,0),
     m_mainGrid(mainGrid),
-    m_indexToStartOfCells(0),
-    m_matrixModelActiveCellCount(cvf::UNDEFINED_SIZE_T),
-    m_fractureModelActiveCellCount(cvf::UNDEFINED_SIZE_T)
+    m_indexToStartOfCells(0)
 {
     if (mainGrid == NULL)
     {
@@ -303,22 +300,6 @@ bool RigGridBase::isCellValid(size_t i, size_t j, size_t k) const
     return !c.isInvalid();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigGridBase::isCellActive(size_t i, size_t j, size_t k) const
-{
-    size_t idx = cellIndexFromIJK(i, j, k);
-    const RigCell& c = cell(idx);
-    if (!c.isActiveInMatrixModel() || c.isInvalid())
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// TODO: Use structgrid::neighborIJKAtCellFace
@@ -452,18 +433,18 @@ cvf::Vec3d RigGridBase::displayModelOffset() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the max size of the charactristic cell sizes
+/// Returns the min size of the I and J charactristic cell sizes
 //--------------------------------------------------------------------------------------------------
-double RigGridBase::characteristicCellSize()
+double RigGridBase::characteristicIJCellSize()
 {
-    double characteristicCellSize = 0;
+    double characteristicCellSize = HUGE_VAL;
 
     double cellSizeI, cellSizeJ, cellSizeK;
     this->characteristicCellSizes(&cellSizeI, &cellSizeJ, &cellSizeK);
 
-    if (cellSizeI > characteristicCellSize) characteristicCellSize = cellSizeI;
-    if (cellSizeJ > characteristicCellSize) characteristicCellSize = cellSizeJ;
-    if (cellSizeK > characteristicCellSize) characteristicCellSize = cellSizeK;
+    if (cellSizeI < characteristicCellSize) characteristicCellSize = cellSizeI;
+    if (cellSizeJ < characteristicCellSize) characteristicCellSize = cellSizeJ;
+   
 
     return characteristicCellSize;
 }
@@ -471,50 +452,10 @@ double RigGridBase::characteristicCellSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::matrixModelActiveCellCount() const
+size_t RigGridBase::globalGridCellIndex(size_t localGridCellIndex) const
 {
-    return m_matrixModelActiveCellCount;
+    return m_indexToStartOfCells + localGridCellIndex;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RigGridBase::fractureModelActiveCellCount() const
-{
-    return m_fractureModelActiveCellCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigGridScalarDataAccess> RigGridBase::dataAccessObject(RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const
-{
-    if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
-        scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        cvf::ref<RigGridScalarDataAccess> dataAccess = RigGridScalarDataAccess::createDataAccessObject(this, porosityModel, timeStepIndex, scalarSetIndex);
-        return dataAccess;
-    }
-
-    return NULL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::setFractureModelActiveCellCount(size_t activeFractureModelCellCount)
-{
-    m_fractureModelActiveCellCount = activeFractureModelCellCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount)
-{
-    m_matrixModelActiveCellCount = activeMatrixModelCellCount;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

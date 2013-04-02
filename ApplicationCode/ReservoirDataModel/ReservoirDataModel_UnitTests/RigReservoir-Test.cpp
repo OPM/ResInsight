@@ -18,19 +18,85 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "gtest/gtest.h"
 
-#include "RigReservoir.h"
+#include "RigCaseData.h"
+#include "RigGridManager.h"
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigGridManager, BasicTest)
+{
+    cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
+
+    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+    eclipseCase->setMainGrid(mainGridA.p());
+
+    int count = mainGridA->refCount();
+    EXPECT_EQ(mainGridA->refCount(), 2);
+
+    RigGridManager gridCollection;
+    gridCollection.addCase(eclipseCase.p());
+    EXPECT_EQ(mainGridA->refCount(), 2);
+
+    cvf::ref<RigMainGrid> mainGridB = mainGridA;
+    EXPECT_EQ(mainGridA->refCount(), 3);
+
+    cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.notNull());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigGridManager, EqualTests)
+{
+    cvf::ref<RigMainGrid> mainGridA = new RigMainGrid;
+    mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 0));
+    mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 1));
+    mainGridA->nodes().push_back(cvf::Vec3d(0, 0, 2));
+
+    cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+    eclipseCase->setMainGrid(mainGridA.p());
+
+
+    RigGridManager gridCollection;
+    gridCollection.addCase(eclipseCase.p());
+
+
+    cvf::ref<RigMainGrid> mainGridB = new RigMainGrid;
+    cvf::ref<RigMainGrid> existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.isNull());
+
+    mainGridB->nodes().push_back(cvf::Vec3d(0, 0, 0));
+    existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.isNull());
+
+    // Insert nodes in opposite direction
+    mainGridB->nodes().push_back(cvf::Vec3d(0, 0, 2));
+    mainGridB->nodes().push_back(cvf::Vec3d(0, 0, 1));
+    existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.isNull());
+
+    // Overwrite to match the node structure of mainGridA
+    mainGridB->nodes()[1] = cvf::Vec3d(0, 0, 1);
+    mainGridB->nodes()[2] = cvf::Vec3d(0, 0, 2);
+    existingGrid = gridCollection.findEqualGrid(mainGridB.p());
+    EXPECT_TRUE(existingGrid.notNull());
+
+}
+
+/*
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 TEST(RigReservoirTest, BasicTest)
 {
-    cvf::ref<RigWellResults> wellCellTimeHistory = new RigWellResults;
+    cvf::ref<RigSingleWellResultsData> wellCellTimeHistory = new RigSingleWellResultsData;
 
     QDateTime wellStartTime = QDateTime::currentDateTime();
 
@@ -44,7 +110,7 @@ TEST(RigReservoirTest, BasicTest)
     }
 
     int resultTimeStepCount = 2 * wellTimeStepCount;
-    QList<QDateTime> resultTimes;
+    std::vector<QDateTime> resultTimes;
     for (i = 0; i < resultTimeStepCount; i++)
     {
         resultTimes.push_back(QDateTime(wellStartTime).addMonths(i * 6));
@@ -62,3 +128,5 @@ TEST(RigReservoirTest, BasicTest)
 
 }
 
+
+*/

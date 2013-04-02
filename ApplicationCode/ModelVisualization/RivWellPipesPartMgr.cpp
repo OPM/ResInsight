@@ -19,8 +19,8 @@
 
 #include "cvfLibCore.h"
 
-#include "RimReservoir.h"
-#include "RigReservoir.h"
+#include "RimCase.h"
+#include "RigCaseData.h"
 #include "RivWellPipesPartMgr.h"
 #include "RigCell.h"
 #include "RivPipeGeometryGenerator.h"
@@ -86,7 +86,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
     calculateWellPipeCenterline(pipeBranchesCLCoords, pipeBranchesCellIds);
 
-    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicCellSize();
+    double characteristicCellSize = m_rimReservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
     double pipeRadius = m_rimReservoirView->wellCollection()->pipeRadiusScaleFactor() *m_rimWell->pipeRadiusScaleFactor() * characteristicCellSize;
 
     for (size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); ++brIdx)
@@ -158,8 +158,8 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
     bool isAutoDetectBranches = m_rimReservoirView->wellCollection()->isAutoDetectingBranches();
     
-    RigReservoir*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
-    RigWellResults* wellResults = m_rimWell->wellResults();
+    RigCaseData*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+    RigSingleWellResultsData* wellResults = m_rimWell->wellResults();
 
     const RigWellResultFrame& staticWellFrame = m_rimWell->wellResults()->m_staticWellCells;
 
@@ -357,7 +357,7 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     if (m_rimWell == NULL) return;
 
-    RigWellResults* wRes = m_rimWell->wellResults();
+    RigSingleWellResultsData* wRes = m_rimWell->wellResults();
     if (wRes == NULL) return;
 
     if (frameIndex < wRes->firstResultTimeStep()) return; // Or reset colors or something
