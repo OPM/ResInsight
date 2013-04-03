@@ -51,7 +51,7 @@ void getMainGridDimensions(int32NDArray& gridDimensions, const QString &hostName
     socketStream >> jCount;
     socketStream >> kCount;
 
-    dim_vector dv (1);
+    dim_vector dv (1, 1);
     dv(0) = 3;
 
     gridDimensions.resize(dv);
