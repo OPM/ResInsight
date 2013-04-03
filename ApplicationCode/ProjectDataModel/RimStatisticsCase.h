@@ -46,17 +46,10 @@ public:
 
     void setMainGrid(RigMainGrid* mainGrid);
 
-
-
     void computeStatistics();
     virtual bool openEclipseGridFile();
 
     RimCaseCollection* parentStatisticsCaseCollection();
-
-    // Pdm system overrides
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     enum PercentileCalcType
     {
@@ -70,25 +63,37 @@ private:
     void getSourceCases(std::vector<RimCase*>& sourceCases);
 
     void updateSelectionListVisibilities();
+    void updateSelectionSummaryLabel();
+    void updatePercentileUiVisibility();
 
+    // Pdm system overrides
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+    virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
+
+    // Fields
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
 
-    caf::PdmField<std::vector<QString> > m_selectedDynamicProperties;
-    caf::PdmField<std::vector<QString> > m_selectedStaticProperties;
-    caf::PdmField<std::vector<QString> > m_selectedGeneratedProperties;
-    caf::PdmField<std::vector<QString> > m_selectedInputProperties;
+    caf::PdmField<QString>                                          m_selectionSummary;
 
-    caf::PdmField<std::vector<QString> > m_selectedFractureDynamicProperties;
-    caf::PdmField<std::vector<QString> > m_selectedFractureStaticProperties;
-    caf::PdmField<std::vector<QString> > m_selectedFractureGeneratedProperties;
-    caf::PdmField<std::vector<QString> > m_selectedFractureInputProperties;
+    caf::PdmField<std::vector<QString> >                            m_selectedDynamicProperties;
+    caf::PdmField<std::vector<QString> >                            m_selectedStaticProperties;
+    caf::PdmField<std::vector<QString> >                            m_selectedGeneratedProperties;
+    caf::PdmField<std::vector<QString> >                            m_selectedInputProperties;
+
+    caf::PdmField<std::vector<QString> >                            m_selectedFractureDynamicProperties;
+    caf::PdmField<std::vector<QString> >                            m_selectedFractureStaticProperties;
+    caf::PdmField<std::vector<QString> >                            m_selectedFractureGeneratedProperties;
+    caf::PdmField<std::vector<QString> >                            m_selectedFractureInputProperties;
 
  
-    caf::PdmField< bool > m_calculatePercentiles;
-    caf::PdmField< caf::AppEnum< PercentileCalcType > >      m_percentileCalculationType;
-    caf::PdmField<double > m_lowPercentile;
-    caf::PdmField<double > m_midPercentile;
-    caf::PdmField<double > m_highPercentile;
+    caf::PdmField< bool >                                           m_calculatePercentiles;
+    caf::PdmField< caf::AppEnum< PercentileCalcType > >             m_percentileCalculationType;
+    caf::PdmField<double >                                          m_lowPercentile;
+    caf::PdmField<double >                                          m_midPercentile;
+    caf::PdmField<double >                                          m_highPercentile;
 
 };

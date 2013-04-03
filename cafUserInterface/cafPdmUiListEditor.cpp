@@ -111,9 +111,7 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_label->setText(uiName);
     }
 
-    m_label->setVisible(!field()->isUiHidden(uiConfigName));
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-
     m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
     /// Demo code Not used yet

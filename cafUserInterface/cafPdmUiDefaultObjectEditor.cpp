@@ -258,29 +258,42 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                     }
                     else
                     {
-                        QWidget* fieldEditorWidget = fieldEditor->editorWidget();
-                        QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
 
-                        bool labelOnTop = field->labelAlignment(uiConfigName) & Qt::AlignTop;
+                        PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition(uiConfigName);
+                        bool labelOnTop = (labelPos == PdmUiItemInfo::TOP);
+                        bool editorSpanBoth = labelOnTop;
 
-                        if (fieldLabelWidget)
+                        if (labelPos != PdmUiItemInfo::HIDDEN)
                         {
-                            fieldLabelWidget->setParent(parent);
+                            QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
+                            if (fieldLabelWidget )
+                            {
+                                fieldLabelWidget->setParent(parent);
 
-                            // Label widget will span two columns if aligned on top
-                            int colSpan = labelOnTop ? 2 : 1;
-                            parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
+                                // Label widget will span two columns if aligned on top
+                                int colSpan = labelOnTop ? 2 : 1;
+                                parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
+                                fieldLabelWidget->show();
 
-                            if (labelOnTop) currentRowIndex++;
+                                if (labelOnTop) currentRowIndex++;
+                            }
                         }
+                        else
+                        {
+                            QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
+                            if (fieldLabelWidget ) fieldLabelWidget->hide();
+                            editorSpanBoth = true; // To span both columns when there is no label
+                        }
+
+                        QWidget* fieldEditorWidget = fieldEditor->editorWidget();
 
                         if (fieldEditorWidget)
                         {
                             fieldEditorWidget->setParent(parent); // To make sure this widget has the current group box as parent.
 
                             // Label widget will span two columns if aligned on top
-                            int colSpan = labelOnTop ? 2 : 1;
-                            int colIndex = labelOnTop ? 0 : 1;
+                            int colSpan = editorSpanBoth ? 2 : 1;
+                            int colIndex = editorSpanBoth ? 0 : 1;
                             parentLayout->addWidget(fieldEditorWidget, currentRowIndex, colIndex, 1, colSpan, Qt::AlignTop);
                         }
 

@@ -26,6 +26,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RimStatisticsCaseEvaluator.h"
 #include "RigMainGrid.h"
+#include "cafPdmUiTextEditor.h"
 
 namespace caf {
     template<>
@@ -48,22 +49,38 @@ RimStatisticsCase::RimStatisticsCase()
     : RimCase()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
+
+    CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Selected Properties", "", "", "");
+    m_selectionSummary.setIOWritable(false);
+    m_selectionSummary.setIOReadable(false);
+    m_selectionSummary.setUiReadOnly(true);
+    m_selectionSummary.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+    m_selectionSummary.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
     CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
     m_resultType.setIOWritable(false);
     CAF_PDM_InitFieldNoDefault(&m_porosityModel, "PorosityModel", "Porosity Model", "", "", "");
     m_porosityModel.setIOWritable(false);
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_selectedStaticProperties, "StaticPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedDynamicProperties,   "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedStaticProperties,    "StaticPropertiesToCalculate", "Stat Prop", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedInputProperties,     "InputPropertiesToCalculate", "", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_selectedFractureDynamicProperties, "FractureDynamicPropertiesToCalculate", "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_selectedFractureStaticProperties, "FractureStaticPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedFractureDynamicProperties,   "FractureDynamicPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedFractureStaticProperties,    "FractureStaticPropertiesToCalculate", "", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_selectedFractureGeneratedProperties, "FractureGeneratedPropertiesToCalculate", "", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&m_selectedFractureInputProperties, "FractureInputPropertiesToCalculate", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_selectedFractureInputProperties,     "FractureInputPropertiesToCalculate", "", "", "", "");
 
+    m_selectedDynamicProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedStaticProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedGeneratedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedInputProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
+    m_selectedFractureDynamicProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureStaticProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN); 
+    m_selectedFractureGeneratedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectedFractureInputProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "");
@@ -72,8 +89,9 @@ RimStatisticsCase::RimStatisticsCase()
     CAF_PDM_InitField(&m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "");
     CAF_PDM_InitField(&m_highPercentile, "HighPercentile", 90.0, "High", "", "", "");
 
-
     updateSelectionListVisibilities();
+    updateSelectionSummaryLabel();
+    updatePercentileUiVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,7 +269,27 @@ RimIdenticalGridCaseGroup* RimStatisticsCase::caseGroup()
 //--------------------------------------------------------------------------------------------------
 void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
 {
+    uiOrdering.add(&caseName);
 
+    caf::PdmUiGroup * group = uiOrdering.addNewGroup("Property Selection");
+    group->add(&m_selectionSummary);
+    group->add(&m_resultType);
+    group->add(&m_porosityModel);
+    group->add(&m_selectedDynamicProperties);
+    group->add(&m_selectedStaticProperties);
+    group->add(&m_selectedGeneratedProperties);
+    group->add(&m_selectedInputProperties);
+    group->add(&m_selectedFractureDynamicProperties);
+    group->add(&m_selectedFractureStaticProperties);
+    group->add(&m_selectedFractureGeneratedProperties);
+    group->add(&m_selectedFractureInputProperties);
+
+    group = uiOrdering.addNewGroup("Percentiles");
+    group->add(&m_calculatePercentiles);
+    group->add(&m_percentileCalculationType);
+    group->add(&m_lowPercentile);
+    group->add(&m_midPercentile);
+    group->add(&m_highPercentile);
 }
 
 QList<caf::PdmOptionItemInfo> toOptionList(const QStringList& varList)
@@ -334,6 +372,9 @@ void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
         updateSelectionListVisibilities();
     }
+
+    updateSelectionSummaryLabel();
+    updatePercentileUiVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,4 +391,80 @@ void RimStatisticsCase::updateSelectionListVisibilities()
     m_selectedFractureStaticProperties.setUiHidden(     !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::STATIC_NATIVE));
     m_selectedFractureGeneratedProperties.setUiHidden(  !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::GENERATED));
     m_selectedFractureInputProperties.setUiHidden(      !(m_porosityModel() == RimDefines::FRACTURE_MODEL && m_resultType() == RimDefines::INPUT_PROPERTY));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::updateSelectionSummaryLabel()
+{
+    QString html;
+    
+    html += "<style> "
+                "p{margin-bottom:0px;} "
+                "p.indent{margin-left:20px; margin-top:0px;} "
+            "</style>";
+
+    if (m_selectedDynamicProperties().size())
+    {
+        html += "<p><b>Dynamic properties:</p></b><p class=indent>";
+        for (size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx)
+        {
+            html += "" + m_selectedDynamicProperties()[pIdx] + "<br>";
+        }
+        html += "</p>";
+    }
+
+    if (m_selectedStaticProperties().size())
+    {
+        html += "<b>Static properties:</b><p class=indent>";
+        for (size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx)
+        {
+            html += "  " + m_selectedStaticProperties()[pIdx] + "<br>";
+        }
+        html += "</p>";
+    }
+    if (m_selectedGeneratedProperties().size())
+    {
+        html += "<b>Generated properties:</b><p class=indent>";
+        for (size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx)
+        {
+            html += "  " + m_selectedGeneratedProperties()[pIdx] + "<br>";
+        }
+        html += "</p>";
+    }
+    if (m_selectedInputProperties().size())
+    {
+        html += "<b>Input properties:</b><p class=indent>";
+        for (size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx)
+        {
+            html += "  " + m_selectedInputProperties()[pIdx] + "<br>";
+        }
+        html += "</p>";
+    }
+    m_selectionSummary = html;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    if (&m_selectionSummary == field)
+    {
+        caf::PdmUiTextEditorAttribute* textEditAttrib = dynamic_cast<caf::PdmUiTextEditorAttribute*> (attribute);
+        textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::updatePercentileUiVisibility()
+{
+    m_percentileCalculationType.setUiHidden( !m_calculatePercentiles());
+    m_lowPercentile .setUiHidden( !m_calculatePercentiles());
+    m_midPercentile .setUiHidden( !m_calculatePercentiles());
+    m_highPercentile.setUiHidden( !m_calculatePercentiles());
 }
