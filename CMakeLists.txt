@@ -37,6 +37,11 @@ include (ResInsightVersion.cmake)
 ################################################################################
 # ERT
 ################################################################################
+
+# Disable install of ERT libs and headers, as Ert code is compiled and linked directly
+# into ResInsight
+set (INSTALL_ERT false)
+
 add_subdirectory(ThirdParty/Ert/devel)
 
 include_directories(
