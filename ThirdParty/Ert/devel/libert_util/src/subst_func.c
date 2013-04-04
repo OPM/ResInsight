@@ -61,7 +61,7 @@ char * subst_func_eval( const subst_func_type * subst_func , const stringlist_ty
       util_abort("%s: Fatal error - aborting \n",__func__);
     }
   }
-  
+  printf("Running:%s \n",subst_func->name);
   return subst_func->func( args , subst_func->arg );
 }
 

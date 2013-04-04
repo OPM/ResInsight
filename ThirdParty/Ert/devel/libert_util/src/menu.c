@@ -141,7 +141,7 @@ static bool __string_contains(const char * string , const char * char_set) {
 menu_type * menu_alloc(const char * title , const char * quit_label , const char * quit_keys) {
   menu_type * menu = util_malloc(sizeof * menu );
   
-  menu->title     = util_alloc_string_copy( title );
+  menu->title     = util_alloc_sprintf_escape( title , 0 );
   menu->quit_keys = util_alloc_string_copy( quit_keys );
   menu->items     = vector_alloc_new();
   menu->complete_key_set = util_alloc_string_copy( quit_keys );
@@ -311,7 +311,7 @@ static void __print_helptext(char * label, int l){
   while(!end_reached){
     int i;
     if(strlen(label_copy) > l){
-          util_binary_split_string_from_max_length(label_copy , " ", l , &first_part , &second_part);
+      util_binary_split_string_from_max_length(label_copy , " ", l , &first_part , &second_part);
       printf("|    %s",first_part);
       for (i=strlen(first_part); i < l; i++)
         fputc(' ' , stdout);

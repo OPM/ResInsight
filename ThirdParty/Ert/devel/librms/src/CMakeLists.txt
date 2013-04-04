@@ -5,9 +5,10 @@ add_library( rms ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( rms PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
 #-----------------------------------------------------------------
-install(TARGETS rms DESTINATION ${CMAKE_INSTALL_LIBDIR})
-foreach(header ${header_files})
-    install(FILES ../include/ert/rms/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/rms)
-endforeach()
-
+if (INSTALL_ERT)
+   install(TARGETS rms DESTINATION ${CMAKE_INSTALL_LIBDIR})
+   foreach(header ${header_files})
+       install(FILES ../include/ert/rms/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/rms)
+   endforeach()
+endif()
 

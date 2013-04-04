@@ -33,7 +33,7 @@
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_endian_flip.h>
 #include <ert/ecl/ecl_kw_magic.h>
-#include <ert/ecl/ecl_intehead.h>
+#include <ert/ecl/ecl_rsthead.h>
 #include <ert/ecl/ecl_file_kw.h>
 
 

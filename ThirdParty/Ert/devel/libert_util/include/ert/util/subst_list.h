@@ -23,11 +23,12 @@
 extern "C" {
 #endif
 #include <stdio.h>
+#include <stdbool.h>
 
 #include <ert/util/subst_func.h>
 
   typedef struct          subst_list_struct subst_list_type;
-  void                    subst_list_update_buffer( const subst_list_type * subst_list , buffer_type * buffer );
+  bool                    subst_list_update_buffer( const subst_list_type * subst_list , buffer_type * buffer );
   void                    subst_list_insert_func(subst_list_type * subst_list , const char * func_name , const char * local_func_name);
   void                    subst_list_fprintf(const subst_list_type * , FILE * stream);
   void                    subst_list_set_parent( subst_list_type * subst_list , const subst_list_type * parent);
@@ -43,9 +44,9 @@ extern "C" {
   void                    subst_list_prepend_ref(subst_list_type *  , const char * , const char * , const char * doc_string);
   void                    subst_list_prepend_owned_ref(subst_list_type *  , const char * , const char * , const char * doc_string);
   
-  void                    subst_list_filter_file(const subst_list_type * , const char * , const  char * );
-  void                    subst_list_update_file(const subst_list_type * , const char * );
-  void                    subst_list_update_string(const subst_list_type * , char ** );
+  bool                    subst_list_filter_file(const subst_list_type * , const char * , const  char * );
+  bool                    subst_list_update_file(const subst_list_type * , const char * );
+  bool                    subst_list_update_string(const subst_list_type * , char ** );
   char                  * subst_list_alloc_filtered_string(const subst_list_type * , const char * );
   void                    subst_list_filtered_fprintf(const subst_list_type * , const char *  , FILE * );
   int                     subst_list_get_size( const subst_list_type *);

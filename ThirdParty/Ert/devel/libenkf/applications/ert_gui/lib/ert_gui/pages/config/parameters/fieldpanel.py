@@ -20,7 +20,7 @@ from ert_gui.widgets.combochoice import ComboChoice
 from ert_gui.widgets.stringbox import DoubleBox
 from ert_gui.widgets.pathchooser import PathChooser
 from parametermodels import FieldModel
-from ert.enums import field_type
+from ert.ert.enums import field_type
 from ert_gui.widgets.helpedwidget import ContentModel
 
 class FieldPanel(QtGui.QFrame):

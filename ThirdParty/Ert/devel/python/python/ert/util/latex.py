@@ -32,8 +32,13 @@ class LaTeX(CClass):
     def runpath(self):
         return cfunc.get_runpath( self )
 
-    def compile(self , ignore_errors = False , with_xref = False):
-        return cfunc.compile( self , ignore_errors , with_xref)
+    def compile(self , ignore_errors = False , with_xref = False , cleanup = True):
+        return cfunc.compile( self , ignore_errors , with_xref , cleanup)
+    
+    @property
+    def in_place(self):
+        return cfunc.compile_in_place( self )
+    
 
     #-----------------------------------------------------------------
     def set_target( self , target_file):
@@ -55,6 +60,12 @@ class LaTeX(CClass):
     timeout = property( get_timeout , set_timeout)
     #-----------------------------------------------------------------
 
+    def link_content( self , directory ):
+        cfunc.link_directory_content( self , directory )
+
+    def link_path( self , path):
+        cfunc.link_path( self , path)
+
 
 cwrapper = CWrapper( libutil.lib )
 cwrapper.registerType( "latex" , LaTeX )
@@ -63,9 +74,12 @@ cwrapper.registerType( "latex" , LaTeX )
 cfunc = CWrapperNameSpace("latex")
 cfunc.alloc             = cwrapper.prototype("c_void_p  latex_alloc( char* , bool )")
 cfunc.free              = cwrapper.prototype("void      latex_free( latex )")
-cfunc.compile           = cwrapper.prototype("bool      latex_compile(latex , bool , bool)")
+cfunc.compile           = cwrapper.prototype("bool      latex_compile(latex , bool , bool , bool)")
 cfunc.get_runpath       = cwrapper.prototype("char*     latex_get_runpath( latex )") 
 cfunc.get_target        = cwrapper.prototype("char*     latex_get_target_file( latex )")
 cfunc.set_target        = cwrapper.prototype("void      latex_set_target_file( latex , char* )")
 cfunc.set_timeout       = cwrapper.prototype("void      latex_set_timeout( latex , int )")
 cfunc.get_timeout       = cwrapper.prototype("int       latex_get_timeout( latex )")
+cfunc.compile_in_place  = cwrapper.prototype("bool      latex_compile_in_place( latex )");
+cfunc.link_directory_content  = cwrapper.prototype("void      latex_link_directory_content( latex , char*)");
+cfunc.link_path               = cwrapper.prototype("void      latex_link_path( latex , char*)");

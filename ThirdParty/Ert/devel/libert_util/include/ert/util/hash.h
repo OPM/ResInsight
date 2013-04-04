@@ -71,6 +71,7 @@ void            * hash_iter_get_next_value(hash_iter_type *);
 void              hash_iter_restart( hash_iter_type * iter );
 
 hash_type       * hash_alloc_from_options(const stringlist_type *);
+bool              hash_add_option( hash_type * hash, const char * key_value);
 
 int               hash_inc_counter(hash_type * hash , const char * counter_key);
 int               hash_get_counter(hash_type * hash , const char * key);

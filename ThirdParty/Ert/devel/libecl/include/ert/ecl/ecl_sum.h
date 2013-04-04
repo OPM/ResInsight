@@ -30,6 +30,7 @@ extern "C" {
 #include <ert/util/stringlist.h>
 #include <ert/util/time_t_vector.h>
 #include <ert/util/double_vector.h>
+#include <ert/util/time_interval.h>
 
 #include <ert/ecl/ecl_smspec.h>
 #include <ert/ecl/ecl_sum_tstep.h>
@@ -59,6 +60,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
 
   double         ecl_sum_get_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const smspec_node_type * node);
   double         ecl_sum_get_from_sim_days( const ecl_sum_type * ecl_sum , double sim_days , const smspec_node_type * node);
+  double         ecl_sum_time2days( const ecl_sum_type * ecl_sum , time_t sim_time);
   
   void           ecl_sum_set_unified( ecl_sum_type * ecl_sum , bool unified );
   void           ecl_sum_set_fmt_case( ecl_sum_type * ecl_sum , bool fmt_case );
@@ -158,6 +160,7 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   time_t       ecl_sum_get_data_start( const ecl_sum_type * ecl_sum );
   time_t       ecl_sum_get_end_time( const ecl_sum_type * ecl_sum);
   time_t       ecl_sum_get_start_time(const ecl_sum_type * );
+  const time_interval_type * ecl_sum_get_sim_time( const ecl_sum_type * ecl_sum);
 
   const char * ecl_sum_get_base(const ecl_sum_type * ecl_sum );
   const char * ecl_sum_get_path(const ecl_sum_type * ecl_sum );

@@ -21,7 +21,6 @@
 from ert_gui.widgets.pathchooser import PathChooser
 from ert_gui.widgets.configpanel import ConfigPanel
 from ert_gui.widgets.tablewidgets import KeywordTable, KeywordList
-import ert.ertwrapper as ertwrapper
 from PyQt4 import QtGui, QtCore
 from jobs.jobspanel import JobsPanel, Job
 import os
@@ -35,15 +34,12 @@ def createSystemPage(configPanel, parent):
     # the site configuration file; this should only be a label - not
     # user editable.
     r = configPanel.addRow(ActiveLabel(None, "Site Config", "", "Not specified."))
-    r.initialize = lambda ert: [ert.prototype("char* enkf_main_get_site_config_file(long)")]
     r.getter = lambda ert : ert.enkf.enkf_main_get_site_config_file(ert.main)
     r.modelConnect("casesUpdated()", r.fetchContent)
     
 
 
     r = configPanel.addRow(PathChooser(parent, "Job script", "config/systemenv/job_script", True))
-    r.initialize = lambda ert : [ert.prototype("char* site_config_get_job_script(long)"),
-                                 ert.prototype("void site_config_set_job_script(long, char*)")]
     r.getter = lambda ert : ert.enkf.site_config_get_job_script(ert.site_config)
     r.setter = lambda ert, value : ert.enkf.site_config_set_job_script(ert.site_config, str(value))
 
@@ -51,9 +47,6 @@ def createSystemPage(configPanel, parent):
     internalPanel.startPage("setenv")
 
     r = internalPanel.addRow(KeywordTable(parent, "", "config/systemenv/setenv"))
-    r.initialize = lambda ert : [ert.prototype("long site_config_get_env_hash(long)"),
-                                 ert.prototype("void site_config_clear_env(long)"),
-                                 ert.prototype("void site_config_setenv(long, char*, char*)")]
     r.getter = lambda ert : ert.getHash(ert.enkf.site_config_get_env_hash(ert.site_config))
 
     def setenv(ert, value):
@@ -68,10 +61,6 @@ def createSystemPage(configPanel, parent):
     internalPanel.startPage("Update path")
 
     r = internalPanel.addRow(KeywordTable(parent, "", "config/systemenv/update_path"))
-    r.initialize = lambda ert : [ert.prototype("long site_config_get_path_variables(long)"),
-                                 ert.prototype("long site_config_get_path_values(long)"),
-                                 ert.prototype("void site_config_clear_pathvar(long)"),
-                                 ert.prototype("void site_config_update_pathvar(long, char*, char*)")]
     def get_update_path(ert):
         paths = ert.getStringList(ert.enkf.site_config_get_path_variables(ert.site_config))
         values =  ert.getStringList(ert.enkf.site_config_get_path_values(ert.site_config))
@@ -94,18 +83,6 @@ def createSystemPage(configPanel, parent):
     internalPanel.startPage("Jobs")
 
     r = internalPanel.addRow(JobsPanel(parent))
-    r.initialize = lambda ert : [ert.prototype("long site_config_get_installed_jobs(long)"),
-                                 ert.prototype("char* site_config_get_license_root_path(long)"),
-                                 ert.prototype("int ext_job_is_private(long)", lib=ert.job_queue),
-                                 ert.prototype("char* ext_job_get_config_file(long)", lib=ert.job_queue),
-                                 ert.prototype("void ext_job_set_config_file(long, char*)", lib=ert.job_queue),
-                                 ert.prototype("long ext_job_alloc(char*, char*, int)", lib=ert.job_queue),
-                                 ert.prototype("long ext_job_fscanf_alloc(char*, char*, int, char*)", lib=ert.job_queue),
-                                 ert.prototype("long ext_joblist_get_job(long, char*)", lib=ert.job_queue),
-                                 ert.prototype("int ext_joblist_del_job(long, char*)", lib=ert.job_queue),
-                                 ert.prototype("int ext_joblist_has_job(long, char*)", lib=ert.job_queue),
-                                 ert.prototype("void ext_joblist_add_job(long, char*, long)", lib=ert.job_queue),
-                                 ert.prototype("long ext_joblist_get_jobs(long)", lib=ert.job_queue)]
     def get_jobs(ert):
         jl = ert.enkf.site_config_get_installed_jobs(ert.site_config)
         h  = ert.job_queue.ext_joblist_get_jobs(jl)
@@ -169,14 +146,10 @@ def createSystemPage(configPanel, parent):
     configPanel.addRow(internalPanel)
 
     r = configPanel.addRow(PathChooser(parent, "Log file", "config/systemenv/log_file", True))
-    r.initialize = lambda ert : [ert.prototype("char* log_get_filename(long)", lib=ert.util),
-                                 ert.prototype("void log_reset_filename(long, char*)", lib=ert.util)]
     r.getter = lambda ert : ert.util.log_get_filename(ert.logh)
     r.setter = lambda ert, value : ert.util.log_reset_filename(ert.logh, value)
 
     r = configPanel.addRow(ert_gui.widgets.spinnerwidgets.IntegerSpinner(parent, "Log level", "config/systemenv/log_level", 0, 1000))
-    r.initialize = lambda ert : [ert.prototype("int log_get_level(long)", lib=ert.util),
-                                 ert.prototype("void log_set_level(long, int)", lib=ert.util)]
     r.getter = lambda ert : ert.util.log_get_level(ert.logh)
     r.setter = lambda ert, value : ert.util.log_set_level(ert.logh, value)
 

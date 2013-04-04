@@ -943,19 +943,24 @@ void field_config_assert_binary( const field_config_type * config1 , const field
 
 bool field_config_parse_user_key__( const char * index_key , int *i , int *j , int *k) {
   int      length;
-  int    * indices = util_sscanf_alloc_active_list(index_key, &length);
-  if (length == 3) {
-    *i = indices[0] - 1;
-    *j = indices[1] - 1;
-    *k = indices[2] - 1;
-  } 
+  {
+    int_vector_type * indices = string_util_alloc_active_list( index_key );
+    length = int_vector_size( indices );
 
-  free( indices );
+    if (length == 3) {
+      *i = int_vector_iget( indices , 0) - 1;
+      *j = int_vector_iget( indices , 1) - 1;
+      *k = int_vector_iget( indices , 2) - 1;
+    } 
+    
+    int_vector_free( indices );
+  }
   if (length == 3)
     return true;
   else
     return false;
 }
+
 
 
 int field_config_parse_user_key(const field_config_type * config, const char * index_key , int *i , int *j , int *k) {

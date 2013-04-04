@@ -214,10 +214,24 @@ stringlist_type * lsf_driver_alloc_cmd(lsf_driver_type * driver ,
   stringlist_type * argv = stringlist_alloc_new();
   char *  num_cpu_string  = util_alloc_sprintf("%d" , num_cpu);
   char * quoted_resource_request = NULL;
-  
-  if (driver->resource_request != NULL)
-    quoted_resource_request = util_alloc_sprintf("\"%s\"" , driver->resource_request);
 
+  /*
+    The resource request string contains spaces, and when passed
+    through the shell it must be protected with \"..\"; this applies
+    when submitting to a remote lsf server with ssh. However when
+    submitting to the local workstation using a bsub command the
+    command will be invoked with the util_fork_exec() command - and no
+    shell is involved. In this latter case we must avoid the \"...\"
+    quoting.
+  */
+
+  if  (driver->resource_request != NULL) { 
+    if (driver->submit_method == LSF_SUBMIT_REMOTE_SHELL) 
+      quoted_resource_request =util_alloc_sprintf("\"%s\"" , driver->resource_request); 
+    else
+      quoted_resource_request = util_alloc_string_copy( driver->resource_request ); 
+  }
+  
   if (driver->submit_method == LSF_SUBMIT_REMOTE_SHELL)
     stringlist_append_ref( argv , driver->bsub_cmd);
   
@@ -317,6 +331,7 @@ static int lsf_driver_submit_shell_job(lsf_driver_type * driver ,
   int job_id;
   char * tmp_file         = util_alloc_tmp_file("/tmp" , "enkf-submit" , true);
   
+  printf("remote_lsf_server: %s \n",driver->remote_lsf_server);
   if (driver->remote_lsf_server != NULL) {
     stringlist_type * remote_argv = lsf_driver_alloc_cmd( driver , lsf_stdout , job_name , submit_cmd , num_cpu , job_argc , job_argv);
     if (driver->submit_method == LSF_SUBMIT_REMOTE_SHELL) {

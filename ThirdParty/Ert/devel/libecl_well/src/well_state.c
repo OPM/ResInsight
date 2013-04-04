@@ -31,7 +31,7 @@
 #include <ert/util/int_vector.h>
 #include <ert/util/type_macros.h>
 
-#include <ert/ecl/ecl_intehead.h>
+#include <ert/ecl/ecl_rsthead.h>
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_kw_magic.h>
@@ -96,7 +96,7 @@ well_path_type * well_state_add_path( well_state_type * well_state , const ecl_f
 }
 
 
-void well_state_add_wellhead( well_state_type * well_state , const ecl_intehead_type * header , const ecl_kw_type * iwel_kw , int well_nr , const char * grid_name , int grid_nr) {
+void well_state_add_wellhead( well_state_type * well_state , const ecl_rsthead_type * header , const ecl_kw_type * iwel_kw , int well_nr , const char * grid_name , int grid_nr) {
   well_conn_type * wellhead = well_conn_alloc_wellhead( iwel_kw , header , well_nr );
 
   if (wellhead != NULL) {
@@ -113,7 +113,7 @@ void well_state_add_wellhead( well_state_type * well_state , const ecl_intehead_
 */
 
 static void well_state_add_connections( well_state_type * well_state ,  const ecl_file_type * rst_file , int grid_nr, int well_nr ) {
-  ecl_intehead_type * header   = ecl_intehead_alloc( ecl_file_iget_named_kw( rst_file , INTEHEAD_KW , 0 ));
+  ecl_rsthead_type  * header   = ecl_rsthead_alloc( rst_file );
   const ecl_kw_type * icon_kw  = ecl_file_iget_named_kw( rst_file , ICON_KW   , 0);
   const ecl_kw_type * iwel_kw  = ecl_file_iget_named_kw( rst_file , IWEL_KW   , 0);
   const int iwel_offset        = header->niwelz * well_nr;
@@ -152,7 +152,7 @@ static void well_state_add_connections( well_state_type * well_state ,  const ec
         well_path_add_conn( path , conn );
     }
   }
-  ecl_intehead_free( header );
+  ecl_rsthead_free( header );
 }
 
 /*
@@ -167,6 +167,7 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
   int well_nr = -1;
   
   if (ecl_file_has_kw( ecl_file , ZWEL_KW)) {
+    ecl_rsthead_type  * header  = ecl_rsthead_alloc( ecl_file );                      //
     const ecl_kw_type * zwel_kw = ecl_file_iget_named_kw( ecl_file , ZWEL_KW   , 0);
     int num_wells = ecl_kw_get_size( zwel_kw );
     well_nr = 0;
@@ -174,7 +175,8 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
       bool found = false;
       
       {
-        char * lgr_well_name = util_alloc_strip_copy( ecl_kw_iget_ptr( zwel_kw , well_nr) );
+        char * lgr_well_name = util_alloc_strip_copy( ecl_kw_iget_ptr( zwel_kw , well_nr * header->nzwelz) );
+
         if ( strcmp( well_state->name , lgr_well_name) == 0)
           found = true;
         else
@@ -189,7 +191,9 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
         well_nr = -1;
         break;
       }
+      
     }
+    ecl_rsthead_free( header );
   }
   return well_nr;
 }
@@ -197,8 +201,8 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
 
 well_state_type * well_state_alloc( ecl_file_type * ecl_file , int report_nr ,  int global_well_nr) {
   if (ecl_file_has_kw( ecl_file , IWEL_KW)) {
-    well_state_type * well_state = NULL;
-    ecl_intehead_type * global_header  = ecl_intehead_alloc( ecl_file_iget_named_kw( ecl_file , INTEHEAD_KW , 0 ));
+    well_state_type   * well_state = NULL;
+    ecl_rsthead_type  * global_header  = ecl_rsthead_alloc( ecl_file );
     const ecl_kw_type * global_iwel_kw = ecl_file_iget_named_kw( ecl_file , IWEL_KW   , 0);
     const ecl_kw_type * global_zwel_kw = ecl_file_iget_named_kw( ecl_file , ZWEL_KW   , 0);
     
@@ -263,7 +267,6 @@ well_state_type * well_state_alloc( ecl_file_type * ecl_file , int report_nr ,  
             ecl_file_subselect_block( ecl_file , LGR_KW , lgr_nr );                               // 
             {                                                                                     //  Restrict the file view 
               int well_nr = well_state_get_lgr_well_nr( well_state , ecl_file);                   //  to one LGR block.   
-              //
               if (well_nr >= 0)                                                                   // 
                 well_state_add_connections( well_state , ecl_file , lgr_nr + 1, well_nr );        //
             }                                                                                     //
@@ -272,7 +275,7 @@ well_state_type * well_state_alloc( ecl_file_type * ecl_file , int report_nr ,  
         }
       }
     } 
-    ecl_intehead_free( global_header );
+    ecl_rsthead_free( global_header );
     return well_state;
   } else 
     /* This seems a bit weird - have come over E300 restart files without the IWEL keyword. */

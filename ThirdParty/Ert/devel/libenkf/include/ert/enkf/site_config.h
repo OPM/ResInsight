@@ -28,6 +28,7 @@ extern "C" {
 
 #include <ert/config/config.h>
 
+#include <ert/job_queue/job_queue.h>
 #include <ert/job_queue/ext_joblist.h>
 #include <ert/job_queue/forward_model.h>
 
@@ -45,7 +46,7 @@ typedef struct site_config_struct site_config_type;
   
   void                     site_config_set_num_cpu( site_config_type * site_config , int num_cpu );
   void                     site_config_update_lsf_request(site_config_type *  , const forward_model_type *);
-  void                     site_config_init(site_config_type * site_config , const config_type * config, bool user_config);
+  bool                     site_config_init(site_config_type * site_config , const config_type * config);
   void                     site_config_free(site_config_type *); 
   ext_joblist_type       * site_config_get_installed_jobs( const site_config_type * );
   job_queue_type         * site_config_get_job_queue( const site_config_type * );
@@ -95,7 +96,7 @@ typedef struct site_config_struct site_config_type;
   void                     site_config_fprintf_config( const site_config_type * site_config , FILE * stream );
   
   site_config_type       * site_config_alloc_empty();
-  void                     site_config_add_config_items( config_type * config , bool site_only);
+  void                     site_config_add_config_items( config_type * config , bool site_mode);
 #ifdef __cplusplus
 }
 #endif

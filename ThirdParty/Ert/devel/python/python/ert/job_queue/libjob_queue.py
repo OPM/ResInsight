@@ -18,19 +18,22 @@ import os
 import sys
 import ctypes
 import ert.util.libutil
+import ert.config.libconfig
 import ert.cwrap.clib as clib
 
 
-# Getting LSF to work properly is quite painful. The situation is a
-# mix of internal dependencies comiled into the libjob_queue.so shared
-# library, and external dependencies based on the LSF_xxx environment
-# variables:
+# Getting LSF to work properly is quite painful. The situation 
+# is a mix of build complexity and LSF specific requirements:  
 #
-#   1. If the C-libraries have been compiled with LSF support,
-#      i.e. the variable INCLUDE_LSF has been set to True in
-#      local_config.py then the shared library libjob_queue.so will
-#      depend on the libraries liblsf and libbat; this dependency
-#      exists even if you have no intention actually using LSF.
+#   1. The LSF libraries are accessed from the libjob_queue.so
+#      library, but observe that the dependancy on the liblsf and
+#      libbat libraries is through dlopen(), i.e. runtime. This module
+#      will therefor load happily without access to the lsf libraries.
+#
+#      If you at a later stage create a lsf driver the runtime
+#      environment must be able to locate the liblsf.so, libbat.so and
+#      libnsl.so shared libraries, either through LD_LIBRARY_PATH or
+#      other means.
 #
 #   2. To actually use LSF you need a whole list of environment
 #      variables to be set: LSF_BINDIR , LSF_LIBDIR , XLDF_UIDDIR ,
@@ -38,9 +41,7 @@ import ert.cwrap.clib as clib
 #      related to ERT or the Python bindings. The normal way to
 #      achieve this is by sourcing a shell script.
 #
-# In the current code we try three different things:
-#
-#   1: If the environment variable LSF_HOME is set we set the
+#      If the environment variable LSF_HOME is set we set the
 #      remaining LSF variables according to:
 #
 #           LSF_BINDIR    = $LSF_HOME/bin
@@ -54,80 +55,19 @@ import ert.cwrap.clib as clib
 #      already have a value, furthermore it should be observed that
 #      the use of an LSF_HOME variable is something invented with ERT,
 #      and not standard LSF approach.
-#
-#   2: If the variable LSF_LIBDIR is set (either from 1: above, or
-#      from external scope), we try to load the lsf libraries from
-#      this location.
-#
-#   3. If we have no value for LSF_LIBDIR we just try a wild shot for
-#      loading the LSF libraries.
-#
-#
-# When we have tried to load the LSF libraries we continue on to load
-# the libjob_queue.so ERT library. Then the following possibilities
-# exist:
-#
-#   1. The libjob_queue library has been built without LSF support,
-#      i.e. INCLUDE_LSF == False, in this case the loading of
-#      libjob_queue.so is "guaranteed" to suceed.
-#
-#  2.  The libjob_queue library has been built with LSF support,
-#      i.e. INCLUDE_LSF == True:
-#
-#      - If we succeeded in loading liblsf/libbat in the previous
-#        section, loading libjob_queue should.so work out OK.
-#
-#      - If we failed to load libbat/liblsf libjob_queue will not
-#        load, and the whole thing will go up in flames.
-# 
 
 
 def setenv( var , value):
     if not os.getenv( var ):
         os.environ[ var ] = value
 
-# 1: Setting up the full LSF environment
+# Set up the full LSF environment - based onf LSF_HOME
 LSF_HOME = os.getenv( "LSF_HOME")
 if LSF_HOME:
-    setenv( "LSF_BINDIR"  , "%s/bin" % LSF_HOME )
-    setenv( "LSF_LIBDIR"  , "%s/lib" % LSF_HOME )
-    setenv( "XLSF_UIDDIR" , "%s/lib/uid" % LSF_HOME )
+    setenv( "LSF_BINDIR"    , "%s/bin" % LSF_HOME )
+    setenv( "LSF_LIBDIR"    , "%s/lib" % LSF_HOME )
+    setenv( "XLSF_UIDDIR"   , "%s/lib/uid" % LSF_HOME )
     setenv( "LSF_SERVERDIR" , "%s/etc" % LSF_HOME)
-    setenv( "LSF_ENVDIR" , "%s/conf" % LSF_HOME)   # This one might be too simple minded.
+    setenv( "LSF_ENVDIR"    , "%s/conf" % LSF_HOME)   # This is wrong: Statoil: /prog/LSF/conf
 
-
-# 2: Loading the LSF libraries
-LSF_LIBDIR = os.getenv("LSF_LIBDIR")
-try:
-    clib.load("libnsl.so" , "libnsl.so.1")
-    clib.load("libnsl.so.1")
-    if LSF_LIBDIR:
-        clib.load("%s/liblsf.so" % LSF_LIBDIR)
-        clib.load("%s/libbat.so" % LSF_LIBDIR)
-    else:
-        clib.load( "liblsf.so" )
-        clib.load( "libbat.so" )
-    HAVE_LSF = True
-except:
-    HAVE_LSF = False
-
-
-# 3: Loading the libjob_queue library, which might (depending on the
-#    value of INCLUDE_LSF used when building) depend on the LSF
-#    libraries we tried to load at the previous step.
-clib.ert_load("libconfig.so" )
-try:
-    lib  = clib.ert_load("libjob_queue.so")
-except:
-    if HAVE_LSF == False:
-        sys.stderr.write("** Failed to load the libjob_queue library, \n")
-        sys.stderr.write("** have previosuly failed to load the LSF\n")
-        sys.stderr.write("** libraries liblsf & libbat - that might be\n")
-        sys.stderr.write("** the reason ... ")
-        if LSF_LIBDIR:
-            sys.stderr.write("** LSF_LIBDIR = %s\n" % LSF_LIBDIR)
-        else:
-            sys.stderr.write("** LSF_LIBDIR = <NOT SET>\n")
-    sys.exit("Failed to load library: libjob_queue")
-
-
+lib  = clib.ert_load("libjob_queue.so")

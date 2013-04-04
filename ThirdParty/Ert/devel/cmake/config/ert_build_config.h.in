@@ -1,18 +1,18 @@
-#cmakedefine HAVE_PTHREAD
-#cmakedefine HAVE_EXECINFO
-#cmakedefine HAVE_FORK
-#cmakedefine HAVE_ZLIB
-#cmakedefine HAVE_LSF
-#cmakedefine HAVE_REALPATH
-#cmakedefine HAVE_SYMLINK
-#cmakedefine HAVE_READLINKAT
-#cmakedefine HAVE_GETUID
-#cmakedefine HAVE_LOCALTIME_R
-#cmakedefine HAVE_LOCKF
-#cmakedefine HAVE_SETENV
-#cmakedefine HAVE_GLOB
-#cmakedefine MKDIR_POSIX
-#cmakedefine HAVE_FNMATCH
-#cmakedefine NEED_BLAS
-#cmakedefine HAVE_OPENMP
-#cmakedefine HAVE_FTRUNCATE
+#cmakedefine HAVE_PTHREAD 1
+#cmakedefine HAVE_EXECINFO 1
+#cmakedefine HAVE_FORK 1
+#cmakedefine HAVE_ZLIB 1
+#cmakedefine HAVE_LSF 1
+#cmakedefine HAVE_REALPATH 1
+#cmakedefine HAVE_SYMLINK 1
+#cmakedefine HAVE_READLINKAT 1
+#cmakedefine HAVE_GETUID 1
+#cmakedefine HAVE_LOCALTIME_R 1  
+#cmakedefine HAVE_LOCKF 1
+#cmakedefine HAVE_SETENV 1
+#cmakedefine HAVE_GLOB 1
+#cmakedefine MKDIR_POSIX 1
+#cmakedefine HAVE_FNMATCH 1
+#cmakedefine NEED_BLAS 1
+#cmakedefine HAVE_OPENMP 1
+#cmakedefine HAVE_FTRUNCATE 1

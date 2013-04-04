@@ -29,4 +29,13 @@ void    enkf_tui_plot_menu(void * );
 void    enkf_tui_plot_PC( enkf_main_type * enkf_main , const char * plot_name , const matrix_type * PC , const matrix_type * PC_obs);
 void    enkf_tui_plot_reports(void *);
 void    enkf_tui_plot_all_summary__( enkf_main_type * enkf_main , int iens1 , int iens2 , int step1 , int step2 , bool prediction_mode);
+
+void    enkf_tui_plot_ensemble__(enkf_main_type * enkf_main , 
+                                 const enkf_config_node_type * config_node , 
+                                 const char * user_key  ,
+                                 const char * key_index ,
+                                 int step1 , int step2  , 
+                                 bool prediction_mode   ,
+                                 int iens1 , int iens2  , 
+                                 state_enum plot_state);
 #endif

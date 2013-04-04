@@ -633,8 +633,19 @@ ecl_kw_type * ecl_kw_fscanf_alloc_current_grdecl( FILE * stream , ecl_type_enum 
 /*****************************************************************/
 
 
-void ecl_kw_fprintf_grdecl(const ecl_kw_type * ecl_kw , FILE * stream) {
-  fprintf(stream,"%s\n" , ecl_kw_get_header(ecl_kw));
+
+/*
+  This method allows to write with a different header,
+  i.e. PORO_XXXX. This header is even allowed to break the 8 character
+  length limit; i.e. loading it back naively will fail.  
+*/
+
+void ecl_kw_fprintf_grdecl__(const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream) { 
+  if (special_header)
+    fprintf(stream,"%s\n" , special_header); 
+  else 
+    fprintf(stream,"%s\n" , ecl_kw_get_header(ecl_kw));
+
   {
     fortio_type * fortio = fortio_alloc_FILE_wrapper(NULL , false , true , stream);   /* Endian flip should *NOT* be used */
     ecl_kw_fwrite_data(ecl_kw , fortio);
@@ -643,4 +654,8 @@ void ecl_kw_fprintf_grdecl(const ecl_kw_type * ecl_kw , FILE * stream) {
   fprintf(stream,"/\n"); 
 }
 
+
+void ecl_kw_fprintf_grdecl(const ecl_kw_type * ecl_kw , FILE * stream) {
+  ecl_kw_fprintf_grdecl__(ecl_kw , NULL , stream );
+}
 

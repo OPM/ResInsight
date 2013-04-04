@@ -18,7 +18,7 @@
 from PyQt4 import QtGui, QtCore
 from ert_gui.widgets.tablewidgets import KeywordList
 from ert_gui.widgets.validateddialog import ValidatedDialog
-import ert.ertwrapper as ertwrapper
+import ert.ert.ertwrapper as ertwrapper
 from ert_gui.widgets.combochoice import ComboChoice
 
 
@@ -43,10 +43,10 @@ class InitPanel(QtGui.QFrame):
 
         def get_case_list(ert):
             fs = ert.enkf.enkf_main_get_fs(ert.main)
-            caseList = ert.enkf.enkf_fs_alloc_dirlist(fs)
+            caseList = ["default"] #ert.enkf.enkf_fs_alloc_dirlist(fs)
 
-            list = ert.getStringList(caseList)
-            ert.freeStringList(caseList)
+            list = caseList #ert.getStringList(caseList)
+            #ert.freeStringList(caseList)
             return list
 
         self.get_case_list = get_case_list # convenience: used by several functions
@@ -104,9 +104,6 @@ class InitPanel(QtGui.QFrame):
 
         def initialize_cases(ert):
             ert.prototype("long enkf_main_get_fs(long)")
-            ert.prototype("char* enkf_fs_get_read_dir(long)")
-            ert.prototype("void enkf_fs_select_read_dir(long, char*)")
-            ert.prototype("void enkf_fs_select_write_dir(long, char*, bool)")
 
             self.currentCase.updateList(self.get_case_list(ert))
 
@@ -114,7 +111,8 @@ class InitPanel(QtGui.QFrame):
 
         def get_current_case(ert):
             fs = ert.enkf.enkf_main_get_fs(ert.main)
-            currentCase = ert.enkf.enkf_fs_get_read_dir(fs)
+            tmp = self.get_case_list(ert)
+            currentCase = tmp[0] #ert.enkf.enkf_fs_get_read_dir(fs)
             #print "The selected case is: " + currentCase
             return currentCase
 

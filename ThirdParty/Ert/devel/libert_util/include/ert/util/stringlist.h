@@ -32,7 +32,8 @@ extern "C" {
 typedef struct stringlist_struct stringlist_type;
 typedef int  ( string_cmp_ftype)  (const void * , const void *);
 
-
+  const      char * stringlist_get_last( const stringlist_type * stringlist );
+  char            * stringlist_pop( stringlist_type * stringlist);
   void              stringlist_deep_copy( stringlist_type * target , const stringlist_type * src);
   stringlist_type * stringlist_alloc_deep_copy_with_limits(const stringlist_type * src , int offset, int num_strings);
   stringlist_type * stringlist_alloc_deep_copy_with_offset(const stringlist_type * src , int offset);
@@ -50,6 +51,7 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   const      char * stringlist_safe_iget( const stringlist_type * stringlist , int index);
   bool              stringlist_iequal( const stringlist_type * stringlist , int index, const char * s );
   const      char * stringlist_iget(const stringlist_type * , int);
+  int               stringlist_iget_as_int( const stringlist_type * stringlist , int index , bool * valid);
   char            * stringlist_iget_copy(const stringlist_type * stringlist , int );
   char            * stringlist_alloc_joined_string(const stringlist_type *  , const char * );
   char            * stringlist_alloc_joined_substring( const stringlist_type * s , int start_index , int end_index , const char * sep );
@@ -94,7 +96,8 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   void              stringlist_buffer_fread( stringlist_type * s , buffer_type * buffer );
   void              stringlist_buffer_fwrite( const stringlist_type * s , buffer_type * buffer );
   void              stringlist_sort(stringlist_type * , string_cmp_ftype * string_cmp);
-  void stringlist_python_sort( stringlist_type * s , int cmp_flag);
+  void              stringlist_reverse( stringlist_type * s );
+  void              stringlist_python_sort( stringlist_type * s , int cmp_flag);
   
 #ifdef HAVE_GLOB
   int               stringlist_select_matching(stringlist_type * names , const char * pattern);

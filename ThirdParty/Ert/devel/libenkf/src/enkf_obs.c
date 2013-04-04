@@ -185,7 +185,6 @@ struct enkf_obs_struct {
   bool                  have_obs;
   char                * config_file;  /* The name of the config file which has been loaded. */ 
   hash_type           * obs_hash;
-  double                std_cutoff;   /* (Dimensionfull) Std values below this limit are considered zero. */
   time_t_vector_type  * obs_time;     /* For fast lookup of report_step -> obs_time */
   const history_type  * history;      /* A shared (not owned by enkf_obs) reference to the history object - used when
                                          adding HISTORY observations. */
@@ -197,17 +196,18 @@ struct enkf_obs_struct {
 
 
 
-enkf_obs_type * enkf_obs_alloc( const history_type * history , double std_cutoff )
+enkf_obs_type * enkf_obs_alloc(  )
 {
   enkf_obs_type * enkf_obs = util_malloc(sizeof * enkf_obs);
   enkf_obs->have_obs       = false;
   enkf_obs->obs_hash       = hash_alloc();
-  enkf_obs->std_cutoff     = std_cutoff;
-  enkf_obs->history        = history;
   enkf_obs->obs_time       = time_t_vector_alloc(0  , -1 );
+
+  enkf_obs->history        = NULL;
   enkf_obs->config_file    = NULL; 
   return enkf_obs;
 }
+
 
 
 bool enkf_obs_have_obs( const enkf_obs_type * enkf_obs ) {
@@ -440,8 +440,13 @@ void enkf_obs_get_obs_and_measure(const enkf_obs_type    * enkf_obs,
 
 
 
-void enkf_obs_reload( enkf_obs_type * enkf_obs , const ecl_grid_type * grid , const ecl_sum_type * refcase , ensemble_config_type * ensemble_config ) {
-  enkf_obs_load( enkf_obs , enkf_obs->config_file , grid , refcase , ensemble_config );
+void enkf_obs_reload( enkf_obs_type * enkf_obs , 
+                      const history_type * history , 
+                      const ecl_grid_type * grid , 
+                      const ecl_sum_type * refcase , 
+                      double std_cutoff , 
+                      ensemble_config_type * ensemble_config ) {
+  enkf_obs_load( enkf_obs , history , enkf_obs->config_file , grid , refcase , std_cutoff , ensemble_config );
 }
 
 
@@ -456,11 +461,18 @@ void enkf_obs_reload( enkf_obs_type * enkf_obs , const ecl_grid_type * grid , co
 
 
 
-void enkf_obs_load(enkf_obs_type * enkf_obs , const char * config_file,  const ecl_grid_type * grid , const ecl_sum_type * refcase , ensemble_config_type * ensemble_config) {
+void enkf_obs_load(enkf_obs_type * enkf_obs , 
+                   const history_type * history , 
+                   const char * config_file,  
+                   const ecl_grid_type * grid , 
+                   const ecl_sum_type * refcase , 
+                   double std_cutoff , ensemble_config_type * ensemble_config) {
+  
   if (config_file == NULL) {
     hash_clear( enkf_obs->obs_hash );
     enkf_obs->have_obs = false;
   }  else {
+    enkf_obs->history = history;
     if ( enkf_obs->history == NULL) {
       fprintf(stderr,"** ERROR: When loading obervations you must provide either REFCASE or a SCHEDULE file.\n");
       fprintf(stderr,"**        The observations in obs file:%s will be ignored \n",config_file);
@@ -493,7 +505,7 @@ void enkf_obs_load(enkf_obs_type * enkf_obs , const char * config_file,  const e
           if (config_node != NULL) {
             obs_vector = obs_vector_alloc( SUMMARY_OBS , obs_key , ensemble_config_get_node( ensemble_config , obs_key ) , enkf_obs->obs_time , last_report);
             if (obs_vector != NULL) {
-              if (obs_vector_load_from_HISTORY_OBSERVATION(obs_vector , hist_obs_conf , enkf_obs->history , ensemble_config , enkf_obs->std_cutoff ))
+              if (obs_vector_load_from_HISTORY_OBSERVATION(obs_vector , hist_obs_conf , enkf_obs->history , ensemble_config , std_cutoff ))
                 enkf_obs_add_obs_vector(enkf_obs, obs_key, obs_vector);
               else {
                 fprintf(stderr,"** Could not load historical data for observation:%s - ignored\n",obs_key);

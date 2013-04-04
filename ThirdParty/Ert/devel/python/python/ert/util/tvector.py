@@ -576,6 +576,31 @@ class BoolVector(TVector):
 
         obj = TVector.__new__( cls )
         return obj
+
+
+    @classmethod
+    def active_mask(cls , range_string):
+        """
+        Will create a BoolVector instance with the values from @range_string.
+
+        The range_string input should be of the type "1,3-5,9,17",
+        i.e. integer values separated by commas, and dashes to
+        represent ranges. If the input string contains ANY invalid
+        characters the returned active list will be empty:
+
+           "1,4-7,10"  =>  {F,T,F,F,T,T,T,T,F,F,T}
+           "1,4-7,10X" =>  {}
+        
+        The empty list will evaluate to false
+        """
+        new_obj = BoolVector.__new__(cls)
+        c_ptr = cfunc.create_active_mask( range_string )
+        new_obj.init_cobj( c_ptr , new_obj.free )
+        return new_obj
+
+
+
+
     
 
 
@@ -622,6 +647,28 @@ class IntVector(TVector):
         obj = TVector.__new__( cls )
         return obj
     
+    @classmethod
+    def active_list(cls , range_string):
+        """
+        Will create a IntVector instance with the values from @range_string.
+
+        The range_string input should be of the type "1,3-5,9,17",
+        i.e. integer values separated by commas, and dashes to
+        represent ranges. If the input string contains ANY invalid
+        characters the returned active list will be empty:
+
+           "1,4-7,10"  =>  {1,4,5,6,7,10}
+           "1,4-7,10X" =>  {}
+        
+        The empty list will evaluate to false
+        """
+        new_obj = IntVector.__new__(cls)
+        c_ptr = cfunc.create_active_list( range_string )
+        new_obj.init_cobj( c_ptr , new_obj.free )
+        return new_obj
+
+
+
 #################################################################
 
 buffer_from_ptr = ctypes.pythonapi.PyBuffer_FromMemory
@@ -734,3 +781,8 @@ cfunc.bool_vector_get_default         = cwrapper.prototype("bool   bool_vector_g
 cfunc.bool_vector_alloc_data_copy     = cwrapper.prototype("bool*  bool_vector_alloc_data_copy( bool_vector )")
 cfunc.bool_vector_data_ptr            = cwrapper.prototype("bool*  bool_vector_get_ptr( bool_vector )")
 cfunc.bool_vector_element_size        = cwrapper.prototype("int    bool_vector_element_size( bool_vector )")
+
+#-----------------------------------------------------------------
+
+cfunc.create_active_list = cwrapper.prototype("c_void_p string_util_alloc_active_list( char* )")
+cfunc.create_active_mask = cwrapper.prototype("c_void_p string_util_alloc_active_mask( char* )")

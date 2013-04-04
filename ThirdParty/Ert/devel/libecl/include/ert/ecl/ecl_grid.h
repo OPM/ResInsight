@@ -149,7 +149,7 @@ extern "C" {
   double                ecl_grid_get_double_property(const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , int i , int j , int k);
   int                   ecl_grid_get_int_property(const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , int i , int j , int k);
   
-  void                    ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , FILE * stream , double double_default);
+  void                    ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream , double double_default);
   bool                    ecl_grid_test_lgr_consistency( const ecl_grid_type * ecl_grid );
   
   void                    ecl_grid_fwrite_EGRID(  ecl_grid_type * grid , const char * filename);

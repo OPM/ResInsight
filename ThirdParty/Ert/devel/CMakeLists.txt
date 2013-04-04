@@ -4,12 +4,14 @@ project( ERT C CXX )
 set( ERT_VERSION_MAJOR 1 )
 set( ERT_VERSION_MINOR 0 )
 
-option( BUILD_ERT          "Build the full ERT application - Linux only" OFF)
-option( BUILD_ENS_PLOT     "Build small Eclipse plotting program - no" OFF)
-option( BUILD_TESTS        "Should the tests be built" OFF)
-option( BUILD_APPLICATONS  "Should we build small utility applications" OFF)
-option( BUILD_ECL_SUMMARY  "Build the commandline application ecl_summary" OFF)
-option( BUILD_PYTHON       "Run py_compile on the python wrappers" OFF)
+option( BUILD_ERT           "Build the full ERT application - Linux only" OFF)
+option( BUILD_ENS_PLOT      "Build small Eclipse plotting program - no" OFF)
+option( BUILD_TESTS         "Should the tests be built" OFF)
+option( BUILD_APPLICATIONS  "Should we build small utility applications" OFF)
+option( BUILD_ECL_SUMMARY   "Build the commandline application ecl_summary" OFF)
+option( BUILD_PYTHON        "Run py_compile on the python wrappers" OFF)
+option( INSTALL_ERT         "Should anything be installed when issuing make install?" ON)
+
 
 include( CheckFunctionExists )
 ENABLE_TESTING()
@@ -22,7 +24,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    add_definitions( -DERT_WINDOWS )
 endif()    
 
-set( CMAKE_C_FLAGS    "-g -O2 -Wall -std=gnu99 -fno-leading-underscore" )
+set( CMAKE_C_FLAGS    "-g -O2 -Wall -std=gnu99" )
 set( CMAKE_CXX_FLAGS  "-g -O2 -Wall" )
 
 include(cmake/ert_check.cmake)
@@ -35,16 +37,13 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 if (MSVC)
-   set(SHARED_LIB OFF)
+   set( LIBRARY_TYPE STATIC )
+   set( SHARED_LIB OFF )
 else()
-   option( SHARED_LIB "Build shared libraries" ON)
+   set( LIBRARY_TYPE SHARED )
+   set( SHARED_LIB ON )
 endif()
 
-if (SHARED_LIB)
-   set( LIBRARY_TYPE SHARED )
-else()
-   set( LIBRARY_TYPE STATIC )
-endif()     
 
 
 
@@ -57,9 +56,11 @@ if (ERT_LINUX)
    set( NEED_LIBM TRUE )
    set( LINK_STATIC FALSE )
    add_definitions( -DHAVE_PROC )
+   set( NEED_LIBDL ON )    
 else()
    set( NEED_LIBM FALSE )
    set( LINK_STATIC TRUE )
+   set( NEED_LIBDL OFF )    
 endif()
 
 
@@ -92,13 +93,6 @@ add_subdirectory( libecl_well )
 #-----------------------------------------------------------------
 if (BUILD_ERT)
 #-----------------------------------------------------------------
-   try_compile( DLOPEN ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_dlopen.c )
-   if (DLOPEN)
-      set(NEED_LIBDL OFF)    
-   else()
-      set(NEED_LIBDL ON)
-   endif()
-
    option(USE_LSF "Include support for LSF" ON)
 
    include_directories( ${PROJECT_SOURCE_DIR}/libconfig/include )

@@ -15,15 +15,14 @@
 #  for more details. 
 
 
-from ert.erttypes import time_t
+from ert.ert.erttypes import time_t
 from ert_gui.widgets.helpedwidget import ContentModel
 from ert_gui.widgets.util import print_timing, resourceIcon
 from ert_gui.pages.config.parameters.parametermodels import DataModel, KeywordModel, FieldModel, SummaryModel
 from ert_gui.pages.config.parameters.parameterpanel import Parameter
-import ert.ertwrapper as ertwrapper
-import ert.enums as enums
+import ert.ert.enums as enums
 import sys
-from ert.enums import obs_impl_type
+from ert.ert.enums import obs_impl_type
 
 from ensemblefetcher import EnsembleFetcher
 from rftfetcher import RFTFetcher
@@ -232,8 +231,6 @@ class PlotContextDataFetcher(ContentModel):
         ContentModel.__init__(self)
 
     def initialize(self, ert):
-        ert.prototype("long ensemble_config_alloc_keylist(long)")
-        ert.prototype("long ensemble_config_get_node(long, char*)")
 
         ert.prototype("long enkf_config_node_get_impl_type(long)")
         ert.prototype("long enkf_config_node_get_ref(long)")
@@ -299,11 +296,12 @@ class PlotContextDataFetcher(ContentModel):
         data.errorbar_max = ert.enkf.plot_config_get_errorbar_max(ert.plot_config)
 
         fs = ert.enkf.enkf_main_get_fs(ert.main)
-        current_case = ert.enkf.enkf_fs_get_read_dir(fs)
+        current_case = "default" #ert.enkf.enkf_fs_get_read_dir(fs)
 
         data.plot_config_path = ert.enkf.plot_config_get_path(ert.plot_config)
-        data.plot_path = ert.enkf.plot_config_get_path(ert.plot_config) + "/" + current_case
-
+        #data.plot_path = ert.enkf.plot_config_get_path(ert.plot_config) + "/" + current_case
+        data.plot_path = "PLOTXXX"
+        
         enkf_obs = ert.enkf.enkf_main_get_obs(ert.main)
         key_list = ert.enkf.enkf_obs_alloc_typed_keylist(enkf_obs, obs_impl_type.FIELD_OBS.value())
         field_obs = ert.getStringList(key_list, free_after_use=True)
@@ -313,10 +311,11 @@ class PlotContextDataFetcher(ContentModel):
             data.parameters.append(p)
 
 
-        case_list_pointer = ert.enkf.enkf_fs_alloc_dirlist(fs)
-        case_list = ert.getStringList(case_list_pointer)
+        #case_list_pointer = ert.enkf.enkf_fs_alloc_dirlist(fs)
+        #case_list = ert.getStringList(case_list_pointer)
+        case_list = ["default"]
         data.current_case = current_case
-        ert.freeStringList(case_list_pointer)
+        #ert.freeStringList(case_list_pointer)
 
         for case in case_list:
             data.case_list.append(case)

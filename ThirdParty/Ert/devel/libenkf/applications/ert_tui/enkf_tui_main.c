@@ -33,6 +33,7 @@
 #include <enkf_tui_help.h>
 #include <enkf_tui_misc.h>
 #include <enkf_tui_simple.h>
+#include <enkf_tui_workflow.h>
 #include <enkf_main.h>
 #include <enkf_sched.h>
 
@@ -57,12 +58,13 @@ void enkf_tui_main_menu(enkf_main_type * enkf_main) {
 
   menu_add_item(menu , "Manage cases"                          , "cC" , enkf_tui_fs_menu        , enkf_main , NULL);
   menu_add_item(menu , "Run, restart or analyse experiment"    , "rR" , enkf_tui_run_menu       , enkf_main , NULL);
-  menu_add_item(menu , "Prior quality check"                   , "uU" , enkf_tui_QC_menu        , enkf_main , NULL);
+  menu_add_item(menu , "Quality check"                         , "uU" , enkf_tui_QC_menu        , enkf_main , NULL);
   menu_add_item(menu , "Plot results"                          , "pP" , enkf_tui_plot_menu      , enkf_main , NULL);
   menu_add_item(menu , "Rank results"                          , "aA" , enkf_tui_ranking_menu   , enkf_main , NULL);
   menu_add_item(menu , "Export data to other formats"          , "eE" , enkf_tui_export_menu    , enkf_main , NULL);
   menu_add_item(menu , "Table of results"                      , "tT" , enkf_tui_table_menu     , enkf_main , NULL);
   menu_add_item(menu , "Miscellanous"                          , "mM" , enkf_tui_misc_menu      , enkf_main , NULL);
+  menu_add_item(menu , "Workflows"                             , "wW" , enkf_tui_workflow_menu  , enkf_main , NULL);
   menu_add_item(menu , "Help"                                  , "hH" , enkf_tui_help_menu_main , enkf_main , NULL);  
   menu_add_item(menu , "Simple menu"                           , "sS" , enkf_tui_simple_menu    , enkf_main , NULL);
   menu_run(menu);

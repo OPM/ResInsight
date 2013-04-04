@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include <ert/util/util.h>
+#include <ert/util/string_util.h>
 
 #include <ert/enkf/enkf_util.h>
 #include <ert/enkf/enkf_types.h>
@@ -197,7 +198,13 @@ gen_obs_type * gen_obs_alloc(const gen_data_config_type * data_config , const ch
       obs->data_index_list = gen_common_fscanf_alloc( data_index_file , ECL_INT_TYPE , &obs->obs_size);
     else   
       /* Parsing a string of the type "1,3,5,9-100,200,202,300-1000" */
-      obs->data_index_list = util_sscanf_alloc_active_list(data_index_string , &obs->obs_size);
+      {
+        int_vector_type * index_list = string_util_alloc_active_list( data_index_string );
+        int_vector_shrink( index_list );
+        obs->data_index_list = int_vector_get_ptr( index_list );
+        obs->obs_size = int_vector_size( index_list );
+        int_vector_free_container( index_list );
+      }
   }
   
   if (error_covar_file != NULL) {

@@ -147,8 +147,10 @@ const char * member_config_get_jobname( const member_config_type * member_config
   else {
     if (member_config->eclbase != NULL)
       return member_config->eclbase;
-    else
+    else {
       util_abort("%s: sorry can not submit JOB - must specify name with JOBNAME or ECLBASE config keys\n",__func__);
+      return NULL;
+    }
   }
 }
 

@@ -3005,8 +3005,10 @@ int ecl_grid_get_active_fracture_index3(const ecl_grid_type * ecl_grid , int i ,
 */
 
 int ecl_grid_get_active_fracture_index1(const ecl_grid_type * ecl_grid , int global_index) {
-  if (!ecl_grid->fracture_index_map) return -1;
-  return ecl_grid->fracture_index_map[global_index];
+  if (ecl_grid->fracture_index_map == NULL)
+    return -1; 
+  else
+    return ecl_grid->fracture_index_map[global_index];
 }
 
 
@@ -3720,10 +3722,10 @@ int ecl_grid_get_region_cells(const ecl_grid_type * ecl_grid , const ecl_kw_type
 
 
 
-void ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , FILE * stream , double double_default) {
+void ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream , double double_default) {
   int src_size = ecl_kw_get_size( ecl_kw );
   if (src_size == ecl_grid->size)
-    ecl_kw_fprintf_grdecl( ecl_kw , stream );
+    ecl_kw_fprintf_grdecl__( ecl_kw , special_header , stream );
   else if (src_size == ecl_grid->total_active) {
     void  * default_ptr = NULL;
     float   float_default;
@@ -3755,7 +3757,7 @@ void ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_t
     
     {
       ecl_kw_type * tmp_kw = ecl_kw_alloc_scatter_copy( ecl_kw , ecl_grid->size , ecl_grid->inv_index_map , default_ptr );
-      ecl_kw_fprintf_grdecl( tmp_kw , stream );
+      ecl_kw_fprintf_grdecl__( tmp_kw , special_header , stream );
       ecl_kw_free( tmp_kw );
     }
   } else 

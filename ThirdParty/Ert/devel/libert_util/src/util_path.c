@@ -205,7 +205,6 @@ int util_proc_mem_free(void) {
 
 
 
-
 void util_path_split(const char *line , int *_tokens, char ***_token_list) {
   util_split_string( line , UTIL_PATH_SEP_STRING , _tokens , _token_list);
 }

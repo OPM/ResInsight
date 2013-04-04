@@ -21,6 +21,7 @@
 #include <string.h>
 
 #include <ert/util/util.h>
+#include <ert/util/hash.h>
 #include <ert/util/vector.h>
 #include <ert/util/node_data.h>
 #include <ert/util/buffer.h>
@@ -82,6 +83,7 @@ struct subst_list_struct {
   vector_type                 * string_data;  /* The string substitutions we should do. */
   vector_type                 * func_data;    /* The functions we support. */
   const subst_func_pool_type  * func_pool;    /* NOT owned by the subst_list instance - can be NULL */
+  hash_type                   * map; 
 };
 
 
@@ -207,7 +209,7 @@ static subst_list_string_type * subst_list_get_string_node(const subst_list_type
   subst_list_string_type * node = NULL;
   int  index                  = 0;
 
-  /* Linear search ... */
+  /* Linear search ... */  /*Should use map*/
   while ((index < vector_get_size(subst_list->string_data)) && (node == NULL)) {
     subst_list_string_type * inode = vector_iget( subst_list->string_data , index);
 
@@ -224,10 +226,12 @@ static subst_list_string_type * subst_list_get_string_node(const subst_list_type
 
 static subst_list_string_type * subst_list_insert_new_node(subst_list_type * subst_list , const char * key , bool append) {
   subst_list_string_type * new_node = subst_list_string_alloc(key);
+
   if (append)
     vector_append_owned_ref( subst_list->string_data , new_node , subst_list_string_free__ );
   else
     vector_insert_owned_ref( subst_list->string_data , 0 , new_node , subst_list_string_free__ );
+
   return new_node;
 }
 
@@ -274,6 +278,7 @@ subst_list_type * subst_list_alloc(const void * input_arg) {
   UTIL_TYPE_ID_INIT( subst_list , SUBST_LIST_TYPE_ID);
   subst_list->parent           = NULL;
   subst_list->func_pool        = NULL;
+  subst_list->map              = hash_alloc();
   subst_list->string_data      = vector_alloc_new();
   subst_list->func_data        = vector_alloc_new();
 
@@ -387,6 +392,7 @@ void subst_list_clear( subst_list_type * subst_list ) {
 void subst_list_free(subst_list_type * subst_list) {
   vector_free( subst_list->string_data );
   vector_free( subst_list->func_data );
+  hash_free( subst_list->map );
   free(subst_list);
 }
 
@@ -417,18 +423,22 @@ void subst_list_free(subst_list_type * subst_list) {
    subst_list. This is the lowest level function, which does *NOT*
    consider the parent pointer.
 */
-static void subst_list_replace_strings__(const subst_list_type * subst_list , buffer_type * buffer) {
+static bool subst_list_replace_strings__(const subst_list_type * subst_list , buffer_type * buffer) {
   int index;
+  bool global_match = false;
   for (index = 0; index < vector_get_size( subst_list->string_data ); index++) {
     const subst_list_string_type * node = vector_iget_const( subst_list->string_data , index );
     if (node->value != NULL) {
-      bool    match;
+      bool match;
       buffer_rewind( buffer );
       do {
         match = buffer_search_replace( buffer , node->key , node->value);
+        if (match)
+          global_match = true;
       } while (match);
     }
   }
+  return global_match;
 }
 
 
@@ -464,63 +474,63 @@ static void subst_list_replace_strings__(const subst_list_type * subst_list , bu
 
 */
 
-static void subst_list_eval_funcs____(const subst_list_type * subst_list , const parser_type * parser , buffer_type * buffer) {
-  {
-    int index;
-    for (index = 0; index < vector_get_size( subst_list->func_data); index++) {
-      const subst_list_func_type * subst_func = vector_iget_const( subst_list->func_data , index );
-      const char                 * func_name  = subst_func->name;
+static bool subst_list_eval_funcs____(const subst_list_type * subst_list , const parser_type * parser , buffer_type * buffer) {
+  bool global_match = false;
+  int index;
+  for (index = 0; index < vector_get_size( subst_list->func_data); index++) {
+    const subst_list_func_type * subst_func = vector_iget_const( subst_list->func_data , index );
+    const char                 * func_name  = subst_func->name;
+    
+    bool match;
+    buffer_rewind( buffer );
+    do {
+      size_t match_pos;
+      match     = buffer_strstr( buffer , func_name );
+      match_pos = buffer_get_offset( buffer );
       
-      bool match;
-      buffer_rewind( buffer );
-      do {
-        size_t match_pos;
-        match     = buffer_strstr( buffer , func_name );
-        match_pos = buffer_get_offset( buffer );
+      if (match) {
+        bool   update     = false;
+        char * arg_start  = buffer_get_data( buffer );
+        arg_start        += buffer_get_offset( buffer ) + strlen( func_name );
         
-        if (match) {
-          bool   update     = false;
-          char * arg_start  = buffer_get_data( buffer );
-          arg_start        += buffer_get_offset( buffer ) + strlen( func_name );
-          
-          if (arg_start[0] == '(') {  /* We require that an opening paren follows immediately behind the function name. */
-            char * arg_end = strchr( arg_start , ')');
-            if (arg_end != NULL) {
-              /* OK - we found an enclosing () pair. */
-              char            * arg_content = util_alloc_substring_copy( arg_start, 1 , arg_end - arg_start - 1);
-              stringlist_type * arg_list    = parser_tokenize_buffer( parser , arg_content , true);
-              char            * func_eval   = subst_list_func_eval( subst_func , arg_list );
-              int               old_len     = strlen(func_name) + strlen( arg_content) + 2;       
-              
-              if (func_eval != NULL) {
-                buffer_memshift( buffer , match_pos + old_len , strlen( func_eval ) - old_len);
-                buffer_fwrite( buffer , func_eval , strlen( func_eval ) , sizeof * func_eval );
-                free( func_eval );
-                update = true;
-              }
-              
-              free( arg_content );
-              stringlist_free( arg_list );
-            } 
+        if (arg_start[0] == '(') {  /* We require that an opening paren follows immediately behind the function name. */
+          char * arg_end = strchr( arg_start , ')');
+          if (arg_end != NULL) {
+            /* OK - we found an enclosing () pair. */
+            char            * arg_content = util_alloc_substring_copy( arg_start, 1 , arg_end - arg_start - 1);
+            stringlist_type * arg_list    = parser_tokenize_buffer( parser , arg_content , true);
+            char            * func_eval   = subst_list_func_eval( subst_func , arg_list );
+            int               old_len     = strlen(func_name) + strlen( arg_content) + 2;       
+            
+            if (func_eval != NULL) {
+              buffer_memshift( buffer , match_pos + old_len , strlen( func_eval ) - old_len);
+              buffer_fwrite( buffer , func_eval , strlen( func_eval ) , sizeof * func_eval );
+              free( func_eval );
+              update = true;
+              global_match = true;
+            }
+            
+            free( arg_content );
+            stringlist_free( arg_list );
           } 
-          
-          if (!update) 
-            buffer_fseek( buffer , match_pos + strlen( func_name ) , SEEK_SET);
-        }
-      } while (match);
-    }
+        } 
+        if (!update) 
+          buffer_fseek( buffer , match_pos + strlen( func_name ) , SEEK_SET);
+      }
+    } while (match);
   }
   if (subst_list->parent != NULL) 
-    subst_list_eval_funcs____( subst_list->parent , parser , buffer );
+    global_match = (subst_list_eval_funcs____( subst_list->parent , parser , buffer ) || global_match);
+  return global_match;
 }
 
 
-static void subst_list_eval_funcs__(const subst_list_type * subst_list , buffer_type * buffer) {
+static bool subst_list_eval_funcs__(const subst_list_type * subst_list , buffer_type * buffer) {
   parser_type     * parser     = parser_alloc( "," , "\"\'" , NULL , " \t" , NULL , NULL );
-
-  subst_list_eval_funcs____( subst_list , parser , buffer );
+  bool match = subst_list_eval_funcs____( subst_list , parser , buffer );
 
   parser_free( parser );
+  return match;
 }
 
 
@@ -578,12 +588,14 @@ static void subst_list_eval_funcs__(const subst_list_type * subst_list , buffer_
    subst_list_replace_strings__() which is not recursive.
 */
 
-static void subst_list_replace_strings( const subst_list_type * subst_list , buffer_type * buffer ) {
+static bool subst_list_replace_strings( const subst_list_type * subst_list , buffer_type * buffer ) {
+  bool match = false;
   if (subst_list->parent != NULL)
-    subst_list_replace_strings( subst_list->parent , buffer );
+    match = subst_list_replace_strings( subst_list->parent , buffer );
   
   /* The actual string replace */
-  subst_list_replace_strings__( subst_list , buffer );
+  match = (subst_list_replace_strings__( subst_list , buffer ) || match);
+  return match;
 }
 
 
@@ -597,9 +609,10 @@ static void subst_list_replace_strings( const subst_list_type * subst_list , buf
 */
 
 
-void subst_list_update_buffer( const subst_list_type * subst_list , buffer_type * buffer ) {
-  subst_list_replace_strings( subst_list , buffer );
-  subst_list_eval_funcs__( subst_list , buffer );
+bool subst_list_update_buffer( const subst_list_type * subst_list , buffer_type * buffer ) {
+  bool match1 = subst_list_replace_strings( subst_list , buffer );
+  bool match2 = subst_list_eval_funcs__( subst_list , buffer );
+  return (match1 || match2);   // Funny construction to ensure to avoid fault short circuit.
 }
 
 
@@ -616,7 +629,8 @@ void subst_list_update_buffer( const subst_list_type * subst_list , buffer_type 
 */
 
 
-void subst_list_filter_file(const subst_list_type * subst_list , const char * src_file , const char * target_file) {
+bool subst_list_filter_file(const subst_list_type * subst_list , const char * src_file , const char * target_file) {
+  bool   match;
   char * backup_file   = NULL;
   buffer_type * buffer = buffer_fread_alloc( src_file );
   buffer_fseek( buffer , 0 , SEEK_END );  /* Ensure that the buffer is a \0 terminated string. */
@@ -630,6 +644,7 @@ void subst_list_filter_file(const subst_list_type * subst_list , const char * sr
     free(backup_prefix);
   }
   
+  
   /* Writing backup file */
   if (backup_file != NULL) {
     FILE * stream = util_fopen(backup_file , "w");
@@ -639,7 +654,7 @@ void subst_list_filter_file(const subst_list_type * subst_list , const char * sr
   
   
   /* Doing the actual update */
-  subst_list_update_buffer(subst_list , buffer);
+  match = subst_list_update_buffer(subst_list , buffer);
   
 
   /* Writing updated file */
@@ -655,13 +670,15 @@ void subst_list_filter_file(const subst_list_type * subst_list , const char * sr
     free( backup_file );
   }
   free(buffer);
+  return match;
 }
 
 /**
    This function does search-replace on a file inplace.
 */
-void subst_list_update_file(const subst_list_type * subst_list , const char * file) {
-  subst_list_filter_file( subst_list , file , file );
+
+bool subst_list_update_file(const subst_list_type * subst_list , const char * file) {
+  return subst_list_filter_file( subst_list , file , file );
 }
 
 
@@ -669,11 +686,13 @@ void subst_list_update_file(const subst_list_type * subst_list , const char * fi
 /**
    This function does search-replace on string instance inplace.
 */
-void subst_list_update_string(const subst_list_type * subst_list , char ** string) {
+bool subst_list_update_string(const subst_list_type * subst_list , char ** string) {
   buffer_type * buffer = buffer_alloc_private_wrapper( *string , strlen( *string ) + 1);
-  subst_list_update_buffer(subst_list , buffer);
+  bool match = subst_list_update_buffer(subst_list , buffer);
   *string = buffer_get_data( buffer );
   buffer_free_container( buffer );
+  
+  return match;
 }
 
 
@@ -804,6 +823,7 @@ const char * subst_list_iget_doc_string( const subst_list_type * subst_list , in
     return NULL;
   }
 }
+
 
 
 void subst_list_fprintf(const subst_list_type * subst_list , FILE * stream) {
