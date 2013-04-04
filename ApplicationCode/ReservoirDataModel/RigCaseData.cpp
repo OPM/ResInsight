@@ -375,7 +375,7 @@ void RigCaseData::setActiveCellInfo(RifReaderInterface::PorosityModelResultType 
 //--------------------------------------------------------------------------------------------------
 void RigCaseData::computeActiveCellsGeometryBoundingBox()
 {
-    if (m_activeCellInfo.notNull() || m_fractureActiveCellInfo.notNull())
+    if (m_activeCellInfo.isNull() || m_fractureActiveCellInfo.isNull())
     {
         return;
     }
