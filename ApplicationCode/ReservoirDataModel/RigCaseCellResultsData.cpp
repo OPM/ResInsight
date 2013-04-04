@@ -180,7 +180,9 @@ const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(siz
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
 {
-    const std::vector<size_t>& histogr = cellScalarValuesHistogram( scalarResultIndex);
+    // First make sure they are calculated
+    const std::vector<size_t>& histogr = cellScalarValuesHistogram( scalarResultIndex); 
+    // Then return them
     p10 = m_p10p90[scalarResultIndex].first;
     p90 = m_p10p90[scalarResultIndex].second;
 }

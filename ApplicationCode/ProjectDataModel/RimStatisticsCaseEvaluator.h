@@ -26,6 +26,7 @@
 
 #include <QPair>
 #include "RimDefines.h"
+#include "RimStatisticsCase.h"
 
 class RimCase;
 class RigCaseData;
@@ -36,18 +37,20 @@ class RimStatisticsConfig
 {
 public:
     RimStatisticsConfig()
-        : m_min(true),
-        m_max(true),
-        m_mean(true),
-        m_stdDev(true)
+        : m_calculatePercentiles(true),
+        m_pMinPos(10.0),
+        m_pMidPos(50.0),
+        m_pMaxPos(90.0),
+        m_pValMethod(RimStatisticsCase::EXACT)
     {
     }
 
 public:
-    bool m_min;
-    bool m_max;
-    bool m_mean;
-    bool m_stdDev;
+    bool    m_calculatePercentiles;
+    double  m_pMinPos;
+    double  m_pMidPos;
+    double  m_pMaxPos;
+    RimStatisticsCase::PercentileCalcType m_pValMethod;
 };
 
 
@@ -59,21 +62,34 @@ public:
                                const RimStatisticsConfig& statisticsConfig,
                                RigCaseData* destinationCase);
 
+    struct ResSpec 
+    {
+        ResSpec() : m_resType(RimDefines::DYNAMIC_NATIVE), m_poroModel(RifReaderInterface::MATRIX_RESULTS) {}
+        ResSpec( RifReaderInterface::PorosityModelResultType poroModel,
+                 RimDefines::ResultCatType                   resType,
+                 QString                                     resVarName) : m_poroModel(poroModel), m_resType(resType), m_resVarName(resVarName) {}
 
-    void evaluateForResults(const QList<QPair<RimDefines::ResultCatType, QString> >& resultSpecification);
+        RifReaderInterface::PorosityModelResultType m_poroModel;
+        RimDefines::ResultCatType                   m_resType;
+        QString                                     m_resVarName;
+    };
+
+    void evaluateForResults(const QList<ResSpec >& resultSpecification);
 
     void debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx);
 
 private:
     void addNamedResult(RigCaseCellResultsData* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
-    void buildSourceMetaData(RimDefines::ResultCatType resultType, const QString& resultName);
+    void buildSourceMetaData(RifReaderInterface::PorosityModelResultType poroModel, RimDefines::ResultCatType resultType, const QString& resultName);
+
+    enum StatisticsParamType { MIN, MAX, RANGE, MEAN, STDEV, PMIN, PMID, PMAX, STAT_PARAM_COUNT };
 
 private:
     std::vector<RimCase*>  m_sourceCases;
-    std::vector<size_t>         m_timeStepIndices;
+    std::vector<size_t>    m_timeStepIndices;
 
-    size_t                      m_globalCellCount;
-    RimStatisticsConfig         m_statisticsConfig;
-    RigCaseData*             m_destinationCase;
+    size_t                 m_globalCellCount;
+    RimStatisticsConfig    m_statisticsConfig;
+    RigCaseData*           m_destinationCase;
 };
 
