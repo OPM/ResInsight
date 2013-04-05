@@ -796,28 +796,31 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotCloseCase()
 {
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
+    if (userConfirmedGridCaseGroupChange(currentIndex()))
     {
-        QItemSelectionModel* m = selectionModel();
-        CVF_ASSERT(m);
-
-        caf::PdmObjectGroup group;
-
-        QModelIndexList mil = m->selectedRows();
-        for (int i = 0; i < mil.size(); i++)
+        RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+        if (myModel)
         {
-            caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mil.at(i));
-            group.addObject(uiItem->dataObject().p());
-        }
+            QItemSelectionModel* m = selectionModel();
+            CVF_ASSERT(m);
 
-        std::vector<caf::PdmPointer<RimCase> > typedObjects;
-        group.objectsByType(&typedObjects);
+            caf::PdmObjectGroup group;
 
-        for (size_t i = 0; i < typedObjects.size(); i++)
-        {
-            RimCase* rimReservoir = typedObjects[i];
-            myModel->deleteReservoir(rimReservoir);
+            QModelIndexList mil = m->selectedRows();
+            for (int i = 0; i < mil.size(); i++)
+            {
+                caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mil.at(i));
+                group.addObject(uiItem->dataObject().p());
+            }
+
+            std::vector<caf::PdmPointer<RimCase> > typedObjects;
+            group.objectsByType(&typedObjects);
+
+            for (size_t i = 0; i < typedObjects.size(); i++)
+            {
+                RimCase* rimReservoir = typedObjects[i];
+                myModel->deleteReservoir(rimReservoir);
+            }
         }
     }
 }
@@ -918,11 +921,14 @@ void RimUiTreeView::slotPastePdmObjects()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (!myModel) return;
 
-    caf::PdmObjectGroup objectGroup;
-    createPdmObjectsFromClipboard(&objectGroup);
-    if (objectGroup.objects().size() == 0) return;
+    if (userConfirmedGridCaseGroupChange(currentIndex()))
+    {
+        caf::PdmObjectGroup objectGroup;
+        createPdmObjectsFromClipboard(&objectGroup);
+        if (objectGroup.objects().size() == 0) return;
 
-    myModel->addObjects(currentIndex(), objectGroup);
+        myModel->addObjects(currentIndex(), objectGroup);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -997,5 +1003,52 @@ bool RimUiTreeView::hasClipboardValidData()
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::dropEvent(QDropEvent* dropEvent)
+{
+    if (userConfirmedGridCaseGroupChange(currentIndex()))
+    {
+        QTreeView::dropEvent(dropEvent);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Displays a question to the user when a grid case group with statistical results is about to change
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndex & itemIndex)
+{
+    if (!itemIndex.isValid()) return true;
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        RimIdenticalGridCaseGroup* gridCaseGroup = myModel->gridCaseGroupFromItemIndex(itemIndex);
+        if (gridCaseGroup)
+        {
+            // TODO: This test has to check if any of the statistical cases has result values
+            if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
+            {
+                RiuMainWindow* mainWnd = RiuMainWindow::instance();
+
+                QMessageBox msgBox(mainWnd);
+                msgBox.setIcon(QMessageBox::Question);
+                msgBox.setText("The destination case group has existing statistic results, and these results will be deleted if you continue");
+                msgBox.setInformativeText("Do you want to continue?");
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+                int ret = msgBox.exec();
+                if (ret == QMessageBox::No)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
 }
 

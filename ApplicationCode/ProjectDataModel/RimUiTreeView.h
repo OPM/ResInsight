@@ -89,10 +89,13 @@ signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
 
 private:
+    bool userConfirmedGridCaseGroupChange(const QModelIndex & itemIndex);
+
     void createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGroup);
     bool hasClipboardValidData();
 
     virtual void keyPressEvent(QKeyEvent* keyEvent);
+    virtual void dropEvent(QDropEvent* dropEvent);
 
 private:
     QAction* m_pasteAction;
