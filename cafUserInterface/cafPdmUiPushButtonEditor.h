@@ -34,7 +34,8 @@ namespace caf
 
 class PdmUiPushButtonEditorAttribute : public PdmUiEditorAttribute
 {
-
+public:
+    QIcon m_buttonIcon;
 };
 
 

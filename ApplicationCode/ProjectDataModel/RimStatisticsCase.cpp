@@ -27,6 +27,8 @@
 #include "RimStatisticsCaseEvaluator.h"
 #include "RigMainGrid.h"
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiLineEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 namespace caf {
     template<>
@@ -35,6 +37,17 @@ namespace caf {
         addItem(RimStatisticsCase::NEAREST_OBSERVATION,  "NearestObservationPercentile",  "Nearest Observation");
         addItem(RimStatisticsCase::HISTOGRAM_ESTIMATED,  "HistogramEstimatedPercentile",  "Histogram based estimate");
         setDefault(RimStatisticsCase::NEAREST_OBSERVATION); 
+    }
+}
+
+
+namespace caf {
+    template<>
+    void caf::AppEnum<RimStatisticsCase::CalculationStatus>::setUp()
+    {
+        addItem(RimStatisticsCase::CALCULATED,  "CALCULATED",  "OK");
+        addItem(RimStatisticsCase::NOT_CALCULATED,  "NOT_CALCULATED",  "Needs Calculation");
+        setDefault(RimStatisticsCase::NOT_CALCULATED); 
     }
 }
 
@@ -49,6 +62,18 @@ RimStatisticsCase::RimStatisticsCase()
     : RimCase()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_calculationStatus,   "CalcStatus", "Status", "", "", "");
+    m_calculationStatus.setIOWritable(false);
+    m_calculationStatus.setIOReadable(false);
+    m_calculationStatus.setUiReadOnly(true);
+    m_calculationStatus.setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(&m_editingAllowed,   "m_editingAllowed", "Editing Locked", "", "", "");
+    m_editingAllowed.setIOWritable(false);
+    m_editingAllowed.setIOReadable(false);
+    m_editingAllowed.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_editingAllowed = "UNLOCK";
 
     CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Selected Properties", "", "", "");
     m_selectionSummary.setIOWritable(false);
@@ -255,6 +280,9 @@ void RimStatisticsCase::computeStatistics()
         reservoirView->createDisplayModelAndRedraw();
     }
 
+    m_calculationStatus = CALCULATED;
+    m_calculationStatus.updateConnectedEditors();
+    m_editingAllowed = "UNLOCK";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,6 +326,8 @@ RimIdenticalGridCaseGroup* RimStatisticsCase::caseGroup()
 void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
 {
     uiOrdering.add(&caseName);
+    uiOrdering.add(&m_calculationStatus);
+    uiOrdering.add(&m_editingAllowed);
 
     caf::PdmUiGroup * group = uiOrdering.addNewGroup("Property Selection");
     group->add(&m_selectionSummary);
@@ -401,6 +431,13 @@ void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         updateSelectionListVisibilities();
     }
 
+    if (&m_editingAllowed == changedField)
+    {
+        clearComputedStatistics();
+        m_calculationStatus = NOT_CALCULATED;
+        m_editingAllowed.setUiHidden(true);
+    }
+
     updateSelectionSummaryLabel();
     updatePercentileUiVisibility();
 }
@@ -496,3 +533,29 @@ void RimStatisticsCase::updatePercentileUiVisibility()
     m_midPercentile .setUiHidden( !m_calculatePercentiles());
     m_highPercentile.setUiHidden( !m_calculatePercentiles());
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimStatisticsCase::hasComputedStatistics()
+{
+   if (   reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->resultCount()
+       || reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->resultCount())
+   {
+       return true;
+   }
+   else
+   {
+       return false;
+   }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::clearComputedStatistics()
+{
+    reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
+    reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
+}
+

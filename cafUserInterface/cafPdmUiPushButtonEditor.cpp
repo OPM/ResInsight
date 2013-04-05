@@ -55,14 +55,36 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_label->setText(field()->uiName(uiConfigName));
     }
 
-    m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-
-    //m_checkBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    //m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_pushButton->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
     PdmUiPushButtonEditorAttribute attributes;
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
 
-    //m_checkBox->setChecked(field()->uiValue().toBool());
+    QVariant variantFieldValue = field()->uiValue();
+
+    if (!attributes.m_buttonIcon.isNull())
+    {
+        m_pushButton->setIcon(attributes.m_buttonIcon);
+    }
+    else
+    {
+        if (variantFieldValue.type() == QVariant::Bool)
+        {
+            m_pushButton->setText(variantFieldValue.toBool() ? "On" : "Off" );
+        }
+        else
+        {
+             m_pushButton->setText(variantFieldValue.toString());
+        }
+    }
+
+    if (variantFieldValue.type() == QVariant::Bool)
+    {
+        m_pushButton->setChecked(field()->uiValue().toBool());
+    }
+
+   
 }
 
 
@@ -71,7 +93,7 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiPushButtonEditor::createEditorWidget(QWidget * parent)
 {
-    m_pushButton = new QPushButton("Ok", parent);
+    m_pushButton = new QPushButton("", parent);
     connect(m_pushButton, SIGNAL(clicked(bool)), this, SLOT(slotClicked(bool)));
     return m_pushButton;
 }
@@ -90,9 +112,18 @@ QWidget* PdmUiPushButtonEditor::createLabelWidget(QWidget * parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiPushButtonEditor::slotClicked(bool checked)
 {
-    QVariant v;
-    v = checked;
-    this->setValueToField(v);
+
+    if (dynamic_cast<PdmField<bool> *> (field()))
+    {
+        QVariant v;
+        v = checked;
+        this->setValueToField(v);
+    }
+    else
+    {
+        QVariant v = m_pushButton->text();
+        this->setValueToField(v);
+    }
 }
 
 

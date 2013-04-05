@@ -47,6 +47,9 @@ public:
     void setMainGrid(RigMainGrid* mainGrid);
 
     void computeStatistics();
+    bool hasComputedStatistics();
+    void clearComputedStatistics();
+
     virtual bool openEclipseGridFile();
 
     RimCaseCollection* parentStatisticsCaseCollection();
@@ -55,6 +58,12 @@ public:
     {
         NEAREST_OBSERVATION,
         HISTOGRAM_ESTIMATED
+    };
+
+    enum CalculationStatus
+    {
+        CALCULATED,
+        NOT_CALCULATED
     };
 
 private:
@@ -74,6 +83,9 @@ private:
     virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
 
     // Fields
+     caf::PdmField< caf::AppEnum< CalculationStatus > >             m_calculationStatus;
+     caf::PdmField< QString >                                       m_editingAllowed;
+
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
 
