@@ -41,7 +41,7 @@ public:
         m_pMinPos(10.0),
         m_pMidPos(50.0),
         m_pMaxPos(90.0),
-        m_pValMethod(RimStatisticsCase::EXACT)
+        m_pValMethod(RimStatisticsCase::NEAREST_OBSERVATION)
     {
     }
 

@@ -22,105 +22,11 @@
 #include "RimReservoirView.h"
 #include "RimCase.h"
 #include "RigCaseData.h"
+#include "RigStatisticsMath.h"
 
 //#include "RigCaseData.h"
 #include <QDebug>
 #include "cafProgressInfo.h"
-
-//--------------------------------------------------------------------------------------------------
-/// An internal class to do the actual computations
-//--------------------------------------------------------------------------------------------------
-
-void calculateBasicStatistics(const std::vector<double>& values, double* min, double* max, double* range, double* mean, double* dev)
-{
-    double m_min(HUGE_VAL);
-    double m_max(-HUGE_VAL);
-    double m_mean(HUGE_VAL);
-    double m_dev(HUGE_VAL);
-
-    double sum = 0.0;
-    double sumSquared = 0.0;
-
-    size_t validValueCount = 0;
-
-    for (size_t i = 0; i < values.size(); i++)
-    {
-        double val = values[i];
-        if (val == HUGE_VAL) continue;
-
-        validValueCount++;
-
-        if (val < m_min) m_min = val;
-        if (val > m_max) m_max = val;
-
-        sum += val;
-        sumSquared += (val * val);
-    }
-
-    if (validValueCount > 0)
-    {
-        m_mean = sum / validValueCount;
-
-
-        // http://en.wikipedia.org/wiki/Standard_deviation#Rapid_calculation_methods
-        // Running standard deviation
-
-        double s0 = validValueCount;
-        double s1 = sum;
-        double s2 = sumSquared;
-
-        m_dev = cvf::Math::sqrt( (s0 * s2) - (s1 * s1) ) / s0;
-    }
-
-    if (min) *min = m_min;
-    if (max) *max = m_max;
-    if (range) *range = m_max - m_min;
-
-    if (mean) *mean = m_mean;
-    if (dev) *dev = m_dev;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Calculate the percentiles of /a inputValues at the pValPosition percentages using the "Nearest Rank"
-/// method. This method treats HUGE_VAL as "undefined" values, and ignores these. Will return HUGE_VAL if
-/// the inputValues does not contain any valid values
-//--------------------------------------------------------------------------------------------------
-
-std::vector<double> calculateNearestRankPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions)
-{
-    std::vector<double> sortedValues;
-    sortedValues.reserve(inputValues.size());
-
-    for (size_t i = 0; i < inputValues.size(); ++i)
-    {
-        if (inputValues[i] != HUGE_VAL)
-        {
-            sortedValues.push_back(inputValues[i]);
-        }
-    }
-
-    std::sort(sortedValues.begin(), sortedValues.end());
-
-    std::vector<double> percentiles(pValPositions.size(), HUGE_VAL);
-    if (sortedValues.size())
-    {
-        for (size_t i = 0; i < pValPositions.size(); ++i)
-        {
-            double pVal = HUGE_VAL;
-
-            size_t pValIndex = static_cast<size_t>(sortedValues.size() * abs(pValPositions[i]) / 100);
-            pValIndex += 1;
-
-            if (pValIndex >= sortedValues.size() ) pValIndex = sortedValues.size() - 1;
-
-            pVal = sortedValues[pValIndex];
-            percentiles[i] = pVal;
-        }
-    }
-
-    return percentiles;
-};
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -353,18 +259,18 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 
                         if (foundAnyValidValues)
                         {
-                            calculateBasicStatistics(values, &statParams[MIN], &statParams[MAX], &statParams[RANGE], &statParams[MEAN], &statParams[STDEV]);
+                            RigStatisticsMath::calculateBasicStatistics(values, &statParams[MIN], &statParams[MAX], &statParams[RANGE], &statParams[MEAN], &statParams[STDEV]);
 
                             // Calculate percentiles
                             if (m_statisticsConfig.m_calculatePercentiles )
                             {
-                                if (m_statisticsConfig.m_pValMethod == RimStatisticsCase::EXACT)
+                                if (m_statisticsConfig.m_pValMethod == RimStatisticsCase::NEAREST_OBSERVATION)
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back(m_statisticsConfig.m_pMinPos);
                                     pValPoss.push_back(m_statisticsConfig.m_pMidPos);
                                     pValPoss.push_back(m_statisticsConfig.m_pMaxPos);
-                                    std::vector<double> pVals = calculateNearestRankPercentiles(values, pValPoss);
+                                    std::vector<double> pVals = RigStatisticsMath::calculateNearestRankPercentiles(values, pValPoss);
                                     statParams[PMIN] = pVals[0];
                                     statParams[PMID] = pVals[1];
                                     statParams[PMAX] = pVals[2];

@@ -20,6 +20,8 @@
 #include "RifReaderInterface.h"
 #include "RigMainGrid.h"
 
+#include "RigStatisticsMath.h"
+
 #include <QDateTime>
 #include <math.h>
 

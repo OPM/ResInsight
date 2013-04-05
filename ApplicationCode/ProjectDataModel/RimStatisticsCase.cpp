@@ -32,9 +32,9 @@ namespace caf {
     template<>
     void caf::AppEnum<RimStatisticsCase::PercentileCalcType>::setUp()
     {
-        addItem(RimStatisticsCase::EXACT,           "ExactPercentile",         "Exact");
-        addItem(RimStatisticsCase::HISTOGRAM_ESTIMATED,           "HistogramEstimatedPercentile",         "Estimated (Faster for large case counts)");
-        setDefault(RimStatisticsCase::EXACT);
+        addItem(RimStatisticsCase::NEAREST_OBSERVATION,  "NearestObservationPercentile",  "Nearest Observation");
+        addItem(RimStatisticsCase::HISTOGRAM_ESTIMATED,  "HistogramEstimatedPercentile",  "Histogram based estimate");
+        setDefault(RimStatisticsCase::NEAREST_OBSERVATION); 
     }
 }
 
