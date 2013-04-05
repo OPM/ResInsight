@@ -215,30 +215,48 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
 {
-    RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
-    QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
-    if (!caseCollectionModelIndex.isValid()) return;
-
-    QModelIndex mi = getModelIndexFromPdmObjectRecursive(caseCollectionModelIndex, reservoir);
-    if (mi.isValid())
+    if (reservoir->parentCaseCollection())
     {
-        caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
-        CVF_ASSERT(uiItem);
+        RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
+        QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
+        if (!caseCollectionModelIndex.isValid()) return;
 
-        // Remove Ui items pointing at the pdm object to delete
-        removeRows_special(mi.row(), 1, mi.parent());
-    }
+        QModelIndex mi = getModelIndexFromPdmObjectRecursive(caseCollectionModelIndex, reservoir);
+        if (mi.isValid())
+        {
+            caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
+            CVF_ASSERT(uiItem);
 
-    if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
-    {
-        RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
-        CVF_ASSERT(caseGroup);
+            // Remove Ui items pointing at the pdm object to delete
+            removeRows_special(mi.row(), 1, mi.parent());
+        }
 
-        caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(reservoir);
+        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+        {
+            RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
+            CVF_ASSERT(caseGroup);
+
+            caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(reservoir);
+        }
+        else
+        {
+            RimProject* proj = RiaApplication::instance()->project();
+            proj->removeCaseFromAllGroups(reservoir);
+        }
     }
     else
     {
         RimProject* proj = RiaApplication::instance()->project();
+        QModelIndex mi = getModelIndexFromPdmObject(reservoir);
+        if (mi.isValid())
+        {
+            caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
+            CVF_ASSERT(uiItem);
+
+            // Remove Ui items pointing at the pdm object to delete
+            removeRows_special(mi.row(), 1, mi.parent());
+        }
+
         proj->removeCaseFromAllGroups(reservoir);
     }
 
