@@ -1029,8 +1029,7 @@ bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndex & itemInd
         RimIdenticalGridCaseGroup* gridCaseGroup = myModel->gridCaseGroupFromItemIndex(itemIndex);
         if (gridCaseGroup)
         {
-            // TODO: This test has to check if any of the statistical cases has result values
-            if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
+            if (hasAnyStatisticsResults(gridCaseGroup))
             {
                 RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
@@ -1050,5 +1049,27 @@ bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndex & itemInd
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeView::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup)
+{
+    CVF_ASSERT(gridCaseGroup);
+
+    for (size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++)
+    {
+        RimStatisticsCase* rimStaticsCase = dynamic_cast<RimStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
+        if (rimStaticsCase)
+        {
+            if (rimStaticsCase->hasComputedStatistics())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 

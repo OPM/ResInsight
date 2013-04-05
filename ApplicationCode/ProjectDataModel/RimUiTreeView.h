@@ -23,6 +23,7 @@
 #include <QTreeView>
 
 class QItemSelection;
+class RimIdenticalGridCaseGroup;
 
 namespace caf {
     class PdmObjectGroup;
@@ -90,6 +91,7 @@ signals:
 
 private:
     bool userConfirmedGridCaseGroupChange(const QModelIndex & itemIndex);
+    bool hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup);
 
     void createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGroup);
     bool hasClipboardValidData();
