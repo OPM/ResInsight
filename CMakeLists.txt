@@ -40,7 +40,7 @@ include (ResInsightVersion.cmake)
 
 # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
 # into ResInsight
-set (INSTALL_ERT false)
+SET(INSTALL_ERT OFF CACHE BOOL "Build ERT without installing")
 
 add_subdirectory(ThirdParty/Ert/devel)
 
