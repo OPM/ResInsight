@@ -40,9 +40,14 @@ if (MSVC)
    set( LIBRARY_TYPE STATIC )
    set( SHARED_LIB OFF )
 else()
-   set( LIBRARY_TYPE SHARED )
-   set( SHARED_LIB ON )
-endif()
+  if (INSTALL_ERT)
+    set( LIBRARY_TYPE SHARED )
+    set( SHARED_LIB ON )
+  else()
+    set( LIBRARY_TYPE STATIC )
+    set( SHARED_LIB OFF )
+  endif(INSTALL_ERT)
+endif(MSVC)
 
 
 
