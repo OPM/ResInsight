@@ -367,7 +367,7 @@ bool RimIdenticalGridCaseGroup::contains(RimCase* reservoir) const
     for (size_t i = 0; i < caseCollection()->reservoirs().size(); i++)
     {
         RimCase* rimReservoir = caseCollection()->reservoirs()[i];
-        if (reservoir->caseName == reservoir->caseName)
+        if (reservoir->caseName == rimReservoir->caseName)
         {
             return true;
         }
@@ -376,6 +376,9 @@ bool RimIdenticalGridCaseGroup::contains(RimCase* reservoir) const
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells(RifReaderInterface::PorosityModelResultType porosityType)
 {
     if (porosityType == RifReaderInterface::MATRIX_RESULTS)
