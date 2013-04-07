@@ -54,4 +54,6 @@ public:
 
     static QString      fileNameByType(const QStringList& fileSet, ecl_file_enum fileType);
     static QStringList  fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType);
+
+    static void         readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions);
 };

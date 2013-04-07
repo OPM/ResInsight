@@ -21,6 +21,7 @@
 #include "util.h"
 #include "ecl_file.h"
 #include "ecl_kw_magic.h"
+#include "ecl_grid.h"
 
 #include <QFileInfo>
 #include <QDebug>
@@ -299,5 +300,22 @@ void RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ecl_file_type* ecl
         }
 
         info.setProgress(i);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions)
+{
+    int gridDims[3];
+
+    bool ret = ecl_grid_file_dims(gridFileName.toAscii().data(), NULL, gridDims);
+    if (ret)
+    {
+        gridDimensions.resize(1);
+        gridDimensions[0].push_back(gridDims[0]);
+        gridDimensions[0].push_back(gridDims[1]);
+        gridDimensions[0].push_back(gridDims[2]);
     }
 }
