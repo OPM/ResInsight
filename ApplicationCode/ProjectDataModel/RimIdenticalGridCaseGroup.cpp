@@ -30,6 +30,7 @@
 #include "RimResultCase.h"
 #include "cafProgressInfo.h"
 #include "RigActiveCellInfo.h"
+#include "RigGridManager.h"
 
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
@@ -78,15 +79,15 @@ void RimIdenticalGridCaseGroup::addCase(RimCase* reservoir)
 
     if (!reservoir) return;
 
-    RigMainGrid* incomingMainGrid = reservoir->reservoirData()->mainGrid();
-
     if (!m_mainGrid)
     {
-        m_mainGrid = incomingMainGrid;
+        m_mainGrid = reservoir->reservoirData()->mainGrid();
+    }
+    else
+    {
+        reservoir->reservoirData()->setMainGrid(m_mainGrid);
     }
 
-    CVF_ASSERT(m_mainGrid == incomingMainGrid);
- 
     caseCollection()->reservoirs().push_back(reservoir);
 
     if (statisticsCaseCollection->reservoirs().size() == 0)
@@ -422,4 +423,27 @@ RimCase* RimIdenticalGridCaseGroup::mainCase()
     {
         return NULL;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimIdenticalGridCaseGroup::canCaseBeAdded(RimCase* reservoir) const
+{
+    CVF_ASSERT(reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid());
+
+    if (!m_mainGrid)
+    {
+        // Empty case group, reservoir can be added
+        return true;
+    }
+
+    RigMainGrid* incomingMainGrid = reservoir->reservoirData()->mainGrid();
+    
+    if (RigGridManager::isEqual(m_mainGrid, incomingMainGrid))
+    {
+        return true;
+    }
+
+    return false;
 }

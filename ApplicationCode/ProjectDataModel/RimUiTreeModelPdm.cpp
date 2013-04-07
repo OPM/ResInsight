@@ -37,6 +37,7 @@
 #include "RimInputCase.h"
 #include "RimStatisticsCase.h"
 #include "RimResultCase.h"
+#include "RigGridManager.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -592,19 +593,29 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
     CVF_ASSERT(proj);
 
     RimIdenticalGridCaseGroup* gridCaseGroup = gridCaseGroupFromItemIndex(itemIndex);
-
     if (gridCaseGroup)
     {
         std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
         pdmObjects.createCopyByType(&typedObjects);
 
-        RigCaseData* mainEclipseCase = NULL;
-        if (gridCaseGroup->caseCollection()->reservoirs().size() > 0)
+        if (typedObjects.size() == 0)
         {
-            RimCase* mainReservoir = gridCaseGroup->caseCollection()->reservoirs()[0];
-            mainEclipseCase = mainReservoir->reservoirData();
+            return;
         }
 
+        RimResultCase* mainResultCase = NULL;
+        std::vector< std::vector<int> > mainCaseGridDimensions;
+
+        // Read out main grid and main grid dimensions if present in case group
+        if (gridCaseGroup->mainCase())
+        {
+            mainResultCase = dynamic_cast<RimResultCase*>(gridCaseGroup->mainCase());
+            CVF_ASSERT(mainResultCase);
+
+            mainResultCase->readGridDimensions(mainCaseGridDimensions);
+        }
+
+        // Add cases to case group
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
             RimResultCase* rimResultReservoir = typedObjects[i];
@@ -614,14 +625,25 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 continue;
             }
 
-            if (gridCaseGroup->mainGrid() == NULL)
+            if (!mainResultCase)
             {
                 rimResultReservoir->openEclipseGridFile();
-                mainEclipseCase = rimResultReservoir->reservoirData();
+                rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
+
+                mainResultCase = rimResultReservoir;
             }
             else
             {
-                if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
+                std::vector< std::vector<int> > caseGridDimensions;
+                rimResultReservoir->readGridDimensions(caseGridDimensions);
+                
+                bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
+                if (!identicalGrid)
+                {
+                    continue;
+                }
+
+                if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
                 {
                     CVF_ASSERT(false);
                 }

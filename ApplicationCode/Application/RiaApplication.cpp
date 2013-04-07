@@ -56,6 +56,7 @@
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "cafProgressInfo.h"
+#include "RigGridManager.h"
 
 namespace caf
 {
@@ -494,10 +495,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     QFileInfo gridFileName(caseFileName);
     QString casePath = gridFileName.absolutePath();
 
-    RimResultCase* rimResultReservoir = new RimResultCase();
-    rimResultReservoir->caseName = caseName;
-    rimResultReservoir->caseFileName = caseFileName;
-    rimResultReservoir->caseDirectory = casePath;
+    RimResultCase* rimResultReservoir = new RimResultCase(caseName, caseFileName, casePath);
 
     m_project->reservoirs.push_back(rimResultReservoir);
 
@@ -1356,11 +1354,11 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 {
     if (fileNames.size() == 0) return true;
 
-
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RigCaseData* mainEclipseCase = NULL;
+    RimResultCase* mainResultCase = NULL;
+    std::vector< std::vector<int> > mainCaseGridDimensions;
 
     {
         QString firstFileName = fileNames[0];
@@ -1369,46 +1367,54 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         QString caseName = gridFileName.completeBaseName();
         QString casePath = gridFileName.absolutePath();
 
-        RimResultCase* rimResultReservoir = new RimResultCase();
-        rimResultReservoir->caseName = caseName;
-        rimResultReservoir->caseFileName = firstFileName;
-        rimResultReservoir->caseDirectory = casePath;
-
-        m_project->reservoirs.push_back(rimResultReservoir);
-
+        RimResultCase* rimResultReservoir = new RimResultCase(caseName, firstFileName, casePath);
         if (!rimResultReservoir->openEclipseGridFile())
         {
+            delete rimResultReservoir;
+
             return false;
         }
 
+        rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
+
+        m_project->reservoirs.push_back(rimResultReservoir);
         m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
 
-        mainEclipseCase = rimResultReservoir->reservoirData();
+        mainResultCase = rimResultReservoir;
     }
 
     caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
 
     for (int i = 1; i < fileNames.size(); i++)
     {
-        QString fileName = fileNames[i];
-        QFileInfo gridFileName(fileName);
+        QString caseFileName = fileNames[i];
+        QFileInfo gridFileName(caseFileName);
 
         QString caseName = gridFileName.completeBaseName();
         QString casePath = gridFileName.absolutePath();
 
-        RimResultCase* rimResultReservoir = new RimResultCase();
-        rimResultReservoir->caseName = caseName;
-        rimResultReservoir->caseFileName = fileName;
-        rimResultReservoir->caseDirectory = casePath;
+        RimResultCase* rimResultReservoir = new RimResultCase(caseName, caseFileName, casePath);
 
-        m_project->reservoirs.push_back(rimResultReservoir);
+        std::vector< std::vector<int> > caseGridDimensions;
+        rimResultReservoir->readGridDimensions(caseGridDimensions);
 
-        if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
+        bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
+        if (identicalGrid)
         {
-            return false;
+            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            {
+                m_project->reservoirs.push_back(rimResultReservoir);
+                m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+            }
+            else
+            {
+                delete rimResultReservoir;
+            }
         }
-
-        m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+        else
+        {
+            delete rimResultReservoir;
+        }
 
         info.setProgress(i);
     }

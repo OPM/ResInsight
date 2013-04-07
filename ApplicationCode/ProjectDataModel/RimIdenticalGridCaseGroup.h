@@ -49,7 +49,9 @@ public:
 
     void                                addCase(RimCase* reservoir);
     void                                removeCase(RimCase* reservoir);
+
     bool                                contains(RimCase* reservoir) const;
+    bool                                canCaseBeAdded(RimCase* reservoir) const;
 
     RimStatisticsCase*                  createAndAppendStatisticsCase();
 
