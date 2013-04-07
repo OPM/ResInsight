@@ -26,6 +26,7 @@
 #include "RifReaderEclipseInput.h"
 #include "cafProgressInfo.h"
 #include "RimProject.h"
+#include "RifEclipseOutputFileTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
@@ -39,6 +40,18 @@ RimResultCase::RimResultCase()
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimResultCase::RimResultCase(const QString& caseName, const QString& caseFileName, const QString& caseDirectory)
+{
+    RimResultCase();
+
+    this->caseName      = caseName;
+    this->caseFileName  = caseFileName;
+    this->caseDirectory = caseDirectory;
 }
 
 
@@ -284,5 +297,15 @@ QString RimResultCase::createAbsoluteFilenameFromCase(const QString& caseName)
     }
 
     return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDimensions)
+{
+    QString fname = createAbsoluteFilenameFromCase(caseName);
+
+    RifEclipseOutputFileTools::readGridDimensions(fname, gridDimensions);
 }
 

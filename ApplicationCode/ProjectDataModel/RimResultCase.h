@@ -38,6 +38,7 @@ class RimResultCase : public RimCase
 
 public:
     RimResultCase();
+    RimResultCase(const QString& caseName, const QString& caseFileName, const QString& caseDirectory);
     virtual ~RimResultCase();
 
 
@@ -47,6 +48,7 @@ public:
 
     virtual bool                openEclipseGridFile();
     bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
+    void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
 
     //virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName;}
 
