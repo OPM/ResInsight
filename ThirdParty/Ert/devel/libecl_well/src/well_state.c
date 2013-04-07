@@ -169,7 +169,7 @@ static int well_state_get_lgr_well_nr( const well_state_type * well_state , cons
   if (ecl_file_has_kw( ecl_file , ZWEL_KW)) {
     ecl_rsthead_type  * header  = ecl_rsthead_alloc( ecl_file );                      //
     const ecl_kw_type * zwel_kw = ecl_file_iget_named_kw( ecl_file , ZWEL_KW   , 0);
-    int num_wells = ecl_kw_get_size( zwel_kw );
+    int num_wells               = header->nwells;
     well_nr = 0;
     while (true) {
       bool found = false;
