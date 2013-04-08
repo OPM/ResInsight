@@ -153,6 +153,8 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
     int currentRowIndex = 0;
     for (size_t i = 0; i < uiItems.size(); ++i)
     {
+        if (uiItems[i]->isUiHidden(uiConfigName)) continue;
+
         if (uiItems[i]->isUiGroup())
         {
             PdmUiGroup* group = static_cast<PdmUiGroup*>(uiItems[i]);
@@ -197,113 +199,110 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
             PdmFieldHandle* field = dynamic_cast<PdmFieldHandle*>(uiItems[i]);
             PdmUiFieldEditorHandle* fieldEditor = NULL;
 
-            if (!field->isUiHidden(uiConfigName))
+            // Find or create FieldEditor
+            std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
+            it = m_fieldViews.find(field->keyword());
+
+            if (it == m_fieldViews.end())
             {
-
-                // Find or create FieldEditor
-                std::map<QString, PdmUiFieldEditorHandle*>::iterator it;
-                it = m_fieldViews.find(field->keyword());
-
-                if (it == m_fieldViews.end())
+                // If editor type is specified, find in factory
+                if ( !uiItems[i]->uiEditorTypeName(uiConfigName).isEmpty() )
                 {
-                    // If editor type is specified, find in factory
-                    if ( !uiItems[i]->uiEditorTypeName(uiConfigName).isEmpty() )
-                    {
-                        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
-                    }
-                    else
-                    { 
-                        // Find the default field editor
-
-                        QString editorTypeName = qStringTypeName(*field);
-
-                        // Handle a single value field with valueOptions: Make a combobox
-
-                        if (field->uiValue().type() != QVariant::List)
-                        {
-                            bool useOptionsOnly = true; 
-                            QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
-
-                            if (!options.empty())
-                            {
-                                editorTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
-                            }
-                        }
-
-                        fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
-                    }
-
-                    if (fieldEditor)
-                    {
-                        m_fieldViews[field->keyword()] = fieldEditor;
-                        fieldEditor->createWidgets(parent);
-                    }
+                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(field->uiEditorTypeName(uiConfigName));
                 }
                 else
-                {
-                    fieldEditor = it->second;
+                { 
+                    // Find the default field editor
+
+                    QString editorTypeName = qStringTypeName(*field);
+
+                    // Handle a single value field with valueOptions: Make a combobox
+
+                    if (field->uiValue().type() != QVariant::List)
+                    {
+                        bool useOptionsOnly = true; 
+                        QList<PdmOptionItemInfo> options = field->valueOptions( &useOptionsOnly);
+
+                        if (!options.empty())
+                        {
+                            editorTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();
+                        }
+                    }
+
+                    fieldEditor = caf::Factory<PdmUiFieldEditorHandle, QString>::instance()->create(editorTypeName);
                 }
 
                 if (fieldEditor)
                 {
-                    fieldEditor->setField(field); 
+                    m_fieldViews[field->keyword()] = fieldEditor;
+                    fieldEditor->createWidgets(parent);
+                }
+            }
+            else
+            {
+                fieldEditor = it->second;
+            }
 
-                    // Place the widget(s) into the correct parent and layout
-                    QWidget* fieldCombinedWidget = fieldEditor->combinedWidget();
+            if (fieldEditor)
+            {
+                fieldEditor->setField(field); 
 
-                    if (fieldCombinedWidget)
+                // Place the widget(s) into the correct parent and layout
+                QWidget* fieldCombinedWidget = fieldEditor->combinedWidget();
+
+                if (fieldCombinedWidget)
+                {
+                    fieldCombinedWidget->setParent(parent);
+                    parentLayout->addWidget(fieldCombinedWidget, currentRowIndex, 0, 1, 2);
+                }
+                else
+                {
+
+                    PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition(uiConfigName);
+                    bool labelOnTop = (labelPos == PdmUiItemInfo::TOP);
+                    bool editorSpanBoth = labelOnTop;
+
+                    if (labelPos != PdmUiItemInfo::HIDDEN)
                     {
-                        fieldCombinedWidget->setParent(parent);
-                        parentLayout->addWidget(fieldCombinedWidget, currentRowIndex, 0, 1, 2);
+                        QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
+                        if (fieldLabelWidget )
+                        {
+                            fieldLabelWidget->setParent(parent);
+
+                            // Label widget will span two columns if aligned on top
+                            int colSpan = labelOnTop ? 2 : 1;
+                            parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
+                            fieldLabelWidget->show();
+
+                            if (labelOnTop) currentRowIndex++;
+                        }
                     }
                     else
                     {
-
-                        PdmUiItemInfo::LabelPosType labelPos = field->uiLabelPosition(uiConfigName);
-                        bool labelOnTop = (labelPos == PdmUiItemInfo::TOP);
-                        bool editorSpanBoth = labelOnTop;
-
-                        if (labelPos != PdmUiItemInfo::HIDDEN)
-                        {
-                            QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
-                            if (fieldLabelWidget )
-                            {
-                                fieldLabelWidget->setParent(parent);
-
-                                // Label widget will span two columns if aligned on top
-                                int colSpan = labelOnTop ? 2 : 1;
-                                parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
-                                fieldLabelWidget->show();
-
-                                if (labelOnTop) currentRowIndex++;
-                            }
-                        }
-                        else
-                        {
-                            QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
-                            if (fieldLabelWidget ) fieldLabelWidget->hide();
-                            editorSpanBoth = true; // To span both columns when there is no label
-                        }
-
-                        QWidget* fieldEditorWidget = fieldEditor->editorWidget();
-
-                        if (fieldEditorWidget)
-                        {
-                            fieldEditorWidget->setParent(parent); // To make sure this widget has the current group box as parent.
-
-                            // Label widget will span two columns if aligned on top
-                            int colSpan = editorSpanBoth ? 2 : 1;
-                            int colIndex = editorSpanBoth ? 0 : 1;
-                            parentLayout->addWidget(fieldEditorWidget, currentRowIndex, colIndex, 1, colSpan, Qt::AlignTop);
-                        }
-
+                        QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
+                        if (fieldLabelWidget ) fieldLabelWidget->hide();
+                        editorSpanBoth = true; // To span both columns when there is no label
                     }
 
-                    fieldEditor->updateUi(uiConfigName);
-                    
-                    currentRowIndex++;
+                    QWidget* fieldEditorWidget = fieldEditor->editorWidget();
+
+                    if (fieldEditorWidget)
+                    {
+                        fieldEditorWidget->setParent(parent); // To make sure this widget has the current group box as parent.
+
+                        // Label widget will span two columns if aligned on top
+                        int colSpan = editorSpanBoth ? 2 : 1;
+                        int colIndex = editorSpanBoth ? 0 : 1;
+                        parentLayout->addWidget(fieldEditorWidget, currentRowIndex, colIndex, 1, colSpan, Qt::AlignTop);
+                    }
+
                 }
+
+                fieldEditor->updateUi(uiConfigName);
+
+                currentRowIndex++;
             }
+
         }
     }
 }
