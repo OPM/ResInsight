@@ -419,3 +419,40 @@ QString RimInputCase::locationOnDisc() const
     QFileInfo fi(m_gridFileName);
     return fi.absolutePath();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimInputCase::initAfterRead()
+{
+    RimCase::initAfterRead();
+
+    QString projPath = RiaApplication::instance()->project()->projectPath();
+
+    QString candidate;
+
+    if (!QFile::exists(m_gridFileName))
+    {
+        QString fileNameWithoutPath = QFileInfo(m_gridFileName).fileName();
+        candidate = QDir::fromNativeSeparators(projPath + QDir::separator() + fileNameWithoutPath);
+        if (QFile::exists(candidate))
+        {
+            m_gridFileName = candidate;
+        }
+    }
+
+    for (size_t i = 0; i < m_additionalFileNames().size(); i++)
+    {
+        QString additionalFileName = m_additionalFileNames()[i];
+
+        if (!QFile::exists(additionalFileName))
+        {
+            QString fileNameWithoutPath = QFileInfo(additionalFileName).fileName();
+            candidate = QDir::fromNativeSeparators(projPath + QDir::separator() + fileNameWithoutPath);
+            if (QFile::exists(candidate))
+            {
+                m_additionalFileNames.v()[i] = candidate;
+            }
+        }
+    }
+}

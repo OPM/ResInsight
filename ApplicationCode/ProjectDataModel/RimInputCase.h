@@ -51,23 +51,26 @@ public:
     caf::PdmField<RimInputPropertyCollection*> m_inputPropertyCollection;
 
     // File open methods
-    void openDataFileSet(const QStringList& filenames);
-    void loadAndSyncronizeInputProperties();
+    void                        openDataFileSet(const QStringList& filenames);
+    void                        loadAndSyncronizeInputProperties();
 
-    void removeProperty(RimInputProperty* inputProperty);
+    void                        removeProperty(RimInputProperty* inputProperty);
 
     // RimCase overrides
     virtual bool                openEclipseGridFile(); // Find grid file among file set. Read, Find read and validate property date. Syncronize child property sets.
 
     // PdmObject overrides
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
-    virtual QString locationOnDisc() const;
+    virtual QString             locationOnDisc() const;
+
+protected:
+    virtual void                initAfterRead();
 
 private:
-    void addFiles(const QStringList& newFileNames);
-    void removeFiles(const QStringList& obsoleteFileNames);
+    void                        addFiles(const QStringList& newFileNames);
+    void                        removeFiles(const QStringList& obsoleteFileNames);
+
 
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
-
 };
