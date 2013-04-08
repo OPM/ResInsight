@@ -292,13 +292,13 @@ void RimResultCase::initAfterRead()
             return;
         }
 
-        QString projPath = projectPath();
+        QString projPath = RiaApplication::instance()->project()->projectPath();
 
         candidate = QDir::fromNativeSeparators(projPath + QDir::separator() + caseName + ".EGRID");
         if (QFile::exists(candidate))
         {
             caseFileName = candidate;
-            caseDirectory = projectPath;
+            caseDirectory = projPath;
             return;
         }
 
@@ -310,15 +310,5 @@ void RimResultCase::initAfterRead()
             return;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RimResultCase::projectPath() const
-{
-    QString projectFileName = RiaApplication::instance()->project()->fileName();
-    QFileInfo fileInfo(projectFileName);
-    return fileInfo.path();
 }
 

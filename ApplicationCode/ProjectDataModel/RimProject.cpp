@@ -231,3 +231,12 @@ void RimProject::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, Rim
     caseGroup->addCase(rimReservoir);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimProject::projectPath() const
+{
+    QFileInfo fileInfo(fileName());
+    return fileInfo.path();
+}
+

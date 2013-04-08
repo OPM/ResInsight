@@ -55,7 +55,5 @@ protected:
     virtual void                initAfterRead();
 
 private:
-    QString                     projectPath() const;
-
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 };

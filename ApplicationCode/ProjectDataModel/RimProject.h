@@ -34,12 +34,11 @@ class RimProject : public caf::PdmDocument
      CAF_PDM_HEADER_INIT;
 
 public:
-    caf::PdmPointersField<RimCase*>                reservoirs;
+    caf::PdmPointersField<RimCase*>                     reservoirs;
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
 
     void setUserScriptPath(const QString& path);
-    //void updateProjectScriptPath();
 
     QString projectFileVersionString() const;
 
@@ -52,6 +51,8 @@ public:
 
     void moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
     void removeCaseFromAllGroups(RimCase* rimReservoir);
+
+    QString projectPath() const;
     
 private:
     RigMainGrid* registerCaseInGridCollection(RigCaseData* rigEclipseCase);
@@ -63,6 +64,5 @@ protected:
 
 private:
     caf::PdmField<QString>      m_projectFileVersionString;
-
-    cvf::ref<RigGridManager> m_gridCollection;
+    cvf::ref<RigGridManager>    m_gridCollection;
 };
