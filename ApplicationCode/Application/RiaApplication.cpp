@@ -500,7 +500,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     QFileInfo gridFileName(caseFileName);
     QString casePath = gridFileName.absolutePath();
 
-    RimResultCase* rimResultReservoir = new RimResultCase(caseName, caseFileName, casePath);
+    RimResultCase* rimResultReservoir = new RimResultCase();
+    rimResultReservoir->setCaseInfo(caseName, caseFileName, casePath);
 
     m_project->reservoirs.push_back(rimResultReservoir);
 
@@ -1372,7 +1373,8 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         QString caseName = gridFileName.completeBaseName();
         QString casePath = gridFileName.absolutePath();
 
-        RimResultCase* rimResultReservoir = new RimResultCase(caseName, firstFileName, casePath);
+        RimResultCase* rimResultReservoir = new RimResultCase();
+        rimResultReservoir->setCaseInfo(caseName, firstFileName, casePath);
         if (!rimResultReservoir->openEclipseGridFile())
         {
             delete rimResultReservoir;
@@ -1398,7 +1400,8 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         QString caseName = gridFileName.completeBaseName();
         QString casePath = gridFileName.absolutePath();
 
-        RimResultCase* rimResultReservoir = new RimResultCase(caseName, caseFileName, casePath);
+        RimResultCase* rimResultReservoir = new RimResultCase();
+        rimResultReservoir->setCaseInfo(caseName, caseFileName, casePath);
 
         std::vector< std::vector<int> > caseGridDimensions;
         rimResultReservoir->readGridDimensions(caseGridDimensions);

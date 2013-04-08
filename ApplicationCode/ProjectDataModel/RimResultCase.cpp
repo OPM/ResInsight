@@ -43,17 +43,6 @@ RimResultCase::RimResultCase()
     CAF_PDM_InitField(&caseDirectory, "CaseFolder", QString(), "Directory", "", "" ,"");
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RimResultCase::RimResultCase(const QString& caseName, const QString& caseFileName, const QString& caseDirectory)
-{
-    RimResultCase();
-
-    this->caseName      = caseName;
-    this->caseFileName  = caseFileName;
-    this->caseDirectory = caseDirectory;
-}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -306,5 +295,15 @@ void RimResultCase::updateFilePathsFromProjectPath(const QString& projectPath)
             return;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultCase::setCaseInfo(const QString& caseName, const QString& caseFileName, const QString& caseDirectory)
+{
+    this->caseName      = caseName;
+    this->caseFileName  = caseFileName;
+    this->caseDirectory = caseDirectory;
 }
 

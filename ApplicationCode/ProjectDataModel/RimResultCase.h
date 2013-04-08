@@ -38,12 +38,13 @@ class RimResultCase : public RimCase
 
 public:
     RimResultCase();
-    RimResultCase(const QString& caseName, const QString& caseFileName, const QString& caseDirectory);
     virtual ~RimResultCase();
 
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
     caf::PdmField<QString>      caseDirectory;
+
+    void                        setCaseInfo(const QString& caseName, const QString& caseFileName, const QString& caseDirectory);
 
     virtual bool                openEclipseGridFile();
     bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
