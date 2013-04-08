@@ -142,6 +142,8 @@ bool RimStatisticsCase::openEclipseGridFile()
 
     this->setReservoirData( eclipseCase.p() );
 
+    this->populateWithDefaultsIfNeeded();
+
     return true;
 }
 
@@ -563,4 +565,48 @@ void RimStatisticsCase::clearComputedStatistics()
     reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
 
     this->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::populateWithDefaultsIfNeeded()
+{
+    RimIdenticalGridCaseGroup* idgcg = caseGroup();
+    if (!(caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->reservoirData())) 
+    {
+        return ;
+    }
+
+    RigCaseData* caseData = idgcg->mainCase()->reservoirData();
+
+    if (m_selectedDynamicProperties().size() == 0)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        if (varList.contains("SOIL"))     m_selectedDynamicProperties.v().push_back("SOIL");
+        if (varList.contains("PRESSURE")) m_selectedDynamicProperties.v().push_back("PRESSURE");
+    }
+
+    if (m_selectedStaticProperties().size() == 0)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        if (varList.contains("PERMX")) m_selectedStaticProperties.v().push_back("PERMX");
+        if (varList.contains("PERMY")) m_selectedStaticProperties.v().push_back("PERMY");
+        if (varList.contains("PORO"))  m_selectedStaticProperties.v().push_back("PORO");
+    }
+
+    if (m_selectedFractureDynamicProperties().size() == 0)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::DYNAMIC_NATIVE);
+        if (varList.contains("SOIL"))     m_selectedFractureDynamicProperties.v().push_back("SOIL");
+        if (varList.contains("PRESSURE")) m_selectedFractureDynamicProperties.v().push_back("PRESSURE");
+    }
+
+    if (m_selectedFractureStaticProperties().size() == 0)
+    {
+        QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
+        if (varList.contains("PERMX")) m_selectedFractureStaticProperties.v().push_back("PERMX");
+        if (varList.contains("PERMY")) m_selectedFractureStaticProperties.v().push_back("PERMY");
+        if (varList.contains("PORO"))  m_selectedFractureStaticProperties.v().push_back("PORO");
+    }
 }

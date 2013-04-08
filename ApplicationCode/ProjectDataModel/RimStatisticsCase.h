@@ -66,6 +66,8 @@ private:
 
     void getSourceCases(std::vector<RimCase*>& sourceCases);
 
+    void populateWithDefaultsIfNeeded();
+
     void updateSelectionListVisibilities();
     void updateSelectionSummaryLabel();
     void updatePercentileUiVisibility();
