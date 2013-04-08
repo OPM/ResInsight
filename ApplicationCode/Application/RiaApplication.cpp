@@ -235,7 +235,13 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
     m_project->fileName = projectFileName;
     m_project->readFile();
-    m_project->fileName = projectFileName; // Make sure we overwrite the old filename read from the project file 
+
+    // If the project filename has changed, call initAfterRead once more to propagate new location of project
+    if (m_project->fileName() != projectFileName)
+    {
+        m_project->fileName = projectFileName;
+        caf::PdmDocument::initAfterReadTraversal(m_project);
+    }
 
     // On error, delete everything, and bail out.
 

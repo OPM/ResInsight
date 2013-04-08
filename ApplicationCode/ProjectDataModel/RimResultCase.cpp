@@ -27,6 +27,7 @@
 #include "cafProgressInfo.h"
 #include "RimProject.h"
 #include "RifEclipseOutputFileTools.h"
+#include "RiaApplication.h"
 
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
@@ -76,15 +77,14 @@ bool RimResultCase::openEclipseGridFile()
     }
     else
     {
-        QString fname = createAbsoluteFilenameFromCase(caseName);
-        if (fname.isEmpty())
+        if (!QFile::exists(caseFileName()))
         {
             return false;
         }
 
         cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
         readerInterface = new RifReaderEclipseOutput;
-        if (!readerInterface->open(fname, eclipseCase.p()))
+        if (!readerInterface->open(caseFileName(), eclipseCase.p()))
         {
             return false;
         }
@@ -119,8 +119,7 @@ bool RimResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
     }
     else
     {
-        QString fname = createAbsoluteFilenameFromCase(caseName);
-        if (fname.isEmpty())
+        if (!QFile::exists(caseFileName()))
         {
             return false;
         }
@@ -140,7 +139,7 @@ bool RimResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
         std::vector<QDateTime> timeStepDates = mainEclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
-        if (!readerEclipseOutput->openAndReadActiveCellData(fname, timeStepDates, eclipseCase.p()))
+        if (!readerEclipseOutput->openAndReadActiveCellData(caseFileName(), timeStepDates, eclipseCase.p()))
         {
             return false;
         }
@@ -262,50 +261,64 @@ QString RimResultCase::locationOnDisc() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimResultCase::createAbsoluteFilenameFromCase(const QString& caseName)
+void RimResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDimensions)
 {
-    QString candidate;
-    
-    candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".EGRID");
-    if (QFile::exists(candidate)) return candidate;
-
-    candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".GRID");
-    if (QFile::exists(candidate)) return candidate;
-
-    std::vector<caf::PdmObject*> parentObjects;
-    this->parentObjects(parentObjects);
-
-    QString projectPath;
-    for (size_t i = 0; i < parentObjects.size(); i++)
-    {
-        caf::PdmObject* obj = parentObjects[i];
-        RimProject* proj = dynamic_cast<RimProject*>(obj);
-        if (proj)
-        {
-            QFileInfo fi(proj->fileName);
-            projectPath = fi.path();
-        }
-    }
-
-    if (!projectPath.isEmpty())
-    {
-        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".EGRID");
-        if (QFile::exists(candidate)) return candidate;
-
-        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".GRID");
-        if (QFile::exists(candidate)) return candidate;
-    }
-
-    return QString();
+    RifEclipseOutputFileTools::readGridDimensions(caseFileName, gridDimensions);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDimensions)
+void RimResultCase::initAfterRead()
 {
-    QString fname = createAbsoluteFilenameFromCase(caseName);
+    RimCase::initAfterRead();
 
-    RifEclipseOutputFileTools::readGridDimensions(fname, gridDimensions);
+    // Update filename and folder paths when opening project from a different file location
+    if (!QFile::exists(caseFileName))
+    {
+        QString candidate;
+
+        candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".EGRID");
+        if (QFile::exists(candidate))
+        {
+            caseFileName = candidate;
+            return;
+        }
+
+        candidate = QDir::fromNativeSeparators(caseDirectory.v() + QDir::separator() + caseName + ".GRID");
+        if (QFile::exists(candidate))
+        {
+            caseFileName = candidate;
+            return;
+        }
+
+        QString projPath = projectPath();
+
+        candidate = QDir::fromNativeSeparators(projPath + QDir::separator() + caseName + ".EGRID");
+        if (QFile::exists(candidate))
+        {
+            caseFileName = candidate;
+            caseDirectory = projectPath;
+            return;
+        }
+
+        candidate = QDir::fromNativeSeparators(projPath + QDir::separator() + caseName + ".GRID");
+        if (QFile::exists(candidate))
+        {
+            caseFileName = candidate;
+            caseDirectory = projPath;
+            return;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimResultCase::projectPath() const
+{
+    QString projectFileName = RiaApplication::instance()->project()->fileName();
+    QFileInfo fileInfo(projectFileName);
+    return fileInfo.path();
 }
 

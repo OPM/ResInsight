@@ -41,7 +41,6 @@ public:
     RimResultCase(const QString& caseName, const QString& caseFileName, const QString& caseDirectory);
     virtual ~RimResultCase();
 
-
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
     caf::PdmField<QString>      caseDirectory;
@@ -50,13 +49,13 @@ public:
     bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
     void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
 
-    //virtual caf::PdmFieldHandle*    userDescriptionField()  { return &caseName;}
+    virtual QString             locationOnDisc() const;
 
-    virtual QString locationOnDisc() const;
+protected:
+    virtual void                initAfterRead();
 
 private:
+    QString                     projectPath() const;
+
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
-
-    QString createAbsoluteFilenameFromCase(const QString& caseName);
-
 };
