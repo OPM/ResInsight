@@ -49,10 +49,9 @@ public:
     bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
     void                        readGridDimensions(std::vector< std::vector<int> >& gridDimensions);
 
+    // Overrides from RimCase
     virtual QString             locationOnDisc() const;
-
-protected:
-    virtual void                initAfterRead();
+    virtual void                updateFilePathsFromProjectPath(const QString& projectPath);
 
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);

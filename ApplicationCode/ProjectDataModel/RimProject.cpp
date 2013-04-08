@@ -234,9 +234,30 @@ void RimProject::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, Rim
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RimProject::projectPath() const
+void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName)
 {
-    QFileInfo fileInfo(fileName());
-    return fileInfo.path();
+    this->fileName = fileName;
+
+    // Loop over all reservoirs and update file path
+
+    QFileInfo fileInfo(fileName);
+    QString projectPath = fileInfo.path();
+
+    for (size_t i = 0; i < reservoirs.size(); i++)
+    {
+        reservoirs[i]->updateFilePathsFromProjectPath(projectPath);
+    }
+
+    // Case groups : Loop over all reservoirs in  and update file path
+
+    for (size_t i = 0; i < caseGroups.size(); i++)
+    {
+        RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+        for (size_t j = 0; j < cg->caseCollection()->reservoirs().size(); j++)
+        {
+            cg->caseCollection()->reservoirs()[j]->updateFilePathsFromProjectPath(projectPath);
+        }
+    }
 }
 

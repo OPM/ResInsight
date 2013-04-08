@@ -52,7 +52,7 @@ public:
     void moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
     void removeCaseFromAllGroups(RimCase* rimReservoir);
 
-    QString projectPath() const;
+    void setProjectFileNameAndUpdateDependencies(const QString& fileName);
     
 private:
     RigMainGrid* registerCaseInGridCollection(RigCaseData* rigEclipseCase);

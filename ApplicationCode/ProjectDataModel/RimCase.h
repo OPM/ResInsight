@@ -52,8 +52,8 @@ public:
 
     virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
                                                       
-    RigCaseData*                             reservoirData();
-    const RigCaseData*                       reservoirData() const;
+    RigCaseData*                                reservoirData();
+    const RigCaseData*                          reservoirData() const;
 
     RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
@@ -63,8 +63,10 @@ public:
     void                                        removeResult(const QString& resultName);
 
     virtual QString                             locationOnDisc() const      { return QString(); }
+    virtual void                                updateFilePathsFromProjectPath(const QString& projectPath) { };
 
     RimCaseCollection*                          parentCaseCollection();
+
                                                      
     // Overridden methods from PdmObject
 public:

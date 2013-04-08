@@ -62,15 +62,13 @@ public:
     // PdmObject overrides
     virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
+    // Overrides from RimCase
     virtual QString             locationOnDisc() const;
-
-protected:
-    virtual void                initAfterRead();
+    virtual void                updateFilePathsFromProjectPath(const QString& projectPath);
 
 private:
     void                        addFiles(const QStringList& newFileNames);
     void                        removeFiles(const QStringList& obsoleteFileNames);
-
 
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 };

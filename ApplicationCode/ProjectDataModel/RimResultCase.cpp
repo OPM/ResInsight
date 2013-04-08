@@ -269,10 +269,8 @@ void RimResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDime
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::initAfterRead()
+void RimResultCase::updateFilePathsFromProjectPath(const QString& projectPath)
 {
-    RimCase::initAfterRead();
-
     // Update filename and folder paths when opening project from a different file location
     if (!QFile::exists(caseFileName))
     {
@@ -292,21 +290,19 @@ void RimResultCase::initAfterRead()
             return;
         }
 
-        QString projPath = RiaApplication::instance()->project()->projectPath();
-
-        candidate = QDir::fromNativeSeparators(projPath + QDir::separator() + caseName + ".EGRID");
+        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".EGRID");
         if (QFile::exists(candidate))
         {
             caseFileName = candidate;
-            caseDirectory = projPath;
+            caseDirectory = projectPath;
             return;
         }
 
-        candidate = QDir::fromNativeSeparators(projPath + QDir::separator() + caseName + ".GRID");
+        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + caseName + ".GRID");
         if (QFile::exists(candidate))
         {
             caseFileName = candidate;
-            caseDirectory = projPath;
+            caseDirectory = projectPath;
             return;
         }
     }
