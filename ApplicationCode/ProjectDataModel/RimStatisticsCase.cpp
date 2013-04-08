@@ -41,18 +41,6 @@ namespace caf {
 }
 
 
-namespace caf {
-    template<>
-    void caf::AppEnum<RimStatisticsCase::CalculationStatus>::setUp()
-    {
-        addItem(RimStatisticsCase::CALCULATED,  "CALCULATED",  "OK");
-        addItem(RimStatisticsCase::NOT_CALCULATED,  "NOT_CALCULATED",  "Needs Calculation");
-        setDefault(RimStatisticsCase::NOT_CALCULATED); 
-    }
-}
-
-
-
 CAF_PDM_SOURCE_INIT(RimStatisticsCase, "RimStatisticalCalculation");
 
 //--------------------------------------------------------------------------------------------------
@@ -63,24 +51,20 @@ RimStatisticsCase::RimStatisticsCase()
 {
     CAF_PDM_InitObject("Case Group Statistics", ":/Histogram16x16.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&m_calculationStatus,   "CalcStatus", "Status", "", "", "");
-    m_calculationStatus.setIOWritable(false);
-    m_calculationStatus.setIOReadable(false);
-    m_calculationStatus.setUiReadOnly(true);
-    m_calculationStatus.setUiEditorTypeName(caf::PdmUiLineEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&m_calculateEditCommand,   "m_editingAllowed", "", "", "", "");
+    m_calculateEditCommand.setIOWritable(false);
+    m_calculateEditCommand.setIOReadable(false);
+    m_calculateEditCommand.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    m_calculateEditCommand.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitFieldNoDefault(&m_editingAllowed,   "m_editingAllowed", "Editing Locked", "", "", "");
-    m_editingAllowed.setIOWritable(false);
-    m_editingAllowed.setIOReadable(false);
-    m_editingAllowed.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
-    m_editingAllowed = false;
+    m_calculateEditCommand = false;
 
-    CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Selected Properties", "", "", "");
+    CAF_PDM_InitField(&m_selectionSummary, "SelectionSummary", QString(""), "Summary of calculation setup", "", "", "");
     m_selectionSummary.setIOWritable(false);
     m_selectionSummary.setIOReadable(false);
     m_selectionSummary.setUiReadOnly(true);
     m_selectionSummary.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
-    m_selectionSummary.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    m_selectionSummary.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
 
     CAF_PDM_InitFieldNoDefault(&m_resultType, "ResultType", "Result Type", "", "", "");
     m_resultType.setIOWritable(false);
@@ -324,14 +308,13 @@ void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     updateSelectionSummaryLabel();
     updateSelectionListVisibilities();
     updatePercentileUiVisibility();
-    updateUnlockUiVisibility();
 
     uiOrdering.add(&caseName);
-    uiOrdering.add(&m_calculationStatus);
-    uiOrdering.add(&m_editingAllowed);
+    uiOrdering.add(&m_calculateEditCommand);
+    uiOrdering.add(&m_selectionSummary);
 
-    caf::PdmUiGroup * group = uiOrdering.addNewGroup("Property Selection");
-    group->add(&m_selectionSummary);
+    caf::PdmUiGroup * group = uiOrdering.addNewGroup("Properties to consider");
+    group->setUiHidden(hasComputedStatistics());
     group->add(&m_resultType);
     group->add(&m_porosityModel);
     group->add(&m_selectedDynamicProperties);
@@ -343,7 +326,7 @@ void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     group->add(&m_selectedFractureGeneratedProperties);
     group->add(&m_selectedFractureInputProperties);
 
-    group = uiOrdering.addNewGroup("Percentiles");
+    group = uiOrdering.addNewGroup("Percentile setup");
     group->setUiHidden(hasComputedStatistics());
     group->add(&m_calculatePercentiles);
     group->add(&m_percentileCalculationType);
@@ -432,10 +415,35 @@ void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField
     {
     }
 
-    if (&m_editingAllowed == changedField)
+    if (&m_calculateEditCommand == changedField)
     {
-        clearComputedStatistics();
-        m_editingAllowed = false;
+        if (hasComputedStatistics())
+        {
+            clearComputedStatistics();
+        }
+        else
+        {
+            computeStatistics();
+        }
+        m_calculateEditCommand = false;
+    }
+
+     //updateSelectionSummaryLabel();
+}
+
+void addPropertySetToHtmlText(QString& html, const QString& heading, const std::vector<QString>& varNames)
+{
+    if (varNames.size())
+    {
+        html += "<p><b>" + heading + "</b></p>";
+        html += "<p class=indent>";
+        for (size_t pIdx = 0; pIdx < varNames.size(); ++pIdx)
+        {
+            html += varNames[pIdx];
+            if ( (pIdx+1)%6 == 0 ) html += "<br>";
+            else if (pIdx != varNames.size() -1) html += ", ";
+        }
+        html += "</p>";
     }
 }
 
@@ -447,47 +455,34 @@ void RimStatisticsCase::updateSelectionSummaryLabel()
     QString html;
     
     html += "<style> "
-                "p{margin-bottom:0px;} "
+                "p{ margin-top:0px; margin-bottom:0px;} "
                 "p.indent{margin-left:20px; margin-top:0px;} "
+                "p.indent2{margin-left:40px; margin-top:0px;} "
             "</style>";
 
-    if (m_selectedDynamicProperties().size())
+    html += "<p><b>Statistical variables to compute:</b></p>";
+    html += "<p class=indent>";
+    html += "Min, Max, Range, Mean, Std.dev"; ;
+    if (m_calculatePercentiles())
     {
-        html += "<p><b>Dynamic properties:</p></b><p class=indent>";
-        for (size_t pIdx = 0; pIdx < m_selectedDynamicProperties().size(); ++pIdx)
-        {
-            html += "" + m_selectedDynamicProperties()[pIdx] + "<br>";
-        }
-        html += "</p>";
+        html += "<br>";
+        html += "Percentiles for : " 
+            + QString::number(m_lowPercentile()) + ", " 
+            + QString::number(m_midPercentile()) + ", " 
+            + QString::number(m_highPercentile());
     }
+    html += "</p>";
 
-    if (m_selectedStaticProperties().size())
-    {
-        html += "<b>Static properties:</b><p class=indent>";
-        for (size_t pIdx = 0; pIdx < m_selectedStaticProperties().size(); ++pIdx)
-        {
-            html += "  " + m_selectedStaticProperties()[pIdx] + "<br>";
-        }
-        html += "</p>";
-    }
-    if (m_selectedGeneratedProperties().size())
-    {
-        html += "<b>Generated properties:</b><p class=indent>";
-        for (size_t pIdx = 0; pIdx < m_selectedGeneratedProperties().size(); ++pIdx)
-        {
-            html += "  " + m_selectedGeneratedProperties()[pIdx] + "<br>";
-        }
-        html += "</p>";
-    }
-    if (m_selectedInputProperties().size())
-    {
-        html += "<b>Input properties:</b><p class=indent>";
-        for (size_t pIdx = 0; pIdx < m_selectedInputProperties().size(); ++pIdx)
-        {
-            html += "  " + m_selectedInputProperties()[pIdx] + "<br>";
-        }
-        html += "</p>";
-    }
+    addPropertySetToHtmlText(html, "Dynamic properties", m_selectedDynamicProperties());
+    addPropertySetToHtmlText(html, "Static properties", m_selectedStaticProperties());
+    addPropertySetToHtmlText(html, "Generated properties", m_selectedGeneratedProperties());
+    addPropertySetToHtmlText(html, "Input properties", m_selectedInputProperties());
+
+    addPropertySetToHtmlText(html, "Dynamic properties, fracture model"  , m_selectedFractureDynamicProperties());
+    addPropertySetToHtmlText(html, "Static properties, fracture model"   , m_selectedFractureStaticProperties());
+    addPropertySetToHtmlText(html, "Generated properties, fracture model", m_selectedFractureGeneratedProperties());
+    addPropertySetToHtmlText(html, "Input properties, fracture model"    , m_selectedFractureInputProperties());
+
     m_selectionSummary = html;
 }
 
@@ -502,10 +497,10 @@ void RimStatisticsCase::defineEditorAttribute(const caf::PdmFieldHandle* field, 
         textEditAttrib->textMode = caf::PdmUiTextEditorAttribute::HTML;
     }
 
-    if (&m_editingAllowed == field)
+    if (&m_calculateEditCommand == field)
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*> (attribute);
-        attrib->m_buttonText = hasComputedStatistics() ? "UNLOCK": "Unlocked";
+        attrib->m_buttonText = hasComputedStatistics() ? "Edit (Will DELETE current results)": "Compute";
     }
 }
 
@@ -540,24 +535,6 @@ void RimStatisticsCase::updatePercentileUiVisibility()
     m_lowPercentile .setUiHidden(isLocked || !m_calculatePercentiles());
     m_midPercentile .setUiHidden(isLocked || !m_calculatePercentiles());
     m_highPercentile.setUiHidden(isLocked || !m_calculatePercentiles());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticsCase::updateUnlockUiVisibility()
-{
-    bool isLocked = hasComputedStatistics();
-    if (isLocked)
-    {
-        m_calculationStatus = CALCULATED;
-    }
-    else
-    {
-        m_calculationStatus = NOT_CALCULATED;
-    }
-
-    m_editingAllowed.setUiHidden(!isLocked );
 }
 
 //--------------------------------------------------------------------------------------------------

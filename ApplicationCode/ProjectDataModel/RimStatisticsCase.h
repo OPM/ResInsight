@@ -60,12 +60,7 @@ public:
         HISTOGRAM_ESTIMATED
     };
 
-    enum CalculationStatus
-    {
-        CALCULATED,
-        NOT_CALCULATED
-    };
-
+ 
 private:
     RimIdenticalGridCaseGroup* caseGroup();
 
@@ -74,7 +69,6 @@ private:
     void updateSelectionListVisibilities();
     void updateSelectionSummaryLabel();
     void updatePercentileUiVisibility();
-    void updateUnlockUiVisibility();
 
     // Pdm system overrides
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) ;
@@ -84,8 +78,7 @@ private:
     virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
 
     // Fields
-     caf::PdmField< caf::AppEnum< CalculationStatus > >             m_calculationStatus;
-     caf::PdmField< bool >                                          m_editingAllowed;
+     caf::PdmField< bool >                                          m_calculateEditCommand;
 
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;

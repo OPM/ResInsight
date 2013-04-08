@@ -236,7 +236,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
     m_project->fileName = projectFileName;
     m_project->readFile();
 
-    // If the project filename has changed, call initAfterRead once more to propagate new location of project
+    // If the project filename has changed,  propagate new location of project
     if (m_project->fileName() != projectFileName)
     {
         m_project->setProjectFileNameAndUpdateDependencies(projectFileName);
