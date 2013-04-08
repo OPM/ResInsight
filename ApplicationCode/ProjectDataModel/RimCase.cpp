@@ -93,6 +93,14 @@ const RigCaseData* RimCase::reservoirData() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimCase::removeReservoirData()
+{
+    this->setReservoirData(NULL);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCase::initAfterRead()
 {
     size_t j;
@@ -110,17 +118,6 @@ void RimCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 RimReservoirView* RimCase::createAndAddReservoirView()
 {
-    // If parent is collection, and number of views is zero, make sure rig is set to NULL to initiate normal case loading
-    if (parentCaseCollection() != NULL && reservoirViews().size() == 0)
-    {
-        if (this->reservoirData())
-        {
-            CVF_ASSERT(this->reservoirData()->refCount() == 1);
-        }
-
-        this->setReservoirData( NULL );
-    }
-
     RimReservoirView* riv = new RimReservoirView();
     riv->setEclipseCase(this);
 
@@ -296,6 +293,23 @@ RimCaseCollection* RimCase::parentCaseCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimCase::parentGridCaseGroup()
+{
+    RimCaseCollection* caseColl = parentCaseCollection();
+    if (caseColl) 
+    {
+        return caseColl->parentCaseGroup();
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimCase::setReservoirData(RigCaseData* eclipseCase)
 {
     m_rigEclipseCase  = eclipseCase;
@@ -327,4 +341,3 @@ RimReservoirCellResultsStorage* RimCase::results(RifReaderInterface::PorosityMod
 
     return m_fractureModelResults();
 }
-

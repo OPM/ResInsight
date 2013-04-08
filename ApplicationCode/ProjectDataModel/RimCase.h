@@ -31,6 +31,7 @@ class RigCaseData;
 class RigGridBase;
 class RimReservoirView;
 class RimCaseCollection;
+class RimIdenticalGridCaseGroup;
 //class RimReservoirCellResultsCacher;
 
 //==================================================================================================
@@ -52,8 +53,9 @@ public:
 
     virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
                                                       
-    RigCaseData*                                reservoirData();
-    const RigCaseData*                          reservoirData() const;
+    RigCaseData*                             reservoirData();
+    const RigCaseData*                       reservoirData() const;
+    void                                        removeReservoirData();
 
     RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       
@@ -66,7 +68,8 @@ public:
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath) { };
 
     RimCaseCollection*                          parentCaseCollection();
-
+    RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
+                                                     
                                                      
     // Overridden methods from PdmObject
 public:

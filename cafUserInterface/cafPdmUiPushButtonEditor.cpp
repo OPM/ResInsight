@@ -55,6 +55,8 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_label->setText(field()->uiName(uiConfigName));
     }
 
+    m_pushButton->setCheckable(true);
+
     //m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_pushButton->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
@@ -66,6 +68,10 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
     if (!attributes.m_buttonIcon.isNull())
     {
         m_pushButton->setIcon(attributes.m_buttonIcon);
+    }
+    else if (!attributes.m_buttonText.isEmpty())
+    {
+        m_pushButton->setText(attributes.m_buttonText);
     }
     else
     {
@@ -119,11 +125,7 @@ void PdmUiPushButtonEditor::slotClicked(bool checked)
         v = checked;
         this->setValueToField(v);
     }
-    else
-    {
-        QVariant v = m_pushButton->text();
-        this->setValueToField(v);
-    }
+    
 }
 
 

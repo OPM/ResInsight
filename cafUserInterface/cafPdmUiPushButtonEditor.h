@@ -36,6 +36,7 @@ class PdmUiPushButtonEditorAttribute : public PdmUiEditorAttribute
 {
 public:
     QIcon m_buttonIcon;
+    QString m_buttonText;
 };
 
 

@@ -47,7 +47,7 @@ public:
     void setMainGrid(RigMainGrid* mainGrid);
 
     void computeStatistics();
-    bool hasComputedStatistics();
+    bool hasComputedStatistics() const;
     void clearComputedStatistics();
 
     virtual bool openEclipseGridFile();
@@ -74,9 +74,10 @@ private:
     void updateSelectionListVisibilities();
     void updateSelectionSummaryLabel();
     void updatePercentileUiVisibility();
+    void updateUnlockUiVisibility();
 
     // Pdm system overrides
-    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) const;
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) ;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
@@ -84,7 +85,7 @@ private:
 
     // Fields
      caf::PdmField< caf::AppEnum< CalculationStatus > >             m_calculationStatus;
-     caf::PdmField< QString >                                       m_editingAllowed;
+     caf::PdmField< bool >                                          m_editingAllowed;
 
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;

@@ -38,6 +38,8 @@
 #include "RimStatisticsCase.h"
 #include "RimResultCase.h"
 #include "RigGridManager.h"
+#include "RimCase.h"
+#include "RigCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -218,32 +220,32 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
 {
     if (reservoir->parentCaseCollection())
     {
-        RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
-        QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
-        if (!caseCollectionModelIndex.isValid()) return;
+    RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
+    QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
+    if (!caseCollectionModelIndex.isValid()) return;
 
-        QModelIndex mi = getModelIndexFromPdmObjectRecursive(caseCollectionModelIndex, reservoir);
-        if (mi.isValid())
-        {
-            caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
-            CVF_ASSERT(uiItem);
+    QModelIndex mi = getModelIndexFromPdmObjectRecursive(caseCollectionModelIndex, reservoir);
+    if (mi.isValid())
+    {
+        caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
+        CVF_ASSERT(uiItem);
 
-            // Remove Ui items pointing at the pdm object to delete
-            removeRows_special(mi.row(), 1, mi.parent());
-        }
+        // Remove Ui items pointing at the pdm object to delete
+        removeRows_special(mi.row(), 1, mi.parent());
+    }
 
-        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
-        {
-            RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
-            CVF_ASSERT(caseGroup);
+    if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+    {
+        RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
+        CVF_ASSERT(caseGroup);
 
-            caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(reservoir);
-        }
-        else
-        {
-            RimProject* proj = RiaApplication::instance()->project();
-            proj->removeCaseFromAllGroups(reservoir);
-        }
+        caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(reservoir);
+    }
+    else
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        proj->removeCaseFromAllGroups(reservoir);
+    }
     }
     else
     {
@@ -383,6 +385,23 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
     if (collectionItem)
     {
         RimCase* rimReservoir = dynamic_cast<RimCase*>(collectionItem->dataObject().p());
+
+        // If the case is one of the source cases in a CaseGroup, but not the main case, we need to 
+        // trigger a complete load of the case, if the new view is the first on the case.
+
+        if (rimReservoir && rimReservoir->parentGridCaseGroup() 
+            && rimReservoir->parentGridCaseGroup()->contains(rimReservoir) 
+            && !(rimReservoir ==  rimReservoir->parentGridCaseGroup()->mainCase())
+            && rimReservoir->reservoirViews().size() == 0)
+        {
+            if (rimReservoir->reservoirData())
+            {
+                CVF_ASSERT(rimReservoir->reservoirData()->refCount() == 1);
+            }
+
+            rimReservoir->removeReservoirData();
+        }
+
         RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
 
         int viewCount = rowCount(collectionIndex);
@@ -599,16 +618,16 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
         pdmObjects.createCopyByType(&typedObjects);
 
         if (typedObjects.size() == 0)
-        {
-            return;
-        }
+    {
+        return;
+    }
 
         RimResultCase* mainResultCase = NULL;
         std::vector< std::vector<int> > mainCaseGridDimensions;
 
         // Read out main grid and main grid dimensions if present in case group
         if (gridCaseGroup->mainCase())
-        {
+    {
             mainResultCase = dynamic_cast<RimResultCase*>(gridCaseGroup->mainCase());
             CVF_ASSERT(mainResultCase);
 
@@ -806,7 +825,7 @@ bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction actio
 
         if (action == Qt::CopyAction)
         {
-            addObjects(parent, pog);
+        addObjects(parent, pog);
         }
         else if (action == Qt::MoveAction)
         {
