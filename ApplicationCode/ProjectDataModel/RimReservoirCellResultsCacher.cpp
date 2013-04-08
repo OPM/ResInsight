@@ -223,11 +223,10 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
         loadOrComputeSOILForTimeStep(timeStepIndex);
     }
 
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
-    scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)  return cvf::UNDEFINED_SIZE_T;
+    size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
     if (type == RimDefines::GENERATED)
     {
@@ -280,11 +279,10 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
 //--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName)
 {
-    size_t resultGridIndex = cvf::UNDEFINED_SIZE_T;
+    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
-    resultGridIndex = m_cellResults->findScalarResultIndex(type, resultName);
-
-    if (resultGridIndex == cvf::UNDEFINED_SIZE_T)  return cvf::UNDEFINED_SIZE_T;
+    size_t resultGridIndex = m_cellResults->findScalarResultIndex(type, resultName);
+    if (resultGridIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
     // If we have any results on any timestep, assume we have loaded results already
 
@@ -369,6 +367,8 @@ void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeSte
         return;
     }
 
+    CVF_ASSERT(m_cellResults);
+
     size_t soilResultValueCount = 0;
     size_t soilTimeStepCount = 0;
 
@@ -444,6 +444,8 @@ void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeSte
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 {
+    if (!m_cellResults) return;
+
     size_t depthResultGridIndex  = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DEPTH");
     size_t dxResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
     size_t dyResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
@@ -549,6 +551,8 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 //--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
 {
+    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
+
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
     scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
