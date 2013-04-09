@@ -1035,7 +1035,7 @@ bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndex & itemInd
 
                 QMessageBox msgBox(mainWnd);
                 msgBox.setIcon(QMessageBox::Question);
-                msgBox.setText("The destination case group has existing statistic results, and these results will be deleted if you continue");
+                msgBox.setText("This operation will invalidate statistics results. These results will be deleted if you continue.");
                 msgBox.setInformativeText("Do you want to continue?");
                 msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
