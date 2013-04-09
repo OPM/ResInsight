@@ -102,7 +102,7 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std
         {
             double pVal = HUGE_VAL;
 
-            size_t pValIndex = static_cast<size_t>(sortedValues.size() * abs(pValPositions[i]) / 100);
+            size_t pValIndex = static_cast<size_t>(sortedValues.size() * fabs(pValPositions[i]) / 100);
 
             if (pValIndex >= sortedValues.size() ) pValIndex = sortedValues.size() - 1;
 

@@ -99,7 +99,7 @@ void RifEclipseRestartFilesetAccess::close()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::setTimeSteps(const std::vector<QDateTime>& timeSteps)
 {
-    CVF_ASSERT(m_fileNames.size() == timeSteps.size());
+    CVF_ASSERT((size_t)m_fileNames.size() == timeSteps.size());
     m_timeSteps = timeSteps;
 }
 
