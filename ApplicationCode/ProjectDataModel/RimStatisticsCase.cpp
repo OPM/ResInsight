@@ -591,7 +591,6 @@ void RimStatisticsCase::populateWithDefaultsIfNeeded()
     {
         QStringList varList = caseData->results(RifReaderInterface::MATRIX_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
         if (varList.contains("PERMX")) m_selectedStaticProperties.v().push_back("PERMX");
-        if (varList.contains("PERMY")) m_selectedStaticProperties.v().push_back("PERMY");
         if (varList.contains("PORO"))  m_selectedStaticProperties.v().push_back("PORO");
     }
 
@@ -606,7 +605,6 @@ void RimStatisticsCase::populateWithDefaultsIfNeeded()
     {
         QStringList varList = caseData->results(RifReaderInterface::FRACTURE_RESULTS)->resultNames(RimDefines::STATIC_NATIVE);
         if (varList.contains("PERMX")) m_selectedFractureStaticProperties.v().push_back("PERMX");
-        if (varList.contains("PERMY")) m_selectedFractureStaticProperties.v().push_back("PERMY");
         if (varList.contains("PORO"))  m_selectedFractureStaticProperties.v().push_back("PORO");
     }
 }
