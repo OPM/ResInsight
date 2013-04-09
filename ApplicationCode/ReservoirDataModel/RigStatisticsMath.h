@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <cmath>
+#include <cstddef>
 
 class RigStatisticsMath
 {
