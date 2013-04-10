@@ -505,13 +505,10 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
-    if (m_preferences->autocomputeSOIL)
-    {
-        // Select SOIL as default result variable
-        riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
-        riv->cellResult()->resultVariable = "SOIL";
-        riv->animationMode = true;
-    }
+    // Select SOIL as default result variable
+    riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
+    riv->cellResult()->resultVariable = "SOIL";
+    riv->animationMode = true;
 
     riv->loadDataAndUpdate();
 
