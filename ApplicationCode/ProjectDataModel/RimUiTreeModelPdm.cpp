@@ -787,7 +787,6 @@ Qt::ItemFlags RimUiTreeModelPdm::flags(const QModelIndex &index) const
     {
         caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(index);
         CVF_ASSERT(currentItem);
-        CVF_ASSERT(currentItem->dataObject().p());
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
             dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
