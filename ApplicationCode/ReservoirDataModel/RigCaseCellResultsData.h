@@ -80,18 +80,23 @@ public:
     class ResultInfo
     {
     public:
-        ResultInfo(RimDefines::ResultCatType resultType, bool needsToBeStored, QString resultName, size_t gridScalarResultIndex)
-            : m_resultType(resultType), m_needsToBeStored(needsToBeStored), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex) { }
+        ResultInfo(RimDefines::ResultCatType resultType, bool needsToBeStored, bool mustBeCalculated, QString resultName, size_t gridScalarResultIndex)
+            : m_resultType(resultType), m_needsToBeStored(needsToBeStored), m_resultName(resultName), m_gridScalarResultIndex(gridScalarResultIndex), m_mustBeCalculated(mustBeCalculated) { }
 
     public:
         RimDefines::ResultCatType   m_resultType;
         bool                        m_needsToBeStored;
+        bool                        m_mustBeCalculated;
         QString                     m_resultName;
         size_t                      m_gridScalarResultIndex;
         std::vector<QDateTime>      m_timeStepDates;
     };
 
     const std::vector<ResultInfo>&                          infoForEachResultIndex() { return m_resultInfos;}
+
+    bool                                                    mustBeCalculated(size_t scalarResultIndex) const;
+    void                                                    setMustBeCalculated(size_t scalarResultIndex);
+
     
 public:
     size_t                                                  addStaticScalarResult(RimDefines::ResultCatType type, 
