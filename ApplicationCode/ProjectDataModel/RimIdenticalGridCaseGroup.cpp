@@ -152,7 +152,11 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
     RimCase* mainCase = caseCollection()->reservoirs[0];
     mainCase->openEclipseGridFile();
     RigCaseData* mainEclipseCase = mainCase->reservoirData();
-    CVF_ASSERT(mainEclipseCase);
+    if (!mainEclipseCase)
+    {
+        // Error message
+        return;
+    }
 
     // Read active cell info from all source cases
     
@@ -164,7 +168,8 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 
         if (!rimReservoir->openAndReadActiveCellData(mainEclipseCase))
         {
-            CVF_ASSERT(false);
+            // Error message
+            continue;
         }
 
         info.incrementProgress();
