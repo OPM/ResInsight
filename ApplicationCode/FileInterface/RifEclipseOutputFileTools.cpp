@@ -198,7 +198,7 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
 //--------------------------------------------------------------------------------------------------
 /// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ecl_file_enum fileType)
+QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     int i;
     for (i = 0; i < fileSet.count(); i++)
@@ -216,9 +216,9 @@ QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ec
 
 
 //--------------------------------------------------------------------------------------------------
-/// Get all files of file of given type in given list of filenames, as filename or NULL if not found
+/// Get all files of the given type from the provided list of filenames 
 //--------------------------------------------------------------------------------------------------
-QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType)
+QStringList RifEclipseOutputFileTools::filterFileNamesOfType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     QStringList fileNames;
 
@@ -240,14 +240,14 @@ QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSe
 //--------------------------------------------------------------------------------------------------
 /// Get set of Eclipse files based on an input file and its path
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fileSet)
+bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& fullPathFileName, QStringList* baseNameFiles)
 {
-    CVF_ASSERT(fileSet);
-    fileSet->clear();
+    CVF_ASSERT(baseNameFiles);
+    baseNameFiles->clear();
 
-    QString filePath = QFileInfo(fileName).absoluteFilePath();
+    QString filePath = QFileInfo(fullPathFileName).absoluteFilePath();
     filePath = QFileInfo(filePath).path();
-    QString fileNameBase = QFileInfo(fileName).baseName();
+    QString fileNameBase = QFileInfo(fullPathFileName).baseName();
 
     stringlist_type* eclipseFiles = stringlist_alloc_new();
     ecl_util_select_filelist(filePath.toAscii().data(), fileNameBase.toAscii().data(), ECL_OTHER_FILE, false, eclipseFiles);
@@ -255,12 +255,12 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
     int i;
     for (i = 0; i < stringlist_get_size(eclipseFiles); i++)
     {
-        fileSet->append(stringlist_safe_iget(eclipseFiles, i));
+        baseNameFiles->append(stringlist_safe_iget(eclipseFiles, i));
     }
 
     stringlist_free(eclipseFiles);
 
-    return fileSet->count() > 0;
+    return baseNameFiles->count() > 0;
 }
 
 

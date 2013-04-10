@@ -192,7 +192,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
 RifReaderEclipseOutput::RifReaderEclipseOutput()
 {
     m_fileName.clear();
-    m_fileSet.clear();
+    m_filesWithSameBaseName.clear();
 
     m_timeSteps.clear();
 
@@ -349,13 +349,13 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     // Get set of files
     QStringList fileSet;
-    if (!RifEclipseOutputFileTools::fileSet(fileName, &fileSet)) return false;
+    if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
     
     progInfo.incrementProgress();
 
     progInfo.setNextProgressIncrement(20);
     // Keep the set of files of interest
-    m_fileSet = fileSet;
+    m_filesWithSameBaseName = fileSet;
 
     // Read geometry
     ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
@@ -408,10 +408,10 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
 
     // Get set of files
     QStringList fileSet;
-    if (!RifEclipseOutputFileTools::fileSet(fileName, &fileSet)) return false;
+    if (!RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(fileName, &fileSet)) return false;
 
     // Keep the set of files of interest
-    m_fileSet = fileSet;
+    m_filesWithSameBaseName = fileSet;
     m_eclipseCase = eclipseCase;
 
 
@@ -425,7 +425,7 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
     //if (!buildMetaData()) return false;
     // readWellCells();
 
-    m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
+    m_dynamicResultsAccess = createDynamicResultsAccess();
 
     m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
 
@@ -442,7 +442,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
     CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_eclipseCase->mainGrid());
 
-    QString egridFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_EGRID_FILE);
+    QString egridFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_EGRID_FILE);
     if (egridFileName.size() > 0)
     {
         ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data());
@@ -526,14 +526,14 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 bool RifReaderEclipseOutput::buildMetaData()
 {
     CVF_ASSERT(m_eclipseCase);
-    CVF_ASSERT(m_fileSet.size() > 0);
+    CVF_ASSERT(m_filesWithSameBaseName.size() > 0);
 
-    caf::ProgressInfo progInfo(m_fileSet.size() + 3,"");
+    caf::ProgressInfo progInfo(m_filesWithSameBaseName.size() + 3,"");
 
-    progInfo.setNextProgressIncrement(m_fileSet.size());
+    progInfo.setNextProgressIncrement(m_filesWithSameBaseName.size());
 
     // Create access object for dynamic results
-    m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
+    m_dynamicResultsAccess = createDynamicResultsAccess();
     if (m_dynamicResultsAccess.isNull())
     {
         return false;
@@ -641,25 +641,25 @@ bool RifReaderEclipseOutput::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 /// Create results access object (.UNRST or .X0001 ... .XNNNN)
 //--------------------------------------------------------------------------------------------------
-RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess(const QStringList& fileSet)
+RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess()
 {
     RifEclipseRestartDataAccess* resultsAccess = NULL;
 
     // Look for unified restart file
-    QString unrstFileName = RifEclipseOutputFileTools::fileNameByType(fileSet, ECL_UNIFIED_RESTART_FILE);
+    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE);
     if (unrstFileName.size() > 0)
     {
         resultsAccess = new RifEclipseUnifiedRestartFileAccess();
-        resultsAccess->setFileSet(QStringList(unrstFileName));
+        resultsAccess->setRestartFiles(QStringList(unrstFileName));
     }
     else
     {
         // Look for set of restart files (one file per time step)
-        QStringList restartFiles = RifEclipseOutputFileTools::fileNamesByType(fileSet, ECL_RESTART_FILE);
+        QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType(m_filesWithSameBaseName, ECL_RESTART_FILE);
         if (restartFiles.size() > 0)
         {
             resultsAccess = new RifEclipseRestartFilesetAccess();
-            resultsAccess->setFileSet(restartFiles);
+            resultsAccess->setRestartFiles(restartFiles);
         }
     }
 
@@ -703,7 +703,7 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
 {
     if (m_dynamicResultsAccess.isNull())
     {
-        m_dynamicResultsAccess = createDynamicResultsAccess(m_fileSet);
+        m_dynamicResultsAccess = createDynamicResultsAccess();
     }
 
     if (m_dynamicResultsAccess.isNull())
@@ -1023,7 +1023,7 @@ bool RifReaderEclipseOutput::openInitFile()
         return true;
     }
 
-    QString initFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_INIT_FILE);
+    QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
         m_ecl_init_file = ecl_file_open(initFileName.toAscii().data());

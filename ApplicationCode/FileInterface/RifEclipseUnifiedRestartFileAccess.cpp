@@ -156,7 +156,7 @@ void RifEclipseUnifiedRestartFileAccess::readWellData(well_info_type* well_info)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseUnifiedRestartFileAccess::setFileSet(const QStringList& fileSet)
+void RifEclipseUnifiedRestartFileAccess::setRestartFiles(const QStringList& fileSet)
 {
     m_filename = fileSet[0];
    
