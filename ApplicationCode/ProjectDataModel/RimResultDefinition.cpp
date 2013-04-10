@@ -183,10 +183,21 @@ bool RimResultDefinition::hasResult() const
 bool RimResultDefinition::hasDynamicResult() const
 {
     const RigCaseCellResultsData* gridCellResults = m_reservoirView->currentGridCellResults()->cellResults();
-    if (hasResult() && gridCellResults->timeStepCount(m_gridScalarResultIndex) > 1 )
-        return true;
-    else
-        return false;
+
+    if (hasResult())
+    {
+        if (resultType() == RimDefines::DYNAMIC_NATIVE)
+        {
+            return true;
+        }
+
+        if (gridCellResults->timeStepCount(m_gridScalarResultIndex) > 1 )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
