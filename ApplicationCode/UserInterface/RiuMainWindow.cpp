@@ -580,6 +580,13 @@ void RiuMainWindow::refreshAnimationActions()
                 timeStepStrings.push_back(tr("Static Property"));
             }
         }
+
+        // Animation control is only relevant for more than one time step
+        if (timeStepStrings.size() < 2)
+        {
+            enableAnimControls = false;
+        }
+
         m_animationToolBar->setFrameRate(app->activeReservoirView()->maximumFrameRate());
     }
 
