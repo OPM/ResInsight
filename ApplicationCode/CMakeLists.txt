@@ -148,6 +148,10 @@ set( QRC_FILES
 # Runs RCC on specified files
 qt4_add_resources( QRC_FILES_CPP ${QRC_FILES} )
 
+# Adding resource (RC) files for Windows
+if ( MSVC )
+    set( WIN_RESOURCE Resources/ResInsight.rc )
+endif()
 
 #############################################################################
 # creating PCH's for MSVC and GCC on Linux
@@ -208,6 +212,7 @@ add_executable(ResInsight
     ${MOC_FILES_CPP}
 	${FORM_FILES_CPP}
     ${QRC_FILES_CPP}
+    ${WIN_RESOURCE}
 	${HEADER_FILES}
 )
 
