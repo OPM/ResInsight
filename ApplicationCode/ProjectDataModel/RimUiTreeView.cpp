@@ -878,7 +878,7 @@ void RimUiTreeView::slotAddCaseGroup()
     if (myModel)
     {
         QModelIndex insertedIndex;
-        myModel->addCaseGroup(currentIndex(), insertedIndex);
+        myModel->addCaseGroup(insertedIndex);
         setCurrentIndex(insertedIndex);
 
         setExpanded(insertedIndex, true);

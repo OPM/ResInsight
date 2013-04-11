@@ -116,7 +116,7 @@ public:
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
     RimStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    RimIdenticalGridCaseGroup*  addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimIdenticalGridCaseGroup*  addCaseGroup(QModelIndex& insertedModelIndex);
 
     bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
 
