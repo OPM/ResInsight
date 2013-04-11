@@ -578,27 +578,29 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& it
     CVF_ASSERT(proj);
 
     caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
-
-    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
-        dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    if (currentItem)
     {
-        QModelIndex rootIndex = itemIndex.parent();
-        caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
+        if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
+            dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+        {
+            QModelIndex rootIndex = itemIndex.parent();
+            caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
 
-        // New case group is inserted before the last item, the script item
-        int position = rootTreeItem->childCount() - 1;
+            // New case group is inserted before the last item, the script item
+            int position = rootTreeItem->childCount() - 1;
 
-        beginInsertRows(rootIndex, position, position);
+            beginInsertRows(rootIndex, position, position);
 
-        RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
-        proj->caseGroups().push_back(createdObject);
+            RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
+            proj->caseGroups().push_back(createdObject);
 
-        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
-        endInsertRows();
+            caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
+            endInsertRows();
 
-        insertedModelIndex = index(position, 0, rootIndex);
+            insertedModelIndex = index(position, 0, rootIndex);
 
-        return createdObject;
+            return createdObject;
+        }
     }
 
     return NULL;
