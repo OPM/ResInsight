@@ -806,7 +806,10 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotCloseCase()
 {
-    if (userConfirmedGridCaseGroupChange(currentIndex()))
+    QModelIndexList miList;
+    miList << currentIndex();
+
+    if (userConfirmedGridCaseGroupChange(miList))
     {
         RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
         if (myModel)
@@ -931,7 +934,9 @@ void RimUiTreeView::slotPastePdmObjects()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (!myModel) return;
 
-    if (userConfirmedGridCaseGroupChange(currentIndex()))
+    QModelIndexList miList;
+    miList << currentIndex();
+    if (userConfirmedGridCaseGroupChange(miList))
     {
         caf::PdmObjectGroup objectGroup;
         createPdmObjectsFromClipboard(&objectGroup);
@@ -1020,8 +1025,24 @@ bool RimUiTreeView::hasClipboardValidData()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::dropEvent(QDropEvent* dropEvent)
 {
+    QModelIndexList affectedModels;
+
+    if (dropEvent->dropAction() == Qt::MoveAction)
+    {
+        const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(dropEvent->mimeData());
+        if (myMimeData)
+        {
+            affectedModels = myMimeData->indexes();
+        }
+    }
+
     QModelIndex dropIndex = indexAt(dropEvent->pos());
-    if (dropIndex.isValid() && userConfirmedGridCaseGroupChange(dropIndex))
+    if (dropIndex.isValid())
+    {
+        affectedModels.push_back(dropIndex);
+    }
+
+    if (userConfirmedGridCaseGroupChange(affectedModels))
     {
         QTreeView::dropEvent(dropEvent);
     }
@@ -1030,33 +1051,71 @@ void RimUiTreeView::dropEvent(QDropEvent* dropEvent)
 //--------------------------------------------------------------------------------------------------
 /// Displays a question to the user when a grid case group with statistical results is about to change
 //--------------------------------------------------------------------------------------------------
-bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndex & itemIndex)
+bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndexList& itemIndexList)
 {
-    if (!itemIndex.isValid()) return true;
+    if (itemIndexList.size() == 0) return true;
 
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
-        RimIdenticalGridCaseGroup* gridCaseGroup = myModel->gridCaseGroupFromItemIndex(itemIndex);
-        if (gridCaseGroup)
+        caf::PdmObjectGroup pog;
+
+        for (int i = 0; i < itemIndexList.size(); i++)
         {
-            if (hasAnyStatisticsResults(gridCaseGroup))
+            QModelIndex itemIndex = itemIndexList.at(i);
+            if (!itemIndex.isValid()) continue;
+
+            RimIdenticalGridCaseGroup* gridCaseGroup = myModel->gridCaseGroupFromItemIndex(itemIndex);
+            if (gridCaseGroup)
             {
-                RiuMainWindow* mainWnd = RiuMainWindow::instance();
-
-                QMessageBox msgBox(mainWnd);
-                msgBox.setIcon(QMessageBox::Question);
-                msgBox.setText("This operation will invalidate statistics results. These results will be deleted if you continue.");
-                msgBox.setInformativeText("Do you want to continue?");
-                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-
-                int ret = msgBox.exec();
-                if (ret == QMessageBox::No)
+                if (hasAnyStatisticsResults(gridCaseGroup))
                 {
-                    return false;
+                    if (pog.objects().count(gridCaseGroup) == 0)
+                    {
+                        pog.addObject(gridCaseGroup);
+                    }
                 }
             }
         }
+
+        std::vector<caf::PdmPointer<RimIdenticalGridCaseGroup> > typedObjects;
+        pog.objectsByType(&typedObjects);
+
+        if (typedObjects.size() > 0)
+        {
+            RiuMainWindow* mainWnd = RiuMainWindow::instance();
+
+            QMessageBox msgBox(mainWnd);
+            msgBox.setIcon(QMessageBox::Question);
+
+            QString questionText;
+            if (typedObjects.size() == 1)
+            {
+                questionText = QString("This operation will invalidate statistics results in grid case group\n\"%1\".\n").arg(typedObjects[0]->name());
+                questionText += "Computed results in this group will be deleted if you continue.";
+            }
+            else
+            {
+                questionText = "This operation will invalidate statistics results in grid case groups\n";
+                for (int i = 0; i < typedObjects.size(); i++)
+                {
+                    questionText += QString("\"%1\"\n").arg(typedObjects[i]->name());
+                }
+
+                questionText += "Computed results in these groups will be deleted if you continue.";
+            }
+
+            msgBox.setText(questionText);
+            msgBox.setInformativeText("Do you want to continue?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::No)
+            {
+                return false;
+            }
+        }
+
     }
 
     return true;

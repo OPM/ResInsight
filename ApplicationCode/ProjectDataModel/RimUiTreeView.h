@@ -90,7 +90,7 @@ signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
 
 private:
-    bool userConfirmedGridCaseGroupChange(const QModelIndex & itemIndex);
+    bool userConfirmedGridCaseGroupChange(const QModelIndexList& itemIndexList);
     bool hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup);
 
     void createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGroup);
