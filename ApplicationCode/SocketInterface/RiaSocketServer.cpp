@@ -179,7 +179,7 @@ RimCase* RiaSocketServer::findReservoir(const QString& caseName)
        {
            for (size_t cIdx = 0; cIdx < project->reservoirs.size(); ++cIdx)
            {
-               if (project->reservoirs[cIdx] && project->reservoirs[cIdx]->caseName() == caseName )
+               if (project->reservoirs[cIdx] && project->reservoirs[cIdx]->caseUserDescription() == caseName )
                {
                    return project->reservoirs[cIdx];
                }
@@ -452,9 +452,9 @@ void RiaSocketServer::readPropertyDataFromOctave()
     if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + 
-            tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseName() + "\"\n"
+            tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseUserDescription() + "\"\n"
             "   Octave: " + QString::number(cellCountFromOctave) + "\n"
-            "  " + m_currentReservoir->caseName() + ": Active cell count: " + QString::number(gridActiveCellCount) + " Total cell count: " +  QString::number(gridTotalCellCount)) ;
+            "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(gridActiveCellCount) + " Total cell count: " +  QString::number(gridTotalCellCount)) ;
 
         cellCountFromOctave = 0;
         m_invalidActiveCellCountDetected = true;

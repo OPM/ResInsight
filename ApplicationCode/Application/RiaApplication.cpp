@@ -305,7 +305,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         RimCase* ri = casesToLoad[cIdx];
         CVF_ASSERT(ri);
 
-        caseProgress.setProgressDescription(ri->caseName());
+        caseProgress.setProgressDescription(ri->caseUserDescription());
 
         caf::ProgressInfo viewProgress(ri->reservoirViews().size() , "Creating Views");
 
@@ -495,11 +495,8 @@ bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
 {
-    QFileInfo gridFileName(caseFileName);
-    QString casePath = gridFileName.absolutePath();
-
     RimResultCase* rimResultReservoir = new RimResultCase();
-    rimResultReservoir->setCaseInfo(caseName, caseFileName, casePath);
+    rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
     m_project->reservoirs.push_back(rimResultReservoir);
 
@@ -529,7 +526,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
-    rimInputReservoir->caseName = caseName;
+    rimInputReservoir->caseUserDescription = caseName;
     rimInputReservoir->openDataFileSet(caseFileNames);
 
     m_project->reservoirs.push_back(rimInputReservoir);
@@ -1205,7 +1202,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 // Process all events to avoid a black image when grabbing frame buffer
                 QCoreApplication::processEvents();
 
-                QString fileName = ri->caseName() + "-" + riv->name();
+                QString fileName = ri->caseUserDescription() + "-" + riv->name();
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(snapshotPath, fileName, ".png");
                 saveSnapshotAs(absoluteFileName);
@@ -1366,10 +1363,9 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         QFileInfo gridFileName(firstFileName);
 
         QString caseName = gridFileName.completeBaseName();
-        QString casePath = gridFileName.absolutePath();
 
         RimResultCase* rimResultReservoir = new RimResultCase();
-        rimResultReservoir->setCaseInfo(caseName, firstFileName, casePath);
+        rimResultReservoir->setCaseInfo(caseName, firstFileName);
         if (!rimResultReservoir->openEclipseGridFile())
         {
             delete rimResultReservoir;
@@ -1393,10 +1389,9 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         QFileInfo gridFileName(caseFileName);
 
         QString caseName = gridFileName.completeBaseName();
-        QString casePath = gridFileName.absolutePath();
 
         RimResultCase* rimResultReservoir = new RimResultCase();
-        rimResultReservoir->setCaseInfo(caseName, caseFileName, casePath);
+        rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
         std::vector< std::vector<int> > caseGridDimensions;
         rimResultReservoir->readGridDimensions(caseGridDimensions);

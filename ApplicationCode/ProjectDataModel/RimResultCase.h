@@ -40,11 +40,7 @@ public:
     RimResultCase();
     virtual ~RimResultCase();
 
-    // Fields:                        
-    caf::PdmField<QString>      caseFileName;
-    caf::PdmField<QString>      caseDirectory;
-
-    void                        setCaseInfo(const QString& caseName, const QString& caseFileName, const QString& caseDirectory);
+    void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
 
     virtual bool                openEclipseGridFile();
     bool                        openAndReadActiveCellData(RigCaseData* mainEclipseCase);
@@ -52,8 +48,18 @@ public:
 
     // Overrides from RimCase
     virtual QString             locationOnDisc() const;
+    virtual QString             gridFileName() const { return caseFileName();}
     virtual void                updateFilePathsFromProjectPath(const QString& projectPath);
 
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
+
+    virtual void                initAfterRead();
+
+    // Fields:                        
+    caf::PdmField<QString>      caseFileName;
+
+    // Obsolete field
+    caf::PdmField<QString>      caseDirectory; 
+
 };

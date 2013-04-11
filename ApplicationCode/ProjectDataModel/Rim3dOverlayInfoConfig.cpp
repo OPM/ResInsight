@@ -89,7 +89,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
         if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())
         {
-            caseName = m_reservoirView->eclipseCase()->caseName();
+            caseName = m_reservoirView->eclipseCase()->caseUserDescription();
             totCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
             size_t mxActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalActiveCellCount();
             size_t frActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount();

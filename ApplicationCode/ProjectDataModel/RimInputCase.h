@@ -45,9 +45,6 @@ public:
     virtual ~RimInputCase();
 
     // Fields
-    caf::PdmField<std::vector<QString> >       m_additionalFileNames;
-    caf::PdmField<QString>                     m_gridFileName;
-    
     caf::PdmField<RimInputPropertyCollection*> m_inputPropertyCollection;
 
     // File open methods
@@ -64,6 +61,8 @@ public:
 
     // Overrides from RimCase
     virtual QString             locationOnDisc() const;
+    virtual QString             gridFileName() const { return m_gridFileName();}
+
     virtual void                updateFilePathsFromProjectPath(const QString& projectPath);
 
 private:
@@ -71,4 +70,9 @@ private:
     void                        removeFiles(const QStringList& obsoleteFileNames);
 
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
+
+    // Fields
+    caf::PdmField<std::vector<QString> >       m_additionalFileNames;
+    caf::PdmField<QString>                     m_gridFileName;
+
 };

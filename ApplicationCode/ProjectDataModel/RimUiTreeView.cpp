@@ -1020,7 +1020,8 @@ bool RimUiTreeView::hasClipboardValidData()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::dropEvent(QDropEvent* dropEvent)
 {
-    if (userConfirmedGridCaseGroupChange(currentIndex()))
+    QModelIndex dropIndex = indexAt(dropEvent->pos());
+    if (dropIndex.isValid() && userConfirmedGridCaseGroupChange(dropIndex))
     {
         QTreeView::dropEvent(dropEvent);
     }

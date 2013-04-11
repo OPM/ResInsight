@@ -46,15 +46,16 @@ public:
     RimCase();
     virtual ~RimCase();
 
+
     // Fields:                                        
-    caf::PdmField<QString>                      caseName;
+    caf::PdmField<QString>                      caseUserDescription;
     caf::PdmField<bool>                         releaseResultMemory;
     caf::PdmPointersField<RimReservoirView*>    reservoirViews;
 
     virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
                                                       
-    RigCaseData*                             reservoirData();
-    const RigCaseData*                       reservoirData() const;
+    RigCaseData*                                reservoirData();
+    const RigCaseData*                          reservoirData() const;
     void                                        removeReservoirData();
 
     RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
@@ -65,6 +66,8 @@ public:
     void                                        removeResult(const QString& resultName);
 
     virtual QString                             locationOnDisc() const      { return QString(); }
+    virtual QString                             gridFileName() const      { return QString(); }
+
     virtual void                                updateFilePathsFromProjectPath(const QString& projectPath) { };
 
     RimCaseCollection*                          parentCaseCollection();
@@ -73,7 +76,7 @@ public:
                                                      
     // Overridden methods from PdmObject
 public:
-    virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseName; }
+    virtual caf::PdmFieldHandle*                userDescriptionField()  { return &caseUserDescription; }
 protected:
     virtual void                                initAfterRead();
     virtual void                                fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
@@ -85,10 +88,13 @@ protected:
 
 
 private:
-    cvf::ref<RigCaseData>                    m_rigEclipseCase;
+    cvf::ref<RigCaseData>                       m_rigEclipseCase;
 
 private:
     caf::PdmField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmField<RimReservoirCellResultsStorage*> m_fractureModelResults;
 
+    // Obsolete fields
+protected:
+    caf::PdmField<QString>                      caseName;
 };

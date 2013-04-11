@@ -100,6 +100,11 @@ void RimIdenticalGridCaseGroup::addCase(RimCase* reservoir)
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::removeCase(RimCase* reservoir)
 {
+    if (caseCollection()->reservoirs().count(reservoir) == 0)
+    {
+        return;
+    }
+
     caseCollection()->reservoirs().removeChildObject(reservoir);
 
     if (caseCollection()->reservoirs().size() == 0)
@@ -300,7 +305,7 @@ RimStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCase()
 {
     RimStatisticsCase* newStatisticsCase = new RimStatisticsCase;
 
-    newStatisticsCase->caseName = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
+    newStatisticsCase->caseUserDescription = QString("Statistics ") + QString::number(statisticsCaseCollection()->reservoirs.size()+1);
     statisticsCaseCollection()->reservoirs.push_back(newStatisticsCase);
 
     newStatisticsCase->openEclipseGridFile();
@@ -368,7 +373,7 @@ bool RimIdenticalGridCaseGroup::contains(RimCase* reservoir) const
     for (size_t i = 0; i < caseCollection()->reservoirs().size(); i++)
     {
         RimCase* rimReservoir = caseCollection()->reservoirs()[i];
-        if (reservoir->caseName == rimReservoir->caseName)
+        if (reservoir->gridFileName() == rimReservoir->gridFileName())
         {
             return true;
         }

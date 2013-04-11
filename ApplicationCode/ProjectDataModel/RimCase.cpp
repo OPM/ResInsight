@@ -43,13 +43,18 @@ CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 //--------------------------------------------------------------------------------------------------
 RimCase::RimCase()
 {
-    CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Case name", "", "" ,"");
+    CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case name", "", "" ,"");
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");
     m_matrixModelResults.setUiHidden(true);
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
     m_fractureModelResults.setUiHidden(true);
+
+    // Obsolete field
+    CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
+    caseName.setIOWritable(false);
+    caseName.setUiHidden(true);
 
     m_matrixModelResults = new RimReservoirCellResultsStorage;
     m_fractureModelResults = new RimReservoirCellResultsStorage;
@@ -110,6 +115,11 @@ void RimCase::initAfterRead()
         CVF_ASSERT(riv);
 
         riv->setEclipseCase(this);
+    }
+
+    if (caseUserDescription().isEmpty() && !caseName().isEmpty())
+    {
+        caseUserDescription = caseName;
     }
 }
 
