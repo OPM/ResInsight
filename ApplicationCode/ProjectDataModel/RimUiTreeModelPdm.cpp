@@ -404,6 +404,9 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
 
         RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
 
+        // Must be run before buildViewItems, as wells are created in this function
+        insertedView->loadDataAndUpdate(); 
+
         int viewCount = rowCount(collectionIndex);
         beginInsertRows(collectionIndex, viewCount, viewCount);
 
@@ -411,8 +414,6 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
         caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, -1, insertedView);
         
         endInsertRows();
-
-        insertedView->loadDataAndUpdate();
 
         return insertedView;
     }
