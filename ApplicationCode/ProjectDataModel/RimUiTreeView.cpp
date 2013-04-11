@@ -62,6 +62,16 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
 {
     m_pasteAction->setEnabled(hasClipboardValidData());
 
+    if (selectionModel() && selectionModel()->selection().size() == 0)
+    {
+        // Clicking in blank space in tree view
+        QMenu menu;
+        menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
+        menu.exec(event->globalPos());
+
+        return;
+    }
+
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
