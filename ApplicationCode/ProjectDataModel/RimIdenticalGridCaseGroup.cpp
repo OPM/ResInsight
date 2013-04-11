@@ -54,6 +54,8 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 
     m_unionOfMatrixActiveCells = new RigActiveCellInfo;
     m_unionOfFractureActiveCells = new RigActiveCellInfo;
+
+    createAndAppendStatisticsCase();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,11 +91,6 @@ void RimIdenticalGridCaseGroup::addCase(RimCase* reservoir)
     }
 
     caseCollection()->reservoirs().push_back(reservoir);
-
-    if (statisticsCaseCollection->reservoirs().size() == 0)
-    {
-        createAndAppendStatisticsCase();
-    }
 
     clearActiveCellUnions();
     clearStatisticsResults();
