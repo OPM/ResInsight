@@ -592,6 +592,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
     beginInsertRows(rootIndex, position, position);
 
     RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
+    createdObject->createAndAppendStatisticsCase();
     proj->caseGroups().push_back(createdObject);
 
     caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
