@@ -33,8 +33,10 @@ public:
     RivReservoirPipesPartMgr(RimReservoirView* reservoirView);
     ~RivReservoirPipesPartMgr();
 
-    void setScaleTransform(cvf::Transform * scaleTransform);
+    void clearGeometryCache();
     void scheduleGeometryRegen();
+
+    void setScaleTransform(cvf::Transform * scaleTransform);
 
     void appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex);
     void updatePipeResultColor(size_t frameIndex);
@@ -42,6 +44,7 @@ public:
 private:
     caf::PdmPointer<RimReservoirView>   m_reservoirView;
     cvf::ref<cvf::Transform>            m_scaleTransform; 
+    cvf::ref<cvf::Font>                 m_font;
 
     cvf::Collection< RivWellPipesPartMgr >  m_wellPipesPartMgrs;
     cvf::Collection< RivWellHeadPartMgr >   m_wellHeadPartMgrs;
