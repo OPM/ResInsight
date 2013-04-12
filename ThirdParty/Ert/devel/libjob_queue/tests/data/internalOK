@@ -1,6 +1,6 @@
 INTERNAL  True
 MODULE    NULL
-FUNCTION  ext_cmd_alloc
+FUNCTION  workflow_job_alloc
 MIN_ARG   1
 MAX_ARG   2
 ARG_TYPE  0  STRING

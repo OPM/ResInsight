@@ -66,6 +66,8 @@ public:
     void            fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor = 0.9);
     void            fitViewOrtho(const BoundingBox& boundingBox, double eyeDist, const Vec3d& dir, const Vec3d& up, double coverageFactor = 0.9);
 
+    Vec3d           fitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor = 0.9) const;
+
     void            setClipPlanesFromBoundingBox(const BoundingBox& boundingBox, double minNearPlaneDistance = 0.01);
 
     const Mat4d&    viewMatrix() const; 

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RivReservoirPipesPartMgr.h"
 #include "RimReservoirView.h"
@@ -33,6 +33,8 @@ RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimReservoirView* reservoirVi
     m_reservoirView = reservoirView;
 
     m_scaleTransform = new cvf::Transform();
+
+    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::LARGE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,42 +48,25 @@ RivReservoirPipesPartMgr::~RivReservoirPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+void RivReservoirPipesPartMgr::clearGeometryCache()
 {
-   if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::FORCE_ALL_OFF) return;
-
-   if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
-   {
-       m_wellPipesPartMgrs.clear();
-       m_wellHeadPartMgrs.clear();
-
-       for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
-       {
-           RivWellPipesPartMgr * wppmgr = new RivWellPipesPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
-           m_wellPipesPartMgrs.push_back(wppmgr);
-           wppmgr->setScaleTransform(m_scaleTransform.p());
-
-           RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
-           m_wellHeadPartMgrs.push_back(wellHeadMgr);
-           wellHeadMgr->setScaleTransform(m_scaleTransform.p());
-       }
-   }
-
-   for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
-   {
-       m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
-       m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
-   }
+    m_wellPipesPartMgrs.clear();
+    m_wellHeadPartMgrs.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPipesPartMgr::updatePipeResultColor(size_t frameIndex)
+void RivReservoirPipesPartMgr::scheduleGeometryRegen()
 {
     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
     {
-        m_wellPipesPartMgrs[wIdx]->updatePipeResultColor( frameIndex);
+        m_wellPipesPartMgrs[wIdx]->scheduleGeometryRegen();
+    }
+
+    for (size_t wIdx = 0; wIdx != m_wellHeadPartMgrs.size(); ++ wIdx)
+    {
+        //m_wellHeadPartMgrs[wIdx]->scheduleGeometryRegen(scaleTransform);
     }
 }
 
@@ -103,15 +88,44 @@ void RivReservoirPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform
     }
 }
 
-void RivReservoirPipesPartMgr::scheduleGeometryRegen()
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
+{
+   if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::FORCE_ALL_OFF) return;
+
+   if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
+   {
+        clearGeometryCache();
+
+        for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
+        {
+            RivWellPipesPartMgr * wppmgr = new RivWellPipesPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
+            m_wellPipesPartMgrs.push_back(wppmgr);
+            wppmgr->setScaleTransform(m_scaleTransform.p());
+
+            RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i], m_font.p());
+            m_wellHeadPartMgrs.push_back(wellHeadMgr);
+            wellHeadMgr->setScaleTransform(m_scaleTransform.p());
+        }
+   }
+
+   for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
+   {
+       m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
+       m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
+   }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPipesPartMgr::updatePipeResultColor(size_t frameIndex)
 {
     for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
     {
-        m_wellPipesPartMgrs[wIdx]->scheduleGeometryRegen();
-    }
-
-    for (size_t wIdx = 0; wIdx != m_wellHeadPartMgrs.size(); ++ wIdx)
-    {
-        //m_wellHeadPartMgrs[wIdx]->scheduleGeometryRegen(scaleTransform);
+        m_wellPipesPartMgrs[wIdx]->updatePipeResultColor( frameIndex);
     }
 }
+

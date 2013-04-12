@@ -36,10 +36,12 @@ implementation from the libecl library.
      RestartFile class, there is some specialized functionality.
 """
 
+import os.path
 import datetime
 import ctypes
 import types
 import libecl
+import re
 
 from   ert.cwrap.cwrap       import *
 from   ert.cwrap.cclass      import CClass
@@ -102,7 +104,7 @@ class EclFile(CClass):
               print "OK - file contains report step 20"
            else:
               print "File does not contain report step 20"
-
+              
         If you have already loaded the file into an EclFile instance
         you should use the has_report_step() method instead.
         """
@@ -133,18 +135,39 @@ class EclFile(CClass):
         obj = EclFile( filename )
         return obj.has_sim_time( dtime )
     
+    @property
+    def report_list(self):
+        report_steps = []
+        try:
+            seqnum_list = self["SEQNUM"]
+            for s in seqnum_list:
+                report_steps.append( s[0] )
+        except KeyError:
+            # OK - we did not have seqnum; that might be because this
+            # a non-unified restart file; or because this is not a
+            # restart file at all.
+            fname = self.name
+            matchObj = re.search("\.[XF](\d{4})$" , fname)
+            if matchObj:
+                report_steps.append( int(matchObj.group(1)) )
+            else:
+                raise TypeError("Tried get list of report steps from file:%s - which is not a restart file" % fname)
+
+            
+        return report_steps
+
 
     
     @classmethod
-    def file_report_steps( cls , filename ):
+    def file_report_list( cls , filename ):
         """
         Will identify the available report_steps from @filename.
         """
-        report_steps = []
+        
         file = EclFile( filename )
-        for s in file["SEQNUM"]:
-            report_steps.append( s[0] )
-        return report_steps
+        return file.report_list
+
+        
 
     def __str__(self):
         return "EclFile: %s" % self.name
@@ -563,9 +586,20 @@ class EclFile(CClass):
         INTEHEAD keyword. 
         """
         dates = []
-        for index in range( self.num_named_kw( 'SEQNUM' )):
-            dates.append( self.iget_restart_sim_time( index ))
+        if self.has_kw('SEQNUM'):
+            for index in range( self.num_named_kw( 'SEQNUM' )):
+                dates.append( self.iget_restart_sim_time( index ))
+        else:
+            # This is a uber-hack; should export the ecl_rsthead
+            # object as ctypes structure.
+            intehead = self["INTEHEAD"][0]
+            year = intehead[66]
+            month = intehead[65]
+            day = intehead[64]
+            date = datetime.datetime( year , month , day )
+            dates = [ date ]
         return dates
+    
 
     @property
     def dates( self ):
@@ -617,7 +651,7 @@ class EclFile(CClass):
         """
         return len( self["SEQNUM"] )
     
-
+    
 
     def has_sim_time( self , dtime ):
         """

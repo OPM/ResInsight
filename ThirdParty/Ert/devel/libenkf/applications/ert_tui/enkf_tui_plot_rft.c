@@ -215,166 +215,173 @@ void enkf_tui_plot_RFTS__(enkf_main_type * enkf_main ,
 
 
 void enkf_tui_plot_RFT_simIn(enkf_main_type * enkf_main, path_fmt_type * runpathformat, const path_fmt_type * caseformat, char * wellname , time_t recording_time, bool isMD){
-  const int ens_size    = enkf_main_get_ensemble_size( enkf_main );
-  const plot_config_type    * plot_config      = enkf_main_get_plot_config( enkf_main );
-  const char * data_file       = plot_config_get_plot_refcase( plot_config );
-  bool plot_refcase = true;
-  if ( strcmp( data_file , "" ) == 0)
-    plot_refcase = false;
-  /*
-    Start by reading RFT measurment
-  */
-  double_vector_type * UTM_x   = double_vector_alloc( 0 , 0); 
-  double_vector_type * UTM_y   = double_vector_alloc( 0 , 0); 
-  double_vector_type * MD      = double_vector_alloc( 0 , 0); 
-  double_vector_type * TVD_z   = double_vector_alloc( 0 , 0); 
-  double_vector_type * RFT_obs = double_vector_alloc( 0 , 0); 
-  int lines = enkf_tui_plot_read_rft_obs(enkf_main, wellname, UTM_x, UTM_y, MD, TVD_z, RFT_obs);
-  /*
-    Find ijk-list
-  */
-  char * caseending = path_fmt_alloc_path(caseformat, false, 0);               //Use the grid in ensmember 0
-  char * casename = path_fmt_alloc_file(runpathformat , false, 0, caseending); 
-  ecl_grid_type * grid = ecl_grid_load_case( casename );
-  int_vector_type * i_values = int_vector_alloc( lines , 0 );
-  int_vector_type * j_values = int_vector_alloc( lines , 0 );
-  int_vector_type * k_values = int_vector_alloc( lines , 0 );
-  int_vector_type * active   = int_vector_alloc( lines , 0 );
-  for (int nobs =0; nobs<lines; nobs++){
-    int start_index = 0;
-    int i; int j; int k;
-    int global_index = ecl_grid_get_global_index_from_xyz(grid,double_vector_iget(UTM_x,nobs) ,double_vector_iget(UTM_y,nobs) ,double_vector_iget(TVD_z,nobs) ,start_index);
-    ecl_grid_get_ijk1(grid , global_index, &i, &j , &k);
-    int is_active = ecl_grid_get_active_index1(grid , global_index);
-    int_vector_iset(i_values, nobs, i);
-    int_vector_iset(j_values, nobs, j);
-    int_vector_iset(k_values, nobs, k);
-    int_vector_iset(active  , nobs, is_active);
-    start_index = global_index;
-  }
-  ecl_grid_free(grid);
-
-  /*
-    Find refcase rfts
-  */
-  double_vector_type * RFT_refcase = double_vector_alloc( 0 , 0);
-  bool_vector_type * refcase_has_data = bool_vector_alloc(0, false);
-  const char * refcase_file_name = ecl_rft_file_alloc_case_filename(data_file);
-  
-  if (refcase_file_name == NULL){
-    if( plot_refcase )
-      util_abort("%s: Cannot find eclipse RFT file",__func__ , refcase_file_name);
-
-  }
-  ecl_rft_file_type * rft_refcase_file = ecl_rft_file_alloc( refcase_file_name );
-  if (refcase_file_name == NULL){
-    if( plot_refcase )
-      util_abort("%s: Cannot find eclipse RFT file",__func__ , refcase_file_name);
+  const int ens_size                    = enkf_main_get_ensemble_size( enkf_main );
+  const plot_config_type  * plot_config = enkf_main_get_plot_config( enkf_main );
+  bool plot_refcase = plot_config_get_plot_refcase( plot_config );
+  ecl_config_type * ecl_config = enkf_main_get_ecl_config(enkf_main);
+  ecl_refcase_list_type * refcase_list = ecl_config_get_refcase_list( ecl_config );
+  ecl_sum_type * refcase = ecl_refcase_list_get_default( refcase_list );
+  if (refcase) {
     
-  }
-  const ecl_rft_node_type * rft_refcase_node = ecl_rft_file_get_well_time_rft( rft_refcase_file , wellname , recording_time);  
-  if(rft_refcase_node == NULL){
-    if( plot_refcase )
-      printf("No RFT information exists for %s in refcase.\n", wellname);
-
-    for( int nobs = 0; nobs < lines; nobs++){
-      double_vector_append(RFT_refcase, 0.0);
-      bool_vector_append(refcase_has_data, false);
+    /*
+      Start by reading RFT measurment
+    */
+    double_vector_type * UTM_x   = double_vector_alloc( 0 , 0); 
+    double_vector_type * UTM_y   = double_vector_alloc( 0 , 0); 
+    double_vector_type * MD      = double_vector_alloc( 0 , 0); 
+    double_vector_type * TVD_z   = double_vector_alloc( 0 , 0); 
+    double_vector_type * RFT_obs = double_vector_alloc( 0 , 0); 
+    int lines = enkf_tui_plot_read_rft_obs(enkf_main, wellname, UTM_x, UTM_y, MD, TVD_z, RFT_obs);
+    /*
+      Find ijk-list
+  */
+    char * caseending = path_fmt_alloc_path(caseformat, false, 0);               //Use the grid in ensmember 0
+    char * casename = path_fmt_alloc_file(runpathformat , false, 0, caseending); 
+    ecl_grid_type * grid = ecl_grid_load_case( casename );
+    int_vector_type * i_values = int_vector_alloc( lines , 0 );
+    int_vector_type * j_values = int_vector_alloc( lines , 0 );
+    int_vector_type * k_values = int_vector_alloc( lines , 0 );
+    int_vector_type * active   = int_vector_alloc( lines , 0 );
+    for (int nobs =0; nobs<lines; nobs++){
+      int start_index = 0;
+      int i; int j; int k;
+      int global_index = ecl_grid_get_global_index_from_xyz(grid,double_vector_iget(UTM_x,nobs) ,double_vector_iget(UTM_y,nobs) ,double_vector_iget(TVD_z,nobs) ,start_index);
+      ecl_grid_get_ijk1(grid , global_index, &i, &j , &k);
+      int is_active = ecl_grid_get_active_index1(grid , global_index);
+      int_vector_iset(i_values, nobs, i);
+      int_vector_iset(j_values, nobs, j);
+      int_vector_iset(k_values, nobs, k);
+      int_vector_iset(active  , nobs, is_active);
+      start_index = global_index;
     }
-  }
-  else{
-    for( int nobs = 0; nobs < lines; nobs++){
-      if( int_vector_iget(active,nobs) > -1){
-        int cell_index = ecl_rft_node_lookup_ijk( rft_refcase_node , int_vector_iget(i_values,nobs), int_vector_iget(j_values,nobs),int_vector_iget(k_values,nobs) ); //lookup cell
-        if(cell_index > -1){
-          double pressure_value = ecl_rft_node_iget_pressure( rft_refcase_node , cell_index); // Pressure
-          double_vector_append(RFT_refcase, pressure_value);
-          bool_vector_append(refcase_has_data, true);
-        }
-        else{
-          double_vector_append(RFT_refcase, 0.0);
-          bool_vector_append(refcase_has_data, false);
-        }
-      }
-      else {
+    ecl_grid_free(grid);
+    
+    /*
+      Find refcase rfts
+    */
+    double_vector_type * RFT_refcase = double_vector_alloc( 0 , 0);
+    bool_vector_type * refcase_has_data = bool_vector_alloc(0, false);
+    const char * refcase_file_name = ecl_rft_file_alloc_case_filename( ecl_sum_get_case( refcase ));
+    
+    if (refcase_file_name == NULL){
+      if( plot_refcase )
+        util_abort("%s: Cannot find eclipse RFT file",__func__ , refcase_file_name);
+      
+    }
+    ecl_rft_file_type * rft_refcase_file = ecl_rft_file_alloc( refcase_file_name );
+    if (refcase_file_name == NULL){
+      if( plot_refcase )
+        util_abort("%s: Cannot find eclipse RFT file",__func__ , refcase_file_name);
+      
+    }
+    const ecl_rft_node_type * rft_refcase_node = ecl_rft_file_get_well_time_rft( rft_refcase_file , wellname , recording_time);  
+    if(rft_refcase_node == NULL){
+      if( plot_refcase )
+        printf("No RFT information exists for %s in refcase.\n", wellname);
+      
+      for( int nobs = 0; nobs < lines; nobs++){
         double_vector_append(RFT_refcase, 0.0);
         bool_vector_append(refcase_has_data, false);
       }
     }
-  }
-  ecl_rft_file_free(rft_refcase_file);
-  /*
-    Get the simulated RFTs
-  */
-  vector_type * pressure_container = vector_alloc_new();
-  vector_type * has_data_container = vector_alloc_new();
-  char * caseending1 = path_fmt_alloc_path(caseformat, false, 0);
-  char * casename1 = path_fmt_alloc_file(runpathformat , false, 0, caseending1);
-  const char * case_file_name1 = ecl_rft_file_alloc_case_filename(casename1 );
-  bool eclipse_rft_exists = false;
-  if (case_file_name1 == NULL){
-    util_abort("%s: Cannot find eclipse RFT file",__func__ , case_file_name1);
-  }
-  else{
-    eclipse_rft_exists = true;
-    for (int iens = 0; iens<ens_size; iens++){
-      double_vector_type * simulated_pressures = double_vector_alloc(lines, 0.0);
-      bool_vector_type * has_data = bool_vector_alloc(lines, true);
-      char * caseending = path_fmt_alloc_path(caseformat, false, iens);
-      char * casename = path_fmt_alloc_file(runpathformat , false, iens, caseending);
-      const char * case_file_name = ecl_rft_file_alloc_case_filename(casename );
-      ecl_rft_file_type * rftfile = ecl_rft_file_alloc( case_file_name );
-      const ecl_rft_node_type * rftnode = ecl_rft_file_get_well_time_rft( rftfile , wellname , recording_time);
-      if(rftnode == NULL){
-        printf("No RFT information exists for %s:\n", wellname);
-      }
-      else{
-        for( int nobs = 0; nobs < lines; nobs++){
-          if( int_vector_iget(active,nobs) > -1){
-            int cell_index = ecl_rft_node_lookup_ijk( rftnode , int_vector_iget(i_values,nobs), int_vector_iget(j_values,nobs),int_vector_iget(k_values,nobs) ); //lookup cell
-            double pressure_value = ecl_rft_node_iget_pressure( rftnode , cell_index); // Pressure
-            double_vector_iset(simulated_pressures,nobs , pressure_value);
-            if(cell_index > -1)
-              bool_vector_iset(has_data, nobs, true);
-            else
-              bool_vector_iset(has_data, nobs, false);
+    else{
+      for( int nobs = 0; nobs < lines; nobs++){
+        if( int_vector_iget(active,nobs) > -1){
+          int cell_index = ecl_rft_node_lookup_ijk( rft_refcase_node , 
+                                                    int_vector_iget(i_values,nobs) , 
+                                                    int_vector_iget(j_values,nobs) , 
+                                                    int_vector_iget(k_values,nobs) ); //lookup cell
+
+          if(cell_index > -1){
+            double pressure_value = ecl_rft_node_iget_pressure( rft_refcase_node , cell_index); // Pressure
+            double_vector_append(RFT_refcase, pressure_value);
+            bool_vector_append(refcase_has_data, true);
           }
-          else {
-            double_vector_iset(simulated_pressures,nobs ,0.0);
-            bool_vector_iset(has_data, nobs, false);
+          else{
+            double_vector_append(RFT_refcase, 0.0);
+            bool_vector_append(refcase_has_data, false);
           }
         }
+        else {
+          double_vector_append(RFT_refcase, 0.0);
+          bool_vector_append(refcase_has_data, false);
+        }
       }
-      ecl_rft_file_free(rftfile);
-      vector_append_owned_ref( pressure_container , simulated_pressures , double_vector_free__ );
-      vector_append_owned_ref( has_data_container , has_data , bool_vector_free__ );
     }
+    ecl_rft_file_free(rft_refcase_file);
+    /*
+      Get the simulated RFTs
+    */
+    vector_type * pressure_container = vector_alloc_new();
+    vector_type * has_data_container = vector_alloc_new();
+    char * caseending1 = path_fmt_alloc_path(caseformat, false, 0);
+    char * casename1 = path_fmt_alloc_file(runpathformat , false, 0, caseending1);
+    const char * case_file_name1 = ecl_rft_file_alloc_case_filename(casename1 );
+    bool eclipse_rft_exists = false;
+    if (case_file_name1 == NULL){
+      util_abort("%s: Cannot find eclipse RFT file",__func__ , case_file_name1);
+    }
+    else{
+      eclipse_rft_exists = true;
+      for (int iens = 0; iens<ens_size; iens++){
+        double_vector_type * simulated_pressures = double_vector_alloc(lines, 0.0);
+        bool_vector_type * has_data = bool_vector_alloc(lines, true);
+        char * caseending = path_fmt_alloc_path(caseformat, false, iens);
+        char * casename = path_fmt_alloc_file(runpathformat , false, iens, caseending);
+        const char * case_file_name = ecl_rft_file_alloc_case_filename(casename );
+        ecl_rft_file_type * rftfile = ecl_rft_file_alloc( case_file_name );
+        const ecl_rft_node_type * rftnode = ecl_rft_file_get_well_time_rft( rftfile , wellname , recording_time);
+        if(rftnode == NULL){
+          printf("No RFT information exists for %s:\n", wellname);
+        }
+        else{
+          for( int nobs = 0; nobs < lines; nobs++){
+            if( int_vector_iget(active,nobs) > -1){
+              int cell_index = ecl_rft_node_lookup_ijk( rftnode , int_vector_iget(i_values,nobs), int_vector_iget(j_values,nobs),int_vector_iget(k_values,nobs) ); //lookup cell
+              double pressure_value = ecl_rft_node_iget_pressure( rftnode , cell_index); // Pressure
+              double_vector_iset(simulated_pressures,nobs , pressure_value);
+              if(cell_index > -1)
+                bool_vector_iset(has_data, nobs, true);
+              else
+                bool_vector_iset(has_data, nobs, false);
+            }
+            else {
+              double_vector_iset(simulated_pressures,nobs ,0.0);
+              bool_vector_iset(has_data, nobs, false);
+            }
+          }
+        }
+        ecl_rft_file_free(rftfile);
+        vector_append_owned_ref( pressure_container , simulated_pressures , double_vector_free__ );
+        vector_append_owned_ref( has_data_container , has_data , bool_vector_free__ );
+      }
+    }
+    /*
+      Do the actual plotting
+    */
+    if(isMD)
+      enkf_tui_plot_RFTS__( enkf_main , wellname , MD, RFT_obs, RFT_refcase, refcase_has_data, pressure_container, active, eclipse_rft_exists, has_data_container, isMD);
+    else
+      enkf_tui_plot_RFTS__( enkf_main , wellname , TVD_z, RFT_obs, RFT_refcase, refcase_has_data, pressure_container, active, eclipse_rft_exists, has_data_container, isMD);
+    double_vector_free( UTM_x );
+    double_vector_free( UTM_y );
+    double_vector_free( MD  );
+    double_vector_free( TVD_z );
+    double_vector_free( RFT_obs );
+    double_vector_free( RFT_refcase );
+    bool_vector_free( refcase_has_data );
+    vector_free( pressure_container );  
+    vector_free( has_data_container );
+    free( caseending );
+    free( caseending1 );
+    free( casename );
+    free( casename1 );
+    int_vector_free( i_values );
+    int_vector_free( j_values );
+    int_vector_free( k_values );
+    int_vector_free( active );
   }
-  /*
-    Do the actual plotting
-  */
-  if(isMD)
-    enkf_tui_plot_RFTS__( enkf_main , wellname , MD, RFT_obs, RFT_refcase, refcase_has_data, pressure_container, active, eclipse_rft_exists, has_data_container, isMD);
-  else
-    enkf_tui_plot_RFTS__( enkf_main , wellname , TVD_z, RFT_obs, RFT_refcase, refcase_has_data, pressure_container, active, eclipse_rft_exists, has_data_container, isMD);
-  double_vector_free( UTM_x );
-  double_vector_free( UTM_y );
-  double_vector_free( MD  );
-  double_vector_free( TVD_z );
-  double_vector_free( RFT_obs );
-  double_vector_free( RFT_refcase );
-  bool_vector_free( refcase_has_data );
-  vector_free( pressure_container );  
-  vector_free( has_data_container );
-  free( caseending );
-  free( caseending1 );
-  free( casename );
-  free( casename1 );
-  int_vector_free( i_values );
-  int_vector_free( j_values );
-  int_vector_free( k_values );
-  int_vector_free( active );
-};
+}
 
 
 int enkf_tui_plot_read_rft_config(const char * rft_config_file, stringlist_type * wellnames, time_t_vector_type * dates){

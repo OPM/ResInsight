@@ -99,9 +99,24 @@ latex_type * latex_alloc( const char * input_file , bool in_place ) {
   char * input_path;
   char * input_extension;
   latex_type * latex = util_malloc( sizeof * latex );
-  
+
+  latex->latex_cmd        = NULL;
+  latex->target_file      = NULL;
+  latex->target_extension = NULL;
+  latex->target_path      = NULL;
+  latex->result_file      = NULL;
+  latex->basename         = NULL;
+  latex->run_path         = NULL;
+
   latex->in_place = in_place;
-  util_alloc_file_components( input_file , &input_path , &latex->basename , &input_extension );
+  {
+    char * basename;
+    util_alloc_file_components( input_file , &input_path , &basename , &input_extension );
+    if (basename == NULL)
+      util_abort("%s: must provide a basename \n",__func__);
+    latex->basename = basename;
+  }
+
   if (input_path == NULL)
     input_path = util_alloc_cwd( );
   else {
@@ -141,12 +156,6 @@ latex_type * latex_alloc( const char * input_file , bool in_place ) {
   /*
     Setting various default values.
   */
-  latex->target_file      = NULL;
-  latex->latex_cmd        = NULL;
-  latex->target_extension = NULL;
-  latex->target_path      = NULL;
-  latex->result_file      = NULL;
-
   latex_set_target_extension( latex , TARGET_EXTENSION );
   latex_set_target_path( latex , input_path );
   latex_set_command( latex , __LATEX_CMD );
@@ -185,7 +194,7 @@ static void latex_copy_target( latex_type * latex ) {
 }
 
 
-static void latex_cleanup( latex_type * latex ) {
+void latex_cleanup( latex_type * latex ) {
   if (latex->in_place) {
     int num_extensions = sizeof( delete_extensions ) / sizeof( delete_extensions[0] );
     for (int iext = 0; iext < num_extensions; iext++) {
@@ -198,6 +207,10 @@ static void latex_cleanup( latex_type * latex ) {
 }
 
 
+bool latex_compile_in_place( const latex_type * latex ) {
+  return latex->in_place;
+}
+
 
 static void latex_ensure_target_file( latex_type * latex) {
   if (latex->target_file == NULL) 
@@ -205,48 +218,52 @@ static void latex_ensure_target_file( latex_type * latex) {
 }
 
 static bool latex_compile__( latex_type * latex , bool ignore_errors) {
-  bool    normal_exit = true;
-  char ** argv;
-  int     argc;
-  char  * stderr_file = util_alloc_filename( latex->run_path , "latex" , "stderr");
-  char  * stdout_file = util_alloc_filename( latex->run_path , "latex" , "stdout");
-  int     usleep_time = 500000;  /* 1/2 second. */
+  if (util_is_directory( latex->run_path)) {
+    bool    normal_exit = true;
+    char ** argv;
+    int     argc;
+    char  * stderr_file = util_alloc_filename( latex->run_path , "latex" , "stderr");
+    char  * stdout_file = util_alloc_filename( latex->run_path , "latex" , "stdout");
+    int     usleep_time = 500000;  /* 1/2 second. */
     
-  argc = 2;
-  argv = util_malloc( argc * sizeof * argv );
-  if (ignore_errors)
-    argv[0] = "-interaction=nonstopmode";
-  else
-    argv[0] = "-halt-on-error";
-  argv[0] = "-halt-on-error";//latex->src_file;
-
-  argv[1] = latex->src_file;
-  {
-    pid_t  child_pid  = util_fork_exec( latex->latex_cmd , argc  , (const char **) argv , false , NULL , latex->run_path , NULL , stdout_file , stderr_file );
-    double total_wait = 0;
-    int status;
-
-    while (true) {
-      if (waitpid(child_pid , &status , WNOHANG) == 0) {
-        util_usleep( usleep_time );
-        total_wait += usleep_time / 1000000.0;
-        
-        if (total_wait > latex->timeout) {
-          // Exit due to excessive time usage.
-          normal_exit = false;
-          kill( child_pid , SIGKILL );
-        }
-      } else 
-        // The child has exited - succesfull or not?
-        break;
+    argc = 2;
+    argv = util_malloc( argc * sizeof * argv );
+    if (ignore_errors)
+      argv[0] = "-interaction=nonstopmode";
+    else
+      argv[0] = "-halt-on-error";
+    argv[0] = "-halt-on-error";//latex->src_file;
+    
+    argv[1] = latex->src_file;
+    {
+      pid_t  child_pid  = util_fork_exec( latex->latex_cmd , argc  , (const char **) argv , false , NULL , latex->run_path , NULL , stdout_file , stderr_file );
+      double total_wait = 0;
+      int status;
+      
+      while (true) {
+        if (waitpid(child_pid , &status , WNOHANG) == 0) {
+          util_usleep( usleep_time );
+          total_wait += usleep_time / 1000000.0;
+          
+          if (total_wait > latex->timeout) {
+            // Exit due to excessive time usage.
+            normal_exit = false;
+            kill( child_pid , SIGKILL );
+          }
+        } else 
+          // The child has exited - succesfull or not?
+          break;
+      }
     }
-  }
-  
-  free( stderr_file );
-  free( stdout_file );
-  free( argv );
-  
-  return normal_exit;
+    
+    free( stderr_file );
+    free( stdout_file );
+    free( argv );
+    
+    return normal_exit;
+  } else
+    return false;   // The runpath directory does not exist; if we try to rerun the latex
+                    // compile on the same instance, after a cleanup this might happen.
 }
 
 /**
@@ -254,7 +271,7 @@ static bool latex_compile__( latex_type * latex , bool ignore_errors) {
    compilation has been successfull or not.
 */
 
-bool latex_compile( latex_type * latex , bool ignore_errors , bool with_xref) {
+bool latex_compile( latex_type * latex , bool ignore_errors , bool with_xref , bool cleanup) {
   int num_compile = 1;
   time_t compile_start;
   
@@ -290,7 +307,8 @@ bool latex_compile( latex_type * latex , bool ignore_errors , bool with_xref) {
       
       if (success) {
         latex_copy_target( latex );
-        latex_cleanup( latex );
+        if (cleanup)
+          latex_cleanup( latex );
       }
   
       return success;
@@ -309,13 +327,12 @@ void latex_set_timeout( latex_type * latex , int timeout) {
 
 
 void latex_free( latex_type * latex ) {
-
-  free( latex->latex_cmd );
-  free( latex->run_path );
-  free( latex->src_file );
-  free( latex->basename );
-  free( latex->target_extension );
-  free( latex->target_path );
+  util_safe_free( latex->latex_cmd );
+  util_safe_free( latex->run_path );
+  util_safe_free( latex->src_file );
+  util_safe_free( latex->basename );
+  util_safe_free( latex->target_extension );
+  util_safe_free( latex->target_path );
   
   util_safe_free( latex->target_file );
   util_safe_free( latex->result_file );

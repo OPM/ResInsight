@@ -336,15 +336,25 @@ bool ecl_kw_ichar_eq(const ecl_kw_type *ecl_kw , int i , const char *value) {
 }
 
 
+static bool ecl_kw_size_and_type_equal( const ecl_kw_type *ecl_kw1 , const ecl_kw_type * ecl_kw2 ) {
+  bool equal = true;
+  
+  if (ecl_kw1->size != ecl_kw2->size) 
+    equal = false;
+  else if (ecl_kw1->ecl_type != ecl_kw2->ecl_type) 
+    equal = false;
+  
+  return equal;
+}
+
+
 bool ecl_kw_header_eq(const ecl_kw_type *ecl_kw1 , const ecl_kw_type * ecl_kw2) {
   bool  equal = true;
 
   if (strcmp(ecl_kw1->header8 , ecl_kw2->header8) != 0)            
     equal  = false;
-  else if (ecl_kw1->size != ecl_kw2->size) 
-    equal = false;
-  else if (ecl_kw1->ecl_type != ecl_kw2->ecl_type) 
-    equal = false;
+  else
+    equal = ecl_kw_size_and_type_equal( ecl_kw1 , ecl_kw2 );
 
   return equal;
 }
@@ -366,6 +376,16 @@ static bool ecl_kw_data_equal__( const ecl_kw_type * ecl_kw , const void * data 
 bool ecl_kw_data_equal( const ecl_kw_type * ecl_kw , const void * data) {
   return ecl_kw_data_equal__( ecl_kw , data , ecl_kw->size);
 }
+
+
+bool ecl_kw_content_equal( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2) {
+  if (ecl_kw_size_and_type_equal( ecl_kw1 , ecl_kw2))
+    return ecl_kw_data_equal__( ecl_kw1 , ecl_kw2->data , ecl_kw1->size);
+  else
+    return false;
+}
+
+
 
 
 

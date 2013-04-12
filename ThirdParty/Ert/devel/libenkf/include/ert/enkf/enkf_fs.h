@@ -37,6 +37,8 @@ extern "C" {
 #include <ert/enkf/misfit_ensemble_typedef.h>
   
   const      char * enkf_fs_get_mount_point( const enkf_fs_type * fs );
+  const      char * enkf_fs_get_root_path( const enkf_fs_type * fs );
+  const      char * enkf_fs_get_case_name( const enkf_fs_type * fs );
 
   void              enkf_fs_fsync( enkf_fs_type * fs );
   enkf_fs_type *    enkf_fs_mount(const char * , fs_driver_impl , const char * select_case, bool update_map, bool read_only);

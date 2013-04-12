@@ -211,6 +211,33 @@ stringlist_type * ert_templates_alloc_list( ert_templates_type * ert_templates) 
 }
 
 
+void ert_templates_init( ert_templates_type * templates , const config_type * config ) {
+  const config_content_item_type * template_item = config_get_content_item( config , RUN_TEMPLATE_KEY );
+  if (template_item != NULL) {
+    for (int i=0; i < config_content_item_get_size( template_item ); i++) {
+      config_content_node_type * template_node = config_content_item_iget_node( template_item , i );
+      const char * template_file = config_content_node_iget_as_path(template_node , 0 ); 
+      const char * target_file   = config_content_node_iget( template_node , 1 );
+      
+      ert_template_type * template = ert_templates_add_template( templates , NULL , template_file , target_file , NULL);
+    
+      for (int iarg = 2; iarg < config_content_node_get_size( template_node ); iarg++) {
+        char * key , *value;
+        const char * key_value = config_content_node_iget( template_node , iarg );
+        util_binary_split_string( key_value , "=:" , true , &key , &value);
+        
+        if (value != NULL) 
+          ert_template_add_arg( template ,key , value );
+        else
+          fprintf(stderr,"** Warning - failed to parse argument:%s as key:value - ignored \n",config_iget( config , "RUN_TEMPLATE" , i , iarg ));
+        
+        free( key );
+        util_safe_free( value );
+      }
+    }
+  }
+}
+
 
 void ert_templates_fprintf_config( const ert_templates_type * ert_templates , FILE * stream ) {
   if (hash_get_size( ert_templates->templates ) > 0 ) {

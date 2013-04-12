@@ -113,6 +113,7 @@ typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
   void                smspec_node_set_unit( smspec_node_type * smspec_node , const char * unit );
   bool                smspec_node_is_rate( const smspec_node_type * smspec_node );
   bool                smspec_node_is_total( const smspec_node_type * smspec_node );
+  bool                smspec_node_is_historical( const smspec_node_type * smspec_node );
   bool                smspec_node_need_nums( const smspec_node_type * smspec_node );
   void                smspec_node_fprintf( const smspec_node_type * smspec_node , FILE * stream);
 

@@ -93,7 +93,7 @@ def ert_load( *lib_list ):
             return __load__(lib_list , True )
         except ImportError:
             # Try again - ignoring the ert_lib_path setting.
-            return load( lib_list )
+            return load( *lib_list )
     else:
         # The ert_lib_path variable has not been set; just try a normal load.
-        return load( lib_list )
+        return load( *lib_list )

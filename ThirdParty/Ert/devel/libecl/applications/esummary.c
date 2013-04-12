@@ -16,13 +16,16 @@
    for more details. 
 */
 
-#include <ecl_kw.h>
 #include <stdlib.h>
-#include <ecl_sum.h>
-#include <util.h>
 #include <string.h>
 #include <signal.h>
-#include <vector.h>
+
+#include <ert/util/util.h>
+#include <ert/util/vector.h>
+#include <ert/util/time_interval.h>
+
+#include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_sum.h>
 
 
 void install_SIGNALS(void) {
@@ -39,6 +42,8 @@ void usage() {
 }
 
 
+#define MISSING_STRING "       0.000"
+
 
 
 int main(int argc , char ** argv) {
@@ -49,6 +54,12 @@ int main(int argc , char ** argv) {
     {
       ecl_sum_type * first_ecl_sum;   /* This governs the timing */
       vector_type  * ecl_sum_list = vector_alloc_new();
+      time_interval_type * time_union = NULL;
+      time_interval_type * time_intersect = NULL;
+      time_interval_type * time = NULL;
+      bool use_time_union = true;
+      
+      int load_count = 0;
       int nvars;
       char ** var_list;
       bool *  has_var;
@@ -61,51 +72,46 @@ int main(int argc , char ** argv) {
           char * path , * basename;
           ecl_sum_type * ecl_sum;
           util_alloc_file_components( argv[iarg] , &path , &basename  , NULL); 
-          ecl_sum = ecl_sum_fread_alloc_case( argv[iarg] , ":");
-          if (iarg == 1)
-            first_ecl_sum = ecl_sum;  /* Keep track of this  - might sort the vector */
-
           fprintf(stderr,"Loading case: %s/%s" , path , basename); fflush(stderr);
-          vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
+          ecl_sum = ecl_sum_fread_alloc_case( argv[iarg] , ":");
+
+          if (iarg == 1) {
+            first_ecl_sum = ecl_sum;  /* Keep track of this  - might sort the vector */
+            time_union = time_interval_alloc_copy( ecl_sum_get_sim_time( ecl_sum ));
+            time_intersect = time_interval_alloc_copy( ecl_sum_get_sim_time( ecl_sum ));
+
+            if (use_time_union)
+              time = time_union;
+            else
+              time = time_intersect;
+            vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
+          } else {
+            const time_interval_type * ti = ecl_sum_get_sim_time( ecl_sum );
+            if (time_interval_has_overlap(time , ti)) {
+              time_interval_intersect( time_intersect , ti );
+              time_interval_extend( time_union , ti );
+              
+              vector_append_owned_ref( ecl_sum_list , ecl_sum , ecl_sum_free__ );
+              load_count++;
+            } else {
+              fprintf(stderr,"** Warning case:%s has no time overlap - discarded \n",ecl_sum_get_case( ecl_sum ));
+              ecl_sum_free( ecl_sum );
+            }
+          }
+          
           iarg++;
           fprintf(stderr,"\n");
           util_safe_free( path );
           free( basename );
         }
       }
-      nvars    =  argc - vector_get_size( ecl_sum_list ) - 1;
+      if (load_count == 0)
+        usage();
+
+      nvars    =  argc - load_count - 1;
       if (nvars == 0) util_exit(" --- No variables \n");
-      var_list = &argv[vector_get_size( ecl_sum_list ) + 1];
+      var_list = &argv[load_count + 1];
       has_var = util_calloc( nvars , sizeof * has_var );
-
-      
-      /** Checking time consistency - and discarding those with unmatching time vector. */
-      {
-        int i;
-        time_t_vector_type * first_time = ecl_sum_alloc_time_vector( vector_iget_const( ecl_sum_list , 0) , true );
-
-        for (i=1; i < vector_get_size( ecl_sum_list); i++) {
-          time_t_vector_type * time_vector;
-          const  ecl_sum_type * ecl_sum = vector_iget_const( ecl_sum_list , i );
-          if (ecl_sum_get_first_report_step( ecl_sum ) >= 0 ) {
-            time_vector = ecl_sum_alloc_time_vector( ecl_sum , true );
-            int i;
-            for (i=0; i < util_int_min( time_t_vector_size( first_time )  , time_t_vector_size( time_vector )); i++) {
-              if (time_t_vector_iget( first_time , i) != time_t_vector_iget(time_vector , i)) {
-                vector_iset_ref( ecl_sum_list , i , NULL);
-                printf("Discarding case:%s due to time inconsistencies \n" , ecl_sum_get_case( ecl_sum ));
-                break;
-              }
-            }
-            time_t_vector_free( time_vector );
-          } else {
-            vector_iset_ref( ecl_sum_list , i , NULL);
-            printf("Discarding case:%s - no data \n" , ecl_sum_get_case( ecl_sum ));
-          }
-        }
-        time_t_vector_free( first_time );
-      }
-      
       
       /* 
          Checking that the summary files have the various variables -
@@ -131,39 +137,55 @@ int main(int argc , char ** argv) {
           }
         }
       }
-
-
+      
+      if (!time_interval_equal(time_union , time_intersect )) {
+        fprintf(stderr,"** Warning: not all simulations have the same length. ");
+        if (use_time_union)
+          fprintf(stderr,"Using %s for missing values.\n" , MISSING_STRING);
+        else
+          fprintf(stderr,"Only showing common time period.\n");
+      }
+      
       /** The actual summary lookup. */
       {
-        int first_report = ecl_sum_get_first_report_step( first_ecl_sum );
-        int last_report  = ecl_sum_get_last_report_step( first_ecl_sum );
+        time_t_vector_type * date_list = time_t_vector_alloc(0,0);
+        time_t start_time = time_interval_get_start( time );
         FILE * stream = stdout;
-        int iens,ivar,report;
+        int iens,ivar,itime;
         
-        for (report = first_report; report <= last_report; report++) {
+        ecl_util_init_month_range( date_list , time_interval_get_start( time ) , time_interval_get_end( time ));
+        for (itime = 0; itime < time_t_vector_size( date_list ); itime++) {
+          time_t current_time = time_t_vector_iget( date_list , itime );
           for (ivar = 0; ivar < nvars; ivar++) {                                          /* Iterating over the variables */
             if (has_var[ivar]) { 
               for (iens = 0; iens < vector_get_size( ecl_sum_list ); iens++) {            /* Iterating over the ensemble members */
                 const ecl_sum_type * ecl_sum = vector_iget_const( ecl_sum_list , iens );  
-                double value = 0;
-                int end_index;
-                if (ecl_sum_has_report_step(ecl_sum , report)) {
-                  end_index = ecl_sum_iget_report_end( ecl_sum , report );
-                  if (end_index >= 0) {
-                    if (ivar == 0 && iens == 0) {                                         /* Display time info in the first columns */
-                      int day,month,year;
-                      util_set_date_values(ecl_sum_iget_sim_time(ecl_sum , end_index) , &day , &month, &year);
-                      fprintf(stream , "%7.2f   %02d/%02d/%04d   " , ecl_sum_iget_sim_days(ecl_sum , end_index) , day , month , year);
-                    }
-                    value = ecl_sum_get_general_var(ecl_sum , end_index , var_list[ivar]);
-                  }
+                
+                if (ivar == 0 && iens == 0) {                                             /* Display time info in the first columns */
+                  int day,month,year;
+                  util_set_date_values( current_time , &day , &month, &year);
+                  fprintf(stream , "%7.2f   %02d/%02d/%04d   " , util_difftime_days( start_time , current_time ) , day , month , year);
                 }
-                fprintf(stream , " %12.3f " , value);
+                
+                {
+                  const time_interval_type * sim_time = ecl_sum_get_sim_time( ecl_sum );
+
+                  if (time_interval_arg_before( sim_time , current_time)) 
+                    fprintf(stream , " %s " , MISSING_STRING); // We are before this case has data.
+                  else if (time_interval_arg_after( sim_time , current_time)) 
+                    fprintf(stream , " %s " , MISSING_STRING); // We are after this case has data.
+                  else {
+                    double value = ecl_sum_get_general_var_from_sim_time(ecl_sum , current_time , var_list[ivar]);
+                    fprintf(stream , " %12.3f " , value);
+                  } 
+
+                }
               }
             }
           }
           fprintf(stream , "\n");
         }
+        time_t_vector_free( date_list );
       }
       vector_free( ecl_sum_list );
       free( has_var );

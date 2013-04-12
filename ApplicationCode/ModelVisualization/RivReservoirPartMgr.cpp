@@ -16,23 +16,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 #include "RivReservoirPartMgr.h"
 #include "RivGridPartMgr.h"
 #include "cvfStructGrid.h"
 #include "cvfModelBasicList.h"
-#include "RigReservoir.h"
+#include "RigCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigReservoir* reservoir)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase)
 {
     m_allGrids.clear();
-    if (reservoir)
+    if (eclipseCase)
     {
         std::vector<const RigGridBase*> grids;
-        reservoir->allGrids(&grids);
+        eclipseCase->allGrids(&grids);
         for (size_t i = 0; i < grids.size() ; ++i)
         {
             m_allGrids.push_back(new RivGridPartMgr(grids[i], i) );

@@ -16,13 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimReservoirView.h"
 #include "RimCellPropertyFilter.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RigGridBase.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
 
@@ -143,10 +143,10 @@ void RimCellPropertyFilter::setDefaultValues()
     size_t scalarIndex = resultDefinition->gridScalarIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
     {
-        RigReservoirCellResults* results = m_parentContainer->reservoirView()->gridCellResults();
+        RimReservoirCellResultsStorage* results = m_parentContainer->reservoirView()->currentGridCellResults();
         if (results)
         {
-            results->minMaxCellScalarValues(scalarIndex, min, max);
+            results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
         }
     }
 
@@ -163,7 +163,7 @@ void RimCellPropertyFilter::setDefaultValues()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
     // Fields declared in RimCellFilter
     uiOrdering.add(&name);

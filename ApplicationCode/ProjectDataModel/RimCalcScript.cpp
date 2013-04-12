@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 
 #include "cafPdmField.h"
@@ -35,6 +35,7 @@ RimCalcScript::RimCalcScript()
     CAF_PDM_InitField(&absolutePath, "AbsolutePath", QString(), "Location", "", "" ,"");
     CAF_PDM_InitField(&content, "Content", QString(), "Directory", "", "" ,"");
     content.setUiHidden(true);
+    content.setIOWritable(false);
 
     absolutePath.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 }

@@ -41,14 +41,21 @@ class LaTeXTest( unittest.TestCase ):
 
     def test_cleanup( self ):
         lx = latex.LaTeX( "%s/report_OK.tex" % statoil_path , in_place = True )
+        self.assertTrue( lx.in_place )
         self.assertTrue( lx.compile() )
         for ext in ["log" , "aux" , "nav" , "out" , "snm" , "toc"]:
             self.assertFalse( os.path.exists( "%s/report_OK.%s" % (statoil_path , ext) ))
 
         lx = latex.LaTeX( "%s/report_OK.tex" % statoil_path , in_place = False )
+        self.assertFalse( lx.in_place )
         run_path = lx.runpath
         self.assertTrue( lx.compile() )
         self.assertFalse( os.path.exists( run_path ) )
+
+        lx = latex.LaTeX( "%s/report_OK.tex" % statoil_path , in_place = False )
+        run_path = lx.runpath
+        self.assertTrue( lx.compile( cleanup = False) )
+        self.assertTrue( os.path.exists( "%s/report_OK.log" % run_path))
 
 
 
@@ -61,12 +68,19 @@ class LaTeXTest( unittest.TestCase ):
         self.assertTrue( lx.compile() )
                               
 
+    def test_target(self):
+        lx = latex.LaTeX( "%s/report_OK.tex" % statoil_path  )
+        self.assertTrue( lx.compile() )
+        self.assertTrue( os.path.exists( lx.target ))
+
+
 
 def fast_suite():
     suite = unittest.TestSuite()
     suite.addTest( LaTeXTest( 'test1' ))
     suite.addTest( LaTeXTest( 'test_report' ))
     suite.addTest( LaTeXTest( 'test_cleanup' ))
+    suite.addTest( LaTeXTest( 'test_target' ))
     return suite
 
 

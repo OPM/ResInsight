@@ -19,29 +19,61 @@
 #include <stdbool.h>
 
 #include <ert/util/vector.h>
+#include <ert/util/test_util.h>
 
-void assert_equal( bool equal ) {
-  if (!equal)
-    exit(1);
-}
 
 
 int test_iset( ) {
-  vector_type * vector = vector_alloc_new( 0 );
+  vector_type * vector = vector_alloc_new(  );
   vector_iset_ref( vector , 2 , vector );
+
   
-  assert_equal( vector_get_size( vector ) == 3 );
-  assert_equal( vector_iget( vector , 0 ) == NULL );
-  assert_equal( vector_iget( vector , 1 ) == NULL );
-  assert_equal( vector_iget( vector , 2 ) == vector );
+  test_assert_true( vector_get_size( vector ) == 3 );
+  test_assert_true( vector_iget( vector , 0 ) == NULL );
+  test_assert_true( vector_iget( vector , 1 ) == NULL );
+  test_assert_true( vector_iget( vector , 2 ) == vector );
   vector_free( vector );
   return 0;
 }
 
 
+void test_reverse() {
+  const char * val1 = "value1";
+  const char * val2 = "value2";
+  const char * val3 = "value3";
+  const char * val4 = "value4";
+  
+  vector_type * vector1 = vector_alloc_new(  );
+  vector_type * vector2 = vector_alloc_new(  );
+
+  vector_append_ref( vector1 , val1 );
+  vector_append_ref( vector1 , val2 );
+  vector_append_ref( vector1 , val3 );
+  vector_append_ref( vector1 , val4 );
+
+  vector_append_ref( vector2 , val1 );
+  vector_append_ref( vector2 , val2 );
+  vector_append_ref( vector2 , val3 );
+  vector_append_ref( vector2 , val4 );
+
+  vector_inplace_reverse( vector1 );
+
+  {
+    int i;
+    int size = vector_get_size( vector1 );
+    for (i=0; i < vector_get_size( vector1 ); i++)
+      test_assert_ptr_equal( vector_iget_const( vector2 , i ) , vector_iget_const( vector1 , size - 1 - i ));
+  }
+  vector_free( vector1 );
+  vector_free( vector2 );
+}
+
+
+
+
 
 int main(int argc , char ** argv) {
   test_iset( );
-  
+  test_reverse( );
   exit(0);
 }

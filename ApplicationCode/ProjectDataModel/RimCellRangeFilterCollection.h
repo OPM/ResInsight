@@ -20,6 +20,8 @@
 
 #include "RimCellRangeFilter.h"
 
+class RigActiveCellInfo;
+
 //==================================================================================================
 ///  
 ///  
@@ -42,9 +44,10 @@ public:
     void compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter) const;
     bool hasActiveFilters() const;
 
-    void setReservoirView(RimReservoirView* reservoirView);
-    RimReservoirView* reservoirView();
-    RigMainGrid* mainGrid() const;
+    void                setReservoirView(RimReservoirView* reservoirView);
+    RimReservoirView*   reservoirView();
+    RigMainGrid*        mainGrid() const;
+    RigActiveCellInfo*  activeCellInfo() const;
 
     // Overridden methods
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );

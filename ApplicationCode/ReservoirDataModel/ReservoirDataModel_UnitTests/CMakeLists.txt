@@ -22,10 +22,31 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/cafProjectDataModel
 
     ${ResInsight_SOURCE_DIR}/CommonCode
+
+	#Remove when RigStatistics is out
+    #${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
 )
 
-file( GLOB CPP_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../*.cpp )
-file( GLOB UNIT_TEST_CPP_SOURCES *.cpp )
+# Populate the filenames into variable lists
+include ("${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists_files.cmake")
+
+
+set( UNIT_TEST_CPP_SOURCES
+
+    ${ResInsight_SOURCE_DIR}/cafUserInterface/cafProgressInfo.cpp
+
+    main.cpp
+    RigActiveCellInfo-Test.cpp
+    RigReservoir-Test.cpp
+	RigStatisticsMath-Test.cpp
+)
+
+
+#############################################################################
+# Adds folders for Visual Studio solution explorer (and for Xcode explorer)
+#############################################################################
+source_group( "UnitTests"       FILES ${UNIT_TEST_CPP_SOURCES} )
+
 
 
 set( LINK_LIBRARIES
@@ -45,8 +66,9 @@ set( LINK_LIBRARIES
 
 
 add_executable( ${ProjectName}
-    ${CPP_SOURCES}
+    ${CODE_SOURCE_FILES}
     ${UNIT_TEST_CPP_SOURCES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists_files.cmake
 
     ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
 )

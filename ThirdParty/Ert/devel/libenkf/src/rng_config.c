@@ -21,8 +21,10 @@
 #include <ert/util/mzran.h>
 #include <ert/util/util.h>
 #include <ert/util/rng.h>
+#include <ert/util/test_util.h>
 
 #include <ert/config/config.h>
+#include <ert/config/config_schema_item.h>
 
 #include <ert/enkf/rng_config.h>
 #include <ert/enkf/config_keys.h>
@@ -80,23 +82,59 @@ void rng_config_free( rng_config_type * rng) {
   free( rng );
 }
 
+
+rng_type * rng_config_alloc_rng( rng_config_type * rng_config ) {
+  const char * seed_load  = rng_config_get_seed_load_file( rng_config );
+  const char * seed_store = rng_config_get_seed_store_file( rng_config );
+  rng_type * rng = rng_alloc( rng_config_get_type(rng_config) , INIT_DEFAULT);
+
+  if (seed_load != NULL) {
+    if (util_file_exists( seed_load)) {
+      FILE * stream = util_fopen( seed_load , "r");
+      rng_fscanf_state( rng , stream );
+      fclose( stream );
+    } else {
+      /* 
+         In the special case that seed_load == seed_store; we accept a
+         seed_load argument pointing to a non-existant file.
+      */
+      if (test_string_equal( seed_load , seed_store))
+        rng_init( rng , INIT_DEV_URANDOM );
+      else
+        util_abort("%s: tried to load random seed from non-existing file:%s \n",__func__ , seed_load);
+    }
+  } else
+    rng_init( rng , INIT_DEV_URANDOM );
+  
+  
+  if (seed_store != NULL) {
+    FILE * stream = util_mkdir_fopen( seed_store , "w");
+    rng_fprintf_state( rng , stream );
+    fclose( stream );
+  }
+
+  return rng;
+}
+
 /*****************************************************************/
 
 void rng_config_add_config_items( config_type * config ) {
   config_schema_item_type * item;
 
-  item= config_add_schema_item( config , STORE_SEED_KEY , false , false );
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , NULL );
+  item= config_add_schema_item( config , STORE_SEED_KEY , false);
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_PATH );
   
-  item = config_add_schema_item( config , LOAD_SEED_KEY , false , false );
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_EXISTING_FILE});
+  item = config_add_schema_item( config , LOAD_SEED_KEY , false );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_PATH );
 }
 
 
 void rng_config_init( rng_config_type * rng_config , config_type * config ) {
   if (config_item_set( config , STORE_SEED_KEY ))
     rng_config_set_seed_store_file( rng_config , config_iget(config , STORE_SEED_KEY ,0,0));
-
+  
   if (config_item_set( config , LOAD_SEED_KEY ))
     rng_config_set_seed_load_file( rng_config , config_iget(config , LOAD_SEED_KEY ,0,0));
 }

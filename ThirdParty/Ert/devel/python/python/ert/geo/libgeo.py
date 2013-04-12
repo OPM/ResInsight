@@ -23,4 +23,4 @@ import ctypes
 import ert.util.libutil               
 import ert.cwrap.clib as clib
 
-lib = clib.ert_load("libgeometry.so")
+lib = clib.ert_load("libert_geometry.so")

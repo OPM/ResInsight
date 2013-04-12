@@ -16,13 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimResultSlot.h"
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
-#include "RimReservoir.h"
-#include "RIMainWindow.h"
+#include "RimCase.h"
+#include "RiuMainWindow.h"
 #include "RimUiTreeModelPdm.h"
 
 
@@ -91,7 +91,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
             m_legendConfigData.v().erase(it);
             m_legendConfigData.v().push_back(this->legendConfig());
             this->legendConfig = newLegend;
-            RIMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
+            RiuMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
             found = true;
             break;
         }
@@ -105,7 +105,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
          newLegend->resultVariableName = resultVarNameOfNewLegend;
          m_legendConfigData.v().push_back(this->legendConfig());
          this->legendConfig = newLegend;
-         RIMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
+         RiuMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
 
     }
 }

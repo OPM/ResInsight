@@ -23,7 +23,6 @@
 
 #include <util.h>
 #include <int_vector.h>
-#include <ecl_intehead.h>
 #include <ecl_file.h>
 #include <ecl_kw.h>
 #include <ecl_kw_magic.h>
@@ -37,7 +36,7 @@
 
 #include "gtest/gtest.h"
 
-#include "RigReservoir.h"
+#include "RigCaseData.h"
 #include "RifReaderEclipseInput.h"
 
 #if 0

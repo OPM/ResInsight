@@ -4,7 +4,7 @@ include_directories( ${PLPLOT_HEADER} )
 set( SITE_CONFIG_FILE /project/res/etc/ERT/site-config CACHE FILEPATH "Path to global ERT Configuration file")
 
 set( src_list main.c enkf_tui_main.c  enkf_tui_fs.c  enkf_tui_ranking.c  enkf_tui_misc.c  enkf_tui_table.c  enkf_tui_plot.c enkf_tui_plot_rft.c enkf_tui_plot_util.c
-              enkf_tui_run.c enkf_tui_util.c  enkf_tui_init.c  enkf_tui_export.c  enkf_tui_analysis.c enkf_tui_QC.c enkf_tui_help.c enkf_tui_simple.c ert_tui_jobs.c)
+              enkf_tui_run.c enkf_tui_util.c  enkf_tui_init.c  enkf_tui_export.c  enkf_tui_analysis.c enkf_tui_QC.c enkf_tui_help.c enkf_tui_simple.c ert_tui_jobs.c enkf_tui_workflow.c)
 
 #exec_program( svnversion ${PROJECT_SOURCE_DIR} OUTPUT_VARIABLE SVN_VERSION)
 #exec_program( date OUTPUT_VARIABLE COMPILE_TIME_STAMP)
@@ -38,8 +38,11 @@ else()
    set (destination ${CMAKE_INSTALL_PREFIX}/bin)
 endif()
 
-install(TARGETS ert DESTINATION ${destination})
-if (INSTALL_GROUP)
-   install(CODE "EXECUTE_PROCESS(COMMAND chgrp ${INSTALL_GROUP} ${destination}/ert)")
-   install(CODE "EXECUTE_PROCESS(COMMAND chmod g+w ${destination}/ert)")
+
+if (INSTALL_ERT)
+   install(TARGETS ert DESTINATION ${destination})
+   if (INSTALL_GROUP)
+      install(CODE "EXECUTE_PROCESS(COMMAND chgrp ${INSTALL_GROUP} ${destination}/ert)")
+      install(CODE "EXECUTE_PROCESS(COMMAND chmod g+w ${destination}/ert)")
+   endif()
 endif()

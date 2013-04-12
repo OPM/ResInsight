@@ -22,6 +22,7 @@
 extern "C" {
 #endif
 #include <stdio.h>
+#include <stdbool.h>
 
 #include <ert/util/buffer.h>
 #include <ert/util/type_macros.h>
@@ -63,6 +64,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   @TYPE@               @TYPE@_vector_idel( @TYPE@_vector_type * vector , int index);
   void                 @TYPE@_vector_insert( @TYPE@_vector_type * vector , int index , @TYPE@ value);
   void                 @TYPE@_vector_append(@TYPE@_vector_type *     , @TYPE@);
+  void                 @TYPE@_vector_free_container(@TYPE@_vector_type * vector);
   void                 @TYPE@_vector_free(@TYPE@_vector_type *);  
   void                 @TYPE@_vector_free__(void *);  
   void                 @TYPE@_vector_free_data(@TYPE@_vector_type *);  
@@ -75,6 +77,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   @TYPE@ *             @TYPE@_vector_get_ptr(const @TYPE@_vector_type * );
   @TYPE@ *             @TYPE@_vector_alloc_data_copy( const @TYPE@_vector_type * vector );
   const @TYPE@ *       @TYPE@_vector_get_const_ptr(const @TYPE@_vector_type * );
+  bool                 @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ min_value , @TYPE@ max_value , @TYPE@ delta);
   void                 @TYPE@_vector_set_many(@TYPE@_vector_type *  , int  , const @TYPE@ *  , int );
   void                 @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value);
   void                 @TYPE@_vector_append_many(@TYPE@_vector_type * vector , const @TYPE@ * data , int length);

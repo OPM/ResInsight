@@ -18,7 +18,6 @@
 from PyQt4 import QtGui, QtCore
 from ert_gui.pages.config.parameters.parameterpanel import Parameter
 from ert_gui.pages.plot.plotview import PlotView
-import ert.ertwrapper as ertwrapper
 import ert_gui.pages.config.parameters.parameterpanel
 import ert_gui.widgets.helpedwidget
 from ert_gui.widgets.helpedwidget import ContentModel
@@ -36,7 +35,7 @@ from plotconfig import PlotConfigPanel
 from PyQt4.QtGui import QTabWidget, QFormLayout, QFrame, QVBoxLayout, QHBoxLayout, QCheckBox, QPushButton, QToolButton, QMainWindow
 from PyQt4.QtGui import QCalendarWidget
 import plotsettings
-import ert.erttypes as erttypes
+import ert.ert.erttypes as erttypes
 
 class PlotPanel(QtGui.QWidget):
     def __init__(self):

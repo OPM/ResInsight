@@ -83,6 +83,7 @@ void RivPipeGeometryGenerator::setBendScalingFactor(double scaleFactor)
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setRadius(double radius)
 {
+    CVF_ASSERT(0 <= radius && radius < 1e100);
     m_radius = radius;
 
     clearComputedData();
@@ -93,6 +94,7 @@ void RivPipeGeometryGenerator::setRadius(double radius)
 //--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setCrossSectionVertexCount(size_t nodeCount)
 {
+    CVF_ASSERT( 2 < nodeCount && nodeCount < 1000000);
     m_crossSectionNodeCount = nodeCount;
 
     clearComputedData();

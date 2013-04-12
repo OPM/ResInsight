@@ -1,0 +1,5 @@
+INTERNAL    True
+FUNCTION    read_file
+ARG_TYPE    0   STRING
+MIN_ARG     1
+MAX_ARG     1

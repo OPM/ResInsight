@@ -79,6 +79,7 @@ extern "C" {
   ecl_grid_type * ecl_grid_alloc_GRDECL_data(int , int , int , const float *  , const float *  , const int * , const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc_GRID_data(int num_coords , int nx, int ny , int nz , int coords_size , int ** coords , float ** corners , const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc(const char * );
+  bool            ecl_grid_file_dims( const char * grid_filename , const char * init_restart_filename , int * dims);
   ecl_grid_type * ecl_grid_load_case( const char * case_input );
   ecl_grid_type * ecl_grid_alloc_rectangular( int nx , int ny , int nz , double dx , double dy , double dz , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum);
@@ -149,7 +150,7 @@ extern "C" {
   double                ecl_grid_get_double_property(const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , int i , int j , int k);
   int                   ecl_grid_get_int_property(const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , int i , int j , int k);
   
-  void                    ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , FILE * stream , double double_default);
+  void                    ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream , double double_default);
   bool                    ecl_grid_test_lgr_consistency( const ecl_grid_type * ecl_grid );
   
   void                    ecl_grid_fwrite_EGRID(  ecl_grid_type * grid , const char * filename);

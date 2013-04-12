@@ -16,10 +16,9 @@
 
 
 from ert_gui.widgets.helpedwidget import HelpedWidget
-from ert import ertwrapper
 from PyQt4 import QtGui, QtCore
 from ert_gui.widgets.util import resourceIcon, ListCheckPanel, ValidatedTimestepCombo, getItemsFromList
-from ert.enums import ert_state_enum
+from ert.ert.enums import ert_state_enum
 
 class ParametersAndMembers(HelpedWidget):
 
@@ -218,15 +217,6 @@ class ParametersAndMembers(HelpedWidget):
 
 
     def initialize(self, ert):
-        ert.prototype("long ensemble_config_alloc_keylist_from_var_type(long, int)")
-        ert.prototype("int enkf_main_initialize_from_scratch(long, long, int, int)")
-        ert.prototype("int enkf_main_get_ensemble_size(long)")
-        ert.prototype("long enkf_main_get_fs(long)")
-        ert.prototype("char* enkf_fs_get_read_dir(long)")
-        ert.prototype("long enkf_fs_alloc_dirlist(long)")
-        ert.prototype("int enkf_main_get_history_length(long)")
-        ert.prototype("void enkf_main_initialize_from_existing__(long, char*, int, int, long, char*, long)")
-        ert.prototype("void enkf_main_copy_ensemble(long, char*, int, int, char*, int, int, long, char*, long)")
         self.initialized = True
 
 
@@ -249,12 +239,12 @@ class ParametersAndMembers(HelpedWidget):
         members = ert.enkf.enkf_main_get_ensemble_size(ert.main)
 
         fs = ert.enkf.enkf_main_get_fs(ert.main)
-        currentCase = ert.enkf.enkf_fs_get_read_dir(fs)
+        currentCase = "default" #ert.enkf.enkf_fs_get_read_dir(fs)
 
-        caseList = ert.enkf.enkf_fs_alloc_dirlist(fs)
-        list = ert.getStringList(caseList)
-        ert.freeStringList(caseList)
-
+        #caseList = ert.enkf.enkf_fs_alloc_dirlist(fs)
+        #list = ert.getStringList(caseList)
+        #ert.freeStringList(caseList)
+        list = ["default"]
         historyLength = ert.enkf.enkf_main_get_history_length(ert.main)
 
         return {"parameters" : parameters,

@@ -48,7 +48,7 @@ struct log_struct {
 
 
 
-void log_reset_filename(log_type *logh , const char *filename) {
+void log_reopen(log_type *logh , const char *filename) {
   if (logh->stream != NULL)  { /* Close the existing file descriptor. */
     size_t file_size;
     fclose( logh->stream );
@@ -66,7 +66,7 @@ void log_reset_filename(log_type *logh , const char *filename) {
     logh->stream = util_mkdir_fopen( filename , "a+");
     logh->fd     = fileno( logh->stream );
   } else {  /* It is ~OK to open a log with NULL filename, but then
-               log_reset_filename() with a VALID filename must be
+               log_reopen() with a VALID filename must be
                called before it is actually used. */
     logh->stream = NULL;
     logh->fd     = -1;
@@ -93,8 +93,9 @@ void log_set_level( log_type * logh , int log_level) {
 
 
 
-static log_type *log_alloc_internal(const char *filename , bool new, int log_level) {
+log_type * log_open( const char * filename , int log_level) {
   log_type   *logh;
+
   logh = util_malloc(sizeof *logh );
   
   logh->log_level     = log_level;
@@ -103,21 +104,10 @@ static log_type *log_alloc_internal(const char *filename , bool new, int log_lev
 #ifdef HAVE_PTHREAD
   pthread_mutex_init( &logh->mutex , NULL );
 #endif
-  log_reset_filename( logh ,filename );
-    
+  if (filename != NULL)
+    log_reopen( logh , filename);
+  
   return logh;
-}
-
-
-log_type * log_alloc_new(const char *filename, int log_level) {
-  log_type *logh = log_alloc_internal(filename , true , log_level);
-  return logh;
-}
-
-
-
-log_type *log_alloc_existing(const char *filename, int log_level) {
-  return log_alloc_internal(filename , false , log_level);
 }
 
 
@@ -212,9 +202,17 @@ void log_sync(log_type * logh) {
 
 
 void log_close( log_type * logh ) {
-  if ((logh->stream != stdout) && (logh->stream != stderr))
+  if ((logh->stream != stdout) && (logh->stream != stderr) && (logh->stream != NULL)) 
     fclose( logh->stream );  /* This closes BOTH the FILE * stream and the integer file descriptor. */
   
-  free( logh->filename );
+  util_safe_free( logh->filename );
   free( logh );
+}
+
+
+bool log_is_open( const log_type * logh) {
+  if (logh->stream != NULL)
+    return true;
+  else
+    return false;
 }

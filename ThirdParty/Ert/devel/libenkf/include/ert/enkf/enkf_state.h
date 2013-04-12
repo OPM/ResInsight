@@ -67,13 +67,12 @@ typedef struct enkf_state_struct    enkf_state_type;
   bool               enkf_state_resubmit_simulation( enkf_state_type * enkf_state , enkf_fs_type * fs , bool resample);
   bool               enkf_state_kill_simulation( const enkf_state_type * enkf_state );
   void *             enkf_state_internalize_results_mt( void * arg );
-  void               enkf_state_initialize(enkf_state_type * enkf_state , enkf_fs_type * fs, const stringlist_type * param_list);
+  void               enkf_state_initialize(enkf_state_type * enkf_state , enkf_fs_type * fs, const stringlist_type * param_list , bool force_init);
   void               enkf_state_fread(enkf_state_type *  , enkf_fs_type * fs , int  , int  , state_enum );
   bool               enkf_state_get_analyzed(const enkf_state_type * );
   void               enkf_state_set_analyzed(enkf_state_type * , bool );
   void               enkf_state_swapout_node(const enkf_state_type * , const char *);
   void               enkf_state_swapin_node(const enkf_state_type *  , const char *);
-  enkf_state_type  * enkf_state_copyc(const enkf_state_type * );
   void               enkf_state_iset_eclpath(enkf_state_type * , int , const char *);
   enkf_node_type   * enkf_state_get_node(const enkf_state_type * , const char * );
   void               enkf_state_del_node(enkf_state_type * , const char * );
@@ -110,8 +109,10 @@ typedef struct enkf_state_struct    enkf_state_type;
   int                enkf_state_get_iens(const enkf_state_type * );
   member_config_type *enkf_state_get_member_config(const enkf_state_type * enkf_state);
   const char       * enkf_state_get_run_path(const enkf_state_type * );
+  const char       * enkf_state_get_eclbase( const enkf_state_type * enkf_state );
   void               enkf_state_printf_subst_list(enkf_state_type * enkf_state , int step1 , int step2);
 
+  unsigned int       enkf_state_get_random( enkf_state_type * enkf_state );
 
 /*****************************************************************/
   void enkf_state_set_inactive(enkf_state_type * state);

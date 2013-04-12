@@ -20,6 +20,7 @@ include_directories(glew)
 set(CEE_HEADER_FILES
 cvfBufferObjectManaged.h
 cvfCamera.h
+cvfCameraAnimation.h
 cvfDrawable.h
 cvfDrawableGeo.h
 cvfDrawableText.h
@@ -98,6 +99,7 @@ cvfViewport.h
 set(CEE_SOURCE_FILES
 cvfBufferObjectManaged.cpp
 cvfCamera.cpp
+cvfCameraAnimation.cpp
 cvfDrawable.cpp
 cvfDrawableGeo.cpp
 cvfDrawableVectors.cpp

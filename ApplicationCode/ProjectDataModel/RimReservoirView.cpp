@@ -16,15 +16,15 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
-#include "RIViewer.h"
+#include "RiaStdInclude.h"
+#include "RiuViewer.h"
 
 #include "RimReservoirView.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 #include "RigGridBase.h"
-#include "RigReservoir.h"
-#include "RIApplication.h"
-#include "RIPreferences.h"
+#include "RigCaseData.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "cafEffectGenerator.h"
 #include "cafFrameAnimationControl.h"
@@ -32,7 +32,7 @@
 #include "RimCellRangeFilterCollection.h"
 
 #include "cvfStructGridGeometryGenerator.h"
-#include "RigReservoirCellResults.h"
+#include "RigCaseCellResultsData.h"
 #include "RivCellEdgeEffectGenerator.h"
 #include "RimCellEdgeResultSlot.h"
 #include "cvfqtUtils.h"
@@ -41,7 +41,7 @@
 
 #include "cafCadNavigation.h"
 #include "cafCeetronNavigation.h"
-#include "RimReservoir.h"
+#include "RimCase.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RigGridScalarDataAccess.h"
 
@@ -82,8 +82,8 @@ CAF_PDM_SOURCE_INIT(RimReservoirView, "ReservoirView");
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::RimReservoirView()
 {
-    RIApplication* app = RIApplication::instance();
-    RIPreferences* preferences = app->preferences();
+    RiaApplication* app = RiaApplication::instance();
+    RiaPreferences* preferences = app->preferences();
     CVF_ASSERT(preferences);
 
     CAF_PDM_InitObject("Reservoir View", ":/ReservoirView.png", "", "");
@@ -137,6 +137,9 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
 
+    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer Background", "", "", "");
+
+
     CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
 
   
@@ -169,7 +172,7 @@ RimReservoirView::~RimReservoirView()
 
     if (m_viewer)
     {
-        RIMainWindow::instance()->removeViewer(m_viewer);
+        RiuMainWindow::instance()->removeViewer(m_viewer);
     }
 
     m_geometry->clearGeometryCache();
@@ -189,19 +192,19 @@ void RimReservoirView::updateViewerWidget()
         if (!m_viewer)
         {
             QGLFormat glFormat;
-            glFormat.setDirectRendering(RIApplication::instance()->useShaders());
+            glFormat.setDirectRendering(RiaApplication::instance()->useShaders());
 
-            m_viewer = new RIViewer(glFormat, NULL);
+            m_viewer = new RiuViewer(glFormat, NULL);
             m_viewer->setOwnerReservoirView(this);
 
-            RIMainWindow::instance()->addViewer(m_viewer);
+            RiuMainWindow::instance()->addViewer(m_viewer);
             m_viewer->setMinNearPlaneDistance(10);
             this->cellResult()->legendConfig->recreateLegend();
             this->cellEdgeResult()->legendConfig->recreateLegend();
             m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
             m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
 
-            if (RIApplication::instance()->navigationPolicy() == RIApplication::NAVIGATION_POLICY_CEETRON)
+            if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
             {
                 m_viewer->setNavigationPolicy(new caf::CeetronNavigation);
             }
@@ -210,16 +213,18 @@ void RimReservoirView::updateViewerWidget()
                 m_viewer->setNavigationPolicy(new caf::CadNavigation);
             }
 
-            m_viewer->enablePerfInfoHud(RIApplication::instance()->showPerformanceInfo());
+            m_viewer->enablePerfInfoHud(RiaApplication::instance()->showPerformanceInfo());
 
             //m_viewer->layoutWidget()->showMaximized();
 
             isViewerCreated = true;
         }
 
-        RIMainWindow::instance()->setActiveViewer(m_viewer);
+        RiuMainWindow::instance()->setActiveViewer(m_viewer);
 
         if (isViewerCreated) m_viewer->mainCamera()->setViewMatrix(cameraPosition);
+        m_viewer->mainCamera()->viewport()->setClearColor(cvf::Color4f(backgroundColor()));
+
         m_viewer->update();
     }
     else
@@ -250,7 +255,7 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
         QString windowTitle;
         if (m_reservoir.notNull())
         {
-            windowTitle = QString("%1 - %2").arg(m_reservoir->caseName()).arg(name);
+            windowTitle = QString("%1 - %2").arg(m_reservoir->caseUserDescription()).arg(name);
         }
         else
         {
@@ -267,11 +272,11 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
 void RimReservoirView::clampCurrentTimestep()
 {
     // Clamp the current timestep to actual possibilities
-    if (this->gridCellResults()) 
+    if (this->currentGridCellResults()->cellResults()) 
     {
-        if (m_currentTimeStep() > this->gridCellResults()->maxTimeStepCount())
+        if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()))
         {
-            m_currentTimeStep = static_cast<int>(this->gridCellResults()->maxTimeStepCount()) -1;
+            m_currentTimeStep = static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()) -1;
         }
     }
 
@@ -298,7 +303,7 @@ void RimReservoirView::createDisplayModelAndRedraw()
         }
     }
 
-    RIMainWindow::instance()->refreshAnimationActions(); 
+    RiuMainWindow::instance()->refreshAnimationActions(); 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,6 +361,13 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         if (generateDisplayModel)
         {
             createDisplayModelAndRedraw();
+        }
+    }
+    else if (changedField == &backgroundColor ) 
+    {
+        if (viewer() != NULL)
+        {
+            updateViewerWidget();
         }
     }
     else if (changedField == &m_currentTimeStep)
@@ -448,10 +460,10 @@ void RimReservoirView::createDisplayModel()
             || this->propertyFilterCollection()->hasActiveDynamicFilters() 
             || this->wellCollection->hasVisibleWellPipes())
         {
-            CVF_ASSERT(gridCellResults());
+            CVF_ASSERT(currentGridCellResults());
 
             size_t i;
-            for (i = 0; i < gridCellResults()->maxTimeStepCount(); i++)
+            for (i = 0; i < currentGridCellResults()->cellResults()->maxTimeStepCount(); i++)
             {
                 timeStepIndices.push_back(i);
             }
@@ -690,16 +702,18 @@ void RimReservoirView::loadDataAndUpdate()
     {
         if (!m_reservoir->openEclipseGridFile())
         {
-            QMessageBox::warning(RIMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName());
+            QMessageBox::warning(RiuMainWindow::instance(), 
+                                "Error when opening project file", 
+                                "Could not open the Eclipse Grid file: \n"+ m_reservoir->gridFileName());
             m_reservoir = NULL;
             return;
         }
         else
         {
-            RIApplication* app = RIApplication::instance();
+            RiaApplication* app = RiaApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
-                RigReservoirCellResults* results = gridCellResults();
+                RimReservoirCellResultsStorage* results = currentGridCellResults();
                 CVF_ASSERT(results);
                 results->loadOrComputeSOIL();
             }
@@ -709,7 +723,7 @@ void RimReservoirView::loadDataAndUpdate()
     CVF_ASSERT(this->cellResult() != NULL);
     this->cellResult()->loadResult();
 
-    if (m_reservoir->reservoirData()->mainGrid()->globalFractureModelActiveCellCount() == 0)
+    if (m_reservoir->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
     {
         this->cellResult->porosityModel.setUiHidden(true);
     }
@@ -820,7 +834,7 @@ void RimReservoirView::updateStaticCellColors(unsigned short geometryType)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RIViewer* RimReservoirView::viewer()
+RiuViewer* RimReservoirView::viewer()
 {
     return m_viewer;
 }
@@ -835,20 +849,20 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 
     if (m_reservoir)
     {
-        const RigReservoir* reservoir = m_reservoir->reservoirData();
-        if (reservoir)
+        const RigCaseData* eclipseCase = m_reservoir->reservoirData();
+        if (eclipseCase)
         {
             size_t i = 0;
             size_t j = 0;
             size_t k = 0;
-            if (reservoir->grid(gridIndex)->ijkFromCellIndex(cellIndex, &i, &j, &k))
+            if (eclipseCase->grid(gridIndex)->ijkFromCellIndex(cellIndex, &i, &j, &k))
             {
                 // Adjust to 1-based Eclipse indexing
                 i++;
                 j++;
                 k++;
 
-                cvf::Vec3d domainCoord = point + reservoir->grid(gridIndex)->displayModelOffset();
+                cvf::Vec3d domainCoord = point + eclipseCase->grid(gridIndex)->displayModelOffset();
 
                 pickInfoText->sprintf("Hit grid %u, cell [%u, %u, %u], intersection point: [E: %.2f, N: %.2f, Depth: %.2f]", static_cast<unsigned int>(gridIndex), static_cast<unsigned int>(i), static_cast<unsigned int>(j), static_cast<unsigned int>(k), domainCoord.x(), domainCoord.y(), -domainCoord.z());
                 return true;
@@ -862,18 +876,19 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 //--------------------------------------------------------------------------------------------------
 /// Get the current scalar value for the display face at the given index
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) const
+void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) 
 {
     CVF_ASSERT(resultInfoText);
 
     if (m_reservoir && m_reservoir->reservoirData())
     {
-        const RigReservoir* reservoir = m_reservoir->reservoirData();
-        const RigGridBase* grid = reservoir->grid(gridIndex);
+        RigCaseData* eclipseCase = m_reservoir->reservoirData();
+        RigGridBase* grid = eclipseCase->grid(gridIndex);
+
         if (this->cellResult()->hasResult())
         {
-            RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-            cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
             if (dataAccessObject.notNull())
             {
                 double scalarValue = dataAccessObject->cellScalar(cellIndex);
@@ -893,8 +908,8 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
 
                 // Cell edge results are static, results are loaded for first time step only
-                RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<RigGridScalarDataAccess> dataAccessObject = grid->dataAccessObject(porosityModel, 0, resultIndices[idx]);
+                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, resultIndices[idx]);
                 if (dataAccessObject.notNull())
                 {
                     double scalarValue = dataAccessObject->cellScalar(cellIndex);
@@ -957,16 +972,30 @@ void RimReservoirView::setupBeforeSave()
 //--------------------------------------------------------------------------------------------------
 /// Convenience for quick access to results
 //--------------------------------------------------------------------------------------------------
-RigReservoirCellResults* RimReservoirView::gridCellResults()
+RimReservoirCellResultsStorage* RimReservoirView::currentGridCellResults()
+{
+    if (m_reservoir)
+    {
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
+
+        return m_reservoir->results(porosityModel);
+    }
+
+    return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigActiveCellInfo* RimReservoirView::currentActiveCellInfo()
 {
     if (m_reservoir &&
-        m_reservoir->reservoirData() &&
-        m_reservoir->reservoirData()->mainGrid()
+        m_reservoir->reservoirData()
         )
     {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult->porosityModel());
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult->porosityModel());
 
-        return m_reservoir->reservoirData()->mainGrid()->results(porosityModel);
+        return m_reservoir->reservoirData()->activeCellInfo(porosityModel);
     }
 
     return NULL;
@@ -1032,11 +1061,11 @@ void RimReservoirView::updateLegends()
         return;
     }
 
-    RigReservoir* reservoir = m_reservoir->reservoirData();
-    CVF_ASSERT(reservoir);
+    RigCaseData* eclipseCase = m_reservoir->reservoirData();
+    CVF_ASSERT(eclipseCase);
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigReservoirCellResults::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-    RigReservoirCellResults* results = reservoir->mainGrid()->results(porosityModel);
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+    RigCaseCellResultsData* results = eclipseCase->results(porosityModel);
     CVF_ASSERT(results);
 
     if (this->cellResult()->hasResult())
@@ -1085,7 +1114,7 @@ void RimReservoirView::updateLegends()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::setEclipseCase(RimReservoir* reservoir)
+void RimReservoirView::setEclipseCase(RimCase* reservoir)
 {
     m_reservoir = reservoir;
 }
@@ -1093,7 +1122,7 @@ void RimReservoirView::setEclipseCase(RimReservoir* reservoir)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimReservoir* RimReservoirView::eclipseCase()
+RimCase* RimReservoirView::eclipseCase()
 {
     return m_reservoir;
 }
@@ -1115,7 +1144,7 @@ void RimReservoirView::syncronizeWellsWithResults()
 {
     if (!(m_reservoir && m_reservoir->reservoirData()) ) return;
 
-    cvf::Collection<RigWellResults> wellResults = m_reservoir->reservoirData()->wellResults();
+    cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
 
     // Find corresponding well from well result, or create a new
     size_t wIdx;
@@ -1137,7 +1166,7 @@ void RimReservoirView::syncronizeWellsWithResults()
     for (wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimWell* well = this->wellCollection()->wells()[wIdx];
-        RigWellResults* wellRes = well->wellResults();
+        RigSingleWellResultsData* wellRes = well->wellResults();
         if (wellRes == NULL)
         {
             delete well;
@@ -1171,13 +1200,17 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
     // If all wells are forced off, return
     if (this->wellCollection()->wellCellVisibility() == RimWellCollection::FORCE_ALL_OFF) return;
 
+    RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
+
+    CVF_ASSERT(activeCellInfo);
+
     // Loop over the wells and find their contribution
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimWell* well =  this->wellCollection()->wells()[wIdx];
         if (this->wellCollection()->wellCellVisibility() == RimWellCollection::FORCE_ALL_ON || well->showWellCells())
         {
-            RigWellResults* wres = well->wellResults();
+            RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;
 
             const std::vector< RigWellResultFrame >& wellResFrames = wres->m_wellCellsTimeSteps;
@@ -1235,7 +1268,9 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                                 for ( fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
                                 {
                                     size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
-                                    if (grid->cell(fenceCellIndex).isActiveInMatrixModel())
+                                    size_t globalGridCellIndex = grid->globalGridCellIndex(fenceCellIndex);
+
+                                    if (activeCellInfo && activeCellInfo->isActive(globalGridCellIndex))
                                     {
                                         (*visibleCells)[fenceCellIndex] = true;
                                     }
@@ -1246,6 +1281,27 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                 }
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateDisplayModelForWellResults()
+{
+    m_geometry->clearGeometryCache();
+    m_pipesPartManager->clearGeometryCache();
+
+    syncronizeWellsWithResults();
+
+    createDisplayModel();
+    updateDisplayModelVisibility();
+
+    overlayInfoConfig()->update3DInfo();
+
+    if (animationMode && m_viewer)
+    {
+        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
     }
 }
 

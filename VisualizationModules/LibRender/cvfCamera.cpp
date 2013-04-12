@@ -268,12 +268,22 @@ void Camera::setProjectionAsPixelExact2D()
 /// the view to. The relativeDistance parameter specifies the distance from the camera to the 
 /// center of the bounding box
 //--------------------------------------------------------------------------------------------------
-void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double distanceScaleFactor)
+void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor)
+{
+    // Use old view direction, but look towards model center
+    Vec3d eye = fitViewEyePosition(boundingBox, dir, up, coverageFactor);
+
+    // Will update cached values
+    setFromLookAt(eye, boundingBox.center(), up);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Vec3d Camera::fitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor) const
 {
     CVF_ASSERT(projection() == PERSPECTIVE);
-
-    // TODO! !!! !! !! 
-    CVF_UNUSED(distanceScaleFactor);
 
     cvf::Vec3d corners[8];
     boundingBox.cornerVertices(corners);
@@ -312,8 +322,8 @@ void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec
         distUp += (centerToCornerSide*boxEyeNorm);
 
         // Adjust for the distance scale factor
-        distRight /= distanceScaleFactor;
-        distUp /= distanceScaleFactor;
+        distRight /= coverageFactor;
+        distUp /= coverageFactor;
 
         dist = CVF_MAX(dist, distRight);
         dist = CVF_MAX(dist, distUp);
@@ -328,8 +338,7 @@ void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec
     // Use old view direction, but look towards model center
     Vec3d eye = boundingBox.center()- dir.getNormalized()*dist;
 
-    // Will update cached values
-    setFromLookAt(eye, boundingBox.center(), up);
+    return eye;
 }
 
 
@@ -1022,7 +1031,6 @@ void Camera::applyOpenGL() const
     glLoadMatrixd(viewMatrix().ptr());
 #endif
 }
-
 
 } // namespace cvf
 

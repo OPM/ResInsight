@@ -32,7 +32,7 @@ class RimCellPropertyFilterCollection;
 class RimResultDefinition;
 
 class RigGridBase;
-class RigReservoirCellResults;
+class RigCaseCellResultsData;
 
 namespace cvf
 {
@@ -72,7 +72,7 @@ public:
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
 
 protected:
-    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const;
+    virtual void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
 private:

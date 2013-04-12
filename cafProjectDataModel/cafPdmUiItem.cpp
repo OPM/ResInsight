@@ -200,7 +200,7 @@ QString PdmUiItem::uiEditorTypeName(const QString& uiConfigName) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Qt::Alignment PdmUiItem::labelAlignment(QString uiConfigName) const
+PdmUiItemInfo::LabelPosType PdmUiItem::uiLabelPosition(QString uiConfigName) const
 {
     const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
     const PdmUiItemInfo* defInfo = defaultInfo();
@@ -210,7 +210,7 @@ Qt::Alignment PdmUiItem::labelAlignment(QString uiConfigName) const
     if (defInfo) return defInfo->m_labelAlignment;
     if (sttInfo) return sttInfo->m_labelAlignment;
 
-    return Qt::AlignLeft;
+    return PdmUiItemInfo::LEFT;
 }
 
 //--------------------------------------------------------------------------------------------------

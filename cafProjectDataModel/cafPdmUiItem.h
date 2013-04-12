@@ -40,8 +40,10 @@ public:
 
     PdmUiItemInfo( QString  uiName,   QIcon icon = QIcon(), QString  toolTip = "", QString  whatsThis = "")
         : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis),
-          m_editorTypeName(""), m_isHidden(false), m_isReadOnly(false), m_labelAlignment(Qt::AlignLeft)
+          m_editorTypeName(""), m_isHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT)
     { }
+
+    enum LabelPosType { LEFT, TOP, HIDDEN };
 
 private: 
     friend class PdmUiItem;
@@ -52,7 +54,7 @@ private:
     QString             m_editorTypeName;   ///< Use this exact type of editor to edit this UiItem
     int                 m_isHidden;     ///< UiItem should be hidden. -1 means not set
     int                 m_isReadOnly;   ///< UiItem should be insensitive, or read only. -1 means not set.
-    Qt::Alignment       m_labelAlignment;
+    LabelPosType       m_labelAlignment;
 };
 
 //==================================================================================================
@@ -115,9 +117,10 @@ public:
 
     bool             isUiReadOnly(QString uiConfigName = "");
     void             setUiReadOnly(bool isReadOnly, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_isReadOnly = isReadOnly; } 
-
-    Qt::Alignment    labelAlignment(QString uiConfigName = "") const;
-    void             setLabelAlignment(Qt::Alignment alignment, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_labelAlignment = alignment; } 
+   
+    PdmUiItemInfo::LabelPosType  
+                     uiLabelPosition(QString uiConfigName = "") const;
+    void             setUiLabelPosition(PdmUiItemInfo::LabelPosType alignment, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_labelAlignment = alignment; } 
 
     QString          uiEditorTypeName(const QString& uiConfigName) const;
     void             setUiEditorTypeName(const QString& editorTypeName, QString uiConfigName = "") { m_configItemInfos[uiConfigName].m_editorTypeName = editorTypeName; }

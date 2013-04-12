@@ -56,9 +56,7 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_label->setText(field()->uiName(uiConfigName));
     }
 
-    m_label->setVisible(!field()->isUiHidden(uiConfigName));
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-
     m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_slider->setEnabled(!field()->isUiReadOnly(uiConfigName));
 

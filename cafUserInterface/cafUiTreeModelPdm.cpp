@@ -293,9 +293,9 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// TO BE DELETED
 //--------------------------------------------------------------------------------------------------
-bool UiTreeModelPdm::insertRows(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
+bool UiTreeModelPdm::insertRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
 {
     PdmUiTreeItem* parentItem = getTreeItemFromIndex(parent);
     
@@ -311,7 +311,7 @@ bool UiTreeModelPdm::insertRows(int position, int rows, const QModelIndex &paren
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool UiTreeModelPdm::removeRows(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
+bool UiTreeModelPdm::removeRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
 {
     if (rows <= 0) return true;
 
@@ -344,7 +344,7 @@ void UiTreeModelPdm::rebuildUiSubTree(PdmObject* root)
     QModelIndex item = getModelIndexFromPdmObject(root);
     if (item.isValid())
     {
-       this->removeRows(0, rowCount(item), item);
+       this->removeRows_special(0, rowCount(item), item);
        PdmUiTreeItem* treeItem = getTreeItemFromIndex(item);
 
 
@@ -380,18 +380,18 @@ PdmUiTreeItem* caf::UiTreeModelPdm::getTreeItemFromIndex(const QModelIndex& inde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObjectRecursive(const QModelIndex& root, const PdmObject * object) const
+QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const
 {
-    if (root.internalPointer())
+    if (currentIndex.internalPointer())
     {
-        PdmUiTreeItem* treeItem = static_cast<PdmUiTreeItem*>(root.internalPointer());
-        if (treeItem->dataObject() == object) return root;
+        PdmUiTreeItem* treeItem = static_cast<PdmUiTreeItem*>(currentIndex.internalPointer());
+        if (treeItem->dataObject() == object) return currentIndex;
     }
 
    int row;
-   for (row = 0; row < rowCount(root); ++row)
+   for (row = 0; row < rowCount(currentIndex); ++row)
    {
-       QModelIndex foundIndex = getModelIndexFromPdmObjectRecursive(index(row, 0, root), object);
+       QModelIndex foundIndex = getModelIndexFromPdmObjectRecursive(index(row, 0, currentIndex), object);
        if (foundIndex.isValid()) return foundIndex;
    }
    return QModelIndex();
@@ -426,6 +426,7 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
         return NULL;
     }
 
+    // NOTE: if position is -1, the item is appended to the parent tree item
     PdmUiTreeItem* objectTreeItem = new PdmUiTreeItem(parentTreeItem, position, object);
 
     std::vector<caf::PdmFieldHandle*> fields;
@@ -445,7 +446,8 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
             caf::PdmObject* childObj = children[i];
             assert(childObj);
 
-            UiTreeItemBuilderPdm::buildViewItems(objectTreeItem, position, childObj);
+            // NOTE: -1 as second argument indicates that child objects will be appended to collection
+            UiTreeItemBuilderPdm::buildViewItems(objectTreeItem, -1, childObj);
         }
     }
 

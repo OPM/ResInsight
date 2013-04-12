@@ -25,7 +25,7 @@ namespace cvf {
 
 class TextureImage;
 class Sampler;
-class RenderStateTextureBindings;
+class RenderState;
 class Texture;
 class ShaderProgram;
 
@@ -68,8 +68,9 @@ private:
 private:
     Vec2ui                          m_size;
     ref<TextureImage>               m_image;
+    ref<TextureImage>               m_pow2Image;
     ref<Sampler>                    m_sampler;
-    ref<RenderStateTextureBindings> m_textureBindings;
+    ref<RenderState>                m_textureBindings;
     ref<Texture>                    m_texture;
     ref<ShaderProgram>              m_shaderProgram;
 

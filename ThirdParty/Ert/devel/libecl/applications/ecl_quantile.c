@@ -33,6 +33,8 @@
 #include <ert/util/thread_pool.h>
 
 #include <ert/config/config.h>
+#include <ert/config/config_content_item.h>
+#include <ert/config/config_content_node.h>
 
 #include <ert/ecl/ecl_sum.h>
 
@@ -222,16 +224,23 @@ void ensemble_init( ensemble_type * ensemble , config_type * config) {
     thread_pool_type * tp = thread_pool_alloc( LOAD_THREADS , true );
     {
       int i,j;
-      for (i=0; i < config_get_occurences( config , "CASE_LIST"); i++) {
-        const stringlist_type * case_list = config_iget_stringlist_ref( config , "CASE_LIST" , i );
-        for (j=0; j < stringlist_get_size( case_list ); j++) 
-          ensemble_load_from_glob( ensemble , stringlist_iget( case_list , j ) , tp);
+      const config_content_item_type * case_item = config_get_content_item( config , "CASE_LIST" );
+
+      if (case_item != NULL) {
+        for (j=0; j < config_content_node_get_size( case_item ); j++) {
+          const config_content_node_type * case_node = config_content_item_iget_node( case_item );
+          for (i=0; i < config_content_node_get_size( case_node ) i++) {
+            const char * case_glob = config_content_node_iget( case_node , i );
+            ensemble_load_from_glob( ensemble , case_glob , tp);
+          }
+        }
       }
+      
     }
     thread_pool_join( tp );
     thread_pool_free( tp );
   }
-  
+    
   {
     const sum_case_type * tmp = vector_iget_const( ensemble->data , 0 );
     ensemble->refcase = tmp->ecl_sum;
@@ -347,17 +356,21 @@ static void output_add_key( const ecl_sum_type * refcase , output_type * output 
 
 void output_table_init( const ecl_sum_type * refcase, hash_type * output_table , const config_type * config ) {
   int i,j;
-  for (i=0; i < config_get_occurences( config , "OUTPUT" ); i++) {
-    const stringlist_type * tokens = config_iget_stringlist_ref( config , "OUTPUT" , i);
-    const char * file              = stringlist_iget( tokens , 0 );
-    const char * format_string     = stringlist_iget( tokens , 1 );
-    output_type * output           = output_alloc( file , format_string );
+  const config_content_item_type * output_item = config_get_content_item( config , "OUTPUT");
+  if (output_item != NULL) {
+    for (i = 0; i < config_content_item_get_size( output_item ); i++) {
+      const config_content_node_type * output_node = config_content_item_iget_node( output_item , i );
+      
+      const char * file              = config_content_node_iget( output_node , 0 );
+      const char * format_string     = config_content_node_iget( output_node , 1 );
+      output_type * output           = output_alloc( file , format_string );
     
-    /* All the keys are just added - without any check. */
-    for (j = 2; j < stringlist_get_size( tokens ); j++)
-      output_add_key( refcase , output , stringlist_iget( tokens , j));
-    
-    hash_insert_hash_owned_ref( output_table , file , output , output_free__ );
+      /* All the keys are just added - without any check. */
+      for (j = 2; j < config_content_node_get_size( output_node ); j++)
+        output_add_key( refcase , output , config_content_node_iget( output_node , j));
+      
+      hash_insert_hash_owned_ref( output_table , file , output , output_free__ );
+    }
   }
 }
 
@@ -713,7 +726,7 @@ void config_init( config_type * config ) {
   {
     config_schema_item_type * item;
     item = config_add_schema_item( config , "OUTPUT" , true , true );
-    config_schema_item_set_argc_minmax( item , 2 , -1 , 0 , NULL );
+    config_schema_item_set_argc_minmax( item , 2 , CONFIG_DEFAULT_ARG_MAX , 0 , NULL );
     config_schema_item_set_indexed_selection_set( item , 1 , 3 , (const char *[3]) { S3GRAPH_STRING , HEADER_STRING , PLAIN_STRING });
   }
   
@@ -815,16 +828,18 @@ int main( int argc , char ** argv ) {
       const char    * config_arg  = argv[1];
       
       config_init( config );
-      config_parse( config , config_arg , "--" , NULL , NULL , true , true );
-      
-      {
+      if (config_parse( config , config_arg , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN, true )) {
         char * config_path;
         util_alloc_file_components( config_arg , &config_path , NULL , NULL);
         if (config_path != NULL) {
           chdir( config_path );
           free( config_path );
         }
+      } else {
+        config_fprintf_errors( config , stderr );
+        exit(1);
       }
+        
 
     
       ensemble_init( ensemble , config );

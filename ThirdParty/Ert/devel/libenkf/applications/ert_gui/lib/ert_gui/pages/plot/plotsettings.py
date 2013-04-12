@@ -17,7 +17,7 @@
 
 from plotconfig import PlotConfig
 import matplotlib
-from ert.erttypes import time_t
+from ert.ert.erttypes import time_t
 import datetime
 from  PyQt4.QtCore import QObject, SIGNAL
 

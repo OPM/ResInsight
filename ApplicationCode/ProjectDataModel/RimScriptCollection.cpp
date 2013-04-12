@@ -16,13 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 
 #include "RimScriptCollection.h"
 #include "cafPdmField.h"
 #include "cafUtils.h"
-#include "RIMainWindow.h"
+#include "RiuMainWindow.h"
 #include "RimUiTreeModelPdm.h"
 #include "cafPdmUiFilePathEditor.h"
 
@@ -161,7 +161,7 @@ void RimScriptCollection::fieldChangedByUi(const caf::PdmFieldHandle *changedFie
         QFileInfo fi(directory);
         this->setUiName(fi.baseName());
         this->readContentFromDisc();
-        RimUiTreeModelPdm* treeModel = RIMainWindow::instance()->uiPdmModel();
+        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
         if (treeModel) treeModel->rebuildUiSubTree(this);
     }
 }

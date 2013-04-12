@@ -16,11 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
 
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "cvfPlane.h"
+#include "cvfRay.h"
+
+#include <math.h>
 
 static size_t undefinedCornersArray[8] = {cvf::UNDEFINED_SIZE_T,
                                           cvf::UNDEFINED_SIZE_T,
@@ -39,9 +41,6 @@ RigCell::RigCell() :
     m_subGrid(NULL),
     m_hostGrid(NULL),
     m_isInvalid(false),
-    m_isWellCell(false),
-    m_activeIndexInMatrixModel(cvf::UNDEFINED_SIZE_T),
-    m_activeIndexInFractureModel(cvf::UNDEFINED_SIZE_T),
     m_cellIndex(cvf::UNDEFINED_SIZE_T),
     m_isInCoarseCell(false)
 {

@@ -22,6 +22,7 @@
 #include "cvfMath.h"
 #include "cvfTextureImage.h"
 #include <cmath>
+#include <limits>
 
 namespace cvf {
 
@@ -34,6 +35,9 @@ namespace cvf {
 /// Configured by specifying a number of level colors and a min/max range. 
 //==================================================================================================
 ScalarMapperContinuousLog::ScalarMapperContinuousLog()
+    : m_hasNegativeRange(false),
+    m_logRange(0.0),
+    m_logRangeMin(0.0)
 {
   
 }
@@ -43,17 +47,16 @@ ScalarMapperContinuousLog::ScalarMapperContinuousLog()
 //--------------------------------------------------------------------------------------------------
 double ScalarMapperContinuousLog::normalizedValue(double scalarValue) const
 {
-    double logRangeMax = log10(m_rangeMax);
-    double logRangeMin = log10(m_rangeMin);
-    double logRange = logRangeMax - logRangeMin; 
+    if (m_hasNegativeRange) scalarValue = -1.0*scalarValue;
+
     double logValue;
-    
-    if (scalarValue <= 0) logValue = logRangeMin;
+
+    if (scalarValue <= 0) logValue = std::numeric_limits<double>::min_exponent10;
     else                  logValue = log10(scalarValue);
 
-   if (logRange != 0)
+   if (m_logRange != 0)
     {
-        return cvf::Math::clamp((logValue - logRangeMin)/logRange, 0.0, 1.0);
+        return cvf::Math::clamp((logValue - m_logRangeMin)/m_logRange, 0.0, 1.0);
     }
     else
     {
@@ -66,13 +69,37 @@ double ScalarMapperContinuousLog::normalizedValue(double scalarValue) const
 //--------------------------------------------------------------------------------------------------
 double ScalarMapperContinuousLog::domainValue(double normalizedPosition) const
 {
-    double logRangeMax = log10(m_rangeMax);
-    double logRangeMin = log10(m_rangeMin);
-    double logRange = logRangeMax - logRangeMin; 
+    double logValue = normalizedPosition*m_logRange + m_logRangeMin;
+    double domainVal = pow(10, logValue);
 
-    double logValue = normalizedPosition*logRange + logRangeMin;
-    
-    return pow(10, logValue);
+    if (m_hasNegativeRange)
+        domainVal *= -1.0;
+
+    return domainVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void ScalarMapperContinuousLog::rangeUpdated()
+{
+    m_hasNegativeRange = false;
+
+    double transformedRangeMax = m_rangeMax;
+    double transformedRangeMin = m_rangeMin;
+
+    if ( m_rangeMax <= 0 &&  m_rangeMin <= 0)
+    { 
+        m_hasNegativeRange = true;
+
+        transformedRangeMax = -1.0*transformedRangeMax;
+        transformedRangeMin = -1.0*transformedRangeMin;
+    }
+
+    double logRangeMax = (transformedRangeMax > 0) ? log10(transformedRangeMax): std::numeric_limits<double>::min_exponent10;
+    m_logRangeMin      = (transformedRangeMin > 0) ? log10(transformedRangeMin): std::numeric_limits<double>::min_exponent10;
+
+    m_logRange = logRangeMax - m_logRangeMin; 
 }
 
 } // namespace cvf

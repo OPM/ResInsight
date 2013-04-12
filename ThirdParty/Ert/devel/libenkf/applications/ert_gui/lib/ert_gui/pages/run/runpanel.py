@@ -16,7 +16,6 @@
 
 
 from PyQt4 import QtGui, QtCore
-from ert import ertwrapper
 
 from ert_gui.widgets.helpedwidget import HelpedWidget, ContentModel
 from ert_gui.widgets.util import resourceIcon, ListCheckPanel, ValidatedTimestepCombo, createSpace, getItemsFromList, frange

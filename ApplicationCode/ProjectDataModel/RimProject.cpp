@@ -16,12 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimProject.h"
-#include "RIApplication.h"
-#include "RIVersionInfo.h"
-#include "RimScriptCollection.h"
+#include "RiaApplication.h"
+#include "RiaVersionInfo.h"
+
+#include "RigGridManager.h"
+#include "RigCaseData.h"
+#include "RimResultCase.h"
+
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -33,10 +37,14 @@ RimProject::RimProject(void)
     m_projectFileVersionString.setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
+
+    m_gridCollection = new RigGridManager;
 
     initAfterRead();
 }
@@ -46,6 +54,8 @@ RimProject::RimProject(void)
 //--------------------------------------------------------------------------------------------------
 RimProject::~RimProject(void)
 {
+    close();
+
     if (scriptCollection()) delete scriptCollection();
 
     reservoirs.deleteAllChildObjects();
@@ -56,7 +66,10 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
+    m_gridCollection->clear();
+
     reservoirs.deleteAllChildObjects();
+    caseGroups.deleteAllChildObjects();
 
     fileName = "";
 }
@@ -69,7 +82,7 @@ void RimProject::initAfterRead()
     //
     // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
     // 
-    RIApplication* app = RIApplication::instance();
+    RiaApplication* app = RiaApplication::instance();
     QString scriptDirectory = app->scriptDirectory();
 
     this->setUserScriptPath(scriptDirectory);
@@ -113,3 +126,145 @@ QString RimProject::projectFileVersionString() const
 {
     return m_projectFileVersionString;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir)
+{
+    CVF_ASSERT(rimReservoir);
+
+    RigCaseData* rigEclipseCase = rimReservoir->reservoirData();
+    RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
+    CVF_ASSERT(equalGrid);
+
+    // Insert in identical grid group
+    bool foundGroup = false;
+
+    for (size_t i = 0; i < caseGroups.size(); i++)
+    {
+        RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+        if (cg->mainGrid() == equalGrid)
+        {
+            cg->addCase(rimReservoir);
+            foundGroup = true;
+        }
+    }
+
+    if (!foundGroup)
+    {
+        RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
+        group->addCase(rimReservoir);
+
+        caseGroups().push_back(group);
+    }
+
+    // Remove reservoir from main container
+    reservoirs().removeChildObject(rimReservoir);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::removeCaseFromAllGroups(RimCase* reservoir)
+{
+    m_gridCollection->removeCase(reservoir->reservoirData());
+
+    for (size_t i = 0; i < caseGroups.size(); i++)
+    {
+        RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+        cg->removeCase(reservoir);
+    }
+
+    reservoirs().removeChildObject(reservoir);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigMainGrid* RimProject::registerCaseInGridCollection(RigCaseData* rigEclipseCase)
+{
+    CVF_ASSERT(rigEclipseCase);
+
+    RigMainGrid* equalGrid = m_gridCollection->findEqualGrid(rigEclipseCase->mainGrid());
+
+    if (equalGrid)
+    {
+        // Replace the grid with an already registered grid
+        rigEclipseCase->setMainGrid(equalGrid);
+    }
+    else
+    {
+        // This is the first insertion of this grid, compute cached data
+        rigEclipseCase->mainGrid()->computeCachedData();
+
+        std::vector<RigGridBase*> grids;
+        rigEclipseCase->allGrids(&grids);
+
+        size_t i;
+        for (i = 0; i < grids.size(); i++)
+        {
+            grids[i]->computeFaults();
+        }
+
+        equalGrid = rigEclipseCase->mainGrid();
+    }
+
+    m_gridCollection->addCase(rigEclipseCase);
+
+    return equalGrid;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir)
+{
+    CVF_ASSERT(rimReservoir);
+
+    RigCaseData* rigEclipseCase = rimReservoir->reservoirData();
+    registerCaseInGridCollection(rigEclipseCase);
+
+    caseGroup->addCase(rimReservoir);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName)
+{
+    // Extract the filename of the project file when it was saved 
+    QString oldProjectFileName =  this->fileName;
+    // Replace with the new actual filename
+    this->fileName = fileName;
+
+    // Loop over all reservoirs and update file path
+
+    QFileInfo fileInfo(fileName);
+    QString newProjectPath = fileInfo.path();
+
+    QFileInfo fileInfoOld(oldProjectFileName);
+    QString oldProjectPath = fileInfoOld.path();
+
+
+    for (size_t i = 0; i < reservoirs.size(); i++)
+    {
+        reservoirs[i]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+    }
+
+    // Case groups : Loop over all reservoirs in  and update file path
+
+    for (size_t i = 0; i < caseGroups.size(); i++)
+    {
+        RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+        for (size_t j = 0; j < cg->caseCollection()->reservoirs().size(); j++)
+        {
+            cg->caseCollection()->reservoirs()[j]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        }
+    }
+}
+

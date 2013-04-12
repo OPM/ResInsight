@@ -1511,6 +1511,13 @@ void job_queue_set_driver(job_queue_type * queue , queue_driver_type * driver) {
 }
 
 
+bool job_queue_has_driver(const job_queue_type * queue ) {
+  if (queue->driver == NULL)
+    return false;
+  else
+    return true;
+} 
+
 
 /**
    Observe that if the max number of running jobs is decreased,

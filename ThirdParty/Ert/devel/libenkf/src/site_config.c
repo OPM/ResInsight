@@ -35,10 +35,13 @@
 #include <ert/job_queue/queue_driver.h>
 
 #include <ert/config/config.h>
+#include <ert/config/config_content_item.h>
+#include <ert/config/config_content_node.h>
 
 #include <ert/enkf/site_config.h>
 #include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/config_keys.h>
+#include <ert/enkf/ert_workflow_list.h>
 
 /**
    This struct contains information which is specific to the site
@@ -180,9 +183,8 @@ site_config_type * site_config_alloc_empty() {
   site_config_type * site_config = util_malloc( sizeof * site_config);
   
   site_config->joblist                = ext_joblist_alloc( );
-  site_config->job_queue              = NULL;
   site_config->queue_drivers          = hash_alloc( );
-
+  
   site_config->lsf_queue_name_site    = NULL;
   site_config->lsf_request_site       = NULL;
   site_config->rsh_command_site       = NULL;
@@ -196,19 +198,19 @@ site_config_type * site_config_alloc_empty() {
   site_config->user_mode              = false;
   site_config->driver_type            = NULL_DRIVER;
 
-  /* Some hooops to get the current umask. */ 
-  site_config->umask                  = umask( 0 );
-  site_config_set_umask( site_config , site_config->umask );
-  site_config_set_manual_url( site_config , DEFAULT_MANUAL_URL );
-  site_config_set_default_browser( site_config , DEFAULT_BROWSER );
-  
+  site_config->job_queue              = job_queue_alloc(DEFAULT_MAX_SUBMIT , "OK" , "ERROR" );
   site_config->env_variables_user     = hash_alloc();
   site_config->env_variables_site     = hash_alloc();
   
   site_config->path_variables_user    = stringlist_alloc_new();
   site_config->path_values_user       = stringlist_alloc_new();
   site_config->path_variables_site    = hash_alloc();
-  
+
+  /* Some hooops to get the current umask. */ 
+  site_config->umask                  = umask( 0 );
+  site_config_set_umask( site_config , site_config->umask );
+  site_config_set_manual_url( site_config , DEFAULT_MANUAL_URL );
+  site_config_set_default_browser( site_config , DEFAULT_BROWSER );
   site_config_set_max_submit( site_config , DEFAULT_MAX_SUBMIT );
   return site_config;
 }
@@ -281,14 +283,17 @@ bool site_config_del_job( site_config_type * site_config , const char * job_name
 
 
 static void site_config_add_jobs(site_config_type * site_config , const config_type * config) {
-  int  i;
-  
-  stringlist_type *item_list = config_alloc_complete_stringlist(config , INSTALL_JOB_KEY);
-
-  for (i=0; i < stringlist_get_size(item_list); i+=2) 
-    site_config_install_job(site_config , stringlist_iget(item_list , i) , stringlist_iget(item_list , i + 1));
-
-  stringlist_free(item_list);
+  if (config_item_set( config , INSTALL_JOB_KEY)) {
+    const config_content_item_type * content_item = config_get_content_item( config , INSTALL_JOB_KEY );
+    int num_jobs = config_content_item_get_size( content_item );
+    for (int job_nr = 0; job_nr < num_jobs; job_nr++) {
+      config_content_node_type * node = config_content_item_iget_node( content_item , job_nr );
+      const char * job_key = config_content_node_iget( node , 0 );
+      const char * description_file = config_content_node_iget_as_abspath( node , 1 );
+      
+      site_config_install_job(site_config , job_key , description_file );
+    }
+  }
 }
 
 
@@ -660,6 +665,7 @@ void site_config_set_max_submit( site_config_type * site_config , int max_submit
   site_config->max_submit = max_submit;
   if (!site_config->user_mode)
     site_config->max_submit_site = max_submit;
+  job_queue_set_max_submit( site_config->job_queue , max_submit );
 }
 
 
@@ -672,13 +678,43 @@ static void site_config_install_job_queue(site_config_type  * site_config ) {
   if (site_config->job_script == NULL)
     util_exit("Must set the path to the job script with the %s key in the site_config / config file\n",JOB_SCRIPT_KEY);
   
-  site_config->job_queue = job_queue_alloc(site_config->max_submit , "OK" , "ERROR" );
-
   /* 
      All the various driver options are set, unconditionally of which
      driver is actually selected in the end.
   */
-  site_config_set_job_queue__( site_config , site_config->driver_type );
+  if (site_config->driver_type != NULL_DRIVER)
+    site_config_set_job_queue__( site_config , site_config->driver_type );
+}
+
+
+void site_config_init_env( site_config_type * site_config , const config_type * config ) {
+  {
+    config_content_item_type * setenv_item = config_get_content_item( config , SETENV_KEY );
+    if (setenv_item != NULL) {
+      int i;
+      for (i = 0; i < config_content_item_get_size( setenv_item ); i++) {
+        const config_content_node_type * setenv_node = config_content_item_iget_node( setenv_item , i );
+        const char * var               = config_content_node_iget( setenv_node , 0 );
+        const char * value             = config_content_node_iget( setenv_node , 1 );
+        
+        site_config_setenv( site_config , var , value );
+      }
+    }
+  }
+
+  {
+    config_content_item_type * path_item = config_get_content_item( config , UPDATE_PATH_KEY );
+    if (path_item != NULL) {
+      int i;
+      for (i = 0; i < config_content_item_get_size( path_item ); i++) {
+        const config_content_node_type * path_node = config_content_item_iget_node( path_item , i );
+        const char * path              = config_content_node_iget( path_node , 0 );
+        const char * value             = config_content_node_iget( path_node , 1 );
+        
+        site_config_update_pathvar( site_config , path , value );
+      }
+    }
+  }
 }
 
 
@@ -692,26 +728,10 @@ static void site_config_install_job_queue(site_config_type  * site_config ) {
 */
 
 
-void site_config_init(site_config_type * site_config , const config_type * config, bool user_config) {
+bool site_config_init(site_config_type * site_config , const config_type * config) {
   site_config_add_jobs(site_config , config);
-  {
-    int i;
-    for (i = 0; i < config_get_occurences( config , SETENV_KEY); i++) {
-      const stringlist_type * tokens = config_iget_stringlist_ref(config , SETENV_KEY , i);
-      const char * var               = stringlist_iget( tokens , 0);
-      const char * value             = stringlist_iget( tokens , 1);
-
-      site_config_setenv( site_config , var , value );
-    }
-    
-    for (i=0; i < config_get_occurences( config, UPDATE_PATH_KEY); i++) {
-      const stringlist_type * tokens = config_iget_stringlist_ref(config , UPDATE_PATH_KEY , i);
-      const char * path              = stringlist_iget( tokens , 0);
-      const char * value             = stringlist_iget( tokens , 1);
-      
-      site_config_update_pathvar( site_config , path , value );
-    }
-  }
+  site_config_init_env(site_config , config);
+  
   /* 
      When LSF is used several enviroment variables must be set (by the
      site wide file) - i.e.  the calls to SETENV must come first.
@@ -730,7 +750,7 @@ void site_config_init(site_config_type * site_config , const config_type * confi
      prefix characters).
   */
   if (config_item_set(config , UMASK_KEY)) {
-    const char * string_mask = config_iget( config , UMASK_KEY , 0 , 0);
+    const char * string_mask = config_get_value( config , UMASK_KEY);
     mode_t umask_value;
     if (util_sscanf_octal_int( string_mask , &umask_value))
       site_config_set_umask( site_config , umask_value);
@@ -745,7 +765,7 @@ void site_config_init(site_config_type * site_config , const config_type * confi
   /* LSF options */
   {
     if (config_item_set(config , LSF_QUEUE_KEY))
-      site_config_set_lsf_queue( site_config , config_iget( config , LSF_QUEUE_KEY , 0 , 0));
+      site_config_set_lsf_queue( site_config , config_get_value( config , LSF_QUEUE_KEY ));
     
     if (config_item_set(config , LSF_RESOURCES_KEY)) {
       char * lsf_resource_request = config_alloc_joined_string(config , LSF_RESOURCES_KEY , " ");
@@ -754,24 +774,25 @@ void site_config_init(site_config_type * site_config , const config_type * confi
     }
     
     if (config_item_set(config , MAX_RUNNING_LSF_KEY))
-      site_config_set_max_running_lsf( site_config , config_iget_as_int( config , MAX_RUNNING_LSF_KEY , 0 , 0));
+      site_config_set_max_running_lsf( site_config , config_get_value_as_int( config , MAX_RUNNING_LSF_KEY));
 
     if (config_item_set(config , LSF_SERVER_KEY))
-      site_config_set_lsf_server( site_config , config_iget( config , LSF_SERVER_KEY , 0 , 0));
+      site_config_set_lsf_server( site_config , config_get_value( config , LSF_SERVER_KEY));
   }
 
 
   /* RSH options */
   {
     if (config_item_set( config , RSH_COMMAND_KEY ))
-      site_config_set_rsh_command( site_config , config_iget(config , RSH_COMMAND_KEY , 0,0));
+      site_config_set_rsh_command( site_config , config_get_value(config , RSH_COMMAND_KEY));
     
     if (config_item_set( config , MAX_RUNNING_RSH_KEY))
-      site_config_set_max_running_rsh( site_config , config_iget_as_int( config , MAX_RUNNING_RSH_KEY , 0,0));
-
+      site_config_set_max_running_rsh( site_config , config_get_value_as_int( config , MAX_RUNNING_RSH_KEY));
+    
     /* Parsing the "host1:4" strings. */
-    if (user_config) {
-      if (config_item_set( config , RSH_HOST_KEY)) {
+    {
+      const config_content_item_type * rsh_host_item = config_get_content_item( config , RSH_HOST_KEY );
+      if (rsh_host_item != NULL) {
         stringlist_type * rsh_host_list = config_alloc_complete_stringlist(config , RSH_HOST_KEY);
         int i;
         for (i=0; i < stringlist_get_size( rsh_host_list ); i++) 
@@ -781,11 +802,12 @@ void site_config_init(site_config_type * site_config , const config_type * confi
       }
     }
   }
+  
 
   if (config_item_set( config , QUEUE_SYSTEM_KEY)) {
     job_driver_type driver_type;
     {
-      const char * queue_system = config_iget(config , QUEUE_SYSTEM_KEY , 0,0);
+      const char * queue_system = config_get_value(config , QUEUE_SYSTEM_KEY);
       if (strcmp(queue_system , LSF_DRIVER_NAME) == 0) {
         driver_type = LSF_DRIVER;
       } else if (strcmp(queue_system , RSH_DRIVER_NAME) == 0) 
@@ -805,19 +827,18 @@ void site_config_init(site_config_type * site_config , const config_type * confi
     site_config_set_max_running_local( site_config , config_iget_as_int( config , MAX_RUNNING_LOCAL_KEY , 0,0));
 
   if (config_item_set(config , JOB_SCRIPT_KEY))
-    site_config_set_job_script( site_config , config_iget( config , JOB_SCRIPT_KEY , 0 , 0));
+    site_config_set_job_script( site_config , config_get_value_as_abspath( config , JOB_SCRIPT_KEY));
   
   if (config_item_set(config , LICENSE_PATH_KEY))
-    site_config_set_license_root_path( site_config , config_iget( config , LICENSE_PATH_KEY , 0 , 0));
+    site_config_set_license_root_path( site_config , config_get_value_as_abspath( config , LICENSE_PATH_KEY));
   
-  if (user_config) 
-    site_config_install_job_queue( site_config );
+  site_config_install_job_queue( site_config );
   
   /* Setting QUEUE_OPTIONS */
   { 
     int i;
     for (i=0; i < config_get_occurences(config , QUEUE_OPTION_KEY); i++) {
-      stringlist_type * tokens   = config_iget_stringlist_ref(config , QUEUE_OPTION_KEY , i);
+      const stringlist_type * tokens   = config_iget_stringlist_ref(config , QUEUE_OPTION_KEY , i);
       const char * driver_name   = stringlist_iget( tokens , 0 );
       const char * option_key    = stringlist_iget( tokens , 1 );
       const char * option_value  = stringlist_alloc_joined_substring( tokens , 2 , stringlist_get_size( tokens ), " ");
@@ -829,6 +850,7 @@ void site_config_init(site_config_type * site_config , const config_type * confi
       site_config_set_queue_option( site_config , driver_name , option_key , option_value );
     }
   }
+  return true;
 }
 
 
@@ -989,7 +1011,7 @@ void site_config_fprintf_config( const site_config_type * site_config , FILE * s
 
     {
       queue_driver_type * rsh_driver = site_config_get_queue_driver( site_config , RSH_DRIVER_NAME );
-      const hash_type * host_list = queue_driver_get_option( rsh_driver , RSH_HOSTLIST );
+      hash_type * host_list = queue_driver_get_option( rsh_driver , RSH_HOSTLIST );
       hash_iter_type * iter = hash_iter_alloc( host_list );
       while (!hash_iter_is_complete( iter )) {
         const char * host_name = hash_iter_get_next_key( iter );
@@ -1006,18 +1028,15 @@ void site_config_fprintf_config( const site_config_type * site_config , FILE * s
 /*****************************************************************/
 
 
-
-void site_config_add_config_items( config_type * config , bool site_only) {
-  config_schema_item_type * item;
-
-  item = config_add_schema_item(config , QUEUE_SYSTEM_KEY , site_only , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+void site_config_add_queue_config_items( config_type * config , bool site_mode) {
+  config_schema_item_type * item = config_add_schema_item(config , QUEUE_SYSTEM_KEY , site_mode);
+  config_schema_item_set_argc_minmax(item , 1 , 1);
   {
     stringlist_type * lsf_dep    = stringlist_alloc_argv_ref( (const char *[2]) {"LSF_QUEUE" , "MAX_RUNNING_LSF"}   , 2);
     stringlist_type * rsh_dep    = stringlist_alloc_argv_ref( (const char *[3]) {"RSH_HOST"  , "RSH_COMMAND" , "MAX_RUNNING_RSH"} , 2);
     stringlist_type * local_dep  = stringlist_alloc_argv_ref( (const char *[1]) {"MAX_RUNNING_LOCAL"}   , 1);
 
-    if (site_only) {
+    if (site_mode) {
       config_schema_item_set_common_selection_set( item , 3 , (const char *[3]) {LSF_DRIVER_NAME , LOCAL_DRIVER_NAME , RSH_DRIVER_NAME});
       config_schema_item_set_required_children_on_value( item , LSF_DRIVER_NAME   , lsf_dep);
       config_schema_item_set_required_children_on_value( item , RSH_DRIVER_NAME   , rsh_dep);
@@ -1029,75 +1048,92 @@ void site_config_add_config_items( config_type * config , bool site_only) {
     stringlist_free(local_dep);
   }
 
-  item = config_add_schema_item(config , MAX_SUBMIT_KEY , false , false);   
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+  item = config_add_schema_item(config , MAX_SUBMIT_KEY , false  );   
+  config_schema_item_set_argc_minmax(item , 1 , 1);
+  config_schema_item_iset_type( item , 0 , CONFIG_INT );
+}
 
+
+
+
+void site_config_add_config_items( config_type * config , bool site_mode) {
+  config_schema_item_type * item;
+  ert_workflow_list_add_config_items( config );
+  site_config_add_queue_config_items( config , site_mode );
+  
 
   /*
      You can set environment variables which will be applied to the
      run-time environment. Can unfortunately not use constructions
      like PATH=$PATH:/some/new/path, use the UPDATE_PATH function instead.
   */
-  item = config_add_schema_item(config , SETENV_KEY , false , true);
-  config_schema_item_set_argc_minmax(item , 2 , 2 , 0 , NULL);
+  item = config_add_schema_item(config , SETENV_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 2 , 2 );
   config_schema_item_set_envvar_expansion( item , false );   /* Do not expand $VAR expressions (that is done in util_interp_setenv()). */
   
-  item = config_add_schema_item(config , UMASK_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , UMASK_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
 
   /**
      UPDATE_PATH   LD_LIBRARY_PATH   /path/to/some/funky/lib
 
      Will prepend "/path/to/some/funky/lib" at the front of LD_LIBRARY_PATH.
   */
-  item = config_add_schema_item(config , UPDATE_PATH_KEY , false , true);
-  config_schema_item_set_argc_minmax(item , 2 , 2 , 0 , NULL);
+  item = config_add_schema_item(config , UPDATE_PATH_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 2 , 2 );
   config_schema_item_set_envvar_expansion( item , false );   /* Do not expand $VAR expressions (that is done in util_interp_setenv()). */
 
-  item = config_add_schema_item( config , LICENSE_PATH_KEY , site_only , false );
-  config_schema_item_set_argc_minmax(item , 1 , 1, 0 , NULL );
+  item = config_add_schema_item( config , LICENSE_PATH_KEY , site_mode  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_PATH );
 
 
   /*****************************************************************/
   /* Items related to running jobs with lsf/rsh/local ...          */
 
   /* These must be set IFF QUEUE_SYSTEM == LSF */
-  item = config_add_schema_item(config , LSF_QUEUE_KEY     , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
+  item = config_add_schema_item(config , LSF_QUEUE_KEY     , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1);
 
-  item = config_add_schema_item(config , LSF_RESOURCES_KEY  , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item(config , LSF_RESOURCES_KEY  , false  );
+  config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX);
 
-  item = config_add_schema_item(config , MAX_RUNNING_LSF_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+  item = config_add_schema_item(config , MAX_RUNNING_LSF_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_INT );
 
-  item = config_add_schema_item(config , LSF_SERVER_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_STRING});
+  item = config_add_schema_item(config , LSF_SERVER_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
   
   /* These must be set IFF QUEUE_SYSTEM == RSH */
-  if (!site_only)
-    config_add_schema_item(config , RSH_HOST_KEY , false , false);  /* Only added when user parse. */
-  item = config_add_schema_item(config , RSH_COMMAND_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXECUTABLE});
-  item = config_add_schema_item(config , MAX_RUNNING_RSH_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+  if (!site_mode)
+    config_add_schema_item(config , RSH_HOST_KEY , false  );  /* Only added when user parse. */
+  item = config_add_schema_item(config , RSH_COMMAND_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_EXECUTABLE);
 
+  item = config_add_schema_item(config , MAX_RUNNING_RSH_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1);
+  config_schema_item_iset_type( item , 0 , CONFIG_INT);
 
   /* These must be set IFF QUEUE_SYSTEM == LOCAL */
-  item = config_add_schema_item(config , MAX_RUNNING_LOCAL_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+  item = config_add_schema_item(config , MAX_RUNNING_LOCAL_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_INT);
 
   /*****************************************************************/
-  item = config_add_schema_item(config , QUEUE_OPTION_KEY , false , true);
-  config_schema_item_set_argc_minmax(item , 3 , -1 , 0 , NULL);
+  item = config_add_schema_item(config , QUEUE_OPTION_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 3 , CONFIG_DEFAULT_ARG_MAX);
 
-  item = config_add_schema_item(config , JOB_SCRIPT_KEY , site_only , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , JOB_SCRIPT_KEY , site_mode  );
+  config_schema_item_set_argc_minmax(item , 1 , 1);
+  config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH);
   
-  item = config_add_schema_item(config , INSTALL_JOB_KEY , false , true);
-  config_schema_item_set_argc_minmax(item , 2 , 2 , 2 , (const config_item_types [2]) {CONFIG_STRING , CONFIG_EXISTING_FILE});
-
+  item = config_add_schema_item(config , INSTALL_JOB_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 2 , 2 );
+  config_schema_item_iset_type( item , 1 , CONFIG_EXISTING_PATH);
+  
   /* Items related to the reports. */
-  item = config_add_schema_item( config , REPORT_SEARCH_PATH_KEY , false , true );
-  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
+  item = config_add_schema_item( config , REPORT_SEARCH_PATH_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX);
 }

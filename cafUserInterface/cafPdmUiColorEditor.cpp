@@ -69,7 +69,6 @@ void PdmUiColorEditor::configureAndUpdateUi(const QString& uiConfigName)
         m_label->setText(field()->uiName(uiConfigName));
     }
 
-    m_label->setVisible(!field()->isUiHidden(uiConfigName));
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &m_attributes);

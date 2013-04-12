@@ -308,6 +308,25 @@ void Rendering::renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRe
             item->render(oglContext, rect.min(),  Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height())));
         }
     }
+
+    for (size_t i = 0; i < m_overlayItems.size(); i++)
+    {
+        OverlayItemLayout item = m_overlayItems.at(i);
+        if ((item.corner == OverlayItem::UNMANAGED) )
+        {
+            Vec2ui size = item.overlayItem->sizeHint();
+            Vec2i pos =  item.overlayItem->unmanagedPosition();
+
+            if (useSoftwareRendering)
+            {
+                item.overlayItem->renderSoftware(oglContext, pos, size);
+            }
+            else
+            {
+                item.overlayItem->render(oglContext, pos,  size);
+            }
+        }
+    }
 }
 
 
@@ -907,6 +926,24 @@ OverlayItem* Rendering::overlayItemFromWindowCoordinates(int x, int y)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::Recti Rendering::overlayItemRect(OverlayItem* item)
+{
+    OverlayItemRectMap itemRectMap;
+    calculateOverlayItemLayout(&itemRectMap);
+    
+    OverlayItemRectMap::iterator it = itemRectMap.find(item);
+    if (it != itemRectMap.end())
+    {
+        return it->second;
+    }
+
+    return cvf::Recti();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void Rendering::removeOverlayItem(const OverlayItem* overlayItem)
 {
     CVF_UNUSED(overlayItem);
@@ -962,7 +999,6 @@ String Rendering::debugString() const
 
     return str;
 }
-
 
 } // namespace cvf
 

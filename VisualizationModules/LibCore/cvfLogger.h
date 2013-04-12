@@ -21,9 +21,14 @@
 
 #include "cvfObject.h"
 #include "cvfString.h"
+#include "cvfCodeLocation.h"
 
 namespace cvf {
-    
+
+class LogEvent;
+class LogDestination;
+
+
 
 //==================================================================================================
 //
@@ -33,18 +38,55 @@ namespace cvf {
 class Logger : public Object
 {
 public:
-    Logger();
+    enum Level
+    {
+        LL_ERROR = 1,  
+        LL_WARNING,
+        LL_INFO,
+        LL_DEBUG
+    };
+
+public:
+    Logger(const String& loggerName, int logLevel, LogDestination* logDestination);
     ~Logger();
 
-    void    error(const String& message, const char* fileName, int lineNumber);
+    const String&   name() const;
+    int             level() const;
+    void            setLevel(int logLevel);
+    LogDestination* destination();
+    void            setDestination(LogDestination* logDestination);
 
-    void    enableDebug(bool enableDebugLogging);
-    bool    isDebugEnabled() const;
-    void    debug(const String& message, const char* fileName, int lineNumber);
+    void            error(const String& message);
+    void            error(const String& message, const CodeLocation& location);
+    void            warning(const String& message);
+    void            warning(const String& message, const CodeLocation& location);
+    void            info(const String& message);
+    void            info(const String& message, const CodeLocation& location);
+    void            debug(const String& message, const CodeLocation& location);
+
+    bool            isErrorEnabled() const      { return m_logLevel >= LL_ERROR; }
+    bool            isWarningEnabled() const    { return m_logLevel >= LL_WARNING; }
+    bool            isInfoEnabled() const       { return m_logLevel >= LL_INFO; }
+    bool            isDebugEnabled() const      { return m_logLevel >= LL_DEBUG; }
 
 private:
-    bool    m_debugLogging;     // Whether debug messages get logged or not
+    void            log(const String& message, Logger::Level messageLevel, const CodeLocation& location);
+
+private:
+    String              m_name;         // Logger name
+    int                 m_logLevel;     // Logging level, all messages with a level less than or equal to this level will be logged
+    ref<LogDestination> m_destination;
+
+    CVF_DISABLE_COPY_AND_ASSIGN(Logger);
 };
+
+
+// Helper macros for writing log messages to a logger
+#define CVF_LOG_ERROR(theLogger, theMessage)    if ((theLogger)->isErrorEnabled())    { (theLogger)->error((theMessage), CVF_CODE_LOCATION); }
+#define CVF_LOG_WARNING(theLogger, theMessage)  if ((theLogger)->isWarningEnabled())  { (theLogger)->warning((theMessage), CVF_CODE_LOCATION); }
+#define CVF_LOG_INFO(theLogger, theMessage)     if ((theLogger)->isInfoEnabled())     { (theLogger)->info((theMessage), CVF_CODE_LOCATION); }
+#define CVF_LOG_DEBUG(theLogger, theMessage)    if ((theLogger)->isDebugEnabled())    { (theLogger)->debug((theMessage), CVF_CODE_LOCATION); }
+
 
 
 } // cvf

@@ -59,13 +59,13 @@ bool PdmFieldHandle::assertValid() const
 {
     if (m_keyword == "UNDEFINED")
     {
-        std::cout << "Detected use of non-initialized field\n";
+        std::cout << "PdmField: Detected use of non-initialized field. Did you forget to do CAF_PDM_InitField() on this field ?\n";
         return false;
     }
 
     if (!PdmObject::isValidXmlElementName(m_keyword))
     {
-        std::cout << "Detected keyword " << m_keyword.toStdString() << " which is an invalid Xml element name\n";
+        std::cout << "PdmField: The supplied keyword: \"" << m_keyword.toStdString() << "\" is an invalid XML element name, and will break your file format!\n";
         return false;
     }
 
@@ -136,18 +136,40 @@ void PdmFieldReader<QString>::readFieldData(PdmField<QString> & field, QXmlStrea
 //--------------------------------------------------------------------------------------------------
 /// Specialized read operation for Bool`s
 //--------------------------------------------------------------------------------------------------
-void operator >> (QTextStream& str, bool& value)
+QTextStream& operator >> (QTextStream& str, bool& value)
 {
     QString text;
     str >> text;
     if (text == "True" || text == "true" || text == "1" || text == "Yes" || text == "yes") value = true;
     else value = false;
+
+    return str;
 }
 
-void operator << (QTextStream& str, const bool& value)
+QTextStream& operator << (QTextStream& str, const bool& value)
 {
     if (value) str << "True ";
     else str << "False ";
+
+    return str;
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// Specialized read operation for QDateTimes`s
+//--------------------------------------------------------------------------------------------------
+#include <QDateTime>
+QTextStream&  operator >> (QTextStream& str, QDateTime& value)
+{
+    QString text;
+    str >> text;
+    value = QDateTime::fromString(text, "yyyy_MM_dd-HH:mm:ss");
+    return str;
+}
+
+QTextStream&  operator << (QTextStream& str, const QDateTime& value)
+{
+    QString text = value.toString("yyyy_MM_dd-HH:mm:ss");
+    str << text;
+    return str;
+}

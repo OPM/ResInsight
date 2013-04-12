@@ -61,14 +61,16 @@ class PdmUiEditorAttribute;
 #define CAF_PDM_HEADER_INIT \
 public: \
     virtual QString classKeyword()   { return  classKeywordStatic(); } \
-    static  QString classKeywordStatic()
+    static  QString classKeywordStatic(); \
+    static  bool Error_You_forgot_to_add_the_macro_CAF_PDM_HEADER_INIT_and_or_CAF_PDM_SOURCE_INIT_to_your_cpp_file_for_this_class()
 
 /// CAF_PDM_SOURCE_INIT associates the file keyword used for storage with the class and initializes the factory
 /// Place this in the cpp file, preferably above the constructor
 
 #define CAF_PDM_SOURCE_INIT(ClassName, keyword) \
+    bool    ClassName::Error_You_forgot_to_add_the_macro_CAF_PDM_HEADER_INIT_and_or_CAF_PDM_SOURCE_INIT_to_your_cpp_file_for_this_class() { return false;} \
     QString ClassName::classKeywordStatic() { assert(PdmObject::isValidXmlElementName(keyword)); return keyword;   } \
-    static bool PDM_OBJECT_STRING_CONCATENATE(pdm_object_factory_init_, __LINE__) = caf::PdmObjectFactory::instance()->registerCreator<ClassName>()
+    static bool PDM_OBJECT_STRING_CONCATENATE(pdm_object_factory_init_, __LINE__) = caf::PdmObjectFactory::instance()->registerCreator<ClassName>() 
 
 /// InitObject sets up the user interface related information for the object
 /// Placed in the constructor of your PdmObject
@@ -86,6 +88,8 @@ public: \
 
 #define CAF_PDM_InitField(field, keyword, default, uiName, iconResourceName, toolTip, whatsThis) \
 { \
+    static bool chekingThePresenceOfHeaderAndSourceInitMacros = Error_You_forgot_to_add_the_macro_CAF_PDM_HEADER_INIT_and_or_CAF_PDM_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+     \
     static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis); \
     addField(field, keyword, default, &objDescr); \
 }
@@ -94,6 +98,8 @@ public: \
 
 #define CAF_PDM_InitFieldNoDefault(field, keyword, uiName, iconResourceName, toolTip, whatsThis) \
 { \
+    static bool chekingThePresenceOfHeaderAndSourceInitMacros = Error_You_forgot_to_add_the_macro_CAF_PDM_HEADER_INIT_and_or_CAF_PDM_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
+    \
     static caf::PdmUiItemInfo objDescr(uiName, QIcon(QString(iconResourceName)), toolTip, whatsThis); \
     addFieldNoDefault(field, keyword, &objDescr); \
 }
@@ -126,9 +132,13 @@ public:
     /// 
     void                    parentObjects(std::vector<PdmObject*>& objects) const;
 
+    /// 
+    template <typename T>
+    void                    parentObjectsOfType(std::vector<T*>& objects) const;
+
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
-    void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const;
+    void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) ;
 
     /// For a specific field, return editor specific parameters used to customize the editor behavior..
     void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute);
@@ -159,7 +169,7 @@ protected: // Virtual
     /// Override to customize the order and grouping of the Gui.
     /// Fill up the uiOrdering object with groups and field references to create the gui structure
     /// If the uiOrdering is empty, it is interpreted as meaning all fields w/o grouping.
-    virtual void            defineUiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const {}
+    virtual void            defineUiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering)  {}
 
     /// Override to provide editor specific data for the field and uiConfigName 
     virtual void            defineEditorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute) {}
@@ -209,5 +219,25 @@ private:
     friend class PdmPointerImpl;
     std::set<PdmObject**>         m_pointersReferencingMe;
 };
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObject::parentObjectsOfType(std::vector<T*>& objects) const
+{
+    std::vector<PdmObject*> parents;
+    this->parentObjects(parents);
+
+    for (size_t i = 0; i < parents.size(); i++)
+    {
+        T* objectOfType = dynamic_cast<T*>(parents[i]);
+        if (objectOfType)
+        {
+            objects.push_back(objectOfType);
+        }
+    }
+}
+
 
 } // End of namespace caf

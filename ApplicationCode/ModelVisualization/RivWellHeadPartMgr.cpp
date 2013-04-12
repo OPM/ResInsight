@@ -36,7 +36,7 @@
 
 #include "RimReservoirView.h"
 
-#include "RigReservoir.h"
+#include "RigCaseData.h"
 #include "RigCell.h"
 
 #include "RivPipeGeometryGenerator.h"
@@ -46,12 +46,12 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well, cvf::Font* font)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
 
-    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::LARGE);
+    m_font = font;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,11 +72,11 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView.isNull()) return;
 
-    RigReservoir* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
+    RigCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
 
     RimWell* well = m_rimWell;
 
-    RigWellResults* wellResults = well->wellResults();
+    RigSingleWellResultsData* wellResults = well->wellResults();
 
     if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0)
     {
@@ -90,7 +90,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     const RigCell& whCell = rigReservoir->cellFromWellResultCell(wellResultFrame.m_wellHead);
 
-    double characteristicCellSize = rigReservoir->mainGrid()->characteristicCellSize();
+    double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
     // Match this position with pipe start position in RivWellPipesPartMgr::calculateWellPipeCenterline()
     cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
@@ -232,6 +232,8 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel())
     {
+        CVF_ASSERT(m_font.p());
+
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(m_font.p());
         drawableText->setCheckPosVisible(false);
