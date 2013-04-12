@@ -47,9 +47,9 @@ RimResultCase::RimResultCase()
     caseDirectory.setIOWritable(false); 
     caseDirectory.setUiHidden(true);
 
+    m_activeCellInfoIsReadFromFile = false;
+    m_gridAndWellDataIsReadFromFile = false;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -60,15 +60,15 @@ bool RimResultCase::openEclipseGridFile()
 
     progInfo.setProgressDescription("Open Grid File");
     progInfo.setNextProgressIncrement(48);
-    // Early exit if reservoir data is created
-    if (this->reservoirData()) return true;
+    
+    // Early exit if data is already read
+    if (m_gridAndWellDataIsReadFromFile) return true;
 
     cvf::ref<RifReaderInterface> readerInterface;
 
     if (caseFileName().contains("Result Mock Debug Model"))
     {
         readerInterface = this->createMockModel(this->caseFileName());
-
     }
     else
     {
@@ -98,6 +98,9 @@ bool RimResultCase::openEclipseGridFile()
     progInfo.setProgressDescription("Computing Case Cache");
     computeCachedData();
 
+    m_gridAndWellDataIsReadFromFile = true;
+    m_activeCellInfoIsReadFromFile = true;
+
     return true;
  }
 
@@ -106,8 +109,10 @@ bool RimResultCase::openEclipseGridFile()
 //--------------------------------------------------------------------------------------------------
 bool RimResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
 {
-    cvf::ref<RifReaderInterface> readerInterface;
+    // Early exit if data is already read
+    if (m_activeCellInfoIsReadFromFile) return true;
 
+    cvf::ref<RifReaderInterface> readerInterface;
     if (caseFileName().contains("Result Mock Debug Model"))
     {
         readerInterface = this->createMockModel(this->caseFileName());
@@ -154,10 +159,10 @@ bool RimResultCase::openAndReadActiveCellData(RigCaseData* mainEclipseCase)
 
     reservoirData()->computeActiveCellBoundingBoxes();
 
+    m_activeCellInfoIsReadFromFile = true;
+
     return true;
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -235,7 +240,6 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
 
     return mockFileInterface.p();
 }
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

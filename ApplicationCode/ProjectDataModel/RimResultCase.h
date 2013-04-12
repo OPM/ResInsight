@@ -62,4 +62,6 @@ private:
     // Obsolete field
     caf::PdmField<QString>      caseDirectory; 
 
+    bool                        m_gridAndWellDataIsReadFromFile;
+    bool                        m_activeCellInfoIsReadFromFile;
 };

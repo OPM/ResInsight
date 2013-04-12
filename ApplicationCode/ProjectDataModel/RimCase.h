@@ -56,7 +56,6 @@ public:
                                                       
     RigCaseData*                                reservoirData();
     const RigCaseData*                          reservoirData() const;
-    void                                        removeReservoirData();
 
     RimReservoirCellResultsStorage*		        results(RifReaderInterface::PorosityModelResultType porosityModel);
                                                       

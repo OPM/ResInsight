@@ -29,6 +29,7 @@ class RimIdenticalGridCaseGroup;
 class RimResultDefinition;
 class RimStatisticsCaseCollection;
 class RigMainGrid;
+class RigSingleWellResultsData;
 
 
 //==================================================================================================
@@ -72,6 +73,8 @@ private:
     void updateSelectionSummaryLabel();
     void updatePercentileUiVisibility();
 
+    void setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults);
+
     // Pdm system overrides
     virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) ;
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
@@ -104,4 +107,5 @@ private:
     caf::PdmField<double >                                          m_midPercentile;
     caf::PdmField<double >                                          m_highPercentile;
 
+    caf::PdmField<QString>                                          m_wellDataSourceCase;
 };

@@ -29,6 +29,8 @@
 #include "cafPdmUiTextEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "RiuMainWindow.h"
+#include "RimUiTreeModelPdm.h"
 
 namespace caf {
     template<>
@@ -97,6 +99,8 @@ RimStatisticsCase::RimStatisticsCase()
     CAF_PDM_InitField(&m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "");
     CAF_PDM_InitField(&m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "");
     CAF_PDM_InitField(&m_highPercentile, "HighPercentile", 90.0, "High", "", "", "");
+
+    CAF_PDM_InitField(&m_wellDataSourceCase, "WellDataSourceCase", RimDefines::undefinedResultName(), "Well Data Source Case", "", "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,6 +409,20 @@ QList<caf::PdmOptionItemInfo> RimStatisticsCase::calculateValueOptions(const caf
         return toOptionList(varList);
     }
 
+    else if (&m_wellDataSourceCase == fieldNeedingOptions)
+    {
+        QStringList sourceCaseNames;
+        sourceCaseNames += RimDefines::undefinedResultName();
+
+        for (size_t i = 0; i < caseGroup()->caseCollection()->reservoirs().size(); i++)
+        {
+            sourceCaseNames += caseGroup()->caseCollection()->reservoirs()[i]->caseUserDescription();
+        }
+
+        return toOptionList(sourceCaseNames);
+    }
+
+
     return options;
 }
 
@@ -430,9 +448,56 @@ void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         m_calculateEditCommand = false;
     }
 
-     //updateSelectionSummaryLabel();
+    if (&m_wellDataSourceCase == changedField)
+    {
+        RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
+
+        // Find or load well data for given case
+        RimCase* sourceResultCase = caseGroup()->caseCollection()->findByDescription(m_wellDataSourceCase);
+        if (sourceResultCase)
+        {
+            sourceResultCase->openEclipseGridFile();
+           
+            // Propagate well info to statistics case
+            if (sourceResultCase->reservoirData())
+            {
+                const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults = sourceResultCase->reservoirData()->wellResults();
+                setWellResultsAndUpdateViews(sourceCaseWellResults);
+            }
+        }
+        else
+        {
+            cvf::Collection<RigSingleWellResultsData> sourceCaseWellResults;
+            setWellResultsAndUpdateViews(sourceCaseWellResults);
+        }
+    }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults)
+{
+    RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
+
+    this->reservoirData()->setWellResults(sourceCaseWellResults);
+
+    // Update views
+    for (size_t i = 0; i < reservoirViews().size(); i++)
+    {
+        RimReservoirView* reservoirView = reservoirViews()[i];
+        CVF_ASSERT(reservoirView);
+
+        reservoirView->wellCollection()->wells.deleteAllChildObjects();
+        reservoirView->updateDisplayModelForWellResults();
+
+        treeModel->rebuildUiSubTree(reservoirView->wellCollection());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void addPropertySetToHtmlText(QString& html, const QString& heading, const std::vector<QString>& varNames)
 {
     if (varNames.size())
@@ -608,3 +673,4 @@ void RimStatisticsCase::populateWithDefaultsIfNeeded()
         if (varList.contains("PORO"))  m_selectedFractureStaticProperties.v().push_back("PORO");
     }
 }
+

@@ -38,10 +38,10 @@ class RimCaseCollection : public caf::PdmObject
 public:
     RimCaseCollection();
     virtual ~RimCaseCollection();
-
     caf::PdmPointersField<RimCase*> reservoirs;
 
-    RimIdenticalGridCaseGroup* parentCaseGroup();
+    RimIdenticalGridCaseGroup*  parentCaseGroup();
+    RimCase*                    findByDescription(const QString& caseDescription) const;
 
 private:
 

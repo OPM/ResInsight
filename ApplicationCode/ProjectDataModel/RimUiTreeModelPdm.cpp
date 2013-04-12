@@ -385,22 +385,7 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
     if (collectionItem)
     {
         RimCase* rimReservoir = dynamic_cast<RimCase*>(collectionItem->dataObject().p());
-
-        // If the case is one of the source cases in a CaseGroup, but not the main case, we need to 
-        // trigger a complete load of the case, if the new view is the first on the case.
-
-        if (rimReservoir && rimReservoir->parentGridCaseGroup() 
-            && rimReservoir->parentGridCaseGroup()->contains(rimReservoir) 
-            && !(rimReservoir ==  rimReservoir->parentGridCaseGroup()->mainCase())
-            && rimReservoir->reservoirViews().size() == 0)
-        {
-            if (rimReservoir->reservoirData())
-            {
-                CVF_ASSERT(rimReservoir->reservoirData()->refCount() == 1);
-            }
-
-            rimReservoir->removeReservoirData();
-        }
+        rimReservoir->openEclipseGridFile();
 
         RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
 

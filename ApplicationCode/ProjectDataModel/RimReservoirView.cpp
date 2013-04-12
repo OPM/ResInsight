@@ -1284,3 +1284,24 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateDisplayModelForWellResults()
+{
+    m_geometry->clearGeometryCache();
+    m_pipesPartManager->clearGeometryCache();
+
+    syncronizeWellsWithResults();
+
+    createDisplayModel();
+    updateDisplayModelVisibility();
+
+    overlayInfoConfig()->update3DInfo();
+
+    if (animationMode && m_viewer)
+    {
+        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
+    }
+}
+
