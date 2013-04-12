@@ -1,0 +1,24 @@
+diff --git a/ApplicationCode/CMakeLists.txt b/ApplicationCode/CMakeLists.txt
+index 7995ceb..4930b98 100644
+--- a/ApplicationCode/CMakeLists.txt
++++ b/ApplicationCode/CMakeLists.txt
+@@ -8,6 +8,10 @@ CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/ApplicationCode/Adm/RIVersionInfo.h.cmake
+                 ${CMAKE_BINARY_DIR}/Generated/RIVersionInfo.h
+ )
+ 
++if(NOT CMAKE_INSTALL_DOCDIR)
++  set(CMAKE_INSTALL_DOCDIR share/doc/resinsight)
++endif(NOT CMAKE_INSTALL_DOCDIR)
++
+ 
+ include_directories(
+     ${CMAKE_CURRENT_SOURCE_DIR}
+@@ -313,7 +317,7 @@ else (PRIVATE_INSTALL)
+ 	)
+   # license go in /usr/share/doc
+   install (FILES ${RESINSIGHT_LICENSE_FILES}
+-	DESTINATION share/doc/ResInsight
++           DESTINATION ${CMAKE_INSTALL_DOCDIR}
+ 	)
+   # no bundled libraries for system install
+   # application icon
