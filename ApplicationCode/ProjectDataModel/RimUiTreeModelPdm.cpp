@@ -619,16 +619,16 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
         pdmObjects.createCopyByType(&typedObjects);
 
         if (typedObjects.size() == 0)
-    {
-        return;
-    }
+        {
+            return;
+        }
 
         RimResultCase* mainResultCase = NULL;
         std::vector< std::vector<int> > mainCaseGridDimensions;
 
         // Read out main grid and main grid dimensions if present in case group
         if (gridCaseGroup->mainCase())
-    {
+        {
             mainResultCase = dynamic_cast<RimResultCase*>(gridCaseGroup->mainCase());
             CVF_ASSERT(mainResultCase);
 
