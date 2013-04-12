@@ -5,6 +5,7 @@ project (ResInsight)
 set (VIZ_MODULES_FOLDER_NAME VisualizationModules)
 
 
+
 # Setup the main platform defines
 #-----------------------------------------------------
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

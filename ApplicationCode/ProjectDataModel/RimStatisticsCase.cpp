@@ -31,6 +31,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "RiuMainWindow.h"
 #include "RimUiTreeModelPdm.h"
+#include "cafProgressInfo.h"
 
 namespace caf {
     template<>
@@ -481,6 +482,8 @@ void RimStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSi
     RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
 
     this->reservoirData()->setWellResults(sourceCaseWellResults);
+    
+    caf::ProgressInfo progInfo(reservoirViews().size() + 1, "Updating Well Data for Views");
 
     // Update views
     for (size_t i = 0; i < reservoirViews().size(); i++)
@@ -492,6 +495,8 @@ void RimStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSi
         reservoirView->updateDisplayModelForWellResults();
 
         treeModel->rebuildUiSubTree(reservoirView->wellCollection());
+
+        progInfo.incrementProgress();
     }
 }
 

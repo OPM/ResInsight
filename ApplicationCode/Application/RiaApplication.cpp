@@ -1278,6 +1278,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     imageCompareReporter.generateHTMLReport(testDir.filePath(RegTestNames::reportFileName).toStdString());
 
     // Generate diff images
+    this->preferences()->resetToDefaults();
 
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {

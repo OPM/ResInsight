@@ -29,6 +29,8 @@ public:
     RiaPreferences(void);
     virtual ~RiaPreferences(void);
 
+    void resetToDefaults();
+
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
 
@@ -38,6 +40,8 @@ public: // Pdm Fields
 
     caf::PdmField<int>      defaultScaleFactorZ;
     caf::PdmField<bool>     defaultGridLines;
+    caf::PdmField<cvf::Color3f> defaultGridLineColors;
+    caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
