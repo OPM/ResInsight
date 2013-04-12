@@ -1,0 +1,24 @@
+diff --git a/ApplicationCode/FileInterface/FileInterface_UnitTests/Ert-Test.cpp b/ApplicationCode/FileInterface/FileInterface_UnitTests/Ert-Test.cpp
+index 7a2aef0..c552574 100644
+--- a/ApplicationCode/FileInterface/FileInterface_UnitTests/Ert-Test.cpp
++++ b/ApplicationCode/FileInterface/FileInterface_UnitTests/Ert-Test.cpp
+@@ -23,7 +23,6 @@
+ 
+ #include <util.h>
+ #include <int_vector.h>
+-#include <ecl_intehead.h>
+ #include <ecl_file.h>
+ #include <ecl_kw.h>
+ #include <ecl_kw_magic.h>
+diff --git a/ApplicationCode/FileInterface/RifEclipseOutputFileTools.cpp b/ApplicationCode/FileInterface/RifEclipseOutputFileTools.cpp
+index 2c77fd6..b6eeba7 100644
+--- a/ApplicationCode/FileInterface/RifEclipseOutputFileTools.cpp
++++ b/ApplicationCode/FileInterface/RifEclipseOutputFileTools.cpp
+@@ -20,7 +20,6 @@
+ 
+ #include "util.h"
+ #include "ecl_file.h"
+-#include "ecl_intehead.h"
+ #include "ecl_kw_magic.h"
+ 
+ #include <QFileInfo>

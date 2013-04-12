@@ -1,0 +1,4 @@
+01_use_system_ert.patch
+02_install_docdir.patch
+03_remove_internal_header_include.patch
+04_ert_api_changes.patch
