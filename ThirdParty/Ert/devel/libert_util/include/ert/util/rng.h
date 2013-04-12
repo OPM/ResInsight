@@ -41,6 +41,7 @@ typedef enum {
 
   typedef unsigned int ( rng_forward_ftype )        ( void * );
   typedef void         ( rng_set_state_ftype )      ( void * , const char * );
+  typedef void         ( rng_get_state_ftype )      ( void * , char * );
   typedef void *       ( rng_alloc_ftype )          ( void );
   typedef void         ( rng_free_ftype )           ( void * );
   typedef void         ( rng_fscanf_ftype )         ( void * , FILE * );
@@ -58,6 +59,10 @@ typedef enum {
   rng_alg_type    rng_get_type( const rng_type * rng );
   void            rng_fprintf_state( rng_type * rng , FILE * stream );
   void            rng_fscanf_state( rng_type * rng , FILE * stream );
+  int             rng_state_size( const rng_type * rng );
+  
+  void            rng_set_state( rng_type * rng , const char * state);
+  void            rng_get_state( const rng_type * rng , char * state);
   
   unsigned int    rng_forward( rng_type * rng );
   double          rng_get_double( rng_type * rng );

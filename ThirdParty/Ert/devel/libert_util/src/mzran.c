@@ -170,18 +170,37 @@ void mzran_fprintf_state( const void * __rng , FILE * stream) {
 
 
 
+static void mzran_set_default_state( mzran_type * rng ) {
+  mzran_set_state4( rng , DEFAULT_S0 , DEFAULT_S1 , DEFAULT_S2 , DEFAULT_S3);
+}
+                                       
+
 
 /**
    This function will set the state of the rng, based on a buffer of
    length buffer size. 16 bytes will be read from the seed buffer.
 */
 
-void mzran_set_state(void * __rng , const char * seed_buffer) {
+void mzran_set_state(void * __rng , const char * state_buffer) {
   mzran_type * rng = mzran_safe_cast( __rng );
-  const unsigned int * seed = (const unsigned int *) seed_buffer;
-  mzran_set_state4( rng , seed[0] , seed[1] , seed[2] , seed[3]);
+  if (state_buffer == NULL)
+    mzran_set_default_state(rng);
+  else {
+    const unsigned int * state = (const unsigned int *) state_buffer;
+    mzran_set_state4( rng , state[0] , state[1] , state[2] , state[3]);
+  }
 }
 
+
+void mzran_get_state(void * __rng , char * state_buffer) {
+  mzran_type * rng = mzran_safe_cast( __rng );
+  unsigned int * state = (unsigned int *) state_buffer;
+
+  state[0] = rng->x;
+  state[1] = rng->y;
+  state[2] = rng->z;
+  state[3] = rng->n;
+}
 
 
 
@@ -199,7 +218,7 @@ void mzran_set_state(void * __rng , const char * seed_buffer) {
 void * mzran_alloc( void ) {
   mzran_type * rng = util_malloc( sizeof * rng );
   UTIL_TYPE_ID_INIT( rng , MZRAN_TYPE_ID );
-  mzran_set_state4( rng , DEFAULT_S0 , DEFAULT_S1 , DEFAULT_S2 , DEFAULT_S3);
+  mzran_set_default_state( rng );
   return rng;
 }
 

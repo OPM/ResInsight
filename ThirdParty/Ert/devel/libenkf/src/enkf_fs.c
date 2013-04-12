@@ -208,8 +208,11 @@
 
 struct enkf_fs_struct {
   UTIL_TYPE_ID_DECLARATION;
-  char                   * mount_point;
-  
+  char                   * case_name;
+  char                   * root_path;
+  char                   * mount_point;    // mount_point = root_path / case_name; the mount_point is the fundamental INPUT.
+
+
   fs_driver_type         * dynamic_forecast;
   fs_driver_type         * dynamic_analyzed;
   fs_driver_type         * parameter;
@@ -249,6 +252,16 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point , bool read_
   fs->mount_point            = util_alloc_string_copy( mount_point );
   if (mount_point == NULL)
     util_abort("%s: fatal internal error: mount_point == NULL \n",__func__);
+  {
+    char ** path_tmp;
+    int     path_len;
+
+    util_path_split( fs->mount_point , &path_len , &path_tmp);
+    fs->case_name = util_alloc_string_copy( path_tmp[path_len - 1]);
+    fs->root_path = util_alloc_joined_string( path_tmp , path_len , UTIL_PATH_SEP_STRING);
+    
+    util_free_stringlist( path_tmp , path_len );
+  }
   return fs;
 }
 
@@ -507,6 +520,8 @@ void enkf_fs_close( enkf_fs_type * fs ) {
   enkf_fs_free_driver( fs->eclipse_static );
   enkf_fs_free_driver( fs->index );
 
+  util_safe_free( fs->case_name );
+  util_safe_free( fs->root_path );
   util_safe_free( fs->mount_point );
   path_fmt_free( fs->case_fmt );
   path_fmt_free( fs->case_member_fmt );
@@ -694,6 +709,14 @@ void enkf_fs_fwrite_vector(enkf_fs_type * enkf_fs , buffer_type * buffer , const
 
 const char * enkf_fs_get_mount_point( const enkf_fs_type * fs ) {
   return fs->mount_point;
+}
+
+const char * enkf_fs_get_root_path( const enkf_fs_type * fs ) {
+  return fs->root_path;
+}
+
+const char * enkf_fs_get_case_name( const enkf_fs_type * fs ) {
+  return fs->case_name;
 }
 
 void enkf_fs_debug_fprintf( const enkf_fs_type * fs) {

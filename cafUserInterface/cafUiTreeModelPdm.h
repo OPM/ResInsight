@@ -68,7 +68,7 @@ public:
     virtual bool            removeRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
 
 protected:
-    QModelIndex getModelIndexFromPdmObjectRecursive(const QModelIndex& root, const PdmObject * object) const;
+    QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const;
 
 private:
     PdmUiTreeItem* m_root;

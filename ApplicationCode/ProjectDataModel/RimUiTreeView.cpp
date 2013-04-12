@@ -62,6 +62,16 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
 {
     m_pasteAction->setEnabled(hasClipboardValidData());
 
+    if (selectionModel() && selectionModel()->selection().size() == 0)
+    {
+        // Clicking in blank space in tree view
+        QMenu menu;
+        menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
+        menu.exec(event->globalPos());
+
+        return;
+    }
+
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (myModel)
     {
@@ -796,28 +806,34 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::slotCloseCase()
 {
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (myModel)
+    QModelIndexList miList;
+    miList << currentIndex();
+
+    if (userConfirmedGridCaseGroupChange(miList))
     {
-        QItemSelectionModel* m = selectionModel();
-        CVF_ASSERT(m);
-
-        caf::PdmObjectGroup group;
-
-        QModelIndexList mil = m->selectedRows();
-        for (int i = 0; i < mil.size(); i++)
+        RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+        if (myModel)
         {
-            caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mil.at(i));
-            group.addObject(uiItem->dataObject().p());
-        }
+            QItemSelectionModel* m = selectionModel();
+            CVF_ASSERT(m);
 
-        std::vector<caf::PdmPointer<RimCase> > typedObjects;
-        group.objectsByType(&typedObjects);
+            caf::PdmObjectGroup group;
 
-        for (size_t i = 0; i < typedObjects.size(); i++)
-        {
-            RimCase* rimReservoir = typedObjects[i];
-            myModel->deleteReservoir(rimReservoir);
+            QModelIndexList mil = m->selectedRows();
+            for (int i = 0; i < mil.size(); i++)
+            {
+                caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mil.at(i));
+                group.addObject(uiItem->dataObject().p());
+            }
+
+            std::vector<caf::PdmPointer<RimCase> > typedObjects;
+            group.objectsByType(&typedObjects);
+
+            for (size_t i = 0; i < typedObjects.size(); i++)
+            {
+                RimCase* rimReservoir = typedObjects[i];
+                myModel->deleteReservoir(rimReservoir);
+            }
         }
     }
 }
@@ -865,7 +881,7 @@ void RimUiTreeView::slotAddCaseGroup()
     if (myModel)
     {
         QModelIndex insertedIndex;
-        myModel->addCaseGroup(currentIndex(), insertedIndex);
+        myModel->addCaseGroup(insertedIndex);
         setCurrentIndex(insertedIndex);
 
         setExpanded(insertedIndex, true);
@@ -918,11 +934,16 @@ void RimUiTreeView::slotPastePdmObjects()
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     if (!myModel) return;
 
-    caf::PdmObjectGroup objectGroup;
-    createPdmObjectsFromClipboard(&objectGroup);
-    if (objectGroup.objects().size() == 0) return;
+    QModelIndexList miList;
+    miList << currentIndex();
+    if (userConfirmedGridCaseGroupChange(miList))
+    {
+        caf::PdmObjectGroup objectGroup;
+        createPdmObjectsFromClipboard(&objectGroup);
+        if (objectGroup.objects().size() == 0) return;
 
-    myModel->addObjects(currentIndex(), objectGroup);
+        myModel->addObjects(currentIndex(), objectGroup);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -993,6 +1014,129 @@ bool RimUiTreeView::hasClipboardValidData()
         if (dynamic_cast<const MimeDataWithIndexes*>(clipboard->mimeData()))
         {
             return true;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::dropEvent(QDropEvent* dropEvent)
+{
+    QModelIndexList affectedModels;
+
+    if (dropEvent->dropAction() == Qt::MoveAction)
+    {
+        const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>(dropEvent->mimeData());
+        if (myMimeData)
+        {
+            affectedModels = myMimeData->indexes();
+        }
+    }
+
+    QModelIndex dropIndex = indexAt(dropEvent->pos());
+    if (dropIndex.isValid())
+    {
+        affectedModels.push_back(dropIndex);
+    }
+
+    if (userConfirmedGridCaseGroupChange(affectedModels))
+    {
+        QTreeView::dropEvent(dropEvent);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Displays a question to the user when a grid case group with statistical results is about to change
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndexList& itemIndexList)
+{
+    if (itemIndexList.size() == 0) return true;
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        caf::PdmObjectGroup pog;
+
+        for (int i = 0; i < itemIndexList.size(); i++)
+        {
+            QModelIndex itemIndex = itemIndexList.at(i);
+            if (!itemIndex.isValid()) continue;
+
+            RimIdenticalGridCaseGroup* gridCaseGroup = myModel->gridCaseGroupFromItemIndex(itemIndex);
+            if (gridCaseGroup)
+            {
+                if (hasAnyStatisticsResults(gridCaseGroup))
+                {
+                    if (pog.objects().count(gridCaseGroup) == 0)
+                    {
+                        pog.addObject(gridCaseGroup);
+                    }
+                }
+            }
+        }
+
+        std::vector<caf::PdmPointer<RimIdenticalGridCaseGroup> > typedObjects;
+        pog.objectsByType(&typedObjects);
+
+        if (typedObjects.size() > 0)
+        {
+            RiuMainWindow* mainWnd = RiuMainWindow::instance();
+
+            QMessageBox msgBox(mainWnd);
+            msgBox.setIcon(QMessageBox::Question);
+
+            QString questionText;
+            if (typedObjects.size() == 1)
+            {
+                questionText = QString("This operation will invalidate statistics results in grid case group\n\"%1\".\n").arg(typedObjects[0]->name());
+                questionText += "Computed results in this group will be deleted if you continue.";
+            }
+            else
+            {
+                questionText = "This operation will invalidate statistics results in grid case groups\n";
+                for (int i = 0; i < typedObjects.size(); i++)
+                {
+                    questionText += QString("\"%1\"\n").arg(typedObjects[i]->name());
+                }
+
+                questionText += "Computed results in these groups will be deleted if you continue.";
+            }
+
+            msgBox.setText(questionText);
+            msgBox.setInformativeText("Do you want to continue?");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+
+            int ret = msgBox.exec();
+            if (ret == QMessageBox::No)
+            {
+                return false;
+            }
+        }
+
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeView::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup)
+{
+    CVF_ASSERT(gridCaseGroup);
+
+    for (size_t i = 0; i < gridCaseGroup->statisticsCaseCollection()->reservoirs().size(); i++)
+    {
+        RimStatisticsCase* rimStaticsCase = dynamic_cast<RimStatisticsCase*>(gridCaseGroup->statisticsCaseCollection()->reservoirs[i]);
+        if (rimStaticsCase)
+        {
+            if (rimStaticsCase->hasComputedStatistics())
+            {
+                return true;
+            }
         }
     }
 

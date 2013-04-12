@@ -39,6 +39,8 @@ extern "C" {
 #define LSF_BKILL_CMD    "BKILL_CMD"
 
 #define LOCAL_LSF_SERVER "LOCAL"
+#define NULL_LSF_SERVER  "NULL"
+
 
   typedef enum {
     LSF_SUBMIT_INVALID = 0,

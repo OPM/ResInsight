@@ -46,12 +46,12 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well, cvf::Font* font)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
 
-    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::LARGE);
+    m_font = font;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,6 +232,8 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel())
     {
+        CVF_ASSERT(m_font.p());
+
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
         drawableText->setFont(m_font.p());
         drawableText->setCheckPosVisible(false);

@@ -158,7 +158,7 @@ static time_t file_map_iget_restart_sim_date(const file_map_type * file_map , in
 
   if (seqnum_map != NULL) {
     ecl_kw_type * intehead_kw = file_map_iget_named_kw( seqnum_map , INTEHEAD_KW , 0);
-    sim_time = ecl_intehead_date( intehead_kw );
+    sim_time = ecl_rsthead_date( intehead_kw );
     file_map_free( seqnum_map );
   } 
   
@@ -175,7 +175,7 @@ static int file_map_find_sim_time(const file_map_type * file_map , time_t sim_ti
     int index = 0;
     while (index < int_vector_size( intehead_index_list )) {
       const ecl_kw_type * intehead_kw = file_map_iget_kw( file_map , int_vector_iget( intehead_index_list , index ));
-      if (ecl_intehead_date( intehead_kw ) == sim_time) {
+      if (ecl_rsthead_date( intehead_kw ) == sim_time) {
         seqnum_index = index;
         break;
       }

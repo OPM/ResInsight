@@ -114,6 +114,8 @@ from PyQt4 import QtGui, QtCore
 import sys
 import os
 
+from ert.ert.ertwrapper import ErtWrapper
+
 import ert_gui.widgets.util
 import ert_gui.widgets.help
 ert_gui.widgets.help.help_prefix = os.getenv("GERT_SHARE_PATH")+ "/help/"
@@ -130,7 +132,6 @@ from ert_gui.pages.init.initpanel import InitPanel
 from ert_gui.pages.run.runpanel import RunPanel
 from ert_gui.pages.config.configpages import ConfigPages
 from ert_gui.pages.plot.plotpanel import PlotPanel
-from ert.ertwrapper import ErtWrapper
 from ert_gui.widgets.helpedwidget import ContentModel
 from ert_gui.widgets.util import resourceImage, resourceIcon
 
@@ -186,7 +187,7 @@ window.setSaveFunction(ert.save)
 splash.showMessage("Creating GUI...", color=QtCore.Qt.white)
 app.processEvents()
 
-window.addPage("Configuration", resourceIcon("config"), ConfigPages(window))
+#window.addPage("Configuration", resourceIcon("config"), ConfigPages(window))
 window.addPage("Init", resourceIcon("db"), InitPanel(window))
 window.addPage("Run", resourceIcon("run"), RunPanel(window))
 window.addPage("Plots", resourceIcon("plot"), PlotPanel())

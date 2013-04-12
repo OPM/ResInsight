@@ -25,6 +25,7 @@ extern "C" {
 #include <time.h>
 
 #include <ert/util/stringlist.h>
+#include <ert/util/time_t_vector.h>
 
 typedef enum { ECL_OTHER_FILE           = 0   , 
                ECL_RESTART_FILE         = 1   , 
@@ -178,6 +179,8 @@ const char *    ecl_util_get_phase_name( ecl_phase_enum phase );
 const char *    ecl_util_file_enum_iget( int index, int * value);
 
 int             ecl_util_select_filelist( const char * path , const char * base , ecl_file_enum file_type , bool fmt_file , stringlist_type * filelist);
+void            ecl_util_append_month_range( time_t_vector_type * date_list , time_t start_date , time_t end_date , bool force_append_end);
+void            ecl_util_init_month_range( time_t_vector_type * date_list , time_t start_date , time_t end_date);
 
 #ifdef __cplusplus
 }

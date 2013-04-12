@@ -74,6 +74,7 @@ extern "C" {
   int           vector_get_size( const vector_type * );
   void        * vector_pop(vector_type * );
   void          vector_sort(vector_type * vector , vector_cmp_ftype * cmp);
+  void          vector_inplace_reverse(vector_type * vector);
   vector_type * vector_alloc_copy(const vector_type * src , bool deep_copy);
   
   void          vector_iset_buffer(vector_type * vector , int index , const void * buffer, int buffer_size);

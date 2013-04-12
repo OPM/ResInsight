@@ -163,7 +163,7 @@ void RimCellPropertyFilter::setDefaultValues()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) const
+void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) 
 {
     // Fields declared in RimCellFilter
     uiOrdering.add(&name);

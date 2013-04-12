@@ -22,9 +22,8 @@ from simulation import SimulationItemDelegate, SimulationList, SimulationItem, S
 
 import threading
 import time
-import ert.ertwrapper as ertwrapper
 from ert_gui.widgets.util import getItemsFromList
-from ert.enums import ert_job_status_type
+from ert.ert.enums import ert_job_status_type
 from PyQt4.QtGui import QApplication
 
 class SimulationsDialog(QtGui.QDialog):

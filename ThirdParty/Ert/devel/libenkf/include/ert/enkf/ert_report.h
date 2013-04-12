@@ -30,9 +30,10 @@ extern "C" {
   ert_report_type * ert_report_alloc( const char * source_file , const char * target_file );
   void              ert_report_free( ert_report_type * ert_report );
   void              ert_report_free__(void * arg);
-  bool              ert_report_create( ert_report_type * ert_report , const subst_list_type * context , const char * plot_path , const char * target_path );
+  bool              ert_report_create( ert_report_type * ert_report , int latex_timeout , const subst_list_type * context , const char * plot_path , const char * target_path );
   const char      * ert_report_get_basename( const ert_report_type * ert_report );
   const char      * ert_report_get_work_path( const ert_report_type * ert_report );
+  void              ert_report_set_latex_timeout( ert_report_type * ert_report , int timeout);
 
 #ifdef __cplusplus
 }

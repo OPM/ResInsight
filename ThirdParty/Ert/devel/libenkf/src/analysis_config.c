@@ -33,26 +33,32 @@
 #include <ert/enkf/analysis_config.h>
 #include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/config_keys.h>
+#include <ert/enkf/analysis_iter_config.h>
 
 
 struct analysis_config_struct {
-  hash_type             * analysis_modules;
-  analysis_module_type  * analysis_module;
-  char                  * log_path;                    /* Points to directory with update logs. */
-  bool                    merge_observations;          /* When observing from time1 to time2 - should ALL observations in between be used? */
-  bool                    rerun;                       /* Should we rerun the simulator when the parameters have been updated? */
-  int                     rerun_start;                 /* When rerunning - from where should we start? */
+  hash_type                     * analysis_modules;
+  analysis_module_type          * analysis_module;
+  char                          * log_path;                    /* Points to directory with update logs. */
+  bool                            merge_observations;          /* When observing from time1 to time2 - should ALL observations in between be used? */
+  bool                            rerun;                       /* Should we rerun the simulator when the parameters have been updated? */
+  int                             rerun_start;                 /* When rerunning - from where should we start? */
 
-  double                  overlap_alpha;
-  double                  std_cutoff;
+  double                          overlap_alpha;
+  double                          std_cutoff;
 
-  char                  * PC_filename;
-  char                  * PC_path;
-  bool                    store_PC;
-  bool                    update_results;              /* Should result values like e.g. WWCT be updated? */
-  bool                    single_node_update;          /* When creating the default ALL_ACTIVE local configuration. */ 
-  rng_type              * rng; 
+  char                          * PC_filename;
+  char                          * PC_path;
+  bool                            store_PC;
+  bool                            update_results;              /* Should result values like e.g. WWCT be updated? */
+  bool                            single_node_update;          /* When creating the default ALL_ACTIVE local configuration. */ 
+  rng_type                      * rng;  
+  analysis_iter_config_type * iter_config;
 }; 
+
+
+
+
 
 
 /*****************************************************************/
@@ -107,8 +113,8 @@ ANALYSIS_SELECT  ModuleName
 
 */
 
-   
-
+     
+/*****************************************************************/
 
 
 
@@ -368,44 +374,67 @@ void analysis_config_init( analysis_config_type * analysis , const config_type *
   
   /* Loading external modules */
   {
-    for (int i=0; i < config_get_occurences( config , ANALYSIS_LOAD_KEY ); i++) {
-      const stringlist_type * tokens = config_iget_stringlist_ref( config , ANALYSIS_LOAD_KEY , i);
-      const char * user_name = stringlist_iget( tokens , 0 );
-      const char * lib_name  = stringlist_iget( tokens , 1 );
-      
-      analysis_config_load_external_module( analysis , user_name , lib_name);
+    const config_content_item_type * load_item = config_get_content_item( config , ANALYSIS_LOAD_KEY );
+    if (load_item != NULL) {
+      for (int i=0; i < config_content_item_get_size( load_item ); i++) {
+        const config_content_node_type * load_node = config_content_item_iget_node( load_item , i );
+        const char * user_name = config_content_node_iget( load_node , 0 );
+        const char * lib_name  = config_content_node_iget( load_node , 1 );
+        
+        analysis_config_load_external_module( analysis , user_name , lib_name);
+      }
     }
   }
   
   /* Reload/copy modules. */
   {
-    for (int i=0; i < config_get_occurences( config , ANALYSIS_COPY_KEY ); i++) {
-      const stringlist_type * tokens = config_iget_stringlist_ref( config , ANALYSIS_COPY_KEY , i);
-      const char * src_name    = stringlist_iget( tokens , 0 );
-      const char * target_name = stringlist_iget( tokens , 1 );
-      
-      analysis_config_add_module_copy( analysis , src_name , target_name);
+    const config_content_item_type * copy_item = config_get_content_item( config , ANALYSIS_COPY_KEY );
+    if (copy_item != NULL) {
+      for (int i=0; i < config_content_item_get_size( copy_item ); i++) {
+        const config_content_node_type * copy_node = config_content_item_iget_node( copy_item , i );
+        const char * src_name = config_content_node_iget( copy_node , 0 );
+        const char * target_name  = config_content_node_iget( copy_node , 1 );
+        
+        analysis_config_add_module_copy( analysis , src_name , target_name);
+      }
     }
   }
 
 
   /* Setting variables for analysis modules */
   {
-    for (int i=0; i < config_get_occurences( config , ANALYSIS_SET_VAR_KEY ); i++) {
-      const stringlist_type * tokens = config_iget_stringlist_ref( config , ANALYSIS_SET_VAR_KEY , i);
-      const char * module_name = stringlist_iget( tokens , 0 );
-      const char * var_name    = stringlist_iget( tokens , 1 );
-      char       * value       = stringlist_alloc_joined_substring( tokens , 2 , stringlist_get_size( tokens ) , " " );
-      analysis_module_type * module = analysis_config_get_module( analysis , module_name );
-      
-      analysis_module_set_var( module , var_name , value );
-      free( value );
+    const config_content_item_type * assign_item = config_get_content_item( config , ANALYSIS_SET_VAR_KEY );
+    if (assign_item != NULL) {
+      for (int i=0; i < config_content_item_get_size( assign_item ); i++) {
+        const config_content_node_type * assign_node = config_content_item_iget_node( assign_item , i );
+        
+        const char * module_name = config_content_node_iget( assign_node , 0 );
+        const char * var_name    = config_content_node_iget( assign_node , 1 );
+        analysis_module_type * module = analysis_config_get_module( analysis , module_name );
+        {
+          char * value = NULL;
+
+          for (int j=2; j < config_content_node_get_size( assign_node ); j++) {
+            const char * config_value = config_content_node_iget( assign_node , j );
+            if (value == NULL)
+              value = util_alloc_string_copy( config_value );
+            else {
+              value = util_strcat_realloc( value , " " );
+              value = util_strcat_realloc( value , config_value );
+            }
+          }
+
+          analysis_module_set_var( module , var_name , value );
+          free( value );
+        }
+      }
     }
   }
 
   if (config_item_set( config, ANALYSIS_SELECT_KEY )) 
     analysis_config_select_module( analysis , config_get_value( config , ANALYSIS_SELECT_KEY ));
-  
+
+  analysis_iter_config_init( analysis->iter_config , config );
 }
 
 
@@ -415,12 +444,13 @@ bool analysis_config_get_merge_observations(const analysis_config_type * config)
 }
 
 
-
-
-
+analysis_iter_config_type * analysis_config_get_iter_config( const analysis_config_type * config ) {
+  return config->iter_config;
+}
 
 
 void analysis_config_free(analysis_config_type * config) {
+  analysis_iter_config_free( config->iter_config );
   hash_free( config->analysis_modules );
   free(config->log_path);
   free(config);
@@ -451,6 +481,7 @@ analysis_config_type * analysis_config_alloc_default( rng_type * rng ) {
   config->analysis_module  = NULL;
   config->analysis_modules = hash_alloc();
   config->rng              = rng; 
+  config->iter_config      = analysis_iter_config_alloc();
   return config;
 }
 
@@ -467,33 +498,35 @@ void analysis_config_add_config_items( config_type * config ) {
   
   config_add_key_value( config , ENKF_ALPHA_KEY              , false , CONFIG_FLOAT);
   config_add_key_value( config , STD_CUTOFF_KEY              , false , CONFIG_FLOAT);
-  config_add_key_value( config , ENKF_MERGE_OBSERVATIONS_KEY , false , CONFIG_BOOLEAN);
-  config_add_key_value( config , UPDATE_RESULTS_KEY          , false , CONFIG_BOOLEAN);
-  config_add_key_value( config , SINGLE_NODE_UPDATE_KEY      , false , CONFIG_BOOLEAN);
-  config_add_key_value( config , ENKF_CROSS_VALIDATION_KEY   , false , CONFIG_BOOLEAN);
-  config_add_key_value( config , ENKF_LOCAL_CV_KEY           , false , CONFIG_BOOLEAN);
-  config_add_key_value( config , ENKF_PEN_PRESS_KEY          , false , CONFIG_BOOLEAN);
-  config_add_key_value( config , ENKF_SCALING_KEY            , false , CONFIG_BOOLEAN);
-  config_add_key_value( config , ENKF_KERNEL_REG_KEY         , false , CONFIG_BOOLEAN);
+  config_add_key_value( config , ENKF_MERGE_OBSERVATIONS_KEY , false , CONFIG_BOOL);
+  config_add_key_value( config , UPDATE_RESULTS_KEY          , false , CONFIG_BOOL);
+  config_add_key_value( config , SINGLE_NODE_UPDATE_KEY      , false , CONFIG_BOOL);
+  config_add_key_value( config , ENKF_CROSS_VALIDATION_KEY   , false , CONFIG_BOOL);
+  config_add_key_value( config , ENKF_LOCAL_CV_KEY           , false , CONFIG_BOOL);
+  config_add_key_value( config , ENKF_PEN_PRESS_KEY          , false , CONFIG_BOOL);
+  config_add_key_value( config , ENKF_SCALING_KEY            , false , CONFIG_BOOL);
+  config_add_key_value( config , ENKF_KERNEL_REG_KEY         , false , CONFIG_BOOL);
   config_add_key_value( config , ENKF_KERNEL_FUNC_KEY        , false , CONFIG_INT);
   config_add_key_value( config , ENKF_KERNEL_PARAM_KEY       , false , CONFIG_INT);
-  config_add_key_value( config , ENKF_FORCE_NCOMP_KEY        , false , CONFIG_BOOLEAN);
+  config_add_key_value( config , ENKF_FORCE_NCOMP_KEY        , false , CONFIG_BOOL);
   config_add_key_value( config , ENKF_NCOMP_KEY              , false , CONFIG_INT);
   config_add_key_value( config , ENKF_CV_FOLDS_KEY           , false , CONFIG_INT);
-  config_add_key_value( config , ENKF_RERUN_KEY              , false , CONFIG_BOOLEAN);
+  config_add_key_value( config , ENKF_RERUN_KEY              , false , CONFIG_BOOL);
   config_add_key_value( config , RERUN_START_KEY             , false , CONFIG_INT);
   config_add_key_value( config , UPDATE_LOG_PATH_KEY         , false , CONFIG_STRING);
 
   config_add_key_value( config , ANALYSIS_SELECT_KEY         , false , CONFIG_STRING);
 
-  item = config_add_schema_item( config , ANALYSIS_LOAD_KEY , false , true );
-  config_schema_item_set_argc_minmax( item , 2 , 2 , 0 , NULL );  
+  item = config_add_schema_item( config , ANALYSIS_LOAD_KEY , false  );
+  config_schema_item_set_argc_minmax( item , 2 , 2);
 
-  item = config_add_schema_item( config , ANALYSIS_COPY_KEY , false , true );
-  config_schema_item_set_argc_minmax( item , 2 , 2 , 0 , NULL );  
+  item = config_add_schema_item( config , ANALYSIS_COPY_KEY , false  );
+  config_schema_item_set_argc_minmax( item , 2 , 2);
   
-  item = config_add_schema_item( config , ANALYSIS_SET_VAR_KEY , false , true );
-  config_schema_item_set_argc_minmax( item , 3 , -1 , 0 , NULL );
+
+  item = config_add_schema_item( config , ANALYSIS_SET_VAR_KEY , false  );
+  config_schema_item_set_argc_minmax( item , 3 , CONFIG_DEFAULT_ARG_MAX);
+  analysis_iter_config_add_config_items( config );
 }
 
 

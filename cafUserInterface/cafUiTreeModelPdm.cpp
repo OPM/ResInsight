@@ -380,18 +380,18 @@ PdmUiTreeItem* caf::UiTreeModelPdm::getTreeItemFromIndex(const QModelIndex& inde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObjectRecursive(const QModelIndex& root, const PdmObject * object) const
+QModelIndex caf::UiTreeModelPdm::getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const
 {
-    if (root.internalPointer())
+    if (currentIndex.internalPointer())
     {
-        PdmUiTreeItem* treeItem = static_cast<PdmUiTreeItem*>(root.internalPointer());
-        if (treeItem->dataObject() == object) return root;
+        PdmUiTreeItem* treeItem = static_cast<PdmUiTreeItem*>(currentIndex.internalPointer());
+        if (treeItem->dataObject() == object) return currentIndex;
     }
 
    int row;
-   for (row = 0; row < rowCount(root); ++row)
+   for (row = 0; row < rowCount(currentIndex); ++row)
    {
-       QModelIndex foundIndex = getModelIndexFromPdmObjectRecursive(index(row, 0, root), object);
+       QModelIndex foundIndex = getModelIndexFromPdmObjectRecursive(index(row, 0, currentIndex), object);
        if (foundIndex.isValid()) return foundIndex;
    }
    return QModelIndex();

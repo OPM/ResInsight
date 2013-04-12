@@ -436,7 +436,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
         // Convert the QImage into the cvf::TextureImage, 
         // handling vertical mirroring and (possible) byteswapping
 
-        if (m_overlayTextureImage->height() !=  this->height() || m_overlayTextureImage->width() !=  this->width())
+        if (((int)m_overlayTextureImage->height()) !=  this->height() || ((int)m_overlayTextureImage->width() !=  this->width()))
         {
             m_overlayTextureImage->allocate(this->width(), this->height());
         }

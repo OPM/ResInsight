@@ -24,7 +24,7 @@
 #include <ert/util/int_vector.h>
 #include <ert/util/stringlist.h>
 
-#include <ert/ecl/ecl_intehead.h>
+#include <ert/ecl/ecl_rsthead.h>
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_kw.h>
 #include <ert/ecl/ecl_kw_magic.h>
@@ -287,14 +287,14 @@ static void well_info_add_state( well_info_type * well_info , well_state_type * 
  */
 
 void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr) {
-  ecl_intehead_type * global_header = ecl_intehead_alloc( ecl_file_iget_named_kw( rst_file , INTEHEAD_KW , 0 ));
+  ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_file );
   int well_nr;
   for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
     well_state_type * well_state = well_state_alloc( rst_file , report_nr , well_nr );
     if (well_state != NULL)
       well_info_add_state( well_info , well_state );
   }
-  ecl_intehead_free( global_header );
+  ecl_rsthead_free( global_header );
 }
 
 /**

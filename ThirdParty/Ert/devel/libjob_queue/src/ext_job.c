@@ -629,15 +629,26 @@ static void ext_job_fprintf_python_argList( const ext_job_type * ext_job , FILE 
 }
 
 
-
-void ext_job_python_fprintf(const ext_job_type * ext_job, FILE * stream, const subst_list_type * global_args) {
+static bool ext_job_check_executable( const ext_job_type * ext_job , const subst_list_type * global_args) {
+  bool OK = true;
   char * executable;
   executable = subst_list_alloc_filtered_string( ext_job->private_args , ext_job->executable );
   if (global_args != NULL)
     subst_list_update_string( global_args , &executable );
   
-  if (util_is_executable( executable )) {
-    fprintf(stream," {");
+  if (!util_is_executable( executable )) 
+    OK = false;
+  free( executable );
+  return OK;
+}
+
+
+void ext_job_python_fprintf(const ext_job_type * ext_job, FILE * stream, const subst_list_type * global_args) {
+  if (!ext_job_check_executable( ext_job , global_args ))
+    fprintf(stderr," ** WARNING: The executable:%s could not be located on host computer - job will most probably fail.\n", ext_job->executable);
+  
+  fprintf(stream," {");
+  {
     __indent(stream, 0); __fprintf_python_string(stream , "name"                , ext_job->name                , ext_job->private_args , NULL);        __end_line(stream);
     __indent(stream, 2); __fprintf_python_string(stream , "executable"          , ext_job->executable          , ext_job->private_args, global_args);  __end_line(stream);
     __indent(stream, 2); __fprintf_python_string(stream , "target_file"         , ext_job->target_file         , ext_job->private_args, global_args);  __end_line(stream);
@@ -651,11 +662,8 @@ void ext_job_python_fprintf(const ext_job_type * ext_job, FILE * stream, const s
     __indent(stream, 2); __fprintf_python_string(stream , "license_path"        , ext_job->license_path        , ext_job->private_args, global_args);  __end_line(stream);
     __indent(stream, 2); __fprintf_python_int( stream   , "max_running_minutes" , ext_job->max_running_minutes );                                      __end_line(stream);
     __indent(stream, 2); __fprintf_python_int( stream   , "max_running"         , ext_job->max_running );                                              __end_line(stream);
-    fprintf(stream,"}");
-  } else
-    fprintf(stderr," ** WARNING: The executable:%s could not be located on host computer - job will most probably fail.\n", executable);
-  
-  free( executable );
+  }
+  fprintf(stream,"}");
 }
 
 
@@ -753,22 +761,22 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
     ext_job_set_config_file( ext_job , config_file );
     {
       config_schema_item_type * item;
-      item = config_add_schema_item(config , "MAX_RUNNING"         , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
-      item = config_add_schema_item(config , "STDIN"               , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_schema_item(config , "STDOUT"              , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_schema_item(config , "STDERR"              , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_schema_item(config , "EXECUTABLE"          , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_schema_item(config , "TARGET_FILE"         , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_schema_item(config , "ERROR_FILE"          , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_schema_item(config , "START_FILE"          , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 0 , NULL);
-      item = config_add_schema_item(config , "ENV"                 , false , true ); config_schema_item_set_argc_minmax(item  , 2 , 2 , 0 , NULL);
-      item = config_add_schema_item(config , "DEFAULT"             , false , true ); config_schema_item_set_argc_minmax(item  , 2 , 2 , 0 , NULL);
-      item = config_add_schema_item(config , "ARGLIST"             , false , true ); config_schema_item_set_argc_minmax(item  , 1 ,-1 , 0 , NULL);
-      item = config_add_schema_item(config , "MAX_RUNNING_MINUTES" , false , false); config_schema_item_set_argc_minmax(item  , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_INT});
+      item = config_add_schema_item(config , "MAX_RUNNING"         , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 ); config_schema_item_iset_type( item , 0 , CONFIG_INT );
+      item = config_add_schema_item(config , "STDIN"               , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 );
+      item = config_add_schema_item(config , "STDOUT"              , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 );
+      item = config_add_schema_item(config , "STDERR"              , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 );
+      item = config_add_schema_item(config , "EXECUTABLE"          , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 );
+      item = config_add_schema_item(config , "TARGET_FILE"         , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 );
+      item = config_add_schema_item(config , "ERROR_FILE"          , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 );
+      item = config_add_schema_item(config , "START_FILE"          , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 );
+      item = config_add_schema_item(config , "ENV"                 , false ); config_schema_item_set_argc_minmax(item  , 2 , 2 );
+      item = config_add_schema_item(config , "DEFAULT"             , false ); config_schema_item_set_argc_minmax(item  , 2 , 2 );
+      item = config_add_schema_item(config , "ARGLIST"             , false ); config_schema_item_set_argc_minmax(item  , 1 , CONFIG_DEFAULT_ARG_MAX );
+      item = config_add_schema_item(config , "MAX_RUNNING_MINUTES" , false ); config_schema_item_set_argc_minmax(item  , 1 , 1 ); config_schema_item_iset_type( item , 0 , CONFIG_INT );
     }
     config_add_alias(config , "EXECUTABLE" , "PORTABLE_EXE");
-    config_parse(config , config_file , "--" , NULL , NULL , true , true);
-    {
+
+    if (config_parse(config , config_file , "--" , NULL , NULL , CONFIG_UNRECOGNIZED_WARN , true)) {
       if (config_item_set(config , "STDIN"))                 ext_job_set_stdin_file(ext_job       , config_iget(config  , "STDIN" , 0,0));
       if (config_item_set(config , "STDOUT"))                ext_job_set_stdout_file(ext_job      , config_iget(config  , "STDOUT" , 0,0));
       if (config_item_set(config , "STDERR"))                ext_job_set_stderr_file(ext_job      , config_iget(config  , "STDERR" , 0,0));
@@ -781,36 +789,51 @@ ext_job_type * ext_job_fscanf_alloc(const char * name , const char * license_roo
  
       
 
-      if (config_item_set(config , "ARGLIST")) {
-        stringlist_type *argv = config_iget_stringlist_ref( config , "ARGLIST" , 0);
-        stringlist_deep_copy( ext_job->argv , argv );
+      {
+        config_content_node_type * arg_node = config_get_value_node( config , "ARGLIST");
+        if (arg_node != NULL) {
+          int i;
+          for (i=0; i < config_content_node_get_size( arg_node ); i++)
+            stringlist_append_copy( ext_job->argv , config_content_node_iget( arg_node , i ));
+        }
       }
 
         
       /**
          The code assumes that the hash tables are valid, can not be NULL:
       */
-      if (config_item_set(config , "ENV")) {
-        for (int occ_nr = 0; occ_nr < config_get_occurences( config , "ENV"); occ_nr++) {
-          const stringlist_type *key_value = config_iget_stringlist_ref( config , "ENV" , occ_nr);
-          for (int i=0; i < stringlist_get_size( key_value ); i+= 2) 
-            hash_insert_hash_owned_ref( ext_job->environment, 
-                                        stringlist_iget( key_value , i ) , 
-                                        util_alloc_string_copy( stringlist_iget( key_value , i + 1)) , free);
+      {
+        const config_content_item_type * env_item = config_get_content_item( config , "ENV" );
+        if (env_item != NULL) {
+          for (int ivar = 0; ivar < config_content_item_get_size( env_item ); ivar++) {
+            const config_content_node_type * env_node = config_content_item_iget_node( env_item , ivar );
+            for (int i=0; i < config_content_node_get_size( env_node ); i+= 2) {
+              const char * key   = config_content_node_iget( env_node , i );
+              const char * value = config_content_node_iget( env_node , i + 1);
+              hash_insert_hash_owned_ref( ext_job->environment, key , util_alloc_string_copy( value ) , free);
+            }
+          }
         }
       }
       
       /* Default mappings; these are used to set values in the argList
          which have not been supplied by the calling context. */
-      if (config_item_set(config , "DEFAULT")) {
-        for (int occ_nr = 0; occ_nr < config_get_occurences( config , "DEFAULT"); occ_nr++) {
-          const stringlist_type *key_value = config_iget_stringlist_ref( config , "DEFAULT" , occ_nr);
-          for (int i=0; i < stringlist_get_size( key_value ); i+= 2) 
-            hash_insert_hash_owned_ref( ext_job->default_mapping, 
-                                        stringlist_iget( key_value , i ) , 
-                                        util_alloc_string_copy( stringlist_iget( key_value , i + 1)) , free);
+      {
+        const config_content_item_type * default_item = config_get_content_item( config , "DEFAULT");
+        if (default_item != NULL) {
+          for (int ivar = 0; ivar < config_content_item_get_size( default_item ); ivar++) {
+            const config_content_node_type * default_node = config_content_item_iget_node( default_item , ivar );
+            for (int i=0; i < config_content_node_get_size( default_node ); i+= 2) {
+              const char * key   = config_content_node_iget( default_node , i );
+              const char * value = config_content_node_iget( default_node , i + 1);
+              hash_insert_hash_owned_ref( ext_job->default_mapping, key , util_alloc_string_copy( value ) , free);
+            }
+          }
         }
       }
+    } else {
+      config_fprintf_errors( config , true , stderr );
+      exit(1);
     }
     config_free(config);
     

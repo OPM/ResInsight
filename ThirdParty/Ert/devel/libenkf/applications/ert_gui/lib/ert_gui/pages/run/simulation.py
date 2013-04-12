@@ -19,8 +19,7 @@ from __future__ import division
 from PyQt4 import QtGui, QtCore
 from ert_gui.widgets.util import resourceIcon, resourceStateIcon, shortTime
 import time
-import ert.ertwrapper as ertwrapper
-from ert.enums import ert_job_status_type
+from ert.ert.enums import ert_job_status_type
 
 
 class SimulationList(QtGui.QListWidget):

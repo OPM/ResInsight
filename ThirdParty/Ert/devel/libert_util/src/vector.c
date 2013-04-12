@@ -449,7 +449,8 @@ const void * vector_get_last_const(const vector_type * vector) {
    This function removes the last element from the vector and returns
    it to the calling scope. Irrespective of whether the element _was_
    inserted with a destructor: when calling vector_pop() the calling
-   scope takes responsability for freeing data.
+   scope takes responsability for freeing data; i.e. vector_pop will
+   NEVER call a destructor.
 */
 
 
@@ -575,6 +576,21 @@ void vector_sort(vector_type * vector , vector_cmp_ftype * cmp) {
   }
   free( sort_data );
 }
+
+
+void vector_inplace_reverse(vector_type * vector) {
+  if (vector->size > 0) {
+    node_data_type ** new_data = util_calloc( vector->size , sizeof * new_data );
+    int index;
+    for (index = 0; index < vector->size; index++) {
+      int rev_index = vector->size - 1 - index;
+      new_data[index] = vector->data[ rev_index ];
+    }
+    free(vector->data);
+    vector->data = new_data;
+  }
+}
+
 
 
 /*****************************************************************/

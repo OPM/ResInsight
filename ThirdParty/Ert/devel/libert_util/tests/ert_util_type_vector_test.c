@@ -19,6 +19,7 @@
 #include <stdbool.h>
 
 #include <ert/util/int_vector.h>
+#include <ert/util/test_util.h>
 
 void assert_equal( bool equal ) {
   if (!equal)
@@ -42,6 +43,37 @@ int main(int argc , char ** argv) {
   assert_equal( int_vector_iget(int_vector , 4 ) == 99 );
   assert_equal( int_vector_iget(int_vector , 5 ) == -10 );
   
+  {
+    int N1 = 100000;
+    int N2 = 10*N1;
+    int_vector_type * v1 = int_vector_alloc( N1 , 0 );
+    int_vector_type * v2;
+    int * data1 = int_vector_get_ptr( v1 );
+    int_vector_iset( v1 , N1 - 1, 99);
+
+    int_vector_free_container( v1 );
+    v2 = int_vector_alloc( N2 , 0 );
+    int_vector_iset(v2 , N2 - 1, 77 );
+    
+    test_assert_int_equal(  data1[N1-1] , 99);
+    int_vector_free( v2 );
+    free( data1 );
+  }
+  
+  
+  test_assert_true( int_vector_init_range( int_vector , 100 , 1000 , 115 ) );
+  test_assert_int_equal( int_vector_iget( int_vector , 0 ) , 100);
+  test_assert_int_equal( int_vector_iget( int_vector , 1 ) , 215);
+  test_assert_int_equal( int_vector_iget( int_vector , 2 ) , 330);
+  test_assert_int_equal( int_vector_iget( int_vector , 3 ) , 445);
+  test_assert_int_equal( int_vector_get_last( int_vector ) , 1000);
+  
+  test_assert_false( int_vector_init_range( int_vector , 100 , -1000 , 115 ) );
+  test_assert_int_equal( int_vector_iget( int_vector , 0 ) , 100);
+  test_assert_int_equal( int_vector_iget( int_vector , 1 ) , 215);
+  test_assert_int_equal( int_vector_iget( int_vector , 2 ) , 330);
+  test_assert_int_equal( int_vector_iget( int_vector , 3 ) , 445);
+  test_assert_int_equal( int_vector_get_last( int_vector ) , 1000);
   
   exit(0);
 }

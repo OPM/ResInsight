@@ -63,12 +63,13 @@ bool RifEclipseRestartFilesetAccess::open()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::setFileSet(const QStringList& fileSet)
+void RifEclipseRestartFilesetAccess::setRestartFiles(const QStringList& fileSet)
 {
     close();
     m_ecl_files.clear();
 
     m_fileNames = fileSet;
+    m_fileNames.sort(); // To make sure they are sorted in increasing *.X000N order. Hack. Should probably be actual time stored on file.
 
     for (int i = 0; i < m_fileNames.size(); i++)
     {
@@ -99,7 +100,7 @@ void RifEclipseRestartFilesetAccess::close()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::setTimeSteps(const std::vector<QDateTime>& timeSteps)
 {
-    CVF_ASSERT(m_fileNames.size() == timeSteps.size());
+    CVF_ASSERT((size_t)m_fileNames.size() == timeSteps.size());
     m_timeSteps = timeSteps;
 }
 

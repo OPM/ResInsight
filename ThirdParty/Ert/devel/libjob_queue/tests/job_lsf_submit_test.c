@@ -21,15 +21,14 @@
 #include <lsf/lsbatch.h>
 
 #include <ert/util/util.h>
-//#include <test_util.h>
+#include <ert/util/test_util.h>
 
 #include <ert/job_queue/lsf_driver.h>
 
 
 
 void test_submit(lsf_driver_type * driver , const char * server , const char * bsub_cmd , const char * bjobs_cmd , const char * bkill_cmd , const char * cmd) {
-  if (server != NULL)
-    lsf_driver_set_option(driver , LSF_SERVER , server );
+  lsf_driver_set_option(driver , LSF_SERVER , server );
   
   if (bsub_cmd != NULL)
     lsf_driver_set_option(driver , LSF_BSUB_CMD , server );
@@ -75,11 +74,7 @@ int main( int argc , char ** argv) {
   int iarg;
   for (iarg = 0; iarg < stringlist_get_size( server_list ); iarg++) {
     const char * server = stringlist_iget( server_list , iarg );
-    
-    if (strcmp(server , "NULL") == 0)
-      test_submit(driver , NULL , NULL , NULL , NULL , argv[1]);
-    else
-      test_submit(driver , server , NULL , NULL , NULL , argv[1]);
+    test_submit(driver , server , NULL , NULL , NULL , argv[1]);
   }
   stringlist_free( server_list );
 

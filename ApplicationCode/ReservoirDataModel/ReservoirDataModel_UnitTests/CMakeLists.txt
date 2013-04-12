@@ -24,7 +24,7 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/CommonCode
 
 	#Remove when RigStatistics is out
-    ${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
+    #${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
 )
 
 # Populate the filenames into variable lists
@@ -38,6 +38,7 @@ set( UNIT_TEST_CPP_SOURCES
     main.cpp
     RigActiveCellInfo-Test.cpp
     RigReservoir-Test.cpp
+	RigStatisticsMath-Test.cpp
 )
 
 

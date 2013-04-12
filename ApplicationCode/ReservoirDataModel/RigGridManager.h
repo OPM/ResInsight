@@ -38,10 +38,9 @@ public:
 
     void clear();
 
-private:
-
     static bool isEqual(RigMainGrid* gridA, RigMainGrid* gridB);
-
+    static bool isGridDimensionsEqual(const std::vector< std::vector<int> >& mainCaseGridDimensions, const std::vector< std::vector<int> >& caseGridDimensions);
+private:
     class CaseToGridMap : public cvf::Object
     {
     public:

@@ -138,7 +138,7 @@ public:
 
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
-    void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const;
+    void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) ;
 
     /// For a specific field, return editor specific parameters used to customize the editor behavior..
     void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute);
@@ -169,7 +169,7 @@ protected: // Virtual
     /// Override to customize the order and grouping of the Gui.
     /// Fill up the uiOrdering object with groups and field references to create the gui structure
     /// If the uiOrdering is empty, it is interpreted as meaning all fields w/o grouping.
-    virtual void            defineUiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const {}
+    virtual void            defineUiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering)  {}
 
     /// Override to provide editor specific data for the field and uiConfigName 
     virtual void            defineEditorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute) {}

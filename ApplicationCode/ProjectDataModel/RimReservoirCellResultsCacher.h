@@ -59,7 +59,7 @@ protected:
     virtual void                    setupBeforeSave();
 
 private:
-    void                            loadOrComputeSOILForTimeStep(size_t timeStepIndex);
+    void                            computeSOILForTimeStep(size_t timeStepIndex);
 
     QString                         getValidCacheFileName();
     QString                         getCacheDirectoryPath();

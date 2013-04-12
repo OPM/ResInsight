@@ -37,6 +37,9 @@
 #include "RimInputCase.h"
 #include "RimStatisticsCase.h"
 #include "RimResultCase.h"
+#include "RigGridManager.h"
+#include "RimCase.h"
+#include "RigCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -215,6 +218,8 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
 {
+    if (reservoir->parentCaseCollection())
+    {
     RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
     QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
     if (!caseCollectionModelIndex.isValid()) return;
@@ -239,6 +244,22 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
     else
     {
         RimProject* proj = RiaApplication::instance()->project();
+        proj->removeCaseFromAllGroups(reservoir);
+    }
+    }
+    else
+    {
+        RimProject* proj = RiaApplication::instance()->project();
+        QModelIndex mi = getModelIndexFromPdmObject(reservoir);
+        if (mi.isValid())
+        {
+            caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
+            CVF_ASSERT(uiItem);
+
+            // Remove Ui items pointing at the pdm object to delete
+            removeRows_special(mi.row(), 1, mi.parent());
+        }
+
         proj->removeCaseFromAllGroups(reservoir);
     }
 
@@ -364,7 +385,12 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
     if (collectionItem)
     {
         RimCase* rimReservoir = dynamic_cast<RimCase*>(collectionItem->dataObject().p());
+        rimReservoir->openEclipseGridFile();
+
         RimReservoirView* insertedView = rimReservoir->createAndAddReservoirView();
+
+        // Must be run before buildViewItems, as wells are created in this function
+        insertedView->loadDataAndUpdate(); 
 
         int viewCount = rowCount(collectionIndex);
         beginInsertRows(collectionIndex, viewCount, viewCount);
@@ -373,8 +399,6 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
         caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, -1, insertedView);
         
         endInsertRows();
-
-        insertedView->loadDataAndUpdate();
 
         return insertedView;
     }
@@ -533,36 +557,36 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex)
+RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& insertedModelIndex)
 {
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+    QModelIndex scriptModelIndex = getModelIndexFromPdmObject(proj->scriptCollection());
+    if (!scriptModelIndex.isValid()) return NULL;
 
-    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
-        dynamic_cast<RimCase*>(currentItem->dataObject().p()))
-    {
-        QModelIndex rootIndex = itemIndex.parent();
-        caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(scriptModelIndex);
+    if (!currentItem) return NULL;
 
-        // New case group is inserted before the last item, the script item
-        int position = rootTreeItem->childCount() - 1;
+    QModelIndex rootIndex = scriptModelIndex.parent();
+    caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
 
-        beginInsertRows(rootIndex, position, position);
+    // New case group is inserted before the last item, the script item
+    int position = rootTreeItem->childCount() - 1;
 
-        RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
-        proj->caseGroups().push_back(createdObject);
+    beginInsertRows(rootIndex, position, position);
 
-        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
-        endInsertRows();
+    RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
+    createdObject->createAndAppendStatisticsCase();
+    createdObject->name = QString("Grid Case Group %1").arg(position + 1);
+    proj->caseGroups().push_back(createdObject);
 
-        insertedModelIndex = index(position, 0, rootIndex);
+    caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
+    endInsertRows();
 
-        return createdObject;
-    }
+    insertedModelIndex = index(position, 0, rootIndex);
 
-    return NULL;
+    return createdObject;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -573,51 +597,30 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
-
-    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
-    RimCaseCollection* caseCollection = NULL;
-
-    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()))
-    {
-        gridCaseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p());
-        caseCollection = gridCaseGroup->caseCollection();
-    }
-    else if (dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
-    {
-        caseCollection = dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p());
-        CVF_ASSERT(caseCollection);
-
-        gridCaseGroup = caseCollection->parentCaseGroup();
-    }
-    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
-    {
-        RimCase* rimReservoir = dynamic_cast<RimCase*>(currentItem->dataObject().p());
-        CVF_ASSERT(rimReservoir);
-
-        caseCollection = rimReservoir->parentCaseCollection();
-        if (caseCollection)
-        {
-        gridCaseGroup = caseCollection->parentCaseGroup();
-    }
-    }
-    else
-    {
-        return;
-    }
-
+    RimIdenticalGridCaseGroup* gridCaseGroup = gridCaseGroupFromItemIndex(itemIndex);
     if (gridCaseGroup)
     {
         std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
         pdmObjects.createCopyByType(&typedObjects);
 
-        RigCaseData* mainEclipseCase = NULL;
-        if (gridCaseGroup->caseCollection()->reservoirs().size() > 0)
+        if (typedObjects.size() == 0)
         {
-            RimCase* mainReservoir = gridCaseGroup->caseCollection()->reservoirs()[0];;
-            mainEclipseCase = mainReservoir->reservoirData();
+            return;
         }
 
+        RimResultCase* mainResultCase = NULL;
+        std::vector< std::vector<int> > mainCaseGridDimensions;
+
+        // Read out main grid and main grid dimensions if present in case group
+        if (gridCaseGroup->mainCase())
+        {
+            mainResultCase = dynamic_cast<RimResultCase*>(gridCaseGroup->mainCase());
+            CVF_ASSERT(mainResultCase);
+
+            mainResultCase->readGridDimensions(mainCaseGridDimensions);
+        }
+
+        // Add cases to case group
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
             RimResultCase* rimResultReservoir = typedObjects[i];
@@ -627,14 +630,25 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 continue;
             }
 
-            if (gridCaseGroup->mainGrid() == NULL)
+            if (!mainResultCase)
             {
                 rimResultReservoir->openEclipseGridFile();
-                mainEclipseCase = rimResultReservoir->reservoirData();
+                rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
+
+                mainResultCase = rimResultReservoir;
             }
             else
             {
-                if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
+                std::vector< std::vector<int> > caseGridDimensions;
+                rimResultReservoir->readGridDimensions(caseGridDimensions);
+                
+                bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
+                if (!identicalGrid)
+                {
+                    continue;
+                }
+
+                if (!rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
                 {
                     CVF_ASSERT(false);
                 }
@@ -645,7 +659,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             caf::PdmObjectGroup::initAfterReadTraversal(rimResultReservoir);
 
             {
-                QModelIndex rootIndex = getModelIndexFromPdmObject(caseCollection);
+                QModelIndex rootIndex = getModelIndexFromPdmObject(gridCaseGroup->caseCollection());
                 caf::PdmUiTreeItem* caseCollectionUiItem = getTreeItemFromIndex(rootIndex);
 
                 int position = rowCount(rootIndex);
@@ -660,6 +674,24 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 riv->loadDataAndUpdate();
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects)
+{
+    addObjects(itemIndex, pdmObjects);
+
+    // Delete objects from original container
+    std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
+    pdmObjects.objectsByType(&typedObjects);
+
+    for (size_t i = 0; i < typedObjects.size(); i++)
+    {
+        RimCase* rimReservoir = typedObjects[i];
+        deleteReservoir(rimReservoir);
     }
 }
 
@@ -741,7 +773,6 @@ Qt::ItemFlags RimUiTreeModelPdm::flags(const QModelIndex &index) const
     {
         caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(index);
         CVF_ASSERT(currentItem);
-        CVF_ASSERT(currentItem->dataObject().p());
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()) ||
             dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
@@ -777,18 +808,13 @@ bool RimUiTreeModelPdm::dropMimeData(const QMimeData *data, Qt::DropAction actio
             pog.objects().push_back(pdmObj);
         }
 
-        addObjects(parent, pog);
-
-        if (action == Qt::MoveAction)
+        if (action == Qt::CopyAction)
         {
-            std::vector<caf::PdmPointer<RimResultCase> > typedObjects;
-            pog.objectsByType(&typedObjects);
-
-            for (size_t i = 0; i < typedObjects.size(); i++)
-            {
-                RimCase* rimReservoir = typedObjects[i];
-                deleteReservoir(rimReservoir);
-            }
+        addObjects(parent, pog);
+        }
+        else if (action == Qt::MoveAction)
+        {
+            moveObjects(parent, pog);
         }
 
         return true;
@@ -815,5 +841,40 @@ QStringList RimUiTreeModelPdm::mimeTypes() const
     QStringList types;
     types << MimeDataWithIndexes::formatName();
     return types;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return grid case group when QModelIndex points to grid case group, case collection or case in a grid case group
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimUiTreeModelPdm::gridCaseGroupFromItemIndex(const QModelIndex& itemIndex)
+{
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
+
+    if (dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p()))
+    {
+        gridCaseGroup = dynamic_cast<RimIdenticalGridCaseGroup*>(currentItem->dataObject().p());
+    }
+    else if (dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p()))
+    {
+        RimCaseCollection* caseCollection = dynamic_cast<RimCaseCollection*>(currentItem->dataObject().p());
+        CVF_ASSERT(caseCollection);
+
+        gridCaseGroup = caseCollection->parentCaseGroup();
+    }
+    else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    {
+        RimCase* rimReservoir = dynamic_cast<RimCase*>(currentItem->dataObject().p());
+        CVF_ASSERT(rimReservoir);
+
+        RimCaseCollection* caseCollection = rimReservoir->parentCaseCollection();
+        if (caseCollection)
+        {
+            gridCaseGroup = caseCollection->parentCaseGroup();
+        }
+    }
+
+    return gridCaseGroup;
 }
 

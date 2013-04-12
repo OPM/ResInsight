@@ -34,6 +34,20 @@
 
 #include <fcntl.h>
 #include <limits.h>
+
+#ifdef HAVE_FORK
+#ifdef WITH_PTHREAD
+#ifdef HAVE_EXECINFO
+#define HAVE_UTIL_ABORT
+#endif
+#endif
+#endif
+
+#ifdef HAVE_UTIL_ABORT
+#define __USE_GNU       // Must be defined to get access to the dladdr() function; Man page says the symbol should be: _GNU_SOURCE but that does not seem to work?
+#define _GNU_SOURCE     // Must be defined _before_ #include <errno.h> to get the symbol 'program_invocation_name'. 
+#include <dlfcn.h>
+#endif
 #include <errno.h>
 
 #include <stdint.h>
@@ -77,6 +91,7 @@
 #else
 #include <io.h>
 #endif
+
 
 #include <stdint.h>
 #if UINTPTR_MAX == 0xFFFFFFFF
@@ -254,6 +269,10 @@ void util_endian_flip_vector_old(void *data, int element_size , int elements) {
   }
 }
 
+#ifndef S_ISDIR
+#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
+#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
+#endif
 
 
 /*****************************************************************/
@@ -330,8 +349,20 @@ double util_kahan_sum(const double *data, size_t N) {
 }
 
 
-
-
+bool util_double_approx_equal( double d1 , double d2) {
+  if (d1 == d2)
+    return true;
+  else {
+    double epsilon = 1e-6;
+    double diff = fabs(d1 - d2);
+    double sum  = fabs(d1) + fabs(d2);
+    
+    if ((diff / sum) < epsilon)
+      return true;
+    else
+      return false;
+  }
+}
 
 
 char * util_alloc_substring_copy(const char *src , int offset , int N) {
@@ -720,6 +751,34 @@ char * util_alloc_cwd(void) {
 
 
 
+bool util_is_cwd( const char * path ) {
+  bool is_cwd = false;
+  struct stat path_stat;
+
+  if (stat(path , &path_stat) == 0) {
+    if (S_ISDIR( path_stat.st_mode )) {
+      char * cwd = util_alloc_cwd();
+#ifdef ERT_WINDOWS
+      /*
+        The windows stat structure has the inode element, but it is
+        not set. Actually - this is a property of the filesystem, and
+        not the operating system - the whole check is probably broken?
+      */
+      util_abort("%s: Internal error - function not properly implmented on Windows \n",__func__);
+#else
+      struct stat cwd_stat;
+      stat(cwd , &cwd_stat);
+      if (cwd_stat.st_ino == path_stat.st_ino)
+        is_cwd = true;
+#endif
+      free( cwd );
+    }
+  }
+  return is_cwd;
+}
+
+
+
 /* 
    Homemade realpath() for not existing path or platforms without
    realpath().  
@@ -737,6 +796,81 @@ static char * util_alloc_cwd_abs_path( const char * path ) {
     return abs_path;
   }
 }
+
+
+
+/**
+   Manual realpath() implementation to be used on platforms without
+   realpath() support. Will remove /../, ./ and extra //. Will not
+   handle symlinks.
+*/
+
+
+#define BACKREF ".."
+#define CURRENT "."
+
+char * util_alloc_realpath__(const char * input_path) {
+  char * abs_path  = util_alloc_cwd_abs_path( input_path );
+  char * real_path = util_malloc( strlen(abs_path) + 1 );
+  real_path[0] = '\0';
+  
+  {
+    bool  * mask;
+    char ** path_list;
+    int     path_len;
+
+    util_path_split( abs_path , &path_len , &path_list );
+    mask = util_malloc( path_len * sizeof * mask );
+    {
+      int i;
+      for (i=0; i < path_len; i++)
+        mask[i] = true;
+    }
+        
+    {
+      int path_index = 1;  // Path can not start with ..
+      int prev_index = 0;
+      while (true) {
+        if (path_index == path_len)
+          break;
+
+        if (strcmp(path_list[path_index] , BACKREF ) == 0) {
+          mask[path_index] = false;
+          mask[prev_index] = false;
+          prev_index--;
+          path_index++;
+        } else if (strcmp( path_list[path_index] , CURRENT) == 0) {
+          mask[path_index] = false;
+          path_index++;
+        } else {
+          path_index++;
+          prev_index++;
+          while (!mask[prev_index])
+            prev_index++;
+        }
+      }
+
+      /* Build up the new string. */
+      {
+        int i;
+        for (i=0; i < path_len; i++) {
+          if (mask[i]) {
+            strcat( real_path , UTIL_PATH_SEP_STRING );
+            strcat( real_path , path_list[i]);
+          }
+        }
+      }
+    }             
+    free(mask);
+    util_free_stringlist( path_list , path_len );
+  }
+
+  return real_path;
+}
+
+#undef BACKREF 
+#undef CURRENT 
+
 
 
 /**
@@ -762,10 +896,13 @@ char * util_alloc_realpath(const char * input_path) {
   /* We do not have the realpath() implementation. Must first check if
      the entry exists; and if not we abort. If the entry indeed exists
      we call the util_alloc_cwd_abs_path() function: */
+#ifdef HAVE_SYMLINK
+  ERROR - What the fuck; have symlinks and not realpath()?!
+#endif
   if (!util_entry_exists( input_path )) 
-    util_abort("%s: input_path:%s does not exist - realpath() failed.\n",__func__ , input_path);
+    util_abort("%s: input_path:%s does not exist - failed.\n",__func__ , input_path);
   
-  return util_alloc_cwd_abs_path( input_path );
+  return util_alloc_realpath__( input_path );
 #endif 
 }
 
@@ -782,15 +919,101 @@ char * util_alloc_realpath(const char * input_path) {
   
     2. Else cwd is prepended to the path.
 
-   In the manual realpath() neither "/../" nor symlinks are resolved.
+   In the manual realpath() neither "/../" nor symlinks are resolved. If path == NULL the function will return cwd().
 */
 
 char * util_alloc_abs_path( const char * path ) {
-  if (util_entry_exists( path )) 
-    return util_alloc_realpath( path );
-  else 
-    return util_alloc_cwd_abs_path( path );
+  if (path == NULL)
+    return util_alloc_cwd();
+  else {
+    if (util_entry_exists( path )) 
+      return util_alloc_realpath( path );
+    else
+      return util_alloc_cwd_abs_path( path );
+  }
 }
+
+
+
+/**
+   Both path arguments must be absolute paths; if not a copy of the
+   input path will be returned. Neither of the input arguments can
+   have "/../" elements - that will just fuck things up.
+
+   root_path can be NULL - in which case cwd is used.
+*/
+
+char * util_alloc_rel_path( const char * __root_path , const char * path) {
+  char * root_path;
+  if (__root_path == NULL)
+    root_path = util_alloc_cwd();
+  else
+    root_path = util_alloc_string_copy( __root_path );
+
+  if (util_is_abs_path(root_path) && util_is_abs_path(path)) {
+    const char * back_path = "..";
+    char * rel_path = util_alloc_string_copy("");  // In case strcmp(root_path , path) == 0 the empty string "" will be returned
+    char ** root_path_list;
+    char ** path_list;
+    int     root_path_length , path_length , back_length;
+
+    /* 1. Split both input paths into list of path elements. */
+    util_path_split( root_path, &root_path_length  , &root_path_list );
+    util_path_split( path     , &path_length       , &path_list      );
+    
+    {
+      /* 2: Determine the number of common leading path elements. */
+      int common_length = 0;
+      while (true) {
+        if (strcmp(root_path_list[common_length] , path_list[common_length]) == 0)
+          common_length++;
+        else
+          break;
+        
+        if (common_length == util_int_min( root_path_length , path_length))
+          break;
+      }
+      
+      /* 3: Start building up the relative path with leading ../ elements. */
+      back_length = root_path_length - common_length;
+      if (back_length > 0) {
+        int i; 
+        for (i=0; i < back_length; i++) {
+          rel_path = util_strcat_realloc( rel_path , back_path );
+          rel_path = util_strcat_realloc( rel_path , UTIL_PATH_SEP_STRING );
+        }        
+      }
+
+      /* 4: Add the remaining elements from the input path. */
+      {
+        int i;
+        for (i=common_length; i < path_length; i++) {
+          rel_path = util_strcat_realloc( rel_path , path_list[i] );
+          if (i != (path_length - 1))
+            rel_path = util_strcat_realloc( rel_path , UTIL_PATH_SEP_STRING );
+        }
+      }
+    }
+    
+    util_free_stringlist( root_path_list , root_path_length );
+    util_free_stringlist( path_list , path_length );
+    free( root_path );
+
+    if (strlen(rel_path) == 0) {
+      free(rel_path);
+      rel_path = NULL;
+    } return rel_path;
+  } else {
+    /* 
+       One or both the input arguments do not correspond to an
+       absolute path; just return a copy of the input back.
+    */
+    free( root_path );
+    return util_alloc_string_copy( path );
+  }
+}
+
+
 
 
 /**
@@ -1794,6 +2017,11 @@ double util_scanf_double(const char * prompt , int prompt_len) {
 }
 
 
+
+
+
+
+
 /** 
     The limits are inclusive.
 */
@@ -2207,13 +2435,7 @@ bool util_entry_exists( const char * entry ) {
 
 */
 
-#ifdef HAVE_ISREG
-#endif 
 
-#ifndef S_ISDIR
-#define S_ISDIR(m) (((m) & S_IFMT) == S_IFDIR)
-#define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
-#endif
 
 
 
@@ -2278,6 +2500,13 @@ bool util_entry_readable( const char * entry ) {
     return false;  /* If stat failed - typically not existing entry - we return false. */
 }
 
+
+bool util_file_readable( const char * file ) {
+  if (util_entry_readable( file ) && util_is_file( file ))
+    return true;
+  else
+    return false;
+}
 
 bool util_entry_writable( const char * entry ) {
   struct stat buffer;
@@ -2510,6 +2739,17 @@ void util_ftruncate(FILE * stream , long size) {
 
 
 
+/*
+  The windows stat structure has the inode element, but it is not
+  set. Actually - this is a property of the filesystem, and not the
+  operating system - this check is probably broken on two levels:
+  
+   1. One should really check the filesystem involved - whether it
+      supports inodes.
+      
+   2. The code below will compile on windows, but for a windows
+      filesystem it will yield rubbish.
+*/
 
 bool util_same_file(const char * file1 , const char * file2) {
   struct stat buffer1 , buffer2;
@@ -2518,7 +2758,7 @@ bool util_same_file(const char * file1 , const char * file2) {
   stat1 = stat(file1, &buffer1);   // In the case of symlinks the stat call will stat the target file and not the link.
   stat2 = stat(file2, &buffer2);
   
-  if ((stat1 == 1) && (stat1 == stat2)) {
+  if ((stat1 == 0) && (stat1 == stat2)) {
     if (buffer1.st_ino == buffer2.st_ino) 
       return true;
     else
@@ -2666,6 +2906,22 @@ bool util_file_older( const char * file , time_t t0) {
 }
 
 
+bool util_before( time_t t , time_t limit) {
+  if (difftime(limit , t) > 0)
+    return true;
+  else
+    return false;
+}
+
+
+bool util_after( time_t t , time_t limit) {
+  if (difftime(limit , t) < 0)
+    return true;
+  else
+    return false;
+}
+
+
 
 /** 
     This function will return a pointer to the newest of the two
@@ -2729,6 +2985,16 @@ void util_set_datetime_values(time_t t , int * sec , int * min , int * hour , in
 
 void util_set_date_values(time_t t , int * mday , int * month , int * year) {
   __util_set_timevalues(t , NULL , NULL , NULL , mday , month , year);
+}
+
+
+bool util_is_first_day_in_month( time_t t) {
+  int mday;
+  __util_set_timevalues(t , NULL , NULL , NULL , &mday ,NULL, NULL);
+  if (mday == 1)
+    return true;
+  else
+    return false;
 }
 
 
@@ -2870,6 +3136,11 @@ double util_difftime_days(time_t start_time , time_t end_time) {
 }
 
 
+double util_difftime_seconds( time_t start_time , time_t end_time) {
+  double dt = difftime(end_time , start_time);
+  return dt;
+}
+
 
 /*
   Observe that this routine does the following transform before calling mktime:
@@ -2905,6 +3176,12 @@ time_t util_make_date(int mday , int month , int year) {
   return util_make_datetime(0 , 0 , 0 , mday , month , year);
 }
 
+
+time_t util_make_pure_date(time_t t) {
+  int day,month,year;
+  util_set_date_values( t , &day , &month , &year);
+  return util_make_date( day , month , year );
+}
 
 
 
@@ -3189,29 +3466,53 @@ void util_free_stringlist(char **list , int N) {
   int i;
   if (list != NULL) {
     for (i=0; i < N; i++) {
-      if (list[i] != NULL)
-        free(list[i]);
+      util_safe_free( list[i] );
     }
     free(list);
   }
 }
 
 
+/**
+   Will free a list of strings where the last element is NULL. Will
+   go completely canacas if the list is not NULL terminated.
+*/
+
+void util_free_NULL_terminated_stringlist(char ** string_list) {
+  if (string_list != NULL) {
+    int i = 0;
+    while (true) {
+      if (string_list[i] == NULL)
+        break;
+      else
+        free( string_list[i] );
+      i++;
+    }
+    free( string_list );
+  }
+}
+
 
 
 
 /**
    This function will reallocate the string s1 to become the sum of s1
-   and s2. If s1 == NULL it will just return a copy of s2.
+   and s2. If s1 == NULL it will just return a copy of s2. 
+
+   Observe that due to the use realloc() the s1 input argument MUST BE
+   the return value from a malloc() call; this is not intuitive and
+   the function should be discontinued.
 */
 
 char * util_strcat_realloc(char *s1 , const char * s2) {
   if (s1 == NULL) 
     s1 = util_alloc_string_copy(s2);
   else {
-    int new_length = strlen(s1) + strlen(s2) + 1;
-    s1 = util_realloc( s1 , new_length );
-    strcat(s1 , s2);
+    if (s2 != NULL) {
+      int new_length = strlen(s1) + strlen(s2) + 1;
+      s1 = util_realloc( s1 , new_length );
+      strcat(s1 , s2);
+    } 
   }
   return s1;
 }
@@ -3352,47 +3653,46 @@ void util_split_string(const char *line , const char *sep_set, int *_tokens, cha
        util_binary_split_string("A:B:C:D , ":" , false , ) => "A:B:C" & "D"
 
 
-   o Characters in the split_set at the front (or back if
-     split_on_first == false) are discarded _before_ the actual
-     splitting process.
+   o Characters in the split_set at the front and back are discarded
+     _BEFORE_ the actual splitting process.
 
-       util_binary_split_string(":::A:B:C:D" , ":" , true , )  => "A" & "B:C:D"
+       util_binary_split_string(":A:B:C:D:" , ":" , true , )   => "A"     & "B:C:D"
+       util_binary_split_string(":A:B:C:D:" , ":" , false , )  => "A:B:C" & "D"
 
 
    o If no split is found the whole content is in first_part, and
      second_part is NULL. If the input string == NULL, both return
-     strings will be NULL.
+     strings will be NULL. Observe that because leading split
+     characters are removed before the splitting starts:
 
+        util_binary_split_string(":ABCD" , ":" , true , )   => "ABCD" & NULL
+        
 */
 
 
 void util_binary_split_string(const char * __src , const char * sep_set, bool split_on_first , char ** __first_part , char ** __second_part) {
   char * first_part = NULL;
   char * second_part = NULL;
-  if (__src != NULL) {
-    char * src;
-    int pos;
-    if (split_on_first) {
-      /* Removing leading separators. */
-      pos = 0;
-      while ((pos < strlen(__src)) && (strchr(sep_set , __src[pos]) != NULL))
-        pos += 1;
-      if (pos == strlen(__src))  /* The string consisted ONLY of separators. */
-        src = NULL;
-      else
-        src = util_alloc_string_copy(&__src[pos]);
-    } else {
-      /*Remove trailing separators. */
-      pos = strlen(__src) - 1;
-      while ((pos >= 0) && (strchr(sep_set , __src[pos]) != NULL))
-        pos -= 1;
-      if (pos < 0)
-        src = NULL;
-      else
-        src = util_alloc_substring_copy(__src , 0 , pos + 1);
-    }
+  char * src;
 
-    
+  if (__src != NULL) {
+    int offset = 0;
+    int len;
+    /* 1: Remove leading split characters. */
+    while ((offset < strlen(__src)) && (strchr(sep_set , __src[offset]) != NULL))
+      offset++;
+    len = strlen( __src ) - offset;
+    if (len > 0) {
+      int tail_pos = strlen( __src ) - 1;
+      /* 2: Remove trailing split characters. */
+      while (strchr(sep_set , __src[tail_pos]) != NULL) 
+        tail_pos--;
+      len = 1 + tail_pos - offset;
+      
+      src = util_alloc_substring_copy(__src , offset , len);
+    } else
+      src = NULL;
+
     /* 
        OK - we have removed all leading (or trailing) separators, and we have
        a valid string which we can continue with.
@@ -4326,6 +4626,41 @@ char * util_alloc_sprintf(const char * fmt , ...) {
 }
 
 
+char * util_alloc_sprintf_escape(const char * src , int max_escape) {
+  if (src == NULL)
+    return NULL;
+  
+  if (max_escape == 0)
+    max_escape = strlen( src );
+  
+  {
+    const int src_len = strlen( src );
+    char * target = util_calloc( max_escape + strlen(src) + 1 , sizeof * target);
+
+    int escape_count = 0;
+    int src_offset = 0;
+    int target_offset = 0;
+    
+    while (true) {
+      if (src[src_offset] == '%') {
+        if (escape_count < max_escape) {
+          target[target_offset] = '%';
+          target_offset++;
+          escape_count++;
+        }
+      }
+      target[target_offset] = src[src_offset];
+      target_offset++;
+      src_offset++;
+      if (src_offset == src_len) 
+        break;
+    }
+    target[target_offset] = '\0';
+    target = util_realloc( target , (target_offset + 1) * sizeof * target);
+    return target;
+  }
+}
+
 
 /*
 char * util_realloc_sprintf(char * s , const char * fmt , ...) {
@@ -4419,22 +4754,6 @@ int util_get_type( void * data ) {
 
 
 
-static void  __add_item__(int **_active_list , int * _current_length , int *_list_length , int value) {
-  int *active_list    = *_active_list;
-  int  current_length = *_current_length;
-  int  list_length    = *_list_length;
-
-  active_list[current_length] = value;
-  current_length++;
-  if (current_length == list_length) {
-    list_length *= 2;
-    active_list  = util_realloc( active_list , list_length * sizeof * active_list );
-    
-    *_active_list = active_list;
-    *_list_length = list_length;
-  }
-  *_current_length = current_length;
-}
 
 
 /**
@@ -4464,191 +4783,6 @@ int util_get_current_linenr(FILE * stream) {
 
 
 
-/* 
-   This functions parses an input string 'range_string' of the type:
-
-     "0,1,8, 10 - 20 , 15,17-21"
- 
-   I.e. integers separated by "," and "-". The integer values are
-   parsed out. The result can be returned in two different ways:
-
-
-    o If active != NULL the entries in active (corresponding to the
-      values in the range) are marked as true. All other entries are
-      marked as false. The active array must be allocated by the
-      calling scope, with length (at least) "max_value + 1".
-      
-    o If active == NULL - an (int *) pointer is allocated, filled with
-      the active indices and returned.
-
-*/
-
-//#include <stringlist.h>
-//#include <tokenizer.h>
-//static int * util_sscanf_active_range__NEW(const char * range_string , int max_value , bool * active , int * _list_length) {
-//  tokenizer_type * tokenizer = tokenizer_alloc( NULL  , /* No ordinary split characters. */
-//                                                NULL  , /* No quoters. */
-//                                                ",-"  , /* Special split on ',' and '-' */
-//                                                " \t" , /* Removing ' ' and '\t' */
-//                                                NULL  , /* No comment */
-//                                                NULL  );
-//  stringlist_type * tokens;
-//  tokens = tokenize_buffer( tokenizer , range_string , true);
-//  
-//  stringlist_free( tokens );
-//  tokenizer_free( tokenizer );
-//} 
-   
-
-
-
-static int * util_sscanf_active_range__(const char * range_string , int max_value , bool * active , int * _list_length) {
-  int *active_list    = NULL;
-  int  current_length = 0;
-  int  list_length;
-  int  value,value1,value2;
-  char  * start_ptr = (char *) range_string;
-  char  * end_ptr;
-  bool didnt_work = false;
-  
-  if (active != NULL) {
-    for (value = 0; value <= max_value; value++)
-      active[value] = false;
-  } else {
-    list_length = 10;
-    active_list = util_calloc( list_length , sizeof * active_list );
-  }
-    
-    
-  while (start_ptr != NULL) {
-    value1 = strtol(start_ptr , &end_ptr , 10);
-    if (active != NULL && value1 > max_value)
-      fprintf(stderr , "** Warning - value:%d is larger than the maximum value: %d \n",value1 , max_value);
-    
-    if (end_ptr == start_ptr){
-      printf("Returning to menu: %s \n" , start_ptr);
-      didnt_work = true;
-      break;
-    }
-    /* OK - we have found the first integer, now there are three possibilities:
-       
-      1. The string contains nothing more (except) possibly whitespace.
-      2. The next characters are " , " - with more or less whitespace.
-      3. The next characters are " - " - with more or less whitespace.
-    
-    Otherwise it is a an invalid string.
-    */
-
-
-    /* Storing the value. */
-    if (active != NULL) {
-      if (value1 <= max_value) active[value1] = true;
-    } else 
-      __add_item__(&active_list , &current_length , &list_length , value1);
-
-
-
-    /* Skipping trailing whitespace. */
-    start_ptr = end_ptr;
-    while (start_ptr[0] != '\0' && isspace(start_ptr[0]))
-      start_ptr++;
-    
-    
-    if (start_ptr[0] == '\0') /* We have found the end */
-      start_ptr = NULL;
-    else {
-      /* OK - now we can point at "," or "-" - else malformed string. */
-      if (start_ptr[0] == ',' || start_ptr[0] == '-') {
-        if (start_ptr[0] == '-') {  /* This is a range */
-          start_ptr++; /* Skipping the "-" */
-          while (start_ptr[0] != '\0' && isspace(start_ptr[0]))
-            start_ptr++;
-          
-          if (start_ptr[0] == '\0') {
-            /* The range just ended - without second value. */
-            printf("%s[0]: malformed string: %s \n",__func__ , start_ptr);
-            didnt_work = true; 
-            break;
-          }
-          value2 = strtol(start_ptr , &end_ptr , 10);
-          if (end_ptr == start_ptr) {
-            printf("%s[1]: failed to parse integer from: %s \n",__func__ , start_ptr);
-            didnt_work = true;
-            break;
-          }
-          if (active != NULL && value2 > max_value)
-            fprintf(stderr , "** Warning - value:%d is larger than the maximum value: %d \n",value2 , max_value);
-          
-          if (value2 < value1){
-            printf("%s[2]: invalid interval - must have increasing range \n",__func__);
-            didnt_work = true;
-            break;
-          }
-          start_ptr = end_ptr;
-          { 
-            int value;
-            for (value = value1 + 1; value <= value2; value++) {
-              if (active != NULL) {
-                if (value <= max_value) active[value] = true;
-              } else
-                __add_item__(&active_list , &current_length , &list_length , value);
-            }
-          }
-          
-          /* Skipping trailing whitespace. */
-          while (start_ptr[0] != '\0' && isspace(start_ptr[0]))
-            start_ptr++;
-          
-          
-          if (start_ptr[0] == '\0')
-            start_ptr = NULL; /* We are done */
-          else {
-            if (start_ptr[0] == ',')
-              start_ptr++;
-            else{
-              printf("%s[3]: malformed string: %s \n",__func__ , start_ptr);
-              didnt_work = true;
-              break;
-            }
-          }
-        } else 
-          start_ptr++;  /* Skipping "," */
-
-        /**
-           When this loop is finished the start_ptr should point at a
-           valid integer. I.e. for instance for the following input
-           string:  "1-3 , 78"
-                           ^
-                           
-           The start_ptr should point at "78".
-        */
-
-      } else{
-        printf("%s[4]: malformed string: %s \n",__func__ , start_ptr);
-        didnt_work = true;
-        break;
-      }
-    }
-  }
-  if (_list_length != NULL)
-    *_list_length = current_length;
-  
-  if (didnt_work){
-    for (value = 0; value <= max_value; value++)
-      active[value] = false;
-  }
-  
-  return active_list;
-}
-
-
-void util_sscanf_active_range(const char * range_string , int max_value , bool * active) {
-  util_sscanf_active_range__(range_string , max_value , active , NULL);
-}
-
-int * util_sscanf_alloc_active_list(const char * range_string , int * list_length) {
-  return util_sscanf_active_range__(range_string , 0 , NULL , list_length);
-}
 
 
 const char * util_enum_iget( int index , int size , const util_enum_element_type * enum_defs , int * value) {
@@ -4682,9 +4816,21 @@ void util_abort_free_version_info() {
 }
 
 
-void util_abort_set_executable( const char * executable ) {
-  __current_executable = util_realloc_string_copy( __current_executable , executable );
+void util_abort_set_executable( const char * argv0 ) {
+  if (util_is_abs_path(argv0)) 
+    __current_executable = util_realloc_string_copy( __current_executable , argv0 );
+  else {
+    char * executable;
+    if (util_is_executable( argv0 )) 
+      executable = util_alloc_realpath(argv0);
+    else
+      executable = util_alloc_PATH_executable( argv0 );
+
+    util_abort_set_executable( executable );
+    free( executable );
+  }
 }
+
 
 
 /*****************************************************************/
@@ -4732,6 +4878,8 @@ CONTAINS(size_t)
 #undef CONTAINS    
 
 /*****************************************************************/
+
+
 
 
 int util_fnmatch( const char * pattern , const char * string ) {
@@ -4797,17 +4945,11 @@ char * util_alloc_link_target(const char * link) {
 }
 #endif
 
-#ifdef HAVE_FORK
-#ifdef WITH_PTHREAD
-#ifdef HAVE_EXECINFO
+
+
+#ifdef HAVE_UTIL_ABORT
 #include "util_abort_gnu.c"
-#define HAVE_UTIL_ABORT
-#endif
-#endif
-#endif
-
-
-#ifndef HAVE_UTIL_ABORT
+#else
 #include "util_abort_simple.c"
 #endif
 

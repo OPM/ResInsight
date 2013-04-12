@@ -36,7 +36,7 @@ public:
     virtual ~RifEclipseRestartFilesetAccess();
 
     bool                        open();
-    void                        setFileSet(const QStringList& fileSet);
+    void                        setRestartFiles(const QStringList& fileSet);
     void                        close();
 
     void                        setTimeSteps(const std::vector<QDateTime>& timeSteps);

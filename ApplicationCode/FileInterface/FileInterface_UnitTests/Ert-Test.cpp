@@ -23,7 +23,6 @@
 
 #include <util.h>
 #include <int_vector.h>
-#include <ecl_intehead.h>
 #include <ecl_file.h>
 #include <ecl_kw.h>
 #include <ecl_kw_magic.h>

@@ -15,7 +15,7 @@
 #  for more details. 
 
 
-from ert.enums import enkf_impl_type, field_type
+from ert.ert.enums import enkf_impl_type, field_type
 from PyQt4.QtCore import QObject
 from PyQt4.Qt import SIGNAL
 
