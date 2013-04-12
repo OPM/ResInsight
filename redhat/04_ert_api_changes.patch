@@ -1,0 +1,39 @@
+diff --git a/ApplicationCode/FileInterface/RifEclipseRestartFilesetAccess.cpp b/ApplicationCode/FileInterface/RifEclipseRestartFilesetAccess.cpp
+index 40b3e7a..27bb973 100644
+--- a/ApplicationCode/FileInterface/RifEclipseRestartFilesetAccess.cpp
++++ b/ApplicationCode/FileInterface/RifEclipseRestartFilesetAccess.cpp
+@@ -53,7 +53,7 @@ bool RifEclipseRestartFilesetAccess::open(const QStringList& fileSet)
+     {
+         progInfo.setProgressDescription(fileSet[i]);
+ 
+-        ecl_file_type* ecl_file = ecl_file_open(fileSet[i].toAscii().data());
++        ecl_file_type* ecl_file = ecl_file_open(fileSet[i].toAscii().data(), 0);
+         if (!ecl_file) return false;
+ 
+         m_ecl_files.push_back(ecl_file);
+diff --git a/ApplicationCode/FileInterface/RifEclipseUnifiedRestartFileAccess.cpp b/ApplicationCode/FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
+index 8fecb28..73be912 100644
+--- a/ApplicationCode/FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
++++ b/ApplicationCode/FileInterface/RifEclipseUnifiedRestartFileAccess.cpp
+@@ -53,7 +53,7 @@ bool RifEclipseUnifiedRestartFileAccess::open(const QStringList& fileSet)
+ {
+     QString fileName = fileSet[0];
+ 
+-    m_ecl_file = ecl_file_open(fileName.toAscii().data());
++    m_ecl_file = ecl_file_open(fileName.toAscii().data(), 0);
+     if (!m_ecl_file) return false;
+ 
+     return true;
+diff --git a/ApplicationCode/FileInterface/RifReaderEclipseOutput.cpp b/ApplicationCode/FileInterface/RifReaderEclipseOutput.cpp
+index bd2ec9b..e9d0afe 100644
+--- a/ApplicationCode/FileInterface/RifReaderEclipseOutput.cpp
++++ b/ApplicationCode/FileInterface/RifReaderEclipseOutput.cpp
+@@ -439,7 +439,7 @@ bool RifReaderEclipseOutput::buildMetaData(RigReservoir* reservoir)
+     QString initFileName = RifEclipseOutputFileTools::fileNameByType(m_fileSet, ECL_INIT_FILE);
+     if (initFileName.size() > 0)
+     {
+-        ecl_file_type* ecl_file = ecl_file_open(initFileName.toAscii().data());
++        ecl_file_type* ecl_file = ecl_file_open(initFileName.toAscii().data(), 0);
+         if (!ecl_file) return false;
+ 
+         progInfo.incrementProgress();

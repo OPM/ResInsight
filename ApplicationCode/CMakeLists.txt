@@ -268,8 +268,17 @@ endif(MSVC)
 # Install 
 #############################################################################
 
+set (RESINSIGHT_LICENSE_FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
+  ${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
+  )
+
+# bundle libraries together with private installation
+if (PRIVATE_INSTALL)
+
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    set_target_properties(ResInsight PROPERTIES INSTALL_RPATH "${RESINSIGHT_FINAL_INSTALL_PATH};.")
+  # tell binary to first attempt to load libraries from its own directory
+  set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
 
     # Find Qt libraries and sym links
     file (GLOB RESINSIGHT_FILES
@@ -282,6 +291,9 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # put a .exe.local file in the target directory to pick up DLLs from there
+  install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
+
     set (RESINSIGHT_FILES
             ${QT_BINARY_DIR}/QtCore4.dll
             ${QT_BINARY_DIR}/QtGui4.dll
@@ -290,10 +302,7 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
         )
 endif()
 
-set (RESINSIGHT_FILES ${RESINSIGHT_FILES} 
-            ${CMAKE_CURRENT_SOURCE_DIR}/Adm/LicenseInformation.txt
-            ${CMAKE_CURRENT_SOURCE_DIR}/Adm/gplLicense.txt
-    )
+set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
 
 install(TARGETS ResInsight DESTINATION ${RESINSIGHT_FINAL_NAME})
@@ -304,3 +313,29 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
 endif()
 
+else (PRIVATE_INSTALL)
+  # binaries go in /usr/bin
+  install (TARGETS ResInsight
+	DESTINATION bin
+	)
+  # license go in /usr/share/doc
+  install (FILES ${RESINSIGHT_LICENSE_FILES}
+	DESTINATION share/doc/ResInsight
+	)
+  # no bundled libraries for system install
+  # application icon
+  install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png
+	DESTINATION share/icons/hicolor/48x48/apps
+	RENAME ResInsight.png
+	)
+  # desktop environment icon; remember to call `update-desktop-database`
+  # in package post-install scripts
+  configure_file (
+	${CMAKE_CURRENT_SOURCE_DIR}/resinsight.desktop.in
+	${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
+	@ONLY
+	)
+  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
+	DESTINATION share/applications
+	)
+endif (PRIVATE_INSTALL)
