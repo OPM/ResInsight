@@ -30,6 +30,8 @@
 #include "RigGridScalarDataAccess.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -144,10 +146,12 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             part->setTransform(m_scaleTransform.p());
             part->updateBoundingBox();
 
+            RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
             cvf::ref<cvf::Effect> eff;
             if (faultGeometry)
             {
-                caf::MeshEffectGenerator effGen(cvf::Color3f::BLACK);
+                caf::MeshEffectGenerator effGen(prefs->defaultFaultGridLineColors());
                 eff = effGen.generateEffect();
 
                 part->setEnableMask(meshFaultBit);
@@ -156,7 +160,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             }
             else
             {
-                caf::MeshEffectGenerator effGen(cvf::Color3f::WHITE);
+                caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
                 eff = effGen.generateEffect();
 
                 // Set priority to make sure fault lines are rendered first
@@ -205,6 +209,23 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
 
     m_opacityLevel = color.a();
     m_defaultColor = color.toColor3f();
+
+    // Update mesh colors as well, in case of change
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+    cvf::ref<cvf::Effect> eff;
+    if (m_faultFaces.notNull())
+    {
+        caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
+        eff = faultEffGen.generateEffect();
+        m_faultGridLines->setEffect(eff.p());
+    }
+    if (m_surfaceFaces.notNull())
+    {
+        caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
+        eff = effGen.generateEffect();
+        m_surfaceGridLines->setEffect(eff.p());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

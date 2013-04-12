@@ -38,6 +38,9 @@ RiaPreferences::RiaPreferences(void)
     octaveExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
 
     CAF_PDM_InitField(&defaultGridLines,                "defaultGridLines", true, "Gridlines", "", "", "");
+    CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", cvf::Color3f(0.92f, 0.92f, 0.92f), "Mesh color", "", "", "");
+    CAF_PDM_InitField(&defaultFaultGridLineColors,      "defaultFaultGridLineColors", cvf::Color3f(0.08f, 0.08f, 0.08f), "Mesh color along faults", "", "", "");
+
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
 
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
@@ -88,9 +91,26 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
     defaultSettingsGroup->add(&defaultScaleFactorZ);
     defaultSettingsGroup->add(&defaultGridLines);
+    defaultSettingsGroup->add(&defaultGridLineColors);
+    defaultSettingsGroup->add(&defaultFaultGridLineColors);
+
 
     caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
     autoComputeGroup->add(&autocomputeSOIL);
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaPreferences::resetToDefaults()
+{
+    std::vector<caf::PdmFieldHandle*> fields;
+    this->fields(fields);
+
+    for (size_t i = 0; i < fields.size(); ++i)
+    {
+        fields[i]->resetToDefaultValue();
+    }
 }
 
