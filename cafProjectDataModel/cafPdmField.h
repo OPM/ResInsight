@@ -46,6 +46,8 @@ public:
     PdmFieldHandle() : m_isIOReadable(true), m_isIOWritable(true)   { m_ownerObject = NULL; m_keyword = "UNDEFINED"; }
     virtual ~PdmFieldHandle()                                       {  }
 
+    virtual void     resetToDefaultValue()                          { };                           
+
     virtual void     readFieldData(QXmlStreamReader& xmlStream)  = 0;
     virtual void     writeFieldData(QXmlStreamWriter& xmlStream) = 0;
 
@@ -119,6 +121,7 @@ public:
     
     const DataType& defaultValue() const                            { return m_defaultFieldValue; }
     void            setDefaultValue(const DataType& val)            { m_defaultFieldValue = val; }
+    virtual void    resetToDefaultValue()                           { m_fieldValue = m_defaultFieldValue; }
 
     // Gui generalized interface
     virtual QVariant    uiValue() const;
