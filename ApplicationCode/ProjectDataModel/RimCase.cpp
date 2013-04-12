@@ -387,16 +387,20 @@ QString RimCase::relocateFile(const QString& fileName,  const QString& newProjec
         }
     }    
 
-    QFileInfo gridFileInfo(fileName);
-    QFileInfo oldProjPathInfo(oldProjectPath);
-    QFileInfo newProjPathInfo(newProjectPath);
+    // Then find the possible move of a directory structure where projects and files referenced are moved in "paralell"
 
-    QString gridFilePath = gridFileInfo.canonicalPath();
+    QFileInfo gridFileInfo(QDir::fromNativeSeparators(fileName));
+    QString gridFilePath = gridFileInfo.path();
+    QString gridFileNameWoPath = gridFileInfo.fileName();
     QStringList gridPathElements = gridFilePath.split("/", QString::KeepEmptyParts);
-    QString oldProjPath  = oldProjPathInfo.canonicalPath();
+
+    QString oldProjPath  = QDir::fromNativeSeparators(oldProjectPath);
     QStringList oldProjPathElements = oldProjPath.split("/", QString::KeepEmptyParts);
-    QString newProjPath  = newProjPathInfo.canonicalPath();
+
+    QString newProjPath  = QDir::fromNativeSeparators(newProjectPath);
     QStringList newProjPathElements = newProjPath.split("/", QString::KeepEmptyParts);
+
+    // Find the possible equal start of the old project path, and the referenced file
 
     bool pathStartsAreEqual = false;
     bool pathEndsDiffer = false;
@@ -418,6 +422,8 @@ QString RimCase::relocateFile(const QString& fileName,  const QString& newProjec
     {
         pathEndsDiffer = true;
     }
+
+    // If the path starts are equal, try to substitute it in the referenced file, with the corresponding new project path start
 
     if (pathStartsAreEqual)
     {
@@ -458,7 +464,7 @@ QString RimCase::relocateFile(const QString& fileName,  const QString& newProjec
 
             QString relocationPath = newProjecetFileStartPath + oldGridFilePathEnd;
 
-            QString relocatedFileName = relocationPath + gridFileInfo.fileName();
+            QString relocatedFileName = relocationPath + gridFileNameWoPath;
 
             if (searchedPaths) searchedPaths->push_back(relocatedFileName);
 
@@ -470,7 +476,7 @@ QString RimCase::relocateFile(const QString& fileName,  const QString& newProjec
         else
         {
             // The Grid file was located in the same dir as the Project file. This is supposed to be handled above.
-            CVF_ASSERT(false);
+            // So we did not find it
         }
     }
 
