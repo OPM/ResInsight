@@ -423,37 +423,18 @@ QString RimInputCase::locationOnDisc() const
     return fi.absolutePath();
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimInputCase::updateFilePathsFromProjectPath(const QString& projectPath)
+void RimInputCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
-    QString candidate;
+    bool foundFile = false;
+    std::vector<QString> searchedPaths;
 
-    if (!QFile::exists(m_gridFileName))
-    {
-        QString fileNameWithoutPath = QFileInfo(m_gridFileName).fileName();
-        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + fileNameWithoutPath);
-        if (QFile::exists(candidate))
-        {
-            m_gridFileName = candidate;
-        }
-    }
+    m_gridFileName = relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
 
     for (size_t i = 0; i < m_additionalFileNames().size(); i++)
     {
-        QString additionalFileName = m_additionalFileNames()[i];
-
-        if (!QFile::exists(additionalFileName))
-        {
-            QString fileNameWithoutPath = QFileInfo(additionalFileName).fileName();
-            candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + fileNameWithoutPath);
-            if (QFile::exists(candidate))
-            {
-                m_additionalFileNames.v()[i] = candidate;
-            }
-        }
+        m_additionalFileNames.v()[i] = relocateFile(m_additionalFileNames()[i], newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
     }
-
 }

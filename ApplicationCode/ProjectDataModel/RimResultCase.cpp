@@ -265,43 +265,14 @@ void RimResultCase::readGridDimensions(std::vector< std::vector<int> >& gridDime
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimResultCase::updateFilePathsFromProjectPath(const QString& projectPath)
+void RimResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
 {
+    bool foundFile = false;
+    std::vector<QString> searchedPaths;
+
     // Update filename and folder paths when opening project from a different file location
-    if (!QFile::exists(caseFileName()))
-    {
-        QFileInfo gridFileInfo(caseFileName());
-        QString gridFileBaseName = gridFileInfo.completeBaseName();
-        QString candidate;
+    caseFileName = relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
 
-        candidate = QDir::fromNativeSeparators(locationOnDisc() + QDir::separator() + gridFileBaseName + ".EGRID");
-        if (QFile::exists(candidate))
-        {
-            caseFileName = candidate;
-            return;
-        }
-
-        candidate = QDir::fromNativeSeparators(locationOnDisc() + QDir::separator() + gridFileBaseName + ".GRID");
-        if (QFile::exists(candidate))
-        {
-            caseFileName = candidate;
-            return;
-        }
-
-        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + gridFileBaseName + ".EGRID");
-        if (QFile::exists(candidate))
-        {
-            caseFileName = candidate;
-            return;
-        }
-
-        candidate = QDir::fromNativeSeparators(projectPath + QDir::separator() + gridFileBaseName + ".GRID");
-        if (QFile::exists(candidate))
-        {
-            caseFileName = candidate;
-            return;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

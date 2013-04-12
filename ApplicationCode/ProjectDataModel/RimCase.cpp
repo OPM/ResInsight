@@ -351,3 +351,131 @@ RimReservoirCellResultsStorage* RimCase::results(RifReaderInterface::PorosityMod
 
     return m_fractureModelResults();
 }
+
+
+//--------------------------------------------------------------------------------------------------
+///  Relocate the supplied file name, based on the search path as follows:
+///  fileName, newProjectPath/fileNameWoPath, relocatedPath/fileNameWoPath
+///  If the file is not found in any of the positions, the fileName is returned unchanged
+///
+///  The relocatedPath is found in this way:
+///  use the start of newProjectPath
+///  plus the end of the path to m_gridFileName
+///  such that the common start of oldProjectPath and m_gridFileName is removed from m_gridFileName
+///  and replaced with the start of newProjectPath up to where newProjectPath starts to be equal to oldProjectPath
+//--------------------------------------------------------------------------------------------------
+QString RimCase::relocateFile(const QString& fileName,  const QString& newProjectPath, const QString& oldProjectPath, 
+                              bool* foundFile, std::vector<QString>* searchedPaths)
+{
+    if (foundFile) *foundFile = true;
+
+    if (searchedPaths) searchedPaths->push_back(fileName);
+    if (QFile::exists(fileName))
+    {
+        return fileName;
+    }
+
+    // First check in the new project file directory
+    {
+        QString fileNameWithoutPath = QFileInfo(fileName).fileName();
+        QString candidate = QDir::fromNativeSeparators(newProjectPath + QDir::separator() + fileNameWithoutPath);
+        if (searchedPaths) searchedPaths->push_back(candidate);
+
+        if (QFile::exists(candidate))
+        {
+            return candidate;
+        }
+    }    
+
+    QFileInfo gridFileInfo(fileName);
+    QFileInfo oldProjPathInfo(oldProjectPath);
+    QFileInfo newProjPathInfo(newProjectPath);
+
+    QString gridFilePath = gridFileInfo.canonicalPath();
+    QStringList gridPathElements = gridFilePath.split("/", QString::KeepEmptyParts);
+    QString oldProjPath  = oldProjPathInfo.canonicalPath();
+    QStringList oldProjPathElements = oldProjPath.split("/", QString::KeepEmptyParts);
+    QString newProjPath  = newProjPathInfo.canonicalPath();
+    QStringList newProjPathElements = newProjPath.split("/", QString::KeepEmptyParts);
+
+    bool pathStartsAreEqual = false;
+    bool pathEndsDiffer = false;
+    int firstDiffIdx = 0;
+    for ( firstDiffIdx = 0; firstDiffIdx < gridPathElements.size() && firstDiffIdx < oldProjPathElements.size(); ++firstDiffIdx)
+    {
+        if (gridPathElements[firstDiffIdx] == oldProjPathElements[firstDiffIdx])
+        {
+            pathStartsAreEqual = pathStartsAreEqual || !gridPathElements[firstDiffIdx].isEmpty();
+        }
+        else
+        {
+            pathEndsDiffer = true;
+            break;
+        }
+    }
+
+    if (!pathEndsDiffer && firstDiffIdx < gridPathElements.size() || firstDiffIdx < oldProjPathElements.size())
+    {
+        pathEndsDiffer = true;
+    }
+
+    if (pathStartsAreEqual)
+    {
+        if (pathEndsDiffer)
+        {
+            QString oldGridFilePathEnd;
+            for (int i = firstDiffIdx; i < gridPathElements.size(); ++i)
+            {
+                oldGridFilePathEnd += gridPathElements[i];
+                oldGridFilePathEnd += "/";
+            }
+
+            // Find the new Project File Start Path
+
+            QStringList oldProjectFilePathEndElements;
+            for (int i = firstDiffIdx; i < oldProjPathElements.size(); ++i)
+            {
+                oldProjectFilePathEndElements.push_back(oldProjPathElements[i]);
+            }
+
+            int ppIdx = oldProjectFilePathEndElements.size() -1;
+            int lastDiffIdx = newProjPathElements.size() -1;
+
+            for (; lastDiffIdx >= 0 && ppIdx >= 0; --lastDiffIdx, --ppIdx)
+            {
+                if (oldProjectFilePathEndElements[ppIdx] != newProjPathElements[lastDiffIdx])
+                {
+                    break;   
+                }
+            }
+
+            QString newProjecetFileStartPath;
+            for (int i = 0; i <= lastDiffIdx; ++i)
+            {
+                newProjecetFileStartPath += newProjPathElements[i];
+                newProjecetFileStartPath += "/";
+            }
+
+            QString relocationPath = newProjecetFileStartPath + oldGridFilePathEnd;
+
+            QString relocatedFileName = relocationPath + gridFileInfo.fileName();
+
+            if (searchedPaths) searchedPaths->push_back(relocatedFileName);
+
+            if (QFile::exists(relocatedFileName))
+            {
+                return relocatedFileName;
+            }
+        }
+        else
+        {
+            // The Grid file was located in the same dir as the Project file. This is supposed to be handled above.
+            CVF_ASSERT(false);
+        }
+    }
+
+    // return the unchanged filename, if we could not find a valid relocation file
+    if (foundFile) *foundFile = false;
+
+    return fileName;
+}

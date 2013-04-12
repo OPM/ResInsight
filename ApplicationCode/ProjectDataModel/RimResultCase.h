@@ -49,7 +49,7 @@ public:
     // Overrides from RimCase
     virtual QString             locationOnDisc() const;
     virtual QString             gridFileName() const { return caseFileName();}
-    virtual void                updateFilePathsFromProjectPath(const QString& projectPath);
+    virtual void                updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath);
 
 private:
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);

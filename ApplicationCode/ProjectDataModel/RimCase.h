@@ -68,7 +68,7 @@ public:
     virtual QString                             locationOnDisc() const      { return QString(); }
     virtual QString                             gridFileName() const      { return QString(); }
 
-    virtual void                                updateFilePathsFromProjectPath(const QString& projectPath) { };
+    virtual void                                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath) { };
 
     RimCaseCollection*                          parentCaseCollection();
     RimIdenticalGridCaseGroup*                  parentGridCaseGroup();
@@ -85,7 +85,8 @@ protected:
 protected:
     void                                        computeCachedData();
     void                                        setReservoirData(RigCaseData* eclipseCase);
-
+    static QString                              relocateFile(const QString& fileName, const QString& newProjectPath, const QString& oldProjectPath, 
+                                                             bool* foundFile, std::vector<QString>* searchedPaths);
 
 private:
     cvf::ref<RigCaseData>                       m_rigEclipseCase;

@@ -63,7 +63,7 @@ public:
     virtual QString             locationOnDisc() const;
     virtual QString             gridFileName() const { return m_gridFileName();}
 
-    virtual void                updateFilePathsFromProjectPath(const QString& projectPath);
+    virtual void                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
 
 private:
     void                        addFiles(const QStringList& newFileNames);
