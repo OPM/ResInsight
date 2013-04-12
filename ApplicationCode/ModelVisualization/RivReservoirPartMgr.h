@@ -30,7 +30,7 @@ namespace cvf
 class RimResultSlot;
 class RimCellEdgeResultSlot;
 class RivGridPartMgr;
-class RigReservoir;
+class RigCaseData;
 
 
 //==================================================================================================
@@ -43,7 +43,7 @@ class RigReservoir;
 class RivReservoirPartMgr: public cvf::Object
 {
 public:
-    void   clearAndSetReservoir(const RigReservoir* reservoir);
+    void   clearAndSetReservoir(const RigCaseData* eclipseCase);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
 

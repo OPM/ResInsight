@@ -26,6 +26,8 @@ extern "C" {
 #include <ert/util/subst_list.h>
 #include <ert/util/stringlist.h>
 
+#include <ert/config/config.h>
+
 typedef struct ert_template_struct  ert_template_type;
 typedef struct ert_templates_struct ert_templates_type;
 
@@ -50,6 +52,7 @@ const char         * ert_template_get_template_file( const ert_template_type * e
 const char         * ert_template_get_target_file( const ert_template_type * ert_template);
 const char         * ert_template_get_args_as_string( const ert_template_type * ert_template );
 void                 ert_templates_fprintf_config( const ert_templates_type * ert_templates , FILE * stream );
+void                 ert_templates_init( ert_templates_type * templates , const config_type * config );
 
 #ifdef __cplusplus
 }

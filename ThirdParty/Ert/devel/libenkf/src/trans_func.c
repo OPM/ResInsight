@@ -77,7 +77,9 @@ static void trans_errf_check(const char * func_name , const arg_pack_type * arg)
 }
 
 
-
+static double trans_none(double x , const arg_pack_type * arg) { 
+  return x;
+}
 
 
 static double trans_const(double x , const arg_pack_type * arg) { 
@@ -363,6 +365,10 @@ trans_func_type * trans_func_alloc( const char * func_name ) {
       arg_pack_append_double( trans_func->params , 0 );
       trans_func->func = trans_const;
     }
+    
+    if (util_string_equal( func_name , "NONE")) 
+      trans_func->func = trans_const;
+
 
     if (trans_func->func == NULL) 
       util_exit("%s: Sorry: function name:%s not recognized \n",__func__ , func_name);

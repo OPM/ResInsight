@@ -34,11 +34,13 @@ extern "C" {
   latex_type * latex_alloc( const char * input_file , bool in_place);
   void         latex_free( latex_type * latex );
   void         latex_set_target_file( latex_type * latex , const char * target_file );
-  bool         latex_compile( latex_type * latex , bool ignore_errors , bool with_xref); 
+  bool         latex_compile( latex_type * latex , bool ignore_errors , bool with_xref , bool cleanup); 
+  void         latex_cleanup( latex_type * latex );
   void         latex_set_timeout( latex_type * latex , int timeout);
   int          latex_get_timeout( const latex_type * latex );
   const char * latex_get_runpath( const latex_type * latex );
   const char * latex_get_target_file( const latex_type * latex );
+  bool         latex_compile_in_place( const latex_type * latex );
 
   void         latex_link_path( const latex_type * latex , const char * path);
   void         latex_link_directory_content(const latex_type * latex , const char * path);

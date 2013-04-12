@@ -24,9 +24,10 @@
 
 #include <QString>
 #include <QStringList>
+#include <QDateTime>
 
 
-class RigReservoir;
+class RigCaseData;
 
 //==================================================================================================
 //
@@ -46,10 +47,11 @@ public:
     RifReaderInterface() {}
     virtual ~RifReaderInterface() {}
 
-    virtual bool                open(const QString& fileName, RigReservoir* reservoir) = 0;
+    virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
    
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;
     virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
-};
 
+    virtual std::vector<QDateTime>    timeSteps() { std::vector<QDateTime> timeSteps; return timeSteps; }
+};

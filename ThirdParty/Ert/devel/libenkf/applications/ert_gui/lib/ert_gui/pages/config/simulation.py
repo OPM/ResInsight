@@ -20,7 +20,6 @@
 # ----------------------------------------------------------------------------------------------
 from PyQt4 import QtCore
 from ert_gui.widgets.spinnerwidgets import IntegerSpinner
-import ert.ertwrapper as ertwrapper
 from ert_gui.widgets.tablewidgets import KeywordTable
 from ert_gui.widgets.pathchooser import PathChooser
 from ert_gui.widgets.checkbox import CheckBox
@@ -28,7 +27,7 @@ from ert_gui.widgets.configpanel import ConfigPanel
 from ert_gui.widgets.stringbox import StringBox
 from jobs.forwardmodelpanel import ForwardModelPanel
 from simulations.runpathpanel import RunpathMemberList, RunpathMemberPanel
-from ert.enums import keep_runpath_type
+from ert.ert.enums import keep_runpath_type
 from simulations.runtemplatepanel import RunTemplatePanel
 import ert_gui.widgets.helpedwidget
 import os
@@ -38,29 +37,17 @@ def createSimulationsPage(configPanel, parent):
 
 
     r = configPanel.addRow(IntegerSpinner(parent, "Max submit", "config/simulation/max_submit", 1, 10000))
-    r.initialize = lambda ert : [ert.prototype("int site_config_get_max_submit(long)"),
-                                 ert.prototype("void site_config_set_max_submit(long, int)")]
     r.getter = lambda ert : ert.enkf.site_config_get_max_submit(ert.site_config)
     r.setter = lambda ert, value : ert.enkf.site_config_set_max_submit(ert.site_config, value)
 
     r = configPanel.addRow(IntegerSpinner(parent, "Max resample", "config/simulation/max_resample", 1, 10000))
-    r.initialize = lambda ert : [ert.prototype("int model_config_get_max_resample(long)"),
-                                 ert.prototype("void model_config_set_max_resample(long, int)")]
     r.getter = lambda ert : ert.enkf.model_config_get_max_resample(ert.model_config)
     r.setter = lambda ert, value : ert.enkf.model_config_set_max_resample(ert.model_config, value)
 
 
 
     r = configPanel.addRow(ForwardModelPanel(parent))
-    r.initialize = lambda ert: [ert.prototype("long model_config_get_forward_model(long)"),
-                                ert.prototype("long site_config_get_installed_jobs(long)"),
-                                ert.prototype("long ext_joblist_alloc_list(long)", lib=ert.job_queue),
-                                ert.prototype("char* ext_job_get_private_args_as_string(long)", lib=ert.job_queue),
-                                ert.prototype("char* ext_job_get_help_text(long)", lib=ert.job_queue),
-                                ert.prototype("void forward_model_clear(long)", lib=ert.job_queue),
-                                ert.prototype("long forward_model_add_job(long, char*)", lib=ert.job_queue),
-                                ert.prototype("void ext_job_set_private_args_from_string(long, char*)", lib=ert.job_queue),
-                                ert.prototype("long forward_model_alloc_joblist(long)", lib=ert.job_queue),]
+
 
     def get_forward_model(ert):
         site_config = ert.site_config
@@ -106,8 +93,7 @@ def createSimulationsPage(configPanel, parent):
 
 
     r = configPanel.addRow(PathChooser(parent, "Case table", "config/simulation/case_table"))
-    r.initialize = lambda ert : [ert.prototype("char* model_config_get_case_table_file(long)"),
-                                 ert.prototype("void enkf_main_set_case_table(long, char*)")]
+
 
     def get_case_table(ert):
         return ert.enkf.model_config_get_case_table_file(ert.model_config)
@@ -120,8 +106,6 @@ def createSimulationsPage(configPanel, parent):
 
     
     r = configPanel.addRow(PathChooser(parent, "License path", "config/simulation/license_path"))
-    r.initialize = lambda ert : [ert.prototype("char* site_config_get_license_root_path(long)"),
-                                 ert.prototype("void site_config_set_license_root_path(long, char*)")]
     r.getter = lambda ert : ert.enkf.site_config_get_license_root_path(ert.site_config)
 
     def ls(string):
@@ -139,8 +123,6 @@ def createSimulationsPage(configPanel, parent):
     internalPanel.startPage("Runpath")
 
     r = internalPanel.addRow(PathChooser(parent, "Runpath", "config/simulation/runpath", path_format=True))
-    r.initialize = lambda ert : [ert.prototype("char* model_config_get_runpath_as_char(long)"),
-                                 ert.prototype("void model_config_set_runpath_fmt(long, char*)")]
 
     r.getter = lambda ert : ert.enkf.model_config_get_runpath_as_char(ert.model_config)
     r.setter = lambda ert, value : ert.enkf.model_config_set_runpath_fmt(ert.model_config, str(value))
@@ -148,17 +130,12 @@ def createSimulationsPage(configPanel, parent):
 
 
     r = internalPanel.addRow(CheckBox(parent, "Pre clear", "config/simulation/pre_clear_runpath", "Perform pre clear"))
-    r.initialize = lambda ert : [ert.prototype("bool enkf_main_get_pre_clear_runpath(long)"),
-                                 ert.prototype("void enkf_main_set_pre_clear_runpath(long, bool)")]
 
     r.getter = lambda ert : ert.enkf.enkf_main_get_pre_clear_runpath(ert.main)
     r.setter = lambda ert, value : ert.enkf.enkf_main_set_pre_clear_runpath(ert.main, value)
 
 
     r = internalPanel.addRow(RunpathMemberPanel(widgetLabel="Retain runpath", helpLabel="config/simulation/runpath_retain"))
-    r.initialize = lambda ert : [ert.prototype("int enkf_main_get_ensemble_size(long)"),
-                                 ert.prototype("int enkf_main_iget_keep_runpath(long, int)"),
-                                 ert.prototype("void enkf_main_iset_keep_runpath(long, int, long)"),]
     def get_runpath_retain_state(ert):
         ensemble_size = ert.enkf.enkf_main_get_ensemble_size(ert.main)
 
@@ -183,23 +160,15 @@ def createSimulationsPage(configPanel, parent):
     internalPanel.startPage("Run Template")
 
     r = internalPanel.addRow(RunTemplatePanel(parent))
-    r.initialize = lambda ert : [ert.prototype("long enkf_main_get_templates(long)"),
-                                 ert.prototype("long ert_templates_alloc_list(long)"),
-                                 ert.prototype("long ert_templates_get_template(long, char*)"),
-                                 ert.prototype("char* ert_template_get_template_file(long)"),
-                                 ert.prototype("char* ert_template_get_target_file(long)"),
-                                 ert.prototype("char* ert_template_get_args_as_string(long)"),
-                                 ert.prototype("void ert_templates_clear(long)"),
-                                 ert.prototype("void ert_templates_add_template(long, char*, char*, char*, char*)"),]
 
     def get_run_templates(ert):
         templates = ert.enkf.enkf_main_get_templates(ert.main)
-        template_list = ert.enkf.ert_templates_alloc_list(templates)
+        template_list = ert.enkf.ert_template_alloc_list(templates)
 
         template_names = ert.getStringList(template_list, free_after_use=True)
         result = []
         for name in template_names:
-            template = ert.enkf.ert_templates_get_template(templates, name)
+            template = ert.enkf.ert_template_get_template(templates, name)
             template_file = ert.enkf.ert_template_get_template_file(template)
             target_file = ert.enkf.ert_template_get_target_file(template)
             arguments = ert.enkf.ert_template_get_args_as_string(template)
@@ -210,10 +179,10 @@ def createSimulationsPage(configPanel, parent):
 
     def set_run_templates(ert, template_list):
         templates_pointer = ert.enkf.enkf_main_get_templates(ert.main)
-        ert.enkf.ert_templates_clear(templates_pointer)
+        ert.enkf.ert_template_clear(templates_pointer)
 
         for template in template_list:
-            ert.enkf.ert_templates_add_template(templates_pointer, template[0], template[1], template[2], template[3])
+            ert.enkf.ert_template_add_template(templates_pointer, template[0], template[1], template[2], template[3])
 
     r.setter = set_run_templates  
     

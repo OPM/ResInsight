@@ -123,7 +123,7 @@ typedef enum {
 
 typedef struct local_config_struct local_config_type;
 
-local_config_type           * local_config_alloc( int history_length );
+local_config_type           * local_config_alloc( );
 void                          local_config_free( local_config_type * local_config );
 local_updatestep_type       * local_config_alloc_updatestep( local_config_type * local_config , const char * key );
 local_ministep_type         * local_config_alloc_ministep( local_config_type * local_config , const char * key , const char * obsset_name);

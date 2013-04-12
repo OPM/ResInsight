@@ -14,7 +14,9 @@ import region_test
 import latex_test
 import fortio_test
 import restart_test
+import config_test
 import stringlist_test
+import tvector_test
 
 def run_suite(name , suite):
     print "Running tests from %12s:" % name,
@@ -29,7 +31,7 @@ def run(name , module):
     if hasattr(module , "slow_suite"):
         run_suite( name , getattr(module , "slow_suite")())
     
-
+run("config"     , config_test)
 run("restart"    , restart_test)
 run("kw"         , kw_test)    
 run("summary"    , sum_test)
@@ -43,3 +45,4 @@ run("region"     , region_test)
 run("latex"      , latex_test)
 run("fortio"     , fortio_test)
 run("stringlist" , stringlist_test)
+run("tvector"    , tvector_test)

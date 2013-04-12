@@ -20,7 +20,7 @@ from ert_gui.widgets.combochoice import ComboChoice
 from ert_gui.widgets.stringbox import DoubleBox
 from ert_gui.widgets.pathchooser import PathChooser
 from parametermodels import DataModel
-import ert.enums as enums
+import ert.ert.enums as enums
 import ert_gui.widgets.helpedwidget
 
 class DataPanel(QtGui.QFrame):

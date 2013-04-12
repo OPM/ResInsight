@@ -1,58 +1,14 @@
 #!/bin/bash
-
-
-if [ -z "$1" ]
-then
-    echo
-    echo "A configuration file must be specified, or if you want to create a new"
-    echo "configuration: enter the path to the new (non-existing) configuration file."
-    echo "  ertgui.sh ert_configuration_file"
-    echo
-    echo "Options (for debugging):"
-    echo "        gert debug ert_configuration_file"
-    echo "        gert strace ert_configuration_file"
-    echo "        gert local ....  will use the Python code in your working copy"
-    echo
-    exit
-fi
-
-#
-# setup the SDP environment
-#
 export ERT_SITE_CONFIG=/project/res/etc/ERT/site-config
-export QT_EXPERIMENTAL=1
-export PYTHON_EXPERIMENTAL=1
-source /project/res/SDP_bashrc > /dev/null
-set PYTHON=2.4 ; source /prog/sdpsoft/environment.sh > /dev/null
+BASEDIR=$(dirname $0)
+export PYTHONPATH=~/ert/ert/devel/python/python:$BASEDIR/../lib:$PYTHONPATH
+export GERT_SHARE_PATH=$BASEDIR/../share
+export LD_LIBRARY_PATH=~/ert/ert/build/lib64:$LD_LIBRARY_PATH
+ert_gui_dir=$BASEDIR/../lib/ert_gui/
 
-export ERT_LD_PATH=$SDP_BINDIST/lib/python/lib
-
-ORIGINAL_DIRECTORY=$PWD
-
-if [ "$1" = "local" ]
-then 
-   # The user has given "local" as the first argument, meaning that we should
-   # run based on Python code in the users current working directory, and not
-   # the centraly installed code.  
-   BASEDIR=$(dirname $0)
-   export ert_gui_dir=$BASEDIR/../
-   shift
-else
-   export ert_gui_dir=$SDP_BINDIST/lib/python/gert
-fi
 echo "Loading python GUI code from.......:" $ert_gui_dir
 echo "-----------------------------------------------------------------"
 
 
-if [ "$1" = "debug" ]
-then
-    export CONFIG_FILE="$2"
-    gdb python --command=$ert_gui_dir/bin/gdbcommands
-elif [ "$1" = "strace" ]
-then
-    strace -e trace=file python $ert_gui_dir/code/main.py "$2"
-else
-    python $ert_gui_dir/code/main.py "$1"
-fi
+python $ert_gui_dir/gert_main.py "$1"
 
-cd "$ORIGINAL_DIRECTORY"

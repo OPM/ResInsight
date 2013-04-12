@@ -43,7 +43,11 @@ extern "C" {
   void                    ert_report_list_add_global_context( ert_report_list_type * report_list , const char * key , const char * value);
   void                    ert_report_list_site_init( ert_report_list_type * report_list , config_type * config );
   void                    ert_report_list_init( ert_report_list_type * report_list , config_type * config , const ecl_sum_type * refcase);
-  void                    ert_report_list_create( const ert_report_list_type * report_list , const char * current_case , bool verbose );
+  void                    ert_report_list_create( ert_report_list_type * report_list , const char * current_case , bool verbose );
+  void                    ert_report_list_add_config_items( config_type * config );
+  int                     ert_report_list_get_latex_timeout( const ert_report_list_type * report_list );
+  bool                    ert_report_list_get_init_large_report( const ert_report_list_type * report_list );
+  void                    ert_report_list_set_init_large_report( ert_report_list_type * report_list , bool init_large_report);
   
 #ifdef __cplusplus
 }

@@ -20,8 +20,8 @@
 
 #include "util.h"
 #include "ecl_file.h"
-#include "ecl_intehead.h"
 #include "ecl_kw_magic.h"
+#include "ecl_grid.h"
 
 #include <QFileInfo>
 #include <QDebug>
@@ -46,7 +46,7 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 //--------------------------------------------------------------------------------------------------
 /// Get list of time step texts (dates)
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTime>* timeSteps, bool* detectedFractionOfDay )
+void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, bool* detectedFractionOfDay )
 {
     CVF_ASSERT(timeSteps);
     CVF_ASSERT(ecl_file);
@@ -84,7 +84,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
         }
     }
 
-    QList<QDateTime> timeStepsFound;
+    std::vector<QDateTime> timeStepsFound;
    
     if (hasFractionOfDay)
     {
@@ -102,15 +102,15 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
                 double floorDayValue = cvf::Math::floor(dayValue);
                 double dayFraction = dayValue - floorDayValue;
 
-                int seconds = (dayFraction * 24.0 * 60.0 * 60.0);
+                int seconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0);
                 QTime time(0, 0);
                 time = time.addSecs(seconds);
 
                 QDate reportDate = simulationStart;
-                reportDate = reportDate.addDays(floorDayValue);
+                reportDate = reportDate.addDays(static_cast<int>(floorDayValue));
 
                 QDateTime reportDateTime(reportDate, time);
-                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
                 {
                     timeStepsFound.push_back(reportDateTime);
                 }
@@ -132,7 +132,7 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, QList<QDateTi
                 CVF_ASSERT(reportDate.isValid());
                 
                 QDateTime reportDateTime(reportDate);
-                if (timeStepsFound.indexOf(reportDateTime) < 0)
+                if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
                 {
                     timeStepsFound.push_back(reportDateTime);
                 }
@@ -172,11 +172,33 @@ bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QStri
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseOutputFileTools::keywordData(ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values)
+{
+    ecl_kw_type* kwData = ecl_file_iget_named_kw(ecl_file, keyword.toAscii().data(), static_cast<int>(fileKeywordOccurrence));
+    if (kwData)
+    {
+        size_t numValues = ecl_kw_get_size(kwData);
+
+        std::vector<int> integerData;
+        integerData.resize(numValues);
+
+        ecl_kw_get_memcpy_int_data(kwData, integerData.data());
+        values->insert(values->end(), integerData.begin(), integerData.end());
+
+        return true;
+    }
+
+    return false;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// Get first occurrence of file of given type in given list of filenames, as filename or NULL if not found
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ecl_file_enum fileType)
+QString RifEclipseOutputFileTools::firstFileNameOfType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     int i;
     for (i = 0; i < fileSet.count(); i++)
@@ -194,9 +216,9 @@ QString RifEclipseOutputFileTools::fileNameByType(const QStringList& fileSet, ec
 
 
 //--------------------------------------------------------------------------------------------------
-/// Get all files of file of given type in given list of filenames, as filename or NULL if not found
+/// Get all files of the given type from the provided list of filenames 
 //--------------------------------------------------------------------------------------------------
-QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType)
+QStringList RifEclipseOutputFileTools::filterFileNamesOfType(const QStringList& fileSet, ecl_file_enum fileType)
 {
     QStringList fileNames;
 
@@ -218,14 +240,14 @@ QStringList RifEclipseOutputFileTools::fileNamesByType(const QStringList& fileSe
 //--------------------------------------------------------------------------------------------------
 /// Get set of Eclipse files based on an input file and its path
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fileSet)
+bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName(const QString& fullPathFileName, QStringList* baseNameFiles)
 {
-    CVF_ASSERT(fileSet);
-    fileSet->clear();
+    CVF_ASSERT(baseNameFiles);
+    baseNameFiles->clear();
 
-    QString filePath = QFileInfo(fileName).absoluteFilePath();
+    QString filePath = QFileInfo(fullPathFileName).absoluteFilePath();
     filePath = QFileInfo(filePath).path();
-    QString fileNameBase = QFileInfo(fileName).baseName();
+    QString fileNameBase = QFileInfo(fullPathFileName).baseName();
 
     stringlist_type* eclipseFiles = stringlist_alloc_new();
     ecl_util_select_filelist(filePath.toAscii().data(), fileNameBase.toAscii().data(), ECL_OTHER_FILE, false, eclipseFiles);
@@ -233,12 +255,12 @@ bool RifEclipseOutputFileTools::fileSet(const QString& fileName, QStringList* fi
     int i;
     for (i = 0; i < stringlist_get_size(eclipseFiles); i++)
     {
-        fileSet->append(stringlist_safe_iget(eclipseFiles, i));
+        baseNameFiles->append(stringlist_safe_iget(eclipseFiles, i));
     }
 
     stringlist_free(eclipseFiles);
 
-    return fileSet->count() > 0;
+    return baseNameFiles->count() > 0;
 }
 
 
@@ -278,5 +300,22 @@ void RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ecl_file_type* ecl
         }
 
         info.setProgress(i);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions)
+{
+    int gridDims[3];
+
+    bool ret = ecl_grid_file_dims(gridFileName.toAscii().data(), NULL, gridDims);
+    if (ret)
+    {
+        gridDimensions.resize(1);
+        gridDimensions[0].push_back(gridDims[0]);
+        gridDimensions[0].push_back(gridDims[1]);
+        gridDimensions[0].push_back(gridDims[2]);
     }
 }

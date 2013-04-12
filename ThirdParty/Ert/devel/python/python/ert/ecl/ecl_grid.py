@@ -680,7 +680,7 @@ class EclGrid(CClass):
         cfunc.fwrite_GRID( self , filename )
 
         
-    def write_grdecl( self , ecl_kw , pyfile , default_value = 0):
+    def write_grdecl( self , ecl_kw , pyfile , special_header = None , default_value = 0):
         """
         Writes an EclKW instance as an ECLIPSE grdecl formatted file.
 
@@ -705,7 +705,7 @@ class EclGrid(CClass):
         
         if ecl_kw.size == self.nactive or ecl_kw.size == self.size:
             cfile = CFILE( pyfile )
-            cfunc.fwrite_grdecl( self , ecl_kw , cfile , default_value )
+            cfunc.fwrite_grdecl( self , ecl_kw , special_header , cfile , default_value )
         else:
             raise ValueError("Keyword: %s has invalid size(%d), must be either nactive:%d  or nx*ny*nz:%d" % (ecl_kw.name , ecl_kw.size , self.nactive , self.size))
 
@@ -760,7 +760,7 @@ cfunc.grid_value                   = cwrapper.prototype("double ecl_grid_get_pro
 cfunc.get_cell_volume              = cwrapper.prototype("double ecl_grid_get_cell_volume1( ecl_grid , int )")
 cfunc.get_cell_thickness           = cwrapper.prototype("double ecl_grid_get_cell_thickness1( ecl_grid , int )")
 cfunc.get_depth                    = cwrapper.prototype("double ecl_grid_get_cdepth1( ecl_grid , int )")
-cfunc.fwrite_grdecl                = cwrapper.prototype("void   ecl_grid_grdecl_fprintf_kw( ecl_grid , ecl_kw , FILE , double)") 
+cfunc.fwrite_grdecl                = cwrapper.prototype("void   ecl_grid_grdecl_fprintf_kw( ecl_grid , ecl_kw , char* , FILE , double)") 
 cfunc.load_column                  = cwrapper.prototype("void   ecl_grid_get_column_property( ecl_grid , ecl_kw , int , int , double_vector)")
 cfunc.get_top                      = cwrapper.prototype("double ecl_grid_get_top2( ecl_grid , int , int )") 
 cfunc.get_bottom                   = cwrapper.prototype("double ecl_grid_get_bottom2( ecl_grid , int , int )") 

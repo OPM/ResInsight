@@ -528,7 +528,6 @@ struct local_config_struct {
   hash_type             * dataset_storage;
   hash_type             * obsset_storage;
   stringlist_type       * config_files;
-  int                     history_length;
 };
 
 
@@ -539,20 +538,12 @@ static void local_config_clear( local_config_type * local_config ) {
   hash_clear( local_config->dataset_storage );
   hash_clear( local_config->obsset_storage );
   vector_clear( local_config->updatestep );
-  {
-    int report;
-    for (report=0; report <= local_config->history_length; report++)
-      vector_append_ref( local_config->updatestep , NULL );
-  }
 }
 
 
 
 
-/**
-   Observe that history_length is *INCLUSIVE*
-*/
-local_config_type * local_config_alloc( int history_length ) {
+local_config_type * local_config_alloc( ) {
   local_config_type * local_config = util_malloc( sizeof * local_config );
 
   local_config->default_updatestep  = NULL;
@@ -561,7 +552,6 @@ local_config_type * local_config_alloc( int history_length ) {
   local_config->dataset_storage     = hash_alloc();
   local_config->obsset_storage      = hash_alloc();
   local_config->updatestep          = vector_alloc_new();
-  local_config->history_length      = history_length;
   local_config->config_files = stringlist_alloc_new();
 
   local_config_clear( local_config );
@@ -672,14 +662,14 @@ local_ministep_type * local_config_alloc_ministep_copy( local_config_type * loca
 
 
 const local_updatestep_type * local_config_iget_updatestep( const local_config_type * local_config , int index) {
-  const local_updatestep_type * updatestep = vector_iget_const( local_config->updatestep , index );
+  const local_updatestep_type * updatestep = vector_safe_iget_const( local_config->updatestep , index );
   if (updatestep == NULL)
     /*
-       No particular report step has been installed for this
-       time-index, revert to the default.
+      No particular report step has been installed for this
+      time-index, revert to the default.
     */
     updatestep = local_config->default_updatestep;
-
+  
   if (updatestep == NULL)
     util_exit("%s: fatal error. No report step information for step:%d - and no default \n",__func__ , index);
 
@@ -702,9 +692,9 @@ local_updatestep_type * local_config_get_updatestep( const local_config_type * l
 void local_config_set_updatestep(local_config_type * local_config, int step1 , int step2 , const char * key) {
   local_updatestep_type * updatestep = hash_get( local_config->updatestep_storage , key );
   int step;
-
-  for ( step = step1; step < util_int_min(step2 + 1 , vector_get_size( local_config->updatestep )); step++)
-    vector_iset_ref(local_config->updatestep , step , updatestep );
+  
+  for ( step = step1; step < step2 + 1; step++)
+    vector_safe_iset_ref(local_config->updatestep , step , updatestep );
 
 }
 

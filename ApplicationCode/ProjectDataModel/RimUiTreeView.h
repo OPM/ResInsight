@@ -23,6 +23,11 @@
 #include <QTreeView>
 
 class QItemSelection;
+class RimIdenticalGridCaseGroup;
+
+namespace caf {
+    class PdmObjectGroup;
+}
 
 //==================================================================================================
 ///
@@ -34,6 +39,7 @@ class RimUiTreeView : public QTreeView
 
 public:
     RimUiTreeView(QWidget *parent = 0);
+    ~RimUiTreeView();
 
     virtual void setModel(QAbstractItemModel* model);
 
@@ -69,11 +75,32 @@ private slots:
 
     void slotCloseCase();
 
+    void slotNewStatisticsCase();
+    void slotComputeStatistics();
+    
+    void slotAddCaseGroup();
+    void slotDeleteObjectFromPdmPointersField();
+
+    void slotCopyPdmObjectToClipboard();
+    void slotPastePdmObjects();
+
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
 signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
-};
 
+private:
+    bool userConfirmedGridCaseGroupChange(const QModelIndexList& itemIndexList);
+    bool hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseGroup);
+
+    void createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGroup);
+    bool hasClipboardValidData();
+
+    virtual void keyPressEvent(QKeyEvent* keyEvent);
+    virtual void dropEvent(QDropEvent* dropEvent);
+
+private:
+    QAction* m_pasteAction;
+};
 
 

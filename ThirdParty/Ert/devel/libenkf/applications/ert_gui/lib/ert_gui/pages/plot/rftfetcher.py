@@ -16,10 +16,10 @@
 
 
 from fetcher import PlotDataFetcherHandler
-import ert.ertwrapper as ertwrapper
-import ert.enums as enums
+import ert.ert.ertwrapper as ertwrapper
+import ert.ert.enums as enums
 import plotdata
-from ert.enums import ert_state_enum, obs_impl_type
+from ert.ert.enums import ert_state_enum, obs_impl_type
 import numpy
 
 class RFTFetcher(PlotDataFetcherHandler):
@@ -45,7 +45,6 @@ class RFTFetcher(PlotDataFetcherHandler):
         ert.prototype("int obs_vector_get_num_active(long)")
         ert.prototype("bool obs_vector_iget_active(long, int)")
 
-        ert.prototype("long ensemble_config_get_node(long, char*)")
         ert.prototype("long enkf_config_node_get_ref(long)")
 
         ert.prototype("int* field_obs_get_i(long)")

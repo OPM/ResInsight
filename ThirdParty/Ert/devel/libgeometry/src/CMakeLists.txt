@@ -7,9 +7,11 @@ target_link_libraries( ert_geometry ert_util )
 
 
 #-----------------------------------------------------------------
-install(TARGETS ert_geometry DESTINATION ${CMAKE_INSTALL_LIBDIR})
-foreach(header ${header_files})
-    install(FILES ../include/ert/geometry/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/geometry)
-endforeach()
+if (INSTALL_ERT)
+   install(TARGETS ert_geometry DESTINATION ${CMAKE_INSTALL_LIBDIR})
+   foreach(header ${header_files})
+       install(FILES ../include/ert/geometry/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/geometry)
+   endforeach()
+endif()
 
 

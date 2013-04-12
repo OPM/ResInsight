@@ -23,7 +23,7 @@
 #include "cafAppEnum.h"
 #include "RimDefines.h"
 
-class RigReservoirCellResults;
+class RigCaseCellResultsData;
 
 namespace caf
 {

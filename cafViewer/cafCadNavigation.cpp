@@ -83,7 +83,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                     }
 
                     m_trackball->startNavigation(cvf::ManipulatorTrackball::ROTATE, translatedMousePosX, translatedMousePosY);
-                    //m_viewer->setCursor(RICursors::get(RICursors::ROTATE));
+                    //m_viewer->setCursor(RiuCursors::get(RiuCursors::ROTATE));
                     m_isRotating = true;
                     isEventHandled = true;
                 }
@@ -98,7 +98,7 @@ bool caf::CadNavigation::handleInputEvent(QInputEvent* inputEvent)
                 if (me->button() == Qt::MidButton)
                 {
                     m_trackball->endNavigation();
-                    //m_viewer->setCursor(RICursors::get(RICursors::PICK));
+                    //m_viewer->setCursor(RiuCursors::get(RiuCursors::PICK));
                     m_isRotating = false;
                     isEventHandled = true;
                 }

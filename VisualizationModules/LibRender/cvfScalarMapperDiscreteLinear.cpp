@@ -41,7 +41,7 @@ ScalarMapperDiscreteLinear::ScalarMapperDiscreteLinear()
 //--------------------------------------------------------------------------------------------------
 Vec2f ScalarMapperDiscreteLinear::mapToTextureCoord(double scalarValue) const
 {
-    double discVal = discretize(scalarValue);
+    double discVal = discretize(scalarValue, m_sortedLevels);
     return ScalarMapperRangeBased::mapToTextureCoord(discVal);
 }
 
@@ -50,20 +50,20 @@ Vec2f ScalarMapperDiscreteLinear::mapToTextureCoord(double scalarValue) const
 //--------------------------------------------------------------------------------------------------
 Color3ub ScalarMapperDiscreteLinear::mapToColor(double scalarValue) const
 {
-    double discVal = discretize(scalarValue);
+    double discVal = discretize(scalarValue, m_sortedLevels);
     return ScalarMapperRangeBased::mapToColor(discVal);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double ScalarMapperDiscreteLinear::discretize(double scalarValue) const
+double ScalarMapperDiscreteLinear::discretize(double scalarValue, const std::set<double>& sortedLevels) 
 {
     std::set<double>::iterator it;
 
-    it = m_sortedLevels.upper_bound(scalarValue);
-    if (it == m_sortedLevels.begin()) return (*it);
-    if (it == m_sortedLevels.end()) return (*m_sortedLevels.rbegin());
+    it = sortedLevels.upper_bound(scalarValue);
+    if (it == sortedLevels.begin()) return (*it);
+    if (it == sortedLevels.end()) return (*sortedLevels.rbegin());
     double upperValue = *it;
     it--;
     double lowerValue = *it;

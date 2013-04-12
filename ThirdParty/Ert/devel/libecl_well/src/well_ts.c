@@ -101,6 +101,7 @@ static well_node_type * well_node_alloc( well_state_type * well_state) {
 
 
 static UTIL_SAFE_CAST_FUNCTION( well_node , WELL_NODE_TYPE_ID )
+static UTIL_SAFE_CAST_FUNCTION_CONST( well_node , WELL_NODE_TYPE_ID )
 
 
 static void well_node_free( well_node_type * well_node ) {
@@ -112,6 +113,20 @@ static void well_node_free__( void * arg ) {
   well_node_type * node = well_node_safe_cast( arg );
   well_node_free( node );
 }
+
+static int well_node_time_cmp( const void * arg1 , const void * arg2) {
+  const well_node_type * node1 = well_node_safe_cast_const( arg1 );
+  const well_node_type * node2 = well_node_safe_cast_const( arg2 );
+
+  if (node1->sim_time < node2->sim_time)
+    return -1;
+  else if (node1->sim_time == node2->sim_time)
+    return 0;
+  else
+    return 1;
+  
+}
+
 
 /*****************************************************************/
 
@@ -144,13 +159,13 @@ static int well_ts_get_index__( const well_ts_type * well_ts , int report_step ,
     
     if (use_report) {
       if (report_step < first_node->report_nr)
-        return 0;         // Before the start
+        return -1;         // Before the start
       
       if (report_step >= last_node->report_nr)
         return size - 1;   // After end
     } else {
       if (sim_time < first_node->sim_time)
-        return 0;         // Before the start
+        return -1;         // Before the start
       
       if (sim_time >= last_node->sim_time)
         return size - 1;   // After end
@@ -247,33 +262,15 @@ static int well_ts_get_index( const well_ts_type * well_ts , int report_step , t
 
 void well_ts_add_well( well_ts_type * well_ts , well_state_type * well_state ) {
   well_node_type * new_node = well_node_alloc( well_state );
+  vector_append_owned_ref( well_ts->ts , new_node , well_node_free__ );
 
-  if (vector_get_size( well_ts->ts ) == 0)
-    // The first element in the vector
-    vector_append_owned_ref( well_ts->ts , new_node , well_node_free__ );
-  else {
+  if (vector_get_size( well_ts->ts ) > 1) {
     const well_node_type * last_node = vector_get_last_const(well_ts->ts );
-    if (new_node->sim_time > last_node->sim_time) 
-      // This is the fast path which will apply when the well_state objects
-      // are added in a time-ordered fashion.
-      vector_append_owned_ref( well_ts->ts , new_node , well_node_free__ );
-    else {
-      // Use binary search through the vector to determine the
-      // new location
-      int index  = well_ts_get_index( well_ts , new_node->report_nr , -1 , true);
-      if (index < 0) 
-        index = 0;
-      
-      {
-        const well_node_type * exnode = vector_iget_const( well_ts->ts , index );
-        if (exnode->report_nr == new_node->report_nr)
-          // Replace the exsisting node
-          vector_iset_owned_ref( well_ts->ts , index , new_node , well_node_free__ );
-        else
-          // Insert a new node - pushing the existing to the right.
-          vector_insert_owned_ref( well_ts->ts , index , new_node , well_node_free__ );   
-      }
-    }
+    if (new_node->sim_time < last_node->sim_time) 
+      // The new node is chronologically before the previous node;
+      // i.e. we must sort the nodes in time. This should probably happen
+      // quite seldom:
+      vector_sort( well_ts->ts , well_node_time_cmp );
   }
 }
 

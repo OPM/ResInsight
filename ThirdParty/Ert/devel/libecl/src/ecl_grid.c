@@ -2395,7 +2395,108 @@ ecl_grid_type * ecl_grid_alloc(const char * grid_file ) {
   return ecl_grid;
 }
 
+static void ecl_grid_file_nactive_dims( fortio_type * data_fortio , int * dims) {
+  if (data_fortio) {
+    if (ecl_kw_fseek_kw( INTEHEAD_KW , false , false , data_fortio )) {
+      ecl_kw_type * intehead_kw = ecl_kw_fread_alloc( data_fortio );
+      dims[3] = ecl_kw_iget_int( intehead_kw , INTEHEAD_NACTIVE_INDEX );
+      ecl_kw_free( intehead_kw );
+    }
+  }
+}
 
+
+static bool ecl_grid_file_EGRID_dims( fortio_type * grid_fortio , fortio_type * data_fortio , int * dims ) {
+  
+  if (ecl_kw_fseek_kw( GRIDHEAD_KW , false , false , grid_fortio)) {
+    {
+      ecl_kw_type * gridhead_kw = ecl_kw_fread_alloc( grid_fortio );
+      dims[0] = ecl_kw_iget_int( gridhead_kw , GRIDHEAD_NX_INDEX );
+      dims[1] = ecl_kw_iget_int( gridhead_kw , GRIDHEAD_NY_INDEX );
+      dims[2] = ecl_kw_iget_int( gridhead_kw , GRIDHEAD_NZ_INDEX );
+      
+      ecl_kw_free( gridhead_kw );
+    }
+    ecl_grid_file_nactive_dims( data_fortio , dims );
+    return true;
+  } else
+    return false;
+  
+}
+
+static bool ecl_grid_file_GRID_dims( fortio_type * grid_fortio , fortio_type * data_fortio , int * dims ) {
+  
+  if (ecl_kw_fseek_kw( DIMENS_KW , false , false , grid_fortio)) {
+    {
+      ecl_kw_type * dimens_kw = ecl_kw_fread_alloc( grid_fortio );
+      dims[0] = ecl_kw_iget_int( dimens_kw , DIMENS_NX_INDEX );
+      dims[1] = ecl_kw_iget_int( dimens_kw , DIMENS_NY_INDEX );
+      dims[2] = ecl_kw_iget_int( dimens_kw , DIMENS_NZ_INDEX );
+      
+      ecl_kw_free( dimens_kw );
+    }
+
+    ecl_grid_file_nactive_dims( data_fortio , dims );
+    return true;
+  } else
+    return false;
+  
+}
+
+/**
+   Will check the grid dimensions from the input grid file
+   @grid_filename; the input file must be a GRID/EGRID file. On exit
+   the dims array will be filled as:
+
+          dims[0] = nx; 
+          dims[1] = ny; 
+          dims[2] = nz;
+
+   Optionally you can in addition supply the name of a restart or INIT
+   file in the second file argument - if-and-only-if, that filename
+   points to an existing file the fourth element in the dims array
+   will be set as:
+
+          dims[3] = nactive;
+          
+   The function as a whole will return true if the grid dimensions
+   (nx,ny,nz) are sucessfully set. If the dimensions are not set the
+   dims vector is not touched.
+*/
+
+
+
+bool ecl_grid_file_dims( const char * grid_filename , const char * init_restart_filename , int * dims) {
+  bool input_file_OK = false;
+  bool grid_fmt_file;
+  ecl_file_enum grid_file_type = ecl_util_get_file_type( grid_filename , &grid_fmt_file , NULL );
+
+  if ((grid_file_type == ECL_GRID_FILE) || (grid_file_type == ECL_EGRID_FILE)) {
+    fortio_type * grid_fortio = fortio_open_reader( grid_filename , grid_fmt_file , ECL_ENDIAN_FLIP );
+    if (grid_fortio) {
+      fortio_type * data_fortio = NULL;
+      bool data_fmt_file;
+      
+      if (init_restart_filename) {
+        ecl_file_enum data_file_type = ecl_util_get_file_type( init_restart_filename , &data_fmt_file , NULL );
+        data_fortio = fortio_open_reader( init_restart_filename , data_fmt_file , ECL_ENDIAN_FLIP );
+      }
+      
+      
+      if (grid_file_type == ECL_GRID_FILE)
+        input_file_OK = ecl_grid_file_GRID_dims( grid_fortio , data_fortio , dims );
+      else
+        input_file_OK = ecl_grid_file_EGRID_dims( grid_fortio , data_fortio , dims );
+      
+      if (data_fortio)
+        fortio_fclose( data_fortio );
+      
+      fortio_fclose( grid_fortio );
+    }
+  }  
+  
+  return input_file_OK;
+}
 
 
 
@@ -3005,8 +3106,10 @@ int ecl_grid_get_active_fracture_index3(const ecl_grid_type * ecl_grid , int i ,
 */
 
 int ecl_grid_get_active_fracture_index1(const ecl_grid_type * ecl_grid , int global_index) {
-  if (!ecl_grid->fracture_index_map) return -1;
-  return ecl_grid->fracture_index_map[global_index];
+  if (ecl_grid->fracture_index_map == NULL)
+    return -1; 
+  else
+    return ecl_grid->fracture_index_map[global_index];
 }
 
 
@@ -3720,10 +3823,10 @@ int ecl_grid_get_region_cells(const ecl_grid_type * ecl_grid , const ecl_kw_type
 
 
 
-void ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , FILE * stream , double double_default) {
+void ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream , double double_default) {
   int src_size = ecl_kw_get_size( ecl_kw );
   if (src_size == ecl_grid->size)
-    ecl_kw_fprintf_grdecl( ecl_kw , stream );
+    ecl_kw_fprintf_grdecl__( ecl_kw , special_header , stream );
   else if (src_size == ecl_grid->total_active) {
     void  * default_ptr = NULL;
     float   float_default;
@@ -3755,7 +3858,7 @@ void ecl_grid_grdecl_fprintf_kw( const ecl_grid_type * ecl_grid , const ecl_kw_t
     
     {
       ecl_kw_type * tmp_kw = ecl_kw_alloc_scatter_copy( ecl_kw , ecl_grid->size , ecl_grid->inv_index_map , default_ptr );
-      ecl_kw_fprintf_grdecl( tmp_kw , stream );
+      ecl_kw_fprintf_grdecl__( tmp_kw , special_header , stream );
       ecl_kw_free( tmp_kw );
     }
   } else 

@@ -16,12 +16,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RIStdInclude.h"
+#include "RiaStdInclude.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimReservoirView.h"
-#include "RigReservoir.h"
+#include "RigCaseData.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -115,11 +115,11 @@ void RimCellRangeFilter::setDefaultValues()
 {
     CVF_ASSERT(m_parentContainer);
 
-    RigMainGrid* mainGrid = m_parentContainer->mainGrid();
-    if (mainGrid)
+    RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
+    if (actCellInfo)
     {
         cvf::Vec3st min, max;
-        mainGrid->matrixModelActiveCellsBoundingBox(min, max);
+        actCellInfo->IJKBoundingBox(min, max);
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;
@@ -159,10 +159,13 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
     }
 
     RigMainGrid* mainGrid = m_parentContainer->mainGrid();
-    if (mainGrid)
+    CVF_ASSERT(mainGrid);
+
+    RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
+    if (actCellInfo)
     {
         cvf::Vec3st min, max;
-        mainGrid->matrixModelActiveCellsBoundingBox(min, max);
+        actCellInfo->IJKBoundingBox(min, max);
 
         // Adjust to Eclipse indexing
         min.x() = min.x() + 1;

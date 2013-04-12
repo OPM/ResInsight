@@ -672,6 +672,11 @@ void @TYPE@_vector_reset(@TYPE@_vector_type * vector) {
 }
 
 
+void @TYPE@_vector_free_container(@TYPE@_vector_type * vector) {
+  free( vector );
+}
+
+
 void @TYPE@_vector_free_data(@TYPE@_vector_type * vector) {
   @TYPE@_vector_reset(vector);
   @TYPE@_vector_realloc_data__(vector , 0);
@@ -681,7 +686,7 @@ void @TYPE@_vector_free_data(@TYPE@_vector_type * vector) {
 void @TYPE@_vector_free(@TYPE@_vector_type * vector) {
   if (vector->data_owner)
     util_safe_free( vector->data );
-  free( vector );
+  @TYPE@_vector_free_container( vector );
 }
 
 
@@ -775,6 +780,20 @@ void @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value) {
     for (i=0; i< vector->size; i++)
       vector->data[i] = value;
   }
+}
+
+bool @TYPE@_vector_init_range(@TYPE@_vector_type * vector , @TYPE@ min_value , @TYPE@ max_value , @TYPE@ delta) {
+  if (max_value >= min_value) {
+    @TYPE@ current_value = min_value;
+    @TYPE@_vector_reset( vector );
+    while (current_value < max_value) {
+      @TYPE@_vector_append( vector , current_value );
+      current_value += delta;
+    }
+    @TYPE@_vector_append( vector , max_value );
+    return true;
+  } else
+    return false;
 }
 
 

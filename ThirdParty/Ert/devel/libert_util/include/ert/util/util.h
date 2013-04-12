@@ -76,9 +76,14 @@ typedef enum {left_pad   = 0,
   void         util_fprintf_datetime(time_t  , FILE * );
   void         util_fprintf_date(time_t  , FILE * );
   time_t       util_make_date(int , int , int);
+  time_t       util_make_pure_date(time_t t);
   void         util_inplace_forward_days(time_t *  , double);
+  time_t       util_file_mtime(const char * file);
   double       util_difftime(time_t  , time_t  , int *  , int *  , int *  , int *);
   double       util_difftime_days(time_t  , time_t );
+  double       util_difftime_seconds( time_t start_time , time_t end_time);
+  bool         util_after( time_t t , time_t limit);
+  bool         util_before( time_t t , time_t limit);
   bool         util_file_newer( const char * file , time_t t0);
   bool         util_file_older( const char * file , time_t t0);
   char       * util_alloc_date_string( time_t t );
@@ -87,6 +92,7 @@ typedef enum {left_pad   = 0,
   bool         util_char_in(char c, int , const char *);
   char       * util_alloc_sprintf_va(const char * fmt , va_list ap);
   char       * util_alloc_sprintf(const char *  , ...);
+  char       * util_alloc_sprintf_escape(const char * src , int max_escape);
   char       * util_realloc_sprintf(char * , const char *  , ...);
   void         util_fprintf_int(int , int , FILE * );
   void         util_fprintf_string(const char *  , int , string_alignement_type ,  FILE * );
@@ -100,6 +106,7 @@ typedef enum {left_pad   = 0,
   bool         util_file_exists(const char *);
   bool         util_is_abs_path(const char * );
   char       * util_alloc_abs_path( const char * path );
+  char       * util_alloc_rel_path( const char * __root_path , const char * path);
   bool         util_fmt_bit8   (const char *);
   bool         util_fmt_bit8_stream(FILE * );
   void         util_make_path  (const char *);
@@ -118,9 +125,12 @@ typedef enum {left_pad   = 0,
   void         util_move_file4( const char * src_name , const char * target_name , const char *src_path , const char * target_path);
   bool         util_copy_file(const char * , const char * );
   char       * util_alloc_cwd(void);
+  bool         util_is_cwd( const char * path );
   char       * util_alloc_realpath(const char * );
+  char       * util_alloc_realpath__(const char * input_path);
   bool         util_string_match(const char * string , const char * pattern);
   bool         util_string_has_wildcard( const char * s);
+  bool         util_file_readable( const char * file );
   bool         util_entry_readable( const char * entry );  
   bool         util_entry_writable( const char * entry );
   void         util_ftruncate(FILE * stream , long size);
@@ -220,11 +230,13 @@ typedef enum {left_pad   = 0,
   char       * util_alloc_dequoted_copy(const char *s);
   void         util_safe_free(void *);
   void         util_free_stringlist(char **, int );
+  void         util_free_NULL_terminated_stringlist(char ** string_list);
   char       * util_alloc_substring_copy(const char *, int offset , int N);
   bool         util_is_directory(const char * );
   bool         util_is_file(const char * );
   void         util_set_datetime_values(time_t , int * , int * , int * , int * , int *  , int *);
   void         util_set_date_values(time_t , int * , int * , int * );
+  bool         util_is_first_day_in_month( time_t t);
 
 
   void     util_fread_from_buffer(void *  , size_t  , size_t , char ** );
@@ -239,7 +251,7 @@ typedef enum {left_pad   = 0,
   void    util_abort_signal(int );
   void    util_abort_append_version_info(const char * );
   void    util_abort_free_version_info();
-  void    util_abort_set_executable( const char * executable );
+  void    util_abort_set_executable( const char * argv0 );
   void *  util_realloc(void *  , size_t  );
   void *  util_malloc(size_t );
   void *  util_calloc( size_t elements , size_t element_size );
@@ -303,8 +315,6 @@ typedef enum {left_pad   = 0,
 
   
   bool     util_sscanf_bytesize(const char * , size_t *);
-  void     util_sscanf_active_range(const char *  , int , bool * );
-  int    * util_sscanf_alloc_active_list(const char *  , int * );
   int      util_get_current_linenr(FILE * stream);
   const char * util_update_path_var(const char * , const char * , bool );
   
@@ -317,9 +327,11 @@ typedef enum {left_pad   = 0,
   char   * util_fscanf_alloc_upto(FILE * stream , const char * stop_string, bool include_stop_string);
   bool     util_files_equal( const char * file1 , const char * file2 );
   double   util_kahan_sum(const double *data, size_t N);
+  bool     util_double_approx_equal( double d1 , double d2);
   int      util_fnmatch( const char * pattern , const char * string );
   void     util_localtime( time_t * t , struct tm * ts );
-  
+
+  char      ** util_alloc_PATH_list();
   char       * util_alloc_PATH_executable(const char * executable );
   char       * util_isscanf_alloc_envvar( const char * string , int env_index );
   void         util_setenv( const char * variable , const char * value);
@@ -422,19 +434,34 @@ const char * util_enum_iget( int index , int size , const util_enum_element_type
 #ifdef HAVE_SYMLINK
   void         util_make_slink(const char *, const char * );
   char       * util_alloc_link_target(const char * link);
-  #ifdef HAVE_READLINKAT
-    char     *   util_alloc_atlink_target(const char * path , const char * link);
-  #endif
+#ifdef HAVE_READLINKAT
+  char     *   util_alloc_atlink_target(const char * path , const char * link);
+#endif
 #endif
 
+
 #ifdef HAVE_FORK
-#include "util_fork.h"
+  pid_t    util_fork_exec(const char *  , int , const char ** , bool , const char * , const char *  , const char * , const char *  , const char * );
+  uid_t  * util_alloc_file_users( const char * filename , int * __num_users);
+  char   * util_alloc_filename_from_stream( FILE * input_stream );
+  bool     util_ping( const char * hostname);
 #endif
 
 
 #ifdef HAVE_LOCKF
   FILE       * util_fopen_lockf(const char * , const char * );
   bool     util_try_lockf(const char *  , mode_t  , int * );
+#endif
+
+#ifdef HAVE_FORK
+#ifdef WITH_PTHREAD
+#ifdef HAVE_EXECINFO
+
+  bool util_addr2line_lookup(const void * bt_addr , char ** func_name , char ** file_line, int * line_nr);
+
+#define HAVE_UTIL_ABORT
+#endif
+#endif
 #endif
 
 

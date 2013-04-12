@@ -394,6 +394,117 @@ class EclSumVector:
 
     #################################################################
 
+
+class EclSMSPECNode( CClass ):
+    """
+    Small class with some meta information about a summary variable.
+
+    The summary variables have different attributes, like if they
+    represent a total quantity, a rate or a historical quantity. These
+    quantities, in addition to the underlying values like WGNAMES,
+    KEYWORD and NUMS taken from the the SMSPEC file are stored in this
+    structure.
+    """
+    def __new__(cls , c_ptr , parent):
+        if c_ptr:
+            obj = object.__new__( cls )
+            obj.init_cref( c_ptr , parent )
+            return obj
+        else:
+            return None
+
+    @property
+    def is_total(self):
+        """
+        Will check if the node corresponds to a total quantity.
+
+        The question of whether a variable corresponds to a 'total'
+        quantity or not can be interesting for e.g. interpolation
+        purposes. The actual question whether a quantity is total or
+        not is based on a hardcoded list in smspec_node_set_flags() in
+        smspec_node.c; this list again is based on the tables 2.7 -
+        2.11 in the ECLIPSE fileformat documentation.
+        """
+        return cfunc.node_is_total( self )
+
+    @property
+    def is_rate(self):
+        """
+        Will check if the variable in question is a rate variable.
+
+        The conecpt of rate variabel is important (internally) when
+        interpolation values to arbitrary times.
+        """
+        return cfunc.node_is_rate( self )
+
+
+    @property
+    def is_historical(self):
+        """
+        Checks if the key corresponds to a historical variable.
+        
+        The check is only based on the last character; all variables
+        ending with 'H' are considered historical.
+        """
+        return cfunc.node_is_historical( self )
+
+    
+    @property
+    def unit(self):
+        """
+        Returns the unit of this node as a string.
+        """
+        return cfunc.node_unit( self )
+
+    @property
+    def wgname(self):
+        """
+        Returns the WGNAME property for this node.
+
+        Many variables do not have the WGNAME property, i.e. the field
+        related variables like FOPT and the block properties like
+        BPR:10,10,10. For these variables the function will return
+        None, and not the ECLIPSE dummy value: ":+:+:+:+".
+        """
+        return cfunc.node_wgname(self)
+
+
+    @property
+    def keyword(self):
+        """
+        Returns the KEYWORD property for this node.
+
+        The KEYWORD property is the main classification property in
+        the ECLIPSE SMSPEC file. The properties of a variable can be
+        read from the KEWYORD value; see table 3.4 in the ECLIPSE file
+        format reference manual.
+        """
+        return cfunc.node_keyword( self )
+    
+    @property
+    def num(self):
+        """
+        Returns the NUMS value for this keyword; or None.
+
+        Many of the summary keywords have an integer stored in the
+        vector NUMS as an attribute, i.e. the block properties have
+        the global index of the cell in the nums vector. If the
+        variable in question makes use of the NUMS value this property
+        will return the value, otherwise it will return None:
+
+           sum.smspec_node("FOPT").num     => None
+           sum.smspec_node("BPR:1000").num => 1000
+        """
+        if cfunc.node_need_num( self ):
+            return cfunc.node_num(self)
+        else:
+            return None
+        
+
+        
+
+
+
 class EclSum( CClass ):
     
     def __new__( cls , load_case , join_string = ":" , include_restart = True):
@@ -490,6 +601,7 @@ class EclSum( CClass ):
         return index_list
 
 
+    
     def wells( self , pattern = None ):
         """
         Will return a list of all the well names in case.
@@ -634,6 +746,13 @@ class EclSum( CClass ):
         """
         return self.get_vector( key )
 
+
+    def check_sim_time( self , date):
+        """
+        Will check if the input date is in the time span [sim_start , sim_end].
+        """
+        return cfunc.check_sim_time( self , ctime(date) )
+
     
     def get_interp( self , key , days = None , date = None):
         """
@@ -658,7 +777,7 @@ class EclSum( CClass ):
                 else:
                     raise ValueError("days:%s is outside range of simulation: [%g,%g]" % (days , self.first_day , self.sim_length))
         elif date:
-            if cfunc.check_sim_time( self , ctime(date) ):
+            if self.check_sim_time( date ):
                 return cfunc.get_general_var_from_sim_time( self , ctime(date) , key )
             else:
                 raise ValueError("date:%s is outside range of simulation data" % date)
@@ -735,7 +854,6 @@ class EclSum( CClass ):
             raise ValueError("Must supply either days_list or date_list")
         return vector
                 
-    
 
     def get_from_report( self , key , report_step ):
         """
@@ -751,11 +869,30 @@ class EclSum( CClass ):
         """
         return cfunc.has_key( self, key )
 
+
+    def smspec_node( self , key ):
+        """
+        Will return a EclSMSPECNode instance corresponding to @key.
+
+        The returned EclSMPECNode instance can then be used to ask for
+        various properties of the variable; i.e. if it is a rate
+        variable, what is the unit, if it is a total variable and so
+        on.
+        """
+        if self.has_key( key ):
+            c_ptr = cfunc.get_var_node( self , key )
+            return EclSMSPECNode( c_ptr , self )
+        else:
+            raise KeyError("Summary case does not have key:%s" % key)
+
+
     def unit(self , key):
         """
         Will return the unit of @key. 
         """
-        return cfunc.get_unit( self , key )
+        node = self.smspec_node( key )
+        return node.unit
+        
 
     @property
     def case(self):
@@ -1094,6 +1231,7 @@ class EclSum( CClass ):
 #    registering the type map : ecl_kw <-> EclKW
 cwrapper = CWrapper( libecl.lib )
 cwrapper.registerType( "ecl_sum" , EclSum )
+cwrapper.registerType( "smspec_node" , EclSMSPECNode )
 
 
 # 3. Installing the c-functions used to manipulate ecl_kw instances.
@@ -1142,3 +1280,16 @@ cfunc.get_report_time               = cwrapper.prototype("time_t   ecl_sum_get_r
 
 cfunc.fwrite_sum                    = cwrapper.prototype("void     ecl_sum_fwrite(ecl_sum)")
 cfunc.set_case                      = cwrapper.prototype("void     ecl_sum_set_case(ecl_sum, char*)")
+
+#-----------------------------------------------------------------
+# smspec node related stuff
+
+cfunc.get_var_node                  = cwrapper.prototype("c_void_p ecl_sum_get_general_var_node(ecl_sum , char* )")
+cfunc.node_is_total                 = cwrapper.prototype("bool smspec_node_is_total( smspec_node )")
+cfunc.node_is_historical            = cwrapper.prototype("bool smspec_node_is_historical( smspec_node )")
+cfunc.node_is_rate                  = cwrapper.prototype("bool smspec_node_is_rate( smspec_node )")
+cfunc.node_unit                     = cwrapper.prototype("char* smspec_node_get_unit( smspec_node )")
+cfunc.node_wgname                   = cwrapper.prototype("char* smspec_node_get_wgname( smspec_node )")
+cfunc.node_keyword                  = cwrapper.prototype("char* smspec_node_get_keyword( smspec_node )")
+cfunc.node_num                      = cwrapper.prototype("int   smspec_node_get_num( smspec_node )")
+cfunc.node_need_num                 = cwrapper.prototype("bool  smspec_node_need_nums( smspec_node )")

@@ -1,3 +1,9 @@
+libert.ecl (1.0-2) precise; urgency=low
+
+  * Mark -dev package as architecture independent
+
+ -- Arne Morten Kvarving <akva@SINTEFPC4169>  Tue, 19 Feb 2013 10:03:04 +0100
+
 libert.ecl (1.0-1) unstable; urgency=low
 
   * Initial release

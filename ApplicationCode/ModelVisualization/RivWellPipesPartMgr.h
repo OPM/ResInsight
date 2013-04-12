@@ -20,7 +20,7 @@
 
 #include "cafPdmPointer.h"
 #include <list>
-#include "RigWellResults.h"
+#include "RigSingleWellResultsData.h"
 
 namespace cvf
 {

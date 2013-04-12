@@ -65,6 +65,7 @@ struct smspec_node_struct {
   bool                   rate_variable;      /* Is this a rate variable (i.e. WOPR) or a state variable (i.e. BPR). Relevant when doing time interpolation. */
   bool                   total_variable;     /* Is this a total variable like WOPT? */
   bool                   need_nums;          /* Do we use the NUMS vector - relevant for storing. */
+  bool                   historical;         /* Does the name end with 'H'? */
   int                    params_index;       /* The index of this variable (applies to all the vectors - in particular the PARAMS vectors of the summary files *.Snnnn / *.UNSMRY ). */
   float                  default_value;      /* Default value for this variable. */
 };
@@ -234,8 +235,12 @@ static void smspec_node_set_invalid_flags( smspec_node_type * smspec_node) {
   smspec_node->rate_variable  = false;
   smspec_node->total_variable = false;
   smspec_node->need_nums      = false;
+  smspec_node->historical     = false;
 }
 
+static char LAST_CHAR(const char * s) {
+  return s[ strlen(s) - 1];
+}
 
 static void smspec_node_set_flags( smspec_node_type * smspec_node) {
   /* 
@@ -249,7 +254,7 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     int ivar;
     for (ivar = 0; ivar < num_rate_vars; ivar++) {
       const char * var_substring = &smspec_node->keyword[1];
-      if (util_string_equal( rate_vars[ivar] , var_substring)) {
+      if (strncmp( rate_vars[ivar] , var_substring , strlen( rate_vars[ivar] )) == 0) {
         is_rate = true;
         break;
       }
@@ -257,6 +262,11 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     smspec_node->rate_variable = is_rate;
   }
   
+  {
+    if (LAST_CHAR(smspec_node->keyword) == 'H')
+      smspec_node->historical = true;
+  }
+
   /*
     This code checks in a predefined list whether a certain WGNAMES
     variable represents a total accumulated quantity. Only the last three
@@ -265,7 +275,7 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     
     The list below is all the keyowrds with 'Total' in the information from
     the tables 2.7 - 2.11 in the ECLIPSE fileformat documentation.  Have
-    skipped some of the most exotic keywords (AND ALL THE HISTORICAL).
+    skipped some of the most exotic keywords.
   */
   {
     bool is_total = false;
@@ -278,7 +288,12 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
       int ivar;
       for (ivar = 0; ivar < num_total_vars; ivar++) {
         const char * var_substring = &smspec_node->keyword[1];
-        if (util_string_equal( total_vars[ivar] , var_substring)) {
+        /*
+          We want to mark both FOPT and FOPTH as historical variables;
+          we use strncmp() to make certain that the trailing 'H' is
+          not included in the comparison.
+        */
+        if (strncmp( total_vars[ivar] , var_substring , strlen( total_vars[ivar] )) == 0) {
           is_total = true;
           break;
         }
@@ -759,6 +774,10 @@ bool smspec_node_is_rate( const smspec_node_type * smspec_node ) {
 
 bool smspec_node_is_total( const smspec_node_type * smspec_node ){ 
   return smspec_node->total_variable;
+}
+
+bool smspec_node_is_historical( const smspec_node_type * smspec_node ){ 
+  return smspec_node->historical;
 }
 
 

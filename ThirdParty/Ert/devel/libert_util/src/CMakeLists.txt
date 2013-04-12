@@ -1,7 +1,7 @@
-set(source_files rng.c lookup_table.c statistics.c mzran.c set.c hash_node.c hash_sll.c hash.c node_data.c node_ctype.c util.c thread_pool.c msg.c arg_pack.c path_fmt.c menu.c subst_list.c subst_func.c vector.c parser.c stringlist.c matrix.c buffer.c log.c template.c timer.c test_util.c)
+set(source_files rng.c lookup_table.c statistics.c mzran.c set.c hash_node.c hash_sll.c hash.c node_data.c node_ctype.c util.c thread_pool.c msg.c arg_pack.c path_fmt.c menu.c subst_list.c subst_func.c vector.c parser.c stringlist.c matrix.c buffer.c log.c template.c timer.c test_util.c time_interval.c string_util.c)
 
+set(header_files ssize_t.h type_macros.h rng.h lookup_table.h statistics.h mzran.h set.h hash.h hash_node.h hash_sll.h node_data.h node_ctype.h util.h thread_pool.h msg.h arg_pack.h path_fmt.h  stringlist.h menu.h subst_list.h subst_func.h vector.h parser.h matrix.h buffer.h log.h template.h timer.h test_util.h time_interval.h string_util.h)
 
-set(header_files ssize_t.h type_macros.h rng.h lookup_table.h statistics.h mzran.h set.h hash.h hash_node.h hash_sll.h node_data.h node_ctype.h util.h thread_pool.h msg.h arg_pack.h path_fmt.h  stringlist.h menu.h subst_list.h subst_func.h vector.h parser.h matrix.h buffer.h log.h template.h timer.h test_util.h)
 
 if (WITH_LATEX)
    add_definitions( -DWITH_LATEX )
@@ -16,6 +16,11 @@ if (WITH_LAPACK)
    list( APPEND header_files matrix_lapack.h matrix_blas.h regression.h lars.h stepwise.h)
 endif()
 
+if (UNISTD_HEADER)
+   list( APPEND source_files path_stack.c )
+   list( APPEND header_files path_stack.h )
+endif()
+
 foreach (type int double bool long time_t size_t float)
   set(TYPE ${type} )      
   set(src_target        ${CMAKE_CURRENT_BINARY_DIR}/${type}_vector.c)    
@@ -25,11 +30,9 @@ foreach (type int double bool long time_t size_t float)
   list( APPEND source_files ${src_target} )
 endforeach( type )
 
-
-#if (WITH_ZLIB)
-#   list( APPEND source_files util_zlib.c )
-#   list( APPEND header_files util_zlib.h )
-#endif()
+if (PING_PATH)
+   add_definitions( -DPING_CMD=\"${PING_PATH}\")
+endif()
 
 # The block_fs filesystem is so heavily dependant on pthreads that it is not 
 # built if de not have pthreads.
@@ -67,13 +70,17 @@ endif()
 if (NEED_LIBM)
    target_link_libraries( ert_util m )
 endif()
+if (NEED_LIBDL)
+   target_link_libraries( ert_util dl )
+endif()
 
 #-----------------------------------------------------------------
-install(TARGETS ert_util DESTINATION ${CMAKE_INSTALL_LIBDIR})
-foreach(header ${header_files})
-    install(FILES ../include/ert/util/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/util)
-endforeach()
-
+if (INSTALL_ERT)
+   install(TARGETS ert_util DESTINATION ${CMAKE_INSTALL_LIBDIR})
+   foreach(header ${header_files})
+       install(FILES ../include/ert/util/${header} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/ert/util)
+   endforeach()
+endif()
 
 
 

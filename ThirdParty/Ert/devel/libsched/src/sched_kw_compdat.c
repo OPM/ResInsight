@@ -129,7 +129,7 @@ static well_dir_type comp_get_well_dir_from_string(const char * well_dir) {
   else if (strcmp(well_dir , WELL_DIR_Y_STRING) == 0)
     return Y;
   else if (strcmp(well_dir , WELL_DIR_Z_STRING) == 0)
-    return X;
+    return Z;
   else if (strcmp(well_dir , WELL_DIR_FX_STRING) == 0)
     return FX;
   else if (strcmp(well_dir , WELL_DIR_FY_STRING) == 0)

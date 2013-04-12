@@ -136,7 +136,7 @@ String OpenGL::mapOpenGLErrorToString(cvfGLenum errorCode)
 //--------------------------------------------------------------------------------------------------
 /// Returns false if no error.
 //--------------------------------------------------------------------------------------------------
-bool OpenGL::testAndReportOpenGLError(OpenGLContext* oglContext, const char* operation, const char* fileName, int line)
+bool OpenGL::testAndReportOpenGLError(OpenGLContext* oglContext, const char* operation, const CodeLocation& codeLocation)
 {
     // glGetError will end up in an endless loop if no context is current
     CVF_ASSERT(oglContext);
@@ -157,7 +157,7 @@ bool OpenGL::testAndReportOpenGLError(OpenGLContext* oglContext, const char* ope
             String errCodeStr = mapOpenGLErrorToString(err);
             String msg = String("Operation: ") + operation;
             msg += "OGL(" + errCodeStr + "): ";
-            logger->error(msg, fileName, line);
+            logger->error(msg, codeLocation);
         }
 
 		err = glGetError();
@@ -170,7 +170,7 @@ bool OpenGL::testAndReportOpenGLError(OpenGLContext* oglContext, const char* ope
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OpenGL::cvf_check_ogl(OpenGLContext* oglContext, const char* fileName, int line)
+void OpenGL::cvf_check_ogl(OpenGLContext* oglContext, const CodeLocation& codeLocation)
 {
     if (OpenGL::m_enableCheckOgl)
     {
@@ -186,7 +186,7 @@ void OpenGL::cvf_check_ogl(OpenGLContext* oglContext, const char* fileName, int 
             {
                 String errCodeStr = mapOpenGLErrorToString(err);
                 String msg = "OGL(" + errCodeStr + "): ";
-                logger->error(msg, fileName, line);
+                logger->error(msg, codeLocation);
             }
 
             err = glGetError();

@@ -27,7 +27,6 @@ extern "C" {
 #include <time.h>
 
 #include <ert/ecl/ecl_file.h> 
-#include <ert/ecl/ecl_intehead.h>
 
 #include <ert/ecl_well/well_conn.h>
 #include <ert/ecl_well/well_const.h>

@@ -2,7 +2,7 @@
    This file implements a simpler version of the util_abort() function
    which does not present a backtrace.
 */
-
+#include <assert.h>
 
 
 
@@ -24,13 +24,9 @@ void util_abort(const char * fmt , ...) {
   } 
   fprintf(stderr,"-----------------------------------------------------------------\n");
 
-  if (getenv("UTIL_ABORT") != NULL) {
-    fprintf(stderr , "Aborting ... \n");
-    abort();
-  } else {
-    fprintf(stderr , "Exiting ... \n");
-    exit(1);
-  }
-    // Would have preferred abort() here - but that comes in conflict with the SIGABRT signal.
+  signal(SIGABRT , SIG_DFL);
+  fprintf(stderr , "Aborting ... \n");
+  assert(0);
+  abort();
 }
 

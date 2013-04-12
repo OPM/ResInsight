@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-//#include <test_util.h>
+#include <ert/util/test_util.h>
 #include <ert/util/stringlist.h>
 
 void test_char() {
@@ -48,7 +48,57 @@ void test_char() {
 
 
 
+void test_reverse() {
+  const char *s0 = "AAA";
+  const char *s1 = "BBB";
+  const char *s2 = "CCC";
+  
+  stringlist_type * s = stringlist_alloc_new();
+  stringlist_append_ref( s , s0 );
+  stringlist_append_ref( s , s1 );
+  stringlist_append_ref( s , s2 );
+
+  stringlist_reverse(s);
+
+  test_assert_string_equal( s2 , stringlist_iget(s , 0 ));
+  test_assert_string_equal( s1 , stringlist_iget(s , 1 ));
+  test_assert_string_equal( s0 , stringlist_iget(s , 2 ));
+}
+
+
+void test_iget_as_int() {
+  stringlist_type * s = stringlist_alloc_new();
+  stringlist_append_ref(s , "1000" );
+  stringlist_append_ref(s , "1000X" );
+  stringlist_append_ref(s , "XXXX" );
+
+  {
+    int value;
+    bool valid;
+
+    value = stringlist_iget_as_int( s , 0 , &valid);
+    test_assert_int_equal( value , 1000);
+    test_assert_true( valid );
+    
+    value = stringlist_iget_as_int( s , 1 , &valid);
+    test_assert_int_equal( value , -1);
+    test_assert_false( valid );
+
+    value = stringlist_iget_as_int( s , 2 , NULL);
+    test_assert_int_equal( value , -1);
+  }
+}
+
+void test_empty() {
+  stringlist_type * s = stringlist_alloc_new();
+  stringlist_fprintf( s , "\n" , stdout );
+}
+
+
 int main( int argc , char ** argv) {
+  test_empty();
   test_char();
+  test_reverse();
+  test_iget_as_int();
   exit(0);
 }

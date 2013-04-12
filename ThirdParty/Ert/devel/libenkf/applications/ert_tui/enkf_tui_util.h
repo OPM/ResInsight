@@ -19,6 +19,7 @@
 #ifndef __ENKF_TUI_UTIL_H__
 #define __ENKF_TUI_UTIL_H__
 
+#include <ert/util/bool_vector.h>
 
 #include <ert/enkf/enkf_types.h>
 #include <ert/enkf/field_config.h>
@@ -41,4 +42,6 @@ char *                        enkf_tui_util_scanf_report_step_as_char(int , cons
 void                          enkf_tui_util_msg(const char * , ...);
 int                           enkf_tui_util_scanf_int_with_default(const char * prompt , int prompt_len , bool * default_used);
 int                           enkf_tui_util_scanf_int_with_default_return_to_menu(const char * prompt , int prompt_len , bool * default_used);
+
+bool                          enkf_tui_util_sscanf_active_list( bool_vector_type * iactive , const char * select_string , int ens_size );
 #endif

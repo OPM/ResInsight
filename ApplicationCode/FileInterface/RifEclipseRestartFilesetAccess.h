@@ -35,11 +35,13 @@ public:
     RifEclipseRestartFilesetAccess();
     virtual ~RifEclipseRestartFilesetAccess();
 
-    bool                        open(const QStringList& fileSet);
+    bool                        open();
+    void                        setRestartFiles(const QStringList& fileSet);
     void                        close();
 
+    void                        setTimeSteps(const std::vector<QDateTime>& timeSteps);
     size_t                      timeStepCount();
-    QList<QDateTime>            timeSteps();
+    std::vector<QDateTime>            timeSteps();
 
     void                        resultNames(QStringList* resultNames, std::vector<size_t>* resultDataItemCounts);
     bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
@@ -47,5 +49,11 @@ public:
     virtual void                readWellData(well_info_type* well_info);
 
 private:
-    std::vector< ecl_file_type* > m_ecl_files;
+    void                        openTimeStep(size_t timeStep);
+
+private:
+    QStringList                     m_fileNames;
+    std::vector<QDateTime>                m_timeSteps;
+
+    std::vector< ecl_file_type* >   m_ecl_files;
 };

@@ -5,6 +5,7 @@ project (ResInsight)
 set (VIZ_MODULES_FOLDER_NAME VisualizationModules)
 
 
+
 # Setup the main platform defines
 #-----------------------------------------------------
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -37,6 +38,11 @@ include (ResInsightVersion.cmake)
 ################################################################################
 # ERT
 ################################################################################
+
+# Disable install of ERT libs and headers, as Ert code is compiled and linked directly
+# into ResInsight
+SET(INSTALL_ERT OFF CACHE BOOL "Build ERT without installing")
+
 add_subdirectory(ThirdParty/Ert/devel)
 
 include_directories(

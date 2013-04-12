@@ -20,21 +20,77 @@
 #include <stdio.h>
 
 #include <ert/util/latex.h>
+#include <ert/util/test_util.h>
+#include <ert/util/util.h>
+
+void make_file( const char * filename ) {
+  FILE * stream = util_fopen( filename , "w");
+  
+  fclose(stream);
+}
+
+
+void test_link( const latex_type * latex , const char * link , const char * target) {
+  char * latex_link = util_alloc_filename( latex_get_runpath( latex ) , link , NULL);
+  char * latex_target = util_alloc_link_target( latex_link );
+  
+  test_assert_true( util_same_file( target , latex_target));
+  
+  free( latex_link );
+  free( latex_target);
+}
+
+
+
+void test_latex_link( latex_type * latex ) {
+  const char * path = "/tmp/linkFarm";
+  const char * file1 = util_alloc_filename( path , "File1" , NULL );
+  const char * file2 = util_alloc_filename( path , "File2" , NULL );
+  const char * file3 = util_alloc_filename( path , "File3" , NULL );
+  
+
+  util_make_path( path );
+  make_file( file1 );
+  make_file( file2 );
+  make_file( file3 );
+  
+  latex_link_path( latex , path );
+  latex_link_directory_content( latex , path );
+  
+  test_link( latex , "File1" , file1);
+  test_link( latex , "File2" , file2);
+  test_link( latex , "File3" , file3);
+  test_link( latex , "linkFarm" , path);
+  
+  util_clear_directory( path , true , true );
+}
+
 
 
 int main(int argc , char ** argv) {
   bool ok;
 
   {
+    bool in_place = false;
+    latex_type * latex = latex_alloc( argv[1] , in_place);
+    ok = latex_compile( latex , true , true , true);
+    test_assert_true( in_place == latex_compile_in_place( latex ));
+    latex_free( latex );
+    test_assert_true( ok );
+  }
+
+
+  {
     latex_type * latex = latex_alloc( argv[1] , false );
-    printf("input:%s \n",argv[1]);
-    ok = latex_compile( latex , true , true );
-    printf("OK: %d \n",ok);
+    test_latex_link( latex );
     latex_free( latex );
   }
 
-  if (ok) 
-    exit(0);
-  else
-    exit(1);
+  {
+    bool in_place = true;
+    latex_type * latex = latex_alloc( argv[1] , in_place);
+    test_assert_true( in_place == latex_compile_in_place( latex ));
+    test_latex_link( latex );
+    latex_free( latex );
+  }
 }

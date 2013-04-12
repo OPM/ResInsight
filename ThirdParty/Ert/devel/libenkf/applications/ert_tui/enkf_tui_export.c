@@ -417,79 +417,6 @@ void enkf_tui_export_time(void * enkf_main) {
 }
 
 
-void enkf_tui_export_python_module(void * arg ) {
-  enkf_main_type * enkf_main                   = enkf_main_safe_cast( arg ); 
-  const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
-  const int ens_size                           = enkf_main_get_ensemble_size( enkf_main );
-  enkf_fs_type   * fs                          = enkf_main_get_fs(enkf_main);
-  char ** kw_list;
-  char * keyword_string;
-  char * step_string;
-  char * module_name;
-  char * module_file;
-  int  * step_list;
-  int    num_step , num_kw;
-  
-  util_printf_prompt("Keywords to export" , PROMPT_LEN , '=' , "=> ");
-  keyword_string = util_alloc_stdin_line();
-  util_printf_prompt("Timesteps to export" , PROMPT_LEN , '=' , "=> ");
-  step_string    = util_alloc_stdin_line();
-  util_printf_prompt("Name of python module" , PROMPT_LEN , '=' , "=> ");
-  module_name    = util_alloc_stdin_line();
-  module_file    = util_alloc_sprintf("%s.py" , module_name );
-  step_list      = util_sscanf_alloc_active_list( step_string , &num_step );
-  util_split_string( keyword_string , " " , &num_kw , &kw_list);
-  {
-    FILE * stream = util_fopen(module_file , "w");
-    int ikw;
-    fprintf(stream , "data = [");
-    for (ikw = 0; ikw < num_kw; ikw++) {
-      char * index_key;
-      const enkf_config_node_type * config_node = ensemble_config_user_get_node( ensemble_config , kw_list[ikw] , &index_key);
-      if (config_node == NULL) 
-        fprintf(stderr,"Warning: could not locate node: %s \n", kw_list[ikw]);
-      else {
-        enkf_node_type * node = enkf_node_alloc( config_node );
-        node_id_type node_id;
-
-        node_id.state = FORECAST;
-        for (int istep = 0; istep < num_step; istep++) {
-          node_id.report_step = istep;
-          int  step = step_list[istep];
-          fprintf(stream , "(\"%s\" , %d , [" , kw_list[ikw] , step);
-          for (int iens = 0; iens < ens_size; iens++) {
-            double value;
-            node_id.iens = iens;
-            enkf_node_user_get( node , fs , index_key , node_id , &value);
-            
-            fprintf(stream , "%g " , value);
-            if (iens < (ens_size -1 ))
-              fprintf(stream , ",");
-            else
-              fprintf(stream , "]");
-            
-          }
-          if ((istep == (num_step - 1)) && (ikw == (num_kw - 1)))
-            fprintf(stream , ")]");
-          else
-            fprintf(stream , "),\n");
-        }
-        free(index_key);
-        enkf_node_free( node );
-      }
-    }
-    fclose(stream);
-  }
-  
-
-  util_free_stringlist( kw_list , num_kw );
-  free(module_name);
-  free(module_file);
-  free( step_list );
-  free( step_string );
-  free( keyword_string );
-}
-
 /*****************************************************************/
 
 void enkf_tui_export_fieldP(void * arg) {
@@ -772,8 +699,6 @@ void enkf_tui_export_menu(void * arg) {
   menu_add_item(menu , "Export fields to ECLIPSE restart format (all cells)"    , "lL" , enkf_tui_export_restart_all    , enkf_main , NULL);
   menu_add_separator(menu);
   menu_add_item(menu , "Export P( a =< x < b )"                                 , "sS" , enkf_tui_export_fieldP , enkf_main , NULL);                 
-  menu_add_separator(menu);
-  menu_add_item(menu , "Export Python module of"                                , "yY"  , enkf_tui_export_python_module , enkf_main , NULL);
   menu_add_separator(menu);
   menu_add_item(menu , "Export cell values to text file(s)"                     , "cC" , enkf_tui_export_cell    , enkf_main , NULL);
   menu_add_item(menu , "Export line profile of a field to text file(s)"         , "pP" , enkf_tui_export_profile , enkf_main , NULL);

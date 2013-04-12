@@ -16,7 +16,7 @@
 
 
 from PyQt4 import QtGui, QtCore
-from ert.enums import keep_runpath_type
+from ert.ert.enums import keep_runpath_type
 from ert_gui.widgets.helpedwidget import HelpedWidget
 from ert_gui.pages.run.legend import Legend
 

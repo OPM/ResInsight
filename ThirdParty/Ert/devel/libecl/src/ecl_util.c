@@ -1322,6 +1322,70 @@ bool ecl_util_valid_basename( const char * basename ) {
 }
 
 
+/*
+  Will append time_t values corresponding to the first day in every
+  month in the open interval (start_date , end_date). Iff start_date
+  corresponds to the first date in a month the list will start with
+  start_date, otherwise the list will start with the first day in the
+  month following after start_date.
+  
+  If end_date corresponds to the first day of the month the list will
+  end with end_date, otherwise it will ende with the first day in the
+  month prior to end_date:
+
+     (1,1,2000)  , (10,3,2000) => {(1,1,2000) , (1,2,2000) , (1,3,2000) }
+     (10,1,2000) , (1,4,2000)  => {(1,2,2000) , (1,3,2000) , (1,4,2000) }
+
+  All time_t values added to the date list will be pure dates,
+  i.e. the time part will be 00:00:00; that also applies to start_date
+  and end_date where possible time parts will be normalized away prior
+  to insertion.  
+*/
+
+
+void ecl_util_append_month_range( time_t_vector_type * date_list , time_t start_date , time_t end_date , bool force_append_end) {
+  start_date = util_make_pure_date( start_date );
+  end_date   = util_make_pure_date( end_date );
+
+  if (util_is_first_day_in_month( start_date))
+    time_t_vector_append( date_list , start_date );
+  
+  {
+    time_t current_date = start_date;
+    while (true) {
+      int month,year;
+      util_set_date_values( current_date , NULL , &month , &year);
+      if (month == 12) {
+        month = 1;
+        year += 1;
+      } else
+        month += 1;
+      
+      current_date = util_make_date( 1 , month , year );
+      if (current_date < end_date)
+        time_t_vector_append( date_list , current_date );
+      else {
+        if (current_date == end_date)
+          time_t_vector_append( date_list , current_date );
+        else if (force_append_end)
+          time_t_vector_append( date_list , end_date );
+        break;
+      }
+    }
+  }
+}
+
+
+
+void ecl_util_init_month_range( time_t_vector_type * date_list , time_t start_date , time_t end_date) {
+  time_t_vector_reset( date_list );
+  if (!util_is_first_day_in_month( start_date ))
+    time_t_vector_append( date_list , util_make_pure_date(start_date));
+  
+  ecl_util_append_month_range( date_list , start_date , end_date , true );
+}
+
+
 /*****************************************************************/
 /* Small functions to support enum introspection. */
 

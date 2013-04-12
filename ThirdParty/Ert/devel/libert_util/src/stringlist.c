@@ -56,15 +56,16 @@ struct stringlist_struct {
 
 
 static void stringlist_fprintf__(const stringlist_type * stringlist, const char * sep , FILE * stream) {
-  int i;
   int length = vector_get_size( stringlist->strings );
-
-  for (i=0; i < length - 1; i++) {
-    const char * s = stringlist_iget(stringlist , i);
-    fprintf(stream , "%s%s", s  , sep);
+  if (length > 0) {
+    int i;
+    for (i=0; i < length - 1; i++) {
+      const char * s = stringlist_iget(stringlist , i);
+      fprintf(stream , "%s%s", s  , sep);
+    }
+    
+    fprintf(stream , "%s", stringlist_iget( stringlist , length - 1 ));
   }
-  
-  fprintf(stream , "%s", stringlist_iget( stringlist , length - 1 ));
 }
 
 
@@ -330,8 +331,31 @@ void stringlist_idel(stringlist_type * stringlist , int index) {
 }
 
 
+char * stringlist_pop( stringlist_type * stringlist) {
+  return vector_pop( stringlist->strings );
+}
+
+
 const char * stringlist_iget(const stringlist_type * stringlist , int index) {
   return vector_iget(stringlist->strings ,index);
+}
+
+int stringlist_iget_as_int( const stringlist_type * stringlist , int index , bool * valid) {
+  const char * string_value = stringlist_iget( stringlist , index );
+  int value = -1;
+  
+  if (valid != NULL)
+    *valid = false;
+
+  if (util_sscanf_int(string_value , &value)) 
+    if (valid != NULL)
+      *valid = true;
+
+  return value;
+}
+
+const char * stringlist_get_last( const stringlist_type * stringlist ) {
+  return vector_get_last( stringlist->strings );
 }
 
 
@@ -643,6 +667,11 @@ void stringlist_python_sort( stringlist_type * s , int cmp_flag) {
     stringlist_sort( s , (string_cmp_ftype *) util_strcmp_float);
   else
     util_abort("%s: unrecognized cmp_flag:%d \n",__func__ , cmp_flag );
+}
+
+
+void stringlist_reverse( stringlist_type * s ) {
+  vector_inplace_reverse( s->strings );
 }
 
 

@@ -34,6 +34,7 @@
 class RigMainGrid;
 class RigCell;
 class RigGridScalarDataAccess;
+class RigActiveCellInfo;
 
 class RigGridBase : public cvf::StructGridInterface
 {
@@ -48,11 +49,13 @@ public:
     RigCell&                    cell(size_t gridCellIndex);
     const RigCell&              cell(size_t gridCellIndex) const;
     
+    size_t                      globalGridCellIndex(size_t localGridCellIndex) const;
     void                        setIndexToStartOfCells(size_t indexToStartOfCells) { m_indexToStartOfCells = indexToStartOfCells; }
+    
     void                        setGridIndex(size_t index) { m_gridIndex = index; }
-    size_t                      gridIndex() { return m_gridIndex; }
+    size_t                      gridIndex() const { return m_gridIndex; }
 
-    double                      characteristicCellSize();
+    double                      characteristicIJCellSize();
 
     std::string                 gridName() const;
     void                        setGridName(const std::string& gridName);
@@ -60,12 +63,7 @@ public:
     void                        computeFaults();
     bool                        isMainGrid() const;
     RigMainGrid*                mainGrid() const { return m_mainGrid; }
-
-    size_t                      matrixModelActiveCellCount() const;
-    void                        setMatrixModelActiveCellCount(size_t activeMatrixModelCellCount);
-    size_t                      fractureModelActiveCellCount() const ;
-    void                        setFractureModelActiveCellCount(size_t activeFractureModelCellCount);
-
+  
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();
     void                        initSubGridParentPointer();
@@ -93,11 +91,8 @@ public:
     virtual size_t gridPointIndexFromIJK( size_t i, size_t j, size_t k ) const;
     virtual cvf::Vec3d gridPointCoordinate( size_t i, size_t j, size_t k ) const;
 
-    virtual bool isCellActive( size_t i, size_t j, size_t k ) const;
     virtual bool isCellValid( size_t i, size_t j, size_t k ) const;
     virtual bool cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
-
-    cvf::ref<RigGridScalarDataAccess> dataAccessObject(RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStepIndex, size_t scalarSetIndex) const;
 
 private:
     std::string                 m_gridName;
@@ -105,9 +100,6 @@ private:
     size_t                      m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t                      m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     RigMainGrid*                m_mainGrid;
-
-    size_t                      m_matrixModelActiveCellCount;
-    size_t                      m_fractureModelActiveCellCount;
 
 };
 

@@ -46,6 +46,26 @@ void util_unsetenv( const char * variable ) {
 }
 #endif
 
+/**
+   Will return a NULL terminated list char ** of the paths in the PATH
+   variable. 
+*/
+
+char ** util_alloc_PATH_list() {
+  char ** path_list = NULL;
+  char *  path_env  = getenv("PATH");
+  if (path_env != NULL) {
+    int     path_size;
+    
+    util_split_string(path_env , PATHVAR_SPLIT , &path_size , &path_list);
+    path_list = util_realloc( path_list , (path_size + 1) * sizeof * path_list);
+    path_list[path_size] = NULL;
+  } else {
+    path_list = util_malloc( sizeof * path_list);
+    path_list[0] = NULL;
+  }
+  return path_list;
+}
 
 /**
    This function searches through the content of the (currently set)
@@ -81,29 +101,26 @@ char * util_alloc_PATH_executable(const char * executable) {
 
     return path;
   } else {
-    char *  full_path = NULL;
-    char *  path_env  = getenv("PATH");
-    if (path_env != NULL) {
-      bool    cont = true;
-      char ** path_list;
-      int     path_size , ipath;
-      
-      ipath = 0;
-      util_split_string(path_env , PATHVAR_SPLIT , &path_size , &path_list);
-      while ( cont ) {
+    char * full_path  = NULL;
+    char ** path_list = util_alloc_PATH_list();
+    int ipath = 0;
+
+    while (true) {
+      if (path_list[ipath] != NULL)  {
         char * current_attempt = util_alloc_filename(path_list[ipath] , executable , NULL);
+      
         if ( util_is_file( current_attempt ) && util_is_executable( current_attempt )) {
           full_path = current_attempt;
-          cont = false;
+          break;
         } else {
           free(current_attempt);
           ipath++;
-          if (ipath == path_size)
-            cont = false;
         }
-      }
-      util_free_stringlist(path_list , path_size);
+      } else
+        break;
     }
+    
+    util_free_NULL_terminated_stringlist(path_list);
     return full_path;
   }
 }

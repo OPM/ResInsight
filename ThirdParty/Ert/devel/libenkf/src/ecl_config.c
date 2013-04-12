@@ -29,6 +29,7 @@
 #include <ert/sched/sched_file.h>
 
 #include <ert/config/config.h>
+#include <ert/config/config_schema_item.h>
 
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_sum.h>
@@ -37,6 +38,7 @@
 #include <ert/enkf/enkf_util.h>
 #include <ert/enkf/ecl_config.h>
 #include <ert/enkf/config_keys.h>
+#include <ert/enkf/ecl_refcase_list.h>
 #include <ert/enkf/enkf_defaults.h>
 
 /**
@@ -64,7 +66,7 @@ struct ecl_config_struct {
   char               * data_file;                  /* Eclipse data file. */
   time_t               start_date;                 /* The start date of the ECLIPSE simulation - parsed from the data_file. */
   time_t               end_date;                   /* An optional date value which can be used to check if the ECLIPSE simulation has been 'long enough'. */
-  ecl_sum_type       * refcase;                    /* Refcase - can be NULL. */
+  ecl_refcase_list_type * refcase_list;
   ecl_grid_type      * grid;                       /* The grid which is active for this model. */
   char               * schedule_prediction_file;   /* Name of schedule prediction file - observe that this is internally handled as a gen_kw node. */
   char               * schedule_target_file;       /* File name to write schedule info to */
@@ -264,20 +266,8 @@ const char * ecl_config_get_eclbase( const ecl_config_type * ecl_config ) {
    Can be called with @refcase == NULL - which amounts to clearing the
    current refcase. 
 */
-void ecl_config_load_refcase( ecl_config_type * ecl_config , const char * refcase ){ 
-  if (ecl_config->refcase != NULL) {
-    if (refcase == NULL) {    /* Clear the refcase */
-      ecl_sum_free( ecl_config->refcase );
-      ecl_config->refcase = NULL;
-    } else {                  /* Check if the currently loaded case is the same as refcase */
-      if (!ecl_sum_same_case( ecl_config->refcase , refcase )) {
-        ecl_sum_free( ecl_config->refcase );
-        ecl_config->refcase = ecl_sum_fread_alloc_case( refcase , SUMMARY_KEY_JOIN_STRING );
-      }
-    }
-  } else 
-    if (refcase != NULL)
-      ecl_config->refcase = ecl_sum_fread_alloc_case( refcase , SUMMARY_KEY_JOIN_STRING );
+bool ecl_config_load_refcase( ecl_config_type * ecl_config , const char * refcase ){ 
+  return ecl_refcase_list_set_default( ecl_config->refcase_list , refcase );
 }
 
 
@@ -285,11 +275,11 @@ void ecl_config_load_refcase( ecl_config_type * ecl_config , const char * refcas
    Will return NULL if no refcase is set.
 */
 const char * ecl_config_get_refcase_name( const ecl_config_type * ecl_config) {
-
-  if (ecl_config->refcase == NULL)
+  const ecl_sum_type * refcase = ecl_refcase_list_get_default( ecl_config->refcase_list );
+  if (refcase == NULL)
     return NULL;
   else
-    return ecl_sum_get_case( ecl_config->refcase );
+    return ecl_sum_get_case( refcase );
 
 }
 
@@ -405,7 +395,6 @@ ecl_config_type * ecl_config_alloc_empty( ) {
   ecl_config->data_file                = NULL;
   ecl_config->input_init_section       = NULL; 
   ecl_config->init_section             = NULL;
-  ecl_config->refcase                  = NULL;
   ecl_config->grid                     = NULL;
   ecl_config->can_restart              = false;
   ecl_config->start_date               = -1;
@@ -413,6 +402,7 @@ ecl_config_type * ecl_config_alloc_empty( ) {
   ecl_config->sched_file               = NULL;
   ecl_config->schedule_prediction_file = NULL;
   ecl_config->schedule_target_file     = NULL;
+  ecl_config->refcase_list             = ecl_refcase_list_alloc();
   
   ecl_config_init_static_kw( ecl_config );
 
@@ -442,10 +432,43 @@ void ecl_config_init( ecl_config_type * ecl_config , const config_type * config 
                                                config_iget_as_int(config , ADD_FIXED_LENGTH_SCHEDULE_KW_KEY , iocc , 1));
   }
   
+  
+  if (config_item_set( config , REFCASE_KEY)) {
+    const char * refcase_path = config_get_value_as_path( config , REFCASE_KEY );
+    if (!ecl_config_load_refcase( ecl_config , refcase_path))
+      fprintf(stderr,"** Warning: loading refcase:%s failed \n", refcase_path);
+  }
+  
 
-  if (config_item_set( config , REFCASE_KEY)) 
-    ecl_config_load_refcase( ecl_config , config_get_value( config , REFCASE_KEY ));
-
+  if (config_item_set( config , REFCASE_LIST_KEY)) {
+    config_content_item_type * item = config_get_content_item( config , REFCASE_LIST_KEY);
+    int i;
+    for (i=0; i < config_content_item_get_size( item ); i++) {
+      config_content_node_type * node = config_content_item_iget_node( item , i );
+      int j;
+      for (j=0; j < config_content_node_get_size( node ); j++) {
+        const char * case_glob = config_content_node_iget_as_path( node , j );
+        ecl_refcase_list_add_matching( ecl_config->refcase_list , case_glob );
+      }
+    }
+  }
+  
+  /* Deprecated */
+  if (config_item_set( config , PLOT_REFCASE_LIST_KEY)) {
+    char * case_list_file = config_get_value( config , PLOT_REFCASE_LIST_KEY);
+    FILE * stream = util_fopen(case_list_file , "r");
+    bool at_eof;
+    do {
+      char * case_name = util_fscanf_alloc_line(stream , &at_eof);
+      if (case_name) {
+        ecl_refcase_list_add_case( ecl_config->refcase_list , case_name);
+        free( case_name );
+      }
+    } while (!at_eof);
+    
+    fclose( stream );
+  }
+  
   if (config_item_set(config , INIT_SECTION_KEY)) 
     ecl_config_set_init_section( ecl_config , config_get_value( config , INIT_SECTION_KEY ));
   else 
@@ -509,8 +532,7 @@ void ecl_config_free(ecl_config_type * ecl_config) {
   if (ecl_config->grid != NULL)
     ecl_grid_free( ecl_config->grid );
 
-  if (ecl_config->refcase != NULL)
-    ecl_sum_free( ecl_config->refcase );
+  ecl_refcase_list_free( ecl_config->refcase_list );
   
   free(ecl_config);
 }
@@ -592,8 +614,21 @@ void ecl_config_set_grid( ecl_config_type * ecl_config , const char * grid_file 
 }
 
 
+ecl_refcase_list_type * ecl_config_get_refcase_list( const ecl_config_type * ecl_config ) {
+  return ecl_config->refcase_list;
+}
+
 const ecl_sum_type * ecl_config_get_refcase(const ecl_config_type * ecl_config) {
-  return ecl_config->refcase;
+  return ecl_refcase_list_get_default( ecl_config->refcase_list );
+}
+
+bool ecl_config_has_refcase( const ecl_config_type * ecl_config ) {
+  const ecl_sum_type * refcase = ecl_config_get_refcase( ecl_config );
+  printf("refcase:%p \n",refcase);
+  if (refcase)
+    return true;
+  else
+    return false;
 }
 
 
@@ -640,44 +675,81 @@ bool ecl_config_get_unified_restart(const ecl_config_type * ecl_config)  { retur
 bool ecl_config_get_unified_summary(const ecl_config_type * ecl_config)  { return ecl_io_config_get_unified_summary( ecl_config->io_config ); }
 
 
+void ecl_config_static_kw_init( ecl_config_type * ecl_config , const config_type * config ) {
+  const config_content_item_type * content_item = config_get_content_item( config , STATIC_KW_KEY );
+  if (content_item != NULL) {
+    int j;
+    for (j=0; j < config_content_item_get_size( content_item ); j++) {
+      const config_content_node_type * content_node = config_content_item_iget_node( content_item , j);
+      int k;
+      for (k = 0; k < config_content_node_get_size( content_node ); k++)
+        ecl_config_add_static_kw(ecl_config , config_content_node_iget( content_node , k ));
+    }
+  }
+}
+
 
 void ecl_config_add_config_items( config_type * config ) {
   config_schema_item_type * item;
 
-  item = config_add_schema_item(config , SCHEDULE_FILE_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , SCHEDULE_FILE_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
   /*
     Observe that SCHEDULE_PREDICTION_FILE - which is implemented as a
     GEN_KW is added in ensemble_config.c
   */
 
-  item = config_add_schema_item( config , IGNORE_SCHEDULE_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) { CONFIG_BOOLEAN });
+  item = config_add_schema_item( config , IGNORE_SCHEDULE_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_BOOL);
 
-  item = config_add_schema_item(config , ECLBASE_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL);
-
-  item = config_add_schema_item(config , DATA_FILE_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
-
-  item = config_add_schema_item(config , STATIC_KW_KEY , false , true);
-  config_schema_item_set_argc_minmax(item , 1 , -1 , 0 , NULL);
-
-  item = config_add_schema_item(config , ADD_FIXED_LENGTH_SCHEDULE_KW_KEY , false , true);
-  config_schema_item_set_argc_minmax(item , 2 , 2 , 2 , (const config_item_types [2]) { CONFIG_STRING , CONFIG_INT});
-
-  item = config_add_schema_item(config , REFCASE_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , NULL );
   
-  item = config_add_schema_item(config , GRID_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_EXISTING_FILE});
+  item = config_add_schema_item(config , ECLBASE_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1);
+
+
+  item = config_add_schema_item(config , DATA_FILE_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
+
+
+  item = config_add_schema_item(config , STATIC_KW_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , CONFIG_DEFAULT_ARG_MAX );
   
-  item = config_add_schema_item(config , INIT_SECTION_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 1 , (const config_item_types [1]) {CONFIG_FILE});
+
+  item = config_add_schema_item(config , ADD_FIXED_LENGTH_SCHEDULE_KW_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 2 , 2 );
+  config_schema_item_iset_type( item , 1 , CONFIG_INT );
+  
+
+  item = config_add_schema_item(config , REFCASE_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_PATH );
+
+  item = config_add_schema_item(config , REFCASE_LIST_KEY , false );
+  config_schema_item_set_default_type( item , CONFIG_PATH );
+
+  item = config_add_key_value(config , PLOT_REFCASE_LIST_KEY , false , CONFIG_STRING);
+  {
+    char * message = util_alloc_sprintf("Warning: the key:%s is depreceated - use %s instead" , PLOT_REFCASE_LIST_KEY , REFCASE_LIST_KEY);
+    config_install_message( config , PLOT_REFCASE_LIST_KEY , message );
+    free( message );
+  }
+  
+  item = config_add_schema_item(config , GRID_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
+
+  
+  item = config_add_schema_item(config , INIT_SECTION_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
+  config_schema_item_iset_type( item , 0 , CONFIG_PATH );
   config_add_alias(config , INIT_SECTION_KEY , "EQUIL_INIT_FILE");
   
-  item = config_add_schema_item(config , END_DATE_KEY , false , false);
-  config_schema_item_set_argc_minmax(item , 1 , 1 , 0 , NULL );
+
+  item = config_add_schema_item(config , END_DATE_KEY , false  );
+  config_schema_item_set_argc_minmax(item , 1 , 1 );
 }
 
 
@@ -713,10 +785,12 @@ void ecl_config_fprintf_config( const ecl_config_type * ecl_config , FILE * stre
     }
   }
 
-  if (ecl_config->refcase != NULL) {
+  /*
+    if (ecl_config->refcase != NULL) {
     fprintf( stream , CONFIG_KEY_FORMAT      , REFCASE_KEY );
     fprintf( stream , CONFIG_ENDVALUE_FORMAT , ecl_config_get_refcase_name( ecl_config ));
-  }
+    }
+  */
 
   if (ecl_config->grid != NULL) {
     fprintf( stream , CONFIG_KEY_FORMAT      , GRID_KEY );
@@ -752,5 +826,4 @@ void ecl_config_fprintf_config( const ecl_config_type * ecl_config , FILE * stre
   
   
   fprintf(stream , "\n\n");
-  
 }

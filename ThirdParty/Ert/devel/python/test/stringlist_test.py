@@ -32,6 +32,21 @@ path = "test-data/Statoil/ECLIPSE/Gurbat"
 case = "%s/%s" % (path , base)
 
 
+def pop_empty():
+    s = StringList( initial = initList )
+    s.pop()
+    s.pop()
+    s.pop()
+    s.pop()
+
+def last_empty():
+    s = StringList( initial = initList )
+    s.pop()
+    s.pop()
+    s.pop()
+    s.last
+
+
 class StringListTest( unittest.TestCase ):
     
     def setUp( self ):
@@ -43,6 +58,22 @@ class StringListTest( unittest.TestCase ):
         st = s.strings
         del s
         return st
+
+    def test_pop( self ):
+        s = StringList( initial = initList )
+        s1 = s.pop()
+        self.assertTrue( len(s) == 2 )
+        self.assertTrue( s1 == "S33")
+
+        s1 = s.pop()
+        self.assertTrue( len(s) == 1 )
+        self.assertTrue( s1 == "SABC")
+
+        s1 = s.pop()
+        self.assertTrue( len(s) == 0 )
+        self.assertTrue( s1 == "S1")
+
+        self.assertRaises( IndexError , pop_empty )
 
 
     def test_create( self ):
@@ -61,12 +92,19 @@ class StringListTest( unittest.TestCase ):
         for i in range(len(s)):
             self.assertTrue( s3[i] == initList[i] )
 
+    def test_last( self ):
+        s = StringList( initial = initList )
+        l = s.last
+        self.assertTrue( "S33" == l )
+        self.assertRaises( IndexError , last_empty)
+
 
     def test_reference(self):
         sum = ecl.EclSum( case )
         wells = sum.wells()
         self.assertTrue( approx_equalv( wells , ['OP_1','OP_2','OP_3','OP_4','OP_5','WI_1','WI_2','WI_3']))
-
+        self.assertTrue( isinstance( wells , StringList ))
+        
 
 
 
@@ -74,6 +112,8 @@ def fast_suite():
     suite = unittest.TestSuite()
     suite.addTest( StringListTest( 'test_create' ))
     suite.addTest( StringListTest( 'test_reference' ))
+    suite.addTest( StringListTest( 'test_pop' ))
+    suite.addTest( StringListTest( 'test_last' ))
     return suite
 
                    
