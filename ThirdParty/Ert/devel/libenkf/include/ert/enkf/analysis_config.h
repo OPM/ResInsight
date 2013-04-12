@@ -20,6 +20,10 @@
 #ifndef __ANALYSIS_CONFIG_H__
 #define __ANALYSIS_CONFIG_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 #include <ert/util/rng.h>
@@ -30,12 +34,14 @@
 #include <ert/analysis/analysis_module.h>
 
 #include <ert/enkf/enkf_types.h>
-
+#include <ert/enkf/analysis_iter_config.h>
 
 
 
 
 typedef struct analysis_config_struct analysis_config_type;
+
+analysis_iter_config_type * analysis_config_get_iter_config( const analysis_config_type * config );
 analysis_module_type * analysis_config_get_module( analysis_config_type * config , const char * module_name );
 void                   analysis_config_load_internal_modules( analysis_config_type * analysis );
 void                   analysis_config_reload_module( analysis_config_type * config , const char * module_name);
@@ -91,6 +97,8 @@ const char           * analysis_config_get_PC_filename( const analysis_config_ty
 void                   analysis_config_set_PC_path( analysis_config_type * config , const char * path );
 const char           * analysis_config_get_PC_path( const analysis_config_type * config );
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif

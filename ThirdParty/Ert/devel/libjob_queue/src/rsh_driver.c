@@ -119,11 +119,15 @@ static bool rsh_host_available(rsh_host_type * rsh_host) {
   bool available;
 
   pthread_mutex_lock( &rsh_host->host_mutex );
-  if ((rsh_host->max_running - rsh_host->running) > 0) {
-    available = true;
-    rsh_host->running++;
-  } else
+  {
     available = false;
+    if ((rsh_host->max_running - rsh_host->running) > 0) {  // The host has free slots()
+      if (util_ping( rsh_host->host_name )) {                // The host answers to ping()
+        available = true;
+        rsh_host->running++;
+      }
+    } 
+  }
   pthread_mutex_unlock( &rsh_host->host_mutex );
 
   return available;

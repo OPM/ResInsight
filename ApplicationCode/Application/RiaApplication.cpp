@@ -56,6 +56,7 @@
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "cafProgressInfo.h"
+#include "RigGridManager.h"
 
 namespace caf
 {
@@ -234,7 +235,10 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
     m_project->fileName = projectFileName;
     m_project->readFile();
-    m_project->fileName = projectFileName; // Make sure we overwrite the old filename read from the project file 
+
+    // Propagate possible new location of project
+
+    m_project->setProjectFileNameAndUpdateDependencies(projectFileName);
 
     // On error, delete everything, and bail out.
 
@@ -301,7 +305,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         RimCase* ri = casesToLoad[cIdx];
         CVF_ASSERT(ri);
 
-        caseProgress.setProgressDescription(ri->caseName());
+        caseProgress.setProgressDescription(ri->caseUserDescription());
 
         caf::ProgressInfo viewProgress(ri->reservoirViews().size() , "Creating Views");
 
@@ -491,25 +495,17 @@ bool RiaApplication::openEclipseCaseFromFile(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::openEclipseCase(const QString& caseName, const QString& caseFileName)
 {
-    QFileInfo gridFileName(caseFileName);
-    QString casePath = gridFileName.absolutePath();
-
     RimResultCase* rimResultReservoir = new RimResultCase();
-    rimResultReservoir->caseName = caseName;
-    rimResultReservoir->caseFileName = caseFileName;
-    rimResultReservoir->caseDirectory = casePath;
+    rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
     m_project->reservoirs.push_back(rimResultReservoir);
 
     RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
-    if (m_preferences->autocomputeSOIL)
-    {
-        // Select SOIL as default result variable
-        riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
-        riv->cellResult()->resultVariable = "SOIL";
-        riv->animationMode = true;
-    }
+    // Select SOIL as default result variable
+    riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
+    riv->cellResult()->resultVariable = "SOIL";
+    riv->animationMode = true;
 
     riv->loadDataAndUpdate();
 
@@ -530,7 +526,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
-    rimInputReservoir->caseName = caseName;
+    rimInputReservoir->caseUserDescription = caseName;
     rimInputReservoir->openDataFileSet(caseFileNames);
 
     m_project->reservoirs.push_back(rimInputReservoir);
@@ -1206,7 +1202,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 // Process all events to avoid a black image when grabbing frame buffer
                 QCoreApplication::processEvents();
 
-                QString fileName = ri->caseName() + "-" + riv->name();
+                QString fileName = ri->caseUserDescription() + "-" + riv->name();
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(snapshotPath, fileName, ".png");
                 saveSnapshotAs(absoluteFileName);
@@ -1356,59 +1352,67 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 {
     if (fileNames.size() == 0) return true;
 
-
     // First file is read completely including grid.
     // The main grid from the first case is reused directly in for the other cases. 
     // When reading active cell info, only the total cell count is tested for consistency
-    RigCaseData* mainEclipseCase = NULL;
+    RimResultCase* mainResultCase = NULL;
+    std::vector< std::vector<int> > mainCaseGridDimensions;
 
     {
         QString firstFileName = fileNames[0];
         QFileInfo gridFileName(firstFileName);
 
         QString caseName = gridFileName.completeBaseName();
-        QString casePath = gridFileName.absolutePath();
 
         RimResultCase* rimResultReservoir = new RimResultCase();
-        rimResultReservoir->caseName = caseName;
-        rimResultReservoir->caseFileName = firstFileName;
-        rimResultReservoir->caseDirectory = casePath;
-
-        m_project->reservoirs.push_back(rimResultReservoir);
-
+        rimResultReservoir->setCaseInfo(caseName, firstFileName);
         if (!rimResultReservoir->openEclipseGridFile())
         {
+            delete rimResultReservoir;
+
             return false;
         }
 
+        rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
+
+        m_project->reservoirs.push_back(rimResultReservoir);
         m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
 
-        mainEclipseCase = rimResultReservoir->reservoirData();
+        mainResultCase = rimResultReservoir;
     }
 
     caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
 
     for (int i = 1; i < fileNames.size(); i++)
     {
-        QString fileName = fileNames[i];
-        QFileInfo gridFileName(fileName);
+        QString caseFileName = fileNames[i];
+        QFileInfo gridFileName(caseFileName);
 
         QString caseName = gridFileName.completeBaseName();
-        QString casePath = gridFileName.absolutePath();
 
         RimResultCase* rimResultReservoir = new RimResultCase();
-        rimResultReservoir->caseName = caseName;
-        rimResultReservoir->caseFileName = fileName;
-        rimResultReservoir->caseDirectory = casePath;
+        rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
-        m_project->reservoirs.push_back(rimResultReservoir);
+        std::vector< std::vector<int> > caseGridDimensions;
+        rimResultReservoir->readGridDimensions(caseGridDimensions);
 
-        if (!rimResultReservoir->openAndReadActiveCellData(mainEclipseCase))
+        bool identicalGrid = RigGridManager::isGridDimensionsEqual(mainCaseGridDimensions, caseGridDimensions);
+        if (identicalGrid)
         {
-            return false;
+            if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
+            {
+                m_project->reservoirs.push_back(rimResultReservoir);
+                m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+            }
+            else
+            {
+                delete rimResultReservoir;
+            }
         }
-
-        m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+        else
+        {
+            delete rimResultReservoir;
+        }
 
         info.setProgress(i);
     }

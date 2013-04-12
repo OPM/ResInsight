@@ -279,14 +279,17 @@ static void shared_info_free(shared_info_type * shared_info) {
 /** Helper classes complete - starting on the enkf_state proper object. */
 /*****************************************************************/
 
-void enkf_state_initialize(enkf_state_type * enkf_state , enkf_fs_type * fs , const stringlist_type * param_list) {
+void enkf_state_initialize(enkf_state_type * enkf_state , enkf_fs_type * fs , const stringlist_type * param_list, bool force_init) {
+  state_enum init_state = ANALYZED;
   int ip;
   for (ip = 0; ip < stringlist_get_size(param_list); ip++) {
     int iens = enkf_state_get_iens( enkf_state );
     enkf_node_type * param_node = enkf_state_get_node( enkf_state , stringlist_iget( param_list , ip));
-    if (enkf_node_initialize( param_node , iens , enkf_state->rng)) {
-      node_id_type node_id = {.report_step = 0, .iens = iens , .state = ANALYZED };
-      enkf_node_store( param_node , fs , true , node_id);
+    node_id_type node_id = {.report_step = 0, .iens = iens , .state = init_state };
+    if (force_init || (enkf_node_has_data( param_node , fs , node_id) == false)) {
+      if (enkf_node_initialize( param_node , iens , enkf_state->rng)) 
+        enkf_node_store( param_node , fs , true , node_id);
+      
     }
   }
 }
@@ -359,7 +362,6 @@ void enkf_state_update_eclbase( enkf_state_type * enkf_state ) {
       enkf_state_add_subst_kw( enkf_state , "CASE" , eclbase , NULL);      /* No CASE_TABLE loaded - using the eclbase as default. */
     else
       enkf_state_add_subst_kw( enkf_state , "CASE" , casename , NULL);
-    
   }
 }
 
@@ -498,7 +500,7 @@ enkf_state_type * enkf_state_alloc(int iens,
      done in a cascade like fashion). The user defined keywords are
      added first, so that these can refer to the built in keywords.
   */
-  
+
   enkf_state_add_subst_kw(enkf_state , "RUNPATH"       , "---" , "The absolute path of the current forward model instance. ");
   enkf_state_add_subst_kw(enkf_state , "IENS"          , "---" , "The realisation number for this realization.");
   enkf_state_add_subst_kw(enkf_state , "IENS4"         , "---" , "The realization number for this realization - formated with %04d.");
@@ -518,21 +520,14 @@ enkf_state_type * enkf_state_alloc(int iens,
     enkf_state_add_subst_kw(enkf_state , "CASE" , casename , "The casename for this realization - as loaded from the CASE_TABLE file.");
   else
     enkf_state_add_subst_kw(enkf_state , "CASE" , "---" , "The casename for this realization - similar to ECLBASE.");
-  
+
   enkf_state->my_config = member_config_alloc( iens , casename , pre_clear_runpath , keep_runpath , ecl_config , ensemble_config , fs);
   enkf_state_set_static_subst_kw( enkf_state );
-
   enkf_state_add_nodes( enkf_state , ensemble_config );
-
+  
   return enkf_state;
 }
 
-
-
-enkf_state_type * enkf_state_copyc(const enkf_state_type * src) {
-  util_abort("%s: not implemented \n",__func__);
-  return NULL;
-}
 
 
 
@@ -589,12 +584,17 @@ void enkf_state_update_node( enkf_state_type * enkf_state , const char * node_ke
 }
 
 
+const char * enkf_state_get_eclbase( const enkf_state_type * enkf_state ) {
+  return member_config_get_eclbase( enkf_state->my_config );
+}
+
+
 static ecl_sum_type * enkf_state_load_ecl_sum(const enkf_state_type * enkf_state , stringlist_type * messages , bool * loadOK) {
   member_config_type * my_config         = enkf_state->my_config;
   const run_info_type * run_info         = enkf_state->run_info;
   const ecl_config_type * ecl_config     = enkf_state->shared_info->ecl_config;
   const bool fmt_file                    = ecl_config_get_formatted(ecl_config);
-  const char * eclbase                   = member_config_get_eclbase( my_config );
+  const char * eclbase                   = enkf_state_get_eclbase( enkf_state );
   
 
   stringlist_type * data_files           = stringlist_alloc_new();
@@ -739,7 +739,7 @@ static bool enkf_state_internalize_dynamic_eclipse_results(enkf_state_type * enk
       }
       {
         time_map_type * time_map = enkf_fs_get_time_map( fs );
-        time_map_summary_update( time_map , summary );
+        time_map_summary_update_strict( time_map , summary );
       }
       ecl_sum_free( summary ); 
       return true;
@@ -1661,26 +1661,29 @@ static void enkf_state_start_forward_model(enkf_state_type * enkf_state , enkf_f
     const shared_info_type    * shared_info   = enkf_state->shared_info;
     const member_config_type  * my_config     = enkf_state->my_config;
     const site_config_type    * site_config   = shared_info->site_config;
-    arg_pack_type             * load_arg      = arg_pack_alloc();
-
-    /*
-      Prepare the job and submit it to the queue
-    */
     enkf_state_init_eclipse( enkf_state , fs );
-    arg_pack_append_ptr( load_arg , enkf_state );
-    arg_pack_append_ptr( load_arg , fs );
-    
-    run_info->queue_index = job_queue_add_job_mt( shared_info->job_queue , 
-                                                  site_config_get_job_script( site_config ),
-                                                  enkf_state_complete_forward_modelOK__ , 
-                                                  enkf_state_complete_forward_modelEXIT__ , 
-                                                  load_arg , 
-                                                  ecl_config_get_num_cpu( shared_info->ecl_config ),
-                                                  run_info->run_path     , 
-                                                  member_config_get_jobname(my_config) , 
-                                                  1, 
-                                                  (const char *[1]) { run_info->run_path } );
-    run_info->num_internal_submit++;
+
+    if (run_info->run_mode != INIT_ONLY) {
+      arg_pack_type             * load_arg      = arg_pack_alloc();
+
+      /*
+        Prepare the job and submit it to the queue
+      */
+      arg_pack_append_ptr( load_arg , enkf_state );
+      arg_pack_append_ptr( load_arg , fs );
+      
+      run_info->queue_index = job_queue_add_job_mt( shared_info->job_queue , 
+                                                    site_config_get_job_script( site_config ),
+                                                    enkf_state_complete_forward_modelOK__ , 
+                                                    enkf_state_complete_forward_modelEXIT__ , 
+                                                    load_arg , 
+                                                    ecl_config_get_num_cpu( shared_info->ecl_config ),
+                                                    run_info->run_path     , 
+                                                    member_config_get_jobname(my_config) , 
+                                                    1, 
+                                                    (const char *[1]) { run_info->run_path } );
+      run_info->num_internal_submit++;
+    }
   }
 }
 
@@ -2034,15 +2037,11 @@ void enkf_state_init_run(enkf_state_type * state ,
 
 
 
-/*****************************************************************/
 
 
-/**
-   This function will return the true time (i.e. time_t instance)
-   cooresponding to the report_step 'report_step'. If no data has been
-   loaded for the input report_step -1 is returned, this must be
-   checked by the calling scope.
-*/
+unsigned int enkf_state_get_random( enkf_state_type * enkf_state ) {
+  return rng_forward( enkf_state->rng );
+}
 
 
 

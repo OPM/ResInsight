@@ -50,8 +50,10 @@ public:
 //    static void         timeStepsText(ecl_file_type* ecl_file, QStringList* timeSteps);
     static void         timeSteps(ecl_file_type* ecl_file, std::vector<QDateTime>* timeSteps, bool* detectedFractionOfDay = NULL);
 
-    static bool         fileSet(const QString& fileName, QStringList* fileSet);
+    static bool         findSiblingFilesWithSameBaseName(const QString& fileName, QStringList* fileSet);
 
-    static QString      fileNameByType(const QStringList& fileSet, ecl_file_enum fileType);
-    static QStringList  fileNamesByType(const QStringList& fileSet, ecl_file_enum fileType);
+    static QString      firstFileNameOfType(const QStringList& fileSet, ecl_file_enum fileType);
+    static QStringList  filterFileNamesOfType(const QStringList& fileSet, ecl_file_enum fileType);
+
+    static void         readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions);
 };

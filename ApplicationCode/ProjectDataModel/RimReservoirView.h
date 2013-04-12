@@ -117,11 +117,11 @@ public:
     caf::PdmField<bool>                                 animationMode;
 
     // Access internal objects
-    RimReservoirCellResultsStorage*          currentGridCellResults();
+    RimReservoirCellResultsStorage*         currentGridCellResults();
     RigActiveCellInfo*                      currentActiveCellInfo();
 
     void                                    setEclipseCase(RimCase* reservoir);
-    RimCase*                           eclipseCase();
+    RimCase*                                eclipseCase();
 
     // Animation
     int                                     currentTimeStep()    { return m_currentTimeStep;}
@@ -148,6 +148,8 @@ public:
     void                                    createDisplayModelAndRedraw();
     void                                    scheduleGeometryRegen(unsigned short geometryType);
     void                                    schedulePipeGeometryRegen();
+    void                                    updateDisplayModelForWellResults();
+
 
     // Display model generation
 private:
@@ -178,9 +180,7 @@ private:
 
 private:
     caf::PdmField<int>                      m_currentTimeStep;
-    QPointer<RiuViewer>                      m_viewer;
-    caf::PdmPointer<RimCase>           m_reservoir;
-
-
+    QPointer<RiuViewer>                     m_viewer;
+    caf::PdmPointer<RimCase>                m_reservoir;
 };
 

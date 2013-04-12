@@ -21,6 +21,7 @@
 #include <ert/util/util.h>
 
 #include <ert/ecl/ecl_kw.h>
+#include <ert/ecl/ecl_rsthead.h>
 
 #include <ert/ecl_well/well_const.h>
 #include <ert/ecl_well/well_conn.h>
@@ -37,7 +38,8 @@ struct  well_conn_struct {
     int                k;
     well_conn_dir_enum dir;
     bool               open;         
-    int                segment;          // -1: Ordinary well
+    int                segment;             // -1: Ordinary well
+    bool               matrix_connection;   // k >= nz => fracture (and k -= nz )
     /*-----------------------------------------------------------------*/
     /* If the segment field == -1 - i.e. an ordinary well, the
        outlet_segment is rubbish and should not be consulted.
@@ -47,10 +49,23 @@ struct  well_conn_struct {
 };
   
 
+static void well_conn_set_k( well_conn_type * conn , const ecl_rsthead_type * header , int icon_k) {
+  conn->k = icon_k;
+  conn->matrix_connection = true;
+
+  if (header->dualp) {
+    int geometric_nz = header->nz / 2;
+    if (icon_k >= geometric_nz) {
+      conn->k -= geometric_nz;
+      conn->matrix_connection = false;
+    }
+  }
+}
 
 
 
-well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const ecl_intehead_type * header , int well_nr)  {
+
+well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const ecl_rsthead_type * header , int well_nr)  {
   const int iwel_offset = header->niwelz * well_nr;
   int conn_i = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADI_ITEM );
   
@@ -59,8 +74,11 @@ well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const e
     
     conn->i    = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADI_ITEM ) - 1;
     conn->j    = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADJ_ITEM ) - 1;
-    conn->k    = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADK_ITEM ) - 1;
-
+    {
+      int icon_k = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADK_ITEM ) - 1;
+      well_conn_set_k( conn , header , icon_k);
+    }
+   
     conn->open           = true;  // This is not really specified anywhere.
     conn->branch         = 0;
     conn->segment        = 0;   
@@ -72,12 +90,16 @@ well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const e
 }
 
 
-static well_conn_type * well_conn_alloc__( const ecl_kw_type * icon_kw , int icon_offset) {
+static well_conn_type * well_conn_alloc__( const ecl_kw_type * icon_kw , const ecl_rsthead_type * header , int icon_offset) {
   well_conn_type * conn = util_malloc( sizeof * conn );
   
   conn->i       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_I_ITEM ) - 1;
   conn->j       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_J_ITEM ) - 1;
-  conn->k       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_K_ITEM ) - 1;
+  {
+    int icon_k = ecl_kw_iget_int( icon_kw , icon_offset + ICON_K_ITEM ) - 1;
+    well_conn_set_k( conn , header , icon_k);
+  }
+
   conn->segment = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_ITEM ) - 1;
   
   conn->outlet_segment = -999;
@@ -91,7 +113,7 @@ static well_conn_type * well_conn_alloc__( const ecl_kw_type * icon_kw , int ico
 */
 well_conn_type * well_conn_alloc( const ecl_kw_type * icon_kw , 
                                   const ecl_kw_type * iseg_kw , 
-                                  const ecl_intehead_type * header , 
+                                  const ecl_rsthead_type * header , 
                                   int well_nr , 
                                   int seg_well_nr , 
                                   int conn_nr ) {
@@ -99,7 +121,7 @@ well_conn_type * well_conn_alloc( const ecl_kw_type * icon_kw ,
   const int icon_offset = header->niconz * ( header->ncwmax * well_nr + conn_nr );
   int IC = ecl_kw_iget_int( icon_kw , icon_offset + ICON_IC_ITEM );
   if (IC > 0) {
-    well_conn_type * conn = well_conn_alloc__( icon_kw , icon_offset );
+    well_conn_type * conn = well_conn_alloc__( icon_kw , header , icon_offset );
     {
       int int_status = ecl_kw_iget_int( icon_kw , icon_offset + ICON_STATUS_ITEM );
       if (int_status > 0)
@@ -204,4 +226,11 @@ int well_conn_get_segment( const well_conn_type * conn ) {
   return conn->segment;
 }
 
+bool well_conn_fracture_connection( const well_conn_type * conn) {
+  return !conn->matrix_connection;
+}
+
+bool well_conn_matrix_connection( const well_conn_type * conn) {
+  return conn->matrix_connection;
+}
 

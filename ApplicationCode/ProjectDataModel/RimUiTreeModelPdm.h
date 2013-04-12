@@ -111,10 +111,12 @@ public:
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimReservoirView*           addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
-    void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
-    RimStatisticsCase*  addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
-    RimIdenticalGridCaseGroup*  addCaseGroup(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
+    void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
+    
+    RimStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
+    RimIdenticalGridCaseGroup*  addCaseGroup(QModelIndex& insertedModelIndex);
 
     bool                        deleteObjectFromPdmPointersField(const QModelIndex& itemIndex);
 
@@ -125,6 +127,8 @@ public:
     virtual bool                dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
     virtual QMimeData*          mimeData(const QModelIndexList &indexes) const;
     virtual QStringList         mimeTypes() const;
+
+    RimIdenticalGridCaseGroup*  gridCaseGroupFromItemIndex(const QModelIndex& itemIndex);
 
 private slots:
     void                        slotRefreshScriptTree(QString path);

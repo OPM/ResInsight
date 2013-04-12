@@ -47,8 +47,9 @@ RimInputCase::RimInputCase()
 {
     CAF_PDM_InitObject("RimInputCase", ":/EclipseInput48x48.png", "", "");
     CAF_PDM_InitField(&m_gridFileName, "GridFileName",  QString(), "Case grid filename", "", "" ,"");
+    m_gridFileName.setUiReadOnly(true);
     CAF_PDM_InitFieldNoDefault(&m_additionalFileNames, "AdditionalFileNames", "Additional files", "", "" ,"");
-
+    m_additionalFileNames.setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&m_inputPropertyCollection, "InputPropertyCollection", "",  "", "", "");
     m_inputPropertyCollection = new RimInputPropertyCollection;
@@ -69,9 +70,9 @@ RimInputCase::~RimInputCase()
 //--------------------------------------------------------------------------------------------------
 void RimInputCase::openDataFileSet(const QStringList& filenames)
 {
-    if (caseName().contains("Input Mock Debug Model"))
+    if (filenames.contains("Input Mock Debug Model"))
     {
-        cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(this->caseName());
+        cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(filenames[0]);
         results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
@@ -161,9 +162,9 @@ bool RimInputCase::openEclipseGridFile()
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
-        if (caseName().contains("Input Mock Debug Model"))
+        if (m_gridFileName().contains("Input Mock Debug Model"))
         {
-            readerInterface = this->createMockModel(this->caseName());
+            readerInterface = this->createMockModel(this->m_gridFileName());
         }
         else
         {
@@ -375,6 +376,8 @@ cvf::ref<RifReaderInterface> RimInputCase::createMockModel(QString modelName)
 
     if (modelName == "Input Mock Debug Model Simple")
     {
+        m_gridFileName = modelName;
+
         // Create the mock file interface and and RigSerervoir and set them up.
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(20, 20, 20));
         mockFileInterface->setGridPointDimensions(cvf::Vec3st(4, 5, 6));
@@ -418,4 +421,20 @@ QString RimInputCase::locationOnDisc() const
 
     QFileInfo fi(m_gridFileName);
     return fi.absolutePath();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimInputCase::updateFilePathsFromProjectPath(const QString& newProjectPath, const QString& oldProjectPath)
+{
+    bool foundFile = false;
+    std::vector<QString> searchedPaths;
+
+    m_gridFileName = relocateFile(m_gridFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+
+    for (size_t i = 0; i < m_additionalFileNames().size(); i++)
+    {
+        m_additionalFileNames.v()[i] = relocateFile(m_additionalFileNames()[i], newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
+    }
 }

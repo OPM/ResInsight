@@ -217,17 +217,34 @@ RifReaderInterface* RimReservoirCellResultsStorage::readerInterface()
 //--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
 {
+    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
+
     // Special handling for SOIL
     if (type == RimDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
     {
-        loadOrComputeSOILForTimeStep(timeStepIndex);
+        size_t soilScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+
+        // If SOIL is not found, try to compute and return computed scalar index
+        // Will return cvf::UNDEFINED_SIZE_T if no SGAS/SWAT is found
+        if (soilScalarResultIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            computeSOILForTimeStep(timeStepIndex);
+            
+            soilScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+            return soilScalarResultIndex;
+        }
+
+        // If we have found SOIL and SOIL must be calculated, calculate and return
+        if (soilScalarResultIndex != cvf::UNDEFINED_SIZE_T && m_cellResults->mustBeCalculated(soilScalarResultIndex))
+        {
+            computeSOILForTimeStep(timeStepIndex);
+
+            return soilScalarResultIndex;
+        }
     }
 
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-
-    scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)  return cvf::UNDEFINED_SIZE_T;
+    size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
     if (type == RimDefines::GENERATED)
     {
@@ -280,11 +297,10 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
 //--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName)
 {
-    size_t resultGridIndex = cvf::UNDEFINED_SIZE_T;
+    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
-    resultGridIndex = m_cellResults->findScalarResultIndex(type, resultName);
-
-    if (resultGridIndex == cvf::UNDEFINED_SIZE_T)  return cvf::UNDEFINED_SIZE_T;
+    size_t resultGridIndex = m_cellResults->findScalarResultIndex(type, resultName);
+    if (resultGridIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
     // If we have any results on any timestep, assume we have loaded results already
 
@@ -343,14 +359,21 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
     return resultGridIndex;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsStorage::loadOrComputeSOIL()
 {
+    size_t scalarIndexSOIL = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+    if (scalarIndexSOIL != cvf::UNDEFINED_SIZE_T)
+    {
+        return;
+    }
+
     for (size_t timeStepIdx = 0; timeStepIdx < m_cellResults->maxTimeStepCount(); timeStepIdx++)
     {
-        loadOrComputeSOILForTimeStep(timeStepIdx);
+        computeSOILForTimeStep(timeStepIdx);
     }
 }
 
@@ -358,7 +381,7 @@ void RimReservoirCellResultsStorage::loadOrComputeSOIL()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeStepIndex)
+void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex)
 {
     size_t scalarIndexSWAT = findOrLoadScalarResultForTimeStep(RimDefines::DYNAMIC_NATIVE, "SWAT", timeStepIndex);
     size_t scalarIndexSGAS = findOrLoadScalarResultForTimeStep(RimDefines::DYNAMIC_NATIVE, "SGAS", timeStepIndex);
@@ -368,6 +391,8 @@ void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeSte
     {
         return;
     }
+
+    CVF_ASSERT(m_cellResults);
 
     size_t soilResultValueCount = 0;
     size_t soilTimeStepCount = 0;
@@ -410,6 +435,9 @@ void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeSte
         soilResultGridIndex = m_cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
         CVF_ASSERT(soilResultGridIndex != cvf::UNDEFINED_SIZE_T);
 
+        // Set this result to be calculated
+        m_cellResults->setMustBeCalculated(soilResultGridIndex);
+
         m_cellResults->cellScalarResults(soilResultGridIndex).resize(soilTimeStepCount);
 
         for (size_t timeStepIdx = 0; timeStepIdx < soilTimeStepCount; timeStepIdx++)
@@ -444,6 +472,8 @@ void RimReservoirCellResultsStorage::loadOrComputeSOILForTimeStep(size_t timeSte
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 {
+    if (!m_cellResults) return;
+
     size_t depthResultGridIndex  = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DEPTH");
     size_t dxResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DX");
     size_t dyResultGridIndex     = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "DY");
@@ -549,6 +579,8 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 //--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
 {
+    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
+
     size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
     scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);

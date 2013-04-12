@@ -107,14 +107,13 @@ static void enkf_tui_ranking_create_data__( void * arg , bool sort_increasing) {
   ranking_table_type * ranking_table     = enkf_main_get_ranking_table( enkf_main );
   enkf_fs_type * fs                      = enkf_main_get_fs( enkf_main );
   ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config( enkf_main );
-  //const int history_length               = enkf_main_get_history_length( enkf_main );
+  time_map_type * time_map               = enkf_fs_get_time_map( fs );
   const int    prompt_len   = 60;
   const char * prompt1      = "Data key to use for ranking";
-  const char * prompt2      = "Report step of data";
+  const char * prompt2      = "Report step of data [Blank: last step]";
   const char * ranking_name = "Name of new ranking";
   const char * store_prompt = "Name of file to store ranking [Blank - no store]";
 
-  int step;
   state_enum state = FORECAST;
   char * user_key;
   
@@ -123,26 +122,32 @@ static void enkf_tui_ranking_create_data__( void * arg , bool sort_increasing) {
   if (user_key != NULL) {
     util_printf_prompt( prompt2 , prompt_len , '=' , "=> ");
     {
-      char * step_char = util_alloc_stdin_line();
-      if (step_char == NULL)
-        step = 0;
-      else {
-        if (util_sscanf_int( step_char , &step )) {
-          const enkf_config_node_type * config_node;
-          char * key_index;
-          config_node = ensemble_config_user_get_node( ensemble_config , user_key , &key_index);
-          if (config_node) {
-            util_printf_prompt(ranking_name , prompt_len , '=' , "=> ");
-            char * ranking_key = util_alloc_stdin_line();
-            if (ranking_key != NULL) {
-              ranking_table_add_data_ranking( ranking_table , sort_increasing , ranking_key , user_key , key_index , fs , config_node, step , state );
-              ranking_table_display_ranking( ranking_table , ranking_key );
-            }
-            util_safe_free( ranking_key );
-          }
+      int step = -1;
+      {
+        char * step_char = util_alloc_stdin_line();
+
+        if (step_char == NULL)
+          step = time_map_get_last_step( time_map );
+        else {
+          util_sscanf_int( step_char , &step );
+          free( step_char );
         }
       }
-      util_safe_free( step_char );
+
+      if (step >= 0) {
+        const enkf_config_node_type * config_node;
+        char * key_index;
+        config_node = ensemble_config_user_get_node( ensemble_config , user_key , &key_index);
+        if (config_node) {
+          util_printf_prompt(ranking_name , prompt_len , '=' , "=> ");
+          char * ranking_key = util_alloc_stdin_line();
+          if (ranking_key != NULL) {
+            ranking_table_add_data_ranking( ranking_table , sort_increasing , ranking_key , user_key , key_index , fs , config_node, step , state );
+            ranking_table_display_ranking( ranking_table , ranking_key );
+          }
+          util_safe_free( ranking_key );
+        }
+      }
     }
   }
   util_safe_free( user_key );

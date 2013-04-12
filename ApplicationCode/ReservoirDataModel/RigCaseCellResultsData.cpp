@@ -20,6 +20,8 @@
 #include "RifReaderInterface.h"
 #include "RigMainGrid.h"
 
+#include "RigStatisticsMath.h"
+
 #include <QDateTime>
 #include <math.h>
 
@@ -180,7 +182,9 @@ const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(siz
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90)
 {
-    const std::vector<size_t>& histogr = cellScalarValuesHistogram( scalarResultIndex);
+    // First make sure they are calculated
+    const std::vector<size_t>& histogr = cellScalarValuesHistogram( scalarResultIndex); 
+    // Then return them
     p10 = m_p10p90[scalarResultIndex].first;
     p90 = m_p10p90[scalarResultIndex].second;
 }
@@ -346,7 +350,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
     {
         scalarResultIndex = this->resultCount();
         m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-        ResultInfo resInfo(type, needsToBeStored, resultName, scalarResultIndex);
+        ResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
         m_resultInfos.push_back(resInfo);
     }
 
@@ -534,5 +538,37 @@ RifReaderInterface::PorosityModelResultType RigCaseCellResultsData::convertFromP
     if (porosityModel == RimDefines::MATRIX_MODEL) return RifReaderInterface::MATRIX_RESULTS;
     
     return RifReaderInterface::FRACTURE_RESULTS;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::mustBeCalculated(size_t scalarResultIndex) const
+{
+    std::vector<ResultInfo>::const_iterator it;
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    {
+        if (it->m_gridScalarResultIndex == scalarResultIndex)
+        {
+            return it->m_mustBeCalculated;
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
+{
+    std::vector<ResultInfo>::iterator it;
+    for (it = m_resultInfos.begin(); it != m_resultInfos.end(); it++)
+    {
+        if (it->m_gridScalarResultIndex == scalarResultIndex)
+        {
+            it->m_mustBeCalculated = true;
+        }
+    }
 }
 

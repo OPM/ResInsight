@@ -486,6 +486,26 @@ void PdmPointersField<DataType*>::insert(size_t indexAfter, const std::vector<Pd
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
+size_t PdmPointersField<DataType*>::count(const DataType* pointer) const
+{
+    size_t itemCount = 0;
+
+    typename std::vector< PdmPointer< DataType > >::const_iterator it;
+    for (it = m_pointers.begin(); it != m_pointers.end(); ++it)
+    {
+        if (*it == pointer)
+        {
+            itemCount++;
+        }
+    }
+
+    return itemCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template<typename DataType>
 void PdmPointersField<DataType*>::clear()
 {
     

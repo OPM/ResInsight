@@ -48,6 +48,7 @@ extern "C" {
   char         * ecl_kw_grdecl_alloc_next_header( FILE * stream );
   
   void           ecl_kw_fprintf_grdecl(const ecl_kw_type * ecl_kw , FILE * stream);
+  void           ecl_kw_fprintf_grdecl__(const ecl_kw_type * ecl_kw , const char * special_header , FILE * stream);
 
 #ifdef __cplusplus
 }

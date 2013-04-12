@@ -45,10 +45,10 @@ import ecl_util
 class EclQueue( JobQueue ):
     def __init__(self , 
                  driver = None , 
-                 driver_type = default.driver_type, 
+                 driver_type = None,
                  driver_options = None, 
-                 ecl_version = default.ecl_version , 
-                 ecl_cmd = default.ecl_cmd , 
+                 ecl_version = None,
+                 ecl_cmd = None,
                  max_running = 0,
                  size = 0):
 
@@ -145,6 +145,14 @@ class EclQueue( JobQueue ):
              the queue stay alive and continue managing jobs even
              after the main thread has exited - not yet :-(
         """
+        if ecl_cmd is None:
+            ecl_cmd = ecl_default.default.ecl_cmd
+            
+        if driver_type is None:
+            driver_type = ecl_default.default.driver_type
+
+        if ecl_version is None:
+            ecl_version = ecl_default.default.ecl_version
 
         self.ecl_version = ecl_version
         self.ecl_cmd     = ecl_cmd

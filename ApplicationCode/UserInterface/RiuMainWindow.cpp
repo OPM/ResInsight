@@ -580,6 +580,13 @@ void RiuMainWindow::refreshAnimationActions()
                 timeStepStrings.push_back(tr("Static Property"));
             }
         }
+
+        // Animation control is only relevant for more than one time step
+        if (timeStepStrings.size() < 2)
+        {
+            enableAnimControls = false;
+        }
+
         m_animationToolBar->setFrameRate(app->activeReservoirView()->maximumFrameRate());
     }
 
@@ -1269,9 +1276,8 @@ void RiuMainWindow::hideAllDockWindows()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotOpenMultipleCases()
 {
+#if 1
     RiaApplication* app = RiaApplication::instance();
-
-    /*
     RiuMultiCaseImportDialog dialog;
     int action = dialog.exec();
     if (action == QDialog::Accepted)
@@ -1279,8 +1285,9 @@ void RiuMainWindow::slotOpenMultipleCases()
         QStringList gridFileNames = dialog.eclipseCaseFileNames();
         app->addEclipseCases(gridFileNames);
     }
-    */
 
+#else  // Code to fast generate a test project
+    RiaApplication* app = RiaApplication::instance();
 
     QStringList gridFileNames;
 
@@ -1299,6 +1306,6 @@ void RiuMainWindow::slotOpenMultipleCases()
     }
 
     app->addEclipseCases(gridFileNames);
-
+#endif
 
 }

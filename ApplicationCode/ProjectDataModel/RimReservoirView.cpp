@@ -255,7 +255,7 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
         QString windowTitle;
         if (m_reservoir.notNull())
         {
-            windowTitle = QString("%1 - %2").arg(m_reservoir->caseName()).arg(name);
+            windowTitle = QString("%1 - %2").arg(m_reservoir->caseUserDescription()).arg(name);
         }
         else
         {
@@ -702,7 +702,9 @@ void RimReservoirView::loadDataAndUpdate()
     {
         if (!m_reservoir->openEclipseGridFile())
         {
-            QMessageBox::warning(RiuMainWindow::instance(), "Error when opening project file", "Could not open the Eclipse Grid file (EGRID/GRID): \n"+ m_reservoir->caseName());
+            QMessageBox::warning(RiuMainWindow::instance(), 
+                                "Error when opening project file", 
+                                "Could not open the Eclipse Grid file: \n"+ m_reservoir->gridFileName());
             m_reservoir = NULL;
             return;
         }
@@ -1279,6 +1281,27 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                 }
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateDisplayModelForWellResults()
+{
+    m_geometry->clearGeometryCache();
+    m_pipesPartManager->clearGeometryCache();
+
+    syncronizeWellsWithResults();
+
+    createDisplayModel();
+    updateDisplayModelVisibility();
+
+    overlayInfoConfig()->update3DInfo();
+
+    if (animationMode && m_viewer)
+    {
+        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
     }
 }
 

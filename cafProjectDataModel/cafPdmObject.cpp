@@ -237,7 +237,7 @@ void PdmObject::addFieldNoDefault(PdmFieldHandle* field, const QString& keyword,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmObject::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) const
+void PdmObject::uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) 
 {
     this->defineUiOrdering(uiConfigName, uiOrdering);
     if (!uiOrdering.forgetRemainingFields())

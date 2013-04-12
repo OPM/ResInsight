@@ -20,3 +20,7 @@ import libjob_queue
 from queue  import JobQueue
 from driver import Driver
 from job    import Job
+
+import ext_job
+import ext_joblist
+import forward_model

@@ -38,7 +38,7 @@ class RimReservoirView;
 class RivWellHeadPartMgr : public cvf::Object
 {
 public:
-    RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well);
+    RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well, cvf::Font* font);
     ~RivWellHeadPartMgr();
 
     void setScaleTransform(cvf::Transform * scaleTransform) { m_scaleTransform = scaleTransform;}

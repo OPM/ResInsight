@@ -1,0 +1,5 @@
+EXECUTABLE  /private/joaho/ERT/git/ert/build/bin/create_file  
+ARG_TYPE    0   STRING
+ARG_TYPE    1   INT
+MIN_ARG     2
+MAX_ARG     2

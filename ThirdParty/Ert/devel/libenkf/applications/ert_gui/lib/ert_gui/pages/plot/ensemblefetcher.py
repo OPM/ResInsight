@@ -18,11 +18,11 @@
 
 from fetcher import PlotDataFetcherHandler
 from ert_gui.pages.config.parameters.parametermodels import FieldModel, SummaryModel, KeywordModel, DataModel
-import ert.ertwrapper as ertwrapper
-import ert.enums as enums
+import ert.ert.ertwrapper as ertwrapper
+import ert.ert.enums as enums
 from PyQt4.QtGui import QWidget, QFormLayout, QSpinBox, QComboBox
 from PyQt4.QtCore import SIGNAL
-from ert.erttypes import time_t
+from ert.ert.erttypes import time_t
 import numpy
 
 class EnsembleFetcher(PlotDataFetcherHandler):
@@ -45,8 +45,7 @@ class EnsembleFetcher(PlotDataFetcherHandler):
         self.connect(self.data_configuration, SIGNAL('configurationChanged()'), emitter)
 
     def initialize(self, ert):
-        ert.prototype("long ensemble_config_get_node(long, char*)")
-        ert.prototype("bool ensemble_config_has_key(long, char*)")
+
 
         ert.prototype("long enkf_main_get_fs(long)")
         ert.prototype("int enkf_main_get_ensemble_size(long)")

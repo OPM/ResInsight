@@ -20,7 +20,7 @@ import help
 import sys
 from   util import resourceIcon, resourceImage
 import inspect
-import ert.enums as enums
+import ert.ert.enums as enums
 
 def abstract():
     """Abstract keyword that indicate an abstract function"""

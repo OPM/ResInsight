@@ -27,7 +27,7 @@ extern "C" {
   
 #include <stdbool.h>
 
-#include <ert/ecl/ecl_intehead.h>
+#include <ert/ecl/ecl_rsthead.h>
 
   typedef enum {
     well_conn_dirX  = 1,
@@ -43,8 +43,8 @@ extern "C" {
 
   void             well_conn_free( well_conn_type * conn);
   void             well_conn_free__( void * arg );
-  well_conn_type * well_conn_alloc( const ecl_kw_type * icon_kw , const ecl_kw_type * iseg_kw , const ecl_intehead_type * header , int well_nr , int seg_well_nr , int conn_nr);
-  well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const ecl_intehead_type * header , int well_nr);
+  well_conn_type * well_conn_alloc( const ecl_kw_type * icon_kw , const ecl_kw_type * iseg_kw , const ecl_rsthead_type * header , int well_nr , int seg_well_nr , int conn_nr);
+  well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const ecl_rsthead_type * header , int well_nr);
 
   int                well_conn_get_branch(const well_conn_type * conn);
   int                well_conn_get_i(const well_conn_type * conn);
@@ -53,6 +53,8 @@ extern "C" {
   well_conn_dir_enum well_conn_get_dir(const well_conn_type * conn);
   bool               well_conn_open( const well_conn_type * conn );
   int                well_conn_get_segment( const well_conn_type * conn );
+  bool               well_conn_fracture_connection( const well_conn_type * conn);
+  bool               well_conn_matrix_connection( const well_conn_type * conn);
 
 #ifdef __cplusplus
 }

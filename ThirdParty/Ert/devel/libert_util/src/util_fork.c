@@ -79,21 +79,14 @@ pid_t util_fork_exec(const char * executable , int argc , const char ** argv ,
         util_abort("%s: failed to change to directory:%s  %s \n",__func__ , run_path , strerror(errno));
     }
 
-    if (stdout_file != NULL) {
-      /** This is just to invoke the "block on full disk behaviour" before the external program starts. */
-      FILE * stream = util_fopen( stdout_file , "w");
-      fclose(stream);
+    if (stdout_file != NULL) 
       __util_redirect(1 , stdout_file , O_WRONLY | O_TRUNC | O_CREAT);
-    }
-
-    if (stderr_file != NULL) {
-      /** This is just to invoke the "block on full disk behaviour" before the external program starts. */
-      FILE * stream = util_fopen( stderr_file , "w");
-      fclose(stream);
+    
+    if (stderr_file != NULL) 
       __util_redirect(2 , stderr_file , O_WRONLY | O_TRUNC | O_CREAT);
-    }
-    if (stdin_file  != NULL) __util_redirect(0 , stdin_file  , O_RDONLY);
-
+    
+    if (stdin_file  != NULL) 
+      __util_redirect(0 , stdin_file  , O_RDONLY);
     
     __argv        = util_malloc((argc + 2) * sizeof * __argv );  
     __argv[0]     = executable;
@@ -115,6 +108,7 @@ pid_t util_fork_exec(const char * executable , int argc , const char ** argv ,
     
   }  else  {
     /* Parent */
+    
     if (blocking) {
       waitpid(child_pid , NULL , 0);
       
@@ -236,7 +230,32 @@ char * util_alloc_filename_from_stream( FILE * input_stream ) {
   return filename;
 }
 
- 
+
+/**
+   The ping program must(?) be setuid root, so implementing a simple
+   version based on sockets() proved to be nontrivial.
+
+   The PING_CMD is passed as -D from the build system.
+*/
+
+bool util_ping(const char *hostname) { 
+  pid_t ping_pid = util_fork_exec(PING_CMD , 4 , (const char *[4]) {"-c" , "3" , "-q", hostname} , false , NULL , NULL , NULL , NULL , NULL);
+  int wait_status;
+  pid_t wait_pid = waitpid(ping_pid , &wait_status , 0);
+
+  if (wait_pid == -1)
+    return false;
+  else {
+    if (WIFEXITED( wait_status )) {
+      int ping_status = WEXITSTATUS( wait_status );
+      if (ping_status == 0)
+        return true;
+      else
+        return false;
+    } else
+      return false;
+  }
+}
 
 
 

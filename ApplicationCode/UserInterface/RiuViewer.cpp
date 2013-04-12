@@ -67,8 +67,13 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 
     QColor c;
     QPalette p = QApplication::palette();
-    QColor frameAndTextColor(255, 255, 255, 255);
-    p.setColor(QPalette::Window, QColor(144, 173, 208, 180));
+    //QColor frameAndTextColor(255, 255, 255, 255);
+    QColor frameAndTextColor(0, 0, 0, 255);
+    QColor progressAndHistogramColor(0,0,90,70); // Also Progressbar dark text color
+
+    //p.setColor(QPalette::Window, QColor(144, 173, 208, 180));
+    p.setColor(QPalette::Window, QColor(255, 255, 255, 50));
+
     p.setColor(QPalette::WindowText, frameAndTextColor);
 
     c = p.color(QPalette::Base );
@@ -80,11 +85,14 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     //p.setColor(QPalette::AlternateBase, c);
 
     
-    p.setColor(QPalette::Highlight, QColor(20, 20, 130, 100));
+    //p.setColor(QPalette::Highlight, QColor(20, 20, 130, 40));
+    p.setColor(QPalette::Highlight, progressAndHistogramColor);
 
-    p.setColor(QPalette::HighlightedText, frameAndTextColor);
+    //p.setColor(QPalette::HighlightedText, frameAndTextColor);
+    p.setColor(QPalette::HighlightedText, QColor(255, 255, 255, 255)); //Progressbar light text color
 
-    p.setColor(QPalette::Dark, QColor(230, 250, 255, 100));
+    //p.setColor(QPalette::Dark, QColor(230, 250, 255, 100));
+    p.setColor(QPalette::Dark, progressAndHistogramColor);
 
     // Info Text
     m_InfoLabel = new QLabel();

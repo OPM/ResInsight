@@ -56,6 +56,7 @@
 #include <ert_tui_const.h>
 #include <enkf_tui_plot_util.h>
 
+
 void enkf_tui_QC_plot_get_PC( enkf_main_type * enkf_main , int step1 , int step2 , state_enum state , const local_obsset_type * obsset , 
                               double truncation , int ncomp , 
                               matrix_type * PC , matrix_type * PC_obs) {
@@ -107,6 +108,7 @@ void enkf_tui_QC_plot_get_PC( enkf_main_type * enkf_main , int step1 , int step2
   obs_data_free( obs_data );
   meas_data_free( meas_data );
 }
+
 
 
 void enkf_tui_QC_plot_PC( void * arg ) {
@@ -189,6 +191,14 @@ void enkf_tui_QC_plot_PC( void * arg ) {
 }
 
 
+void enkf_tui_QC_run_workflow( void * arg ) {
+  enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );  
+  qc_module_type  * qc_module  = enkf_main_get_qc_module( enkf_main );
+  
+  qc_module_run_workflow( qc_module , enkf_main );
+}
+
+
 
 void enkf_tui_QC_menu(void * arg) {
   
@@ -201,7 +211,15 @@ void enkf_tui_QC_menu(void * arg) {
   
   {
     menu_type * menu = menu_alloc("Quality check of prior" , "Back" , "bB");
-    menu_add_item(menu , "Plot of prior principal components"    , "pP"  , enkf_tui_QC_plot_PC , enkf_main , NULL);
+    menu_item_type * plot_PC_item         = menu_add_item( menu , "Plot of prior principal components"    , "pP"  , enkf_tui_QC_plot_PC , enkf_main , NULL);
+    menu_item_type * run_QC_workflow_item = menu_add_item( menu , "Run QC workflow"    , "rR"  , enkf_tui_QC_run_workflow , enkf_main , NULL);
+    
+    if (!enkf_main_have_obs( enkf_main )) 
+      menu_item_disable( plot_PC_item );
+    
+    if (!enkf_main_has_QC_workflow( enkf_main ))
+      menu_item_disable( run_QC_workflow_item );
+    
     menu_run(menu);
     menu_free(menu);
   }

@@ -32,6 +32,7 @@
 #include <ert/enkf/enkf_sched.h>
 #include <enkf_tui_main.h>
 
+#define WORKFLOW_OPTION "-wf"
 
 void text_splash() {
   const int usleep_time = 1000;
@@ -48,22 +49,6 @@ void text_splash() {
     sleep(1);
 #undef SPLASH_LENGTH
   }
-}
-
-
-void devel_warning() {
-#ifdef DEVEL_VERSION
-  printf("\n");
-  printf("  ***************************************************************\n");
-  printf("  ** You have started a development version of ERT. If you are **\n");
-  printf("  ** not an advanced user, it might be better to use a stable  **\n");
-  printf("  ** version which has been better tested. The stable version  **\n");
-  printf("  ** should be available with the command:                     **\n");
-  printf("  **                                                           **\n");
-  printf("  **      bash%% ert config_file                                **\n");
-  printf("  **                                                           **\n");
-  printf("  ***************************************************************\n");
-#endif
 }
 
 
@@ -108,7 +93,7 @@ void enkf_usage() {
 
 
 
-static void init_debug( const char * executable ) {
+static void init_debug( const char * argv0) {
   char * git_commit       = util_alloc_sprintf("git commit...........: %s \n",GIT_COMMIT);
   char * compile_time     = util_alloc_sprintf("Compile time.........: %s \n",COMPILE_TIME_STAMP);
 
@@ -119,39 +104,68 @@ static void init_debug( const char * executable ) {
   free(git_commit);
   free(compile_time);
 
-  if (executable != NULL)
-    util_abort_set_executable( executable );
+  util_abort_set_executable( argv0 );
 }  
+
+
+
+void parse_workflows(int argc , char ** argv , stringlist_type * workflows) {
+  bool workflow_on = false;
+  for (int iarg = 2; iarg < argc; iarg++) {
+    stringlist_append_copy( workflows , argv[iarg]);
+    
+    /*if (strcmp( argv[iarg] , WORKFLOW_OPTION) == 0)
+      workflow_on = true;
+    else {
+      if (workflow_on)
+        stringlist_append_copy( workflows , argv[iarg]);
+      else
+        fprintf(stderr,"**Warning - option:\'%s\' ignored\n",argv[iarg]);
+    }
+    */
+  }
+}
 
 
 
 
 int main (int argc , char ** argv) {
-  devel_warning();
   text_splash();
-  init_debug( NULL );
+  init_debug( argv[0] );
   printf("\n");
   printf("Documentation : %s \n","http://ert.nr.no");
   printf("git commit    : %s \n",GIT_COMMIT);
   printf("compile time  : %s \n",COMPILE_TIME_STAMP);
-  printf("site config   : %s \n\n",SITE_CONFIG_FILE);
+  printf("site config   : %s \n",SITE_CONFIG_FILE);
+  
   enkf_main_install_SIGNALS();                     /* Signals common to both tui and gui. */
   signal(SIGINT , util_abort_signal);              /* Control C - tui only.               */
-  if (argc != 2) {
+  if (argc < 2) {
     enkf_usage();
     exit(1);
   } else {
     const char * site_config_file  = SITE_CONFIG_FILE;  /* The variable SITE_CONFIG_FILE should be defined on compilation ... */
     const char * model_config_file = argv[1]; 
+    stringlist_type * workflow_list = stringlist_alloc_new();
     
+    parse_workflows( argc , argv , workflow_list ); 
+    if ( !(util_entry_readable(model_config_file) && util_is_file(model_config_file)) )
+      util_exit("Can not read file %s - exiting \n", model_config_file);
+
+    {
+      char * abs_config = util_alloc_realpath( model_config_file );
+      printf("model config  : %s \n\n", abs_config);
+    }
     enkf_welcome( model_config_file );
     {
       enkf_main_type * enkf_main = enkf_main_bootstrap(site_config_file , model_config_file , true , true);
+      enkf_main_run_workflows( enkf_main , workflow_list );
       enkf_tui_main_menu(enkf_main); 
       enkf_main_free(enkf_main);
     }
-    
+
+    stringlist_free( workflow_list );
     util_abort_free_version_info(); /* No fucking leaks ... */
   }
-
+  exit(0);
 }

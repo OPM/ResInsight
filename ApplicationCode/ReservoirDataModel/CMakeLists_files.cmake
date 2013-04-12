@@ -17,6 +17,8 @@ ${CEE_CURRENT_LIST_DIR}RigMainGrid.h
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.h
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.h
+${CEE_CURRENT_LIST_DIR}RigStatisticsMath.h
+
 )
 
 list(APPEND CODE_SOURCE_FILES
@@ -31,6 +33,7 @@ ${CEE_CURRENT_LIST_DIR}RigMainGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.cpp
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.cpp
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.cpp
+${CEE_CURRENT_LIST_DIR}RigStatisticsMath.cpp
 )
 
 

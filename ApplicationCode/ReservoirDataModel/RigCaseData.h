@@ -46,8 +46,8 @@ public:
     RigGridBase*                                grid(size_t index);
     size_t                                      gridCount() const;
 
-    RigCaseCellResultsData*		            results(RifReaderInterface::PorosityModelResultType porosityModel);
-    const RigCaseCellResultsData*              results(RifReaderInterface::PorosityModelResultType porosityModel) const;
+    RigCaseCellResultsData*		                results(RifReaderInterface::PorosityModelResultType porosityModel);
+    const RigCaseCellResultsData*               results(RifReaderInterface::PorosityModelResultType porosityModel) const;
 
     RigActiveCellInfo*                          activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel);
     const RigActiveCellInfo*                    activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const;
@@ -80,9 +80,9 @@ private:
     cvf::ref<RigActiveCellInfo>                 m_activeCellInfo;
     cvf::ref<RigActiveCellInfo>                 m_fractureActiveCellInfo;
 
-    cvf::ref<RigCaseCellResultsData>           m_matrixModelResults;
-    cvf::ref<RigCaseCellResultsData>           m_fractureModelResults;
+    cvf::ref<RigCaseCellResultsData>            m_matrixModelResults;
+    cvf::ref<RigCaseCellResultsData>            m_fractureModelResults;
 
-    cvf::Collection<RigSingleWellResultsData>             m_wellResults;     //< A WellResults object for each well in the reservoir
+    cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
 };

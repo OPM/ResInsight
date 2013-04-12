@@ -213,6 +213,7 @@ public:
     void                set(size_t index, DataType* pointer);
     void                insert(size_t indexAfter, DataType* pointer);
     void                insert(size_t indexAfter, const std::vector<PdmPointer<DataType> >& objects);
+    size_t              count(const DataType* pointer) const;
 
     void                clear();
     void                erase(size_t index);

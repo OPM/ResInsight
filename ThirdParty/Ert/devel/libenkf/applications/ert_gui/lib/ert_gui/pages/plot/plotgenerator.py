@@ -26,7 +26,7 @@ from plotsettingsxml import PlotSettingsLoader
 from plotsettings import PlotSettings
 from plotdata import PlotContextDataFetcher, PlotDataFetcher
 from ert_gui.pages.config.parameters.parametermodels import SummaryModel, KeywordModel
-import ert.enums as enums
+import ert.ert.enums as enums
 
 class PlotGenerator(QFrame):
 

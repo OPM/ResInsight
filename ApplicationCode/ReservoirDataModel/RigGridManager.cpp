@@ -99,6 +99,29 @@ void RigGridManager::clear()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigGridManager::isGridDimensionsEqual(const std::vector< std::vector<int> >& mainCaseGridDimensions, const std::vector< std::vector<int> >& caseGridDimensions)
+{
+    if (mainCaseGridDimensions.size() != caseGridDimensions.size())
+    {
+        return false;
+    }
+
+    for (size_t j = 0; j < mainCaseGridDimensions.size(); j++)
+    {
+        if (mainCaseGridDimensions[j].size() != 3) return false;
+        if (caseGridDimensions[j].size() != 3) return false;
+
+        if (mainCaseGridDimensions[j][0] != caseGridDimensions[j][0]) return false;
+        if (mainCaseGridDimensions[j][1] != caseGridDimensions[j][1]) return false;
+        if (mainCaseGridDimensions[j][2] != caseGridDimensions[j][2]) return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 RigGridManager::CaseToGridMap::CaseToGridMap(RigCaseData* eclipseCase, RigMainGrid* mainGrid) :
 m_eclipseCase(eclipseCase),
     m_mainGrid(mainGrid)

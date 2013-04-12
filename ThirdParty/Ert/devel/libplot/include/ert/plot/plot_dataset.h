@@ -112,6 +112,7 @@ double * plot_dataset_get_vector_x1(const plot_dataset_type * d);
 double * plot_dataset_get_vector_y1(const plot_dataset_type * d);
 double * plot_dataset_get_vector_x2(const plot_dataset_type * d);
 double * plot_dataset_get_vector_y2(const plot_dataset_type * d);
+int      plot_dataset_get_size( const plot_dataset_type * dataset );
 
 /*****************************************************************/
 /* Functions for actually adding data to the dataset.            */

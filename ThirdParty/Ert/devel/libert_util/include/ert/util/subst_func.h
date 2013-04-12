@@ -33,8 +33,8 @@ typedef  struct subst_func_pool_struct   subst_func_pool_type;
 
 /*****************************************************************/
 
-subst_func_pool_type * subst_func_pool_alloc( );
-void                   subst_func_pool_free( subst_func_pool_type * pool );
+  subst_func_pool_type * subst_func_pool_alloc( );
+  void                   subst_func_pool_free( subst_func_pool_type * pool );
   void                   subst_func_pool_add_func( subst_func_pool_type * pool , const char * func_name , const char * doc_string , subst_func_ftype * func , bool vararg, int argc_min , int argc_max , void * arg);
 subst_func_type      * subst_func_pool_get_func( const subst_func_pool_type * pool , const char * func_name );
 bool                   subst_func_pool_has_func( const subst_func_pool_type * pool , const char * func_name );

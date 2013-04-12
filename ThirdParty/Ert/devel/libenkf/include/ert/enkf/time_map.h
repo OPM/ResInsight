@@ -23,20 +23,31 @@ extern "C" {
 
 #include <time.h>
 
+#include <ert/util/type_macros.h>
+
 #include <ert/ecl/ecl_sum.h>
 
 typedef struct time_map_struct time_map_type;
 
-
+  UTIL_SAFE_CAST_HEADER( time_map  );
+  void             time_map_clear( time_map_type * map );
+  bool             time_map_equal( const time_map_type * map1 , const time_map_type * map2);
   time_map_type  * time_map_alloc( );
   void             time_map_free( time_map_type * map );
-  void             time_map_update( time_map_type * map , int step , time_t time);
-  void             time_map_summary_update( time_map_type * map , const ecl_sum_type * ecl_sum);
+  bool             time_map_update( time_map_type * map , int step , time_t time);
+  bool             time_map_summary_update( time_map_type * map , const ecl_sum_type * ecl_sum);
   time_t           time_map_iget( time_map_type * map , int step );
   void             time_map_fwrite( time_map_type * map , const char * filename);
   void             time_map_fread( time_map_type * map , const char * filename);
   double           time_map_iget_sim_days( time_map_type * map , int step );
   int              time_map_get_last_step( time_map_type * map);
+  int              time_map_get_size( time_map_type * map);
+  void             time_map_update_strict( time_map_type * map , int step , time_t time);
+  void             time_map_summary_update_strict( time_map_type * map , const ecl_sum_type * ecl_sum);
+  time_t           time_map_get_start_time( time_map_type * map);
+  time_t           time_map_get_end_time( time_map_type * map);
+  double           time_map_get_end_days( time_map_type * map);
+
 
 #ifdef __cplusplus 
 }
