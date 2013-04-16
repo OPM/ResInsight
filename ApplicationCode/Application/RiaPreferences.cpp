@@ -41,6 +41,9 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", cvf::Color3f(0.92f, 0.92f, 0.92f), "Mesh color", "", "", "");
     CAF_PDM_InitField(&defaultFaultGridLineColors,      "defaultFaultGridLineColors", cvf::Color3f(0.08f, 0.08f, 0.08f), "Mesh color along faults", "", "", "");
 
+    CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer background", "", "The viewer background color for new views", "");
+
+
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
 
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
@@ -90,6 +93,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
     defaultSettingsGroup->add(&defaultScaleFactorZ);
+    defaultSettingsGroup->add(&defaultViewerBackgroundColor);
     defaultSettingsGroup->add(&defaultGridLines);
     defaultSettingsGroup->add(&defaultGridLineColors);
     defaultSettingsGroup->add(&defaultFaultGridLineColors);
