@@ -56,7 +56,8 @@ private:
     RimCase*   findReservoir(const QString &casename);
     void            terminateCurrentConnection();
 
-    void            calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber,
+    void            calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, 
+        std::vector<qint32>& gridNumber,
         std::vector<qint32>& cellI,
         std::vector<qint32>& cellJ,
         std::vector<qint32>& cellK,

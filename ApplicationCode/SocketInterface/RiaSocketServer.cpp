@@ -57,7 +57,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
     {
         m_errorMessageDialog->showMessage("Octave communication disabled :\n"
                                           "\n"
-                                          "This instance of ResInsight could not start the Socket Server enabeling octave to get and set data.\n"
+                                          "This instance of ResInsight could not start the Socket Server enabling octave to get and set data.\n"
                                           "This is probably because you already have a running ResInsight process.\n"
                                           "Octave can only communicate with one ResInsight process at a time, so the Octave\n"
                                           "communication in this ResInsight instance will be disabled.\n"
@@ -367,7 +367,8 @@ void RiaSocketServer::readCommandFromOctave()
             return;
         }
 
-        calculateMatrixModelActiveCellInfo(activeCellInfo[0],
+        calculateMatrixModelActiveCellInfo(reservoir, 
+            activeCellInfo[0],
             activeCellInfo[1],
             activeCellInfo[2],
             activeCellInfo[3],
@@ -618,7 +619,7 @@ void RiaSocketServer::slotReadyRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK)
+void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK)
 {
     gridNumber.clear();
     cellI.clear();
@@ -629,12 +630,12 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gr
     hostCellJ.clear();
     hostCellK.clear();
 
-    if (!m_currentReservoir || !m_currentReservoir->reservoirData() || !m_currentReservoir->reservoirData()->mainGrid())
+    if (!reservoirCase || !reservoirCase->reservoirData() || !reservoirCase->reservoirData()->mainGrid())
     {
         return;
     }
 
-    RigActiveCellInfo* actCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
     size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
 
     gridNumber.reserve(numMatrixModelActiveCells);
@@ -646,7 +647,7 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(std::vector<qint32>& gr
     hostCellJ.reserve(numMatrixModelActiveCells);
     hostCellK.reserve(numMatrixModelActiveCells);
 
-    const std::vector<RigCell>& globalCells = m_currentReservoir->reservoirData()->mainGrid()->cells();
+    const std::vector<RigCell>& globalCells = reservoirCase->reservoirData()->mainGrid()->cells();
 
     for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
     {
