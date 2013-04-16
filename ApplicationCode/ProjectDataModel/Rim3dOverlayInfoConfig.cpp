@@ -84,8 +84,10 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         QString activeCellCountText;
         QString fractureActiveCellCount;
         QString iSize, jSize, kSize;
+        QString zScale;
         QString propName;
         QString cellEdgeName;
+
 
         if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())
         {
@@ -100,6 +102,9 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             iSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountI());
             jSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountJ());
             kSize = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cellCountK());
+
+            zScale = QString::number(m_reservoirView->scaleZ());
+
             propName = m_reservoirView->cellResult()->resultVariable();
             cellEdgeName = m_reservoirView->cellEdgeResult()->resultVariable();
         }
@@ -107,7 +112,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         QString infoText = QString(
             "<p><b><center>-- %1 --</center></b><p>  "
             "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>" 
-            "<b>Main Grid I,J,K:</b> %4, %5, %6 <br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize);
+            "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
 
         if (m_reservoirView->animationMode() && m_reservoirView->cellResult()->hasResult())
         {
