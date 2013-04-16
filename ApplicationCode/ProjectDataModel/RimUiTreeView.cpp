@@ -35,6 +35,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RimStatisticsCase.h"
 #include "RimResultCase.h"
+#include "RimMimeData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

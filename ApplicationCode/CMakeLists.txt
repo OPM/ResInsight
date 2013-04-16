@@ -89,6 +89,7 @@ set ( QT_MOC_HEADERS
     
     ProjectDataModel/RimUiTreeModelPdm.h
     ProjectDataModel/RimUiTreeView.h
+    ProjectDataModel/RimMimeData.h
     
     UserInterface/RiuMainWindow.h
     UserInterface/RiuPreferencesDialog.h
