@@ -34,7 +34,7 @@ RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimReservoirView* reservoirVi
 
     m_scaleTransform = new cvf::Transform();
 
-    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::LARGE);
+    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
 }
 
 //--------------------------------------------------------------------------------------------------
