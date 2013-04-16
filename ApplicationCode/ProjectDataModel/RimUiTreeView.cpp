@@ -1097,7 +1097,7 @@ bool RimUiTreeView::userConfirmedGridCaseGroupChange(const QModelIndexList& item
             else
             {
                 questionText = "This operation will invalidate statistics results in grid case groups\n";
-                for (int i = 0; i < typedObjects.size(); i++)
+                for (size_t i = 0; i < typedObjects.size(); i++)
                 {
                     questionText += QString("\"%1\"\n").arg(typedObjects[i]->name());
                 }
