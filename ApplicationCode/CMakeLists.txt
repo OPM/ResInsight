@@ -54,44 +54,19 @@ list( APPEND CPP_SOURCES
     SocketInterface/RiaSocketServer.cpp
 )
 
-list( APPEND CPP_SOURCES
-    ProjectDataModel/RimCaseCollection.cpp
-    ProjectDataModel/RimCellFilter.cpp
-    ProjectDataModel/RimCellPropertyFilter.cpp
-    ProjectDataModel/RimCellPropertyFilterCollection.cpp
-    ProjectDataModel/RimCellRangeFilter.cpp
-    ProjectDataModel/RimCellRangeFilterCollection.cpp
-    ProjectDataModel/RimDefines.cpp
-    ProjectDataModel/RimLegendConfig.cpp
-    ProjectDataModel/RimProject.cpp
-    ProjectDataModel/RimCase.cpp
-    ProjectDataModel/RimIdenticalGridCaseGroup.cpp
-    ProjectDataModel/RimInputProperty.cpp
-    ProjectDataModel/RimInputPropertyCollection.cpp
-    ProjectDataModel/RimInputCase.cpp
-    ProjectDataModel/RimResultCase.cpp
-    ProjectDataModel/RimReservoirView.cpp
-    ProjectDataModel/RimResultDefinition.cpp
-    ProjectDataModel/RimResultSlot.cpp
-    ProjectDataModel/RimCellEdgeResultSlot.cpp
-    ProjectDataModel/RimWell.cpp
-    ProjectDataModel/RimWellCollection.cpp
-    ProjectDataModel/RimScriptCollection.cpp
-    ProjectDataModel/RimStatisticsCase.cpp
-    ProjectDataModel/RimStatisticsCaseCollection.cpp
-    ProjectDataModel/RimCalcScript.cpp
-    ProjectDataModel/RimExportInputPropertySettings.cpp
-    ProjectDataModel/RimBinaryExportSettings.cpp
-    ProjectDataModel/Rim3dOverlayInfoConfig.cpp
-    ProjectDataModel/RimUiTreeModelPdm.cpp
-    ProjectDataModel/RimUiTreeView.cpp
-	ProjectDataModel/RimReservoirCellResultsCacher.cpp
-	ProjectDataModel/RimStatisticsCaseEvaluator.cpp
+
+list( APPEND REFERENCED_CMAKE_FILES
+    ReservoirDataModel/CMakeLists_files.cmake
+    FileInterface/CMakeLists_files.cmake
+    ProjectDataModel/CMakeLists_files.cmake
 )
 
-# Populate the filenames into variable lists
-include ("ReservoirDataModel/CMakeLists_files.cmake")
-include ("FileInterface/CMakeLists_files.cmake")
+# Include source file lists from *.cmake files
+foreach (referencedfile ${REFERENCED_CMAKE_FILES})
+    include (${referencedfile})
+endforeach (referencedfile)
+
+
 list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
@@ -214,6 +189,7 @@ add_executable(ResInsight
     ${QRC_FILES_CPP}
     ${WIN_RESOURCE}
 	${HEADER_FILES}
+	${REFERENCED_CMAKE_FILES}
 )
 
 
