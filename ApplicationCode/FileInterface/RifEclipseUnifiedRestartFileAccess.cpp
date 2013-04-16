@@ -54,7 +54,11 @@ bool RifEclipseUnifiedRestartFileAccess::open()
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUnifiedRestartFileAccess::openFile()
 {
-    m_ecl_file = ecl_file_open(m_filename.toAscii().data());
+    if (!m_ecl_file)
+    {
+        m_ecl_file = ecl_file_open(m_filename.toAscii().data());
+    }
+
     if (!m_ecl_file) return false;
 
     return true;

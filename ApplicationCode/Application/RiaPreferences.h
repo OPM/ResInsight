@@ -42,6 +42,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     defaultGridLines;
     caf::PdmField<cvf::Color3f> defaultGridLineColors;
     caf::PdmField<cvf::Color3f> defaultFaultGridLineColors;
+    caf::PdmField<cvf::Color3f> defaultViewerBackgroundColor;
 
     caf::PdmField<bool>     useShaders;
     caf::PdmField<bool>     showHud;
