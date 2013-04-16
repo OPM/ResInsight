@@ -136,8 +136,8 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&showMainGrid,        "ShowMainGrid",         true,   "Show Main Grid",   "", "", "");
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
-
-    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer Background", "", "", "");
+    cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
+    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  defBackgColor, "Viewer Background", "", "", "");
 
 
     CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
