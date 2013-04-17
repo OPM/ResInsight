@@ -40,6 +40,7 @@
 #include "RigGridManager.h"
 #include "RimCase.h"
 #include "RigCaseData.h"
+#include "RimMimeData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
