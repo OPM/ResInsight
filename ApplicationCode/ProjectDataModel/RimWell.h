@@ -45,6 +45,7 @@ public:
     RigSingleWellResultsData*           wellResults() { return m_wellResults.p(); }
     
     virtual caf::PdmFieldHandle*        userDescriptionField();
+    virtual caf::PdmFieldHandle*        objectToggleField();
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 

@@ -123,3 +123,11 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWell::objectToggleField()
+{
+    return &showWellPipes;
+}
+

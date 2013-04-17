@@ -231,6 +231,21 @@ QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::Display
         else
             return  obj->uiWhatsThis();
     }
+    else if (role == Qt::CheckStateRole)
+    {
+        if (obj->objectToggleField())
+        {
+            bool isToggledOn = obj->objectToggleField()->uiValue().toBool();
+            if (isToggledOn)
+            {
+                return Qt::Checked;
+            }
+            else
+            {
+                return Qt::Unchecked;
+            }
+        }
+    }
 
     return QVariant();
 }
@@ -248,20 +263,33 @@ void UiTreeModelPdm::emitDataChanged(const QModelIndex& index)
 //--------------------------------------------------------------------------------------------------
 bool UiTreeModelPdm::setData(const QModelIndex &index, const QVariant &value, int role /*= Qt::EditRole*/)
 {
-    if (index.isValid() && role == Qt::EditRole)
+    if (!index.isValid())
     {
-        PdmUiTreeItem* treeItem = UiTreeModelPdm::getTreeItemFromIndex(index);
-        assert(treeItem);
-
-        PdmObject* obj = treeItem->dataObject();
-
-        if (obj->userDescriptionField())
-        {
-            obj->userDescriptionField()->setValueFromUi(value);
-        }
+        return false;
+    }
+    
+    PdmUiTreeItem* treeItem = UiTreeModelPdm::getTreeItemFromIndex(index);
+    assert(treeItem);
+    
+    PdmObject* obj = treeItem->dataObject();
+    assert(obj);
+            
+    if (role == Qt::EditRole && obj->userDescriptionField())
+    {
+        obj->userDescriptionField()->setValueFromUi(value);
 
         emitDataChanged(index);
         
+        return true;
+    }
+    else if (role == Qt::CheckStateRole && obj->objectToggleField())
+    {
+        bool toggleOn = (value == Qt::Checked);
+        
+        obj->objectToggleField()->setValueFromUi(toggleOn);
+
+        emitDataChanged(index);
+
         return true;
     }
 
@@ -277,18 +305,30 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
     if (!index.isValid())
         return Qt::ItemIsEnabled;
 
+    Qt::ItemFlags flagMask = QAbstractItemModel::flags(index);
+
     PdmUiTreeItem* treeItem = getTreeItemFromIndex(index);
     if (treeItem)
     {
         PdmObject* pdmObject = treeItem->dataObject();
-        if (pdmObject && pdmObject->userDescriptionField() && !pdmObject->userDescriptionField()->isUiReadOnly())
+        if (pdmObject)
         {
-            Qt::ItemFlags flagMask = QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
-            return flagMask;
+            if (pdmObject->userDescriptionField() && !pdmObject->userDescriptionField()->isUiReadOnly())
+            {
+                flagMask = flagMask | Qt::ItemIsEditable;
+            }
+
+            if (pdmObject->objectToggleField())
+            {
+                flagMask = flagMask | Qt::ItemIsUserCheckable;
+            }
         }
     }
+    else
+    {
+        flagMask = flagMask & (~Qt::ItemIsEditable);
+    }
 
-    Qt::ItemFlags flagMask = QAbstractItemModel::flags(index) & (~Qt::ItemIsEditable);
     return flagMask;
 }
 
