@@ -53,18 +53,18 @@ private:
 
 
     void            handleClientConnection( QTcpSocket* clientToHandle);
-    RimCase*   findReservoir(const QString &casename);
+    RimCase*        findReservoir(const QString &casename);
     void            terminateCurrentConnection();
 
-    void            calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, 
-        std::vector<qint32>& gridNumber,
-        std::vector<qint32>& cellI,
-        std::vector<qint32>& cellJ,
-        std::vector<qint32>& cellK,
-        std::vector<qint32>& parentGridNumber,
-        std::vector<qint32>& hostCellI,
-        std::vector<qint32>& hostCellJ,
-        std::vector<qint32>& hostCellK);
+    void            calculateMatrixModelActiveCellInfo( RimCase* reservoirCase, 
+                                                        std::vector<qint32>& gridNumber,
+                                                        std::vector<qint32>& cellI,
+                                                        std::vector<qint32>& cellJ,
+                                                        std::vector<qint32>& cellK,
+                                                        std::vector<qint32>& parentGridNumber,
+                                                        std::vector<qint32>& hostCellI,
+                                                        std::vector<qint32>& hostCellJ,
+                                                        std::vector<qint32>& hostCellK);
 
 
 private:
@@ -80,8 +80,9 @@ private:
     quint64         m_timeStepCountToRead;
     quint64         m_bytesPerTimeStepToRead;
     size_t          m_currentTimeStepToRead;
-    std::vector< std::vector<double> >* m_scalarResultsToAdd;
-    RimCase*   m_currentReservoir;
+    std::vector< std::vector<double> >* 
+                    m_scalarResultsToAdd;
+    RimCase*        m_currentReservoir;
     size_t          m_currentScalarIndex;
     QString         m_currentPropertyName;
     bool            m_invalidActiveCellCountDetected;
