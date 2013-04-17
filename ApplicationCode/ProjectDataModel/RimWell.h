@@ -42,7 +42,7 @@ public:
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
     
     void                                setWellResults(RigSingleWellResultsData* wellResults) { m_wellResults = wellResults;}
-    RigSingleWellResultsData*                     wellResults() { return m_wellResults.p();}
+    RigSingleWellResultsData*           wellResults() { return m_wellResults.p(); }
     
     virtual caf::PdmFieldHandle*        userDescriptionField();
 
@@ -54,14 +54,13 @@ public:
     
     caf::PdmField<bool>                 showWellCells;
     caf::PdmField<bool>                 showWellCellFence;
-    //caf::PdmField<cvf::Color3f>         wellCellColor;
     
     caf::PdmField<bool>                 showWellPipes;
     caf::PdmField<cvf::Color3f>         wellPipeColor;
     caf::PdmField<double>               pipeRadiusScaleFactor;
 
 private:
-    cvf::ref<RigSingleWellResultsData>            m_wellResults;
+    cvf::ref<RigSingleWellResultsData>  m_wellResults;
 
     RimReservoirView*                   m_reservoirView;
 };

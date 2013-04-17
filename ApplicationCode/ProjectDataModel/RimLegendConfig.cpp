@@ -76,7 +76,7 @@ RimLegendConfig::RimLegendConfig()
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "","");
-    CAF_PDM_InitField(&m_precision, "Precision", 6, "Precision", "", "","");
+    CAF_PDM_InitField(&m_precision, "Precision", 2, "Precision", "", "","");
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Color range", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
     CAF_PDM_InitField(&m_rangeMode, "RangeType", caf::AppEnum<RimLegendConfig::RangeModeType>(AUTOMATIC_ALLTIMESTEPS), "Legend range type", "", "Switches between automatic and user defined range on the legend", "");

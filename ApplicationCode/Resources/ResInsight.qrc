@@ -29,6 +29,13 @@
 		<file>Histogram16x16.png</file>
 		<file>Histograms16x16.png</file>
 		<file>ZoomAll16x16.png</file>
+		<file>draw_style_lines_24x24.png</file>
+		<file>draw_style_meshlines_24x24.png</file>
+		<file>draw_style_meshoutlines_24x24.png</file>
+		<file>draw_style_outlines_24x24.png</file>
+		<file>draw_style_surface_24x24.png</file>
+		<file>SnapShot.png</file>
+		<file>SnapShotSave.png</file>
 	</qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>
