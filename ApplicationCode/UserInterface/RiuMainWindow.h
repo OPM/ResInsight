@@ -63,9 +63,6 @@ public:
     void		    initializeGuiNewProjectLoaded();
     void		    cleanupGuiBeforeProjectClose();
 
-    void		    refreshGuiLightweight();
-    void		    refreshToolbars();
-
     void            removeViewer( RiuViewer* viewer );
     void            addViewer(RiuViewer* viewer);
     void            setActiveViewer(RiuViewer* subWindow);
