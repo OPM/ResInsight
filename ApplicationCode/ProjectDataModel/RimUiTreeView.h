@@ -97,7 +97,12 @@ private:
     bool hasClipboardValidData();
 
     virtual void keyPressEvent(QKeyEvent* keyEvent);
+    virtual void mousePressEvent(QMouseEvent* mouseEvent);
+
     virtual void dropEvent(QDropEvent* dropEvent);
+
+
+    bool checkAndHandleToggleOfMultipleSelection();
 
 private:
     QAction* m_pasteAction;

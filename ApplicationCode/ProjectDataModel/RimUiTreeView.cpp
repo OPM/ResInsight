@@ -976,28 +976,46 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
 {
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-
-    if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
+    if (uiItem)
     {
-        if (keyEvent->matches(QKeySequence::Copy))
+        if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
         {
-            slotCopyPdmObjectToClipboard();
-            keyEvent->setAccepted(true);
+            if (keyEvent->matches(QKeySequence::Copy))
+            {
+                slotCopyPdmObjectToClipboard();
+                keyEvent->setAccepted(true);
             
-            return;
+                return;
+            }
+        }
+
+        if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p())
+            || dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p())
+            || dynamic_cast<RimCase*>(uiItem->dataObject().p()))
+        {
+            if (keyEvent->matches(QKeySequence::Paste))
+            {
+                slotPastePdmObjects();
+                keyEvent->setAccepted(true);
+
+                return;
+            }
         }
     }
 
-    if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p())
-        || dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p())
-        || dynamic_cast<RimCase*>(uiItem->dataObject().p()))
+    switch (keyEvent->key())
     {
-        if (keyEvent->matches(QKeySequence::Paste))
+    case Qt::Key_Space:
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+    case Qt::Key_Select:
         {
-            slotPastePdmObjects();
-            keyEvent->setAccepted(true);
+            if (checkAndHandleToggleOfMultipleSelection())
+            {
+                keyEvent->setAccepted(true);
 
-            return;
+                return;
+            }
         }
     }
 
@@ -1138,6 +1156,66 @@ bool RimUiTreeView::hasAnyStatisticsResults(RimIdenticalGridCaseGroup* gridCaseG
             {
                 return true;
             }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::mousePressEvent(QMouseEvent* mouseEvent)
+{
+    // TODO: Handle multiple selection and changing state using mouse
+    // This is a bit tricky due to the fact that there is no obvious way to trap if the check box is pressed
+    // and not other parts of the check box GUI item
+    
+    /*
+    if (checkAndHandleToggleOfMultipleSelection())
+    {
+        mouseEvent->setAccepted(true);
+        
+        return;
+    }
+    */
+
+    QTreeView::mousePressEvent(mouseEvent);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimUiTreeView::checkAndHandleToggleOfMultipleSelection()
+{
+    QModelIndex curr = currentIndex();
+
+    // Check if the current model index supports checkable items
+    if (model()->flags(curr) & Qt::ItemIsUserCheckable)
+    {
+        QModelIndexList selectedIndexes = selectionModel()->selectedIndexes();
+        if (selectedIndexes.contains(curr))
+        {
+            QVariant currentState = model()->data(curr, Qt::CheckStateRole);
+
+            // Toggle between Qt::Checked and Qt::UnChecked
+            // Qt::PartiallyChecked is not handled
+            int state = currentState.toInt();
+            if (state == Qt::Checked)
+            {
+                state = Qt::Unchecked;
+            }
+            else
+            {
+                state = Qt::Checked;
+            }
+
+            foreach (QModelIndex mi, selectedIndexes)
+            {
+                model()->setData(mi, state, Qt::CheckStateRole);
+            }
+
+            return true;
         }
     }
 
