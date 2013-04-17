@@ -45,9 +45,6 @@ RimWell::RimWell()
 
     CAF_PDM_InitField(&showWellCells,       "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "    Use well fence", "", "", "");
-    //CAF_PDM_InitField(&wellCellColor,       "WellCellColor",      cvf::Color3f(cvf::Color3f::BROWN), "Well cell color", "", "", "");
-
-
 
     name.setUiHidden(true);
     name.setUiReadOnly(true);
