@@ -176,7 +176,7 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 void RiuMainWindow::createActions()
 {
     // File actions
-    m_openAction                = new QAction(QIcon(":/AppLogo48x48.png"), "&Open Eclipse Case", this);
+    m_openEclipseCaseAction                = new QAction(QIcon(":/AppLogo48x48.png"), "&Open Eclipse Case", this);
     m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
     m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
     
@@ -188,17 +188,17 @@ void RiuMainWindow::createActions()
     m_mockLargeResultsModelAction = new QAction("Large Mock Model", this);
     m_mockInputModelAction      = new QAction("Input Mock Model", this);
 
-    m_snapshotToFile            = new QAction("Snapshot To File", this);
-    m_snapshotToClipboard       = new QAction("Snapshot To Clipboard", this);
-    m_snapshotAllViewsToFile    = new QAction("Snapshot All Views To File", this);
+    m_snapshotToFile            = new QAction(QIcon(":/SnapShotSave.png"), "Snapshot To File", this);
+    m_snapshotToClipboard       = new QAction(QIcon(":/SnapShot.png"), "Copy Snapshot To Clipboard", this);
+    m_snapshotAllViewsToFile    = new QAction(QIcon(":/SnapShotSaveViews.png"), "Snapshot All Views To File", this);
 
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
 
-    m_closeAction               = new QAction("&Close", this);
+    m_closeProjectAction               = new QAction("&Close Project", this);
     m_exitAction		        = new QAction("E&xit", this);
 
-    connect(m_openAction,	            SIGNAL(triggered()), SLOT(slotOpenBinaryGridFiles()));
+    connect(m_openEclipseCaseAction,	            SIGNAL(triggered()), SLOT(slotOpenBinaryGridFiles()));
     connect(m_openInputEclipseFileAction,SIGNAL(triggered()), SLOT(slotOpenInputFiles()));
     connect(m_openMultipleEclipseCasesAction,SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
     connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
@@ -216,7 +216,7 @@ void RiuMainWindow::createActions()
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
 
-    connect(m_closeAction,	            SIGNAL(triggered()), SLOT(slotCloseProject()));
+    connect(m_closeProjectAction,	            SIGNAL(triggered()), SLOT(slotCloseProject()));
 
     connect(m_exitAction, SIGNAL(triggered()), QApplication::instance(), SLOT(closeAllWindows()));
 
@@ -250,7 +250,7 @@ void RiuMainWindow::createActions()
     connect(m_zoomAll,	                    SIGNAL(triggered()), SLOT(slotZoomAll()));
 
     // Debug actions
-    m_newPropertyView = new QAction("New Property View", this);
+    m_newPropertyView = new QAction("New Project and Property View", this);
     connect(m_newPropertyView, SIGNAL(triggered()), SLOT(slotNewObjectPropertyView()));
 
     // Help actions
@@ -266,18 +266,26 @@ void RiuMainWindow::createMenus()
 {
     // File menu
     QMenu* fileMenu = menuBar()->addMenu("&File");
-    fileMenu->addAction(m_openAction);
-    fileMenu->addAction(m_openInputEclipseFileAction);
-    fileMenu->addAction(m_openMultipleEclipseCasesAction);
+  
     fileMenu->addAction(m_openProjectAction);
     fileMenu->addAction(m_openLastUsedProjectAction);
+    fileMenu->addSeparator();
+
+    QMenu* importMenu = fileMenu->addMenu("&Import");
+    importMenu->addAction(m_openEclipseCaseAction);
+    importMenu->addAction(m_openInputEclipseFileAction);
+    importMenu->addAction(m_openMultipleEclipseCasesAction);
+
+    QMenu* exportMenu = fileMenu->addMenu("&Export");
+    exportMenu->addAction(m_snapshotToFile);
+    exportMenu->addAction(m_snapshotAllViewsToFile);
 
     fileMenu->addSeparator();
     fileMenu->addAction(m_saveProjectAction);
     fileMenu->addAction(m_saveProjectAsAction);
 
     fileMenu->addSeparator();
-    fileMenu->addAction(m_closeAction);
+    fileMenu->addAction(m_closeProjectAction);
     fileMenu->addSeparator();
     fileMenu->addAction(m_exitAction);
 
@@ -285,7 +293,10 @@ void RiuMainWindow::createMenus()
 
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu("&Edit");
+    editMenu->addAction(m_snapshotToClipboard);
+    editMenu->addSeparator();
     editMenu->addAction(m_editPreferences);
+
     connect(editMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshEditActions()));
 
 
@@ -299,8 +310,6 @@ void RiuMainWindow::createMenus()
     viewMenu->addAction(m_viewFromEast);
     viewMenu->addAction(m_viewFromBelow);
     viewMenu->addAction(m_viewFromAbove);
-    viewMenu->addSeparator();
-    viewMenu->addAction(m_newPropertyView);
 
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
@@ -310,11 +319,6 @@ void RiuMainWindow::createMenus()
     debugMenu->addAction(m_mockResultsModelAction);
     debugMenu->addAction(m_mockLargeResultsModelAction);
     debugMenu->addAction(m_mockInputModelAction);
-
-    debugMenu->addSeparator();
-    debugMenu->addAction(m_snapshotToClipboard);
-    debugMenu->addAction(m_snapshotToFile);
-    debugMenu->addAction(m_snapshotAllViewsToFile);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
@@ -336,18 +340,20 @@ void RiuMainWindow::createToolBars()
     m_standardToolBar = addToolBar(tr("Standard"));
     m_standardToolBar->setObjectName(m_standardToolBar->windowTitle());
 
-    m_standardToolBar->addAction(m_openAction);
+    m_standardToolBar->addAction(m_openEclipseCaseAction);
     m_standardToolBar->addAction(m_openInputEclipseFileAction);
     m_standardToolBar->addAction(m_openProjectAction);
     //m_standardToolBar->addAction(m_openLastUsedProjectAction);
     m_standardToolBar->addAction(m_saveProjectAction);
 
-    // Create animation toolbar
-    m_animationToolBar = new caf::AnimationToolBar("Animation", this);
-    addToolBar(m_animationToolBar);
-    //connect(m_animationToolBar, SIGNAL(signalFrameRateChanged(double)), SLOT(slotFramerateChanged(double)));
+    // Snapshots
+    m_snapshotToolbar = addToolBar(tr("View Snapshots"));
+    m_snapshotToolbar->setObjectName(m_snapshotToolbar->windowTitle());
+    m_snapshotToolbar->addAction(m_snapshotToClipboard);
+    m_snapshotToolbar->addAction(m_snapshotToFile);
+    m_snapshotToolbar->addAction(m_snapshotAllViewsToFile);
 
-    // View toolbar
+   // View toolbar
     m_viewToolBar = addToolBar(tr("View"));
     m_viewToolBar->setObjectName(m_viewToolBar->windowTitle());
     m_viewToolBar->addAction(m_zoomAll);
@@ -357,6 +363,11 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_viewFromWest);
     m_viewToolBar->addAction(m_viewFromAbove);
     m_viewToolBar->addAction(m_viewFromBelow);
+
+    // Create animation toolbar
+    m_animationToolBar = new caf::AnimationToolBar("Animation", this);
+    addToolBar(m_animationToolBar);
+    //connect(m_animationToolBar, SIGNAL(signalFrameRateChanged(double)), SLOT(slotFramerateChanged(double)));
 
     refreshAnimationActions();
 }
@@ -369,7 +380,7 @@ void RiuMainWindow::createToolBars()
 void RiuMainWindow::createDockPanels()
 {
     {
-        QDockWidget* dockWidget = new QDockWidget("Project", this);
+        QDockWidget* dockWidget = new QDockWidget("Project Tree", this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -384,6 +395,19 @@ void RiuMainWindow::createDockPanels()
         m_treeView->setDragDropMode(QAbstractItemView::DragDrop);
 
         dockWidget->setWidget(m_treeView);
+
+        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
+    }
+
+    {
+        QDockWidget* dockWidget = new QDockWidget("Property Editor", this);
+        dockWidget->setObjectName("dockWidget");
+        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+
+        m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
+        dockWidget->setWidget(m_pdmUiPropertyView);
+
+        connect(m_treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObject* )));
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
     }
@@ -408,19 +432,7 @@ void RiuMainWindow::createDockPanels()
         addDockWidget(Qt::BottomDockWidgetArea, dockPanel);
     }
 
-    {
-        QDockWidget* dockWidget = new QDockWidget("Properties", this);
-        dockWidget->setObjectName("dockWidget");
-        dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-
-        m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
-        dockWidget->setWidget(m_pdmUiPropertyView);
-
-        connect(m_treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObject* )));
-
-        addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
-    }
-
+ 
     setCorner(Qt::BottomLeftCorner,	Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
 }
@@ -491,7 +503,7 @@ void RiuMainWindow::slotRefreshFileActions()
     bool projectExists = true;
     m_saveProjectAction->setEnabled(projectExists);
     m_saveProjectAsAction->setEnabled(projectExists);
-    m_closeAction->setEnabled(projectExists);
+    m_closeProjectAction->setEnabled(projectExists);
 }
 
 
@@ -1132,13 +1144,19 @@ RiuProcessMonitor* RiuMainWindow::processMonitor()
 void RiuMainWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
+    m_windowMenu->addAction(m_newPropertyView);
+    m_windowMenu->addSeparator();
 
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+
+    int i = 0;
     foreach (QDockWidget* dock, dockWidgets)
     {
         if (dock)
         {
+            if (i == 4) m_windowMenu->addSeparator();
             m_windowMenu->addAction(dock->toggleViewAction());
+            ++i;
         }
     }
 }
@@ -1199,14 +1217,23 @@ void RiuMainWindow::slotNewObjectPropertyView()
     RimUiTreeView* treeView = NULL;
     
     {
-        QDockWidget* dockWidget = new QDockWidget("Project", this);
+        QDockWidget* dockWidget = new QDockWidget("Additional Project Tree " + QString::number(additionalProjectTrees.size() + 1), this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
         treeView = new RimUiTreeView(dockWidget);
+        treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+        // Drag and drop configuration
+        m_treeView->setDragEnabled(true);
+        m_treeView->viewport()->setAcceptDrops(true);
+        m_treeView->setDropIndicatorShown(true);
+        m_treeView->setDragDropMode(QAbstractItemView::DragDrop);
+
         dockWidget->setWidget(treeView);
 
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
+        additionalProjectTrees.push_back(dockWidget);
     }
 
     treeView->setModel(m_treeModelPdm);
@@ -1214,7 +1241,7 @@ void RiuMainWindow::slotNewObjectPropertyView()
 
 
     {
-        QDockWidget* dockWidget = new QDockWidget("Properties", this);
+        QDockWidget* dockWidget = new QDockWidget("Additional Property Editor "  + QString::number(additionalPropertyEditors.size() + 1), this);
         dockWidget->setObjectName("dockWidget");
         dockWidget->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
@@ -1224,6 +1251,7 @@ void RiuMainWindow::slotNewObjectPropertyView()
         addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
         connect(treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), propView, SLOT(showProperties( caf::PdmObject* )));
+        additionalPropertyEditors.push_back(dockWidget);
     }
 }
 

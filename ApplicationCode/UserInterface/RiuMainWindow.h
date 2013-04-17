@@ -104,14 +104,14 @@ private:
 
 private:
     // File actions
-    QAction*		    m_openAction;
+    QAction*		    m_openEclipseCaseAction;
     QAction*		    m_openInputEclipseFileAction;
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
-    QAction*            m_closeAction;
+    QAction*            m_closeProjectAction;
     QAction*		    m_exitAction;
 
     // Edit actions
@@ -146,6 +146,7 @@ private:
     // Toolbars
     QToolBar*           m_viewToolBar;
     QToolBar*           m_standardToolBar;
+    QToolBar*           m_snapshotToolbar;
 
 
     QFrame*             m_CentralFrame;
@@ -224,4 +225,8 @@ private:
     RimUiTreeModelPdm*          m_treeModelPdm;
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
+
+    std::vector<QPointer<QDockWidget> > additionalProjectTrees;
+    std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
+
 };
