@@ -162,7 +162,7 @@ private:
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
 
-    cvf::ref<RivReservoirViewPartMgr>       m_geometry;
+    cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
 
     // Overridden PDM methods:

@@ -151,7 +151,7 @@ RimReservoirView::RimReservoirView()
     this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
-    m_geometry = new RivReservoirViewPartMgr(this);
+    m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
 
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
     m_reservoir = NULL;
@@ -175,7 +175,7 @@ RimReservoirView::~RimReservoirView()
         RiuMainWindow::instance()->removeViewer(m_viewer);
     }
 
-    m_geometry->clearGeometryCache();
+    m_reservoirGridPartManager->clearGeometryCache();
     delete m_viewer;
     
     m_reservoir = NULL;
@@ -334,8 +334,8 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             dir = m_viewer->mainCamera()->direction();
             up  = m_viewer->mainCamera()->up();
 
-            eye[2] = poi[2]*scaleZ()/m_geometry->scaleTransform()->worldTransform()(2,2) + (eye[2] - poi[2]);
-            poi[2] = poi[2]*scaleZ()/m_geometry->scaleTransform()->worldTransform()(2,2);
+            eye[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2,2) + (eye[2] - poi[2]);
+            poi[2] = poi[2]*scaleZ()/m_reservoirGridPartManager->scaleTransform()->worldTransform()(2,2);
 
             m_viewer->mainCamera()->setFromLookAt(eye, eye + dir, up);
             m_viewer->setPointOfInterest(poi);
@@ -379,8 +379,8 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     }
     else if (changedField == &showInvalidCells )
     {
-        m_geometry->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
-        m_geometry->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
         createDisplayModelAndRedraw();
     } 
@@ -394,14 +394,14 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     } 
     else if ( changedField == &rangeFilterCollection )
     {
-        m_geometry->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
-        m_geometry->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
         createDisplayModelAndRedraw();
     } 
     else if ( changedField == &propertyFilterCollection)
     {
-        m_geometry->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
 
         createDisplayModelAndRedraw();
     } 
@@ -421,14 +421,14 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 
 void RimReservoirView::updateScaleTransform()
 {
-    CVF_ASSERT(m_geometry.notNull());
+    CVF_ASSERT(m_reservoirGridPartManager.notNull());
     CVF_ASSERT(m_pipesPartManager.notNull());
 
     cvf::Mat4d scale = cvf::Mat4d::IDENTITY;
     scale(2, 2) = scaleZ();
 
-    m_geometry->setScaleTransform(scale);
-    m_pipesPartManager->setScaleTransform(m_geometry->scaleTransform());
+    m_reservoirGridPartManager->setScaleTransform(scale);
+    m_pipesPartManager->setScaleTransform(m_reservoirGridPartManager->scaleTransform());
 
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
@@ -510,23 +510,23 @@ void RimReservoirView::createDisplayModel()
 
                 if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
                 {
-                    m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER, gridIndices); // Should be visible well cells outside range filter
-                    m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, gridIndices); // Should be visible well cells outside range filter
-                    m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS, gridIndices);
-                    m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED, gridIndices);
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER, gridIndices); // Should be visible well cells outside range filter
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, gridIndices); // Should be visible well cells outside range filter
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS, gridIndices);
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED, gridIndices);
                     if (this->showInactiveCells())
                     {
-                        m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices);
+                        m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices);
                     }
                 }
                 else
                 {
-                    m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::ALL_WELL_CELLS, gridIndices); // Should be all well cells
-                    m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::ACTIVE, gridIndices);
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::ALL_WELL_CELLS, gridIndices); // Should be all well cells
+                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::ACTIVE, gridIndices);
 
                     if (this->showInactiveCells())
                     {
-                        m_geometry->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
+                        m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
                     }
                 }
 
@@ -605,14 +605,14 @@ void RimReservoirView::updateCurrentTimeStep()
 
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED);
-        m_geometry->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
+        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
-        m_geometry->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
+        m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
-        m_geometry->updateCellColor(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
+        m_reservoirGridPartManager->updateCellColor(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
 
         if (m_viewer)
         {
@@ -643,11 +643,11 @@ void RimReservoirView::updateCurrentTimeStep()
 
         if (this->animationMode() && this->cellEdgeResult()->hasResult())
         {
-            m_geometry->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
+            m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
         } 
         else if (this->animationMode() && this->cellResult()->hasResult())
         {
-            m_geometry->updateCellResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult());
+            m_reservoirGridPartManager->updateCellResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult());
         }
         else
         {
@@ -735,7 +735,7 @@ void RimReservoirView::loadDataAndUpdate()
 
     this->propertyFilterCollection()->loadAndInitializePropertyFilters();
 
-    m_geometry->clearGeometryCache();
+    m_reservoirGridPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
     this->clampCurrentTimestep();
@@ -828,7 +828,7 @@ void RimReservoirView::updateStaticCellColors(unsigned short geometryType)
         case RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE:     color = cvf::Color4f(cvf::Color3::LIGHT_GRAY);  break;   
     }
 
-    m_geometry->updateCellColor(static_cast<RivReservoirViewPartMgr::ReservoirGeometryCacheType>(geometryType), color);
+    m_reservoirGridPartManager->updateCellColor(static_cast<RivReservoirViewPartMgr::ReservoirGeometryCacheType>(geometryType), color);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1007,7 +1007,7 @@ RigActiveCellInfo* RimReservoirView::currentActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::scheduleGeometryRegen(unsigned short geometryType)
 {
-    m_geometry->scheduleGeometryRegen(static_cast<RivReservoirViewPartMgr::ReservoirGeometryCacheType>(geometryType));
+    m_reservoirGridPartManager->scheduleGeometryRegen(static_cast<RivReservoirViewPartMgr::ReservoirGeometryCacheType>(geometryType));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1289,7 +1289,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateDisplayModelForWellResults()
 {
-    m_geometry->clearGeometryCache();
+    m_reservoirGridPartManager->clearGeometryCache();
     m_pipesPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
