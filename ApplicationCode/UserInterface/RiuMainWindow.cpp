@@ -116,6 +116,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     slotRefreshFileActions();
     slotRefreshEditActions();
     refreshAnimationActions();
+    refreshDrawStyleActions();
     setPdmRoot(RiaApplication::instance()->project());
 }
 
@@ -239,6 +240,29 @@ void RiuMainWindow::createActions()
     // Help actions
     m_aboutAction = new QAction("&About", this);    
     connect(m_aboutAction, SIGNAL(triggered()), SLOT(slotAbout()));
+
+    // Draw style actions
+    m_dsActionGroup = new QActionGroup(this);
+
+    m_drawStyleLinesAction                = new QAction(QIcon(":/draw_style_lines_24x24.png"), "&Mesh Only", this);
+    //connect(m_drawStyleLinesAction,	    SIGNAL(triggered()), SLOT(slotDrawStyleLines()));
+    m_dsActionGroup->addAction(m_drawStyleLinesAction);
+
+     m_drawStyleLinesSolidAction           = new QAction(QIcon(":/draw_style_meshlines_24x24.png"), "Mesh And Surfaces", this);
+    //connect(m_drawStyleLinesSolidAction,	SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
+     m_dsActionGroup->addAction(m_drawStyleLinesSolidAction);
+
+    m_drawStyleSurfOnlyAction             = new QAction(QIcon(":/draw_style_surface_24x24.png"), "&Surface Only", this);
+    //connect(m_drawStyleSurfOnlyAction,	SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
+    m_dsActionGroup->addAction(m_drawStyleSurfOnlyAction);
+
+
+    connect(m_dsActionGroup, SIGNAL(triggered(QAction*)), SLOT(slotDrawStyleChanged(QAction*)));
+
+    m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
+    m_drawStyleToggleFaultsAction->setCheckable(true);
+    connect(m_drawStyleToggleFaultsAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+
 }
 
 
@@ -346,6 +370,12 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_viewFromWest);
     m_viewToolBar->addAction(m_viewFromAbove);
     m_viewToolBar->addAction(m_viewFromBelow);
+    m_viewToolBar->addSeparator();
+    m_viewToolBar->addAction(m_drawStyleLinesAction);
+    m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
+    m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
+    m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
+
 
     // Create animation toolbar
     m_animationToolBar = new caf::AnimationToolBar("Animation", this);
@@ -353,6 +383,7 @@ void RiuMainWindow::createToolBars()
     //connect(m_animationToolBar, SIGNAL(signalFrameRateChanged(double)), SLOT(slotFramerateChanged(double)));
 
     refreshAnimationActions();
+    refreshDrawStyleActions();
 }
 
 
@@ -1043,6 +1074,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                 }
 
                 refreshAnimationActions();
+                refreshDrawStyleActions();
                 break;
             }
         }
@@ -1168,7 +1200,7 @@ void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModel
             if (rimReservoirView != activeReservoirView)
             {
                 RiaApplication::instance()->setActiveReservoirView(rimReservoirView);
-
+                refreshDrawStyleActions();
                 // Set focus in MDI area to this window if it exists
                 if (rimReservoirView->viewer())
                 {
@@ -1319,4 +1351,58 @@ void RiuMainWindow::slotOpenMultipleCases()
     app->addEclipseCases(gridFileNames);
 #endif
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
+{
+    if (!RiaApplication::instance()->activeReservoirView()) return;
+
+    if (activatedAction == m_drawStyleLinesAction)
+    {
+        RiaApplication::instance()->activeReservoirView()->setMeshOnlyDrawstyle();
+    }
+    else if (activatedAction == m_drawStyleLinesSolidAction)
+    {
+        RiaApplication::instance()->activeReservoirView()->setMeshSurfDrawstyle();
+    }
+    else if (activatedAction == m_drawStyleSurfOnlyAction)
+    {
+        RiaApplication::instance()->activeReservoirView()->setSurfOnlyDrawstyle();
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
+{
+    if (!RiaApplication::instance()->activeReservoirView()) return;
+
+    RiaApplication::instance()->activeReservoirView()->setShowFaultsOnly(showFaults);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::refreshDrawStyleActions()
+{
+    bool enable = RiaApplication::instance()->activeReservoirView() != NULL;
+
+    m_drawStyleLinesAction->setEnabled(enable);
+    m_drawStyleLinesSolidAction->setEnabled(enable);
+    m_drawStyleSurfOnlyAction->setEnabled(enable);
+
+    m_drawStyleToggleFaultsAction->setEnabled(enable);
+
+    if (enable) 
+    {
+        m_drawStyleToggleFaultsAction->blockSignals(true);
+        m_drawStyleToggleFaultsAction->setChecked(   RiaApplication::instance()->activeReservoirView()->meshMode == RimReservoirView::FAULTS_MESH 
+                                                  || RiaApplication::instance()->activeReservoirView()->surfaceMode == RimReservoirView::FAULTS);
+        m_drawStyleToggleFaultsAction->blockSignals(false);
+    }
 }

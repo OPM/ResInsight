@@ -37,6 +37,7 @@
 		<file>SnapShot.png</file>
 		<file>SnapShotSave.png</file>
 		<file>SnapShotSaveViews.png</file>
+		<file>draw_style_faults_24x24.png</file>
 	</qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>

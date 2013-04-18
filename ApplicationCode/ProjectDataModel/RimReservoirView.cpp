@@ -1305,3 +1305,75 @@ void RimReservoirView::updateDisplayModelForWellResults()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::setMeshOnlyDrawstyle()
+{
+    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    {
+        surfaceMode = NO_SURFACE;
+        meshMode = FAULTS_MESH;
+    }
+    else
+    {
+        surfaceMode = NO_SURFACE;
+        meshMode = FULL_MESH;
+    }
+    updateDisplayModelVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::setMeshSurfDrawstyle()
+{
+    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    {
+        surfaceMode = FAULTS;
+        meshMode = FAULTS_MESH;
+    }
+    else
+    {
+        surfaceMode = SURFACE;
+        meshMode = FULL_MESH;
+    }
+    updateDisplayModelVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::setSurfOnlyDrawstyle()
+{
+    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    {
+        surfaceMode = FAULTS;
+        meshMode = NO_MESH;
+    }
+    else
+    {
+        surfaceMode = SURFACE;
+        meshMode = NO_MESH;
+    }
+    updateDisplayModelVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::setShowFaultsOnly(bool showFaults)
+{
+    if (showFaults)
+    {
+        if (surfaceMode() != NO_SURFACE) surfaceMode = FAULTS;
+        if (meshMode() != NO_MESH) meshMode = FAULTS_MESH;
+    }
+    else
+    {
+        if (surfaceMode() != NO_SURFACE) surfaceMode = SURFACE;
+        if (meshMode() != NO_MESH) meshMode = FULL_MESH;
+    }
+    updateDisplayModelVisibility();
+}
+

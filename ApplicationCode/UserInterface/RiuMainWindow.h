@@ -31,6 +31,7 @@ class QComboBox;
 class QLabel;
 class QLineEdit;
 class QItemSelection;
+class QActionGroup;
 
 class RiuViewer;
 class RiuResultInfoPanel;
@@ -185,6 +186,9 @@ private slots:
     void    slotViewFromBelow();
     void    slotZoomAll();
 
+    void slotDrawStyleChanged(QAction* activatedAction);
+    void slotToggleFaultsAction(bool);
+
     // Debug slots
     void    slotRefreshDebugActions();
     void    slotUseShaders(bool enable);
@@ -222,6 +226,13 @@ private:
     RimUiTreeModelPdm*          m_treeModelPdm;
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
+
+    QActionGroup*               m_dsActionGroup;
+    QAction*                    m_drawStyleToggleFaultsAction;
+    QAction*                    m_drawStyleLinesAction;
+    QAction*                    m_drawStyleLinesSolidAction;
+    QAction*                    m_drawStyleSurfOnlyAction;
+    void                        refreshDrawStyleActions();
 
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
     std::vector<QPointer<QDockWidget> > additionalPropertyEditors;

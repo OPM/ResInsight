@@ -116,6 +116,7 @@ public:
     caf::PdmField<int>                                  maximumFrameRate;
     caf::PdmField<bool>                                 animationMode;
 
+
     // Access internal objects
     RimReservoirCellResultsStorage*         currentGridCellResults();
     RigActiveCellInfo*                      currentActiveCellInfo();
@@ -134,6 +135,12 @@ public:
     void                                    updateViewerWidget();
     void                                    updateViewerWidgetWindowTitle();
     void                                    setDefaultView();
+
+    void                                    setMeshOnlyDrawstyle();
+    void                                    setMeshSurfDrawstyle();
+    void                                    setSurfOnlyDrawstyle();
+    void                                    setShowFaultsOnly(bool showFaults);
+
 
     // Picking info
     bool                                    pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const;
