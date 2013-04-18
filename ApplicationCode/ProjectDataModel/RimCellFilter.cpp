@@ -104,3 +104,11 @@ void RimCellFilter::updateIconState()
     QIcon newIcon(icPixmap);
     this->setUiIcon(newIcon);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCellFilter::objectToggleField()
+{
+    return &active;
+}
