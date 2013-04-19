@@ -37,6 +37,7 @@ public:
     caf::PdmPointersField<RimCase*>                     reservoirs;
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
+    caf::PdmField<QString>                              treeViewState;
 
     void setUserScriptPath(const QString& path);
 

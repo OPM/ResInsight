@@ -724,6 +724,8 @@ void RiuMainWindow::slotOpenProject()
         app->loadProject(fileName);
     }
 
+    restoreTreeViewState();
+
     //m_mainViewer->setDefaultView();
 }
 
@@ -734,6 +736,8 @@ void RiuMainWindow::slotOpenLastUsedProject()
 {
     RiaApplication* app = RiaApplication::instance();
     app->loadLastUsedProject();
+
+    restoreTreeViewState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -889,6 +893,8 @@ void RiuMainWindow::slotSaveProject()
 {
     RiaApplication* app = RiaApplication::instance();
 
+    storeTreeViewState();
+
     app->saveProject();
 }
 
@@ -898,6 +904,8 @@ void RiuMainWindow::slotSaveProject()
 void RiuMainWindow::slotSaveProjectAs()
 {
     RiaApplication* app = RiaApplication::instance();
+
+    storeTreeViewState();
 
     app->saveProjectPromptForFileName();
 }
@@ -1404,5 +1412,36 @@ void RiuMainWindow::refreshDrawStyleActions()
         m_drawStyleToggleFaultsAction->setChecked(   RiaApplication::instance()->activeReservoirView()->meshMode == RimReservoirView::FAULTS_MESH 
                                                   || RiaApplication::instance()->activeReservoirView()->surfaceMode == RimReservoirView::FAULTS);
         m_drawStyleToggleFaultsAction->blockSignals(false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::storeTreeViewState()
+{
+    if (m_treeView)
+    {
+        QString treeViewState;
+        
+        m_treeView->storeTreeViewState(treeViewState);
+        
+        RiaApplication::instance()->project()->treeViewState = treeViewState;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::restoreTreeViewState()
+{
+    if (m_treeView)
+    {
+        QString stateString = RiaApplication::instance()->project()->treeViewState;
+        if (!stateString.isEmpty())
+        {
+            m_treeView->collapseAll();
+            m_treeView->applyTreeViewState(stateString);
+        }
     }
 }

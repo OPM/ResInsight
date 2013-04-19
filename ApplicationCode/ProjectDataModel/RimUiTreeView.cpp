@@ -1199,3 +1199,82 @@ bool RimUiTreeView::checkAndHandleToggleOfMultipleSelection()
     return false;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void setExpandedState(QStringList& nodes, QTreeView* view, QAbstractItemModel* model,
+                      const QModelIndex startIndex, QString path)
+{
+    path += QString::number(startIndex.row()) + QString::number(startIndex.column());
+    for (int i = 0; i < model->rowCount(startIndex); ++i)
+    {
+        QModelIndex nextIndex = model->index(i, 0, startIndex);
+        QString nextPath = path + QString::number(nextIndex.row()) + QString::number(nextIndex.column());
+        if(!nodes.contains(nextPath))
+            continue;
+        
+        setExpandedState(nodes, view, model, model->index(i, 0, startIndex), path);
+    }
+    
+    if (nodes.contains(path))
+    {
+        view->setExpanded( startIndex.sibling(startIndex.row(), 0), true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void storeExpandedState(QStringList & nodes, QTreeView * view, QAbstractItemModel * model,
+                        const QModelIndex startIndex, QString path)
+{
+    path += QString::number(startIndex.row()) + QString::number(startIndex.column());
+    for (int i = 0; i < model->rowCount(startIndex); ++i)
+    {
+        if(!view->isExpanded(model->index(i, 0, startIndex)))
+            continue;
+
+        storeExpandedState(nodes, view, model, model->index(i, 0, startIndex), path);
+    }
+
+    if (view->isExpanded(startIndex))
+    {
+        nodes << path;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::applyTreeViewState(const QString& treeViewState)
+{
+    if (this->model())
+    {
+        this->collapseAll();
+
+        QString stateString = RiaApplication::instance()->project()->treeViewState;
+
+        QStringList nodes = stateString.split("|");
+        QString path;
+
+        setExpandedState(nodes, this, this->model(), QModelIndex(), path);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::storeTreeViewState(QString& treeViewState)
+{
+    if (this->model())
+    {
+        QStringList nodes;
+        QString path;
+
+        storeExpandedState(nodes, this, this->model(), QModelIndex(), path);
+
+        QString stateString = nodes.join("|");
+        RiaApplication::instance()->project()->treeViewState = stateString;
+    }
+}
+

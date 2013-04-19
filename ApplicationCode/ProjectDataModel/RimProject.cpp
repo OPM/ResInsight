@@ -41,6 +41,9 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     
+    CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
+    treeViewState.setUiHidden(true);
+
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
 

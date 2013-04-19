@@ -37,6 +37,7 @@ class RiuViewer;
 class RiuResultInfoPanel;
 class RiuProcessMonitor;
 class RimUiTreeModelPdm;
+class RimUiTreeView;
 
 namespace caf
 {
@@ -94,6 +95,9 @@ private:
     void            updateMRUList(const QString &fileName, bool remove = false);
     
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
+
+    void            storeTreeViewState();
+    void            restoreTreeViewState();
 
 private:
     static RiuMainWindow*    sm_mainWindowInstance;
@@ -222,7 +226,7 @@ public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 
 private:
-    QTreeView*                  m_treeView;
+    RimUiTreeView*              m_treeView;
     RimUiTreeModelPdm*          m_treeModelPdm;
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
