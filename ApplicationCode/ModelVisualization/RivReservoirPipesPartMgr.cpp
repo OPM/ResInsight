@@ -33,8 +33,6 @@ RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimReservoirView* reservoirVi
     m_reservoirView = reservoirView;
 
     m_scaleTransform = new cvf::Transform();
-
-    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,7 +103,7 @@ void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
             m_wellPipesPartMgrs.push_back(wppmgr);
             wppmgr->setScaleTransform(m_scaleTransform.p());
 
-            RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i], m_font.p());
+            RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
             m_wellHeadPartMgrs.push_back(wellHeadMgr);
             wellHeadMgr->setScaleTransform(m_scaleTransform.p());
         }

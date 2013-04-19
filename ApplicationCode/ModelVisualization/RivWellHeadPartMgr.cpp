@@ -41,17 +41,16 @@
 
 #include "RivPipeGeometryGenerator.h"
 #include "RivWellPipesPartMgr.h"
+#include "RiaApplication.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well, cvf::Font* font)
+RivWellHeadPartMgr::RivWellHeadPartMgr(RimReservoirView* reservoirView, RimWell* well)
 {
     m_rimReservoirView = reservoirView;
     m_rimWell = well;
-
-    m_font = font;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,10 +231,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     if (m_rimReservoirView->wellCollection()->showWellLabel() && well->showWellLabel())
     {
-        CVF_ASSERT(m_font.p());
+        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
 
         cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
-        drawableText->setFont(m_font.p());
+        drawableText->setFont(standardFont);
         drawableText->setCheckPosVisible(false);
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);

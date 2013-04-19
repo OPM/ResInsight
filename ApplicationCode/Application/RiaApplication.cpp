@@ -135,6 +135,10 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     //m_startupDefaultDirectory += "/My Documents/";
 #endif
     setDefaultFileDialogDirectory("MULTICASEIMPORT", "/");
+
+    // The creation of a font is time consuming, so make sure you really need your own font
+    // instead of using the application font
+    m_standardFont = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
 }
 
 
@@ -1421,4 +1425,17 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
     onProjectOpenedOrClosed();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::standardFont()
+{
+    CVF_ASSERT(m_standardFont.notNull());
+
+    // The creation of a font is time consuming, so make sure you really need your own font
+    // instead of using the application font
+
+    return m_standardFont.p();
 }

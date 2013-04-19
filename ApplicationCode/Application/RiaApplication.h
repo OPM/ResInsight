@@ -116,10 +116,12 @@ public:
     bool                launchProcess(const QString& program, const QStringList& arguments);
     void                terminateProcess();
     
-    RiaPreferences*      preferences();
+    RiaPreferences*     preferences();
     void                readPreferences();
     void                writePreferences();
     void                applyPreferences();
+
+    cvf::Font*          standardFont();
 
 private:
     void		        onProjectOpenedOrClosed();
@@ -132,15 +134,17 @@ private slots:
 
 
 private:
-    caf::PdmPointer<RimReservoirView>  m_activeReservoirView;
-    caf::PdmPointer<RimProject>        m_project;
+    caf::PdmPointer<RimReservoirView>   m_activeReservoirView;
+    caf::PdmPointer<RimProject>         m_project;
 
-    RiaSocketServer*                m_socketServer;
+    RiaSocketServer*                    m_socketServer;
 
-    caf::UiProcess*                 m_workerProcess;
+    caf::UiProcess*                     m_workerProcess;
 
-    RiaPreferences*                  m_preferences;
+    RiaPreferences*                     m_preferences;
 
-    std::map<QString, QString>      m_fileDialogDefaultDirectories;
-    QString                         m_startupDefaultDirectory;
+    std::map<QString, QString>          m_fileDialogDefaultDirectories;
+    QString                             m_startupDefaultDirectory;
+
+    cvf::ref<cvf::Font>                 m_standardFont;
 };

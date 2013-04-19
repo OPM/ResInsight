@@ -24,6 +24,7 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cvfScalarMapperDiscreteLog.h"
+#include "RiaApplication.h"
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
 
@@ -92,9 +93,8 @@ RimLegendConfig::RimLegendConfig()
 
     m_currentScalarMapper = m_linDiscreteScalarMapper;
 
-
-    cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    m_legend = new cvf::OverlayScalarMapperLegend(font);
+    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
     m_position = cvf::Vec2ui(20, 50);
 
     updateFieldVisibility();
@@ -394,8 +394,8 @@ void RimLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in 
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    m_legend = new cvf::OverlayScalarMapperLegend(font);
+    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
 
     updateLegend();
 }

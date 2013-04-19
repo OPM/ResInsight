@@ -57,8 +57,8 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 : caf::Viewer(format, parent)
 {
-    cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), font);
+    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     axisCross->setAxisLabels("E", "N", "Z");
     m_mainRendering->addOverlayItem(axisCross, cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
 
