@@ -356,11 +356,23 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     }
     else if (changedField == &showWindow ) 
     {
-        bool generateDisplayModel = (viewer() == NULL);
-        updateViewerWidget();
-        if (generateDisplayModel)
+        if (showWindow)
         {
-            createDisplayModelAndRedraw();
+            bool generateDisplayModel = (viewer() == NULL);
+            updateViewerWidget();
+            if (generateDisplayModel)
+            {
+                createDisplayModelAndRedraw();
+            }
+        }
+        else
+        {
+            if (m_viewer)
+            {
+                RiuMainWindow::instance()->removeViewer(m_viewer);
+                delete m_viewer;
+                m_viewer = NULL;
+            }
         }
     }
     else if (changedField == &backgroundColor ) 
@@ -1375,5 +1387,13 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
         if (meshMode() != NO_MESH) meshMode = FULL_MESH;
     }
     updateDisplayModelVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimReservoirView::objectToggleField()
+{
+    return &showWindow;
 }
 

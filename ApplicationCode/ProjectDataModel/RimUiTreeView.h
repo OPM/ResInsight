@@ -49,7 +49,6 @@ protected:
 private slots:
     void slotAddChildItem();
     void slotDeleteItem();
-    void slotShowWindow();
     
     void slotAddRangeFilter();
     void slotAddSliceFilterI();

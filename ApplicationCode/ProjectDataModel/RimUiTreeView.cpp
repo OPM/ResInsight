@@ -84,7 +84,6 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             if (dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
             {
                 QMenu menu;
-                menu.addAction(QString("Show 3D Window"), this, SLOT(slotShowWindow()));
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteView()));
                 menu.exec(event->globalPos());
@@ -248,28 +247,6 @@ void RimUiTreeView::slotDeleteItem()
 
     if (!myModel->removeRow(index.row(), index.parent()))
         return;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimUiTreeView::slotShowWindow()
-{
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    RimReservoirView * riv = NULL;
-    if (riv = dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
-    {
-        riv->showWindow = true;
-        bool generateDisplayModel = (riv->viewer() == NULL);
-        riv->updateViewerWidget();
-        if (generateDisplayModel)
-        {
-            riv->createDisplayModelAndRedraw();
-        }
-
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

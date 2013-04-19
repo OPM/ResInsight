@@ -131,7 +131,7 @@ public:
     void                                    endAnimation();
 
     // 3D Viewer
-    RiuViewer*                               viewer();
+    RiuViewer*                              viewer();
     void                                    updateViewerWidget();
     void                                    updateViewerWidgetWindowTitle();
     void                                    setDefaultView();
@@ -174,7 +174,8 @@ private:
 
     // Overridden PDM methods:
 public:
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name;}
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+    virtual caf::PdmFieldHandle*            objectToggleField();
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
     virtual void                            initAfterRead();
