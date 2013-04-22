@@ -89,7 +89,6 @@ void RimScriptCollection::readContentFromDisc()
                 RimCalcScript* calcScript = new RimCalcScript;
                 calcScript->absolutePath = fileName;
                 calcScript->setUiName(fi.baseName());
-                calcScript->readContentFromFile();
 
                 calcScripts.push_back(calcScript);
             }

@@ -138,7 +138,6 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                     }
                 }
                 menu.addAction(QString("New"), this, SLOT(slotNewScript()));
-                //menu.addAction(QString("ReadFromFile"), this, SLOT(slotReadScriptContentFromFile()));
                 menu.addSeparator();
 
                 {
@@ -380,25 +379,6 @@ void RimUiTreeView::slotAddSliceFilterK()
 
         setCurrentIndex(insertedIndex);
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimUiTreeView::slotReadScriptContentFromFile()
-{
-    QModelIndex index = currentIndex();
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
-    if (uiItem)
-    {
-        RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
-        if (calcScript)
-        {
-            calcScript->readContentFromFile();
-        }
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------------

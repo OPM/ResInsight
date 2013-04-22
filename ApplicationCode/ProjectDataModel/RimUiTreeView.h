@@ -62,7 +62,6 @@ private slots:
     void slotAddPropertyFilter();
     void slotDeletePropertyFilter();
 
-    void slotReadScriptContentFromFile();
     void slotEditScript();
     void slotNewScript();
     void slotExecuteScript();
