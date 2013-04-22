@@ -37,7 +37,6 @@ typedef UiTreeItem<PdmPointer<PdmObject> > PdmUiTreeItem;
 /// 
 //==================================================================================================
 class UiTreeModelPdm : public QAbstractItemModel
-
 {
     Q_OBJECT
 
@@ -47,9 +46,9 @@ public:
     void                    setRoot(PdmUiTreeItem* root);
     void                    emitDataChanged(const QModelIndex& index);
 
-    static PdmUiTreeItem*  getTreeItemFromIndex(const QModelIndex& index);
-    QModelIndex            getModelIndexFromPdmObject( const PdmObject * object) const;
-    void                   rebuildUiSubTree(PdmObject* root);
+    static PdmUiTreeItem*   getTreeItemFromIndex(const QModelIndex& index);
+    QModelIndex             getModelIndexFromPdmObject(const PdmObject* object) const;
+    void                    rebuildUiSubTree(PdmObject* root);
 
 public:
     // Overrides from QAbstractItemModel
