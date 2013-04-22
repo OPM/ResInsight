@@ -43,7 +43,9 @@ class UiTreeModelPdm : public QAbstractItemModel
 public:
     UiTreeModelPdm(QObject* parent);
 
-    void                    setRoot(PdmUiTreeItem* root);
+    void                    setTreeItemRoot(PdmUiTreeItem* root);
+    PdmUiTreeItem*          treeItemRoot();
+
     void                    emitDataChanged(const QModelIndex& index);
 
     static PdmUiTreeItem*   getTreeItemFromIndex(const QModelIndex& index);
@@ -70,7 +72,7 @@ protected:
     QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const;
 
 private:
-    PdmUiTreeItem* m_root;
+    PdmUiTreeItem* m_treeItemRoot;
 };
 
 

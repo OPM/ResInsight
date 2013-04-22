@@ -919,7 +919,7 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
     m_pdmRoot = pdmRoot;
 
     caf::PdmUiTreeItem* treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, m_pdmRoot);
-    m_treeModelPdm->setRoot(treeItemRoot);
+    m_treeModelPdm->setTreeItemRoot(treeItemRoot);
 
     if (treeItemRoot && m_treeView->selectionModel())
     {

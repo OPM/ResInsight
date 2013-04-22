@@ -31,23 +31,23 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 UiTreeModelPdm::UiTreeModelPdm(QObject* parent)
 {
-    m_root = NULL;
+    m_treeItemRoot = NULL;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void UiTreeModelPdm::setRoot(PdmUiTreeItem* root)
+void UiTreeModelPdm::setTreeItemRoot(PdmUiTreeItem* root)
 {
     beginResetModel();
     
-    if (m_root)
+    if (m_treeItemRoot)
     {
-        delete m_root;
+        delete m_treeItemRoot;
     }
 
-    m_root = root;
+    m_treeItemRoot = root;
     endResetModel();
 }
 
@@ -56,7 +56,7 @@ void UiTreeModelPdm::setRoot(PdmUiTreeItem* root)
 //--------------------------------------------------------------------------------------------------
 QModelIndex UiTreeModelPdm::index(int row, int column, const QModelIndex &parentIndex /*= QModelIndex( ) */) const
 {
-    if (!m_root)
+    if (!m_treeItemRoot)
         return QModelIndex();
 
     if (!hasIndex(row, column, parentIndex))
@@ -65,7 +65,7 @@ QModelIndex UiTreeModelPdm::index(int row, int column, const QModelIndex &parent
     PdmUiTreeItem* parentItem = NULL;
 
     if (!parentIndex.isValid())
-        parentItem = m_root;
+        parentItem = m_treeItemRoot;
     else
         parentItem = UiTreeModelPdm::getTreeItemFromIndex(parentIndex);
 
@@ -82,7 +82,7 @@ QModelIndex UiTreeModelPdm::index(int row, int column, const QModelIndex &parent
 //--------------------------------------------------------------------------------------------------
 QModelIndex UiTreeModelPdm::parent(const QModelIndex &childIndex) const
 {
-    if (!m_root) return QModelIndex();
+    if (!m_treeItemRoot) return QModelIndex();
 
     if (!childIndex.isValid()) return QModelIndex();
 
@@ -92,7 +92,7 @@ QModelIndex UiTreeModelPdm::parent(const QModelIndex &childIndex) const
     PdmUiTreeItem* parentItem = childItem->parent();
     if (!parentItem) return QModelIndex();
 
-    if (parentItem == m_root) return QModelIndex();
+    if (parentItem == m_treeItemRoot) return QModelIndex();
 
     return createIndex(parentItem->row(), 0, parentItem);
 }
@@ -102,7 +102,7 @@ QModelIndex UiTreeModelPdm::parent(const QModelIndex &childIndex) const
 //--------------------------------------------------------------------------------------------------
 int UiTreeModelPdm::rowCount(const QModelIndex &parentIndex /*= QModelIndex( ) */) const
 {
-    if (!m_root)
+    if (!m_treeItemRoot)
         return 0;
 
     if (parentIndex.column() > 0)
@@ -110,7 +110,7 @@ int UiTreeModelPdm::rowCount(const QModelIndex &parentIndex /*= QModelIndex( ) *
 
     PdmUiTreeItem* parentItem;
     if (!parentIndex.isValid())
-        parentItem = m_root;
+        parentItem = m_treeItemRoot;
     else
         parentItem = UiTreeModelPdm::getTreeItemFromIndex(parentIndex);
 
@@ -122,7 +122,7 @@ int UiTreeModelPdm::rowCount(const QModelIndex &parentIndex /*= QModelIndex( ) *
 //--------------------------------------------------------------------------------------------------
 int UiTreeModelPdm::columnCount(const QModelIndex &parentIndex /*= QModelIndex( ) */) const
 {
-    if (!m_root)
+    if (!m_treeItemRoot)
         return 0;
 
     if (parentIndex.isValid())
@@ -138,7 +138,7 @@ int UiTreeModelPdm::columnCount(const QModelIndex &parentIndex /*= QModelIndex( 
          }
     }
     else
-        return m_root->columnCount();
+        return m_treeItemRoot->columnCount();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ int UiTreeModelPdm::columnCount(const QModelIndex &parentIndex /*= QModelIndex( 
 //--------------------------------------------------------------------------------------------------
 QVariant UiTreeModelPdm::data(const QModelIndex &index, int role /*= Qt::DisplayRole */) const
 {
-    if (!m_root)
+    if (!m_treeItemRoot)
         return QVariant();
 
     if (!index.isValid())
@@ -362,7 +362,7 @@ bool UiTreeModelPdm::removeRows_special(int position, int rows, const QModelInde
     }
     else
     {
-        parentItem = m_root;
+        parentItem = m_treeItemRoot;
     }
 
     if (!parentItem) return true;
@@ -399,6 +399,14 @@ void UiTreeModelPdm::rebuildUiSubTree(PdmObject* root)
        fakeRoot->removeAllChildrenNoDelete();
        delete fakeRoot;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeItem* UiTreeModelPdm::treeItemRoot()
+{
+    return m_treeItemRoot;
 }
 
 //--------------------------------------------------------------------------------------------------
