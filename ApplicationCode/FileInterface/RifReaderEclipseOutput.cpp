@@ -378,7 +378,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     m_eclipseCase = eclipseCase;
     
     // Build results meta data
-    if (!buildMetaData()) return false;
+    buildMetaData();
     progInfo.incrementProgress();
 
     progInfo.setNextProgressIncrement(8);
@@ -420,14 +420,11 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
         return false;
     }
     
-
-    // Reading of metadata and well cells is not performed here
-    //if (!buildMetaData()) return false;
-    // readWellCells();
-
     m_dynamicResultsAccess = createDynamicResultsAccess();
-
-    m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
+    if (m_dynamicResultsAccess.notNull())
+    {
+        m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
+    }
 
     return true;
 }
@@ -523,7 +520,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// Build meta data - get states and results info
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::buildMetaData()
+void RifReaderEclipseOutput::buildMetaData()
 {
     CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_filesWithSameBaseName.size() > 0);
@@ -536,11 +533,10 @@ bool RifReaderEclipseOutput::buildMetaData()
     m_dynamicResultsAccess = createDynamicResultsAccess();
     if (m_dynamicResultsAccess.isNull())
     {
-        return false;
+        return;
     }
 
     m_dynamicResultsAccess->open();
-
 
     progInfo.incrementProgress();
 
@@ -634,8 +630,6 @@ bool RifReaderEclipseOutput::buildMetaData()
             }
         }
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -706,19 +700,16 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
         m_dynamicResultsAccess = createDynamicResultsAccess();
     }
 
-    if (m_dynamicResultsAccess.isNull())
+    if (m_dynamicResultsAccess.notNull())
     {
-        CVF_ASSERT(false);
-        return false;
-    }
+        std::vector<double> fileValues;
+        if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
+        {
+            return false;
+        }
 
-    std::vector<double> fileValues;
-    if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
-    {
-        return false;
+        extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
     }
-
-    extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
 
     return true;
 }

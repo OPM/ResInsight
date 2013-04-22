@@ -54,7 +54,7 @@ public:
 
 private:
     bool                    readActiveCellInfo();
-    bool                    buildMetaData();
+    void                    buildMetaData();
     void                    readWellCells();
     
     bool                    openInitFile();
