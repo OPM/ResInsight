@@ -121,11 +121,11 @@ if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
 endif()
 
 # override system install prefix if private installation chosen
-option (RESINSIGHT_PRIVATE_INSTALL "Install in a private directory" ON)
-if (RESINSIGHT_PRIVATE_INSTALL)
+option (PRIVATE_INSTALL "Install in a private directory" ON)
+if (PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
     #set (CMAKE_INSTALL_PREFIX /usr/${RESINSIGHT_FINAL_NAME})
-endif (RESINSIGHT_PRIVATE_INSTALL)
+endif (PRIVATE_INSTALL)
 
 ################################################################################
 # Application 
