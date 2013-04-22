@@ -529,22 +529,18 @@ void RifReaderEclipseOutput::buildMetaData()
 
     progInfo.setNextProgressIncrement(m_filesWithSameBaseName.size());
 
-    // Create access object for dynamic results
-    m_dynamicResultsAccess = createDynamicResultsAccess();
-    if (m_dynamicResultsAccess.isNull())
-    {
-        return;
-    }
-
-    m_dynamicResultsAccess->open();
-
-    progInfo.incrementProgress();
-
     RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
     RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
 
+    // Create access object for dynamic results
+    m_dynamicResultsAccess = createDynamicResultsAccess();
     if (m_dynamicResultsAccess.notNull())
     {
+        m_dynamicResultsAccess->open();
+
+        progInfo.incrementProgress();
+
+
         // Get time steps 
         m_timeSteps = m_dynamicResultsAccess->timeSteps();
 
@@ -577,7 +573,6 @@ void RifReaderEclipseOutput::buildMetaData()
                 fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
-
     }
 
     progInfo.incrementProgress();
@@ -667,25 +662,23 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
 {
     CVF_ASSERT(values);
 
-    if (!openInitFile())
+    openInitFile();
+
+    if(m_ecl_init_file)
     {
-        return false;
+        std::vector<double> fileValues;
+
+        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
+        size_t i;
+        for (i = 0; i < numOccurrences; i++)
+        {
+            std::vector<double> partValues;
+            RifEclipseOutputFileTools::keywordData(m_ecl_init_file, result, i, &partValues);
+            fileValues.insert(fileValues.end(), partValues.begin(), partValues.end());
+        }
+
+        extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
     }
-
-    CVF_ASSERT(m_ecl_init_file);
-
-    std::vector<double> fileValues;
-
-    size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
-    size_t i;
-    for (i = 0; i < numOccurrences; i++)
-    {
-        std::vector<double> partValues;
-        RifEclipseOutputFileTools::keywordData(m_ecl_init_file, result, i, &partValues);
-        fileValues.insert(fileValues.end(), partValues.begin(), partValues.end());
-    }
-
-    extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
 
     return true;
 }
@@ -1007,24 +1000,18 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityMod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openInitFile()
+void RifReaderEclipseOutput::openInitFile()
 {
     if (m_ecl_init_file)
     {
-        return true;
+        return;
     }
 
     QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
         m_ecl_init_file = ecl_file_open(initFileName.toAscii().data());
-        if (m_ecl_init_file)
-        {
-            return true;
-        }
     }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

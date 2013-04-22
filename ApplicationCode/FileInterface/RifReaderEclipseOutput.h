@@ -57,7 +57,7 @@ private:
     void                    buildMetaData();
     void                    readWellCells();
     
-    bool                    openInitFile();
+    void                    openInitFile();
     bool                    openDynamicAccess();
 
     void                    extractResultValuesBasedOnPorosityModel(PorosityModelResultType matrixOrFracture, std::vector<double>* values, const std::vector<double>& fileValues);
