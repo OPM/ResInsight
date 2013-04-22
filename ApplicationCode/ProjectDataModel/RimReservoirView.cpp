@@ -272,7 +272,7 @@ void RimReservoirView::updateViewerWidgetWindowTitle()
 void RimReservoirView::clampCurrentTimestep()
 {
     // Clamp the current timestep to actual possibilities
-    if (this->currentGridCellResults()->cellResults()) 
+    if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults()) 
     {
         if (m_currentTimeStep() >= static_cast<int>(this->currentGridCellResults()->cellResults()->maxTimeStepCount()))
         {
