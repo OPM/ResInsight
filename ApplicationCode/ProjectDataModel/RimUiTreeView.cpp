@@ -1246,17 +1246,15 @@ void storeExpandedState(QStringList & nodes, QTreeView * view, QAbstractItemMode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::applyTreeViewState(const QString& treeViewState)
+void RimUiTreeView::applyTreeViewStateFromString(const QString& treeViewState)
 {
     if (this->model())
     {
         this->collapseAll();
 
-        QString stateString = RiaApplication::instance()->project()->treeViewState;
+        QStringList nodes = treeViewState.split(";");
 
-        QStringList nodes = stateString.split("|");
         QString path;
-
         setExpandedState(nodes, this, this->model(), QModelIndex(), path);
     }
 }
@@ -1264,7 +1262,7 @@ void RimUiTreeView::applyTreeViewState(const QString& treeViewState)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::storeTreeViewState(QString& treeViewState)
+void RimUiTreeView::storeTreeViewStateToString(QString& treeViewState)
 {
     if (this->model())
     {
@@ -1273,8 +1271,7 @@ void RimUiTreeView::storeTreeViewState(QString& treeViewState)
 
         storeExpandedState(nodes, this, this->model(), QModelIndex(), path);
 
-        QString stateString = nodes.join("|");
-        RiaApplication::instance()->project()->treeViewState = stateString;
+        treeViewState = nodes.join(";");
     }
 }
 

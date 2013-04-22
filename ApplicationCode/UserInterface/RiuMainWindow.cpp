@@ -1424,7 +1424,7 @@ void RiuMainWindow::storeTreeViewState()
     {
         QString treeViewState;
         
-        m_treeView->storeTreeViewState(treeViewState);
+        m_treeView->storeTreeViewStateToString(treeViewState);
         
         RiaApplication::instance()->project()->treeViewState = treeViewState;
     }
@@ -1441,7 +1441,7 @@ void RiuMainWindow::restoreTreeViewState()
         if (!stateString.isEmpty())
         {
             m_treeView->collapseAll();
-            m_treeView->applyTreeViewState(stateString);
+            m_treeView->applyTreeViewStateFromString(stateString);
         }
     }
 }

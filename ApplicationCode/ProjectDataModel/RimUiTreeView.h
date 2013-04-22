@@ -43,8 +43,8 @@ public:
 
     virtual void setModel(QAbstractItemModel* model);
 
-    void applyTreeViewState(const QString& treeViewState);
-    void storeTreeViewState(QString& treeViewState);
+    void applyTreeViewStateFromString(const QString& treeViewState);
+    void storeTreeViewStateToString(QString& treeViewState);
 
 protected:
     void contextMenuEvent(QContextMenuEvent* event);
