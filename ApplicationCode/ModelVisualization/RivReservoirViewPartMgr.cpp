@@ -646,18 +646,8 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, cvf::Color4f color)
 {
-    if (geometryType == PROPERTY_FILTERED)
-    {
-        m_propFilteredGeometryFrames[timeStepIndex]->updateCellColor(color );
-    }
-    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
-    {
-        m_propFilteredWellGeometryFrames[timeStepIndex]->updateCellColor(color );
-    }    
-    else
-    {
-        m_geometries[geometryType].updateCellColor(color);
-    }
+    RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
+    pmgr->updateCellColor(color);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -676,18 +666,8 @@ void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometr
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
-    if (geometryType == PROPERTY_FILTERED)
-    {
-        m_propFilteredGeometryFrames[timeStepIndex]->updateCellResultColor(timeStepIndex, cellResultSlot);
-    }
-    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
-    {
-        m_propFilteredWellGeometryFrames[timeStepIndex]->updateCellResultColor(timeStepIndex, cellResultSlot);
-    }
-    else
-    {
-        m_geometries[geometryType].updateCellResultColor(timeStepIndex, cellResultSlot);
-    }
+    RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
+    pmgr->updateCellResultColor(timeStepIndex, cellResultSlot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -695,16 +675,31 @@ void RivReservoirViewPartMgr::updateCellResultColor(ReservoirGeometryCacheType g
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
+    RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
+    pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::cref<cvf::UByteArray> RivReservoirViewPartMgr::cellVisibility(ReservoirGeometryCacheType geometryType, size_t gridIndex, size_t timeStepIndex) const
+{
+    RivReservoirPartMgr * pmgr = (const_cast<RivReservoirViewPartMgr*>(this))->reservoirPartManager( geometryType,  timeStepIndex );
+    return pmgr->cellVisibility(gridIndex).p();
+}
+
+RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeometryCacheType geometryType, size_t timeStepIndex )
+{
     if (geometryType == PROPERTY_FILTERED)
     {
-        m_propFilteredGeometryFrames[timeStepIndex]->updateCellEdgeResultColor( timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+        return m_propFilteredGeometryFrames[timeStepIndex].p();
     }
     else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
     {
-        m_propFilteredWellGeometryFrames[timeStepIndex]->updateCellEdgeResultColor( timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+        return m_propFilteredWellGeometryFrames[timeStepIndex].p();
     }
     else
     {
-        m_geometries[geometryType].updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+        return &m_geometries[geometryType];
     }
 }

@@ -32,10 +32,22 @@ namespace caf
     template<>
     void RimWellCollection::WellVisibilityEnum::setUp()
     {
-        addItem(RimWellCollection::FORCE_ALL_OFF,       "FORCE_ALL_OFF",      "Off");
-        addItem(RimWellCollection::ALL_ON,              "ALL_ON",             "Individual");
-        //addItem(RimWellCollection::RANGE_INTERSECTING,  "RANGE_INTERSECTING", "Intersecting range filter only");
-        addItem(RimWellCollection::FORCE_ALL_ON,        "FORCE_ALL_ON",       "On");
+        addItem(RimWellCollection::PIPES_FORCE_ALL_OFF,       "FORCE_ALL_OFF",      "All Off");
+        addItem(RimWellCollection::PIPES_INDIVIDUALLY,        "ALL_ON",             "Individual");
+        addItem(RimWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS,"OPEN_IN_VISIBLE_CELLS", "Visible cells filtered");
+        addItem(RimWellCollection::PIPES_FORCE_ALL_ON,        "FORCE_ALL_ON",       "All On");
+    }
+}
+
+
+namespace caf
+{
+    template<>
+    void RimWellCollection::WellCellsRangeFilterEnum::setUp()
+    {
+        addItem(RimWellCollection::RANGE_ADD_NONE,       "FORCE_ALL_OFF",      "Off");
+        addItem(RimWellCollection::RANGE_ADD_INDIVIDUAL, "ALL_ON",             "Individually");
+        addItem(RimWellCollection::RANGE_ADD_ALL,        "FORCE_ALL_ON",       "On");
     }
 }
 
@@ -65,13 +77,13 @@ RimWellCollection::RimWellCollection()
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "    Show well labels", "", "", "");
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "    Well head scale", "", "", "");
 
-    CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(ALL_ON), "Global well pipe visibility",  "", "", "");
+    CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_INDIVIDUALLY), "Global well pipe visibility",  "", "", "");
 
     CAF_PDM_InitField(&pipeRadiusScaleFactor,       "WellPipeRadiusScale",    0.1,                        "    Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.setUiHidden(true);
 
-    CAF_PDM_InitField(&wellCellVisibility,  "GlobalWellCellVisibility", WellVisibilityEnum(FORCE_ALL_OFF),  "Add cells to range filter", "", "", "");
+    CAF_PDM_InitField(&wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
     CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "    Use well fence", "", "", "");
     CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION),        "    Well Fence direction", "", "", "");
 
@@ -112,14 +124,14 @@ RimWell* RimWellCollection::findWell(QString name)
 //--------------------------------------------------------------------------------------------------
 bool RimWellCollection::hasVisibleWellCells()
 {
-    if (this->wellCellVisibility() == FORCE_ALL_OFF) return false;
+    if (this->wellCellsToRangeFilterMode() == RANGE_ADD_NONE) return false;
     if (this->wells().size() == 0 ) return false;
 
     bool hasCells = false;
     for (size_t i = 0 ; !hasCells && i < this->wells().size(); ++i)
     {
         RimWell* well = this->wells()[i];
-        if ( well && well->wellResults() && (well->showWellCells() || this->wellCellVisibility() == FORCE_ALL_ON) )
+        if ( well && well->wellResults() && (well->showWellCells() || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) )
         {
             for (size_t tIdx = 0; !hasCells &&  tIdx < well->wellResults()->m_wellCellsTimeSteps.size(); ++tIdx )
             {
@@ -134,7 +146,7 @@ bool RimWellCollection::hasVisibleWellCells()
 
     if (!hasCells) return false;
 
-    if (this->wellCellVisibility() == ALL_ON || this->wellCellVisibility() == FORCE_ALL_ON) return true;
+    if (this->wellCellsToRangeFilterMode() == RANGE_ADD_INDIVIDUAL || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) return true;
 
     // Todo: Handle range filter intersection
 
@@ -146,9 +158,9 @@ bool RimWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 bool RimWellCollection::hasVisibleWellPipes()
 {
-    if (this->wellPipeVisibility() == FORCE_ALL_OFF) return false;
+    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
     if (this->wells().size() == 0 ) return false;
-    if (this->wellPipeVisibility() == FORCE_ALL_ON) return true;
+    if (this->wellPipeVisibility() == PIPES_FORCE_ALL_ON) return true;
 
     return true;
 }
@@ -166,7 +178,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
             m_reservoirView->createDisplayModelAndRedraw();
         }
     }
-    if (&wellCellVisibility == changedField)
+    if (&wellCellsToRangeFilterMode == changedField)
     {
         if (m_reservoirView) 
         {

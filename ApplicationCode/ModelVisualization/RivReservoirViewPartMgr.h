@@ -19,7 +19,6 @@
 #pragma once
 #include "RivReservoirPartMgr.h"
 #include "cvfTransform.h"
-#include "RimReservoirView.h"
 #include "cafFixedArray.h"
 #include "cvfArray.h"
 #include "cafPdmObject.h"
@@ -35,8 +34,8 @@ class RivReservoirViewPartMgr: public cvf::Object
 public:
     RivReservoirViewPartMgr(RimReservoirView * resv);
 
-    cvf::Transform* scaleTransform() { return m_scaleTransform.p();}
-    void setScaleTransform(cvf::Mat4d scale) { m_scaleTransform->setLocalTransform(scale);}
+    cvf::Transform*             scaleTransform() { return m_scaleTransform.p();}
+    void                        setScaleTransform(cvf::Mat4d scale) { m_scaleTransform->setLocalTransform(scale);}
 
     enum ReservoirGeometryCacheType
     {
@@ -54,49 +53,49 @@ public:
         PROPERTY_FILTERED_WELL_CELLS // Includes RANGE_FILTERED_WELL_CELLS and VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER and VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER
     };
 
-    void   clearGeometryCache();
-    void   scheduleGeometryRegen(ReservoirGeometryCacheType geometryType);
+    void                        clearGeometryCache();
+    void                        scheduleGeometryRegen(ReservoirGeometryCacheType geometryType);
+    cvf::cref<cvf::UByteArray>  cellVisibility(ReservoirGeometryCacheType geometryType, size_t gridIndex, size_t frameIndex) const;
    
-    void   appendStaticGeometryPartsToModel (cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, const std::vector<size_t>& gridIndices);
-    void   appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex, const std::vector<size_t>& gridIndices);
+    void                        appendStaticGeometryPartsToModel (cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, const std::vector<size_t>& gridIndices);
+    void                        appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex, const std::vector<size_t>& gridIndices);
 
-    void   updateCellColor          (ReservoirGeometryCacheType geometryType, cvf::Color4f color);
-    void   updateCellColor          (ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
-                                     cvf::Color4f color);
-    void   updateCellResultColor    (ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
-                                     RimResultSlot* cellResultSlot);
-    void   updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
-                                     RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
-
-private:
-    void createGeometry(ReservoirGeometryCacheType geometryType);
-    void computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx);
-
-    void createPropertyFilteredGeometry(size_t frameIndex);
-    void createPropertyFilteredWellGeometry(size_t frameIndex);
-
-    void clearGeometryCache(ReservoirGeometryCacheType geomType);
-
-
-    static void computeNativeVisibility  (cvf::UByteArray* cellVisibilities, const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, const cvf::UByteArray* cellIsInWellStatuses,  bool invalidCellsIsVisible, bool inactiveCellsIsVisible, bool activeCellsIsVisible, bool mainGridIsVisible);
-    static void computeRangeVisibility   (cvf::UByteArray* cellVisibilities, const RigGridBase* grid, const cvf::UByteArray* nativeVisibility, const RimCellRangeFilterCollection* rangeFilterColl);
-    static void computePropertyVisibility(cvf::UByteArray* cellVisibilities, const RigGridBase* grid, size_t timeStepIndex, const cvf::UByteArray* rangeFilterVisibility, RimCellPropertyFilterCollection* propFilterColl);
-    static void copyByteArray(cvf::UByteArray* cellVisibilities, const cvf::UByteArray* cellIsWellStatuses );
+    void                        updateCellColor          (ReservoirGeometryCacheType geometryType, cvf::Color4f color);
+    void                        updateCellColor          (ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
+                                                          cvf::Color4f color);
+    void                        updateCellResultColor    (ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
+                                                          RimResultSlot* cellResultSlot);
+    void                        updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
+                                                          RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
 
 private:
+    void                        createGeometry(ReservoirGeometryCacheType geometryType);
+    void                        computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx);
 
+    void                        createPropertyFilteredGeometry(size_t frameIndex);
+    void                        createPropertyFilteredWellGeometry(size_t frameIndex);
+
+    void                        clearGeometryCache(ReservoirGeometryCacheType geomType);
+
+
+    static void                 computeNativeVisibility  (cvf::UByteArray* cellVisibilities, const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, const cvf::UByteArray* cellIsInWellStatuses,  bool invalidCellsIsVisible, bool inactiveCellsIsVisible, bool activeCellsIsVisible, bool mainGridIsVisible);
+    static void                 computeRangeVisibility   (cvf::UByteArray* cellVisibilities, const RigGridBase* grid, const cvf::UByteArray* nativeVisibility, const RimCellRangeFilterCollection* rangeFilterColl);
+    static void                 computePropertyVisibility(cvf::UByteArray* cellVisibilities, const RigGridBase* grid, size_t timeStepIndex, const cvf::UByteArray* rangeFilterVisibility, RimCellPropertyFilterCollection* propFilterColl);
+    static void                 copyByteArray(cvf::UByteArray* cellVisibilities, const cvf::UByteArray* cellIsWellStatuses );
+
+    RivReservoirPartMgr *       reservoirPartManager(ReservoirGeometryCacheType geometryType, size_t timeStepIndex );
+
+private:
     caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED> m_geometries;
-    caf::FixedArray<bool, PROPERTY_FILTERED>                 m_geometriesNeedsRegen;
+    caf::FixedArray<bool, PROPERTY_FILTERED>                m_geometriesNeedsRegen;
 
     cvf::Collection<RivReservoirPartMgr>                    m_propFilteredGeometryFrames;
-    std::vector<uchar>                                       m_propFilteredGeometryFramesNeedsRegen;
+    std::vector<uchar>                                      m_propFilteredGeometryFramesNeedsRegen;
 
     cvf::Collection<RivReservoirPartMgr>                    m_propFilteredWellGeometryFrames;
-    std::vector<uchar>                                       m_propFilteredWellGeometryFramesNeedsRegen;
+    std::vector<uchar>                                      m_propFilteredWellGeometryFramesNeedsRegen;
 
-
-
-    cvf::ref<cvf::Transform>              m_scaleTransform;
-    caf::PdmPointer<RimReservoirView>     m_reservoirView;
+    cvf::ref<cvf::Transform>                                m_scaleTransform;
+    caf::PdmPointer<RimReservoirView>                       m_reservoirView;
 
 };

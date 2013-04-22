@@ -44,6 +44,8 @@ public:
     void                                setWellResults(RigSingleWellResultsData* wellResults) { m_wellResults = wellResults;}
     RigSingleWellResultsData*           wellResults() { return m_wellResults.p(); }
     
+    bool                                isWellVisible(size_t frameIndex);
+
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
 

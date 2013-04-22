@@ -457,146 +457,155 @@ void RimReservoirView::createDisplayModel()
     // static int callCount = 0;
     // qDebug() << "RimReservoirView::createDisplayModel()" << callCount++;
 
-    if (m_reservoir && m_reservoir->reservoirData())
+    if (!(m_reservoir && m_reservoir->reservoirData())) return;
+
+    // Define a vector containing time step indices to produce geometry for.
+    // First entry in this vector is used to define the geometry only result mode with no results.
+    std::vector<size_t> timeStepIndices;
+
+    // The one and only geometry entry
+    timeStepIndices.push_back(0);
+
+    // Find the number of time frames the animation needs to show the requested data.
+
+    if (this->cellResult()->hasDynamicResult() 
+        || this->propertyFilterCollection()->hasActiveDynamicFilters() 
+        || this->wellCollection->hasVisibleWellPipes())
     {
-        // Define a vector containing time step indices to produce geometry for.
-        // First entry in this vector is used to define the geometry only result mode with no results.
-        std::vector<size_t> timeStepIndices;
+        CVF_ASSERT(currentGridCellResults());
 
-        // The one and only geometry entry
+        size_t i;
+        for (i = 0; i < currentGridCellResults()->cellResults()->maxTimeStepCount(); i++)
+        {
+            timeStepIndices.push_back(i);
+        }
+    } 
+    else if (this->cellResult()->hasStaticResult() 
+        || this->cellEdgeResult()->hasResult() 
+        || this->propertyFilterCollection()->hasActiveFilters())
+    {
+        // The one and only result entry
         timeStepIndices.push_back(0);
+    }
 
-        // Find the number of time frames the animation needs to show the requested data.
+    updateLegends();
 
-        if (this->cellResult()->hasDynamicResult() 
-            || this->propertyFilterCollection()->hasActiveDynamicFilters() 
-            || this->wellCollection->hasVisibleWellPipes())
+    cvf::Collection<cvf::ModelBasicList> frameModels;
+    size_t timeIdx;
+    for (timeIdx = 0; timeIdx < timeStepIndices.size(); timeIdx++)
+    {
+        frameModels.push_back(new cvf::ModelBasicList);
+    }
+
+    // Remove all existing animation frames from the viewer. 
+    // The parts are still cached in the RivReservoir geometry and friends
+
+    bool isAnimationActive = m_viewer->isAnimationActive();
+    m_viewer->removeAllFrames();
+
+
+    // Create vector of grid indices to render
+    std::vector<size_t> gridIndices;
+    this->indicesToVisibleGrids(&gridIndices);
+
+    ///
+    // Get or create the parts for "static" type geometry. The same geometry is used 
+    // for the different frames. updateCurrentTimeStep updates the colors etc.
+    // For property filtered geometry : just set all the models as empty scenes 
+    // updateCurrentTimeStep requests the actual parts
+
+    if (! this->propertyFilterCollection()->hasActiveFilters())
+    {
+        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometryTypesToAdd;
+       
+        if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
         {
-            CVF_ASSERT(currentGridCellResults());
-
-            size_t i;
-            for (i = 0; i < currentGridCellResults()->cellResults()->maxTimeStepCount(); i++)
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+            if (this->showInactiveCells())
             {
-                timeStepIndices.push_back(i);
+                geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
             }
-        } 
-        else if (this->cellResult()->hasStaticResult() 
-            || this->cellEdgeResult()->hasResult() 
-            || this->propertyFilterCollection()->hasActiveFilters())
-        {
-            // The one and only result entry
-            timeStepIndices.push_back(0);
         }
-
-        updateLegends();
-
-        cvf::Collection<cvf::ModelBasicList> frameModels;
-        size_t timeIdx;
-        for (timeIdx = 0; timeIdx < timeStepIndices.size(); timeIdx++)
+        else
         {
-            frameModels.push_back(new cvf::ModelBasicList);
-        }
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS); // Should be all well cells
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::ACTIVE);
 
-        // Remove all existing animation frames from the viewer. 
-        // The parts are still cached in the RivReservoir geometry and friends
-
-        bool isAnimationActive = m_viewer->isAnimationActive();
-        m_viewer->removeAllFrames();
-
-
-        // Create vector of grid indices to render
-        std::vector<size_t> gridIndices;
-        this->indicesToVisibleGrids(&gridIndices);
- 
-        ///
-        // Get or create the parts for "static" type geometry. The same geometry is used 
-        // for the different frames. updateCurrentTimeStep updates the colors etc.
-        // For property filtered geometry : just set all the models as empty scenes 
-        // updateCurrentTimeStep requests the actual parts
-
-        if (! this->propertyFilterCollection()->hasActiveFilters())
-        {
-            size_t frameIdx;
-            for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
+            if (this->showInactiveCells())
             {
-
-                if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
-                {
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER, gridIndices); // Should be visible well cells outside range filter
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, gridIndices); // Should be visible well cells outside range filter
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS, gridIndices);
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED, gridIndices);
-                    if (this->showInactiveCells())
-                    {
-                        m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices);
-                    }
-                }
-                else
-                {
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::ALL_WELL_CELLS, gridIndices); // Should be all well cells
-                    m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::ACTIVE, gridIndices);
-
-                    if (this->showInactiveCells())
-                    {
-                        m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
-                    }
-                }
-
-                // Set static colors 
-                this->updateStaticCellColors();
+                geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
 
-
-        // Compute triangle count, Debug only
-
-        if (false)
+      
+        size_t frameIdx;
+        for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
-            size_t totalTriangleCount = 0;
+            for (size_t gtIdx = 0; gtIdx < geometryTypesToAdd.size(); ++gtIdx)
             {
-                size_t mIdx;
-                for (mIdx = 0; mIdx < frameModels.size(); mIdx++)
-                {
-                    cvf::Collection<cvf::Part> partCollection;
-                    frameModels.at(mIdx)->allParts(&partCollection);
-
-                    size_t modelTriangleCount = 0;
-                    size_t pIdx;
-                    for (pIdx = 0; pIdx < partCollection.size(); pIdx++)
-                    {
-                        modelTriangleCount += partCollection.at(pIdx)->drawable()->triangleCount();
-                    }
-
-                    totalTriangleCount += modelTriangleCount;
-                }
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryTypesToAdd[gtIdx], gridIndices); 
             }
         }
 
-        // Create Scenes from the frameModels
-        // Animation frames for results display, starts from frame 1
+        // Set static colors 
+        this->updateStaticCellColors();
 
-        size_t frameIndex;
-        for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
+        m_visibleGridParts = geometryTypesToAdd;
+    }
+
+
+    // Compute triangle count, Debug only
+
+    if (false)
+    {
+        size_t totalTriangleCount = 0;
         {
-            cvf::ModelBasicList* model = frameModels.at(frameIndex);
-            model->updateBoundingBoxesRecursive();
+            size_t mIdx;
+            for (mIdx = 0; mIdx < frameModels.size(); mIdx++)
+            {
+                cvf::Collection<cvf::Part> partCollection;
+                frameModels.at(mIdx)->allParts(&partCollection);
 
-            cvf::ref<cvf::Scene> scene = new cvf::Scene;
-            scene->addModel(model);
+                size_t modelTriangleCount = 0;
+                size_t pIdx;
+                for (pIdx = 0; pIdx < partCollection.size(); pIdx++)
+                {
+                    modelTriangleCount += partCollection.at(pIdx)->drawable()->triangleCount();
+                }
 
-            if (frameIndex == 0)
-                m_viewer->setMainScene(scene.p());
-            else
-                m_viewer->addFrame(scene.p());
-        }
-
-        // If the animation was active before recreating everything, make viewer view current frame
-
-        if (isAnimationActive)
-        {
-            m_viewer->slotSetCurrentFrame(m_currentTimeStep);
+                totalTriangleCount += modelTriangleCount;
+            }
         }
     }
+
+    // Create Scenes from the frameModels
+    // Animation frames for results display, starts from frame 1
+
+    size_t frameIndex;
+    for (frameIndex = 0; frameIndex < frameModels.size(); frameIndex++)
+    {
+        cvf::ModelBasicList* model = frameModels.at(frameIndex);
+        model->updateBoundingBoxesRecursive();
+
+        cvf::ref<cvf::Scene> scene = new cvf::Scene;
+        scene->addModel(model);
+
+        if (frameIndex == 0)
+            m_viewer->setMainScene(scene.p());
+        else
+            m_viewer->addFrame(scene.p());
+    }
+
+    // If the animation was active before recreating everything, make viewer view current frame
+
+    if (isAnimationActive)
+    {
+        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
+    }
+
 }
 
 
@@ -636,6 +645,8 @@ void RimReservoirView::updateCurrentTimeStep()
                 frameScene->addModel(frameParts.p());
             }
         }
+
+        m_visibleGridParts = geometriesToRecolor;
     }
     else if (rangeFilterCollection->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
     {
@@ -650,9 +661,10 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
     }
 
+    
+
     for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
     {
-
         if (this->animationMode() && this->cellEdgeResult()->hasResult())
         {
             m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
@@ -1210,7 +1222,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
     visibleCells->setAll(false);
 
     // If all wells are forced off, return
-    if (this->wellCollection()->wellCellVisibility() == RimWellCollection::FORCE_ALL_OFF) return;
+    if (this->wellCollection()->wellCellsToRangeFilterMode() == RimWellCollection::RANGE_ADD_NONE) return;
 
     RigActiveCellInfo* activeCellInfo = this->currentActiveCellInfo();
 
@@ -1220,7 +1232,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimWell* well =  this->wellCollection()->wells()[wIdx];
-        if (this->wellCollection()->wellCellVisibility() == RimWellCollection::FORCE_ALL_ON || well->showWellCells())
+        if (this->wellCollection()->wellCellsToRangeFilterMode() == RimWellCollection::RANGE_ADD_ALL || well->showWellCells())
         {
             RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;

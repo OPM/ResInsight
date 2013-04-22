@@ -44,12 +44,20 @@ public:
 
     enum WellVisibilityType
     {
-        FORCE_ALL_OFF,
-        ALL_ON,
-        RANGE_INTERSECTING,
-        FORCE_ALL_ON
+        PIPES_FORCE_ALL_OFF,
+        PIPES_INDIVIDUALLY,
+        PIPES_OPEN_IN_VISIBLE_CELLS,
+        PIPES_FORCE_ALL_ON
     };
     typedef caf::AppEnum<RimWellCollection::WellVisibilityType> WellVisibilityEnum;
+
+    enum WellCellsRangeFilterType
+    {
+        RANGE_ADD_ALL,
+        RANGE_ADD_INDIVIDUAL,
+        RANGE_ADD_NONE
+    };
+    typedef caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> WellCellsRangeFilterEnum;
 
     enum WellFenceType
     {
@@ -61,7 +69,7 @@ public:
 
     caf::PdmField<bool>                 showWellLabel;
 
-    caf::PdmField<WellVisibilityEnum>   wellCellVisibility;
+    caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;

@@ -42,7 +42,6 @@
 class RiuViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
-class RivReservoirViewPartMgr;
 
 namespace cvf
 {
@@ -157,6 +156,9 @@ public:
     void                                    schedulePipeGeometryRegen();
     void                                    updateDisplayModelForWellResults();
 
+    const std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType>&
+                                            visibleGridParts() const { return m_visibleGridParts;}
+    cvf::cref<RivReservoirViewPartMgr>      reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
     // Display model generation
 private:
@@ -190,5 +192,7 @@ private:
     caf::PdmField<int>                      m_currentTimeStep;
     QPointer<RiuViewer>                     m_viewer;
     caf::PdmPointer<RimCase>                m_reservoir;
+
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;
 };
 

@@ -131,3 +131,76 @@ caf::PdmFieldHandle* RimWell::objectToggleField()
     return &showWellPipes;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWell::isWellVisible(size_t frameIndex)
+{
+    if (m_reservoirView == NULL) return false;
+    if (this->wellResults() == NULL) return false;
+
+    if (   this->wellResults()->firstResultTimeStep() == cvf::UNDEFINED_SIZE_T 
+        || frameIndex < this->wellResults()->firstResultTimeStep() 
+        || frameIndex >= this->wellResults()->m_wellCellsTimeSteps.size()) 
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_ON)
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_OFF)
+        return false;
+
+    if ( this->showWellPipes() == false )
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_INDIVIDUALLY)
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
+    {
+        const std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType>& visGridParts = m_reservoirView->visibleGridParts();     
+        cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
+
+        for (size_t gpIdx = 0; gpIdx < visGridParts.size(); ++gpIdx)
+        {
+            const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
+
+            // First check the wellhead:
+
+            size_t gridIndex = wrsf.m_wellHead.m_gridIndex; 
+            size_t gridCellIndex = wrsf.m_wellHead.m_gridCellIndex;
+
+            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+            if ((*cellVisibility)[gridCellIndex]) 
+            {
+                return true;
+            }
+
+            // Then check the rest of the well, with all the branches
+
+            const std::vector<RigWellResultBranch>& wellResSegments = wrsf.m_wellResultBranches;
+            for (size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx)
+            {
+                const std::vector<RigWellResultCell>& wsResCells = wellResSegments[wsIdx].m_wellCells;
+                for (size_t cIdx = 0; cIdx < wsResCells.size(); ++ cIdx)
+                {
+                    gridIndex = wsResCells[cIdx].m_gridIndex;
+                    gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
+
+                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+                    if ((*cellVisibility)[gridCellIndex]) 
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
+
+    return false;
+}
+
