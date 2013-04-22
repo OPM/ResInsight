@@ -518,7 +518,13 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
     }
 
-    onProjectOpenedOrClosed();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
+
+    // New case is inserted before the last item, the script item
+    int position = projectTreeItem->childCount() - 1;
+
+    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimResultReservoir);
 
     return true;
 }
@@ -547,7 +553,13 @@ bool RiaApplication::openInputEclipseCase(const QString& caseName, const QString
         riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
     }
 
-    onProjectOpenedOrClosed();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
+
+    // New case is inserted before the last item, the script item
+    int position = projectTreeItem->childCount() - 1;
+
+    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimInputReservoir);
 
     return true;
 }

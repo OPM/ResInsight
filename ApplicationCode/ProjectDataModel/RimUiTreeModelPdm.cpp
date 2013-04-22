@@ -883,3 +883,22 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::gridCaseGroupFromItemIndex(const Q
     return gridCaseGroup;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject)
+{
+    QModelIndex parentModelIndex;
+    
+    if (parentTreeItem && parentTreeItem->dataObject())
+    {
+        parentModelIndex = getModelIndexFromPdmObject(parentTreeItem->dataObject());
+    }
+
+    beginInsertRows(parentModelIndex, position, position);
+
+    caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(parentTreeItem, position, pdmObject);
+
+    endInsertRows();
+}
+

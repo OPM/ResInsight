@@ -61,6 +61,8 @@ public:
     RimReservoirView*           addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
     
+    void                        addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject);
+    
     void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
@@ -84,7 +86,6 @@ private slots:
 
 private:
     void                        clearClipboard();
-
 private:
     QFileSystemWatcher*         m_scriptChangeDetector;
 };
