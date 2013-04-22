@@ -110,7 +110,7 @@ void RimProject::setUserScriptPath(const QString& scriptDirectory)
 
 
     QDir dir(scriptDirectory);
-    if (!scriptDirectory.isEmpty() && dir.exists())
+    if (!scriptDirectory.isEmpty() && dir.exists() && dir.isReadable())
     {
         RimScriptCollection* sharedScriptLocation = new RimScriptCollection;
         sharedScriptLocation->directory = scriptDirectory;
