@@ -40,7 +40,6 @@ public:
     RimCellRangeFilter* createAndAppendRangeFilter();
     void remove(RimCellRangeFilter* rangeFilter);
 
-    bool hasIncludeFilter() const;
     void compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter) const;
     bool hasActiveFilters() const;
 

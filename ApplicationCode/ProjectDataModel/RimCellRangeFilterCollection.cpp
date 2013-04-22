@@ -97,21 +97,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimCellRangeFilterCollection::hasIncludeFilter() const
-{
-    std::list< caf::PdmPointer<RimCellRangeFilter> >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
-    {
-        RimCellRangeFilter* rangeFilter = *it;
-        if (rangeFilter->active && rangeFilter->filterMode() == RimCellFilter::INCLUDE)
-            return true;
-    }
-
-    return false;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
