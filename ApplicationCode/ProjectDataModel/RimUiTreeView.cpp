@@ -543,7 +543,11 @@ void RimUiTreeView::slotAddView()
     
     QModelIndex insertedIndex;
     myModel->addReservoirView(index, insertedIndex);
-
+    
+    // Expand parent collection and inserted view item
+    setExpandedUpToRoot(insertedIndex);
+    
+    setCurrentIndex(insertedIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -827,6 +831,8 @@ void RimUiTreeView::slotNewStatisticsCase()
         QModelIndex insertedIndex;
         RimStatisticsCase* newObject = myModel->addStatisticalCalculation(currentIndex(), insertedIndex);
         setCurrentIndex(insertedIndex);
+
+        setExpanded(insertedIndex, true);
     }
 }
 
@@ -1272,6 +1278,20 @@ void RimUiTreeView::storeTreeViewStateToString(QString& treeViewState)
         storeExpandedState(nodes, this, this->model(), QModelIndex(), path);
 
         treeViewState = nodes.join(";");
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::setExpandedUpToRoot(const QModelIndex& itemIndex)
+{
+    QModelIndex mi = itemIndex;
+
+    while (mi.isValid())
+    {
+        this->setExpanded(mi, true);
+        mi = mi.parent();
     }
 }
 

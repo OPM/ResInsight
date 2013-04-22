@@ -372,15 +372,18 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
 
     bool itemIndexIsCollection = false;
     QModelIndex collectionIndex;
+    int position = 0;
     if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
     {
         collectionItem = currentItem->parent();
         collectionIndex = itemIndex.parent();
+        position = itemIndex.row();
     }
     else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
     {
         collectionItem = currentItem;
         collectionIndex = itemIndex;
+        position = collectionItem->childCount();
     }
 
     if (collectionItem)
@@ -393,13 +396,14 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
         // Must be run before buildViewItems, as wells are created in this function
         insertedView->loadDataAndUpdate(); 
 
-        int viewCount = rowCount(collectionIndex);
-        beginInsertRows(collectionIndex, viewCount, viewCount);
+        beginInsertRows(collectionIndex, position, position);
 
         // NOTE: -1 as second argument indicates append
-        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, -1, insertedView);
+        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, insertedView);
         
         endInsertRows();
+
+        insertedModelIndex = index(position, 0, collectionIndex);
 
         return insertedView;
     }

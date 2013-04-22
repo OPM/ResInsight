@@ -921,8 +921,6 @@ void RiuMainWindow::setPdmRoot(caf::PdmObject* pdmRoot)
     caf::PdmUiTreeItem* treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, m_pdmRoot);
     m_treeModelPdm->setRoot(treeItemRoot);
 
-    m_treeView->expandAll();
-
     if (treeItemRoot && m_treeView->selectionModel())
     {
         connect(m_treeView->selectionModel(), SIGNAL(currentChanged ( const QModelIndex & , const QModelIndex & )), SLOT(slotCurrentChanged( const QModelIndex & , const QModelIndex & )));
@@ -1074,7 +1072,6 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                     }
 
                     m_treeView->setCurrentIndex(newSelectionIndex);
-                    //m_treeView->setExpanded(previousViewModelIndex, false);
                     if (newSelectionIndex != newViewModelIndex)
                     {
                         m_treeView->setExpanded(newViewModelIndex, true);
@@ -1260,7 +1257,6 @@ void RiuMainWindow::slotNewObjectPropertyView()
     }
 
     treeView->setModel(m_treeModelPdm);
-    treeView->expandAll();
 
 
     {

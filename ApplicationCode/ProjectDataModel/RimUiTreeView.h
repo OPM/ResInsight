@@ -106,6 +106,7 @@ private:
 
     bool checkAndHandleToggleOfMultipleSelection();
 
+    void setExpandedUpToRoot(const QModelIndex& itemIndex);
 private:
     QAction* m_pasteAction;
 };
