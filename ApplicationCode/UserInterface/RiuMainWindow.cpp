@@ -1441,3 +1441,19 @@ void RiuMainWindow::restoreTreeViewState()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
+{
+    if (m_treeView && m_treeModelPdm)
+    {
+        QModelIndex mi = m_treeModelPdm->getModelIndexFromPdmObject(object);
+
+        if (mi.isValid())
+        {
+            m_treeView->setCurrentIndex(mi);
+        }
+    }
+}

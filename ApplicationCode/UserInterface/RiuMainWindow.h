@@ -79,6 +79,8 @@ public:
 
     void            hideAllDockWindows();
 
+    void            setCurrentObjectInTreeView(caf::PdmObject* object);
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 
