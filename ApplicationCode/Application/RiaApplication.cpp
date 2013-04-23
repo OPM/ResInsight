@@ -526,6 +526,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 
     uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimResultReservoir);
 
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
+
     return true;
 }
 
@@ -560,6 +562,8 @@ bool RiaApplication::openInputEclipseCase(const QString& caseName, const QString
     int position = projectTreeItem->childCount() - 1;
 
     uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimInputReservoir);
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
     return true;
 }
@@ -1374,6 +1378,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
     // When reading active cell info, only the total cell count is tested for consistency
     RimResultCase* mainResultCase = NULL;
     std::vector< std::vector<int> > mainCaseGridDimensions;
+    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
 
     {
         QString firstFileName = fileNames[0];
@@ -1392,10 +1397,8 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
         rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
 
-        m_project->reservoirs.push_back(rimResultReservoir);
-        m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
-
         mainResultCase = rimResultReservoir;
+        gridCaseGroup = m_project->createIdenticalCaseGroupFromMainCase(mainResultCase);
     }
 
     caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
@@ -1418,8 +1421,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         {
             if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
             {
-                m_project->reservoirs.push_back(rimResultReservoir);
-                m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+                m_project->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
             }
             else
             {
@@ -1434,7 +1436,15 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         info.setProgress(i);
     }
 
-    onProjectOpenedOrClosed();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
+
+    // New case is inserted before the last item, the script item
+    int position = projectTreeItem->childCount() - 1;
+
+    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, gridCaseGroup);
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(gridCaseGroup->statisticsCaseCollection());
 
     return true;
 }

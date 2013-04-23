@@ -130,6 +130,26 @@ QString RimProject::projectFileVersionString() const
     return m_projectFileVersionString;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimProject::createIdenticalCaseGroupFromMainCase(RimCase* mainCase)
+{
+    CVF_ASSERT(mainCase);
+
+    RigCaseData* rigEclipseCase = mainCase->reservoirData();
+    RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
+    CVF_ASSERT(equalGrid);
+
+    RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
+    group->createAndAppendStatisticsCase();
+    group->addCase(mainCase);
+    caseGroups().push_back(group);
+
+    return group;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

@@ -48,6 +48,7 @@ public:
 
     void close();
 
+    RimIdenticalGridCaseGroup* createIdenticalCaseGroupFromMainCase(RimCase* mainCase);
     void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
 
     void moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
