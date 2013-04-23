@@ -85,6 +85,8 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 QMenu menu;
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
+                menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
+                menu.addAction(m_pasteAction);
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteView()));
                 menu.exec(event->globalPos());
             }
@@ -941,7 +943,8 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
     if (uiItem)
     {
-        if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
+        if (dynamic_cast<RimCase*>(uiItem->dataObject().p())
+            || dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
         {
             if (keyEvent->matches(QKeySequence::Copy))
             {
@@ -954,7 +957,8 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
 
         if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p())
             || dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p())
-            || dynamic_cast<RimCase*>(uiItem->dataObject().p()))
+            || dynamic_cast<RimCase*>(uiItem->dataObject().p())
+            || dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
         {
             if (keyEvent->matches(QKeySequence::Paste))
             {

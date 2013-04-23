@@ -86,6 +86,8 @@ private slots:
 
 private:
     void                        clearClipboard();
+    RimCase*                    caseFromItemIndex(const QModelIndex& itemIndex);
+
 private:
     QFileSystemWatcher*         m_scriptChangeDetector;
 };

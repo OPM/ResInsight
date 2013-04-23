@@ -680,6 +680,45 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             }
         }
     }
+    else if (caseFromItemIndex(itemIndex))
+    {
+        std::vector<caf::PdmPointer<RimReservoirView> > typedObjects;
+        pdmObjects.createCopyByType(&typedObjects);
+
+        if (typedObjects.size() == 0)
+        {
+            return;
+        }
+
+        RimCase* rimCase = caseFromItemIndex(itemIndex);
+        QModelIndex collectionIndex = getModelIndexFromPdmObject(rimCase);
+        caf::PdmUiTreeItem* collectionItem = getTreeItemFromIndex(collectionIndex);
+
+        // Add cases to case group
+        for (size_t i = 0; i < typedObjects.size(); i++)
+        {
+            RimReservoirView* rimReservoirView = typedObjects[i];
+            QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
+            rimReservoirView->name = nameOfCopy;
+
+            rimReservoirView->setEclipseCase(rimCase);
+
+            // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
+            rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
+
+            caf::PdmObjectGroup::initAfterReadTraversal(rimReservoirView);
+
+            rimReservoirView->loadDataAndUpdate(); 
+            rimCase->reservoirViews().push_back(rimReservoirView);
+
+            int position = static_cast<int>(rimCase->reservoirViews().size());
+            beginInsertRows(collectionIndex, position, position);
+
+            caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, rimReservoirView);
+
+            endInsertRows();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -900,5 +939,29 @@ void RimUiTreeModelPdm::addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTre
     caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(parentTreeItem, position, pdmObject);
 
     endInsertRows();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
+{
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    RimCase* rimCase = NULL;
+
+    if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    {
+        rimCase = dynamic_cast<RimCase*>(currentItem->dataObject().p());
+    }
+    else if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
+    {
+        RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(currentItem->dataObject().p());
+        CVF_ASSERT(reservoirView);
+
+        rimCase = reservoirView->eclipseCase();
+    }
+
+    return rimCase;
 }
 
