@@ -40,11 +40,11 @@ RimWell::RimWell()
     CAF_PDM_InitField(&showWellLabel,         "ShowWellLabel",      true, "Show well label", "", "", "");
 
     CAF_PDM_InitField(&showWellPipes,       "ShowWellPipe",         true,   "Show well pipe", "", "", "");
-    CAF_PDM_InitField(&pipeRadiusScaleFactor, "WellPipeRadiusScale",1.0,    "    Pipe radius scale", "", "", "");
-    CAF_PDM_InitField(&wellPipeColor,       "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "    Well pipe color", "", "", "");
+    CAF_PDM_InitField(&pipeRadiusScaleFactor, "WellPipeRadiusScale",1.0,    "Pipe radius scale", "", "", "");
+    CAF_PDM_InitField(&wellPipeColor,       "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
 
     CAF_PDM_InitField(&showWellCells,       "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
-    CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "    Use well fence", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "Use well fence", "", "", "");
 
     name.setUiHidden(true);
     name.setUiReadOnly(true);
@@ -202,5 +202,22 @@ bool RimWell::isWellVisible(size_t frameIndex)
     CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&showWellLabel);
+
+    caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Well pipe");
+    pipeGroup->add(&showWellPipes);
+    pipeGroup->add(&pipeRadiusScaleFactor);
+    pipeGroup->add(&wellPipeColor);
+
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
+    filterGroup->add(&showWellCells);
+    filterGroup->add(&showWellCellFence);
 }
 

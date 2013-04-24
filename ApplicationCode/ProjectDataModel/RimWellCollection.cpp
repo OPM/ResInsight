@@ -74,18 +74,18 @@ RimWellCollection::RimWellCollection()
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
-    CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "    Show well labels", "", "", "");
-    CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "    Well head scale", "", "", "");
+    CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
+    CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "Well head scale", "", "", "");
 
     CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_INDIVIDUALLY), "Global well pipe visibility",  "", "", "");
 
-    CAF_PDM_InitField(&pipeRadiusScaleFactor,       "WellPipeRadiusScale",    0.1,                        "    Pipe radius scale", "", "", "");
+    CAF_PDM_InitField(&pipeRadiusScaleFactor,       "WellPipeRadiusScale",    0.1,                        "Pipe radius scale", "", "", "");
     CAF_PDM_InitField(&pipeCrossSectionVertexCount, "WellPipeVertexCount", 12, "Pipe vertex count", "", "", "");
     pipeCrossSectionVertexCount.setUiHidden(true);
 
     CAF_PDM_InitField(&wellCellsToRangeFilterMode,  "GlobalWellCellVisibility", WellCellsRangeFilterEnum(RANGE_ADD_NONE),  "Add cells to range filter", "", "", "");
-    CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "    Use well fence", "", "", "");
-    CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION),        "    Well Fence direction", "", "", "");
+    CAF_PDM_InitField(&showWellCellFences,  "ShowWellFences",           false,                              "Use well fence", "", "", "");
+    CAF_PDM_InitField(&wellCellFenceType,   "DefaultWellFenceDirection", WellFenceEnum(K_DIRECTION),        "Well Fence direction", "", "", "");
 
     CAF_PDM_InitField(&wellCellTransparencyLevel, "WellCellTransparency", 0.5, "Well cell transparency", "", "", "");
 
@@ -236,4 +236,28 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 void RimWellCollection::setReservoirView(RimReservoirView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
+    filterGroup->add(&wellCellsToRangeFilterMode);
+    filterGroup->add(&showWellCellFences);
+    filterGroup->add(&wellCellFenceType);
+
+    caf::PdmUiGroup* wellHeadGroup = uiOrdering.addNewGroup("Well head");
+    wellHeadGroup->add(&showWellHead);
+    wellHeadGroup->add(&wellHeadScaleFactor);
+    wellHeadGroup->add(&showWellLabel);
+
+    caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
+    wellPipe->add(&wellPipeVisibility);
+    wellPipe->add(&pipeRadiusScaleFactor);
+
+    uiOrdering.add(&showWellLabel);
+    uiOrdering.add(&wellCellTransparencyLevel);
+    uiOrdering.add(&isAutoDetectingBranches);
 }

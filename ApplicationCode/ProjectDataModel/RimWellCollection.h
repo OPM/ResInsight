@@ -89,7 +89,8 @@ public:
     bool                                hasVisibleWellCells();
     bool                                hasVisibleWellPipes();
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
 private:
     RimReservoirView*   m_reservoirView;

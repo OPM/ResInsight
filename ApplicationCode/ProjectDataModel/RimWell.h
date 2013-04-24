@@ -49,8 +49,8 @@ public:
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
     caf::PdmField<QString>              name;
     caf::PdmField<bool>                 showWellLabel;
