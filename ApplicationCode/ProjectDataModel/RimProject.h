@@ -39,7 +39,7 @@ public:
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
     caf::PdmField<QString>                              treeViewState;
 
-    void setUserScriptPath(const QString& path);
+    void setScriptDirectories(const QString& scriptDirectories);
 
     QString projectFileVersionString() const;
 

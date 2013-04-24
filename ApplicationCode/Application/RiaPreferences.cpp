@@ -28,8 +28,8 @@ RiaPreferences::RiaPreferences(void)
 {
     CAF_PDM_InitField(&navigationPolicy,                "navigationPolicy", caf::AppEnum<RiaApplication::RINavigationPolicy>(RiaApplication::NAVIGATION_POLICY_CAD), "Navigation mode", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&scriptDirectory,        "scriptDirectory", "Shared Script Folder", "", "", "");
-    scriptDirectory.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&scriptDirectories,        "scriptDirectory", "Shared Script Folder(s)", "", "", "");
+    scriptDirectories.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
     CAF_PDM_InitField(&scriptEditorExecutable,          "scriptEditorExecutable", QString("kate"), "Script Editor", "", "", "");
     scriptEditorExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -69,12 +69,13 @@ RiaPreferences::~RiaPreferences(void)
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
-    if (field == &scriptDirectory)
+    if (field == &scriptDirectories)
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
         if (myAttr)
         {
             myAttr->m_selectDirectory = true;
+            myAttr->m_appendUiSelectedFolderToText = true;
         }
     }
 }
@@ -87,7 +88,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     uiOrdering.add(&navigationPolicy);
 
     caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script configuration");
-    scriptGroup->add(&scriptDirectory);
+    scriptGroup->add(&scriptDirectories);
     scriptGroup->add(&scriptEditorExecutable);
     scriptGroup->add(&octaveExecutable);
 

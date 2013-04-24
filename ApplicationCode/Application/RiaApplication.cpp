@@ -901,9 +901,9 @@ bool RiaApplication::parseArguments()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaApplication::scriptDirectory() const
+QString RiaApplication::scriptDirectories() const
 {
-    return m_preferences->scriptDirectory();
+    return m_preferences->scriptDirectories();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1069,7 +1069,7 @@ void RiaApplication::applyPreferences()
 
     if (this->project())
     {
-        this->project()->setUserScriptPath(m_preferences->scriptDirectory());
+        this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
         if (treeModel) treeModel->rebuildUiSubTree(this->project()->scriptCollection());
     }

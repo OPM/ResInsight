@@ -109,7 +109,7 @@ public:
     bool                showPerformanceInfo() const;
 
     RINavigationPolicy  navigationPolicy() const;
-    QString             scriptDirectory() const;
+    QString             scriptDirectories() const;
     QString             scriptEditorPath() const;
     QString             octavePath() const;
 
