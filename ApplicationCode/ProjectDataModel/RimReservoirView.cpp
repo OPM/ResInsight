@@ -762,20 +762,15 @@ void RimReservoirView::loadDataAndUpdate()
     m_reservoirGridPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
-    this->clampCurrentTimestep();
 
-    createDisplayModel();
-    updateDisplayModelVisibility();
+    createDisplayModelAndRedraw();
+
     if (cameraPosition().isIdentity())
     {
         setDefaultView();
     }
-    overlayInfoConfig()->update3DInfo();
 
-    if (animationMode && m_viewer)
-    {
-        m_viewer->slotSetCurrentFrame(m_currentTimeStep);
-    }
+    overlayInfoConfig()->update3DInfo();
 }
 
 
