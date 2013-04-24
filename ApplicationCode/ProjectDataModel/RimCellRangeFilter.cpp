@@ -36,6 +36,8 @@ RimCellRangeFilter::RimCellRangeFilter()
 {
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
+    CAF_PDM_InitField(&gridIndex, "GridIndex",  0,  "Grid", "", "","");
+
     CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start index I", "", "","");
     startIndexI.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());
     
@@ -93,17 +95,17 @@ void RimCellRangeFilter::computeAndSetValidValues()
 {
     CVF_ASSERT(m_parentContainer);
 
-    RigMainGrid* mainGrid = m_parentContainer->mainGrid();
-    if (mainGrid && mainGrid->cellCount() > 0 )
+    RigGridBase* grid = selectedGrid();
+    if (grid && grid->cellCount() > 0 )
     {
-        cellCountI = cvf::Math::clamp(cellCountI.v(),   1, static_cast<int>(mainGrid->cellCountI()));
-        startIndexI = cvf::Math::clamp(startIndexI.v(), 1, static_cast<int>(mainGrid->cellCountI()));
+        cellCountI = cvf::Math::clamp(cellCountI.v(),   1, static_cast<int>(grid->cellCountI()));
+        startIndexI = cvf::Math::clamp(startIndexI.v(), 1, static_cast<int>(grid->cellCountI()));
 
-        cellCountJ = cvf::Math::clamp(cellCountJ.v(),   1, static_cast<int>(mainGrid->cellCountJ()));
-        startIndexJ = cvf::Math::clamp(startIndexJ.v(), 1, static_cast<int>(mainGrid->cellCountJ()));
+        cellCountJ = cvf::Math::clamp(cellCountJ.v(),   1, static_cast<int>(grid->cellCountJ()));
+        startIndexJ = cvf::Math::clamp(startIndexJ.v(), 1, static_cast<int>(grid->cellCountJ()));
 
-        cellCountK = cvf::Math::clamp(cellCountK.v(),   1, static_cast<int>(mainGrid->cellCountK()));
-        startIndexK = cvf::Math::clamp(startIndexK.v(), 1, static_cast<int>(mainGrid->cellCountK()));
+        cellCountK = cvf::Math::clamp(cellCountK.v(),   1, static_cast<int>(grid->cellCountK()));
+        startIndexK = cvf::Math::clamp(startIndexK.v(), 1, static_cast<int>(grid->cellCountK()));
     }
     this->updateIconState();
 }
@@ -115,8 +117,10 @@ void RimCellRangeFilter::setDefaultValues()
 {
     CVF_ASSERT(m_parentContainer);
 
+    RigGridBase* grid = selectedGrid();
+
     RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
-    if (actCellInfo)
+    if (grid == m_parentContainer->mainGrid() && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -136,6 +140,15 @@ void RimCellRangeFilter::setDefaultValues()
         cellCountI = static_cast<int>(max.x() - min.x() + 1);
         cellCountJ = static_cast<int>(max.y() - min.y() + 1);
         cellCountK = static_cast<int>(max.z() - min.z() + 1);
+    }
+    else
+    {
+        startIndexI = 1;
+        startIndexJ = 1;
+        startIndexK = 1;
+        cellCountI = static_cast<int>(grid->cellCountI() );
+        cellCountJ = static_cast<int>(grid->cellCountJ() );
+        cellCountK = static_cast<int>(grid->cellCountK() );
     }
 }
 
@@ -158,11 +171,26 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         return;
     }
 
-    RigMainGrid* mainGrid = m_parentContainer->mainGrid();
-    CVF_ASSERT(mainGrid);
+    RigGridBase* grid = selectedGrid();
+
+    if (field == &startIndexI || field == &cellCountI)
+    {
+        myAttr->m_minimum = 1;
+        myAttr->m_maximum = static_cast<int>(grid->cellCountI());
+    }
+    else if (field == &startIndexJ  || field == &cellCountJ)
+    {
+        myAttr->m_minimum = 1;
+        myAttr->m_maximum = static_cast<int>(grid->cellCountJ());
+    }
+    else if (field == &startIndexK || field == &cellCountK)
+    {
+        myAttr->m_minimum = 1;
+        myAttr->m_maximum = static_cast<int>(grid->cellCountK());
+    }
 
     RigActiveCellInfo* actCellInfo = m_parentContainer->activeCellInfo();
-    if (actCellInfo)
+    if (grid == m_parentContainer->mainGrid() && actCellInfo)
     {
         cvf::Vec3st min, max;
         actCellInfo->IJKBoundingBox(min, max);
@@ -182,22 +210,71 @@ void RimCellRangeFilter::defineEditorAttribute(const caf::PdmFieldHandle* field,
         cellCountI.setUiName(QString("  Width (%1)").arg(max.x() - min.x() + 1));
         cellCountJ.setUiName(QString("  Width (%1)").arg(max.y() - min.y() + 1));
         cellCountK.setUiName(QString("  Width (%1)").arg(max.z() - min.z() + 1));
+    }
+    else
+    {
+        startIndexI.setUiName(QString("I Start"));
+        startIndexJ.setUiName(QString("J Start"));
+        startIndexK.setUiName(QString("K Start"));
+        cellCountI.setUiName(QString("  Width"));
+        cellCountJ.setUiName(QString("  Width"));
+        cellCountK.setUiName(QString("  Width"));
+    }
+}
 
-        if (field == &startIndexI || field == &cellCountI)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimCellRangeFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if (useOptionsOnly) (*useOptionsOnly) = true;
+
+    if (&gridIndex == fieldNeedingOptions)
+    { 
+        RigMainGrid * mainGrid = NULL;
+
+        if (parentContainer() && parentContainer()->reservoirView() && parentContainer()->reservoirView()->eclipseCase() &&  parentContainer()->reservoirView()->eclipseCase()->reservoirData())
+            mainGrid = parentContainer()->reservoirView()->eclipseCase()->reservoirData()->mainGrid();
+
+        for (size_t gIdx = 0; gIdx < mainGrid->gridCount(); ++gIdx)
         {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>(mainGrid->cellCountI());
-        }
-        else if (field == &startIndexJ  || field == &cellCountJ)
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>(mainGrid->cellCountJ());
-        }
-        else if (field == &startIndexK || field == &cellCountK)
-        {
-            myAttr->m_minimum = 1;
-            myAttr->m_maximum = static_cast<int>(mainGrid->cellCountK());
+            RigGridBase* grid = mainGrid->gridByIndex(gIdx);
+            QString gridName;
+
+            gridName += grid->gridName().c_str();
+            if (gIdx == 0)
+            {
+                if (gridName.isEmpty())
+                    gridName += "Main Grid";
+                else
+                    gridName += " (Main Grid)";
+            }
+
+            caf::PdmOptionItemInfo item(gridName, (int)gIdx);
+            options.push_back(item);
         }
     }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigGridBase* RimCellRangeFilter::selectedGrid()
+{
+    RigMainGrid* mainGrid = m_parentContainer->mainGrid();
+    CVF_ASSERT(mainGrid);
+
+    RigGridBase* grid = NULL;
+    if (gridIndex() >= mainGrid->gridCount())
+    {
+        gridIndex = 0;
+    }
+
+    grid = mainGrid->gridByIndex(gridIndex());
+    CVF_ASSERT(grid);
+    return grid;
 }
 

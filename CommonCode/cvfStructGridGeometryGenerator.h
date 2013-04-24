@@ -43,7 +43,11 @@ public:
 
     void addCellExcludeRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
 
-    bool isCellRejected(size_t i, size_t j, size_t k) const;
+    //bool isCellRejected(size_t i, size_t j, size_t k) const;
+
+    bool isCellVisible(size_t i, size_t j, size_t k) const;
+    bool isCellExcluded(size_t i, size_t j, size_t k) const;
+
 
     enum CellStateType
     {

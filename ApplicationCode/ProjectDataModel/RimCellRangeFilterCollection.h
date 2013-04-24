@@ -21,6 +21,7 @@
 #include "RimCellRangeFilter.h"
 
 class RigActiveCellInfo;
+class RigGridBase;
 
 //==================================================================================================
 ///  
@@ -40,7 +41,7 @@ public:
     RimCellRangeFilter* createAndAppendRangeFilter();
     void remove(RimCellRangeFilter* rangeFilter);
 
-    void compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter) const;
+    void compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, const RigGridBase* grid) const;
     bool hasActiveFilters() const;
 
     void                setReservoirView(RimReservoirView* reservoirView);

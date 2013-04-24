@@ -78,11 +78,11 @@ void CellRangeFilter::addCellInclude(size_t i, size_t j, size_t k)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool CellRangeFilter::isCellRejected(size_t i, size_t j, size_t k) const
+bool CellRangeFilter::isCellVisible(size_t i, size_t j, size_t k) const
 {
     if (m_includeRanges.size() == 0)
     {
-        return true;
+        return false;
     }
 
     size_t idx;
@@ -90,7 +90,7 @@ bool CellRangeFilter::isCellRejected(size_t i, size_t j, size_t k) const
     {
         if (m_excludeRanges[idx].isInRange(i, j, k))
         {
-            return true;
+            return false;
         }
     }
 
@@ -98,11 +98,28 @@ bool CellRangeFilter::isCellRejected(size_t i, size_t j, size_t k) const
     {
         if (m_includeRanges[idx].isInRange(i, j, k))
         {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool CellRangeFilter::isCellExcluded(size_t i, size_t j, size_t k) const
+{
+    for (size_t idx = 0; idx < m_excludeRanges.size(); idx++)
+    {
+        if (m_excludeRanges[idx].isInRange(i, j, k))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
