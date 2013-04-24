@@ -23,6 +23,7 @@
 #include <QWidget>
 #include <QPointer>
 #include <QLineEdit>
+#include <QToolButton>
 #include <QLabel>
 
 class QGridLayout;
@@ -40,13 +41,19 @@ public:
     PdmUiFilePathEditorAttribute()
     {
         m_selectSaveFileName = false;
-        m_selectDirectory = false;
         m_fileSelectionFilter = "All files (*.* *)";
+        
+        m_selectDirectory = false;
+        m_appendUiSelectedFolderToText = false;
+        m_multipleItemSeparator = ';';
     }
 public:
     bool    m_selectSaveFileName;
-    bool    m_selectDirectory;
     QString m_fileSelectionFilter;
+
+    bool    m_selectDirectory;
+    bool    m_appendUiSelectedFolderToText;
+    QChar   m_multipleItemSeparator;
 };
 
 
@@ -69,9 +76,10 @@ protected slots:
     void                fileSelectionClicked();
 
 private:
-    QPointer<QLineEdit> m_lineEdit;
-    QPointer<QLabel>    m_label;
-  
+    QPointer<QLineEdit>     m_lineEdit;
+    QPointer<QLabel>        m_label;
+    QPointer<QToolButton>   m_button;
+
     PdmUiFilePathEditorAttribute m_attributes;
 };
 
