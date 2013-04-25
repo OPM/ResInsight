@@ -1177,9 +1177,20 @@ bool RimUiTreeView::checkAndHandleToggleOfMultipleSelection()
                 state = Qt::Checked;
             }
 
-            foreach (QModelIndex mi, selectedIndexes)
+            RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+            myModel->setObjectToggleStateForSelection(selectedIndexes, state);
+
+            caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(curr);
+
+            RimWell* well = dynamic_cast<RimWell*>(uiItem->dataObject().p());
+            if (well)
             {
-                model()->setData(mi, state, Qt::CheckStateRole);
+                RimReservoirView* reservoirView = NULL;
+                well->firstAncestorOfType(reservoirView);
+                if (reservoirView)
+                {
+                    reservoirView->createDisplayModelAndRedraw();
+                }
             }
 
             return true;

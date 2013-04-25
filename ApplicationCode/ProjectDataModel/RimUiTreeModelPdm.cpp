@@ -965,3 +965,40 @@ RimCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
     return rimCase;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Set toggle state for list of model indices. 
+///
+/// NOTE:   Set toggle state directly on object, does not use setValueFromUi()
+///         The caller must make sure the relevant dependencies are updated
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selectedIndexes, int state)
+{
+    bool toggleOn = (state == Qt::Checked);
+
+    foreach (QModelIndex index, selectedIndexes)
+    {
+        if (!index.isValid())
+        {
+            continue;
+        }
+
+        caf::PdmUiTreeItem* treeItem = UiTreeModelPdm::getTreeItemFromIndex(index);
+        assert(treeItem);
+
+        caf::PdmObject* obj = treeItem->dataObject();
+        assert(obj);
+
+        if (obj && obj->objectToggleField())
+        {
+            caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(obj->objectToggleField());
+            if (field)
+            {
+                // Does not use setValueFromUi(), so the caller must make sure dependencies are updated
+                field->v() = toggleOn;
+
+                emitDataChanged(index);
+            }
+        }
+    }
+}
+

@@ -80,6 +80,7 @@ public:
     virtual QStringList         mimeTypes() const;
 
     RimIdenticalGridCaseGroup*  gridCaseGroupFromItemIndex(const QModelIndex& itemIndex);
+    void                        setObjectToggleStateForSelection(QModelIndexList selectedIndexes, int state);
 
 private slots:
     void                        slotRefreshScriptTree(QString path);
@@ -87,7 +88,6 @@ private slots:
 private:
     void                        clearClipboard();
     RimCase*                    caseFromItemIndex(const QModelIndex& itemIndex);
-
 private:
     QFileSystemWatcher*         m_scriptChangeDetector;
 };
