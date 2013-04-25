@@ -1322,6 +1322,9 @@ void RimReservoirView::updateDisplayModelForWellResults()
     {
         m_viewer->slotSetCurrentFrame(m_currentTimeStep);
     }
+
+    RiuMainWindow::instance()->refreshAnimationActions(); 
+   
 }
 
 //--------------------------------------------------------------------------------------------------
