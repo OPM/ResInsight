@@ -136,6 +136,10 @@ public:
     template <typename T>
     void                    parentObjectsOfType(std::vector<T*>& objects) const;
 
+    /// 
+    template <typename T>
+    void                      firstAncestorOfType(T*& ancestor) const;
+
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
     void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) ;
@@ -240,6 +244,35 @@ void PdmObject::parentObjectsOfType(std::vector<T*>& objects) const
         {
             objects.push_back(objectOfType);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObject::firstAncestorOfType(T*& ancestor) const
+{
+    std::vector<PdmObject*> parents;
+    this->parentObjects(parents);
+
+    while (parents.size() > 0)
+    {
+        CVF_ASSERT(parents.size() == 1);
+
+        PdmObject* firstParent = parents[0];
+        CVF_ASSERT(firstParent);
+
+        T* objectOfType = dynamic_cast<T*>(firstParent);
+        if (objectOfType)
+        {
+            ancestor = objectOfType;
+            return;
+        }
+
+        // Get next level parents
+        parents.clear();
+        firstParent->parentObjects(parents);
     }
 }
 
