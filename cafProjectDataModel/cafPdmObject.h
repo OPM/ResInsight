@@ -258,10 +258,10 @@ void PdmObject::firstAncestorOfType(T*& ancestor) const
 
     while (parents.size() > 0)
     {
-        CVF_ASSERT(parents.size() == 1);
+        assert(parents.size() == 1);
 
         PdmObject* firstParent = parents[0];
-        CVF_ASSERT(firstParent);
+        assert(firstParent);
 
         T* objectOfType = dynamic_cast<T*>(firstParent);
         if (objectOfType)
