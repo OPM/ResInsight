@@ -68,6 +68,7 @@ public:
     typedef caf::AppEnum<RimWellCollection::WellFenceType> WellFenceEnum;
 
     caf::PdmField<bool>                 showWellLabel;
+    caf::PdmField<bool>                 showWells;
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
@@ -91,7 +92,7 @@ public:
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
-
+    virtual caf::PdmFieldHandle*        objectToggleField();
 private:
     RimReservoirView*   m_reservoirView;
 };

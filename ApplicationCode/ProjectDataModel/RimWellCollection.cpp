@@ -73,6 +73,9 @@ RimWellCollection::RimWellCollection()
 {
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&showWells,           "ShowWells",        true,   "Show well", "", "", "");
+    showWells.setUiHidden(true);
+
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "Well head scale", "", "", "");
@@ -158,6 +161,7 @@ bool RimWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 bool RimWellCollection::hasVisibleWellPipes()
 {
+    if (!this->showWells()) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
     if (this->wells().size() == 0 ) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_ON) return true;
@@ -171,7 +175,7 @@ bool RimWellCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showWellLabel == changedField)
+    if (&showWellLabel == changedField || &showWells == changedField)
     {
         if (m_reservoirView) 
         {
@@ -260,4 +264,12 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
     advancedGroup->add(&wellCellTransparencyLevel);
     advancedGroup->add(&isAutoDetectingBranches);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellCollection::objectToggleField()
+{
+    return &showWells;
 }
