@@ -116,7 +116,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection","Wells", "", "", "");
     wellCollection = new RimWellCollection;
 
-    CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         ":/CellFilter_Range.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
     rangeFilterCollection = new RimCellRangeFilterCollection();
     rangeFilterCollection->setReservoirView(this);
 
