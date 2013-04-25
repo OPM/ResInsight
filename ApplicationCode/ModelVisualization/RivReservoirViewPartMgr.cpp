@@ -538,8 +538,6 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
     CVF_ASSERT(grid != NULL);
     CVF_ASSERT(nativeVisibility->size() == grid->cellCount());
 
-    RivReservoirPartMgr* reservoirGridPartMgr = &m_geometries[geometryType];
-
     if (rangeFilterColl->hasActiveFilters())
     {
         if (cellVisibility != nativeVisibility) (*cellVisibility) = (*nativeVisibility);
@@ -554,7 +552,17 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
         if (!grid->isMainGrid())
         {
             lgr = static_cast<const RigLocalGrid*>(grid);
+
             size_t parentGridIndex = lgr->parentGrid()->gridIndex();
+            CVF_ASSERT(parentGridIndex < grid->gridIndex());
+
+            if (geometryType == RANGE_FILTERED_WELL_CELLS)
+            {
+                geometryType = RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in the parent grid
+            }
+
+            RivReservoirPartMgr* reservoirGridPartMgr = &m_geometries[geometryType];
+
             parentGridVisibilities = reservoirGridPartMgr->cellVisibility(parentGridIndex);
         }
 
