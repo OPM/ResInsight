@@ -209,12 +209,11 @@ bool RimWell::isWellVisible(size_t frameIndex)
 //--------------------------------------------------------------------------------------------------
 void RimWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&showWellLabel);
-
     caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Well pipe");
     pipeGroup->add(&showWellPipes);
     pipeGroup->add(&pipeRadiusScaleFactor);
     pipeGroup->add(&wellPipeColor);
+    pipeGroup->add(&showWellLabel);
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
     filterGroup->add(&showWellCells);

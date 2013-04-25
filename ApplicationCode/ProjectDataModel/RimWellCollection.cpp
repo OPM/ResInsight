@@ -257,7 +257,7 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     wellPipe->add(&wellPipeVisibility);
     wellPipe->add(&pipeRadiusScaleFactor);
 
-    uiOrdering.add(&showWellLabel);
-    uiOrdering.add(&wellCellTransparencyLevel);
-    uiOrdering.add(&isAutoDetectingBranches);
+    caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Advanced");
+    advancedGroup->add(&wellCellTransparencyLevel);
+    advancedGroup->add(&isAutoDetectingBranches);
 }
