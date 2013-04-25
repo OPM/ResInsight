@@ -33,22 +33,27 @@ public:
 
 
     // Fields:
+    caf::PdmField<bool> active;
     caf::PdmField< std::list< caf::PdmPointer< RimCellPropertyFilter > > > propertyFilters;
 
     // Methods
-    RimCellPropertyFilter* createAndAppendPropertyFilter();
-    void remove(RimCellPropertyFilter* propertyFilter);
+    RimCellPropertyFilter*  createAndAppendPropertyFilter();
+    void                    remove(RimCellPropertyFilter* propertyFilter);
 
-    bool hasActiveFilters() const; 
-    bool hasActiveDynamicFilters() const; 
+    bool                    hasActiveFilters() const; 
+    bool                    hasActiveDynamicFilters() const; 
 
-    void setReservoirView(RimReservoirView* reservoirView);
-    RimReservoirView* reservoirView();
+    void                    setReservoirView(RimReservoirView* reservoirView);
+    RimReservoirView*       reservoirView();
 
-    void loadAndInitializePropertyFilters();
+    void                    loadAndInitializePropertyFilters();
+
+    void                    updateIconState();
+
 
     // Overridden methods
-    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual caf::PdmFieldHandle*    objectToggleField();
 
 protected:
     // Overridden methods
