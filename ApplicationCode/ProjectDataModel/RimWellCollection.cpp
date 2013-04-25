@@ -73,8 +73,8 @@ RimWellCollection::RimWellCollection()
 {
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&showWells,           "ShowWells",        true,   "Show well", "", "", "");
-    showWells.setUiHidden(true);
+    CAF_PDM_InitField(&active,              "Active",        true,   "Active", "", "", "");
+    active.setUiHidden(true);
 
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
@@ -161,7 +161,7 @@ bool RimWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 bool RimWellCollection::hasVisibleWellPipes()
 {
-    if (!this->showWells()) return false;
+    if (!this->active()) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
     if (this->wells().size() == 0 ) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_ON) return true;
@@ -175,8 +175,10 @@ bool RimWellCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showWellLabel == changedField || &showWells == changedField)
+    if (&showWellLabel == changedField || &active == changedField)
     {
+        updateIconState();
+
         if (m_reservoirView) 
         {
             m_reservoirView->createDisplayModelAndRedraw();
@@ -271,5 +273,30 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellCollection::objectToggleField()
 {
-    return &showWells;
+    return &active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellCollection::updateIconState()
+{
+    // Reset dynamic icon
+    this->setUiIcon(QIcon());
+    // Get static one
+    QIcon icon = this->uiIcon();
+
+    // Get a pixmap, and modify it
+
+    QPixmap icPixmap;
+    icPixmap = icon.pixmap(16, 16, QIcon::Normal);
+
+    if (!active)
+    {
+        QIcon temp(icPixmap);
+        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
+    }
+
+    QIcon newIcon(icPixmap);
+    this->setUiIcon(newIcon);
 }

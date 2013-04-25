@@ -68,7 +68,7 @@ public:
     typedef caf::AppEnum<RimWellCollection::WellFenceType> WellFenceEnum;
 
     caf::PdmField<bool>                 showWellLabel;
-    caf::PdmField<bool>                 showWells;
+    caf::PdmField<bool>                 active;
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
@@ -89,6 +89,8 @@ public:
     RimWell*                            findWell(QString name);
     bool                                hasVisibleWellCells();
     bool                                hasVisibleWellPipes();
+
+    void                                updateIconState();
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
