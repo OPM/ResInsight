@@ -1428,10 +1428,13 @@ void RiuMainWindow::storeTreeViewState()
     if (m_treeView)
     {
         QString treeViewState;
-        
         m_treeView->storeTreeViewStateToString(treeViewState);
+
+        QString currentIndexString;
+        RimUiTreeView::storeCurrentIndexToString(*m_treeView, currentIndexString);
         
         RiaApplication::instance()->project()->treeViewState = treeViewState;
+        RiaApplication::instance()->project()->currentModelIndexPath = currentIndexString;
     }
 }
 
@@ -1447,6 +1450,12 @@ void RiuMainWindow::restoreTreeViewState()
         {
             m_treeView->collapseAll();
             m_treeView->applyTreeViewStateFromString(stateString);
+        }
+
+        QString currentIndexString = RiaApplication::instance()->project()->currentModelIndexPath;
+        if (!currentIndexString.isEmpty())
+        {
+            RimUiTreeView::applyCurrentIndexFromString(*m_treeView, currentIndexString);
         }
     }
 }

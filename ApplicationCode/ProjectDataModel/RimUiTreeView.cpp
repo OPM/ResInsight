@@ -1298,6 +1298,55 @@ void RimUiTreeView::storeTreeViewStateToString(QString& treeViewState)
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Find index based of an encode QString <row> <column>;<row> <column>;...;<row> <column>
+/// Set the decoded index as current index in the QAbstractItemView
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::applyCurrentIndexFromString(QAbstractItemView& itemView, const QString& currentIndexString)
+{
+    QStringList modelIndexStringList = currentIndexString.split(";");
+
+    QModelIndex mi;
+
+    foreach (QString modelIndexString, modelIndexStringList)
+    {
+        QStringList items = modelIndexString.split(" ");
+
+        if (items.size() != 2) continue;
+
+        int row = items[0].toInt();
+        int col = items[1].toInt();
+
+        mi = itemView.model()->index(row, col, mi);
+    }
+
+    if (mi.isValid())
+    {
+        itemView.setCurrentIndex(mi);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Store path to current index in item view using follwoing encoding into a QString <row> <column>;<row> <column>;...;<row> <column>
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::storeCurrentIndexToString(const QAbstractItemView& itemView, QString& currentIndexString)
+{
+    QModelIndex mi = itemView.currentIndex();
+    if (!mi.isValid()) return;
+
+    QString path = QString("%1 %2").arg(mi.row()).arg(mi.column());
+    mi = mi.parent();
+
+    while (mi.isValid())
+    {
+        path = QString("%1 %2;").arg(mi.row()).arg(mi.column()) + path;
+        mi = mi.parent();
+    }
+
+    currentIndexString = path;
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::setExpandedUpToRoot(const QModelIndex& itemIndex)

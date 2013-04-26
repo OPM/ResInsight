@@ -44,6 +44,9 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
     treeViewState.setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
+    currentModelIndexPath.setUiHidden(true);
+
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
 

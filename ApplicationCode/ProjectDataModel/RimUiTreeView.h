@@ -46,6 +46,9 @@ public:
     void applyTreeViewStateFromString(const QString& treeViewState);
     void storeTreeViewStateToString(QString& treeViewState);
 
+    static void applyCurrentIndexFromString(QAbstractItemView& itemView, const QString& currentIndexString);
+    static void storeCurrentIndexToString(const QAbstractItemView& itemView, QString& currentIndexString);
+
 protected:
     void contextMenuEvent(QContextMenuEvent* event);
 

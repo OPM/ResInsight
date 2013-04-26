@@ -38,6 +38,7 @@ public:
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
     caf::PdmField<QString>                              treeViewState;
+    caf::PdmField<QString>                              currentModelIndexPath;
 
     void setScriptDirectories(const QString& scriptDirectories);
 
