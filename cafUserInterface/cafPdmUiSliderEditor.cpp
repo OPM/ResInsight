@@ -44,7 +44,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT(PdmUiSliderEditor);
 //--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
-    assert(!m_lineEdit.isNull());
+    assert(!m_spinBox.isNull());
 
     QIcon ic = field()->uiIcon(uiConfigName);
     if (!ic.isNull())
@@ -57,11 +57,17 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
-    m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_spinBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_slider->setEnabled(!field()->isUiReadOnly(uiConfigName));
 
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &m_attributes);
-    m_lineEdit->setValidator(new QIntValidator(m_attributes.m_minimum, m_attributes.m_maximum, this));
+
+    {
+        m_spinBox->blockSignals(true);
+        m_spinBox->setMinimum(m_attributes.m_minimum);
+        m_spinBox->setMaximum(m_attributes.m_maximum);
+        m_spinBox->blockSignals(false);
+    }
 
     {
         m_slider->blockSignals(true);
@@ -70,7 +76,8 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     QString textValue = field()->uiValue().toString();
-    m_lineEdit->setText(textValue);
+    m_spinBox->setValue(textValue.toInt());
+
     updateSliderPosition();
 }
 
@@ -85,12 +92,12 @@ QWidget* PdmUiSliderEditor::createEditorWidget(QWidget * parent)
     layout->setMargin(0);
     containerWidget->setLayout(layout);
 
-    m_lineEdit = new QLineEdit(containerWidget);
-    m_lineEdit->setMaximumWidth(30);
-    connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
+    m_spinBox = new QSpinBox(containerWidget);
+    m_spinBox->setMaximumWidth(60);
+    connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(slotSpinBoxValueChanged(int)));
 
     m_slider = new QSlider(Qt::Horizontal, containerWidget);
-    layout->addWidget(m_lineEdit);
+    layout->addWidget(m_spinBox);
     layout->addWidget(m_slider);
 
     connect(m_slider, SIGNAL(valueChanged(int)), this, SLOT(slotSliderValueChanged(int)));
@@ -107,11 +114,20 @@ QWidget* PdmUiSliderEditor::createLabelWidget(QWidget * parent)
     return m_label;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiSliderEditor::slotSliderValueChanged(int position)
+{
+    m_spinBox->setValue(position);
+
+    writeValueToField();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::slotEditingFinished()
+void PdmUiSliderEditor::slotSpinBoxValueChanged(int spinBoxValue)
 {
     updateSliderPosition();
 
@@ -121,19 +137,9 @@ void PdmUiSliderEditor::slotEditingFinished()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmUiSliderEditor::slotSliderValueChanged(int position)
-{
-    m_lineEdit->setText(QString::number(position));
-
-    writeValueToField();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::updateSliderPosition()
 {
-    QString textValue = m_lineEdit->text();
+    QString textValue = m_spinBox->text();
 
     bool convertOk = false;
     int newSliderValue = textValue.toInt(&convertOk);
@@ -149,7 +155,7 @@ void PdmUiSliderEditor::updateSliderPosition()
 //--------------------------------------------------------------------------------------------------
 void PdmUiSliderEditor::writeValueToField()
 {
-    QString textValue = m_lineEdit->text();
+    QString textValue = m_spinBox->text();
     QVariant v;
     v = textValue;
     this->setValueToField(v);
