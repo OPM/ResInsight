@@ -50,6 +50,7 @@ public:
     void setDefaultValues();
 
     caf::PdmField<int>      gridIndex;      // The index of the grid that this filter applies to
+    caf::PdmField<bool>     propagateToSubGrids; // Do propagate the effects to the sub-grids
 
     caf::PdmField<int>      startIndexI;    // Eclipse indexing, first index is 1
     caf::PdmField<int>      startIndexJ;    // Eclipse indexing, first index is 1

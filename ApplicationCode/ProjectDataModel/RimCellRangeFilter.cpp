@@ -37,6 +37,7 @@ RimCellRangeFilter::RimCellRangeFilter()
     CAF_PDM_InitObject("Cell Range Filter", ":/CellFilter_Range.png", "", "");
 
     CAF_PDM_InitField(&gridIndex, "GridIndex",  0,  "Grid", "", "","");
+    CAF_PDM_InitField(&propagateToSubGrids, "PropagateToSubGrids",  true,  "Apply to Subgrids", "", "","");
 
     CAF_PDM_InitField(&startIndexI, "StartIndexI",  1,  "Start index I", "", "","");
     startIndexI.setUiEditorTypeName(caf::PdmUiSliderEditor::uiEditorTypeName());

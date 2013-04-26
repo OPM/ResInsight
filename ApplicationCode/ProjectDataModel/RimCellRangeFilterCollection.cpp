@@ -83,7 +83,8 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->startIndexK - 1,
                     rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
                     rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK);
+                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
+                    rangeFilter->propagateToSubGrids());
             }
             else
             {
@@ -93,7 +94,8 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->startIndexK - 1,
                     rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
                     rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK);
+                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK, 
+                    rangeFilter->propagateToSubGrids());
             }
         }
     }

@@ -571,10 +571,11 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
         {
             if ( (*nativeVisibility)[cellIndex] )
             {
+                const RigCell& cell = grid->cell(cellIndex);
                 bool visibleDueToParentGrid = false;
                 if (lgr)
                 {
-                    size_t parentGridCellIndex = grid->cell(cellIndex).parentCellIndex();
+                    size_t parentGridCellIndex = cell.parentCellIndex();
                     visibleDueToParentGrid = parentGridVisibilities->get(parentGridCellIndex);
                 }
 
@@ -583,9 +584,10 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
                 size_t mainGridJ;
                 size_t mainGridK;
 
+                bool isInSubGridArea = cell.subGrid() != NULL;
                 grid->ijkFromCellIndex(cellIndex, &mainGridI, &mainGridJ, &mainGridK);
-                (*cellVisibility)[cellIndex] = (visibleDueToParentGrid || gridCellRangeFilter.isCellVisible(mainGridI, mainGridJ, mainGridK)) 
-                                                && !gridCellRangeFilter.isCellExcluded(mainGridI, mainGridJ, mainGridK);
+                (*cellVisibility)[cellIndex] = (visibleDueToParentGrid || gridCellRangeFilter.isCellVisible(mainGridI, mainGridJ, mainGridK, isInSubGridArea)) 
+                                                && !gridCellRangeFilter.isCellExcluded(mainGridI, mainGridJ, mainGridK, isInSubGridArea);
             }
         }
     }

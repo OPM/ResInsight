@@ -38,26 +38,13 @@ class CellRangeFilter
 public:
     CellRangeFilter();
 
-    void addCellIncludeRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
-    void addCellInclude(size_t i, size_t j, size_t k);
+    void addCellIncludeRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK, bool applyToSubGridAreas);
+    void addCellInclude(size_t i, size_t j, size_t k, bool applyToSubGridAreas);
 
-    void addCellExcludeRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK);
+    void addCellExcludeRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK, bool applyToSubGridAreas);
 
-    //bool isCellRejected(size_t i, size_t j, size_t k) const;
-
-    bool isCellVisible(size_t i, size_t j, size_t k) const;
-    bool isCellExcluded(size_t i, size_t j, size_t k) const;
-
-
-    enum CellStateType
-    {
-        INCLUDED, /// Cell is among the included cells
-        NOT_INCLUDED, /// Cell is not among the included cells
-        EXCLUDED /// Filter actively states that cell is to be hidden
-    };
-
-    CellStateType cellState(size_t i, size_t j, size_t k) const;
-    static CellStateType combine(CellStateType a, CellStateType b) ;
+    bool isCellVisible(size_t i, size_t j, size_t k, bool isInSubGridArea) const;
+    bool isCellExcluded(size_t i, size_t j, size_t k, bool isInSubGridArea) const;
 
 private:
     class CellRange
@@ -65,18 +52,21 @@ private:
     public:
         CellRange()
             : m_min(cvf::Vec3st::ZERO),
-            m_max(UNDEFINED_SIZE_T, UNDEFINED_SIZE_T, UNDEFINED_SIZE_T)
+            m_max(UNDEFINED_SIZE_T, UNDEFINED_SIZE_T, UNDEFINED_SIZE_T),
+            m_applyToSubGridAreas(true)
         {
         }
 
-        CellRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK)
+        CellRange(size_t minI, size_t minJ, size_t minK, size_t maxI, size_t maxJ, size_t maxK, bool applyToSubGridAreas)
             : m_min(minI, minJ, minK),
-            m_max(maxI, maxJ, maxK)
+            m_max(maxI, maxJ, maxK),
+            m_applyToSubGridAreas(applyToSubGridAreas)
         {
         }
 
-        bool isInRange(size_t i, size_t j, size_t k) const
+        bool isInRange(size_t i, size_t j, size_t k, bool isInSubGridArea) const
         {
+            if (isInSubGridArea && !m_applyToSubGridAreas) return false;
             cvf::Vec3st test(i, j, k);
 
             int idx;
@@ -94,6 +84,7 @@ private:
     public:
         cvf::Vec3st m_min;
         cvf::Vec3st m_max;
+        bool m_applyToSubGridAreas;
     };
 
 private:
