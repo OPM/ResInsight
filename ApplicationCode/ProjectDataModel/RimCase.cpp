@@ -51,6 +51,10 @@ RimCase::RimCase()
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
     m_fractureModelResults.setUiHidden(true);
 
+    CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
+    CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
+
+
     // Obsolete field
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
     caseName.setIOWritable(false);
@@ -249,6 +253,25 @@ void RimCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         }
 
         releaseResultMemory = oldValue.toBool();
+    }
+    else if (changedField == &flipXAxis || changedField == &flipYAxis)
+    {
+        RigCaseData* rigEclipseCase = reservoirData();
+        if (rigEclipseCase)
+        {
+            rigEclipseCase->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+
+            computeCachedData();
+
+            for (size_t i = 0; i < reservoirViews().size(); i++)
+            {
+                RimReservoirView* reservoirView = reservoirViews()[i];
+
+                reservoirView->scheduleReservoirGridGeometryRegen();
+                reservoirView->schedulePipeGeometryRegen();
+                reservoirView->createDisplayModelAndRedraw();
+            }
+        }
     }
 }
 

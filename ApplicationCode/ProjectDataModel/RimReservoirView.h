@@ -153,6 +153,7 @@ public:
     void                                    loadDataAndUpdate();
     void                                    createDisplayModelAndRedraw();
     void                                    scheduleGeometryRegen(unsigned short geometryType);
+    void                                    scheduleReservoirGridGeometryRegen();
     void                                    schedulePipeGeometryRegen();
     void                                    updateDisplayModelForWellResults();
 

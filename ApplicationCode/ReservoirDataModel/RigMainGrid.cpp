@@ -26,6 +26,8 @@ RigMainGrid::RigMainGrid(void)
     m_displayModelOffset = cvf::Vec3d::ZERO;
     
     m_gridIndex = 0;
+    m_flipXAxis = false;
+    m_flipYAxis = false;
 } 
 
 
@@ -114,5 +116,43 @@ const RigGridBase* RigMainGrid::gridByIndex(size_t localGridIndex) const
     if (localGridIndex == 0) return this;
     CVF_ASSERT(localGridIndex - 1 < m_localGrids.size()) ;
     return m_localGrids[localGridIndex-1].p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::setFlipAxis(bool flipXAxis, bool flipYAxis)
+{
+    bool needFlipX = false;
+    bool needFlipY = false;
+
+    if (m_flipXAxis != flipXAxis)
+    {
+        needFlipX = true;
+    }
+
+    if (m_flipYAxis != flipYAxis)
+    {
+        needFlipY = true;
+    }
+
+    if (needFlipX || needFlipY)
+    {
+        for (size_t i = 0; i < m_nodes.size(); i++)
+        {
+            if (needFlipX)
+            {
+                m_nodes[i].x() *= -1.0;
+            }
+
+            if (needFlipY)
+            {
+                m_nodes[i].y() *= -1.0;
+            }
+        }
+
+        m_flipXAxis = flipXAxis;
+        m_flipYAxis = flipYAxis;
+    }
 }
 

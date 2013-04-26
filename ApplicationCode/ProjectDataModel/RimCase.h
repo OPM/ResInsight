@@ -51,6 +51,9 @@ public:
     caf::PdmField<QString>                      caseUserDescription;
     caf::PdmField<bool>                         releaseResultMemory;
     caf::PdmPointersField<RimReservoirView*>    reservoirViews;
+    caf::PdmField<bool>                         flipXAxis;
+    caf::PdmField<bool>                         flipYAxis;
+
 
     virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
                                                       
