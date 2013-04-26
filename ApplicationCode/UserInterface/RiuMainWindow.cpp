@@ -115,6 +115,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
 {
     slotRefreshFileActions();
     slotRefreshEditActions();
+    slotRefreshViewActions();
     refreshAnimationActions();
     refreshDrawStyleActions();
     setPdmRoot(RiaApplication::instance()->project());
@@ -376,6 +377,14 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
 
+    QLabel* scaleLabel = new QLabel(m_viewToolBar);
+    scaleLabel->setText("Scale");
+    m_viewToolBar->addWidget(scaleLabel);
+
+    m_scaleFactor = new QSpinBox(m_viewToolBar);
+    m_scaleFactor->setValue(0);
+    m_viewToolBar->addWidget(m_scaleFactor);
+    connect(m_scaleFactor, SIGNAL(valueChanged(int)), SLOT(slotScaleChanged(int)));
 
     // Create animation toolbar
     m_animationToolBar = new caf::AnimationToolBar("Animation", this);
@@ -536,9 +545,6 @@ void RiuMainWindow::slotRefreshEditActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotRefreshViewActions()
 {
-//     RiaApplication* app = RiaApplication::instance();
-//     RISceneManager* proj = app->project();
-
     bool enabled = true;
     m_viewFromNorth->setEnabled(enabled);
     m_viewFromSouth->setEnabled(enabled);
@@ -546,6 +552,8 @@ void RiuMainWindow::slotRefreshViewActions()
     m_viewFromWest->setEnabled(enabled);
     m_viewFromAbove->setEnabled(enabled);
     m_viewFromBelow->setEnabled(enabled);
+
+    updateScaleValue();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1078,6 +1086,7 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
                     }
                 }
 
+                slotRefreshViewActions();
                 refreshAnimationActions();
                 refreshDrawStyleActions();
                 break;
@@ -1455,5 +1464,36 @@ void RiuMainWindow::setCurrentObjectInTreeView(caf::PdmObject* object)
         {
             m_treeView->setCurrentIndex(mi);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotScaleChanged(int scaleValue)
+{
+    if (RiaApplication::instance()->activeReservoirView())
+    {
+        RiaApplication::instance()->activeReservoirView()->scaleZ.setValueFromUi(scaleValue);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::updateScaleValue()
+{
+    if (RiaApplication::instance()->activeReservoirView())
+    {
+        m_scaleFactor->setEnabled(true);
+
+        int scaleValue = RiaApplication::instance()->activeReservoirView()->scaleZ();
+        m_scaleFactor->blockSignals(true);
+        m_scaleFactor->setValue(scaleValue);
+        m_scaleFactor->blockSignals(false);
+    }
+    else
+    {
+        m_scaleFactor->setEnabled(false);
     }
 }

@@ -344,6 +344,8 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             createDisplayModelAndRedraw();
             m_viewer->update();
         }
+
+        RiuMainWindow::instance()->updateScaleValue();
     }
     else if (changedField == &maximumFrameRate)
     {

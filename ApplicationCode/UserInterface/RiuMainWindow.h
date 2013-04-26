@@ -32,6 +32,7 @@ class QLabel;
 class QLineEdit;
 class QItemSelection;
 class QActionGroup;
+class QSpinBox;
 
 class RiuViewer;
 class RiuResultInfoPanel;
@@ -72,6 +73,7 @@ public:
     void            setResultInfo(const QString& info) const;
 
     void            refreshAnimationActions();
+    void            updateScaleValue();
 
     RimUiTreeModelPdm* uiPdmModel() { return m_treeModelPdm;}
 
@@ -191,6 +193,7 @@ private slots:
     void    slotViewFromAbove();
     void    slotViewFromBelow();
     void    slotZoomAll();
+    void    slotScaleChanged(int scaleValue);
 
     void slotDrawStyleChanged(QAction* activatedAction);
     void slotToggleFaultsAction(bool);
@@ -232,6 +235,8 @@ private:
     RimUiTreeModelPdm*          m_treeModelPdm;
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
+
+    QSpinBox*                   m_scaleFactor;
 
     QActionGroup*               m_dsActionGroup;
     QAction*                    m_drawStyleToggleFaultsAction;
