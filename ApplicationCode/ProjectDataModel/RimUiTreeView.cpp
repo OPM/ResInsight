@@ -28,6 +28,7 @@
 #include "RiuMainWindow.h"
 #include "RimInputPropertyCollection.h"
 #include "RimExportInputPropertySettings.h"
+#include "RiaPreferences.h"
 #include "RiuPreferencesDialog.h"
 #include "RifEclipseInputFileTools.h"
 #include "RimInputCase.h"
@@ -214,6 +215,14 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 {
                     menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
                 }
+
+                menu.exec(event->globalPos());
+            }
+            else if (dynamic_cast<RimScriptCollection*>(uiItem->dataObject().p()) || dynamic_cast<RimCalcScript*>(uiItem->dataObject().p()))
+            {
+                QMenu menu;
+                menu.addAction(QString("Add Script Path"), this, SLOT(slotAddScriptPath()));
+                menu.addAction(QString("Delete Script Path"), this, SLOT(slotDeleteScriptPath()));
 
                 menu.exec(event->globalPos());
             }
@@ -1299,6 +1308,63 @@ void RimUiTreeView::setExpandedUpToRoot(const QModelIndex& itemIndex)
     {
         this->setExpanded(mi, true);
         mi = mi.parent();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotAddScriptPath()
+{
+    QString selectedFolder = QFileDialog::getExistingDirectory(this, "Select script folder");
+    if (!selectedFolder.isEmpty())
+    {
+        QString filePathString = RiaApplication::instance()->preferences()->scriptDirectories();
+
+        QChar separator(';');
+        if (!filePathString.isEmpty() && !filePathString.endsWith(separator, Qt::CaseInsensitive))
+        {
+            filePathString += separator;
+        }
+        
+        filePathString += selectedFolder;
+
+        RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
+        RiaApplication::instance()->applyPreferences();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotDeleteScriptPath()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+    if (uiItem)
+    {
+        if (dynamic_cast<RimScriptCollection*>(uiItem->dataObject().p()))
+        {
+            RimScriptCollection* scriptCollection = dynamic_cast<RimScriptCollection*>(uiItem->dataObject().p());
+            QString toBeRemoved = scriptCollection->directory;
+
+            QString originalFilePathString = RiaApplication::instance()->preferences()->scriptDirectories();
+            QString filePathString = originalFilePathString.remove(toBeRemoved);
+
+            // Remove duplicate separators
+            QChar separator(';');
+            QString regExpString = QString("%1{1,5}").arg(separator);
+            filePathString.replace(QRegExp(regExpString), separator);
+
+            // Remove separator at end
+            if (filePathString.endsWith(separator))
+            {
+                filePathString = filePathString.left(filePathString.size() - 1);
+            }
+
+            RiaApplication::instance()->preferences()->scriptDirectories = filePathString;
+            RiaApplication::instance()->applyPreferences();
+        }
     }
 }
 

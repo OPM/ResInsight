@@ -82,6 +82,9 @@ private slots:
     void slotAddCaseGroup();
     void slotDeleteObjectFromPdmPointersField();
 
+    void slotAddScriptPath();
+    void slotDeleteScriptPath(); 
+
     void slotCopyPdmObjectToClipboard();
     void slotPastePdmObjects();
 
