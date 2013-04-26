@@ -49,6 +49,8 @@ RimWell::RimWell()
     name.setUiHidden(true);
     name.setUiReadOnly(true);
 
+    m_wellIndex = cvf::UNDEFINED_SIZE_T;
+
     m_reservoirView = NULL;
 }
 
@@ -134,7 +136,7 @@ caf::PdmFieldHandle* RimWell::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RimWell::isWellVisible(size_t frameIndex)
+bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
 {
     if (m_reservoirView == NULL) return false;
     if (this->wellResults() == NULL) return false;
@@ -142,6 +144,9 @@ bool RimWell::isWellVisible(size_t frameIndex)
     if (   this->wellResults()->firstResultTimeStep() == cvf::UNDEFINED_SIZE_T 
         || frameIndex < this->wellResults()->firstResultTimeStep() 
         || frameIndex >= this->wellResults()->m_wellCellsTimeSteps.size()) 
+        return false;
+
+    if (!m_reservoirView->wellCollection()->active())
         return false;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_ON)
@@ -218,5 +223,14 @@ void RimWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrder
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
     filterGroup->add(&showWellCells);
     filterGroup->add(&showWellCellFence);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWell::isWellPipeVisible(size_t frameIndex)
+{
+    // Return the possibly cached value
+    return m_reservoirView->wellCollection()->isWellPipesVisible(frameIndex)[m_wellIndex];
 }
 

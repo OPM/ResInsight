@@ -90,9 +90,17 @@ public:
     bool                                hasVisibleWellCells();
     bool                                hasVisibleWellPipes();
 
+    const std::vector<cvf::ubyte>&      isWellPipesVisible(size_t frameIndex);       
+    void                                scheduleIsWellPipesVisibleRecalculation();
+
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
     virtual caf::PdmFieldHandle*        objectToggleField();
 private:
+
+    void                                calculateIsWellPipesVisible(size_t frameIndex);
+
     RimReservoirView*   m_reservoirView;
+    std::vector< std::vector< cvf::ubyte > >             
+                                        m_isWellPipesVisible;  
 };

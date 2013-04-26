@@ -40,11 +40,14 @@ public:
     virtual ~RimWell();
     
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
-    
+    void                                setWellIndex(size_t val) { m_wellIndex = val; }
+
     void                                setWellResults(RigSingleWellResultsData* wellResults) { m_wellResults = wellResults;}
     RigSingleWellResultsData*           wellResults() { return m_wellResults.p(); }
     
-    bool                                isWellVisible(size_t frameIndex);
+    bool                                isWellPipeVisible(size_t frameIndex);
+
+    bool                                calculateWellPipeVisibility(size_t frameIndex);
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();
@@ -64,6 +67,7 @@ public:
 
 private:
     cvf::ref<RigSingleWellResultsData>  m_wellResults;
+    size_t                              m_wellIndex;
 
     RimReservoirView*                   m_reservoirView;
 };

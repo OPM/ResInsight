@@ -507,6 +507,7 @@ void RimReservoirView::createDisplayModel()
     bool isAnimationActive = m_viewer->isAnimationActive();
     m_viewer->removeAllFrames();
 
+    wellCollection->scheduleIsWellPipesVisibleRecalculation();
 
     // Create vector of grid indices to render
     std::vector<size_t> gridIndices;
@@ -1178,9 +1179,19 @@ void RimReservoirView::syncronizeWellsWithResults()
 
     cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
 
+ 
+    std::vector<caf::PdmPointer<RimWell> > newWells;
+
+    // Clear the possible well results data present
+    for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
+    {
+        RimWell* well = this->wellCollection()->wells()[wIdx];
+        well->setWellResults(NULL);
+    }
+
     // Find corresponding well from well result, or create a new
-    size_t wIdx;
-    for (wIdx = 0; wIdx < wellResults.size(); ++wIdx)
+
+    for (size_t wIdx = 0; wIdx < wellResults.size(); ++wIdx)
     {
         RimWell* well = this->wellCollection()->findWell(wellResults[wIdx]->m_wellName);
 
@@ -1188,28 +1199,33 @@ void RimReservoirView::syncronizeWellsWithResults()
         {
             well = new RimWell;
             well->name = wellResults[wIdx]->m_wellName;
-            this->wellCollection()->wells().push_back(well);
+            
         }
+        newWells.push_back(well);
+        well->setWellIndex(wIdx);
         well->setWellResults(wellResults[wIdx].p());
     }
 
-    // Remove all wells that does not have a result
+    // Delete all wells that does not have a result
 
-    for (wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
+    for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimWell* well = this->wellCollection()->wells()[wIdx];
         RigSingleWellResultsData* wellRes = well->wellResults();
         if (wellRes == NULL)
         {
             delete well;
-            this->wellCollection()->wells().erase(wIdx);
         }
     }
+    this->wellCollection()->wells().clear();
+
+    // Set the new wells into the field.
+    this->wellCollection()->wells().insert(0, newWells);
+
 
     // Make sure all the wells have their reservoirView ptr setup correctly
-
     this->wellCollection()->setReservoirView(this);
-    for (wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
+    for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         this->wellCollection()->wells()[wIdx]->setReservoirView(this);
     }

@@ -326,7 +326,7 @@ void RivWellPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList*
 {
     if (m_rimReservoirView.isNull()) return;
     if (m_rimWell.isNull()) return;
-    if (!m_rimWell->isWellVisible(frameIndex)) return;
+    if (!m_rimWell->isWellPipeVisible(frameIndex)) return;
 
     if (m_needsTransformUpdate) buildWellPipeParts();
 

@@ -276,3 +276,39 @@ caf::PdmFieldHandle* RimWellCollection::objectToggleField()
     return &active;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::ubyte>& RimWellCollection::isWellPipesVisible(size_t frameIndex)
+{
+    calculateIsWellPipesVisible(frameIndex);
+    return m_isWellPipesVisible[frameIndex];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellCollection::scheduleIsWellPipesVisibleRecalculation()
+{
+    m_isWellPipesVisible.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellCollection::calculateIsWellPipesVisible(size_t frameIndex)
+{
+    if (m_isWellPipesVisible.size() > frameIndex && m_isWellPipesVisible[frameIndex].size()) return;
+
+    if (m_isWellPipesVisible.size() <= frameIndex)
+        m_isWellPipesVisible.resize(frameIndex+1);
+
+    if (m_isWellPipesVisible[frameIndex].size() <= wells().size())
+        m_isWellPipesVisible[frameIndex].resize(wells().size(), false); 
+    
+    for (size_t i = 0; i < wells().size(); ++i)
+    {
+        m_isWellPipesVisible[frameIndex][i] = wells[i]->calculateWellPipeVisibility(frameIndex);
+    }
+}

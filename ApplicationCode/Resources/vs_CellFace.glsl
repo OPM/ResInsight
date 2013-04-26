@@ -75,8 +75,10 @@ void main()
     
 	if ( a_colorCell < 0.0)
 		v_cellColor = vec4(0.75, 0.75, 0.75, 1); // Light grayish
-	else
-		v_cellColor = texture2D(u_cellTexture2D, vec2( a_colorCell, 0.5f));
+	else if ( a_colorCell >= 2.0)
+		v_cellColor = texture2D(u_cellTexture2D, vec2( a_colorCell-2.0f, 0f)); // Opaque, because the y=0 texcoord points to the opaque part of an modified texture
+    else
+		v_cellColor = texture2D(u_cellTexture2D, vec2( a_colorCell, 0.5f)); // Default, transparent if the texture is modified
 
     /*
         // Performance test code
