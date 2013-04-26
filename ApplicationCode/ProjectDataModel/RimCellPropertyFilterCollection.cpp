@@ -78,7 +78,7 @@ RimReservoirView* RimCellPropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimCellPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    updateIconState();
+    this->updateUiIconFromState(active);
 
     m_reservoirView->fieldChangedByUi(&(m_reservoirView->propertyFilterCollection), oldValue, newValue);
 }
@@ -173,30 +173,6 @@ bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
     return false;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCellPropertyFilterCollection::updateIconState()
-{
-    // Reset dynamic icon
-    this->setUiIcon(QIcon());
-    // Get static one
-    QIcon icon = this->uiIcon();
-
-    // Get a pixmap, and modify it
-
-    QPixmap icPixmap;
-    icPixmap = icon.pixmap(16, 16, QIcon::Normal);
-
-    if (!active)
-    {
-        QIcon temp(icPixmap);
-        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
-    }
-
-    QIcon newIcon(icPixmap);
-    this->setUiIcon(newIcon);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 

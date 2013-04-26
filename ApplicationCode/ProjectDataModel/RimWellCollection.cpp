@@ -177,7 +177,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (&showWellLabel == changedField || &active == changedField)
     {
-        updateIconState();
+        this->updateUiIconFromState(active);
 
         if (m_reservoirView) 
         {
@@ -276,27 +276,3 @@ caf::PdmFieldHandle* RimWellCollection::objectToggleField()
     return &active;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimWellCollection::updateIconState()
-{
-    // Reset dynamic icon
-    this->setUiIcon(QIcon());
-    // Get static one
-    QIcon icon = this->uiIcon();
-
-    // Get a pixmap, and modify it
-
-    QPixmap icPixmap;
-    icPixmap = icon.pixmap(16, 16, QIcon::Normal);
-
-    if (!active)
-    {
-        QIcon temp(icPixmap);
-        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
-    }
-
-    QIcon newIcon(icPixmap);
-    this->setUiIcon(newIcon);
-}

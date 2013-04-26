@@ -50,8 +50,6 @@ public:
     RigMainGrid*        mainGrid() const;
     RigActiveCellInfo*  activeCellInfo() const;
 
-    void                updateIconState();
-
     // Overridden methods
     virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
     virtual caf::PdmFieldHandle*    objectToggleField();

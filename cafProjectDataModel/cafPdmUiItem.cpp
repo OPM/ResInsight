@@ -267,5 +267,30 @@ PdmUiItem::~PdmUiItem()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiItem::updateUiIconFromState(bool active)
+{
+    // Reset dynamic icon
+    this->setUiIcon(QIcon());
+    // Get static one
+    QIcon icon = this->uiIcon();
+
+    // Get a pixmap, and modify it
+
+    QPixmap icPixmap;
+    icPixmap = icon.pixmap(16, 16, QIcon::Normal);
+
+    if (!active)
+    {
+        QIcon temp(icPixmap);
+        icPixmap = temp.pixmap(16, 16, QIcon::Disabled);
+    }
+
+    QIcon newIcon(icPixmap);
+    this->setUiIcon(newIcon);
+}
+
 } //End of namespace caf
 

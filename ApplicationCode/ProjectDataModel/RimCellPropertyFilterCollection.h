@@ -48,8 +48,6 @@ public:
 
     void                    loadAndInitializePropertyFilters();
 
-    void                    updateIconState();
-
 
     // Overridden methods
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

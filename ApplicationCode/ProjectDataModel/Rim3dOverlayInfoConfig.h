@@ -29,7 +29,7 @@ class RimReservoirView;
 ///  
 ///  
 //==================================================================================================
-class Rim3dOverlayInfoConfig:  public caf::PdmObject
+class Rim3dOverlayInfoConfig : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -41,13 +41,14 @@ public:
     void setReservoirView(RimReservoirView* ownerReservoirView) {m_reservoirView = ownerReservoirView; }
 
     void                                        setPosition(cvf::Vec2ui position);
+    caf::PdmField<bool>                         active;
     caf::PdmField<bool>                         showInfoText;
     caf::PdmField<bool>                         showAnimProgress;
     caf::PdmField<bool>                         showHistogram;
     
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
+    virtual caf::PdmFieldHandle*                objectToggleField();
 private:
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
 

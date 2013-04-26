@@ -376,6 +376,8 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
                 m_viewer = NULL;
             }
         }
+
+        this->updateUiIconFromState(showWindow);
     }
     else if (changedField == &backgroundColor ) 
     {
