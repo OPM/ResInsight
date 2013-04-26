@@ -1444,7 +1444,10 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
     uiModel->addToParentAndBuildUiItems(projectTreeItem, position, gridCaseGroup);
 
-    RiuMainWindow::instance()->setCurrentObjectInTreeView(gridCaseGroup->statisticsCaseCollection());
+    if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
+    {
+        RiuMainWindow::instance()->setCurrentObjectInTreeView(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
+    }
 
     return true;
 }
