@@ -56,7 +56,11 @@ int main(int argc, char *argv[])
     RiuMainWindow window;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     window.setWindowTitle("ResInsight " + platform);
-    window.resize(1000, 800);
+#ifdef CVF_LINUX
+    window.resize(1000, 806);
+#else
+     window.resize(1000, 800);
+#endif
     window.show();
 
     if (app.parseArguments())
