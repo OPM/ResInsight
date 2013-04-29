@@ -289,9 +289,9 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         casesToLoad.push_back(m_project->reservoirs()[cIdx]);
     }
 
-    // Add all statistics cases as well
     for (size_t cgIdx = 0; cgIdx < m_project->caseGroups().size(); ++cgIdx)
     {
+        // Add all statistics cases as well
         if (m_project->caseGroups[cgIdx]->statisticsCaseCollection())
         {
             caf::PdmPointersField<RimCase*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->reservoirs();
@@ -300,7 +300,22 @@ bool RiaApplication::loadProject(const QString& projectFileName)
                 casesToLoad.push_back(statCases[scIdx]);
             }
         }
+
+        // Add all source cases in a case group with a view attached
+        if (m_project->caseGroups[cgIdx]->caseCollection())
+        {
+            caf::PdmPointersField<RimCase*> & sourceCases = m_project->caseGroups[cgIdx]->caseCollection()->reservoirs();
+            for (size_t scIdx = 0; scIdx < sourceCases.size(); ++scIdx)
+            {
+                if (sourceCases[scIdx]->reservoirViews().size() > 0)
+                {
+                    casesToLoad.push_back(sourceCases[scIdx]);
+                }
+            }
+        }
     }
+
+
 
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
 
