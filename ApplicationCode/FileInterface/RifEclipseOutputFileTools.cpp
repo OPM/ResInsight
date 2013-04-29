@@ -308,14 +308,27 @@ void RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ecl_file_type* ecl
 //--------------------------------------------------------------------------------------------------
 void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions)
 {
-    int gridDims[3];
+    ecl_grid_type * grid         = ecl_grid_alloc(gridFileName.toAscii().data());                               // bootstrap ecl_grid instance
+    stringlist_type * lgr_names  = ecl_grid_alloc_lgr_name_list( grid );                                   // get a list of all the lgr names.
 
-    bool ret = ecl_grid_file_dims(gridFileName.toAscii().data(), NULL, gridDims);
-    if (ret)
+    //printf("grid:%s has %d a total of %d lgr's \n", grid_filename , stringlist_get_size( lgr_names ));
+    for (int lgr_nr = 0; lgr_nr < stringlist_get_size( lgr_names); lgr_nr++)
     {
-        gridDimensions.resize(1);
-        gridDimensions[0].push_back(gridDims[0]);
-        gridDimensions[0].push_back(gridDims[1]);
-        gridDimensions[0].push_back(gridDims[2]);
+        ecl_grid_type * lgr_grid  = ecl_grid_get_lgr( grid , stringlist_iget( lgr_names , lgr_nr ));    // get the ecl_grid instance of the lgr - by name.
+
+        int nx,ny,nz,active_size;
+        ecl_grid_get_dims( lgr_grid , &nx , &ny , &nz , &active_size);                             // get some size info from this lgr.
+
+        std::vector<int> values;
+        values.push_back(nx);
+        values.push_back(ny);
+        values.push_back(nz);
+        values.push_back(active_size);
+
+        gridDimensions.push_back(values);
     }
+
+    ecl_grid_free( grid );
+    stringlist_free( lgr_names );
+
 }

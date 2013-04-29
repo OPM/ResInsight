@@ -18,8 +18,8 @@ import  ctypes
 from    ert.cwrap.cwrap       import *
 from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
+#from    enkf_enum             import *
+import  libjob_queue
 class ExtJoblist(CClass):
     
     def __init__(self , c_ptr = None):
@@ -39,7 +39,7 @@ class ExtJoblist(CClass):
 
 ##################################################################
 
-cwrapper = CWrapper( libenkf.lib )
+cwrapper = CWrapper( libjob_queue.lib )
 cwrapper.registerType( "ext_joblist" , ExtJoblist )
 
 # 3. Installing the c-functions used to manipulate ecl_kw instances.

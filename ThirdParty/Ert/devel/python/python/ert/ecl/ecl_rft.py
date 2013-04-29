@@ -33,7 +33,7 @@ class EclRFTFile(CClass):
         c_ptr = cfunc_file.load( case )
         if c_ptr:
             obj = object.__new__( cls )
-            self.init_cobj( c_ptr , cfunc_file.free )
+            obj.init_cobj( c_ptr , cfunc_file.free )
             return obj
         else:
             return None

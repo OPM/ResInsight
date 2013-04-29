@@ -226,6 +226,9 @@ def fast_suite():
     suite.addTest( GridTest( 'testCoarse' ))
     return suite
 
+def test_suite(argv):
+    return fast_suite()
+
 
 if __name__ == "__main__":
     unittest.TextTestRunner().run( fast_suite() )

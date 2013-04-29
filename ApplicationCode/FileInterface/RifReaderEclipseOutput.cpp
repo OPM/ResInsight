@@ -208,14 +208,7 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 RifReaderEclipseOutput::~RifReaderEclipseOutput()
 {
     close();
-}
 
-
-//--------------------------------------------------------------------------------------------------
-/// Close interface (for now, no files are kept open after calling methods, so just clear members)
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::close()
-{
     if (m_ecl_init_file)
     {
         ecl_file_close(m_ecl_init_file);
@@ -226,6 +219,15 @@ void RifReaderEclipseOutput::close()
     {
         m_dynamicResultsAccess->close();
     }
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Close interface (for now, no files are kept open after calling methods, so just clear members)
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::close()
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,7 +444,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
     QString egridFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_EGRID_FILE);
     if (egridFileName.size() > 0)
     {
-        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data());
+        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
         if (!ecl_file) return false;
 
         int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
@@ -1010,7 +1012,7 @@ void RifReaderEclipseOutput::openInitFile()
     QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
-        m_ecl_init_file = ecl_file_open(initFileName.toAscii().data());
+        m_ecl_init_file = ecl_file_open(initFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     }
 }
 

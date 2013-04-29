@@ -19,7 +19,7 @@ import ert.job_queue.libjob_queue
 import ert.rms.librms
 import ert.cwrap.clib as clib
 
-clib.load("libsched.so")
-clib.load("libanalysis.so")
-lib = clib.load("libenkf.so")
+clib.ert_load("libsched.so")
+clib.ert_load("libanalysis.so")
+lib = clib.ert_load("libenkf.so")
     

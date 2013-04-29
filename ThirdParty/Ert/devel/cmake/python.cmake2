@@ -1,0 +1,26 @@
+function(add_python_package target package_path source_files install_package)
+
+  set(build_files "")                       
+
+  foreach (file ${source_files} )
+     set( source_file ${CMAKE_CURRENT_SOURCE_DIR}/${file} )
+     set( build_file ${PROJECT_BINARY_DIR}/${package_path}/${file} )
+     set( install_file ${CMAKE_INSTALL_PREFIX}/${package_path}/${file} )
+
+     add_custom_command(
+        OUTPUT  ${build_file}
+        COMMAND ${PROJECT_SOURCE_DIR}/cmake/cmake_pyc2     
+        ARGS    ${source_file} ${build_file}
+        DEPENDS ${source_file} )
+    
+     list(APPEND build_files ${build_file} )
+
+     if (install_package)
+        install(FILES ${build_file} DESTINATION ${CMAKE_INSTALL_PREFIX}/${package_path})
+        install(CODE "execute_process(COMMAND ${PROJECT_SOURCE_DIR}/cmake/cmake_pyc_file ${install_file})")
+     endif()
+     
+  endforeach()
+  add_custom_target( ${target} ALL DEPENDS ${build_files})
+
+endfunction()

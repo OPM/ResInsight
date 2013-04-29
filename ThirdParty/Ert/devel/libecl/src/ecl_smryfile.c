@@ -26,9 +26,8 @@ bool ecl_file_select_smryblock( ecl_file_type * ecl_file , int report_step ) {
 }
 
 
-ecl_file_type * ecl_file_open_smryblock( const char * filename , int report_step ) {
-  bool read_only = true;
-  ecl_file_type * ecl_file = ecl_file_open__( filename , read_only );
+ecl_file_type * ecl_file_open_smryblock( const char * filename , int report_step , int flags) {
+  ecl_file_type * ecl_file = ecl_file_open__( filename , flags );
   if (!ecl_file_select_smryblock( ecl_file , report_step )) {
     ecl_file_close( ecl_file );
     ecl_file = NULL;

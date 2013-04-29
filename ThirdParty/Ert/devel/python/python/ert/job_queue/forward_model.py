@@ -18,8 +18,7 @@ import  ctypes
 from    ert.cwrap.cwrap       import *
 from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
+import  libjob_queue
 class ForwardModel(CClass):
     
     def __init__(self , c_ptr = None):
@@ -39,7 +38,7 @@ class ForwardModel(CClass):
 
 ##################################################################
 
-cwrapper = CWrapper( libenkf.lib )
+cwrapper = CWrapper( libjob_queue.lib )
 cwrapper.registerType( "forward_model" , ForwardModel )
 
 # 3. Installing the c-functions used to manipulate ecl_kw instances.
