@@ -57,7 +57,11 @@ Rim3dOverlayInfoConfig::~Rim3dOverlayInfoConfig()
 void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->update3DInfo();
-    m_reservoirView->viewer()->update();
+
+    if (m_reservoirView && m_reservoirView->viewer())
+    {
+        m_reservoirView->viewer()->update();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
