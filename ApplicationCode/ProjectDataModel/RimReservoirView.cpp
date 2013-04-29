@@ -364,7 +364,7 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             updateViewerWidget();
             if (generateDisplayModel)
             {
-                createDisplayModelAndRedraw();
+                updateDisplayModelForWellResults();
             }
         }
         else

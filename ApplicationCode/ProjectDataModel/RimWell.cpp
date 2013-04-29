@@ -230,6 +230,8 @@ void RimWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrder
 //--------------------------------------------------------------------------------------------------
 bool RimWell::isWellPipeVisible(size_t frameIndex)
 {
+    CVF_ASSERT(m_wellIndex != cvf::UNDEFINED_SIZE_T);
+
     // Return the possibly cached value
     return m_reservoirView->wellCollection()->isWellPipesVisible(frameIndex)[m_wellIndex];
 }
