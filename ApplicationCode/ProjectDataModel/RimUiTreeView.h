@@ -93,8 +93,22 @@ private slots:
 
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
+    void slotToggleItems();
+    void slotToggleItemsOn();
+    void slotToggleItemsOff();
+
 signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
+
+private:
+    enum SelectionToggleType
+    {
+        TOGGLE_ON,
+        TOGGLE_OFF,
+        TOGGLE,
+        TOGGLE_UNDEFINED
+    };
+
 
 private:
     bool userConfirmedGridCaseGroupChange(const QModelIndexList& itemIndexList);
@@ -108,8 +122,8 @@ private:
 
     virtual void dropEvent(QDropEvent* dropEvent);
 
-
-    bool checkAndHandleToggleOfMultipleSelection();
+    void executeSelectionToggleOperation(SelectionToggleType toggleState);
+    void appendToggleItemActions(QMenu& contextMenu);
 
     void setExpandedUpToRoot(const QModelIndex& itemIndex);
 private:

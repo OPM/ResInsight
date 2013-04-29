@@ -80,59 +80,46 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
         caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
         if (uiItem && uiItem->dataObject())
         {
+            QMenu menu;
 
             // Range filters
             if (dynamic_cast<RimReservoirView*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Copy View"), this, SLOT(slotCopyPdmObjectToClipboard()));
                 menu.addAction(m_pasteAction);
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteView()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCellRangeFilterCollection*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("New Range Filter"), this, SLOT(slotAddRangeFilter()));
                 menu.addAction(QString("Slice I Filter"), this, SLOT(slotAddSliceFilterI()));
                 menu.addAction(QString("Slice J Filter"), this, SLOT(slotAddSliceFilterJ()));
                 menu.addAction(QString("Slice K Filter"), this, SLOT(slotAddSliceFilterK()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCellRangeFilter*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("Insert Range Filter"), this, SLOT(slotAddRangeFilter()));
                 menu.addAction(QString("Slice I Filter"), this, SLOT(slotAddSliceFilterI()));
                 menu.addAction(QString("Slice J Filter"), this, SLOT(slotAddSliceFilterJ()));
                 menu.addAction(QString("Slice K Filter"), this, SLOT(slotAddSliceFilterK()));
                 menu.addSeparator();
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteRangeFilter()));
-
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCellPropertyFilterCollection*>(uiItem->dataObject().p()))
             {
-
-                QMenu menu;
                 menu.addAction(QString("New Property Filter"), this, SLOT(slotAddPropertyFilter()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCellPropertyFilter*>(uiItem->dataObject().p()))
             {
-
-                QMenu menu;
                 menu.addAction(QString("Insert Property Filter"), this, SLOT(slotAddPropertyFilter()));
                 menu.addSeparator();
                 menu.addAction(QString("Delete"), this, SLOT(slotDeletePropertyFilter()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCalcScript*>(uiItem->dataObject().p()))
             {
                 RiaApplication* app = RiaApplication::instance();
 
-                QMenu menu;
                 {
                     QAction* action = menu.addAction(QString("Edit"), this, SLOT(slotEditScript()));
                     if (app->scriptEditorPath().isEmpty())
@@ -150,63 +137,46 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                         action->setEnabled(false);
                     }
                 }
-
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimInputPropertyCollection*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("Add Input Property"), this, SLOT(slotAddInputProperty()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimInputProperty*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("Delete"), this, SLOT(slotDeleteObjectFromContainer()));
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteInputProperty()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimResultSlot*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("Save Property To File"), this, SLOT(slotWriteBinaryResultAsInputProperty()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimStatisticsCaseCollection*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("New Statistcs Case"), this, SLOT(slotNewStatisticsCase()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("Compute"), this, SLOT(slotComputeStatistics()));
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCase*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("Copy"), this, SLOT(slotCopyPdmObjectToClipboard()));
                 menu.addAction(m_pasteAction);
                 menu.addAction(QString("Close"), this, SLOT(slotCloseCase()));
                 menu.addAction(QString("New View"), this, SLOT(slotAddView()));
                 menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimIdenticalGridCaseGroup*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
                 menu.addAction(m_pasteAction);
                 menu.addAction(QString("Close"), this, SLOT(slotDeleteObjectFromPdmPointersField()));
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimCaseCollection*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(m_pasteAction);
 
                 // Check if parent field is a StatisticsCaseCollection
@@ -215,17 +185,15 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 {
                     menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
                 }
-
-                menu.exec(event->globalPos());
             }
             else if (dynamic_cast<RimScriptCollection*>(uiItem->dataObject().p()) || dynamic_cast<RimCalcScript*>(uiItem->dataObject().p()))
             {
-                QMenu menu;
                 menu.addAction(QString("Add Script Path"), this, SLOT(slotAddScriptPath()));
                 menu.addAction(QString("Delete Script Path"), this, SLOT(slotDeleteScriptPath()));
-
-                menu.exec(event->globalPos());
             }
+
+            appendToggleItemActions(menu);
+            menu.exec(event->globalPos());
         }
     }
 }
@@ -986,12 +954,10 @@ void RimUiTreeView::keyPressEvent(QKeyEvent* keyEvent)
     case Qt::Key_Return:
     case Qt::Key_Select:
         {
-            if (checkAndHandleToggleOfMultipleSelection())
-            {
-                keyEvent->setAccepted(true);
+            executeSelectionToggleOperation(TOGGLE);
+            keyEvent->setAccepted(true);
 
-                return;
-            }
+            return;
         }
     }
 
@@ -1157,68 +1123,6 @@ void RimUiTreeView::mousePressEvent(QMouseEvent* mouseEvent)
     */
 
     QTreeView::mousePressEvent(mouseEvent);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimUiTreeView::checkAndHandleToggleOfMultipleSelection()
-{
-    QModelIndex curr = currentIndex();
-
-    // Check if the current model index supports checkable items
-    if (model()->flags(curr) & Qt::ItemIsUserCheckable)
-    {
-        QModelIndexList selectedIndexes = selectionModel()->selectedIndexes();
-        if (selectedIndexes.contains(curr))
-        {
-            QVariant currentState = model()->data(curr, Qt::CheckStateRole);
-
-            // Toggle between Qt::Checked and Qt::UnChecked
-            // Qt::PartiallyChecked is not handled
-            int state = currentState.toInt();
-            if (state == Qt::Checked)
-            {
-                state = Qt::Unchecked;
-            }
-            else
-            {
-                state = Qt::Checked;
-            }
-
-            RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-            caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(curr);
-
-            RimWell* well = dynamic_cast<RimWell*>(uiItem->dataObject().p());
-            if (well)
-            {
-                myModel->setObjectToggleStateForSelection(selectedIndexes, state);
-
-                RimReservoirView* reservoirView = NULL;
-                well->firstAncestorOfType(reservoirView);
-                if (reservoirView)
-                {
-                    reservoirView->createDisplayModelAndRedraw();
-                }
-            }
-            else
-            {
-                foreach (QModelIndex index, selectedIndexes)
-                {
-                    if (!index.isValid())
-                    {
-                        continue;
-                    }
-
-                    myModel->setData(index, state, Qt::CheckStateRole);
-                }
-            }
-
-            return true;
-        }
-    }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1415,5 +1319,125 @@ void RimUiTreeView::slotDeleteScriptPath()
             RiaApplication::instance()->applyPreferences();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::appendToggleItemActions(QMenu& contextMenu)
+{
+    if (selectionModel() && selectionModel()->selectedIndexes().size() > 0)
+    {
+        foreach (QModelIndex index, selectionModel()->selectedIndexes())
+        {
+            if (!index.isValid()) return;
+
+            if (!(model()->flags(index) & Qt::ItemIsUserCheckable)) return;
+        }
+
+        if (contextMenu.actions().size() > 0)
+        {
+            contextMenu.addSeparator();
+        }
+
+        contextMenu.addAction(QString("Toggle"), this, SLOT(slotToggleItems()));
+        contextMenu.addAction(QString("Toggle All On"), this, SLOT(slotToggleItemsOn()));
+        contextMenu.addAction(QString("Toggle All Off"), this, SLOT(slotToggleItemsOff()));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotToggleItems()
+{
+    executeSelectionToggleOperation(TOGGLE);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::executeSelectionToggleOperation(SelectionToggleType toggleState)
+{
+    int nextCheckBoxState = 0;
+
+    if (toggleState == TOGGLE_ON)
+    {
+        nextCheckBoxState = Qt::Checked;
+    }
+    else if (toggleState == TOGGLE_OFF)
+    {
+        nextCheckBoxState = Qt::Unchecked;
+    }
+    else if (toggleState == TOGGLE)
+    {
+        QModelIndex curr = currentIndex();
+
+        // Check if the current model index supports checkable items
+        if (model()->flags(curr) & Qt::ItemIsUserCheckable)
+        {
+            QModelIndexList selectedIndexes = selectionModel()->selectedIndexes();
+            if (selectedIndexes.contains(curr))
+            {
+                QVariant currentState = model()->data(curr, Qt::CheckStateRole);
+                int state = currentState.toInt();
+                if (state == Qt::Checked)
+                {
+                    nextCheckBoxState = Qt::Unchecked;
+                }
+                else
+                {
+                    nextCheckBoxState = Qt::Checked;
+                }
+            }
+        }
+    }
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+
+    // Special handling for wells
+    // Set toggle state for all wells without triggering model update,
+    // and perform a single display model update at last
+    RimWell* well = dynamic_cast<RimWell*>(uiItem->dataObject().p());
+    if (well)
+    {
+        myModel->setObjectToggleStateForSelection(selectionModel()->selectedIndexes(), nextCheckBoxState);
+
+        RimReservoirView* reservoirView = NULL;
+        well->firstAncestorOfType(reservoirView);
+        if (reservoirView)
+        {
+            reservoirView->createDisplayModelAndRedraw();
+        }
+
+        return;
+    }
+
+    foreach (QModelIndex index, selectionModel()->selectedIndexes())
+    {
+        if (!index.isValid())
+        {
+            continue;
+        }
+
+        myModel->setData(index, nextCheckBoxState, Qt::CheckStateRole);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotToggleItemsOn()
+{
+    executeSelectionToggleOperation(TOGGLE_ON);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotToggleItemsOff()
+{
+    executeSelectionToggleOperation(TOGGLE_OFF);
 }
 
