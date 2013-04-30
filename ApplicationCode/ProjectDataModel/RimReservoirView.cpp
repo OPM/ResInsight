@@ -754,7 +754,7 @@ void RimReservoirView::loadDataAndUpdate()
 
     if (m_reservoir->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
     {
-        this->cellResult->porosityModel.setUiHidden(true);
+        this->cellResult->setPorosityModelUiFieldHidden(true);
     }
 
     CVF_ASSERT(this->cellEdgeResult() != NULL);
@@ -1130,7 +1130,7 @@ void RimReservoirView::updateLegends()
         this->cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
         m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
-        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Cell Results: \n") + this->cellResult()->resultVariable));
+        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
     }
     else
     {

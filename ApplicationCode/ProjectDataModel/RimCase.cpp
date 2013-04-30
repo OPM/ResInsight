@@ -178,7 +178,7 @@ void RimCase::removeResult(const QString& resultName)
         // Set cell result variable to none if displaying 
         if (result->resultVariable() == resultName)
         {
-            result->resultVariable.v() = RimDefines::undefinedResultName();
+            result->setResultVariable(RimDefines::undefinedResultName());
             result->loadResult();
 
             rebuildDisplayModel = true;
@@ -189,9 +189,9 @@ void RimCase::removeResult(const QString& resultName)
         for (it = propFilterCollection->propertyFilters.v().begin(); it != propFilterCollection->propertyFilters.v().end(); ++it)
         {
             RimCellPropertyFilter* propertyFilter = *it;
-            if (propertyFilter->resultDefinition->resultVariable.v() == resultName)
+            if (propertyFilter->resultDefinition->resultVariable() == resultName)
             {
-                propertyFilter->resultDefinition->resultVariable.v() = RimDefines::undefinedResultName();
+                propertyFilter->resultDefinition->setResultVariable(RimDefines::undefinedResultName());
                 propertyFilter->resultDefinition->loadResult();
                 propertyFilter->setDefaultValues();
 
@@ -227,7 +227,7 @@ void RimCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
                 RimResultSlot* result = reservoirView->cellResult;
                 CVF_ASSERT(result);
 
-                result->resultVariable.v() = RimDefines::undefinedResultName();
+                result->setResultVariable(RimDefines::undefinedResultName());
                 result->loadResult();
 
                 RimCellEdgeResultSlot* cellEdgeResult = reservoirView->cellEdgeResult;

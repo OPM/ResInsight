@@ -706,7 +706,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
     if (!resultSlot->reservoirView()->eclipseCase()->reservoirData()) return;
 
     RimBinaryExportSettings exportSettings;
-    exportSettings.eclipseKeyword = resultSlot->resultVariable;
+    exportSettings.eclipseKeyword = resultSlot->resultVariable();
 
     {
         QString projectFolder;
@@ -723,7 +723,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
             projectFolder = resultSlot->reservoirView()->eclipseCase()->locationOnDisc();
         }
 
-        QString outputFileName = projectFolder + "/" + resultSlot->resultVariable;
+        QString outputFileName = projectFolder + "/" + resultSlot->resultVariable();
 
         exportSettings.fileName = outputFileName;
     }
@@ -734,7 +734,7 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
         size_t timeStep = resultSlot->reservoirView()->currentTimeStep();
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
 
-        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, resultSlot->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, resultSlot->resultVariable, exportSettings.eclipseKeyword, exportSettings.undefinedValue);
+        bool isOk = RifEclipseInputFileTools::writeBinaryResultToTextFile(exportSettings.fileName, resultSlot->reservoirView()->eclipseCase()->reservoirData(), porosityModel, timeStep, resultSlot->resultVariable(), exportSettings.eclipseKeyword, exportSettings.undefinedValue);
         if (!isOk)
         {
             QMessageBox::critical(NULL, "File export", "Failed to exported current result to " + exportSettings.fileName);

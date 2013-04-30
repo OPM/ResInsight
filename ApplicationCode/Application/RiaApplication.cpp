@@ -522,15 +522,15 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
     // Select SOIL as default result variable
-    riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
-    riv->cellResult()->resultVariable = "SOIL";
+    riv->cellResult()->setResultType(RimDefines::DYNAMIC_NATIVE);
+    riv->cellResult()->setResultVariable("SOIL");
     riv->animationMode = true;
 
     riv->loadDataAndUpdate();
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
+        riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
@@ -560,14 +560,14 @@ bool RiaApplication::openInputEclipseCase(const QString& caseName, const QString
 
     RimReservoirView* riv = rimInputReservoir->createAndAddReservoirView();
 
-    riv->cellResult()->resultType = RimDefines::INPUT_PROPERTY;
+    riv->cellResult()->setResultType(RimDefines::INPUT_PROPERTY);
     riv->animationMode = true;
 
     riv->loadDataAndUpdate();
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
+        riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();

@@ -640,7 +640,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, scalarResultIndex);
                 CVF_ASSERT(dataAccessObject.notNull());
 
-                #pragma omp parallel for schedule(dynamic)
+                //#pragma omp parallel for schedule(dynamic)
                 for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
                 {
                     if ( (*cellVisibility)[cellIndex] )

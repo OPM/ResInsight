@@ -95,8 +95,9 @@ RimCellPropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyF
     propertyFilter->setParentContainer(this);
     propertyFilters.v().push_back(propertyFilter);
 
-    propertyFilter->resultDefinition->resultVariable = m_reservoirView->cellResult->resultVariable;
-    propertyFilter->resultDefinition->resultType = m_reservoirView->cellResult->resultType;
+    propertyFilter->resultDefinition->setResultVariable(m_reservoirView->cellResult->resultVariable());
+    propertyFilter->resultDefinition->setPorosityModel(m_reservoirView->cellResult->porosityModel());
+    propertyFilter->resultDefinition->setResultType(m_reservoirView->cellResult->resultType());
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setDefaultValues();
 

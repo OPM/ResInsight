@@ -56,10 +56,12 @@ RimCellPropertyFilter::RimCellPropertyFilter()
     resultDefinition = new RimResultDefinition();
     
     // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
-    resultDefinition->resultType.setOwnerObject(this);
-    resultDefinition->resultVariable.setOwnerObject(this);
-    resultDefinition->resultType.setUiName("");
-    resultDefinition->resultVariable.setUiName("");
+    resultDefinition->m_resultTypeUiField.setOwnerObject(this);
+    resultDefinition->m_resultTypeUiField.setUiName("");
+    resultDefinition->m_porosityModelUiField.setOwnerObject(this);
+    resultDefinition->m_porosityModelUiField.setUiName("");
+    resultDefinition->m_resultVariableUiField.setOwnerObject(this);
+    resultDefinition->m_resultVariableUiField.setUiName("");
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
@@ -89,17 +91,28 @@ RimCellPropertyFilter::~RimCellPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &name)
+    if (&name == changedField)
     {
     }
-    else if (&(resultDefinition->resultType) == changedField || &(resultDefinition->resultVariable) == changedField)
+
+    if (   &(resultDefinition->m_resultTypeUiField) == changedField 
+        || &(resultDefinition->m_porosityModelUiField) == changedField)
     {
         resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
-        
+    }
+
+    if ( &(resultDefinition->m_resultVariableUiField) == changedField )
+    {
+        resultDefinition->fieldChangedByUi(changedField, oldValue, newValue);
         setDefaultValues();
         m_parentContainer->fieldChangedByUi(changedField, oldValue,  newValue);
     }
-    else
+
+    if (   &lowerBound == changedField 
+        || &upperBound == changedField
+        || &evaluationRegion == changedField
+        || &active == changedField
+        || &filterMode == changedField)
     {
         m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
         this->updateIconState();
@@ -143,7 +156,7 @@ void RimCellPropertyFilter::setDefaultValues()
     size_t scalarIndex = resultDefinition->gridScalarIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
     {
-        RimReservoirCellResultsStorage* results = m_parentContainer->reservoirView()->currentGridCellResults();
+        RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();
         if (results)
         {
             results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
@@ -170,8 +183,9 @@ void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 
     // Fields declared in RimResultDefinition
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-    group1->add(&(resultDefinition->resultType));
-    group1->add(&(resultDefinition->resultVariable));
+    group1->add(&(resultDefinition->m_resultTypeUiField));
+    group1->add(&(resultDefinition->m_porosityModelUiField));
+    group1->add(&(resultDefinition->m_resultVariableUiField));
     
     // Fields declared in RimCellFilter
     uiOrdering.add(&active);

@@ -38,11 +38,25 @@ RimResultDefinition::RimResultDefinition()
 {
     CAF_PDM_InitObject("Result Definition", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&resultType,     "ResultType",           "Type", "", "", "");
-    CAF_PDM_InitFieldNoDefault(&porosityModel,  "PorosityModelType",    "Type", "", "", "");
-    CAF_PDM_InitField(&resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
+    CAF_PDM_InitFieldNoDefault(&m_resultType,     "ResultType",           "Type", "", "", "");
+    m_resultType.setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault(&m_porosityModel,  "PorosityModelType",    "Type", "", "", "");
+    m_porosityModel.setUiHidden(true);
+    CAF_PDM_InitField(&m_resultVariable, "ResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
+    m_resultVariable.setUiHidden(true);
 
-    resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+    CAF_PDM_InitFieldNoDefault(&m_resultTypeUiField,     "MResultType",           "Type", "", "", "");
+    m_resultTypeUiField.setIOReadable(false);
+    m_resultTypeUiField.setIOWritable(false);
+    CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField,  "MPorosityModelType",    "Type", "", "", "");
+    m_porosityModelUiField.setIOReadable(false);
+    m_porosityModelUiField.setIOWritable(false);
+    CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
+    m_resultVariableUiField.setIOReadable(false);
+    m_resultVariableUiField.setIOWritable(false);
+
+
+    m_resultVariableUiField.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,9 +81,28 @@ void RimResultDefinition::setReservoirView(RimReservoirView* ownerReservoirView)
     {
         if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
         {
-            porosityModel.setUiHidden(true);
+            m_porosityModelUiField.setUiHidden(true);
         }
     }
+}
+
+QStringList RimResultDefinition::getResultVariableListForCurrentUIFieldSettings()
+{
+    if (!m_reservoirView || !m_reservoirView->eclipseCase() ) return QStringList();
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModelUiField());
+
+    return m_reservoirView->eclipseCase()->results(porosityModel)->cellResults()->resultNames(m_resultTypeUiField());
+}
+
+
+RimReservoirCellResultsStorage* RimResultDefinition::currentGridCellResults() const
+{
+    if (!m_reservoirView || !m_reservoirView->eclipseCase()) return NULL;
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(m_porosityModel());
+
+    return m_reservoirView->eclipseCase()->results(porosityModel);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,12 +110,32 @@ void RimResultDefinition::setReservoirView(RimReservoirView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &resultType)
+    if (   &m_resultTypeUiField == changedField 
+        || &m_porosityModelUiField == changedField )
     {
-        resultVariable = RimDefines::undefinedResultName();
-    }
+        QStringList varList = getResultVariableListForCurrentUIFieldSettings();
 
-    loadResult();
+        // If the user are seeing the list with the actually selected result, select that result in the list. Otherwise select nothing.
+        if (   m_resultTypeUiField() == m_resultType() 
+            && m_porosityModelUiField() == m_porosityModel() 
+            && varList.contains(resultVariable()))
+        {
+            m_resultVariableUiField = resultVariable();
+        }
+        else
+        {
+            m_resultVariableUiField = "";
+        }
+    }
+  
+    if (&m_resultVariableUiField == changedField)
+    {
+        m_porosityModel = m_porosityModelUiField;
+        m_resultType = m_resultTypeUiField;
+        m_resultVariable = m_resultVariableUiField;
+
+        loadResult();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,11 +143,11 @@ void RimResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    if (fieldNeedingOptions == &resultVariable)
+    if (fieldNeedingOptions == &m_resultVariableUiField)
     {
-        if (m_reservoirView && m_reservoirView->currentGridCellResults())
+        if (this->currentGridCellResults())
         {
-            QStringList varList = m_reservoirView->currentGridCellResults()->cellResults()->resultNames(resultType());
+            QStringList varList = getResultVariableListForCurrentUIFieldSettings();
             QList<caf::PdmOptionItemInfo> optionList;
             int i;
             for (i = 0; i < varList.size(); ++i)
@@ -119,8 +172,8 @@ size_t RimResultDefinition::gridScalarIndex() const
 {
     if (m_gridScalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        const RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->currentGridCellResults();
-        if (gridCellResults) m_gridScalarResultIndex = gridCellResults->cellResults()->findScalarResultIndex(resultType(), resultVariable());
+        const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
+        if (gridCellResults) m_gridScalarResultIndex = gridCellResults->cellResults()->findScalarResultIndex(m_resultType(), m_resultVariable());
     }
     return m_gridScalarResultIndex;
 }
@@ -130,10 +183,10 @@ size_t RimResultDefinition::gridScalarIndex() const
 //--------------------------------------------------------------------------------------------------
 void RimResultDefinition::loadResult()
 {
-    RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->currentGridCellResults();
+    RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        m_gridScalarResultIndex = gridCellResults->findOrLoadScalarResult(resultType(), resultVariable);
+        m_gridScalarResultIndex = gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
     }
     else
     {
@@ -148,7 +201,7 @@ void RimResultDefinition::loadResult()
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasStaticResult() const
 {
-    const RimReservoirCellResultsStorage* gridCellResults = m_reservoirView->currentGridCellResults();
+    const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (hasResult() && gridCellResults->cellResults()->timeStepCount(m_gridScalarResultIndex) == 1 )
     {
         return true;
@@ -166,10 +219,10 @@ bool RimResultDefinition::hasResult() const
 {
     if (m_gridScalarResultIndex != cvf::UNDEFINED_SIZE_T) return true;
 
-    if (m_reservoirView->currentGridCellResults() && m_reservoirView->currentGridCellResults()->cellResults())
+    if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
     {
-        const RigCaseCellResultsData* gridCellResults = m_reservoirView->currentGridCellResults()->cellResults();
-        m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(resultType(), resultVariable());
+        const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults()->cellResults();
+        m_gridScalarResultIndex = gridCellResults->findScalarResultIndex(m_resultType(), m_resultVariable());
         return m_gridScalarResultIndex != cvf::UNDEFINED_SIZE_T;
     }
 
@@ -184,14 +237,14 @@ bool RimResultDefinition::hasDynamicResult() const
 {
     if (hasResult())
     {
-        if (resultType() == RimDefines::DYNAMIC_NATIVE)
+        if (m_resultType() == RimDefines::DYNAMIC_NATIVE)
         {
             return true;
         }
 
-        if (m_reservoirView->currentGridCellResults() && m_reservoirView->currentGridCellResults()->cellResults())
+        if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
         {
-            const RigCaseCellResultsData* gridCellResults = m_reservoirView->currentGridCellResults()->cellResults();
+            const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults()->cellResults();
             if (gridCellResults->timeStepCount(m_gridScalarResultIndex) > 1 )
             {
                 return true;
@@ -208,4 +261,49 @@ bool RimResultDefinition::hasDynamicResult() const
 RimReservoirView* RimResultDefinition::reservoirView()
 {
     return m_reservoirView;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultDefinition::initAfterRead()
+{
+    m_porosityModelUiField = m_porosityModel;
+    m_resultTypeUiField = m_resultType;
+    m_resultVariableUiField = m_resultVariable;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultDefinition::setResultType(RimDefines::ResultCatType val)
+{
+    m_resultType = val;
+    m_resultTypeUiField = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultDefinition::setPorosityModel(RimDefines::PorosityModelType val)
+{
+    m_porosityModel = val;
+    m_porosityModelUiField = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultDefinition::setResultVariable(const QString& val)
+{
+    m_resultVariable = val;
+    m_resultVariableUiField = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultDefinition::setPorosityModelUiFieldHidden(bool hide)
+{
+    m_porosityModelUiField.setUiHidden(true);
 }
