@@ -42,7 +42,6 @@
 class RiuViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
-class RivReservoirViewPartMgr;
 
 namespace cvf
 {
@@ -116,6 +115,7 @@ public:
     caf::PdmField<int>                                  maximumFrameRate;
     caf::PdmField<bool>                                 animationMode;
 
+
     // Access internal objects
     RimReservoirCellResultsStorage*         currentGridCellResults();
     RigActiveCellInfo*                      currentActiveCellInfo();
@@ -130,10 +130,16 @@ public:
     void                                    endAnimation();
 
     // 3D Viewer
-    RiuViewer*                               viewer();
+    RiuViewer*                              viewer();
     void                                    updateViewerWidget();
     void                                    updateViewerWidgetWindowTitle();
     void                                    setDefaultView();
+
+    void                                    setMeshOnlyDrawstyle();
+    void                                    setMeshSurfDrawstyle();
+    void                                    setSurfOnlyDrawstyle();
+    void                                    setShowFaultsOnly(bool showFaults);
+
 
     // Picking info
     bool                                    pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const;
@@ -147,9 +153,13 @@ public:
     void                                    loadDataAndUpdate();
     void                                    createDisplayModelAndRedraw();
     void                                    scheduleGeometryRegen(unsigned short geometryType);
+    void                                    scheduleReservoirGridGeometryRegen();
     void                                    schedulePipeGeometryRegen();
     void                                    updateDisplayModelForWellResults();
 
+    const std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType>&
+                                            visibleGridParts() const { return m_visibleGridParts;}
+    cvf::cref<RivReservoirViewPartMgr>      reservoirGridPartManager() const { return m_reservoirGridPartManager.p(); }
 
     // Display model generation
 private:
@@ -162,12 +172,13 @@ private:
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
 
-    cvf::ref<RivReservoirViewPartMgr>       m_geometry;
+    cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
 
     // Overridden PDM methods:
 public:
-    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name;}
+    virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }
+    virtual caf::PdmFieldHandle*            objectToggleField();
     virtual void                            fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 protected:
     virtual void                            initAfterRead();
@@ -182,5 +193,7 @@ private:
     caf::PdmField<int>                      m_currentTimeStep;
     QPointer<RiuViewer>                     m_viewer;
     caf::PdmPointer<RimCase>                m_reservoir;
+
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;
 };
 

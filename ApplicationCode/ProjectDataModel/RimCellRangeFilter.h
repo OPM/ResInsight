@@ -32,6 +32,7 @@ namespace cvf
 
 class RimCellRangeFilterCollection;
 class RigMainGrid;
+class RigGridBase;
 
 //==================================================================================================
 ///  
@@ -48,6 +49,9 @@ public:
     RimCellRangeFilterCollection* parentContainer();
     void setDefaultValues();
 
+    caf::PdmField<int>      gridIndex;      // The index of the grid that this filter applies to
+    caf::PdmField<bool>     propagateToSubGrids; // Do propagate the effects to the sub-grids
+
     caf::PdmField<int>      startIndexI;    // Eclipse indexing, first index is 1
     caf::PdmField<int>      startIndexJ;    // Eclipse indexing, first index is 1
     caf::PdmField<int>      startIndexK;    // Eclipse indexing, first index is 1
@@ -62,7 +66,11 @@ public:
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+
 private:
+    RigGridBase*            selectedGrid();
+
     RimCellRangeFilterCollection* m_parentContainer;
 };
 

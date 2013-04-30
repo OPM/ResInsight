@@ -67,6 +67,12 @@ void RimScriptCollection::readContentFromDisc()
         return;
     }
 
+    QDir myDir(this->directory());
+    if (!myDir.isReadable())
+    {
+        return;
+    }
+
     // Build a list of all scripts in the specified directory
     {
         QString filter = "*.m";
@@ -83,7 +89,6 @@ void RimScriptCollection::readContentFromDisc()
                 RimCalcScript* calcScript = new RimCalcScript;
                 calcScript->absolutePath = fileName;
                 calcScript->setUiName(fi.baseName());
-                calcScript->readContentFromFile();
 
                 calcScripts.push_back(calcScript);
             }
@@ -93,7 +98,7 @@ void RimScriptCollection::readContentFromDisc()
     // Add subfolders
     {
         QDir dir(directory);
-        QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot);
+        QFileInfoList fileInfoList = dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot | QDir::Readable);
         subDirectories.deleteAllChildObjects();
 
         QStringList retFileNames;
@@ -120,12 +125,19 @@ void RimScriptCollection::pathsAndSubPaths(QStringList& pathList)
 {
     if (!this->directory().isEmpty())
     {
-        pathList.append(this->directory());
+        QDir myDir(this->directory());
+        if (myDir.isReadable())
+        {
+            pathList.append(this->directory());
+        }
     }
 
     for (size_t i= 0; i < this->subDirectories.size(); ++i)
     {
-        if (this->subDirectories[i]) this->subDirectories[i]->pathsAndSubPaths(pathList);
+        if (this->subDirectories[i])
+        {
+            this->subDirectories[i]->pathsAndSubPaths(pathList);
+        }
     }
 }
 

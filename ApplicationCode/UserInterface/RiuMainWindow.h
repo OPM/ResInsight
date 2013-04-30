@@ -31,11 +31,14 @@ class QComboBox;
 class QLabel;
 class QLineEdit;
 class QItemSelection;
+class QActionGroup;
+class QSpinBox;
 
 class RiuViewer;
 class RiuResultInfoPanel;
 class RiuProcessMonitor;
 class RimUiTreeModelPdm;
+class RimUiTreeView;
 
 namespace caf
 {
@@ -63,9 +66,6 @@ public:
     void		    initializeGuiNewProjectLoaded();
     void		    cleanupGuiBeforeProjectClose();
 
-    void		    refreshGuiLightweight();
-    void		    refreshToolbars();
-
     void            removeViewer( RiuViewer* viewer );
     void            addViewer(RiuViewer* viewer);
     void            setActiveViewer(RiuViewer* subWindow);
@@ -73,12 +73,15 @@ public:
     void            setResultInfo(const QString& info) const;
 
     void            refreshAnimationActions();
+    void            updateScaleValue();
 
     RimUiTreeModelPdm* uiPdmModel() { return m_treeModelPdm;}
 
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
+
+    void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
@@ -97,6 +100,9 @@ private:
     
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
 
+    void            storeTreeViewState();
+    void            restoreTreeViewState();
+
 private:
     static RiuMainWindow*    sm_mainWindowInstance;
     
@@ -104,14 +110,14 @@ private:
 
 private:
     // File actions
-    QAction*		    m_openAction;
+    QAction*		    m_openEclipseCaseAction;
     QAction*		    m_openInputEclipseFileAction;
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
-    QAction*            m_closeAction;
+    QAction*            m_closeProjectAction;
     QAction*		    m_exitAction;
 
     // Edit actions
@@ -146,6 +152,7 @@ private:
     // Toolbars
     QToolBar*           m_viewToolBar;
     QToolBar*           m_standardToolBar;
+    QToolBar*           m_snapshotToolbar;
 
 
     QFrame*             m_CentralFrame;
@@ -186,6 +193,10 @@ private slots:
     void    slotViewFromAbove();
     void    slotViewFromBelow();
     void    slotZoomAll();
+    void    slotScaleChanged(int scaleValue);
+
+    void slotDrawStyleChanged(QAction* activatedAction);
+    void slotToggleFaultsAction(bool);
 
     // Debug slots
     void    slotRefreshDebugActions();
@@ -220,8 +231,21 @@ public:
     void setPdmRoot(caf::PdmObject* pdmRoot);
 
 private:
-    QTreeView*                  m_treeView;
+    RimUiTreeView*              m_treeView;
     RimUiTreeModelPdm*          m_treeModelPdm;
     caf::PdmObject*             m_pdmRoot;
     caf::PdmUiPropertyView*     m_pdmUiPropertyView;
+
+    QSpinBox*                   m_scaleFactor;
+
+    QActionGroup*               m_dsActionGroup;
+    QAction*                    m_drawStyleToggleFaultsAction;
+    QAction*                    m_drawStyleLinesAction;
+    QAction*                    m_drawStyleLinesSolidAction;
+    QAction*                    m_drawStyleSurfOnlyAction;
+    void                        refreshDrawStyleActions();
+
+    std::vector<QPointer<QDockWidget> > additionalProjectTrees;
+    std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
+
 };

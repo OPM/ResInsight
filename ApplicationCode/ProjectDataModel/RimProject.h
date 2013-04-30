@@ -37,8 +37,10 @@ public:
     caf::PdmPointersField<RimCase*>                     reservoirs;
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
+    caf::PdmField<QString>                              treeViewState;
+    caf::PdmField<QString>                              currentModelIndexPath;
 
-    void setUserScriptPath(const QString& path);
+    void setScriptDirectories(const QString& scriptDirectories);
 
     QString projectFileVersionString() const;
 
@@ -47,6 +49,7 @@ public:
 
     void close();
 
+    RimIdenticalGridCaseGroup* createIdenticalCaseGroupFromMainCase(RimCase* mainCase);
     void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
 
     void moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);

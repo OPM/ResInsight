@@ -29,6 +29,7 @@ extern "C" {
 
 #include <ert/ecl/ecl_coarse_cell.h>
 #include <ert/ecl/ecl_kw.h>  
+#include <ert/ecl/grid_dims.h>
 
 
   typedef double (block_function_ftype) ( const double_vector_type *); 
@@ -79,7 +80,6 @@ extern "C" {
   ecl_grid_type * ecl_grid_alloc_GRDECL_data(int , int , int , const float *  , const float *  , const int * , const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc_GRID_data(int num_coords , int nx, int ny , int nz , int coords_size , int ** coords , float ** corners , const float * mapaxes);
   ecl_grid_type * ecl_grid_alloc(const char * );
-  bool            ecl_grid_file_dims( const char * grid_filename , const char * init_restart_filename , int * dims);
   ecl_grid_type * ecl_grid_load_case( const char * case_input );
   ecl_grid_type * ecl_grid_alloc_rectangular( int nx , int ny , int nz , double dx , double dy , double dz , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum);
@@ -89,6 +89,7 @@ extern "C" {
   
   void            ecl_grid_free(ecl_grid_type * );
   void            ecl_grid_free__( void * arg );
+  grid_dims_type  ecl_grid_iget_dims( const ecl_grid_type * grid , int grid_nr);
   void            ecl_grid_get_dims(const ecl_grid_type * , int *, int * , int * , int *);
   int             ecl_grid_get_nz( const ecl_grid_type * grid );
   int             ecl_grid_get_nx( const ecl_grid_type * grid );

@@ -32,7 +32,7 @@
 #include <ert/enkf/runpath_list.h>
 
 #define QC_WORKFLOW_NAME    "QC"
-#define RUNPATH_LIST_FILE   "/tmp/ert_runpath_list"
+#define RUNPATH_LIST_FILE   ".ert_runpath_list"
 
 
 struct qc_module_struct {
@@ -54,7 +54,15 @@ qc_module_type * qc_module_alloc( ert_workflow_list_type * workflow_list , const
   qc_module->runpath_list = runpath_list_alloc();
   qc_module->runpath_list_file = NULL;
   qc_module_set_path( qc_module , qc_path );
-  qc_module_set_runpath_list_file( qc_module , RUNPATH_LIST_FILE );
+  {
+    char * cwd = util_alloc_cwd();
+    char * runpath_list_file = util_alloc_filename( cwd , RUNPATH_LIST_FILE , NULL);
+
+    qc_module_set_runpath_list_file( qc_module , runpath_list_file );
+
+    free( runpath_list_file );
+    free( cwd );
+  }
   return qc_module;
 }
 

@@ -90,7 +90,7 @@ void local_context_create_surface_region( local_context_type * context , const c
 /*************************/
 
 void local_context_load_file( local_context_type * context , const char * filename , const char * file_key ) {
-  ecl_file_type * ecl_file = ecl_file_open( filename );
+  ecl_file_type * ecl_file = ecl_file_open( filename , 0);
   hash_insert_hash_owned_ref( context->files , file_key , ecl_file , ecl_file_free__);
 }
 

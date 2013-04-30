@@ -56,9 +56,6 @@ public:
     // RimCase overrides
     virtual bool                openEclipseGridFile(); // Find grid file among file set. Read, Find read and validate property date. Syncronize child property sets.
 
-    // PdmObject overrides
-    virtual void                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
     // Overrides from RimCase
     virtual QString             locationOnDisc() const;
     virtual QString             gridFileName() const { return m_gridFileName();}
@@ -66,9 +63,6 @@ public:
     virtual void                updateFilePathsFromProjectPath(const QString& projectPath, const QString& oldProjectPath);
 
 private:
-    void                        addFiles(const QStringList& newFileNames);
-    void                        removeFiles(const QStringList& obsoleteFileNames);
-
     cvf::ref<RifReaderInterface> createMockModel(QString modelName);
 
     // Fields

@@ -135,6 +135,10 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     //m_startupDefaultDirectory += "/My Documents/";
 #endif
     setDefaultFileDialogDirectory("MULTICASEIMPORT", "/");
+
+    // The creation of a font is time consuming, so make sure you really need your own font
+    // instead of using the application font
+    m_standardFont = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
 }
 
 
@@ -285,9 +289,9 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         casesToLoad.push_back(m_project->reservoirs()[cIdx]);
     }
 
-    // Add all statistics cases as well
     for (size_t cgIdx = 0; cgIdx < m_project->caseGroups().size(); ++cgIdx)
     {
+        // Add all statistics cases as well
         if (m_project->caseGroups[cgIdx]->statisticsCaseCollection())
         {
             caf::PdmPointersField<RimCase*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->reservoirs();
@@ -296,7 +300,22 @@ bool RiaApplication::loadProject(const QString& projectFileName)
                 casesToLoad.push_back(statCases[scIdx]);
             }
         }
+
+        // Add all source cases in a case group with a view attached
+        if (m_project->caseGroups[cgIdx]->caseCollection())
+        {
+            caf::PdmPointersField<RimCase*> & sourceCases = m_project->caseGroups[cgIdx]->caseCollection()->reservoirs();
+            for (size_t scIdx = 0; scIdx < sourceCases.size(); ++scIdx)
+            {
+                if (sourceCases[scIdx]->reservoirViews().size() > 0)
+                {
+                    casesToLoad.push_back(sourceCases[scIdx]);
+                }
+            }
+        }
     }
+
+
 
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
 
@@ -503,18 +522,26 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
     // Select SOIL as default result variable
-    riv->cellResult()->resultType = RimDefines::DYNAMIC_NATIVE;
-    riv->cellResult()->resultVariable = "SOIL";
+    riv->cellResult()->setResultType(RimDefines::DYNAMIC_NATIVE);
+    riv->cellResult()->setResultVariable("SOIL");
     riv->animationMode = true;
 
     riv->loadDataAndUpdate();
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
+        riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    onProjectOpenedOrClosed();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
+
+    // New case is inserted before the last item, the script item
+    int position = projectTreeItem->childCount() - 1;
+
+    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimResultReservoir);
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
     return true;
 }
@@ -533,17 +560,25 @@ bool RiaApplication::openInputEclipseCase(const QString& caseName, const QString
 
     RimReservoirView* riv = rimInputReservoir->createAndAddReservoirView();
 
-    riv->cellResult()->resultType = RimDefines::INPUT_PROPERTY;
+    riv->cellResult()->setResultType(RimDefines::INPUT_PROPERTY);
     riv->animationMode = true;
 
     riv->loadDataAndUpdate();
 
     if (!riv->cellResult()->hasResult())
     {
-        riv->cellResult()->resultVariable = RimDefines::undefinedResultName();
+        riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    onProjectOpenedOrClosed();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
+
+    // New case is inserted before the last item, the script item
+    int position = projectTreeItem->childCount() - 1;
+
+    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimInputReservoir);
+
+    RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
     return true;
 }
@@ -881,9 +916,9 @@ bool RiaApplication::parseArguments()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RiaApplication::scriptDirectory() const
+QString RiaApplication::scriptDirectories() const
 {
-    return m_preferences->scriptDirectory();
+    return m_preferences->scriptDirectories();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1049,7 +1084,7 @@ void RiaApplication::applyPreferences()
 
     if (this->project())
     {
-        this->project()->setUserScriptPath(m_preferences->scriptDirectory());
+        this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
         if (treeModel) treeModel->rebuildUiSubTree(this->project()->scriptCollection());
     }
@@ -1358,6 +1393,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
     // When reading active cell info, only the total cell count is tested for consistency
     RimResultCase* mainResultCase = NULL;
     std::vector< std::vector<int> > mainCaseGridDimensions;
+    RimIdenticalGridCaseGroup* gridCaseGroup = NULL;
 
     {
         QString firstFileName = fileNames[0];
@@ -1376,10 +1412,8 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
 
         rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
 
-        m_project->reservoirs.push_back(rimResultReservoir);
-        m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
-
         mainResultCase = rimResultReservoir;
+        gridCaseGroup = m_project->createIdenticalCaseGroupFromMainCase(mainResultCase);
     }
 
     caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
@@ -1402,8 +1436,7 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         {
             if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
             {
-                m_project->reservoirs.push_back(rimResultReservoir);
-                m_project->moveEclipseCaseIntoCaseGroup(rimResultReservoir);
+                m_project->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
             }
             else
             {
@@ -1418,7 +1451,31 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         info.setProgress(i);
     }
 
-    onProjectOpenedOrClosed();
+    RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
+    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
+
+    // New case is inserted before the last item, the script item
+    int position = projectTreeItem->childCount() - 1;
+
+    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, gridCaseGroup);
+
+    if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
+    {
+        RiuMainWindow::instance()->setCurrentObjectInTreeView(gridCaseGroup->statisticsCaseCollection()->reservoirs[0]);
+    }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Font* RiaApplication::standardFont()
+{
+    CVF_ASSERT(m_standardFont.notNull());
+
+    // The creation of a font is time consuming, so make sure you really need your own font
+    // instead of using the application font
+
+    return m_standardFont.p();
 }

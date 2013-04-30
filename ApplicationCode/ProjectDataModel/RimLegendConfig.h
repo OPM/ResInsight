@@ -69,6 +69,7 @@ public:
         LOG10_CONTINUOUS,
         LOG10_DISCRETE
     };
+    enum NumberFormatType { AUTO, SCIENTIFIC, FIXED};
 
     typedef caf::AppEnum<MappingType> MappingEnum;
     void                                        recreateLegend();
@@ -109,6 +110,7 @@ private:
     // Fields
     caf::PdmField<int>                          m_numLevels;
     caf::PdmField<int>                          m_precision;
+    caf::PdmField<caf::AppEnum<NumberFormatType> > m_tickNumberFormat;
     caf::PdmField<caf::AppEnum<RangeModeType> > m_rangeMode;
     caf::PdmField<double>                       m_userDefinedMaxValue;
     caf::PdmField<double>                       m_userDefinedMinValue;

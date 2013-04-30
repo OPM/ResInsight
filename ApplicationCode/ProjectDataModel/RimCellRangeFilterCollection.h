@@ -21,6 +21,7 @@
 #include "RimCellRangeFilter.h"
 
 class RigActiveCellInfo;
+class RigGridBase;
 
 //==================================================================================================
 ///  
@@ -34,15 +35,15 @@ public:
     virtual ~RimCellRangeFilterCollection();
 
     // Fields
+    caf::PdmField<bool> active;
     caf::PdmField< std::list< caf::PdmPointer< RimCellRangeFilter > > > rangeFilters;
 
     // Methods
     RimCellRangeFilter* createAndAppendRangeFilter();
-    void remove(RimCellRangeFilter* rangeFilter);
+    void                remove(RimCellRangeFilter* rangeFilter);
 
-    bool hasIncludeFilter() const;
-    void compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter) const;
-    bool hasActiveFilters() const;
+    void                compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, const RigGridBase* grid) const;
+    bool                hasActiveFilters() const;
 
     void                setReservoirView(RimReservoirView* reservoirView);
     RimReservoirView*   reservoirView();
@@ -50,11 +51,13 @@ public:
     RigActiveCellInfo*  activeCellInfo() const;
 
     // Overridden methods
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void                    fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual caf::PdmFieldHandle*    objectToggleField();
 
 protected:
     // Overridden methods
     virtual void initAfterRead();
+
 
 private:
     RimReservoirView* m_reservoirView;

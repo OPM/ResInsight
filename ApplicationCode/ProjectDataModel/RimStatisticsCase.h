@@ -58,7 +58,8 @@ public:
     enum PercentileCalcType
     {
         NEAREST_OBSERVATION,
-        HISTOGRAM_ESTIMATED
+        HISTOGRAM_ESTIMATED,
+        INTERPOLATED_OBSERVATION
     };
 
  

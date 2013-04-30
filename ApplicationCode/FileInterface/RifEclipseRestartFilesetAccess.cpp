@@ -35,6 +35,17 @@ RifEclipseRestartFilesetAccess::RifEclipseRestartFilesetAccess()
 RifEclipseRestartFilesetAccess::~RifEclipseRestartFilesetAccess()
 {
     close();
+
+    for (size_t i = 0; i < m_ecl_files.size(); i++)
+    {
+        if (m_ecl_files[i])
+        {
+            ecl_file_close(m_ecl_files[i]);
+        }
+
+        m_ecl_files[i] = NULL;
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,15 +95,6 @@ void RifEclipseRestartFilesetAccess::setRestartFiles(const QStringList& fileSet)
 //--------------------------------------------------------------------------------------------------
 void RifEclipseRestartFilesetAccess::close()
 {
-    for (size_t i = 0; i < m_ecl_files.size(); i++)
-    {
-        if (m_ecl_files[i])
-        {
-            ecl_file_close(m_ecl_files[i]);
-        }
-
-        m_ecl_files[i] = NULL;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -232,7 +234,7 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
     if (m_ecl_files[timeStep] == NULL)
     {
         int index = static_cast<int>(timeStep);
-        ecl_file_type* ecl_file = ecl_file_open(m_fileNames[index].toAscii().data());
+        ecl_file_type* ecl_file = ecl_file_open(m_fileNames[index].toAscii().data(), ECL_FILE_CLOSE_STREAM);
 
         m_ecl_files[timeStep] = ecl_file;
     }

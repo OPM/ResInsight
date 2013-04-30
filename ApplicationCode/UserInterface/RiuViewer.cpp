@@ -35,6 +35,7 @@
 #include "cafNavigationPolicy.h"
 #include "cafEffectGenerator.h"
 #include "RiuSimpleHistogramWidget.h"
+#include "RimUiTreeModelPdm.h"
 
 
 using cvf::ManipulatorTrackball;
@@ -57,8 +58,8 @@ const double RI_MIN_NEARPLANE_DISTANCE = 0.1;
 RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
 : caf::Viewer(format, parent)
 {
-    cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), font);
+    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     axisCross->setAxisLabels("E", "N", "Z");
     m_mainRendering->addOverlayItem(axisCross, cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
 
@@ -225,10 +226,6 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
 
     if (!this->canRender()) return;
 
-    // Get the currently set button press action
-    // We get it here since left click performs it, while we let a clean right click cancel it
-    RiaApplication* app = RiaApplication::instance();
-
     // Picking
     if (event->button() == Qt::LeftButton)
     {
@@ -237,6 +234,152 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::contextMenuEvent(QContextMenuEvent* contextMenuEvent)
+{
+    m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
+    m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
+
+    QPoint diffPoint = contextMenuEvent->pos() - m_lastMousePressPosition;
+    if (diffPoint.manhattanLength() > 3)
+    {
+        // We are possibly in navigation mode, only clean press event will launch
+        return;
+    }
+
+    int winPosX = contextMenuEvent->x();
+    int winPosY = contextMenuEvent->y();
+
+    uint faceIndex = cvf::UNDEFINED_UINT;
+    cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
+
+    cvf::Part * firstHitPart = NULL;
+    firstHitPart = pickPointAndFace(winPosX, winPosY, &faceIndex, &localIntersectionPoint);
+    if (firstHitPart)
+    {
+        if (faceIndex != cvf::UNDEFINED_UINT)
+        {
+            if (firstHitPart->sourceInfo())
+            {
+                const cvf::Array<size_t>* cellIndices = dynamic_cast<const cvf::Array<size_t>*>(firstHitPart->sourceInfo());
+                if (cellIndices)
+                {
+                    m_currentGridIdx = firstHitPart->id();
+                    m_currentCellIndex = cellIndices->get(faceIndex);
+
+                    QMenu menu;
+                    menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
+                    menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
+                    menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+                    menu.exec(contextMenuEvent->globalPos());
+                }
+            }
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::slotRangeFilterI()
+{
+    size_t i, j, k;
+    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
+
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+    if (myModel)
+    {
+        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
+
+        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
+
+        QModelIndex insertedIndex;
+        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
+
+        rangeFilter->name = QString("Slice I (%1)").arg(rangeFilterCollection->rangeFilters().size());
+        rangeFilter->cellCountI = 1;
+        int startIndex = CVF_MAX(static_cast<int>(i + 1), 1);
+        rangeFilter->startIndexI = startIndex;
+
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+
+        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
+
+        mainWindow->setCurrentObjectInTreeView(rangeFilter);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::slotRangeFilterJ()
+{
+    size_t i, j, k;
+    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
+
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+    if (myModel)
+    {
+        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
+
+        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
+
+        QModelIndex insertedIndex;
+        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
+
+        rangeFilter->name = QString("Slice J (%1)").arg(rangeFilterCollection->rangeFilters().size());
+        rangeFilter->cellCountJ = 1;
+        int startIndex = CVF_MAX(static_cast<int>(j + 1), 1);
+        rangeFilter->startIndexJ = startIndex;
+
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+
+        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
+
+        mainWindow->setCurrentObjectInTreeView(rangeFilter);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::slotRangeFilterK()
+{
+    size_t i, j, k;
+    ijkFromCellIndex(m_currentGridIdx, m_currentCellIndex, &i, &j, &k);
+
+    RiuMainWindow* mainWindow = RiuMainWindow::instance();
+    RimUiTreeModelPdm* myModel = mainWindow->uiPdmModel();
+    if (myModel)
+    {
+        RimCellRangeFilterCollection* rangeFilterCollection = m_reservoirView->rangeFilterCollection();
+
+        QModelIndex collectionModelIndex = myModel->getModelIndexFromPdmObject(rangeFilterCollection);
+
+        QModelIndex insertedIndex;
+        RimCellRangeFilter* rangeFilter = myModel->addRangeFilter(collectionModelIndex, insertedIndex);
+
+        rangeFilter->name = QString("Slice K (%1)").arg(rangeFilterCollection->rangeFilters().size());
+        rangeFilter->cellCountK = 1;
+        int startIndex = CVF_MAX(static_cast<int>(k + 1), 1);
+        rangeFilter->startIndexK = startIndex;
+
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
+        rangeFilterCollection->reservoirView()->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+
+        rangeFilterCollection->reservoirView()->createDisplayModelAndRedraw();
+
+        mainWindow->setCurrentObjectInTreeView(rangeFilter);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -528,3 +671,23 @@ void RiuViewer::showHistogram(bool enable)
 {
     m_showHistogram = enable;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::ijkFromCellIndex(size_t gridIdx, size_t cellIndex,  size_t* i, size_t* j, size_t* k)
+{
+    if (m_reservoirView->eclipseCase())
+    {
+        m_reservoirView->eclipseCase()->reservoirData()->grid(gridIdx)->ijkFromCellIndex(cellIndex, i, j, k);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::mousePressEvent(QMouseEvent* event)
+{
+    m_lastMousePressPosition = event->pos();
+}
+

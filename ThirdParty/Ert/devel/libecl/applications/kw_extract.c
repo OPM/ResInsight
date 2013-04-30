@@ -55,7 +55,9 @@ int main(int argc, char ** argv) {
     bool fmt_src , fmt_target;
     set_type    * kw_set = set_alloc( num_kw , kw_list );
     
-    fmt_src           = ecl_util_fmt_file(src_file);
+    if (!ecl_util_fmt_file(src_file, &fmt_src))
+      util_exit("Hmm - could not determine formatted/unformatted status for:%s \n",src_file);
+    
     fmt_target        = fmt_src;                         /* Can in principle be different */
     fortio_src        = fortio_open_reader(src_file     , fmt_src , ECL_ENDIAN_FLIP);
     fortio_target     = fortio_open_writer(target_file , fmt_target , ECL_ENDIAN_FLIP);

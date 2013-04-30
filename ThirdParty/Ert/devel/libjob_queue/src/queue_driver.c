@@ -14,7 +14,7 @@
     
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
    for more details. 
-*/
+ */
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -25,6 +25,7 @@
 #include <ert/job_queue/lsf_driver.h>
 #include <ert/job_queue/local_driver.h>
 #include <ert/job_queue/rsh_driver.h>
+#include <ert/job_queue/torque_driver.h>
 
 
 /**
@@ -50,40 +51,37 @@
 
     3. Some data fields which are common to all driver types.
 
-*/
+ */
 
 #define QUEUE_DRIVER_ID 86516032
-
 
 struct queue_driver_struct {
   UTIL_TYPE_ID_DECLARATION;
   /* 
      Function pointers - pointing to low level functions in the implementations of
      e.g. lsf_driver.
-  */
-  submit_job_ftype           * submit;        
-  free_job_ftype             * free_job;           
-  kill_job_ftype             * kill_job;           
-  get_status_ftype           * get_status;         
-  free_queue_driver_ftype    * free_driver;        
-  set_option_ftype           * set_option;
-  get_option_ftype           * get_option;
-  has_option_ftype           * has_option; 
-  
-  void                       * data;           /* Driver specific data - passed as first argument to the driver functions above. */
-  
+   */
+  submit_job_ftype * submit;
+  free_job_ftype * free_job;
+  kill_job_ftype * kill_job;
+  get_status_ftype * get_status;
+  free_queue_driver_ftype * free_driver;
+  set_option_ftype * set_option;
+  get_option_ftype * get_option;
+  has_option_ftype * has_option;
+
+  void * data; /* Driver specific data - passed as first argument to the driver functions above. */
+
   /*
     Generic data - common to all driver types.
-  */
-  char             * name;           /* String name of driver. */
-  job_driver_type    driver_type;    /* Enum value for driver. */
-  int                max_running;    /* Possible to maintain different max_running values for different
+   */
+  char * name; /* String name of driver. */
+  job_driver_type driver_type; /* Enum value for driver. */
+  int max_running; /* Possible to maintain different max_running values for different
                                         drivers; the value 0 is interpreted as no limit - i.e. the queue layer
                                         will (try) to send an unlimited number of jobs to the driver. */
 
 };
-
-
 
 /**
    Observe that after the driver instance has been allocated it does
@@ -93,28 +91,28 @@ struct queue_driver_struct {
 
    The driver returned from the queue_driver_alloc_empty() function is
    NOT properly initialized and NOT ready for use.  
-*/
+ */
 
-static queue_driver_type * queue_driver_alloc_empty( ) {
-  queue_driver_type * driver = util_malloc( sizeof * driver);
-  UTIL_TYPE_ID_INIT( driver , QUEUE_DRIVER_ID );
+static queue_driver_type * queue_driver_alloc_empty() {
+  queue_driver_type * driver = util_malloc(sizeof * driver);
+  UTIL_TYPE_ID_INIT(driver, QUEUE_DRIVER_ID);
   driver->max_running = 0;
   driver->driver_type = NULL_DRIVER;
-  driver->submit      = NULL;
-  driver->get_status  = NULL;
-  driver->kill_job    = NULL;
-  driver->free_job    = NULL;
+  driver->submit = NULL;
+  driver->get_status = NULL;
+  driver->kill_job = NULL;
+  driver->free_job = NULL;
   driver->free_driver = NULL;
-  driver->get_option  = NULL;
-  driver->set_option  = NULL;
-  driver->has_option  = NULL;
-  driver->name        = NULL;
-  driver->data        = NULL;         
-  
+  driver->get_option = NULL;
+  driver->set_option = NULL;
+  driver->has_option = NULL;
+  driver->name = NULL;
+  driver->data = NULL;
+
   return driver;
 }
 
-static UTIL_SAFE_CAST_FUNCTION( queue_driver , QUEUE_DRIVER_ID )
+static UTIL_SAFE_CAST_FUNCTION(queue_driver, QUEUE_DRIVER_ID)
 
 
 /**
@@ -122,92 +120,99 @@ static UTIL_SAFE_CAST_FUNCTION( queue_driver , QUEUE_DRIVER_ID )
    correctly initialized; but no options have been set. I.e. unless
    the driver in question needs no options (e.g. the LOCAL driver) the
    returned driver will NOT be ready for use.
-*/
+ */
 
 
-queue_driver_type * queue_driver_alloc( job_driver_type type ) {
+queue_driver_type * queue_driver_alloc(job_driver_type type) {
   queue_driver_type * driver = queue_driver_alloc_empty();
-  driver->driver_type  = type;
-  switch( type ) {
-  case LSF_DRIVER:
-    driver->submit       = lsf_driver_submit_job;
-    driver->get_status   = lsf_driver_get_job_status;
-    driver->kill_job     = lsf_driver_kill_job;
-    driver->free_job     = lsf_driver_free_job;
-    driver->free_driver  = lsf_driver_free__;
-    driver->set_option   = lsf_driver_set_option;
-    driver->get_option   = lsf_driver_get_option;
-    driver->has_option   = lsf_driver_has_option;
-    driver->name         = util_alloc_string_copy("LSF");
-    driver->data         = lsf_driver_alloc( );
-    break;
-  case LOCAL_DRIVER:
-    driver->submit      = local_driver_submit_job;
-    driver->get_status  = local_driver_get_job_status;
-    driver->kill_job    = local_driver_kill_job;
-    driver->free_job    = local_driver_free_job;
-    driver->free_driver = local_driver_free__;
-    driver->name        = util_alloc_string_copy("local");
-    driver->data        = local_driver_alloc( );
-    break;
-  case RSH_DRIVER:
-    driver->submit      = rsh_driver_submit_job;
-    driver->get_status  = rsh_driver_get_job_status;
-    driver->kill_job    = rsh_driver_kill_job;
-    driver->free_job    = rsh_driver_free_job;
-    driver->free_driver = rsh_driver_free__;
-    driver->set_option  = rsh_driver_set_option; 
-    driver->get_option  = rsh_driver_get_option; 
-    driver->name        = util_alloc_string_copy("RSH");
-    driver->data        = rsh_driver_alloc( );
-    break;
-  default:
-    util_abort("%s: unrecognized driver type:%d \n",type);
+  driver->driver_type = type;
+  switch (type) {
+    case LSF_DRIVER:
+      driver->submit = lsf_driver_submit_job;
+      driver->get_status = lsf_driver_get_job_status;
+      driver->kill_job = lsf_driver_kill_job;
+      driver->free_job = lsf_driver_free_job;
+      driver->free_driver = lsf_driver_free__;
+      driver->set_option = lsf_driver_set_option;
+      driver->get_option = lsf_driver_get_option;
+      driver->has_option = lsf_driver_has_option;
+      driver->name = util_alloc_string_copy("LSF");
+      driver->data = lsf_driver_alloc();
+      break;
+    case LOCAL_DRIVER:
+      driver->submit = local_driver_submit_job;
+      driver->get_status = local_driver_get_job_status;
+      driver->kill_job = local_driver_kill_job;
+      driver->free_job = local_driver_free_job;
+      driver->free_driver = local_driver_free__;
+      driver->name = util_alloc_string_copy("local");
+      driver->data = local_driver_alloc();
+      break;
+    case RSH_DRIVER:
+      driver->submit = rsh_driver_submit_job;
+      driver->get_status = rsh_driver_get_job_status;
+      driver->kill_job = rsh_driver_kill_job;
+      driver->free_job = rsh_driver_free_job;
+      driver->free_driver = rsh_driver_free__;
+      driver->set_option = rsh_driver_set_option;
+      driver->get_option = rsh_driver_get_option;
+      driver->name = util_alloc_string_copy("RSH");
+      driver->data = rsh_driver_alloc();
+      break;
+    case TORQUE_DRIVER:
+      driver->submit = torque_driver_submit_job;
+      driver->get_status = torque_driver_get_job_status;
+      driver->kill_job = torque_driver_kill_job;
+      driver->free_job = torque_driver_free_job;
+      driver->free_driver = torque_driver_free__;
+      driver->set_option = torque_driver_set_option;
+      driver->get_option = torque_driver_get_option;
+      driver->name = util_alloc_string_copy("TORQUE");
+      driver->data = torque_driver_alloc();
+      break;
+    default:
+      util_abort("%s: unrecognized driver type:%d \n", type);
   }
   return driver;
 }
 
 /*****************************************************************/
+
 /** 
    Set option - can also be used to perform actions - not only setting
    of parameters. There is no limit :-) 
-*/
-bool queue_driver_set_option( queue_driver_type * driver , const char * option_key , const void * value) {
-  if (driver->set_option != NULL) 
+ */
+bool queue_driver_set_option(queue_driver_type * driver, const char * option_key, const void * value) {
+  if (driver->set_option != NULL)
     /* The actual low level set functions can not fail! */
-    return driver->set_option( driver->data , option_key , value );
+    return driver->set_option(driver->data, option_key, value);
   else {
-    util_abort("%s: driver:%s does not support run time setting of options\n",__func__ , driver->name );
+    util_abort("%s: driver:%s does not support run time setting of options\n", __func__, driver->name);
     return false;
   }
 }
 
-bool queue_driver_set_int_option( queue_driver_type * driver , const char * option_key , int int_value) {
-  const void * void_value = &int_value;
-  return queue_driver_set_option( driver , option_key , void_value );
-}
-
-bool queue_driver_set_string_option( queue_driver_type * driver , const char * option_key , const char * value) {
-  return queue_driver_set_option( driver , option_key , value);
+bool queue_driver_set_string_option(queue_driver_type * driver, const char * option_key, const char * value) {
+  return queue_driver_set_option(driver, option_key, value);
 }
 
 /*****************************************************************/
 
-bool queue_driver_has_option( queue_driver_type * driver , const char * option_key ) {
+bool queue_driver_has_option(queue_driver_type * driver, const char * option_key) {
   if (driver->has_option != NULL)
-    return driver->has_option( driver , option_key );
+    return driver->has_option(driver, option_key);
   else
     return false;
 }
 
 /*****************************************************************/
 
-const void * queue_driver_get_option( queue_driver_type * driver , const char * option_key ) {
-  if (driver->get_option != NULL) 
+const void * queue_driver_get_option(queue_driver_type * driver, const char * option_key) {
+  if (driver->get_option != NULL)
     /* The actual low level set functions can not fail! */
-    return driver->get_option( driver->data , option_key );
+    return driver->get_option(driver->data, option_key);
   else {
-    util_abort("%s: driver:%s does not support run time reading of options\n",__func__ , driver->name );
+    util_abort("%s: driver:%s does not support run time reading of options\n", __func__, driver->name);
     return NULL;
   }
 }
@@ -215,95 +220,106 @@ const void * queue_driver_get_option( queue_driver_type * driver , const char * 
 /*****************************************************************/
 
 
-queue_driver_type * queue_driver_alloc_LSF(const char * queue_name , const char * resource_request , const char * remote_lsf_server) {
-  queue_driver_type * driver = queue_driver_alloc( LSF_DRIVER );
-  
-  queue_driver_set_option( driver , LSF_QUEUE    , queue_name );
-  queue_driver_set_option( driver , LSF_RESOURCE , resource_request );
-  queue_driver_set_option( driver , LSF_SERVER   , remote_lsf_server );
-  
+queue_driver_type * queue_driver_alloc_LSF(const char * queue_name, const char * resource_request, const char * remote_lsf_server) {
+  queue_driver_type * driver = queue_driver_alloc(LSF_DRIVER);
+
+  queue_driver_set_option(driver, LSF_QUEUE, queue_name);
+  queue_driver_set_option(driver, LSF_RESOURCE, resource_request);
+  queue_driver_set_option(driver, LSF_SERVER, remote_lsf_server);
+
   return driver;
 }
 
-
-queue_driver_type * queue_driver_alloc_RSH( const char * rsh_cmd , const hash_type * rsh_hostlist) {
-  queue_driver_type * driver = queue_driver_alloc( RSH_DRIVER );
-  
-  queue_driver_set_option( driver , RSH_HOSTLIST , rsh_hostlist );
-  queue_driver_set_option( driver , RSH_CMD      , rsh_cmd );
-  
+queue_driver_type * queue_driver_alloc_TORQUE() {
+  queue_driver_type * driver = queue_driver_alloc(TORQUE_DRIVER);
   return driver;
 }
 
+queue_driver_type * queue_driver_alloc_RSH(const char * rsh_cmd, const hash_type * rsh_hostlist) {
+  queue_driver_type * driver = queue_driver_alloc(RSH_DRIVER);
 
-queue_driver_type * queue_driver_alloc_local( ) {
-  queue_driver_type * driver = queue_driver_alloc( LOCAL_DRIVER );
-  
+  queue_driver_set_option(driver, RSH_HOSTLIST, rsh_hostlist);
+  queue_driver_set_option(driver, RSH_CMD, rsh_cmd);
+
+  return driver;
+}
+
+queue_driver_type * queue_driver_alloc_local() {
+  queue_driver_type * driver = queue_driver_alloc(LOCAL_DRIVER);
+
   /* No options set for the local driver. */
 
   return driver;
 }
+
 /*****************************************************************/
 
-void queue_driver_set_max_running( queue_driver_type * driver , int max_running) {
+void queue_driver_set_max_running(queue_driver_type * driver, int max_running) {
   driver->max_running = max_running;
 }
 
-int queue_driver_get_max_running( const queue_driver_type * driver ) {
+int queue_driver_get_max_running(const queue_driver_type * driver) {
   return driver->max_running;
 }
 
-const char * queue_driver_get_name( const queue_driver_type * driver ) {
+const char * queue_driver_get_name(const queue_driver_type * driver) {
   return driver->name;
 }
 
 
 /*****************************************************************/
+
 /* These are the functions used by the job_queue layer. */
 
-void * queue_driver_submit_job( queue_driver_type * driver, const char * run_cmd , int num_cpu , const char * run_path , const char * job_name , int argc , const char ** argv) {
-  return driver->submit( driver->data , run_cmd , num_cpu , run_path , job_name , argc , argv );
+void * queue_driver_submit_job(queue_driver_type * driver, const char * run_cmd, int num_cpu, const char * run_path, const char * job_name, int argc, const char ** argv) {
+  return driver->submit(driver->data, run_cmd, num_cpu, run_path, job_name, argc, argv);
 }
 
-void queue_driver_free_job( queue_driver_type * driver , void * job_data ) {
-  driver->free_job( job_data );
+void queue_driver_free_job(queue_driver_type * driver, void * job_data) {
+  driver->free_job(job_data);
 }
 
-void queue_driver_kill_job( queue_driver_type * driver , void * job_data ) {
-  driver->kill_job( driver->data , job_data );
+void queue_driver_kill_job(queue_driver_type * driver, void * job_data) {
+  driver->kill_job(driver->data, job_data);
 }
 
-job_status_type queue_driver_get_status( queue_driver_type * driver , void * job_data) {
-  job_status_type status = driver->get_status( driver->data , job_data );
+job_status_type queue_driver_get_status(queue_driver_type * driver, void * job_data) {
+  job_status_type status = driver->get_status(driver->data, job_data);
   return status;
 }
 
-void queue_driver_free_driver( queue_driver_type * driver ) {
-  driver->free_driver( driver->data );
+void queue_driver_free_driver(queue_driver_type * driver) {
+  driver->free_driver(driver->data);
 }
 
 /*****************************************************************/
 
-void queue_driver_free( queue_driver_type * driver ) {
-  queue_driver_free_driver( driver );
-  util_safe_free( driver->name );
-  free( driver );
+void queue_driver_free(queue_driver_type * driver) {
+  queue_driver_free_driver(driver);
+  util_safe_free(driver->name);
+  free(driver);
 }
 
-
-void queue_driver_free__( void * driver ) {
-  queue_driver_type * queue_driver = queue_driver_safe_cast( driver );
-  queue_driver_free( queue_driver );
+void queue_driver_free__(void * driver) {
+  queue_driver_type * queue_driver = queue_driver_safe_cast(driver);
+  queue_driver_free(queue_driver);
 }
 
 
 /*****************************************************************/
+
 /* Small functions to support enum introspection. */
 
-const char * queue_driver_type_enum_iget( int index, int * value) {
-  return util_enum_iget( index , JOB_DRIVER_ENUM_SIZE , (const util_enum_element_type []) { JOB_DRIVER_ENUM_DEFS }, value);
+const char * queue_driver_type_enum_iget(int index, int * value) {
+
+  return util_enum_iget(index, JOB_DRIVER_ENUM_SIZE, (const util_enum_element_type []) {
+    JOB_DRIVER_ENUM_DEFS
+  }, value);
 }
 
-const char * queue_driver_status_emun_iget( int index, int * value) {
-  return util_enum_iget( index , JOB_STATUS_ENUM_SIZE , (const util_enum_element_type []) { JOB_STATUS_ENUM_DEFS }, value);
+const char * queue_driver_status_emun_iget(int index, int * value) {
+
+  return util_enum_iget(index, JOB_STATUS_ENUM_SIZE, (const util_enum_element_type []) {
+    JOB_STATUS_ENUM_DEFS
+  }, value);
 }

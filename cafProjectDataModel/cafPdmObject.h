@@ -136,6 +136,10 @@ public:
     template <typename T>
     void                    parentObjectsOfType(std::vector<T*>& objects) const;
 
+    /// 
+    template <typename T>
+    void                      firstAncestorOfType(T*& ancestor) const;
+
     /// Method to be called from the Ui classes creating Auto Gui to get the group information 
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
     void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) ;
@@ -146,6 +150,10 @@ public:
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual 
     virtual PdmFieldHandle* userDescriptionField() { return NULL; }
+
+    /// Field used to toggle object on/off in UI-related uses of the object (ie checkbox in treeview)
+    virtual PdmFieldHandle* objectToggleField() { return NULL; }
+
     /// Method to reimplement to catch when the field has changed due to setUiValue()
     virtual void            fieldChangedByUi(const PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) {}
     /// Method to re-implement to supply option values for a specific field
@@ -236,6 +244,35 @@ void PdmObject::parentObjectsOfType(std::vector<T*>& objects) const
         {
             objects.push_back(objectOfType);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+template <typename T>
+void PdmObject::firstAncestorOfType(T*& ancestor) const
+{
+    std::vector<PdmObject*> parents;
+    this->parentObjects(parents);
+
+    while (parents.size() > 0)
+    {
+        assert(parents.size() == 1);
+
+        PdmObject* firstParent = parents[0];
+        assert(firstParent);
+
+        T* objectOfType = dynamic_cast<T*>(firstParent);
+        if (objectOfType)
+        {
+            ancestor = objectOfType;
+            return;
+        }
+
+        // Get next level parents
+        parents.clear();
+        firstParent->parentObjects(parents);
     }
 }
 

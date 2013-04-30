@@ -81,6 +81,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   void                 @TYPE@_vector_set_many(@TYPE@_vector_type *  , int  , const @TYPE@ *  , int );
   void                 @TYPE@_vector_set_all(@TYPE@_vector_type * vector , @TYPE@ value);
   void                 @TYPE@_vector_append_many(@TYPE@_vector_type * vector , const @TYPE@ * data , int length);
+  void                 @TYPE@_vector_append_vector(@TYPE@_vector_type * vector , const @TYPE@_vector_type * other);
   void                 @TYPE@_vector_shrink(@TYPE@_vector_type * );
   @TYPE@               @TYPE@_vector_sum(const @TYPE@_vector_type * );
   @TYPE@               @TYPE@_vector_get_default(const @TYPE@_vector_type * );

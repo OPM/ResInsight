@@ -26,6 +26,7 @@
 #include <ert/enkf/enkf_state.h>
 #include <ert/enkf/rng_config.h>
 
+
 int main(int argc , char ** argv) {
   unsigned int rand1,rand2;
   {
@@ -87,6 +88,7 @@ int main(int argc , char ** argv) {
       enkf_main_free( enkf_main );
     }
     test_assert_uint_equal( rand1 , rand2 );
+    util_unlink_existing( seed_file );
   }
   /*****************************************************************/
   {

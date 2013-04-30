@@ -71,22 +71,26 @@ fwrite() from the standard library.
 struct fortio_struct {
   FILE             * stream;
   char             * filename;
-  int                active_header;
-  int                rec_nr;
   bool               endian_flip_header;  
   bool               fmt_file;    /* This is not really used by the fortio instance - but it is very convenient to store it here. */
-  int                mode;
+  const char *       fopen_mode;
+  bool               stream_owner;
+  
+  /* Internal variables used during partial read.*/
+  int                active_header;
+  int                rec_nr;
 };
 
 
 
-static fortio_type * fortio_alloc__(const char *filename , bool fmt_file , bool endian_flip_header) {
-  fortio_type * fortio       = (fortio_type *) util_malloc(sizeof * fortio );
+static fortio_type * fortio_alloc__(const char *filename , bool fmt_file , bool endian_flip_header , bool stream_owner) {
+  fortio_type * fortio       = util_malloc(sizeof * fortio );
   fortio->filename           = util_alloc_string_copy(filename);
   fortio->endian_flip_header = endian_flip_header;
   fortio->active_header      = 0;
   fortio->rec_nr             = 0; 
   fortio->fmt_file           = fmt_file;
+  fortio->stream_owner       = stream_owner;
   return fortio;
 }
 
@@ -218,65 +222,187 @@ bool fortio_guess_endian_flip(const char * filename , bool * _endian_flip) {
 
 
 fortio_type * fortio_alloc_FILE_wrapper(const char *filename , bool endian_flip_header , bool fmt_file , FILE * stream) {
-  fortio_type * fortio = fortio_alloc__(filename , fmt_file , endian_flip_header);
+  fortio_type * fortio = fortio_alloc__(filename , fmt_file , endian_flip_header , false);
   fortio->stream = stream;
   return fortio;
 }
 
+/*****************************************************************/
+/*
+  Observe that the stream open functions accept a failure, and call
+  the fopen() function driectly.
+*/
+
+static const char * fortio_fopen_read_mode( bool fmt_file ) {
+  if (fmt_file)
+    return READ_MODE_TXT;
+  else
+    return READ_MODE_BINARY;
+}
+
+static FILE * fortio_fopen_read( const char * filename , bool fmt_file ) {
+  FILE * stream;
+  const char * mode = fortio_fopen_read_mode( fmt_file );
+  stream = fopen(filename , mode);
+  return stream;
+}
+
+
+static const char * fortio_fopen_write_mode( bool fmt_file ) {
+  if (fmt_file)
+    return WRITE_MODE_TXT;
+  else
+    return WRITE_MODE_BINARY;
+}
+
+static FILE * fortio_fopen_write( const char * filename , bool fmt_file ) {
+  FILE * stream;
+  const char * mode = fortio_fopen_write_mode( fmt_file );
+  stream = fopen(filename , mode);
+  return stream;
+}
+
+
+
+
+static const char * fortio_fopen_readwrite_mode( bool fmt_file ) {
+  if (fmt_file)
+    return READ_WRITE_MODE_TXT;
+  else
+    return READ_WRITE_MODE_BINARY;
+}
+
+static FILE * fortio_fopen_readwrite( const char * filename , bool fmt_file ) {
+  FILE * stream;
+  const char * mode = fortio_fopen_readwrite_mode( fmt_file );
+  stream = fopen(filename , mode);
+  return stream;
+}
+
+
+static const char * fortio_fopen_append_mode( bool fmt_file ) {
+  if (fmt_file)
+    return APPEND_MODE_TXT;
+  else
+    return APPEND_MODE_BINARY;
+}
+
+
+static FILE * fortio_fopen_append( const char * filename , bool fmt_file ) {
+  FILE * stream;
+  const char * mode = fortio_fopen_append_mode( fmt_file );
+  stream = fopen(filename , mode);
+  return stream;
+}
+
+
+
+/*****************************************************************/
+
+
 
 fortio_type * fortio_open_reader(const char *filename , bool fmt_file , bool endian_flip_header) {
-  fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header);
-  
-  if (fmt_file)
-    fortio->stream = util_fopen(fortio->filename , READ_MODE_TXT);
-  else
-    fortio->stream = util_fopen(fortio->filename , READ_MODE_BINARY);
-  fortio->mode = FORTIO_READ;
-  return fortio;
+  FILE * stream = fortio_fopen_read( filename , fmt_file );
+  if (stream) {
+    fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header , true);
+    fortio->stream = stream;
+    fortio->fopen_mode = fortio_fopen_read_mode( fmt_file );
+    return fortio;
+  } else
+    return NULL;
 }
 
+
+
+
 fortio_type * fortio_open_writer(const char *filename , bool fmt_file , bool endian_flip_header ) {
-  fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header);
-  
-  if (fmt_file)
-    fortio->stream = util_fopen(fortio->filename , WRITE_MODE_TXT);
-  else
-    fortio->stream = util_fopen(fortio->filename , WRITE_MODE_BINARY);
-  fortio->mode = FORTIO_WRITE;
-  
-  return fortio;
+  FILE * stream = fortio_fopen_write( filename , fmt_file );
+  if (stream) {
+    fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header, true);
+    fortio->stream = stream;
+    fortio->fopen_mode = fortio_fopen_write_mode( fmt_file );
+    return fortio;
+  } else
+    return NULL;
 }
+
 
 
 fortio_type * fortio_open_readwrite(const char *filename , bool fmt_file , bool endian_flip_header) {
-  fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header);
-
-  if (fmt_file)
-    fortio->stream = util_fopen(fortio->filename , READ_WRITE_MODE_TXT);
-  else
-    fortio->stream = util_fopen(fortio->filename , READ_WRITE_MODE_BINARY);
-
-  fortio->mode = FORTIO_READ + FORTIO_WRITE;
-  return fortio;
+  FILE * stream = fortio_fopen_readwrite( filename , fmt_file );
+  if (stream) {
+    fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header , true);
+    fortio->stream = stream;
+    fortio->fopen_mode = fortio_fopen_readwrite_mode( fmt_file );
+    return fortio;
+  } else
+    return NULL;
 }
 
 
 fortio_type * fortio_open_append(const char *filename , bool fmt_file , bool endian_flip_header) {
-  fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header);
+  FILE * stream = fortio_fopen_append( filename , fmt_file );
+  if (stream) {
+    fortio_type *fortio = fortio_alloc__(filename , fmt_file , endian_flip_header , true);
+    fortio->stream = stream;
+    fortio->fopen_mode = fortio_fopen_append_mode( fmt_file );
+    return fortio;
+  } else
+    return NULL;
+}
+/*****************************************************************/
 
-  if (fmt_file)
-    fortio->stream = util_fopen(fortio->filename , APPEND_MODE_TXT);
-  else
-    fortio->stream = util_fopen(fortio->filename , APPEND_MODE_BINARY);
-
-  fortio->mode =  FORTIO_WRITE;
-  return fortio;
+bool fortio_fclose_stream( fortio_type * fortio ) {
+  if (fortio->stream_owner) {
+    if (fortio->stream) {
+      int fclose_return = fclose( fortio->stream );
+      fortio->stream = NULL;
+      if (fclose_return == 0)
+        return true;
+      else
+        return false;
+    } else
+      return false; // Already closed.
+  } else
+    return false;
 }
 
 
+bool fortio_fopen_stream( fortio_type * fortio ) {
+  if (fortio->stream == NULL) {
+    fortio->stream = fopen( fortio->filename , fortio->fopen_mode );
+    if (fortio->stream)
+      return true;
+    else
+      return false;
+  } else
+    return false;
+}
+
+
+bool fortio_stream_is_open( const fortio_type * fortio ) {
+  if (fortio->stream)
+    return true;
+  else
+    return false;
+}
+
+
+bool fortio_assert_stream_open( fortio_type * fortio ) {
+  if (fortio->stream)
+    return true;
+  else {
+    fortio_fopen_stream( fortio );
+    return fortio_stream_is_open( fortio );
+  }
+}
+
+
+/*****************************************************************/
+
 
 static void fortio_free__(fortio_type * fortio) {
-  if (fortio->filename != NULL) free(fortio->filename);
+  util_safe_free(fortio->filename);
   free(fortio);
 }
 
@@ -286,7 +412,11 @@ void fortio_free_FILE_wrapper(fortio_type * fortio) {
 
 
 void fortio_fclose(fortio_type *fortio) {
-  fclose(fortio->stream);
+  if (fortio->stream) {
+    fclose(fortio->stream);
+    fortio->stream = NULL;
+  }
+
   fortio_free__(fortio);
 }
 
@@ -341,40 +471,6 @@ int fortio_init_read(fortio_type *fortio) {
 
 
 
-// util_fread_int: read failed: No such file or directory
-// 
-// ****************************************************************************
-// **                                                                        **
-// **           A fatal error occured, and we have to abort.                 **
-// **                                                                        **
-// **  We now *try* to provide a backtrace, which would be very useful       **
-// **  when debugging. The process of making a (human readable) backtrace    **
-// **  is quite complex, among other things it involves several calls to the **
-// **  external program addr2line. We have arrived here because the program  **
-// **  state is already quite broken, so the backtrace might be (seriously)  **
-// **  broken as well.                                                       **
-// **                                                                        **
-// ****************************************************************************
-// Current executable : /private/joaho/EnKF/devel/EnKF/libecl/applications/summary.x
-// --------------------------------------------------------------------------------
-//  #00 util_abort                 (..) in /private/joaho/EnKF/devel/EnKF/libutil/src/util.c:4604
-//  #01 util_fread_int             (..) in /private/joaho/EnKF/devel/EnKF/libutil/src/util.c:3423
-//  #02 fortio_complete_read       (..) in libecl/src/fortio.c:275
-//  #03 fortio_fread_record        (..) in libecl/src/fortio.c:297
-//  #04 fortio_fread_buffer        (..) in libecl/src/fortio.c:313
-//  #05 ecl_kw_fread_data          (..) in libecl/src/ecl_kw.c:745
-//  #06 ecl_kw_fread_realloc       (..) in libecl/src/ecl_kw.c:996
-//  #07 ecl_kw_fread_alloc         (..) in libecl/src/ecl_kw.c:1017
-//  #08 ecl_file_fread_alloc_fortio(..) in /private/joaho/EnKF/devel/EnKF/libecl/src/ecl_file.c:206
-//  #09 ecl_file_fread_alloc       (..) in /private/joaho/EnKF/devel/EnKF/libecl/src/ecl_file.c:265
-//  #10 ecl_sum_data_fread__       (..) in /private/joaho/EnKF/devel/EnKF/libecl/src/ecl_sum_data.c:693
-//  #11 ecl_sum_data_fread_alloc   (..) in /private/joaho/EnKF/devel/EnKF/libecl/src/ecl_sum_data.c:733
-//  #12 ecl_sum_fread_alloc__      (..) in libecl/src/ecl_sum.c:58
-//  #13 ecl_sum_fread_alloc_case__ (..) in libecl/src/ecl_sum.c:149
-//  #14 main                       (..) in /private/joaho/EnKF/devel/EnKF/libecl/applications/view_summary.c:144
-//  #15 ??                         (..) in ??:0
-//  #16 _start                     (..) in ??:0
-
 
 
 void fortio_complete_read(fortio_type *fortio) {
@@ -400,10 +496,10 @@ void fortio_complete_read(fortio_type *fortio) {
 int fortio_fread_record(fortio_type *fortio, char *buffer) {
   fortio_init_read(fortio);
   {
-          int record_size = fortio->active_header; /* This is reset in fortio_complete_read - must store it for the return. */
-      util_fread(buffer , 1 , fortio->active_header , fortio->stream , __func__);
-      fortio_complete_read(fortio);
-      return record_size;
+    int record_size = fortio->active_header; /* This is reset in fortio_complete_read - must store it for the return. */
+    util_fread(buffer , 1 , fortio->active_header , fortio->stream , __func__);
+    fortio_complete_read(fortio);
+    return record_size;
   }
 }
 
@@ -620,6 +716,7 @@ int fortio_fileno( fortio_type * fortio ) {
 }
 
 
+
 /*****************************************************************/
 void          fortio_fflush(fortio_type * fortio) { fflush( fortio->stream); }
 FILE        * fortio_get_FILE(const fortio_type *fortio)        { return fortio->stream; }
@@ -628,4 +725,4 @@ int           fortio_get_record_size(const fortio_type *fortio) { return fortio-
 bool          fortio_fmt_file(const fortio_type *fortio)        { return fortio->fmt_file; }
 void          fortio_rewind(const fortio_type *fortio)          { rewind(fortio->stream); }
 const char  * fortio_filename_ref(const fortio_type * fortio)   { return (const char *) fortio->filename; }
-int           fortio_get_mode( const fortio_type * fortio )     { return fortio->mode; }
+

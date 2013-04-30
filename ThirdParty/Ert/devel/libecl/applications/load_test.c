@@ -45,13 +45,13 @@ void test_case( const char * base , bool load_all) {
   timer_stop( tg );
 
   timer_start( ti );
-  init = ecl_file_open( init_file );
+  init = ecl_file_open( init_file , 0);
   if (load_all)
     ecl_file_load_all( init );
   timer_stop( ti );
 
   timer_start( tr );
-  restart = ecl_file_open( restart_file );
+  restart = ecl_file_open( restart_file , 0);
   if (load_all)
     ecl_file_load_all( restart );
   timer_stop( tr );

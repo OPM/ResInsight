@@ -34,7 +34,7 @@ public:
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
 
-    caf::PdmField<QString>  scriptDirectory;
+    caf::PdmField<QString>  scriptDirectories;
     caf::PdmField<QString>  scriptEditorExecutable;
     caf::PdmField<QString>  octaveExecutable;
 

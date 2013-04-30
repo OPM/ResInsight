@@ -108,12 +108,15 @@ bool RigGridManager::isGridDimensionsEqual(const std::vector< std::vector<int> >
 
     for (size_t j = 0; j < mainCaseGridDimensions.size(); j++)
     {
-        if (mainCaseGridDimensions[j].size() != 3) return false;
-        if (caseGridDimensions[j].size() != 3) return false;
+        if (mainCaseGridDimensions[j].size() != 4) return false;
+        if (caseGridDimensions[j].size() != 4) return false;
 
-        if (mainCaseGridDimensions[j][0] != caseGridDimensions[j][0]) return false;
-        if (mainCaseGridDimensions[j][1] != caseGridDimensions[j][1]) return false;
-        if (mainCaseGridDimensions[j][2] != caseGridDimensions[j][2]) return false;
+        if (mainCaseGridDimensions[j][0] != caseGridDimensions[j][0]) return false; // nx
+        if (mainCaseGridDimensions[j][1] != caseGridDimensions[j][1]) return false; // ny
+        if (mainCaseGridDimensions[j][2] != caseGridDimensions[j][2]) return false; // nz
+
+        if (mainCaseGridDimensions[j][3] != caseGridDimensions[j][3]) return false; // active_cells
+
     }
 
     return true;

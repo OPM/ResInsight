@@ -33,8 +33,6 @@ public:
     RimCalcScript();
     virtual ~RimCalcScript();
 
-    void readContentFromFile();
-    
     caf::PdmField<QString>  absolutePath;
-    caf::PdmField<QString>  content;
+    caf::PdmField<QString>  content;    // TODO: Obsolete field, can be deleted on next project file revision.
 };

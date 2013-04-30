@@ -39,6 +39,10 @@ RimCellEdgeResultSlot::RimCellEdgeResultSlot()
     CAF_PDM_InitObject("Cell Edge Result", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result variable", "", "", "");
+    CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
+    CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y values", "", "", "");
+    CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z values", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", ":/Legend.png", "", "");
 
     resultVariable.setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
@@ -84,11 +88,16 @@ void RimCellEdgeResultSlot::loadResult()
          int cubeFaceIdx;
          for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
          {
-             QString varEnd = EdgeFaceEnum::textFromIndex(cubeFaceIdx);
-
-             if (vars[i].endsWith(varEnd))
+             if (   ((cubeFaceIdx == 0 || cubeFaceIdx == 1) && useXVariable())
+                 || ((cubeFaceIdx == 2 || cubeFaceIdx == 3) && useYVariable())
+                 || ((cubeFaceIdx == 4 || cubeFaceIdx == 5) && useZVariable()))
              {
-                 m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(vars[i], resultindex);
+                 QString varEnd = EdgeFaceEnum::textFromIndex(cubeFaceIdx);
+
+                 if (vars[i].endsWith(varEnd))
+                 {
+                     m_resultNameToIndexPairs[cubeFaceIdx] = std::make_pair(vars[i], resultindex);
+                 }
              }
          }
     }
@@ -99,10 +108,7 @@ void RimCellEdgeResultSlot::loadResult()
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &resultVariable)
-    {
-        loadResult();
-    }
+    loadResult();
 
     if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
 }

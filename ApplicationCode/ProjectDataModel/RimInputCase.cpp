@@ -96,6 +96,8 @@ void RimInputCase::openDataFileSet(const QStringList& filenames)
              {
                  m_gridFileName = filenames[i];
 
+                 this->reservoirData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+
                  computeCachedData();
 
                  break;
@@ -183,6 +185,8 @@ bool RimInputCase::openEclipseGridFile()
 
         results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
+
+        this->reservoirData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
         
         computeCachedData();
         loadAndSyncronizeInputProperties();
@@ -308,32 +312,6 @@ void RimInputCase::loadAndSyncronizeInputProperties()
             m_inputPropertyCollection->inputProperties[i]->resolvedState = RimInputProperty::FILE_MISSING;
         }
     }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimInputCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
-{
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimInputCase::addFiles(const QStringList& newFileNames)
-{
-
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimInputCase::removeFiles(const QStringList& obsoleteFileNames)
-{
-
 }
 
 //--------------------------------------------------------------------------------------------------

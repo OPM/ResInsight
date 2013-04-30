@@ -234,7 +234,7 @@ void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometry
     {
         cvf::ref<cvf::UByteArray> cellVisibility = m_geometries[geometryType].cellVisibility(i); 
         computeVisibility(cellVisibility.p(), geometryType, grids[i], i);
-
+        
         m_geometries[geometryType].setCellVisibility(i, cellVisibility.p());
     }
 
@@ -298,7 +298,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
             if (m_geometriesNeedsRegen[ACTIVE]) createGeometry(ACTIVE);
 
             nativeVisibility = m_geometries[ACTIVE].cellVisibility(gridIdx);
-            computeRangeVisibility(cellVisibility, grid, nativeVisibility.p(), m_reservoirView->rangeFilterCollection());
+            computeRangeVisibility(geometryType, cellVisibility, grid, nativeVisibility.p(), m_reservoirView->rangeFilterCollection());
         }
         break;
     case RANGE_FILTERED_INACTIVE:
@@ -307,7 +307,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
             if (m_geometriesNeedsRegen[INACTIVE]) createGeometry(INACTIVE);
 
             nativeVisibility = m_geometries[INACTIVE].cellVisibility(gridIdx);
-            computeRangeVisibility(cellVisibility, grid, nativeVisibility.p(), m_reservoirView->rangeFilterCollection());
+            computeRangeVisibility(geometryType, cellVisibility, grid, nativeVisibility.p(), m_reservoirView->rangeFilterCollection());
         }
         break;
     case RANGE_FILTERED_WELL_CELLS:
@@ -316,7 +316,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
             if (m_geometriesNeedsRegen[ALL_WELL_CELLS]) createGeometry(ALL_WELL_CELLS);
 
             nativeVisibility = m_geometries[ALL_WELL_CELLS].cellVisibility(gridIdx);
-            computeRangeVisibility(cellVisibility, grid, nativeVisibility.p(), m_reservoirView->rangeFilterCollection());
+            computeRangeVisibility(geometryType, cellVisibility, grid, nativeVisibility.p(), m_reservoirView->rangeFilterCollection());
         }
         break;
     case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
@@ -489,7 +489,7 @@ void RivReservoirViewPartMgr::computeNativeVisibility(cvf::UByteArray* cellVisib
         if (   !invalidCellsIsVisible && cell.isInvalid() 
             || !inactiveCellsIsVisible && !activeCellInfo->isActive(globalCellIndex)
             || !activeCellsIsVisible && activeCellInfo->isActive(globalCellIndex)
-            || mainGridIsVisible && (cell.subGrid() != NULL)
+            //|| mainGridIsVisible && (cell.subGrid() != NULL) // this is handled on global level instead
             || (*cellIsInWellStatuses)[cellIndex]
             )
         {
@@ -528,7 +528,7 @@ void RivReservoirViewPartMgr::copyByteArray(cvf::UByteArray* destination, const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::computeRangeVisibility(cvf::UByteArray* cellVisibility, const RigGridBase* grid, 
+void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType geometryType, cvf::UByteArray* cellVisibility, const RigGridBase* grid, 
     const cvf::UByteArray* nativeVisibility, const RimCellRangeFilterCollection* rangeFilterColl) 
 {
     CVF_ASSERT(cellVisibility != NULL);
@@ -538,14 +538,33 @@ void RivReservoirViewPartMgr::computeRangeVisibility(cvf::UByteArray* cellVisibi
     CVF_ASSERT(grid != NULL);
     CVF_ASSERT(nativeVisibility->size() == grid->cellCount());
 
-
     if (rangeFilterColl->hasActiveFilters())
     {
         if (cellVisibility != nativeVisibility) (*cellVisibility) = (*nativeVisibility);
 
         // Build range filter for current grid
-        cvf::CellRangeFilter mainGridCellRangeFilter;
-        rangeFilterColl->compoundCellRangeFilter(&mainGridCellRangeFilter);
+        cvf::CellRangeFilter gridCellRangeFilter;
+        rangeFilterColl->compoundCellRangeFilter(&gridCellRangeFilter, grid);
+
+        const RigLocalGrid* lgr = NULL;
+        cvf::ref<cvf::UByteArray> parentGridVisibilities;
+
+        if (!grid->isMainGrid())
+        {
+            lgr = static_cast<const RigLocalGrid*>(grid);
+
+            size_t parentGridIndex = lgr->parentGrid()->gridIndex();
+            CVF_ASSERT(parentGridIndex < grid->gridIndex());
+
+            if (geometryType == RANGE_FILTERED_WELL_CELLS)
+            {
+                geometryType = RANGE_FILTERED; // Use the range filtering in the parent grid, not the well cells in the parent grid
+            }
+
+            RivReservoirPartMgr* reservoirGridPartMgr = &m_geometries[geometryType];
+
+            parentGridVisibilities = reservoirGridPartMgr->cellVisibility(parentGridIndex);
+        }
 
 #pragma omp parallel for 
         for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
@@ -553,13 +572,22 @@ void RivReservoirViewPartMgr::computeRangeVisibility(cvf::UByteArray* cellVisibi
             if ( (*nativeVisibility)[cellIndex] )
             {
                 const RigCell& cell = grid->cell(cellIndex);
-                size_t mainGridCellIndex = cell.mainGridCellIndex();
+                bool visibleDueToParentGrid = false;
+                if (lgr)
+                {
+                    size_t parentGridCellIndex = cell.parentCellIndex();
+                    visibleDueToParentGrid = parentGridVisibilities->get(parentGridCellIndex);
+                }
+
+                // Normal grid visibility
                 size_t mainGridI;
                 size_t mainGridJ;
                 size_t mainGridK;
 
-                grid->mainGrid()->ijkFromCellIndex(mainGridCellIndex, &mainGridI, &mainGridJ, &mainGridK);
-                (*cellVisibility)[cellIndex] = !mainGridCellRangeFilter.isCellRejected(mainGridI, mainGridJ, mainGridK);
+                bool isInSubGridArea = cell.subGrid() != NULL;
+                grid->ijkFromCellIndex(cellIndex, &mainGridI, &mainGridJ, &mainGridK);
+                (*cellVisibility)[cellIndex] = (visibleDueToParentGrid || gridCellRangeFilter.isCellVisible(mainGridI, mainGridJ, mainGridK, isInSubGridArea)) 
+                                                && !gridCellRangeFilter.isCellExcluded(mainGridI, mainGridJ, mainGridK, isInSubGridArea);
             }
         }
     }
@@ -612,7 +640,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, scalarResultIndex);
                 CVF_ASSERT(dataAccessObject.notNull());
 
-                #pragma omp parallel for schedule(dynamic)
+                //#pragma omp parallel for schedule(dynamic)
                 for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
                 {
                     if ( (*cellVisibility)[cellIndex] )
@@ -646,18 +674,8 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, cvf::Color4f color)
 {
-    if (geometryType == PROPERTY_FILTERED)
-    {
-        m_propFilteredGeometryFrames[timeStepIndex]->updateCellColor(color );
-    }
-    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
-    {
-        m_propFilteredWellGeometryFrames[timeStepIndex]->updateCellColor(color );
-    }    
-    else
-    {
-        m_geometries[geometryType].updateCellColor(color);
-    }
+    RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
+    pmgr->updateCellColor(color);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -676,18 +694,8 @@ void RivReservoirViewPartMgr::updateCellColor(ReservoirGeometryCacheType geometr
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
-    if (geometryType == PROPERTY_FILTERED)
-    {
-        m_propFilteredGeometryFrames[timeStepIndex]->updateCellResultColor(timeStepIndex, cellResultSlot);
-    }
-    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
-    {
-        m_propFilteredWellGeometryFrames[timeStepIndex]->updateCellResultColor(timeStepIndex, cellResultSlot);
-    }
-    else
-    {
-        m_geometries[geometryType].updateCellResultColor(timeStepIndex, cellResultSlot);
-    }
+    RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
+    pmgr->updateCellResultColor(timeStepIndex, cellResultSlot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -695,16 +703,31 @@ void RivReservoirViewPartMgr::updateCellResultColor(ReservoirGeometryCacheType g
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
+    RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
+    pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::cref<cvf::UByteArray> RivReservoirViewPartMgr::cellVisibility(ReservoirGeometryCacheType geometryType, size_t gridIndex, size_t timeStepIndex) const
+{
+    RivReservoirPartMgr * pmgr = (const_cast<RivReservoirViewPartMgr*>(this))->reservoirPartManager( geometryType,  timeStepIndex );
+    return pmgr->cellVisibility(gridIndex).p();
+}
+
+RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeometryCacheType geometryType, size_t timeStepIndex )
+{
     if (geometryType == PROPERTY_FILTERED)
     {
-        m_propFilteredGeometryFrames[timeStepIndex]->updateCellEdgeResultColor( timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+        return m_propFilteredGeometryFrames[timeStepIndex].p();
     }
     else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
     {
-        m_propFilteredWellGeometryFrames[timeStepIndex]->updateCellEdgeResultColor( timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+        return m_propFilteredWellGeometryFrames[timeStepIndex].p();
     }
     else
     {
-        m_geometries[geometryType].updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+        return &m_geometries[geometryType];
     }
 }

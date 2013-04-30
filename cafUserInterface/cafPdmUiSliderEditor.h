@@ -24,7 +24,7 @@
 #include <QLabel>
 #include <QWidget>
 #include <QPointer>
-#include <QLineEdit>
+#include <QSpinBox>
 #include <QGroupBox>
 #include <QSlider>
 
@@ -35,7 +35,6 @@ namespace caf
 //==================================================================================================
 /// 
 //==================================================================================================
-
 class PdmUiSliderEditorAttribute : public PdmUiEditorAttribute
 {
 public:
@@ -44,9 +43,10 @@ public:
         m_minimum = 0;
         m_maximum = 10;
     }
+
 public:
-    int     m_minimum;
-    int     m_maximum;
+    int m_minimum;
+    int m_maximum;
 };
 
 
@@ -65,15 +65,15 @@ protected:
     virtual QWidget*    createLabelWidget(QWidget * parent);
 
 protected slots:
-    void                slotEditingFinished();
     void                slotSliderValueChanged(int position);
+    void                slotSpinBoxValueChanged(int position);
 
 private:
     void                updateSliderPosition();
     void                writeValueToField();
 
 private:
-    QPointer<QLineEdit> m_lineEdit;
+    QPointer<QSpinBox>  m_spinBox;
     QPointer<QSlider>   m_slider;
     QPointer<QLabel>    m_label;
   
