@@ -131,18 +131,26 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
         QModelIndex currentItem = 	m_listView->selectionModel()->currentIndex();
         QStringList texts = PdmOptionItemInfo::extractUiTexts(m_options);
         strListModel->setStringList(texts);
-        
+
         QVariant fieldValue = field()->uiValue();
         if (fieldValue.type() == QVariant::Int || fieldValue.type() == QVariant::UInt)
         {
             int col = 0;
             int row = field()->uiValue().toInt();
+
             QModelIndex mi = strListModel->index(row, col);
 
             m_listView->selectionModel()->blockSignals(true);
             m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
-            m_listView->selectionModel()->select(mi, QItemSelectionModel::SelectCurrent);
-            m_listView->selectionModel()->setCurrentIndex(mi, QItemSelectionModel::SelectCurrent);
+            if (row >= 0 ) 
+            {
+                m_listView->selectionModel()->select(mi, QItemSelectionModel::SelectCurrent);
+                m_listView->selectionModel()->setCurrentIndex(mi, QItemSelectionModel::SelectCurrent);
+            }
+            else // A negative value (Undefined UInt ) is interpreted as no selection
+            {
+                 m_listView->selectionModel()->clearSelection();
+            }
 
             m_listView->selectionModel()->blockSignals(false);
         }
