@@ -142,22 +142,22 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const st
         {
             double pVal = HUGE_VAL;
 
-            double doubleIndex = sortedValues.size() * fabs(pValPositions[i]) / 100.0;
+            double doubleIndex = (sortedValues.size() - 1) * fabs(pValPositions[i]) / 100.0;
 
             size_t lowerValueIndex = static_cast<size_t>(floor(doubleIndex));
             size_t upperValueIndex = lowerValueIndex + 1;
 
-            if (lowerValueIndex >= sortedValues.size() ) lowerValueIndex = sortedValues.size() - 1;
-            if (upperValueIndex >= sortedValues.size() ) upperValueIndex = sortedValues.size() - 1;
+            double upperValueWeight = doubleIndex - lowerValueIndex;
+            assert(upperValueWeight < 1.0);
 
-            double upperValueWeight = 1.0;
-            if (lowerValueIndex != upperValueIndex)
+            if (upperValueIndex < sortedValues.size())
             {
-                upperValueWeight = doubleIndex - lowerValueIndex;
-                assert(upperValueWeight < 1.0);
+                pVal = (1.0 - upperValueWeight) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
             }
-
-            pVal = (1.0 - upperValueWeight) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
+            else
+            {
+                pVal = sortedValues[lowerValueIndex];
+            }
             percentiles[i] = pVal;
         }
     }
