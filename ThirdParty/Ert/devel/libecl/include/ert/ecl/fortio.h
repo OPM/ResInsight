@@ -35,8 +35,6 @@ typedef enum {
   FORTIO_HEADER_MISMATCH = 5
 } fortio_status_type;
 
-#define FORTIO_READ  1
-#define FORTIO_WRITE 2
 
 typedef struct fortio_struct fortio_type;
 
@@ -70,8 +68,12 @@ typedef struct fortio_struct fortio_type;
   bool               fortio_fmt_file(const fortio_type *);
   long               fortio_ftell( const fortio_type * fortio );
   int                fortio_fseek( fortio_type * fortio , long offset , int whence);
-  int                fortio_get_mode( const fortio_type * fortio );
   int                fortio_fileno( fortio_type * fortio );
+
+  bool               fortio_fclose_stream( fortio_type * fortio );
+  bool               fortio_fopen_stream( fortio_type * fortio );
+  bool               fortio_stream_is_open( const fortio_type * fortio );
+  bool               fortio_assert_stream_open( fortio_type * fortio );
 
 #ifdef __cplusplus
 }

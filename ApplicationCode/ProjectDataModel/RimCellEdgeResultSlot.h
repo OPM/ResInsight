@@ -61,6 +61,10 @@ public:
     void                                  setReservoirView(RimReservoirView* ownerReservoirView);
 
     caf::PdmField<QString>                resultVariable;
+    caf::PdmField<bool>                   useXVariable;
+    caf::PdmField<bool>                   useYVariable;
+    caf::PdmField<bool>                   useZVariable;
+
     caf::PdmField<RimLegendConfig*>       legendConfig;
     double                                ignoredScalarValue() { return m_ignoredResultScalar; }
     void                                  gridScalarIndices(size_t resultIndices[6]);

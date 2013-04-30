@@ -63,7 +63,9 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     RimResultSlot* cellResultSlot, 
     RimCellEdgeResultSlot* cellEdgeResultSlot, 
     cvf::StructGridGeometryGenerator* generator, 
-    cvf::DrawableGeo* geo)
+    cvf::DrawableGeo* geo, 
+    size_t gridIndex, 
+    float opacityLevel)
 {
     const std::vector<size_t>& quadToCell = generator->quadToGridCellIndices();
     const std::vector<cvf::StructGridInterface::FaceType>& quadToFace = generator->quadToFace();
@@ -136,6 +138,15 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
 
     double ignoredScalarValue = cellEdgeResultSlot->ignoredScalarValue();
 
+    const std::vector<cvf::ubyte>* isWellPipeVisible = NULL;     
+    cvf::ref<cvf::UIntArray>       gridCellToWellindexMap;
+
+    if (opacityLevel < 1.0f)
+    {
+        isWellPipeVisible = &(cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex));
+        gridCellToWellindexMap = eclipseCase->gridCellToWellIndex( gridIndex );
+    }
+
 #pragma omp parallel for
     for (int quadIdx = 0; quadIdx < static_cast<int>(quadCount); quadIdx++)
     {
@@ -162,7 +173,21 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
 
             if (scalarValue != HUGE_VAL)
             {
+
                 cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
+                // If we are dealing with wellcells, the default is transparent.
+                // we need to make cells opaque if there are no wellpipe through them.
+                if (opacityLevel < 1.0f)
+                {
+                    cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
+                    if (wellIndex != cvf::UNDEFINED_UINT)
+                    {
+                        if ( !(*isWellPipeVisible)[wellIndex]) 
+                        {
+                            cellColorTextureCoord += 2.0f; // The shader must interpret values in the range 2-3 as "opaque"
+                        }
+                    }
+                }
             }
             else
             {

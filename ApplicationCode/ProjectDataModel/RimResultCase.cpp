@@ -47,6 +47,11 @@ RimResultCase::RimResultCase()
     caseDirectory.setIOWritable(false); 
     caseDirectory.setUiHidden(true);
 
+    flipXAxis.setIOWritable(true);
+    flipXAxis.setUiHidden(true);
+    flipYAxis.setIOWritable(true);
+    flipYAxis.setUiHidden(true);
+
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
 }

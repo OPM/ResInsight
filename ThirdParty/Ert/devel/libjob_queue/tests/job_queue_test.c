@@ -28,13 +28,17 @@
 #include <ert/job_queue/job_queue.h>
 
 
-
-int main( int argc , char ** argv) {
+void job_queue_set_driver_(job_driver_type driver_type) {
   job_queue_type * queue = job_queue_alloc( 10 , "OK" , "ERROR");
-  queue_driver_type * driver = queue_driver_alloc( LSF_DRIVER );
+  queue_driver_type * driver = queue_driver_alloc( driver_type );
   test_assert_false( job_queue_has_driver( queue ));
   
   job_queue_set_driver( queue , driver );
   test_assert_true( job_queue_has_driver( queue ));
+}
+
+int main( int argc , char ** argv) {
+  job_queue_set_driver_(LSF_DRIVER);
+  job_queue_set_driver_(TORQUE_DRIVER);
   exit(0);
 }

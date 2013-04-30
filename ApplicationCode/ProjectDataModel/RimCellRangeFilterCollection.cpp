@@ -34,7 +34,9 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
 {
     CAF_PDM_InitObject("Cell Range Filters", ":/CellFilter_Range.png", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&rangeFilters, "RangeFilters", "Range Filters",         "", "", "");
+    CAF_PDM_InitFieldNoDefault(&rangeFilters,   "RangeFilters", "Range Filters", "", "", "");
+    CAF_PDM_InitField(&active,                  "Active", true, "Active", "", "", "");
+    active.setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +64,7 @@ void RimCellRangeFilterCollection::setReservoirView(RimReservoirView* reservoirV
 /// RimCellRangeFilter is using Eclipse 1-based indexing, adjust filter values before 
 //  populating cvf::CellRangeFilter (which is 0-based)
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter) const
+void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, const RigGridBase* grid) const
 {
     CVF_ASSERT(cellRangeFilter);
 
@@ -71,7 +73,7 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     {
         RimCellRangeFilter* rangeFilter = *it;
 
-        if (rangeFilter && rangeFilter->active)
+        if (rangeFilter && rangeFilter->active && rangeFilter->gridIndex() == grid->gridIndex())
         {
             if (rangeFilter->filterMode == RimCellFilter::INCLUDE)
             {
@@ -81,7 +83,8 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->startIndexK - 1,
                     rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
                     rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK);
+                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
+                    rangeFilter->propagateToSubGrids());
             }
             else
             {
@@ -91,27 +94,13 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->startIndexK - 1,
                     rangeFilter->startIndexI - 1 + rangeFilter->cellCountI,
                     rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
-                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK);
+                    rangeFilter->startIndexK - 1 + rangeFilter->cellCountK, 
+                    rangeFilter->propagateToSubGrids());
             }
         }
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimCellRangeFilterCollection::hasIncludeFilter() const
-{
-    std::list< caf::PdmPointer<RimCellRangeFilter> >::const_iterator it;
-    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
-    {
-        RimCellRangeFilter* rangeFilter = *it;
-        if (rangeFilter->active && rangeFilter->filterMode() == RimCellFilter::INCLUDE)
-            return true;
-    }
-
-    return false;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -150,12 +139,14 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    // cvf::Trace::show("RimCellRangeFilterCollection::fieldChangedByUi");
+    updateUiIconFromState(active);
+
+    CVF_ASSERT(m_reservoirView);
 
     m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
     m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
-    if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+    m_reservoirView->createDisplayModelAndRedraw();
 }
 
 
@@ -211,6 +202,8 @@ void RimCellRangeFilterCollection::remove(RimCellRangeFilter* rangeFilter)
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilterCollection::hasActiveFilters() const
 {
+    if (!active) return false; 
+
     std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
     for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
     {
@@ -218,5 +211,13 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCellRangeFilterCollection::objectToggleField()
+{
+    return &active;
 }
 

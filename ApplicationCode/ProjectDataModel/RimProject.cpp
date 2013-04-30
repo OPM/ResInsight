@@ -41,6 +41,12 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     
+    CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
+    treeViewState.setUiHidden(true);
+
+    CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
+    currentModelIndexPath.setUiHidden(true);
+
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
 
@@ -83,9 +89,9 @@ void RimProject::initAfterRead()
     // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
     // 
     RiaApplication* app = RiaApplication::instance();
-    QString scriptDirectory = app->scriptDirectory();
+    QString scriptDirectories = app->scriptDirectories();
 
-    this->setUserScriptPath(scriptDirectory);
+    this->setScriptDirectories(scriptDirectories);
 }
 
 
@@ -98,24 +104,27 @@ void RimProject::setupBeforeSave()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// Support list of multiple script paths divided by ';'
 //--------------------------------------------------------------------------------------------------
-void RimProject::setUserScriptPath(const QString& scriptDirectory)
+void RimProject::setScriptDirectories(const QString& scriptDirectories)
 {
     scriptCollection->calcScripts().deleteAllChildObjects();
     scriptCollection->subDirectories().deleteAllChildObjects();
 
-
-    QDir dir(scriptDirectory);
-    if (!scriptDirectory.isEmpty() && dir.exists())
+    QStringList pathList = scriptDirectories.split(';');
+    foreach(QString path, pathList)
     {
-        RimScriptCollection* sharedScriptLocation = new RimScriptCollection;
-        sharedScriptLocation->directory = scriptDirectory;
-        sharedScriptLocation->setUiName(dir.dirName());
+        QDir dir(path);
+        if (!path.isEmpty() && dir.exists() && dir.isReadable())
+        {
+            RimScriptCollection* sharedScriptLocation = new RimScriptCollection;
+            sharedScriptLocation->directory = path;
+            sharedScriptLocation->setUiName(dir.dirName());
 
-        sharedScriptLocation->readContentFromDisc();
+            sharedScriptLocation->readContentFromDisc();
 
-        scriptCollection->subDirectories.push_back(sharedScriptLocation);
+            scriptCollection->subDirectories.push_back(sharedScriptLocation);
+        }
     }
 }
 
@@ -125,6 +134,26 @@ void RimProject::setUserScriptPath(const QString& scriptDirectory)
 QString RimProject::projectFileVersionString() const
 {
     return m_projectFileVersionString;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimIdenticalGridCaseGroup* RimProject::createIdenticalCaseGroupFromMainCase(RimCase* mainCase)
+{
+    CVF_ASSERT(mainCase);
+
+    RigCaseData* rigEclipseCase = mainCase->reservoirData();
+    RigMainGrid* equalGrid = registerCaseInGridCollection(rigEclipseCase);
+    CVF_ASSERT(equalGrid);
+
+    RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
+    group->createAndAppendStatisticsCase();
+    group->addCase(mainCase);
+    caseGroups().push_back(group);
+
+    return group;
 }
 
 //--------------------------------------------------------------------------------------------------

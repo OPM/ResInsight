@@ -44,12 +44,20 @@ public:
 
     enum WellVisibilityType
     {
-        FORCE_ALL_OFF,
-        ALL_ON,
-        RANGE_INTERSECTING,
-        FORCE_ALL_ON
+        PIPES_FORCE_ALL_OFF,
+        PIPES_INDIVIDUALLY,
+        PIPES_OPEN_IN_VISIBLE_CELLS,
+        PIPES_FORCE_ALL_ON
     };
     typedef caf::AppEnum<RimWellCollection::WellVisibilityType> WellVisibilityEnum;
+
+    enum WellCellsRangeFilterType
+    {
+        RANGE_ADD_ALL,
+        RANGE_ADD_INDIVIDUAL,
+        RANGE_ADD_NONE
+    };
+    typedef caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> WellCellsRangeFilterEnum;
 
     enum WellFenceType
     {
@@ -60,8 +68,9 @@ public:
     typedef caf::AppEnum<RimWellCollection::WellFenceType> WellFenceEnum;
 
     caf::PdmField<bool>                 showWellLabel;
+    caf::PdmField<bool>                 active;
 
-    caf::PdmField<WellVisibilityEnum>   wellCellVisibility;
+    caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
     caf::PdmField<WellFenceEnum>        wellCellFenceType;
     caf::PdmField<double>               wellCellTransparencyLevel;
@@ -81,8 +90,17 @@ public:
     bool                                hasVisibleWellCells();
     bool                                hasVisibleWellPipes();
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    const std::vector<cvf::ubyte>&      isWellPipesVisible(size_t frameIndex);       
+    void                                scheduleIsWellPipesVisibleRecalculation();
 
+    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
+    virtual caf::PdmFieldHandle*        objectToggleField();
 private:
+
+    void                                calculateIsWellPipesVisible(size_t frameIndex);
+
     RimReservoirView*   m_reservoirView;
+    std::vector< std::vector< cvf::ubyte > >             
+                                        m_isWellPipesVisible;  
 };

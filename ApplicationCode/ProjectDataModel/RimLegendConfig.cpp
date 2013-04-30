@@ -24,6 +24,7 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cvfScalarMapperDiscreteLog.h"
+#include "RiaApplication.h"
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
 
@@ -64,6 +65,16 @@ namespace caf {
     }
 }
 
+namespace caf {
+    template<>
+    void AppEnum<RimLegendConfig::NumberFormatType>::setUp()
+    {
+        addItem(   RimLegendConfig::AUTO,       "AUTO", "Automatic");
+        addItem(   RimLegendConfig::FIXED,      "FIXED",  "Fixed, decimal");
+        addItem(   RimLegendConfig::SCIENTIFIC, "SCIENTIFIC",    "Scientific notation");
+        setDefault(RimLegendConfig::FIXED);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -77,6 +88,8 @@ RimLegendConfig::RimLegendConfig()
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "","");
     CAF_PDM_InitField(&m_precision, "Precision", 2, "Precision", "", "","");
+    CAF_PDM_InitField(&m_tickNumberFormat, "TickNumberFormat", caf::AppEnum<RimLegendConfig::NumberFormatType>(FIXED), "Precision", "", "","");
+
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Color range", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
     CAF_PDM_InitField(&m_rangeMode, "RangeType", caf::AppEnum<RimLegendConfig::RangeModeType>(AUTOMATIC_ALLTIMESTEPS), "Legend range type", "", "Switches between automatic and user defined range on the legend", "");
@@ -92,9 +105,8 @@ RimLegendConfig::RimLegendConfig()
 
     m_currentScalarMapper = m_linDiscreteScalarMapper;
 
-
-    cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    m_legend = new cvf::OverlayScalarMapperLegend(font);
+    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
     m_position = cvf::Vec2ui(20, 50);
 
     updateFieldVisibility();
@@ -260,6 +272,10 @@ void RimLegendConfig::updateLegend()
    }
 
    m_legend->setScalarMapper(m_currentScalarMapper.p());
+   m_legend->setTickPrecision(m_precision());
+
+   NumberFormatType nft = m_tickNumberFormat();
+   m_legend->setTickFormat((cvf::OverlayScalarMapperLegend::NumberFormat)nft);
 
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
@@ -394,8 +410,8 @@ void RimLegendConfig::recreateLegend()
     // has been removed, (and thus the opengl resources has been deleted) The text in 
     // the legend disappeared because of this, so workaround: recreate the legend when needed:
 
-    cvf::FixedAtlasFont* font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
-    m_legend = new cvf::OverlayScalarMapperLegend(font);
+    cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+    m_legend = new cvf::OverlayScalarMapperLegend(standardFont);
 
     updateLegend();
 }

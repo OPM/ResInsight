@@ -372,15 +372,18 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
 
     bool itemIndexIsCollection = false;
     QModelIndex collectionIndex;
+    int position = 0;
     if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
     {
         collectionItem = currentItem->parent();
         collectionIndex = itemIndex.parent();
+        position = itemIndex.row();
     }
     else if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
     {
         collectionItem = currentItem;
         collectionIndex = itemIndex;
+        position = collectionItem->childCount();
     }
 
     if (collectionItem)
@@ -393,13 +396,14 @@ RimReservoirView* RimUiTreeModelPdm::addReservoirView(const QModelIndex& itemInd
         // Must be run before buildViewItems, as wells are created in this function
         insertedView->loadDataAndUpdate(); 
 
-        int viewCount = rowCount(collectionIndex);
-        beginInsertRows(collectionIndex, viewCount, viewCount);
+        beginInsertRows(collectionIndex, position, position);
 
         // NOTE: -1 as second argument indicates append
-        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, -1, insertedView);
+        caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, insertedView);
         
         endInsertRows();
+
+        insertedModelIndex = index(position, 0, collectionIndex);
 
         return insertedView;
     }
@@ -676,6 +680,45 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             }
         }
     }
+    else if (caseFromItemIndex(itemIndex))
+    {
+        std::vector<caf::PdmPointer<RimReservoirView> > typedObjects;
+        pdmObjects.createCopyByType(&typedObjects);
+
+        if (typedObjects.size() == 0)
+        {
+            return;
+        }
+
+        RimCase* rimCase = caseFromItemIndex(itemIndex);
+        QModelIndex collectionIndex = getModelIndexFromPdmObject(rimCase);
+        caf::PdmUiTreeItem* collectionItem = getTreeItemFromIndex(collectionIndex);
+
+        // Add cases to case group
+        for (size_t i = 0; i < typedObjects.size(); i++)
+        {
+            RimReservoirView* rimReservoirView = typedObjects[i];
+            QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
+            rimReservoirView->name = nameOfCopy;
+
+            rimReservoirView->setEclipseCase(rimCase);
+
+            // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
+            rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
+
+            caf::PdmObjectGroup::initAfterReadTraversal(rimReservoirView);
+
+            rimReservoirView->loadDataAndUpdate(); 
+            rimCase->reservoirViews().push_back(rimReservoirView);
+
+            int position = static_cast<int>(rimCase->reservoirViews().size());
+            beginInsertRows(collectionIndex, position, position);
+
+            caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(collectionItem, position, rimReservoirView);
+
+            endInsertRows();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -877,5 +920,85 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::gridCaseGroupFromItemIndex(const Q
     }
 
     return gridCaseGroup;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject)
+{
+    QModelIndex parentModelIndex;
+    
+    if (parentTreeItem && parentTreeItem->dataObject())
+    {
+        parentModelIndex = getModelIndexFromPdmObject(parentTreeItem->dataObject());
+    }
+
+    beginInsertRows(parentModelIndex, position, position);
+
+    caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(parentTreeItem, position, pdmObject);
+
+    endInsertRows();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
+{
+    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(itemIndex);
+
+    RimCase* rimCase = NULL;
+
+    if (dynamic_cast<RimCase*>(currentItem->dataObject().p()))
+    {
+        rimCase = dynamic_cast<RimCase*>(currentItem->dataObject().p());
+    }
+    else if (dynamic_cast<RimReservoirView*>(currentItem->dataObject().p()))
+    {
+        RimReservoirView* reservoirView = dynamic_cast<RimReservoirView*>(currentItem->dataObject().p());
+        CVF_ASSERT(reservoirView);
+
+        rimCase = reservoirView->eclipseCase();
+    }
+
+    return rimCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Set toggle state for list of model indices. 
+///
+/// NOTE:   Set toggle state directly on object, does not use setValueFromUi()
+///         The caller must make sure the relevant dependencies are updated
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selectedIndexes, int state)
+{
+    bool toggleOn = (state == Qt::Checked);
+
+    foreach (QModelIndex index, selectedIndexes)
+    {
+        if (!index.isValid())
+        {
+            continue;
+        }
+
+        caf::PdmUiTreeItem* treeItem = UiTreeModelPdm::getTreeItemFromIndex(index);
+        assert(treeItem);
+
+        caf::PdmObject* obj = treeItem->dataObject();
+        assert(obj);
+
+        if (obj && obj->objectToggleField())
+        {
+            caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(obj->objectToggleField());
+            if (field)
+            {
+                // Does not use setValueFromUi(), so the caller must make sure dependencies are updated
+                field->v() = toggleOn;
+
+                emitDataChanged(index);
+            }
+        }
+    }
 }
 

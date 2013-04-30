@@ -15,7 +15,6 @@
 #  for more details. 
 
 
-import ctypes
 import ert.cwrap.clib as clib
-lib = clib.load("librms.so")
+lib = clib.ert_load("librms.so")
     

@@ -65,7 +65,7 @@ class FileTest( unittest.TestCase ):
     def test_save(self):
         self.addFile( "/tmp/ECLIPSE.UNRST" )
         shutil.copyfile( file , "/tmp/ECLIPSE.UNRST" )
-        rst_file = ecl.EclFile( "/tmp/ECLIPSE.UNRST" , read_only = False )
+        rst_file = ecl.EclFile( "/tmp/ECLIPSE.UNRST" , flags = ecl.ECL_FILE_WRITABLE )
         swat0 = rst_file["SWAT"][0]
         swat0.assign( 0.75 )
         rst_file.save_kw( swat0 )
@@ -73,7 +73,7 @@ class FileTest( unittest.TestCase ):
         self.assertFalse( file_equal( "/tmp/ECLIPSE.UNRST" , file ) )
         
         rst_file1 = ecl.EclFile( file )
-        rst_file2 = ecl.EclFile( "/tmp/ECLIPSE.UNRST" , read_only = False)
+        rst_file2 = ecl.EclFile( "/tmp/ECLIPSE.UNRST" , flags = ecl.ECL_FILE_WRITABLE)
         
         swat1 = rst_file1["SWAT"][0]
         swat2 = rst_file2["SWAT"][0]
@@ -91,7 +91,7 @@ class FileTest( unittest.TestCase ):
     def test_save_fmt(self):
         self.addFile( "/tmp/ECLIPSE.FUNRST" )
         shutil.copyfile( fmt_file , "/tmp/ECLIPSE.FUNRST" )
-        rst_file = ecl.EclFile( "/tmp/ECLIPSE.FUNRST" , read_only = False )
+        rst_file = ecl.EclFile( "/tmp/ECLIPSE.FUNRST" , flags = ecl.ECL_FILE_WRITABLE)
         swat0 = rst_file["SWAT"][0]
         swat0.assign( 0.75 )
         rst_file.save_kw( swat0 )
@@ -99,7 +99,7 @@ class FileTest( unittest.TestCase ):
         self.assertFalse( file_equal( "/tmp/ECLIPSE.FUNRST" , fmt_file ) )
         
         rst_file1 = ecl.EclFile( fmt_file )
-        rst_file2 = ecl.EclFile( "/tmp/ECLIPSE.FUNRST" , read_only = False)
+        rst_file2 = ecl.EclFile( "/tmp/ECLIPSE.FUNRST" , flags = ecl.ECL_FILE_WRITABLE)
         
         swat1 = rst_file1["SWAT"][0]
         swat2 = rst_file2["SWAT"][0]
@@ -129,5 +129,18 @@ def fast_suite():
     return suite
 
 
+
+
+def test_suite( argv ):
+    test_list = fast_suite()
+    if argv:
+        if argv[0][0] == "T":
+            for t in slow_suite():
+                test_list.addTest( t )
+    return test_list
+
+            
+
 if __name__ == "__main__":
     unittest.TextTestRunner().run( fast_suite() )
+    unittest.TextTestRunner().run( slow_suite() )

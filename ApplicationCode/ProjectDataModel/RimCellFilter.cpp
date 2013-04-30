@@ -46,6 +46,7 @@ RimCellFilter::RimCellFilter()
 
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Filter Name"), "Name", "", "", "");
     CAF_PDM_InitField(&active,  "Active",           true,                   "Active",   "", "", "");
+    active.setUiHidden(true);
     
     CAF_PDM_InitFieldNoDefault(&filterMode, "FilterType", "Filter Type", "", "", "");
 }
@@ -103,4 +104,12 @@ void RimCellFilter::updateIconState()
 
     QIcon newIcon(icPixmap);
     this->setUiIcon(newIcon);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCellFilter::objectToggleField()
+{
+    return &active;
 }

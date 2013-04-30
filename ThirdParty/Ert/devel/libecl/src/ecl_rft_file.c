@@ -91,7 +91,7 @@ static void ecl_rft_file_add_node(ecl_rft_file_type * rft_vector , const ecl_rft
 
 ecl_rft_file_type * ecl_rft_file_alloc(const char * filename) {
   ecl_rft_file_type * rft_vector = ecl_rft_file_alloc_empty( filename );
-  ecl_file_type * ecl_file       = ecl_file_open( filename );
+  ecl_file_type * ecl_file       = ecl_file_open( filename , 0);
   int global_index = 0;
   int block_nr = 0;
   

@@ -64,6 +64,9 @@ public:
     const Color3f&  lineColor() const;
     void            setLineWidth(int lineWidth);
     int             lineWidth() const;
+    void            setTickPrecision(int precision);
+    enum            NumberFormat { AUTO, SCIENTIFIC, FIXED};
+    void            setTickFormat(NumberFormat format);
     
     void            setTitle(const String& title);
     String          title() const;
@@ -116,6 +119,8 @@ protected:
     int                 m_lineWidth;
     std::vector<String> m_titleStrings;
     ref<Font>           m_font;
+    int                 m_tickNumberPrecision;
+    NumberFormat        m_numberFormat;
 
     cref<ScalarMapper> m_scalarMapper;
 };

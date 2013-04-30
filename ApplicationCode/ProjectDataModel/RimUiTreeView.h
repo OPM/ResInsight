@@ -43,13 +43,18 @@ public:
 
     virtual void setModel(QAbstractItemModel* model);
 
+    void applyTreeViewStateFromString(const QString& treeViewState);
+    void storeTreeViewStateToString(QString& treeViewState);
+
+    static void applyCurrentIndexFromString(QAbstractItemView& itemView, const QString& currentIndexString);
+    static void storeCurrentIndexToString(const QAbstractItemView& itemView, QString& currentIndexString);
+
 protected:
     void contextMenuEvent(QContextMenuEvent* event);
 
 private slots:
     void slotAddChildItem();
     void slotDeleteItem();
-    void slotShowWindow();
     
     void slotAddRangeFilter();
     void slotAddSliceFilterI();
@@ -60,7 +65,6 @@ private slots:
     void slotAddPropertyFilter();
     void slotDeletePropertyFilter();
 
-    void slotReadScriptContentFromFile();
     void slotEditScript();
     void slotNewScript();
     void slotExecuteScript();
@@ -81,13 +85,30 @@ private slots:
     void slotAddCaseGroup();
     void slotDeleteObjectFromPdmPointersField();
 
+    void slotAddScriptPath();
+    void slotDeleteScriptPath(); 
+
     void slotCopyPdmObjectToClipboard();
     void slotPastePdmObjects();
 
     void slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 
+    void slotToggleItems();
+    void slotToggleItemsOn();
+    void slotToggleItemsOff();
+
 signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
+
+private:
+    enum SelectionToggleType
+    {
+        TOGGLE_ON,
+        TOGGLE_OFF,
+        TOGGLE,
+        TOGGLE_UNDEFINED
+    };
+
 
 private:
     bool userConfirmedGridCaseGroupChange(const QModelIndexList& itemIndexList);
@@ -97,8 +118,14 @@ private:
     bool hasClipboardValidData();
 
     virtual void keyPressEvent(QKeyEvent* keyEvent);
+    virtual void mousePressEvent(QMouseEvent* mouseEvent);
+
     virtual void dropEvent(QDropEvent* dropEvent);
 
+    void executeSelectionToggleOperation(SelectionToggleType toggleState);
+    void appendToggleItemActions(QMenu& contextMenu);
+
+    void setExpandedUpToRoot(const QModelIndex& itemIndex);
 private:
     QAction* m_pasteAction;
 };

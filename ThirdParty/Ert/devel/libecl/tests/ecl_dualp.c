@@ -32,9 +32,9 @@ int main(int argc , char ** argv) {
   char * rst_file  = ecl_util_alloc_filename( NULL , case_path , ECL_RESTART_FILE , false , 0 );
   
   ecl_grid_type * ecl_grid = ecl_grid_alloc( grid_file );
-  ecl_file_type * RST_file = ecl_file_open( rst_file );
-  ecl_file_type * INIT_file = ecl_file_open( init_file );
-  ecl_file_type * GRID_file = ecl_file_open( grid_file );
+  ecl_file_type * RST_file = ecl_file_open( rst_file , 0);
+  ecl_file_type * INIT_file = ecl_file_open( init_file , 0 );
+  ecl_file_type * GRID_file = ecl_file_open( grid_file , 0);
 
   {
     ecl_kw_type * actnum = ecl_file_iget_named_kw( GRID_file , "ACTNUM" , 0 );

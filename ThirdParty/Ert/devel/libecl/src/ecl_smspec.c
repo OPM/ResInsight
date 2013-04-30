@@ -919,7 +919,7 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
              nevertheless prevents against a recursive death.
           */
           if (!stringlist_contains( ecl_smspec->restart_list , restart_base)) {
-            ecl_file_type * restart_header = ecl_file_open( smspec_header );
+            ecl_file_type * restart_header = ecl_file_open( smspec_header , 0);
             
             if (ecl_smspec_file_equal( header , restart_header)) {
               stringlist_insert_copy( ecl_smspec->restart_list , 0 , restart_base );
@@ -1034,7 +1034,7 @@ const int_vector_type * ecl_smspec_get_index_map( const ecl_smspec_type * smspec
 
 
 static void ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * header_file , bool include_restart) {
-  ecl_file_type * header = ecl_file_open( header_file );
+  ecl_file_type * header = ecl_file_open( header_file , 0);
   {
     ecl_kw_type *wells     = ecl_file_iget_named_kw(header, WGNAMES_KW  , 0);
     ecl_kw_type *keywords  = ecl_file_iget_named_kw(header, KEYWORDS_KW , 0);

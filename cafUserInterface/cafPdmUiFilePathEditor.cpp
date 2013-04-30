@@ -69,6 +69,12 @@ void PdmUiFilePathEditor::configureAndUpdateUi(const QString& uiConfigName)
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &m_attributes);
 
     m_lineEdit->setText(field()->uiValue().toString());
+
+    if (m_attributes.m_appendUiSelectedFolderToText)
+    {
+        m_label->setToolTip("Define multiple directories separated by ';'");
+        m_button->setText(QLatin1String("Append"));
+    }
 }
 
 
@@ -84,13 +90,14 @@ QWidget* PdmUiFilePathEditor::createEditorWidget(QWidget * parent)
     layout->setSpacing(0);
 
     m_lineEdit = new QLineEdit(parent);
-    QToolButton* button = new QToolButton(parent);
-    button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
-    button->setText(QLatin1String("..."));
-    layout->addWidget(m_lineEdit);
-    layout->addWidget(button);
+    m_button = new QToolButton(parent);
+    m_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred));
+    m_button->setText(QLatin1String("..."));
 
-    connect(button, SIGNAL(clicked()), this, SLOT(fileSelectionClicked()));
+    layout->addWidget(m_lineEdit);
+    layout->addWidget(m_button);
+
+    connect(m_button, SIGNAL(clicked()), this, SLOT(fileSelectionClicked()));
     connect(m_lineEdit, SIGNAL(editingFinished()), this, SLOT(slotEditingFinished()));
 
     return placeholder;
@@ -140,7 +147,22 @@ void PdmUiFilePathEditor::fileSelectionClicked()
         
         if (!directoryPath.isEmpty())
         {
-            m_lineEdit->setText(directoryPath);
+            QString filePathString;
+            if (m_attributes.m_appendUiSelectedFolderToText)
+            {
+                filePathString = m_lineEdit->text();
+                if (!filePathString.isEmpty() && !filePathString.endsWith(m_attributes.m_multipleItemSeparator, Qt::CaseInsensitive))
+                {
+                    filePathString += m_attributes.m_multipleItemSeparator;
+                }
+                filePathString += directoryPath;
+            }
+            else
+            {
+                filePathString = directoryPath;
+            }
+
+            m_lineEdit->setText(filePathString);
             slotEditingFinished();
         }
     }
