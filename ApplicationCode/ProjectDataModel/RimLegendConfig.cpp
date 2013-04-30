@@ -65,6 +65,16 @@ namespace caf {
     }
 }
 
+namespace caf {
+    template<>
+    void AppEnum<RimLegendConfig::NumberFormatType>::setUp()
+    {
+        addItem(   RimLegendConfig::AUTO,       "AUTO", "Automatic");
+        addItem(   RimLegendConfig::FIXED,      "FIXED",  "Fixed, decimal");
+        addItem(   RimLegendConfig::SCIENTIFIC, "SCIENTIFIC",    "Scientific notation");
+        setDefault(RimLegendConfig::FIXED);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -78,6 +88,8 @@ RimLegendConfig::RimLegendConfig()
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "","");
     CAF_PDM_InitField(&m_precision, "Precision", 2, "Precision", "", "","");
+    CAF_PDM_InitField(&m_tickNumberFormat, "TickNumberFormat", caf::AppEnum<RimLegendConfig::NumberFormatType>(FIXED), "Precision", "", "","");
+
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Color range", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
     CAF_PDM_InitField(&m_rangeMode, "RangeType", caf::AppEnum<RimLegendConfig::RangeModeType>(AUTOMATIC_ALLTIMESTEPS), "Legend range type", "", "Switches between automatic and user defined range on the legend", "");
@@ -260,6 +272,10 @@ void RimLegendConfig::updateLegend()
    }
 
    m_legend->setScalarMapper(m_currentScalarMapper.p());
+   m_legend->setTickPrecision(m_precision());
+
+   NumberFormatType nft = m_tickNumberFormat();
+   m_legend->setTickFormat((cvf::OverlayScalarMapperLegend::NumberFormat)nft);
 
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
