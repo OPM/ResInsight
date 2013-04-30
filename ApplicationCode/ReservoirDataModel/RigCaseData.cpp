@@ -136,6 +136,7 @@ void RigCaseData::computeWellCellsPrGrid()
     //  Allocate and initialize the arrays
 
     m_wellCellsInGrid.resize(grids.size());
+    m_gridCellToWellIndex.resize(grids.size());
 
     for (gIdx = 0; gIdx < grids.size(); ++gIdx)
     {
@@ -144,8 +145,11 @@ void RigCaseData::computeWellCellsPrGrid()
             m_wellCellsInGrid[gIdx] = new cvf::UByteArray;
             m_wellCellsInGrid[gIdx]->resize(grids[gIdx]->cellCount());
 
+            m_gridCellToWellIndex[gIdx] = new cvf::UIntArray;
+            m_gridCellToWellIndex[gIdx]->resize(grids[gIdx]->cellCount());
         }
         m_wellCellsInGrid[gIdx]->setAll(false);
+        m_gridCellToWellIndex[gIdx]->setAll(cvf::UNDEFINED_UINT);
     }
 
     // Fill arrays with data
@@ -162,6 +166,7 @@ void RigCaseData::computeWellCellsPrGrid()
 
             CVF_ASSERT(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size());
             m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
+            m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
 
             size_t sIdx;
             for (sIdx = 0; sIdx < wellCells.m_wellResultBranches.size(); ++sIdx)
@@ -176,6 +181,7 @@ void RigCaseData::computeWellCellsPrGrid()
                     CVF_ASSERT(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size());
 
                     m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
+                    m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
                 }
             }
         }
@@ -189,6 +195,8 @@ void RigCaseData::setWellResults(const cvf::Collection<RigSingleWellResultsData>
 {
     m_wellResults = data;
     m_wellCellsInGrid.clear();
+    m_gridCellToWellIndex.clear();
+
     computeWellCellsPrGrid();
 }
 
@@ -201,6 +209,18 @@ cvf::UByteArray* RigCaseData::wellCellsInGrid(size_t gridIndex)
     CVF_ASSERT(gridIndex < m_wellCellsInGrid.size());
 
     return m_wellCellsInGrid[gridIndex].p();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::UIntArray* RigCaseData::gridCellToWellIndex(size_t gridIndex)
+{
+    computeWellCellsPrGrid();
+    CVF_ASSERT(gridIndex < m_gridCellToWellIndex.size());
+
+    return m_gridCellToWellIndex[gridIndex].p();
 }
 
 //--------------------------------------------------------------------------------------------------

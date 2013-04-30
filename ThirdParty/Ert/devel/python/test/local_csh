@@ -1,13 +1,14 @@
-mkdir -p ../lib64
-ln -sf ../../../build/lib64/libert_util.so ../lib64/libert_util.so
-ln -sf ../../../build/lib64/libert_geometry.so ../lib64/libert_geometry.so
-ln -sf ../../../build/lib64/libanalysis.so ../lib64/libanalysis.so
-ln -sf ../../../build/lib64/libecl.so ../lib64/libecl.so
-ln -sf ../../../build/lib64/librms.so ../lib64/librms.so
-ln -sf ../../../build/lib64/libsched.so ../lib64/libsched.so
-ln -sf ../../../build/lib64/libenkf.so ../lib64/libenkf.so
-ln -sf ../../../build/lib64/libjob_queue.so ../lib64/libjob_queue.so
-ln -sf ../../../build/lib64/libconfig.so ../lib64/libconfig.so
-ln -sf ../../../build/lib64/libecl_well.so ../lib64/libecl_well.so
 setenv PYTHONPATH $PWD/../python:$PYTHONPATH
+set lib_path="../lib64";
 
+if ( -d "$lib_path")  then
+   if ( -s "$lib_path") then
+      set target=`readlink -f $lib_path`
+      echo "Using $lib_path -> $target for shared libraries."
+   else
+      echo "** Warning: $lib_path is not a symbolic link ??"
+   endif
+else
+   echo "** Warning: can not find directory/link: $lib_path - will not find newly compiled shared libraries."
+endif
+   

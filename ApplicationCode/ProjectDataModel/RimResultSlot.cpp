@@ -55,7 +55,7 @@ RimResultSlot::~RimResultSlot()
 //--------------------------------------------------------------------------------------------------
 void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &resultVariable)
+    if (changedField == &m_resultVariable)
     {
         if (oldValue != newValue)
         {

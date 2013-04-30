@@ -129,6 +129,8 @@ public:
 
     void             updateConnectedEditors();
 
+    void             updateUiIconFromState(bool active);
+
 public: // Pdm-Private only
     //==================================================================================================
     /// This method sets the GUI description pointer, which is supposed to be statically allocated 

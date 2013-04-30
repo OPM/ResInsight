@@ -35,6 +35,8 @@ RimCellPropertyFilterCollection::RimCellPropertyFilterCollection()
     CAF_PDM_InitObject("Cell Property Filters", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&propertyFilters, "PropertyFilters", "Property Filters",         "", "", "");
+    CAF_PDM_InitField(&active,                  "Active", true, "Active", "", "", "");
+    active.setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,6 +78,8 @@ RimReservoirView* RimCellPropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimCellPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    this->updateUiIconFromState(active);
+
     m_reservoirView->fieldChangedByUi(&(m_reservoirView->propertyFilterCollection), oldValue, newValue);
 }
 
@@ -91,8 +95,9 @@ RimCellPropertyFilter* RimCellPropertyFilterCollection::createAndAppendPropertyF
     propertyFilter->setParentContainer(this);
     propertyFilters.v().push_back(propertyFilter);
 
-    propertyFilter->resultDefinition->resultVariable = m_reservoirView->cellResult->resultVariable;
-    propertyFilter->resultDefinition->resultType = m_reservoirView->cellResult->resultType;
+    propertyFilter->resultDefinition->setResultVariable(m_reservoirView->cellResult->resultVariable());
+    propertyFilter->resultDefinition->setPorosityModel(m_reservoirView->cellResult->porosityModel());
+    propertyFilter->resultDefinition->setResultType(m_reservoirView->cellResult->resultType());
     propertyFilter->resultDefinition->loadResult();
     propertyFilter->setDefaultValues();
 
@@ -142,6 +147,8 @@ void RimCellPropertyFilterCollection::remove(RimCellPropertyFilter* propertyFilt
 //--------------------------------------------------------------------------------------------------
 bool RimCellPropertyFilterCollection::hasActiveFilters() const
 {
+    if (!active) return false;
+
     std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
     for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
     {
@@ -156,6 +163,8 @@ bool RimCellPropertyFilterCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
 {
+    if (!active) return false;
+
     std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
     for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
     {
@@ -163,4 +172,13 @@ bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
     }
 
     return false;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCellPropertyFilterCollection::objectToggleField()
+{
+    return &active;
 }

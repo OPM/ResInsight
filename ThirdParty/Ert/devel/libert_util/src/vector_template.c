@@ -801,6 +801,10 @@ void @TYPE@_vector_append_many(@TYPE@_vector_type * vector , const @TYPE@ * data
   @TYPE@_vector_set_many( vector , @TYPE@_vector_size( vector ) , data , length);
 }
 
+void @TYPE@_vector_append_vector(@TYPE@_vector_type * vector , const @TYPE@_vector_type * other) {
+  @TYPE@_vector_append_many( vector , @TYPE@_vector_get_const_ptr( other ), @TYPE@_vector_size( other ));
+}
+
 
 /**
    This will realloc the vector so that alloc_size exactly matches

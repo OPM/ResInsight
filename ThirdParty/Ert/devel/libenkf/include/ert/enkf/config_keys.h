@@ -14,7 +14,7 @@
     
    See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
    for more details. 
-*/
+ */
 
 
 #ifndef  __CONFIG_KEYS_H__
@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-/* These keys are used as options in KEY:VALUE statements */
+  /* These keys are used as options in KEY:VALUE statements */
 #define  MIN_STD_KEY                       "MIN_STD"
 #define  INIT_FILES_KEY                    "INIT_FILES"
 #define  KEY_KEY                           "KEY"
@@ -104,10 +104,12 @@ extern "C" {
 #define  LSF_QUEUE_KEY                     "LSF_QUEUE"
 #define  LSF_RESOURCES_KEY                 "LSF_RESOURCES"
 #define  LSF_SERVER_KEY                    "LSF_SERVER"
+#define  TORQUE_QUEUE_KEY                  "TORQUE_QUEUE"
 #define  MAX_RESAMPLE_KEY                  "MAX_RESAMPLE"  
 #define  MAX_RUNNING_LOCAL_KEY             "MAX_RUNNING_LOCAL"
 #define  MAX_RUNNING_LSF_KEY               "MAX_RUNNING_LSF"
 #define  MAX_RUNNING_RSH_KEY               "MAX_RUNNING_RSH"
+#define  MAX_RUNNING_TORQUE_KEY            "MAX_RUNNING_TORQUE"
 #define  MAX_SUBMIT_KEY                    "MAX_SUBMIT" 
 #define  NUM_REALIZATIONS_KEY              "NUM_REALIZATIONS"      
 #define  OBS_CONFIG_KEY                    "OBS_CONFIG"

@@ -38,7 +38,10 @@ RifEclipseUnifiedRestartFileAccess::RifEclipseUnifiedRestartFileAccess()
 //--------------------------------------------------------------------------------------------------
 RifEclipseUnifiedRestartFileAccess::~RifEclipseUnifiedRestartFileAccess()
 {
-    close();
+    if (m_ecl_file)
+    {
+        ecl_file_close(m_ecl_file);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +59,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 {
     if (!m_ecl_file)
     {
-        m_ecl_file = ecl_file_open(m_filename.toAscii().data());
+        m_ecl_file = ecl_file_open(m_filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     }
 
     if (!m_ecl_file) return false;
@@ -69,12 +72,6 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 //--------------------------------------------------------------------------------------------------
 void RifEclipseUnifiedRestartFileAccess::close()
 {
-    if (m_ecl_file)
-    {
-        ecl_file_close(m_ecl_file);
-    }
-
-    m_ecl_file = NULL;
 }
 
 //--------------------------------------------------------------------------------------------------

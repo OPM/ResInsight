@@ -10,7 +10,7 @@ License:        GPL-3+
 Group:          Development/Libraries/C and C++
 Url:            http://ert.nr.no
 Source0:        %{name}-%{version}.tar.gz
-BuildRequires:  lapack-devel
+BuildRequires:  lapack-devel zlib-devel iputils
 BuildRequires:  gcc
 BuildRequires:  cmake28 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -38,7 +38,6 @@ Group:          Development/Libraries/C and C++
 Requires:       %{name} = %{version}
 Requires:       lapack-devel
 Requires:       libert.ecl1 = %{version}
-BuildArch:      noarch
 
 %description devel
 This package contains the development and header files for ert.ecl

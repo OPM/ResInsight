@@ -51,6 +51,10 @@ RimCase::RimCase()
     CAF_PDM_InitFieldNoDefault(&m_fractureModelResults, "FractureModelResults", "",  "", "", "");
     m_fractureModelResults.setUiHidden(true);
 
+    CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
+    CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
+
+
     // Obsolete field
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
     caseName.setIOWritable(false);
@@ -174,7 +178,7 @@ void RimCase::removeResult(const QString& resultName)
         // Set cell result variable to none if displaying 
         if (result->resultVariable() == resultName)
         {
-            result->resultVariable.v() = RimDefines::undefinedResultName();
+            result->setResultVariable(RimDefines::undefinedResultName());
             result->loadResult();
 
             rebuildDisplayModel = true;
@@ -185,9 +189,9 @@ void RimCase::removeResult(const QString& resultName)
         for (it = propFilterCollection->propertyFilters.v().begin(); it != propFilterCollection->propertyFilters.v().end(); ++it)
         {
             RimCellPropertyFilter* propertyFilter = *it;
-            if (propertyFilter->resultDefinition->resultVariable.v() == resultName)
+            if (propertyFilter->resultDefinition->resultVariable() == resultName)
             {
-                propertyFilter->resultDefinition->resultVariable.v() = RimDefines::undefinedResultName();
+                propertyFilter->resultDefinition->setResultVariable(RimDefines::undefinedResultName());
                 propertyFilter->resultDefinition->loadResult();
                 propertyFilter->setDefaultValues();
 
@@ -223,7 +227,7 @@ void RimCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
                 RimResultSlot* result = reservoirView->cellResult;
                 CVF_ASSERT(result);
 
-                result->resultVariable.v() = RimDefines::undefinedResultName();
+                result->setResultVariable(RimDefines::undefinedResultName());
                 result->loadResult();
 
                 RimCellEdgeResultSlot* cellEdgeResult = reservoirView->cellEdgeResult;
@@ -249,6 +253,25 @@ void RimCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         }
 
         releaseResultMemory = oldValue.toBool();
+    }
+    else if (changedField == &flipXAxis || changedField == &flipYAxis)
+    {
+        RigCaseData* rigEclipseCase = reservoirData();
+        if (rigEclipseCase)
+        {
+            rigEclipseCase->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
+
+            computeCachedData();
+
+            for (size_t i = 0; i < reservoirViews().size(); i++)
+            {
+                RimReservoirView* reservoirView = reservoirViews()[i];
+
+                reservoirView->scheduleReservoirGridGeometryRegen();
+                reservoirView->schedulePipeGeometryRegen();
+                reservoirView->createDisplayModelAndRedraw();
+            }
+        }
     }
 }
 

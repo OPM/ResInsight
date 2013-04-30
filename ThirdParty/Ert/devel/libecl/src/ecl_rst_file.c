@@ -44,13 +44,18 @@ struct ecl_rst_file_struct {
   
 
 static ecl_rst_file_type * ecl_rst_file_alloc( const char * filename ) {
-  bool fmt_file = ecl_util_fmt_file( filename );
   bool unified  = ecl_util_unified_file( filename );
+  bool fmt_file;
   ecl_rst_file_type * rst_file = util_malloc( sizeof * rst_file );
 
-  rst_file->unified = unified;
-  rst_file->fmt_file = fmt_file;
-  return rst_file;
+  if (ecl_util_fmt_file( filename , &fmt_file)) {
+    rst_file->unified = unified;
+    rst_file->fmt_file = fmt_file;
+    return rst_file;
+  } else {
+    util_abort("%s: invalid restart filename:%s - could not determine formatted/unformatted status\n",__func__ , filename);
+    return NULL;
+  }
 }
 
 /**

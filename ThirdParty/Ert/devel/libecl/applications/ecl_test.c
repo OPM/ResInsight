@@ -30,10 +30,7 @@ void install_SIGNALS(void) {
 
 
 int test_ecl_file_save() {
-  ecl_file_type * ecl_file = ecl_file_open_writable( "/tmp/ECLIPSE.UNRST" );
-  ecl_kw_type * swat = ecl_file_iget_named_kw( ecl_file , "SWAT" , 0 );
-  ecl_file_save_kw( ecl_file , swat );
-  ecl_file_close( ecl_file );
+
 }
 
 

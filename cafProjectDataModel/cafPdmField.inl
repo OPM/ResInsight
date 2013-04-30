@@ -142,7 +142,10 @@ QList<PdmOptionItemInfo> caf::PdmField<DataType>::valueOptions(bool* useOptionsO
             {
                 if (convertedFieldValue.type() != QVariant::List)  // Single value field
                 {
-                    m_optionEntryCache.push_front(PdmOptionItemInfo(convertedFieldValue.toString(), convertedFieldValue, true, QIcon()));
+                    if (!convertedFieldValue.toString().isEmpty())
+                    {
+                        m_optionEntryCache.push_front(PdmOptionItemInfo(convertedFieldValue.toString(), convertedFieldValue, true, QIcon()));
+                    }
                 }
                 else // The field value is a list of values 
                 {
@@ -155,7 +158,7 @@ QList<PdmOptionItemInfo> caf::PdmField<DataType>::valueOptions(bool* useOptionsO
                             if (valuesSelectedInField[i] == m_optionEntryCache[opIdx].value) isFound = true;
                         }
 
-                        if (!isFound)
+                        if (!isFound && !valuesSelectedInField[i].toString().isEmpty())
                         {
                             m_optionEntryCache.push_front(PdmOptionItemInfo(valuesSelectedInField[i].toString(), valuesSelectedInField[i], true, QIcon()));
                         }
@@ -176,7 +179,9 @@ QList<PdmOptionItemInfo> caf::PdmField<DataType>::valueOptions(bool* useOptionsO
 /// Extracts a QVariant representation of the data in the field to be used in the UI. 
 /// Note that for fields with a none empty valueOptions list the returned QVariant contains the 
 /// indexes to the selected options rather than the actual values, if they can be found.
-/// If we cant find them, the method asserts, forcing the valueOptions to always contain the field values
+/// If this is a multivalue field, and we cant find all of the field values among the options, 
+/// the method asserts (For now), forcing the valueOptions to always contain the field values.
+/// Single value fields will return -1 if the option is not found, allowing the concept of "nothing selected"
 //--------------------------------------------------------------------------------------------------
 template<typename DataType >
 QVariant caf::PdmField<DataType>::uiValue() const
@@ -184,16 +189,16 @@ QVariant caf::PdmField<DataType>::uiValue() const
     if (m_optionEntryCache.size())
     {
         QVariant convertedFieldValue = PdmFieldTypeSpecialization<DataType>::convert(m_fieldValue);
-        std::vector<unsigned int> indexes;
-        PdmOptionItemInfo::findValues(m_optionEntryCache, convertedFieldValue, indexes);
+        std::vector<unsigned int> indexesToFoundOptions;
+        PdmOptionItemInfo::findValues(m_optionEntryCache, convertedFieldValue, indexesToFoundOptions);
         if (convertedFieldValue.type() == QVariant::List)
         {
-            if (indexes.size() == static_cast<size_t>(convertedFieldValue.toList().size()))
+            if (indexesToFoundOptions.size() == static_cast<size_t>(convertedFieldValue.toList().size()))
             {
                 QList<QVariant> returnList;
-                for(size_t i = 0; i < indexes.size(); ++i)
+                for(size_t i = 0; i < indexesToFoundOptions.size(); ++i)
                 {
-                    returnList.push_back(QVariant(indexes[i]));
+                    returnList.push_back(QVariant(indexesToFoundOptions[i]));
                 }
                 return QVariant(returnList);
             }
@@ -201,7 +206,8 @@ QVariant caf::PdmField<DataType>::uiValue() const
         }
         else
         {
-            if (indexes.size() == 1) return QVariant(indexes.front());
+            if (indexesToFoundOptions.size() == 1) return QVariant(indexesToFoundOptions.front());
+            else return QVariant(-1); // Return -1 if not found instead of assert. Should result in clearing the selection
         }
 
         assert(false);

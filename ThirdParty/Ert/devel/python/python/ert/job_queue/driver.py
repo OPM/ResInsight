@@ -48,12 +48,9 @@ class Driver(CClass):
         If the option is sucessfully set the method will return True,
         otherwise the method will return False. If the @option is not
         recognized the method will return False. The supplied value
-        should be a string or integer.
+        should be a string.
         """
-        if isinstance( value , int ):
-            return cfunc.set_int_option( self , option , value )
-        else:
-            return cfunc.set_str_option( self , option , str(value) )
+        return cfunc.set_str_option( self , option , str(value) )
         
     def is_driver_instance( self ):
         return True
@@ -150,7 +147,6 @@ cfunc.free_job        = cwrapper.prototype("void        queue_driver_free_job( d
 cfunc.cget_status     = cwrapper.prototype("int         job_queue_get_status( driver , job)")
 cfunc.kill_job        = cwrapper.prototype("void        queue_driver_kill_job( driver , job )")
 cfunc.set_str_option  = cwrapper.prototype("void        queue_driver_set_string_option( driver , char* , char*)")
-cfunc.set_int_option  = cwrapper.prototype("void        queue_driver_set_int_option( driver , char* , int)")
 cfunc.set_max_running = cwrapper.prototype("void        queue_driver_set_max_running( driver , int )")
 cfunc.get_max_running = cwrapper.prototype("int         queue_driver_get_max_running( driver )")
 

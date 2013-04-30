@@ -334,7 +334,7 @@ void well_info_load_rstfile( well_info_type * well_info , const char * filename)
   ecl_file_enum file_type = ecl_util_get_file_type( filename , NULL , &report_nr);
   if ((file_type == ECL_RESTART_FILE) || (file_type == ECL_UNIFIED_RESTART_FILE))
   {
-    ecl_file_type * ecl_file = ecl_file_open( filename );
+    ecl_file_type * ecl_file = ecl_file_open( filename , 0);
 
     if (file_type == ECL_RESTART_FILE)
       well_info_add_wells( well_info , ecl_file , report_nr );

@@ -20,7 +20,9 @@ import datetime
 import unittest
 import ert
 import ert.ecl.ecl as ecl
+from   ert.util.stringlist import StringList
 from   test_util import approx_equal, approx_equalv
+
 
 base = "ECLIPSE"
 path = "test-data/Statoil/ECLIPSE/Gurbat"
@@ -156,11 +158,11 @@ class SumTest( unittest.TestCase ):
 
 
     def test_restart(self):
-        hist = ecl.EclSum( "test-data/ECLIPSE/sum-restart/history/T07-4A-W2011-18-P1" )
-        base = ecl.EclSum( "test-data/ECLIPSE/sum-restart/prediction/BASECASE" )
-        pred = ecl.EclSum( "test-data/ECLIPSE/sum-restart/prediction/BASECASE" , include_restart = False)
+        hist = ecl.EclSum( "test-data/Statoil/ECLIPSE/sum-restart/history/T07-4A-W2011-18-P1" )
+        base = ecl.EclSum( "test-data/Statoil/ECLIPSE/sum-restart/prediction/BASECASE" )
+        pred = ecl.EclSum( "test-data/Statoil/ECLIPSE/sum-restart/prediction/BASECASE" , include_restart = False)
 
-        self.assertTrue( True )
+        self.assertTrue( pred )
 
 
     def test_case1(self ):
@@ -228,6 +230,33 @@ class SumTest( unittest.TestCase ):
         node = sum.smspec_node( "BPR:1095" )
         self.assertTrue( node.num == 1095 )
 
+    def test_stringlist_gc(self):
+        sum = ecl.EclSum( case )
+        wells = sum.wells()
+        well1 = wells[0]
+        del wells
+        self.assertTrue( well1 == "OP_1" )
+
+
+    def test_stringlist_reference(self):
+        sum = ecl.EclSum( case )
+        wells = sum.wells()
+        self.assertTrue( approx_equalv( wells , ['OP_1','OP_2','OP_3','OP_4','OP_5','WI_1','WI_2','WI_3']))
+        self.assertTrue( isinstance( wells , StringList ))
+
+
+    def test_stringlist_setitem(self):
+        sum = ecl.EclSum( case )
+        wells = sum.wells()
+        wells[0] = "Bjarne"
+        well0 = wells[0]
+        self.assertTrue( well0 == "Bjarne" )
+        self.assertTrue( wells[0] == "Bjarne" )
+        wells[0] = "XXX"
+        self.assertTrue( well0 == "Bjarne" )
+        self.assertTrue( wells[0] == "XXX" )
+
+
 
 
 def fast_suite():
@@ -246,7 +275,14 @@ def fast_suite():
     suite.addTest( SumTest( 'test_block' ))
     suite.addTest( SumTest( 'test_restart' ))
     suite.addTest( SumTest( 'test_var_properties' ))
+    suite.addTest( SumTest( 'test_stringlist_gc'))
+    suite.addTest( SumTest( 'test_stringlist_reference'))
+    suite.addTest( SumTest( 'test_stringlist_setitem'))
     return suite
+
+
+def test_suite( argv ):
+    return fast_suite()
 
 
 if __name__ == "__main__":

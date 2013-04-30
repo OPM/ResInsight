@@ -32,7 +32,7 @@
 
 
 void test_rstfile( const char * filename , bool fracture_connection) {
-  ecl_file_type * rst_file = ecl_file_open( filename );
+  ecl_file_type * rst_file = ecl_file_open( filename , 0);
   const ecl_kw_type * iwel_kw     = ecl_file_iget_named_kw( rst_file , IWEL_KW , 0);
   ecl_rsthead_type * header       = ecl_rsthead_alloc( rst_file );
   

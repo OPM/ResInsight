@@ -169,7 +169,7 @@ void            ecl_util_alloc_summary_data_files(const char * path , const char
 void            ecl_util_alloc_restart_files(const char *  , const char *  , char *** , int *  , bool * , bool *);
 time_t          ecl_util_get_start_date(const char * );
 int             ecl_util_get_num_cpu(const char * data_file);
-bool            ecl_util_fmt_file(const char *);
+bool            ecl_util_fmt_file(const char * filename , bool * __fmt_file);
 char          * ecl_util_alloc_exfilename_anyfmt(const char * path, const char * base , ecl_file_enum file_type , bool start_fmt , int report_nr);
 int             ecl_util_get_month_nr(const char * month_name);
 int             ecl_util_fname_report_cmp(const void *f1, const void *f2);

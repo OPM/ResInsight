@@ -475,26 +475,34 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k
 
     if (m_showExternalFaces)
     {
+        size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
+        if (m_grid->cell(cellIndex).subGrid())
+        {
+            // Do not show any faces in the place where a LGR is present
+            return false; 
+        }
+
         size_t ni, nj, nk;
         cvf::StructGridInterface::neighborIJKAtCellFace(i, j, k, face, &ni, &nj, &nk);
 
+        // If the cell is on the edge of the grid, Interpret as having an invisible neighbour
         if (ni >= m_grid->cellCountI() || nj >= m_grid->cellCountJ() || nk >= m_grid->cellCountK())
         {
-            // Detected cell on edge of grid
+            return true;
+        }
+       
+        size_t neighborCellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
+
+        // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
+        // might not be visible.
+        if (m_grid->cell(neighborCellIndex).subGrid())
+        {
             return true;
         }
 
-        size_t neighborCellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
-        const RigCell& neighborCell = m_grid->cell(neighborCellIndex);
-        if (neighborCell.subGrid())
-        {
-            // Do not show face with a LGR neighbor. The subgrid will be responsible for displaying the face from the opposite side
-            return false;
-        }
-
+        // If the neighbour cell is invisible, we need to draw the face
         if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
         {
-            // Neighbor cell is not part of visible cells
             return true;
         }
     }

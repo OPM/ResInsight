@@ -48,5 +48,6 @@ public:
     void updateIconState();
 
 protected:
-    virtual caf::PdmFieldHandle*   userDescriptionField();
+    virtual caf::PdmFieldHandle* userDescriptionField();
+    virtual caf::PdmFieldHandle* objectToggleField();
 };

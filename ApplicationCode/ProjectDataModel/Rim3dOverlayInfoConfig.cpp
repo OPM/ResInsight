@@ -35,6 +35,9 @@ Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 {
     CAF_PDM_InitObject("Overlay 3D info", ":/Legend.png", "", "");
 
+    CAF_PDM_InitField(&active,              "Active",               true,   "Active",   "", "", "");
+    active.setUiHidden(true);
+
     CAF_PDM_InitField(&showInfoText,        "ShowInfoText",         true,   "Info Text",   "", "", "");
     CAF_PDM_InitField(&showAnimProgress,    "ShowAnimProgress",     true,   "Animation progress",   "", "", "");
     CAF_PDM_InitField(&showHistogram,       "ShowHistogram",        true,   "Histogram",   "", "", "");
@@ -54,7 +57,11 @@ Rim3dOverlayInfoConfig::~Rim3dOverlayInfoConfig()
 void Rim3dOverlayInfoConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->update3DInfo();
-    m_reservoirView->viewer()->update();
+
+    if (m_reservoirView && m_reservoirView->viewer())
+    {
+        m_reservoirView->viewer()->update();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,8 +77,19 @@ void Rim3dOverlayInfoConfig::setPosition(cvf::Vec2ui position)
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
+    this->updateUiIconFromState(active);
+
     if (!m_reservoirView) return;
     if (!m_reservoirView->viewer()) return;
+    
+    if (!this->active())
+    {
+        m_reservoirView->viewer()->showInfoText(false);
+        m_reservoirView->viewer()->showHistogram(false);
+        m_reservoirView->viewer()->showAnimationProgress(false);
+        
+        return;
+    }
 
     m_reservoirView->viewer()->showInfoText(showInfoText());
     m_reservoirView->viewer()->showHistogram(false);
@@ -171,4 +189,12 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             m_reservoirView->viewer()->setHistogramPercentiles(p10, p90, mean);
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* Rim3dOverlayInfoConfig::objectToggleField()
+{
+    return &active;
 }

@@ -3,4 +3,4 @@ STORE_SEED   /tmp/seed2
 LOAD_SEED    /tmp/seed2
 
 -- The settings below here are artifacts which should not be necessary ...
-JOB_SCRIPT /private/joaho/ERT/Statoil/etc/ERT/Scripts/job_dispatch.py
+JOB_SCRIPT script.sh

@@ -64,7 +64,9 @@ OverlayScalarMapperLegend::OverlayScalarMapperLegend(Font* font)
     m_color(Color3::BLACK),
     m_lineColor(Color3::BLACK),
     m_lineWidth(1),
-    m_font(font)
+    m_font(font),
+    m_tickNumberPrecision(4),
+    m_numberFormat(AUTO)
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -326,7 +328,20 @@ void OverlayScalarMapperLegend::setupTextDrawer(TextDrawer* textDrawer, OverlayC
         }
 
         double tickValue = m_tickValues[it];
-        String valueString = String::number(tickValue);
+        String valueString;
+        switch (m_numberFormat)
+        {
+        case FIXED:
+            valueString = String::number(tickValue, 'f', m_tickNumberPrecision);
+            break;
+        case SCIENTIFIC:
+            valueString = String::number(tickValue, 'e', m_tickNumberPrecision);
+            break;
+        default:
+            valueString = String::number(tickValue);
+            break;
+        }
+
         Vec2f pos(textX, textY);
         textDrawer->addText(valueString, pos);
 
@@ -731,6 +746,22 @@ void OverlayScalarMapperLegend::setLineWidth(int lineWidth)
 int OverlayScalarMapperLegend::lineWidth() const
 {
     return m_lineWidth;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OverlayScalarMapperLegend::setTickPrecision(int precision)
+{
+    m_tickNumberPrecision = precision;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OverlayScalarMapperLegend::setTickFormat(NumberFormat format)
+{
+    m_numberFormat = format;
 }
 
 } // namespace cvf

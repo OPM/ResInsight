@@ -194,14 +194,6 @@ void * local_driver_alloc() {
   return local_driver;
 }
 
-
-bool local_driver_set_option( void * __driver , const char * option_key , const void * value){ 
-  local_driver_type * driver = local_driver_safe_cast( __driver );
-  return false;
-}
-
-
-
 #undef LOCAL_DRIVER_ID  
 #undef LOCAL_JOB_ID    
 
