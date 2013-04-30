@@ -37,19 +37,20 @@ typedef UiTreeItem<PdmPointer<PdmObject> > PdmUiTreeItem;
 /// 
 //==================================================================================================
 class UiTreeModelPdm : public QAbstractItemModel
-
 {
     Q_OBJECT
 
 public:
     UiTreeModelPdm(QObject* parent);
 
-    void                    setRoot(PdmUiTreeItem* root);
+    void                    setTreeItemRoot(PdmUiTreeItem* root);
+    PdmUiTreeItem*          treeItemRoot();
+
     void                    emitDataChanged(const QModelIndex& index);
 
-    static PdmUiTreeItem*  getTreeItemFromIndex(const QModelIndex& index);
-    QModelIndex            getModelIndexFromPdmObject( const PdmObject * object) const;
-    void                   rebuildUiSubTree(PdmObject* root);
+    static PdmUiTreeItem*   getTreeItemFromIndex(const QModelIndex& index);
+    QModelIndex             getModelIndexFromPdmObject(const PdmObject* object) const;
+    void                    rebuildUiSubTree(PdmObject* root);
 
 public:
     // Overrides from QAbstractItemModel
@@ -71,7 +72,7 @@ protected:
     QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const;
 
 private:
-    PdmUiTreeItem* m_root;
+    PdmUiTreeItem* m_treeItemRoot;
 };
 
 

@@ -28,7 +28,7 @@
 
 
 void test_file( const char * filename , int occurence , bool exists , const ecl_rsthead_type * true_header) {
-  ecl_file_type * rst_file = ecl_file_open( filename );
+  ecl_file_type * rst_file = ecl_file_open( filename , 0);
   ecl_rsthead_type * rst_head = ecl_rsthead_ialloc( rst_file , occurence);
   
   if (exists) {

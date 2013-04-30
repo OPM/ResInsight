@@ -44,7 +44,6 @@ public:
 private:
     caf::PdmPointer<RimReservoirView>   m_reservoirView;
     cvf::ref<cvf::Transform>            m_scaleTransform; 
-    cvf::ref<cvf::Font>                 m_font;
 
     cvf::Collection< RivWellPipesPartMgr >  m_wellPipesPartMgrs;
     cvf::Collection< RivWellHeadPartMgr >   m_wellHeadPartMgrs;

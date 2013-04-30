@@ -92,6 +92,7 @@ class StringListTest( unittest.TestCase ):
         for i in range(len(s)):
             self.assertTrue( s3[i] == initList[i] )
 
+
     def test_last( self ):
         s = StringList( initial = initList )
         l = s.last
@@ -99,24 +100,21 @@ class StringListTest( unittest.TestCase ):
         self.assertRaises( IndexError , last_empty)
 
 
-    def test_reference(self):
-        sum = ecl.EclSum( case )
-        wells = sum.wells()
-        self.assertTrue( approx_equalv( wells , ['OP_1','OP_2','OP_3','OP_4','OP_5','WI_1','WI_2','WI_3']))
-        self.assertTrue( isinstance( wells , StringList ))
-        
 
+        
 
 
 def fast_suite():
     suite = unittest.TestSuite()
     suite.addTest( StringListTest( 'test_create' ))
-    suite.addTest( StringListTest( 'test_reference' ))
     suite.addTest( StringListTest( 'test_pop' ))
     suite.addTest( StringListTest( 'test_last' ))
     return suite
 
                    
+def test_suite(argv):
+    return fast_suite()
+
 
 if __name__ == "__main__":
     unittest.TextTestRunner().run( fast_suite() )

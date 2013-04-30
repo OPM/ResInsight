@@ -32,14 +32,35 @@ extern "C" {
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_util.h>
 
+  typedef enum {
+    ECL_FILE_CLOSE_STREAM  =  1 ,  /* 
+                                      This flag will close the underlying FILE object between each access; this is
+                                      mainly to save filedescriptors in cases where many ecl_file instances are open at
+                                      the same time. */
+    //
+    ECL_FILE_WRITABLE      =  2    /*
+                                      This flag opens the file in a mode where it can be updated and modified, but it
+                                      must still exist and be readable. I.e. this should not compared with the normal:
+                                      fopen(filename , "w") where an existing file is truncated to zero upon successfull
+                                      open.
+                                   */
+  } ecl_file_flag_type;
+
+
+#define ECL_FILE_FLAGS_ENUM_DEFS \
+  {.value =   1 , .name="ECL_FILE_CLOSE_STREAM"}, \
+  {.value =   2 , .name="ECL_FILE_WRITABLE"}
+#define ECL_FILE_FLAGS_ENUM_SIZE 2
+
+
+
 
   typedef struct ecl_file_struct ecl_file_type;
-  void             ecl_file_load_all( ecl_file_type * ecl_file );
+  bool             ecl_file_load_all( ecl_file_type * ecl_file );
   void             ecl_file_push_block( ecl_file_type * ecl_file );
   void             ecl_file_pop_block( ecl_file_type * ecl_file );
-  ecl_file_type  * ecl_file_open( const char * filename );
-  ecl_file_type  * ecl_file_try_open( const char * filename);
-  ecl_file_type  * ecl_file_open_writable( const char * filename );
+  ecl_file_type  * ecl_file_open( const char * filename , int flags);
+  ecl_file_type  * ecl_file_try_open( const char * filename , int flags);
   void             ecl_file_close( ecl_file_type * ecl_file );
   void             ecl_file_fortio_detach( ecl_file_type * ecl_file );
   void             ecl_file_free__(void * arg);
@@ -60,6 +81,11 @@ extern "C" {
   int              ecl_file_get_phases( const ecl_file_type * init_file );
   void             ecl_file_fprintf_kw_list( const ecl_file_type * ecl_file , FILE * stream );
   
+  bool             ecl_file_writable( const ecl_file_type * ecl_file );
+  int              ecl_file_get_flags( const ecl_file_type * ecl_file );
+  bool             ecl_file_flags_set( const ecl_file_type * ecl_file , int flags);
+
+  
   
   ecl_file_kw_type * ecl_file_iget_file_kw( const ecl_file_type * file , int global_index);
   ecl_file_kw_type * ecl_file_iget_named_file_kw( const ecl_file_type * file , const char * kw, int ith);
@@ -75,8 +101,8 @@ extern "C" {
   bool               ecl_file_subselect_block( ecl_file_type * ecl_file , const char * kw , int occurence);
   bool               ecl_file_select_block( ecl_file_type * ecl_file , const char * kw , int occurence);
   void               ecl_file_select_global( ecl_file_type * ecl_file );
-  bool               ecl_file_writable( const ecl_file_type * ecl_file );
-  void               ecl_file_save_kw( const ecl_file_type * ecl_file , const ecl_kw_type * ecl_kw);
+  //bool               ecl_file_writable( const ecl_file_type * ecl_file );
+  bool               ecl_file_save_kw( const ecl_file_type * ecl_file , const ecl_kw_type * ecl_kw);
   bool               ecl_file_has_kw_ptr( const ecl_file_type * ecl_file , const ecl_kw_type * ecl_kw);
 
 /*****************************************************************/
@@ -92,19 +118,16 @@ extern "C" {
   bool             ecl_file_select_rstblock_report_step( ecl_file_type * ecl_file , int report_step);
   bool             ecl_file_iselect_rstblock( ecl_file_type * ecl_file , int seqnum_index );
   
-  ecl_file_type  * ecl_file_open_rstblock_report_step( const char * filename , int report_step );
-  ecl_file_type  * ecl_file_open_rstblock_sim_time( const char * filename , time_t sim_time); 
-  ecl_file_type  * ecl_file_iopen_rstblock( const char * filename , int seqnum_index);
+  ecl_file_type  * ecl_file_open_rstblock_report_step( const char * filename , int report_step , int flags);
+  ecl_file_type  * ecl_file_open_rstblock_sim_time( const char * filename , time_t sim_time , int flags); 
+  ecl_file_type  * ecl_file_iopen_rstblock( const char * filename , int seqnum_index , int flags);
 
-  ecl_file_type  * ecl_file_open_rstblock_report_step_writable( const char * filename , int report_step );
-  ecl_file_type  * ecl_file_open_rstblock_sim_time_writable( const char * filename , time_t sim_time); 
-  ecl_file_type  * ecl_file_iopen_rstblock_writable( const char * filename , int seqnum_index);
   
 /*****************************************************************/
 /* SUMMARY FILES */
   
   bool             ecl_file_select_smryblock( ecl_file_type * ecl_file , int ministep_nr );
-  ecl_file_type  * ecl_file_open_smryblock( const char * filename , int ministep_nr );
+  ecl_file_type  * ecl_file_open_smryblock( const char * filename , int ministep_nr , int flags);
 
 
   UTIL_IS_INSTANCE_HEADER( ecl_file );

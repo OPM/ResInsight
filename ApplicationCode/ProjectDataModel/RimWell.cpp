@@ -40,14 +40,16 @@ RimWell::RimWell()
     CAF_PDM_InitField(&showWellLabel,         "ShowWellLabel",      true, "Show well label", "", "", "");
 
     CAF_PDM_InitField(&showWellPipes,       "ShowWellPipe",         true,   "Show well pipe", "", "", "");
-    CAF_PDM_InitField(&pipeRadiusScaleFactor, "WellPipeRadiusScale",1.0,    "    Pipe radius scale", "", "", "");
-    CAF_PDM_InitField(&wellPipeColor,       "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "    Well pipe color", "", "", "");
+    CAF_PDM_InitField(&pipeRadiusScaleFactor, "WellPipeRadiusScale",1.0,    "Pipe radius scale", "", "", "");
+    CAF_PDM_InitField(&wellPipeColor,       "WellPipeColor",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Well pipe color", "", "", "");
 
     CAF_PDM_InitField(&showWellCells,       "ShowWellCells",        true,   "Add cells to range filter", "", "", "");
-    CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "    Use well fence", "", "", "");
+    CAF_PDM_InitField(&showWellCellFence,   "ShowWellCellFence",    false,  "Use well fence", "", "", "");
 
     name.setUiHidden(true);
     name.setUiReadOnly(true);
+
+    m_wellIndex = cvf::UNDEFINED_SIZE_T;
 
     m_reservoirView = NULL;
 }
@@ -121,5 +123,116 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
             m_reservoirView->createDisplayModelAndRedraw();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWell::objectToggleField()
+{
+    return &showWellPipes;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
+{
+    if (m_reservoirView == NULL) return false;
+    if (this->wellResults() == NULL) return false;
+
+    if (   this->wellResults()->firstResultTimeStep() == cvf::UNDEFINED_SIZE_T 
+        || frameIndex < this->wellResults()->firstResultTimeStep() 
+        || frameIndex >= this->wellResults()->m_wellCellsTimeSteps.size()) 
+        return false;
+
+    if (!m_reservoirView->wellCollection()->active())
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_ON)
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_OFF)
+        return false;
+
+    if ( this->showWellPipes() == false )
+        return false;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_INDIVIDUALLY)
+        return true;
+
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_OPEN_IN_VISIBLE_CELLS)
+    {
+        const std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType>& visGridParts = m_reservoirView->visibleGridParts();     
+        cvf::cref<RivReservoirViewPartMgr> rvMan = m_reservoirView->reservoirGridPartManager();
+
+        for (size_t gpIdx = 0; gpIdx < visGridParts.size(); ++gpIdx)
+        {
+            const RigWellResultFrame& wrsf = this->wellResults()->wellResultFrame(frameIndex);
+
+            // First check the wellhead:
+
+            size_t gridIndex = wrsf.m_wellHead.m_gridIndex; 
+            size_t gridCellIndex = wrsf.m_wellHead.m_gridCellIndex;
+
+            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+            if ((*cellVisibility)[gridCellIndex]) 
+            {
+                return true;
+            }
+
+            // Then check the rest of the well, with all the branches
+
+            const std::vector<RigWellResultBranch>& wellResSegments = wrsf.m_wellResultBranches;
+            for (size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx)
+            {
+                const std::vector<RigWellResultCell>& wsResCells = wellResSegments[wsIdx].m_wellCells;
+                for (size_t cIdx = 0; cIdx < wsResCells.size(); ++ cIdx)
+                {
+                    gridIndex = wsResCells[cIdx].m_gridIndex;
+                    gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
+
+                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+                    if ((*cellVisibility)[gridCellIndex]) 
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    CVF_ASSERT(false); // Never end here. have you added new pipe visibility modes ?
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWell::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* pipeGroup = uiOrdering.addNewGroup("Well pipe");
+    pipeGroup->add(&showWellPipes);
+    pipeGroup->add(&pipeRadiusScaleFactor);
+    pipeGroup->add(&wellPipeColor);
+    pipeGroup->add(&showWellLabel);
+
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
+    filterGroup->add(&showWellCells);
+    filterGroup->add(&showWellCellFence);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWell::isWellPipeVisible(size_t frameIndex)
+{
+    CVF_ASSERT(m_wellIndex != cvf::UNDEFINED_SIZE_T);
+
+    // Return the possibly cached value
+    return m_reservoirView->wellCollection()->isWellPipesVisible(frameIndex)[m_wellIndex];
 }
 

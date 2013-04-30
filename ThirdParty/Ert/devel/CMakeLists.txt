@@ -26,13 +26,11 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    add_definitions( -DERT_WINDOWS )
    set( CMAKE_C_FLAGS    "-O2" )
    set( CMAKE_CXX_FLAGS  "-O2" )
-endif()    
-
+endif()
 
 include(cmake/ert_check.cmake)
 include(cmake/ert_find.cmake)
 include(cmake/Modules/UseMultiArch.cmake)
-include(cmake/python.cmake)
 
 set( INSTALL_GROUP          ""     CACHE STRING "Group to install as - blank to install as current group")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
@@ -62,8 +60,8 @@ endif()
 if (ERT_LINUX)
    set( NEED_LIBM TRUE )
    set( LINK_STATIC FALSE )
-   add_definitions( -DHAVE_PROC )
    set( NEED_LIBDL ON )    
+   add_definitions( -DHAVE_PROC )
 else()
    set( NEED_LIBM FALSE )
    set( LINK_STATIC TRUE )
@@ -119,10 +117,13 @@ if (BUILD_ERT)
 
    include_directories( ${PROJECT_SOURCE_DIR}/libenkf/include )
    add_subdirectory( libenkf )
+
+   install(DIRECTORY ${PROJECT_SOURCE_DIR}/share DESTINATION ${CMAKE_INSTALL_PREFIX})
 endif()
 
 
 if (BUILD_PYTHON)
+   include(cmake/python.cmake2)
    add_subdirectory( python )
 endif()
 

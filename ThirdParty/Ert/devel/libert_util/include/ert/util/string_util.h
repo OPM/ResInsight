@@ -32,6 +32,10 @@ extern "C" {
   bool               string_util_update_active_mask( const char * range_string , bool_vector_type * active_mask);
   bool_vector_type * string_util_alloc_active_mask( const char * range_string );
 
+  bool               string_util_update_value_list( const char * range_string , int_vector_type * value_list);
+  bool               string_util_init_value_list( const char * range_string , int_vector_type * value_list );
+  int_vector_type  * string_util_alloc_value_list(const char * range_string);
+
 #ifdef __cplusplus
 }
 #endif

@@ -27,7 +27,7 @@
 
 class RimReservoirView;
 class RigCaseCellResultsData;
-
+class RimReservoirCellResultsStorage;
 //==================================================================================================
 ///  
 ///  
@@ -39,27 +39,46 @@ public:
     RimResultDefinition();
     virtual ~RimResultDefinition();
 
-    virtual void setReservoirView(RimReservoirView* ownerReservoirView);
-    RimReservoirView* reservoirView();
+    virtual void                    setReservoirView(RimReservoirView* ownerReservoirView);
+    RimReservoirView*               reservoirView();
 
-    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      resultType;
-    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  porosityModel;
-    caf::PdmField<QString>                                          resultVariable;
+    RimDefines::ResultCatType       resultType() const { return m_resultType(); }
+    void                            setResultType(RimDefines::ResultCatType val);
+    RimDefines::PorosityModelType   porosityModel() const { return m_porosityModel(); }
+    void                            setPorosityModel(RimDefines::PorosityModelType val);
+    QString                         resultVariable() const { return m_resultVariable(); }
+    void                            setResultVariable(const QString& val);
+    void                            setPorosityModelUiFieldHidden(bool hide);
 
-    void    loadResult();
-    size_t  gridScalarIndex() const;
-    bool    hasStaticResult() const;
-    bool    hasDynamicResult() const;
-    bool    hasResult() const;
+    void                            loadResult();
+    size_t                          gridScalarIndex() const;
+    bool                            hasStaticResult() const;
+    bool                            hasDynamicResult() const;
+    bool                            hasResult() const;
+    RimReservoirCellResultsStorage* currentGridCellResults() const;
 
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void initAfterRead();
 
 protected:
+    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
+    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;
+    caf::PdmField<QString>                                          m_resultVariable;
 
-    mutable size_t m_gridScalarResultIndex;
+    friend class RimCellPropertyFilter;
+    // User interface only fields, to support "filtering"-like behaviour etc.
+    caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;
+    caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
+    caf::PdmField<QString>                                          m_resultVariableUiField;
 
-    caf::PdmPointer<RimReservoirView> m_reservoirView;
+
+    mutable size_t                                                  m_gridScalarResultIndex;
+
+    caf::PdmPointer<RimReservoirView>                               m_reservoirView;
+
+private:
+    QStringList getResultVariableListForCurrentUIFieldSettings();
 };
 

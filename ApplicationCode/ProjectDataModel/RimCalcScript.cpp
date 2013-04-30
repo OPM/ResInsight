@@ -47,17 +47,3 @@ RimCalcScript::~RimCalcScript()
 {
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimCalcScript::readContentFromFile()
-{
-    QFile file(absolutePath);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QString fileContent = file.readAll();
-
-        content = fileContent;
-    }
-}
-

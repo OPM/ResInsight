@@ -347,7 +347,7 @@ void RimIdenticalGridCaseGroup::clearStatisticsResults()
         for (size_t j = 0; j < rimStaticsCase->reservoirViews.size(); j++)
         {
             RimReservoirView* rimReservoirView = rimStaticsCase->reservoirViews[j];
-            rimReservoirView->cellResult()->resultVariable = RimDefines::undefinedResultName();
+            rimReservoirView->cellResult()->setResultVariable(RimDefines::undefinedResultName());
             rimReservoirView->cellEdgeResult()->resultVariable = RimDefines::undefinedResultName();
             rimReservoirView->loadDataAndUpdate();
         }

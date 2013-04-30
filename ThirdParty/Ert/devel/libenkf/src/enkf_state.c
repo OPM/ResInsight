@@ -121,7 +121,7 @@ typedef struct run_info_struct {
 typedef struct shared_info_struct {
   const model_config_type     * model_config;      /* .... */
   ext_joblist_type            * joblist;           /* The list of external jobs which are installed - and *how* they should be run (with Python code) */
-  job_queue_type              * job_queue;         /* The queue handling external jobs. (i.e. LSF / rsh / local / ... )*/ 
+  job_queue_type              * job_queue;         /* The queue handling external jobs. (i.e. LSF / TORQUE / rsh / local / ... )*/ 
   const site_config_type      * site_config;
   log_type                    * logh;              /* The log handle. */
   ert_templates_type          * templates; 
@@ -817,7 +817,7 @@ static void enkf_state_internalize_eclipse_state(enkf_state_type * enkf_state , 
   {
     char * filename  = ecl_util_alloc_exfilename(run_info->run_path , member_config_get_eclbase(enkf_state->my_config) , ECL_RESTART_FILE , fmt_file , report_step);
     if (filename != NULL) {
-      restart_file = ecl_file_open( filename );
+      restart_file = ecl_file_open( filename , 0 );
       free(filename);
     } else 
       restart_file = NULL;  /* No restart information was found; if that is expected the program will fail hard in the enkf_node_forward_load() functions. */

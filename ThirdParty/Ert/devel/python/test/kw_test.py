@@ -172,6 +172,10 @@ def fast_suite():
     suite.addTest( KWTest( 'testSubCopy' ))
     return suite
 
+
+def test_suite(argv):
+    return fast_suite()
+
                    
 
 if __name__ == "__main__":

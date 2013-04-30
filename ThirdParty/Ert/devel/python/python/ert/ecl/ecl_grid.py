@@ -772,3 +772,4 @@ cfunc.fwrite_GRID                  = cwrapper.prototype("void   ecl_grid_fwrite_
 cfunc.fwrite_EGRID                 = cwrapper.prototype("void   ecl_grid_fwrite_EGRID( ecl_grid , char* )")
 cfunc.equal                        = cwrapper.prototype("bool   ecl_grid_compare(ecl_grid , ecl_grid , bool, bool)")
 cfunc.dual_grid                    = cwrapper.prototype("bool   ecl_grid_dual_grid( ecl_grid )")
+

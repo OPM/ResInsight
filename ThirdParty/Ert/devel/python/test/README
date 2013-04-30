@@ -1,26 +1,27 @@
 This directory contains some tests which can be used to test a local
-ert-python installation before installing. To make sure you are indeed
-using the local copies you must source one of the scripts 'local_bash'
-or 'local_csh' with the command:
+ert-python installation before installing. To be certain that you are
+actually testing the Python installation you are working on, and not
+picking up previously installed versions you must make sure that:
+
+  1. The path $ERT-ROOT/devel/python/python is on the front of your
+     $PYTHONPATH environment variable.
+
+  2. That the python modules will find the shared libraries built as
+     part of your build process. This is achieved by adding a link
+     $ERT-ROOT/devel/python/lib64 pointing to the $ERT-BUILD/lib64
+     area; where $ERT-BUILD is wherever you have compiled ert.
+
+The scripts local_bash and local_csh will update your environment with
+a correct value of $PYTHONPATH:
 
    ps1> source local_xxx
 
-first.
+The lib64 link can not be made automagically, because your personal
+build area could be anywhere. However the script will check that a
+directory link lib64 exists and print a warning if not.
 
-The local scripts will:
 
-  1. Create a directory lib and populate lib with symbolic links to
-     all the required shared libraries.
 
-  2. Create a symbolic link ../ert/util/pycfile.so -> ../../C/libpycfile/slib/libpycfile.so 
-
-  3. Create symbolic link lib/ert -> ../../ert for importing python modules.
-
-  4. Update the LD_LIBRARY_PATH and PYTHONPATH environment variables
-     to ensure that the Python modules and shared libraries will be found.
-
-Observe that in a production setting one would probably not put the
-Python modules and the shared C libraries in the same directory.
 
 
 

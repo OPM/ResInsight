@@ -27,27 +27,31 @@ include_directories(
 # Use all h files in the subdirectories to make them available in the project
 file( GLOB_RECURSE HEADER_FILES *.h )
 
-list( APPEND CPP_SOURCES
+set( APPLICATION_FILES 
     RiaMain.cpp
     RiaStdInclude.cpp
-)
-
-list( APPEND CPP_SOURCES
+        
     Application/RiaApplication.cpp
     Application/RiaPreferences.cpp
 	Application/RiaImageFileCompare.cpp
 	Application/RiaImageCompareReporter.cpp
 )
 
+set( USER_INTERFACE_FILES
+    UserInterface/RiuCursors.cpp
+    UserInterface/RiuMainWindow.cpp
+    UserInterface/RiuPreferencesDialog.cpp
+    UserInterface/RiuResultInfoPanel.cpp
+    UserInterface/RiuViewer.cpp
+    UserInterface/RiuSimpleHistogramWidget.cpp
+	UserInterface/RiuMultiCaseImportDialog.cpp
+    UserInterface/RiuProcessMonitor.cpp
+)
+
+
 list( APPEND CPP_SOURCES
-    ModelVisualization/RivCellEdgeEffectGenerator.cpp
-    ModelVisualization/RivGridPartMgr.cpp
-    ModelVisualization/RivReservoirPartMgr.cpp
-    ModelVisualization/RivReservoirViewPartMgr.cpp
-    ModelVisualization/RivPipeGeometryGenerator.cpp
-    ModelVisualization/RivReservoirPipesPartMgr.cpp
-    ModelVisualization/RivWellPipesPartMgr.cpp
-    ModelVisualization/RivWellHeadPartMgr.cpp
+     ${APPLICATION_FILES}
+     ${USER_INTERFACE_FILES}
 )
 
 list( APPEND CPP_SOURCES
@@ -59,6 +63,7 @@ list( APPEND REFERENCED_CMAKE_FILES
     ReservoirDataModel/CMakeLists_files.cmake
     FileInterface/CMakeLists_files.cmake
     ProjectDataModel/CMakeLists_files.cmake
+    ModelVisualization/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -66,22 +71,10 @@ foreach (referencedfile ${REFERENCED_CMAKE_FILES})
     include (${referencedfile})
 endforeach (referencedfile)
 
-
 list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
 
-list( APPEND CPP_SOURCES
-    UserInterface/RiuCursors.cpp
-    UserInterface/RiuMainWindow.cpp
-    UserInterface/RiuPreferencesDialog.cpp
-    UserInterface/RiuResultInfoPanel.cpp
-    UserInterface/RiuViewer.cpp
-    UserInterface/RiuSimpleHistogramWidget.cpp
-	UserInterface/RiuMultiCaseImportDialog.cpp
-    UserInterface/RiuProcessMonitor.cpp
-
-)
 
 # Define files for MOC-ing
 set ( QT_MOC_HEADERS
@@ -179,8 +172,13 @@ ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH_COMPILER_DEFINE} )
 
-################################################################################
 
+################################################################################
+# Create source groups - see also included CMakeLists_files.cmake
+################################################################################
+source_group( "Application"         FILES ${APPLICATION_FILES} )
+source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
+source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 
 
 add_executable(ResInsight

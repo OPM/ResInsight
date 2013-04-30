@@ -26,15 +26,29 @@
 #include <ert/util/util.h>
 #include <ert/util/test_util.h>
 
+
 void test_error_exit( const char * fmt , ...) {
   char * s;
   va_list ap;
   va_start(ap , fmt);
   s = util_alloc_sprintf_va(fmt , ap);
   va_end(ap);
-
-  fprintf( stderr , s );
+  fprintf(stderr , s );
   exit(1);
+}
+
+
+void test_exit__(const char * file , int line , const char * fmt , ...) {
+  fprintf(stderr , "Error at %s:%d:\n",file,line);
+  {
+    char * s;
+    va_list ap;
+    va_start(ap , fmt);
+    s = util_alloc_sprintf_va(fmt , ap);
+    va_end(ap);
+    fprintf(stderr , s );
+    exit(1);
+  }
 }
 
 

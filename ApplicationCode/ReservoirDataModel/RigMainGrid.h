@@ -53,6 +53,8 @@ public:
     virtual cvf::Vec3d                      displayModelOffset() const;
     void                                    setDisplayModelOffset(cvf::Vec3d offset);
 
+    void                                    setFlipAxis(bool flipXAxis, bool flipYAxis);
+
 private:
     void                                    initAllSubGridsParentGridPointer();
     void                                    initAllSubCellsMainGridCellIndex();
@@ -64,5 +66,8 @@ private:
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
 
     cvf::Vec3d                              m_displayModelOffset;
+
+    bool                                    m_flipXAxis;
+    bool                                    m_flipYAxis;
 };
 

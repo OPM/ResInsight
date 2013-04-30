@@ -38,7 +38,9 @@ public:
         RimResultSlot* cellResultSlot,
         RimCellEdgeResultSlot* cellEdgeResultSlot,
         cvf::StructGridGeometryGenerator* generator,
-        cvf::DrawableGeo* geo);
+        cvf::DrawableGeo* geo, 
+        size_t gridIndex, 
+        float opacityLevel);
 };
 
 

@@ -40,7 +40,7 @@ int main(int argc , char ** argv) {
   bool OK = true;
   const char * unrst_file = argv[1];
 
-  ecl_file_type * rst_file = ecl_file_open( unrst_file );
+  ecl_file_type * rst_file = ecl_file_open( unrst_file , 0);
   
   OK = OK && test_get( rst_file , 1 , 1 , 1998 , -1 );
   OK = OK && test_get( rst_file , 17 , 9 , 2003 , -1 );

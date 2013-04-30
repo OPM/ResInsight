@@ -208,14 +208,7 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 RifReaderEclipseOutput::~RifReaderEclipseOutput()
 {
     close();
-}
 
-
-//--------------------------------------------------------------------------------------------------
-/// Close interface (for now, no files are kept open after calling methods, so just clear members)
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::close()
-{
     if (m_ecl_init_file)
     {
         ecl_file_close(m_ecl_init_file);
@@ -226,6 +219,15 @@ void RifReaderEclipseOutput::close()
     {
         m_dynamicResultsAccess->close();
     }
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Close interface (for now, no files are kept open after calling methods, so just clear members)
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::close()
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,7 +380,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     m_eclipseCase = eclipseCase;
     
     // Build results meta data
-    if (!buildMetaData()) return false;
+    buildMetaData();
     progInfo.incrementProgress();
 
     progInfo.setNextProgressIncrement(8);
@@ -420,14 +422,11 @@ bool RifReaderEclipseOutput::openAndReadActiveCellData(const QString& fileName, 
         return false;
     }
     
-
-    // Reading of metadata and well cells is not performed here
-    //if (!buildMetaData()) return false;
-    // readWellCells();
-
     m_dynamicResultsAccess = createDynamicResultsAccess();
-
-    m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
+    if (m_dynamicResultsAccess.notNull())
+    {
+        m_dynamicResultsAccess->setTimeSteps(mainCaseTimeSteps);
+    }
 
     return true;
 }
@@ -445,7 +444,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
     QString egridFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_EGRID_FILE);
     if (egridFileName.size() > 0)
     {
-        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data());
+        ecl_file_type* ecl_file = ecl_file_open(egridFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
         if (!ecl_file) return false;
 
         int actnumKeywordCount = ecl_file_get_num_named_kw(ecl_file, ACTNUM_KW);
@@ -523,7 +522,7 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// Build meta data - get states and results info
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::buildMetaData()
+void RifReaderEclipseOutput::buildMetaData()
 {
     CVF_ASSERT(m_eclipseCase);
     CVF_ASSERT(m_filesWithSameBaseName.size() > 0);
@@ -532,23 +531,18 @@ bool RifReaderEclipseOutput::buildMetaData()
 
     progInfo.setNextProgressIncrement(m_filesWithSameBaseName.size());
 
-    // Create access object for dynamic results
-    m_dynamicResultsAccess = createDynamicResultsAccess();
-    if (m_dynamicResultsAccess.isNull())
-    {
-        return false;
-    }
-
-    m_dynamicResultsAccess->open();
-
-
-    progInfo.incrementProgress();
-
     RigCaseCellResultsData* matrixModelResults = m_eclipseCase->results(RifReaderInterface::MATRIX_RESULTS);
     RigCaseCellResultsData* fractureModelResults = m_eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS);
 
+    // Create access object for dynamic results
+    m_dynamicResultsAccess = createDynamicResultsAccess();
     if (m_dynamicResultsAccess.notNull())
     {
+        m_dynamicResultsAccess->open();
+
+        progInfo.incrementProgress();
+
+
         // Get time steps 
         m_timeSteps = m_dynamicResultsAccess->timeSteps();
 
@@ -581,7 +575,6 @@ bool RifReaderEclipseOutput::buildMetaData()
                 fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
-
     }
 
     progInfo.incrementProgress();
@@ -634,8 +627,6 @@ bool RifReaderEclipseOutput::buildMetaData()
             }
         }
     }
-
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -673,25 +664,23 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
 {
     CVF_ASSERT(values);
 
-    if (!openInitFile())
+    openInitFile();
+
+    if(m_ecl_init_file)
     {
-        return false;
+        std::vector<double> fileValues;
+
+        size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
+        size_t i;
+        for (i = 0; i < numOccurrences; i++)
+        {
+            std::vector<double> partValues;
+            RifEclipseOutputFileTools::keywordData(m_ecl_init_file, result, i, &partValues);
+            fileValues.insert(fileValues.end(), partValues.begin(), partValues.end());
+        }
+
+        extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
     }
-
-    CVF_ASSERT(m_ecl_init_file);
-
-    std::vector<double> fileValues;
-
-    size_t numOccurrences = ecl_file_get_num_named_kw(m_ecl_init_file, result.toAscii().data());
-    size_t i;
-    for (i = 0; i < numOccurrences; i++)
-    {
-        std::vector<double> partValues;
-        RifEclipseOutputFileTools::keywordData(m_ecl_init_file, result, i, &partValues);
-        fileValues.insert(fileValues.end(), partValues.begin(), partValues.end());
-    }
-
-    extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
 
     return true;
 }
@@ -706,19 +695,16 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
         m_dynamicResultsAccess = createDynamicResultsAccess();
     }
 
-    if (m_dynamicResultsAccess.isNull())
+    if (m_dynamicResultsAccess.notNull())
     {
-        CVF_ASSERT(false);
-        return false;
-    }
+        std::vector<double> fileValues;
+        if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
+        {
+            return false;
+        }
 
-    std::vector<double> fileValues;
-    if (!m_dynamicResultsAccess->results(result, stepIndex, m_eclipseCase->mainGrid()->gridCount(), &fileValues))
-    {
-        return false;
+        extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
     }
-
-    extractResultValuesBasedOnPorosityModel(matrixOrFracture, values, fileValues);
 
     return true;
 }
@@ -1016,24 +1002,18 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityMod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifReaderEclipseOutput::openInitFile()
+void RifReaderEclipseOutput::openInitFile()
 {
     if (m_ecl_init_file)
     {
-        return true;
+        return;
     }
 
     QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType(m_filesWithSameBaseName, ECL_INIT_FILE);
     if (initFileName.size() > 0)
     {
-        m_ecl_init_file = ecl_file_open(initFileName.toAscii().data());
-        if (m_ecl_init_file)
-        {
-            return true;
-        }
+        m_ecl_init_file = ecl_file_open(initFileName.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     }
-
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

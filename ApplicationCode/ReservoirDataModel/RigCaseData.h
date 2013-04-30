@@ -63,6 +63,7 @@ public:
     const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
 
     cvf::UByteArray*                            wellCellsInGrid(size_t gridIndex);
+    cvf::UIntArray*                             gridCellToWellIndex(size_t gridIndex);
 
     RigCell&                                    cellFromWellResultCell(const RigWellResultCell& wellResultCell);
     bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
@@ -73,7 +74,6 @@ private:
     void                                        computeActiveCellIJKBBox();
     void                                        computeWellCellsPrGrid();
     void                                        computeActiveCellsGeometryBoundingBox();
-
 private:
     cvf::ref<RigMainGrid>                       m_mainGrid;
 
@@ -85,4 +85,5 @@ private:
 
     cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
+    cvf::Collection<cvf::UIntArray>             m_gridCellToWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
 };

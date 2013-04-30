@@ -29,18 +29,21 @@
 
 void kw_list(const char *filename) {
   fortio_type *fortio;
-  bool fmt_file = ecl_util_fmt_file(filename);
   ecl_kw_type * ecl_kw = ecl_kw_alloc_empty();
-
-  printf("-----------------------------------------------------------------\n");
-  printf("%s: \n",filename); 
-  fortio = fortio_open_reader(filename , fmt_file , ECL_ENDIAN_FLIP);  
-  while(  ecl_kw_fread_realloc(ecl_kw , fortio) ) 
-    ecl_kw_summarize(ecl_kw);
-  printf("-----------------------------------------------------------------\n");
-
-  ecl_kw_free(ecl_kw);
-  fortio_fclose(fortio);
+  bool fmt_file;
+  if (ecl_util_fmt_file(filename , &fmt_file)) {
+    
+    printf("-----------------------------------------------------------------\n");
+    printf("%s: \n",filename); 
+    fortio = fortio_open_reader(filename , fmt_file , ECL_ENDIAN_FLIP);  
+    while(  ecl_kw_fread_realloc(ecl_kw , fortio) ) 
+      ecl_kw_summarize(ecl_kw);
+    printf("-----------------------------------------------------------------\n");
+    
+    ecl_kw_free(ecl_kw);
+    fortio_fclose(fortio);
+  } else
+    fprintf(stderr,"Could not determine formatted/unformatted status of:%s - skipping \n",filename);
 }
 
 

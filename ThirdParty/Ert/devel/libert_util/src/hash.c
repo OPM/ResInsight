@@ -94,31 +94,15 @@ static void __hash_deadlock_abort(hash_type * hash) {
 
 static void __hash_rdlock(hash_type * hash) {
   int lock_error = pthread_rwlock_tryrdlock( &hash->rwlock );
-  if (lock_error != 0) {
-    /* We did not get the lock - let us check why: */
-    if (lock_error == EDEADLK)
-      /* A deadlock is detected - we just abort. */
-      __hash_deadlock_abort(hash);
-    else 
-      /* We ignore all other error conditions than DEADLOCK and just try again. */
-      pthread_rwlock_rdlock( &hash->rwlock );
-  }
-  /* Ok - when we are here - we are guranteed to have the lock. */
+  if (lock_error != 0) 
+    util_abort("%s: did not get hash->read_lock - fix locking in calling scope\n",__func__);
 }
 
 
 static void __hash_wrlock(hash_type * hash) {
   int lock_error = pthread_rwlock_trywrlock( &hash->rwlock );
-  if (lock_error != 0) {
-    /* We did not get the lock - let us check why: */
-    if (lock_error == EDEADLK)
-      /* A deadlock is detected - we just abort. */
-      __hash_deadlock_abort(hash);
-    else 
-      /* We ignore all other error conditions than DEADLOCK and just try again. */
-      pthread_rwlock_wrlock( &hash->rwlock );
-  }
-  /* Ok - when we are here - we are guranteed to have the lock. */
+  if (lock_error != 0)
+    util_abort("%s: did not get hash->write_lock - fix locking in calling scope\n",__func__);
 }
 
 

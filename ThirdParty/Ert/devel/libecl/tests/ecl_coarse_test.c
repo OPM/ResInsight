@@ -69,8 +69,8 @@ int main(int argc , char ** argv) {
   char * init_file   = ecl_util_alloc_filename( NULL , case_path , ECL_INIT_FILE , false , 0 );
   
   ecl_grid_type * GRID      = ecl_grid_alloc(egrid_file );
-  ecl_file_type * RST_file  = ecl_file_open( rst_file );
-  ecl_file_type * INIT_file = ecl_file_open( init_file );
+  ecl_file_type * RST_file  = ecl_file_open( rst_file , 0);
+  ecl_file_type * INIT_file = ecl_file_open( init_file , 0);
 
   {
     test_assert_true( ecl_grid_have_coarse_cells( GRID ) );

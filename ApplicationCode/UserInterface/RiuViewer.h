@@ -73,12 +73,22 @@ protected:
     void            paintOverlayItems(QPainter* painter);
     void            keyPressEvent(QKeyEvent* event);
     void            mouseReleaseEvent(QMouseEvent* event);
+    void            mousePressEvent(QMouseEvent* event);
+    void            contextMenuEvent(QContextMenuEvent* event);
 
     void            handlePickAction(int winPosX, int winPosY);
     cvf::Part*      pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint);
 
+private slots:
+    void            slotRangeFilterI();
+    void            slotRangeFilterJ();
+    void            slotRangeFilterK();
+
 private:
     void            updateLegends();
+    void            ijkFromCellIndex(size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k);
+
+private:
     caf::QtMouseState   m_mouseState;
 
     QLabel*         m_InfoLabel;
@@ -98,4 +108,8 @@ private:
 
     caf::PdmPointer<RimReservoirView> m_reservoirView;
 
+    size_t m_currentGridIdx;
+    size_t m_currentCellIndex;
+
+    QPoint m_lastMousePressPosition;
 };

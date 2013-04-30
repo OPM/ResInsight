@@ -33,8 +33,6 @@ RivReservoirPipesPartMgr::RivReservoirPipesPartMgr(RimReservoirView* reservoirVi
     m_reservoirView = reservoirView;
 
     m_scaleTransform = new cvf::Transform();
-
-    m_font = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,10 +91,12 @@ void RivReservoirPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-   if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::FORCE_ALL_OFF) return;
+    if (!m_reservoirView->wellCollection()->active() ) return;
 
-   if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
-   {
+    if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_OFF) return;
+
+    if (m_reservoirView->wellCollection()->wells.size() != m_wellPipesPartMgrs.size())
+    {
         clearGeometryCache();
 
         for (size_t i = 0; i < m_reservoirView->wellCollection()->wells.size(); ++i)
@@ -105,17 +105,17 @@ void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasic
             m_wellPipesPartMgrs.push_back(wppmgr);
             wppmgr->setScaleTransform(m_scaleTransform.p());
 
-            RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i], m_font.p());
+            RivWellHeadPartMgr* wellHeadMgr = new RivWellHeadPartMgr(m_reservoirView, m_reservoirView->wellCollection()->wells[i]);
             m_wellHeadPartMgrs.push_back(wellHeadMgr);
             wellHeadMgr->setScaleTransform(m_scaleTransform.p());
         }
-   }
+    }
 
-   for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
-   {
-       m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
-       m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
-   }
+    for (size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++ wIdx)
+    {
+        m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
+        m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel(model, frameIndex);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

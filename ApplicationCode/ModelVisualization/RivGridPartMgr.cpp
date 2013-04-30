@@ -249,16 +249,36 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 
     if (dataAccessObject.isNull()) return;
 
+ 
     // Outer surface
     if (m_surfaceFaces.notNull())
     {
         m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
-        for(size_t i = 0; i < m_surfaceFacesTextureCoords->size(); ++i)
+        // if this gridpart manager is set to have some transparency, we
+        // interpret it as we are displaying beeing wellcells. The cells are then transparent by default, but
+        // we turn that off for particular cells, if the well pipe is not shown for that cell
+
+        if (m_opacityLevel < 1.0f )
         {
-            if ((*m_surfaceFacesTextureCoords)[i].y() != 1.0f)
+            const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
+            cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
+            const std::vector<size_t>&  quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
+
+            for(size_t i = 0; i < m_surfaceFacesTextureCoords->size(); ++i)
             {
-                if (m_opacityLevel == 1.0f) (*m_surfaceFacesTextureCoords)[i].y() = 0;
+                if ((*m_surfaceFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
+
+                size_t quadIdx = i/4;
+                size_t cellIndex = quadsToGridCells[quadIdx];
+                cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
+                if (wellIndex != cvf::UNDEFINED_UINT)
+                {
+                    if ( !isWellPipeVisible[wellIndex]) 
+                    {
+                        (*m_surfaceFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
+                    }
+                }
             }
         }
 
@@ -280,11 +300,26 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     {
         m_faultGenerator.textureCoordinates(m_faultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
-        for(size_t i = 0; i < m_faultFacesTextureCoords->size(); ++i)
+        if (m_opacityLevel < 1.0f )
         {
-            if ((*m_faultFacesTextureCoords)[i].y() != 1.0f)
+            const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
+            cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
+            const std::vector<size_t>&  quadsToGridCells = m_faultGenerator.quadToGridCellIndices();
+
+            for(size_t i = 0; i < m_faultFacesTextureCoords->size(); ++i)
             {
-                if (m_opacityLevel == 1.0f) (*m_faultFacesTextureCoords)[i].y() = 0;
+                if ((*m_faultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
+
+                size_t quadIdx = i/4;
+                size_t cellIndex = quadsToGridCells[quadIdx];
+                cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
+                if (wellIndex != cvf::UNDEFINED_UINT)
+                {
+                    if ( !isWellPipeVisible[wellIndex]) 
+                    {
+                        (*m_faultFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
+                    }
+                }
             }
         }
 
@@ -312,7 +347,8 @@ void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSl
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
         if (dg) 
         {
-            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot, &m_surfaceGenerator, dg);
+            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot, 
+                                                                          &m_surfaceGenerator, dg, m_grid->gridIndex(), m_opacityLevel );
 
             cvf::ScalarMapper* cellScalarMapper = NULL;
             if (cellResultSlot->hasResult()) cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
@@ -331,7 +367,8 @@ void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSl
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
         if (dg) 
         {
-            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot, &m_faultGenerator, dg);
+            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+                                                                            &m_faultGenerator, dg, m_grid->gridIndex(), m_opacityLevel);
 
             cvf::ScalarMapper* cellScalarMapper = NULL;
             if (cellResultSlot->hasResult()) cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();

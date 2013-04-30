@@ -1040,11 +1040,15 @@ void field_fload_ecl_kw(field_type * field , const char * filename ) {
   ecl_kw_type * ecl_kw;
   
   {
-    bool fmt_file        = ecl_util_fmt_file(filename);
-    fortio_type * fortio = fortio_open_reader(filename , fmt_file , ECL_ENDIAN_FLIP);
-    ecl_kw_fseek_kw(key , true , true , fortio);
-    ecl_kw = ecl_kw_fread_alloc( fortio );
-    fortio_fclose(fortio);
+    bool fmt_file;
+
+    if (ecl_util_fmt_file( filename , &fmt_file)) {
+      fortio_type * fortio = fortio_open_reader(filename , fmt_file , ECL_ENDIAN_FLIP);
+      ecl_kw_fseek_kw(key , true , true , fortio);
+      ecl_kw = ecl_kw_fread_alloc( fortio );
+      fortio_fclose(fortio);
+    } else
+      util_abort("%s: could not determine formatted/unformatted status of file:%s \n",filename);
   }
   
 

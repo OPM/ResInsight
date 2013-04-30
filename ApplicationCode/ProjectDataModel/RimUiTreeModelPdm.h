@@ -61,6 +61,8 @@ public:
     RimReservoirView*           addReservoirView(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     void                        addInputProperty(const QModelIndex& itemIndex, const QStringList& fileNames);
     
+    void                        addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject);
+    
     void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
@@ -78,13 +80,14 @@ public:
     virtual QStringList         mimeTypes() const;
 
     RimIdenticalGridCaseGroup*  gridCaseGroupFromItemIndex(const QModelIndex& itemIndex);
+    void                        setObjectToggleStateForSelection(QModelIndexList selectedIndexes, int state);
 
 private slots:
     void                        slotRefreshScriptTree(QString path);
 
 private:
     void                        clearClipboard();
-
+    RimCase*                    caseFromItemIndex(const QModelIndex& itemIndex);
 private:
     QFileSystemWatcher*         m_scriptChangeDetector;
 };

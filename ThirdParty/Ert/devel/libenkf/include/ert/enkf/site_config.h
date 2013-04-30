@@ -58,6 +58,8 @@ typedef struct site_config_struct site_config_type;
   int                      site_config_get_max_running_rsh( const site_config_type * site_config);
   void                     site_config_set_max_running_local( site_config_type * site_config , int max_running_local);
   int                      site_config_get_max_running_local( const site_config_type * site_config );
+  void                     site_config_set_max_running_torque( site_config_type * site_config , int max_running_torque);
+  int                      site_config_get_max_running_torque( const site_config_type * site_config );
   void                     site_config_setenv( site_config_type * site_config , const char * variable, const char * value);
   hash_type              * site_config_get_env_hash( const site_config_type * site_config );
   void                     site_config_clear_env( site_config_type * site_config );
