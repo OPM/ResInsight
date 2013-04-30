@@ -912,7 +912,17 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         if (this->cellResult()->hasResult())
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
+            
+            if (cellResult->hasStaticResult())
+            {
+                dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
+            }
+            else
+            {
+                dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+            }
+
             if (dataAccessObject.notNull())
             {
                 double scalarValue = dataAccessObject->cellScalar(cellIndex);
