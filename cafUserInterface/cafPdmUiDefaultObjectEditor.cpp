@@ -262,6 +262,8 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                     bool labelOnTop = (labelPos == PdmUiItemInfo::TOP);
                     bool editorSpanBoth = labelOnTop;
 
+                    QWidget* fieldEditorWidget = fieldEditor->editorWidget();
+
                     if (labelPos != PdmUiItemInfo::HIDDEN)
                     {
                         QWidget* fieldLabelWidget  = fieldEditor->labelWidget();
@@ -271,7 +273,12 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
 
                             // Label widget will span two columns if aligned on top
                             int colSpan = labelOnTop ? 2 : 1;
-                            parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
+                            // If the label is on the side, and the editor can expand vertically, allign the label with the top edge of the editor
+                            if (!labelOnTop && (fieldEditorWidget->sizePolicy().verticalPolicy() & QSizePolicy::ExpandFlag))
+                                parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignTop);
+                            else
+                                parentLayout->addWidget(fieldLabelWidget, currentRowIndex, 0, 1, colSpan, Qt::AlignVCenter);
+
                             fieldLabelWidget->show();
 
                             if (labelOnTop) currentRowIndex++;
@@ -284,7 +291,6 @@ void PdmUiDefaultObjectEditor::recursiveSetupFieldsAndGroups(const std::vector<P
                         editorSpanBoth = true; // To span both columns when there is no label
                     }
 
-                    QWidget* fieldEditorWidget = fieldEditor->editorWidget();
 
                     if (fieldEditorWidget)
                     {
