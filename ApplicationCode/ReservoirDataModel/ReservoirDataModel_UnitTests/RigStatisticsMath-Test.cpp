@@ -141,3 +141,44 @@ TEST(RigStatisticsMath, HistogramPercentiles)
     EXPECT_DOUBLE_EQ( 5312.1312871307755  , p50);
     EXPECT_DOUBLE_EQ( 94818.413022321271 , p90);
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigStatisticsMath, InterpolatedPercentiles)
+{
+    std::vector<double> values;
+    values.push_back(HUGE_VAL);
+    values.push_back(2788.2723335651900);
+    values.push_back(-22481.0927881701000);
+    values.push_back(68778.6851686236000);
+    values.push_back(-76092.8157632591000);
+    values.push_back(6391.97999909729003);
+    values.push_back(65930.1200169780000);
+    values.push_back(-27696.2320267235000);
+    values.push_back(HUGE_VAL);
+    values.push_back(HUGE_VAL);
+    values.push_back(96161.7546348456000);
+    values.push_back(73875.6716288563000);
+    values.push_back(80720.4378655615000);
+    values.push_back(-98649.8109937874000);
+    values.push_back(99372.9362079615000);
+    values.push_back(HUGE_VAL);
+    values.push_back(-57020.4389966513000);
+
+
+    std::vector<double> pValPos;
+    pValPos.push_back(10);
+    pValPos.push_back(40);
+    pValPos.push_back(50);
+    pValPos.push_back(90);
+    std::vector<double> pVals = RigStatisticsMath::calculateInterpolatedPercentiles(values, pValPos);
+
+    /*
+    EXPECT_DOUBLE_EQ( -76092.8157632591000, pVals[0]);
+    EXPECT_DOUBLE_EQ( 2788.2723335651900  , pVals[1]);
+    EXPECT_DOUBLE_EQ( 6391.979999097290   , pVals[2]);
+    EXPECT_DOUBLE_EQ( 96161.7546348456000 , pVals[3]);
+    */
+}

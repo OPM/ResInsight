@@ -19,6 +19,7 @@
 #include "RigStatisticsMath.h"
 #include <algorithm>
 #include <assert.h>
+#include <math.h>
 
 //--------------------------------------------------------------------------------------------------
 /// A function to do basic statistical calculations 
@@ -113,6 +114,56 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std
 
     return percentiles;
 };
+
+//--------------------------------------------------------------------------------------------------
+/// Calculate the percentiles of /a inputValues at the pValPosition percentages by interpolating input values.
+/// This method treats HUGE_VAL as "undefined" values, and ignores these. Will return HUGE_VAL if
+/// the inputValues does not contain any valid values
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const std::vector<double> & inputValues, const std::vector<double>& pValPositions)
+{
+    std::vector<double> sortedValues;
+    sortedValues.reserve(inputValues.size());
+
+    for (size_t i = 0; i < inputValues.size(); ++i)
+    {
+        if (inputValues[i] != HUGE_VAL)
+        {
+            sortedValues.push_back(inputValues[i]);
+        }
+    }
+
+    std::sort(sortedValues.begin(), sortedValues.end());
+
+    std::vector<double> percentiles(pValPositions.size(), HUGE_VAL);
+    if (sortedValues.size())
+    {
+        for (size_t i = 0; i < pValPositions.size(); ++i)
+        {
+            double pVal = HUGE_VAL;
+
+            double doubleIndex = sortedValues.size() * fabs(pValPositions[i]) / 100.0;
+
+            size_t lowerValueIndex = static_cast<size_t>(floor(doubleIndex));
+            size_t upperValueIndex = lowerValueIndex + 1;
+
+            if (lowerValueIndex >= sortedValues.size() ) lowerValueIndex = sortedValues.size() - 1;
+            if (upperValueIndex >= sortedValues.size() ) upperValueIndex = sortedValues.size() - 1;
+
+            double upperValueWeight = 1.0;
+            if (lowerValueIndex != upperValueIndex)
+            {
+                upperValueWeight = doubleIndex - lowerValueIndex;
+                assert(upperValueWeight < 1.0);
+            }
+
+            pVal = (1.0 - upperValueWeight) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
+            percentiles[i] = pVal;
+        }
+    }
+
+    return percentiles;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

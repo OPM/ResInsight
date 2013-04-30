@@ -284,6 +284,17 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                                     statParams[PMID] = histCalc.calculatePercentil(m_statisticsConfig.m_pMidPos);
                                     statParams[PMAX] = histCalc.calculatePercentil(m_statisticsConfig.m_pMaxPos);
                                 }
+                                else if (m_statisticsConfig.m_pValMethod == RimStatisticsCase::INTERPOLATED_OBSERVATION)
+                                {
+                                    std::vector<double> pValPoss;
+                                    pValPoss.push_back(m_statisticsConfig.m_pMinPos);
+                                    pValPoss.push_back(m_statisticsConfig.m_pMidPos);
+                                    pValPoss.push_back(m_statisticsConfig.m_pMaxPos);
+                                    std::vector<double> pVals = RigStatisticsMath::calculateInterpolatedPercentiles(values, pValPoss);
+                                    statParams[PMIN] = pVals[0];
+                                    statParams[PMID] = pVals[1];
+                                    statParams[PMAX] = pVals[2];
+                                }
                                 else
                                 {
                                     CVF_ASSERT(false);
