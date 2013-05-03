@@ -127,7 +127,7 @@ private:
     void		        onProjectOpenedOrClosed();
     void		        setWindowCaptionFromAppState();
     
-   
+    QImage              grabFrameBufferImage();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);

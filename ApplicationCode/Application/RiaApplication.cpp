@@ -1164,9 +1164,9 @@ void RiaApplication::saveSnapshotPromtpForFilename()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::saveSnapshotAs(const QString& fileName)
 {
-    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    QImage image = grabFrameBufferImage();
+    if (!image.isNull())
     {
-        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
         if (image.save(fileName))
         {
             qDebug() << "Saved snapshot image to " << fileName;
@@ -1183,12 +1183,11 @@ void RiaApplication::saveSnapshotAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::copySnapshotToClipboard()
 {
-    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    QClipboard* clipboard = QApplication::clipboard();
+    if (clipboard)
     {
-        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
-
-        QClipboard* clipboard = QApplication::clipboard();
-        if (clipboard)
+        QImage image = grabFrameBufferImage();
+        if (!image.isNull())
         {
             clipboard->setImage(image);
         }
@@ -1478,4 +1477,26 @@ cvf::Font* RiaApplication::standardFont()
     // instead of using the application font
 
     return m_standardFont.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage RiaApplication::grabFrameBufferImage()
+{
+    QImage image;
+    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    {
+        m_activeReservoirView->viewer()->repaint();
+
+        GLint currentReadBuffer;
+        glGetIntegerv(GL_READ_BUFFER, &currentReadBuffer);
+
+        glReadBuffer(GL_FRONT);
+        image = m_activeReservoirView->viewer()->grabFrameBuffer();
+
+        glReadBuffer(currentReadBuffer);
+    }
+
+    return image;
 }
