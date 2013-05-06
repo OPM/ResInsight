@@ -80,7 +80,7 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
     {
         RimCellRangeFilter* rangeFilter = *it;
 
-        if (rangeFilter && rangeFilter->active && rangeFilter->gridIndex() == grid->gridIndex())
+        if (rangeFilter && rangeFilter->active() && static_cast<size_t>(rangeFilter->gridIndex()) == grid->gridIndex())
         {
             if (rangeFilter->filterMode == RimCellFilter::INCLUDE)
             {

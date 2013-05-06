@@ -16,18 +16,20 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
-
 #include "RimLegendConfig.h"
+
 #include "RimReservoirView.h"
 #include "cafFactory.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+
 #include "cvfScalarMapperDiscreteLog.h"
 #include "cvfScalarMapperContinuousLog.h"
 #include "cvfScalarMapperContinuousLinear.h"
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfScalarMapperDiscreteLinear.h"
+#include <cmath>
+
 #include "RiaApplication.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfColor.h"

@@ -280,7 +280,7 @@ RigGridBase* RimCellRangeFilter::selectedGrid()
     CVF_ASSERT(mainGrid);
 
     RigGridBase* grid = NULL;
-    if (gridIndex() >= mainGrid->gridCount())
+    if (static_cast<size_t>(gridIndex()) >= mainGrid->gridCount())
     {
         gridIndex = 0;
     }

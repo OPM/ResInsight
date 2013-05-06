@@ -1510,7 +1510,7 @@ void RiuMainWindow::updateScaleValue()
     {
         m_scaleFactor->setEnabled(true);
 
-        int scaleValue = RiaApplication::instance()->activeReservoirView()->scaleZ();
+        int scaleValue = static_cast<int>(RiaApplication::instance()->activeReservoirView()->scaleZ()); // Round down is probably ok.
         m_scaleFactor->blockSignals(true);
         m_scaleFactor->setValue(scaleValue);
         m_scaleFactor->blockSignals(false);
