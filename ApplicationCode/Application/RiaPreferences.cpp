@@ -18,7 +18,9 @@
 
 #include "RiaStdInclude.h"
 #include "RiaPreferences.h"
+
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmFieldCvfColor.h"
 
 CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------

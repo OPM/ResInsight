@@ -19,6 +19,9 @@
 #pragma once
 
 #include <QDateTime>
+
+#include "cvfBase.h"
+#include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafAppEnum.h"

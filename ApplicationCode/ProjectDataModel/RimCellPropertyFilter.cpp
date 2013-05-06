@@ -16,16 +16,14 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-#include "RimReservoirView.h"
 #include "RimCellPropertyFilter.h"
+#include "RimResultDefinition.h"
+#include "cvfMath.h"
+
 #include "RimCellPropertyFilterCollection.h"
-#include "RigGridBase.h"
 #include "RigCaseCellResultsData.h"
-
 #include "cafPdmUiDoubleSliderEditor.h"
-
+#include "RimReservoirCellResultsCacher.h"
 
 
 namespace caf

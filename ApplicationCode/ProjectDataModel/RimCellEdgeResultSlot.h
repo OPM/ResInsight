@@ -19,11 +19,13 @@
 #pragma once
 
 #include "cafPdmObject.h"
-#include "RimLegendConfig.h"
+#include "cafPdmField.h"
 #include "cafAppEnum.h"
 #include "RimDefines.h"
 
 class RigCaseCellResultsData;
+class RimLegendConfig;
+class RimReservoirView;
 
 namespace caf
 {

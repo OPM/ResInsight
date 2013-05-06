@@ -19,11 +19,15 @@
 #pragma once
 
 #include "cafPdmDocument.h"
-#include "RimScriptCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
+//#include "RimScriptCollection.h"
+//#include "RimIdenticalGridCaseGroup.h"
 
 class RimCase;
 class RigGridManager;
+class RimScriptCollection;
+class RimIdenticalGridCaseGroup;
+class RigMainGrid;
+class RigCaseData;
 
 //==================================================================================================
 ///  

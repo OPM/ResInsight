@@ -41,6 +41,20 @@
 #include "RimCase.h"
 #include "RigCaseData.h"
 #include "RimMimeData.h"
+#include "RimCaseCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimProject.h"
+#include "RimScriptCollection.h"
+#include "RimWellCollection.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirCellResultsCacher.h"
+
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

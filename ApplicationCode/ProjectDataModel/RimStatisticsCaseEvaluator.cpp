@@ -15,7 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RiaStdInclude.h"
+//#include "RiaStdInclude.h"
 
 #include "RimStatisticsCaseEvaluator.h"
 #include "RigCaseCellResultsData.h"
@@ -23,6 +23,17 @@
 #include "RimCase.h"
 #include "RigCaseData.h"
 #include "RigStatisticsMath.h"
+#include "RimReservoirCellResultsCacher.h"
+
+
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 //#include "RigCaseData.h"
 #include <QDebug>

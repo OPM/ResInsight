@@ -18,8 +18,12 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
 #include "RiaApplication.h"
+
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
+#include "cafAppEnum.h"
+
 
 class RiaPreferences : public caf::PdmObject
 {

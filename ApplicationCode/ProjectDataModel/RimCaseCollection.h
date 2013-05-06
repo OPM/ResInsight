@@ -18,13 +18,11 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimStatisticsCase.h"
-
+class RimCase;
+class RimIdenticalGridCaseGroup;
 
 //==================================================================================================
 //

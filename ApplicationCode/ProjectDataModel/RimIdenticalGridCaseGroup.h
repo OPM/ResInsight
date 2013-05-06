@@ -23,8 +23,11 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimStatisticsCaseCollection.h"
-#include "RimCaseCollection.h"
+#include "RifReaderInterface.h"
+
+//#include "RimStatisticsCaseCollection.h"
+class RimCaseCollection;
+class RimStatisticsCase;
 
 class RimCase;
 class RigMainGrid;

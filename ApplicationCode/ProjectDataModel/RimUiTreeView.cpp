@@ -16,9 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
+//#include "RiaStdInclude.h"
 
 #include "cafPdmDocument.h"
+
+#include <QAction>
+#include <QMenu>
+#include <QContextMenuEvent>
+#include <QMessageBox>
+#include <QFileInfo>
+#include <QFileDialog>
+#include <QClipboard>
 
 #include "RimUiTreeView.h"
 #include "RimUiTreeModelPdm.h"
@@ -37,6 +45,22 @@
 #include "RimStatisticsCase.h"
 #include "RimResultCase.h"
 #include "RimMimeData.h"
+
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimResultSlot.h"
+#include "RimStatisticsCaseCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimCaseCollection.h"
+#include "RimScriptCollection.h"
+#include "RimWell.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimWellCollection.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "Rim3dOverlayInfoConfig.h"
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

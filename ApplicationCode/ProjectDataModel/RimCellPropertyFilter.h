@@ -25,7 +25,7 @@
 
 #include "RimDefines.h"
 #include "RimCellFilter.h"
-#include "cvfStructGridGeometryGenerator.h"
+//#include "cvfStructGridGeometryGenerator.h"
 
 class RimReservoirView;
 class RimCellPropertyFilterCollection;

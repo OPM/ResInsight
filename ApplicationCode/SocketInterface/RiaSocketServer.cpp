@@ -16,21 +16,39 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+#include "RiaSocketServer.h"
 
 #include <QtGui>
 #include <QtNetwork>
 
 #include <stdlib.h>
 
-#include "RiaSocketServer.h"
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
-#include "RimCase.h"
+#include "RimReservoirView.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimInputCase.h"
+#include "RimInputProperty.h"
+#include "RimInputPropertyCollection.h"
+
+#include "RimUiTreeModelPdm.h"
+
+#include "RimResultSlot.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
+#include "RimScriptCollection.h"
+#include "RimCaseCollection.h"
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
-#include "RimInputProperty.h"
-#include "RimInputCase.h"
-#include "RimUiTreeModelPdm.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

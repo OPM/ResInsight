@@ -19,6 +19,13 @@
 #include "RiaStdInclude.h"
 
 #include "RimProject.h"
+#include "cafAppEnum.h"
+#include "RimReservoirView.h"
+
+
+#include "RimScriptCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+
 #include "RiaApplication.h"
 #include "RiaVersionInfo.h"
 
@@ -26,6 +33,17 @@
 #include "RigCaseData.h"
 #include "RimResultCase.h"
 
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
+#include "RimCaseCollection.h"
+#include "RimResultSlot.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------

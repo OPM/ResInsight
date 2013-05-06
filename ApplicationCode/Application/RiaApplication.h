@@ -17,17 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QProcess>
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
-
-#include "cvfScalarMapperUniformLevels.h"
-#include "cvfOverlayScalarMapperLegend.h"
-#include "RimReservoirView.h"
+#include "cvfFont.h"
 
 #include <iostream>
-#include "RimProject.h"
 
 class RIProcess;
 class RigCaseData;
@@ -35,6 +33,8 @@ class RimCase;
 class Drawable;
 class RiaSocketServer;
 class RiaPreferences;
+class RimReservoirView;
+class RimProject;
 
 namespace caf
 {
@@ -68,7 +68,7 @@ public:
     RimReservoirView*       activeReservoirView();
     const RimReservoirView* activeReservoirView() const;
 
-    RimProject*         project() {return m_project;} 
+    RimProject*         project(); 
 
     void                createMockModel();
     void                createResultsMockModel();

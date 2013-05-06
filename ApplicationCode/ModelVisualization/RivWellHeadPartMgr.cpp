@@ -35,6 +35,18 @@
 #include "cvfqtUtils.h"
 
 #include "RimReservoirView.h"
+#include "RimWellCollection.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimResultSlot.h"
+#include "RimLegendConfig.h"
+
+#include "RimCase.h"
+#include "RimWell.h"
 
 #include "RigCaseData.h"
 #include "RigCell.h"

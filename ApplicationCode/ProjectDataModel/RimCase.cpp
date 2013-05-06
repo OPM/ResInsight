@@ -16,13 +16,28 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
+//#include "RiaStdInclude.h"
+#include "RimCase.h"
+
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
 
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderMockModel.h"
 
-#include "RimCase.h"
 #include "RimReservoirView.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimCellRangeFilter.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilter.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimWellCollection.h"
+
+#include "RimScriptCollection.h"
 
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
@@ -30,11 +45,17 @@
 
 #include "cvfAssert.h"
 
+#include "cafPdmFieldCvfColor.h"
+
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <QString>
 #include "RimProject.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "RimResultSlot.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCaseCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 

@@ -16,10 +16,29 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-#include "RiuViewer.h"
-
+//#include "RiaStdInclude.h"
 #include "RimReservoirView.h"
+#include "RiuViewer.h"
+#include "cvfViewport.h" 
+#include "cvfModelBasicList.h"
+#include "cvfPart.h"
+#include "cvfDrawable.h"
+#include "cvfScene.h"
+
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include <QMessageBox>
+
+
+#include "RimCase.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilter.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilter.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+
 #include "RiuMainWindow.h"
 #include "RigGridBase.h"
 #include "RigCaseData.h"
@@ -28,13 +47,10 @@
 
 #include "cafEffectGenerator.h"
 #include "cafFrameAnimationControl.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
 
 #include "cvfStructGridGeometryGenerator.h"
 #include "RigCaseCellResultsData.h"
 #include "RivCellEdgeEffectGenerator.h"
-#include "RimCellEdgeResultSlot.h"
 #include "cvfqtUtils.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RivReservoirPipesPartMgr.h"
@@ -44,6 +60,8 @@
 #include "RimCase.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RigGridScalarDataAccess.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "cvfOverlayScalarMapperLegend.h"
 
 namespace caf {
 

@@ -17,30 +17,44 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
-#include "RiaBaseDefs.h"
 
-#include "RiaApplication.h"
 #include "RiuMainWindow.h"
+#include "RiaApplication.h"
+
+#include "RimProject.h"
+#include "RimReservoirView.h"
+#include "RimUiTreeView.h"
+#include "RimCase.h"
+#include "RimResultSlot.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimCaseCollection.h"
+
+#include "RimUiTreeModelPdm.h"
+
+#include "RiaBaseDefs.h"
 #include "RiuViewer.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuProcessMonitor.h"
+#include "RiuMultiCaseImportDialog.h"
+
 #include "RiaPreferences.h"
 #include "RiuPreferencesDialog.h"
 
-#include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
-#include "RimCase.h"
-#include "RimUiTreeModelPdm.h"
 
-#include "cvfqtBasicAboutDialog.h"
-#include "cafUtils.h"
-
-#include "cafFrameAnimationControl.h"
 #include "cafAnimationToolBar.h"
-
 #include "cafPdmUiPropertyView.h"
-#include "RimUiTreeView.h"
-#include "RiuMultiCaseImportDialog.h"
+#include "cvfqtBasicAboutDialog.h"
+
+#include "cafPdmFieldCvfMat4d.h"
+
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimScriptCollection.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 
 

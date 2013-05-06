@@ -19,24 +19,33 @@
 #include "RiaStdInclude.h"
 
 #include "RiuViewer.h"
+
 #include "RiaApplication.h"
 #include "RiuMainWindow.h"
 
-#include "cvfqtOpenGLContext.h"
-#include "cvfqtPerformanceInfoHud.h"
-#include "cvfCamera.h"
-#include "cvfRendering.h"
-#include "cvfDrawableGeo.h"
-#include "RiuCursors.h"
-#include "RigCaseData.h"
+#include "RimReservoirView.h"
 
-#include "cafUtils.h"
-#include "cafFrameAnimationControl.h"
-#include "cafNavigationPolicy.h"
-#include "cafEffectGenerator.h"
-#include "RiuSimpleHistogramWidget.h"
+#include "RimCase.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
+
 #include "RimUiTreeModelPdm.h"
 
+#include "RimReservoirCellResultsCacher.h"
+
+#include "RigCaseData.h"
+
+#include "RiuSimpleHistogramWidget.h"
+
+#include "cafNavigationPolicy.h"
+#include "cafEffectGenerator.h"
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
 
 using cvf::ManipulatorTrackball;
 

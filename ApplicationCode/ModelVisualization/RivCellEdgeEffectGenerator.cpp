@@ -44,6 +44,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "RimCase.h"
+
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 
@@ -53,7 +55,16 @@
 #include "RigCaseData.h"
 #include "RigActiveCellInfo.h"
 
+#include "RimReservoirCellResultsCacher.h"
 
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

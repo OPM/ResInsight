@@ -17,46 +17,56 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+#include "RiaApplication.h"
 
-#include "cafLog.h"
 #include "cafEffectCache.h"
 #include "cafUtils.h"
-
-#include "cvfPart.h"
-
-#include "cvfStructGridGeometryGenerator.h"
+#include "cafAppEnum.h"
 
 #include "RiaVersionInfo.h"
 #include "RiaBaseDefs.h"
-
-#include "RiaApplication.h"
+//
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuProcessMonitor.h"
 #include "RiaPreferences.h"
-
+//
 #include "RimResultCase.h"
 #include "RimInputCase.h"
 #include "RimReservoirView.h"
-
-#include "RigCaseData.h"
-#include "RigCell.h"
-#include "RigReservoirBuilderMock.h"
-
-#include <QSettings>
-#include "cafPdmDocument.h"
-#include "RifReaderMockModel.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
 #include "RiaSocketServer.h"
 #include "cafUiProcess.h"
-
+//
 #include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "cafProgressInfo.h"
 #include "RigGridManager.h"
+
+#include "RimProject.h"
+
+#include "RimResultSlot.h"
+
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimInputPropertyCollection.h"
+
+#include "RimDefines.h"
+#include "RimScriptCollection.h"
+#include "RimCaseCollection.h"
+
+////////////
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
 
 namespace caf
 {
@@ -1183,9 +1193,9 @@ void RiaApplication::saveSnapshotAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::copySnapshotToClipboard()
 {
-    QClipboard* clipboard = QApplication::clipboard();
-    if (clipboard)
-    {
+        QClipboard* clipboard = QApplication::clipboard();
+        if (clipboard)
+        {
         QImage image = grabFrameBufferImage();
         if (!image.isNull())
         {
@@ -1499,4 +1509,12 @@ QImage RiaApplication::grabFrameBufferImage()
     }
 
     return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimProject* RiaApplication::project()
+{
+    return m_project;
 }

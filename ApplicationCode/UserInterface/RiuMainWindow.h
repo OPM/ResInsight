@@ -18,9 +18,10 @@
 
 #pragma once
 
-#include <QtGui/QMainWindow>
-#include "qevent.h"
 #include "cafUiTreeModelPdm.h"
+
+#include <QMainWindow>
+#include <QEvent>
 #include <QPointer>
 
 class QTreeView;

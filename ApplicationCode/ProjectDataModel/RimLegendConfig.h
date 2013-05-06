@@ -17,17 +17,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector2.h"
+#include "cvfArray.h"
 
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafPdmField.h"
+#include "cafPdmPointer.h"
 #include "cafAppEnum.h"
-#include "cvfScalarMapperContinuousLog.h"
-#include "cvfScalarMapperContinuousLinear.h"
-#include "cvfOverlayScalarMapperLegend.h"
-#include "cvfScalarMapperDiscreteLinear.h"
+
+namespace cvf
+{
+    class ScalarMapperContinuousLog;
+    class ScalarMapperContinuousLinear;
+    class OverlayScalarMapperLegend;
+    class ScalarMapperDiscreteLinear;
+    class ScalarMapperDiscreteLog;
+    class ScalarMapper;
+}
 
 class RimReservoirView;
+
 //==================================================================================================
 ///  
 ///  
