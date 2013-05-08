@@ -38,36 +38,38 @@ class RimProject : public caf::PdmDocument
      CAF_PDM_HEADER_INIT;
 
 public:
+    RimProject(void);
+    virtual ~RimProject(void);
+
     caf::PdmPointersField<RimCase*>                     reservoirs;
     caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
+    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
 
-    void setScriptDirectories(const QString& scriptDirectories);
+    void            setScriptDirectories(const QString& scriptDirectories);
+    QString         projectFileVersionString() const;
+    void            close();
 
-    QString projectFileVersionString() const;
+    RimIdenticalGridCaseGroup* 
+                    createIdenticalCaseGroupFromMainCase(RimCase* mainCase);
+    void            insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
+    void            moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
+    void            removeCaseFromAllGroups(RimCase* rimReservoir);
 
-    RimProject(void);
-    virtual ~RimProject(void);
+    void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
 
-    void close();
-
-    RimIdenticalGridCaseGroup* createIdenticalCaseGroupFromMainCase(RimCase* mainCase);
-    void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
-
-    void moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
-    void removeCaseFromAllGroups(RimCase* rimReservoir);
-
-    void setProjectFileNameAndUpdateDependencies(const QString& fileName);
+    void            assignCaseIdToCase(RimCase* reservoirCase);
     
 private:
-    RigMainGrid* registerCaseInGridCollection(RigCaseData* rigEclipseCase);
+    RigMainGrid*    registerCaseInGridCollection(RigCaseData* rigEclipseCase);
+    void            allCases(std::vector<RimCase*>& cases);
 
 protected:
     // Overridden methods
-    virtual void initAfterRead();
-    virtual void setupBeforeSave();
+    virtual void    initAfterRead();
+    virtual void    setupBeforeSave();
 
 private:
     caf::PdmField<QString>      m_projectFileVersionString;

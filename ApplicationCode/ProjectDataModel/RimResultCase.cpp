@@ -303,8 +303,11 @@ void RimResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath
 //--------------------------------------------------------------------------------------------------
 void RimResultCase::setCaseInfo(const QString& userDescription, const QString& caseFileName)
 {
-    this->caseUserDescription      = userDescription;
-    this->caseFileName  = caseFileName;
+    this->caseUserDescription = userDescription;
+    this->caseFileName = caseFileName;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    proj->assignCaseIdToCase(this);
 }
 
 //--------------------------------------------------------------------------------------------------

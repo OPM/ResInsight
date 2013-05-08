@@ -48,6 +48,7 @@ public:
 
     // Fields:                                        
     caf::PdmField<QString>                      caseUserDescription;
+    caf::PdmField<int>                          caseId;
     caf::PdmField<bool>                         releaseResultMemory;
     caf::PdmPointersField<RimReservoirView*>    reservoirViews;
     caf::PdmField<bool>                         flipXAxis;

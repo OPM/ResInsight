@@ -331,6 +331,8 @@ void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     updatePercentileUiVisibility();
 
     uiOrdering.add(&caseUserDescription);
+    
+    uiOrdering.add(&caseId);
     uiOrdering.add(&m_calculateEditCommand);
     uiOrdering.add(&m_selectionSummary);
 

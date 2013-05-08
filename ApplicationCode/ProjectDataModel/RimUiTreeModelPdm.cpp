@@ -558,7 +558,10 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
     {
         beginInsertRows(collectionIndex, position, position);
 
+        RimProject* proj = RiaApplication::instance()->project();
         RimStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
+        proj->assignCaseIdToCase(createdObject);
+
         caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);
 
         endInsertRows();
@@ -596,7 +599,8 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
     beginInsertRows(rootIndex, position, position);
 
     RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
-    createdObject->createAndAppendStatisticsCase();
+    RimCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
+    proj->assignCaseIdToCase(createdReservoir);
     createdObject->name = QString("Grid Case Group %1").arg(position + 1);
     proj->caseGroups().push_back(createdObject);
 
@@ -643,6 +647,8 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
             RimResultCase* rimResultReservoir = typedObjects[i];
+
+            proj->assignCaseIdToCase(rimResultReservoir);
 
             if (gridCaseGroup->contains(rimResultReservoir))
             {

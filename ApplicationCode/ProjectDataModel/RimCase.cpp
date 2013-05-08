@@ -65,6 +65,10 @@ CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 RimCase::RimCase()
 {
     CAF_PDM_InitField(&caseUserDescription, "CaseUserDescription",  QString(), "Case name", "", "" ,"");
+    
+    CAF_PDM_InitField(&caseId, "CaseId", -1, "Case ID", "", "" ,"");
+    caseId.setUiReadOnly(true);
+
     CAF_PDM_InitFieldNoDefault(&reservoirViews, "ReservoirViews", "",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_matrixModelResults, "MatrixModelResults", "",  "", "", "");

@@ -563,6 +563,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
+    m_project->assignCaseIdToCase(rimInputReservoir);
+
     rimInputReservoir->caseUserDescription = caseName;
     rimInputReservoir->openDataFileSet(caseFileNames);
 

@@ -44,6 +44,7 @@
 #include "RimWellCollection.h"
 #include "RimCaseCollection.h"
 #include "RimResultSlot.h"
+#include "RimStatisticsCase.h"
 
 CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
@@ -53,6 +54,9 @@ RimProject::RimProject(void)
 {
     CAF_PDM_InitFieldNoDefault(&m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "");
     m_projectFileVersionString.setUiHidden(true);
+
+    CAF_PDM_InitField(&nextValidCaseId, "NextValidCaseId", 0, "Next Valid Case ID", "", "" ,"");
+    nextValidCaseId.setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
@@ -96,6 +100,8 @@ void RimProject::close()
     caseGroups.deleteAllChildObjects();
 
     fileName = "";
+
+    nextValidCaseId = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +116,35 @@ void RimProject::initAfterRead()
     QString scriptDirectories = app->scriptDirectories();
 
     this->setScriptDirectories(scriptDirectories);
+
+    // Find largest used caseId read from file
+    int largestCaseId = -1;
+
+    std::vector<RimCase*> cases;
+    allCases(cases);
+    
+    for (size_t i = 0; i < cases.size(); i++)
+    {
+        if (cases[i]->caseId > largestCaseId)
+        {
+            largestCaseId = cases[i]->caseId;
+        }
+    }
+
+    if (largestCaseId > nextValidCaseId)
+    {
+        nextValidCaseId = largestCaseId + 1;
+    }
+
+    // Assign case Id to cases with an invalid case Id
+    for (size_t i = 0; i < cases.size(); i++)
+    {
+        if (cases[i]->caseId < 0)
+        {
+            assignCaseIdToCase(cases[i]);
+        }
+    }
+
 }
 
 
@@ -167,7 +202,9 @@ RimIdenticalGridCaseGroup* RimProject::createIdenticalCaseGroupFromMainCase(RimC
     CVF_ASSERT(equalGrid);
 
     RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
-    group->createAndAppendStatisticsCase();
+    RimCase* createdCase = group->createAndAppendStatisticsCase();
+    assignCaseIdToCase(createdCase);
+
     group->addCase(mainCase);
     caseGroups().push_back(group);
 
@@ -288,29 +325,57 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
     // Replace with the new actual filename
     this->fileName = fileName;
 
-    // Loop over all reservoirs and update file path
-
     QFileInfo fileInfo(fileName);
     QString newProjectPath = fileInfo.path();
 
     QFileInfo fileInfoOld(oldProjectFileName);
     QString oldProjectPath = fileInfoOld.path();
 
+    // Loop over all reservoirs and update file path
 
+    std::vector<RimCase*> cases;
+    allCases(cases);
+    for (size_t i = 0; i < cases.size(); i++)
+    {
+        cases[i]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignCaseIdToCase(RimCase* reservoirCase)
+{
+    if (reservoirCase)
+    {
+        reservoirCase->caseId = nextValidCaseId;
+
+        nextValidCaseId = nextValidCaseId + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::allCases(std::vector<RimCase*>& cases)
+{
     for (size_t i = 0; i < reservoirs.size(); i++)
     {
-        reservoirs[i]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+        cases.push_back(reservoirs[i]);
     }
-
-    // Case groups : Loop over all reservoirs in  and update file path
 
     for (size_t i = 0; i < caseGroups.size(); i++)
     {
         RimIdenticalGridCaseGroup* cg = caseGroups()[i];
 
-        for (size_t j = 0; j < cg->caseCollection()->reservoirs().size(); j++)
+        for (size_t i = 0; i < cg->statisticsCaseCollection()->reservoirs.size(); i++)
         {
-            cg->caseCollection()->reservoirs()[j]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
+            cases.push_back(cg->statisticsCaseCollection()->reservoirs[i]);
+        }
+
+        for (size_t i = 0; i < cg->caseCollection()->reservoirs.size(); i++)
+        {
+            cases.push_back(cg->caseCollection()->reservoirs[i]);
         }
     }
 }
