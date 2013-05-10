@@ -63,6 +63,8 @@
 #include "RimReservoirCellResultsCacher.h"
 #include "cvfOverlayScalarMapperLegend.h"
 
+#include <limits.h>
+
 namespace caf {
 
 template<>
