@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <signal.h>
 
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
@@ -40,19 +41,35 @@ void create_workflow( const char * workflow_file , const char * tmp_file , int v
 }
 
 
-void read_file( void * self , const stringlist_type * args) {
+void create_error_workflow( const char * workflow_file , const char * tmp_file , int value) {
+  FILE * stream  = util_fopen( workflow_file , "w");
+  fprintf(stream , "CREATE_FILE   %s   %d\n" , tmp_file , value);
+  fprintf(stream , "XREAD_FILE     %s\n" , tmp_file );
+  fclose( stream );
+  
+  printf("Have created:%s \n",workflow_file );
+}
+
+
+void * read_file( void * self , const stringlist_type * args) {
   printf("Running read_file \n");
   int * value = (int *) self;
   FILE * stream = util_fopen(stringlist_iget(args , 0 ) , "r");
   fscanf(stream , "%d" , value );
   fclose( stream );
+  {
+    int * return_value = util_malloc( sizeof * return_value );
+    return_value[0] = value[0];
+    
+    return return_value;
+  }
 }
 
 
-static void create_exworkflow( const char * workflow , const char * bin_path) 
+static void create_exjob( const char * workflow , const char * bin_path) 
 {
   FILE * stream = util_fopen( workflow , "w");
-  fprintf(stream , "EXECUTABLE  %s/create_file\n" , bin_path);  
+  fprintf(stream , "EXECUTABLE  \"%s/create file\"\n" , bin_path);  
   fprintf(stream , "ARG_TYPE    1   INT\n");
   fprintf(stream , "MIN_ARG     2\n");
   fprintf(stream , "MAX_ARG     2\n");
@@ -62,28 +79,28 @@ static void create_exworkflow( const char * workflow , const char * bin_path)
 
 int main( int argc , char ** argv) {
 #ifdef ERT_LINUX
-  const char * exworkflow = "/tmp/xflow";
+  const char * exjob_file = "/tmp/xflow";
 #endif
 
   const char * bin_path = argv[1];
   const char * internal_workflow = argv[2];
-  create_exworkflow( exworkflow , bin_path );
+  signal(SIGSEGV , util_abort_signal);    
+  create_exjob( exjob_file , bin_path );
   {
     
     int int_value = rand();
     int read_value = 100;
     workflow_joblist_type * joblist = workflow_joblist_alloc();
     
-    if (!workflow_joblist_add_job_from_file( joblist , "CREATE_FILE" , exworkflow)) {
-      //remove( exworkflow );
+    if (!workflow_joblist_add_job_from_file( joblist , "CREATE_FILE" , exjob_file)) {
+      remove( exjob_file );
       {
-        config_type * workflow_compiler = workflow_joblist_get_compiler( joblist );
-        printf("Compiler errors: \n");
-        config_fprintf_errors( workflow_compiler , true , stdout );
+        config_type * job_config = workflow_joblist_get_job_config( joblist );
+        config_fprintf_errors( job_config , true , stdout );
       }
       test_error_exit("Loading job CREATE_FILE failed\n");
     } else
-      remove( exworkflow );
+      remove( exjob_file );
     
     if (!workflow_joblist_add_job_from_file( joblist , "READ_FILE"   , internal_workflow))
       test_error_exit("Loading job READ_FILE failed\n");
@@ -104,17 +121,58 @@ int main( int argc , char ** argv) {
       workflow = workflow_alloc(workflow_file , joblist );
       unlink( workflow_file );
       
-      if (!workflow_run( workflow , &read_value , false , NULL)) {
-        config_type * workflow_compiler = workflow_joblist_get_compiler( joblist );
-        config_fprintf_errors( workflow_compiler , true ,stdout);
+      {
+        bool runOK;
+        runOK = workflow_run( workflow , &read_value , false , NULL);
+        if (runOK) {
+          if (int_value != read_value)
+            test_error_exit("Wrong numeric value read back \n");
+
+          test_assert_int_equal( workflow_get_stack_size( workflow ) , 2 );
+          test_assert_not_NULL( workflow_iget_stack_ptr( workflow , 0 ) );
+          test_assert_NULL( workflow_iget_stack_ptr( workflow , 1 ) );
+          
+          {
+            void * return_value = workflow_iget_stack_ptr( workflow , 0 );
+            int return_int = *((int *) return_value);
+            if (int_value != return_int)
+              test_error_exit("Wrong numeric value read back \n");
+            
+            test_assert_not_NULL( workflow_pop_stack( workflow ));
+            test_assert_NULL( workflow_pop_stack( workflow ));
+            test_assert_int_equal( workflow_get_stack_size( workflow ) , 0 );
+            
+            free( return_value );
+          }
+
+          
+          
+        } else {
+          config_type * workflow_compiler = workflow_joblist_get_compiler( joblist );
+          config_fprintf_errors( workflow_compiler , true ,stdout);
+          unlink( tmp_file );
+          test_error_exit("Workflow did not run\n");
+        }
         unlink( tmp_file );
-        test_error_exit("Workflow did not run\n");
       }
-      unlink( tmp_file );
     }
     workflow_joblist_free( joblist );
-    if (int_value != read_value)
-      test_error_exit("Wrong numeric value read back \n");
+    
+  }
+  {
+    workflow_joblist_type * joblist = workflow_joblist_alloc();
+    const char * workflow_file = "/tmp/workflow";
+    const char * tmp_file = "/tmp/fileX";
+    int read_value;
+    int int_value = 100;
+    workflow_type * workflow;
+    
+    create_workflow( workflow_file , tmp_file , int_value );
+    workflow = workflow_alloc(workflow_file , joblist );
+    unlink( workflow_file );
+
+    test_assert_false( workflow_run( workflow , &read_value , false , NULL) );
+    test_assert_int_equal( workflow_get_stack_size( workflow ) , 0 );
   }
   exit(0);
 }

@@ -76,9 +76,12 @@ if (HAVE_OPENDIR)
   add_definitions( -DHAVE_OPENDIR )
 endif()
 
-check_function_exists( usleep HAVE_USLEEP )
+# The usleep() check uses the symbol HAVE__USLEEP with double
+# underscore to avoid conflict with plplot which defines the
+# HAVE_USLEEP symbol.
+check_function_exists( usleep HAVE__USLEEP )
 if (HAVE_OPENDIR)
-  add_definitions( -DHAVE_USLEEP )
+  add_definitions( -DHAVE__USLEEP )
 endif()
 
 try_compile( HAVE_ISFINITE ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_isfinite.c )

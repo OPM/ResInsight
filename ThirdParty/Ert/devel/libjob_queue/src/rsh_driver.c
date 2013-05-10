@@ -429,7 +429,7 @@ bool rsh_driver_set_option( void * __driver , const char * option_key , const vo
       rsh_driver_add_host_from_string( driver , value );
     else if (strcmp(RSH_HOSTLIST , option_key) == 0) {      /* Set full host list - value should be hash of integers. */
       if (value != NULL) {
-        hash_safe_cast( value );
+        hash_safe_cast_const( value );
         rsh_driver_set_host_list( driver , value );
       }
     } else if (strcmp( RSH_CLEAR_HOSTLIST , option_key) == 0)

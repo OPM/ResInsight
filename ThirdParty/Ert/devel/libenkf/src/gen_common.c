@@ -87,7 +87,7 @@ void * gen_common_fread_alloc(const char * file , ecl_type_enum load_type , int 
   int current_size        = 0;
   int buffer_elements;
   int fread_return;
-  void * buffer;
+  char * buffer;
   
   
   buffer_elements = read_size;

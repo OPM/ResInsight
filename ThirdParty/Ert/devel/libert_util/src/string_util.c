@@ -93,7 +93,7 @@ static int_vector_type * string_util_sscanf_alloc_active_list(const char * range
     
     for (item = 0; item < stringlist_get_size( tokens ); item++) {
       const char * string_item = stringlist_iget( tokens , item );
-      char * pos_ptr = string_item;
+      char * pos_ptr = (char *) string_item;
       int value1 , value2;
       
       value1 = strtol( string_item , &pos_ptr , 10);

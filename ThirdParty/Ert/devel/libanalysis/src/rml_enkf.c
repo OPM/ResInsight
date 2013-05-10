@@ -314,13 +314,10 @@ long rml_enkf_get_options( void * arg , long flag ) {
 
 
  bool rml_enkf_has_var( const void * arg, const char * var_name) {
-   const rml_enkf_data_type * module_data = rml_enkf_data_safe_cast_const( arg );
-   {
-     if (strcmp(var_name , "ITER") == 0)
-       return true;
-     else
-       return false;
-   }
+   if (strcmp(var_name , "ITER") == 0)
+     return true;
+   else
+     return false;
  }
 
 

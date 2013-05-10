@@ -51,7 +51,7 @@ void enkf_tui_plot_JOB(void * self , const stringlist_type * args ) {
   for (i=0; i < stringlist_get_size( args ); i++) {
     const char * user_key = stringlist_iget( args , i );
     char * key_index;
-    enkf_config_node_type * config_node = ensemble_config_user_get_node( ensemble_config , user_key , &key_index);
+    const enkf_config_node_type * config_node = ensemble_config_user_get_node( ensemble_config , user_key , &key_index);
     if (config_node != NULL)
       enkf_tui_plot_ensemble__(enkf_main , config_node , user_key , key_index , step1 , step2 , false , 0 , enkf_main_get_ensemble_size( enkf_main ) , BOTH );
     

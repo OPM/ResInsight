@@ -112,7 +112,6 @@ static void enkf_tui_ranking_create_data__( void * arg , bool sort_increasing) {
   const char * prompt1      = "Data key to use for ranking";
   const char * prompt2      = "Report step of data [Blank: last step]";
   const char * ranking_name = "Name of new ranking";
-  const char * store_prompt = "Name of file to store ranking [Blank - no store]";
 
   state_enum state = FORECAST;
   char * user_key;

@@ -23,6 +23,7 @@
 #include <ctype.h>
 
 #include <ert/util/util.h>
+#include <ert/util/string_util.h>
 #include <ert/util/menu.h>
 #include <ert/util/arg_pack.h>
 

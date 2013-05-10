@@ -271,6 +271,7 @@ bool config_schema_item_validate_set(const config_schema_item_type * item , stri
           error_message = util_alloc_sprintf("Error when parsing config_file:\"%s\" Keyword:%s must have maximum %d arguments.",config_file , item->kw , item->validate->argc_max);
         else
           error_message = util_alloc_sprintf("Error:: Keyword:%s must have maximum %d arguments.",item->kw , item->validate->argc_max);
+        
         config_error_add( error_list , error_message );
       }
     }

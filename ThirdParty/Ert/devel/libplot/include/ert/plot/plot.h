@@ -47,7 +47,7 @@ typedef struct plot_struct plot_type;
 
 plot_dataset_type * plot_alloc_new_dataset(plot_type *  , const char * __label , plot_data_type );
 
-plot_type * plot_alloc(const char * __driver_type , void * init_arg, bool logx , bool logy);
+plot_type * plot_alloc(const char * __driver_type , const void * init_arg, bool logx , bool logy);
 int plot_get_stream(plot_type * item);
 
 void plot_set_xlabel(plot_type * , const char *);

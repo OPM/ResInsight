@@ -247,14 +247,14 @@ static void arg_node_set_size_t( arg_node_type * node , size_t value) {
 #undef ARG_NODE_SET
 
 
-static void arg_node_set_ptr(arg_node_type * node , void * ptr , arg_node_copyc_ftype * copyc , arg_node_free_ftype * destructor) {
+static void arg_node_set_ptr(arg_node_type * node , const void * ptr , arg_node_copyc_ftype * copyc , arg_node_free_ftype * destructor) {
   node->ctype      = CTYPE_VOID_POINTER;
   node->destructor = destructor;
   node->copyc      = copyc; 
   if (copyc != NULL)
     node->buffer = copyc( ptr );
   else
-    node->buffer = ptr;
+    node->buffer = (void *) ptr;
 }
 
 
@@ -334,6 +334,7 @@ static void arg_node_fprintf(const arg_node_type * node , FILE * stream) {
 /*****************************************************************/
 
 UTIL_SAFE_CAST_FUNCTION( arg_pack , ARG_PACK_TYPE_ID)
+UTIL_SAFE_CAST_FUNCTION_CONST( arg_pack , ARG_PACK_TYPE_ID)
 
 static void __arg_pack_assert_index(const arg_pack_type * arg , int iarg) {
   if (iarg < 0 || iarg >= arg->size) 
@@ -504,6 +505,12 @@ void * arg_pack_iget_ptr(const arg_pack_type * arg , int iarg) {
 }
 
 
+const void * arg_pack_iget_const_ptr(const arg_pack_type * arg , int iarg) {
+  __arg_pack_assert_index(arg , iarg);
+  return arg_node_get_ptr(arg->nodes[iarg] , true);
+}
+
+
 void * arg_pack_iget_adress(const arg_pack_type * arg , int iarg) {
   __arg_pack_assert_index(arg , iarg);
   return arg_node_get_ptr(arg->nodes[iarg] , false);
@@ -518,7 +525,7 @@ node_ctype arg_pack_iget_ctype(const arg_pack_type * arg_pack ,int index) {
 /*****************************************************************/
 
 
-void  arg_pack_iset_copy(arg_pack_type * arg_pack , int index , void * ptr, arg_node_copyc_ftype * copyc , arg_node_free_ftype * freef) {
+void  arg_pack_iset_copy(arg_pack_type * arg_pack , int index , const void * ptr, arg_node_copyc_ftype * copyc , arg_node_free_ftype * freef) {
   arg_node_type * node = arg_pack_iget_new_node( arg_pack , index );          
   arg_node_set_ptr(node , ptr , copyc , freef);
 }
@@ -538,9 +545,14 @@ void  arg_pack_append_copy(arg_pack_type * arg_pack , void * ptr, arg_node_copyc
 }
 
 
-void arg_pack_append_ptr(arg_pack_type * arg_pack, const void * ptr) {
+void arg_pack_append_ptr(arg_pack_type * arg_pack, void * ptr) {
   arg_pack_iset_ptr( arg_pack , arg_pack->size , ptr );
 }
+
+void arg_pack_append_const_ptr(arg_pack_type * arg_pack, const void * ptr) {
+  arg_pack_iset_ptr( arg_pack , arg_pack->size , ptr );
+}
+
 
 void arg_pack_append_owned_ptr(arg_pack_type * arg_pack, void * ptr, arg_node_free_ftype * freef) {
   arg_pack_iset_owned_ptr( arg_pack , arg_pack->size , ptr , freef);

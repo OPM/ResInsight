@@ -49,6 +49,7 @@
 #include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/plot_config.h>
 #include <ert/enkf/member_config.h>
+#include <ert/enkf/enkf_analysis.h>
 
 #include <enkf_tui_util.h>
 #include <enkf_tui_plot.h>
@@ -192,8 +193,8 @@ void enkf_tui_QC_plot_PC( void * arg ) {
 
 
 void enkf_tui_QC_run_workflow( void * arg ) {
-  enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );  
-  qc_module_type  * qc_module  = enkf_main_get_qc_module( enkf_main );
+  enkf_main_type  * enkf_main        = enkf_main_safe_cast( arg );  
+  const qc_module_type  * qc_module  = enkf_main_get_qc_module( enkf_main );
   
   qc_module_run_workflow( qc_module , enkf_main );
 }

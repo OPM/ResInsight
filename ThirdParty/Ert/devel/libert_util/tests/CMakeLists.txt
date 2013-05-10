@@ -100,3 +100,9 @@ if (WITH_LATEX)
    target_link_libraries(ert_util_latex_test ert_util )
    add_test( ert_util_latex_test ${EXECUTABLE_OUTPUT_PATH}/ert_util_latex_test ${CMAKE_CURRENT_SOURCE_DIR}/data/latex_OK.tex )
 endif()
+
+
+add_executable( ert_util_arg_pack ert_util_arg_pack.c)
+set_target_properties( ert_util_arg_pack PROPERTIES COMPILE_FLAGS "-Werror")
+target_link_libraries( ert_util_arg_pack ert_util )
+add_test( ert_util_arg_pack ${EXECUTABLE_OUTPUT_PATH}/ert_util_arg_pack)

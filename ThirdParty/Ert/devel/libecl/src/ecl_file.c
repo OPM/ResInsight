@@ -246,16 +246,6 @@ static bool file_map_has_kw( const file_map_type * file_map, const char * kw) {
   return hash_has_key( file_map->kw_index , kw );
 } 
 
-static bool file_map_has_kw_ptr( const file_map_type * file_map, const ecl_kw_type * ecl_kw) {
-  int index;
-  for (index = 0; index < vector_get_size( file_map->kw_list ); index++) {
-    const ecl_file_kw_type * file_kw = vector_iget_const( file_map->kw_list , index );
-    if (ecl_file_kw_ptr_eq( file_kw , ecl_kw ))
-      return true;
-  } 
-  return false;
-} 
-
 
 static ecl_file_kw_type * file_map_iget_file_kw( const file_map_type * file_map , int global_index) {
   ecl_file_kw_type * file_kw = vector_iget( file_map->kw_list , global_index);
@@ -932,7 +922,7 @@ void ecl_file_push_block( ecl_file_type * ecl_file ) {
 }
 
 void ecl_file_pop_block( ecl_file_type * ecl_file ) {
-  ecl_file->active_map = vector_pop( ecl_file->map_stack );
+  ecl_file->active_map = vector_pop_back( ecl_file->map_stack );
 }
 
 

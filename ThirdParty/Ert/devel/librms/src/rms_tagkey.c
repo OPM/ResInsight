@@ -465,11 +465,6 @@ void rms_tagkey_set_data(rms_tagkey_type * tagkey , const void * data) {
 
 
 
-static void rms_fskip_tagkey_data(rms_tagkey_type *tagkey , FILE *stream) {
-  rms_tagkey_set_data_size(tagkey , stream , -1);
-  fseek(stream , tagkey->data_size , SEEK_CUR);
-}
-
 
 static void rms_fread_tagkey_header(rms_tagkey_type *tagkey , FILE *stream, hash_type *type_map) {
   bool is_array;
@@ -508,20 +503,6 @@ static void rms_fread_realloc_tagkey(rms_tagkey_type *tagkey , bool endian_conve
 
 }
 
-
-static rms_tagkey_type * rms_fread_alloc_tagkey(bool endian_convert , FILE *stream , hash_type * type_map) {
-  rms_tagkey_type *tagkey = rms_tagkey_alloc_empty(endian_convert);
-  rms_fread_realloc_tagkey(tagkey , endian_convert , stream , type_map );
-  return tagkey;
-}
-
-
-static void rms_fskip_tagkey(FILE *stream , hash_type * type_map) {
-  rms_tagkey_type *tagkey = rms_tagkey_alloc_empty(false);
-  rms_fread_tagkey_header(tagkey , stream , type_map);
-  rms_fskip_tagkey_data(tagkey , stream);
-  rms_tagkey_free(tagkey);
-}
 
 
 static void rms_tagkey_fwrite_data(const rms_tagkey_type * tagkey , FILE *stream) {

@@ -729,8 +729,7 @@ void field_ecl_write(const field_type * field , const char * run_path , const ch
 
 bool field_initialize(field_type *field , int iens , const char * init_file , rng_type * rng) {
   if (init_file != NULL) {
-    field_fload(field , init_file );
-    {
+    if (field_fload(field , init_file )) {
       field_func_type * init_transform   = field_config_get_init_transform(field->config);
       /* 
          Doing the input transform - observe that this is done inplace on
@@ -742,10 +741,11 @@ bool field_initialize(field_type *field , int iens , const char * init_file , rn
         if (!field_check_finite( field ))
           util_exit("Sorry: after applying the init transform field:%s contains nan/inf or similar malformed values.\n" , field_config_get_key( field->config ));
       }
+      return true; 
     }
-    return true; 
-  } else 
-    return false;  /* The field is initialized as part of the forward model. */
+  } 
+  
+  return false;  /* The field is initialized as part of the forward model. */
 } 
 
 
@@ -1003,118 +1003,144 @@ void field_copy_ecl_kw_data(field_type * field , const ecl_kw_type * ecl_kw) {
 
 /*****************************************************************/
 
-void field_fload_rms(field_type * field , const char * filename) {
-  const char * key           = field_config_get_ecl_kw_name(field->config);
-  ecl_type_enum   ecl_type;
-  rms_file_type * rms_file   = rms_file_alloc(filename , false);
-  rms_tagkey_type * data_tag;
-  if (field_config_enkf_mode(field->config)) 
-    data_tag = rms_file_fread_alloc_data_tagkey(rms_file , "parameter" , "name" , key);
-  else {
-    /** 
-        Setting the key - purely to support converting between
-        different types of files, without knowing the key. A usable
-        feature - but not really well defined.
-    */
-
-    rms_tag_type * rms_tag = rms_file_fread_alloc_tag(rms_file , "parameter" , NULL , NULL);
-    const char * parameter_name = rms_tag_get_namekey_name(rms_tag);
-    field_config_set_key( (field_config_type *) field->config , parameter_name );
-    data_tag = rms_tagkey_copyc( rms_tag_get_key(rms_tag , "data") );
-    rms_tag_free(rms_tag);
+bool field_fload_rms(field_type * field , const char * filename) {
+  {
+    FILE * stream = util_fopen__( filename , "r");
+    if (!stream)
+      return false;
+    
+    fclose( stream );
   }
-  
-  ecl_type = rms_tagkey_get_ecl_type(data_tag);
-  if (rms_tagkey_get_size(data_tag) != field_config_get_volume(field->config)) 
-    util_abort("%s: trying to import rms_data_tag from:%s with wrong size - aborting \n",__func__ , filename);
-  
-  field_import3D(field , rms_tagkey_get_data_ref(data_tag) , true , ecl_type);
-  rms_tagkey_free(data_tag);
-  rms_file_free(rms_file);
+
+  {
+    const char * key           = field_config_get_ecl_kw_name(field->config);
+    ecl_type_enum   ecl_type;
+    rms_file_type * rms_file   = rms_file_alloc(filename , false);
+    rms_tagkey_type * data_tag;
+    if (field_config_enkf_mode(field->config)) 
+      data_tag = rms_file_fread_alloc_data_tagkey(rms_file , "parameter" , "name" , key);
+    else {
+      /** 
+          Setting the key - purely to support converting between
+          different types of files, without knowing the key. A usable
+          feature - but not really well defined.
+      */
+      
+      rms_tag_type * rms_tag = rms_file_fread_alloc_tag(rms_file , "parameter" , NULL , NULL);
+      const char * parameter_name = rms_tag_get_namekey_name(rms_tag);
+      field_config_set_key( (field_config_type *) field->config , parameter_name );
+      data_tag = rms_tagkey_copyc( rms_tag_get_key(rms_tag , "data") );
+      rms_tag_free(rms_tag);
+    }
+    
+    ecl_type = rms_tagkey_get_ecl_type(data_tag);
+    if (rms_tagkey_get_size(data_tag) != field_config_get_volume(field->config)) 
+      util_abort("%s: trying to import rms_data_tag from:%s with wrong size - aborting \n",__func__ , filename);
+    
+    field_import3D(field , rms_tagkey_get_data_ref(data_tag) , true , ecl_type);
+    rms_tagkey_free(data_tag);
+    rms_file_free(rms_file);
+  }
+  return true;
 }
 
 
 
-void field_fload_ecl_kw(field_type * field , const char * filename ) {
+bool field_fload_ecl_kw(field_type * field , const char * filename ) {
   const char * key = field_config_get_ecl_kw_name(field->config);
-  ecl_kw_type * ecl_kw;
+  ecl_kw_type * ecl_kw = NULL;
   
   {
     bool fmt_file;
 
     if (ecl_util_fmt_file( filename , &fmt_file)) {
       fortio_type * fortio = fortio_open_reader(filename , fmt_file , ECL_ENDIAN_FLIP);
-      ecl_kw_fseek_kw(key , true , true , fortio);
-      ecl_kw = ecl_kw_fread_alloc( fortio );
-      fortio_fclose(fortio);
+      if (fortio) {
+        ecl_kw_fseek_kw(key , true , true , fortio);
+        ecl_kw = ecl_kw_fread_alloc( fortio );
+        fortio_fclose(fortio);
+        
+        if (field_config_get_volume(field->config) == ecl_kw_get_size(ecl_kw)) 
+          field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , ecl_kw_get_type(ecl_kw));
+        else 
+          /* Keyword is already packed - e.g. from a restart file. Size is
+             verified in the _copy function.*/
+          field_copy_ecl_kw_data(field , ecl_kw);
+        
+        ecl_kw_free(ecl_kw);
+        return true;
+      }
     } else
       util_abort("%s: could not determine formatted/unformatted status of file:%s \n",filename);
   }
-  
-
-  if (field_config_get_volume(field->config) == ecl_kw_get_size(ecl_kw)) 
-    field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , ecl_kw_get_type(ecl_kw));
-  else 
-    /* Keyword is already packed - e.g. from a restart file. Size is
-       verified in the _copy function.*/
-    field_copy_ecl_kw_data(field , ecl_kw);
-  
-  ecl_kw_free(ecl_kw);
+  return false;
 }
 
 
 
 /* No type translation possible */
-void field_fload_ecl_grdecl(field_type * field , const char * filename ) {
+bool field_fload_ecl_grdecl(field_type * field , const char * filename ) {
   const char * key = field_config_get_ecl_kw_name(field->config);
   int size = field_config_get_volume(field->config);
   ecl_type_enum ecl_type = field_config_get_ecl_type(field->config);
   ecl_kw_type * ecl_kw   = NULL;
   {
-    FILE * stream = util_fopen(filename , "r");
-    if (ecl_kw_grdecl_fseek_kw(key , false , stream))
-      ecl_kw = ecl_kw_fscanf_alloc_grdecl_data(stream , size , ecl_type);
-    else 
-      util_exit("%s: Can not locate %s keyword in %s \n",__func__ , key , filename);
-    fclose(stream);
+    FILE * stream = util_fopen__(filename , "r");
+    if (stream) {
+      if (ecl_kw_grdecl_fseek_kw(key , false , stream))
+        ecl_kw = ecl_kw_fscanf_alloc_grdecl_data(stream , size , ecl_type);
+      else 
+        util_exit("%s: Can not locate %s keyword in %s \n",__func__ , key , filename);
+      fclose(stream);
+      
+      field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , ecl_kw_get_type(ecl_kw));
+      ecl_kw_free(ecl_kw);
+      return true;
+    }
   }
-
-  field_import3D(field , ecl_kw_get_void_ptr(ecl_kw) , false , ecl_kw_get_type(ecl_kw));
-  ecl_kw_free(ecl_kw);
+  return false;
 }
 
 
 
-void field_fload_typed(field_type * field , const char * filename ,  field_file_format_type file_type) {
+
+bool field_fload_typed(field_type * field , const char * filename ,  field_file_format_type file_type) {
+  bool loadOK = false;
   switch (file_type) {
   case(RMS_ROFF_FILE):
-    field_fload_rms(field , filename );
+    loadOK = field_fload_rms(field , filename );
     break;
   case(ECL_KW_FILE):
-    field_fload_ecl_kw(field , filename  );
+    loadOK = field_fload_ecl_kw(field , filename  );
     break;
   case(ECL_GRDECL_FILE):
-    field_fload_ecl_grdecl(field , filename);
+    loadOK = field_fload_ecl_grdecl(field , filename);
     break;
   default:
     util_abort("%s: file_type:%d not recognized - aborting \n",__func__ , file_type);
   }
+  return loadOK;
 }
 
 
 
 
-void field_fload(field_type * field , const char * filename ) {
-  field_file_format_type file_type = field_config_guess_file_type( filename );
-  if (file_type == UNDEFINED_FORMAT) file_type = field_config_manual_file_type(filename , true);
-  field_fload_typed(field , filename , file_type);
+bool field_fload(field_type * field , const char * filename ) {
+  if (util_file_readable( filename )) {
+    field_file_format_type file_type = field_config_guess_file_type( filename );
+    if (file_type == UNDEFINED_FORMAT) 
+      file_type = field_config_manual_file_type(filename , true);
+    
+    return field_fload_typed(field , filename , file_type);
+  } else
+    return false;
 }
 
 
 
-void field_fload_auto(field_type * field , const char * filename ) {
+bool field_fload_auto(field_type * field , const char * filename ) {
   field_file_format_type file_type = field_config_guess_file_type(filename);
-  field_fload_typed(field , filename , file_type);
+  return field_fload_typed(field , filename , file_type);
 }
 
 
@@ -1143,19 +1169,6 @@ bool field_cmp(const field_type * f1 , const field_type * f2) {
 
 
 /*****************************************************************/
-
-
-/* /\* Skal param_name vaere en variabel ?? *\/ */
-/* void field_rms_export_parameter(const field_type * field , const char * param_name , const float * data3D,  const rms_file_type * rms_file) { */
-/*   const field_config_type * config = field->config; */
-/*   const int data_size = field_config_get_data_size(config); */
-  
-/*   /\* Hardcoded rms_float_type *\/ */
-/*   rms_tagkey_type *tagkey = rms_tagkey_alloc_complete("data" , data_size , rms_float_type , data3D , true); */
-/*   rms_tag_fwrite_parameter(param_name , tagkey , rms_file_get_FILE(rms_file)); */
-/*   rms_tagkey_free(tagkey); */
-  
-/* } */
 
 
 
@@ -1330,7 +1343,7 @@ void field_imul_add(field_type * field1 , double factor , const field_type * fie
 }
 
 
-void field_update_sum(field_type * sum , const field_type * field , double lower_limit , double upper_limit) {
+void field_update_sum(field_type * sum , field_type * field , double lower_limit , double upper_limit) {
   field_output_transform( field );
   {
     const int data_size          = field_config_get_data_size(field->config );   
@@ -1370,10 +1383,12 @@ void field_update_sum(field_type * sum , const field_type * field , double lower
 */
 bool field_user_get(const field_type * field, const char * index_key, int report_step , state_enum state, double * value)
 {
+  printf("index_key : %s \n",index_key);
   const    bool internal_value = false;
   bool     valid;
   int      i,j,k;
   int      parse_user_key = field_config_parse_user_key(field->config , index_key , &i, &j , &k);
+  
 
   if (parse_user_key == 0) {
     int active_index = field_config_active_index(field->config , i,j,k);

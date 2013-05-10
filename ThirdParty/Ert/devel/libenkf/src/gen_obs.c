@@ -165,7 +165,7 @@ static void gen_obs_load_observation(gen_obs_type * gen_obs, double scalar_value
 */
 
 
-gen_obs_type * gen_obs_alloc(const gen_data_config_type * data_config , const char * obs_key , const char * obs_file , double scalar_value , double scalar_error , const char * data_index_file , const char * data_index_string , const char * error_covar_file) {
+gen_obs_type * gen_obs_alloc(gen_data_config_type * data_config , const char * obs_key , const char * obs_file , double scalar_value , double scalar_error , const char * data_index_file , const char * data_index_string , const char * error_covar_file) {
   gen_obs_type * obs = util_malloc(sizeof * obs);
   
   UTIL_TYPE_ID_INIT( obs , GEN_OBS_TYPE_ID );

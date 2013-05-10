@@ -52,9 +52,9 @@ void surface_clear(surface_type * surface) {
     surface->data[k] = 0;
 }
 
-static void surface_fload( surface_type * surface , const char * filename ) {
+bool surface_fload( surface_type * surface , const char * filename ) {
   const geo_surface_type * base_surface = surface_config_get_base_surface( surface->config );
-  geo_surface_fload_irap_zcoord( base_surface , filename , surface->data );
+  return geo_surface_fload_irap_zcoord( base_surface , filename , surface->data );
 }
 
 
@@ -225,4 +225,4 @@ VOID_SCALE(surface)
 VOID_IMUL(surface)
 VOID_IADDSQR(surface)
 VOID_ISQRT(surface)
-     
+VOID_FLOAD(surface)     

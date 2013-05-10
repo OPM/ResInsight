@@ -201,7 +201,6 @@ void misfit_ensemble_fread( misfit_ensemble_type * misfit_ensemble , FILE * stre
     
   }
   misfit_ensemble->initialized = true;
-  return misfit_ensemble;
 }
 
 

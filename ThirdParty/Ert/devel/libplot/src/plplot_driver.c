@@ -68,13 +68,13 @@ static void plplot_state_set_log( plplot_state_type * state , bool logx , bool l
 }
 
 
-static plplot_state_type * plplot_state_alloc( void * init_arg ) {
+static plplot_state_type * plplot_state_alloc( const void * init_arg ) {
   plplot_state_type * state = util_malloc( sizeof * state );
   state->stream     = 0;
   {
-    arg_pack_type * arg_pack = arg_pack_safe_cast( init_arg );
-    state->filename          = util_alloc_string_copy( arg_pack_iget_ptr( arg_pack , 0) );
-    state->device            = util_alloc_string_copy( arg_pack_iget_ptr( arg_pack , 1) );
+    const arg_pack_type * arg_pack = arg_pack_safe_cast_const( init_arg );
+    state->filename                = util_alloc_string_copy( arg_pack_iget_const_ptr( arg_pack , 0) );
+    state->device                  = util_alloc_string_copy( arg_pack_iget_const_ptr( arg_pack , 1) );
     
     plsstrm(state->stream);
     plsdev(state->device);    /* Can this be NULL?? */
@@ -373,7 +373,7 @@ void plplot_plot_hist( plot_driver_type * driver, const char * label , double_ve
    }
 */
 
-plot_driver_type * plplot_driver_alloc(void * init_arg) {
+plot_driver_type * plplot_driver_alloc(const void * init_arg) {
   plot_driver_type * driver = plot_driver_alloc_empty("PLPLOT");
   driver->state           = plplot_state_alloc( init_arg );
   

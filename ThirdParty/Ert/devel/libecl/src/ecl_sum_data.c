@@ -904,14 +904,6 @@ static void ecl_sum_data_add_ecl_file(ecl_sum_data_type * data         ,
 
 
 
-
-static void ecl_sum_data_ensure_index( ecl_sum_data_type * data ) {
-  if (!data->index_valid)
-    ecl_sum_data_build_index( data );
-}
-
-
-
 /*
   Observe that this can be called several times (but not with the same
   data - that will die). 

@@ -53,7 +53,7 @@ size_t buffer_fread_compressed(buffer_type * buffer , size_t compressed_size , v
   
 
   if (compressed_size > 0) {
-    int uncompress_result = uncompress(target_ptr , &uncompressed_size , &buffer->data[buffer->pos] , compressed_size);
+    int uncompress_result = uncompress(target_ptr , &uncompressed_size , (unsigned char *) &buffer->data[buffer->pos] , compressed_size);
     if (uncompress_result != Z_OK) {
       fprintf(stderr,"%s: ** Warning uncompress result:%d != Z_OK.\n" , __func__ , uncompress_result);
       /**

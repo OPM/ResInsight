@@ -78,17 +78,6 @@ void misfit_ts_free__( void * vector ) {
 }
 
 
-/**
-   Will return the sum over the half-open interval [step1, step2).
-*/
-
-static double misfit_ts_sum( const misfit_ts_type * vector , int step1 , int step2 ) {
-  double sum = 0;
-  const double * data = double_vector_get_const_ptr( vector->data );
-  for (int step = step1; step < step2; step++) 
-    sum += data[step];
-  return sum;
-}
 
 
 void misfit_ts_iset( misfit_ts_type * vector , int time_index , double value ) {

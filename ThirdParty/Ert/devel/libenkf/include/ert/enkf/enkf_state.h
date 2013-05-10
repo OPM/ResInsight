@@ -66,7 +66,7 @@ typedef struct enkf_state_struct    enkf_state_type;
   time_t             enkf_state_get_submit_time( const enkf_state_type * enkf_state );
   bool               enkf_state_resubmit_simulation( enkf_state_type * enkf_state , enkf_fs_type * fs , bool resample);
   bool               enkf_state_kill_simulation( const enkf_state_type * enkf_state );
-  void *             enkf_state_internalize_results_mt( void * arg );
+  void *             enkf_state_load_from_forward_model_mt( void * arg );
   void               enkf_state_initialize(enkf_state_type * enkf_state , enkf_fs_type * fs, const stringlist_type * param_list , bool force_init);
   void               enkf_state_fread(enkf_state_type *  , enkf_fs_type * fs , int  , int  , state_enum );
   bool               enkf_state_get_analyzed(const enkf_state_type * );
@@ -79,13 +79,24 @@ typedef struct enkf_state_struct    enkf_state_type;
   void               enkf_state_load_ecl_summary(enkf_state_type * , bool , int );
   void             * enkf_state_run_eclipse__(void * );
   void             * enkf_state_start_forward_model__(void * );
+
+  void enkf_state_load_from_forward_model(enkf_state_type * enkf_state , 
+                                          enkf_fs_type * fs , 
+                                          bool * loadOK , 
+                                          bool interactive , 
+                                          stringlist_type * msg_list);
+
+  void enkf_state_forward_init(enkf_state_type * enkf_state , 
+                               enkf_fs_type * fs , 
+                               bool * loadOK );
+    
   enkf_state_type  * enkf_state_alloc(int ,
                                       rng_type        * main_rng , 
                                       enkf_fs_type * fs, 
                                       const char * casename , 
                                       bool         pre_clear_runpath, 
                                       keep_runpath_type , 
-                                      const model_config_type * ,
+                                      model_config_type * ,
                                       ensemble_config_type * ,
                                       const site_config_type * ,
                                       const ecl_config_type * ,
@@ -112,6 +123,7 @@ typedef struct enkf_state_struct    enkf_state_type;
   const char       * enkf_state_get_eclbase( const enkf_state_type * enkf_state );
   void               enkf_state_printf_subst_list(enkf_state_type * enkf_state , int step1 , int step2);
 
+  rng_type         * enkf_state_get_rng( const enkf_state_type * enkf_state );
   unsigned int       enkf_state_get_random( enkf_state_type * enkf_state );
 
 /*****************************************************************/

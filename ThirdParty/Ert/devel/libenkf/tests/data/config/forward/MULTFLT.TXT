@@ -1,0 +1,1 @@
+MULTFLT  NORMAL  0   1
