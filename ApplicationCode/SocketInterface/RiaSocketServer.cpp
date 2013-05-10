@@ -248,9 +248,9 @@ void RiaSocketServer::readCommandFromOctave()
     bool isSetProperty = args[0] == "SetProperty"; // SetProperty [casename/index] PropertyName
     bool isGetCellInfo = args[0] == "GetActiveCellInfo"; // GetActiveCellInfo [casename/index]
     bool isGetGridDim  = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
+    bool isGetCurrentCase = args[0] == "GetCurrentCase"; 
 
-
-    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim))
+    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -284,6 +284,20 @@ void RiaSocketServer::readCommandFromOctave()
     }
 
     reservoir = this->findReservoir(caseName);
+    
+    if (isGetCurrentCase)
+    {
+        int caseId = -1;
+
+        if (reservoir)
+        {
+            caseId = reservoir->caseId();
+        }
+
+        socketStream << (qint64)caseId;
+
+        return;
+    }
 
     if (reservoir == NULL)
     {

@@ -5,6 +5,7 @@ set(CPP_SOURCES
   riSetActiveCellProperty.cpp
   riGetActiveCellInfo.cpp
   riGetMainGridDimensions.cpp
+  riGetCurrentCase.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -99,6 +100,7 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
 
       SOURCES ${CPP_SOURCES}
   )
