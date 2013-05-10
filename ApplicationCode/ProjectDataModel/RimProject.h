@@ -47,6 +47,7 @@ public:
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
+    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
 
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
@@ -61,6 +62,7 @@ public:
     void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
 
     void            assignCaseIdToCase(RimCase* reservoirCase);
+    void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
     
 private:
     RigMainGrid*    registerCaseInGridCollection(RigCaseData* rigEclipseCase);

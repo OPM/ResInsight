@@ -58,6 +58,9 @@ RimProject::RimProject(void)
     CAF_PDM_InitField(&nextValidCaseId, "NextValidCaseId", 0, "Next Valid Case ID", "", "" ,"");
     nextValidCaseId.setUiHidden(true);
 
+    CAF_PDM_InitField(&nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "" ,"");
+    nextValidCaseGroupId.setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&reservoirs, "Reservoirs", "",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
 
@@ -102,6 +105,7 @@ void RimProject::close()
     fileName = "";
 
     nextValidCaseId = 0;
+    nextValidCaseGroupId = 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,31 +121,64 @@ void RimProject::initAfterRead()
 
     this->setScriptDirectories(scriptDirectories);
 
-    // Find largest used caseId read from file
-    int largestCaseId = -1;
-
-    std::vector<RimCase*> cases;
-    allCases(cases);
-    
-    for (size_t i = 0; i < cases.size(); i++)
+    // Find largest used caseId read from file and make sure all cases have a valid caseId
     {
-        if (cases[i]->caseId > largestCaseId)
+        int largestId = -1;
+
+        std::vector<RimCase*> cases;
+        allCases(cases);
+    
+        for (size_t i = 0; i < cases.size(); i++)
         {
-            largestCaseId = cases[i]->caseId;
+            if (cases[i]->caseId > largestId)
+            {
+                largestId = cases[i]->caseId;
+            }
+        }
+
+        if (largestId > this->nextValidCaseId)
+        {
+            this->nextValidCaseId = largestId + 1;
+        }
+
+        // Assign case Id to cases with an invalid case Id
+        for (size_t i = 0; i < cases.size(); i++)
+        {
+            if (cases[i]->caseId < 0)
+            {
+                assignCaseIdToCase(cases[i]);
+            }
         }
     }
 
-    if (largestCaseId > nextValidCaseId)
+    // Find largest used groupId read from file and make sure all groups have a valid groupId
     {
-        nextValidCaseId = largestCaseId + 1;
-    }
+        int largestGroupId = -1;
 
-    // Assign case Id to cases with an invalid case Id
-    for (size_t i = 0; i < cases.size(); i++)
-    {
-        if (cases[i]->caseId < 0)
+        for (size_t i = 0; i < caseGroups.size(); i++)
         {
-            assignCaseIdToCase(cases[i]);
+            RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+            if (cg->groupId > largestGroupId)
+            {
+                largestGroupId = cg->groupId;
+            }
+        }
+
+        if (largestGroupId > this->nextValidCaseGroupId)
+        {
+            this->nextValidCaseGroupId = largestGroupId + 1;
+        }
+
+        // Assign group Id to groups with an invalid Id
+        for (size_t i = 0; i < caseGroups.size(); i++)
+        {
+            RimIdenticalGridCaseGroup* cg = caseGroups()[i];
+
+            if (cg->groupId < 0)
+            {
+                assignIdToCaseGroup(cg);
+            }
         }
     }
 
@@ -202,6 +239,8 @@ RimIdenticalGridCaseGroup* RimProject::createIdenticalCaseGroupFromMainCase(RimC
     CVF_ASSERT(equalGrid);
 
     RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
+    assignIdToCaseGroup(group);
+
     RimCase* createdCase = group->createAndAppendStatisticsCase();
     assignCaseIdToCase(createdCase);
 
@@ -239,6 +278,8 @@ void RimProject::moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir)
     if (!foundGroup)
     {
         RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
+        assignIdToCaseGroup(group);
+
         group->addCase(rimReservoir);
 
         caseGroups().push_back(group);
@@ -351,6 +392,19 @@ void RimProject::assignCaseIdToCase(RimCase* reservoirCase)
         reservoirCase->caseId = nextValidCaseId;
 
         nextValidCaseId = nextValidCaseId + 1;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup)
+{
+    if (caseGroup)
+    {
+        caseGroup->groupId = nextValidCaseGroupId;
+
+        nextValidCaseGroupId = nextValidCaseGroupId + 1;
     }
 }
 

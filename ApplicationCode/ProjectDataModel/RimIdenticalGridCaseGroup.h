@@ -47,6 +47,7 @@ public:
     virtual ~RimIdenticalGridCaseGroup();
 
     caf::PdmField<QString>              name;
+    caf::PdmField<int>                  groupId;
     caf::PdmField<RimCaseCollection*>   caseCollection;
     caf::PdmField<RimCaseCollection*>   statisticsCaseCollection;
 

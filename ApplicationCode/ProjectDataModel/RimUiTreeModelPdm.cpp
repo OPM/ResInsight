@@ -599,6 +599,8 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
     beginInsertRows(rootIndex, position, position);
 
     RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
+    proj->assignIdToCaseGroup(createdObject);
+
     RimCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
     proj->assignCaseIdToCase(createdReservoir);
     createdObject->name = QString("Grid Case Group %1").arg(position + 1);
