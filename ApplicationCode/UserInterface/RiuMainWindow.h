@@ -84,6 +84,8 @@ public:
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
+    void            selectionInfo(std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<qint64>& caseTypes, std::vector<qint64>& caseGroupIds);
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 

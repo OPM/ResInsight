@@ -250,8 +250,9 @@ void RiaSocketServer::readCommandFromOctave()
     bool isGetGridDim  = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
     bool isGetCurrentCase = args[0] == "GetCurrentCase";
     bool isGetCaseGroups = args[0] == "GetCaseGroups";
+    bool isGetSelectedCases = args[0] == "GetSelectedCases";
 
-    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase || isGetCaseGroups))
+    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase || isGetCaseGroups || isGetSelectedCases))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -354,6 +355,42 @@ void RiaSocketServer::readCommandFromOctave()
             // ERROR
         }
 
+        return;
+    }
+
+    if (isGetSelectedCases)
+    {
+        RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+        if (ruiMainWindow)
+        {
+            std::vector<qint64>  caseIds;
+            std::vector<QString> caseNames;
+            std::vector<qint64>  caseTypes;
+            std::vector<qint64>  caseGroupIds;
+
+            ruiMainWindow->selectionInfo(caseIds, caseNames, caseTypes, caseGroupIds);
+
+            quint64 byteCount = sizeof(quint64);
+            quint64 selectionCount = caseIds.size();
+
+            for (size_t i = 0; i < selectionCount; i++)
+            {
+                byteCount += caseNames[i].size() * sizeof(QChar);
+                byteCount += 3*sizeof(qint64);
+            }
+
+            socketStream << byteCount;
+            socketStream << selectionCount;
+
+            for (size_t i = 0; i < selectionCount; i++)
+            {
+                socketStream << caseIds[i];
+                socketStream << caseNames[i];
+                socketStream << caseTypes[i];
+                socketStream << caseGroupIds[i];
+            }
+        }
+        
         return;
     }
 

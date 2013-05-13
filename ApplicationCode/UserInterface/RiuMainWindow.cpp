@@ -1520,3 +1520,36 @@ void RiuMainWindow::updateScaleValue()
         m_scaleFactor->setEnabled(false);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::selectionInfo(std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<qint64>& caseTypes, std::vector<qint64>& caseGroupIds)
+{
+    if (m_treeView && m_treeView->selectionModel())
+    {
+        QModelIndexList selectedModelIndexes = m_treeView->selectionModel()->selectedIndexes();
+
+        for (int i = 0; i < selectedModelIndexes.size(); i++)
+        {
+            caf::PdmUiTreeItem* uiTreeItem = m_treeModelPdm->getTreeItemFromIndex(selectedModelIndexes[i]);
+            if (uiTreeItem && uiTreeItem->dataObject())
+            {
+                RimCase* rimCase = dynamic_cast<RimCase*>(uiTreeItem->dataObject().p());
+                if (rimCase)
+                {
+                    caseIds.push_back(rimCase->caseId());
+                    caseNames.push_back(rimCase->caseUserDescription());
+                    caseTypes.push_back(-1);
+
+                    qint64 caseGroupId = -1;
+                    if (rimCase->parentGridCaseGroup())
+                    {
+                        caseGroupId = rimCase->parentGridCaseGroup()->groupId();
+                    }
+                    caseGroupIds.push_back(caseGroupId);
+                }
+            }
+        }
+    }
+}

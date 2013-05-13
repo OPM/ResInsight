@@ -7,6 +7,7 @@ set(CPP_SOURCES
   riGetMainGridDimensions.cpp
   riGetCurrentCase.cpp
   riGetCaseGroups.cpp
+  riGetSelectedCases.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -103,6 +104,7 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"
 
       SOURCES ${CPP_SOURCES}
   )
