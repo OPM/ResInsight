@@ -510,7 +510,7 @@ void RimStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSi
         reservoirView->wellCollection()->wells.deleteAllChildObjects();
         reservoirView->updateDisplayModelForWellResults();
 
-        treeModel->rebuildUiSubTree(reservoirView->wellCollection());
+        treeModel->updateUiSubTree(reservoirView->wellCollection());
 
         progInfo.incrementProgress();
     }

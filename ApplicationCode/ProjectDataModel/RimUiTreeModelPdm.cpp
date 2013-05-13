@@ -459,7 +459,7 @@ void RimUiTreeModelPdm::slotRefreshScriptTree(QString path)
     if (changedSColl)
     {
         changedSColl->readContentFromDisc();
-        this->rebuildUiSubTree(changedSColl);
+        this->updateUiSubTree(changedSColl);
     }
 }
 
@@ -484,7 +484,7 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
         inputReservoir->openDataFileSet(fileNames);
     }
 
-    this->rebuildUiSubTree(inputPropertyCollection);
+    this->updateUiSubTree(inputPropertyCollection);
 }
 
 //--------------------------------------------------------------------------------------------------

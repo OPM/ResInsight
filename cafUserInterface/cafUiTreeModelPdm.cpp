@@ -333,27 +333,11 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TO BE DELETED
-//--------------------------------------------------------------------------------------------------
-bool UiTreeModelPdm::insertRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
-{
-    PdmUiTreeItem* parentItem = getTreeItemFromIndex(parent);
-    
-    bool success;
-
-    beginInsertRows(parent, position, position + rows - 1);
-    success = parentItem->insertChildren(position, rows);
-    endInsertRows();
-
-    return success;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool UiTreeModelPdm::removeRows_special(int position, int rows, const QModelIndex &parent /*= QModelIndex()*/)
+bool UiTreeModelPdm::removeRows_special(int position, int count, const QModelIndex &parent /*= QModelIndex()*/)
 {
-    if (rows <= 0) return true;
+    if (count <= 0) return true;
 
     PdmUiTreeItem* parentItem = NULL;
     if (parent.isValid())
@@ -369,37 +353,104 @@ bool UiTreeModelPdm::removeRows_special(int position, int rows, const QModelInde
 
     bool success = true;
 
-    beginRemoveRows(parent, position, position + rows - 1);
-    success = parentItem->removeChildren(position, rows);
+    beginRemoveRows(parent, position, position + count - 1);
+    success = parentItem->removeChildren(position, count);
     endRemoveRows();
 
     return success;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Refreshes the UI-tree below the supplied root PdmObject
 //--------------------------------------------------------------------------------------------------
-void UiTreeModelPdm::rebuildUiSubTree(PdmObject* root)
+void UiTreeModelPdm::updateUiSubTree(PdmObject* pdmRoot)
 {
-    QModelIndex item = getModelIndexFromPdmObject(root);
-    if (item.isValid())
+    // Build the new "Correct" Tree
+
+    PdmUiTreeItem* tempUpdatedPdmTree = UiTreeItemBuilderPdm::buildViewItems(NULL, -1, pdmRoot);
+
+    // Find the corresponding entry for "root" in the existing Ui tree
+
+    QModelIndex uiSubTreeRootModelIdx = getModelIndexFromPdmObject(pdmRoot);
+
+    PdmUiTreeItem* uiModelSubTreeRoot = NULL;
+    if (uiSubTreeRootModelIdx.isValid())
     {
-       this->removeRows_special(0, rowCount(item), item);
-       PdmUiTreeItem* treeItem = getTreeItemFromIndex(item);
-
-
-       PdmUiTreeItem* fakeRoot = UiTreeItemBuilderPdm::buildViewItems(NULL, -1, root);
-       
-       this->beginInsertRows(item, 0, fakeRoot->childCount());
-       for(int i = 0; i < fakeRoot->childCount(); ++i)
-       {
-           treeItem->appendChild(fakeRoot->child(i));
-       }
-       this->endInsertRows();
-       fakeRoot->removeAllChildrenNoDelete();
-       delete fakeRoot;
+        uiModelSubTreeRoot = getTreeItemFromIndex(uiSubTreeRootModelIdx);
     }
+    else
+    {
+        uiModelSubTreeRoot = m_treeItemRoot;
+    }
+
+ 
+    updateModelSubTree(uiSubTreeRootModelIdx, uiModelSubTreeRoot, tempUpdatedPdmTree);
+ 
+    delete tempUpdatedPdmTree;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Makes the olUiTreeRoot tree become identical to the tree in newUiTreeRoot, 
+/// calling begin..() end..() to make the UI update accordingly.
+/// This assumes that all the items have a pointer an unique PdmObject 
+//--------------------------------------------------------------------------------------------------
+void UiTreeModelPdm::updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeItem* uiModelSubTreeRoot, PdmUiTreeItem* updatedPdmSubTreeRoot)
+{
+    // First loop over children in the old ui tree, deleting the ones not present in 
+    // the newUiTree
+
+    for (int i = 0; i < uiModelSubTreeRoot->childCount() ; ++i)
+    {
+        PdmUiTreeItem* oldChild = uiModelSubTreeRoot->child(i);
+        int childIndex = updatedPdmSubTreeRoot->findChildItemIndex(oldChild->dataObject());
+
+        if (childIndex == -1) // Not found
+        {
+            this->beginRemoveRows(uiSubTreeRootModelIdx, i, i);
+            uiModelSubTreeRoot->removeChildren(i, 1);
+            this->endRemoveRows();
+            i--;
+        }
+    }
+
+    // Then loop over the children in the new ui tree, finding the corresponding items in the old tree. 
+    // If they are found, we move them to the correct position. 
+    // If not found, we pulls the item out of the old ui tree, inserting it into the old tree.
+
+    for (int i = 0; i < updatedPdmSubTreeRoot->childCount() ; ++i)
+    {
+        PdmUiTreeItem* newChild = updatedPdmSubTreeRoot->child(i);
+        int childIndex = uiModelSubTreeRoot->findChildItemIndex(newChild->dataObject());
+
+        if (childIndex == -1) // Not found
+        {
+            this->beginInsertRows(uiSubTreeRootModelIdx, i, i);
+            uiModelSubTreeRoot->insertChild(i, newChild);
+            this->endInsertRows();
+            updatedPdmSubTreeRoot->removeChildrenNoDelete(i, 1);
+            i--;
+        }
+        else if (childIndex != i) // Found, but must be moved
+        {
+            assert(childIndex > i);
+
+            PdmUiTreeItem* oldChild = uiModelSubTreeRoot->child(childIndex);
+            this->beginMoveRows(uiSubTreeRootModelIdx, childIndex, childIndex, uiSubTreeRootModelIdx, i);
+            uiModelSubTreeRoot->removeChildrenNoDelete(childIndex, 1);
+            uiModelSubTreeRoot->insertChild(i, oldChild);
+            this->endMoveRows();
+            updateModelSubTree( index(i, 0, uiSubTreeRootModelIdx) ,oldChild, newChild);
+        }
+        else // Found the corresponding item in the right place.
+        {
+            PdmUiTreeItem* oldChild = uiModelSubTreeRoot->child(childIndex);
+            updateModelSubTree( index(i, 0, uiSubTreeRootModelIdx) ,oldChild, newChild);
+        }
+    }
+
+
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

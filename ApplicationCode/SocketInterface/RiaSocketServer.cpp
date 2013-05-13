@@ -548,7 +548,7 @@ void RiaSocketServer::readPropertyDataFromOctave()
                     inputProperty->fileName = "";
                     inputRes->m_inputPropertyCollection->inputProperties.push_back(inputProperty);
                     RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-                    treeModel->rebuildUiSubTree(inputRes->m_inputPropertyCollection());
+                    treeModel->updateUiSubTree(inputRes->m_inputPropertyCollection());
                 }
                 inputProperty->resolvedState = RimInputProperty::RESOLVED_NOT_SAVED;
             }

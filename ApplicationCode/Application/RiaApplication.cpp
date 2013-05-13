@@ -1098,7 +1098,7 @@ void RiaApplication::applyPreferences()
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-        if (treeModel) treeModel->rebuildUiSubTree(this->project()->scriptCollection());
+        if (treeModel) treeModel->updateUiSubTree(this->project()->scriptCollection());
     }
 
 }
