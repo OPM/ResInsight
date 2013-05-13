@@ -16,7 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace riOctave
+namespace riOctavePlugin
 {
     const int timeOutMilliSecs = 5000;
+
+    const int qtDataStreamVersion = QDataStream::Qt_4_0;
+
 }

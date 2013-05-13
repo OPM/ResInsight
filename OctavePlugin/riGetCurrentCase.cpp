@@ -8,7 +8,7 @@ void getCurrentCase(int& currentCaseId, const QString &hostName, quint16 port)
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int Timeout = riOctave::timeOutMilliSecs;
+    const int Timeout = riOctavePlugin::timeOutMilliSecs;
 
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);

@@ -248,9 +248,10 @@ void RiaSocketServer::readCommandFromOctave()
     bool isSetProperty = args[0] == "SetProperty"; // SetProperty [casename/index] PropertyName
     bool isGetCellInfo = args[0] == "GetActiveCellInfo"; // GetActiveCellInfo [casename/index]
     bool isGetGridDim  = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
-    bool isGetCurrentCase = args[0] == "GetCurrentCase"; 
+    bool isGetCurrentCase = args[0] == "GetCurrentCase";
+    bool isGetCaseGroups = args[0] == "GetCaseGroups";
 
-    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase))
+    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase || isGetCaseGroups))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -298,6 +299,47 @@ void RiaSocketServer::readCommandFromOctave()
 
         return;
     }
+    else if (isGetCaseGroups)
+    {
+        if (RiaApplication::instance()->project())
+        {
+            std::vector<QString> groupNames;
+            std::vector<qint64> groupIds;
+
+            size_t caseGroupCount = RiaApplication::instance()->project()->caseGroups().size();
+            quint64 byteCount = 0;
+
+            for (size_t i = 0; i < caseGroupCount; i++)
+            {
+                RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
+                
+                QString caseGroupName = cg->name;
+                qint64 caseGroupId = cg->groupId;
+
+                byteCount += caseGroupName.size() * sizeof(QChar);
+                byteCount += sizeof(qint64);
+
+                groupNames.push_back(caseGroupName);
+                groupIds.push_back(caseGroupId);
+            }
+
+            socketStream << (quint64)byteCount;
+            socketStream << (quint64)caseGroupCount;
+
+            for (size_t i = 0; i < caseGroupCount; i++)
+            {
+                socketStream << groupNames[i];
+                socketStream << groupIds[i];
+            }
+        }
+        else
+        {
+            // ERROR
+        }
+
+        return;
+    }
+
 
     if (reservoir == NULL)
     {
