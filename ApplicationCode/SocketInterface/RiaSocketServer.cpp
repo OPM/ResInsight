@@ -288,14 +288,31 @@ void RiaSocketServer::readCommandFromOctave()
     
     if (isGetCurrentCase)
     {
-        int caseId = -1;
+        qint64  caseId = -1;
+        QString caseName;
+        qint64  caseType = -1;
+        qint64  caseGroupId = -1;
 
         if (reservoir)
         {
             caseId = reservoir->caseId();
+            caseName = reservoir->caseUserDescription();
+            caseType = -1;
+
+            if (reservoir->parentGridCaseGroup())
+            {
+                caseGroupId = reservoir->parentGridCaseGroup()->groupId();
+            }
         }
 
-        socketStream << (qint64)caseId;
+        quint64 byteCount = 3*sizeof(qint64) + caseName.size()*sizeof(QChar);
+
+        socketStream << byteCount;
+
+        socketStream << caseId;
+        socketStream << caseName;
+        socketStream << caseType;
+        socketStream << caseGroupId;
 
         return;
     }

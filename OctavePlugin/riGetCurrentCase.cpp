@@ -3,17 +3,17 @@
 
 #include "riSettings.h"
 
-void getCurrentCase(int& currentCaseId, const QString &hostName, quint16 port)
+void getCurrentCase(qint64& caseId, QString& caseName, qint64& caseType, qint64& caseGroupId, const QString &hostName, quint16 port)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int Timeout = riOctavePlugin::timeOutMilliSecs;
+    const int timeout = riOctavePlugin::timeOutMilliSecs;
 
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout))
+    if (!socket.waitForConnected(timeout))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -25,28 +25,39 @@ void getCurrentCase(int& currentCaseId, const QString &hostName, quint16 port)
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
-    socketStream.setVersion(QDataStream::Qt_4_0);
+    socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
     socketStream << (qint64)(cmdBytes.size());
     socket.write(cmdBytes);
 
     // Get response. First wait for the header
 
-    while (socket.bytesAvailable() < (int)(sizeof(qint64)))
+    while (socket.bytesAvailable() < (int)(sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(timeout))
         {
             error((("Wating for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
 
-    qint64 caseId;
+    quint64 byteCount;
+    socketStream >> byteCount;
+
+    while (socket.bytesAvailable() < (int)(byteCount))
+    {
+        if (!socket.waitForReadyRead(timeout))
+        {
+            error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
+            return;
+        }
+        OCTAVE_QUIT;
+    }
+
     socketStream >> caseId;
-
-    octave_stdout << "riGetCurrentCase: " << caseId << std::endl;
-
-    currentCaseId = caseId;
+    socketStream >> caseName;
+    socketStream >> caseType;
+    socketStream >> caseGroupId;
 
     return;
 }
@@ -71,11 +82,40 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
     }
     else
     {
-        int caseId;
+        qint64  caseId = -1;
+        QString caseName;
+        qint64  caseType = -1;
+        qint64  caseGroupId = -1;
 
-        getCurrentCase(caseId, "127.0.0.1", 40001);
+        getCurrentCase(caseId, caseName, caseType, caseGroupId, "127.0.0.1", 40001);
 
-        return octave_value(caseId);
+        octave_value_list retval;
+
+        if (nargout >= 1)
+        {
+            retval(0) = caseId;
+        }
+
+        if (nargout >= 2)
+        {
+            charMatrix ch;
+            ch.resize(1, caseName.length());
+            ch.insert(caseName.toLatin1().data(), 0, 0);
+
+            retval(1) = octave_value (ch, true, '\'');
+        }
+
+        if (nargout >= 3)
+        {
+            retval(2) = caseType;
+        }
+
+        if (nargout >= 4)
+        {
+            retval(3) = caseGroupId;
+        }
+
+        return retval;
     }
 
     return octave_value_list ();
