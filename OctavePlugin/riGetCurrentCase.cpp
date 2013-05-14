@@ -1,5 +1,6 @@
 #include <QtNetwork>
 #include <octave/oct.h>
+ #include <octave/ov-struct.h>
 
 #include "riSettings.h"
 
@@ -71,13 +72,20 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
            "\n"
            "Returns meta information for the Case considered to be the “Current Case” by ResInsight.\n"
            "When ResInsigt loops over a selection of cases and executes an Octave script for each of them,\n"
-           "this function returns the CaseId for that particular Case."
+           "this function returns the CaseInformation for that particular Case."
            )
 {
+    octave_value retval;
+    
     int nargin = args.length ();
     if (nargin > 0)
     {
-        error("riGetCurrentCase: Too many arguments, this function does not take any arguments.\n");
+        error("riGetCurrentCase: Too many input arguments, this function does not take any input arguments.\n");
+        print_usage();
+    }
+    else if (nargout != 1)
+    {
+        error("riGetCurrentCase: Wrong number of output arguments, this function requires one output argument.\n");
         print_usage();
     }
     else
@@ -89,35 +97,19 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
 
         getCurrentCase(caseId, caseName, caseType, caseGroupId, "127.0.0.1", 40001);
 
-        octave_value_list retval;
+        charMatrix ch;
+        ch.resize(1, caseName.length());
+        ch.insert(caseName.toLatin1().data(), 0, 0);
 
-        if (nargout >= 1)
-        {
-            retval(0) = caseId;
-        }
+        octave_scalar_map fieldMap;
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseId,      caseId);
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseName,    ch);
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseType,    caseType);
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseGroupId, caseGroupId);
 
-        if (nargout >= 2)
-        {
-            charMatrix ch;
-            ch.resize(1, caseName.length());
-            ch.insert(caseName.toLatin1().data(), 0, 0);
-
-            retval(1) = octave_value (ch, true, '\'');
-        }
-
-        if (nargout >= 3)
-        {
-            retval(2) = caseType;
-        }
-
-        if (nargout >= 4)
-        {
-            retval(3) = caseGroupId;
-        }
-
-        return retval;
+        retval = octave_value(fieldMap);
     }
-
-    return octave_value_list ();
+    
+    return retval;
 }
 
