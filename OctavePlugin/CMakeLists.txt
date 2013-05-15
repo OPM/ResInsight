@@ -115,10 +115,13 @@ else()
     # directly from the location of the ResInsight binaries
     if (MSVC)
         foreach (oct_bin ${OCTAVE_BINARY_OCT_FILES})
+            
+            get_filename_component(Filename "${oct_bin}" NAME)
+
             add_custom_command(TARGET octave_plugins POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${oct_bin}"
-                "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>"
+                "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>/${Filename}"
             )
         endforeach( oct_bin )
     endif(MSVC)
