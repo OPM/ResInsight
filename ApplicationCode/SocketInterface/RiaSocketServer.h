@@ -66,6 +66,8 @@ private:
                                                         std::vector<qint32>& hostCellJ,
                                                         std::vector<qint32>& hostCellK);
 
+    void            caseInfo(RimCase* rimCase, qint64& caseGroupId, QString& caseType);
+
 
 private:
     QTcpServer*     m_tcpServer;

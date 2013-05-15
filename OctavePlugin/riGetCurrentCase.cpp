@@ -4,7 +4,7 @@
 
 #include "riSettings.h"
 
-void getCurrentCase(qint64& caseId, QString& caseName, qint64& caseType, qint64& caseGroupId, const QString &hostName, quint16 port)
+void getCurrentCase(qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId, const QString &hostName, quint16 port)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
@@ -70,9 +70,9 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
            "\n"
            "   riGetCurrentCase()\n"
            "\n"
-           "Returns meta information for the Case considered to be the “Current Case” by ResInsight.\n"
+           "This function returns a CaseInfo Structure for the Case considered being the 'Current Case' by ResInsight.\n"
            "When ResInsigt loops over a selection of cases and executes an Octave script for each of them,\n"
-           "this function returns the CaseInformation for that particular Case."
+           "this function returns the CaseInfo for that particular Case.\n"
            )
 {
     octave_value retval;
@@ -92,7 +92,7 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
     {
         qint64  caseId = -1;
         QString caseName;
-        qint64  caseType = -1;
+        QString caseType;
         qint64  caseGroupId = -1;
 
         getCurrentCase(caseId, caseName, caseType, caseGroupId, "127.0.0.1", 40001);
@@ -101,7 +101,7 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
 
         fieldMap.assign(riOctavePlugin::caseInfo_CaseId,      caseId);
         fieldMap.assign(riOctavePlugin::caseInfo_CaseName,    caseName.toLatin1().data());
-        fieldMap.assign(riOctavePlugin::caseInfo_CaseType,    caseType);
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseType,    caseType.toLatin1().data());
         fieldMap.assign(riOctavePlugin::caseInfo_CaseGroupId, caseGroupId);
 
         retval = octave_value(fieldMap);

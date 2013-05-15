@@ -292,22 +292,20 @@ void RiaSocketServer::readCommandFromOctave()
     {
         qint64  caseId = -1;
         QString caseName;
-        qint64  caseType = -1;
+        QString caseType;
         qint64  caseGroupId = -1;
 
         if (reservoir)
         {
             caseId = reservoir->caseId();
             caseName = reservoir->caseUserDescription();
-            caseType = -1;
 
-            if (reservoir->parentGridCaseGroup())
-            {
-                caseGroupId = reservoir->parentGridCaseGroup()->groupId();
-            }
+            caseInfo(reservoir, caseGroupId, caseType);
         }
 
-        quint64 byteCount = 3*sizeof(qint64) + caseName.size()*sizeof(QChar);
+        quint64 byteCount = 2*sizeof(qint64);
+        byteCount += caseName.size()*sizeof(QChar);
+        byteCount += caseType.size()*sizeof(QChar);
 
         socketStream << byteCount;
 
@@ -449,34 +447,9 @@ void RiaSocketServer::readCommandFromOctave()
             {
                 RimCase* rimCase = cases[i];
 
+                qint64 caseGroupId;
                 QString caseType;
-                qint64 caseGroupId = -1;
-
-                RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
-                if (caseCollection)
-                {
-                    caseGroupId = caseCollection->parentCaseGroup()->groupId;
-
-                    if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
-                    {
-                        caseType = "StatisticsCase";
-                    }
-                    else
-                    {
-                        caseType = "SourceCase";
-                    }
-                }
-                else
-                {
-                    if (dynamic_cast<RimInputCase*>(rimCase))
-                    {
-                        caseType = "InputCase";
-                    }
-                    else
-                    {
-                        caseType = "ResultCase";
-                    }
-                }
+                caseInfo(rimCase, caseGroupId, caseType);
 
                 caseIds.push_back(rimCase->caseId);
                 caseNames.push_back(rimCase->caseUserDescription);
@@ -930,6 +903,42 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase,
             hostCellI.push_back(static_cast<qint32>(pi));
             hostCellJ.push_back(static_cast<qint32>(pj));
             hostCellK.push_back(static_cast<qint32>(pk));
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::caseInfo(RimCase* rimCase, qint64& caseGroupId, QString& caseType)
+{
+    CVF_ASSERT(rimCase);
+
+    RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
+    if (caseCollection)
+    {
+        caseGroupId = caseCollection->parentCaseGroup()->groupId;
+
+        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+        {
+            caseType = "StatisticsCase";
+        }
+        else
+        {
+            caseType = "SourceCase";
+        }
+    }
+    else
+    {
+        caseGroupId = -1;
+
+        if (dynamic_cast<RimInputCase*>(rimCase))
+        {
+            caseType = "InputCase";
+        }
+        else
+        {
+            caseType = "ResultCase";
         }
     }
 }
