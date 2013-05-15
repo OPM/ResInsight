@@ -94,12 +94,12 @@ DEFUN_DLD (riGetCases, args, nargout,
     int nargin = args.length ();
     if (nargin > 1)
     {
-        error("riGetCurrentCase: Too many arguments, this function takes one optional argument.\n");
+        error("riGetCases: Too many arguments, this function takes one optional argument.\n");
         print_usage();
     }
     else if (nargout != 1)
     {
-        error("riGetCurrentCase: Wrong number of output arguments, this function requires one output argument.\n");
+        error("riGetCases: Wrong number of output arguments, this function requires one output argument.\n");
         print_usage();
     }
     else
@@ -125,7 +125,7 @@ DEFUN_DLD (riGetCases, args, nargout,
             caseCount != caseTypes.size() ||
             caseCount != caseGroupIds.size())
         {
-            error("riGetCurrentCase: Inconsistent data received from ResInsight.\n");
+            error("riGetCases: Inconsistent data received from ResInsight.\n");
         }
         else
         {
