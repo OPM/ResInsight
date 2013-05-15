@@ -1,5 +1,6 @@
 #include <QtNetwork>
 #include <octave/oct.h>
+#include <octave/oct-map.h>
 
 #include "riSettings.h"
 
@@ -88,10 +89,17 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
            "Returns meta information for the Selected Case(s) in ResInsight.\n"
            )
 {
+    octave_value_list retval;
+
     int nargin = args.length ();
     if (nargin > 0)
     {
         error("riGetCurrentCase: Too many arguments, this function does not take any arguments.\n");
+        print_usage();
+    }
+    else if (nargout != 1)
+    {
+        error("riGetCurrentCase: Wrong number of output arguments, this function requires one output argument.\n");
         print_usage();
     }
     else
@@ -103,67 +111,44 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
 
         getSelectedCases(caseIds, caseNames, caseTypes, caseGroupIds, "127.0.0.1", 40001);
 
-        int caseCount = caseIds.size();
+        size_t caseCount = caseIds.size();
 
-        int maxStringLength = 0;
-        for (size_t i = 0; i < caseCount; i++)
+        if (caseCount != caseNames.size() ||
+            caseCount != caseTypes.size() ||
+            caseCount != caseGroupIds.size())
         {
-            if (caseNames[i].length() > maxStringLength)
+            error("riGetCurrentCase: Inconsistent data received from ResInsight.\n");
+        }
+        else
+        {
+            // Create cells with N items for each field in the data structure
+            
+            Cell cellValuesA(caseCount, 1);
+            Cell cellValuesB(caseCount, 1);
+            Cell cellValuesC(caseCount, 1);
+            Cell cellValuesD(caseCount, 1);
+
+            for (size_t i = 0; i < caseCount; i++)
             {
-                maxStringLength = caseNames[i].length();
+                cellValuesA(i) = caseIds[i];
+                cellValuesB(i) = caseNames[i].toLatin1().data();
+                cellValuesC(i) = caseTypes[i];
+                cellValuesD(i) = caseGroupIds[i];
             }
+
+            // Build a map between the field name and field cell values
+            
+            Octave_map m;
+
+            m.assign(riOctavePlugin::caseInfo_CaseId,      cellValuesA);
+            m.assign(riOctavePlugin::caseInfo_CaseName,    cellValuesB);
+            m.assign(riOctavePlugin::caseInfo_CaseType,    cellValuesC);
+            m.assign(riOctavePlugin::caseInfo_CaseGroupId, cellValuesD);
+
+            return octave_value(m);
         }
-        
-        dim_vector dv (1, 1);
-        dv(0) = caseCount;
-
-        int32NDArray octave_caseIds;
-        octave_caseIds.resize(dv);
-
-        int32NDArray octave_caseTypes;
-        octave_caseTypes.resize(dv);
-
-        int32NDArray octave_caseGroupIds;
-        octave_caseGroupIds.resize(dv);
-
-        charMatrix ch;
-        ch.resize(caseCount, maxStringLength);
-
-        for (size_t i = 0; i < caseCount; i++)
-        {
-            octave_caseIds(i) = caseIds[i];
-
-            ch.insert(caseNames[i].toLatin1().data(), i, 0);
-
-            octave_caseTypes(i) = caseTypes[i];
-            octave_caseGroupIds(i) = caseGroupIds[i];
-        }
-
-        octave_value_list retval;
-
-        if (nargout >= 1)
-        {
-            retval(0) = octave_caseIds;
-        }
-
-        if (nargout >= 2)
-        {
-            retval(1) = octave_value (ch, true, '\'');
-        }
-
-        if (nargout >= 3)
-        {
-            retval(2) = octave_caseTypes;
-        }
-
-        if (nargout >= 4)
-        {
-            retval(3) = octave_caseGroupIds;
-        }
-
-        return retval;
     }
 
-    return octave_value_list ();
+    return retval;
 }
 
