@@ -297,10 +297,7 @@ void RiaSocketServer::readCommandFromOctave()
 
         if (reservoir)
         {
-            caseId = reservoir->caseId();
-            caseName = reservoir->caseUserDescription();
-
-            caseInfo(reservoir, caseGroupId, caseType);
+            getCaseInfoFromCase(reservoir, caseId, caseName, caseType, caseGroupId);
         }
 
         quint64 byteCount = 2*sizeof(qint64);
@@ -362,20 +359,24 @@ void RiaSocketServer::readCommandFromOctave()
         RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
         if (ruiMainWindow)
         {
+            std::vector<RimCase*> cases;
+            ruiMainWindow->selectedCases(cases);
+
             std::vector<qint64>  caseIds;
             std::vector<QString> caseNames;
-            std::vector<qint64>  caseTypes;
+            std::vector<QString>  caseTypes;
             std::vector<qint64>  caseGroupIds;
 
-            ruiMainWindow->selectionInfo(caseIds, caseNames, caseTypes, caseGroupIds);
+            getCaseInfoFromCases(cases, caseIds, caseNames, caseTypes, caseGroupIds);
 
             quint64 byteCount = sizeof(quint64);
             quint64 selectionCount = caseIds.size();
 
             for (size_t i = 0; i < selectionCount; i++)
             {
+                byteCount += 2*sizeof(qint64);
                 byteCount += caseNames[i].size() * sizeof(QChar);
-                byteCount += 3*sizeof(qint64);
+                byteCount += caseTypes[i].size() * sizeof(QChar);
             }
 
             socketStream << byteCount;
@@ -443,19 +444,7 @@ void RiaSocketServer::readCommandFromOctave()
             std::vector<QString> caseTypes;
             std::vector<qint64>  caseGroupIds;
 
-            for (size_t i = 0; i < cases.size(); i++)
-            {
-                RimCase* rimCase = cases[i];
-
-                qint64 caseGroupId;
-                QString caseType;
-                caseInfo(rimCase, caseGroupId, caseType);
-
-                caseIds.push_back(rimCase->caseId);
-                caseNames.push_back(rimCase->caseUserDescription);
-                caseTypes.push_back(caseType);
-                caseGroupIds.push_back(caseGroupId);
-            }
+            getCaseInfoFromCases(cases, caseIds, caseNames, caseTypes, caseGroupIds);
 
             quint64 byteCount = sizeof(quint64);
             quint64 caseCount = caseIds.size();
@@ -910,9 +899,12 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::caseInfo(RimCase* rimCase, qint64& caseGroupId, QString& caseType)
+void RiaSocketServer::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId)
 {
     CVF_ASSERT(rimCase);
+
+    caseId = rimCase->caseId;
+    caseName = rimCase->caseUserDescription;
 
     RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
     if (caseCollection)
@@ -940,6 +932,28 @@ void RiaSocketServer::caseInfo(RimCase* rimCase, qint64& caseGroupId, QString& c
         {
             caseType = "ResultCase";
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::getCaseInfoFromCases(std::vector<RimCase*>& cases, std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<QString> &caseTypes, std::vector<qint64>& caseGroupIds)
+{
+    for (size_t i = 0; i < cases.size(); i++)
+    {
+        RimCase* rimCase = cases[i];
+
+        qint64  caseId = -1;
+        QString caseName;
+        QString caseType;
+        qint64  caseGroupId = -1;
+        getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+
+        caseIds.push_back(rimCase->caseId);
+        caseNames.push_back(rimCase->caseUserDescription);
+        caseTypes.push_back(caseType);
+        caseGroupIds.push_back(caseGroupId);
     }
 }
 

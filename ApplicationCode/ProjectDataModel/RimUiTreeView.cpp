@@ -785,11 +785,7 @@ void RimUiTreeView::slotCloseCase()
             caf::PdmObjectGroup group;
 
             QModelIndexList mil = m->selectedRows();
-            for (int i = 0; i < mil.size(); i++)
-            {
-                caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mil.at(i));
-                group.addObject(uiItem->dataObject().p());
-            }
+            populateObjectGroupFromModelIndexList(mil, &group);
 
             std::vector<caf::PdmPointer<RimCase> > typedObjects;
             group.objectsByType(&typedObjects);
@@ -928,11 +924,7 @@ void RimUiTreeView::createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGro
     if (!mdWithIndexes) return;
 
     QModelIndexList indexList = mdWithIndexes->indexes();
-    for (int i = 0; i < indexList.size(); i++)
-    {
-        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(indexList.at(i));
-        objectGroup->addObject(uiItem->dataObject().p());
-    }
+    populateObjectGroupFromModelIndexList(indexList, objectGroup);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1463,5 +1455,26 @@ void RimUiTreeView::slotToggleItemsOn()
 void RimUiTreeView::slotToggleItemsOff()
 {
     executeSelectionToggleOperation(TOGGLE_OFF);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup)
+{
+    CVF_ASSERT(objectGroup);
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (!myModel) return;
+
+    for (int i = 0; i < modelIndexList.size(); i++)
+    {
+        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(modelIndexList.at(i));
+        
+        if (uiItem && uiItem->dataObject() && uiItem->dataObject().p())
+        {
+            objectGroup->addObject(uiItem->dataObject().p());
+        }
+    }
 }
 

@@ -49,6 +49,7 @@ private slots:
 
 private:
     void            readCommandFromOctave();
+
     void            readPropertyDataFromOctave();
 
 
@@ -66,7 +67,13 @@ private:
                                                         std::vector<qint32>& hostCellJ,
                                                         std::vector<qint32>& hostCellK);
 
-    void            caseInfo(RimCase* rimCase, qint64& caseGroupId, QString& caseType);
+    void            getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
+    
+    void            getCaseInfoFromCases(   std::vector<RimCase*>& cases, 
+                                            std::vector<qint64>&   caseIds,
+                                            std::vector<QString>&  caseNames,
+                                            std::vector<QString>&  caseTypes,
+                                            std::vector<qint64>&   caseGroupIds);
 
 
 private:

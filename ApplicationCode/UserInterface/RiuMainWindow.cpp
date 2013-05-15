@@ -1524,32 +1524,21 @@ void RiuMainWindow::updateScaleValue()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectionInfo(std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<qint64>& caseTypes, std::vector<qint64>& caseGroupIds)
+void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 {
     if (m_treeView && m_treeView->selectionModel())
     {
         QModelIndexList selectedModelIndexes = m_treeView->selectionModel()->selectedIndexes();
+        
+        caf::PdmObjectGroup group;
+        m_treeView->populateObjectGroupFromModelIndexList(selectedModelIndexes, &group);
 
-        for (int i = 0; i < selectedModelIndexes.size(); i++)
+        std::vector<caf::PdmPointer<RimCase> > typedObjects;
+        group.objectsByType(&typedObjects);
+
+        for (size_t i = 0; i < typedObjects.size(); i++)
         {
-            caf::PdmUiTreeItem* uiTreeItem = m_treeModelPdm->getTreeItemFromIndex(selectedModelIndexes[i]);
-            if (uiTreeItem && uiTreeItem->dataObject())
-            {
-                RimCase* rimCase = dynamic_cast<RimCase*>(uiTreeItem->dataObject().p());
-                if (rimCase)
-                {
-                    caseIds.push_back(rimCase->caseId());
-                    caseNames.push_back(rimCase->caseUserDescription());
-                    caseTypes.push_back(-1);
-
-                    qint64 caseGroupId = -1;
-                    if (rimCase->parentGridCaseGroup())
-                    {
-                        caseGroupId = rimCase->parentGridCaseGroup()->groupId();
-                    }
-                    caseGroupIds.push_back(caseGroupId);
-                }
-            }
+            cases.push_back(typedObjects[i]);
         }
     }
 }

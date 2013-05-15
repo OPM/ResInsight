@@ -40,6 +40,7 @@ class RiuResultInfoPanel;
 class RiuProcessMonitor;
 class RimUiTreeModelPdm;
 class RimUiTreeView;
+class RimCase;
 
 namespace caf
 {
@@ -84,7 +85,7 @@ public:
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
-    void            selectionInfo(std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<qint64>& caseTypes, std::vector<qint64>& caseGroupIds);
+    void            selectedCases(std::vector<RimCase*>& cases);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);

@@ -4,7 +4,7 @@
 
 #include "riSettings.h"
 
-void getSelectedCases(std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<qint64>& caseTypes, std::vector<qint64>& caseGroupIds, const QString &hostName, quint16 port)
+void getSelectedCases(std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<QString>& caseTypes, std::vector<qint64>& caseGroupIds, const QString &hostName, quint16 port)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
@@ -60,7 +60,7 @@ void getSelectedCases(std::vector<qint64>& caseIds, std::vector<QString>& caseNa
 
     qint64  caseId = -1;
     QString caseName;
-    qint64  caseType = -1;
+    QString caseType;
     qint64  caseGroupId = -1;
 
     for (size_t i = 0; i < selectionCount; i++)
@@ -86,27 +86,25 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
            "\n"
            "   riGetSelectedCases()\n"
            "\n"
-           "Returns meta information for the Selected Case(s) in ResInsight.\n"
+           "This function returns a CaseInfo Structure for each of the cases selected in ResInsight at the time when the script was launched.\n"
            )
 {
-    octave_value_list retval;
-
     int nargin = args.length ();
     if (nargin > 0)
     {
-        error("riGetCurrentCase: Too many arguments, this function does not take any arguments.\n");
+        error("riGetSelectedCases: Too many arguments, this function does not take any arguments.\n");
         print_usage();
     }
     else if (nargout != 1)
     {
-        error("riGetCurrentCase: Wrong number of output arguments, this function requires one output argument.\n");
+        error("riGetSelectedCases: Wrong number of output arguments, this function requires one output argument.\n");
         print_usage();
     }
     else
     {
         std::vector<qint64>  caseIds;
         std::vector<QString> caseNames;
-        std::vector<qint64>  caseTypes;
+        std::vector<QString> caseTypes;
         std::vector<qint64>  caseGroupIds;
 
         getSelectedCases(caseIds, caseNames, caseTypes, caseGroupIds, "127.0.0.1", 40001);
@@ -117,7 +115,7 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
             caseCount != caseTypes.size() ||
             caseCount != caseGroupIds.size())
         {
-            error("riGetCurrentCase: Inconsistent data received from ResInsight.\n");
+            error("riGetSelectedCases: Inconsistent data received from ResInsight.\n");
         }
         else
         {
@@ -132,7 +130,7 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
             {
                 cellValuesA(i) = caseIds[i];
                 cellValuesB(i) = caseNames[i].toLatin1().data();
-                cellValuesC(i) = caseTypes[i];
+                cellValuesC(i) = caseTypes[i].toLatin1().data();
                 cellValuesD(i) = caseGroupIds[i];
             }
 
@@ -149,6 +147,6 @@ DEFUN_DLD (riGetSelectedCases, args, nargout,
         }
     }
 
-    return retval;
+    return octave_value();
 }
 
