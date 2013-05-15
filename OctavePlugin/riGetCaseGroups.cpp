@@ -1,5 +1,6 @@
 #include <QtNetwork>
 #include <octave/oct.h>
+#include <octave/oct-map.h>
 
 #include "riSettings.h"
 
@@ -82,7 +83,11 @@ DEFUN_DLD (riGetCaseGroups, args, nargout,
            "\n"
            "   riGetCaseGroups()\n"
            "\n"
-           "Returns a vector of all the case groups in the current ResInsight project"
+           "This function returns a CaseGroupInfo Structure for each of the case groups in the current ResInsight project.\n"
+           "CaseGroupInfo = {\n"
+           "    CaseGroupId = int # A project-unique integer used to address this particular CaseGroup\n"
+           "    CaseGroupName = string # The name assigned to the CaseGroup in ResInsight\n"
+           "}\n"
            )
 {
     int nargin = args.length ();
@@ -91,9 +96,9 @@ DEFUN_DLD (riGetCaseGroups, args, nargout,
         error("riGetCaseGroups: Too many arguments, this function does not take any arguments.\n");
         print_usage();
     }
-    else if (nargout == 0 || nargout > 2)
+    else if (nargout != 1)
     {
-        error("riGetCaseGroups: Wrong number of output arguments, expects one or two output arguments.\n");
+        error("riGetCaseGroups: Wrong number of output arguments, expects one output argument.\n");
         print_usage();
     }
     else
@@ -102,50 +107,36 @@ DEFUN_DLD (riGetCaseGroups, args, nargout,
         std::vector<int> groupIds;
         getCaseGroups(groupNames, groupIds, "127.0.0.1", 40001);
 
-        int caseGroupCount = groupNames.size();
-        if (caseGroupCount == 0)
-        {
-             return octave_value_list();
-        }
+        size_t groupCount = groupNames.size();
 
-        int maxStringLength = 0;
-        for (size_t i = 0; i < caseGroupCount; i++)
+        if (groupCount != groupIds.size())
         {
-            if (groupNames[i].length() > maxStringLength)
+            error("riGetCurrentCase: Inconsistent data received from ResInsight.\n");
+        }
+        else
+        {
+            // Create cells with N items for each field in the data structure
+
+            Cell cellValuesA(groupCount, 1);
+            Cell cellValuesB(groupCount, 1);
+
+            for (size_t i = 0; i < groupCount; i++)
             {
-                maxStringLength = groupNames[i].length();
+                cellValuesA(i) = groupIds[i];
+                cellValuesB(i) = groupNames[i].toLatin1().data();
             }
+
+            // Build a map between the field name and field cell values
+
+            Octave_map m;
+
+            m.assign(riOctavePlugin::caseGroupInfo_CaseGroupId,   cellValuesA);
+            m.assign(riOctavePlugin::caseGroupInfo_CaseGroupName, cellValuesB);
+
+            return octave_value(m);
         }
-
-        int32NDArray octave_groupIds;
-        dim_vector dv (1, 1);
-        dv(0) = caseGroupCount;
-        octave_groupIds.resize(dv);
-
-        charMatrix ch;
-        ch.resize(caseGroupCount, maxStringLength);
-
-        octave_value_list retval;
-        for (size_t i = 0; i < caseGroupCount; i++)
-        {
-            ch.insert(groupNames[i].toLatin1().data(), i, 0);
-
-            octave_groupIds(i) = groupIds[i];
-        }
-
-        if (nargout >= 1)
-        {
-            retval(0) = octave_groupIds;
-        }
-
-        if (nargout >= 2)
-        {
-            retval(1) = octave_value (ch, true, '\'');
-        }
-
-        return retval;
     }
 
-    return octave_value_list ();
+    return octave_value();
 }
 

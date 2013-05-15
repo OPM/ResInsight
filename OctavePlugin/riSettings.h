@@ -22,10 +22,14 @@ namespace riOctavePlugin
 
     const int qtDataStreamVersion = QDataStream::Qt_4_0;
 
-    // Name of fields in Octave structure called CaseInfo
+    // Octave data structure : CaseInfo
     char caseInfo_CaseId[]      = "CaseId";
     char caseInfo_CaseName[]    = "CaseName";
     char caseInfo_CaseType[]    = "CaseType";
     char caseInfo_CaseGroupId[] = "CaseGroupId";
+
+    // Octave data structure : CaseGroupInfo
+    char caseGroupInfo_CaseGroupId[]      = "CaseGroupId";
+    char caseGroupInfo_CaseGroupName[]    = "CaseName";
 }
 
