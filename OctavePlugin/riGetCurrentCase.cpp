@@ -1,6 +1,6 @@
 #include <QtNetwork>
 #include <octave/oct.h>
- #include <octave/ov-struct.h>
+#include <octave/oct-map.h>
 
 #include "riSettings.h"
 
@@ -97,13 +97,10 @@ DEFUN_DLD (riGetCurrentCase, args, nargout,
 
         getCurrentCase(caseId, caseName, caseType, caseGroupId, "127.0.0.1", 40001);
 
-        charMatrix ch;
-        ch.resize(1, caseName.length());
-        ch.insert(caseName.toLatin1().data(), 0, 0);
+        Octave_map fieldMap;
 
-        octave_scalar_map fieldMap;
         fieldMap.assign(riOctavePlugin::caseInfo_CaseId,      caseId);
-        fieldMap.assign(riOctavePlugin::caseInfo_CaseName,    ch);
+        fieldMap.assign(riOctavePlugin::caseInfo_CaseName,    caseName.toLatin1().data());
         fieldMap.assign(riOctavePlugin::caseInfo_CaseType,    caseType);
         fieldMap.assign(riOctavePlugin::caseInfo_CaseGroupId, caseGroupId);
 

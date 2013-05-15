@@ -29,7 +29,3 @@ namespace riOctavePlugin
     char caseInfo_CaseGroupId[] = "CaseGroupId";
 }
 
-// Support previous name Octave_map of class octave_scalar_map
-#ifndef OCTAVE_API_VERSION_NUMBER
-#define octave_scalar_map Octave_map
-#endif
