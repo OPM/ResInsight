@@ -251,8 +251,9 @@ void RiaSocketServer::readCommandFromOctave()
     bool isGetCurrentCase = args[0] == "GetCurrentCase";
     bool isGetCaseGroups = args[0] == "GetCaseGroups";
     bool isGetSelectedCases = args[0] == "GetSelectedCases";
+    bool isGetCases = args[0] == "GetCases";
 
-    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase || isGetCaseGroups || isGetSelectedCases))
+    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase || isGetCaseGroups || isGetSelectedCases || isGetCases))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -393,6 +394,121 @@ void RiaSocketServer::readCommandFromOctave()
         
         return;
     }
+    else if (isGetCases)
+    {
+        quint64 argCaseGroupId = -1;
+
+        if (args.size() == 2)
+        {
+            argCaseGroupId = args[1].toInt();
+        }
+
+        if (RiaApplication::instance()->project())
+        {
+            RimProject* proj = RiaApplication::instance()->project();
+
+            std::vector<RimCase*> cases;
+            if (argCaseGroupId == -1)
+            {
+                proj->allCases(cases);
+            }
+            else
+            {
+                RimIdenticalGridCaseGroup* caseGroup = NULL;
+                for (size_t i = 0; i < RiaApplication::instance()->project()->caseGroups().size(); i++)
+                {
+                    RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
+
+                    if (argCaseGroupId == cg->groupId())
+                    {
+                        caseGroup = cg;
+                    }
+                }
+
+                if (caseGroup)
+                {
+                    for (size_t i = 0; i < caseGroup->statisticsCaseCollection()->reservoirs.size(); i++)
+                    {
+                        cases.push_back(caseGroup->statisticsCaseCollection()->reservoirs[i]);
+                    }
+
+                    for (size_t i = 0; i < caseGroup->caseCollection()->reservoirs.size(); i++)
+                    {
+                        cases.push_back(caseGroup->caseCollection()->reservoirs[i]);
+                    }
+                }
+            }
+
+
+            std::vector<qint64>  caseIds;
+            std::vector<QString> caseNames;
+            std::vector<QString> caseTypes;
+            std::vector<qint64>  caseGroupIds;
+
+            for (size_t i = 0; i < cases.size(); i++)
+            {
+                RimCase* rimCase = cases[i];
+
+                QString caseType;
+                qint64 caseGroupId = -1;
+
+                RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
+                if (caseCollection)
+                {
+                    caseGroupId = caseCollection->parentCaseGroup()->groupId;
+
+                    if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+                    {
+                        caseType = "StatisticsCase";
+                    }
+                    else
+                    {
+                        caseType = "SourceCase";
+                    }
+                }
+                else
+                {
+                    if (dynamic_cast<RimInputCase*>(rimCase))
+                    {
+                        caseType = "InputCase";
+                    }
+                    else
+                    {
+                        caseType = "ResultCase";
+                    }
+                }
+
+                caseIds.push_back(rimCase->caseId);
+                caseNames.push_back(rimCase->caseUserDescription);
+                caseTypes.push_back(caseType);
+                caseGroupIds.push_back(caseGroupId);
+            }
+
+            quint64 byteCount = sizeof(quint64);
+            quint64 caseCount = caseIds.size();
+
+            for (size_t i = 0; i < caseCount; i++)
+            {
+                byteCount += 2*sizeof(qint64);
+                byteCount += caseNames[i].size() * sizeof(QChar);
+                byteCount += caseTypes[i].size() * sizeof(QChar);
+            }
+
+            socketStream << byteCount;
+            socketStream << caseCount;
+
+            for (size_t i = 0; i < caseCount; i++)
+            {
+                socketStream << caseIds[i];
+                socketStream << caseNames[i];
+                socketStream << caseTypes[i];
+                socketStream << caseGroupIds[i];
+            }
+        }
+
+        return;
+    }
+
 
 
     if (reservoir == NULL)

@@ -63,10 +63,11 @@ public:
 
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
+
+    void            allCases(std::vector<RimCase*>& cases);
     
 private:
     RigMainGrid*    registerCaseInGridCollection(RigCaseData* rigEclipseCase);
-    void            allCases(std::vector<RimCase*>& cases);
 
 protected:
     // Overridden methods
