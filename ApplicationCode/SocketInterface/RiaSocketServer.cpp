@@ -167,11 +167,11 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Find the requested reservoir: Current, by index or by name
+/// Find the requested reservoir by caseId
 //--------------------------------------------------------------------------------------------------
-RimCase* RiaSocketServer::findReservoir(const QString& caseName)
+RimCase* RiaSocketServer::findReservoir(int caseId)
 {
-    if (caseName.isEmpty())
+    if (caseId < 0)
     {
         if (RiaApplication::instance()->activeReservoirView())
         {
@@ -183,26 +183,16 @@ RimCase* RiaSocketServer::findReservoir(const QString& caseName)
         RimProject* project =  RiaApplication::instance()->project();
         if (!project) return NULL;
 
-       bool isInt = false;
-       int caseIndex = caseName.toInt(&isInt); // Needs more checking. Case names could start with number and what does Qt do then ?
+        std::vector<RimCase*> cases;
+        project->allCases(cases);
 
-       if (isInt)
-       {
-           if ((int)(project->reservoirs.size()) > caseIndex && project->reservoirs[caseIndex])
-           {
-               return project->reservoirs[caseIndex];
-           }
-       }
-       else
-       {
-           for (size_t cIdx = 0; cIdx < project->reservoirs.size(); ++cIdx)
-           {
-               if (project->reservoirs[cIdx] && project->reservoirs[cIdx]->caseUserDescription() == caseName )
-               {
-                   return project->reservoirs[cIdx];
-               }
-           }
-       }
+        for (size_t i = 0; i < cases.size(); i++)
+        {
+            if (cases[i]->caseId == caseId)
+            {
+                return cases[i];
+            }
+        }
     }
 
     return NULL;
@@ -260,9 +250,9 @@ void RiaSocketServer::readCommandFromOctave()
         return;
     }
 
-    QString caseName;
+    int caseId = -1;
     QString propertyName;
-    RimCase* reservoir = NULL;
+    RimCase* rimCase = NULL;
 
     // Find the correct arguments
 
@@ -274,7 +264,7 @@ void RiaSocketServer::readCommandFromOctave()
         }
         else if (args.size() > 2)
         {
-            caseName = args[1];
+            caseId = args[1].toInt();
             propertyName = args[2];
         }
     }
@@ -282,11 +272,11 @@ void RiaSocketServer::readCommandFromOctave()
     {
         if (args.size() > 1)
         {
-            caseName = args[1];
+            caseId = args[1].toInt();
         }
     }
 
-    reservoir = this->findReservoir(caseName);
+    rimCase = this->findReservoir(caseId);
     
     if (isGetCurrentCase)
     {
@@ -295,9 +285,9 @@ void RiaSocketServer::readCommandFromOctave()
         QString caseType;
         qint64  caseGroupId = -1;
 
-        if (reservoir)
+        if (rimCase)
         {
-            getCaseInfoFromCase(reservoir, caseId, caseName, caseType, caseGroupId);
+            getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
         }
 
         quint64 byteCount = 2*sizeof(qint64);
@@ -473,9 +463,9 @@ void RiaSocketServer::readCommandFromOctave()
 
 
 
-    if (reservoir == NULL)
+    if (rimCase == NULL)
     {
-        m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Could not find the eclipse case with name or index: \"%1\"").arg(caseName));
+        m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Could not find the Case with CaseId : \"%1\"").arg(caseId));
         return;
     }
 
@@ -486,18 +476,18 @@ void RiaSocketServer::readCommandFromOctave()
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (reservoir && reservoir->results(RifReaderInterface::MATRIX_RESULTS))
+        if (rimCase && rimCase->results(RifReaderInterface::MATRIX_RESULTS))
         {
-            scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = rimCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T && isSetProperty)
             {
-                scalarResultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName, true);
+                scalarResultIndex = rimCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->addEmptyScalarResult(RimDefines::GENERATED, propertyName, true);
             }
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->cellScalarResults(scalarResultIndex));
+                scalarResultFrames = &(rimCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->cellScalarResults(scalarResultIndex));
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -549,7 +539,7 @@ void RiaSocketServer::readCommandFromOctave()
             m_readState = ReadingPropertyData;
 
             // Disconnect the socket from calling this slot again.
-            m_currentReservoir = reservoir;
+            m_currentReservoir = rimCase;
 
             if ( scalarResultFrames != NULL)
             {
@@ -561,19 +551,30 @@ void RiaSocketServer::readCommandFromOctave()
             }
         }
     }
-    else if (isGetCellInfo )
+    else if (isGetCellInfo)
     {
-        // Write data back to octave: columnCount, bytesPrTimestep, GridNr I J K ParentGridNr PI PJ PK
+        RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
 
-        caf::FixedArray<std::vector<qint32>, 8> activeCellInfo;
-        if (!(reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid()) )
+        if (args.size() > 2)
+        {
+            QString prorosityModelString = args[2];
+            if (prorosityModelString.toUpper() == "FRACTURE")
+            {
+                porosityModel = RifReaderInterface::FRACTURE_RESULTS;
+            }
+        }
+
+        // Write data back to octave: columnCount, bytesPrTimestep, GridNr I J K ParentGridNr PI PJ PK CoarseBoxIdx
+
+        caf::FixedArray<std::vector<qint32>, 9> activeCellInfo;
+        if (!(rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid()) )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
             return;
         }
 
-        calculateMatrixModelActiveCellInfo(reservoir, 
+        calculateMatrixModelActiveCellInfo(rimCase, porosityModel,
             activeCellInfo[0],
             activeCellInfo[1],
             activeCellInfo[2],
@@ -581,20 +582,21 @@ void RiaSocketServer::readCommandFromOctave()
             activeCellInfo[4],
             activeCellInfo[5],
             activeCellInfo[6],
-            activeCellInfo[7]);
+            activeCellInfo[7],
+            activeCellInfo[8]);
 
-        // First write timestep count
-        quint64 timestepCount = (quint64)8;
-        socketStream << timestepCount;
+        // First write column count
+        quint64 columnCount = (quint64)9;
+        socketStream << columnCount;
 
-        // then the byte-size of the result values in one timestep
+        // then the byte-size of the size of one column
         size_t  timestepResultCount = activeCellInfo[0].size();
         quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(qint32));
-        socketStream << timestepByteCount ;
+        socketStream << timestepByteCount;
 
         // Then write the data.
 
-        for (size_t tIdx = 0; tIdx < 8; ++tIdx)
+        for (size_t tIdx = 0; tIdx < columnCount; ++tIdx)
         {
 #if 1 // Write data as raw bytes, fast but does not handle byteswapping
             m_currentClient->write((const char *)activeCellInfo[tIdx].data(), timestepByteCount);
@@ -614,11 +616,11 @@ void RiaSocketServer::readCommandFromOctave()
         size_t jCount = 0;
         size_t kCount = 0;
 
-        if (reservoir && reservoir->reservoirData() && reservoir->reservoirData()->mainGrid())
+        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
         {
-             iCount = reservoir->reservoirData()->mainGrid()->cellCountI();
-             jCount = reservoir->reservoirData()->mainGrid()->cellCountJ();
-             kCount = reservoir->reservoirData()->mainGrid()->cellCountK();
+             iCount = rimCase->reservoirData()->mainGrid()->cellCountI();
+             jCount = rimCase->reservoirData()->mainGrid()->cellCountJ();
+             kCount = rimCase->reservoirData()->mainGrid()->cellCountK();
         }
 
         socketStream << (quint64)iCount << (quint64)jCount << (quint64)kCount;
@@ -825,7 +827,7 @@ void RiaSocketServer::slotReadyRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK)
+void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& coarseBoxIdx)
 {
     gridNumber.clear();
     cellI.clear();
@@ -835,13 +837,14 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase,
     hostCellI.clear();
     hostCellJ.clear();
     hostCellK.clear();
+    coarseBoxIdx.clear();
 
     if (!reservoirCase || !reservoirCase->reservoirData() || !reservoirCase->reservoirData()->mainGrid())
     {
         return;
     }
 
-    RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(porosityModel);
     size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
 
     gridNumber.reserve(numMatrixModelActiveCells);
@@ -852,6 +855,7 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase,
     hostCellI.reserve(numMatrixModelActiveCells);
     hostCellJ.reserve(numMatrixModelActiveCells);
     hostCellK.reserve(numMatrixModelActiveCells);
+    coarseBoxIdx.reserve(numMatrixModelActiveCells);
 
     const std::vector<RigCell>& globalCells = reservoirCase->reservoirData()->mainGrid()->cells();
 
@@ -885,13 +889,17 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase,
             }
 
             gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
-            cellI.push_back(static_cast<qint32>(i));
-            cellJ.push_back(static_cast<qint32>(j));
-            cellK.push_back(static_cast<qint32>(k));
+            cellI.push_back(static_cast<qint32>(i + 1));        // NB: 1-based index in Octave
+            cellJ.push_back(static_cast<qint32>(j + 1));        // NB: 1-based index in Octave
+            cellK.push_back(static_cast<qint32>(k + 1));        // NB: 1-based index in Octave
+            
             parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
-            hostCellI.push_back(static_cast<qint32>(pi));
-            hostCellJ.push_back(static_cast<qint32>(pj));
-            hostCellK.push_back(static_cast<qint32>(pk));
+            hostCellI.push_back(static_cast<qint32>(pi + 1));   // NB: 1-based index in Octave
+            hostCellJ.push_back(static_cast<qint32>(pj + 1));   // NB: 1-based index in Octave
+            hostCellK.push_back(static_cast<qint32>(pk + 1));   // NB: 1-based index in Octave
+
+            // TODO: Handle coarse box concept
+            coarseBoxIdx.push_back(-1);
         }
     }
 }

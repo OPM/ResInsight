@@ -20,6 +20,7 @@
 
 #include <QDialog>
 #include <QAbstractSocket>
+#include "RifReaderInterface.h"
 
 class QLabel;
 class QPushButton;
@@ -54,10 +55,11 @@ private:
 
 
     void            handleClientConnection( QTcpSocket* clientToHandle);
-    RimCase*        findReservoir(const QString &casename);
+    RimCase*        findReservoir(int caseId);
     void            terminateCurrentConnection();
 
     void            calculateMatrixModelActiveCellInfo( RimCase* reservoirCase, 
+                                                        RifReaderInterface::PorosityModelResultType porosityModel,
                                                         std::vector<qint32>& gridNumber,
                                                         std::vector<qint32>& cellI,
                                                         std::vector<qint32>& cellJ,
@@ -65,7 +67,8 @@ private:
                                                         std::vector<qint32>& parentGridNumber,
                                                         std::vector<qint32>& hostCellI,
                                                         std::vector<qint32>& hostCellJ,
-                                                        std::vector<qint32>& hostCellK);
+                                                        std::vector<qint32>& hostCellK,
+                                                        std::vector<qint32>& coarseBoxIdx);
 
     void            getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
     
