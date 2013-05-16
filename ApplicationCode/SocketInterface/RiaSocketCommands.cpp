@@ -80,7 +80,7 @@ public:
         std::vector<QDateTime> timeStepDates = rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
 
         quint64 timeStepCount = timeStepDates.size();
-        quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);
+        quint64 byteCount = sizeof(quint64) + 6 * timeStepCount * sizeof(qint32);
 
         socketStream << byteCount;
         socketStream << timeStepCount;
@@ -114,3 +114,78 @@ public:
 };
 
 static bool RiaGetTimeStepDates_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDates>(RiaGetTimeStepDates::commandName());
+
+
+
+class RiaGetTimeStepDays : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetTimeStepDays"); }
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream)
+    {
+        int argCaseGroupId = -1;
+
+        if (args.size() == 2)
+        {
+            argCaseGroupId = args[1].toInt();
+        }
+
+        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+
+        bool canFetchData = true;
+
+        if (!rimCase || !rimCase->reservoirData())
+        {
+            canFetchData = false;
+        }
+
+        size_t scalarIndexWithMaxTimeStepCount = cvf::UNDEFINED_SIZE_T;
+        if (rimCase && rimCase->reservoirData())
+        {
+            rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->maxTimeStepCount(&scalarIndexWithMaxTimeStepCount);
+            if (scalarIndexWithMaxTimeStepCount == cvf::UNDEFINED_SIZE_T)
+            {
+                canFetchData = false;
+            }
+        }
+
+        // Did not find any result to fetch data from, return zero data found
+        if (!canFetchData)
+        {
+            quint64 timeStepCount = 0;
+            quint64 byteCount = sizeof(quint64);
+
+            socketStream << byteCount;
+            socketStream << timeStepCount;
+
+            return true;
+        }
+
+        std::vector<QDateTime> timeStepDates = rimCase->reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->timeStepDates(scalarIndexWithMaxTimeStepCount);
+
+        quint64 timeStepCount = timeStepDates.size();
+        quint64 byteCount = sizeof(quint64) + timeStepCount * sizeof(qint32);
+
+        socketStream << byteCount;
+        socketStream << timeStepCount;
+
+        if (timeStepCount > 0)
+        {
+            double secondsInADay = 24 * 60 * 60;
+
+            for (size_t i = 0; i < timeStepCount; i++)
+            {
+                double secondsDiff = timeStepDates[0].secsTo(timeStepDates[i]);
+
+                double decimalDaysDiff = secondsDiff / secondsInADay;
+
+                socketStream << decimalDaysDiff;
+            }
+        }
+
+        return true;
+    }
+
+};
+
+static bool RiaGetTimeStepDays_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDays>(RiaGetTimeStepDays::commandName());
