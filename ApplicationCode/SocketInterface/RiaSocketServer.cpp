@@ -352,6 +352,50 @@ public:
 
 static bool RiaGetCases_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCases>(RiaGetCases::commandName());
 
+
+
+class RiaGetMainGridDimensions: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetMainGridDimensions"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+
+        RimCase* rimCase = NULL;
+        int caseId = -1;
+
+        if (args.size() > 1)
+        {
+            caseId = args[1].toInt();
+        }
+        rimCase = server->findReservoir(caseId);
+
+        // Write data back to octave: I, J, K dimensions
+
+        size_t iCount = 0;
+        size_t jCount = 0;
+        size_t kCount = 0;
+
+        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
+        {
+             iCount = rimCase->reservoirData()->mainGrid()->cellCountI();
+             jCount = rimCase->reservoirData()->mainGrid()->cellCountJ();
+             kCount = rimCase->reservoirData()->mainGrid()->cellCountK();
+        }
+
+        socketStream << (quint64)iCount << (quint64)jCount << (quint64)kCount;
+
+        return true;
+    }
+};
+
+static bool RiaGetMainGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetMainGridDimensions>(RiaGetMainGridDimensions::commandName());
+
+
+
+
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -555,9 +599,8 @@ void RiaSocketServer::readCommandFromOctave()
     bool isGetProperty      = args[0] == "GetProperty";         // GetProperty [casename/index] PropertyName
     bool isSetProperty      = args[0] == "SetProperty";         // SetProperty [casename/index] PropertyName
     bool isGetCellInfo      = args[0] == "GetActiveCellInfo";   // GetActiveCellInfo [casename/index]
-    bool isGetGridDim       = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
 
-    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim  ))
+    if (!(isGetProperty || isSetProperty || isGetCellInfo  ))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -582,7 +625,7 @@ void RiaSocketServer::readCommandFromOctave()
             propertyName = args[2];
         }
     }
-    else if (isGetCellInfo || isGetGridDim)
+    else if (isGetCellInfo )
     {
         if (args.size() > 1)
         {
@@ -738,23 +781,7 @@ void RiaSocketServer::readCommandFromOctave()
 #endif
         }
     }
-    else if (isGetGridDim)
-    {
-        // Write data back to octave: I, J, K dimensions
 
-        size_t iCount = 0;
-        size_t jCount = 0;
-        size_t kCount = 0;
-
-        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
-        {
-             iCount = rimCase->reservoirData()->mainGrid()->cellCountI();
-             jCount = rimCase->reservoirData()->mainGrid()->cellCountJ();
-             kCount = rimCase->reservoirData()->mainGrid()->cellCountK();
-        }
-
-        socketStream << (quint64)iCount << (quint64)jCount << (quint64)kCount;
-    }
     }
 }
 
