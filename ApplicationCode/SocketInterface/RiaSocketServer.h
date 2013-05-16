@@ -44,6 +44,8 @@ public:
     ~RiaSocketServer();
     unsigned short  serverPort();
     RimCase*        findReservoir(int caseId);
+    QErrorMessage*  errorMessageDialog() { return m_errorMessageDialog; }
+    QTcpSocket*     currentClient() { return m_currentClient; }
 
 private slots:
     void            slotNewClientConnection();
@@ -58,18 +60,6 @@ private:
 
     void            handleClientConnection( QTcpSocket* clientToHandle);
     void            terminateCurrentConnection();
-
-    void            calculateMatrixModelActiveCellInfo( RimCase* reservoirCase, 
-                                                        RifReaderInterface::PorosityModelResultType porosityModel,
-                                                        std::vector<qint32>& gridNumber,
-                                                        std::vector<qint32>& cellI,
-                                                        std::vector<qint32>& cellJ,
-                                                        std::vector<qint32>& cellK,
-                                                        std::vector<qint32>& parentGridNumber,
-                                                        std::vector<qint32>& hostCellI,
-                                                        std::vector<qint32>& hostCellJ,
-                                                        std::vector<qint32>& hostCellK,
-                                                        std::vector<qint32>& coarseBoxIdx);
 
 private:
     QTcpServer*     m_tcpServer;
