@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+
 #include "RiaApplication.h"
 
 #include "cafEffectCache.h"
@@ -34,6 +35,8 @@
 #include "RimResultCase.h"
 #include "RimInputCase.h"
 #include "RimReservoirView.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
@@ -327,6 +330,41 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
 
 
+    // Add well paths
+    if (m_project->wellPathCollection == NULL)
+    {
+        printf("Create well path collection in loadProject.\n");
+        m_project->wellPathCollection = new RimWellPathCollection();
+        m_project->wellPathCollection->setProject(m_project);
+    }
+
+#if 1
+    if (m_project && m_project->wellPathCollection) m_project->wellPathCollection->readWellPathFiles();
+#else
+    // TESTCODE begin: Add hardcoded well paths from file
+    if (m_project && m_project->wellPathCollection->wellPaths.size() == 0)
+    {
+        QFile wellPathFile;
+        wellPathFile.setFileName("c:\\temp\\wellPaths.txt");
+        wellPathFile.open(QIODevice::ReadOnly | QIODevice::Text);
+        QByteArray filePath;
+        QList<QString> wellPathFilePaths;
+        for (filePath = wellPathFile.readLine().trimmed(); !wellPathFile.atEnd(); filePath = wellPathFile.readLine().trimmed())
+        {
+            if (filePath[0] == '#' || filePath.isEmpty())
+                continue;
+            wellPathFilePaths.push_back(filePath);
+        }
+        addWellPathsToModel(wellPathFilePaths);
+    }
+    else
+    {
+        // Read the well path files specified in the model (RimWellPathCollection / RimWellPath) into geometries (RigWellPath)
+        if (m_project && m_project->wellPathCollection) m_project->wellPathCollection->readWellPathFiles();
+    }
+    // TESTCODE end
+#endif
+
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
 
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
@@ -357,6 +395,28 @@ bool RiaApplication::loadProject(const QString& projectFileName)
     onProjectOpenedOrClosed();
 
     return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Add a list of well path file paths (JSON files) to the well path collection
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
+{
+    if (m_project == NULL) return;
+    if (m_project->wellPathCollection == NULL)
+    {
+        printf("Create well path collection.\n");
+        m_project->wellPathCollection = new RimWellPathCollection();
+        m_project->wellPathCollection->setProject(m_project);
+        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
+    }
+
+    if (m_project->wellPathCollection->wellPaths.empty())
+        printf("Well path collection is empty.\n");
+    if (m_project && m_project->wellPathCollection) m_project->wellPathCollection->addWellPaths(wellPathFilePaths);
+    
+    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project->wellPathCollection);
 }
 
 

@@ -48,7 +48,7 @@ class RivReservoirPipesPartMgr;
 class RiuViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
-
+class RimReservoirCellResultsStorage;
 namespace cvf
 {
     class Transform;

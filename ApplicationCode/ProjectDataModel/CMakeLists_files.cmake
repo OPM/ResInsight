@@ -26,6 +26,8 @@ ${CEE_CURRENT_LIST_DIR}RimResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimWell.h
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.h
+${CEE_CURRENT_LIST_DIR}RimWellPath.h
+${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.h
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCase.h
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseCollection.h
@@ -62,6 +64,8 @@ ${CEE_CURRENT_LIST_DIR}RimResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWell.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseCollection.cpp

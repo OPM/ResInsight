@@ -90,7 +90,8 @@ public:
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
     bool                closeProject(bool askToSaveIfDirty);
-    
+    void                addWellPathsToModel(QList<QString> wellPathFilePaths);
+
     void                copySnapshotToClipboard();
     void                saveSnapshotPromtpForFilename();
     void                saveSnapshotAs(const QString& fileName);

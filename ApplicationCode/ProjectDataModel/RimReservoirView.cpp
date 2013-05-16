@@ -30,6 +30,7 @@
 #include <QMessageBox>
 
 
+#include "RimProject.h"
 #include "RimCase.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
@@ -38,6 +39,10 @@
 #include "RimCellPropertyFilter.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimWellPathCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimScriptCollection.h"
+#include "RimCaseCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RigGridBase.h"
@@ -61,6 +66,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RigGridScalarDataAccess.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "RivWellPathCollectionPartMgr.h"
 #include "cvfOverlayScalarMapperLegend.h"
 
 #include <limits.h>
@@ -189,6 +195,7 @@ RimReservoirView::~RimReservoirView()
     delete rangeFilterCollection();
     delete propertyFilterCollection();
     delete wellCollection();
+//     delete wellPathCollection();
 
     if (m_viewer)
     {
@@ -345,6 +352,10 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     if (changedField == &scaleZ )
     {
         if (scaleZ < 1) scaleZ = 1;
+
+        // Regenerate well paths
+		RimWellPathCollection* wellPathCollection = (RiaApplication::instance() && RiaApplication::instance()->project()) ? RiaApplication::instance()->project()->wellPathCollection() : NULL;
+        if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
 
         if (m_viewer)
         {
@@ -564,7 +575,6 @@ void RimReservoirView::createDisplayModel()
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
-
       
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
@@ -573,6 +583,19 @@ void RimReservoirView::createDisplayModel()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryTypesToAdd[gtIdx], gridIndices); 
             }
+
+            // Append static Well Paths to model
+            cvf::Vec3d displayModelOffset = eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
+            double characteristicCellSize = eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+            cvf::BoundingBox boundingBox = currentActiveCellInfo()->geometryBoundingBox();
+            RimProject* rimProject = RiaApplication::instance() ? RiaApplication::instance()->project() : NULL;
+            RivWellPathCollectionPartMgr* wellPathCollectionPartMgr = (rimProject && rimProject->wellPathCollection()) ? rimProject->wellPathCollection()->wellPathCollectionPartMgr() : NULL;
+            if (wellPathCollectionPartMgr)
+            {
+                printf("Append well paths for frame %i: ", frameIdx);
+                wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), displayModelOffset, m_reservoirGridPartManager->scaleTransform(), characteristicCellSize, boundingBox); 
+                printf("\n");
+            }
         }
 
         // Set static colors 
@@ -580,7 +603,6 @@ void RimReservoirView::createDisplayModel()
 
         m_visibleGridParts = geometryTypesToAdd;
     }
-
 
     // Compute triangle count, Debug only
 

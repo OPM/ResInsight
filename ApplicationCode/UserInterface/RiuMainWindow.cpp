@@ -30,6 +30,7 @@
 #include "RimWellCollection.h"
 #include "RimReservoirCellResultsCacher.h"
 #include "RimCaseCollection.h"
+#include "RimWellPathCollection.h"
 
 #include "RimUiTreeModelPdm.h"
 
@@ -181,6 +182,7 @@ void RiuMainWindow::createActions()
     
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
+    m_openWellPathsAction       = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Well Paths", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
@@ -202,6 +204,7 @@ void RiuMainWindow::createActions()
     connect(m_openMultipleEclipseCasesAction,SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
     connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
+    connect(m_openWellPathsAction,	    SIGNAL(triggered()), SLOT(slotOpenWellPaths()));
     
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
@@ -291,6 +294,7 @@ void RiuMainWindow::createMenus()
   
     fileMenu->addAction(m_openProjectAction);
     fileMenu->addAction(m_openLastUsedProjectAction);
+    fileMenu->addAction(m_openWellPathsAction);
     fileMenu->addSeparator();
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
@@ -760,6 +764,25 @@ void RiuMainWindow::slotOpenLastUsedProject()
     app->loadLastUsedProject();
 
     restoreTreeViewState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotOpenWellPaths()
+{
+    // Open dialog box to select well path files
+    RiaApplication* app = RiaApplication::instance();
+    QString defaultDir = app->defaultFileDialogDirectory("WELLPATH_DIR");
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(this, "Open JSON Well Paths", defaultDir, "JSON Well Path (*.json)");
+
+    if (wellPathFilePaths.size() < 1) return;
+
+    // Remember the path to next time
+    app->setDefaultFileDialogDirectory("WELLPATH_DIR", QFileInfo(wellPathFilePaths.last()).absolutePath());
+
+    app->addWellPathsToModel(wellPathFilePaths);
+    if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

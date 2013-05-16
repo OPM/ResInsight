@@ -233,7 +233,7 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 if (MSVC)
 
     # Qt DLLs
-    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd)
+    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
     foreach (qtlib ${QTLIBLIST})
         add_custom_command(TARGET ResInsight POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -265,6 +265,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
             ${QT_LIBRARY_DIR}/libQtGui.so*
             ${QT_LIBRARY_DIR}/libQtOpenGL.so*
             ${QT_LIBRARY_DIR}/libQtNetwork.so*
+            ${QT_LIBRARY_DIR}/libQtScript.so*
+            ${QT_LIBRARY_DIR}/libQtScriptTools.so*
         )
 
 endif()
@@ -278,6 +280,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             ${QT_BINARY_DIR}/QtGui4.dll
             ${QT_BINARY_DIR}/QtOpenGL4.dll
             ${QT_BINARY_DIR}/QtNetwork4.dll
+            ${QT_BINARY_DIR}/QtScript4.dll
+            ${QT_BINARY_DIR}/QtScriptTools4.dll
         )
 endif()
 

@@ -32,6 +32,7 @@
 #include "RigGridManager.h"
 #include "RigCaseData.h"
 #include "RimResultCase.h"
+#include "RimWellPathCollection.h"
 
 
 #include "cafPdmFieldCvfColor.h"
@@ -65,7 +66,6 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
-    
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
     treeViewState.setUiHidden(true);
 
@@ -75,9 +75,11 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
+
     m_gridCollection = new RigGridManager;
 
-    initAfterRead();
+    initScriptDirectories();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,6 +90,7 @@ RimProject::~RimProject(void)
     close();
 
     if (scriptCollection()) delete scriptCollection();
+    if (wellPathCollection()) delete wellPathCollection();
 
     reservoirs.deleteAllChildObjects();
 }
@@ -101,6 +104,7 @@ void RimProject::close()
 
     reservoirs.deleteAllChildObjects();
     caseGroups.deleteAllChildObjects();
+    if (wellPathCollection != NULL) delete wellPathCollection;
 
     fileName = "";
 
@@ -108,10 +112,11 @@ void RimProject::close()
     nextValidCaseGroupId = 0;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::initAfterRead()
+void RimProject::initScriptDirectories()
 {
     //
     // TODO : Must store content of scripts in project file and notify user if stored content is different from disk on execute and edit
@@ -182,6 +187,17 @@ void RimProject::initAfterRead()
         }
     }
 
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::initAfterRead()
+{
+    initScriptDirectories();
+
+    if (wellPathCollection) wellPathCollection->setProject(this);
 }
 
 
@@ -430,6 +446,23 @@ void RimProject::allCases(std::vector<RimCase*>& cases)
         for (size_t i = 0; i < cg->caseCollection()->reservoirs.size(); i++)
         {
             cases.push_back(cg->caseCollection()->reservoirs[i]);
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::createDisplayModelAndRedrawAllViews()
+{
+    for (size_t caseIdx = 0; caseIdx < reservoirs.size(); caseIdx++)
+    {
+        RimCase* rimCase = reservoirs[caseIdx];
+        for (size_t viewIdx = 0; viewIdx < rimCase->reservoirViews.size(); viewIdx++)
+        {
+            RimReservoirView* reservoirView = rimCase->reservoirViews[viewIdx];
+            reservoirView->createDisplayModelAndRedraw();
         }
     }
 }
