@@ -66,6 +66,25 @@ public:
 typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
 
 
+RimCase * findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>&  args )
+{
+
+    RimCase* rimCase = NULL;
+    int caseId = -1;
+
+    if (args.size() > 1)
+    {
+        caseId = args[1].toInt();
+    }
+    rimCase = server->findReservoir(caseId);
+
+    if (rimCase == NULL)
+    {
+        server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the Case with CaseId : \"%1\"").arg(caseId));
+    }
+    return rimCase;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -362,21 +381,8 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
 
-        RimCase* rimCase = NULL;
-        int caseId = -1;
-
-        if (args.size() > 1)
-        {
-            caseId = args[1].toInt();
-        }
-        rimCase = server->findReservoir(caseId);
-
-        if (rimCase == NULL)
-        {
-            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the Case with CaseId : \"%1\"").arg(caseId));
-            return true;
-        }
-
+        RimCase* rimCase = findCaseFromArgs(server, args);
+        if (!rimCase) return true;
 
         // Write data back to octave: I, J, K dimensions
 
@@ -398,87 +404,12 @@ public:
 };
 
 static bool RiaGetMainGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetMainGridDimensions>(RiaGetMainGridDimensions::commandName());
+
+
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& coarseBoxIdx)
-{
-    gridNumber.clear();
-    cellI.clear();
-    cellJ.clear();
-    cellK.clear();
-    parentGridNumber.clear();
-    hostCellI.clear();
-    hostCellJ.clear();
-    hostCellK.clear();
-    coarseBoxIdx.clear();
-
-    if (!reservoirCase || !reservoirCase->reservoirData() || !reservoirCase->reservoirData()->mainGrid())
-    {
-        return;
-    }
-
-    RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(porosityModel);
-    size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
-
-    gridNumber.reserve(numMatrixModelActiveCells);
-    cellI.reserve(numMatrixModelActiveCells);
-    cellJ.reserve(numMatrixModelActiveCells);
-    cellK.reserve(numMatrixModelActiveCells);
-    parentGridNumber.reserve(numMatrixModelActiveCells);
-    hostCellI.reserve(numMatrixModelActiveCells);
-    hostCellJ.reserve(numMatrixModelActiveCells);
-    hostCellK.reserve(numMatrixModelActiveCells);
-    coarseBoxIdx.reserve(numMatrixModelActiveCells);
-
-    const std::vector<RigCell>& globalCells = reservoirCase->reservoirData()->mainGrid()->cells();
-
-    for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
-    {
-        if (actCellInfo->isActive(cIdx))
-        {
-            RigGridBase* grid = globalCells[cIdx].hostGrid();
-            CVF_ASSERT(grid != NULL);
-            size_t cellIndex = globalCells[cIdx].cellIndex();
-
-            size_t i, j, k;
-            grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
-
-            size_t pi, pj, pk;
-            RigGridBase* parentGrid = NULL;
-
-            if (grid->isMainGrid())
-            {
-                pi = i;
-                pj = j;
-                pk = k;
-                parentGrid = grid;
-            }
-            else
-            {
-                size_t parentCellIdx = globalCells[cIdx].parentCellIndex();
-                parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
-                CVF_ASSERT(parentGrid != NULL);
-                parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
-            }
-
-            gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
-            cellI.push_back(static_cast<qint32>(i + 1));        // NB: 1-based index in Octave
-            cellJ.push_back(static_cast<qint32>(j + 1));        // NB: 1-based index in Octave
-            cellK.push_back(static_cast<qint32>(k + 1));        // NB: 1-based index in Octave
-
-            parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
-            hostCellI.push_back(static_cast<qint32>(pi + 1));   // NB: 1-based index in Octave
-            hostCellJ.push_back(static_cast<qint32>(pj + 1));   // NB: 1-based index in Octave
-            hostCellK.push_back(static_cast<qint32>(pk + 1));   // NB: 1-based index in Octave
-
-            // TODO: Handle coarse box concept
-            coarseBoxIdx.push_back(-1);
-        }
-    }
-}
-
-
 
 class RiaGetActiveCellInfo: public RiaSocketCommand
 {
@@ -487,22 +418,8 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        RimCase* rimCase = NULL;
-        int caseId = -1;
-        if (args.size() > 1)
-        {
-            caseId = args[1].toInt();
-        }
-        rimCase = server->findReservoir(caseId);
-
-        if (rimCase == NULL)
-        {
-            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the Case with CaseId : \"%1\"").arg(caseId));
-            return true;
-        }
-
-
-
+        RimCase* rimCase = findCaseFromArgs(server, args);
+        if (!rimCase) return true;
 
         RifReaderInterface::PorosityModelResultType porosityModel = RifReaderInterface::MATRIX_RESULTS;
 
@@ -561,10 +478,162 @@ public:
 
         return true;
     }
+
+    static void calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& coarseBoxIdx)
+    {
+        gridNumber.clear();
+        cellI.clear();
+        cellJ.clear();
+        cellK.clear();
+        parentGridNumber.clear();
+        hostCellI.clear();
+        hostCellJ.clear();
+        hostCellK.clear();
+        coarseBoxIdx.clear();
+
+        if (!reservoirCase || !reservoirCase->reservoirData() || !reservoirCase->reservoirData()->mainGrid())
+        {
+            return;
+        }
+
+        RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(porosityModel);
+        size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
+
+        gridNumber.reserve(numMatrixModelActiveCells);
+        cellI.reserve(numMatrixModelActiveCells);
+        cellJ.reserve(numMatrixModelActiveCells);
+        cellK.reserve(numMatrixModelActiveCells);
+        parentGridNumber.reserve(numMatrixModelActiveCells);
+        hostCellI.reserve(numMatrixModelActiveCells);
+        hostCellJ.reserve(numMatrixModelActiveCells);
+        hostCellK.reserve(numMatrixModelActiveCells);
+        coarseBoxIdx.reserve(numMatrixModelActiveCells);
+
+        const std::vector<RigCell>& globalCells = reservoirCase->reservoirData()->mainGrid()->cells();
+
+        for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
+        {
+            if (actCellInfo->isActive(cIdx))
+            {
+                RigGridBase* grid = globalCells[cIdx].hostGrid();
+                CVF_ASSERT(grid != NULL);
+                size_t cellIndex = globalCells[cIdx].cellIndex();
+
+                size_t i, j, k;
+                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+
+                size_t pi, pj, pk;
+                RigGridBase* parentGrid = NULL;
+
+                if (grid->isMainGrid())
+                {
+                    pi = i;
+                    pj = j;
+                    pk = k;
+                    parentGrid = grid;
+                }
+                else
+                {
+                    size_t parentCellIdx = globalCells[cIdx].parentCellIndex();
+                    parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
+                    CVF_ASSERT(parentGrid != NULL);
+                    parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
+                }
+
+                gridNumber.push_back(static_cast<qint32>(grid->gridIndex()));
+                cellI.push_back(static_cast<qint32>(i + 1));        // NB: 1-based index in Octave
+                cellJ.push_back(static_cast<qint32>(j + 1));        // NB: 1-based index in Octave
+                cellK.push_back(static_cast<qint32>(k + 1));        // NB: 1-based index in Octave
+
+                parentGridNumber.push_back(static_cast<qint32>(parentGrid->gridIndex()));
+                hostCellI.push_back(static_cast<qint32>(pi + 1));   // NB: 1-based index in Octave
+                hostCellJ.push_back(static_cast<qint32>(pj + 1));   // NB: 1-based index in Octave
+                hostCellK.push_back(static_cast<qint32>(pk + 1));   // NB: 1-based index in Octave
+
+                // TODO: Handle coarse box concept
+                coarseBoxIdx.push_back(-1);
+            }
+        }
+    }
+
 };
 
 static bool RiaGetActiveCellInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellInfo>(RiaGetActiveCellInfo::commandName());
 
+
+class RiaGetProperty: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetProperty"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+
+        RimCase* rimCase = findCaseFromArgs(server, args);
+
+        if (!rimCase) return true;
+
+        QString propertyName = args[2];
+
+        // Find the requested data, Or create a set if we are setting data and it is not found
+
+        size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+
+        if (rimCase && rimCase->results(RifReaderInterface::MATRIX_RESULTS))
+        {
+            scalarResultIndex = rimCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
+
+            if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                scalarResultFrames = &(rimCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->cellScalarResults(scalarResultIndex));
+            }
+
+        }
+
+        if (scalarResultFrames == NULL)
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%1\"").arg(propertyName));
+        }
+
+        // Write data back : timeStepCount, bytesPrTimestep, dataForTimestep0 ... dataForTimestepN
+
+        if ( scalarResultFrames == NULL)
+        {
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 ;
+        }
+        else
+        {
+            // First write timestep count
+            quint64 timestepCount = (quint64)scalarResultFrames->size();
+            socketStream << timestepCount;
+
+            // then the byte-size of the result values in one timestep
+            size_t  timestepResultCount = scalarResultFrames->front().size();
+            quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
+            socketStream << timestepByteCount ;
+
+            // Then write the data.
+
+            for (size_t tIdx = 0; tIdx < scalarResultFrames->size(); ++tIdx)
+            {
+#if 1 // Write data as raw bytes, fast but does not handle byteswapping
+                server->currentClient()->write((const char *)scalarResultFrames->at(tIdx).data(), timestepByteCount); // Raw print of data. Fast but no platform conversion
+#else  // Write data using QDataStream, does byteswapping for us. Must use QDataStream on client as well
+                for (size_t cIdx = 0; cIdx < scalarResultFrames->at(tIdx).size(); ++cIdx)
+                {
+                    socketStream << scalarResultFrames->at(tIdx)[cIdx];
+                }
+#endif
+            }
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetProperty>(RiaGetProperty::commandName());
 
 
 
@@ -770,10 +839,9 @@ void RiaSocketServer::readCommandFromOctave()
         // Todo: When all commands are into new shape, do the "unknown command" error output here.
 
 
-    bool isGetProperty      = args[0] == "GetProperty";         // GetProperty [casename/index] PropertyName
     bool isSetProperty      = args[0] == "SetProperty";         // SetProperty [casename/index] PropertyName
 
-    if (!(isGetProperty || isSetProperty  ))
+    if (!( isSetProperty  ))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -786,7 +854,7 @@ void RiaSocketServer::readCommandFromOctave()
 
     // Find the correct arguments
 
-    if (isGetProperty || isSetProperty)
+    if (isSetProperty)
     {
         if (args.size() == 2)
         {
@@ -809,7 +877,7 @@ void RiaSocketServer::readCommandFromOctave()
         return;
     }
 
-    if (isGetProperty || isSetProperty)
+    if (isSetProperty)
     {
         // Find the requested data, Or create a set if we are setting data and it is not found
 
@@ -839,42 +907,7 @@ void RiaSocketServer::readCommandFromOctave()
             m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Could not find the property named: \"%1\"").arg(propertyName));
         }
 
-        if (isGetProperty )
-        {
-            // Write data back : timeStepCount, bytesPrTimestep, dataForTimestep0 ... dataForTimestepN
-
-            if ( scalarResultFrames == NULL)
-            {
-                // No data available
-                socketStream << (quint64)0 << (quint64)0 ;
-            }
-            else
-            {
-                // First write timestep count
-                quint64 timestepCount = (quint64)scalarResultFrames->size();
-                socketStream << timestepCount;
-
-                // then the byte-size of the result values in one timestep
-                size_t  timestepResultCount = scalarResultFrames->front().size();
-                quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
-                socketStream << timestepByteCount ;
-
-                // Then write the data.
-
-                for (size_t tIdx = 0; tIdx < scalarResultFrames->size(); ++tIdx)
-                {
-#if 1 // Write data as raw bytes, fast but does not handle byteswapping
-                    m_currentClient->write((const char *)scalarResultFrames->at(tIdx).data(), timestepByteCount); // Raw print of data. Fast but no platform conversion
-#else  // Write data using QDataStream, does byteswapping for us. Must use QDataStream on client as well
-                    for (size_t cIdx = 0; cIdx < scalarResultFrames->at(tIdx).size(); ++cIdx)
-                    {
-                        socketStream << scalarResultFrames->at(tIdx)[cIdx];
-                    }
-#endif
-                }
-            }
-        }
-        else // Set property
+     // Set property
         {
             m_readState = ReadingPropertyData;
 

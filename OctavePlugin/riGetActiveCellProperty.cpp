@@ -98,7 +98,7 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16
 
     QString tmp = QString("riGetActiveCellProperty : Read %1").arg(propertyName);
 
-    if (caseName.isEmpty())
+    if (caseName == "-1")
     {
         tmp += QString(" from active case.");
     }
@@ -141,7 +141,7 @@ DEFUN_DLD (riGetActiveCellProperty, args, nargout,
         if (nargin > 1)
             getEclipseProperty(propertyFrames, "127.0.0.1", 40001, args(0).char_matrix_value().row_as_string(0).c_str(), args(1).char_matrix_value().row_as_string(0).c_str());
         else
-            getEclipseProperty(propertyFrames, "127.0.0.1", 40001, "", args(0).char_matrix_value().row_as_string(0).c_str());
+            getEclipseProperty(propertyFrames, "127.0.0.1", 40001, "-1", args(0).char_matrix_value().row_as_string(0).c_str());
 
         return octave_value(propertyFrames);
     }
