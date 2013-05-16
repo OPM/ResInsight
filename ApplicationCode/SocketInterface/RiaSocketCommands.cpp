@@ -189,3 +189,61 @@ public:
 };
 
 static bool RiaGetTimeStepDays_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetTimeStepDays>(RiaGetTimeStepDays::commandName());
+
+
+
+
+class RiaGetGridDimensions : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetGridDimensions"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int argCaseGroupId = -1;
+
+        if (args.size() == 2)
+        {
+            argCaseGroupId = args[1].toInt();
+        }
+
+        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        if (!rimCase || !rimCase->reservoirData() || !rimCase->reservoirData()->mainGrid())
+        {
+            quint64 byteCount = 0;
+
+            socketStream << byteCount;
+
+            return true;
+        }
+
+        // Write data back to octave: I, J, K dimensions
+
+
+        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
+        {
+            std::vector<RigGridBase*> grids;
+            rimCase->reservoirData()->allGrids(&grids);
+
+            quint64 byteCount = grids.size() * 3 * sizeof(quint64);
+            socketStream << byteCount;
+
+            for (size_t i = 0; i < grids.size(); i++)
+            {
+                size_t iCount = 0;
+                size_t jCount = 0;
+                size_t kCount = 0;
+
+                iCount = grids[i]->cellCountI();
+                jCount = grids[i]->cellCountJ();
+                kCount = grids[i]->cellCountK();
+
+                socketStream << (quint64)iCount << (quint64)jCount << (quint64)kCount;
+            }
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridDimensions>(RiaGetGridDimensions::commandName());
