@@ -36,6 +36,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
 
 #include "RimScriptCollection.h"
 

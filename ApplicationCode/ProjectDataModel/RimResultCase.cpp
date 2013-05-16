@@ -31,9 +31,8 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
-
 #include "RimReservoirCellResultsCacher.h"
-
+#include "RimWellPathCollection.h"
 
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfColor.h"

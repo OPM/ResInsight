@@ -43,6 +43,7 @@
 #include "RimWellCollection.h"
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
+#include "RimWellPathCollection.h"
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
