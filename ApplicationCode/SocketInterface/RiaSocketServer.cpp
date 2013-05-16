@@ -54,17 +54,6 @@
 
 
 
-class RiaSocketCommand
-{
-public:
-
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) = 0;
-    virtual bool interpretMore(QDataStream& stream) { return true; }
-
-};
-
-typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
-
 
 RimCase * findCaseFromArgs(RiaSocketServer* server, const QList<QByteArray>&  args )
 {

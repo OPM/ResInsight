@@ -21,6 +21,7 @@
 #include <QDialog>
 #include <QAbstractSocket>
 #include "RifReaderInterface.h"
+#include "cafFactory.h"
 
 class QLabel;
 class QPushButton;
@@ -85,4 +86,20 @@ private:
 };
 
 
+
+//////////////////////////////////////////////////////////////////////////
+/// Socket commands, to be moved into a separate file
+//////////////////////////////////////////////////////////////////////////
+
+class RiaSocketCommand
+{
+public:
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) = 0;
+    virtual bool interpretMore(QDataStream& stream) { return true; }
+};
+
+typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
+
+void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
 

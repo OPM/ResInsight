@@ -9,6 +9,7 @@ set(CPP_SOURCES
   riGetCaseGroups.cpp
   riGetSelectedCases.cpp
   riGetCases.cpp
+  riGetTimeStepDates.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -107,6 +108,7 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCases.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDates.oct"
 
       SOURCES ${CPP_SOURCES}
   )

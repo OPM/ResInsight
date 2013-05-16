@@ -31,5 +31,13 @@ namespace riOctavePlugin
     // Octave data structure : CaseGroupInfo
     char caseGroupInfo_CaseGroupId[]      = "CaseGroupId";
     char caseGroupInfo_CaseGroupName[]    = "CaseName";
+
+    // Octave data structure : TimeStepDate
+    char timeStepDate_Year[]     = "Year";
+    char timeStepDate_Month[]    = "Month";
+    char timeStepDate_Day[]      = "Day";
+    char timeStepDate_Hour[]     = "Hour";
+    char timeStepDate_Minute[]   = "Minute";
+    char timeStepDate_Second[]   = "Second";
 }
 

@@ -48,15 +48,18 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuProcessMonitor.cpp
 )
 
+set( SOCKET_INTERFACE_FILES
+    SocketInterface/RiaSocketServer.cpp
+    SocketInterface/RiaSocketCommands.cpp
+)
+
 
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
      ${USER_INTERFACE_FILES}
+     ${SOCKET_INTERFACE_FILES}
 )
 
-list( APPEND CPP_SOURCES
-    SocketInterface/RiaSocketServer.cpp
-)
 
 
 list( APPEND REFERENCED_CMAKE_FILES
@@ -179,6 +182,7 @@ precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH
 source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
 source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
+source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 
 add_executable(ResInsight
