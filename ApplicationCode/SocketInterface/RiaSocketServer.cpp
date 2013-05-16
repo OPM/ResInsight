@@ -50,6 +50,308 @@
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
+#include "cafFactory.h"
+
+
+
+class RiaSocketCommand
+{
+public:
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) = 0;
+    virtual bool interpretMore(QDataStream& stream) {}
+
+};
+
+typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId)
+{
+    CVF_ASSERT(rimCase);
+
+    caseId = rimCase->caseId;
+    caseName = rimCase->caseUserDescription;
+
+    RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
+    if (caseCollection)
+    {
+        caseGroupId = caseCollection->parentCaseGroup()->groupId;
+
+        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+        {
+            caseType = "StatisticsCase";
+        }
+        else
+        {
+            caseType = "SourceCase";
+        }
+    }
+    else
+    {
+        caseGroupId = -1;
+
+        if (dynamic_cast<RimInputCase*>(rimCase))
+        {
+            caseType = "InputCase";
+        }
+        else
+        {
+            caseType = "ResultCase";
+        }
+    }
+}
+
+class RiaGetCurrentCase: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetCurrentCase"); }
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        qint64  caseId = -1;
+        QString caseName;
+        QString caseType;
+        qint64  caseGroupId = -1;
+
+        RimCase* rimCase = server->findReservoir(caseId);
+
+        if (rimCase)
+        {
+            getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+        }
+
+        quint64 byteCount = 2*sizeof(qint64);
+        byteCount += caseName.size()*sizeof(QChar);
+        byteCount += caseType.size()*sizeof(QChar);
+
+        socketStream << byteCount;
+
+        socketStream << caseId;
+        socketStream << caseName;
+        socketStream << caseType;
+        socketStream << caseGroupId;
+
+        return true;
+
+    }
+
+};
+
+static bool RiaGetCurrentCase_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCurrentCase>(RiaGetCurrentCase::commandName());
+
+
+class RiaGetCaseGroups: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetCaseGroups"); }
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        if (RiaApplication::instance()->project())
+        {
+            std::vector<QString> groupNames;
+            std::vector<qint64> groupIds;
+
+            size_t caseGroupCount = RiaApplication::instance()->project()->caseGroups().size();
+            quint64 byteCount = 0;
+
+            for (size_t i = 0; i < caseGroupCount; i++)
+            {
+                RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
+
+                QString caseGroupName = cg->name;
+                qint64 caseGroupId = cg->groupId;
+
+                byteCount += caseGroupName.size() * sizeof(QChar);
+                byteCount += sizeof(qint64);
+
+                groupNames.push_back(caseGroupName);
+                groupIds.push_back(caseGroupId);
+            }
+
+            socketStream << (quint64)byteCount;
+            socketStream << (quint64)caseGroupCount;
+
+            for (size_t i = 0; i < caseGroupCount; i++)
+            {
+                socketStream << groupNames[i];
+                socketStream << groupIds[i];
+            }
+        }
+        else
+        {
+            // ERROR
+        }
+
+        return true;
+    }
+
+};
+
+static bool RiaGetCaseGroups_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCaseGroups>(RiaGetCaseGroups::commandName());
+
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void getCaseInfoFromCases(std::vector<RimCase*>& cases, std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<QString> &caseTypes, std::vector<qint64>& caseGroupIds)
+{
+    for (size_t i = 0; i < cases.size(); i++)
+    {
+        RimCase* rimCase = cases[i];
+
+        qint64  caseId = -1;
+        QString caseName;
+        QString caseType;
+        qint64  caseGroupId = -1;
+        getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
+
+        caseIds.push_back(rimCase->caseId);
+        caseNames.push_back(rimCase->caseUserDescription);
+        caseTypes.push_back(caseType);
+        caseGroupIds.push_back(caseGroupId);
+    }
+}
+
+
+class RiaGetSelectedCases: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetSelectedCases"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+        if (ruiMainWindow)
+        {
+            std::vector<RimCase*> cases;
+            ruiMainWindow->selectedCases(cases);
+
+            std::vector<qint64>  caseIds;
+            std::vector<QString> caseNames;
+            std::vector<QString>  caseTypes;
+            std::vector<qint64>  caseGroupIds;
+
+            getCaseInfoFromCases(cases, caseIds, caseNames, caseTypes, caseGroupIds);
+
+            quint64 byteCount = sizeof(quint64);
+            quint64 selectionCount = caseIds.size();
+
+            for (size_t i = 0; i < selectionCount; i++)
+            {
+                byteCount += 2*sizeof(qint64);
+                byteCount += caseNames[i].size() * sizeof(QChar);
+                byteCount += caseTypes[i].size() * sizeof(QChar);
+            }
+
+            socketStream << byteCount;
+            socketStream << selectionCount;
+
+            for (size_t i = 0; i < selectionCount; i++)
+            {
+                socketStream << caseIds[i];
+                socketStream << caseNames[i];
+                socketStream << caseTypes[i];
+                socketStream << caseGroupIds[i];
+            }
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetSelectedCases_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetSelectedCases>(RiaGetSelectedCases::commandName());
+
+
+class RiaGetCases: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetCases"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        quint64 argCaseGroupId = -1;
+
+        if (args.size() == 2)
+        {
+            argCaseGroupId = args[1].toInt();
+        }
+
+        if (RiaApplication::instance()->project())
+        {
+            RimProject* proj = RiaApplication::instance()->project();
+
+            std::vector<RimCase*> cases;
+            if (argCaseGroupId == -1)
+            {
+                proj->allCases(cases);
+            }
+            else
+            {
+                RimIdenticalGridCaseGroup* caseGroup = NULL;
+                for (size_t i = 0; i < RiaApplication::instance()->project()->caseGroups().size(); i++)
+                {
+                    RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
+
+                    if (argCaseGroupId == cg->groupId())
+                    {
+                        caseGroup = cg;
+                    }
+                }
+
+                if (caseGroup)
+                {
+                    for (size_t i = 0; i < caseGroup->statisticsCaseCollection()->reservoirs.size(); i++)
+                    {
+                        cases.push_back(caseGroup->statisticsCaseCollection()->reservoirs[i]);
+                    }
+
+                    for (size_t i = 0; i < caseGroup->caseCollection()->reservoirs.size(); i++)
+                    {
+                        cases.push_back(caseGroup->caseCollection()->reservoirs[i]);
+                    }
+                }
+            }
+
+
+            std::vector<qint64>  caseIds;
+            std::vector<QString> caseNames;
+            std::vector<QString> caseTypes;
+            std::vector<qint64>  caseGroupIds;
+
+            getCaseInfoFromCases(cases, caseIds, caseNames, caseTypes, caseGroupIds);
+
+            quint64 byteCount = sizeof(quint64);
+            quint64 caseCount = caseIds.size();
+
+            for (size_t i = 0; i < caseCount; i++)
+            {
+                byteCount += 2*sizeof(qint64);
+                byteCount += caseNames[i].size() * sizeof(QChar);
+                byteCount += caseTypes[i].size() * sizeof(QChar);
+            }
+
+            socketStream << byteCount;
+            socketStream << caseCount;
+
+            for (size_t i = 0; i < caseCount; i++)
+            {
+                socketStream << caseIds[i];
+                socketStream << caseNames[i];
+                socketStream << caseTypes[i];
+                socketStream << caseGroupIds[i];
+            }
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetCases_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCases>(RiaGetCases::commandName());
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +365,8 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
   m_currentReservoir(NULL),
   m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
   m_invalidActiveCellCountDetected(false),
-  m_readState(ReadingCommand)
+  m_readState(ReadingCommand),
+  m_currentCommand(NULL)
 {
     m_errorMessageDialog = new QErrorMessage(RiuMainWindow::instance());
 
@@ -92,7 +395,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
 //--------------------------------------------------------------------------------------------------
 RiaSocketServer::~RiaSocketServer()
 {
-
+    assert (m_currentCommand == NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,6 +460,7 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 
     connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
     m_readState = ReadingCommand;
+    m_currentCommand = NULL;
 
     if (m_currentClient->bytesAvailable())
     {
@@ -233,17 +537,27 @@ void RiaSocketServer::readCommandFromOctave()
 
     CVF_ASSERT(args.size() > 0); 
 
+    m_currentCommand = RiaSocketCommandFactory::instance()->create(args[0]);
+    if (m_currentCommand)
+    {
+        bool finished = m_currentCommand->interpretCommand(this, args, socketStream);
+        if (finished)
+        {
+            delete m_currentCommand;
+            m_currentCommand = NULL;
+        }
+    }
+    else
+    {
+        // Todo: When all commands are into new shape, do the "unknown command" error output here.
 
-    bool isGetProperty = args[0] == "GetProperty"; // GetProperty [casename/index] PropertyName
-    bool isSetProperty = args[0] == "SetProperty"; // SetProperty [casename/index] PropertyName
-    bool isGetCellInfo = args[0] == "GetActiveCellInfo"; // GetActiveCellInfo [casename/index]
-    bool isGetGridDim  = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
-    bool isGetCurrentCase = args[0] == "GetCurrentCase";
-    bool isGetCaseGroups = args[0] == "GetCaseGroups";
-    bool isGetSelectedCases = args[0] == "GetSelectedCases";
-    bool isGetCases = args[0] == "GetCases";
 
-    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim || isGetCurrentCase || isGetCaseGroups || isGetSelectedCases || isGetCases))
+    bool isGetProperty      = args[0] == "GetProperty";         // GetProperty [casename/index] PropertyName
+    bool isSetProperty      = args[0] == "SetProperty";         // SetProperty [casename/index] PropertyName
+    bool isGetCellInfo      = args[0] == "GetActiveCellInfo";   // GetActiveCellInfo [casename/index]
+    bool isGetGridDim       = args[0] == "GetMainGridDimensions"; // GetMainGridDimensions [casename/index]
+
+    if (!(isGetProperty || isSetProperty || isGetCellInfo || isGetGridDim  ))
     {
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -278,190 +592,6 @@ void RiaSocketServer::readCommandFromOctave()
 
     rimCase = this->findReservoir(caseId);
     
-    if (isGetCurrentCase)
-    {
-        qint64  caseId = -1;
-        QString caseName;
-        QString caseType;
-        qint64  caseGroupId = -1;
-
-        if (rimCase)
-        {
-            getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
-        }
-
-        quint64 byteCount = 2*sizeof(qint64);
-        byteCount += caseName.size()*sizeof(QChar);
-        byteCount += caseType.size()*sizeof(QChar);
-
-        socketStream << byteCount;
-
-        socketStream << caseId;
-        socketStream << caseName;
-        socketStream << caseType;
-        socketStream << caseGroupId;
-
-        return;
-    }
-    else if (isGetCaseGroups)
-    {
-        if (RiaApplication::instance()->project())
-        {
-            std::vector<QString> groupNames;
-            std::vector<qint64> groupIds;
-
-            size_t caseGroupCount = RiaApplication::instance()->project()->caseGroups().size();
-            quint64 byteCount = 0;
-
-            for (size_t i = 0; i < caseGroupCount; i++)
-            {
-                RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
-                
-                QString caseGroupName = cg->name;
-                qint64 caseGroupId = cg->groupId;
-
-                byteCount += caseGroupName.size() * sizeof(QChar);
-                byteCount += sizeof(qint64);
-
-                groupNames.push_back(caseGroupName);
-                groupIds.push_back(caseGroupId);
-            }
-
-            socketStream << (quint64)byteCount;
-            socketStream << (quint64)caseGroupCount;
-
-            for (size_t i = 0; i < caseGroupCount; i++)
-            {
-                socketStream << groupNames[i];
-                socketStream << groupIds[i];
-            }
-        }
-        else
-        {
-            // ERROR
-        }
-
-        return;
-    }
-
-    if (isGetSelectedCases)
-    {
-        RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
-        if (ruiMainWindow)
-        {
-            std::vector<RimCase*> cases;
-            ruiMainWindow->selectedCases(cases);
-
-            std::vector<qint64>  caseIds;
-            std::vector<QString> caseNames;
-            std::vector<QString>  caseTypes;
-            std::vector<qint64>  caseGroupIds;
-
-            getCaseInfoFromCases(cases, caseIds, caseNames, caseTypes, caseGroupIds);
-
-            quint64 byteCount = sizeof(quint64);
-            quint64 selectionCount = caseIds.size();
-
-            for (size_t i = 0; i < selectionCount; i++)
-            {
-                byteCount += 2*sizeof(qint64);
-                byteCount += caseNames[i].size() * sizeof(QChar);
-                byteCount += caseTypes[i].size() * sizeof(QChar);
-            }
-
-            socketStream << byteCount;
-            socketStream << selectionCount;
-
-            for (size_t i = 0; i < selectionCount; i++)
-            {
-                socketStream << caseIds[i];
-                socketStream << caseNames[i];
-                socketStream << caseTypes[i];
-                socketStream << caseGroupIds[i];
-            }
-        }
-        
-        return;
-    }
-    else if (isGetCases)
-    {
-        quint64 argCaseGroupId = -1;
-
-        if (args.size() == 2)
-        {
-            argCaseGroupId = args[1].toInt();
-        }
-
-        if (RiaApplication::instance()->project())
-        {
-            RimProject* proj = RiaApplication::instance()->project();
-
-            std::vector<RimCase*> cases;
-            if (argCaseGroupId == -1)
-            {
-                proj->allCases(cases);
-            }
-            else
-            {
-                RimIdenticalGridCaseGroup* caseGroup = NULL;
-                for (size_t i = 0; i < RiaApplication::instance()->project()->caseGroups().size(); i++)
-                {
-                    RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
-
-                    if (argCaseGroupId == cg->groupId())
-                    {
-                        caseGroup = cg;
-                    }
-                }
-
-                if (caseGroup)
-                {
-                    for (size_t i = 0; i < caseGroup->statisticsCaseCollection()->reservoirs.size(); i++)
-                    {
-                        cases.push_back(caseGroup->statisticsCaseCollection()->reservoirs[i]);
-                    }
-
-                    for (size_t i = 0; i < caseGroup->caseCollection()->reservoirs.size(); i++)
-                    {
-                        cases.push_back(caseGroup->caseCollection()->reservoirs[i]);
-                    }
-                }
-            }
-
-
-            std::vector<qint64>  caseIds;
-            std::vector<QString> caseNames;
-            std::vector<QString> caseTypes;
-            std::vector<qint64>  caseGroupIds;
-
-            getCaseInfoFromCases(cases, caseIds, caseNames, caseTypes, caseGroupIds);
-
-            quint64 byteCount = sizeof(quint64);
-            quint64 caseCount = caseIds.size();
-
-            for (size_t i = 0; i < caseCount; i++)
-            {
-                byteCount += 2*sizeof(qint64);
-                byteCount += caseNames[i].size() * sizeof(QChar);
-                byteCount += caseTypes[i].size() * sizeof(QChar);
-            }
-
-            socketStream << byteCount;
-            socketStream << caseCount;
-
-            for (size_t i = 0; i < caseCount; i++)
-            {
-                socketStream << caseIds[i];
-                socketStream << caseNames[i];
-                socketStream << caseTypes[i];
-                socketStream << caseGroupIds[i];
-            }
-        }
-
-        return;
-    }
-
-
 
     if (rimCase == NULL)
     {
@@ -624,6 +754,7 @@ void RiaSocketServer::readCommandFromOctave()
         }
 
         socketStream << (quint64)iCount << (quint64)jCount << (quint64)kCount;
+    }
     }
 }
 
@@ -901,67 +1032,6 @@ void RiaSocketServer::calculateMatrixModelActiveCellInfo(RimCase* reservoirCase,
             // TODO: Handle coarse box concept
             coarseBoxIdx.push_back(-1);
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId)
-{
-    CVF_ASSERT(rimCase);
-
-    caseId = rimCase->caseId;
-    caseName = rimCase->caseUserDescription;
-
-    RimCaseCollection* caseCollection = rimCase->parentCaseCollection();
-    if (caseCollection)
-    {
-        caseGroupId = caseCollection->parentCaseGroup()->groupId;
-
-        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
-        {
-            caseType = "StatisticsCase";
-        }
-        else
-        {
-            caseType = "SourceCase";
-        }
-    }
-    else
-    {
-        caseGroupId = -1;
-
-        if (dynamic_cast<RimInputCase*>(rimCase))
-        {
-            caseType = "InputCase";
-        }
-        else
-        {
-            caseType = "ResultCase";
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::getCaseInfoFromCases(std::vector<RimCase*>& cases, std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std::vector<QString> &caseTypes, std::vector<qint64>& caseGroupIds)
-{
-    for (size_t i = 0; i < cases.size(); i++)
-    {
-        RimCase* rimCase = cases[i];
-
-        qint64  caseId = -1;
-        QString caseName;
-        QString caseType;
-        qint64  caseGroupId = -1;
-        getCaseInfoFromCase(rimCase, caseId, caseName, caseType, caseGroupId);
-
-        caseIds.push_back(rimCase->caseId);
-        caseNames.push_back(rimCase->caseUserDescription);
-        caseTypes.push_back(caseType);
-        caseGroupIds.push_back(caseGroupId);
     }
 }
 

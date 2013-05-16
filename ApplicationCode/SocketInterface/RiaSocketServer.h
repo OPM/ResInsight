@@ -29,6 +29,7 @@ class QTcpSocket;
 class QNetworkSession;
 class QErrorMessage;
 class RimCase;
+class RiaSocketCommand;
 
 
 class RiaSocketServer : public QObject
@@ -42,6 +43,7 @@ public:
     RiaSocketServer(QObject *parent = 0);
     ~RiaSocketServer();
     unsigned short  serverPort();
+    RimCase*        findReservoir(int caseId);
 
 private slots:
     void            slotNewClientConnection();
@@ -55,7 +57,6 @@ private:
 
 
     void            handleClientConnection( QTcpSocket* clientToHandle);
-    RimCase*        findReservoir(int caseId);
     void            terminateCurrentConnection();
 
     void            calculateMatrixModelActiveCellInfo( RimCase* reservoirCase, 
@@ -70,15 +71,6 @@ private:
                                                         std::vector<qint32>& hostCellK,
                                                         std::vector<qint32>& coarseBoxIdx);
 
-    void            getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
-    
-    void            getCaseInfoFromCases(   std::vector<RimCase*>& cases, 
-                                            std::vector<qint64>&   caseIds,
-                                            std::vector<QString>&  caseNames,
-                                            std::vector<QString>&  caseTypes,
-                                            std::vector<qint64>&   caseGroupIds);
-
-
 private:
     QTcpServer*     m_tcpServer;
     QErrorMessage*  m_errorMessageDialog;
@@ -89,6 +81,8 @@ private:
 
     // Vars used for reading data from octave and adding them to the available results
     ReadState       m_readState;
+    RiaSocketCommand* m_currentCommand;
+
     quint64         m_timeStepCountToRead;
     quint64         m_bytesPerTimeStepToRead;
     size_t          m_currentTimeStepToRead;
