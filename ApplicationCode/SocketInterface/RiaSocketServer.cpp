@@ -59,7 +59,7 @@ class RiaSocketCommand
 public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) = 0;
-    virtual bool interpretMore(QDataStream& stream) {}
+    virtual bool interpretMore(QDataStream& stream) { return true; }
 
 };
 
