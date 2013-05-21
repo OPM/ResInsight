@@ -33,6 +33,7 @@ public:
     RigActiveCellInfo();
 
     void                setGlobalCellCount(size_t globalCellCount);
+    size_t              globalCellCount() const;
 
     bool                isActive(size_t globalCellIndex) const;
     size_t              cellResultIndex(size_t globalCellIndex) const;

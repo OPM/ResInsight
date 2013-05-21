@@ -648,7 +648,36 @@ public:
             socketStream << timestepCount;
 
             // then the byte-size of the result values in one timestep
-            // TODO: Rewrite to handle coarsening
+
+            const RigActiveCellInfo* activeInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
+            size_t  timestepResultCount = activeInfo->globalActiveCellCount();
+
+            quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
+            socketStream << timestepByteCount ;
+
+            // Then write the data.
+
+            size_t globalCellCount = activeInfo->globalCellCount();
+            for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
+            {
+                for (size_t gcIdx = 0; gcIdx < globalCellCount; ++gcIdx)
+                {
+                    size_t resultIdx = activeInfo->cellResultIndex(gcIdx);
+                    if (resultIdx != cvf::UNDEFINED_SIZE_T)
+                    {
+                        if (resultIdx < scalarResultFrames->at(requestedTimesteps[tIdx]).size())
+                        {
+                            socketStream << scalarResultFrames->at(requestedTimesteps[tIdx])[resultIdx];
+                        }
+                        else
+                        {
+                            socketStream << HUGE_VAL;
+                        }
+                    }
+                }
+            }
+#if 0
+            // This aproach is faster but does not handle coarsening
             size_t  timestepResultCount = scalarResultFrames->front().size();
             quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
             socketStream << timestepByteCount ;
@@ -666,6 +695,7 @@ public:
                 }
 #endif
             }
+#endif
         }
 
         return true;

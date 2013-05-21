@@ -83,9 +83,11 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &serverName, quint
         qint64 bytesRead = 0;
         double * internalMatrixData = propertyFrames.fortran_vec();
 
-#if 1 // Use raw data transfer. Faster.
-        bytesRead = socket.read((char*)(internalMatrixData + tIdx * activeCellCount), byteCount);
+#if 0
+        // Raw data transfer. Faster. Not possible when dealing with coarsening
+        // bytesRead = socket.read((char*)(internalMatrixData + tIdx * activeCellCount), byteCount);
 #else
+        // Compatible transfer. Now the only one working
         for (size_t cIdx = 0; cIdx < activeCellCount; ++cIdx)
         {
             socketStream >> internalMatrixData[tIdx * activeCellCount + cIdx];
