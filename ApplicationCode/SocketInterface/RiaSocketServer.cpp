@@ -282,7 +282,7 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        quint64 argCaseGroupId = -1;
+        int argCaseGroupId = -1;
 
         if (args.size() == 2)
         {
@@ -567,29 +567,34 @@ public:
 
         RimCase* rimCase = findCaseFromArgs(server, args);
 
-        if (!rimCase) return true;
-
         QString propertyName = args[2];
+        QString porosityModelName = args[3];
 
-        // Find the requested data, Or create a set if we are setting data and it is not found
+        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        if (porosityModelName == "Fracture")
+        {
+            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+        }
+
+        // Find the requested data
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
         std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
-        if (rimCase && rimCase->results(RifReaderInterface::MATRIX_RESULTS))
+        if (rimCase && rimCase->results(porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(RifReaderInterface::MATRIX_RESULTS)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadScalarResult(propertyName);
 
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
-                scalarResultFrames = &(rimCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->cellScalarResults(scalarResultIndex));
+                scalarResultFrames = &(rimCase->results(porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
             }
 
         }
 
         if (scalarResultFrames == NULL)
         {
-            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the property named: \"%1\"").arg(propertyName));
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
         }
 
         // Write data back : timeStepCount, bytesPrTimestep, dataForTimestep0 ... dataForTimestepN
@@ -601,23 +606,61 @@ public:
         }
         else
         {
+            // Create a list of all the requested timesteps
+
+            std::vector<size_t> requestedTimesteps;
+
+            if (args.size() <= 4)
+            {
+                // Select all
+                for (size_t tsIdx = 0; tsIdx < scalarResultFrames->size(); ++tsIdx)
+                {
+                    requestedTimesteps.push_back(tsIdx);
+                }
+            }
+            else
+            {
+                bool timeStepReadError = false;
+                for (int argIdx = 4; argIdx < args.size(); ++argIdx)
+                {
+                    bool conversionOk = false;
+                    int tsIdx = args[argIdx].toInt(&conversionOk);
+
+                    if (conversionOk)
+                    {
+                        requestedTimesteps.push_back(tsIdx);
+                    }
+                    else
+                    {
+                        timeStepReadError = true;
+                    }
+                }
+
+                if (timeStepReadError)
+                {
+                    server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
+                }
+
+            }
+
             // First write timestep count
-            quint64 timestepCount = (quint64)scalarResultFrames->size();
+            quint64 timestepCount = (quint64)requestedTimesteps.size();
             socketStream << timestepCount;
 
             // then the byte-size of the result values in one timestep
+            // TODO: Rewrite to handle coarsening
             size_t  timestepResultCount = scalarResultFrames->front().size();
             quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
             socketStream << timestepByteCount ;
 
             // Then write the data.
 
-            for (size_t tIdx = 0; tIdx < scalarResultFrames->size(); ++tIdx)
+            for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
             {
 #if 1 // Write data as raw bytes, fast but does not handle byteswapping
-                server->currentClient()->write((const char *)scalarResultFrames->at(tIdx).data(), timestepByteCount); // Raw print of data. Fast but no platform conversion
+                server->currentClient()->write((const char *)scalarResultFrames->at(requestedTimesteps[tIdx]).data(), timestepByteCount); // Raw print of data. Fast but no platform conversion
 #else  // Write data using QDataStream, does byteswapping for us. Must use QDataStream on client as well
-                for (size_t cIdx = 0; cIdx < scalarResultFrames->at(tIdx).size(); ++cIdx)
+                for (size_t cIdx = 0; cIdx < scalarResultFrames->at(requestedTimesteps[tIdx]).size(); ++cIdx)
                 {
                     socketStream << scalarResultFrames->at(tIdx)[cIdx];
                 }
