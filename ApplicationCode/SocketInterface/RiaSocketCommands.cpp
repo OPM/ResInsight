@@ -247,3 +247,74 @@ public:
 };
 
 static bool RiaGetGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridDimensions>(RiaGetGridDimensions::commandName());
+
+
+
+
+class RiaGetCoarseningInfo : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetCoarseningInfo"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int argCaseGroupId = -1;
+
+        if (args.size() == 2)
+        {
+            argCaseGroupId = args[1].toInt();
+        }
+
+        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        if (!rimCase || !rimCase->reservoirData() || !rimCase->reservoirData()->mainGrid())
+        {
+            quint64 byteCount = 0;
+
+            socketStream << byteCount;
+
+            return true;
+        }
+
+        // Write data back to octave: I1, I2, J1, J2, K1, K2 for all coarsening boxes
+
+        if (rimCase && rimCase->reservoirData() && rimCase->reservoirData()->mainGrid())
+        {
+            size_t globalCoarseningBoxCount = 0;
+
+            for (size_t gridIdx = 0; gridIdx < rimCase->reservoirData()->gridCount(); gridIdx++)
+            {
+                RigGridBase* grid = rimCase->reservoirData()->grid(gridIdx);
+
+                size_t localCoarseningBoxCount = grid->coarseningBoxCount();
+                globalCoarseningBoxCount += localCoarseningBoxCount;
+            }
+
+            quint64 byteCount = globalCoarseningBoxCount * 6 * sizeof(qint32);
+            socketStream << byteCount;
+
+            for (size_t gridIdx = 0; gridIdx < rimCase->reservoirData()->gridCount(); gridIdx++)
+            {
+                RigGridBase* grid = rimCase->reservoirData()->grid(gridIdx);
+
+                size_t localCoarseningBoxCount = grid->coarseningBoxCount();
+                for (size_t boxIdx = 0; boxIdx < localCoarseningBoxCount; boxIdx++)
+                {
+                    size_t i1, i2, j1, j2, k1, k2;
+                    grid->coarseningBox(boxIdx, &i1, &i2, &j1, &j2, &k1, &k2);
+
+                    // Write 1-based coordinates for coarsening box
+                    socketStream << static_cast<qint32>(i1 + 1);
+                    socketStream << static_cast<qint32>(i2 + 1);
+                    socketStream << static_cast<qint32>(j1 + 1);
+                    socketStream << static_cast<qint32>(j2 + 1);
+                    socketStream << static_cast<qint32>(k1 + 1);
+                    socketStream << static_cast<qint32>(k2 + 1);
+                }
+            }
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetCoarseningInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCoarseningInfo>(RiaGetCoarseningInfo::commandName());

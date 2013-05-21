@@ -52,6 +52,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "cafFactory.h"
+#include "RigGridBase.h"
 
 
 
@@ -469,7 +470,7 @@ public:
         return true;
     }
 
-    static void calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& coarseBoxIdx)
+    static void calculateMatrixModelActiveCellInfo(RimCase* reservoirCase, RifReaderInterface::PorosityModelResultType porosityModel, std::vector<qint32>& gridNumber, std::vector<qint32>& cellI, std::vector<qint32>& cellJ, std::vector<qint32>& cellK, std::vector<qint32>& parentGridNumber, std::vector<qint32>& hostCellI, std::vector<qint32>& hostCellJ, std::vector<qint32>& hostCellK, std::vector<qint32>& globalCoarseningBoxIdx)
     {
         gridNumber.clear();
         cellI.clear();
@@ -479,7 +480,7 @@ public:
         hostCellI.clear();
         hostCellJ.clear();
         hostCellK.clear();
-        coarseBoxIdx.clear();
+        globalCoarseningBoxIdx.clear();
 
         if (!reservoirCase || !reservoirCase->reservoirData() || !reservoirCase->reservoirData()->mainGrid())
         {
@@ -497,9 +498,27 @@ public:
         hostCellI.reserve(numMatrixModelActiveCells);
         hostCellJ.reserve(numMatrixModelActiveCells);
         hostCellK.reserve(numMatrixModelActiveCells);
-        coarseBoxIdx.reserve(numMatrixModelActiveCells);
+        globalCoarseningBoxIdx.reserve(numMatrixModelActiveCells);
 
         const std::vector<RigCell>& globalCells = reservoirCase->reservoirData()->mainGrid()->cells();
+
+
+        std::vector<size_t> globalCoarseningBoxIndexStart;
+        {
+            size_t globalCoarseningBoxCount = 0;
+
+            for (size_t gridIdx = 0; gridIdx < reservoirCase->reservoirData()->gridCount(); gridIdx++)
+            {
+                globalCoarseningBoxIndexStart.push_back(globalCoarseningBoxCount);
+
+                RigGridBase* grid = reservoirCase->reservoirData()->grid(gridIdx);
+
+                size_t localCoarseningBoxCount = grid->coarseningBoxCount();
+                globalCoarseningBoxCount += localCoarseningBoxCount;
+            }
+
+        }
+
 
         for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
         {
@@ -543,11 +562,13 @@ public:
                 size_t coarseningIdx = globalCells[cIdx].coarseningBoxIndex();
                 if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
                 {
-                    coarseBoxIdx.push_back(static_cast<qint32>(coarseningIdx));
+                    size_t globalCoarseningIdx = globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;
+                    
+                    globalCoarseningBoxIdx.push_back(static_cast<qint32>(globalCoarseningIdx + 1)); // NB: 1-based index in Octave
                 }
                 else
                 {
-                    coarseBoxIdx.push_back(-1);
+                    globalCoarseningBoxIdx.push_back(-1);
                 }
             }
         }

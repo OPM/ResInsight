@@ -1042,21 +1042,7 @@ void RifReaderEclipseOutput::transferCoarseningInfo(const ecl_grid_type* eclGrid
         size_t k1 = static_cast<size_t>(ecl_coarse_cell_get_k1(coarse_cell));
         size_t k2 = static_cast<size_t>(ecl_coarse_cell_get_k2(coarse_cell));
 
-        size_t coarseningBoxIdx = grid->addCoarseningBox(i1, i2, j1, j2, k1, k2);
-
-        for (size_t k = k1; k <= k2; k++)
-        {
-            for (size_t j = j1; j <= j2; j++)
-            {
-                for (size_t i = i1; i <= i2; i++)
-                {
-                    size_t cellIdx = grid->cellIndexFromIJK(i, j, k);
-                    RigCell c = grid->cell(cellIdx);
-
-                    c.setCoarseningBoxIndex(coarseningBoxIdx);
-                }
-            }
-        }
+        grid->addCoarseningBox(i1, i2, j1, j2, k1, k2);
     }
 }
 

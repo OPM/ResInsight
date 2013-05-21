@@ -472,7 +472,25 @@ size_t RigGridBase::addCoarseningBox(size_t i1, size_t i2, size_t j1, size_t j2,
 
     m_coarseningBoxInfo.push_back(box);
 
-    return m_coarseningBoxInfo.size() - 1;
+    size_t coarseningBoxIndex = m_coarseningBoxInfo.size() - 1;
+
+    for (size_t k = k1; k <= k2; k++)
+    {
+        for (size_t j = j1; j <= j2; j++)
+        {
+            for (size_t i = i1; i <= i2; i++)
+            {
+                size_t cellIdx = this->cellIndexFromIJK(i, j, k);
+
+                RigCell& c = this->cell(cellIdx);
+                CVF_ASSERT(c.coarseningBoxIndex() == cvf::UNDEFINED_SIZE_T);
+
+                c.setCoarseningBoxIndex(coarseningBoxIndex);
+            }
+        }
+    }
+
+    return coarseningBoxIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
