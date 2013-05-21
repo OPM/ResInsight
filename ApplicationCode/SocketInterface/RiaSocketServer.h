@@ -18,10 +18,8 @@
 
 #pragma once
 
-#include <QDialog>
-#include <QAbstractSocket>
-#include "RifReaderInterface.h"
-#include "cafFactory.h"
+#include <QObject>
+#include <vector>
 
 class QLabel;
 class QPushButton;
@@ -99,6 +97,7 @@ public:
     virtual bool interpretMore(QDataStream& stream) { return true; }
 };
 
+#include "cafFactory.h"
 typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
 
 void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
