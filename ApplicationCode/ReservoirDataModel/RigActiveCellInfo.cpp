@@ -43,7 +43,7 @@ void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
 //--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::globalCellCount() const
 {
-    m_cellIndexToResultIndex.size();
+    return m_cellIndexToResultIndex.size();
 }
 
 //--------------------------------------------------------------------------------------------------
