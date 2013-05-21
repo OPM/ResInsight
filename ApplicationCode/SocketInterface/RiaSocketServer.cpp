@@ -540,12 +540,18 @@ public:
                 hostCellJ.push_back(static_cast<qint32>(pj + 1));   // NB: 1-based index in Octave
                 hostCellK.push_back(static_cast<qint32>(pk + 1));   // NB: 1-based index in Octave
 
-                // TODO: Handle coarse box concept
-                coarseBoxIdx.push_back(-1);
+                size_t coarseningIdx = globalCells[cIdx].coarseningBoxIndex();
+                if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
+                {
+                    coarseBoxIdx.push_back(static_cast<qint32>(coarseningIdx));
+                }
+                else
+                {
+                    coarseBoxIdx.push_back(-1);
+                }
             }
         }
     }
-
 };
 
 static bool RiaGetActiveCellInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellInfo>(RiaGetActiveCellInfo::commandName());

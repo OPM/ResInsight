@@ -54,8 +54,8 @@ public:
     size_t                  mainGridCellIndex() const                           { return m_mainGridCellIndex; }
     void                    setMainGridCellIndex(size_t mainGridCellContainingThisCell) { m_mainGridCellIndex = mainGridCellContainingThisCell; }
 
-    bool                    isInCoarseCell() const                              { return m_isInCoarseCell; }
-    void                    setInCoarseCell(bool isInCoarseCell)                { m_isInCoarseCell = isInCoarseCell; }
+    size_t                  coarseningBoxIndex() const                          { return m_coarseningBoxIndex; }
+    void                    setCoarseningBoxIndex(size_t coarseningBoxIndex)    { m_coarseningBoxIndex = coarseningBoxIndex; }
 
     void                    setCellFaceFault(cvf::StructGridInterface::FaceType face)       { m_cellFaceFaults[face] = true; }
     bool                    isCellFaceFault(cvf::StructGridInterface::FaceType face) const  { return m_cellFaceFaults[face]; }
@@ -71,9 +71,10 @@ private:
     RigGridBase*            m_hostGrid;
     RigLocalGrid*           m_subGrid;
 
-    size_t                  m_parentCellIndex; ///< Grid cell index of the cell in the parent grid containing this cell
+    size_t                  m_parentCellIndex;          ///< Grid cell index of the cell in the parent grid containing this cell
     size_t                  m_mainGridCellIndex;
-    bool                    m_isInCoarseCell; 
+
+    size_t                  m_coarseningBoxIndex;       ///< If defined, index into list of coarsening boxes in RigGridBase
 
     bool                    m_cellFaceFaults[6];
 

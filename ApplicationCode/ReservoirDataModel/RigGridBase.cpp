@@ -460,6 +460,42 @@ size_t RigGridBase::globalGridCellIndex(size_t localGridCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RigGridBase::addCoarseningBox(size_t i1, size_t i2, size_t j1, size_t j2, size_t k1, size_t k2)
+{
+    caf::SizeTArray6 box;
+    box[0] = i1;
+    box[1] = i2;
+    box[2] = j1;
+    box[3] = j2;
+    box[4] = k1;
+    box[5] = k2;
+
+    m_coarseningBoxInfo.push_back(box);
+
+    return m_coarseningBoxInfo.size() - 1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::coarseningBox(size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2) const
+{
+    CVF_ASSERT(coarseningBoxIndex < m_coarseningBoxInfo.size());
+
+    CVF_ASSERT(i1 && i2 && j1 && j2 && k1 && k2);
+
+    caf::SizeTArray6 box = m_coarseningBoxInfo[coarseningBoxIndex];
+    *i1 = box[0];
+    *i2 = box[1];
+    *j1 = box[2];
+    *j2 = box[3];
+    *k1 = box[4];
+    *k2 = box[5];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility) const
 {
     CVF_TIGHT_ASSERT(m_grid);
