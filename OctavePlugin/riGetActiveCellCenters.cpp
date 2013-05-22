@@ -4,7 +4,7 @@
 #include "riSettings.h"
 
 
-void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex)
+void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex, const QString& porosityModel)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
@@ -22,7 +22,7 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
 
     // Create command and send it:
 
-    QString command = QString("GetCellCenters %1 %2").arg(caseId).arg(gridIndex);
+    QString command = QString("GetActiveCellCenters %1 %2 %3").arg(caseId).arg(gridIndex).arg(porosityModel);
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
@@ -44,19 +44,19 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
 
     // Read timestep count and blocksize
 
-    quint64 cellCount;
+    quint64 activeCellCount;
     quint64 byteCount;
 
-    socketStream >> cellCount;
+    socketStream >> activeCellCount;
     socketStream >> byteCount;
 
     dim_vector dv (1, 1);
     dv(0) = 3;
-    dv(1) = cellCount;
+    dv(1) = activeCellCount;
 
     cellCenterValues.resize(dv);
 
-    if (!(byteCount && cellCount))
+    if (!(byteCount && activeCellCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
@@ -80,7 +80,7 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
     if (byteCount != bytesRead)
     {
         error("Could not read binary double data properly from socket");
-        octave_stdout << "Cell count: " << cellCount << std::endl;
+        octave_stdout << "Active cell count: " << activeCellCount << std::endl;
     }
 
     return;
@@ -88,50 +88,76 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
 
 
 
-DEFUN_DLD (riGetCellCenters, args, nargout,
+DEFUN_DLD (riGetActiveCellCenters, args, nargout,
            "Usage:\n"
            "\n"
-           "   riGetCellCenters([CaseId], GridIndex )\n"
+           "   riGetActiveCellCenters([CaseId], GridIndex, [PorosityModel = “Matrix”|”Fracture”] )\n"
            "\n"
            "This function returns the UTM coordinates (X, Y, Z) of the center point of all the cells in the grid.\n"
            "If the CaseId is not defined, ResInsight’s Current Case is used.\n"
            )
 {
+
+    if (nargout < 1)
+    {
+        error("riGetActiveCellCenters: Missing output argument.\n");
+        print_usage();
+        return octave_value_list ();
+    }
+
     int nargin = args.length ();
-    if (nargin > 2)
+    if (nargin < 1)
     {
-        error("riGetCellCenters: Too many arguments. CaseId is optional input argument.\n");
+        error("riGetActiveCellCenters: Too few arguments. The grid index argument is required.\n");
         print_usage();
+        return octave_value_list ();
     }
-    else if (nargout < 1)
+
+    if (nargin > 3)
     {
-        error("riGetCellCenters: Missing output argument.\n");
+        error("riGetActiveCellCenters: Too many arguments.\n");
         print_usage();
+        return octave_value_list ();
     }
-    else
+
+    qint32 caseId = -1;
+    quint32 gridIndex = 0;
+    std::string porosityModel = "Matrix";
+
+    if (nargin == 1)
     {
-        NDArray cellCenterValues;
-
-        qint32 caseId = -1;
-        quint32 gridIndex = 0;
-
-        if (nargin == 1)
+        gridIndex = args(0).uint_value();
+    }
+    else if (nargin == 2)
+    {
+        if (args(0).is_numeric_type() && args(1).is_numeric_type())
         {
-            gridIndex = args(0).uint_value();
-        }
-        else if (nargin == 2)
-        {
-            unsigned int argCaseId = args(0).uint_value();
-            caseId = argCaseId;
-
+            caseId = args(0).uint_value();
             gridIndex = args(1).uint_value();
         }
-
-        getCellCenters(cellCenterValues, "127.0.0.1", 40001, caseId, gridIndex);
-
-        return octave_value(cellCenterValues);
+        else
+        {
+            gridIndex     = args(0).uint_value();
+            porosityModel = args(1).string_value();
+        }
+    }
+    else if (nargin == 3)
+    {
+        caseId        = args(0).uint_value();
+        gridIndex     = args(1).uint_value();
+        porosityModel = args(2).string_value();
     }
 
-    return octave_value();
+    if (porosityModel != "Matrix" && porosityModel != "Fracture")
+    {
+        error("riGetActiveCellProperty: The value for \"PorosityModel\" is unknown. Please use either \"Matrix\" or \"Fracture\"\n");
+        print_usage();
+        return octave_value_list ();
+    }
+
+    NDArray cellCenterValues;
+    getActiveCellCenters(cellCenterValues, "127.0.0.1", 40001, caseId, gridIndex, porosityModel.c_str());
+
+    return octave_value(cellCenterValues);
 }
 

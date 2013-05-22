@@ -375,3 +375,96 @@ public:
 };
 
 static bool RiaGetCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCenters>(RiaGetCellCenters::commandName());
+
+
+class RiaGetActiveCellCenters : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetActiveCellCenters"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int argCaseGroupId = -1;
+        size_t argGridIndex = 0;
+        QString porosityModelName;
+
+        if (args.size() == 2)
+        {
+            argGridIndex = args[1].toInt();
+        }
+        else if (args.size() == 3)
+        {
+            bool numberConversionOk = false;
+            int tmpValue = args[2].toInt(&numberConversionOk);
+            if (numberConversionOk)
+            {
+                // Two arguments, caseID and gridIndex
+                argCaseGroupId = args[1].toInt();
+                argGridIndex = args[2].toUInt();
+            }
+            else
+            {
+                // Two arguments, gridIndex and porosity model
+                argGridIndex = args[1].toUInt();
+                porosityModelName = args[2];
+            }
+        }
+        else if (args.size() > 3)
+        {
+            // Two arguments, caseID and gridIndex
+            argCaseGroupId = args[1].toInt();
+            argGridIndex = args[2].toUInt();
+            porosityModelName = args[3];
+        }
+
+        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        if (porosityModelName.toUpper() == "FRACTURE")
+        {
+            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+        }
+
+        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        {
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 ;
+            return true;
+        }
+
+        RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
+
+        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+
+        std::vector<double> cellCenterValues(rigGrid->cellCount() * 3);
+        
+        size_t cellCenterIndex = 0;
+        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        {
+            size_t globalCellIdx = rigGrid->globalGridCellIndex(localGridCellIdx);
+            if (!actCellInfo->isActive(globalCellIdx)) continue;
+
+            RigCell& c = rigGrid->cell(localGridCellIdx);
+            cvf::Vec3d center = c.center();
+
+            cellCenterValues[cellCenterIndex * 3 + 0] = center.x();
+            cellCenterValues[cellCenterIndex * 3 + 1] = center.y();
+            cellCenterValues[cellCenterIndex * 3 + 2] = center.z();
+
+            cellCenterIndex++;
+        }
+
+        quint64 activeCellCount = cellCenterIndex;
+        cellCenterValues.resize(cellCenterIndex * 3);
+
+        socketStream << activeCellCount;
+        quint64 byteCount = activeCellCount * 3 * sizeof(double);
+        socketStream << byteCount;
+
+        server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
+
+        return true;
+    }
+
+};
+
+static bool RiaGetActiveCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCenters>(RiaGetActiveCellCenters::commandName());

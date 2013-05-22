@@ -14,6 +14,7 @@ set(CPP_SOURCES
   riGetGridDimensions.cpp
   riGetCoarseningInfo.cpp
   riGetCellCenters.cpp
+  riGetActiveCellCenters.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -117,6 +118,7 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetGridDimensions.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCoarseningInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCenters.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCenters.oct"
 
       SOURCES ${CPP_SOURCES}
   )
