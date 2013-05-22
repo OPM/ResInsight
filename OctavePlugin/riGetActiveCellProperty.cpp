@@ -2,7 +2,7 @@
 #include <octave/oct.h>
 #include "riSettings.h"
 
-void getEclipseProperty(Matrix& propertyFrames, const QString &serverName, quint16 serverPort,
+void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, quint16 serverPort,
                         const qint64& caseId, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
 {
     const int Timeout = riOctavePlugin::timeOutMilliSecs;
@@ -22,12 +22,12 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &serverName, quint
     // Create command as a string with arguments , and send it:
 
     QString command;
-    command += "GetProperty " + QString::number(caseId) + " " + propertyName + " " + porosityModel;
+    command += "GetActiveCellProperty " + QString::number(caseId) + " " + propertyName + " " + porosityModel;
 
     for (int i = 0; i < requestedTimeSteps.length(); ++i)
     {
         if (i == 0) command += " ";
-        command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)));
+        command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
         if (i != requestedTimeSteps.length() -1) command += " ";
     }
 
@@ -130,7 +130,7 @@ DEFUN_DLD (riGetActiveCellProperty, args, nargout,
            "This function returns a two dimensional matrix: [ActiveCells][Num TimestepsRequested] containing the requested property data from the case with CaseId."
            "If the case contains coarse-cells, the results are expanded onto the active cells."
            "If the CaseId is not defined, ResInsight’s Current Case is used."
-           "The RequestedTimeSteps must contain a list of indices to the requested timesteps. If not defined, all the timesteps are returned."
+           "The RequestedTimeSteps must contain a list of 1-based indices to the requested timesteps. If not defined, all the timesteps are returned."
            )
 {
     if (nargout < 1)
@@ -215,7 +215,7 @@ DEFUN_DLD (riGetActiveCellProperty, args, nargout,
         return octave_value_list ();
     }
 
-    getEclipseProperty(propertyFrames, "127.0.0.1", 40001, caseId, propertyName.c_str(), requestedTimeSteps, porosityModel.c_str());
+    getActiveCellProperty(propertyFrames, "127.0.0.1", 40001, caseId, propertyName.c_str(), requestedTimeSteps, porosityModel.c_str());
 
     return octave_value(propertyFrames);
 }
