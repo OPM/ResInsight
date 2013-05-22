@@ -17,7 +17,7 @@
 
 #include "RiaStdInclude.h"
 #include "RiaSocketServer.h"
-
+#include "RiaSocketCommand.h"
 
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"

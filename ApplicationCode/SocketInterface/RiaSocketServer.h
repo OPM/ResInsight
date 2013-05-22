@@ -20,6 +20,7 @@
 
 #include <QObject>
 #include <vector>
+#include <QDataStream>
 
 class QLabel;
 class QPushButton;
@@ -30,6 +31,10 @@ class QErrorMessage;
 class RimCase;
 class RiaSocketCommand;
 
+namespace riOctavePlugin
+{
+    const int qtDataStreamVersion = QDataStream::Qt_4_0;
+}
 
 class RiaSocketServer : public QObject
 {
@@ -82,23 +87,4 @@ private:
     QString         m_currentPropertyName;
     bool            m_invalidActiveCellCountDetected;
 };
-
-
-
-//////////////////////////////////////////////////////////////////////////
-/// Socket commands, to be moved into a separate file
-//////////////////////////////////////////////////////////////////////////
-
-class RiaSocketCommand
-{
-public:
-
-    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) = 0;
-    virtual bool interpretMore(QDataStream& stream) { return true; }
-};
-
-#include "cafFactory.h"
-typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
-
-void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
 

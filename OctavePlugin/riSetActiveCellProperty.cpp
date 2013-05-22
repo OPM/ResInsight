@@ -1,5 +1,6 @@
 #include <QtNetwork>
 #include <octave/oct.h>
+#include "riSettings.h"
 
 
 void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, quint16 port, QString caseName, QString propertyName)
@@ -25,7 +26,7 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
-    socketStream.setVersion(QDataStream::Qt_4_0);
+    socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
     socketStream << (qint64)(cmdBytes.size());
     socket.write(cmdBytes);

@@ -17,6 +17,7 @@
 
 #include "RiaStdInclude.h"
 #include "RiaSocketServer.h"
+#include "RiaSocketCommand.h"
 
 #include <QtGui>
 #include <QtNetwork>
@@ -578,10 +579,10 @@ public:
 static bool RiaGetActiveCellInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellInfo>(RiaGetActiveCellInfo::commandName());
 
 
-class RiaGetProperty: public RiaSocketCommand
+class RiaGetActiveCellProperty: public RiaSocketCommand
 {
 public:
-    static QString commandName () { return QString("GetProperty"); }
+    static QString commandName () { return QString("GetActiveCellProperty"); }
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
@@ -723,7 +724,7 @@ public:
     }
 };
 
-static bool RiaGetProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetProperty>(RiaGetProperty::commandName());
+static bool RiaGetActiveCellProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellProperty>(RiaGetActiveCellProperty::commandName());
 
 
 
@@ -885,7 +886,7 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 void RiaSocketServer::readCommandFromOctave()
 {
     QDataStream socketStream(m_currentClient);
-    socketStream.setVersion(QDataStream::Qt_4_0);
+    socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
     // If we have not read the currentCommandSize
     // read the size of the command if all the data is available
@@ -1025,7 +1026,7 @@ void RiaSocketServer::readCommandFromOctave()
 void RiaSocketServer::readPropertyDataFromOctave()
 {
     QDataStream socketStream(m_currentClient);
-    socketStream.setVersion(QDataStream::Qt_4_0);
+    socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
     // If we have not read the header and there are data enough: Read it.
     // Do nothing if we have not enough data

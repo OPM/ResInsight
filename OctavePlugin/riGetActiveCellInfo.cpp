@@ -26,7 +26,7 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
-    socketStream.setVersion(QDataStream::Qt_4_0);
+    socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
     socketStream << (qint64)(cmdBytes.size());
     socket.write(cmdBytes);

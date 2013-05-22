@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "../ApplicationCode/SocketInterface/RiaSocketServer.h"
+
 namespace riOctavePlugin
 {
     const int timeOutMilliSecs = 5000;
-
-    const int qtDataStreamVersion = QDataStream::Qt_4_0;
 
     // Octave data structure : CaseInfo
     char caseInfo_CaseId[]      = "CaseId";
