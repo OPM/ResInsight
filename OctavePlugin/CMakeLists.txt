@@ -13,6 +13,7 @@ set(CPP_SOURCES
   riGetTimeStepDays.cpp
   riGetGridDimensions.cpp
   riGetCoarseningInfo.cpp
+  riGetCellCenters.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -115,6 +116,7 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDays.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetGridDimensions.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCoarseningInfo.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCenters.oct"
 
       SOURCES ${CPP_SOURCES}
   )

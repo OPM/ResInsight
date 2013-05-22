@@ -32,6 +32,8 @@
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
+#include <QTcpSocket>
+
 
 class RiaGetTimeStepDates : public RiaSocketCommand
 {
@@ -318,3 +320,58 @@ public:
 };
 
 static bool RiaGetCoarseningInfo_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCoarseningInfo>(RiaGetCoarseningInfo::commandName());
+
+
+class RiaGetCellCenters : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetCellCenters"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int argCaseGroupId = -1;
+        size_t argGridIndex = 0;
+
+        if (args.size() == 2)
+        {
+            argGridIndex = args[1].toInt();
+        }
+        else if (args.size() == 3)
+        {
+            argCaseGroupId = args[1].toInt();
+            argGridIndex = args[2].toUInt();
+        }
+
+        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        {
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 ;
+            return true;
+        }
+
+        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+
+        quint64 cellCount = (quint64)rigGrid->cellCount();
+        std::vector<double> cellCenterValues(cellCount * 3);
+        for (size_t i = 0; i < cellCount; i++)
+        {
+            cvf::Vec3d center = rigGrid->cell(i).center();
+
+            cellCenterValues[i * 3 + 0] = center.x();
+            cellCenterValues[i * 3 + 1] = center.y();
+            cellCenterValues[i * 3 + 2] = center.z();
+        }
+
+        socketStream << cellCount;
+        quint64 byteCount = cellCount * 3 * sizeof(double);
+        socketStream << byteCount;
+
+        server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
+
+        return true;
+    }
+
+};
+
+static bool RiaGetCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCenters>(RiaGetCellCenters::commandName());
