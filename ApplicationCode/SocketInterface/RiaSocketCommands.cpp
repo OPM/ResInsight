@@ -365,14 +365,18 @@ public:
         quint64 byteCount = cellCount * 3 * sizeof(double);
         socketStream << byteCount;
 
-        for (size_t i = 0; i < cellCount; i++)
-        {
-            cvf::Vec3d center = rigGrid->cell(i).center();
+        std::vector<double> cellCenterValues(cellCount * 3);
 
-            socketStream << center.x();
-            socketStream << center.y();
-            socketStream << center.z();
+        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        {
+           cvf::Vec3d center = rigGrid->cell(localGridCellIdx).center();
+
+            cellCenterValues[localGridCellIdx * 3 + 0] = center.x();
+            cellCenterValues[localGridCellIdx * 3 + 1] = center.y();
+            cellCenterValues[localGridCellIdx * 3 + 2] = center.z();
         }
+
+        server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
 
         return true;
     }
