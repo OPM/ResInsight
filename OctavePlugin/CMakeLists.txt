@@ -15,6 +15,8 @@ set(CPP_SOURCES
   riGetCoarseningInfo.cpp
   riGetCellCenters.cpp
   riGetActiveCellCenters.cpp
+  riGetCellCorners.cpp
+  riGetActiveCellCorners.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -119,6 +121,8 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCoarseningInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCenters.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCenters.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCorners.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCorners.oct"
 
       SOURCES ${CPP_SOURCES}
   )

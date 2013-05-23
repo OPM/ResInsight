@@ -346,32 +346,36 @@ public:
         if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
         {
             // No data available
-            socketStream << (quint64)0 << (quint64)0 ;
+            socketStream << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0;
             return true;
         }
 
         RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
 
-        quint64 cellCount = (quint64)rigGrid->cellCount();
-        std::vector<double> cellCenterValues(cellCount * 3);
+        quint64 cellCount  = (quint64)rigGrid->cellCount();
+        quint64 cellCountI = (quint64)rigGrid->cellCountI();
+        quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
+        quint64 cellCountK = (quint64)rigGrid->cellCountK();
+
+        socketStream << cellCount;
+        socketStream << cellCountI;
+        socketStream << cellCountJ;
+        socketStream << cellCountK;
+
+        quint64 byteCount = cellCount * 3 * sizeof(double);
+        socketStream << byteCount;
+
         for (size_t i = 0; i < cellCount; i++)
         {
             cvf::Vec3d center = rigGrid->cell(i).center();
 
-            cellCenterValues[i * 3 + 0] = center.x();
-            cellCenterValues[i * 3 + 1] = center.y();
-            cellCenterValues[i * 3 + 2] = center.z();
+            socketStream << center.x();
+            socketStream << center.y();
+            socketStream << center.z();
         }
-
-        socketStream << cellCount;
-        quint64 byteCount = cellCount * 3 * sizeof(double);
-        socketStream << byteCount;
-
-        server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
 
         return true;
     }
-
 };
 
 static bool RiaGetCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCenters>(RiaGetCellCenters::commandName());
@@ -468,3 +472,175 @@ public:
 };
 
 static bool RiaGetActiveCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCenters>(RiaGetActiveCellCenters::commandName());
+
+
+
+
+class RiaGetCellCorners : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetCellCorners"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int argCaseGroupId = -1;
+        size_t argGridIndex = 0;
+
+        if (args.size() == 2)
+        {
+            argGridIndex = args[1].toInt();
+        }
+        else if (args.size() == 3)
+        {
+            argCaseGroupId = args[1].toInt();
+            argGridIndex = args[2].toUInt();
+        }
+
+        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        {
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0;
+            return true;
+        }
+
+        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+
+        quint64 cellCount  = (quint64)rigGrid->cellCount();
+        quint64 cellCountI = (quint64)rigGrid->cellCountI();
+        quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
+        quint64 cellCountK = (quint64)rigGrid->cellCountK();
+
+        size_t doubleValueCount = cellCount * 3 * 8;
+        quint64 byteCount = doubleValueCount * sizeof(double);
+
+        socketStream << cellCount;
+        socketStream << cellCountI;
+        socketStream << cellCountJ;
+        socketStream << cellCountK;
+        socketStream << byteCount;
+
+        std::vector<double> cellCornerValues(doubleValueCount);
+        
+        cvf::Vec3d cornerVerts[8];
+
+        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        {
+            rigGrid->cellCornerVertices(localGridCellIdx, cornerVerts);
+
+            for (size_t j = 0; j < 8; j++)
+            {
+                /*
+                cellCornerValues[localGridCellIdx * 3 + 0] = cornerVerts[j].x();
+                cellCornerValues[localGridCellIdx * 3 + 1] = cornerVerts[j].y();
+                cellCornerValues[localGridCellIdx * 3 + 2] = cornerVerts[j].z();
+                */
+
+                socketStream << cornerVerts[j].x();
+                socketStream << cornerVerts[j].y();
+                socketStream << cornerVerts[j].z();
+            }
+        }
+
+        //server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
+
+        return true;
+    }
+
+};
+
+static bool RiaGetCellCorners_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCorners>(RiaGetCellCorners::commandName());
+
+
+class RiaGetActiveCellCorners : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetActiveCellCorners"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int argCaseGroupId = -1;
+        size_t argGridIndex = 0;
+        QString porosityModelName;
+
+        if (args.size() == 2)
+        {
+            argGridIndex = args[1].toInt();
+        }
+        else if (args.size() == 3)
+        {
+            bool numberConversionOk = false;
+            int tmpValue = args[2].toInt(&numberConversionOk);
+            if (numberConversionOk)
+            {
+                // Two arguments, caseID and gridIndex
+                argCaseGroupId = args[1].toInt();
+                argGridIndex = args[2].toUInt();
+            }
+            else
+            {
+                // Two arguments, gridIndex and porosity model
+                argGridIndex = args[1].toUInt();
+                porosityModelName = args[2];
+            }
+        }
+        else if (args.size() > 3)
+        {
+            // Two arguments, caseID and gridIndex
+            argCaseGroupId = args[1].toInt();
+            argGridIndex = args[2].toUInt();
+            porosityModelName = args[3];
+        }
+
+        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        if (porosityModelName.toUpper() == "FRACTURE")
+        {
+            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+        }
+
+        RimCase* rimCase = server->findReservoir(argCaseGroupId);
+        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        {
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 ;
+            return true;
+        }
+
+        RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
+
+        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+
+        std::vector<double> cellCornerCoords(rigGrid->cellCount() * 3 * 8);
+
+        cvf::Vec3d cornerVerts[8];
+        quint64 coordCount = 0;
+        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        {
+            size_t globalCellIdx = rigGrid->globalGridCellIndex(localGridCellIdx);
+            if (!actCellInfo->isActive(globalCellIdx)) continue;
+
+            rigGrid->cellCornerVertices(localGridCellIdx, cornerVerts);
+
+            for (size_t j = 0; j < 8; j++)
+            {
+                cellCornerCoords[coordCount * 3 + 0] = cornerVerts[j].x();
+                cellCornerCoords[coordCount * 3 + 1] = cornerVerts[j].y();
+                cellCornerCoords[coordCount * 3 + 2] = cornerVerts[j].z();
+
+                coordCount++;
+            }
+        }
+        cellCornerCoords.resize(coordCount * 3);
+
+        socketStream << coordCount;
+        quint64 byteCount = coordCount * 3 * sizeof(double);
+        socketStream << byteCount;
+
+        server->currentClient()->write((const char *)cellCornerCoords.data(), byteCount);
+
+        return true;
+    }
+
+};
+
+static bool RiaGetActiveCellCorners_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCorners>(RiaGetActiveCellCorners::commandName());

@@ -4,7 +4,7 @@
 #include "riSettings.h"
 
 
-void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex)
+void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
@@ -22,7 +22,7 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
 
     // Create command and send it:
 
-    QString command = QString("GetCellCenters %1 %2").arg(caseId).arg(gridIndex);
+    QString command = QString("GetCellCorners %1 %2").arg(caseId).arg(gridIndex);
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
@@ -61,18 +61,23 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
     //   coords = riGetCellCenters
     //   coords(:,i, j, k) # Will return the coords for given ijk location
     dim_vector dv;
-    dv.resize(4);
+    dv.resize(5);
     dv(0) = 3;
-    dv(1) = cellCountI;
-    dv(2) = cellCountJ;
-    dv(3) = cellCountK;
-    cellCenterValues.resize(dv);
+    dv(1) = 8;
+    dv(2) = cellCountI;
+    dv(3) = cellCountJ;
+    dv(4) = cellCountK;
+    cellCornerValues.resize(dv);
+
+//    octave_stdout << "GetCellCorners - coord count: " << coordCount << ", byteCount: " << byteCount << std::endl;
 
     if (!(byteCount && cellCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
     }
+
+    octave_stdout << "GetCellCorners - before wait for data" << std::endl;
 
     // Wait for available data for each column, then read data for each column
     while (socket.bytesAvailable() < (qint64)(byteCount))
@@ -85,12 +90,13 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
         OCTAVE_QUIT;
     }
 
-    octave_idx_type valueCount = cellCenterValues.length();
 
-    octave_stdout << " riGetCellCenters : I = " << cellCountI <<" J = " << cellCountJ << " K = " << cellCountK  << std::endl;
-    octave_stdout << " riGetCellCenters : numDoubles = " << valueCount << std::endl;
+    octave_idx_type valueCount = cellCornerValues.length();
 
-    double* internalMatrixData = cellCenterValues.fortran_vec();
+    octave_stdout << "GetCellCorners - after wait for data" << std::endl;
+
+    double* internalMatrixData = cellCornerValues.fortran_vec();
+
 
 #if 1
     double val;
@@ -115,29 +121,29 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
 
 
 
-DEFUN_DLD (riGetCellCenters, args, nargout,
+DEFUN_DLD (riGetCellCorners, args, nargout,
            "Usage:\n"
            "\n"
-           "   riGetCellCenters([CaseId], GridIndex )\n"
+           "   riGetCellCorners([CaseId], GridIndex )\n"
            "\n"
-           "This function returns the UTM coordinates (X, Y, Z) of the center point of all the cells in the grid.\n"
+           "This function returns the UTM coordinates (X, Y, Z) of the 8 corners of all the cells in the grid.\n"
            "If the CaseId is not defined, ResInsight’s Current Case is used.\n"
            )
 {
     int nargin = args.length ();
     if (nargin > 2)
     {
-        error("riGetCellCenters: Too many arguments. CaseId is optional input argument.\n");
+        error("riGetCellCorners: Too many arguments. CaseId is optional input argument.\n");
         print_usage();
     }
     else if (nargout < 1)
     {
-        error("riGetCellCenters: Missing output argument.\n");
+        error("riGetCellCorners: Missing output argument.\n");
         print_usage();
     }
     else
     {
-        NDArray cellCenterValues;
+        NDArray cellCornerValues;
 
         qint32 caseId = -1;
         quint32 gridIndex = 0;
@@ -154,9 +160,9 @@ DEFUN_DLD (riGetCellCenters, args, nargout,
             gridIndex = args(1).uint_value();
         }
 
-        getCellCenters(cellCenterValues, "127.0.0.1", 40001, caseId, gridIndex);
+        getCellCorners(cellCornerValues, "127.0.0.1", 40001, caseId, gridIndex);
 
-        return octave_value(cellCenterValues);
+        return octave_value(cellCornerValues);
     }
 
     return octave_value();
