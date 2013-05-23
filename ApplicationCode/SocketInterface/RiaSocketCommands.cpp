@@ -523,30 +523,25 @@ public:
         std::vector<double> cellCornerValues(doubleValueCount);
         
         cvf::Vec3d cornerVerts[8];
-
+        quint64 coordCount = 0;
         for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
         {
             rigGrid->cellCornerVertices(localGridCellIdx, cornerVerts);
 
             for (size_t j = 0; j < 8; j++)
             {
-                /*
-                cellCornerValues[localGridCellIdx * 3 + 0] = cornerVerts[j].x();
-                cellCornerValues[localGridCellIdx * 3 + 1] = cornerVerts[j].y();
-                cellCornerValues[localGridCellIdx * 3 + 2] = cornerVerts[j].z();
-                */
+                cellCornerValues[coordCount * 3 + 0] = cornerVerts[j].x();
+                cellCornerValues[coordCount * 3 + 1] = cornerVerts[j].y();
+                cellCornerValues[coordCount * 3 + 2] = cornerVerts[j].z();
 
-                socketStream << cornerVerts[j].x();
-                socketStream << cornerVerts[j].y();
-                socketStream << cornerVerts[j].z();
+                coordCount++;
             }
         }
 
-        //server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
+        server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
 
         return true;
     }
-
 };
 
 static bool RiaGetCellCorners_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCellCorners>(RiaGetCellCorners::commandName());

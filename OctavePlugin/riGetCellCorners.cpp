@@ -98,7 +98,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     double* internalMatrixData = cellCornerValues.fortran_vec();
 
 
-#if 1
+#if 0
     double val;
     for (octave_idx_type i = 0; i < valueCount; i++)
     {
