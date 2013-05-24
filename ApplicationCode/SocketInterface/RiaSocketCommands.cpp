@@ -417,36 +417,35 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         int argCaseGroupId = -1;
-        size_t argGridIndex = 0;
         QString porosityModelName;
 
         if (args.size() == 2)
         {
-            argGridIndex = args[1].toInt();
+            bool numberConversionOk = false;
+            int tmpValue = args[1].toInt(&numberConversionOk);
+            if (numberConversionOk)
+            {
+                argCaseGroupId = tmpValue;
+            }
+            else
+            {
+                porosityModelName = args[1];
+            }
         }
         else if (args.size() == 3)
         {
             bool numberConversionOk = false;
-            int tmpValue = args[2].toInt(&numberConversionOk);
+            int tmpValue = args[1].toInt(&numberConversionOk);
             if (numberConversionOk)
             {
-                // Two arguments, caseID and gridIndex
-                argCaseGroupId = args[1].toInt();
-                argGridIndex = args[2].toUInt();
+                argCaseGroupId = args[1].toUInt();
+                porosityModelName = args[2];
             }
             else
             {
-                // Two arguments, gridIndex and porosity model
-                argGridIndex = args[1].toUInt();
-                porosityModelName = args[2];
+                argCaseGroupId = args[2].toUInt();
+                porosityModelName = args[1];
             }
-        }
-        else if (args.size() > 3)
-        {
-            // Two arguments, caseID and gridIndex
-            argCaseGroupId = args[1].toInt();
-            argGridIndex = args[2].toUInt();
-            porosityModelName = args[3];
         }
 
         RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
@@ -456,7 +455,7 @@ public:
         }
 
         RimCase* rimCase = server->findReservoir(argCaseGroupId);
-        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        if (!rimCase || !rimCase->reservoirData())
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
@@ -464,15 +463,9 @@ public:
         }
 
         RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
+        RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
 
-        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
-
-        quint64 cellCountI = (quint64)rigGrid->cellCountI();
-        quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
-        quint64 cellCountK = (quint64)rigGrid->cellCountK();
-
-        size_t activeCellCount = 0;
-        actCellInfo->gridActiveCellCounts(argGridIndex, activeCellCount);
+        size_t activeCellCount = actCellInfo->globalActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3;
 
         // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
@@ -489,22 +482,13 @@ public:
         quint64 coordCount = 0;
         for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
         {
-            for (size_t k = 0; k < cellCountK; k++)
+            for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
             {
-                for (size_t j = 0; j < cellCountJ; j++)
-                {
-                    for (size_t i = 0; i < cellCountI; i++)
-                    {
-                        size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                        size_t globalCellIdx = rigGrid->globalGridCellIndex(localCellIdx);
+                if (!actCellInfo->isActive(globalCellIdx)) continue;
 
-                        if (!actCellInfo->isActive(globalCellIdx)) continue;
+                cvf::Vec3d center = mainGrid->cells()[globalCellIdx].center();
 
-                        cvf::Vec3d center = rigGrid->cell(localCellIdx).center();
-
-                        cellCenterValues[coordCount++] = center[coordIdx];
-                    }
-                }
+                cellCenterValues[coordCount++] = center[coordIdx];
             }
         }
 
@@ -623,36 +607,35 @@ public:
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
         int argCaseGroupId = -1;
-        size_t argGridIndex = 0;
         QString porosityModelName;
 
         if (args.size() == 2)
         {
-            argGridIndex = args[1].toInt();
+            bool numberConversionOk = false;
+            int tmpValue = args[1].toInt(&numberConversionOk);
+            if (numberConversionOk)
+            {
+                argCaseGroupId = tmpValue;
+            }
+            else
+            {
+                porosityModelName = args[1];
+            }
         }
         else if (args.size() == 3)
         {
             bool numberConversionOk = false;
-            int tmpValue = args[2].toInt(&numberConversionOk);
+            int tmpValue = args[1].toInt(&numberConversionOk);
             if (numberConversionOk)
             {
-                // Two arguments, caseID and gridIndex
-                argCaseGroupId = args[1].toInt();
-                argGridIndex = args[2].toUInt();
+                argCaseGroupId = args[1].toUInt();
+                porosityModelName = args[2];
             }
             else
             {
-                // Two arguments, gridIndex and porosity model
-                argGridIndex = args[1].toUInt();
-                porosityModelName = args[2];
+                argCaseGroupId = args[2].toUInt();
+                porosityModelName = args[1];
             }
-        }
-        else if (args.size() > 3)
-        {
-            // Two arguments, caseID and gridIndex
-            argCaseGroupId = args[1].toInt();
-            argGridIndex = args[2].toUInt();
-            porosityModelName = args[3];
         }
 
         RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
@@ -662,7 +645,7 @@ public:
         }
 
         RimCase* rimCase = server->findReservoir(argCaseGroupId);
-        if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
+        if (!rimCase || !rimCase->reservoirData() )
         {
             // No data available
             socketStream << (quint64)0 << (quint64)0 ;
@@ -670,14 +653,9 @@ public:
         }
 
         RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-        RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
+        RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
 
-        quint64 cellCountI = (quint64)rigGrid->cellCountI();
-        quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
-        quint64 cellCountK = (quint64)rigGrid->cellCountK();
-
-        size_t activeCellCount = 0;
-        actCellInfo->gridActiveCellCounts(argGridIndex, activeCellCount);
+        size_t activeCellCount = actCellInfo->globalActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3 * 8;
 
         // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
@@ -698,22 +676,13 @@ public:
         {
             for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
-                for (size_t k = 0; k < cellCountK; k++)
+                for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
                 {
-                    for (size_t j = 0; j < cellCountJ; j++)
-                    {
-                        for (size_t i = 0; i < cellCountI; i++)
-                        {
-                            size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                            size_t globalCellIdx = rigGrid->globalGridCellIndex(localCellIdx);
+                    if (!actCellInfo->isActive(globalCellIdx)) continue;
 
-                            if (!actCellInfo->isActive(globalCellIdx)) continue;
+                    mainGrid->cellCornerVertices(globalCellIdx, cornerVerts);
 
-                            rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
-
-                            cellCornerValues[coordCount++] = cornerVerts[cornerIdx][coordIdx];
-                        }
-                    }
+                    cellCornerValues[coordCount++] = cornerVerts[cornerIdx][coordIdx];
                 }
             }
         }

@@ -4,7 +4,7 @@
 #include "riSettings.h"
 
 
-void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex, const QString& porosityModel)
+void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 port, const qint32& caseId, const QString& porosityModel)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
@@ -22,7 +22,7 @@ void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, qu
 
     // Create command and send it:
 
-    QString command = QString("GetActiveCellCenters %1 %2 %3").arg(caseId).arg(gridIndex).arg(porosityModel);
+    QString command = QString("GetActiveCellCenters %1 %2").arg(caseId).arg(porosityModel);
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
@@ -91,7 +91,7 @@ void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, qu
 DEFUN_DLD (riGetActiveCellCenters, args, nargout,
            "Usage:\n"
            "\n"
-           "   riGetActiveCellCenters([CaseId], GridIndex, [PorosityModel = “Matrix”|”Fracture”] )\n"
+           "   riGetActiveCellCenters([CaseId], [PorosityModel = “Matrix”|”Fracture”] )\n"
            "\n"
            "This function returns the UTM coordinates (X, Y, Z) of the center point of all the cells in the grid.\n"
            "If the CaseId is not defined, ResInsight’s Current Case is used.\n"
@@ -106,14 +106,7 @@ DEFUN_DLD (riGetActiveCellCenters, args, nargout,
     }
 
     int nargin = args.length ();
-    if (nargin < 1)
-    {
-        error("riGetActiveCellCenters: Too few arguments. The grid index argument is required.\n");
-        print_usage();
-        return octave_value_list ();
-    }
-
-    if (nargin > 3)
+    if (nargin > 2)
     {
         error("riGetActiveCellCenters: Too many arguments.\n");
         print_usage();
@@ -121,31 +114,31 @@ DEFUN_DLD (riGetActiveCellCenters, args, nargout,
     }
 
     qint32 caseId = -1;
-    quint32 gridIndex = 0;
     std::string porosityModel = "Matrix";
 
     if (nargin == 1)
     {
-        gridIndex = args(0).uint_value();
-    }
-    else if (nargin == 2)
-    {
-        if (args(0).is_numeric_type() && args(1).is_numeric_type())
+        if (args(0).is_numeric_type())
         {
             caseId = args(0).uint_value();
-            gridIndex = args(1).uint_value();
         }
         else
         {
-            gridIndex     = args(0).uint_value();
-            porosityModel = args(1).string_value();
+            porosityModel = args(0).string_value();
         }
     }
-    else if (nargin == 3)
+    else if (nargin == 2)
     {
-        caseId        = args(0).uint_value();
-        gridIndex     = args(1).uint_value();
-        porosityModel = args(2).string_value();
+        if (args(0).is_numeric_type())
+        {
+            caseId        = args(0).uint_value();
+            porosityModel = args(1).string_value();
+        }
+        else
+        {
+            caseId        = args(1).uint_value();
+            porosityModel = args(0).string_value();
+        }
     }
 
     if (porosityModel != "Matrix" && porosityModel != "Fracture")
@@ -156,7 +149,7 @@ DEFUN_DLD (riGetActiveCellCenters, args, nargout,
     }
 
     NDArray cellCenterValues;
-    getActiveCellCenters(cellCenterValues, "127.0.0.1", 40001, caseId, gridIndex, porosityModel.c_str());
+    getActiveCellCenters(cellCenterValues, "127.0.0.1", 40001, caseId, porosityModel.c_str());
 
     return octave_value(cellCenterValues);
 }
