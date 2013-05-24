@@ -37,7 +37,7 @@ void getCases(std::vector<qint64>& caseIds, std::vector<QString>& caseNames, std
     {
         if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }

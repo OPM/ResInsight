@@ -362,19 +362,43 @@ public:
         socketStream << cellCountJ;
         socketStream << cellCountK;
 
-        quint64 byteCount = cellCount * 3 * sizeof(double);
+        size_t doubleValueCount = cellCount * 3;
+        quint64 byteCount = doubleValueCount * sizeof(double);
         socketStream << byteCount;
 
-        std::vector<double> cellCenterValues(cellCount * 3);
+        // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
+        // defined by the ordering of the receiving NDArray
+        //
+        // See riGetCellCenters
+        //
+        //  dim_vector dv;
+        //  dv.resize(4);
+        //  dv(0) = cellCountI;
+        //  dv(1) = cellCountJ;
+        //  dv(2) = cellCountK;
+        //  dv(3) = 3;
 
-        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        std::vector<double> cellCenterValues(doubleValueCount);
+        cvf::Vec3d cornerVerts[8];
+        quint64 coordCount = 0;
+        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
         {
-           cvf::Vec3d center = rigGrid->cell(localGridCellIdx).center();
+            for (size_t k = 0; k < cellCountK; k++)
+            {
+                for (size_t j = 0; j < cellCountJ; j++)
+                {
+                    for (size_t i = 0; i < cellCountI; i++)
+                    {
+                        size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
+                        cvf::Vec3d center = rigGrid->cell(localCellIdx).center();
 
-            cellCenterValues[localGridCellIdx * 3 + 0] = center.x();
-            cellCenterValues[localGridCellIdx * 3 + 1] = center.y();
-            cellCenterValues[localGridCellIdx * 3 + 2] = center.z();
+                        cellCenterValues[coordCount++] = center[coordIdx];
+                    }
+                }
+            }
         }
+
+        CVF_ASSERT(coordCount == doubleValueCount);
 
         server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
 
@@ -443,29 +467,51 @@ public:
 
         RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
 
-        std::vector<double> cellCenterValues(rigGrid->cellCount() * 3);
-        
-        size_t cellCenterIndex = 0;
-        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        quint64 cellCountI = (quint64)rigGrid->cellCountI();
+        quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
+        quint64 cellCountK = (quint64)rigGrid->cellCountK();
+
+        size_t activeCellCount = 0;
+        actCellInfo->gridActiveCellCounts(argGridIndex, activeCellCount);
+        size_t doubleValueCount = activeCellCount * 3;
+
+        // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
+        // defined by the ordering of the receiving NDArray
+        //
+        // See riGetActiveCellCenters
+        //
+        //  dim_vector dv;
+        //  dv.resize(2);
+        //  dv(0) = coordCount;
+        //  dv(1) = 3;
+
+        std::vector<double> cellCenterValues(doubleValueCount);
+        quint64 coordCount = 0;
+        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
         {
-            size_t globalCellIdx = rigGrid->globalGridCellIndex(localGridCellIdx);
-            if (!actCellInfo->isActive(globalCellIdx)) continue;
+            for (size_t k = 0; k < cellCountK; k++)
+            {
+                for (size_t j = 0; j < cellCountJ; j++)
+                {
+                    for (size_t i = 0; i < cellCountI; i++)
+                    {
+                        size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
+                        size_t globalCellIdx = rigGrid->globalGridCellIndex(localCellIdx);
 
-            RigCell& c = rigGrid->cell(localGridCellIdx);
-            cvf::Vec3d center = c.center();
+                        if (!actCellInfo->isActive(globalCellIdx)) continue;
 
-            cellCenterValues[cellCenterIndex * 3 + 0] = center.x();
-            cellCenterValues[cellCenterIndex * 3 + 1] = center.y();
-            cellCenterValues[cellCenterIndex * 3 + 2] = center.z();
+                        cvf::Vec3d center = rigGrid->cell(localCellIdx).center();
 
-            cellCenterIndex++;
+                        cellCenterValues[coordCount++] = center[coordIdx];
+                    }
+                }
+            }
         }
 
-        quint64 activeCellCount = cellCenterIndex;
-        cellCenterValues.resize(cellCenterIndex * 3);
+        CVF_ASSERT(coordCount == doubleValueCount);
 
-        socketStream << activeCellCount;
-        quint64 byteCount = activeCellCount * 3 * sizeof(double);
+        socketStream << (quint64)activeCellCount;
+        quint64 byteCount = doubleValueCount * sizeof(double);
         socketStream << byteCount;
 
         server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
@@ -524,21 +570,39 @@ public:
         socketStream << cellCountK;
         socketStream << byteCount;
 
+        // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
+        // defined by the ordering of the receiving NDArray
+        //
+        // See riGetCellCorners
+        //
+        //  dim_vector dv;
+        //  dv.resize(5);
+        //  dv(0) = cellCountI;
+        //  dv(1) = cellCountJ;
+        //  dv(2) = cellCountK;
+        //  dv(3) = 8;
+        //  dv(4) = 3;
+
         std::vector<double> cellCornerValues(doubleValueCount);
-        
         cvf::Vec3d cornerVerts[8];
         quint64 coordCount = 0;
-        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
         {
-            rigGrid->cellCornerVertices(localGridCellIdx, cornerVerts);
-
-            for (size_t j = 0; j < 8; j++)
+            for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
-                cellCornerValues[coordCount * 3 + 0] = cornerVerts[j].x();
-                cellCornerValues[coordCount * 3 + 1] = cornerVerts[j].y();
-                cellCornerValues[coordCount * 3 + 2] = cornerVerts[j].z();
+                for (size_t k = 0; k < cellCountK; k++)
+                {
+                    for (size_t j = 0; j < cellCountJ; j++)
+                    {
+                        for (size_t i = 0; i < cellCountI; i++)
+                        {
+                            size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
+                            rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
 
-                coordCount++;
+                            cellCornerValues[coordCount++] = cornerVerts[cornerIdx][coordIdx];
+                        }
+                    }
+                }
             }
         }
 
@@ -606,36 +670,59 @@ public:
         }
 
         RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-
         RigGridBase* rigGrid = rimCase->reservoirData()->grid(argGridIndex);
 
-        std::vector<double> cellCornerCoords(rigGrid->cellCount() * 3 * 8);
+        quint64 cellCountI = (quint64)rigGrid->cellCountI();
+        quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
+        quint64 cellCountK = (quint64)rigGrid->cellCountK();
 
+        size_t activeCellCount = 0;
+        actCellInfo->gridActiveCellCounts(argGridIndex, activeCellCount);
+        size_t doubleValueCount = activeCellCount * 3 * 8;
+
+        // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
+        // defined by the ordering of the receiving NDArray
+        //
+        // See riGetCellCorners
+        //
+        //  dim_vector dv;
+        //  dv.resize(3);
+        //  dv(0) = coordCount;
+        //  dv(1) = 8;
+        //  dv(2) = 3;
+
+        std::vector<double> cellCornerValues(doubleValueCount);
         cvf::Vec3d cornerVerts[8];
         quint64 coordCount = 0;
-        for (size_t localGridCellIdx = 0; localGridCellIdx < rigGrid->cellCount(); localGridCellIdx++)
+        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
         {
-            size_t globalCellIdx = rigGrid->globalGridCellIndex(localGridCellIdx);
-            if (!actCellInfo->isActive(globalCellIdx)) continue;
-
-            rigGrid->cellCornerVertices(localGridCellIdx, cornerVerts);
-
-            for (size_t j = 0; j < 8; j++)
+            for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
-                cellCornerCoords[coordCount * 3 + 0] = cornerVerts[j].x();
-                cellCornerCoords[coordCount * 3 + 1] = cornerVerts[j].y();
-                cellCornerCoords[coordCount * 3 + 2] = cornerVerts[j].z();
+                for (size_t k = 0; k < cellCountK; k++)
+                {
+                    for (size_t j = 0; j < cellCountJ; j++)
+                    {
+                        for (size_t i = 0; i < cellCountI; i++)
+                        {
+                            size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
+                            size_t globalCellIdx = rigGrid->globalGridCellIndex(localCellIdx);
 
-                coordCount++;
+                            if (!actCellInfo->isActive(globalCellIdx)) continue;
+
+                            rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
+
+                            cellCornerValues[coordCount++] = cornerVerts[cornerIdx][coordIdx];
+                        }
+                    }
+                }
             }
         }
-        cellCornerCoords.resize(coordCount * 3);
 
-        socketStream << coordCount;
-        quint64 byteCount = coordCount * 3 * sizeof(double);
+        socketStream << (quint64)activeCellCount;
+        quint64 byteCount = doubleValueCount * sizeof(double);
         socketStream << byteCount;
 
-        server->currentClient()->write((const char *)cellCornerCoords.data(), byteCount);
+        server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
 
         return true;
     }

@@ -37,32 +37,32 @@ void getActiveCellCorners(NDArray& cellCornerValues, const QString &hostName, qu
     {
         if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
 
     // Read timestep count and blocksize
 
-    quint64 coordCount;
+    quint64 activeCellCount;
     quint64 byteCount;
 
-    socketStream >> coordCount;
+    socketStream >> activeCellCount;
     socketStream >> byteCount;
 
-    dim_vector dv (1, 1);
-    dv(0) = 3;
-    dv(1) = coordCount;
-
-    cellCornerValues.resize(dv);
-
-    if (!(byteCount && coordCount))
+    if (!(byteCount && activeCellCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
     }
 
-    // Wait for available data for each column, then read data for each column
+    dim_vector dv;
+    dv.resize(3);
+    dv(0) = activeCellCount;
+    dv(1) = 8;
+    dv(2) = 3;
+    cellCornerValues.resize(dv);
+
     while (socket.bytesAvailable() < (qint64)(byteCount))
     {
         if (!socket.waitForReadyRead(timeout))
@@ -80,7 +80,7 @@ void getActiveCellCorners(NDArray& cellCornerValues, const QString &hostName, qu
     if (byteCount != bytesRead)
     {
         error("Could not read binary double data properly from socket");
-        octave_stdout << "Active cell count: " << coordCount << std::endl;
+        octave_stdout << "Active cell count: " << activeCellCount << std::endl;
     }
 
     return;

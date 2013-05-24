@@ -37,12 +37,10 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
     {
         if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
-
-    // Read timestep count and blocksize
 
     quint64 cellCountI;
     quint64 cellCountJ;
@@ -56,25 +54,20 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
     socketStream >> cellCountK;
     socketStream >> byteCount;
 
-    // Create a 4D matrix, with the a column with the tree double value coords running as fastest index, then I, J, K
-    // Octave script to access coords
-    //   coords = riGetCellCenters
-    //   coords(:,i, j, k) # Will return the coords for given ijk location
-    dim_vector dv;
-    dv.resize(4);
-    dv(0) = 3;
-    dv(1) = cellCountI;
-    dv(2) = cellCountJ;
-    dv(3) = cellCountK;
-    cellCenterValues.resize(dv);
-
     if (!(byteCount && cellCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
     }
 
-    // Wait for available data for each column, then read data for each column
+    dim_vector dv;
+    dv.resize(4);
+    dv(0) = cellCountI;
+    dv(1) = cellCountJ;
+    dv(2) = cellCountK;
+    dv(3) = 3;
+    cellCenterValues.resize(dv);
+
     while (socket.bytesAvailable() < (qint64)(byteCount))
     {
         if (!socket.waitForReadyRead(timeout))
@@ -85,14 +78,13 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
         OCTAVE_QUIT;
     }
 
-    octave_idx_type valueCount = cellCenterValues.length();
-
-    octave_stdout << " riGetCellCenters : I = " << cellCountI <<" J = " << cellCountJ << " K = " << cellCountK  << std::endl;
-    octave_stdout << " riGetCellCenters : numDoubles = " << valueCount << std::endl;
+    //octave_stdout << " riGetCellCenters : I = " << cellCountI <<" J = " << cellCountJ << " K = " << cellCountK  << std::endl;
+    //octave_stdout << " riGetCellCenters : numDoubles = " << valueCount << std::endl;
 
     double* internalMatrixData = cellCenterValues.fortran_vec();
 
 #if 0
+    octave_idx_type valueCount = cellCenterValues.length();
     double val;
     for (octave_idx_type i = 0; i < valueCount; i++)
     {

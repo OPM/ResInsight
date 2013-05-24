@@ -37,7 +37,7 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
     {
         if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }

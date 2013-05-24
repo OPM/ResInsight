@@ -42,7 +42,7 @@ void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, qu
     {
         if (!socket.waitForReadyRead(Timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }

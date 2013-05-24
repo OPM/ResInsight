@@ -37,12 +37,10 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     {
         if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
-
-    // Read timestep count and blocksize
 
     quint64 cellCountI;
     quint64 cellCountJ;
@@ -56,30 +54,22 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     socketStream >> cellCountK;
     socketStream >> byteCount;
 
-    // Create a 4D matrix, with the a column with the tree double value coords running as fastest index, then I, J, K
-    // Octave script to access coords
-    //   coords = riGetCellCenters
-    //   coords(:,i, j, k) # Will return the coords for given ijk location
-    dim_vector dv;
-    dv.resize(5);
-    dv(0) = 3;
-    dv(1) = 8;
-    dv(2) = cellCountI;
-    dv(3) = cellCountJ;
-    dv(4) = cellCountK;
-    cellCornerValues.resize(dv);
-
-//    octave_stdout << "GetCellCorners - coord count: " << coordCount << ", byteCount: " << byteCount << std::endl;
-
     if (!(byteCount && cellCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
     }
 
-    octave_stdout << "GetCellCorners - before wait for data" << std::endl;
+    dim_vector dv;
+    dv.resize(5);
+    dv(0) = cellCountI;
+    dv(1) = cellCountJ;
+    dv(2) = cellCountK;
+    dv(3) = 8;
+    dv(4) = 3;
+    cellCornerValues.resize(dv);
 
-    // Wait for available data for each column, then read data for each column
+
     while (socket.bytesAvailable() < (qint64)(byteCount))
     {
         if (!socket.waitForReadyRead(timeout))
@@ -90,13 +80,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
         OCTAVE_QUIT;
     }
 
-
-    octave_idx_type valueCount = cellCornerValues.length();
-
-    octave_stdout << "GetCellCorners - after wait for data" << std::endl;
-
     double* internalMatrixData = cellCornerValues.fortran_vec();
-
 
 #if 0
     double val;

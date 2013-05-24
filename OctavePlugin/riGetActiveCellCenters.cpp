@@ -37,7 +37,7 @@ void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, qu
     {
         if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
@@ -50,19 +50,19 @@ void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, qu
     socketStream >> activeCellCount;
     socketStream >> byteCount;
 
-    dim_vector dv (1, 1);
-    dv(0) = 3;
-    dv(1) = activeCellCount;
-
-    cellCenterValues.resize(dv);
-
     if (!(byteCount && activeCellCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
     }
 
-    // Wait for available data for each column, then read data for each column
+    dim_vector dv;
+    dv.resize(2);
+    dv(0) = activeCellCount;
+    dv(1) = 3;
+
+    cellCenterValues.resize(dv);
+
     while (socket.bytesAvailable() < (qint64)(byteCount))
     {
         if (!socket.waitForReadyRead(timeout))

@@ -37,7 +37,7 @@ void getSelectedCases(std::vector<qint64>& caseIds, std::vector<QString>& caseNa
     {
         if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
