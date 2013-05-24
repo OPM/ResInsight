@@ -46,45 +46,33 @@ public:
 public:
     RiaSocketServer(QObject *parent = 0);
     ~RiaSocketServer();
-    unsigned short  serverPort();
-    RimCase*        findReservoir(int caseId);
-    QErrorMessage*  errorMessageDialog() { return m_errorMessageDialog; }
-    QTcpSocket*     currentClient() { return m_currentClient; }
+
+    unsigned short      serverPort();
+    RimCase*            findReservoir(int caseId);
+    QErrorMessage*      errorMessageDialog() { return m_errorMessageDialog; }
+    QTcpSocket*         currentClient() { return m_currentClient; }
 
 private slots:
-    void            slotNewClientConnection();
-    void            slotCurrentClientDisconnected();
-    void            slotReadyRead();
+    void                slotNewClientConnection();
+    void                slotCurrentClientDisconnected();
+    void                slotReadyRead();
 
 private:
-    void            readCommandFromOctave();
+    void                readCommandFromOctave();
 
-    void            readPropertyDataFromOctave();
+    void                readPropertyDataFromOctave();
 
 
-    void            handleClientConnection( QTcpSocket* clientToHandle);
-    void            terminateCurrentConnection();
+    void                handleClientConnection( QTcpSocket* clientToHandle);
+    void                terminateCurrentConnection();
 
 private:
-    QTcpServer*     m_tcpServer;
-    QErrorMessage*  m_errorMessageDialog;
+    QTcpServer*         m_tcpServer;
+    QErrorMessage*      m_errorMessageDialog;
 
-    QTcpSocket*     m_currentClient;
-    qint64          m_currentCommandSize; ///< The size in bytes of the command we are currently reading.
+    QTcpSocket*         m_currentClient;
+    qint64              m_currentCommandSize; ///< The size in bytes of the command we are currently reading.
 
-
-    // Vars used for reading data from octave and adding them to the available results
-    //ReadState       m_readState;
-    RiaSocketCommand* m_currentCommand;
-
-    //quint64         m_timeStepCountToRead;
-    //quint64         m_bytesPerTimeStepToRead;
-    //size_t          m_currentTimeStepToRead;
-    //std::vector< std::vector<double> >*
-     //               m_scalarResultsToAdd;
-    //RimCase*        m_currentReservoir;
-    //size_t          m_currentScalarIndex;
-    //QString         m_currentPropertyName;
-    //bool            m_invalidActiveCellCountDetected;
+    RiaSocketCommand*   m_currentCommand;
 };
 
