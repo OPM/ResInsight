@@ -24,13 +24,14 @@
 //////////////////////////////////////////////////////////////////////////
 
 class RiaSocketServer;
+class QTcpSocket;
 
 class RiaSocketCommand
 {
 public:
     virtual ~RiaSocketCommand() {}
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream) = 0;
-    virtual bool interpretMore(QDataStream& stream) { return true; }
+    virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient) { return true; }
 };
 
 #include "cafFactory.h"

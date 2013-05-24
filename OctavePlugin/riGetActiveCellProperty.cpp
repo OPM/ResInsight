@@ -196,7 +196,8 @@ DEFUN_DLD (riGetActiveCellProperty, args, nargout,
         return octave_value_list ();
     }
 
-    // The actual values are
+    // Setup the argument list
+
     Matrix propertyFrames;
     int caseId = -1;
     std::string propertyName = "UNDEFINED";

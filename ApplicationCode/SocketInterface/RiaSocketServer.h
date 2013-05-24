@@ -74,17 +74,17 @@ private:
 
 
     // Vars used for reading data from octave and adding them to the available results
-    ReadState       m_readState;
+    //ReadState       m_readState;
     RiaSocketCommand* m_currentCommand;
 
-    quint64         m_timeStepCountToRead;
-    quint64         m_bytesPerTimeStepToRead;
-    size_t          m_currentTimeStepToRead;
-    std::vector< std::vector<double> >* 
-                    m_scalarResultsToAdd;
-    RimCase*        m_currentReservoir;
-    size_t          m_currentScalarIndex;
-    QString         m_currentPropertyName;
-    bool            m_invalidActiveCellCountDetected;
+    //quint64         m_timeStepCountToRead;
+    //quint64         m_bytesPerTimeStepToRead;
+    //size_t          m_currentTimeStepToRead;
+    //std::vector< std::vector<double> >*
+     //               m_scalarResultsToAdd;
+    //RimCase*        m_currentReservoir;
+    //size_t          m_currentScalarIndex;
+    //QString         m_currentPropertyName;
+    //bool            m_invalidActiveCellCountDetected;
 };
 
