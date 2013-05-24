@@ -23,6 +23,8 @@
 /// Socket commands, to be moved into a separate file
 //////////////////////////////////////////////////////////////////////////
 
+class RiaSocketServer;
+
 class RiaSocketCommand
 {
 public:
@@ -34,5 +36,4 @@ public:
 #include "cafFactory.h"
 typedef caf::Factory<RiaSocketCommand, QString> RiaSocketCommandFactory;
 
-void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
 

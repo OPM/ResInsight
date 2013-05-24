@@ -50,7 +50,11 @@ set( USER_INTERFACE_FILES
 
 set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaSocketServer.cpp
-    SocketInterface/RiaSocketCommands.cpp
+    SocketInterface/RiaProjectInfoCommands.cpp
+    SocketInterface/RiaCaseInfoCommands.cpp
+    SocketInterface/RiaGeometryCommands.cpp
+    SocketInterface/RiaPropertyDataCommands.cpp
+    SocketInterface/RiaSocketTools.cpp
 )
 
 
