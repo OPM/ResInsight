@@ -356,16 +356,17 @@ public:
         size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
         RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
-        size_t gridActiveCellCount = activeCellInfo->globalActiveCellCount();
-        size_t gridTotalCellCount  = activeCellInfo->globalCellCount();
-        size_t cellResultCount     = activeCellInfo->globalCellResultCount();
+        size_t globalActiveCellCount = activeCellInfo->globalActiveCellCount();
+        size_t totalCellCount  = activeCellInfo->globalCellCount();
+        size_t globalCellResultCount     = activeCellInfo->globalCellResultCount();
+        bool isCoarseningActive = globalCellResultCount != globalActiveCellCount;
 
-        if (cellCountFromOctave != gridActiveCellCount )
+        if (cellCountFromOctave != globalActiveCellCount )
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                                               RiaSocketServer::tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseUserDescription() + "\"\n"
                                               "   Octave: " + QString::number(cellCountFromOctave) + "\n"
-                                              "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(gridActiveCellCount) + " Total cell count: " +  QString::number(gridTotalCellCount)) ;
+                                              "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(globalActiveCellCount) + " Total cell count: " +  QString::number(totalCellCount)) ;
 
             cellCountFromOctave = 0;
             m_invalidActiveCellCountDetected = true;
@@ -380,23 +381,24 @@ public:
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
             size_t tsId = m_requestedTimesteps[tIdx];
-            m_scalarResultsToAdd->at(tsId).resize(cellResultCount, HUGE_VAL);
+            m_scalarResultsToAdd->at(tsId).resize(globalCellResultCount, HUGE_VAL);
         }
 
         std::vector<double> readBuffer;
         double * internalMatrixData = NULL;
 
-        if (cellResultCount != gridActiveCellCount)
+        if (isCoarseningActive)
         {
             readBuffer.resize(cellCountFromOctave, HUGE_VAL);
             internalMatrixData = readBuffer.data();
         }
 
         // Read available complete timestepdata
+
         while ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepNumberToRead < m_timeStepCountToRead))
         {
             qint64 bytesRead = 0;
-            if (cellResultCount == gridActiveCellCount)
+            if ( !isCoarseningActive)
             {
                 internalMatrixData = m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead]).data();
             }
@@ -412,10 +414,10 @@ public:
             }
 #endif
             // Map data from active  to result index based container ( Coarsening is active)
-            if (cellResultCount != gridActiveCellCount)
+            if (isCoarseningActive)
             {
                 size_t acIdx = 0;
-                for (size_t gcIdx = 0; gcIdx < gridTotalCellCount; ++gcIdx)
+                for (size_t gcIdx = 0; gcIdx < totalCellCount; ++gcIdx)
                 {
                     if (activeCellInfo->isActive(gcIdx))
                     {
@@ -435,6 +437,7 @@ public:
         }
 
         // If we have read all the data, refresh the views
+
         if (m_currentTimeStepNumberToRead == m_timeStepCountToRead)
         {
             if (m_currentReservoir != NULL)
