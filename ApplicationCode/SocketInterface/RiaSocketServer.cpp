@@ -30,6 +30,18 @@
 #include "RimProject.h"
 #include "RimCase.h"
 
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimScriptCollection.h"
+#include "RimCaseCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimReservoirCellResultsCacher.h"
+
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
@@ -45,7 +57,8 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
   m_tcpServer(NULL),
   m_currentClient(NULL),
   m_currentCommandSize(0),
-  m_currentCommand(NULL)
+  m_currentCommand(NULL),
+  m_currentCaseId(-1)
 {
     m_errorMessageDialog = new QErrorMessage(RiuMainWindow::instance());
 
@@ -305,5 +318,21 @@ void RiaSocketServer::slotReadyRead()
     {
         readCommandFromOctave();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::setCurrentCaseId(int caseId)
+{
+    m_currentCaseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaSocketServer::currentCaseId() const
+{
+    return m_currentCaseId;
 }
 

@@ -52,6 +52,9 @@ public:
     QErrorMessage*      errorMessageDialog() { return m_errorMessageDialog; }
     QTcpSocket*         currentClient() { return m_currentClient; }
 
+    void                setCurrentCaseId(int caseId);
+    int                 currentCaseId() const;
+
 private slots:
     void                slotNewClientConnection();
     void                slotCurrentClientDisconnected();
@@ -69,5 +72,6 @@ private:
     qint64              m_currentCommandSize; ///< The size in bytes of the command we are currently reading.
 
     RiaSocketCommand*   m_currentCommand;
-};
 
+    int                 m_currentCaseId;    // Set to -1 to use default server behavior
+};
