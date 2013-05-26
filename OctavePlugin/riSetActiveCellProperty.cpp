@@ -105,7 +105,7 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
 
     if (nargin > 5)
     {
-        error("riGetActiveCellProperty: Too many arguments.\n");
+        error("riSetActiveCellProperty: Too many arguments.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -120,6 +120,15 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
         return octave_value_list ();
     }
 
+
+    dim_vector mxDims = propertyFrames.dims();
+    if (mxDims.length() != 2)
+    {
+        error("riSetActiveCellProperty: The supplied Data Matrix must have two dimensions: NumActiveCells*numTimesteps");
+        print_usage();
+
+        return octave_value_list ();
+    }
     std::vector<int> argIndices;
     argIndices.push_back(0);
     argIndices.push_back(1);
@@ -157,7 +166,7 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     // Check if we have more arguments than we should
     if (nargin > lastArgumentIndex + 1)
     {
-        error("riGetActiveCellProperty: Unexpected argument after the PorosityModel.\n");
+        error("riSetActiveCellProperty: Unexpected argument after the PorosityModel.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -173,9 +182,21 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
     if (argIndices[3] >= 0) requestedTimeSteps  = args(argIndices[3]).int32_array_value();
     if (argIndices[4] >= 0) porosityModel       = args(argIndices[4]).string_value();
 
+    if (requestedTimeSteps.length())
+    {
+
+        int timeStepCount = mxDims.elem(1);
+        if (requestedTimeSteps.length() != timeStepCount)
+        {
+            error("riSetActiveCellProperty: The number of timesteps in the input matrix must match the number of timesteps in the TimeStepIndices array.");
+            print_usage();
+            return octave_value_list ();
+        }
+    }
+
     if (porosityModel != "Matrix" && porosityModel != "Fracture")
     {
-        error("riGetActiveCellProperty: The value for \"PorosityModel\" is unknown. Please use either \"Matrix\" or \"Fracture\"\n");
+        error("riSetActiveCellProperty: The value for \"PorosityModel\" is unknown. Please use either \"Matrix\" or \"Fracture\"\n");
         print_usage();
         return octave_value_list ();
     }

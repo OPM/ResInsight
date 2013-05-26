@@ -56,15 +56,10 @@ private slots:
     void                slotNewClientConnection();
     void                slotCurrentClientDisconnected();
     void                slotReadyRead();
-
 private:
-    void                readCommandFromOctave();
-
-    void                readPropertyDataFromOctave();
-
-
     void                handleClientConnection( QTcpSocket* clientToHandle);
     void                terminateCurrentConnection();
+    void                readCommandFromOctave();
 
 private:
     QTcpServer*         m_tcpServer;

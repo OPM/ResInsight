@@ -207,7 +207,7 @@ public:
         m_currentScalarIndex(cvf::UNDEFINED_SIZE_T),
         m_timeStepCountToRead(0),
         m_bytesPerTimeStepToRead(0),
-        m_currentTimeStepToRead(0),
+        m_currentTimeStepNumberToRead(0),
         m_invalidActiveCellCountDetected(false),
         m_porosityModelEnum(RifReaderInterface::MATRIX_RESULTS)
     {}
@@ -233,7 +233,7 @@ public:
 
         if (rimCase && rimCase->results(m_porosityModelEnum))
         {
-            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(propertyName);
+            scalarResultIndex = rimCase->results(m_porosityModelEnum)->findOrLoadScalarResult(RimDefines::GENERATED, propertyName);
 
             if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
             {
@@ -292,6 +292,24 @@ public:
 
         }
 
+        if (! m_requestedTimesteps.size())
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
+
+            return true;
+        }
+
+        // Resize the result container to be able to receive timesteps at the specified timestep idices
+
+        std::vector<size_t>::iterator maxTimeStepIt = std::max_element(m_requestedTimesteps.begin(), m_requestedTimesteps.end());
+        CVF_ASSERT(maxTimeStepIt != m_requestedTimesteps.end());
+
+        size_t maxTimeStepIdx = (*maxTimeStepIt);
+        if (scalarResultFrames->size() <= maxTimeStepIdx)
+        {
+            scalarResultFrames->resize(maxTimeStepIdx+1);
+        }
+
         m_currentReservoir = rimCase;
         m_scalarResultsToAdd = scalarResultFrames;
 
@@ -323,19 +341,26 @@ public:
             socketStream >> m_bytesPerTimeStepToRead;
         }
 
+        if (m_timeStepCountToRead != m_requestedTimesteps.size())
+        {
+            CVF_ASSERT(false);
+        }
+
         // If nothing should be read, or we already have read everything, do nothing
 
-        if ((m_timeStepCountToRead == 0) || (m_currentTimeStepToRead >= m_timeStepCountToRead) )  return true;
+        if ((m_timeStepCountToRead == 0) || (m_currentTimeStepNumberToRead >= m_timeStepCountToRead) )  return true;
 
         // Check if a complete timestep is available, return and whait for readyRead() if not
         if (currentClient->bytesAvailable() < (int)m_bytesPerTimeStepToRead) return false;
 
         size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-        size_t gridActiveCellCount = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum)->globalActiveCellCount();
-        size_t gridTotalCellCount = m_currentReservoir->reservoirData()->mainGrid()->cellCount();
+        RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
+        size_t gridActiveCellCount = activeCellInfo->globalActiveCellCount();
+        size_t gridTotalCellCount  = activeCellInfo->globalCellCount();
+        size_t cellResultCount     = activeCellInfo->globalCellResultCount();
 
-        if (cellCountFromOctave != gridActiveCellCount && cellCountFromOctave != gridTotalCellCount)
+        if (cellCountFromOctave != gridActiveCellCount )
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                                               RiaSocketServer::tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseUserDescription() + "\"\n"
@@ -351,17 +376,30 @@ public:
 
         // Make sure the size of the retreiving container is correct.
         // If it is, this is noops
-        m_scalarResultsToAdd->resize(m_timeStepCountToRead);
+
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
-            m_scalarResultsToAdd->at(tIdx).resize(cellCountFromOctave, HUGE_VAL);
+            size_t tsId = m_requestedTimesteps[tIdx];
+            m_scalarResultsToAdd->at(tsId).resize(cellResultCount, HUGE_VAL);
+        }
+
+        std::vector<double> readBuffer;
+        double * internalMatrixData = NULL;
+
+        if (cellResultCount != gridActiveCellCount)
+        {
+            readBuffer.resize(cellCountFromOctave, HUGE_VAL);
+            internalMatrixData = readBuffer.data();
         }
 
         // Read available complete timestepdata
-        while ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepToRead < m_timeStepCountToRead))
+        while ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepNumberToRead < m_timeStepCountToRead))
         {
             qint64 bytesRead = 0;
-            double * internalMatrixData = m_scalarResultsToAdd->at(m_currentTimeStepToRead).data();
+            if (cellResultCount == gridActiveCellCount)
+            {
+                internalMatrixData = m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead]).data();
+            }
 
 #if 1 // Use raw data transfer. Faster.
             bytesRead = currentClient->read((char*)(internalMatrixData), m_bytesPerTimeStepToRead);
@@ -373,6 +411,19 @@ public:
                 if (socketStream.status() == QDataStream::Ok) bytesRead += sizeof(double);
             }
 #endif
+            // Map data from active  to result index based container ( Coarsening is active)
+            if (cellResultCount != gridActiveCellCount)
+            {
+                size_t acIdx = 0;
+                for (size_t gcIdx = 0; gcIdx < gridTotalCellCount; ++gcIdx)
+                {
+                    if (activeCellInfo->isActive(gcIdx))
+                    {
+                        m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead])[activeCellInfo->cellResultIndex(gcIdx)] = readBuffer[acIdx];
+                        ++acIdx;
+                    }
+                }
+            }
 
             if ((int)m_bytesPerTimeStepToRead != bytesRead)
             {
@@ -380,11 +431,11 @@ public:
                                                   RiaSocketServer::tr("Could not read binary double data properly from socket"));
             }
 
-            ++m_currentTimeStepToRead;
+            ++m_currentTimeStepNumberToRead;
         }
 
         // If we have read all the data, refresh the views
-        if (m_currentTimeStepToRead == m_timeStepCountToRead)
+        if (m_currentTimeStepNumberToRead == m_timeStepCountToRead)
         {
             if (m_currentReservoir != NULL)
             {
@@ -440,7 +491,7 @@ private:
 
     quint64                             m_timeStepCountToRead;
     quint64                             m_bytesPerTimeStepToRead;
-    size_t                              m_currentTimeStepToRead;
+    size_t                              m_currentTimeStepNumberToRead;
 
     bool                                m_invalidActiveCellCountDetected;
 };

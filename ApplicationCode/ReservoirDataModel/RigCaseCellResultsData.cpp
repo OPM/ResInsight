@@ -91,7 +91,11 @@ void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, si
     max = -HUGE_VAL;
 
     CVF_ASSERT(scalarResultIndex < resultCount());
-    CVF_ASSERT(timeStepIndex < m_cellScalarResults[scalarResultIndex].size() );
+
+    if (timeStepIndex >= m_cellScalarResults[scalarResultIndex].size())
+    {
+        return;
+    }
 
     if (scalarResultIndex >= m_maxMinValuesPrTs.size())
     {
