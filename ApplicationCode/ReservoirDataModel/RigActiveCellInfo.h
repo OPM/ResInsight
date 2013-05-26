@@ -34,17 +34,17 @@ public:
 
     void                setGlobalCellCount(size_t globalCellCount);
     size_t              globalCellCount() const;
+    size_t              globalActiveCellCount() const;
+    size_t              globalCellResultCount() const;
 
     bool                isActive(size_t globalCellIndex) const;
     size_t              cellResultIndex(size_t globalCellIndex) const;
-    void                setCellResultIndex(size_t globalCellIndex, size_t globalActiveCellIndex);
+    void                setCellResultIndex(size_t globalCellIndex, size_t globalResultCellIndex);
 
     void                setGridCount(size_t gridCount);
     void                setGridActiveCellCounts(size_t gridIndex, size_t activeCellCount);
     void                gridActiveCellCounts(size_t gridIndex, size_t& activeCellCount);
     void                computeDerivedData();
-
-    size_t              globalActiveCellCount() const;
 
     void                setIJKBoundingBox(const cvf::Vec3st& min, const cvf::Vec3st& max);
     void                IJKBoundingBox(cvf::Vec3st& min, cvf::Vec3st& max) const;
@@ -72,6 +72,7 @@ private:
     std::vector<size_t>                 m_cellIndexToResultIndex;
 
     size_t                              m_globalActiveCellCount;
+    size_t                              m_globalCellResultCount;
 
     cvf::Vec3st                         m_activeCellPositionMin;
     cvf::Vec3st                         m_activeCellPositionMax;
