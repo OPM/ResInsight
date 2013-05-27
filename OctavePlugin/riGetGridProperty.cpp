@@ -22,7 +22,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
     // Create command as a string with arguments , and send it:
 
     QString command;
-    command += "GetGridProperty " + QString::number(caseId) + " " + QString::number(caseId) + " " + propertyName + " " + porosityModel;
+    command += "GetGridProperty " + QString::number(caseId) + " " + QString::number(gridIdx) + " " + propertyName + " " + porosityModel;
 
     for (int i = 0; i < requestedTimeSteps.length(); ++i)
     {
@@ -61,6 +61,11 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
     socketStream >> timestepCount;
 
     totalByteCount = cellCountI*cellCountJ*cellCountK*timestepCount*sizeof(double);
+    if (!(totalByteCount))
+    {
+        error ("Could not find the requested data in ResInsight");
+        return;
+    }
 
     dim_vector dv;
     dv.resize(4);
@@ -71,11 +76,6 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     propertyFrames.resize(dv);
 
-    if (!(totalByteCount))
-    {
-        error ("Could not find the requested data in ResInsight");
-        return;
-    }
 
     // Wait for available data
 
@@ -122,10 +122,10 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
            "\n"
            "Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = \"Matrix\"|\"Fracture\"])"
            "\n"
-           "This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested timestep."
+           "This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested time step."
            "Grids are indexed from 0 (main grid) to max number of LGR's"
            "If the CaseId is not defined, ResInsight’s Current Case is used."
-           "The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the timesteps are returned"
+           "The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned"
            )
 {
     if (nargout < 1)
