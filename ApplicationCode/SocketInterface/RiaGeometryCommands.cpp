@@ -227,7 +227,8 @@ public:
 static bool RiaGetActiveCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCenters>(RiaGetActiveCellCenters::commandName());
 
 
-
+// NB: Match this mapping with the mapping in RifReaderEclipseOutput.cpp 
+static const size_t cellCornerMappingEclipse[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -296,6 +297,8 @@ public:
         {
             for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
+                size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
+
                 for (size_t k = 0; k < cellCountK; k++)
                 {
                     for (size_t j = 0; j < cellCountJ; j++)
@@ -305,7 +308,7 @@ public:
                             size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
                             rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
 
-                            cellCornerValues[coordCount++] = cornerVerts[cornerIdx][coordIdx];
+                            cellCornerValues[coordCount++] = cornerVerts[cornerIndexMapping][coordIdx];
                         }
                     }
                 }
@@ -402,13 +405,15 @@ public:
         {
             for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
+                size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
+
                 for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
                 {
                     if (!actCellInfo->isActive(globalCellIdx)) continue;
 
                     mainGrid->cellCornerVertices(globalCellIdx, cornerVerts);
 
-                    cellCornerValues[coordCount++] = cornerVerts[cornerIdx][coordIdx];
+                    cellCornerValues[coordCount++] = cornerVerts[cornerIndexMapping][coordIdx];
                 }
             }
         }
