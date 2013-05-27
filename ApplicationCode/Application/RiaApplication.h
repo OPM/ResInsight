@@ -115,6 +115,7 @@ public:
     QString             octavePath() const;
 
     bool                launchProcess(const QString& program, const QStringList& arguments);
+    bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
     void                terminateProcess();
     
     RiaPreferences*     preferences();
@@ -141,6 +142,12 @@ private:
     RiaSocketServer*                    m_socketServer;
 
     caf::UiProcess*                     m_workerProcess;
+
+    // Execute for all settings
+    std::list<int>                      m_currentCaseIds;
+    QString                             m_currentProgram;
+    QStringList                         m_currentArguments;
+
 
     RiaPreferences*                     m_preferences;
 

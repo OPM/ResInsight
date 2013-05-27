@@ -74,7 +74,7 @@ public:
     static QString commandName () { return QString("GetCurrentCase"); }
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        qint64  caseId = -1;
+        qint64  caseId = server->currentCaseId();
         QString caseName;
         QString caseType;
         qint64  caseGroupId = -1;

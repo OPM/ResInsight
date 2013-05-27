@@ -1467,11 +1467,13 @@ void RiuMainWindow::storeTreeViewState()
         QString treeViewState;
         m_treeView->storeTreeViewStateToString(treeViewState);
 
-        QString currentIndexString;
-        RimUiTreeView::storeCurrentIndexToString(*m_treeView, currentIndexString);
+        QModelIndex mi = m_treeView->currentIndex();
+
+        QString encodedModelIndexString;
+        RimUiTreeView::encodeStringFromModelIndex(mi, encodedModelIndexString);
         
         RiaApplication::instance()->project()->treeViewState = treeViewState;
-        RiaApplication::instance()->project()->currentModelIndexPath = currentIndexString;
+        RiaApplication::instance()->project()->currentModelIndexPath = encodedModelIndexString;
     }
 }
 
@@ -1492,7 +1494,8 @@ void RiuMainWindow::restoreTreeViewState()
         QString currentIndexString = RiaApplication::instance()->project()->currentModelIndexPath;
         if (!currentIndexString.isEmpty())
         {
-            RimUiTreeView::applyCurrentIndexFromString(*m_treeView, currentIndexString);
+            QModelIndex mi = RimUiTreeView::getModelIndexFromString(m_treeView->model(), currentIndexString);
+            m_treeView->setCurrentIndex(mi);
         }
     }
 }
@@ -1545,7 +1548,7 @@ void RiuMainWindow::updateScaleValue()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// TODO: This function will be moved to a class responsible for handling the application selection concept
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 {

@@ -1038,9 +1038,16 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
         return;
     }
 
-    //MFLog::info("Simulation completed successfully.");
-
-    //MFMainWindow::instance()->slotLoadResultsFromSimulationFolder();
+    // If multiple cases are present, invoke launchProcess() which will set next current case, and run script on this case 
+    if (m_currentCaseIds.size() > 0)
+    {
+        launchProcess(m_currentProgram, m_currentArguments);
+    }
+    else
+    {
+        // Disable concept of current case
+        m_socketServer->setCurrentCaseId(-1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1050,6 +1057,20 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 {
     if (m_workerProcess == NULL)
     {
+        // If multiple cases are present, pop the first case ID from the list and set as current case
+        if (m_currentCaseIds.size() > 0)
+        {
+            int nextCaseId = m_currentCaseIds.front();
+            m_currentCaseIds.pop_front();
+
+            m_socketServer->setCurrentCaseId(nextCaseId);
+        }
+        else
+        {
+            // Disable current case concept
+            m_socketServer->setCurrentCaseId(-1);
+        }
+
         m_workerProcess = new caf::UiProcess(this);
         connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
 
@@ -1075,6 +1096,20 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         QMessageBox::warning(NULL, "Script execution", "An Octave process is still running. Please stop this process before executing a new script.");
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds)
+{
+    m_currentCaseIds.clear();
+    std::copy( caseIds.begin(), caseIds.end(), std::back_inserter( m_currentCaseIds ) );
+
+    m_currentProgram = program;
+    m_currentArguments = arguments;
+
+    return launchProcess(m_currentProgram, m_currentArguments);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1580,3 +1615,4 @@ RimProject* RiaApplication::project()
 {
     return m_project;
 }
+
