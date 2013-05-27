@@ -177,6 +177,156 @@ public:
 
 static bool RiaGetActiveCellProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellProperty>(RiaGetActiveCellProperty::commandName());
 
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetGridProperty: public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetGridProperty"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+
+        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+
+        int gridIdx = args[2].toInt();
+
+        QString propertyName = args[3];
+        QString porosityModelName = args[4];
+
+        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+        if (porosityModelName == "Fracture")
+        {
+            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+        }
+
+        size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+        std::vector< std::vector<double> >* scalarResultFrames = NULL;
+
+        if (gridIdx < 0  || rimCase->reservoirData()->gridCount() <= (size_t)gridIdx)
+        {
+            server->errorMessageDialog()->showMessage("ResInsight SocketServer: riGetGridProperty : \n"
+                                                      "The gridIndex \"" + QString::number(gridIdx) + "\" does not point to an existing grid." );
+
+        }
+        else
+        {
+            // Find the requested data
+
+            if (rimCase && rimCase->results(porosityModelEnum))
+            {
+                scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadScalarResult(propertyName);
+
+                if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+                {
+                    scalarResultFrames = &(rimCase->results(porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                }
+
+            }
+        }
+
+        if (scalarResultFrames == NULL)
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
+
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 <<  (quint64)0  << (quint64)0 ;
+            return true;
+        }
+
+        // Create a list of all the requested timesteps
+
+        std::vector<size_t> requestedTimesteps;
+
+        if (args.size() <= 4)
+        {
+            // Select all
+            for (size_t tsIdx = 0; tsIdx < scalarResultFrames->size(); ++tsIdx)
+            {
+                requestedTimesteps.push_back(tsIdx);
+            }
+        }
+        else
+        {
+            bool timeStepReadError = false;
+            for (int argIdx = 4; argIdx < args.size(); ++argIdx)
+            {
+                bool conversionOk = false;
+                int tsIdx = args[argIdx].toInt(&conversionOk);
+
+                if (conversionOk)
+                {
+                    requestedTimesteps.push_back(tsIdx);
+                }
+                else
+                {
+                    timeStepReadError = true;
+                }
+            }
+
+            if (timeStepReadError)
+            {
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
+                                                          + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
+            }
+
+        }
+
+
+        RigGridBase* rigGrid = rimCase->reservoirData()->grid(gridIdx);
+        const RigActiveCellInfo* activeInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
+
+        quint64 cellCountI = (quint64)rigGrid->cellCountI();
+        quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
+        quint64 cellCountK = (quint64)rigGrid->cellCountK();
+
+        socketStream << cellCountI;
+        socketStream << cellCountJ;
+        socketStream << cellCountK;
+
+        // Write timestep count
+
+        quint64 timestepCount = (quint64)requestedTimesteps.size();
+        socketStream << timestepCount;
+
+        for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
+        {
+            for (size_t k = 0; k < cellCountK; k++)
+            {
+                for (size_t j = 0; j < cellCountJ; j++)
+                {
+                    for (size_t i = 0; i < cellCountI; i++)
+                    {
+                        size_t localCellIndex = rigGrid->cellIndexFromIJK(i,j,k);
+                        size_t gcIdx = rigGrid->globalGridCellIndex(localCellIndex);
+
+                        size_t resultIdx = activeInfo->cellResultIndex(gcIdx);
+
+                        if (resultIdx < scalarResultFrames->at(requestedTimesteps[tsIdx]).size())
+                        {
+                            socketStream << scalarResultFrames->at(requestedTimesteps[tsIdx])[resultIdx];
+                        }
+                        else
+                        {
+                            socketStream << HUGE_VAL;
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetGridProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridProperty>(RiaGetGridProperty::commandName());
+
+
+
+
 #include <QTcpSocket>
 #include "RiuMainWindow.h"
 #include "RimInputCase.h"
@@ -356,9 +506,11 @@ public:
         size_t  cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
         RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
-        size_t globalActiveCellCount = activeCellInfo->globalActiveCellCount();
-        size_t totalCellCount  = activeCellInfo->globalCellCount();
-        size_t globalCellResultCount     = activeCellInfo->globalCellResultCount();
+
+        size_t globalActiveCellCount    = activeCellInfo->globalActiveCellCount();
+        size_t totalCellCount           = activeCellInfo->globalCellCount();
+        size_t globalCellResultCount    = activeCellInfo->globalCellResultCount();
+
         bool isCoarseningActive = globalCellResultCount != globalActiveCellCount;
 
         if (cellCountFromOctave != globalActiveCellCount )

@@ -17,6 +17,7 @@ set(CPP_SOURCES
   riGetActiveCellCenters.cpp
   riGetCellCorners.cpp
   riGetActiveCellCorners.cpp
+  riGetGridProperty.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -123,6 +124,7 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCenters.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCorners.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCorners.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetGridProperty.oct"
 
       SOURCES ${CPP_SOURCES}
   )
