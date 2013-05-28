@@ -20,11 +20,25 @@
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RimCase.h"
+#include "RiuMainWindow.h"
+
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
 #include "RimReservoirCellResultsCacher.h"
+#include "RimCase.h"
+#include "RimInputCase.h"
+#include "RimInputPropertyCollection.h"
+#include "RimUiTreeModelPdm.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+
+#include <QTcpSocket>
 
 
 //--------------------------------------------------------------------------------------------------
@@ -189,13 +203,20 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-
-        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
-
-        int gridIdx = args[2].toInt();
-
-        QString propertyName = args[3];
+        int caseId                = args[1].toInt();
+        int gridIdx               = args[2].toInt();
+        QString propertyName      = args[3];
         QString porosityModelName = args[4];
+        
+        RimCase*rimCase = server->findReservoir(caseId);
+        if (rimCase == NULL)
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID: \"%1\"").arg(caseId));
+
+            // No data available
+            socketStream << (quint64)0 << (quint64)0 <<  (quint64)0  << (quint64)0 ;
+            return true;
+        }
 
         RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
         if (porosityModelName == "Fracture")
@@ -237,11 +258,11 @@ public:
             return true;
         }
 
-        // Create a list of all the requested timesteps
+        // Create a list of all the requested time steps
 
         std::vector<size_t> requestedTimesteps;
 
-        if (args.size() <= 4)
+        if (args.size() <= 5)
         {
             // Select all
             for (size_t tsIdx = 0; tsIdx < scalarResultFrames->size(); ++tsIdx)
@@ -252,7 +273,7 @@ public:
         else
         {
             bool timeStepReadError = false;
-            for (int argIdx = 4; argIdx < args.size(); ++argIdx)
+            for (int argIdx = 5; argIdx < args.size(); ++argIdx)
             {
                 bool conversionOk = false;
                 int tsIdx = args[argIdx].toInt(&conversionOk);
@@ -287,11 +308,15 @@ public:
         socketStream << cellCountJ;
         socketStream << cellCountK;
 
-        // Write timestep count
+        // Write time step count
 
         quint64 timestepCount = (quint64)requestedTimesteps.size();
         socketStream << timestepCount;
 
+        size_t doubleValueCount = cellCountI * cellCountJ * cellCountK * timestepCount * sizeof(double);
+        std::vector<double> values(doubleValueCount);
+        size_t valueIdx = 0;
+        
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
             for (size_t k = 0; k < cellCountK; k++)
@@ -307,16 +332,18 @@ public:
 
                         if (resultIdx < scalarResultFrames->at(requestedTimesteps[tsIdx]).size())
                         {
-                            socketStream << scalarResultFrames->at(requestedTimesteps[tsIdx])[resultIdx];
+                            values[valueIdx++] = scalarResultFrames->at(requestedTimesteps[tsIdx])[resultIdx];
                         }
                         else
                         {
-                            socketStream << HUGE_VAL;
+                            values[valueIdx++] = HUGE_VAL;
                         }
                     }
                 }
             }
         }
+
+        server->currentClient()->write((const char *)values.data(), doubleValueCount);
 
         return true;
     }
@@ -327,27 +354,11 @@ static bool RiaGetGridProperty_init = RiaSocketCommandFactory::instance()->regis
 
 
 
-#include <QTcpSocket>
-#include "RiuMainWindow.h"
-#include "RimInputCase.h"
-#include "RimInputPropertyCollection.h"
-
-#include "RimUiTreeModelPdm.h"
-
-
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
 
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 class RiaSetActiveCellProperty: public RiaSocketCommand
 {
 public:

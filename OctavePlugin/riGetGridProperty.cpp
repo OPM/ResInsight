@@ -122,10 +122,10 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
            "\n"
            "Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = \"Matrix\"|\"Fracture\"])"
            "\n"
-           "This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested time step."
-           "Grids are indexed from 0 (main grid) to max number of LGR's"
-           "If the CaseId is not defined, ResInsight’s Current Case is used."
-           "The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned"
+           "This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested time step.\n"
+           "Grids are indexed from 0 (main grid) to max number of LGR's.\n"
+           "If the CaseId is not defined, ResInsight’s Current Case is used.\n"
+           "The RequestedTimeSteps must contain a list of indices to the requested time steps. If not defined, all the time steps are returned.\n"
            )
 {
     if (nargout < 1)
