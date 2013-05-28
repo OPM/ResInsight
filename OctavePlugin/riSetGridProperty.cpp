@@ -136,15 +136,15 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
         return octave_value_list ();
     }
     std::vector<int> argIndices;
-    argIndices.push_back(0);
-    argIndices.push_back(1);
-    argIndices.push_back(2);
-    argIndices.push_back(3);
-    argIndices.push_back(4);
-    argIndices.push_back(5);
+    argIndices.push_back(0); // Array data
+    argIndices.push_back(1); // Case Id
+    argIndices.push_back(2); // GridIndex
+    argIndices.push_back(3); // Property name
+    argIndices.push_back(4); // Time step indices
+    argIndices.push_back(5); // Porosity model
 
-    // Check if we have a CaseId:
-    if (!args(argIndices[1]).is_numeric_type())
+    // Check if we do not have a CaseId:
+    if (args(argIndices[2]).is_string()) // Check if second argument is a text. If it is, the caseid is missing
     {
         argIndices[1] = -1;
         for (size_t aIdx = 2; aIdx < argIndices.size(); ++aIdx)
