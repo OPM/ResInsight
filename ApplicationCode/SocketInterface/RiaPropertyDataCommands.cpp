@@ -414,6 +414,19 @@ public:
             return true;
         }
 
+        // If we have not read the header and there are data enough: Read it.
+        // Do nothing if we have not enough data
+
+        if (m_timeStepCountToRead == 0 || m_bytesPerTimeStepToRead == 0)
+        {
+            if (server->currentClient()->bytesAvailable() < (int)sizeof(quint64)*2) return true;
+
+            socketStream >> m_timeStepCountToRead;
+            socketStream >> m_bytesPerTimeStepToRead;
+        }
+
+//        std::cout << "RiaSetActiveCellProperty: " << propertyName.data() << " timeStepCount " << m_timeStepCountToRead << " bytesPerTimeStep " << m_bytesPerTimeStepToRead;
+
         // Create a list of all the requested timesteps
 
         m_requestedTimesteps.clear();
@@ -421,7 +434,7 @@ public:
         if (args.size() <= 4)
         {
             // Select all
-            for (size_t tsIdx = 0; tsIdx < scalarResultFrames->size(); ++tsIdx)
+            for (size_t tsIdx = 0; tsIdx < m_timeStepCountToRead; ++tsIdx)
             {
                 m_requestedTimesteps.push_back(tsIdx);
             }
@@ -482,23 +495,14 @@ public:
 
     virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
     {
+//        std::cout << "RiaSetActiveCellProperty, interpretMore: scalarIndex : " << m_currentScalarIndex;
+
         if (m_invalidActiveCellCountDetected) return true;
 
         if (!currentClient->bytesAvailable()) return false;
 
         QDataStream socketStream(currentClient);
         socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
-
-        // If we have not read the header and there are data enough: Read it.
-        // Do nothing if we have not enough data
-
-        if (m_timeStepCountToRead == 0 || m_bytesPerTimeStepToRead == 0)
-        {
-            if (currentClient->bytesAvailable() < (int)sizeof(quint64)*2) return false;
-
-            socketStream >> m_timeStepCountToRead;
-            socketStream >> m_bytesPerTimeStepToRead;
-        }
 
         if (m_timeStepCountToRead != m_requestedTimesteps.size())
         {
@@ -597,6 +601,10 @@ public:
             ++m_currentTimeStepNumberToRead;
         }
 
+//         std::cout << "RiaSetActiveCellProperty, completed " << std::endl;
+//         currentClient->disconnect();
+//         std::cout << "RiaSetActiveCellProperty, completed (after disconnect) " << std::endl;
+
         // If we have read all the data, refresh the views
 
         if (m_currentTimeStepNumberToRead == m_timeStepCountToRead)
@@ -637,6 +645,8 @@ public:
                     }
                 }
             }
+
+//            std::cout << "RiaSetActiveCellProperty, completed : scalarIndex : " << m_currentScalarIndex;
 
             return true;
         }
