@@ -28,14 +28,14 @@ class Interface
 public:
     Interface();
 
-    void setWebServiceAdress(const QString& wsAdress);
-    void setJsonDestinationFolder(const QString& folder);
+    void setWebServiceAddress(const QString wsAdress);
+    void setJsonDestinationFolder(const QString folder);
     void setRegion(int east, int west, int north, int south);
 
     QStringList jsonWellPaths();
 
 private:
-    QString m_webServiceAdress;
+    QString m_webServiceAddress;
     QString m_jsonDestinationFolder;
 
     int m_east;

@@ -18,15 +18,38 @@
 
 #pragma once
 
+#include <QString>
+#include <QVariant>
+#include <QMap>
+
+class QNetworkReply;
+class QNetworkAccessManager;
 
 namespace ssihub {
 
-class WebServiceInterface
+class WebServiceInterface : public QObject
 {
-public:
-    WebServiceInterface();
+    Q_OBJECT
 
+public:
+    WebServiceInterface(QObject *parent = 0);
+    ~WebServiceInterface();
+
+    void setUrl(const QString& url);
+
+    QStringList fetchData(const QString& method, const QMap<QString, QVariant>& arguments);
+
+
+private slots:
+    void onResult(QNetworkReply* reply);
+
+private:
+    QString m_httpAddress;
+
+    QNetworkAccessManager* m_networkManager;
 };
+
+    
 
 }
 

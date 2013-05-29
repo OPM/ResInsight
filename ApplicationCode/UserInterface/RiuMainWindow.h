@@ -125,6 +125,7 @@ private:
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
     QAction*		    m_openWellPathsAction;
+    QAction*		    m_importWellPathsAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeProjectAction;

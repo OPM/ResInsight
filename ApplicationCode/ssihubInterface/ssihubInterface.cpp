@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "ssihubInterface.h"
+#include "ssihubDialog.h"
+#include "ssihubWebServiceInterface.h"
 
 
 namespace ssihub {
@@ -27,22 +29,21 @@ namespace ssihub {
 //--------------------------------------------------------------------------------------------------
 Interface::Interface()
 {
-
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Interface::setWebServiceAdress(const QString& wsAdress)
+void Interface::setWebServiceAddress(const QString wsAdress)
 {
-    m_webServiceAdress = wsAdress;
+    m_webServiceAddress = wsAdress;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Interface::setJsonDestinationFolder(const QString& folder)
+void Interface::setJsonDestinationFolder(const QString folder)
 {
     m_jsonDestinationFolder = folder;
 }
@@ -63,6 +64,17 @@ void Interface::setRegion(int east, int west, int north, int south)
 //--------------------------------------------------------------------------------------------------
 QStringList Interface::jsonWellPaths()
 {
+    ssihub::WebServiceInterface ws;
+
+
+    ws.setUrl(m_webServiceAddress);
+
+    QMap<QString, QVariant> params;
+    ws.fetchData("", params);
+
+//         BasicAboutDialog dialog(NULL);
+//     dialog.exec();
+
     return m_importedWellPathFiles;
 }
 

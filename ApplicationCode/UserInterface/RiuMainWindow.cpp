@@ -98,6 +98,8 @@ RiuMainWindow::RiuMainWindow()
 
     m_treeModelPdm = new RimUiTreeModelPdm(this);
 
+    m_ssihubInterface = NULL;
+
     createActions();
     createMenus();
     createToolBars();
@@ -185,6 +187,7 @@ void RiuMainWindow::createActions()
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
     m_openWellPathsAction       = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Well Paths", this);
+    m_importWellPathsAction     = new QAction(style()->standardIcon(QStyle::SP_DriveNetIcon),"Import Well Paths", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
@@ -207,6 +210,7 @@ void RiuMainWindow::createActions()
     connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
     connect(m_openWellPathsAction,	    SIGNAL(triggered()), SLOT(slotOpenWellPaths()));
+    connect(m_importWellPathsAction,    SIGNAL(triggered()), SLOT(slotImportWellPaths()));
     
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
@@ -303,6 +307,7 @@ void RiuMainWindow::createMenus()
     importMenu->addAction(m_openEclipseCaseAction);
     importMenu->addAction(m_openInputEclipseFileAction);
     importMenu->addAction(m_openMultipleEclipseCasesAction);
+    importMenu->addAction(m_importWellPathsAction);
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(m_snapshotToFile);
@@ -1586,7 +1591,11 @@ void RiuMainWindow::slotImportWellPaths()
     {
         m_ssihubInterface = new ssihub::Interface;
     }
-    
+
+
+//    ssihub::Interface ssiInterface;
+
+    m_ssihubInterface->setWebServiceAddress(app->preferences()->ssihubAddress);
 
     //m_ssihubInterface->setJsonDestinationFolder(dir);
     //m_ssihubInterface->setRegion(int east, int west, int north, int south);

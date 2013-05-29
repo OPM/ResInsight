@@ -17,3 +17,112 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "ssihubWebServiceInterface.h"
+
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QStringList>
+#include "httpwindow.h"
+//#include <QObject>
+
+
+namespace ssihub {
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+WebServiceInterface::WebServiceInterface(QObject *parent /*= 0*/)
+    : QObject(parent)
+{
+    m_networkManager = new QNetworkAccessManager(this);
+    //connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
+
+    connect(m_networkManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(onResult(QNetworkReply*)));
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+WebServiceInterface::~WebServiceInterface()
+{
+    //if (m_networkManager) delete m_networkManager;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void WebServiceInterface::setUrl(const QString& url)
+{
+    m_httpAddress = url;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList WebServiceInterface::fetchData(const QString& method, const QMap<QString, QVariant>& arguments)
+{
+
+    HttpWindow httpWin;
+    httpWin.setUrl(m_httpAddress);
+    httpWin.exec();
+
+
+    /*
+    QNetworkReply* reply = m_networkManager->get(QNetworkRequest(QUrl("http://qt.nokia.com")));
+
+    while (!reply->isFinished())
+    {
+
+    }
+
+
+    QString data = (QString) reply->readAll();
+
+    /*
+    QUrl url(m_httpAddress);
+//     url.setPath(QString("%1%2").arg(url.path()).arg(method));
+// 
+//     foreach(QString param, arguments.keys()) {
+//         url.addQueryItem(param, arguments[param].toString());
+//     }
+
+    QNetworkRequest request;
+    request.setUrl(url);
+
+    QNetworkReply* reply = m_networkManager->get(request);
+
+    QString data = (QString) reply->readAll();
+
+
+    QStringList fileContent;
+    fileContent.push_back(data);
+
+    return fileContent;
+
+    */
+
+
+
+     QStringList strings;
+     return strings;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void WebServiceInterface::onResult(QNetworkReply* reply)
+{
+    if (reply->error() != QNetworkReply::NoError)
+        return;  // ...only in a blog post
+
+    QString data = (QString) reply->readAll();
+}
+
+
+
+}; // namespace ssihub
+
+
+
