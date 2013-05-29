@@ -41,6 +41,7 @@ public: // Pdm Fields
     caf::PdmField<QString>  scriptDirectories;
     caf::PdmField<QString>  scriptEditorExecutable;
     caf::PdmField<QString>  octaveExecutable;
+    caf::PdmField<QString>  ssihubAddress;
 
     caf::PdmField<int>      defaultScaleFactorZ;
     caf::PdmField<bool>     defaultGridLines;

@@ -57,6 +57,8 @@
 #include "RimCellRangeFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 
+#include "ssihubInterface/ssihubInterface.h"
+
 
 
 //==================================================================================================
@@ -1566,5 +1568,60 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
         {
             cases.push_back(typedObjects[i]);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotImportWellPaths()
+{
+    RiaApplication* app = RiaApplication::instance();
+    if (!app->project())
+    {
+        return;
+    }
+
+    if (!m_ssihubInterface)
+    {
+        m_ssihubInterface = new ssihub::Interface;
+    }
+    
+
+    //m_ssihubInterface->setJsonDestinationFolder(dir);
+    //m_ssihubInterface->setRegion(int east, int west, int north, int south);
+
+
+    QStringList wellPaths = m_ssihubInterface->jsonWellPaths();
+
+
+    QString dir;
+    QString projectFileName = app->project()->fileName();
+    QFileInfo fileInfo(projectFileName);
+    dir = fileInfo.canonicalPath();
+    dir += "/" + fileInfo.completeBaseName() + "_wellpaths";
+
+
+    QStringList wellPathFileNames;
+    for (int i = 0; i < wellPaths.size(); i++)
+    {
+        QUuid guid = QUuid::createUuid();
+
+        QString filename = projectFileName + QString("/%1.json").arg(guid);
+        
+        QFile file(filename);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QTextStream out(&file);
+            out << wellPaths[i];
+
+            wellPathFileNames.push_back(filename);
+        }
+    }
+
+    if (wellPathFileNames.size() > 0)
+    {
+        app->addWellPathsToModel(wellPathFileNames);
+        if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
     }
 }

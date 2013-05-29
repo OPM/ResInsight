@@ -52,6 +52,11 @@ namespace caf
     class PdmUiPropertyView;
 }
 
+namespace ssihub
+{
+    class Interface;
+}
+
 //==================================================================================================
 //
 // 
@@ -179,6 +184,7 @@ private slots:
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
     void    slotOpenWellPaths();
+    void    slotImportWellPaths();
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
@@ -253,5 +259,6 @@ private:
 
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
     std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
-
+    
+    ssihub::Interface*          m_ssihubInterface;
 };

@@ -82,6 +82,8 @@ list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
 
+add_subdirectory(ssihubInterface)
+
 
 # Define files for MOC-ing
 set ( QT_MOC_HEADERS
@@ -212,6 +214,8 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
+
+    ssihubInterface
 
     ecl
     ert_util
