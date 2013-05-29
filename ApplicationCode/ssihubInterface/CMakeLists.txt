@@ -6,7 +6,7 @@ project (ssihubInterface)
 set( QOBJECT_HEADERS   
     ssihubWebServiceInterface.h
     ssihubDialog.h 
-    httpWindow.h
+    httpwindow.h
 )
 
 set( QT_UI_FILES   
@@ -27,7 +27,7 @@ add_library( ${PROJECT_NAME}
     ssihubInterface.cpp
     ssihubWebServiceInterface.cpp
     ssihubDialog.cpp
-    httpWindow.cpp
+    httpwindow.cpp
 
     ${MOC_FILES_CPP}
     ${FORM_FILES_CPP}
