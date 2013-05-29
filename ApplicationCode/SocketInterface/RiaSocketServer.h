@@ -63,6 +63,7 @@ private:
     void                handleClientConnection( QTcpSocket* clientToHandle);
     void                terminateCurrentConnection();
     void                readCommandFromOctave();
+    void                handlePendingIncomingConnectionRequests();
 
 private:
     QTcpServer*         m_tcpServer;

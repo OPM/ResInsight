@@ -129,11 +129,7 @@ void RiaSocketServer::slotNewClientConnection()
         }
     }
 
-
-    // Get the first pending connection, and set it as the current Client to handle
-
-    QTcpSocket *newClient = m_tcpServer->nextPendingConnection();
-    this->handleClientConnection(newClient);
+    handlePendingIncomingConnectionRequests();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,11 +232,14 @@ void RiaSocketServer::readCommandFromOctave()
         {
             delete m_currentCommand;
             m_currentCommand = NULL;
+
+            handlePendingIncomingConnectionRequests();
+            return;
         }
     }
     else
     {
-        // Todo: When all commands are into new shape, do the "unknown command" error output here.
+        handlePendingIncomingConnectionRequests();
 
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
         terminateCurrentConnection();
@@ -268,12 +267,7 @@ void RiaSocketServer::slotCurrentClientDisconnected()
 
     terminateCurrentConnection();
 
-    QTcpSocket *newClient = m_tcpServer->nextPendingConnection();
-
-    if (newClient)
-    {
-        this->handleClientConnection(newClient);
-    }
+    handlePendingIncomingConnectionRequests();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -312,6 +306,8 @@ void RiaSocketServer::slotReadyRead()
         {
             delete m_currentCommand;
             m_currentCommand = NULL;
+
+            handlePendingIncomingConnectionRequests();
         }
     }
     else
@@ -334,5 +330,19 @@ void RiaSocketServer::setCurrentCaseId(int caseId)
 int RiaSocketServer::currentCaseId() const
 {
     return m_currentCaseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::handlePendingIncomingConnectionRequests()
+{
+    QTcpSocket* newClient = m_tcpServer->nextPendingConnection();
+    if (newClient)
+    {
+        terminateCurrentConnection();
+
+        this->handleClientConnection(newClient);
+    }
 }
 
