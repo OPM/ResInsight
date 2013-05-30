@@ -21,7 +21,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QStringList>
-#include "httpwindow.h"
+#include "ssihubDialog.h"
 //#include <QObject>
 
 
@@ -63,8 +63,8 @@ void WebServiceInterface::setUrl(const QString& url)
 QStringList WebServiceInterface::fetchData(const QString& method, const QMap<QString, QVariant>& arguments)
 {
 
-    HttpWindow httpWin;
-    httpWin.setUrl(m_httpAddress);
+    FetchWellPathsDialog httpWin;
+    httpWin.setSsiHubUrl(m_httpAddress);
     httpWin.exec();
 
 

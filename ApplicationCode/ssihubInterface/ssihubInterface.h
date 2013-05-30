@@ -42,8 +42,6 @@ private:
     int m_west;
     int m_north;
     int m_south;
-
-    QStringList m_importedWellPathFiles;
 };
 
 }

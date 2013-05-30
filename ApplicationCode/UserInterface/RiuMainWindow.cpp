@@ -98,7 +98,7 @@ RiuMainWindow::RiuMainWindow()
 
     m_treeModelPdm = new RimUiTreeModelPdm(this);
 
-    m_ssihubInterface = NULL;
+    m_ssihubInterface = new ssihub::Interface;
 
     createActions();
     createMenus();
@@ -552,6 +552,10 @@ void RiuMainWindow::slotRefreshFileActions()
     m_saveProjectAction->setEnabled(projectExists);
     m_saveProjectAsAction->setEnabled(projectExists);
     m_closeProjectAction->setEnabled(projectExists);
+    
+    bool projectFileExists = QFile::exists(app->project()->fileName());
+
+    m_importWellPathsAction->setEnabled(projectFileExists);
 }
 
 
@@ -1581,56 +1585,38 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotImportWellPaths()
 {
+    CVF_ASSERT(m_ssihubInterface);
+
     RiaApplication* app = RiaApplication::instance();
     if (!app->project())
     {
         return;
     }
 
-    if (!m_ssihubInterface)
+    if (!QFile::exists(app->project()->fileName()))
     {
-        m_ssihubInterface = new ssihub::Interface;
+        return;
     }
 
-
-//    ssihub::Interface ssiInterface;
-
-    m_ssihubInterface->setWebServiceAddress(app->preferences()->ssihubAddress);
-
-    //m_ssihubInterface->setJsonDestinationFolder(dir);
-    //m_ssihubInterface->setRegion(int east, int west, int north, int south);
-
-
-    QStringList wellPaths = m_ssihubInterface->jsonWellPaths();
-
-
-    QString dir;
+    QString wellPathsFolderPath;
     QString projectFileName = app->project()->fileName();
     QFileInfo fileInfo(projectFileName);
-    dir = fileInfo.canonicalPath();
-    dir += "/" + fileInfo.completeBaseName() + "_wellpaths";
+    wellPathsFolderPath = fileInfo.canonicalPath();
+    QString wellPathFolderName = fileInfo.completeBaseName() + "_wellpaths";
 
+    QDir projFolder(wellPathsFolderPath);
+    projFolder.mkdir(wellPathFolderName);
 
-    QStringList wellPathFileNames;
-    for (int i = 0; i < wellPaths.size(); i++)
+    wellPathsFolderPath += "/" + wellPathFolderName;
+
+    m_ssihubInterface->setWebServiceAddress(app->preferences()->ssihubAddress);
+    m_ssihubInterface->setJsonDestinationFolder(wellPathsFolderPath);
+    //m_ssihubInterface->setRegion(int east, int west, int north, int south);
+
+    QStringList wellPaths = m_ssihubInterface->jsonWellPaths();
+    if (wellPaths.size() > 0)
     {
-        QUuid guid = QUuid::createUuid();
-
-        QString filename = projectFileName + QString("/%1.json").arg(guid);
-        
-        QFile file(filename);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            QTextStream out(&file);
-            out << wellPaths[i];
-
-            wellPathFileNames.push_back(filename);
-        }
-    }
-
-    if (wellPathFileNames.size() > 0)
-    {
-        app->addWellPathsToModel(wellPathFileNames);
+        app->addWellPathsToModel(wellPaths);
         if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
     }
 }

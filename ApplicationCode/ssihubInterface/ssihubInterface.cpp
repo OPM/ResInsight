@@ -64,18 +64,17 @@ void Interface::setRegion(int east, int west, int north, int south)
 //--------------------------------------------------------------------------------------------------
 QStringList Interface::jsonWellPaths()
 {
-    ssihub::WebServiceInterface ws;
+    FetchWellPathsDialog fetchWellPaths;
+    fetchWellPaths.setSsiHubUrl(m_webServiceAddress);
+    fetchWellPaths.setDestinationFolder(m_jsonDestinationFolder);
 
-
-    ws.setUrl(m_webServiceAddress);
-
-    QMap<QString, QVariant> params;
-    ws.fetchData("", params);
-
-//         BasicAboutDialog dialog(NULL);
-//     dialog.exec();
-
-    return m_importedWellPathFiles;
+    QStringList importedWellPathFiles;
+    if (fetchWellPaths.exec() == QDialog::Accepted)
+    {
+        importedWellPathFiles = fetchWellPaths.downloadedJsonWellPathFiles();
+    }
+    
+    return importedWellPathFiles;
 }
 
 }; // namespace ssihub
