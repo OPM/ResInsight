@@ -59,10 +59,9 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     connect(m_fieldListView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection& )), this, SLOT(slotSelectionChanged(const QItemSelection&, const QItemSelection& )));
 
     // Well paths data model and view
-    m_wellPathsListView = new QListView(this);
-    m_wellPathsModel = new QStringListModel;
-    m_wellPathsListView->setModel(m_wellPathsModel);
-
+    m_wellPathsView = new QListView(this);
+    m_wellPathsModel = new QStandardItemModel;
+    m_wellPathsView->setModel(m_wellPathsModel);
 
     m_downloadWellPathsButton = new QPushButton(tr("Get well paths"));
     m_downloadWellPathsButton->setDefault(true);
@@ -112,7 +111,7 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     mainLayout->addLayout(ssihubLayout);
     mainLayout->addWidget(statusLabel);
     mainLayout->addWidget(buttonBox);
-    mainLayout->addWidget(m_wellPathsListView);
+    mainLayout->addWidget(m_wellPathsView);
     mainLayout->addWidget(buttonBox1);
     setLayout(mainLayout);
 
@@ -319,8 +318,7 @@ void FetchWellPathsDialog::downloadWellPaths()
     {
         QFile::remove(fileName);
 
-        m_wellFilePathList = QStringList();
-        m_wellPathsModel->setStringList(m_wellFilePathList);
+        m_wellPathsModel->clear();
     }
 
     m_file = new QFile(fileName);
@@ -359,8 +357,7 @@ void FetchWellPathsDialog::downloadFields()
         {
             QFile::remove(wellFileName);
 
-            m_wellFilePathList = QStringList();
-            m_wellPathsModel->setStringList(m_wellFilePathList);
+            m_wellPathsModel->clear();
         }
     }
 
@@ -482,9 +479,6 @@ void FetchWellPathsDialog::updateFromDownloadedFiles()
 {
     updateFieldsModel();
     extractAndUpdateSingleWellFiles();
-
-    // Update well path model
-    m_wellPathsModel->setStringList(m_wellFilePathList);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,6 +495,9 @@ void FetchWellPathsDialog::extractAndUpdateSingleWellFiles()
     }
 
     QString fileContent = file.readAll();
+
+    QStringList wellPathNames;
+    QStringList wellPathFileNames;
 
     int pos = 0;
     pos = fileContent.indexOf('{', pos);
@@ -538,16 +535,34 @@ void FetchWellPathsDialog::extractAndUpdateSingleWellFiles()
             {
                 QTextStream out(&outputFile);
                 out << singleWellPath;
+            }
+            outputFile.close();
 
-                if (m_wellFilePathList.indexOf(singleWellPathFilePath) < 0)
-                {
-                    m_wellFilePathList.push_back(singleWellPathFilePath);
-                }
+            QString key = "\"name\"";
+            QString wellPathName = getValue(key, singleWellPath);
+            if (wellPathFileNames.indexOf(singleWellPathFilePath) < 0)
+            {
+                wellPathNames.push_back(wellPathName);
+                wellPathFileNames.push_back(singleWellPathFilePath);
             }
         }
 
         // Find next starting brace
         pos = fileContent.indexOf('{', pos);
+    }
+
+    m_wellPathsModel->clear();
+    m_wellPathsModel->setRowCount(wellPathFileNames.size());
+    m_wellPathsModel->setColumnCount(2);
+    //m_wellPathsView->hideColumn(1);
+
+    for (int i = 0; i < wellPathFileNames.size(); i++)
+    {
+        QModelIndex miName = m_wellPathsModel->index(i, 0);
+        m_wellPathsModel->setData(miName, wellPathNames[i]);
+
+        QModelIndex miFileName = m_wellPathsModel->index(i, 1);
+        m_wellPathsModel->setData(miFileName, wellPathFileNames[i]);
     }
 }
 
@@ -556,7 +571,15 @@ void FetchWellPathsDialog::extractAndUpdateSingleWellFiles()
 //--------------------------------------------------------------------------------------------------
 QStringList FetchWellPathsDialog::downloadedJsonWellPathFiles()
 {
-    return m_wellFilePathList;
+    QStringList fileNames;
+
+    for (int i = 0; i < m_wellPathsModel->rowCount(); i++)
+    {
+        QModelIndex mi = m_wellPathsModel->index(i, 1);
+        fileNames.push_back(m_wellPathsModel->data(mi).toString());
+    }
+
+    return fileNames;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,6 +591,28 @@ void FetchWellPathsDialog::showEvent(QShowEvent* event)
 
     QDialog::showEvent(event);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Search for string, and find the associated value inside the next quoted string
+//  text content : "A" : "B"
+//  A search for key "A" returns B
+//--------------------------------------------------------------------------------------------------
+QString FetchWellPathsDialog::getValue(const QString& key, const QString& wellPathFileContent)
+{
+    int pos = wellPathFileContent.indexOf(key);
+    if (pos >=0)
+    {
+        int valueStartPos = wellPathFileContent.indexOf("\"", pos + key.size());
+        int valueEndPos = wellPathFileContent.indexOf("\"", valueStartPos + 1);
+
+        if (valueStartPos >= 0 && valueEndPos > valueStartPos)
+        {
+            return wellPathFileContent.mid(valueStartPos + 1, valueEndPos - valueStartPos - 1);
+        }
+    }
+
+    return QString();
 }
 
 

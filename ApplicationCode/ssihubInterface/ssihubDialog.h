@@ -36,6 +36,7 @@ class QAuthenticator;
 class QNetworkReply;
 class QStringListModel;
 class QListView;
+class QStandardItemModel;
 QT_END_NAMESPACE
 
 
@@ -52,17 +53,14 @@ public:
     FetchWellPathsDialog(QWidget *parent = 0);
 
     void setSsiHubUrl(const QString& httpAddress);
-
     void setDestinationFolder(const QString& folder);
-
-    void startRequest(QUrl url);
-
     QStringList downloadedJsonWellPathFiles();
 
 protected:
     virtual void showEvent(QShowEvent* event);
 
 private:
+    void startRequest(QUrl url);
     void setUrl(const QString& httpAddress);
     
     QString jsonFieldsFilePath();
@@ -71,6 +69,8 @@ private:
     void updateFromDownloadedFiles();
     void updateFieldsModel();
     void extractAndUpdateSingleWellFiles();
+
+    QString getValue(const QString& key, const QString& wellPathFileContent);
 
 private slots:
     void downloadWellPaths();
@@ -100,8 +100,8 @@ private:
     QPushButton*    m_downloadFieldsButton;
     QListView*      m_fieldListView;
 
-    QListView*          m_wellPathsListView;
-    QStringListModel*   m_wellPathsModel;
+    QListView*          m_wellPathsView;
+    QStandardItemModel* m_wellPathsModel;
 
 
     QProgressDialog*    progressDialog;
@@ -118,7 +118,6 @@ private:
 
     QString             m_destinationFolder;
     QStringListModel*   m_fieldModel;
-    QStringList         m_wellFilePathList;
 };
 
 } // namespace ssihub
