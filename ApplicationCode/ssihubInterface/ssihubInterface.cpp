@@ -20,6 +20,7 @@
 #include "ssihubDialog.h"
 #include "ssihubWebServiceInterface.h"
 
+#include <math.h>
 
 namespace ssihub {
 
