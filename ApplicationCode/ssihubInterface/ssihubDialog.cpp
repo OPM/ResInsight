@@ -63,11 +63,37 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     m_wellPathsModel = new QStandardItemModel;
     m_wellPathsView->setModel(m_wellPathsModel);
 
+    // Filter by Utm coordinates
+    m_filterWellsByUtmArea = new QCheckBox("Filter by UTM area");
+    connect(m_filterWellsByUtmArea, SIGNAL(clicked()), this, SLOT(refreshButtonStatus()));
+
+    m_northLineEdit = new QLineEdit;
+    m_southLineEdit = new QLineEdit;
+    m_eastLineEdit = new QLineEdit;
+    m_westLineEdit = new QLineEdit;
+
+
+    QGroupBox* utmAreaGropBox = new QGroupBox("UTM filter by area");
+    QGridLayout *utmAreaLayout = new QGridLayout;
+    utmAreaLayout->addWidget(m_filterWellsByUtmArea, 0, 1);
+    utmAreaLayout->addWidget(new QLabel("North"),   1, 0);
+    utmAreaLayout->addWidget(m_northLineEdit,       1, 1);
+    utmAreaLayout->addWidget(new QLabel("South"),   1, 2);
+    utmAreaLayout->addWidget(m_southLineEdit,       1, 3);
+    utmAreaLayout->addWidget(new QLabel("East"),    2, 0);
+    utmAreaLayout->addWidget(m_eastLineEdit,        2, 1);
+    utmAreaLayout->addWidget(new QLabel("West"),    2, 2);
+    utmAreaLayout->addWidget(m_westLineEdit,        2, 3);
+    utmAreaGropBox->setLayout(utmAreaLayout);
+
     m_downloadWellPathsButton = new QPushButton(tr("Get well paths"));
     m_downloadWellPathsButton->setDefault(true);
 
+    m_downloadFilterInfo = new QPushButton(tr("Get UTM filter info"));
+
     buttonBox = new QDialogButtonBox;
     buttonBox->addButton(m_downloadFieldsButton, QDialogButtonBox::ActionRole);
+    buttonBox->addButton(m_downloadFilterInfo, QDialogButtonBox::ActionRole);
     buttonBox->addButton(m_downloadWellPathsButton, QDialogButtonBox::ActionRole);
 
     QDialogButtonBox* buttonBox1 = new QDialogButtonBox;
@@ -91,6 +117,7 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
 
     connect(progressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
     connect(m_downloadWellPathsButton, SIGNAL(clicked()), this, SLOT(downloadWellPaths()));
+    connect(m_downloadFilterInfo, SIGNAL(clicked()), this, SLOT(downloadUtmFilterInfo()));
 
     QVBoxLayout *topLayout1 = new QVBoxLayout;
     QVBoxLayout *topLayout2 = new QVBoxLayout;
@@ -110,6 +137,7 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     mainLayout->addLayout(topLayout);
     mainLayout->addLayout(ssihubLayout);
     mainLayout->addWidget(statusLabel);
+    mainLayout->addWidget(utmAreaGropBox);
     mainLayout->addWidget(buttonBox);
     mainLayout->addWidget(m_wellPathsView);
     mainLayout->addWidget(buttonBox1);
@@ -121,6 +149,13 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     refreshButtonStatus();
 
     resize(600, 400);
+
+    m_north = HUGE_VAL;
+    m_south = HUGE_VAL;
+    m_east = HUGE_VAL;
+    m_west = HUGE_VAL;
+
+    m_downloadFilterInfo->setEnabled(m_filterWellsByUtmArea->isChecked());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,6 +279,17 @@ void FetchWellPathsDialog::refreshButtonStatus()
     }
 
     m_downloadFieldsButton->setEnabled(!urlSsiHubLineEdit->text().isEmpty());
+
+
+    if (m_filterWellsByUtmArea->isChecked() &&
+        m_fieldListView->selectionModel()->selectedIndexes().size() > 0)
+    {
+        m_downloadFilterInfo->setEnabled(true);
+    }
+    else
+    {
+        m_downloadFilterInfo->setEnabled(false);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,12 +353,6 @@ void FetchWellPathsDialog::setUrl(const QString& httpAddress)
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::downloadWellPaths()
 {
-    QModelIndex mi = m_fieldListView->currentIndex();
-    QString fieldName = m_fieldModel->data(mi, Qt::DisplayRole).toString();
-
-    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName + "/wellpaths";
-    setUrl(completeUrlText);
-
     QString fileName = jsonWellPathsFilePath();
     if (QFile::exists(fileName))
     {
@@ -321,64 +361,63 @@ void FetchWellPathsDialog::downloadWellPaths()
         m_wellPathsModel->clear();
     }
 
-    m_file = new QFile(fileName);
-    if (!m_file->open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, tr("HTTP"),
-            tr("Unable to save the file %1: %2.")
-            .arg(fileName).arg(m_file->errorString()));
-        delete m_file;
-        m_file = 0;
-        return;
-    }
+    QModelIndex mi = m_fieldListView->currentIndex();
+    QString fieldName = m_fieldModel->data(mi, Qt::DisplayRole).toString();
 
-    progressDialog->setWindowTitle(tr("HTTP"));
-    progressDialog->setLabelText(tr("Downloading %1.").arg(fileName));
-    m_downloadWellPathsButton->setEnabled(false);
-
-    // schedule the request
-    httpRequestAborted = false;
-    startRequest(url);
+    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName + "/wellpaths";
+    
+    issueHttpRequestToFile(completeUrlText, fileName);
 }
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::downloadFields()
 {
-    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects";
-    setUrl(completeUrlText);
-
-    // Delete already wellPathList
+    QString wellFileName = jsonWellPathsFilePath();
+    if (QFile::exists(wellFileName))
     {
-        QString wellFileName = jsonWellPathsFilePath();
-        if (QFile::exists(wellFileName))
-        {
-            QFile::remove(wellFileName);
+        QFile::remove(wellFileName);
 
-            m_wellPathsModel->clear();
-        }
+        m_wellPathsModel->clear();
     }
 
-    QString fieldsFileName = jsonFieldsFilePath();
-    m_file = new QFile(fieldsFileName);
-    if (!m_file->open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, tr("HTTP"),
-            tr("Unable to save the file %1: %2.")
-            .arg(fieldsFileName).arg(m_file->errorString()));
-        delete m_file;
-        m_file = 0;
-        return;
+    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects";
+    QString destinationFileName = jsonFieldsFilePath();
+
+    issueHttpRequestToFile(completeUrlText, destinationFileName);
+
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void FetchWellPathsDialog::downloadUtmFilterInfo()
+{
+    QString fileName = jsonWellsByArea();
+    if (QFile::exists(fileName))
+    {
+        QFile::remove(fileName);
     }
 
-    progressDialog->setWindowTitle(tr("HTTP"));
-    progressDialog->setLabelText(tr("Downloading %1.").arg(fieldsFileName));
-    m_downloadFieldsButton->setEnabled(false);
+    QModelIndex mi = m_fieldListView->currentIndex();
+    QString fieldName = m_fieldModel->data(mi, Qt::DisplayRole).toString();
 
-    // schedule the request
-    httpRequestAborted = false;
-    startRequest(url);
+    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName + "/wellsByArea";
+
+    int north = m_northLineEdit->text().toInt();
+    int south = m_southLineEdit->text().toInt();
+    int east = m_eastLineEdit->text().toInt();
+    int west = m_westLineEdit->text().toInt();
+
+    completeUrlText += QString("?north=%1").arg(north);
+    completeUrlText += QString("&south=%1").arg(south);
+    completeUrlText += QString("&east=%1").arg(east);
+    completeUrlText += QString("&west=%1").arg(west);
+    completeUrlText += QString("&utmZone=32S&format=json");
+
+    issueHttpRequestToFile(completeUrlText, fileName);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,6 +511,17 @@ QString FetchWellPathsDialog::jsonWellPathsFilePath()
     return m_destinationFolder + "/wellpaths.json";
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString FetchWellPathsDialog::jsonWellsByArea()
+{
+    return m_destinationFolder + "/wellsbyarea.json";
+}
+
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -554,7 +604,6 @@ void FetchWellPathsDialog::extractAndUpdateSingleWellFiles()
     m_wellPathsModel->clear();
     m_wellPathsModel->setRowCount(wellPathFileNames.size());
     m_wellPathsModel->setColumnCount(2);
-    //m_wellPathsView->hideColumn(1);
 
     for (int i = 0; i < wellPathFileNames.size(); i++)
     {
@@ -613,6 +662,42 @@ QString FetchWellPathsDialog::getValue(const QString& key, const QString& wellPa
     }
 
     return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void FetchWellPathsDialog::setRegion(int north, int south, int east, int west)
+{
+    m_north = north;
+    m_south = south;
+    m_east = east;
+    m_west = west;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void FetchWellPathsDialog::issueHttpRequestToFile(QString completeUrlText, QString destinationFileName)
+{
+    setUrl(completeUrlText);
+    m_file = new QFile(destinationFileName);
+    if (!m_file->open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, tr("HTTP"),
+            tr("Unable to save the file %1: %2.")
+            .arg(destinationFileName).arg(m_file->errorString()));
+        delete m_file;
+        m_file = 0;
+        return;
+    }
+
+    progressDialog->setWindowTitle(tr("HTTP"));
+    progressDialog->setLabelText(tr("Downloading %1.").arg(destinationFileName));
+
+    // schedule the request
+    httpRequestAborted = false;
+    startRequest(url);
 }
 
 

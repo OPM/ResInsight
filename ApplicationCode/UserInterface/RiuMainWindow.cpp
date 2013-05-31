@@ -1611,7 +1611,21 @@ void RiuMainWindow::slotImportWellPaths()
 
     m_ssihubInterface->setWebServiceAddress(app->preferences()->ssihubAddress);
     m_ssihubInterface->setJsonDestinationFolder(wellPathsFolderPath);
-    //m_ssihubInterface->setRegion(int east, int west, int north, int south);
+
+    double north = cvf::UNDEFINED_DOUBLE;
+    double south = cvf::UNDEFINED_DOUBLE;
+    double east = cvf::UNDEFINED_DOUBLE;
+    double west = cvf::UNDEFINED_DOUBLE;
+
+    app->project()->computeUtmAreaOfInterest(&north, &south, &east, &west);
+
+    if (north != cvf::UNDEFINED_DOUBLE &&
+        south != cvf::UNDEFINED_DOUBLE &&
+        east != cvf::UNDEFINED_DOUBLE &&
+        west != cvf::UNDEFINED_DOUBLE)
+    {
+        m_ssihubInterface->setRegion(north, south, east, west);
+    }
 
     QStringList wellPaths = m_ssihubInterface->jsonWellPaths();
     if (wellPaths.size() > 0)

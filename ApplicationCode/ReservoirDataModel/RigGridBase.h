@@ -21,6 +21,7 @@
 #include "cvfBase.h"
 
 #include "cvfVector3.h"
+#include "cvfBoundingBox.h"
 
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
@@ -69,6 +70,8 @@ public:
     size_t                      addCoarseningBox(size_t i1, size_t i2, size_t j1, size_t j2, size_t k1, size_t k2);
 
     void                        coarseningBox(size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2) const;
+
+    cvf::BoundingBox            boundingBox();
   
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();
@@ -106,6 +109,7 @@ private:
     size_t                      m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t                      m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     RigMainGrid*                m_mainGrid;
+    cvf::BoundingBox            m_boundingBox;
 
     std::vector<caf::SizeTArray6>    m_coarseningBoxInfo;
 };

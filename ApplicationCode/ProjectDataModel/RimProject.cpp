@@ -467,3 +467,39 @@ void RimProject::createDisplayModelAndRedrawAllViews()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimProject::computeUtmAreaOfInterest(double* north, double* south, double* east, double* west)
+{
+    CVF_ASSERT(north && south && east && west);
+    std::vector<RimCase*> cases;
+    allCases(cases);
+
+    cvf::BoundingBox projectBB;
+
+    for (size_t i = 0; i < cases.size(); i++)
+    {
+        RimCase* rimCase = cases[i];
+
+        if (rimCase && rimCase->reservoirData())
+        {
+            for (size_t gridIdx = 0; gridIdx < rimCase->reservoirData()->gridCount(); gridIdx++ )
+            {
+                RigGridBase* rigGrid = rimCase->reservoirData()->grid(gridIdx);
+
+                projectBB.add(rigGrid->boundingBox());
+            }
+        }
+    }
+
+    if (projectBB.isValid())
+    {
+        *north = projectBB.max().y();
+        *south = projectBB.min().y();
+
+        *west = projectBB.min().x();
+        *east = projectBB.max().x();
+    }
+}
+

@@ -514,6 +514,29 @@ void RigGridBase::coarseningBox(size_t coarseningBoxIndex, size_t* i1, size_t* i
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigGridBase::boundingBox()
+{
+    if (!m_boundingBox.isValid())
+    {
+        cvf::Vec3d cornerVerts[8];
+
+        for (size_t i = 0; i < cellCount(); i++)
+        {
+            cellCornerVertices(i, cornerVerts);
+
+            for (size_t j = 0; j < 8; j++)
+            {
+                m_boundingBox.add(cornerVerts[j]);
+            }
+        }
+    }
+    
+    return m_boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility) const
 {
     CVF_TIGHT_ASSERT(m_grid);

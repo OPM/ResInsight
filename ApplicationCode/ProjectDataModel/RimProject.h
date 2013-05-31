@@ -67,6 +67,8 @@ public:
     void            allCases(std::vector<RimCase*>& cases);
     void            createDisplayModelAndRedrawAllViews();
 
+    void            computeUtmAreaOfInterest(double* north, double* south, double* east, double* west);
+
 private:
     RigMainGrid*    registerCaseInGridCollection(RigCaseData* rigEclipseCase);
 

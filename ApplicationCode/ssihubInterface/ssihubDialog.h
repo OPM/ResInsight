@@ -37,6 +37,7 @@ class QNetworkReply;
 class QStringListModel;
 class QListView;
 class QStandardItemModel;
+class QCheckBox;
 QT_END_NAMESPACE
 
 
@@ -54,6 +55,8 @@ public:
 
     void setSsiHubUrl(const QString& httpAddress);
     void setDestinationFolder(const QString& folder);
+    void setRegion(int north, int south, int east, int west);
+
     QStringList downloadedJsonWellPathFiles();
 
 protected:
@@ -65,6 +68,7 @@ private:
     
     QString jsonFieldsFilePath();
     QString jsonWellPathsFilePath();
+    QString jsonWellsByArea();
 
     void updateFromDownloadedFiles();
     void updateFieldsModel();
@@ -73,8 +77,11 @@ private:
     QString getValue(const QString& key, const QString& wellPathFileContent);
 
 private slots:
+    void downloadUtmFilterInfo();
     void downloadWellPaths();
     void downloadFields();
+
+    void issueHttpRequestToFile( QString completeUrlText, QString fieldsFileName );
     void cancelDownload();
     void httpFinished();
     void httpReadyRead();
@@ -100,9 +107,17 @@ private:
     QPushButton*    m_downloadFieldsButton;
     QListView*      m_fieldListView;
 
+    QPushButton*    m_downloadFilterInfo;
+
     QListView*          m_wellPathsView;
     QStandardItemModel* m_wellPathsModel;
 
+
+    QCheckBox*          m_filterWellsByUtmArea;
+    QLineEdit*          m_northLineEdit;
+    QLineEdit*          m_southLineEdit;
+    QLineEdit*          m_eastLineEdit;
+    QLineEdit*          m_westLineEdit;
 
     QProgressDialog*    progressDialog;
     QPushButton*        m_downloadWellPathsButton;
@@ -118,6 +133,11 @@ private:
 
     QString             m_destinationFolder;
     QStringListModel*   m_fieldModel;
+
+    double m_north;
+    double m_south;
+    double m_east;
+    double m_west;
 };
 
 } // namespace ssihub

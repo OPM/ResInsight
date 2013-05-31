@@ -29,6 +29,10 @@ namespace ssihub {
 //--------------------------------------------------------------------------------------------------
 Interface::Interface()
 {
+    m_north = HUGE_VAL;
+    m_south = HUGE_VAL;
+    m_east = HUGE_VAL;
+    m_west = HUGE_VAL;
 }
 
 
@@ -51,7 +55,7 @@ void Interface::setJsonDestinationFolder(const QString folder)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Interface::setRegion(int east, int west, int north, int south)
+void Interface::setRegion(int north, int south, int east, int west)
 {
     m_east = east;
     m_west = west;

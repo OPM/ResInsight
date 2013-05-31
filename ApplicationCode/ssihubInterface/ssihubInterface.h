@@ -30,7 +30,7 @@ public:
 
     void setWebServiceAddress(const QString wsAdress);
     void setJsonDestinationFolder(const QString folder);
-    void setRegion(int east, int west, int north, int south);
+    void setRegion(int north, int south, int east, int west);
 
     QStringList jsonWellPaths();
 
