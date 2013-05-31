@@ -50,7 +50,7 @@ CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 RimResultCase::RimResultCase()
     : RimCase()
 {
-    CAF_PDM_InitObject("Eclipse Case", ":/AppLogo48x48.png", "", "");
+    CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
     caseFileName.setUiReadOnly(true);

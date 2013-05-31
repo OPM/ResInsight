@@ -180,7 +180,7 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 void RiuMainWindow::createActions()
 {
     // File actions
-    m_openEclipseCaseAction                = new QAction(QIcon(":/AppLogo48x48.png"), "&Open Eclipse Case", this);
+    m_openEclipseCaseAction                = new QAction(QIcon(":/Case48x48.png"), "&Open Eclipse Case", this);
     m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
     m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
     
