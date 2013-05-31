@@ -55,6 +55,12 @@ int main(int argc, char *argv[])
     wsInterface.setWebServiceAddress(wsAddress);
     wsInterface.setJsonDestinationFolder(destinationFolder);
 
+    int north = 7500000;
+    int south = 7000000;
+    int east =   401000;
+    int west =   400000;
+    wsInterface.setRegion(north, south, east, west);
+
     QStringList jsonWellPathFileNames = wsInterface.jsonWellPaths();
 
 //     void setWebServiceAddress(const QString wsAdress);

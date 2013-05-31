@@ -76,6 +76,8 @@ private:
 
     QString getValue(const QString& key, const QString& wellPathFileContent);
 
+    QStringList filteredWellEntities();
+
 private slots:
     void downloadUtmFilterInfo();
     void downloadWellPaths();

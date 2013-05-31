@@ -536,6 +536,13 @@ void FetchWellPathsDialog::updateFromDownloadedFiles()
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::extractAndUpdateSingleWellFiles()
 {
+    QStringList filtereEntities;
+
+    if (m_filterWellsByUtmArea->isChecked())
+    {
+        filtereEntities = filteredWellEntities();
+    }
+
     QString filename = jsonWellPathsFilePath();
 
     QFile file(filename);
@@ -576,24 +583,31 @@ void FetchWellPathsDialog::extractAndUpdateSingleWellFiles()
         // Write out a single well path
         {
             QString singleWellPath = fileContent.mid(singleWellPathStart, pos - singleWellPathStart);
+            QString singleWellPathName = getValue("well", singleWellPath);
 
-            QUuid guid = QUuid::createUuid();
-
-            QString singleWellPathFilePath = m_destinationFolder + QString("/wellpath_%1.json").arg(guid);
-            QFile outputFile(singleWellPathFilePath);
-            if (outputFile.open(QIODevice::WriteOnly | QIODevice::Text))
+            if (m_filterWellsByUtmArea->isChecked() && filtereEntities.indexOf(singleWellPathName) < 0)
             {
-                QTextStream out(&outputFile);
-                out << singleWellPath;
+                // Outside UTM area
             }
-            outputFile.close();
-
-            QString key = "\"name\"";
-            QString wellPathName = getValue(key, singleWellPath);
-            if (wellPathFileNames.indexOf(singleWellPathFilePath) < 0)
+            else
             {
-                wellPathNames.push_back(wellPathName);
-                wellPathFileNames.push_back(singleWellPathFilePath);
+                QUuid guid = QUuid::createUuid();
+
+                QString singleWellPathFilePath = m_destinationFolder + QString("/wellpath_%1.json").arg(guid);
+                QFile outputFile(singleWellPathFilePath);
+                if (outputFile.open(QIODevice::WriteOnly | QIODevice::Text))
+                {
+                    QTextStream out(&outputFile);
+                    out << singleWellPath;
+                }
+                outputFile.close();
+
+                QString wellPathName = getValue("name", singleWellPath);
+                if (wellPathFileNames.indexOf(singleWellPathFilePath) < 0)
+                {
+                    wellPathNames.push_back(wellPathName);
+                    wellPathFileNames.push_back(singleWellPathFilePath);
+                }
             }
         }
 
@@ -649,10 +663,12 @@ void FetchWellPathsDialog::showEvent(QShowEvent* event)
 //--------------------------------------------------------------------------------------------------
 QString FetchWellPathsDialog::getValue(const QString& key, const QString& wellPathFileContent)
 {
-    int pos = wellPathFileContent.indexOf(key);
+    QString quotedKey = "\"" + key + "\"";
+
+    int pos = wellPathFileContent.indexOf(quotedKey);
     if (pos >=0)
     {
-        int valueStartPos = wellPathFileContent.indexOf("\"", pos + key.size());
+        int valueStartPos = wellPathFileContent.indexOf("\"", pos + quotedKey.size());
         int valueEndPos = wellPathFileContent.indexOf("\"", valueStartPos + 1);
 
         if (valueStartPos >= 0 && valueEndPos > valueStartPos)
@@ -673,6 +689,11 @@ void FetchWellPathsDialog::setRegion(int north, int south, int east, int west)
     m_south = south;
     m_east = east;
     m_west = west;
+
+    m_northLineEdit->setText(QString::number(static_cast<int>(m_north)));
+    m_southLineEdit->setText(QString::number(static_cast<int>(m_south)));
+    m_eastLineEdit->setText(QString::number(static_cast<int>(m_east)));
+    m_westLineEdit->setText(QString::number(static_cast<int>(m_west)));
 }
 
 
@@ -698,6 +719,48 @@ void FetchWellPathsDialog::issueHttpRequestToFile(QString completeUrlText, QStri
     // schedule the request
     httpRequestAborted = false;
     startRequest(url);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList FetchWellPathsDialog::filteredWellEntities()
+{
+    QStringList entities;
+
+    QString filename = jsonWellsByArea();
+    if (QFile::exists(filename))
+    {
+        JsonReader jsonReader;
+        QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filename);
+
+        QMapIterator<QString, QVariant> it(jsonMap);
+        while (it.hasNext())
+        {
+            it.next();
+
+            QString key = it.key();
+            if (key[0].isDigit())
+            {
+                QMap<QString, QVariant> slotMap = it.value().toMap();
+                QMap<QString, QVariant> linkMap = slotMap["links"].toMap();
+                QString entity = linkMap["entity"].toString();
+                entities.push_back(entity);
+            }
+        }
+
+        /*
+        QList<QVariant> slotList = jsonMap["slot"].toList();
+        foreach (QVariant slot, slotList)
+        {
+            QMap<QString, QVariant> slotMap = slot.toMap();
+            QString entity = slotMap["entity"].toString();
+            entities.push_back(entity);
+        }
+        */
+    }
+
+    return entities;
 }
 
 

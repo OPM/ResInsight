@@ -72,6 +72,7 @@ QStringList Interface::jsonWellPaths()
     FetchWellPathsDialog fetchWellPaths;
     fetchWellPaths.setSsiHubUrl(m_webServiceAddress);
     fetchWellPaths.setDestinationFolder(m_jsonDestinationFolder);
+    fetchWellPaths.setRegion(m_north, m_south, m_east, m_west);
 
     QStringList importedWellPathFiles;
     if (fetchWellPaths.exec() == QDialog::Accepted)
