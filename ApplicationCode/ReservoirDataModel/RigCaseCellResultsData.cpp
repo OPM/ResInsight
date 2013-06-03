@@ -576,3 +576,99 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg)
+{
+    pos = HUGE_VAL;
+    neg = -HUGE_VAL;
+
+    CVF_ASSERT(scalarResultIndex < resultCount());
+
+    // Extend array and cache vars
+
+    if (scalarResultIndex >= m_posNegClosestToZero.size() )
+    {
+        m_posNegClosestToZero.resize(scalarResultIndex+1, std::make_pair(HUGE_VAL, -HUGE_VAL));
+    }
+
+    if (m_posNegClosestToZero[scalarResultIndex].first != HUGE_VAL)
+    {
+        pos = m_posNegClosestToZero[scalarResultIndex].first;
+        neg = m_posNegClosestToZero[scalarResultIndex].second;
+
+        return;
+    }
+
+    size_t i;
+    for (i = 0; i < timeStepCount(scalarResultIndex); i++)
+    {
+        double tsNeg, tsPos;
+        posNegClosestToZero(scalarResultIndex, i, tsPos, tsNeg);
+        if (tsNeg > neg && tsNeg < 0) neg = tsNeg;
+        if (tsPos < pos && tsPos > 0) pos = tsPos;
+    }
+
+    m_posNegClosestToZero[scalarResultIndex].first = pos;
+    m_posNegClosestToZero[scalarResultIndex].second= neg;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg)
+{
+    pos = HUGE_VAL;
+    neg = -HUGE_VAL;
+
+    CVF_ASSERT(scalarResultIndex < resultCount());
+
+    if (timeStepIndex >= m_cellScalarResults[scalarResultIndex].size())
+    {
+        return;
+    }
+
+    if (scalarResultIndex >= m_posNegClosestToZeroPrTs.size())
+    {
+        m_posNegClosestToZeroPrTs.resize(scalarResultIndex+1);
+    }
+
+    if (timeStepIndex >= m_posNegClosestToZeroPrTs[scalarResultIndex].size())
+    {
+        m_posNegClosestToZeroPrTs[scalarResultIndex].resize(timeStepIndex+1, std::make_pair(HUGE_VAL, -HUGE_VAL));
+    }
+
+    if (m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].first != HUGE_VAL)
+    {
+        pos = m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].first;
+        neg = m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].second;
+
+        return;
+    }
+
+    std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
+
+    size_t i;
+    for (i = 0; i < values.size(); i++)
+    {
+        if (values[i] == HUGE_VAL)
+        {
+            continue;
+        }
+
+        if (values[i] < pos && values[i] > 0)
+        {
+            pos = values[i];
+        }
+
+        if (values[i] > neg && values[i] < 0)
+        {
+            neg = values[i];
+        }
+    }
+
+    m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].first = pos;
+    m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].second= neg;
+}
+

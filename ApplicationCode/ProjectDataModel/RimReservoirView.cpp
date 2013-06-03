@@ -1156,19 +1156,27 @@ void RimReservoirView::updateLegends()
     if (this->cellResult()->hasResult())
     {
         double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
         results->minMaxCellScalarValues(this->cellResult()->gridScalarIndex(), globalMin, globalMax);
+        results->posNegClosestToZero(this->cellResult()->gridScalarIndex(), globalPosClosestToZero, globalNegClosestToZero);
 
         double localMin, localMax;
+        double localPosClosestToZero, localNegClosestToZero;
         if (this->cellResult()->hasDynamicResult())
         {
             results->minMaxCellScalarValues(this->cellResult()->gridScalarIndex(), m_currentTimeStep, localMin, localMax);
+            results->posNegClosestToZero(this->cellResult()->gridScalarIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
         }
         else
         {
              localMin = globalMin;
              localMax = globalMax;
+
+             localPosClosestToZero = globalPosClosestToZero;
+             localNegClosestToZero = globalNegClosestToZero;
         }
 
+        this->cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
         this->cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
         m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
@@ -1176,6 +1184,7 @@ void RimReservoirView::updateLegends()
     }
     else
     {
+        this->cellResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
         this->cellResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
         m_viewer->setColorLegend1(NULL);
     }
@@ -1183,8 +1192,13 @@ void RimReservoirView::updateLegends()
     if (this->cellEdgeResult()->hasResult())
     {
         double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
         this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
+        this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
+
+        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
+
         m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
         this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
 
@@ -1192,6 +1206,7 @@ void RimReservoirView::updateLegends()
     else
     {
         m_viewer->setColorLegend2(NULL);
+        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 }

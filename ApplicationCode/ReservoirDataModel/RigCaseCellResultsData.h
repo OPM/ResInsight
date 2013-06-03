@@ -41,6 +41,8 @@ public:
     void                                               recalculateMinMax(size_t scalarResultIndex);
     void                                               minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
     void                                               minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
+    void                                               posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg);
+    void                                               posNegClosestToZero(size_t scalarResultIndex, size_t timeStepIndex, double& pos, double& neg);
     const std::vector<size_t>&                         cellScalarValuesHistogram(size_t scalarResultIndex);
     void                                               p10p90CellScalarValues(size_t scalarResultIndex, double& p10, double& p90);
     void                                               meanCellScalarValues(size_t scalarResultIndex, double& meanValue);
@@ -107,11 +109,13 @@ public:
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
     std::vector< std::pair<double, double> >                m_maxMinValues;      ///< Max min values for each Result index
+    std::vector< std::pair<double, double> >                m_posNegClosestToZero;
     std::vector< std::vector<size_t> >                      m_histograms;        ///< Histogram for each Result Index
     std::vector< std::pair<double, double> >                m_p10p90;            ///< P10 and p90 values for each Result Index
     std::vector< double >                                   m_meanValues;        ///< Mean value for each Result Index
 
     std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs;  ///< Max min values for each Result index and timestep
+    std::vector< std::vector< std::pair<double, double> > > m_posNegClosestToZeroPrTs;
 
 
 
