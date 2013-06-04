@@ -307,6 +307,7 @@ void FetchWellPathsDialog::slotAuthenticationRequired(QNetworkReply*,QAuthentica
     // This is only relevant if the URL-supplied credentials were wrong
     ui.userEdit->setText(url.userName());
     ui.passwordEdit->setText(url.password());
+    ui.passwordEdit->setEchoMode(QLineEdit::Password);
 
     if (dlg.exec() == QDialog::Accepted) {
         authenticator->setUser(ui.userEdit->text());
