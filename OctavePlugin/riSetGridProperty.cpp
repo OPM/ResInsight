@@ -143,6 +143,15 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
     argIndices.push_back(4); // Time step indices
     argIndices.push_back(5); // Porosity model
 
+    // Check that the second argument is an integer
+    if (!args(argIndices[1]).is_real_scalar()) // Check if second argument is an int. If it is
+    {
+        error("riSetGridProperty: The GridIndex argument is missing");
+        print_usage();
+
+        return octave_value_list ();
+    }
+
     // Check if we do not have a CaseId:
     if (args(argIndices[2]).is_string()) // Check if second argument is a text. If it is, the caseid is missing
     {
@@ -193,7 +202,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
 
     if (timeStepIndices.length())
     {
-        int timeStepCount = mxDims.elem(1);
+        int timeStepCount = mxDims.elem(3);
         if (timeStepIndices.length() != timeStepCount)
         {
             error("riSetGridProperty: The number of time steps in the input matrix must match the number of time steps in the TimeStepIndices array.");
