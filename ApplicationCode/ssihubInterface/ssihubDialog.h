@@ -51,11 +51,14 @@ class FetchWellPathsDialog : public QDialog
     Q_OBJECT
 
 public:
+    enum DownloadState{ DOWNLOAD_FIELDS, DOWNLOAD_WELLS, DOWNLOAD_WELL_PATH, DOWNLOAD_UNDEFINED};
+
+public:
     FetchWellPathsDialog(QWidget *parent = 0);
 
-    void setSsiHubUrl(const QString& httpAddress);
-    void setDestinationFolder(const QString& folder);
-    void setRegion(int north, int south, int east, int west);
+    void        setSsiHubUrl(const QString& httpAddress);
+    void        setDestinationFolder(const QString& folder);
+    void        setRegion(int north, int south, int east, int west);
 
     QStringList downloadedJsonWellPathFiles();
 
@@ -63,35 +66,35 @@ protected:
     virtual void showEvent(QShowEvent* event);
 
 private:
-    void startRequest(QUrl url);
-    void setUrl(const QString& httpAddress);
+    void        startRequest(QUrl url);
+    void        setUrl(const QString& httpAddress);
     
-    QString jsonFieldsFilePath();
-    QString jsonWellPathsFilePath();
-    QString jsonWellsByArea();
+    QString     jsonFieldsFilePath();
+    QString     jsonWellsFilePath();
+    QString     jsonWellsInArea();
 
-    void updateFromDownloadedFiles();
-    void updateFieldsModel();
-    void extractAndUpdateSingleWellFiles();
+    void        updateFieldsModel();
 
-    QString getValue(const QString& key, const QString& wellPathFileContent);
+    QString     getValue(const QString& key, const QString& stringContent);
 
-    QStringList filteredWellEntities();
+    void        getWellPathLinks(QStringList* surveyLinks, QStringList* planLinks);
+    void        issueDownloadOfWellPaths(const QStringList& surveyLinks, const QStringList& planLinks);
 
 private slots:
-    void downloadUtmFilterInfo();
-    void downloadWellPaths();
-    void downloadFields();
+    void        downloadWellPaths();
+    void        downloadFields();
+    void        checkDownloadQueueAndIssueRequests();
 
-    void issueHttpRequestToFile( QString completeUrlText, QString fieldsFileName );
-    void cancelDownload();
-    void httpFinished();
-    void httpReadyRead();
-    void updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
-    void refreshButtonStatus();
-    void slotAuthenticationRequired(QNetworkReply*,QAuthenticator *);
+    void        issueHttpRequestToFile( QString completeUrlText, QString fieldsFileName );
+    void        cancelDownload();
+    void        httpFinished();
 
-    void slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
+    void        httpReadyRead();
+    void        updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
+    void        refreshButtonStatus();
+    void        slotAuthenticationRequired(QNetworkReply*,QAuthenticator *);
+
+    void        slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
 
 
 #ifndef QT_NO_OPENSSL
@@ -100,16 +103,14 @@ private slots:
 #endif
 
 private:
-    QLabel*     statusLabel;
-    QLabel*     urlLabel;
-    QLineEdit*  urlLineEdit;
-    QLabel*     urlSsiHubLabel;
-    QLineEdit*  urlSsiHubLineEdit;
+    QLabel*             m_statusLabel;
+    QLabel*             m_urlLabel;
+    QLineEdit*          m_urlLineEdit;
+    QLabel*             m_urlSsiHubLabel;
+    QLineEdit*          m_urlSsiHubLineEdit;
     
-    QPushButton*    m_downloadFieldsButton;
-    QListView*      m_fieldListView;
-
-    QPushButton*    m_downloadFilterInfo;
+    QPushButton*        m_downloadFieldsButton;
+    QListView*          m_fieldListView;
 
     QListView*          m_wellPathsView;
     QStandardItemModel* m_wellPathsModel;
@@ -121,25 +122,23 @@ private:
     QLineEdit*          m_eastLineEdit;
     QLineEdit*          m_westLineEdit;
 
-    QProgressDialog*    progressDialog;
+    QProgressDialog*    m_progressDialog;
     QPushButton*        m_downloadWellPathsButton;
-    QDialogButtonBox*   buttonBox;
+    QDialogButtonBox*   m_buttonBox;
 
-    QUrl                    url;
-    QNetworkAccessManager   qnam;
-    QNetworkReply*          reply;
+    QUrl                    m_url;
+    QNetworkAccessManager   m_networkAccessManager;
+    QNetworkReply*          m_reply;
     QFile*                  m_file;
-    int                     httpGetId;
-    bool                    httpRequestAborted;
+    bool                    m_httpRequestAborted;
 
 
     QString             m_destinationFolder;
     QStringListModel*   m_fieldModel;
+    
+    QStringList         m_wellPathRequestQueue;
 
-    double m_north;
-    double m_south;
-    double m_east;
-    double m_west;
+    DownloadState       m_currentDownloadState;
 };
 
 } // namespace ssihub

@@ -38,16 +38,18 @@ namespace ssihub {
 FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     : QDialog(parent)
 {
-    urlSsiHubLineEdit = new QLineEdit;
-    urlSsiHubLabel = new QLabel(tr("SSIHUB address:"));
-    urlSsiHubLabel->setBuddy(urlSsiHubLineEdit);
+    m_urlSsiHubLineEdit = new QLineEdit;
+    m_urlSsiHubLineEdit->setReadOnly(true);
+    m_urlSsiHubLabel = new QLabel(tr("SSIHUB address:"));
+    m_urlSsiHubLabel->setBuddy(m_urlSsiHubLineEdit);
 
-    urlLineEdit = new QLineEdit;
-    urlLabel = new QLabel(tr("SSIHUB complete request:"));
-    urlLabel->setBuddy(urlLineEdit);
+    m_urlLineEdit = new QLineEdit;
+    m_urlLineEdit->setReadOnly(true);
+    m_urlLabel = new QLabel(tr("SSIHUB complete request:"));
+    m_urlLabel->setBuddy(m_urlLineEdit);
 
-    statusLabel = new QLabel(tr("Status : idle"));
-    statusLabel->setWordWrap(true);
+    m_statusLabel = new QLabel(tr("Status : idle"));
+    m_statusLabel->setWordWrap(true);
 
     m_downloadFieldsButton = new QPushButton(tr("Get fields"));
     connect(m_downloadFieldsButton, SIGNAL(clicked()), this, SLOT(downloadFields()));
@@ -59,8 +61,9 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     connect(m_fieldListView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection& )), this, SLOT(slotSelectionChanged(const QItemSelection&, const QItemSelection& )));
 
     // Well paths data model and view
-    m_wellPathsView = new QListView(this);
     m_wellPathsModel = new QStandardItemModel;
+    m_wellPathsModel->setColumnCount(2);
+    m_wellPathsView = new QListView(this);
     m_wellPathsView->setModel(m_wellPathsModel);
 
     // Filter by Utm coordinates
@@ -89,12 +92,9 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     m_downloadWellPathsButton = new QPushButton(tr("Get well paths"));
     m_downloadWellPathsButton->setDefault(true);
 
-    m_downloadFilterInfo = new QPushButton(tr("Get UTM filter info"));
-
-    buttonBox = new QDialogButtonBox;
-    buttonBox->addButton(m_downloadFieldsButton, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(m_downloadFilterInfo, QDialogButtonBox::ActionRole);
-    buttonBox->addButton(m_downloadWellPathsButton, QDialogButtonBox::ActionRole);
+    m_buttonBox = new QDialogButtonBox;
+    m_buttonBox->addButton(m_downloadFieldsButton, QDialogButtonBox::ActionRole);
+    m_buttonBox->addButton(m_downloadWellPathsButton, QDialogButtonBox::ActionRole);
 
     QDialogButtonBox* buttonBox1 = new QDialogButtonBox;
     buttonBox1->addButton(QDialogButtonBox::Cancel);
@@ -103,28 +103,27 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     connect(buttonBox1, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttonBox1, SIGNAL(rejected()), this, SLOT(reject()));
 
-    progressDialog = new QProgressDialog(this);
+    m_progressDialog = new QProgressDialog(this);
 
-    connect(urlLineEdit, SIGNAL(textChanged(QString)),
+    connect(m_urlLineEdit, SIGNAL(textChanged(QString)),
         this, SLOT(refreshButtonStatus()));
 
-    connect(&qnam, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
+    connect(&m_networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
         this, SLOT(slotAuthenticationRequired(QNetworkReply*,QAuthenticator*)));
 #ifndef QT_NO_OPENSSL
-    connect(&qnam, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
+    connect(&m_networkAccessManager, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
         this, SLOT(sslErrors(QNetworkReply*,QList<QSslError>)));
 #endif
 
-    connect(progressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
+    connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
     connect(m_downloadWellPathsButton, SIGNAL(clicked()), this, SLOT(downloadWellPaths()));
-    connect(m_downloadFilterInfo, SIGNAL(clicked()), this, SLOT(downloadUtmFilterInfo()));
 
     QVBoxLayout *topLayout1 = new QVBoxLayout;
     QVBoxLayout *topLayout2 = new QVBoxLayout;
-    topLayout1->addWidget(urlSsiHubLabel);
-    topLayout1->addWidget(urlSsiHubLineEdit);
-    topLayout2->addWidget(urlLabel);
-    topLayout2->addWidget(urlLineEdit);
+    topLayout1->addWidget(m_urlSsiHubLabel);
+    topLayout1->addWidget(m_urlSsiHubLineEdit);
+    topLayout2->addWidget(m_urlLabel);
+    topLayout2->addWidget(m_urlLineEdit);
     QHBoxLayout *topLayout = new QHBoxLayout;
     topLayout->addLayout(topLayout1);
     topLayout->addLayout(topLayout2);
@@ -136,26 +135,19 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(topLayout);
     mainLayout->addLayout(ssihubLayout);
-    mainLayout->addWidget(statusLabel);
+    mainLayout->addWidget(m_statusLabel);
     mainLayout->addWidget(utmAreaGropBox);
-    mainLayout->addWidget(buttonBox);
+    mainLayout->addWidget(m_buttonBox);
     mainLayout->addWidget(m_wellPathsView);
     mainLayout->addWidget(buttonBox1);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Import Well Paths"));
-    urlLineEdit->setFocus();
+    m_urlLineEdit->setFocus();
 
     refreshButtonStatus();
 
     resize(600, 400);
-
-    m_north = HUGE_VAL;
-    m_south = HUGE_VAL;
-    m_east = HUGE_VAL;
-    m_west = HUGE_VAL;
-
-    m_downloadFilterInfo->setEnabled(m_filterWellsByUtmArea->isChecked());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,12 +155,12 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::startRequest(QUrl url)
 {
-    reply = qnam.get(QNetworkRequest(url));
-    connect(reply, SIGNAL(finished()),
+    m_reply = m_networkAccessManager.get(QNetworkRequest(url));
+    connect(m_reply, SIGNAL(finished()),
         this, SLOT(httpFinished()));
-    connect(reply, SIGNAL(readyRead()),
+    connect(m_reply, SIGNAL(readyRead()),
         this, SLOT(httpReadyRead()));
-    connect(reply, SIGNAL(downloadProgress(qint64,qint64)),
+    connect(m_reply, SIGNAL(downloadProgress(qint64,qint64)),
         this, SLOT(updateDataReadProgress(qint64,qint64)));
 }
 
@@ -178,9 +170,9 @@ void FetchWellPathsDialog::startRequest(QUrl url)
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::cancelDownload()
 {
-    statusLabel->setText(tr("Download canceled."));
-    httpRequestAborted = true;
-    reply->abort();
+    m_statusLabel->setText(tr("Download canceled."));
+    m_httpRequestAborted = true;
+    m_reply->abort();
 
     refreshButtonStatus();
 }
@@ -190,53 +182,124 @@ void FetchWellPathsDialog::cancelDownload()
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::httpFinished()
 {
-    if (httpRequestAborted) {
+    if (m_httpRequestAborted) {
         if (m_file) {
             m_file->close();
             m_file->remove();
             delete m_file;
             m_file = 0;
         }
-        reply->deleteLater();
-        progressDialog->hide();
+        m_reply->deleteLater();
+        m_progressDialog->hide();
         return;
     }
 
-    progressDialog->hide();
+    if (m_wellPathRequestQueue.size() == 0)
+    {
+        m_progressDialog->hide();
+    }
+    
     m_file->flush();
     m_file->close();
 
 
-    QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
-    if (reply->error()) {
+    QVariant redirectionTarget = m_reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    if (m_reply->error()) {
         m_file->remove();
         QMessageBox::information(this, tr("HTTP"),
             tr("Download failed: %1.")
-            .arg(reply->errorString()));
+            .arg(m_reply->errorString()));
     } else if (!redirectionTarget.isNull()) {        
-        QUrl newUrl = url.resolved(redirectionTarget.toUrl());
+        QUrl newUrl = m_url.resolved(redirectionTarget.toUrl());
         if (QMessageBox::question(this, tr("HTTP"),
             tr("Redirect to %1 ?").arg(newUrl.toString()),
             QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-                url = newUrl;
-                reply->deleteLater();
+                m_url = newUrl;
+                m_reply->deleteLater();
                 m_file->open(QIODevice::WriteOnly);
                 m_file->resize(0);
-                startRequest(url);
+                startRequest(m_url);
                 return;
         }
     } else {
-        statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
+        m_statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
     }
 
-    updateFromDownloadedFiles();
+    if (m_currentDownloadState == DOWNLOAD_WELL_PATH)
+    {
+        QString singleWellPathFilePath = m_file->fileName();
+
+        QFile file(singleWellPathFilePath);
+        if (file.open(QFile::ReadOnly))
+        {
+            QString singleWellPathContent = file.readAll();
+
+            // Strip leading and trailing []
+
+            if (singleWellPathContent.indexOf('{') > 0)
+            {
+                singleWellPathContent = singleWellPathContent.right(singleWellPathContent.size() - singleWellPathContent.indexOf('{'));
+            }
+
+            if (singleWellPathContent[singleWellPathContent.size() - 1] == ']')
+            {
+                singleWellPathContent = singleWellPathContent.left(singleWellPathContent.size() - 1);
+            }
+
+            QString wellPathName = getValue("name", singleWellPathContent);
+            if (!singleWellPathContent.isEmpty() && !wellPathName.isEmpty())
+            {
+                int currentRowCount = m_wellPathsModel->rowCount();
+                m_wellPathsModel->setRowCount(m_wellPathsModel->rowCount() + 1);
+
+                QModelIndex miName = m_wellPathsModel->index(currentRowCount, 0);
+                m_wellPathsModel->setData(miName, wellPathName);
+
+                QModelIndex miFileName = m_wellPathsModel->index(currentRowCount, 1);
+                m_wellPathsModel->setData(miFileName, singleWellPathFilePath);
+
+
+                // Write out the content without leading/trailing []
+                file.close();
+                file.remove(singleWellPathFilePath);
+
+                if (file.open(QFile::WriteOnly))
+                {
+                    QTextStream out(&file);
+                    out << singleWellPathContent;
+                }
+            }
+        }
+    }
+
 
     refreshButtonStatus();
 
-    reply->deleteLater();
-    reply = 0;
+    m_reply->deleteLater();
+    m_reply = 0;
     delete m_file;
     m_file = 0;
+
+    if (m_currentDownloadState == DOWNLOAD_WELLS)
+    {
+        QStringList survey;
+        QStringList plans;
+
+        getWellPathLinks(&survey, &plans);
+
+        m_currentDownloadState = DOWNLOAD_UNDEFINED;
+
+        issueDownloadOfWellPaths(survey, plans);
+    }
+    else if (m_currentDownloadState == DOWNLOAD_FIELDS)
+    {
+        updateFieldsModel();
+        m_currentDownloadState = DOWNLOAD_UNDEFINED;
+    }
+    else
+    {
+        checkDownloadQueueAndIssueRequests();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,7 +312,7 @@ void FetchWellPathsDialog::httpReadyRead()
     // That way we use less RAM than when reading it at the finished()
     // signal of the QNetworkReply
     if (m_file)
-        m_file->write(reply->readAll());
+        m_file->write(m_reply->readAll());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,11 +320,11 @@ void FetchWellPathsDialog::httpReadyRead()
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
 {
-    if (httpRequestAborted)
+    if (m_httpRequestAborted)
         return;
 
-    progressDialog->setMaximum(totalBytes);
-    progressDialog->setValue(bytesRead);
+    m_progressDialog->setMaximum(totalBytes);
+    m_progressDialog->setValue(bytesRead);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,18 +341,17 @@ void FetchWellPathsDialog::refreshButtonStatus()
         m_downloadWellPathsButton->setEnabled(false);
     }
 
-    m_downloadFieldsButton->setEnabled(!urlSsiHubLineEdit->text().isEmpty());
+    m_downloadFieldsButton->setEnabled(!m_urlSsiHubLineEdit->text().isEmpty());
+
+    bool enableUtmEditors = m_filterWellsByUtmArea->isChecked();
+
+    m_northLineEdit->setEnabled(enableUtmEditors);
+    m_southLineEdit->setEnabled(enableUtmEditors);
+    m_eastLineEdit->setEnabled(enableUtmEditors);
+    m_westLineEdit->setEnabled(enableUtmEditors);
 
 
-    if (m_filterWellsByUtmArea->isChecked() &&
-        m_fieldListView->selectionModel()->selectedIndexes().size() > 0)
-    {
-        m_downloadFilterInfo->setEnabled(true);
-    }
-    else
-    {
-        m_downloadFilterInfo->setEnabled(false);
-    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,12 +363,12 @@ void FetchWellPathsDialog::slotAuthenticationRequired(QNetworkReply*,QAuthentica
     Ui::Dialog ui;
     ui.setupUi(&dlg);
     dlg.adjustSize();
-    ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm()).arg(url.host()));
+    ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm()).arg(m_url.host()));
 
     // Did the URL have information? Fill the UI
     // This is only relevant if the URL-supplied credentials were wrong
-    ui.userEdit->setText(url.userName());
-    ui.passwordEdit->setText(url.password());
+    ui.userEdit->setText(m_url.userName());
+    ui.passwordEdit->setText(m_url.password());
     ui.passwordEdit->setEchoMode(QLineEdit::Password);
 
     if (dlg.exec() == QDialog::Accepted) {
@@ -328,7 +390,7 @@ void FetchWellPathsDialog::sslErrors(QNetworkReply*,const QList<QSslError> &erro
     if (QMessageBox::warning(this, tr("HTTP"),
         tr("One or more SSL errors has occurred: %1").arg(errorString),
         QMessageBox::Ignore | QMessageBox::Abort) == QMessageBox::Ignore) {
-            reply->ignoreSslErrors();
+            m_reply->ignoreSslErrors();
     }
 }
 
@@ -343,9 +405,9 @@ void FetchWellPathsDialog::sslErrors(QNetworkReply*,const QList<QSslError> &erro
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::setUrl(const QString& httpAddress)
 {
-    urlLineEdit->setText(httpAddress);
+    m_urlLineEdit->setText(httpAddress);
 
-    url = httpAddress;
+    m_url = httpAddress;
 }
 
 
@@ -354,18 +416,41 @@ void FetchWellPathsDialog::setUrl(const QString& httpAddress)
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::downloadWellPaths()
 {
-    QString fileName = jsonWellPathsFilePath();
+    QString fileName = jsonWellsFilePath();
     if (QFile::exists(fileName))
     {
         QFile::remove(fileName);
 
         m_wellPathsModel->clear();
+        m_wellPathsModel->setColumnCount(2);
     }
+
+    m_currentDownloadState = DOWNLOAD_WELLS;
 
     QModelIndex mi = m_fieldListView->currentIndex();
     QString fieldName = m_fieldModel->data(mi, Qt::DisplayRole).toString();
 
-    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName + "/wellpaths";
+    QString completeUrlText = m_urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName;
+
+    if (m_filterWellsByUtmArea->isChecked())
+    {
+        completeUrlText += "/wellsInArea";
+
+        int north = m_northLineEdit->text().toInt();
+        int south = m_southLineEdit->text().toInt();
+        int east = m_eastLineEdit->text().toInt();
+        int west = m_westLineEdit->text().toInt();
+
+        completeUrlText += QString("?north=%1").arg(north);
+        completeUrlText += QString("&south=%1").arg(south);
+        completeUrlText += QString("&east=%1").arg(east);
+        completeUrlText += QString("&west=%1").arg(west);
+        completeUrlText += QString("&utmZone=32S&format=json");
+    }
+    else
+    {
+         completeUrlText += "/wells";
+    }
     
     issueHttpRequestToFile(completeUrlText, fileName);
 }
@@ -375,51 +460,24 @@ void FetchWellPathsDialog::downloadWellPaths()
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::downloadFields()
 {
-    QString wellFileName = jsonWellPathsFilePath();
+    QString wellFileName = jsonWellsFilePath();
     if (QFile::exists(wellFileName))
     {
         QFile::remove(wellFileName);
 
         m_wellPathsModel->clear();
+        m_wellPathsModel->setColumnCount(2);
     }
 
-    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects";
+    QString completeUrlText = m_urlSsiHubLineEdit->text() + "/resinsight/projects";
     QString destinationFileName = jsonFieldsFilePath();
 
+    m_currentDownloadState = DOWNLOAD_FIELDS;
     issueHttpRequestToFile(completeUrlText, destinationFileName);
 
     return;
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void FetchWellPathsDialog::downloadUtmFilterInfo()
-{
-    QString fileName = jsonWellsByArea();
-    if (QFile::exists(fileName))
-    {
-        QFile::remove(fileName);
-    }
-
-    QModelIndex mi = m_fieldListView->currentIndex();
-    QString fieldName = m_fieldModel->data(mi, Qt::DisplayRole).toString();
-
-    QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName + "/wellsByArea";
-
-    int north = m_northLineEdit->text().toInt();
-    int south = m_southLineEdit->text().toInt();
-    int east = m_eastLineEdit->text().toInt();
-    int west = m_westLineEdit->text().toInt();
-
-    completeUrlText += QString("?north=%1").arg(north);
-    completeUrlText += QString("&south=%1").arg(south);
-    completeUrlText += QString("&east=%1").arg(east);
-    completeUrlText += QString("&west=%1").arg(west);
-    completeUrlText += QString("&utmZone=32S&format=json");
-
-    issueHttpRequestToFile(completeUrlText, fileName);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -440,7 +498,7 @@ void FetchWellPathsDialog::setSsiHubUrl(const QString& httpAddress)
         validAddress = validAddress.left(validAddress.size() - 1);
     }
 
-    urlSsiHubLineEdit->setText(validAddress);
+    m_urlSsiHubLineEdit->setText(validAddress);
 }
 
 
@@ -456,7 +514,7 @@ void FetchWellPathsDialog::slotSelectionChanged(const QItemSelection & selected,
     {
         QString fieldName = m_fieldModel->data(idxList[0], Qt::DisplayRole).toString();
 
-        QString completeUrlText = urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName;
+        QString completeUrlText = m_urlSsiHubLineEdit->text() + "/resinsight/projects/" + fieldName;
         setUrl(completeUrlText);
     }
     else
@@ -507,7 +565,7 @@ QString FetchWellPathsDialog::jsonFieldsFilePath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString FetchWellPathsDialog::jsonWellPathsFilePath()
+QString FetchWellPathsDialog::jsonWellsFilePath()
 {
     return m_destinationFolder + "/wellpaths.json";
 }
@@ -516,119 +574,11 @@ QString FetchWellPathsDialog::jsonWellPathsFilePath()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString FetchWellPathsDialog::jsonWellsByArea()
+QString FetchWellPathsDialog::jsonWellsInArea()
 {
-    return m_destinationFolder + "/wellsbyarea.json";
+    return m_destinationFolder + "/wellsInArea.json";
 }
 
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void FetchWellPathsDialog::updateFromDownloadedFiles()
-{
-    updateFieldsModel();
-    extractAndUpdateSingleWellFiles();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void FetchWellPathsDialog::extractAndUpdateSingleWellFiles()
-{
-    QStringList filtereEntities;
-
-    if (m_filterWellsByUtmArea->isChecked())
-    {
-        filtereEntities = filteredWellEntities();
-    }
-
-    QString filename = jsonWellPathsFilePath();
-
-    QFile file(filename);
-    if (!file.open(QIODevice::ReadOnly))
-    {
-        return;
-    }
-
-    QString fileContent = file.readAll();
-
-    QStringList wellPathNames;
-    QStringList wellPathFileNames;
-
-    int pos = 0;
-    pos = fileContent.indexOf('{', pos);
-    while (pos >= 0)
-    {
-        int singleWellPathStart = pos;
-
-        // Move to first char after starting brace
-        pos++;
-
-        int startBracket = 1;
-        while (startBracket > 0 && pos < fileContent.size())
-        {
-            if (fileContent.at(pos) == '{')
-            {
-                startBracket++;
-            }
-            else if (fileContent.at(pos) == '}')
-            {
-                startBracket--;
-            }
-
-            pos++;
-        }
-
-        // Write out a single well path
-        {
-            QString singleWellPath = fileContent.mid(singleWellPathStart, pos - singleWellPathStart);
-            QString singleWellPathName = getValue("well", singleWellPath);
-
-            if (m_filterWellsByUtmArea->isChecked() && filtereEntities.indexOf(singleWellPathName) < 0)
-            {
-                // Outside UTM area
-            }
-            else
-            {
-                QUuid guid = QUuid::createUuid();
-
-                QString singleWellPathFilePath = m_destinationFolder + QString("/wellpath_%1.json").arg(guid);
-                QFile outputFile(singleWellPathFilePath);
-                if (outputFile.open(QIODevice::WriteOnly | QIODevice::Text))
-                {
-                    QTextStream out(&outputFile);
-                    out << singleWellPath;
-                }
-                outputFile.close();
-
-                QString wellPathName = getValue("name", singleWellPath);
-                if (wellPathFileNames.indexOf(singleWellPathFilePath) < 0)
-                {
-                    wellPathNames.push_back(wellPathName);
-                    wellPathFileNames.push_back(singleWellPathFilePath);
-                }
-            }
-        }
-
-        // Find next starting brace
-        pos = fileContent.indexOf('{', pos);
-    }
-
-    m_wellPathsModel->clear();
-    m_wellPathsModel->setRowCount(wellPathFileNames.size());
-    m_wellPathsModel->setColumnCount(2);
-
-    for (int i = 0; i < wellPathFileNames.size(); i++)
-    {
-        QModelIndex miName = m_wellPathsModel->index(i, 0);
-        m_wellPathsModel->setData(miName, wellPathNames[i]);
-
-        QModelIndex miFileName = m_wellPathsModel->index(i, 1);
-        m_wellPathsModel->setData(miFileName, wellPathFileNames[i]);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -662,19 +612,19 @@ void FetchWellPathsDialog::showEvent(QShowEvent* event)
 //  text content : "A" : "B"
 //  A search for key "A" returns B
 //--------------------------------------------------------------------------------------------------
-QString FetchWellPathsDialog::getValue(const QString& key, const QString& wellPathFileContent)
+QString FetchWellPathsDialog::getValue(const QString& key, const QString& stringContent)
 {
     QString quotedKey = "\"" + key + "\"";
 
-    int pos = wellPathFileContent.indexOf(quotedKey);
+    int pos = stringContent.indexOf(quotedKey);
     if (pos >=0)
     {
-        int valueStartPos = wellPathFileContent.indexOf("\"", pos + quotedKey.size());
-        int valueEndPos = wellPathFileContent.indexOf("\"", valueStartPos + 1);
+        int valueStartPos = stringContent.indexOf("\"", pos + quotedKey.size());
+        int valueEndPos = stringContent.indexOf("\"", valueStartPos + 1);
 
         if (valueStartPos >= 0 && valueEndPos > valueStartPos)
         {
-            return wellPathFileContent.mid(valueStartPos + 1, valueEndPos - valueStartPos - 1);
+            return stringContent.mid(valueStartPos + 1, valueEndPos - valueStartPos - 1);
         }
     }
 
@@ -686,15 +636,10 @@ QString FetchWellPathsDialog::getValue(const QString& key, const QString& wellPa
 //--------------------------------------------------------------------------------------------------
 void FetchWellPathsDialog::setRegion(int north, int south, int east, int west)
 {
-    m_north = north;
-    m_south = south;
-    m_east = east;
-    m_west = west;
-
-    m_northLineEdit->setText(QString::number(static_cast<int>(m_north)));
-    m_southLineEdit->setText(QString::number(static_cast<int>(m_south)));
-    m_eastLineEdit->setText(QString::number(static_cast<int>(m_east)));
-    m_westLineEdit->setText(QString::number(static_cast<int>(m_west)));
+    m_northLineEdit->setText(QString::number(north));
+    m_southLineEdit->setText(QString::number(south));
+    m_eastLineEdit->setText(QString::number(east));
+    m_westLineEdit->setText(QString::number(west));
 }
 
 
@@ -714,22 +659,23 @@ void FetchWellPathsDialog::issueHttpRequestToFile(QString completeUrlText, QStri
         return;
     }
 
-    progressDialog->setWindowTitle(tr("HTTP"));
-    progressDialog->setLabelText(tr("Downloading %1.").arg(destinationFileName));
+    m_progressDialog->setWindowTitle(tr("HTTP"));
+    m_progressDialog->setLabelText(tr("Downloading %1.").arg(destinationFileName));
 
     // schedule the request
-    httpRequestAborted = false;
-    startRequest(url);
+    m_httpRequestAborted = false;
+    startRequest(m_url);
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList FetchWellPathsDialog::filteredWellEntities()
+void FetchWellPathsDialog::getWellPathLinks(QStringList* surveyLinks, QStringList* planLinks)
 {
     QStringList entities;
 
-    QString filename = jsonWellsByArea();
+    QString filename = jsonWellsFilePath();
     if (QFile::exists(filename))
     {
         JsonReader jsonReader;
@@ -745,23 +691,48 @@ QStringList FetchWellPathsDialog::filteredWellEntities()
             {
                 QMap<QString, QVariant> slotMap = it.value().toMap();
                 QMap<QString, QVariant> linkMap = slotMap["links"].toMap();
-                QString entity = linkMap["entity"].toString();
-                entities.push_back(entity);
+
+                QString surveyLink = linkMap["survey"].toString();
+                surveyLinks->push_back(surveyLink);
+
+                QString planLink = linkMap["plans"].toString();
+                surveyLinks->push_back(planLink);
             }
         }
-
-        /*
-        QList<QVariant> slotList = jsonMap["slot"].toList();
-        foreach (QVariant slot, slotList)
-        {
-            QMap<QString, QVariant> slotMap = slot.toMap();
-            QString entity = slotMap["entity"].toString();
-            entities.push_back(entity);
-        }
-        */
     }
+}
 
-    return entities;
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void FetchWellPathsDialog::issueDownloadOfWellPaths(const QStringList& surveyLinks, const QStringList& planLinks)
+{
+    m_wellPathRequestQueue.clear();
+    
+    m_wellPathRequestQueue += surveyLinks;
+    m_wellPathRequestQueue += planLinks;
+
+    checkDownloadQueueAndIssueRequests();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void FetchWellPathsDialog::checkDownloadQueueAndIssueRequests()
+{
+    if (m_wellPathRequestQueue.size() > 0)
+    {
+        QString link = m_wellPathRequestQueue[0];
+        m_wellPathRequestQueue.pop_front();
+
+        QString completeUrlText = m_urlSsiHubLineEdit->text() + link;
+
+        QUuid guid = QUuid::createUuid();
+        QString singleWellPathFilePath = m_destinationFolder + QString("/wellpath_%1.json").arg(guid);
+
+        m_currentDownloadState = DOWNLOAD_WELL_PATH;
+        issueHttpRequestToFile(completeUrlText, singleWellPathFilePath);
+    }
 }
 
 
