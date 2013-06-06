@@ -65,13 +65,13 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitField(&wellPathVisibility,              "GlobalWellPathVisibility", WellVisibilityEnum(ALL_ON), "Global well path visibility",  "", "", "");
 
-    CAF_PDM_InitField(&wellPathRadiusScaleFactor,       "WellPathRadiusScale",      0.3,                        "Well Path radius scale", "", "", "");
+    CAF_PDM_InitField(&wellPathRadiusScaleFactor,       "WellPathRadiusScale",      0.1,                        "Well Path radius scale", "", "", "");
     CAF_PDM_InitField(&wellPathCrossSectionVertexCount, "WellPathVertexCount",      12,                          "Well Path vertex count", "", "", "");
     wellPathCrossSectionVertexCount.setIOWritable(false);
     wellPathCrossSectionVertexCount.setIOReadable(false);
     wellPathCrossSectionVertexCount.setUiHidden(true);
     CAF_PDM_InitField(&wellPathClip,                    "WellPathClip",             true,                       "Clip Well Paths", "", "", "");
-    CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    500,                        "Well path clipping depth distance", "", "", "");
+    CAF_PDM_InitField(&wellPathClipZDistance,           "WellPathClipZDistance",    100,                        "Well path clipping depth distance", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellPaths,              "WellPaths",                                            "Well Paths",  "", "", "");
 
