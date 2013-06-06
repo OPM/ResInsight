@@ -63,6 +63,9 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "RimProject.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

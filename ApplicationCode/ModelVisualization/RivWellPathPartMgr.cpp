@@ -48,6 +48,8 @@
 #include "cvfRay.h"
 #include "cafEffectGenerator.h"
 #include "cvfqtUtils.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -249,6 +251,7 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
     {
         if (it->m_surfacePart.notNull())
         {
+            //printf("a");
             model->addPart(it->m_surfacePart.p());
         }
         if (it->m_centerLinePart.notNull())

@@ -57,6 +57,8 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCaseCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 

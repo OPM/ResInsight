@@ -38,6 +38,8 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");

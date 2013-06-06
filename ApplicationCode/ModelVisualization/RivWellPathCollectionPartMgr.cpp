@@ -35,6 +35,8 @@
 #include "RivWellPathPartMgr.h"
 #include "RimWellPathCollection.h"
 #include "RimCellRangeFilterCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 
 //--------------------------------------------------------------------------------------------------

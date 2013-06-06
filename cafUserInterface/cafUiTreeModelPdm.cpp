@@ -526,7 +526,17 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
     }
 
     // NOTE: if position is -1, the item is appended to the parent tree item
-    PdmUiTreeItem* objectTreeItem = new PdmUiTreeItem(parentTreeItem, position, object);
+    PdmUiTreeItem* objectTreeItem = NULL;
+    std::vector<caf::PdmFieldHandle*> parentFields;
+    object->parentFields(parentFields);
+    if (parentFields.size() == 1 && parentFields[0]->isUiHidden())
+    {
+        objectTreeItem = parentTreeItem;
+    }
+    else
+    {
+        objectTreeItem = new PdmUiTreeItem(parentTreeItem, position, object);
+    }
 
     std::vector<caf::PdmFieldHandle*> fields;
     object->fields(fields);
@@ -535,7 +545,6 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
     for (it = fields.begin(); it != fields.end(); it++)
     {
         caf::PdmFieldHandle* field = *it;
-        if (field->isUiHidden()) continue;
 
         std::vector<caf::PdmObject*> children;
         field->childObjects(&children);

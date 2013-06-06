@@ -47,6 +47,8 @@
 
 #include "cafFactory.h"
 #include "RigGridBase.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 
 //--------------------------------------------------------------------------------------------------

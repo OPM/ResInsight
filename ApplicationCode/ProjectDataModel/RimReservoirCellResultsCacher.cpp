@@ -45,6 +45,8 @@
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimWellPathCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
