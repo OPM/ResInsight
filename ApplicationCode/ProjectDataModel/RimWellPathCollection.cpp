@@ -37,6 +37,8 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "RimWellCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 namespace caf
 {
@@ -63,8 +65,8 @@ RimWellPathCollection::RimWellPathCollection()
 
     CAF_PDM_InitField(&wellPathVisibility,              "GlobalWellPathVisibility", WellVisibilityEnum(ALL_ON), "Global well path visibility",  "", "", "");
 
-    CAF_PDM_InitField(&wellPathRadiusScaleFactor,       "WellPathRadiusScale",      0.5,                        "Well Path radius scale", "", "", "");
-    CAF_PDM_InitField(&wellPathCrossSectionVertexCount, "WellPathVertexCount",      12,                          "Pipe vertex count", "", "", "");
+    CAF_PDM_InitField(&wellPathRadiusScaleFactor,       "WellPathRadiusScale",      0.3,                        "Well Path radius scale", "", "", "");
+    CAF_PDM_InitField(&wellPathCrossSectionVertexCount, "WellPathVertexCount",      12,                          "Well Path vertex count", "", "", "");
     wellPathCrossSectionVertexCount.setIOWritable(false);
     wellPathCrossSectionVertexCount.setIOReadable(false);
     wellPathCrossSectionVertexCount.setUiHidden(true);

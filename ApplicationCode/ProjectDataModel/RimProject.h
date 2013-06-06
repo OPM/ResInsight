@@ -20,6 +20,7 @@
 
 #include "cafPdmDocument.h"
 
+class RimOilField;
 class RimCase;
 class RigGridManager;
 class RimScriptCollection;
@@ -40,37 +41,30 @@ public:
     RimProject(void);
     virtual ~RimProject(void);
 
-    caf::PdmPointersField<RimCase*>                     reservoirs;
-    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
+    caf::PdmPointersField<RimOilField*>                 oilFields;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
     caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
-	caf::PdmField<RimWellPathCollection*>               wellPathCollection;
+    caf::PdmPointersField<RimCase*>                     casesObsolete; // obsolete
+    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
 
     void            setScriptDirectories(const QString& scriptDirectories);
     QString         projectFileVersionString() const;
     void            close();
-
-    RimIdenticalGridCaseGroup* 
-                    createIdenticalCaseGroupFromMainCase(RimCase* mainCase);
-    void            insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
-    void            moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
-    void            removeCaseFromAllGroups(RimCase* rimReservoir);
 
     void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
 
     void            assignCaseIdToCase(RimCase* reservoirCase);
     void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
 
-    void            allCases(std::vector<RimCase*>& cases);
-    void            createDisplayModelAndRedrawAllViews();
+    void            allCases(std::vector<RimCase*>& cases); // VL endre impl
+    void            createDisplayModelAndRedrawAllViews(); // VL endre impl
 
     void            computeUtmAreaOfInterest(double* north, double* south, double* east, double* west);
 
-private:
-    RigMainGrid*    registerCaseInGridCollection(RigCaseData* rigEclipseCase);
+    RimOilField*    activeOilField();
 
 protected:
     // Overridden methods
@@ -80,5 +74,4 @@ protected:
 
 private:
     caf::PdmField<QString>      m_projectFileVersionString;
-    cvf::ref<RigGridManager>    m_gridCollection;
 };

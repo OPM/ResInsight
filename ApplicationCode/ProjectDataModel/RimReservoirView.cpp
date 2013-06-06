@@ -43,6 +43,8 @@
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 #include "RiuMainWindow.h"
 #include "RigGridBase.h"
@@ -195,7 +197,6 @@ RimReservoirView::~RimReservoirView()
     delete rangeFilterCollection();
     delete propertyFilterCollection();
     delete wellCollection();
-//     delete wellPathCollection();
 
     if (m_viewer)
     {
@@ -354,7 +355,8 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         if (scaleZ < 1) scaleZ = 1;
 
         // Regenerate well paths
-		RimWellPathCollection* wellPathCollection = (RiaApplication::instance() && RiaApplication::instance()->project()) ? RiaApplication::instance()->project()->wellPathCollection() : NULL;
+        RimOilField* oilFields = RiaApplication::instance()->project() ? RiaApplication::instance()->project()->activeOilField() : NULL;
+		RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
         if (wellPathCollection) wellPathCollection->wellPathCollectionPartMgr()->scheduleGeometryRegen();
 
         if (m_viewer)
@@ -480,6 +482,8 @@ void RimReservoirView::updateScaleTransform()
     if (m_viewer) m_viewer->updateCachedValuesInScene();
 }
 
+
+
 //--------------------------------------------------------------------------------------------------
 /// Create display model,
 /// or at least empty scenes as frames that is delivered to the viewer
@@ -583,19 +587,6 @@ void RimReservoirView::createDisplayModel()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), geometryTypesToAdd[gtIdx], gridIndices); 
             }
-
-            // Append static Well Paths to model
-            cvf::Vec3d displayModelOffset = eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
-            double characteristicCellSize = eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
-            cvf::BoundingBox boundingBox = currentActiveCellInfo()->geometryBoundingBox();
-            RimProject* rimProject = RiaApplication::instance() ? RiaApplication::instance()->project() : NULL;
-            RivWellPathCollectionPartMgr* wellPathCollectionPartMgr = (rimProject && rimProject->wellPathCollection()) ? rimProject->wellPathCollection()->wellPathCollectionPartMgr() : NULL;
-            if (wellPathCollectionPartMgr)
-            {
-                printf("Append well paths for frame %i: ", frameIdx);
-                wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(frameModels[frameIdx].p(), displayModelOffset, m_reservoirGridPartManager->scaleTransform(), characteristicCellSize, boundingBox); 
-                printf("\n");
-            }
         }
 
         // Set static colors 
@@ -603,7 +594,7 @@ void RimReservoirView::createDisplayModel()
 
         m_visibleGridParts = geometryTypesToAdd;
     }
-
+    
     // Compute triangle count, Debug only
 
     if (false)
@@ -726,35 +717,75 @@ void RimReservoirView::updateCurrentTimeStep()
         }
     }
 
-    // Well pipes
+    // Well pipes and well paths
     if (m_viewer)
     {
         cvf::Scene* frameScene = m_viewer->frame(m_currentTimeStep);
         if (frameScene)
         {
-            cvf::String modelName = "WellPipeModel";
-            std::vector<cvf::Model*> models;
+            // Well pipes
+            // ----------
+            cvf::String wellPipeModelName = "WellPipeModel";
+            std::vector<cvf::Model*> wellPipeModels;
             for (cvf::uint i = 0; i < frameScene->modelCount(); i++)
             {
-                if (frameScene->model(i)->name() == modelName)
+                if (frameScene->model(i)->name() == wellPipeModelName)
                 {
-                    models.push_back(frameScene->model(i));
+                    wellPipeModels.push_back(frameScene->model(i));
                 }
             }
 
-            for (size_t i = 0; i < models.size(); i++)
+            for (size_t i = 0; i < wellPipeModels.size(); i++)
             {
-                frameScene->removeModel(models[i]);
+                printf("updateCurrentTimeStep: Remove WellPipeModel %i from frameScene\n", i);
+                frameScene->removeModel(wellPipeModels[i]);
             }
 
-            cvf::ref<cvf::ModelBasicList> pipeModel = new cvf::ModelBasicList;
-            pipeModel->setName(modelName);
+            cvf::ref<cvf::ModelBasicList> wellPipeModelBasicList = new cvf::ModelBasicList;
+            wellPipeModelBasicList->setName(wellPipeModelName);
 
-            m_pipesPartManager->appendDynamicGeometryPartsToModel(pipeModel.p(), m_currentTimeStep);
+            m_pipesPartManager->appendDynamicGeometryPartsToModel(wellPipeModelBasicList.p(), m_currentTimeStep);
             m_pipesPartManager->updatePipeResultColor(m_currentTimeStep);
 
-            pipeModel->updateBoundingBoxesRecursive();
-            frameScene->addModel(pipeModel.p());
+            wellPipeModelBasicList->updateBoundingBoxesRecursive();
+            printf("updateCurrentTimeStep: Add WellPipeModel to frameScene\n");
+            frameScene->addModel(wellPipeModelBasicList.p());
+            
+            // Well paths
+            // ----------
+            cvf::String wellPathModelName = "WellPathModel";
+            std::vector<cvf::Model*> wellPathModels;
+            for (cvf::uint i = 0; i < frameScene->modelCount(); i++)
+            {
+                if (frameScene->model(i)->name() == wellPathModelName)
+                {
+                    wellPathModels.push_back(frameScene->model(i));
+                }
+            }
+
+            for (size_t i = 0; i < wellPathModels.size(); i++)
+            {
+                printf("updateCurrentTimeStep: Remove WellPathModel %i from frameScene\n", i);
+                frameScene->removeModel(wellPathModels[i]);
+            }
+
+            // Append static Well Paths to model
+            cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
+            wellPathModelBasicList->setName(wellPathModelName);
+            RimOilField* oilFields = (RiaApplication::instance()->project()) ? RiaApplication::instance()->project()->activeOilField() : NULL;
+            RimWellPathCollection* wellPathCollection = (oilFields) ? oilFields->wellPathCollection() : NULL;
+            RivWellPathCollectionPartMgr* wellPathCollectionPartMgr = (wellPathCollection) ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
+            if (wellPathCollectionPartMgr)
+            {
+                printf("updateCurrentTimeStep: Append well paths for frame %i: ", m_currentTimeStep);
+                cvf::Vec3d displayModelOffset = eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
+                double characteristicCellSize = eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+                cvf::BoundingBox boundingBox = currentActiveCellInfo()->geometryBoundingBox();
+                wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList.p(), displayModelOffset, m_reservoirGridPartManager->scaleTransform(), characteristicCellSize, boundingBox); 
+                printf("\n");
+            }
+            wellPathModelBasicList->updateBoundingBoxesRecursive();
+            frameScene->addModel(wellPathModelBasicList.p());
         }
     }
 

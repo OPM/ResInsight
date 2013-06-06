@@ -22,6 +22,8 @@
 #include "RiaApplication.h"
 
 #include "RimProject.h"
+#include "RimAnalysisModels.h"
+#include "RimOilField.h"
 #include "RimReservoirView.h"
 #include "RimUiTreeView.h"
 #include "RimCase.h"
@@ -1068,78 +1070,86 @@ void RiuMainWindow::slotSubWindowActivated(QMdiSubWindow* subWindow)
     RimProject * proj = RiaApplication::instance()->project();
     if (!proj) return;
 
-    size_t i;
-    for (i = 0; i < proj->reservoirs().size(); ++i)
+    // Iterate all cases in each oil field
+    for (size_t oilFieldIdx = 0; oilFieldIdx < proj->oilFields().size(); oilFieldIdx++)
     {
-        RimCase* ri = proj->reservoirs()[i];
-        if (!ri) continue;
+        RimOilField* oilField = proj->oilFields[oilFieldIdx];
+        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        if (analysisModels == NULL) continue;
 
-        size_t j;
-        for (j = 0; j < ri->reservoirViews().size(); j++)
+        for (size_t caseIdx = 0; caseIdx < analysisModels->cases().size(); caseIdx++)
         {
-            RimReservoirView* riv = ri->reservoirViews()[j];
+            RimCase* reservoirCase = analysisModels->cases[caseIdx];
+            if (reservoirCase == NULL) continue;
 
-            if (riv &&
-                riv->viewer() &&
-                riv->viewer()->layoutWidget() &&
-                riv->viewer()->layoutWidget()->parent() == subWindow)
+            size_t viewIdx;
+            for (viewIdx = 0; viewIdx < reservoirCase->reservoirViews().size(); viewIdx++)
             {
-                RimReservoirView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
-                RiaApplication::instance()->setActiveReservoirView(riv);
-                if (previousActiveReservoirView && previousActiveReservoirView != riv)
+                RimReservoirView* riv = reservoirCase->reservoirViews()[viewIdx];
+
+                if (riv &&
+                    riv->viewer() &&
+                    riv->viewer()->layoutWidget() &&
+                    riv->viewer()->layoutWidget()->parent() == subWindow)
                 {
-                    QModelIndex previousViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(previousActiveReservoirView);
-                    QModelIndex newViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(riv);
-
-                    QModelIndex newSelectionIndex = newViewModelIndex;
-                    QModelIndex currentSelectionIndex = m_treeView->selectionModel()->currentIndex();
-                    
-                    if (currentSelectionIndex != newViewModelIndex &&
-                        currentSelectionIndex.isValid())
+                    RimReservoirView* previousActiveReservoirView = RiaApplication::instance()->activeReservoirView();
+                    RiaApplication::instance()->setActiveReservoirView(riv);
+                    if (previousActiveReservoirView && previousActiveReservoirView != riv)
                     {
-                        QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+                        QModelIndex previousViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(previousActiveReservoirView);
+                        QModelIndex newViewModelIndex = m_treeModelPdm->getModelIndexFromPdmObject(riv);
 
-                        QModelIndex tmpModelIndex = currentSelectionIndex;
+                        QModelIndex newSelectionIndex = newViewModelIndex;
+                        QModelIndex currentSelectionIndex = m_treeView->selectionModel()->currentIndex();
 
-                        while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
+                        if (currentSelectionIndex != newViewModelIndex &&
+                            currentSelectionIndex.isValid())
                         {
-                            // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
-                            route.push_front(tmpModelIndex);    
+                            QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
 
-                            tmpModelIndex = tmpModelIndex.parent();
-                        }
+                            QModelIndex tmpModelIndex = currentSelectionIndex;
 
-                        // Traverse model indices from new view index to currently selected item
-                        int i;
-                        for (i = 0; i < route.size(); i++)
-                        {
-                            QModelIndex tmp = route[i];
-                            if (newSelectionIndex.isValid())
+                            while (tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex)
                             {
-                                newSelectionIndex = m_treeModelPdm->index(tmp.row(), tmp.column(), newSelectionIndex);
+                                // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
+                                route.push_front(tmpModelIndex);    
+
+                                tmpModelIndex = tmpModelIndex.parent();
+                            }
+
+                            // Traverse model indices from new view index to currently selected item
+                            int i;
+                            for (i = 0; i < route.size(); i++)
+                            {
+                                QModelIndex tmp = route[i];
+                                if (newSelectionIndex.isValid())
+                                {
+                                    newSelectionIndex = m_treeModelPdm->index(tmp.row(), tmp.column(), newSelectionIndex);
+                                }
+                            }
+
+                            // Use view model index if anything goes wrong
+                            if (!newSelectionIndex.isValid())
+                            {
+                                newSelectionIndex = newViewModelIndex;
                             }
                         }
 
-                        // Use view model index if anything goes wrong
-                        if (!newSelectionIndex.isValid())
+                        m_treeView->setCurrentIndex(newSelectionIndex);
+                        if (newSelectionIndex != newViewModelIndex)
                         {
-                            newSelectionIndex = newViewModelIndex;
+                            m_treeView->setExpanded(newViewModelIndex, true);
                         }
                     }
 
-                    m_treeView->setCurrentIndex(newSelectionIndex);
-                    if (newSelectionIndex != newViewModelIndex)
-                    {
-                        m_treeView->setExpanded(newViewModelIndex, true);
-                    }
+                    slotRefreshViewActions();
+                    refreshAnimationActions();
+                    refreshDrawStyleActions();
+                    break;
                 }
-
-                slotRefreshViewActions();
-                refreshAnimationActions();
-                refreshDrawStyleActions();
-                break;
             }
         }
+
     }
 }
 

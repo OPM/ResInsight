@@ -39,6 +39,8 @@
 #include "RimCaseCollection.h"
 #include "RimScriptCollection.h"
 #include "RimWellPathCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 
 
@@ -168,17 +170,19 @@ public:
     static QString commandName () { return QString("GetCaseGroups"); }
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        if (RiaApplication::instance()->project())
+        RimProject* proj = RiaApplication::instance()->project();
+        RimAnalysisModels* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        if (analysisModels)
         {
             std::vector<QString> groupNames;
             std::vector<qint64> groupIds;
 
-            size_t caseGroupCount = RiaApplication::instance()->project()->caseGroups().size();
+            size_t caseGroupCount = analysisModels->caseGroups().size();
             quint64 byteCount = 0;
 
             for (size_t i = 0; i < caseGroupCount; i++)
             {
-                RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
+                RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];
 
                 QString caseGroupName = cg->name;
                 qint64 caseGroupId = cg->groupId;
@@ -231,9 +235,10 @@ public:
             argCaseGroupId = args[1].toInt();
         }
 
-        if (RiaApplication::instance()->project())
+        RimProject* proj = RiaApplication::instance()->project();
+        RimAnalysisModels* analysisModels = (proj && proj->activeOilField()) ? proj->activeOilField()->analysisModels() : NULL;
+        if (analysisModels)
         {
-            RimProject* proj = RiaApplication::instance()->project();
 
             std::vector<RimCase*> cases;
             if (argCaseGroupId == -1)
@@ -243,9 +248,9 @@ public:
             else
             {
                 RimIdenticalGridCaseGroup* caseGroup = NULL;
-                for (size_t i = 0; i < RiaApplication::instance()->project()->caseGroups().size(); i++)
+                for (size_t i = 0; i < analysisModels->caseGroups().size(); i++)
                 {
-                    RimIdenticalGridCaseGroup* cg = RiaApplication::instance()->project()->caseGroups()[i];
+                    RimIdenticalGridCaseGroup* cg = analysisModels->caseGroups()[i];
 
                     if (argCaseGroupId == cg->groupId())
                     {

@@ -37,6 +37,8 @@
 #include "RimReservoirView.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
@@ -280,93 +282,48 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
     ///////
     // Load the external data, and initialize stuff that needs specific ordering
+    
+    // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = projectFileName;
     writePreferences();
 
-    for (size_t cgIdx = 0; cgIdx < m_project->caseGroups.size(); ++cgIdx)
+    for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
-        // Load the Main case of each IdenticalGridCaseGroup
+        RimOilField* oilField = m_project->oilFields[oilFieldIdx];
+        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        if (analysisModels == NULL) continue;
 
-        RimIdenticalGridCaseGroup* igcg = m_project->caseGroups[cgIdx];
-        igcg->loadMainCaseAndActiveCellInfo();
+        for (size_t cgIdx = 0; cgIdx < analysisModels->caseGroups.size(); ++cgIdx)
+        {
+            // Load the Main case of each IdenticalGridCaseGroup
+            RimIdenticalGridCaseGroup* igcg = analysisModels->caseGroups[cgIdx];
+            igcg->loadMainCaseAndActiveCellInfo(); // VL is this supposed to be done for each RimOilField?
+        }
+    }
+
+    // Add well paths for each oil field
+    for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
+    {
+        RimOilField* oilField = m_project->oilFields[oilFieldIdx];
+        if (oilField == NULL) continue;        
+        if (oilField->wellPathCollection == NULL)
+        {
+            printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
+            oilField->wellPathCollection = new RimWellPathCollection();
+            oilField->wellPathCollection->setProject(m_project);
+        }
+
+        if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
     }
 
     // Now load the ReservoirViews for the cases
-
-    std::vector<RimCase*> casesToLoad;
-
     // Add all "native" cases in the project
-    for (size_t cIdx = 0; cIdx < m_project->reservoirs().size(); ++cIdx)
-    {
-        casesToLoad.push_back(m_project->reservoirs()[cIdx]);
-    }
-
-    for (size_t cgIdx = 0; cgIdx < m_project->caseGroups().size(); ++cgIdx)
-    {
-        // Add all statistics cases as well
-        if (m_project->caseGroups[cgIdx]->statisticsCaseCollection())
-        {
-            caf::PdmPointersField<RimCase*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->reservoirs();
-            for (size_t scIdx = 0; scIdx < statCases.size(); ++scIdx)
-            {
-                casesToLoad.push_back(statCases[scIdx]);
-            }
-        }
-
-        // Add all source cases in a case group with a view attached
-        if (m_project->caseGroups[cgIdx]->caseCollection())
-        {
-            caf::PdmPointersField<RimCase*> & sourceCases = m_project->caseGroups[cgIdx]->caseCollection()->reservoirs();
-            for (size_t scIdx = 0; scIdx < sourceCases.size(); ++scIdx)
-            {
-                if (sourceCases[scIdx]->reservoirViews().size() > 0)
-                {
-                    casesToLoad.push_back(sourceCases[scIdx]);
-                }
-            }
-        }
-    }
-
-
-
-    // Add well paths
-    if (m_project->wellPathCollection == NULL)
-    {
-        printf("Create well path collection in loadProject.\n");
-        m_project->wellPathCollection = new RimWellPathCollection();
-        m_project->wellPathCollection->setProject(m_project);
-    }
-
-#if 1
-    if (m_project && m_project->wellPathCollection) m_project->wellPathCollection->readWellPathFiles();
-#else
-    // TESTCODE begin: Add hardcoded well paths from file
-    if (m_project && m_project->wellPathCollection->wellPaths.size() == 0)
-    {
-        QFile wellPathFile;
-        wellPathFile.setFileName("c:\\temp\\wellPaths.txt");
-        wellPathFile.open(QIODevice::ReadOnly | QIODevice::Text);
-        QByteArray filePath;
-        QList<QString> wellPathFilePaths;
-        for (filePath = wellPathFile.readLine().trimmed(); !wellPathFile.atEnd(); filePath = wellPathFile.readLine().trimmed())
-        {
-            if (filePath[0] == '#' || filePath.isEmpty())
-                continue;
-            wellPathFilePaths.push_back(filePath);
-        }
-        addWellPathsToModel(wellPathFilePaths);
-    }
-    else
-    {
-        // Read the well path files specified in the model (RimWellPathCollection / RimWellPath) into geometries (RigWellPath)
-        if (m_project && m_project->wellPathCollection) m_project->wellPathCollection->readWellPathFiles();
-    }
-    // TESTCODE end
-#endif
+    std::vector<RimCase*> casesToLoad;
+    m_project->allCases(casesToLoad);
 
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
-
+    
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
         RimCase* ri = casesToLoad[cIdx];
@@ -403,20 +360,22 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
 {
-    if (m_project == NULL) return;
-    if (m_project->wellPathCollection == NULL)
+    if (m_project == NULL || m_project->oilFields.size() < 1) return;
+
+    RimOilField* oilField = m_project->activeOilField();
+    if (oilField == NULL) return;
+
+    if (oilField->wellPathCollection == NULL)
     {
         printf("Create well path collection.\n");
-        m_project->wellPathCollection = new RimWellPathCollection();
-        m_project->wellPathCollection->setProject(m_project);
+        oilField->wellPathCollection = new RimWellPathCollection();
+        oilField->wellPathCollection->setProject(m_project);
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
     }
 
-    if (m_project->wellPathCollection->wellPaths.empty())
-        printf("Well path collection is empty.\n");
-    if (m_project && m_project->wellPathCollection) m_project->wellPathCollection->addWellPaths(wellPathFilePaths);
+    if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
-    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project->wellPathCollection);
+    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
 }
 
 
@@ -537,8 +496,7 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     onProjectOpenedOrClosed();
 
-    return true;
-    
+    return true;    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -587,7 +545,10 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimResultCase* rimResultReservoir = new RimResultCase();
     rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
-    m_project->reservoirs.push_back(rimResultReservoir);
+    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    if (analysisModels == NULL) return false;
+
+    analysisModels->cases.push_back(rimResultReservoir);
 
     RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
@@ -628,7 +589,10 @@ bool RiaApplication::openInputEclipseCase(const QString& caseName, const QString
     rimInputReservoir->caseUserDescription = caseName;
     rimInputReservoir->openDataFileSet(caseFileNames);
 
-    m_project->reservoirs.push_back(rimInputReservoir);
+    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    if (analysisModels == NULL) return false;
+
+    analysisModels->cases.push_back(rimInputReservoir);
 
     RimReservoirView* riv = rimInputReservoir->createAndAddReservoirView();
 
@@ -1324,9 +1288,12 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
     QString snapshotPath = projectDir.absolutePath();
     snapshotPath += "/" + snapshotFolderName;
 
-    for (size_t i = 0; i < m_project->reservoirs().size(); ++i)
+    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    if (analysisModels == NULL) return;
+
+    for (size_t i = 0; i < analysisModels->cases().size(); ++i)
     {
-        RimCase* ri = m_project->reservoirs()[i];
+        RimCase* ri = analysisModels->cases()[i];
         if (!ri) continue;
 
         for (size_t j = 0; j < ri->reservoirViews().size(); j++)
@@ -1519,7 +1486,11 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
 
         mainResultCase = rimResultReservoir;
-        gridCaseGroup = m_project->createIdenticalCaseGroupFromMainCase(mainResultCase);
+        RimOilField* oilField = m_project->activeOilField();
+        if (oilField && oilField->analysisModels())
+        {
+            gridCaseGroup = oilField->analysisModels->createIdenticalCaseGroupFromMainCase(mainResultCase);
+        }
     }
 
     caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
@@ -1542,7 +1513,11 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         {
             if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
             {
-                m_project->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
+                RimOilField* oilField = m_project->activeOilField();
+                if (oilField && oilField->analysisModels())
+                {
+                    oilField->analysisModels()->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
+                }
             }
             else
             {
