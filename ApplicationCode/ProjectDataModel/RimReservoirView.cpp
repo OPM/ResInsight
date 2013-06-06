@@ -652,7 +652,7 @@ void RimReservoirView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateCurrentTimeStep()
 {
-
+    printf("########## updateCurrentTimeStep for frame %i ##########\n", m_currentTimeStep.v());
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
 
     if (this->propertyFilterCollection()->hasActiveFilters())
@@ -737,7 +737,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
             for (size_t i = 0; i < wellPipeModels.size(); i++)
             {
-                printf("updateCurrentTimeStep: Remove WellPipeModel %i from frameScene\n", i);
+                //printf("updateCurrentTimeStep: Remove WellPipeModel %i from frameScene, for frame %i\n", i, m_currentTimeStep.v());
                 frameScene->removeModel(wellPipeModels[i]);
             }
 
@@ -748,7 +748,7 @@ void RimReservoirView::updateCurrentTimeStep()
             m_pipesPartManager->updatePipeResultColor(m_currentTimeStep);
 
             wellPipeModelBasicList->updateBoundingBoxesRecursive();
-            printf("updateCurrentTimeStep: Add WellPipeModel to frameScene\n");
+            //printf("updateCurrentTimeStep: Add WellPipeModel to frameScene\n");
             frameScene->addModel(wellPipeModelBasicList.p());
             
             // Well paths
@@ -765,7 +765,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
             for (size_t i = 0; i < wellPathModels.size(); i++)
             {
-                printf("updateCurrentTimeStep: Remove WellPathModel %i from frameScene\n", i);
+                printf("updateCurrentTimeStep: Remove WellPathModel %i from frameScene, for frame %i\n", i, m_currentTimeStep.v());
                 frameScene->removeModel(wellPathModels[i]);
             }
 
@@ -777,7 +777,7 @@ void RimReservoirView::updateCurrentTimeStep()
             RivWellPathCollectionPartMgr* wellPathCollectionPartMgr = (wellPathCollection) ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
             if (wellPathCollectionPartMgr)
             {
-                printf("updateCurrentTimeStep: Append well paths for frame %i: ", m_currentTimeStep);
+                printf("updateCurrentTimeStep: Append well paths for frame %i: ", m_currentTimeStep.v());
                 cvf::Vec3d displayModelOffset = eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
                 double characteristicCellSize = eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
                 cvf::BoundingBox boundingBox = currentActiveCellInfo()->geometryBoundingBox();
