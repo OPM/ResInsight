@@ -525,8 +525,14 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
         return NULL;
     }
 
-    // NOTE: if position is -1, the item is appended to the parent tree item
+  
     PdmUiTreeItem* objectTreeItem = NULL;
+
+    // Ignore this particular object if the field it resides in is hidden.
+    // Child objects of this object, however, is not hidden
+    // Todo: This is a Hack to make oilField disappear. Must be rewritten when 
+    // a more general ui tree building method is in place.
+
     std::vector<caf::PdmFieldHandle*> parentFields;
     object->parentFields(parentFields);
     if (parentFields.size() == 1 && parentFields[0]->isUiHidden())

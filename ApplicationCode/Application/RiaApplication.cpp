@@ -565,12 +565,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
 
-    // New case is inserted before the last item, the script item
-    int position = projectTreeItem->childCount() - 1;
-
-    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimResultReservoir);
+    uiModel->updateUiSubTree(analysisModels);
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
@@ -607,12 +603,7 @@ bool RiaApplication::openInputEclipseCase(const QString& caseName, const QString
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
-
-    // New case is inserted before the last item, the script item
-    int position = projectTreeItem->childCount() - 1;
-
-    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimInputReservoir);
+    uiModel->updateUiSubTree(analysisModels);
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
@@ -1533,12 +1524,8 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
-
-    // New case is inserted before the last item, the script item
-    int position = projectTreeItem->childCount() - 1;
-
-    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, gridCaseGroup);
+ 
+    uiModel->updateUiSubTree( m_project->activeOilField()->analysisModels());
 
     if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
     {

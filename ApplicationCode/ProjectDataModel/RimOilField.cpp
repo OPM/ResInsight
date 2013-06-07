@@ -51,8 +51,10 @@ CAF_PDM_SOURCE_INIT(RimOilField, "ResInsightOilField");
 //--------------------------------------------------------------------------------------------------
 RimOilField::RimOilField(void)
 {
-    CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
+    CAF_PDM_InitObject("Oil Field", "", "", "");
+
     CAF_PDM_InitFieldNoDefault(&analysisModels, "AnalysisModels", "Grid Models", ":/GridModels.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellPathCollection, "WellPathCollection", "Well Paths", ":/WellCollection.png", "", "");
     
     analysisModels = new RimAnalysisModels();
 }

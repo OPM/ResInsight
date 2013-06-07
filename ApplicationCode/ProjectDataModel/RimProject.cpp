@@ -84,6 +84,9 @@ RimProject::RimProject(void)
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
 
+    // For now, create a default first oilfield that contains the rest of the project
+    oilFields.push_back(new RimOilField);
+
     initScriptDirectories();
 }
 

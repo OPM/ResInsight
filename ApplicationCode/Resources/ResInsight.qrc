@@ -39,6 +39,7 @@
 		<file>SnapShotSaveViews.png</file>
 		<file>draw_style_faults_24x24.png</file>
 		<file>Case48x48.png</file>
+		<file>GridModels.png</file>
 	</qresource>
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>
