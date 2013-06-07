@@ -97,7 +97,7 @@ public:
         std::vector<double> cellCenterValues(doubleValueCount);
         cvf::Vec3d cornerVerts[8];
         quint64 coordCount = 0;
-        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
+        for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
             for (size_t k = 0; k < cellCountK; k++)
             {
@@ -199,7 +199,7 @@ public:
 
         std::vector<double> cellCenterValues(doubleValueCount);
         quint64 coordCount = 0;
-        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
+        for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
             for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
             {
@@ -293,7 +293,7 @@ public:
         std::vector<double> cellCornerValues(doubleValueCount);
         cvf::Vec3d cornerVerts[8];
         quint64 coordCount = 0;
-        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
+        for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
             for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
@@ -401,7 +401,7 @@ public:
         std::vector<double> cellCornerValues(doubleValueCount);
         cvf::Vec3d cornerVerts[8];
         quint64 coordCount = 0;
-        for (size_t coordIdx = 0; coordIdx < 3; coordIdx++)
+        for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
             for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
