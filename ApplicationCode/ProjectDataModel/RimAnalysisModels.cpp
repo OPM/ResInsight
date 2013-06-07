@@ -55,7 +55,7 @@ CAF_PDM_SOURCE_INIT(RimAnalysisModels, "ResInsightAnalysisModels");
 //--------------------------------------------------------------------------------------------------
 RimAnalysisModels::RimAnalysisModels(void)
 {
-    CAF_PDM_InitObject("Grid Models", ":/GridModels.png", "", "");
+    CAF_PDM_InitObject("Grid Models", ":/Cases16x16.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&cases, "Reservoirs", "",  "", "", "");
     CAF_PDM_InitFieldNoDefault(&caseGroups, "CaseGroups", "",  "", "", "");
