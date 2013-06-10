@@ -122,6 +122,9 @@ private:
     QLineEdit*          m_eastLineEdit;
     QLineEdit*          m_westLineEdit;
 
+    QCheckBox*          m_importSurveyCheckBox;
+    QCheckBox*          m_importPlansCheckBox;
+
     QProgressDialog*    m_progressDialog;
     QPushButton*        m_downloadWellPathsButton;
     QDialogButtonBox*   m_buttonBox;

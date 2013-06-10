@@ -76,6 +76,7 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     m_westLineEdit = new QLineEdit;
 
 
+
     QGroupBox* utmAreaGropBox = new QGroupBox("UTM filter by area");
     QGridLayout *utmAreaLayout = new QGridLayout;
     utmAreaLayout->addWidget(m_filterWellsByUtmArea, 0, 1);
@@ -88,6 +89,22 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     utmAreaLayout->addWidget(new QLabel("West"),    2, 2);
     utmAreaLayout->addWidget(m_westLineEdit,        2, 3);
     utmAreaGropBox->setLayout(utmAreaLayout);
+
+
+    // Well types
+
+    m_importSurveyCheckBox = new QCheckBox("Survey");
+    m_importSurveyCheckBox->setChecked(true);
+    m_importPlansCheckBox = new QCheckBox("Plans");
+    m_importPlansCheckBox->setChecked(true);
+
+    QGroupBox* wellTypeGropBox = new QGroupBox("Include well types");
+    QHBoxLayout* wellTypeLayout = new QHBoxLayout;
+    wellTypeLayout->addWidget(m_importSurveyCheckBox);
+    wellTypeLayout->addWidget(m_importPlansCheckBox);
+    wellTypeGropBox->setLayout(wellTypeLayout);
+
+
 
     m_downloadWellPathsButton = new QPushButton(tr("Get well paths"));
     m_downloadWellPathsButton->setDefault(true);
@@ -137,6 +154,7 @@ FetchWellPathsDialog::FetchWellPathsDialog(QWidget *parent)
     mainLayout->addLayout(ssihubLayout);
     mainLayout->addWidget(m_statusLabel);
     mainLayout->addWidget(utmAreaGropBox);
+    mainLayout->addWidget(wellTypeGropBox);
     mainLayout->addWidget(m_buttonBox);
     mainLayout->addWidget(m_wellPathsView);
     mainLayout->addWidget(buttonBox1);
@@ -696,7 +714,7 @@ void FetchWellPathsDialog::getWellPathLinks(QStringList* surveyLinks, QStringLis
                 surveyLinks->push_back(surveyLink);
 
                 QString planLink = linkMap["plans"].toString();
-                surveyLinks->push_back(planLink);
+                planLinks->push_back(planLink);
             }
         }
     }
@@ -709,8 +727,15 @@ void FetchWellPathsDialog::issueDownloadOfWellPaths(const QStringList& surveyLin
 {
     m_wellPathRequestQueue.clear();
     
-    m_wellPathRequestQueue += surveyLinks;
-    m_wellPathRequestQueue += planLinks;
+    if (m_importSurveyCheckBox->isChecked())
+    {
+        m_wellPathRequestQueue += surveyLinks;
+    }
+
+    if (m_importPlansCheckBox->isChecked())
+    {
+        m_wellPathRequestQueue += planLinks;
+    }
 
     checkDownloadQueueAndIssueRequests();
 }
