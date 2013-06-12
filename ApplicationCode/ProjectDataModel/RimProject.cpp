@@ -55,9 +55,6 @@ CAF_PDM_SOURCE_INIT(RimProject, "ResInsightProject");
 //--------------------------------------------------------------------------------------------------
 RimProject::RimProject(void)
 {
-    CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
-    oilFields.setUiHidden(true);
-
     CAF_PDM_InitFieldNoDefault(&m_projectFileVersionString, "ProjectFileVersionString", "", "", "", "");
     m_projectFileVersionString.setUiHidden(true);
 
@@ -67,12 +64,8 @@ RimProject::RimProject(void)
     CAF_PDM_InitField(&nextValidCaseGroupId, "NextValidCaseGroupId", 0, "Next Valid Case Group ID", "", "" ,"");
     nextValidCaseGroupId.setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
-    casesObsolete.setUiHidden(true);
-    casesObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
-    CAF_PDM_InitFieldNoDefault(&caseGroupsObsolete, "CaseGroups", "",  "", "", "");
-    caseGroupsObsolete.setUiHidden(true);
-    caseGroupsObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    CAF_PDM_InitFieldNoDefault(&oilFields, "OilFields", "Oil Fields",  "", "", "");
+    oilFields.setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&scriptCollection, "ScriptCollection", "Scripts", ":/Default.png", "", "");
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
@@ -80,6 +73,16 @@ RimProject::RimProject(void)
 
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
     currentModelIndexPath.setUiHidden(true);
+
+    // Obsolete fields. The content is moved to OilFields and friends
+    CAF_PDM_InitFieldNoDefault(&casesObsolete, "Reservoirs", "",  "", "", "");
+    casesObsolete.setUiHidden(true);
+    casesObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+    CAF_PDM_InitFieldNoDefault(&caseGroupsObsolete, "CaseGroups", "",  "", "", "");
+    caseGroupsObsolete.setUiHidden(true);
+    caseGroupsObsolete.setIOWritable(false); // read but not write, they will be moved into RimAnalysisGroups
+
+    // Initialization
 
     scriptCollection = new RimScriptCollection();
     scriptCollection->directory.setUiHidden(true);
@@ -97,8 +100,8 @@ RimProject::~RimProject(void)
 {
     close();
 
+    oilFields.deleteAllChildObjects();
     if (scriptCollection()) delete scriptCollection();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,15 +109,9 @@ RimProject::~RimProject(void)
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
-    size_t numOilFields = oilFields().size();
-    for (size_t oilFieldsIdx = 0; oilFieldsIdx < numOilFields; oilFieldsIdx++)
-    {
-        RimOilField* oilField = oilFields[oilFieldsIdx];
-        if (oilField == NULL) continue;
-
-        oilField->close();
-    }
     oilFields.deleteAllChildObjects();
+    oilFields.push_back(new RimOilField);
+
     casesObsolete.deleteAllChildObjects();
     caseGroupsObsolete.deleteAllChildObjects();
 
@@ -424,19 +421,9 @@ void RimProject::createDisplayModelAndRedrawAllViews()
 //--------------------------------------------------------------------------------------------------
 RimOilField* RimProject::activeOilField()
 {
-    if (oilFields.size() > 1)
-    {
-        printf("ERROR: RimProject::activeOilField returns hardcoded first oil field, while oilFields actually contain more than one oil field! Must handle several oil fields in this method!\n");
-    }
-
-    if (oilFields.size() > 0)
-    {
-        return oilFields[0];
-    }
-    else
-    {
-        return NULL;
-    }
+    CVF_ASSERT(oilFields.size() == 1);
+  
+    return oilFields[0];
 }
 
 //--------------------------------------------------------------------------------------------------

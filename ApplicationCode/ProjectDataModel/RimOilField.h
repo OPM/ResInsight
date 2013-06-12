@@ -43,5 +43,4 @@ public:
     caf::PdmField<RimAnalysisModels*>                   analysisModels;
 	caf::PdmField<RimWellPathCollection*>               wellPathCollection;
 
-    void                                                close();
 };

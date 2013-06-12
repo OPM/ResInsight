@@ -64,15 +64,7 @@ RimOilField::RimOilField(void)
 //--------------------------------------------------------------------------------------------------
 RimOilField::~RimOilField(void)
 {
-    close();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimOilField::close()
-{
     if (wellPathCollection()) delete wellPathCollection();
     if (analysisModels()) delete analysisModels();
 }
+
