@@ -650,6 +650,15 @@ void RimStatisticsCase::clearComputedStatistics()
     reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
     reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
 
+    for (size_t i = 0; i < reservoirViews().size(); i++)
+    {
+        RimReservoirView* reservoirView = reservoirViews()[i];
+        CVF_ASSERT(reservoirView);
+
+        reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::ACTIVE);
+        reservoirView->createDisplayModelAndRedraw();
+    }
+
     this->updateConnectedEditors();
 }
 

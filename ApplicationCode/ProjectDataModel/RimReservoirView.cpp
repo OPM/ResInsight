@@ -527,7 +527,7 @@ void RimReservoirView::createDisplayModel()
         timeStepIndices.push_back(0);
     }
 
-    updateLegends();
+
 
     cvf::Collection<cvf::ModelBasicList> frameModels;
     size_t timeIdx;
@@ -644,6 +644,8 @@ void RimReservoirView::createDisplayModel()
         m_viewer->slotSetCurrentFrame(m_currentTimeStep);
     }
 
+    overlayInfoConfig()->update3DInfo();
+    updateLegends(); 
 }
 
 
@@ -848,7 +850,6 @@ void RimReservoirView::loadDataAndUpdate()
         setDefaultView();
     }
 
-    overlayInfoConfig()->update3DInfo();
 }
 
 
@@ -1442,8 +1443,6 @@ void RimReservoirView::updateDisplayModelForWellResults()
 
     createDisplayModel();
     updateDisplayModelVisibility();
-
-    overlayInfoConfig()->update3DInfo();
 
     if (animationMode && m_viewer)
     {
