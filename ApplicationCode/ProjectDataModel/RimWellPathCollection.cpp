@@ -144,7 +144,7 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
             QString s2 = f2.fileName();
             if (s1 == s2)
             {
-                printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*) filePath.toLocal8Bit());
+                //printf("Attempting to open well path JSON file that is already open:\n  %s\n", (const char*) filePath.toLocal8Bit());
                 alreadyOpen = true;
                 break;
             }

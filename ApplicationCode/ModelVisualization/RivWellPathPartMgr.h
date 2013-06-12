@@ -43,7 +43,7 @@ public:
 
     void                                    setScaleTransform(cvf::Transform * scaleTransform);
 
-    void                                    scheduleGeometryRegen() { m_needsTransformUpdate = true; printf("R"); }
+    void                                    scheduleGeometryRegen() { m_needsTransformUpdate = true; }//printf("R"); }
 
     void                                    appendStaticGeometryPartsToModel(cvf::ModelBasicList* model, cvf::Vec3d displayModelOffset, double characteristicCellSize, cvf::BoundingBox boundingBox);
 

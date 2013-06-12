@@ -223,7 +223,7 @@ void RimProject::initAfterRead()
         if (analysisModels)
         {
             analysisModels->caseGroups.push_back(sourceCaseGroup);
-            printf("Moved m_project->caseGroupsObsolete[%i] to first oil fields analysis models\n", cgIdx);
+            //printf("Moved m_project->caseGroupsObsolete[%i] to first oil fields analysis models\n", cgIdx);
             movedOneRimIdenticalGridCaseGroup = true; // moved at least one so assume the others will be moved too...
         }
     }
@@ -240,7 +240,7 @@ void RimProject::initAfterRead()
         if (analysisModels)
         {
             analysisModels->cases.push_back(sourceCase);
-            printf("Moved m_project->casesObsolete[%i] to first oil fields analysis models\n", cIdx);
+            //printf("Moved m_project->casesObsolete[%i] to first oil fields analysis models\n", cIdx);
             movedOneRimCase = true; // moved at least one so assume the others will be moved too...
         }
     }

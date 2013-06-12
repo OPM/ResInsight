@@ -183,9 +183,9 @@ void RimWellPath::readWellPathFile()
     updateDate = updateDateTime.toString("d MMMM yyyy");
 
     updateUser = jsonMap["updateUser"].toString();
-    printf("Read JSON file: well path name = %s\n  filePath = %s\n", 
+    /*printf("Read JSON file: well path name = %s\n  filePath = %s\n", 
         name().toStdString().c_str(),
-        (const char*) filepath().toLocal8Bit());
+        (const char*) filepath().toLocal8Bit());*/
 
     double datumElevation = jsonMap["datumElevation"].toDouble();
 

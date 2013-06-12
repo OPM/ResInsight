@@ -652,7 +652,7 @@ void RimReservoirView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateCurrentTimeStep()
 {
-    printf("########## updateCurrentTimeStep for frame %i ##########\n", m_currentTimeStep.v());
+    //printf("########## updateCurrentTimeStep for frame %i ##########\n", m_currentTimeStep.v());
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
 
     if (this->propertyFilterCollection()->hasActiveFilters())
@@ -765,7 +765,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
             for (size_t i = 0; i < wellPathModels.size(); i++)
             {
-                printf("updateCurrentTimeStep: Remove WellPathModel %i from frameScene, for frame %i\n", i, m_currentTimeStep.v());
+                //printf("updateCurrentTimeStep: Remove WellPathModel %i from frameScene, for frame %i\n", i, m_currentTimeStep.v());
                 frameScene->removeModel(wellPathModels[i]);
             }
 
@@ -777,12 +777,12 @@ void RimReservoirView::updateCurrentTimeStep()
             RivWellPathCollectionPartMgr* wellPathCollectionPartMgr = (wellPathCollection) ? wellPathCollection->wellPathCollectionPartMgr() : NULL;
             if (wellPathCollectionPartMgr)
             {
-                printf("updateCurrentTimeStep: Append well paths for frame %i: ", m_currentTimeStep.v());
+                //printf("updateCurrentTimeStep: Append well paths for frame %i: ", m_currentTimeStep.v());
                 cvf::Vec3d displayModelOffset = eclipseCase()->reservoirData()->mainGrid()->displayModelOffset();
                 double characteristicCellSize = eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
                 cvf::BoundingBox boundingBox = currentActiveCellInfo()->geometryBoundingBox();
                 wellPathCollectionPartMgr->appendStaticGeometryPartsToModel(wellPathModelBasicList.p(), displayModelOffset, m_reservoirGridPartManager->scaleTransform(), characteristicCellSize, boundingBox); 
-                printf("\n");
+                //printf("\n");
             }
             wellPathModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel(wellPathModelBasicList.p());

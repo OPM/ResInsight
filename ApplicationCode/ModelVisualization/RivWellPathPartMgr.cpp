@@ -235,16 +235,18 @@ void RivWellPathPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicList* m
 
     if (m_needsTransformUpdate) 
     {
-        printf("G");
+        //printf("G");
         buildWellPathParts(displayModelOffset, characteristicCellSize, boundingBox);
     }
     else
     {
-        printf("s");
+        //printf("s");
     }
 
     if (m_wellBranches.size() < 1)
-        printf("RivWellPathPartMgr::appendStaticGeometryPartsToModel: There are no well branches in well \"%s\"!!!\n", (const char*) m_rimWellPath->name().toLocal8Bit());
+    {
+        //printf("RivWellPathPartMgr::appendStaticGeometryPartsToModel: There are no well branches in well \"%s\"!!!\n", (const char*) m_rimWellPath->name().toLocal8Bit());
+    }
 
     std::list<RivPipeBranchData>::iterator it;
     for (it = m_wellBranches.begin(); it != m_wellBranches.end(); it++)

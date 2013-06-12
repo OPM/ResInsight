@@ -309,7 +309,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         if (oilField == NULL) continue;        
         if (oilField->wellPathCollection == NULL)
         {
-            printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
+            //printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
             oilField->wellPathCollection = new RimWellPathCollection();
             oilField->wellPathCollection->setProject(m_project);
         }
@@ -367,7 +367,7 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
 
     if (oilField->wellPathCollection == NULL)
     {
-        printf("Create well path collection.\n");
+        //printf("Create well path collection.\n");
         oilField->wellPathCollection = new RimWellPathCollection();
         oilField->wellPathCollection->setProject(m_project);
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
