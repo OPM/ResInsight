@@ -94,7 +94,7 @@ target_link_libraries( ${ProjectName} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIE
 if (MSVC)
 
     # Qt DLLs
-    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd)
+    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
     foreach (qtlib ${QTLIBLIST})
         add_custom_command(TARGET ${ProjectName} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
