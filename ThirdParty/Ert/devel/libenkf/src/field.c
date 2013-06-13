@@ -1383,7 +1383,6 @@ void field_update_sum(field_type * sum , field_type * field , double lower_limit
 */
 bool field_user_get(const field_type * field, const char * index_key, int report_step , state_enum state, double * value)
 {
-  printf("index_key : %s \n",index_key);
   const    bool internal_value = false;
   bool     valid;
   int      i,j,k;

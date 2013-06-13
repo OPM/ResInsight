@@ -5,11 +5,17 @@ import unittest
 
 def run_suite( test_suite ):
     test_result = unittest.TextTestRunner(verbosity = 0).run( test_suite )
-    if test_result.errors:
+    if test_result.errors or test_result.failures:
         for (test , trace_back) in test_result.errors:
             sys.stderr.write("=================================================================\n")
-            sys.stderr.write("Test:%s failed \n" % test.id())
+            sys.stderr.write("Test:%s error \n" % test.id())
             sys.stderr.write("%s\n" % trace_back)
+
+        for (test , trace_back) in test_result.failures:
+            sys.stderr.write("=================================================================\n")
+            sys.stderr.write("Test:%s failure \n" % test.id())
+            sys.stderr.write("%s\n" % trace_back)
+
         return False
     else:
         return True

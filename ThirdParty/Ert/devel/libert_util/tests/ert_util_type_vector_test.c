@@ -27,6 +27,19 @@ void assert_equal( bool equal ) {
 }
 
 
+void test_div() {
+  int_vector_type * int_vector = int_vector_alloc( 0 , 100);
+  int_vector_iset( int_vector , 10 , 100 );
+  int_vector_div( int_vector , 10 );
+  {
+    int i;
+    for (i=0; i < int_vector_size( int_vector ); i++) 
+      test_assert_int_equal( 10 , int_vector_iget( int_vector , i ));
+  }
+}
+
+
+
 int main(int argc , char ** argv) {
   
   int_vector_type * int_vector = int_vector_alloc( 0 , 99);
@@ -99,6 +112,7 @@ int main(int argc , char ** argv) {
     int_vector_free( v1 );
     int_vector_free( v2 );
   }
-  
+
+  test_div();
   exit(0);
 }

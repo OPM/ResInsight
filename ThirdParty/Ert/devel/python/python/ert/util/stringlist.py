@@ -54,7 +54,7 @@ class StringList(CClass):
     #    return obj
 
 
-    def __init__( self , initial = None , c_ptr = None):
+    def __init__( self , initial = None , c_ptr = None, parent = None):
         """
         Creates a new stringlist instance.
         
@@ -73,7 +73,10 @@ class StringList(CClass):
         ownership of the underlying object.
         """
         if c_ptr:
-            self.init_cobj( c_ptr , cfunc.free )
+            if parent:
+                self.init_cref( c_ptr , parent)
+            else:
+                self.init_cobj( c_ptr , cfunc.free ) 
         else:
             c_ptr = cfunc.stringlist_alloc( )
             self.init_cobj( c_ptr , cfunc.free )
@@ -193,7 +196,7 @@ class StringList(CClass):
         for s in self:
             slist.append( s )
         return slist
-
+    
     @property
     def last(self):
         """
@@ -234,5 +237,5 @@ cfunc.stringlist_iset       = cwrapper.prototype("void  stringlist_iset_copy( st
 cfunc.stringlist_get_size   = cwrapper.prototype("int  stringlist_get_size( stringlist )") 
 cfunc.contains              = cwrapper.prototype("bool stringlist_contains(stringlist , char*)")
 cfunc.sort                  = cwrapper.prototype("void stringlist_python_sort( stringlist , int)")
-cfunc.pop                   = cwrapper.prototype("char* stringlist_pop( stringlist )")
-cfunc.last                  = cwrapper.prototype("char* stringlist_get_last( stringlist )")
+cfunc.pop                   = cwrapper.safe_prototype("char* stringlist_pop( stringlist )")
+cfunc.last                  = cwrapper.safe_prototype("char* stringlist_get_last( stringlist )")

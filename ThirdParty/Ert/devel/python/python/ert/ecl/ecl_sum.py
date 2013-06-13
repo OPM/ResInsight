@@ -33,6 +33,7 @@ from   ert.cwrap.cwrap       import *
 from   ert.cwrap.cclass      import CClass
 from   ert.util.stringlist   import StringList
 from   ert.util.ctime        import ctime 
+from   ert.ert.erttypes      import time_vector, double_vector
 
 import  numpy
 
@@ -507,7 +508,7 @@ class EclSMSPECNode( CClass ):
 
 class EclSum( CClass ):
     
-    def __new__( cls , load_case , join_string = ":" , include_restart = True):
+    def __new__( cls , load_case , join_string = ":" , include_restart = True, c_ptr = None, parent = None):
         """
         Loads a new EclSum instance with summary data.
 
@@ -525,16 +526,24 @@ class EclSum( CClass ):
         loader will, in the case of a restarted ECLIPSE simulation,
         try to load summary results also from the restarted case.
         """
-        c_ptr = cfunc.fread_alloc( load_case , join_string , include_restart)
         if c_ptr:
             obj = object.__new__( cls )
-            obj.init_cobj( c_ptr , cfunc.free )
+            if parent:
+                obj.init_cref( c_ptr , parent)
+            else:
+                obj.init_cobj( c_ptr , cfunc.free )
             return obj
         else:
-            return None
+            c_ptr = cfunc.fread_alloc( load_case , join_string , include_restart)
+            if c_ptr:
+                obj = object.__new__( cls )
+                obj.init_cobj( c_ptr , cfunc.free )
+                return obj
+            else:
+                return None
         
 
-    def __init__(self , load_case , join_string = ":" ,include_restart = True , c_ptr = None):
+    def __init__(self , load_case , join_string = ":" ,include_restart = True , c_ptr = None, parent = None):
         """
         Initialize a new EclSum instance.
 
@@ -1221,9 +1230,15 @@ class EclSum( CClass ):
         cfunc.fwrite_sum( self )
         
         
-        
+    def alloc_time_vector(self, report_only):
+        return time_vector(cfunc.alloc_time_vector(self, report_only))
+
+    def alloc_data_vector(self, data_index, report_only):
+        return double_vector(cfunc.alloc_data_vector(self, data_index, report_only))
 
 
+    def get_general_var_index(self, key):
+        return cfunc.get_general_var_index( self , key )
 
 #################################################################
 
@@ -1280,7 +1295,8 @@ cfunc.get_report_time               = cwrapper.prototype("time_t   ecl_sum_get_r
 
 cfunc.fwrite_sum                    = cwrapper.prototype("void     ecl_sum_fwrite(ecl_sum)")
 cfunc.set_case                      = cwrapper.prototype("void     ecl_sum_set_case(ecl_sum, char*)")
-
+cfunc.alloc_time_vector             = cwrapper.prototype("c_void_p ecl_sum_alloc_time_vector(ecl_sum, bool)")
+cfunc.alloc_data_vector            = cwrapper.prototype("c_void_p ecl_sum_alloc_data_vector(ecl_sum, int, bool)")
 #-----------------------------------------------------------------
 # smspec node related stuff
 

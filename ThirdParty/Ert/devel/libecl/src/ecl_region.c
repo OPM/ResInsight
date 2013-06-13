@@ -689,8 +689,9 @@ void ecl_region_deselect_i1i2( ecl_region_type * region , int i1 , int i2) {
 static void ecl_region_select_j1j2__( ecl_region_type * region , int j1 , int j2 , bool select) {
   if (j1 > j2) 
     util_abort("%s: i1 > i2 - this is illogical ... \n",__func__);
+
   j1 = util_int_max(0 , j1);
-  j2 = util_int_min(region->grid_nx - 1 , j2);
+  j2 = util_int_min(region->grid_ny - 1 , j2);
   {
     int i,j,k;
     for (k = 0; k < region->grid_nz; k++)
@@ -729,7 +730,7 @@ static void ecl_region_select_k1k2__( ecl_region_type * region , int k1 , int k2
   if (k1 > k2) 
     util_abort("%s: i1 > i2 - this is illogical ... \n",__func__);
   k1 = util_int_max(0 , k1);
-  k2 = util_int_min(region->grid_nx - 1 , k2);
+  k2 = util_int_min(region->grid_nz - 1 , k2);
   {
     int i,j,k;
     for (k = k1; k <= k2; k++)

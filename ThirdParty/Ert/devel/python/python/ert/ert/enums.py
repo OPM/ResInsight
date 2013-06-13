@@ -161,6 +161,21 @@ enkf_impl_type.GEN_KW = enkf_impl_type("Keyword", 107)
 enkf_impl_type.SUMMARY = enkf_impl_type("Summary", 110)
 enkf_impl_type.GEN_DATA = enkf_impl_type("Data", 113)
 
+class enkf_var_type(enum):
+    #INVALID_VAR      =  None  #,    /* */
+    PARAMETER        =  None  #,    /* A parameter which is updated with enkf: PORO , MULTFLT , ..*/
+    DYNAMIC_STATE    =  None  #,    /* Dynamic data which are needed for a restart - i.e. pressure and saturations.  */
+    DYNAMIC_RESULT   =  None  #,    /* Dynamic results which are NOT needed for a restart - i.e. well rates. */
+    #STATIC_STATE     =  None  #,    /* Keywords like XCON++ from eclipse restart files - which are just dragged along          */ 
+    #INDEX_STATE      =  None
+
+#enkf_var_type.INVALID_VAR
+enkf_var_type.PARAMETER = enkf_var_type("Parameter", 1)
+enkf_var_type.DYNAMIC_STATE = enkf_var_type("DynamicState", 2)
+enkf_var_type.DYNAMIC_RESULT = enkf_var_type("DynamicResult", 4)
+#enkf_var_type.STATIC_STATE
+#enkf_var_type.INDEX_STATE 
+
 
 class ert_job_status_type(enum):
     """These "enum" values are all copies from the header file "basic_queue_driver.h"."""
@@ -269,6 +284,17 @@ keep_runpath_type.DEFAULT_KEEP = keep_runpath_type("DEFAULT_KEEP", 0)
 keep_runpath_type.EXPLICIT_DELETE = keep_runpath_type("EXPLICIT_DELETE", 1)
 keep_runpath_type.EXPLICIT_KEEP = keep_runpath_type("EXPLICIT_KEEP", 2)
 
+class  run_mode_type(enum):
+    ENKF_ASSIMILATION = None
+    ENSEMBLE_EXPERIMENT = None
+    SMOOTHER_UPDATE = None
+    INIT_ONLY = None
+
+run_mode_type.ENKF_ASSIMILATION = run_mode_type( "ENKF_ASSIMILATION", 1)
+run_mode_type.ENKF_EXPERIMENT = run_mode_type( "ENKF_EXPERIMENT", 2)
+run_mode_type.SMOOTHER_UPDATE = run_mode_type( "SMOOTHER_UPDATE", 4)
+run_mode_type.INIT_ONLY = run_mode_type( "INIT_ONLY", 8)
+    
 class history_source_type(enum):
     SCHEDULE = None
     REFCASE_SIMULATED = None

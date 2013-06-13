@@ -161,6 +161,15 @@ void RivWellPipesPartMgr::buildWellPipeParts()
     m_needsTransformUpdate = false;
 }
 
+bool isIdentical(const RigWellResultCell* a, const RigWellResultCell* b)
+{
+    CVF_ASSERT(a && b);
+
+    if (a->m_gridCellIndex != b->m_gridCellIndex) return false;
+    if (a->m_gridIndex     != b->m_gridIndex) return false;
+
+    return true;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -211,30 +220,52 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
     if (hasResultCells)
     {
-        // Create a new branch from wellhead
-
-        pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-        pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
-
-        // We start by entering the first cell (the wellhead)
-        const RigWellResultCell* prevResCell = whResCell;
-
-        pipeBranchesCLCoords.back().push_back(whStartPos);
-        pipeBranchesCellIds.back().push_back(*prevResCell );
 
         // Add extra coordinate between cell face and cell center 
         // to make sure the well pipe terminated in a segment parallel to z-axis
         cvf::Vec3d whIntermediate = whStartPos;
         whIntermediate.z() = (whStartPos.z() + whCell.center().z()) / 2.0;
 
-        pipeBranchesCLCoords.back().push_back(whIntermediate);
-        pipeBranchesCellIds.back().push_back(*prevResCell );
 
+        const RigWellResultCell* prevResCell = NULL;
+        
+        // Use well head if branch head is not specified
+        if (resBranches[0].m_branchHead.m_gridCellIndex == cvf::UNDEFINED_SIZE_T)
+        {
+            // Create a new branch from wellhead
+
+            pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
+            pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
+
+            prevResCell = whResCell;
+
+            pipeBranchesCLCoords.back().push_back(whStartPos);
+            pipeBranchesCellIds.back().push_back(*prevResCell);
+
+            pipeBranchesCLCoords.back().push_back(whIntermediate);
+            pipeBranchesCellIds.back().push_back(*prevResCell);
+        }
 
         for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
         {
             if (resBranches[brIdx].m_wellCells.size() == 0)
                 continue; // Skip empty branches. Do not know why they exist, but they make problems.
+
+            if (resBranches[brIdx].m_branchHead.m_gridCellIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                // Create a new branch and use branch head as previous result cell
+
+                pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
+                pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
+
+                prevResCell = &(resBranches[brIdx].m_branchHead);
+
+                const RigCell& whCell = rigReservoir->cellFromWellResultCell(resBranches[brIdx].m_branchHead);
+                cvf::Vec3d branchHeadStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
+
+                pipeBranchesCLCoords.back().push_back(branchHeadStartPos);
+                pipeBranchesCellIds.back().push_back(*prevResCell);
+            }
 
             // Loop over all the resultCells in the branch
             const std::vector<RigWellResultCell>& resBranchCells = resBranches[brIdx].m_wellCells;
@@ -263,8 +294,10 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     cvf::Vec3d centerThisCell = cell.center();
 
                     // First make sure this cell is not starting a new "display" branch 
-                    if (   !isAutoDetectBranches || (prevResCell == whResCell) 
-                        || (centerThisCell-centerPrevCell).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared())
+                    if (   !isAutoDetectBranches
+                            || (prevResCell == whResCell) 
+                            || (centerThisCell-centerPrevCell).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared()
+                        )
                     {
                         // Not starting a "display" branch
                         // Create ray and intersect with cells

@@ -18,36 +18,41 @@ import  ctypes
 from    ert.cwrap.cwrap       import *
 from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
+import  libutil
 class Log(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
+                        
+    @property
+    def get_filename(self):
+        #return cfunc.get_filename( self )
+        return "ert_config.log"
+    
+    def reopen(self, filename):
+        print "Logfile cannot be reopened"
+        #cfunc.reopen( self , filename)
         
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    @property
+    def get_level(self):
+        #return cfunc.get_level( self )
+        return 0
 
-
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
-
-
-
+    def set_level(self, level):
+        cfunc.set_level( self , level)
 ##################################################################
 
-cwrapper = CWrapper( libenkf.lib )
+cwrapper = CWrapper( libutil.lib )
 cwrapper.registerType( "log" , Log )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("log")
+##################################################################
+##################################################################
 cfunc.free                       = cwrapper.prototype("void log( log )")
-cfunc.get_filename               = cwrapper.prototype("char* log_get_filename(long)")
-cfunc.reset_filename             = cwrapper.prototype("void log_reset_filename(long, char*)")
-cfunc.get_level                  = cwrapper.prototype("int log_get_level(long)")
-cfunc.set_level                  = cwrapper.prototype("void log_set_level(long, int)")
+cfunc.get_filename               = cwrapper.prototype("char* log_get_filename(log)")
+cfunc.reopen                     = cwrapper.prototype("void log_reopen(log, char*)")
+cfunc.get_level                  = cwrapper.prototype("int log_get_level(log)")
+cfunc.set_level                  = cwrapper.prototype("void log_set_level(log, int)")

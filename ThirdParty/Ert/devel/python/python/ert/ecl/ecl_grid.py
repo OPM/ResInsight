@@ -93,7 +93,7 @@ class EclGrid(CClass):
                 obj.init_cobj( c_ptr , cfunc.free )
             return obj
         else:
-            return None
+            raise IOError("Loading grid from:%s failed" % filename)
 
 
     def equal(self , other , include_lgr = True , verbose = False):

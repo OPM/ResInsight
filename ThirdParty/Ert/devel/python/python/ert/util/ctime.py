@@ -59,6 +59,9 @@ class ctime(ctypes.c_long):
     def __lt__(self, other):
         return not self >= other
 
+    @property
+    def stripped(self):
+        return time.strptime(self, "%Y-%m-%d %H:%M:S%")
 
 
 cwrapper = CWrapper( None ) 

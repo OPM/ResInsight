@@ -51,7 +51,18 @@ struct RigWellResultBranch
     {}
 
     size_t                         m_branchNumber;
+
     std::vector<RigWellResultCell> m_wellCells;
+    
+    // Grid cell from last connection in outlet segment. For MSW wells, this is either well head or a well result cell in another branch
+    // For standard wells, this is always well head.
+    RigWellResultCell               m_branchHead;
+
+    // If the outlet segment does not have any connections, it is not possible to populate branch head
+    // Instead, use the intersection segment outlet branch index and the depth of this segment to identify intersection point
+    // when computing centerline coords in RivWellPipesPartMgr
+    size_t                          m_intersectionSegmentOutletBranchIndex;
+    double                          m_intersectionSegmentOutletDepth;
 };
 
 class RigWellResultFrame

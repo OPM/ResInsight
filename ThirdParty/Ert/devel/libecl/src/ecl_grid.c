@@ -513,12 +513,12 @@ struct ecl_grid_struct {
   int                   parent_box[6]; /* integers i1,i2, j1,j2, k1,k2 of the parent grid region containing this lgr. the indices are inclusive - zero offset */
                                        /* not used yet .. */ 
   
-  int                   dualp_flag;    
-  bool                  use_mapaxes;
-  double                unit_x[2];
-  double                unit_y[2];
-  double                origo[2];
-  float                 mapaxes[6];
+  int                    dualp_flag;    
+  bool                   use_mapaxes;
+  double                 unit_x[2];
+  double                 unit_y[2];
+  double                 origo[2];
+  float                  mapaxes[6];
   /*------------------------------:       the fields below this line are used for blocking algorithms - and not allocated by default.*/
   int                    block_dim; /* == 2 for maps and 3 for fields. 0 when not in use. */
   int                    block_size;
@@ -1089,6 +1089,7 @@ static void ecl_cell_init_regular( ecl_cell_type * cell , const double * offset 
 /* starting on the ecl_grid proper implementation                */
 
 UTIL_SAFE_CAST_FUNCTION(ecl_grid , ECL_GRID_ID);
+UTIL_IS_INSTANCE_FUNCTION( ecl_grid , ECL_GRID_ID);
 
 /**
    this function allocates the internal index_map and inv_index_map fields.
@@ -2601,7 +2602,10 @@ ecl_grid_type * ecl_grid_load_case( const char * case_input ) {
   ecl_grid_type * ecl_grid = NULL;
   char * grid_file = ecl_grid_alloc_case_filename( case_input );
   if (grid_file != NULL) {
-    ecl_grid = ecl_grid_alloc( grid_file );
+
+    if (util_file_exists( grid_file )) 
+      ecl_grid = ecl_grid_alloc( grid_file );
+    
     free( grid_file );
   }
   return ecl_grid;
@@ -3539,6 +3543,15 @@ stringlist_type * ecl_grid_alloc_lgr_name_list(const ecl_grid_type * ecl_grid) {
   {
     return hash_alloc_stringlist( ecl_grid->LGR_hash );
   }
+}
+
+const char * ecl_grid_iget_lgr_name( const ecl_grid_type * ecl_grid , int lgr_nr) {
+  __assert_main_grid( ecl_grid );
+  if (lgr_nr < (vector_get_size( ecl_grid->LGR_list ) - 1)) {
+    const ecl_grid_type * lgr = vector_iget( ecl_grid->LGR_list , lgr_nr + 1);
+    return lgr->name;
+  } else 
+    return NULL;
 }
 
 
