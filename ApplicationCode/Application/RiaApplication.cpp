@@ -342,7 +342,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
             viewProgress.setProgressDescription(riv->name());
 
             riv->loadDataAndUpdate();
-
+            this->setActiveReservoirView(riv);
             viewProgress.incrementProgress();
         }
 
