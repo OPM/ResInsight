@@ -764,9 +764,6 @@ void RiuMainWindow::slotOpenProject()
         app->loadProject(fileName);
     }
 
-    //restoreTreeViewState();
-
-    //m_mainViewer->setDefaultView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -777,7 +774,6 @@ void RiuMainWindow::slotOpenLastUsedProject()
     RiaApplication* app = RiaApplication::instance();
     app->loadLastUsedProject();
 
-    //restoreTreeViewState();
 }
 
 //--------------------------------------------------------------------------------------------------
