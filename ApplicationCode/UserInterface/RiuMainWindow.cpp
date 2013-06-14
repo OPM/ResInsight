@@ -134,12 +134,13 @@ RiuMainWindow* RiuMainWindow::instance()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::initializeGuiNewProjectLoaded()
 {
+    setPdmRoot(RiaApplication::instance()->project());
+    restoreTreeViewState();
     slotRefreshFileActions();
     slotRefreshEditActions();
     slotRefreshViewActions();
     refreshAnimationActions();
     refreshDrawStyleActions();
-    setPdmRoot(RiaApplication::instance()->project());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -763,7 +764,7 @@ void RiuMainWindow::slotOpenProject()
         app->loadProject(fileName);
     }
 
-    restoreTreeViewState();
+    //restoreTreeViewState();
 
     //m_mainViewer->setDefaultView();
 }
@@ -776,7 +777,7 @@ void RiuMainWindow::slotOpenLastUsedProject()
     RiaApplication* app = RiaApplication::instance();
     app->loadLastUsedProject();
 
-    restoreTreeViewState();
+    //restoreTreeViewState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1272,13 +1273,17 @@ void RiuMainWindow::slotCurrentChanged(const QModelIndex & current, const QModel
             if (rimReservoirView != activeReservoirView)
             {
                 RiaApplication::instance()->setActiveReservoirView(rimReservoirView);
-                refreshDrawStyleActions();
                 // Set focus in MDI area to this window if it exists
                 if (rimReservoirView->viewer())
                 {
                     setActiveViewer(rimReservoirView->viewer());
                 }
                 m_treeView->setCurrentIndex(current);
+                refreshDrawStyleActions();
+                refreshAnimationActions();
+                slotRefreshFileActions();
+                slotRefreshEditActions();
+                slotRefreshViewActions();
 
                 // The only way to get to this code is by selection change initiated from the project tree view
                 // As we are activating an MDI-window, the focus is given to this MDI-window
