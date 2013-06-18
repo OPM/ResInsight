@@ -189,8 +189,8 @@ void RiuMainWindow::createActions()
     
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
-    m_openWellPathsAction       = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Well Paths", this);
-    m_importWellPathsAction     = new QAction(style()->standardIcon(QStyle::SP_DriveNetIcon),"Import Well Paths", this);
+    m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "&Import Well Paths from File", this);
+    m_importWellPathsFromSSIHubAction     = new QAction(QIcon(":/WellCollection.png"),"Import Well Paths from &SSI-hub", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
@@ -212,8 +212,8 @@ void RiuMainWindow::createActions()
     connect(m_openMultipleEclipseCasesAction,SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
     connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
-    connect(m_openWellPathsAction,	    SIGNAL(triggered()), SLOT(slotOpenWellPaths()));
-    connect(m_importWellPathsAction,    SIGNAL(triggered()), SLOT(slotImportWellPaths()));
+    connect(m_importWellPathsFromFileAction,	    SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
+    connect(m_importWellPathsFromSSIHubAction,    SIGNAL(triggered()), SLOT(slotImportWellPathsFromSSIHub()));
     
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
@@ -303,14 +303,15 @@ void RiuMainWindow::createMenus()
   
     fileMenu->addAction(m_openProjectAction);
     fileMenu->addAction(m_openLastUsedProjectAction);
-    fileMenu->addAction(m_openWellPathsAction);
     fileMenu->addSeparator();
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
     importMenu->addAction(m_openEclipseCaseAction);
     importMenu->addAction(m_openInputEclipseFileAction);
     importMenu->addAction(m_openMultipleEclipseCasesAction);
-    importMenu->addAction(m_importWellPathsAction);
+    importMenu->addSeparator();
+    importMenu->addAction(m_importWellPathsFromFileAction);
+    importMenu->addAction(m_importWellPathsFromSSIHubAction);
 
     QMenu* exportMenu = fileMenu->addMenu("&Export");
     exportMenu->addAction(m_snapshotToFile);
@@ -558,7 +559,7 @@ void RiuMainWindow::slotRefreshFileActions()
     
     bool projectFileExists = QFile::exists(app->project()->fileName());
 
-    m_importWellPathsAction->setEnabled(projectFileExists);
+    m_importWellPathsFromSSIHubAction->setEnabled(projectFileExists);
 }
 
 
@@ -779,12 +780,12 @@ void RiuMainWindow::slotOpenLastUsedProject()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenWellPaths()
+void RiuMainWindow::slotImportWellPathsFromFile()
 {
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->defaultFileDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(this, "Open JSON Well Paths", defaultDir, "JSON Well Path (*.json)");
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(this, "Import Well Paths", defaultDir, "JSON Well Path (*.json);;ASCII Well Paths (*.asc *.asci *.ascii)");
 
     if (wellPathFilePaths.size() < 1) return;
 
@@ -1594,7 +1595,7 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotImportWellPaths()
+void RiuMainWindow::slotImportWellPathsFromSSIHub()
 {
     CVF_ASSERT(m_ssihubInterface);
 

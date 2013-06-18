@@ -124,8 +124,8 @@ private:
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
-    QAction*		    m_openWellPathsAction;
-    QAction*		    m_importWellPathsAction;
+    QAction*		    m_importWellPathsFromFileAction;
+    QAction*		    m_importWellPathsFromSSIHubAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
@@ -184,8 +184,8 @@ private slots:
     void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
-    void    slotOpenWellPaths();
-    void    slotImportWellPaths();
+    void    slotImportWellPathsFromFile();
+    void    slotImportWellPathsFromSSIHub();
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();

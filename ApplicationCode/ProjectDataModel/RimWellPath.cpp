@@ -40,6 +40,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include <fstream>
 
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
@@ -162,43 +163,93 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::readWellPathFile()
 {
+    if (filepath().endsWith(".json"), Qt::CaseInsensitive)
+    {
+        this->readJsonWellPathFile();
+    }
+    else
+    {
+        this->readAsciiWellPathFile();
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Read JSON file containing well path data
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::readJsonWellPathFile()
+{
     RigWellPath* wellPathGeom = new RigWellPath();
     JsonReader jsonReader;
     QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filepath);
 
     // General well info
-    name = jsonMap["name"].toString();
-    id = jsonMap["id"].toString();
+
+    name            = jsonMap["name"].toString();
+    id              = jsonMap["id"].toString();
+    sourceSystem    = jsonMap["sourceSystem"].toString();
+    utmZone         = jsonMap["utmZone"].toString();
+    updateUser      = jsonMap["updateUser"].toString();
+
     setSurveyType(jsonMap["surveyType"].toString());
-    sourceSystem = jsonMap["sourceSystem"].toString();
-    utmZone = jsonMap["utmZone"].toString();
 
     // Convert updateDate from the following format:
-    // "Number of milliseconds elapsed since midnight Coordinated Universal Time (UTC) of January 1, 1970, not counting leap seconds"
+    // "Number of milliseconds elapsed since midnight Coordinated Universal Time (UTC) 
+    // of January 1, 1970, not counting leap seconds"
+
     QString updateDateStr = jsonMap["updateDate"].toString().trimmed();
     uint updateDateUint = updateDateStr.toULongLong() / 1000; // should be within 32 bit, maximum number is 4294967295 which corresponds to year 2106
     QDateTime updateDateTime;
     updateDateTime.setTime_t(updateDateUint);
-    //updateDate = updateDateTime.toString(Qt::SystemLocaleShortDate);
+
     updateDate = updateDateTime.toString("d MMMM yyyy");
 
-    updateUser = jsonMap["updateUser"].toString();
-    /*printf("Read JSON file: well path name = %s\n  filePath = %s\n", 
-        name().toStdString().c_str(),
-        (const char*) filepath().toLocal8Bit());*/
+    // Well path points
 
     double datumElevation = jsonMap["datumElevation"].toDouble();
 
-    // Well path points
     QList<QVariant> pathList = jsonMap["path"].toList();
     foreach (QVariant point, pathList)
     {
         QMap<QString, QVariant> coordinateMap = point.toMap();
         cvf::Vec3d vec3d(coordinateMap["east"].toDouble(), coordinateMap["north"].toDouble(), -(coordinateMap["tvd"].toDouble() - datumElevation));
         wellPathGeom->m_wellPathPoints.push_back(vec3d);
-        //printf("Added point to well path: (%f, %f, %f)\n", vec3d.x(), vec3d.y(), vec3d.z());
     }
 
     //jsonReader.dumpToFile(wellPathGeom->m_wellPathPoints, "c:\\temp\\jsonpoints.txt");
+    setWellPathGeometry(wellPathGeom);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::readAsciiWellPathFile()
+{
+    RigWellPath* wellPathGeom = new RigWellPath();
+    
+    std::ifstream stream(filepath().toLatin1().data());
+    double x, y, tvd, md;
+
+    while(stream.good())
+    {
+        std::string wellNameKw;
+        stream >> wellNameKw;
+
+    
+    while (stream.good())
+    {
+        stream >> x >> y >> tvd >> md; 
+        if (stream.good())
+        {
+            cvf::Vec3d wellPoint(x, y, -tvd);
+            wellPathGeom->m_wellPathPoints.push_back(wellPoint);
+        }
+    }
+
+    if (stream.eof()) break;
+
+    stream.clear();
+
+    }
     setWellPathGeometry(wellPathGeom);
 }

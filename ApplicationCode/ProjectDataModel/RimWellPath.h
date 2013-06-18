@@ -50,13 +50,7 @@ public:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
     
     caf::PdmField<QString>              name;
-    caf::PdmField<QString>              id;
-    caf::PdmField<QString>              sourceSystem;
-    caf::PdmField<QString>              utmZone;
-    caf::PdmField<QString>              updateDate;
-    caf::PdmField<QString>              updateUser;
-    void                                setSurveyType(QString surveyType);
-    QString                             surveyType() { return m_surveyType; }
+  
     caf::PdmField<QString>              filepath;
     caf::PdmField<bool>                 showWellPathLabel;
     
@@ -64,14 +58,28 @@ public:
     caf::PdmField<cvf::Color3f>         wellPathColor;
     caf::PdmField<double>               wellPathRadiusScaleFactor;
 
-    void                                setWellPathGeometry(RigWellPath* wellPathModel) { m_wellPath = wellPathModel; }
     RigWellPath*                        wellPathGeometry() { return m_wellPath.p(); }
     RivWellPathPartMgr*                 partMgr();
 
     void                                readWellPathFile();
+ 
 
 private:
+
+    void                                setWellPathGeometry(RigWellPath* wellPathModel) { m_wellPath = wellPathModel; }
+    void                                readJsonWellPathFile();
+    void                                readAsciiWellPathFile();
+    QString                             surveyType() { return m_surveyType; }
+    void                                setSurveyType(QString surveyType);
+
+    caf::PdmField<QString>              id;
+    caf::PdmField<QString>              sourceSystem;
+    caf::PdmField<QString>              utmZone;
+    caf::PdmField<QString>              updateDate;
+    caf::PdmField<QString>              updateUser;
+ 
     caf::PdmField<QString>              m_surveyType;
+
     cvf::ref<RigWellPath>               m_wellPath;
     cvf::ref<RivWellPathPartMgr>        m_wellPathPartMgr;
     caf::PdmPointer<RimWellPathCollection> m_wellPathCollection;
