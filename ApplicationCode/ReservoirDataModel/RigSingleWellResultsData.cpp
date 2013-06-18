@@ -252,6 +252,11 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     for (bIt = staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt)
     {
+        if (bIt->first >= m_wellCellsTimeSteps[0].m_wellResultBranches.size())
+        {
+            continue;
+        }
+
         // Copy from first time step
         RigWellResultBranch rigBranch = m_wellCellsTimeSteps[0].m_wellResultBranches[bIt->first];
         rigBranch.m_branchIndex = bIt->first;
