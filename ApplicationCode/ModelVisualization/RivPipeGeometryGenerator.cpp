@@ -547,20 +547,8 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         }
     }
 
-    // Add last cross section if not duplicate coordinate
-    cvf::Vec3d coordA = m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 2);
-    cvf::Vec3d coordB = m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 1);
-
-    cvf::Vec3d directionAB = coordB - coordA;
-    if (directionAB.lengthSquared() > squareDistanceTolerance)
-    {
-        m_filteredPipeCenterCoords.push_back(m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 1));
-    }
-    else
-    {
-        // Remove last segment as the length is below tolerance
-        m_filteredPipeSegmentToResult.pop_back();
-    }
+    // Always append last coord as it is not added by above algorithm
+    m_filteredPipeCenterCoords.push_back(m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 1));
 
     CVF_ASSERT(m_filteredPipeCenterCoords.size() - 1 == m_filteredPipeSegmentToResult.size());
 }
