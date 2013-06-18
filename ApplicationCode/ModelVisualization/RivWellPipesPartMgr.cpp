@@ -185,15 +185,15 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
     RigCaseData*   rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
     RigSingleWellResultsData* wellResults = m_rimWell->wellResults();
 
-    const RigWellResultFrame& staticWellFrame = m_rimWell->wellResults()->m_staticWellCells;
-
     // Make sure we have computed the static representation of the well
-    if (staticWellFrame.m_wellResultBranches.size() == 0)
+    if (wellResults->m_staticWellCells.m_wellResultBranches.size() == 0)
     {
         wellResults->computeStaticWellCellPath();
     }
-    if (staticWellFrame.m_wellResultBranches.size() == 0) return;
 
+    const RigWellResultFrame& staticWellFrame = wellResults->m_staticWellCells;
+    if (staticWellFrame.m_wellResultBranches.size() == 0) return;
+    
     // Initialize the return arrays
     pipeBranchesCLCoords.clear();
     pipeBranchesCellIds.clear();
@@ -230,7 +230,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
         const RigWellResultCell* prevResCell = NULL;
         
         // Use well head if branch head is not specified
-        if (resBranches[0].m_branchHead.m_gridCellIndex == cvf::UNDEFINED_SIZE_T)
+        if (!wellResults->isMultiSegmentWell())
         {
             // Create a new branch from wellhead
 
@@ -251,20 +251,40 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
             if (resBranches[brIdx].m_wellCells.size() == 0)
                 continue; // Skip empty branches. Do not know why they exist, but they make problems.
 
-            if (resBranches[brIdx].m_branchHead.m_gridCellIndex != cvf::UNDEFINED_SIZE_T)
+            if (wellResults->isMultiSegmentWell())
             {
-                // Create a new branch and use branch head as previous result cell
-
                 pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
                 pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
 
-                prevResCell = &(resBranches[brIdx].m_branchHead);
+                if (resBranches[brIdx].m_useBranchHeadAsCenterLineIntersectionTop)
+                {
+                    // Intersection evaluation is done when all center lines are computed, 
+                    // as the center lines are used to compute the intersections
 
-                const RigCell& whCell = rigReservoir->cellFromWellResultCell(resBranches[brIdx].m_branchHead);
-                cvf::Vec3d branchHeadStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
+                    // Insert well head if this is branch head, as we have all information we need
+                    if (isIdentical(&resBranches[brIdx].m_branchHead, whResCell))
+                    {
+                        prevResCell = whResCell;
 
-                pipeBranchesCLCoords.back().push_back(branchHeadStartPos);
-                pipeBranchesCellIds.back().push_back(*prevResCell);
+                        pipeBranchesCLCoords.back().push_back(whStartPos);
+                        pipeBranchesCellIds.back().push_back(*prevResCell);
+
+                        pipeBranchesCLCoords.back().push_back(whIntermediate);
+                        pipeBranchesCellIds.back().push_back(*prevResCell);
+                    }
+                }
+                else
+                {
+                    // Create a new branch and use branch head as previous result cell
+
+                    prevResCell = &(resBranches[brIdx].m_branchHead);
+
+                    const RigCell& whCell = rigReservoir->cellFromWellResultCell(resBranches[brIdx].m_branchHead);
+                    cvf::Vec3d branchHeadStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
+
+                    pipeBranchesCLCoords.back().push_back(branchHeadStartPos);
+                    pipeBranchesCellIds.back().push_back(*prevResCell);
+                }
             }
 
             // Loop over all the resultCells in the branch
@@ -281,7 +301,14 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 // Check if this and the previous cells has shared faces
 
                 cvf::StructGridInterface::FaceType sharedFace;
-                if (rigReservoir->findSharedSourceFace(sharedFace, resCell, *prevResCell))
+                if (resBranches[brIdx].m_useBranchHeadAsCenterLineIntersectionTop && cIdx == 0)
+                {
+                    // Insert cell center of first cell
+                    // Intersection point to connect to is inserted further down in this function
+                    branchCLCoords.push_back(cell.center());
+                    branchCellIds.push_back(resCell);
+                }
+                else if (rigReservoir->findSharedSourceFace(sharedFace, resCell, *prevResCell))
                 {
                     branchCLCoords.push_back(cell.faceCenter(sharedFace));
                     branchCellIds.push_back(resCell);
@@ -316,13 +343,15 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                         if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)
                         {
                             branchCLCoords.push_back(outOfPrevCell);
-                            branchCellIds.push_back(RigWellResultCell());
+                            branchCellIds.push_back(*prevResCell);
                         }
                         branchCLCoords.push_back(intoThisCell);
                         branchCellIds.push_back(resCell);
                     }
                     else
                     {
+                        CVF_ASSERT(!wellResults->isMultiSegmentWell());
+
                         // This cell is further from the previous cell than from the well head, 
                         // thus we interpret it as a new branch.
 
@@ -349,15 +378,120 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 }
 
                 prevResCell = &resCell;
-
              }
+
+            if (wellResults->isMultiSegmentWell())
+            {
+                // All MSW branches are completed using the point 0.5 past the center of last cell
+                const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
+                cvf::Vec3d centerPrevCell = prevCell.center();
+                pipeBranchesCLCoords.back().push_back(pipeBranchesCLCoords.back().back() + 1.5*(centerPrevCell - pipeBranchesCLCoords.back().back())  );
+            }
         }
 
-        // For the last cell, add the point 0.5 past the center of that cell
-        const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
-        cvf::Vec3d centerPrevCell = prevCell.center();
-        pipeBranchesCLCoords.back().push_back(pipeBranchesCLCoords.back().back() + 1.5*(centerPrevCell - pipeBranchesCLCoords.back().back())  );
+        if (!wellResults->isMultiSegmentWell())
+        {
+            // For the last cell, add the point 0.5 past the center of that cell
+            const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
+            cvf::Vec3d centerPrevCell = prevCell.center();
+            pipeBranchesCLCoords.back().push_back(pipeBranchesCLCoords.back().back() + 1.5*(centerPrevCell - pipeBranchesCLCoords.back().back())  );
+        }
 
+        if (wellResults->isMultiSegmentWell())
+        {
+            // Compute intersection points for multi segment wells connected to segments of other branches
+            for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
+            {
+                const RigWellResultBranch& branchToConnect = resBranches[brIdx];
+
+                if (branchToConnect.m_useBranchHeadAsCenterLineIntersectionTop)
+                {
+                    // Find intersection grid cell in branch to connect to
+
+                    cvf::Vec3d intersectionPoint = cvf::Vec3d::UNDEFINED;
+
+                    int outletErtBranchId = branchToConnect.m_outletErtBranchId;
+
+                    for (size_t outletBranchIdx = 0; outletBranchIdx < resBranches.size(); outletBranchIdx++)
+                    {
+                        if (resBranches[outletBranchIdx].m_ertBranchId == outletErtBranchId)
+                        {
+                            RigWellResultCell outletResultCell = resBranches[outletBranchIdx].m_branchHead;
+
+                            // Find generated pipe branch this cell resides in
+                            for (size_t i = 0; i < pipeBranchesCellIds.size(); i++)
+                            {
+                                for (size_t j = 0; j < pipeBranchesCellIds[i].size(); j++)
+                                {
+                                    const RigWellResultCell& candidate = pipeBranchesCellIds[i][j];
+                                    if (isIdentical(&candidate, &outletResultCell))
+                                    {
+                                        // Find the coordinate pair at the intersection between two cell IDs
+                                        while (j + 1 < pipeBranchesCellIds[i].size() && isIdentical(&pipeBranchesCellIds[i][j + 1], &outletResultCell))
+                                        {
+                                            j++;
+                                        }
+
+                                        if (j + 1 >= pipeBranchesCLCoords[i].size())
+                                        {
+                                            // Use the last point in the center line
+                                            intersectionPoint = pipeBranchesCLCoords[i][j];
+                                        }
+                                        else
+                                        {
+                                            cvf::Vec3d lineStart = pipeBranchesCLCoords[i][j];
+                                            cvf::Vec3d lineEnd = pipeBranchesCLCoords[i][j + 1];
+
+                                            cvf::Plane depthPlane;
+                                            depthPlane.setFromPointAndNormal(cvf::Vec3d(0.0, 0.0, -branchToConnect.m_connectionDepthOnOutletBranch), cvf::Vec3d::Z_AXIS);
+                                            cvf::Vec3d linePlaneIntersect;
+                                            if (depthPlane.intersect(lineStart, lineEnd, &linePlaneIntersect))
+                                            {
+                                                intersectionPoint = linePlaneIntersect;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (!intersectionPoint.isUndefined())
+                    {
+                        // Find generated pipe branch this cell resides in
+                        // and insert intersection point at start of list
+
+                        bool foundBranchToInsertInto = false;
+
+                        size_t i = 0;
+                        while(!foundBranchToInsertInto && i < pipeBranchesCellIds.size())
+                        {
+                            size_t j = 0;
+                            while(!foundBranchToInsertInto && j < pipeBranchesCellIds[i].size())
+                            {
+                                const RigWellResultCell& candidate = pipeBranchesCellIds[i][j];
+                                if (isIdentical(&candidate, &branchToConnect.m_wellCells[0]))
+                                {
+                                    pipeBranchesCellIds[i].insert(pipeBranchesCellIds[i].begin(), candidate);
+                                    pipeBranchesCLCoords[i].insert(pipeBranchesCLCoords[i].begin(), intersectionPoint);
+
+                                    foundBranchToInsertInto = true;
+                                }
+
+                                j++;
+                            }
+
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        // Could not detect intersection, use well head as fall back?
+                        // Currently, if nothing is found, the end of the branch closest to well head is not connected to main branch
+                    }
+                }
+            }
+        }
     }
 
     CVF_ASSERT(pipeBranchesCellIds.size() == pipeBranchesCLCoords.size());

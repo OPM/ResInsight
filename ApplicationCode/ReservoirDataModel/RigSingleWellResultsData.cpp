@@ -118,7 +118,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
-        size_t branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchNumber;
+        size_t branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchIndex;
         std::vector<RigWellResultCell>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_wellCells;
        
         std::list< RigWellResultCell >& branch =  staticWellBranches[branchNumber];
@@ -137,7 +137,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
         for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx)
         {
-            size_t branchNumber = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchNumber;
+            size_t branchNumber = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchIndex;
             std::vector<RigWellResultCell>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_wellCells;
 
             std::list< RigWellResultCell >& stBranch =  staticWellBranches[branchNumber];
@@ -252,12 +252,15 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     for (bIt = staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt)
     {
-        RigWellResultBranch rigBranch;
-        rigBranch.m_branchNumber = bIt->first;
+        // Copy from first time step
+        RigWellResultBranch rigBranch = m_wellCellsTimeSteps[0].m_wellResultBranches[bIt->first];
+        rigBranch.m_branchIndex = bIt->first;
+
+        // Clear well cells, and insert the collection of well cells for the static situation
+        rigBranch.m_wellCells.clear();
 
         std::list< RigWellResultCell >& branch =  bIt->second;
         std::list< RigWellResultCell >::iterator cIt;
-
         for (cIt = branch.begin(); cIt != branch.end(); ++cIt)
         {
             RigWellResultCell rwc = *cIt;
@@ -267,5 +270,21 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
         m_staticWellCells.m_wellResultBranches.push_back(rigBranch);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigSingleWellResultsData::setMultiSegmentWell(bool isMultiSegmentWell)
+{
+    m_isMultiSegmentWell = isMultiSegmentWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigSingleWellResultsData::isMultiSegmentWell() const
+{
+    return m_isMultiSegmentWell;
 }
 

@@ -31,15 +31,11 @@ struct RigWellResultCell
     RigWellResultCell() : 
         m_gridIndex(cvf::UNDEFINED_SIZE_T), 
         m_gridCellIndex(cvf::UNDEFINED_SIZE_T), 
-        m_branchId(-1),
-        m_segmentId(-1),
         m_isOpen(false) 
     { }
 
     size_t m_gridIndex;
     size_t m_gridCellIndex;     //< Index to cell which is included in the well
-    int    m_branchId;
-    int    m_segmentId;
 
     bool   m_isOpen;            //< Marks the well as open or closed as of Eclipse simulation
 };
@@ -47,10 +43,13 @@ struct RigWellResultCell
 struct RigWellResultBranch
 {
     RigWellResultBranch() :
-        m_branchNumber(cvf::UNDEFINED_SIZE_T)
+        m_branchIndex(cvf::UNDEFINED_SIZE_T),
+        m_ertBranchId(-1),
+        m_useBranchHeadAsCenterLineIntersectionTop(false)
     {}
 
-    size_t                         m_branchNumber;
+    size_t                         m_branchIndex;
+    int                            m_ertBranchId;
 
     std::vector<RigWellResultCell> m_wellCells;
     
@@ -58,11 +57,13 @@ struct RigWellResultBranch
     // For standard wells, this is always well head.
     RigWellResultCell               m_branchHead;
 
+    bool                            m_useBranchHeadAsCenterLineIntersectionTop;
+
     // If the outlet segment does not have any connections, it is not possible to populate branch head
     // Instead, use the intersection segment outlet branch index and the depth of this segment to identify intersection point
     // when computing centerline coords in RivWellPipesPartMgr
-    size_t                          m_intersectionSegmentOutletBranchIndex;
-    double                          m_intersectionSegmentOutletDepth;
+    int                             m_outletErtBranchId;
+    double                          m_connectionDepthOnOutletBranch;
 };
 
 class RigWellResultFrame
@@ -113,6 +114,11 @@ public:
 class RigSingleWellResultsData : public cvf::Object
 {
 public:
+    RigSingleWellResultsData() { m_isMultiSegmentWell = false; }
+
+    void setMultiSegmentWell(bool isMultiSegmentWell);
+    bool isMultiSegmentWell() const;
+
     bool hasWellResult(size_t resultTimeStepIndex) const;
     size_t firstResultTimeStep() const;
 
@@ -124,6 +130,7 @@ public:
 
 public:
     QString                             m_wellName;
+    bool                                m_isMultiSegmentWell;
 
     std::vector<size_t>                 m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
     std::vector< RigWellResultFrame >   m_wellCellsTimeSteps;
