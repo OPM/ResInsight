@@ -25,27 +25,53 @@
 #include "RimDefines.h"
 #include <QDateTime>
 #include <vector>
+#include "cvfVector3.h"
 
 struct RigWellResultCell
 {
     RigWellResultCell() : 
         m_gridIndex(cvf::UNDEFINED_SIZE_T), 
         m_gridCellIndex(cvf::UNDEFINED_SIZE_T), 
-        m_isOpen(false) 
+        m_isOpen(false),
+        m_ertBranchId(-1),
+        m_ertSegmentId(-1),
+        m_interpolatedCenter(cvf::Vec3d::UNDEFINED),
+        m_connectedBranchCount(0)
     { }
+
+    bool hasBranchConnections() const
+    {
+        return m_connectedBranchCount != 0;
+    }
+
+    bool hasGridConnections() const
+    {
+        return m_gridCellIndex != cvf::UNDEFINED_SIZE_T;
+    }
+
+    bool hasConnections() const
+    {
+        return hasGridConnections() || hasBranchConnections();
+    }
+
 
     size_t m_gridIndex;
     size_t m_gridCellIndex;     //< Index to cell which is included in the well
 
     bool   m_isOpen;            //< Marks the well as open or closed as of Eclipse simulation
+
+    int     m_ertBranchId;
+    int     m_ertSegmentId;
+
+    cvf::Vec3d m_interpolatedCenter;
+    size_t     m_connectedBranchCount;
 };
 
 struct RigWellResultBranch
 {
     RigWellResultBranch() :
         m_branchIndex(cvf::UNDEFINED_SIZE_T),
-        m_ertBranchId(-1),
-        m_useBranchHeadAsCenterLineIntersectionTop(false)
+        m_ertBranchId(-1)
     {}
 
     size_t                         m_branchIndex;
@@ -56,8 +82,6 @@ struct RigWellResultBranch
     // Grid cell from last connection in outlet segment. For MSW wells, this is either well head or a well result cell in another branch
     // For standard wells, this is always well head.
     RigWellResultCell               m_branchHead;
-
-    bool                            m_useBranchHeadAsCenterLineIntersectionTop;
 
     // If the outlet segment does not have any connections, it is not possible to populate branch head
     // Instead, use the intersection segment outlet branch index and the depth of this segment to identify intersection point
@@ -79,6 +103,8 @@ public:
 
     const RigWellResultCell* findResultCell(size_t gridIndex, size_t gridCellIndex) const
     {
+        CVF_ASSERT(gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T);
+
         if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
         {
             return &m_wellHead;

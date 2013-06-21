@@ -707,6 +707,38 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
     return true;
 }
 
+
+
+// Helper structure to handle the metadata for connections in segments
+struct SegmentData
+{
+    SegmentData(const well_conn_collection_type* connections) :
+    m_branchId(-1),
+    m_segmentId(-1),
+    m_gridIndex(cvf::UNDEFINED_SIZE_T),
+    m_connections(connections)
+    {}
+
+    int m_branchId;
+    int m_segmentId;
+    size_t m_gridIndex;
+    const well_conn_collection_type* m_connections;
+};
+
+void getSegmentDataByBranchId(const std::list<SegmentData>& segments, std::vector<SegmentData>& branchSegments, int branchId)
+{
+    std::list<SegmentData>::const_iterator it;
+
+    for (it = segments.begin(); it != segments.end(); it++)
+    {
+        if (it->m_branchId == branchId)
+        {
+            branchSegments.push_back(*it);
+        }
+    }
+}
+
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -823,6 +855,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                     wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI, cellJ, cellK);
                     wellResFrame.m_wellHead.m_gridIndex = gridNr;
                 }
+                else
+                {
+                    CVF_ASSERT(0);
+                }
 
 
                 std::string gridName;
@@ -836,125 +872,106 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                     gridName = rigGrid->gridName();
                 }
 
+
+
+                std::list<SegmentData> segmentList;
+                std::vector<const well_segment_type*> outletBranchSegmentList;  // Keep a list of branch outlet segments to avoid traversal twice
+
+                int branchCount = 0;
                 if (well_state_is_MSW(ert_well_state))
                 {
-                    well_branch_collection_type* branches = well_state_get_branches(ert_well_state);
-                    
-                    wellResFrame.m_wellResultBranches.resize(well_branch_collection_get_size(branches));
+                    wellResults->setMultiSegmentWell(true);
 
+                    well_branch_collection_type* branches = well_state_get_branches(ert_well_state);
+
+                    branchCount = well_branch_collection_get_size(branches);
                     for (int branchIdx = 0; branchIdx < well_branch_collection_get_size(branches); branchIdx++)
                     {
-                        RigWellResultBranch& rigWellResultBranch = wellResFrame.m_wellResultBranches[branchIdx];
-                        rigWellResultBranch.m_branchIndex = branchIdx;
-                        wellResults->setMultiSegmentWell(true);
-                        
-                        const well_segment_type* branchBottomSegment = well_branch_collection_iget_start_segment(branches, branchIdx);
-                        CVF_ASSERT(branchBottomSegment);
+                        const well_segment_type* segment = well_branch_collection_iget_start_segment(branches, branchIdx);
+                        int branchId = well_segment_get_branch_id(segment);
 
-                        std::vector<const well_segment_type*> ertBranchSegments; // Segment closest to well head first in this vector
-
-                        rigWellResultBranch.m_ertBranchId = well_segment_get_branch_id(branchBottomSegment);
-
-
-                        // Find outlet segment in next branch
-                        // Start from bottom, and iterate over segments until next branch is detected
-
-                        int outletErtBranchId = rigWellResultBranch.m_ertBranchId;
-                        const well_segment_type* outletSegmentInNextBranch = branchBottomSegment;
-                        while (outletSegmentInNextBranch && outletErtBranchId == rigWellResultBranch.m_ertBranchId)
+                        while (segment && branchId == well_segment_get_branch_id(segment))
                         {
-                            // Insert at front, as we want the segments to be ordered starting closest to the well head
-                            ertBranchSegments.insert(ertBranchSegments.begin(), outletSegmentInNextBranch);
-
-                            outletSegmentInNextBranch = well_segment_get_outlet(outletSegmentInNextBranch);
-                            if (outletSegmentInNextBranch)
+                            SegmentData segmentData(NULL);
+                            segmentData.m_branchId = branchId;
+                            segmentData.m_segmentId = well_segment_get_id(segment);
+                            segmentData.m_gridIndex = gridNr;
+                            
+                            if (well_segment_has_grid_connections(segment, gridName.data()))
                             {
-                                outletErtBranchId = well_segment_get_branch_id(outletSegmentInNextBranch);
+                                const well_conn_collection_type* connections = well_segment_get_connections(segment, gridName.data());
+                                segmentData.m_connections = connections;
                             }
-                        }
+                            
+                            // Insert in front, as the segments are accessed starting from grid cell closes to well head
+                            segmentList.push_front(segmentData);
 
-                        if (outletSegmentInNextBranch)
-                        {
-                            rigWellResultBranch.m_connectionDepthOnOutletBranch = well_segment_get_depth(outletSegmentInNextBranch);
-
-                            // No connections present in segment this branch is connected to
-                            // Store intersection data used for visualization in RivWellPipesPartMgr
-                            rigWellResultBranch.m_outletErtBranchId = outletErtBranchId;
-                        }
-
-                        // Get first segment with connections in order to find grid cell index to connect the branch to
-                        while(outletSegmentInNextBranch && !well_segment_has_grid_connections(outletSegmentInNextBranch, gridName.data()))
-                        {
-                            outletSegmentInNextBranch = well_segment_get_outlet(outletSegmentInNextBranch);
-
-                            // There are no connections in the directly connected outlet segment.
-                            rigWellResultBranch.m_useBranchHeadAsCenterLineIntersectionTop = true;
-                        }
-
-                        if (outletSegmentInNextBranch)
-                        {
-                            const well_conn_collection_type* connections = well_segment_get_connections(outletSegmentInNextBranch, gridName.data());
-                            CVF_ASSERT(connections);
-                            size_t existingConnCount = rigWellResultBranch.m_wellCells.size();
-                            int connectionCount = well_conn_collection_get_size(connections);
-                            CVF_ASSERT(connectionCount > 0);
-
-                            // Get last connection from the outlet segment
-                            well_conn_type* ert_connection = well_conn_collection_iget(connections, connectionCount - 1);
-                            int cellI = well_conn_get_i( ert_connection );
-                            int cellJ = well_conn_get_j( ert_connection );
-                            int cellK = well_conn_get_k( ert_connection );
-
-                            // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
-                            // Adjust K so index is always in valid grid region
-                            if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
+                            if (well_segment_get_outlet_id(segment) == -1)
                             {
-                                cellK -= static_cast<int>(grids[gridNr]->cellCountK());
+                                break;
                             }
 
-                            rigWellResultBranch.m_branchHead.m_gridIndex = gridNr;
-                            rigWellResultBranch.m_branchHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI , cellJ , cellK);
-                            rigWellResultBranch.m_branchHead.m_isOpen = well_conn_open(ert_connection);
-                            CVF_ASSERT(rigWellResultBranch.m_branchHead.m_gridCellIndex != cvf::UNDEFINED_SIZE_T);
+                            segment = well_segment_get_outlet(segment);
+                        }
 
+                        outletBranchSegmentList.push_back(segment);
+                    }
+                }
+                else
+                {
+                    branchCount = 1;
+
+                    const well_conn_collection_type* connections = well_state_get_grid_connections(ert_well_state, gridName.data());
+                    SegmentData segmentData(connections);
+                    segmentData.m_gridIndex = gridNr;
+                    segmentList.push_front(segmentData);
+                }
+
+                size_t currentGridBranchStartIndex = wellResFrame.m_wellResultBranches.size();
+                wellResFrame.m_wellResultBranches.resize(currentGridBranchStartIndex + branchCount);
+
+
+                // Import all well result cells for all connections
+                for (int branchIdx = 0; branchIdx < branchCount; branchIdx++)
+                {
+                    RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + branchIdx];
+                    wellResultBranch.m_branchIndex = branchIdx;
+                    wellResultBranch.m_ertBranchId = branchIdx;
+
+                    std::vector<SegmentData> branchSegments;
+                    getSegmentDataByBranchId(segmentList, branchSegments, branchIdx);
+
+                    for (size_t segmentIdx = 0; segmentIdx < branchSegments.size(); segmentIdx++)
+                    {
+                        SegmentData& connData = branchSegments[segmentIdx];
+
+                        if (!connData.m_connections)
+                        {
+                            size_t existingCellCount = wellResultBranch.m_wellCells.size();
+                            wellResultBranch.m_wellCells.resize(existingCellCount + 1);
+                            
+                            RigWellResultCell& data = wellResultBranch.m_wellCells[existingCellCount];
+
+                            data.m_ertBranchId = connData.m_branchId;
+                            data.m_ertSegmentId = connData.m_segmentId;
                         }
                         else
                         {
-                            // Use well head as branch head
-                            rigWellResultBranch.m_branchHead = wellResFrame.m_wellHead;
-                            CVF_ASSERT(rigWellResultBranch.m_branchHead.m_gridCellIndex != cvf::UNDEFINED_SIZE_T);
+                            int connectionCount = well_conn_collection_get_size(connData.m_connections);
 
-
-                            // TODO: Possibly add branch ID for the main branch the well head is a part of
-                        }
-
-                        CVF_ASSERT(rigWellResultBranch.m_branchHead.m_gridCellIndex != cvf::UNDEFINED_SIZE_T);
-
-
-                        for (size_t i = 0; i < ertBranchSegments.size(); i++)
-                        {
-                            outletSegmentInNextBranch = ertBranchSegments[i];
-
-                            const well_conn_collection_type* connections = well_segment_get_connections(outletSegmentInNextBranch , gridName.data());
-                            if (!connections) continue;
-
-                            size_t existingConnCount = rigWellResultBranch.m_wellCells.size();
-                            int connectionCount = well_conn_collection_get_size(connections);
-                            if (connectionCount > 0)
-                            {
-                                rigWellResultBranch.m_wellCells.resize(existingConnCount + connectionCount);
-                            }
+                            size_t existingCellCount = wellResultBranch.m_wellCells.size();
+                            wellResultBranch.m_wellCells.resize(existingCellCount + connectionCount);
 
                             for (int connIdx = 0; connIdx < connectionCount; connIdx++)
                             {
-                                well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
+                                well_conn_type* ert_connection = well_conn_collection_iget(connData.m_connections, connIdx);
+                                CVF_ASSERT(ert_connection);
 
-                                RigWellResultCell& data = rigWellResultBranch.m_wellCells[existingConnCount + connIdx];
+                                RigWellResultCell& data = wellResultBranch.m_wellCells[existingCellCount + connIdx];
                                 int cellI = well_conn_get_i( ert_connection );
                                 int cellJ = well_conn_get_j( ert_connection );
                                 int cellK = well_conn_get_k( ert_connection );
-                                bool open = well_conn_open( ert_connection );
-                                int segmentId = well_conn_get_segment( ert_connection );
+                                bool isCellOpen = well_conn_open( ert_connection );
 
                                 // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
                                 // Adjust K so index is always in valid grid region
@@ -964,56 +981,147 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                                 }
 
                                 data.m_gridIndex = gridNr;
-                                data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI , cellJ , cellK);
-                                data.m_isOpen    = open;
+                                data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI, cellJ, cellK);
+
+                                data.m_isOpen = isCellOpen;
+
+                                data.m_ertBranchId = connData.m_branchId;
+                                data.m_ertSegmentId = connData.m_segmentId;
                             }
                         }
                     }
                 }
-                else
+
+
+                if (well_state_is_MSW(ert_well_state))
                 {
-                    const well_conn_collection_type* connections = well_state_get_grid_connections(ert_well_state, gridName.data());
-                    if (connections)
+                    for (int branchIdx = 0; branchIdx < branchCount; branchIdx++)
                     {
-                        size_t branchIdx = wellResFrame.m_wellResultBranches.size();
-                        wellResFrame.m_wellResultBranches.resize(branchIdx + 1);
+                        RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + branchIdx];
 
-                        RigWellResultBranch& wellSegment = wellResFrame.m_wellResultBranches[branchIdx];
-                        wellSegment.m_branchIndex = branchIdx;
-
-                        int connectionCount = well_conn_collection_get_size(connections);
-                        size_t existingConnCount = wellSegment.m_wellCells.size();
-                        wellSegment.m_wellCells.resize(existingConnCount + connectionCount);
-
-                        for (int connIdx = 0; connIdx < connectionCount; connIdx++)
+                        const well_segment_type* outletBranchSegment = outletBranchSegmentList[branchIdx];
+                        if (outletBranchSegment)
                         {
-                            well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
+                            int outletErtBranchId = well_segment_get_branch_id(outletBranchSegment);
+                            
+                            RigWellResultBranch& outletResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletErtBranchId];
 
-                            RigWellResultCell& data = wellSegment.m_wellCells[existingConnCount + connIdx];
-                            int cellI = well_conn_get_i( ert_connection );
-                            int cellJ = well_conn_get_j( ert_connection );
-                            int cellK = well_conn_get_k( ert_connection );
-                            bool isCellOpen = well_conn_open( ert_connection );
-
-                            // TODO: Are these available for this type of well?
-                            int segmentId = well_conn_get_segment( ert_connection );
-
-                            // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
-                            // Adjust K so index is always in valid grid region
-                            if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
+                            int outletErtSegmentId = well_segment_get_branch_id(outletBranchSegment);
+                            size_t lastCellIndexForSegmentId = cvf::UNDEFINED_SIZE_T;
+                            for (size_t outletCellIdx = 0; outletCellIdx < outletResultBranch.m_wellCells.size(); outletCellIdx++)
                             {
-                                cellK -= static_cast<int>(grids[gridNr]->cellCountK());
+                                if (outletResultBranch.m_wellCells[outletCellIdx].m_ertSegmentId == outletErtSegmentId)
+                                {
+                                    lastCellIndexForSegmentId = outletCellIdx;
+                                }
                             }
 
-                            data.m_gridIndex = gridNr;
-                            data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI , cellJ , cellK);
+                            CVF_ASSERT(lastCellIndexForSegmentId != cvf::UNDEFINED_SIZE_T);
 
-                            data.m_isOpen    = isCellOpen;
+                            if (lastCellIndexForSegmentId != cvf::UNDEFINED_SIZE_T)
+                            {
+                                if (outletResultBranch.m_wellCells[lastCellIndexForSegmentId].hasGridConnections())
+                                {
+                                    wellResultBranch.m_branchHead = outletResultBranch.m_wellCells[lastCellIndexForSegmentId];
+                                }
+                                else
+                                {
+                                    // There are no connections on outlet branch segment
+                                    // Add center coordinate of first connected well cell
+
+                                    RigWellResultCell& outletCell = outletResultBranch.m_wellCells[lastCellIndexForSegmentId];
+
+                                    size_t firstCellWithGridConnection = cvf::UNDEFINED_SIZE_T;
+                                    for (size_t j = 0; j < wellResultBranch.m_wellCells.size(); j++)
+                                    {
+                                        if (wellResultBranch.m_wellCells[j].hasGridConnections())
+                                        {
+                                            firstCellWithGridConnection = j;
+                                            break;
+                                        }
+                                    }
+
+                                    if (firstCellWithGridConnection != cvf::UNDEFINED_SIZE_T)
+                                    {
+                                        const RigCell& cell = m_eclipseCase->cellFromWellResultCell(wellResultBranch.m_wellCells[firstCellWithGridConnection]);
+                                        cvf::Vec3d coordToAdd = cell.center();
+
+                                        size_t currentCellIndex = lastCellIndexForSegmentId;
+                                        RigWellResultCell& currCell = outletResultBranch.m_wellCells[currentCellIndex];
+
+                                        while (currentCellIndex != cvf::UNDEFINED_SIZE_T && !currCell.hasGridConnections())
+                                        {
+                                            size_t coordCount = currCell.m_connectedBranchCount;
+                                            if (coordCount == 0)
+                                            {
+                                                currCell.m_interpolatedCenter = coordToAdd;
+                                            }
+                                            else
+                                            {
+                                                cvf::Vec3d tmp = currCell.m_interpolatedCenter * coordCount / static_cast<double>(coordCount + 1);
+                                                cvf::Vec3d toBeAdded = coordToAdd / static_cast<double>(coordCount + 1);
+
+                                                currCell.m_interpolatedCenter = tmp + toBeAdded;
+                                            }
+
+                                            currCell.m_connectedBranchCount++;
+
+                                            if (currentCellIndex == 0)
+                                            {
+                                                currentCellIndex = cvf::UNDEFINED_SIZE_T;
+
+                                                // Find the branch the outlet is connected to, and continue update of
+                                                // segments until a segment with a grid connection is found
+                                                RigWellResultCell& branchHead = outletResultBranch.m_branchHead;
+                                                if (branchHead.m_ertBranchId == -1 || currCell.m_ertBranchId == branchHead.m_ertBranchId)
+                                                {
+                                                    continue;
+                                                }
+
+                                                for (int outletBranchIdx = 0; outletBranchIdx < branchCount; outletBranchIdx++)
+                                                {
+                                                    if (wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletBranchIdx].m_ertBranchId == branchHead.m_ertBranchId)
+                                                    {
+                                                        outletResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletBranchIdx];
+
+                                                        for (int outletBranchCellIdx = 0; outletBranchCellIdx < outletResultBranch.m_wellCells.size(); outletBranchCellIdx++)
+                                                        {
+                                                            if (outletResultBranch.m_wellCells[outletBranchCellIdx].m_ertSegmentId == branchHead.m_ertSegmentId)
+                                                            {
+                                                                currentCellIndex = outletBranchCellIdx;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                currentCellIndex--;
+                                            }
+
+                                            if(currentCellIndex >= 0 && currentCellIndex < outletResultBranch.m_wellCells.size())
+                                            {
+                                                currCell = outletResultBranch.m_wellCells[currentCellIndex];
+                                            }
+                                        }
+                                    }
+
+                                    wellResultBranch.m_branchHead = outletCell;
+                                }
+                            }
                         }
-                    }  
+                        else
+                        {
+                            // No branch head is assigned, use well head as fall back
+                            wellResultBranch.m_branchHead = wellResFrame.m_wellHead;
+                        }
+
+                        CVF_ASSERT(wellResultBranch.m_branchHead.hasConnections());
+                    }
                 }
             }
         }
+
 
         wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(m_timeSteps);
 
