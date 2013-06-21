@@ -41,6 +41,7 @@
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
 #include <fstream>
+#include <limits>
 
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
@@ -221,35 +222,64 @@ void RimWellPath::readJsonWellPathFile()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Read a well path ascii file in the format specified by Lars Hustoft
+/// Except that we here only handle one well path in one file.
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::readAsciiWellPathFile()
 {
     RigWellPath* wellPathGeom = new RigWellPath();
-    
-    std::ifstream stream(filepath().toLatin1().data());
-    double x, y, tvd, md;
 
+    std::ifstream stream(filepath().toLatin1().data());
+    double x(HUGE_VAL), y(HUGE_VAL), tvd(HUGE_VAL), md(HUGE_VAL);
+    bool foundWellName = false;
     while(stream.good())
     {
-        std::string wellNameKw;
-        stream >> wellNameKw;
-
-    
-    while (stream.good())
-    {
-        stream >> x >> y >> tvd >> md; 
+        stream >> x;
         if (stream.good())
         {
-            cvf::Vec3d wellPoint(x, y, -tvd);
-            wellPathGeom->m_wellPathPoints.push_back(wellPoint);
+             stream >> y >> tvd >> md;
+             if (!stream.good())
+             {
+                 // -999 or otherwise to few numbers before some word
+                 if (x != -999)
+                 {
+                     // Error in file: missing numbers at this line
+
+                 }
+                 stream.clear();
+             }
+             else
+             {
+                 cvf::Vec3d wellPoint(x, y, -tvd);
+                 wellPathGeom->m_wellPathPoints.push_back(wellPoint);
+                 x = HUGE_VAL;
+                 y = HUGE_VAL;
+                 tvd = HUGE_VAL;
+                 md = HUGE_VAL;
+             }
+        }
+        else
+        {
+            // Could not read one double.
+            // we assume there is a comment line or a well path description
+            stream.clear();
+            std::string line;
+            std::getline(stream, line, '\n');
+            size_t quoteStartIdx = line.find_first_of("'`´’‘");
+            size_t quoteEndIdx = line.find_last_of("'`´’‘");
+            if (quoteStartIdx < line.size() -1 )
+            {
+                // If we have already read a well name stop parsing the file, 
+                // as the rest is a new well which we cant handle right now.
+                if (foundWellName) break; 
+
+                // Extract the text between the quotes
+                std::string wellName = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
+                this->name = wellName.c_str();
+                foundWellName = true;
+            }
         }
     }
 
-    if (stream.eof()) break;
-
-    stream.clear();
-
-    }
     setWellPathGeometry(wellPathGeom);
 }
