@@ -292,7 +292,8 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     }
                     else
                     {
-                        // No well head found
+                        // No branch head found: Possibly main branch
+                        CVF_ASSERT(false);
                     }
                 }
             }
@@ -424,21 +425,29 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 prevResCell = &resCell;
              }
 
-            if (prevResCell && wellResults->isMultiSegmentWell())
+            if ( wellResults->isMultiSegmentWell())
             {
                 // All MSW branches are completed using the point 0.5 past the center of last cell
-                const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
-                cvf::Vec3d centerPrevCell = prevCell.center();
-                pipeBranchesCLCoords.back().push_back(pipeBranchesCLCoords.back().back() + 1.5*(centerPrevCell - pipeBranchesCLCoords.back().back())  );
+                size_t clCoordCount = pipeBranchesCLCoords.back().size();
+                CVF_ASSERT(clCoordCount >= 2);
+                cvf::Vec3d centerPrevCell = pipeBranchesCLCoords.back()[clCoordCount - 2];
+                cvf::Vec3d centerThisCell = pipeBranchesCLCoords.back()[clCoordCount - 1];
+
+                pipeBranchesCLCoords.back().push_back(centerThisCell + 1.5*(centerPrevCell - centerThisCell)  );
             }
         }
 
-        if (prevResCell && !wellResults->isMultiSegmentWell())
+        if (!wellResults->isMultiSegmentWell())
         {
+            // None MSW wells 
             // For the last cell, add the point 0.5 past the center of that cell
-            const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevResCell);
-            cvf::Vec3d centerPrevCell = prevCell.center();
-            pipeBranchesCLCoords.back().push_back(pipeBranchesCLCoords.back().back() + 1.5*(centerPrevCell - pipeBranchesCLCoords.back().back())  );
+
+            size_t clCoordCount = pipeBranchesCLCoords.back().size();
+            CVF_ASSERT(clCoordCount >= 2);
+            cvf::Vec3d centerPrevCell = pipeBranchesCLCoords.back()[clCoordCount - 2];
+            cvf::Vec3d centerThisCell = pipeBranchesCLCoords.back()[clCoordCount - 1];
+
+            pipeBranchesCLCoords.back().push_back(centerThisCell + 1.5*(centerPrevCell - centerThisCell)  );
         }
 
     }
