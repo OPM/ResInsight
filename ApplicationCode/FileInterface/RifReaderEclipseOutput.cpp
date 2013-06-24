@@ -876,6 +876,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
 
                 std::list<SegmentData> segmentList;
                 std::vector<const well_segment_type*> outletBranchSegmentList;  // Keep a list of branch outlet segments to avoid traversal twice
+                std::vector<int> ertBranchIDs;
 
                 int branchCount = 0;
                 if (well_state_is_MSW(ert_well_state))
@@ -889,6 +890,8 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                     {
                         const well_segment_type* segment = well_branch_collection_iget_start_segment(branches, branchIdx);
                         int branchId = well_segment_get_branch_id(segment);
+
+                        ertBranchIDs.push_back(branchId);
 
                         while (segment && branchId == well_segment_get_branch_id(segment))
                         {
@@ -920,6 +923,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                 else
                 {
                     branchCount = 1;
+                    ertBranchIDs.push_back(0);
 
                     const well_conn_collection_type* connections = well_state_get_grid_connections(ert_well_state, gridName.data());
                     SegmentData segmentData(connections);
@@ -936,10 +940,12 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                 {
                     RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + branchIdx];
                     wellResultBranch.m_branchIndex = branchIdx;
-                    wellResultBranch.m_ertBranchId = branchIdx;
+
+                    int ertBranchId = ertBranchIDs[branchIdx];
+                    wellResultBranch.m_ertBranchId = ertBranchId;
 
                     std::vector<SegmentData> branchSegments;
-                    getSegmentDataByBranchId(segmentList, branchSegments, branchIdx);
+                    getSegmentDataByBranchId(segmentList, branchSegments, ertBranchId);
 
                     for (size_t segmentIdx = 0; segmentIdx < branchSegments.size(); segmentIdx++)
                     {
@@ -1007,7 +1013,16 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
 
                         int outletErtBranchId = well_segment_get_branch_id(outletBranchSegment);
 
-                        RigWellResultBranch& outletResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletErtBranchId];
+                        size_t outletErtBranchIndex = cvf::UNDEFINED_SIZE_T;
+                        for (size_t i = 0; i < ertBranchIDs.size(); i++)
+                        {
+                            if (ertBranchIDs[i] == outletErtBranchId)
+                            {
+                                outletErtBranchIndex = i;
+                            }
+                        }
+
+                        RigWellResultBranch& outletResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletErtBranchIndex];
 
                         int outletErtSegmentId = well_segment_get_branch_id(outletBranchSegment);
                         size_t lastCellIndexForSegmentIdInOutletBranch = cvf::UNDEFINED_SIZE_T;
@@ -1022,13 +1037,13 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                         if (lastCellIndexForSegmentIdInOutletBranch == cvf::UNDEFINED_SIZE_T)
                         {
                             // Did not find the cell in the outlet branch based on branch id and segment id from outlet cell in leaf branch
-                            // CVF_ASSERT(0);
+                            CVF_ASSERT(0);
                         }
                         else
                         {
                             RigWellResultCell& outletCell = outletResultBranch.m_wellCells[lastCellIndexForSegmentIdInOutletBranch];
 
-                            wellResultLeafBranch.m_outletBranchIndex = currentGridBranchStartIndex + outletErtBranchId;
+                            wellResultLeafBranch.m_outletBranchIndex = currentGridBranchStartIndex + outletErtBranchIndex;
                             wellResultLeafBranch.m_outletBranchHeadCellIndex = lastCellIndexForSegmentIdInOutletBranch;
                         }
                     }
