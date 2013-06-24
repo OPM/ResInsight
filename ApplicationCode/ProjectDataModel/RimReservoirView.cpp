@@ -1043,8 +1043,8 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 resultInfoText->append(QString("(0-based) Branch Id : %1  Segment Id %2\n").arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
                 if (wellResultCell->hasBranchConnections())
                 {
-                    resultInfoText->append(QString("Branch Connection Count : %1\n").arg(wellResultCell->m_connectedBranchCount));
-                    resultInfoText->append(QString("Center coord : %1 %2 %3\n").arg(wellResultCell->m_interpolatedCenter.x()).arg(wellResultCell->m_interpolatedCenter.y()).arg(wellResultCell->m_interpolatedCenter.z()));
+                    resultInfoText->append(QString("Branch Connection Count : %1\n").arg(wellResultCell->m_branchConnectionCount));
+                    resultInfoText->append(QString("Center coord : %1 %2 %3\n").arg(wellResultCell->m_averageCenter.x()).arg(wellResultCell->m_averageCenter.y()).arg(wellResultCell->m_averageCenter.z()));
                 }
             }
         }
