@@ -161,41 +161,6 @@ void RivWellPipesPartMgr::buildWellPipeParts()
     m_needsTransformUpdate = false;
 }
 
-bool isIdentical(const RigWellResultCell* a, const RigWellResultCell* b)
-{
-    CVF_ASSERT(a && b);
-
-    if (a->m_gridCellIndex != b->m_gridCellIndex) return false;
-    if (a->m_gridIndex     != b->m_gridIndex) return false;
-
-    return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const RigWellResultCell* findOutletWellResultCell(const RigWellResultCell& branchHead, const std::vector<RigWellResultBranch>& wellResultBranches, RigCaseData* rigCaseData)
-{
-    CVF_ASSERT(rigCaseData);
-
-    for (size_t i = 0; i < wellResultBranches.size(); i++)
-    {
-        if (wellResultBranches[i].m_ertBranchId == branchHead.m_ertBranchId)
-        {
-            for (size_t cellIdx = 0; cellIdx < wellResultBranches[i].m_wellCells.size(); cellIdx++)
-            {
-                if (wellResultBranches[i].m_wellCells[cellIdx].m_ertSegmentId == branchHead.m_ertSegmentId)
-                {
-                    return &(wellResultBranches[i].m_wellCells[cellIdx]);
-                }
-            }
-        }
-    }
-
-    return NULL;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -301,34 +266,33 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 }
                 else
                 {
-                    if (resBranches[brIdx].m_branchHead.hasGridConnections())
+                    const RigWellResultCell* leafBranchHead = staticWellFrame.findResultCellFromOutletSpecification(resBranches[brIdx].m_outletBranchIndex, resBranches[brIdx].m_outletBranchHeadCellIndex);
+                    if (leafBranchHead && leafBranchHead->hasGridConnections())
                     {
                         // Create a new branch and use branch head as previous result cell
 
-                        prevResCell = &(resBranches[brIdx].m_branchHead);
+                        prevResCell = leafBranchHead;
 
-                        const RigCell& cell = rigReservoir->cellFromWellResultCell(resBranches[brIdx].m_branchHead);
+                        const RigCell& cell = rigReservoir->cellFromWellResultCell(*leafBranchHead);
                         cvf::Vec3d branchHeadStartPos = cell.faceCenter(cvf::StructGridInterface::NEG_K);
 
                         pipeBranchesCLCoords.back().push_back(branchHeadStartPos);
                         pipeBranchesCellIds.back().push_back(*prevResCell);
                     }
+                    else if (leafBranchHead)
+                    {
+                        cvf::Vec3d interpolatedCoord = leafBranchHead->m_averageCenter;
+
+                        CVF_ASSERT(interpolatedCoord != cvf::Vec3d::UNDEFINED);
+                        if (interpolatedCoord != cvf::Vec3d::UNDEFINED)
+                        {
+                            pipeBranchesCLCoords.back().push_back(interpolatedCoord);
+                            pipeBranchesCellIds.back().push_back(RigWellResultCell());
+                        }
+                    }
                     else
                     {
-                        // Find outlet well result cell
-                        const RigWellResultCell* outletCell = findOutletWellResultCell(resBranches[brIdx].m_branchHead, resBranches, rigReservoir);
-                        CVF_ASSERT(outletCell);
-                        if (outletCell)
-                        {
-                            cvf::Vec3d interpolatedCoord = outletCell->m_interpolatedCenter;
-
-                            CVF_ASSERT(interpolatedCoord != cvf::Vec3d::UNDEFINED);
-                            if (interpolatedCoord != cvf::Vec3d::UNDEFINED)
-                            {
-                                pipeBranchesCLCoords.back().push_back(interpolatedCoord);
-                                pipeBranchesCellIds.back().push_back(RigWellResultCell());
-                            }
-                        }
+                        // No well head found
                     }
                 }
             }
@@ -351,7 +315,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 if (resCell.hasBranchConnections())
                 {
                     // Use the interpolated value of branch head
-                    cvf::Vec3d interpolatedCoord = resCell.m_interpolatedCenter;
+                    cvf::Vec3d interpolatedCoord = resCell.m_averageCenter;
 
                     CVF_ASSERT(interpolatedCoord != cvf::Vec3d::UNDEFINED);
                     if (interpolatedCoord != cvf::Vec3d::UNDEFINED)

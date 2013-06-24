@@ -35,13 +35,13 @@ struct RigWellResultCell
         m_isOpen(false),
         m_ertBranchId(-1),
         m_ertSegmentId(-1),
-        m_interpolatedCenter(cvf::Vec3d::UNDEFINED),
-        m_connectedBranchCount(0)
+        m_averageCenter(cvf::Vec3d::UNDEFINED),
+        m_branchConnectionCount(0)
     { }
 
     bool hasBranchConnections() const
     {
-        return m_connectedBranchCount != 0;
+        return m_branchConnectionCount != 0;
     }
 
     bool hasGridConnections() const
@@ -63,16 +63,19 @@ struct RigWellResultCell
     int     m_ertBranchId;
     int     m_ertSegmentId;
 
-    cvf::Vec3d m_interpolatedCenter;
-    size_t     m_connectedBranchCount;
+    cvf::Vec3d m_averageCenter;
+    size_t     m_branchConnectionCount;
 };
 
 struct RigWellResultBranch
 {
     RigWellResultBranch() :
         m_branchIndex(cvf::UNDEFINED_SIZE_T),
-        m_ertBranchId(-1)
+        m_ertBranchId(-1),
+        m_outletBranchIndex(cvf::UNDEFINED_SIZE_T),
+        m_outletBranchHeadCellIndex(cvf::UNDEFINED_SIZE_T)
     {}
+
 
     size_t                         m_branchIndex;
     int                            m_ertBranchId;
@@ -82,12 +85,12 @@ struct RigWellResultBranch
     // Grid cell from last connection in outlet segment. For MSW wells, this is either well head or a well result cell in another branch
     // For standard wells, this is always well head.
     RigWellResultCell               m_branchHead;
+    
+    // Grid cell from last connection in outlet segment. For MSW wells, this is either well head or a well result cell in another branch
+    // For standard wells, this is always well head.
+    size_t                          m_outletBranchIndex;
+    size_t                          m_outletBranchHeadCellIndex;
 
-    // If the outlet segment does not have any connections, it is not possible to populate branch head
-    // Instead, use the intersection segment outlet branch index and the depth of this segment to identify intersection point
-    // when computing centerline coords in RivWellPipesPartMgr
-    int                             m_outletErtBranchId;
-    double                          m_connectionDepthOnOutletBranch;
 };
 
 class RigWellResultFrame
@@ -124,6 +127,21 @@ public:
 
         return NULL;
     }
+
+    const RigWellResultCell* findResultCellFromOutletSpecification(size_t branchIndex, size_t wellResultCellIndex) const
+    {
+        if (branchIndex != cvf::UNDEFINED_SIZE_T && branchIndex < m_wellResultBranches.size())
+        {
+            const RigWellResultBranch& resBranch = m_wellResultBranches[branchIndex];
+            if (wellResultCellIndex != cvf::UNDEFINED_SIZE_T && wellResultCellIndex < resBranch.m_wellCells.size())
+            {
+                return (&resBranch.m_wellCells[wellResultCellIndex]);
+            }
+        }
+
+        return NULL;
+    }
+
 
     WellProductionType  m_productionType;
     bool                m_isOpen;
