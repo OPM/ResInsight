@@ -241,49 +241,44 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
         handlePickAction(event->x(), event->y());
         return;
     }
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::contextMenuEvent(QContextMenuEvent* contextMenuEvent)
-{
-    m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
-    m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
-
-    QPoint diffPoint = contextMenuEvent->pos() - m_lastMousePressPosition;
-    if (diffPoint.manhattanLength() > 3)
+    else if (event->button() == Qt::RightButton)
     {
-        // We are possibly in navigation mode, only clean press event will launch
-        return;
-    }
+        m_currentGridIdx = cvf::UNDEFINED_SIZE_T;
+        m_currentCellIndex = cvf::UNDEFINED_SIZE_T;
 
-    int winPosX = contextMenuEvent->x();
-    int winPosY = contextMenuEvent->y();
-
-    uint faceIndex = cvf::UNDEFINED_UINT;
-    cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
-
-    cvf::Part * firstHitPart = NULL;
-    firstHitPart = pickPointAndFace(winPosX, winPosY, &faceIndex, &localIntersectionPoint);
-    if (firstHitPart)
-    {
-        if (faceIndex != cvf::UNDEFINED_UINT)
+        QPoint diffPoint = event->pos() - m_lastMousePressPosition;
+        if (diffPoint.manhattanLength() > 3)
         {
-            if (firstHitPart->sourceInfo())
-            {
-                const cvf::Array<size_t>* cellIndices = dynamic_cast<const cvf::Array<size_t>*>(firstHitPart->sourceInfo());
-                if (cellIndices)
-                {
-                    m_currentGridIdx = firstHitPart->id();
-                    m_currentCellIndex = cellIndices->get(faceIndex);
+            // We are possibly in navigation mode, only clean press event will launch
+            return;
+        }
 
-                    QMenu menu;
-                    menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-                    menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-                    menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
-                    menu.exec(contextMenuEvent->globalPos());
+        int winPosX = event->x();
+        int winPosY = event->y();
+
+        uint faceIndex = cvf::UNDEFINED_UINT;
+        cvf::Vec3d localIntersectionPoint(cvf::Vec3d::ZERO);
+
+        cvf::Part * firstHitPart = NULL;
+        firstHitPart = pickPointAndFace(winPosX, winPosY, &faceIndex, &localIntersectionPoint);
+        if (firstHitPart)
+        {
+            if (faceIndex != cvf::UNDEFINED_UINT)
+            {
+                if (firstHitPart->sourceInfo())
+                {
+                    const cvf::Array<size_t>* cellIndices = dynamic_cast<const cvf::Array<size_t>*>(firstHitPart->sourceInfo());
+                    if (cellIndices)
+                    {
+                        m_currentGridIdx = firstHitPart->id();
+                        m_currentCellIndex = cellIndices->get(faceIndex);
+
+                        QMenu menu;
+                        menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
+                        menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
+                        menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+                        menu.exec(event->globalPos());
+                    }
                 }
             }
         }
