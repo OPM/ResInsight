@@ -27,6 +27,7 @@
 #include "RimWellPath.h"
 
 class RivWellPathCollectionPartMgr;
+class RimWellPathAsciiFileReader;
 
 //==================================================================================================
 ///  
@@ -60,14 +61,38 @@ public:
 
     caf::PdmPointersField<RimWellPath*> wellPaths;
 
-    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
-    
+   
     RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }
 
     void                                readWellPathFiles();
     void                                addWellPaths(QStringList filePaths);
+    RimWellPathAsciiFileReader*         asciiFileReader() {return m_asciiFileReader;}
+
+    virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
 private:
     caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
+
+    RimWellPathAsciiFileReader*         m_asciiFileReader;
+};
+
+
+class RimWellPathAsciiFileReader
+{
+public:
+    struct WellData
+    {
+        QString                 m_name;
+        cvf::ref<RigWellPath>   m_wellPathGeometry;
+    };
+
+    WellData readWellData(QString filePath, int indexInFile);
+    size_t   wellDataCount(QString filePath);
+
+private:
+
+    void readAllWellData(QString filePath);
+
+    std::map<QString, std::vector<WellData> > m_fileNameToWellDataGroupMap;
 };

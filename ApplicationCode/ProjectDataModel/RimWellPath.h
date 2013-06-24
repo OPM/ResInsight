@@ -52,7 +52,7 @@ public:
     caf::PdmField<QString>              name;
   
     caf::PdmField<QString>              filepath;
-    //caf::PdmField<int>                  wellPathIndexInFile; // -1 means all, but is not to be used when saving.
+    caf::PdmField<int>                  wellPathIndexInFile; // -1 means none.
 
     caf::PdmField<bool>                 showWellPathLabel;
     
@@ -74,7 +74,6 @@ private:
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 
-    //RimWellPath*                        generateRimWellPathForFilePart(int wellPathNumberOnFile);
 
     caf::PdmField<QString>              id;
     caf::PdmField<QString>              sourceSystem;
