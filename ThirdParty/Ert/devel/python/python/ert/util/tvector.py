@@ -50,10 +50,6 @@ from    ert.cwrap.cclass      import CClass
 import  numpy
 
 
-
-
-
-
 class TVector(CClass):
     
     @classmethod
@@ -90,8 +86,8 @@ class TVector(CClass):
         new_obj.init_cobj( c_ptr , new_obj.free )
         return new_obj
     
-    
-    def __new__( cls , **kwargs):
+
+    def __new__( cls ):
         obj = object.__new__( cls )
         return obj
 
@@ -233,13 +229,10 @@ class TVector(CClass):
         subtraction operations: __isub__, __sub__ and __rsub__.
         """
         if type(self) == type(delta):
-            if self.size == delta.size:
-                # This is vector + vector operation. 
-                if not add:
-                    self.scale( delta , -1 )
-                self.inplace_add( self , delta )
-            else:
-                raise ValueError("Incompatible sizes for add self:%d  other:%d" % (self.size , delta.size))
+            # This is vector + vector operation. 
+            if not add:
+                self.scale( delta , -1 )
+            self.inplace_add( self , delta )
         else:
             if isinstance( delta , int ) or isinstance( delta, float):
                 if not add:
@@ -267,10 +260,7 @@ class TVector(CClass):
 
         if type(self) == type(factor):
             # This is vector * vector operation. 
-            if self.size == factor.size:
-                self.inplace_mul( self , factor  )
-            else:
-                raise ValueError("Incompatible sizes for mul self:%d  other:%d" % (self.size , factor.size))
+            self.inplace_mul( self , factor  )
         else:
             if isinstance( factor , int ) or isinstance( factor, float):
                 self.scale( self , factor )
@@ -330,14 +320,10 @@ class TVector(CClass):
     def __rmul__(self , factor):
         return self.__mul__( factor )
     
-
-    def __div__(self , divisor):
-        if isinstance( divisor , int ) or isinstance( divisor , float):
-            copy = self.__copy__( self )
-            copy.div( copy , divisor )
-            return copy
-        else:
-            raise TypeError("Divisor has wrong type:%s" % type( divisor ))
+    def __div__(self , factor):
+        copy = self.deep_copy()
+        copy /= factor
+        return copy
     
     # No __rdiv__()
 
@@ -375,7 +361,7 @@ class TVector(CClass):
 
     def __len__(self):
         """
-        The number of elements in the vector.
+        The number of elements in the vector."
         """
         return self.get_size( self )
     
@@ -411,7 +397,6 @@ class TVector(CClass):
         else:
             raise IndexError
         
-
     def min_index( self , reverse = False ):
         if self.get_size( self ) > 0:
             return self.get_min_index( self , reverse )
@@ -503,15 +488,11 @@ class TVector(CClass):
 
 #################################################################
 
-# The ctypes type system with CWrapper.registerType() needs access to
-# the wrapper object class definitions, and the warpper objects need
-# access to the cfunc.xxxx function objects; that is the reason we
-# invoke the ugly cls.initialized flag.
 
 class DoubleVector(TVector):
     initialized = False
 
-    def __new__( cls , **kwargs ):
+    def __new__( cls , *arglist ):
         if not cls.initialized:
             cls.csort         = cfunc.double_vector_sort
             cls.crsort        = cfunc.double_vector_rsort
@@ -535,7 +516,6 @@ class DoubleVector(TVector):
             cls.get_min_index = cfunc.double_vector_get_min_index
             cls.shift         = cfunc.double_vector_shift
             cls.scale         = cfunc.double_vector_scale
-            cls.div           = cfunc.double_vector_div
             cls.inplace_add   = cfunc.double_vector_inplace_add
             cls.inplace_mul   = cfunc.double_vector_inplace_mul
             cls.cassign       = cfunc.double_vector_assign
@@ -549,7 +529,7 @@ class DoubleVector(TVector):
             cls.def_fmt       = "%8.4f"
             cls.initialized = True
 
-        obj = TVector.__new__( cls , kwargs )
+        obj = TVector.__new__( cls )
         return obj
     
 
@@ -557,7 +537,7 @@ class DoubleVector(TVector):
 class BoolVector(TVector):
     initialized = False
 
-    def __new__( cls , **kwargs ):
+    def __new__( cls , *arglist ):
         if not cls.initialized:
             cls.csort         = cfunc.bool_vector_sort
             cls.crsort        = cfunc.bool_vector_rsort
@@ -581,7 +561,6 @@ class BoolVector(TVector):
             cls.get_min_index = cfunc.bool_vector_get_min_index
             cls.shift         = cfunc.bool_vector_shift
             cls.scale         = cfunc.bool_vector_scale
-            cls.div           = cfunc.bool_vector_div
             cls.inplace_add   = cfunc.bool_vector_inplace_add
             cls.inplace_mul   = cfunc.bool_vector_inplace_mul
             cls.cassign       = cfunc.bool_vector_assign
@@ -595,7 +574,7 @@ class BoolVector(TVector):
             cls.def_fmt       = "%8d"
             cls.initialized = True
 
-        obj = TVector.__new__( cls , **kwargs)
+        obj = TVector.__new__( cls )
         return obj
 
 
@@ -619,17 +598,6 @@ class BoolVector(TVector):
         new_obj.init_cobj( c_ptr , new_obj.free )
         return new_obj
 
-    @classmethod
-    def create_from_list(cls, size, list):
-        """Allocates a bool vector from a Python list"""
-        new_obj = BoolVector.__new__(cls)
-        c_ptr = cfunc.bool_vector_alloc(size , False) 
-        for index in list:
-            cfunc.bool_vector_iset(c_ptr, index, True)
-
-        #c_ptr = cfunc.bool_vector_data_ptr(mask)
-        new_obj.init_cobj( c_ptr , new_obj.free )
-        return new_obj
 
 
 
@@ -639,10 +607,10 @@ class BoolVector(TVector):
 class IntVector(TVector):
     initialized = False
     
-    def __new__( cls , **kwargs ):
+    def __new__( cls , *arglist ):
         if not cls.initialized:
             cls.csort         = cfunc.int_vector_sort
-            cls.crsort        = cfunc.int_vector_rsort
+            cls.crsort         = cfunc.int_vector_rsort
             cls.alloc         = cfunc.int_vector_alloc
             cls.alloc_copy    = cfunc.int_vector_alloc_copy
             cls.free          = cfunc.int_vector_free
@@ -663,7 +631,6 @@ class IntVector(TVector):
             cls.get_min_index = cfunc.int_vector_get_min_index
             cls.shift         = cfunc.int_vector_shift
             cls.scale         = cfunc.int_vector_scale
-            cls.div           = cfunc.int_vector_div
             cls.inplace_add   = cfunc.int_vector_inplace_add
             cls.inplace_mul   = cfunc.int_vector_inplace_mul
             cls.cassign        = cfunc.int_vector_assign
@@ -677,7 +644,7 @@ class IntVector(TVector):
             cls.def_fmt       = "%d"
             cls.initialized = True
 
-        obj = TVector.__new__( cls , **kwargs)
+        obj = TVector.__new__( cls )
         return obj
     
     @classmethod
@@ -699,6 +666,7 @@ class IntVector(TVector):
         c_ptr = cfunc.create_active_list( range_string )
         new_obj.init_cobj( c_ptr , new_obj.free )
         return new_obj
+
 
 
 #################################################################
@@ -738,7 +706,6 @@ cfunc.double_vector_get_max_index    = cwrapper.prototype("int    double_vector_
 cfunc.double_vector_get_min_index    = cwrapper.prototype("int    double_vector_get_min_index( double_vector , bool)")
 cfunc.double_vector_shift            = cwrapper.prototype("void   double_vector_shift( double_vector , double )")
 cfunc.double_vector_scale            = cwrapper.prototype("void   double_vector_scale( double_vector , double )") 
-cfunc.double_vector_div              = cwrapper.prototype("void   double_vector_div( double_vector , double )") 
 cfunc.double_vector_inplace_add      = cwrapper.prototype("void   double_vector_inplace_add( double_vector , double_vector )")
 cfunc.double_vector_inplace_mul      = cwrapper.prototype("void   double_vector_inplace_mul( double_vector , double_vector )")
 cfunc.double_vector_assign              = cwrapper.prototype("void   double_vector_set_all( double_vector , double)")  
@@ -772,7 +739,6 @@ cfunc.int_vector_get_max_index       = cwrapper.prototype("int    int_vector_get
 cfunc.int_vector_get_min_index       = cwrapper.prototype("int    int_vector_get_min_index( int_vector , bool)")
 cfunc.int_vector_shift               = cwrapper.prototype("void   int_vector_shift( int_vector , int )")
 cfunc.int_vector_scale               = cwrapper.prototype("void   int_vector_scale( int_vector , int )") 
-cfunc.int_vector_div                 = cwrapper.prototype("void   int_vector_div( int_vector , int )") 
 cfunc.int_vector_inplace_add         = cwrapper.prototype("void   int_vector_inplace_add( int_vector , int_vector )")
 cfunc.int_vector_inplace_mul         = cwrapper.prototype("void   int_vector_inplace_mul( int_vector , int_vector )")
 cfunc.int_vector_assign              = cwrapper.prototype("void   int_vector_set_all( int_vector , int)")  
@@ -785,7 +751,7 @@ cfunc.int_vector_element_size        = cwrapper.prototype("int    int_vector_ele
 
 
 cfunc.bool_vector_alloc_copy          = cwrapper.prototype("c_void_p bool_vector_alloc_copy( bool_vector )")
-cfunc.bool_vector_alloc               = cwrapper.prototype("c_void_p   bool_vector_alloc( int , bool )")
+cfunc.bool_vector_alloc               = cwrapper.prototype("c_void_p   bool_vector_alloc( bool , bool )")
 cfunc.bool_vector_strided_copy        = cwrapper.prototype("c_void_p   bool_vector_alloc_strided_copy( bool_vector , bool , bool , bool)")
 cfunc.bool_vector_free                = cwrapper.prototype("void   bool_vector_free( bool_vector )")
 cfunc.bool_vector_iget                = cwrapper.prototype("bool    bool_vector_iget( bool_vector , bool )")
@@ -806,7 +772,6 @@ cfunc.bool_vector_get_max_index       = cwrapper.prototype("bool    bool_vector_
 cfunc.bool_vector_get_min_index       = cwrapper.prototype("bool    bool_vector_get_min_index( bool_vector , bool)")
 cfunc.bool_vector_shift               = cwrapper.prototype("void   bool_vector_shift( bool_vector , bool )")
 cfunc.bool_vector_scale               = cwrapper.prototype("void   bool_vector_scale( bool_vector , bool )") 
-cfunc.bool_vector_div                 = cwrapper.prototype("void   bool_vector_div( bool_vector , bool )") 
 cfunc.bool_vector_inplace_add         = cwrapper.prototype("void   bool_vector_inplace_add( bool_vector , bool_vector )")
 cfunc.bool_vector_inplace_mul         = cwrapper.prototype("void   bool_vector_inplace_mul( bool_vector , bool_vector )")
 cfunc.bool_vector_assign              = cwrapper.prototype("void   bool_vector_set_all( bool_vector , bool)")  
@@ -821,4 +786,3 @@ cfunc.bool_vector_element_size        = cwrapper.prototype("int    bool_vector_e
 
 cfunc.create_active_list = cwrapper.prototype("c_void_p string_util_alloc_active_list( char* )")
 cfunc.create_active_mask = cwrapper.prototype("c_void_p string_util_alloc_active_mask( char* )")
-

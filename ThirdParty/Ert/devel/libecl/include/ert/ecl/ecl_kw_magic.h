@@ -104,7 +104,6 @@ extern "C" {
 #define ZWEL_KW      "ZWEL"
 #define ICON_KW      "ICON"
 #define ISEG_KW      "ISEG"
-#define RSEG_KW      "RSEG"
 
 #define ECLIPSE100_OIL_DEN_KW   "OIL_DEN"
 #define ECLIPSE100_GAS_DEN_KW   "GAS_DEN"
@@ -136,8 +135,8 @@ extern "C" {
 #define INTEHEAD_NSEGMX_INDEX  176
 #define INTEHEAD_NLBRMX_INDEX  177
 #define INTEHEAD_NISEGZ_INDEX  178
-#define INTEHEAD_NRSEGZ_INDEX  179
 #define INTEHEAD_NILBRZ_INDEX  180
+
 
 #define DOUBHEAD_DAYS_INDEX 0
 
@@ -231,11 +230,7 @@ extern "C" {
 #define CONGRAT_KW   "CONGRAT"  /* Gas ... */
 #define CONORAT_KW   "CONORAT"  /* Oil ... */
 #define CONPRES_KW   "CONPRES"  /* Pressure ... */
-#define CONLENST_KW  "CONLENST" /* Length along MSW well */ 
-#define CONVTUB_KW   "CONVTUB"  /* Volumetric flow at tubing head conditions. */ 
-#define CONOTUB_KW   "CONOTUB"  /* Volumetric oil flow at tubing head conditions. */ 
-#define CONGTUB_KW   "CONGTUB"  /* Volumetric gas flow at tubing head conditions. */ 
-#define CONWTUB_KW   "CONWTUB"  /* Volumetric water flow at tubing head conditions. */ 
+
 
 
 #define WELLETC_TYPE_INDEX  5 /* At this keyword the WELLETC keyword contains a string

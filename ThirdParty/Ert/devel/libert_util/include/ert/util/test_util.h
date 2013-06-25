@@ -98,8 +98,6 @@ extern "C" {
   void test_util_addr2line();
 #endif
 
-  void test_install_SIGNALS(void);
-
 #ifdef __cplusplus
 }
 #endif

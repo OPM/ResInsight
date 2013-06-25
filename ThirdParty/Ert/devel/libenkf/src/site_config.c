@@ -113,6 +113,10 @@ struct site_config_struct {
 
   int max_running_local_site;
 
+  int max_running_torque_site;
+
+
+
   job_driver_type driver_type;
   job_driver_type driver_type_site;
   int max_submit;
@@ -417,36 +421,45 @@ static void site_config_select_TORQUE_job_queue(site_config_type * site_config) 
 
 /*****************************************************************/
 
-/*****************************************************************/
-static int site_config_get_queue_max_running_option(queue_driver_type * driver) {
-  const char * max_running_string = queue_driver_get_option(driver, MAX_RUNNING);
-  int max_running = 0;
-  if(!util_sscanf_int(max_running_string, &max_running)) {
-    fprintf(stderr, "** Warning: String:%s for max_running is not parsable as int, using 0\n", max_running_string);
-  }
-  return max_running;
-}
+/**
+   This is quite awkward because the max_running variable is located
+   both in the job_queue instance, and in each separate driver
+   individually:
+
+    o If you call set_max_running - i.e. without specifiying a
+      particular driver, it will tell the queue system to use this
+      many jobs, and also look up the currently active driver and
+      update the internal info on that.
+
+    o If you tell a specific driver a value for max_running, it will
+      update the internal field for that driver, AND the queue IFF the
+      queue is currently running this driver; otherwise the queue will
+      be left untouched.
+
+   What a mess.   
+ */
 
 
-static void site_config_set_queue_max_running_option(site_config_type * site_config, const char* driver_name, int max_running) {
-  char* max_running_string = util_alloc_sprintf("%d", max_running);
-  site_config_set_queue_option(site_config, driver_name, MAX_RUNNING, max_running_string);
-  free(max_running_string);
+void site_config_set_max_running(site_config_type * site_config, int max_running) {
+  queue_driver_set_max_running(site_config->current_driver, max_running); /* We set the max running of the current driver */
 }
 
 void site_config_set_max_running_lsf(site_config_type * site_config, int max_running_lsf) {
-  site_config_set_queue_max_running_option(site_config, LSF_DRIVER_NAME, max_running_lsf);
+  queue_driver_type * lsf_driver = site_config_get_queue_driver(site_config, LSF_DRIVER_NAME);
+  queue_driver_set_max_running(lsf_driver, max_running_lsf);
+
   if (!site_config->user_mode)
     site_config->max_running_lsf_site = max_running_lsf;
 }
 
 int site_config_get_max_running_lsf(const site_config_type * site_config) {
   queue_driver_type * lsf_driver = site_config_get_queue_driver(site_config, LSF_DRIVER_NAME);
-  return site_config_get_queue_max_running_option(lsf_driver);
+  return queue_driver_get_max_running(lsf_driver);
 }
 
 void site_config_set_max_running_rsh(site_config_type * site_config, int max_running_rsh) {
-  site_config_set_queue_max_running_option(site_config, RSH_DRIVER_NAME, max_running_rsh);
+  queue_driver_type * rsh_driver = site_config_get_queue_driver(site_config, RSH_DRIVER_NAME);
+  queue_driver_set_max_running(rsh_driver, max_running_rsh);
 
   if (!site_config->user_mode)
     site_config->max_running_rsh_site = max_running_rsh;
@@ -454,11 +467,12 @@ void site_config_set_max_running_rsh(site_config_type * site_config, int max_run
 
 int site_config_get_max_running_rsh(const site_config_type * site_config) {
   queue_driver_type * rsh_driver = site_config_get_queue_driver(site_config, RSH_DRIVER_NAME);
-  return site_config_get_queue_max_running_option(rsh_driver);
+  return queue_driver_get_max_running(rsh_driver);
 }
 
 void site_config_set_max_running_local(site_config_type * site_config, int max_running_local) {
-  site_config_set_queue_max_running_option(site_config, LOCAL_DRIVER_NAME, max_running_local);
+  queue_driver_type * local_driver = site_config_get_queue_driver(site_config, LOCAL_DRIVER_NAME);
+  queue_driver_set_max_running(local_driver, max_running_local);
 
   if (!site_config->user_mode)
     site_config->max_running_local_site = max_running_local;
@@ -466,7 +480,20 @@ void site_config_set_max_running_local(site_config_type * site_config, int max_r
 
 int site_config_get_max_running_local(const site_config_type * site_config) {
   queue_driver_type * local_driver = site_config_get_queue_driver(site_config, LOCAL_DRIVER_NAME);
-  return site_config_get_queue_max_running_option(local_driver);
+  return queue_driver_get_max_running(local_driver);
+}
+
+void site_config_set_max_running_torque(site_config_type * site_config, int max_running_torque) {
+  queue_driver_type * torque_driver = site_config_get_queue_driver(site_config, TORQUE_DRIVER_NAME);
+  queue_driver_set_max_running(torque_driver, max_running_torque);
+
+  if (!site_config->user_mode)
+    site_config->max_running_torque_site = max_running_torque;
+}
+
+int site_config_get_max_running_torque(const site_config_type * site_config) {
+  queue_driver_type * torque_driver = site_config_get_queue_driver(site_config, TORQUE_DRIVER_NAME);
+  return queue_driver_get_max_running(torque_driver);
 }
 
 /*****************************************************************/
@@ -748,6 +775,10 @@ bool site_config_init(site_config_type * site_config, const config_type * config
     }
   }
 
+  /* Torque options */
+  if (config_item_set(config, MAX_RUNNING_TORQUE_KEY))
+    site_config_set_max_running_torque(site_config, config_get_value_as_int(config, MAX_RUNNING_TORQUE_KEY));
+
 
   if (config_item_set(config, QUEUE_SYSTEM_KEY)) {
     job_driver_type driver_type;
@@ -951,18 +982,25 @@ void site_config_fprintf_config(const site_config_type * site_config, FILE * str
     }
 
     {
-      queue_driver_type * rsh_driver = site_config_get_queue_driver(site_config, RSH_DRIVER_NAME);
-      hash_type * host_list = hash_safe_cast((void *) queue_driver_get_option(rsh_driver, RSH_HOSTLIST));
-      hash_iter_type * iter = hash_iter_alloc(host_list);
-      while (!hash_iter_is_complete(iter)) {
-        const char * host_name = hash_iter_get_next_key(iter);
-        fprintf(stream, CONFIG_KEY_FORMAT, RSH_HOST_KEY);
-        fprintf(stream, "%s:%d\n", host_name, hash_get_int(host_list, host_name));
+      queue_driver_type * rsh_driver = site_config_get_queue_driver( site_config , RSH_DRIVER_NAME );
+      hash_type * host_list = hash_safe_cast( (void *) queue_driver_get_option( rsh_driver , RSH_HOSTLIST ) );
+      hash_iter_type * iter = hash_iter_alloc( host_list );
+      while (!hash_iter_is_complete( iter )) {
+        const char * host_name = hash_iter_get_next_key( iter );
+        fprintf(stream , CONFIG_KEY_FORMAT      , RSH_HOST_KEY );
+        fprintf(stream , "%s:%d\n"  , host_name , hash_get_int( host_list , host_name));
       }
       hash_iter_free(iter);
     }
   }
-
+  /* Storing TORQUE settings. */
+  {
+    if (site_config_get_max_running_torque(site_config) != site_config->max_running_torque_site) {
+      fprintf(stream, CONFIG_KEY_FORMAT, MAX_RUNNING_TORQUE_KEY);
+      fprintf(stream, CONFIG_INT_FORMAT, site_config_get_max_running_torque(site_config));
+      fprintf(stream, "\n");
+    }
+  }
 
   fprintf(stream, "\n\n");
 }
@@ -987,6 +1025,11 @@ void site_config_add_queue_config_items(config_type * config, bool site_mode) {
       "MAX_RUNNING_LOCAL"
     }, 1);
 
+    //  TODO: Hva er dette for noe greier    
+    //    stringlist_type * torque_dep = stringlist_alloc_argv_ref((const char *[1]) {
+    //      "MAX_RUNNING_TORQUE"}, 1);
+    //      
+    
     if (site_mode) {
 
       config_schema_item_set_common_selection_set(item, 3, (const char *[3]) {
@@ -1071,7 +1114,10 @@ void site_config_add_config_items(config_type * config, bool site_mode) {
   item = config_add_schema_item(config, MAX_RUNNING_LOCAL_KEY, false);
   config_schema_item_set_argc_minmax(item, 1, 1);
   config_schema_item_iset_type(item, 0, CONFIG_INT);
-
+  
+  item = config_add_schema_item(config, MAX_RUNNING_TORQUE_KEY, false);
+  config_schema_item_set_argc_minmax(item, 1, 1);
+  config_schema_item_iset_type(item, 0, CONFIG_INT);
 
   /*****************************************************************/
   item = config_add_schema_item(config, QUEUE_OPTION_KEY, false);

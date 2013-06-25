@@ -33,10 +33,6 @@ egrid_file  = "test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID"
 grid_file   = "test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.GRID"
 grdecl_file = "test-data/Statoil/ECLIPSE/Gurbat/include/example_grid_sim.GRDECL"    
 
-def load_does_not_exist():
-    g = ecl.EclGrid( "/does/not/exist.EGRID" )
-    
-
 class GridTest( unittest.TestCase ):
 
     def setUp(self):
@@ -167,10 +163,6 @@ class GridTest( unittest.TestCase ):
         self.assertTrue( g1.coarse_groups() == 3384)
 
 
-    def testRaiseIOError(self):
-        self.assertRaises( IOError , load_does_not_exist )
-
-
 
     def testDual(self):
         grid = ecl.EclGrid( egrid_file )
@@ -232,7 +224,6 @@ def fast_suite():
     suite.addTest( GridTest( 'testACTNUM') )
     suite.addTest( GridTest( 'testRect' ))
     suite.addTest( GridTest( 'testCoarse' ))
-    suite.addTest( GridTest( 'testRaiseIOError' ))
     return suite
 
 def test_suite(argv):

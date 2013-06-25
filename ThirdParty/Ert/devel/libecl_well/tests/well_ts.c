@@ -23,16 +23,13 @@
 #include <ert/util/util.h>
 
 #include <ert/ecl/ecl_util.h>
-#include <ert/ecl/ecl_grid.h>
 
 #include <ert/ecl_well/well_info.h>
 
 
 int main(int argc , char ** argv) {
   const char * case_path = argv[1];
-  char * grid_file = util_alloc_filename(NULL , case_path, "EGRID");
   stringlist_type * file_list = stringlist_alloc_new( );
-  ecl_grid_type * grid = ecl_grid_alloc( grid_file );
   ecl_util_select_filelist( NULL , case_path , ECL_RESTART_FILE , false , file_list);
   
   printf("Searching in:%s \n",case_path);
@@ -53,7 +50,7 @@ int main(int argc , char ** argv) {
     }
   }
   {
-    well_info_type * well_info = well_info_alloc( grid );
+    well_info_type * well_info = well_info_alloc( NULL );
     int i;
     for (i=0; i < stringlist_get_size( file_list ); i++) 
       well_info_load_rstfile( well_info , stringlist_iget(file_list , i));
@@ -61,7 +58,7 @@ int main(int argc , char ** argv) {
   }
   
   {
-    well_info_type * well_info = well_info_alloc( grid );
+    well_info_type * well_info = well_info_alloc( NULL );
     int i;
     stringlist_reverse( file_list );
     for (i=0; i < stringlist_get_size( file_list ); i++) 

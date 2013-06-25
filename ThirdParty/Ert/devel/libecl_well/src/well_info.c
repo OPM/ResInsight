@@ -52,9 +52,22 @@
        contains a time series for one well.
 
     well_state_type: The well_state_type datatype contains the
-       state/properties of one well at one particular instant of
-       time. The well_state.c file contains further documentation of
-       the concepts connections, branches and segments.
+       state/properties of one well at one particular instant of time.
+
+    well_path_type: The well_path_type datatype hold information about
+       the path of the well, i.e. which cells it goes through. The
+       well_path_type instance is for one grid only; and if the well
+       goes through LGRs the well_state instance contains one
+       well_path instance for the global grid and additional well_path
+       instances for each LGR.
+
+    well_branch_type: The wells can be split into several
+       branches. The well_branch_type datatype contain a collection of
+       well connections which form a 1-dimensional segment.
+
+    well_conn_type: This is the connection of a well to one cell. This
+      datatype is exported, i.e. calling scope can inspect
+      (read-only!) the members of a well_conn_type instance.
 
               
                WELL1
@@ -266,18 +279,18 @@ static void well_info_add_state( well_info_type * well_info , well_state_type * 
    by calling this function repeatedly.
 
    This function will go through all the wells by number and call the
-   well_state_alloc_from_file() function to create a well state object for each
-   well. The well_state_alloc_from_file() function will iterate through all the
+   well_state_alloc() function to create a well state object for each
+   well. The well_state_alloc() function will iterate through all the
    grids and assign well properties corresponding to each of the
    grids, the global grid special-cased to determine is consulted to
    determine the number of wells.
  */
 
 void well_info_add_wells( well_info_type * well_info , ecl_file_type * rst_file , int report_nr) {
-  int well_nr;
   ecl_rsthead_type * global_header = ecl_rsthead_alloc( rst_file );
+  int well_nr;
   for (well_nr = 0; well_nr < global_header->nwells; well_nr++) {
-    well_state_type * well_state = well_state_alloc_from_file( rst_file , well_info->grid , report_nr , well_nr );
+    well_state_type * well_state = well_state_alloc( rst_file , report_nr , well_nr );
     if (well_state != NULL)
       well_info_add_state( well_info , well_state );
   }
@@ -327,7 +340,7 @@ void well_info_load_rstfile( well_info_type * well_info , const char * filename)
       well_info_add_wells( well_info , ecl_file , report_nr );
     else
       well_info_add_UNRST_wells( well_info , ecl_file );
-    
+
     ecl_file_close( ecl_file );
   } else
     util_abort("%s: invalid file type:%s - must be a restart file\n",__func__ , filename);

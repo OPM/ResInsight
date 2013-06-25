@@ -41,10 +41,12 @@ int main( int argc , char ** argv) {
                                              Killing with SIGKILL (-9) will not give a backtrace.*/
   signal(SIGABRT , util_abort_signal);    /* Signal abort. */ 
   {
-    ecl_grid_type * grid = ecl_grid_alloc( argv[1] );
-    well_info_type * well_info = well_info_alloc( grid );
-
-    well_info_load_rstfile( well_info , argv[2]);
+    well_info_type * well_info = well_info_alloc( NULL );
+    int i;
+    for (i=1; i < argc; i++) {
+      printf("Loading file: %s \n",argv[i]);
+      well_info_load_rstfile( well_info , argv[i]);
+    }
     
     // List all wells:
     {

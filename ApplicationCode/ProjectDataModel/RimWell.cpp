@@ -196,16 +196,13 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
                 const std::vector<RigWellResultCell>& wsResCells = wellResSegments[wsIdx].m_wellCells;
                 for (size_t cIdx = 0; cIdx < wsResCells.size(); ++ cIdx)
                 {
-                    if (wsResCells[cIdx].hasGridConnections())
-                    {
-                        gridIndex = wsResCells[cIdx].m_gridIndex;
-                        gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
+                    gridIndex = wsResCells[cIdx].m_gridIndex;
+                    gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
 
-                        cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-                        if ((*cellVisibility)[gridCellIndex]) 
-                        {
-                            return true;
-                        }
+                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+                    if ((*cellVisibility)[gridCellIndex]) 
+                    {
+                        return true;
                     }
                 }
             }

@@ -39,8 +39,6 @@ extern "C" {
 #define IWEL_LGR_ITEM                42     
 #define IWEL_SEGMENTED_WELL_NR_ITEM  70
 
-#define IWEL_SEGMENTED_WELL_NR_NORMAL_VALUE -1  
-
 #define ISEG_OUTLET_ITEM        1
 #define ISEG_BRANCH_ITEM        3
 
@@ -60,11 +58,6 @@ extern "C" {
 #define ICON_DEFAULT_DIR_VALUE    0
 #define ICON_DEFAULT_DIR_TARGET   ICON_DIRZ
 
-
-#define RSEG_LENGTH_INDEX       0
-#define RSEG_DIAMETER_INDEX     2
-#define RSEG_TOTAL_LENGTH_INDEX 6
-#define RSEG_DEPTH_INDEX        7
 
 /*
   The ECLIPSE documentation says that a certain item in the IWEL array

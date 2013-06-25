@@ -71,7 +71,6 @@ ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occu
       rsthead->nisegz    = data[INTEHEAD_NISEGZ_INDEX];
       rsthead->nsegmx    = data[INTEHEAD_NSEGMX_INDEX];
       rsthead->nswlmx    = data[INTEHEAD_NSWLMX_INDEX];
-      rsthead->nrsegz    = data[INTEHEAD_NRSEGZ_INDEX];
       
       // The only derived quantity
       rsthead->sim_time  = rsthead_date( rsthead->day , rsthead->month , rsthead->year );
