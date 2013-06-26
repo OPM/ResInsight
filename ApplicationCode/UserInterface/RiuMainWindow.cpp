@@ -459,6 +459,7 @@ void RiuMainWindow::createDockPanels()
         m_pdmUiPropertyView = new caf::PdmUiPropertyView(dockWidget);
         dockWidget->setWidget(m_pdmUiPropertyView);
 
+        m_pdmUiPropertyView->layout()->setContentsMargins(5,0,0,0);
         connect(m_treeView, SIGNAL(selectedObjectChanged( caf::PdmObject* )), m_pdmUiPropertyView, SLOT(showProperties( caf::PdmObject* )));
 
         addDockWidget(Qt::LeftDockWidgetArea, dockWidget);

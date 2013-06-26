@@ -63,9 +63,9 @@ RimResultCase::RimResultCase()
     caseDirectory.setUiHidden(true);
 
     flipXAxis.setIOWritable(true);
-    flipXAxis.setUiHidden(true);
+    //flipXAxis.setUiHidden(true);
     flipYAxis.setIOWritable(true);
-    flipYAxis.setUiHidden(true);
+    //flipYAxis.setUiHidden(true);
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -326,5 +326,15 @@ void RimResultCase::initAfterRead()
             caseFileName = QDir::fromNativeSeparators(caseDirectory()) + "/" + caseName() + ".EGRID";
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&caseUserDescription);
+    uiOrdering.add(&caseId);
+    uiOrdering.add(&caseFileName);
 }
 
