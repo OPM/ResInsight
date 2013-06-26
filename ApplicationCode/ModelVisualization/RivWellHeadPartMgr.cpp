@@ -251,7 +251,6 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
-        //drawableText->setTextColor(cvf::Color3f(0.08f, 0.08f, 0.08f));
         drawableText->setTextColor(cvf::Color3f(0.92f, 0.92f, 0.92f));
 
         cvf::String cvfString = cvfqt::Utils::fromQString(well->name());
@@ -266,7 +265,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         cvf::ref<cvf::Effect> eff = new cvf::Effect;
 
         part->setEffect(eff.p());
-        part->setPriority(1000);
+        part->setPriority(11);
 
         m_wellHeadParts.push_back(part.p());
     }
