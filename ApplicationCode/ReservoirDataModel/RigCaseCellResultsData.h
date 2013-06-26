@@ -68,6 +68,7 @@ public:
 
     void                                               removeResult(const QString& resultName);
     void                                               clearAllResults();
+    void                                               freeAllocatedResultsData();
 
     // Access the results data
 

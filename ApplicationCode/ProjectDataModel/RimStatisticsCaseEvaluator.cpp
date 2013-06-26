@@ -85,7 +85,7 @@ void RimStatisticsCaseEvaluator::buildSourceMetaData(RifReaderInterface::Porosit
     for (size_t caseIdx = 1; caseIdx < m_sourceCases.size(); caseIdx++)
     {
         RimReservoirCellResultsStorage* cellResultsStorage = m_sourceCases[caseIdx]->results(poroModel);
-        size_t scalarResultIndex = cellResultsStorage->findOrLoadScalarResult(resultType, resultName);
+        size_t scalarResultIndex = cellResultsStorage->cellResults()->findScalarResultIndex(resultType, resultName);
         if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
             size_t scalarResultIndex = cellResultsStorage->cellResults()->addEmptyScalarResult(resultType, resultName, false);
@@ -202,11 +202,11 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 cvf::Collection<cvf::StructGridScalarDataAccess> sourceDataAccessList;
                 for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                 {
-                    RimCase* eclipseCase = m_sourceCases.at(caseIdx);
+                    RimCase* sourceCase = m_sourceCases.at(caseIdx);
 
-                    size_t scalarResultIndex = eclipseCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
+                    size_t scalarResultIndex = sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->reservoirData()->dataAccessObject(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
+                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = sourceCase->reservoirData()->dataAccessObject(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
                     if (dataAccessObject.notNull())
                     {
                         sourceDataAccessList.push_back(dataAccessObject.p());
@@ -327,13 +327,21 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
             }
         }
 
-        // When one time step is completed, close all result files.
+        // When one time step is completed, free memory and clean up
         // Microsoft note: On Windows, the maximum number of files open at the same time is 512
         // http://msdn.microsoft.com/en-us/library/kdfaxaay%28vs.71%29.aspx
 
         for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
         {
             RimCase* eclipseCase = m_sourceCases.at(caseIdx);
+
+            if (!eclipseCase->reservoirViews.size())
+            {
+                eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellResults()->freeAllocatedResultsData();
+                eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->cellResults()->freeAllocatedResultsData();
+            }
+
+            // Todo : These calls really do nothing right now the access actually closes automatically in ert i belive ...
             eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->readerInterface()->close();
             eclipseCase->results(RifReaderInterface::FRACTURE_RESULTS)->readerInterface()->close();
         }

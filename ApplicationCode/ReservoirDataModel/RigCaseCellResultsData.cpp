@@ -521,6 +521,24 @@ void RigCaseCellResultsData::clearAllResults()
     m_resultInfos.clear();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// Removes all the actual numbers put into this object, and frees up the memory. 
+/// Does not touch the metadata in any way
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::freeAllocatedResultsData()
+{
+    for (size_t resultIdx = 0; resultIdx < m_cellScalarResults.size(); ++resultIdx)
+    {
+        for (size_t tsIdx = 0; tsIdx < m_cellScalarResults[resultIdx].size(); ++tsIdx)
+        {
+            // Using swap with an empty vector as that is the safest way to really get rid of the allocated data in a vector
+            std::vector<double> empty;
+            m_cellScalarResults[resultIdx][tsIdx].swap(empty);
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 /// Add a result with given type and name, and allocate one result vector for the static result values
 //--------------------------------------------------------------------------------------------------
