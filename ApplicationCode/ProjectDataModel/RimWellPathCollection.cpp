@@ -156,7 +156,9 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 
         if (!alreadyOpen)
         {
-            if (filePath.endsWith(".json"), Qt::CaseInsensitive)
+            QFileInfo fi(filePath);
+
+            if (fi.suffix().compare("json") == 0)
             {
                 RimWellPath* wellPath = new RimWellPath();
                 wellPath->setProject(m_project);

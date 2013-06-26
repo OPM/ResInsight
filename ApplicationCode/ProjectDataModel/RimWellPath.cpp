@@ -166,7 +166,9 @@ caf::PdmFieldHandle* RimWellPath::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::readWellPathFile()
 {
-    if (filepath().endsWith(".json"), Qt::CaseInsensitive)
+    QFileInfo fi(filepath());
+
+    if (fi.suffix().compare("json") == 0)
     {
         this->readJsonWellPathFile();
     }

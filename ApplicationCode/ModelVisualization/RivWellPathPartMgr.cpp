@@ -98,6 +98,8 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
     if (m_wellPathCollection.isNull()) return;
 
     RigWellPath* wellPathGeometry = m_rimWellPath->wellPathGeometry();
+    if (!wellPathGeometry) return;
+
     if (wellPathGeometry->m_wellPathPoints.size() < 2) return;
 
     m_wellBranches.clear();
