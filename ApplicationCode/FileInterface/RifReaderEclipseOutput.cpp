@@ -360,6 +360,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     m_filesWithSameBaseName = fileSet;
 
     // Read geometry
+    // Todo: Needs to check existence of file before calling ert, else it will abort
     ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
 
     progInfo.incrementProgress();

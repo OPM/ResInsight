@@ -40,8 +40,8 @@ public:
     virtual ~RimReservoirCellResultsStorage();
 
     void                            setCellResults(RigCaseCellResultsData* cellResults);
-    RigCaseCellResultsData*        cellResults()  { return m_cellResults; }
-    const RigCaseCellResultsData*  cellResults() const  { return m_cellResults; }
+    RigCaseCellResultsData*         cellResults()  { return m_cellResults; }
+    const RigCaseCellResultsData*   cellResults() const  { return m_cellResults; }
 
     size_t                          storedResultsCount();
 
@@ -70,10 +70,10 @@ private:
     // Fields
     caf::PdmField<QString>          m_resultCacheFileName;
     caf::PdmPointersField<RimReservoirCellResultsStorageEntryInfo*> 
-        m_resultCacheMetaData;
+                                    m_resultCacheMetaData;
 
     cvf::ref<RifReaderInterface>    m_readerInterface;
-    RigCaseCellResultsData*        m_cellResults;
+    RigCaseCellResultsData*         m_cellResults;
     RigMainGrid*                    m_ownerMainGrid;
 };
 
