@@ -175,11 +175,11 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
         {
             RigGridBase* grid = m_destinationCase->grid(gridIdx);
 
-            for (int i = 0; i < resultSpecification.size(); i++)
+            for (int resSpecIdx = 0; resSpecIdx < resultSpecification.size(); resSpecIdx++)
             {
-                RifReaderInterface::PorosityModelResultType poroModel = resultSpecification[i].m_poroModel;
-                RimDefines::ResultCatType resultType = resultSpecification[i].m_resType;
-                QString resultName = resultSpecification[i].m_resVarName;
+                RifReaderInterface::PorosityModelResultType poroModel = resultSpecification[resSpecIdx].m_poroModel;
+                RimDefines::ResultCatType resultType = resultSpecification[resSpecIdx].m_resType;
+                QString resultName = resultSpecification[resSpecIdx].m_resVarName;
 
                 size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->globalActiveCellCount();
 
@@ -241,9 +241,11 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                     }
                 }
 
+                 std::vector<double> statParams(STAT_PARAM_COUNT, HUGE_VAL);
+                 std::vector<double> values(sourceDataAccessList.size(), HUGE_VAL);
                 // Loop over the cells in the grid, get the case values, and calculate the cell statistics 
-
-                for (size_t cellIdx = 0; cellIdx < grid->cellCount(); cellIdx++)
+#pragma omp parallel for schedule(dynamic) firstprivate(statParams, values)
+                for (int cellIdx = 0; static_cast<size_t>(cellIdx) < grid->cellCount(); cellIdx++)
                 {
 
                     size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
@@ -251,7 +253,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
 
-                        std::vector<double> values(sourceDataAccessList.size(), HUGE_VAL);
+                        
 
                         bool foundAnyValidValues = false;
                         for (size_t caseIdx = 0; caseIdx < sourceDataAccessList.size(); caseIdx++)
@@ -266,7 +268,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                         }
 
                         // Do the real statistics calculations
-                        std::vector<double> statParams(STAT_PARAM_COUNT, HUGE_VAL);
+                       
 
                         if (foundAnyValidValues)
                         {
