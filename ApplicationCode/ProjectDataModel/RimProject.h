@@ -19,11 +19,15 @@
 #pragma once
 
 #include "cafPdmDocument.h"
-#include "RimScriptCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
 
+class RimOilField;
 class RimCase;
 class RigGridManager;
+class RimScriptCollection;
+class RimIdenticalGridCaseGroup;
+class RigMainGrid;
+class RigCaseData;
+class RimWellPathCollection;
 
 //==================================================================================================
 ///  
@@ -34,38 +38,40 @@ class RimProject : public caf::PdmDocument
      CAF_PDM_HEADER_INIT;
 
 public:
-    caf::PdmPointersField<RimCase*>                     reservoirs;
-    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroups;
-    caf::PdmField<RimScriptCollection*>                 scriptCollection;
-    caf::PdmField<QString>                              treeViewState;
-    caf::PdmField<QString>                              currentModelIndexPath;
-
-    void setScriptDirectories(const QString& scriptDirectories);
-
-    QString projectFileVersionString() const;
-
     RimProject(void);
     virtual ~RimProject(void);
 
-    void close();
+    caf::PdmPointersField<RimOilField*>                 oilFields;
+    caf::PdmField<RimScriptCollection*>                 scriptCollection;
+    caf::PdmField<QString>                              treeViewState;
+    caf::PdmField<QString>                              currentModelIndexPath;
+    caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
+    caf::PdmField<int>                                  nextValidCaseGroupId;     // Unique case group ID within a project, used to identify a case group from Octave scripts
+    caf::PdmPointersField<RimCase*>                     casesObsolete; // obsolete
+    caf::PdmPointersField<RimIdenticalGridCaseGroup*>   caseGroupsObsolete; // obsolete
 
-    RimIdenticalGridCaseGroup* createIdenticalCaseGroupFromMainCase(RimCase* mainCase);
-    void insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGroup, RimCase* rimReservoir);
+    void            setScriptDirectories(const QString& scriptDirectories);
+    QString         projectFileVersionString() const;
+    void            close();
 
-    void moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
-    void removeCaseFromAllGroups(RimCase* rimReservoir);
+    void            setProjectFileNameAndUpdateDependencies(const QString& fileName);
 
-    void setProjectFileNameAndUpdateDependencies(const QString& fileName);
-    
-private:
-    RigMainGrid* registerCaseInGridCollection(RigCaseData* rigEclipseCase);
+    void            assignCaseIdToCase(RimCase* reservoirCase);
+    void            assignIdToCaseGroup(RimIdenticalGridCaseGroup* caseGroup);
+
+    void            allCases(std::vector<RimCase*>& cases); // VL endre impl
+    void            createDisplayModelAndRedrawAllViews(); // VL endre impl
+
+    void            computeUtmAreaOfInterest(double* north, double* south, double* east, double* west);
+
+    RimOilField*    activeOilField();
 
 protected:
     // Overridden methods
-    virtual void initAfterRead();
-    virtual void setupBeforeSave();
+    void            initScriptDirectories();
+    virtual void    initAfterRead();
+    virtual void    setupBeforeSave();
 
 private:
     caf::PdmField<QString>      m_projectFileVersionString;
-    cvf::ref<RigGridManager>    m_gridCollection;
 };

@@ -72,7 +72,7 @@ void workflow_joblist_add_job( workflow_joblist_type * joblist , const workflow_
 
 bool workflow_joblist_add_job_from_file( workflow_joblist_type * joblist , const char * job_name , const char * config_file ) {
   workflow_job_type * job = workflow_job_config_alloc( job_name , joblist->job_config , config_file );
-  if (job != NULL) {
+  if (job) {
     workflow_joblist_add_job( joblist , job );
     return true;
   } else 
@@ -82,4 +82,9 @@ bool workflow_joblist_add_job_from_file( workflow_joblist_type * joblist , const
 
 config_type * workflow_joblist_get_compiler( const workflow_joblist_type * joblist ) {
   return joblist->workflow_compiler;
+}
+
+
+config_type * workflow_joblist_get_job_config( const workflow_joblist_type * joblist ) {
+  return joblist->job_config;
 }

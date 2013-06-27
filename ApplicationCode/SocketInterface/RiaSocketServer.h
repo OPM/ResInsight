@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include <QDialog>
-#include <QAbstractSocket>
+#include <QObject>
+#include <vector>
+#include <QDataStream>
 
 class QLabel;
 class QPushButton;
@@ -28,7 +29,12 @@ class QTcpSocket;
 class QNetworkSession;
 class QErrorMessage;
 class RimCase;
+class RiaSocketCommand;
 
+namespace riOctavePlugin
+{
+    const int qtDataStreamVersion = QDataStream::Qt_4_0;
+}
 
 class RiaSocketServer : public QObject
 {
@@ -40,53 +46,33 @@ public:
 public:
     RiaSocketServer(QObject *parent = 0);
     ~RiaSocketServer();
-    unsigned short  serverPort();
+
+    unsigned short      serverPort();
+    RimCase*            findReservoir(int caseId);
+    QErrorMessage*      errorMessageDialog() { return m_errorMessageDialog; }
+    QTcpSocket*         currentClient() { return m_currentClient; }
+
+    void                setCurrentCaseId(int caseId);
+    int                 currentCaseId() const;
 
 private slots:
-    void            slotNewClientConnection();
-    void            slotCurrentClientDisconnected();
-    void            slotReadyRead();
+    void                slotNewClientConnection();
+    void                slotCurrentClientDisconnected();
+    void                slotReadyRead();
+private:
+    void                handleClientConnection( QTcpSocket* clientToHandle);
+    void                terminateCurrentConnection();
+    void                readCommandFromOctave();
+    void                handlePendingIncomingConnectionRequests();
 
 private:
-    void            readCommandFromOctave();
-    void            readPropertyDataFromOctave();
+    QTcpServer*         m_tcpServer;
+    QErrorMessage*      m_errorMessageDialog;
 
+    QTcpSocket*         m_currentClient;
+    qint64              m_currentCommandSize; ///< The size in bytes of the command we are currently reading.
 
-    void            handleClientConnection( QTcpSocket* clientToHandle);
-    RimCase*        findReservoir(const QString &casename);
-    void            terminateCurrentConnection();
+    RiaSocketCommand*   m_currentCommand;
 
-    void            calculateMatrixModelActiveCellInfo( RimCase* reservoirCase, 
-                                                        std::vector<qint32>& gridNumber,
-                                                        std::vector<qint32>& cellI,
-                                                        std::vector<qint32>& cellJ,
-                                                        std::vector<qint32>& cellK,
-                                                        std::vector<qint32>& parentGridNumber,
-                                                        std::vector<qint32>& hostCellI,
-                                                        std::vector<qint32>& hostCellJ,
-                                                        std::vector<qint32>& hostCellK);
-
-
-private:
-    QTcpServer*     m_tcpServer;
-    QErrorMessage*  m_errorMessageDialog;
-
-    QTcpSocket*     m_currentClient;
-    qint64          m_currentCommandSize; ///< The size in bytes of the command we are currently reading.
-
-
-    // Vars used for reading data from octave and adding them to the available results
-    ReadState       m_readState;
-    quint64         m_timeStepCountToRead;
-    quint64         m_bytesPerTimeStepToRead;
-    size_t          m_currentTimeStepToRead;
-    std::vector< std::vector<double> >* 
-                    m_scalarResultsToAdd;
-    RimCase*        m_currentReservoir;
-    size_t          m_currentScalarIndex;
-    QString         m_currentPropertyName;
-    bool            m_invalidActiveCellCountDetected;
+    int                 m_currentCaseId;    // Set to -1 to use default server behavior
 };
-
-
-

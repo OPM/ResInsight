@@ -119,7 +119,6 @@ static sum_pair_type * sum_pair_alloc( const char * case_name , bool strict_load
 
 static UTIL_SAFE_CAST_FUNCTION( sum_pair , SUM_PAIR_TYPE_ID );
 static UTIL_SAFE_CAST_FUNCTION_CONST( sum_pair , SUM_PAIR_TYPE_ID );
-static UTIL_IS_INSTANCE_FUNCTION( sum_pair , SUM_PAIR_TYPE_ID);
 
 const ecl_sum_type * sum_pair_get_ecl_sum( sum_pair_type * sum_pair ) {
   if (sum_pair->ecl_sum == NULL)

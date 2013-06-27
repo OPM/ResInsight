@@ -21,23 +21,25 @@
 #include <ert/enkf/enkf_main.h>
 
 
-void enkf_main_exit_JOB(void * self , const stringlist_type * args ) {
+void * enkf_main_exit_JOB(void * self , const stringlist_type * args ) {
   enkf_main_type  * enkf_main = enkf_main_safe_cast( self );
   enkf_main_exit( enkf_main );
+  return NULL;
 }
 
 
-void enkf_main_assimilation_JOB( void * self , const stringlist_type * args ) {
+void * enkf_main_assimilation_JOB( void * self , const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
   int ens_size                 = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive   = bool_vector_alloc( 0 , true );
 
   bool_vector_iset( iactive , ens_size - 1 , true );
   enkf_main_run_assimilation( enkf_main , iactive , 0 , 0 ,  ANALYZED );
+  return NULL;
 }
 
 
-void enkf_main_ensemble_run_JOB( void * self , const stringlist_type * args ) {
+void * enkf_main_ensemble_run_JOB( void * self , const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
   int ens_size                 = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive   = bool_vector_alloc( 0 , true );
@@ -47,10 +49,11 @@ void enkf_main_ensemble_run_JOB( void * self , const stringlist_type * args ) {
 
   bool_vector_iset( iactive , ens_size - 1 , true );
   enkf_main_run_exp( enkf_main , iactive , true , 0 , 0 , ANALYZED );
+  return NULL;
 }
 
 
-void enkf_main_smoother_JOB( void * self , const stringlist_type * args ) {
+void * enkf_main_smoother_JOB( void * self , const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
   int ens_size                 = enkf_main_get_ensemble_size( enkf_main );
   bool_vector_type * iactive   = bool_vector_alloc( 0 , true );
@@ -59,14 +62,16 @@ void enkf_main_smoother_JOB( void * self , const stringlist_type * args ) {
   
   bool_vector_iset( iactive , ens_size - 1 , true );
   enkf_main_run_smoother( enkf_main , target_case , rerun);
+  return NULL;
 }
 
 
 
-void enkf_main_create_reports_JOB(void * self , const stringlist_type * args ) {
+void * enkf_main_create_reports_JOB(void * self , const stringlist_type * args ) {
   enkf_main_type   * enkf_main = enkf_main_safe_cast( self );
   ert_report_list_type * report_list = enkf_main_get_report_list( enkf_main );
   
   ert_report_list_create( report_list , enkf_main_get_current_fs( enkf_main ) , true );
+  return NULL;
 }
 

@@ -73,7 +73,7 @@
 #include <sys/wait.h>
 #endif
 
-#ifdef HAVE_USLEEP
+#ifdef HAVE__USLEEP
 #include <unistd.h>
 #endif
 
@@ -700,7 +700,7 @@ char * util_realloc_stdin_line(char * p) {
 */
 
 void util_usleep( unsigned long micro_seconds ) {
-#ifdef HAVE_USLEEP
+#ifdef HAVE__USLEEP
   usleep( micro_seconds );
 #else 
   #ifdef ERT_WINDOWS
@@ -2102,11 +2102,16 @@ int util_count_content_file_lines(FILE * stream) {
       col = 0;
       c = fgetc(stream);
       if (! feof(stream) ) {
-        if (!EOL_CHAR(c))
+        if (!EOL_CHAR(c)){
           fseek(stream , -1 , SEEK_CUR);
+	}
+      }else if (c == EOF){
+	lines++;
       }
-    } else if (c == EOF)
+      
+    } else if (c == EOF){
       lines++;
+    }
     else {
       if (c != ' ')
         col++;
@@ -4298,10 +4303,12 @@ void util_bitmask_on(int * value , int mask) {
 }
 
 
-
+FILE * util_fopen__(const char * filename , const char * mode) {
+  return fopen(filename, mode);
+}
 
 FILE * util_fopen(const char * filename , const char * mode) {
-  FILE * stream = fopen(filename , mode);
+  FILE * stream = util_fopen__(filename , mode);
   if (stream == NULL) 
     util_abort("%s: failed to open:%s with mode:\'%s\' - error:%s(%d) \n",__func__ , filename , mode , strerror(errno) , errno);
   

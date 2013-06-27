@@ -23,6 +23,9 @@
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
 
+#include "cvfAssert.h"
+
+#include "cvfVector2.h"
 
 class RimReservoirView;
 //==================================================================================================

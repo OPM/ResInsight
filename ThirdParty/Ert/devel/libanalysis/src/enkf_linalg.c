@@ -81,7 +81,7 @@ int enkf_linalg_svd_truncation(const matrix_type * S ,
                      matrix_type * U0 , 
                      matrix_type * V0T) {
   
-  int  num_significant;
+  int num_significant = -1;
   int nrows = matrix_get_rows(S);
   int ncolumns= matrix_get_columns(S);
 

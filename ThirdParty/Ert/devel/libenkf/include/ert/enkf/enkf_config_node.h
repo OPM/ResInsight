@@ -42,7 +42,7 @@ extern "C" {
 
   bool                    enkf_config_node_has_vector( const enkf_config_node_type * node , enkf_fs_type * fs , int iens , state_enum state);
   bool                    enkf_config_node_has_node( const enkf_config_node_type * node , enkf_fs_type * fs , node_id_type node_id);
-  enkf_config_node_type * enkf_config_node_new_gen_data( const char * key );
+  enkf_config_node_type * enkf_config_node_new_gen_data( const char * key, bool forward_init );
   bool                    enkf_config_node_vector_storage( const enkf_config_node_type * config_node);
 
   void enkf_config_node_update_gen_data( enkf_config_node_type * config_node, 
@@ -56,7 +56,7 @@ extern "C" {
                                          const char * min_std_file);
   
   
-  enkf_config_node_type * enkf_config_node_new_surface( const char * key );
+  enkf_config_node_type * enkf_config_node_new_surface( const char * key , bool forward_init);
   
   
   void enkf_config_node_update_surface( enkf_config_node_type * config_node , 
@@ -75,7 +75,8 @@ extern "C" {
   
 
   enkf_config_node_type * enkf_config_node_alloc(enkf_var_type         ,
-                                                 ert_impl_type        ,
+                                                 ert_impl_type         ,
+                                                 bool                  ,
                                                  const char          * ,
                                                  const char          * ,
                                                  const char          * , 
@@ -114,8 +115,8 @@ extern "C" {
 
 /*****************************************************************/
 
-  enkf_config_node_type * enkf_config_node_new_gen_kw( const char * key , const char * tag_fmt );
-  enkf_config_node_type * enkf_config_node_new_field( const char * key , ecl_grid_type * ecl_grid, field_trans_table_type * trans_table);
+  enkf_config_node_type * enkf_config_node_new_gen_kw( const char * key , const char * tag_fmt , bool forward_init);
+  enkf_config_node_type * enkf_config_node_new_field( const char * key , ecl_grid_type * ecl_grid, field_trans_table_type * trans_table, bool forward_init);
   bool                    enkf_config_node_is_valid( const enkf_config_node_type * config_node );
   int                     enkf_config_node_get_data_size( const enkf_config_node_type * node , int report_step);                                  
   char                  * enkf_config_node_alloc_infile(const enkf_config_node_type * , int );
@@ -138,13 +139,13 @@ extern "C" {
   const            char * enkf_config_node_get_min_std_file( const enkf_config_node_type * config_node );
   const            char * enkf_config_node_get_enkf_outfile( const enkf_config_node_type * conifg_node );
   const            char * enkf_config_node_get_enkf_infile( const enkf_config_node_type * config_node );
-  char                  * enkf_config_node_alloc_initfile( const enkf_config_node_type * node , int iens);
+  char                  * enkf_config_node_alloc_initfile( const enkf_config_node_type * node , const char * path , int iens);
 
   void enkf_config_node_set_internalize(enkf_config_node_type * node, int report_step);
   bool enkf_config_node_internalize(const enkf_config_node_type * node, int report_step);
   
   void                          enkf_config_node_fprintf_config( const enkf_config_node_type * config_node , FILE * stream );
-  const enkf_config_node_type * enkf_config_node_container_iget( const enkf_config_node_type * node , int index);
+  enkf_config_node_type       * enkf_config_node_container_iget( const enkf_config_node_type * node , int index);
   int                           enkf_config_node_container_size( const enkf_config_node_type * node );
 
   enkf_config_node_type *       enkf_config_node_new_container( const char * key );
@@ -156,6 +157,10 @@ extern "C" {
   */
   void                  enkf_node_free(enkf_node_type *enkf_node);
   const enkf_node_type * enkf_config_node_get_min_std( const enkf_config_node_type * config_node );
+
+  bool                  enkf_config_node_use_forward_init(const enkf_config_node_type * config_node);
+  void                  enkf_config_node_set_forward_init(enkf_config_node_type * config_node, bool forward_init);
+      
 
 UTIL_SAFE_CAST_HEADER(enkf_config_node);
 VOID_FREE_HEADER(enkf_config_node);

@@ -210,8 +210,8 @@ bool  ert_workflow_list_has_workflow(ert_workflow_list_type * workflow_list , co
 }
 
 
-bool ert_workflow_list_run_workflow__(ert_workflow_list_type * workflow_list  , workflow_type * workflow, bool verbose , void * self ) {
-  bool runOK = workflow_run( workflow , self , verbose , workflow_list->context );
+bool ert_workflow_list_run_workflow__(ert_workflow_list_type * workflow_list  , workflow_type * workflow, bool verbose , void * self) {
+  bool runOK = workflow_run( workflow , self , verbose , workflow_list->context);
 
   if (runOK)
     workflow_list->last_error = NULL;
@@ -223,7 +223,7 @@ bool ert_workflow_list_run_workflow__(ert_workflow_list_type * workflow_list  , 
 
 bool ert_workflow_list_run_workflow(ert_workflow_list_type * workflow_list  , const char * workflow_name , void * self) {
   workflow_type * workflow = ert_workflow_list_get_workflow( workflow_list , workflow_name );
-  return ert_workflow_list_run_workflow__( workflow_list , workflow , workflow_list->verbose , self );
+  return ert_workflow_list_run_workflow__( workflow_list , workflow , workflow_list->verbose , self);
 }
 
 

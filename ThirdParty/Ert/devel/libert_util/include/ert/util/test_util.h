@@ -24,13 +24,16 @@
 extern "C" {
 #endif
 
+/* Included here to get the HAVE_UTIL_ABORT symbol.*/
 
+#include <ert/util/util.h>  
   
 
   void  test_error_exit( const char * fmt , ...);
   bool  test_string_equal( const char * s1 , const char * s2 );
 
 #define test_exit( fmt, ...) test_exit__( __FILE__ , __LINE__ , fmt , __VA_ARGS__);
+  void  test_exit__(const char * file , int line , const char * fmt , ...);
 
 #define test_assert_string_equal( s1 , s2 ) test_assert_string_equal__(s1 , s2 , __FILE__ , __LINE__)  
   void test_assert_string_equal__( const char * s1 , const char * s2 , const char * file , int line);
@@ -56,6 +59,9 @@ extern "C" {
 
 #define test_assert_bool_equal( b1 , b2 ) test_assert_bool_equal__( (b1) , (b2) , __FILE__ , __LINE__ )
   void test_assert_bool_equal__( bool b1 , bool b2 , const char * file , int line);
+
+#define test_assert_bool_not_equal( b1 , b2 ) test_assert_bool_not_equal__( (b1) , (b2) , __FILE__ , __LINE__ )
+  void test_assert_bool_not_equal__( bool b1 , bool b2 , const char * file , int line);
 
 #define test_assert_true( value ) test_assert_true__( (value) , __FILE__ , __LINE__)
   void test_assert_true__( bool value, const char * file , int line);

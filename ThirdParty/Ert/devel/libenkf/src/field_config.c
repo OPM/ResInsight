@@ -21,6 +21,7 @@
 #include <math.h>
 
 #include <ert/util/util.h>
+#include <ert/util/string_util.h>
 
 #include <ert/ecl/ecl_grid.h>
 #include <ert/ecl/ecl_kw.h>
@@ -944,7 +945,7 @@ void field_config_assert_binary( const field_config_type * config1 , const field
 bool field_config_parse_user_key__( const char * index_key , int *i , int *j , int *k) {
   int      length;
   {
-    int_vector_type * indices = string_util_alloc_active_list( index_key );
+    int_vector_type * indices = string_util_alloc_value_list( index_key ); 
     length = int_vector_size( indices );
 
     if (length == 3) {
@@ -952,6 +953,8 @@ bool field_config_parse_user_key__( const char * index_key , int *i , int *j , i
       *j = int_vector_iget( indices , 1) - 1;
       *k = int_vector_iget( indices , 2) - 1;
     } 
+
+    int_vector_fprintf( indices , stdout , "INDEXLIST" , " %4d");
     
     int_vector_free( indices );
   }
@@ -965,9 +968,8 @@ bool field_config_parse_user_key__( const char * index_key , int *i , int *j , i
 
 int field_config_parse_user_key(const field_config_type * config, const char * index_key , int *i , int *j , int *k) {
   int      return_value = 0;
-  
+
   if (field_config_parse_user_key__( index_key , i , j , k)) {
-    
     if(field_config_ijk_valid(config, *i, *j, *k)) {
       int active_index = field_config_active_index(config , *i,*j,*k);
       if (active_index < 0)
@@ -975,7 +977,7 @@ int field_config_parse_user_key(const field_config_type * config, const char * i
     }  else 
       return_value = 2;         /* ijk is outside the grid. */
   } else
-    return_value = 0;
+    return_value = 1;           /* Could not be parsed to three integers. */
 
   return return_value;
 }

@@ -36,7 +36,7 @@ extern "C" {
 
 
 
-
+  void                misfit_ensemble_fread( misfit_ensemble_type * misfit_ensemble , FILE * stream );
   void                misfit_ensemble_clear( misfit_ensemble_type * table);
   misfit_ensemble_type * misfit_ensemble_alloc( );
   void                misfit_ensemble_free( misfit_ensemble_type * table );

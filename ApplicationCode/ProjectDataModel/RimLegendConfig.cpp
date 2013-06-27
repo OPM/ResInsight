@@ -16,15 +16,29 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimLegendConfig.h"
+
 #include "RimReservoirView.h"
 #include "cafFactory.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+
 #include "cvfScalarMapperDiscreteLog.h"
+#include "cvfScalarMapperContinuousLog.h"
+#include "cvfScalarMapperContinuousLinear.h"
+#include "cvfOverlayScalarMapperLegend.h"
+#include "cvfScalarMapperDiscreteLinear.h"
+#include <cmath>
+
 #include "RiaApplication.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
 
@@ -83,7 +97,11 @@ RimLegendConfig::RimLegendConfig()
     :   m_globalAutoMax(cvf::UNDEFINED_DOUBLE),
         m_globalAutoMin(cvf::UNDEFINED_DOUBLE),
         m_localAutoMax(cvf::UNDEFINED_DOUBLE),
-        m_localAutoMin(cvf::UNDEFINED_DOUBLE)
+        m_localAutoMin(cvf::UNDEFINED_DOUBLE),
+        m_globalAutoPosClosestToZero(0),
+        m_globalAutoNegClosestToZero(0),
+        m_localAutoPosClosestToZero(0),
+        m_localAutoNegClosestToZero(0)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "","");
@@ -160,28 +178,78 @@ void RimLegendConfig::updateLegend()
 {
     double adjustedMin = cvf::UNDEFINED_DOUBLE;
     double adjustedMax = cvf::UNDEFINED_DOUBLE;
+    
+    double posClosestToZero = cvf::UNDEFINED_DOUBLE;
+    double negClosestToZero = cvf::UNDEFINED_DOUBLE;
 
    if (m_rangeMode == AUTOMATIC_ALLTIMESTEPS)
    {
        adjustedMin = adjust(m_globalAutoMin, m_precision);
        adjustedMax = adjust(m_globalAutoMax, m_precision);
+
+       posClosestToZero = m_globalAutoPosClosestToZero;
+       negClosestToZero = m_globalAutoNegClosestToZero;
    }
    else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
    {
        adjustedMin = adjust(m_localAutoMin, m_precision);
        adjustedMax = adjust(m_localAutoMax, m_precision);
+
+       posClosestToZero = m_localAutoPosClosestToZero;
+       negClosestToZero = m_localAutoNegClosestToZero;
    }
    else
    {
        adjustedMin = adjust(m_userDefinedMinValue, m_precision);
        adjustedMax = adjust(m_userDefinedMaxValue, m_precision);
+
+       posClosestToZero = m_globalAutoPosClosestToZero;
+       negClosestToZero = m_globalAutoNegClosestToZero;
    }
 
 
    m_linDiscreteScalarMapper->setRange(adjustedMin, adjustedMax);
+   m_linSmoothScalarMapper->setRange(adjustedMin, adjustedMax);
+
+   if (m_mappingMode == LOG10_CONTINUOUS || m_mappingMode == LOG10_DISCRETE)
+   {
+       if (adjustedMin != adjustedMax)
+       {
+           if (adjustedMin == 0)
+           {
+               if (adjustedMax > adjustedMin)
+               {
+                   adjustedMin = posClosestToZero;
+               }
+               else
+               {
+                   adjustedMin = negClosestToZero;
+               }
+           }
+           else if (adjustedMax == 0)
+           {
+               if (adjustedMin > adjustedMax)
+               {
+                   adjustedMax = posClosestToZero;
+               }
+               else
+               {
+                   adjustedMax = negClosestToZero;
+               }
+           }
+           else if (adjustedMin < 0 && adjustedMax > 0)
+           {
+               adjustedMin = posClosestToZero;
+           }
+           else if (adjustedMax < 0 && adjustedMin > 0)
+           {
+               adjustedMin = negClosestToZero;
+           }
+       }
+   }
+
    m_logDiscreteScalarMapper->setRange(adjustedMin, adjustedMax);
    m_logSmoothScalarMapper->setRange(adjustedMin, adjustedMax);
-   m_linSmoothScalarMapper->setRange(adjustedMin, adjustedMax);
 
    cvf::Color3ubArray legendColors;
    switch (m_colorRangeMode())
@@ -439,5 +507,23 @@ double RimLegendConfig::adjust(double domainValue, double precision)
     double newDomainValue = integerPart / factor;
 
     return newDomainValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero)
+{
+    m_globalAutoPosClosestToZero = globalPosClosestToZero;
+    m_globalAutoNegClosestToZero = globalNegClosestToZero;
+    m_localAutoPosClosestToZero = localPosClosestToZero;
+    m_localAutoNegClosestToZero = localNegClosestToZero;
+
+    if (m_globalAutoPosClosestToZero == HUGE_VAL) m_globalAutoPosClosestToZero = 0;
+    if (m_globalAutoNegClosestToZero == -HUGE_VAL) m_globalAutoNegClosestToZero = 0; 
+    if (m_localAutoPosClosestToZero == HUGE_VAL) m_localAutoPosClosestToZero = 0;
+    if (m_localAutoNegClosestToZero == -HUGE_VAL) m_localAutoNegClosestToZero = 0;
+
+    updateLegend();
 }
 

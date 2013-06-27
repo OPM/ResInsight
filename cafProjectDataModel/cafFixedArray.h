@@ -40,6 +40,7 @@ typedef FixedArray<int, 4>    IntArray4;
 typedef FixedArray<int, 8>    IntArray8;
 typedef FixedArray<size_t, 3> SizeTArray3;
 typedef FixedArray<size_t, 4> SizeTArray4;
+typedef FixedArray<size_t, 6> SizeTArray6;
 typedef FixedArray<size_t, 8> SizeTArray8;
 
 }

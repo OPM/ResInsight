@@ -16,8 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
 #include "RivGridPartMgr.h"
+
 #include "cvfPart.h"
 #include "cafEffectGenerator.h"
 #include "cvfStructGrid.h"
@@ -27,11 +27,21 @@
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
-#include "RigGridScalarDataAccess.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
+#include "RimCase.h"
+#include "RimWellCollection.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirCellResultsCacher.h"
+
+
 
 
 //--------------------------------------------------------------------------------------------------

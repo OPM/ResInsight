@@ -117,7 +117,7 @@ void qc_module_set_workflow( qc_module_type * qc_module , const char * qc_workfl
 }
 
 
-bool qc_module_run_workflow( qc_module_type * qc_module , void * self) {
+bool qc_module_run_workflow( const qc_module_type * qc_module , void * self) {
   bool verbose = false;
   if (qc_module->qc_workflow != NULL ) {
     if (!util_file_exists( qc_module->runpath_list_file ))

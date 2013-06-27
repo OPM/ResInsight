@@ -19,11 +19,13 @@
 #pragma once
 
 #include "cafPdmObject.h"
-#include "RimLegendConfig.h"
+#include "cafPdmField.h"
 #include "cafAppEnum.h"
 #include "RimDefines.h"
 
 class RigCaseCellResultsData;
+class RimLegendConfig;
+class RimReservoirView;
 
 namespace caf
 {
@@ -73,6 +75,7 @@ public:
     bool                                  hasResult() const; 
 
     void                                  minMaxCellEdgeValues(double& min, double& max);
+    void                                  posNegClosestToZero(double& pos, double& neg);
 protected:
 
     virtual void                          fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);

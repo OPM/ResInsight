@@ -99,11 +99,15 @@ static void geo_surface_init_regular( geo_surface_type * surface , const double 
 }
 
 
-static void geo_surface_fscanf_zcoord( const geo_surface_type * surface , FILE * stream , double * zcoord) {
+static bool geo_surface_fscanf_zcoord( const geo_surface_type * surface , FILE * stream , double * zcoord) {
   int i;
   for (i=0; i < surface->nx * surface->ny; i++) 
-    if (fscanf(stream , "%lg" , &zcoord[i]) != 1)
+    if (fscanf(stream , "%lg" , &zcoord[i]) != 1) {
       util_abort("%s: hmm - fatal error when loading surface ..." , __func__);
+      return false;
+    }
+  
+  return true;
 }
 
 
@@ -226,37 +230,39 @@ static void geo_surface_fload_irap( geo_surface_type * surface , const char * fi
 }
 
 
-static bool geo_surface_assert_equal_header( const geo_surface_type * surface1 , const geo_surface_type * surface2 ) {
+static bool geo_surface_equal_header( const geo_surface_type * surface1 , const geo_surface_type * surface2 ) {
   bool equal = true;
-
-  
 
   equal = equal && (surface1->nx == surface2->nx);
   equal = equal && (surface1->ny == surface2->ny);
   
-  if (!equal)
-    util_abort("%s: failed - surface headers not identical \n",__func__);
-
   return equal;
 }
 
 
 /**
    The loading will fail hard if the header of surface does not agree
-   with the header found in file.  */
+   with the header found in file.
+*/
 
-void geo_surface_fload_irap_zcoord( const geo_surface_type * surface, const char * filename, double *zcoord) {
-  FILE * stream = util_fopen( filename , "r");
-  {
+bool geo_surface_fload_irap_zcoord( const geo_surface_type * surface, const char * filename, double *zcoord) {
+  FILE * stream = util_fopen__( filename , "r");
+  if (stream) {
+    bool loadOK = true;
     {
       geo_surface_type * tmp_surface = geo_surface_alloc_empty( false );
+      
       geo_surface_fload_irap_header( tmp_surface , stream );
-      geo_surface_assert_equal_header( surface , tmp_surface );
+      loadOK = geo_surface_equal_header( surface , tmp_surface );
       geo_surface_free( tmp_surface );
     }
-    geo_surface_fscanf_zcoord( surface , stream , zcoord);
-  }
-  fclose( stream );
+    if (loadOK)
+      loadOK = geo_surface_fscanf_zcoord( surface , stream , zcoord);
+    
+    fclose( stream );
+    return loadOK;
+  } else
+    return false;
 }
 
 

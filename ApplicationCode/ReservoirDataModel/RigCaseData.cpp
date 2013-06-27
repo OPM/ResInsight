@@ -178,10 +178,11 @@ void RigCaseData::computeWellCellsPrGrid()
                     gridIndex     = wellSegment.m_wellCells[cdIdx].m_gridIndex;
                     gridCellIndex = wellSegment.m_wellCells[cdIdx].m_gridCellIndex;
 
-                    CVF_ASSERT(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size());
-
-                    m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-                    m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                    if(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
+                    {
+                        m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
+                        m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                    }
                 }
             }
         }

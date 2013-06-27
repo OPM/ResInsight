@@ -305,13 +305,13 @@ bool gen_data_fload_with_report_step( gen_data_type * gen_data , const char * fi
   } 
   gen_data_set_data__(gen_data , size , report_step , load_type , buffer );
   util_safe_free(buffer);
+  printf("Returning %s:%d \n",filename , has_file);
   return has_file;
 }
 
 
-void gen_data_fload( gen_data_type * gen_data , const char * filename) {
-  if (!gen_data_fload_with_report_step( gen_data , filename , 0))
-    util_abort("%s: failed to load from filename:%s \n",__func__ , filename );
+bool gen_data_fload( gen_data_type * gen_data , const char * filename) {
+  return gen_data_fload_with_report_step( gen_data , filename , 0);
 }
 
 

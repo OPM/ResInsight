@@ -18,31 +18,37 @@
 
 #pragma once
 #include "cafPdmObject.h"
+#include "cafPdmField.h"
 #include "cafAppEnum.h"
+
+#include "cvfBase.h"
+#include "cvfObject.h"
+
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
 
 #include <QPointer>
 #include <QString>
 
-#include "RimCase.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-
-#include "cvfMatrix4.h"
-#include "cvfStructGridGeometryGenerator.h"
-#include "cafPdmFieldCvfMat4d.h"
+class RimCase;
+class RimResultSlot;
+class RimCellEdgeResultSlot;
+class RimCellRangeFilter;
+class RimCellRangeFilterCollection;
+class RimCellPropertyFilter;
+class RimCellPropertyFilterCollection;
+class Rim3dOverlayInfoConfig;
+class RimReservoirCellResultsStorage;
+class RimWellCollection;
+class RigActiveCellInfo;
 
 #include "RivReservoirViewPartMgr.h"
-#include "RivReservoirPipesPartMgr.h"
+class RivReservoirPipesPartMgr;
 
 class RiuViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
-
+class RimReservoirCellResultsStorage;
 namespace cvf
 {
     class Transform;

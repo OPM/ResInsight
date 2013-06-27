@@ -37,6 +37,7 @@
 #include <ert/config/config.h>
 #include <ert/config/config_content_item.h>
 #include <ert/config/config_content_node.h>
+#include <ert/config/config_schema_item.h>
 
 #include <ert/enkf/site_config.h>
 #include <ert/enkf/enkf_defaults.h>
@@ -981,13 +982,13 @@ void site_config_fprintf_config(const site_config_type * site_config, FILE * str
     }
 
     {
-      queue_driver_type * rsh_driver = site_config_get_queue_driver(site_config, RSH_DRIVER_NAME);
-      hash_type * host_list = queue_driver_get_option(rsh_driver, RSH_HOSTLIST);
-      hash_iter_type * iter = hash_iter_alloc(host_list);
-      while (!hash_iter_is_complete(iter)) {
-        const char * host_name = hash_iter_get_next_key(iter);
-        fprintf(stream, CONFIG_KEY_FORMAT, RSH_HOST_KEY);
-        fprintf(stream, "%s:%d\n", host_name, hash_get_int(host_list, host_name));
+      queue_driver_type * rsh_driver = site_config_get_queue_driver( site_config , RSH_DRIVER_NAME );
+      hash_type * host_list = hash_safe_cast( (void *) queue_driver_get_option( rsh_driver , RSH_HOSTLIST ) );
+      hash_iter_type * iter = hash_iter_alloc( host_list );
+      while (!hash_iter_is_complete( iter )) {
+        const char * host_name = hash_iter_get_next_key( iter );
+        fprintf(stream , CONFIG_KEY_FORMAT      , RSH_HOST_KEY );
+        fprintf(stream , "%s:%d\n"  , host_name , hash_get_int( host_list , host_name));
       }
       hash_iter_free(iter);
     }

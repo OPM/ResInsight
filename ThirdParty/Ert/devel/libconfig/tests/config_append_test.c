@@ -28,7 +28,6 @@
 int main(int argc , char ** argv) {
   const char * config_file = argv[1];
   config_type * config = config_alloc();
-  bool OK;
   config_schema_item_type * item = config_add_schema_item(config , "APPEND" , false );
   config_schema_item_set_argc_minmax( item , 1 , 1);
 

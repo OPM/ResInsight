@@ -258,7 +258,7 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point , bool read_
 
     util_path_split( fs->mount_point , &path_len , &path_tmp);
     fs->case_name = util_alloc_string_copy( path_tmp[path_len - 1]);
-    fs->root_path = util_alloc_joined_string( path_tmp , path_len , UTIL_PATH_SEP_STRING);
+    fs->root_path = util_alloc_joined_string( (const char **) path_tmp , path_len , UTIL_PATH_SEP_STRING);
     
     util_free_stringlist( path_tmp , path_len );
   }

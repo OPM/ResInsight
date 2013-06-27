@@ -27,7 +27,6 @@
 #include <ert/enkf/enkf_config_node.h>
 #include <ert/enkf/ensemble_config.h>
 
-
 void                          enkf_tui_util_scanf_report_steps(int  , int  , int *  , int * );
 const enkf_config_node_type * enkf_tui_util_scanf_key(const ensemble_config_type *  , int , ert_impl_type ,  enkf_var_type);
 state_enum                    enkf_tui_util_scanf_state(const char * , int , bool);
