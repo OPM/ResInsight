@@ -63,7 +63,7 @@ include_directories(
 ################################################################################
 # Qt
 ################################################################################
-set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork)
+set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
 find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED} REQUIRED)
 include (${QT_USE_FILE})
 

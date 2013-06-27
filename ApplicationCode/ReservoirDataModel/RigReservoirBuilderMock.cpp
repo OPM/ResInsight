@@ -254,6 +254,19 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
     {
         activeCellInfo->setCellResultIndex(i, i);
     }
+
+    activeCellInfo->setGridCount(1);
+    activeCellInfo->setGridActiveCellCounts(0, eclipseCase->mainGrid()->cells().size());
+    activeCellInfo->computeDerivedData();
+
+    // Add grid coarsening for main grid
+    if (cellDimension().x() > 4 &&
+        cellDimension().y() > 5 &&
+        cellDimension().z() > 6)
+    {
+        eclipseCase->mainGrid()->addCoarseningBox(1, 2, 1, 3, 1, 4);
+        eclipseCase->mainGrid()->addCoarseningBox(3, 4, 4, 5, 5, 6);
+    }
 }
 
 

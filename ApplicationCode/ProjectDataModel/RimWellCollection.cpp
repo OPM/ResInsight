@@ -16,16 +16,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
+#include "RimWellCollection.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
-
-#include "RigSingleWellResultsData.h"
-#include "RimWellCollection.h"
-#include "RimWell.h"
+#include "cafPdmFieldCvfMat4d.h"
 #include "RimReservoirView.h"
+
+#include "RimResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellEdgeResultSlot.h"
 
 namespace caf
 {

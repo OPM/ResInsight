@@ -29,7 +29,7 @@
 
 int main(int argc , char ** argv) {
   config_type * config = config_alloc();
-  config_schema_item_type * schema_item = config_add_schema_item( config , "KEYWORD" , false );
+  config_add_schema_item( config , "KEYWORD" , false );
   config_free( config );
   exit(0);
 }

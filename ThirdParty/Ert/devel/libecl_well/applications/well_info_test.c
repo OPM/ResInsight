@@ -86,7 +86,7 @@ int main( int argc , char ** argv) {
         { 
           int iconn;
           for (iconn = 0; iconn < well_state_get_num_connections( well_state , 0 ); iconn++) {
-            well_conn_type * conn = connections[ iconn ];
+            const well_conn_type * conn = connections[ iconn ];
             printf("Connection:%02d   i=%3d  j=%3d  k=%3d  State:",iconn , well_conn_get_i( conn ) , well_conn_get_j( conn ) , well_conn_get_k( conn ));
             if (well_conn_open( conn ) )
             printf("Open\n");

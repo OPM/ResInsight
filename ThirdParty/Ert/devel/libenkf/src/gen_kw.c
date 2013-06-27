@@ -228,62 +228,66 @@ const char * gen_kw_get_name(const gen_kw_type * gen_kw, int kw_nr) {
     
 */
 
-void gen_kw_fload(gen_kw_type * gen_kw , const char * filename) {
-  const int size = gen_kw_config_get_data_size(gen_kw->config );
-  FILE * stream  = util_fopen( filename , "r");
-  bool   readOK  = true;
-
-  /* First try reading all the data as one long vector. */
-  {
-    int index = 0;
-    while ((index < size) && readOK) {
-      double value;
-      if (fscanf(stream,"%lg" , &value) == 1) 
-        gen_kw->data[index] = value;
-      else
-        readOK = false;
-      index++;
-    }
-  }
-
-  /* 
-     OK - rewind and try again with interlaced key + value
-     pairs. Observe that we still require that ALL the elements in the
-     gen_kw instance are set, i.e. it is not allowed to read only some
-     of the keywords; but the ordering is not relevant.
-     
-     The code will be fooled (and give undefined erronous results) if
-     the same key appears several times. Be polite!
-  */
-  
-  if (!readOK) {
-    int counter = 0;
-    readOK = true;
-    fseek( stream , 0 , SEEK_SET );
+bool gen_kw_fload(gen_kw_type * gen_kw , const char * filename) {
+  FILE * stream  = util_fopen__( filename , "r");
+  if (stream) {
+    const int size = gen_kw_config_get_data_size(gen_kw->config );
+    bool   readOK  = true;
     
-    while ((counter < size) && readOK) {
-      char key[128];
-      double value;
-      int    fscanf_return = fscanf(stream , "%s %lg" , key , &value);
-
-      if (fscanf_return == 2) {
-        int index = gen_kw_config_get_index(gen_kw->config , key);
-        if (index >= 0) 
+    /* First try reading all the data as one long vector. */
+    {
+      int index = 0;
+      while ((index < size) && readOK) {
+        double value;
+        if (fscanf(stream,"%lg" , &value) == 1) 
           gen_kw->data[index] = value;
         else
-          util_abort("%s: key:%s not recognized as part of GEN_KW instance - error when reading file:%s \n",__func__ , key , filename);
-        counter++;
-      } else {
-        util_abort("%s: failed to read (key,value) pair at line:%d in file:%s \n",__func__ , util_get_current_linenr( stream ) , filename);
-        readOK = false;
+          readOK = false;
+        index++;
       }
     }
-  }
-  
-  if (!readOK)
-    util_abort("%s: failed loading from file:%s \n",__func__ , filename);
+    
+    /* 
+       OK - rewind and try again with interlaced key + value
+       pairs. Observe that we still require that ALL the elements in the
+       gen_kw instance are set, i.e. it is not allowed to read only some
+       of the keywords; but the ordering is not relevant.
+       
+       The code will be fooled (and give undefined erronous results) if
+       the same key appears several times. Be polite!
+    */
+    
+    if (!readOK) {
+      int counter = 0;
+      readOK = true;
+      fseek( stream , 0 , SEEK_SET );
+      
+      while ((counter < size) && readOK) {
+        char key[128];
+        double value;
+        int    fscanf_return = fscanf(stream , "%s %lg" , key , &value);
+        
+        if (fscanf_return == 2) {
+          int index = gen_kw_config_get_index(gen_kw->config , key);
+          if (index >= 0) 
+            gen_kw->data[index] = value;
+          else
+            util_abort("%s: key:%s not recognized as part of GEN_KW instance - error when reading file:%s \n",__func__ , key , filename);
+          counter++;
+        } else {
+          util_abort("%s: failed to read (key,value) pair at line:%d in file:%s \n",__func__ , util_get_current_linenr( stream ) , filename);
+          readOK = false;
+        }
+      }
+    }
+    
+    if (!readOK)
+      util_abort("%s: failed loading from file:%s \n",__func__ , filename);
 
-  fclose(stream);
+    fclose(stream);
+    return true;
+  } else
+    return false;
 }
 
 

@@ -16,14 +16,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "Rim3dOverlayInfoConfig.h"
+
 #include "RimReservoirView.h"
 #include "RiuViewer.h"
 #include "RimCase.h"
 #include "RigCaseData.h"
-#include "RigMainGrid.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimReservoirCellResultsCacher.h"
+
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+
+#include "RimWellCollection.h"
+#include "cafPdmFieldCvfMat4d.h"
 #include "RigCaseCellResultsData.h"
 
 CAF_PDM_SOURCE_INIT(Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig");

@@ -1,13 +1,11 @@
 #include <QtNetwork>
 #include <octave/oct.h>
+#include "riSettings.h"
 
-
-void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16 port, QString caseName, QString propertyName)
+void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, quint16 serverPort,
+                        const qint64& caseId, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
 {
-    QString serverName = hostName;
-    quint16 serverPort = port;
-
-    const int Timeout = 5 * 1000;
+    const int Timeout = riOctavePlugin::timeOutMilliSecs;
 
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
@@ -18,14 +16,22 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16
         return;
     }
 
-    // Create command and send it:
-
-    QString command("GetProperty ");
-    command += caseName + " " + propertyName;
-    QByteArray cmdBytes = command.toLatin1();
-
     QDataStream socketStream(&socket);
-    socketStream.setVersion(QDataStream::Qt_4_0);
+    socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
+
+    // Create command as a string with arguments , and send it:
+
+    QString command;
+    command += "GetActiveCellProperty " + QString::number(caseId) + " " + propertyName + " " + porosityModel;
+
+    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    {
+        if (i == 0) command += " ";
+        command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
+        if (i != requestedTimeSteps.length() -1) command += " ";
+    }
+
+    QByteArray cmdBytes = command.toLatin1();
 
     socketStream << (qint64)(cmdBytes.size());
     socket.write(cmdBytes);
@@ -36,7 +42,7 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16
     {
         if (!socket.waitForReadyRead(Timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
@@ -60,6 +66,7 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16
     }
 
     // Wait for available data for each timestep, then read data for each timestep
+
     for (size_t tIdx = 0; tIdx < timestepCount; ++tIdx)
     {
         while (socket.bytesAvailable() < (int)byteCount)
@@ -76,9 +83,11 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16
         qint64 bytesRead = 0;
         double * internalMatrixData = propertyFrames.fortran_vec();
 
-#if 1 // Use raw data transfer. Faster.
-        bytesRead = socket.read((char*)(internalMatrixData + tIdx * activeCellCount), byteCount);
+#if 0
+        // Raw data transfer. Faster. Not possible when dealing with coarsening
+        // bytesRead = socket.read((char*)(internalMatrixData + tIdx * activeCellCount), byteCount);
 #else
+        // Compatible transfer. Now the only one working
         for (size_t cIdx = 0; cIdx < activeCellCount; ++cIdx)
         {
             socketStream >> internalMatrixData[tIdx * activeCellCount + cIdx];
@@ -98,13 +107,13 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16
 
     QString tmp = QString("riGetActiveCellProperty : Read %1").arg(propertyName);
 
-    if (caseName.isEmpty())
+    if (caseId < 0)
     {
-        tmp += QString(" from active case.");
+        tmp += QString(" from current case.");
     }
     else
     {
-        tmp += QString(" from %1.").arg(caseName);
+        tmp += QString(" from case with Id: %1.").arg(caseId);
     }
     octave_stdout << tmp.toStdString() << " Active cells : " << activeCellCount << ", Timesteps : " << timestepCount << std::endl;
 
@@ -116,35 +125,98 @@ void getEclipseProperty(Matrix& propertyFrames, const QString &hostName, quint16
 DEFUN_DLD (riGetActiveCellProperty, args, nargout,
            "Usage:\n"
            "\n"
-           "   riGetActiveCellProperty( [CaseName/CaseIndex], PropertyName )\n"
+           "Matrix[numActiveCells][numTimestepsRequested] riGetActiveCellProperty([CaseId], PropertyName, [RequestedTimeSteps], [PorosityModel = \"Matrix\"|\"Fracture\"] )"
            "\n"
-           "Returns a two dimentional matrix: [ActiveCells][Timesteps]\n"
-           "Containing the requested property data from the Eclipse Case defined.\n"
-           "If the Eclipse Case is not defined, the active View in ResInsight is used."
+           "This function returns a two dimensional matrix: [ActiveCells][Num TimestepsRequested] containing the requested property data from the case with CaseId."
+           "If the case contains coarse-cells, the results are expanded onto the active cells."
+           "If the CaseId is not defined, ResInsight’s Current Case is used."
+           "The RequestedTimeSteps must contain a list of 1-based indices to the requested timesteps. If not defined, all the timesteps are returned."
            )
 {
+    if (nargout < 1)
+    {
+        error("riGetActiveCellProperty: Missing output argument.\n");
+        print_usage();
+        return octave_value_list ();
+    }
+
     int nargin = args.length ();
     if (nargin < 1)
     {
         error("riGetActiveCellProperty: Too few arguments. The name of the property requested is neccesary.\n");
         print_usage();
+        return octave_value_list ();
     }
-    else if (nargout < 1)
+
+    if (nargin > 4)
     {
-        error("riGetActiveCellProperty: Missing output argument.\n");
+        error("riGetActiveCellProperty: Too many arguments.\n");
         print_usage();
+        return octave_value_list ();
     }
-    else
+
+    std::vector<int> argIndices;
+    argIndices.push_back(0);
+    argIndices.push_back(1);
+    argIndices.push_back(2);
+    argIndices.push_back(3);
+
+    // Check if we have a CaseId:
+    if (!args(argIndices[0]).is_numeric_type())
     {
-        Matrix propertyFrames;
-
-        if (nargin > 1)
-            getEclipseProperty(propertyFrames, "127.0.0.1", 40001, args(0).char_matrix_value().row_as_string(0).c_str(), args(1).char_matrix_value().row_as_string(0).c_str());
-        else
-            getEclipseProperty(propertyFrames, "127.0.0.1", 40001, "", args(0).char_matrix_value().row_as_string(0).c_str());
-
-        return octave_value(propertyFrames);
+        argIndices[0] = -1;
+        for (size_t aIdx = 1; aIdx < argIndices.size(); ++aIdx)
+            --argIndices[aIdx];
     }
 
-    return octave_value_list ();
+    // Check if we have a Requested TimeSteps
+
+    if (!(nargin > argIndices[2] && args(argIndices[2]).is_matrix_type()))
+    {
+        argIndices[2] = -1;
+        for (size_t aIdx = 3; aIdx < argIndices.size(); ++aIdx)
+            --argIndices[aIdx];
+    }
+
+    // Check if we have a PorosityModel
+
+    int lastArgumentIndex = argIndices[3] ;
+    if (!(nargin > argIndices[3] && args(argIndices[3]).is_string()))
+    {
+        argIndices[3] = -1;
+        for (size_t aIdx = 4; aIdx < argIndices.size(); ++aIdx)
+            --argIndices[aIdx];
+    }
+
+    // Check if we have more arguments than we should
+    if (nargin > lastArgumentIndex + 1)
+    {
+        error("riGetActiveCellProperty: Unexpected argument after the PorosityModel.\n");
+        print_usage();
+        return octave_value_list ();
+    }
+
+    // Setup the argument list
+
+    Matrix propertyFrames;
+    int caseId = -1;
+    std::string propertyName = "UNDEFINED";
+    int32NDArray requestedTimeSteps;
+    std::string porosityModel = "Matrix";
+
+    if (argIndices[0] >= 0) caseId              = args(argIndices[0]).int_value();
+    if (argIndices[1] >= 0) propertyName        = args(argIndices[1]).char_matrix_value().row_as_string(0);
+    if (argIndices[2] >= 0) requestedTimeSteps  = args(argIndices[2]).int32_array_value();
+    if (argIndices[3] >= 0) porosityModel       = args(argIndices[3]).string_value();
+
+    if (porosityModel != "Matrix" && porosityModel != "Fracture")
+    {
+        error("riGetActiveCellProperty: The value for \"PorosityModel\" is unknown. Please use either \"Matrix\" or \"Fracture\"\n");
+        print_usage();
+        return octave_value_list ();
+    }
+
+    getActiveCellProperty(propertyFrames, "127.0.0.1", 40001, caseId, propertyName.c_str(), requestedTimeSteps, porosityModel.c_str());
+
+    return octave_value(propertyFrames);
 }

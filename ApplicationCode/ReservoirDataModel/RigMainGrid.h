@@ -47,8 +47,6 @@ public:
     
     void                                    computeCachedData();
 
-    cvf::BoundingBox                        matrixModelActiveCellsBoundingBox() const;
-
     // Overrides
     virtual cvf::Vec3d                      displayModelOffset() const;
     void                                    setDisplayModelOffset(cvf::Vec3d offset);

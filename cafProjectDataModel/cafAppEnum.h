@@ -20,8 +20,8 @@
 #pragma once
 
 #include <vector>
-#include <string>
-#include <QtCore/QString>
+#include <QString>
+#include <QStringList>
 #include <QTextStream>
 
 namespace caf

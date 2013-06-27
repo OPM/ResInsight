@@ -18,9 +18,10 @@
 
 #pragma once
 
-#include <QtGui/QMainWindow>
-#include "qevent.h"
 #include "cafUiTreeModelPdm.h"
+
+#include <QMainWindow>
+#include <QEvent>
 #include <QPointer>
 
 class QTreeView;
@@ -39,6 +40,7 @@ class RiuResultInfoPanel;
 class RiuProcessMonitor;
 class RimUiTreeModelPdm;
 class RimUiTreeView;
+class RimCase;
 
 namespace caf
 {
@@ -48,6 +50,11 @@ namespace caf
     class FrameAnimationControl;
     class AnimationToolBar;
     class PdmUiPropertyView;
+}
+
+namespace ssihub
+{
+    class Interface;
 }
 
 //==================================================================================================
@@ -83,6 +90,8 @@ public:
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
+    void            selectedCases(std::vector<RimCase*>& cases);
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 
@@ -115,6 +124,8 @@ private:
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
+    QAction*		    m_importWellPathsFromFileAction;
+    QAction*		    m_importWellPathsFromSSIHubAction;
     QAction*		    m_saveProjectAction;
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
@@ -173,6 +184,8 @@ private slots:
     void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
+    void    slotImportWellPathsFromFile();
+    void    slotImportWellPathsFromSSIHub();
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
@@ -247,5 +260,6 @@ private:
 
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
     std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
-
+    
+    ssihub::Interface*          m_ssihubInterface;
 };

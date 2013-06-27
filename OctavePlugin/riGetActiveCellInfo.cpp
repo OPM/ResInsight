@@ -1,18 +1,20 @@
 #include <QtNetwork>
 #include <octave/oct.h>
 
+#include "riSettings.h"
 
-void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, quint16 port, QString caseName)
+
+void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, quint16 port, const qint64& caseId, const QString& porosityModel)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int Timeout = 5 * 1000;
+    const int timeout = riOctavePlugin::timeOutMilliSecs;
 
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout))
+    if (!socket.waitForConnected(timeout))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -20,12 +22,11 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
 
     // Create command and send it:
 
-    QString command("GetActiveCellInfo ");
-    command += caseName;
+    QString command = QString("GetActiveCellInfo %1 %2").arg(caseId).arg(porosityModel);
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
-    socketStream.setVersion(QDataStream::Qt_4_0);
+    socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
     socketStream << (qint64)(cmdBytes.size());
     socket.write(cmdBytes);
@@ -34,44 +35,46 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
 
     while (socket.bytesAvailable() < (int)(2*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }
 
     // Read timestep count and blocksize
 
-    quint64 timestepCount;
+    quint64 columnCount;
     quint64 byteCount;
     size_t  activeCellCount;
 
-    socketStream >> timestepCount;
+    socketStream >> columnCount;
     socketStream >> byteCount;
 
     activeCellCount = byteCount / sizeof(qint32);
 
     dim_vector dv (2, 1);
     dv(0) = activeCellCount;
-    dv(1) = timestepCount;
+    dv(1) = columnCount;
     activeCellInfo.resize(dv);
 
-    if (!(byteCount && timestepCount))
+    if (!(byteCount && columnCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
     }
 
     // Wait for available data for each column, then read data for each column
-    for (size_t tIdx = 0; tIdx < timestepCount; ++tIdx)
+    for (size_t tIdx = 0; tIdx < columnCount; ++tIdx)
     {
         while (socket.bytesAvailable() < (int)byteCount)
         {
-            if (!socket.waitForReadyRead(Timeout))
+            if (!socket.waitForReadyRead(timeout))
             {
-                error((("Waiting for column number: ") + QString::number(tIdx)+  " of 8 : " + socket.errorString()).toLatin1().data());
-                octave_stdout << "Active cells: " << activeCellCount << ", Columns: " << timestepCount << std::endl;
+                QString errorMsg = QString("Waiting for column number: %1 of %2: %3").arg(tIdx).arg(columnCount).arg(socket.errorString());
+
+                error(errorMsg.toLatin1().data());
+                octave_stdout << "Active cells: " << activeCellCount << ", Columns: " << columnCount << std::endl;
                 return ;
             }
            OCTAVE_QUIT;
@@ -94,23 +97,23 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
         if ((int)byteCount != bytesRead)
         {
             error("Could not read binary double data properly from socket");
-            octave_stdout << "Active cells: " << activeCellCount << ", Columns: " << timestepCount << std::endl;
+            octave_stdout << "Active cells: " << activeCellCount << ", Columns: " << columnCount << std::endl;
         }
 
         OCTAVE_QUIT;
     }
 
     QString tmp = QString("riGetActiveCellInfo : Read active cell info");
-    if (caseName.isEmpty())
+    if (caseId < 0)
     {
-        tmp += QString(" from active case.");
+        tmp += QString(" from current case.");
     }
     else
     {
-        tmp += QString(" from %1.").arg(caseName);
+        tmp += QString(" from caseID: %1.").arg(caseId);
     }
-    octave_stdout << tmp.toStdString() << " Active cells: " << activeCellCount << ", Columns: " << timestepCount << std::endl;
 
+    octave_stdout << tmp.toStdString() << " Active cells: " << activeCellCount << ", Columns: " << columnCount << std::endl;
 
     return;
 }
@@ -120,22 +123,24 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
 DEFUN_DLD (riGetActiveCellInfo, args, nargout,
            "Usage:\n"
            "\n"
-           "   riGetActiveCellInfo( [CaseName/CaseIndex])\n"
+           "   riGetActiveCellInfo([CaseId], [PorosityModel = “Matrix”|”Fracture”] )\n"
            "\n"
-           "Returns a two dimentional matrix: [ActiveCells][8]\n"
-           "Containing grid and ijk information about the cells from the Eclipse Case defined.\n"
+           "This function returns a two dimensional matrix containing grid and IJK information\n"
+           "for each of the active cells in the requested case.\n"
            "The columns contain the following information:\n"
-           "  1: GridIndex: The index of the grid the cell resides in. (Main grid has index 0) \n"
-           "  2, 3, 4: I, J, K address of the cell in the grid.\n"
-           "  5: ParentGridIndex. The index to the grid that this cell's grid is residing in.\n"
-           "  6, 7, 8: PI, PJ, PK address of the parent grid cell that this cell is a part of."
-           "If the Eclipse Case is not defined, the active View in ResInsight is used."
+           "[GridIdx, I, J, K, ParentGridIdx, PI, PJ, PK, CoarseBoxIdx]\n"
+           "    GridIdx :       The index of the grid the cell resides in. (Main grid has index 0)\n"
+           "    I, J, K :       1-based index address of the cell in the grid.\n"
+           "    ParentGridIdx : The index to the grid that this cell's grid is residing in.\n"
+           "    PI, PJ, PK :    1-based address of the parent grid cell that this cell is a part of.\n"
+           "    CoarseBoxIdx :  Coarsening box index, -1 if none.\n"
+           "If the CaseId is not defined, ResInsight’s Current Case is used. If PorosityModel is not defined, “Matrix“ is used.\n"
            )
 {
     int nargin = args.length ();
-    if (nargin > 1)
+    if (nargin > 2)
     {
-        error("riGetActiveCellInfo: Too many arguments. Only the name or index of the case is valid input.\n");
+        error("riGetActiveCellInfo: Too many arguments. CaseId and PorosityModel are optional input arguments.\n");
         print_usage();
     }
     else if (nargout < 1)
@@ -147,14 +152,43 @@ DEFUN_DLD (riGetActiveCellInfo, args, nargout,
     {
         int32NDArray propertyFrames;
 
+        qint64 caseId = -1;
+        QString porosityModel = "Matrix";
+
         if (nargin > 0)
-            getActiveCellInfo(propertyFrames, "127.0.0.1", 40001, args(0).char_matrix_value().row_as_string(0).c_str());
-        else
-            getActiveCellInfo(propertyFrames, "127.0.0.1", 40001, "");
+        {
+            if (args(0).is_numeric_type())
+            {
+                unsigned int argCaseId = args(0).uint_value();
+                caseId = argCaseId;
+            }
+            else
+            {
+                porosityModel = args(0).char_matrix_value().row_as_string(0).c_str();
+            }
+        }
+
+        if (nargin > 1)
+        {
+            if (args(1).is_numeric_type())
+            {
+                unsigned int argCaseId = args(1).uint_value();
+                caseId = argCaseId;
+            }
+            else
+            {
+                porosityModel = args(1).char_matrix_value().row_as_string(0).c_str();
+            }
+        }
+
+
+        octave_stdout << "Porosity: " << porosityModel.toStdString() << " CaseId : " << caseId << std::endl;
+
+        getActiveCellInfo(propertyFrames, "127.0.0.1", 40001, caseId, porosityModel);
 
         return octave_value(propertyFrames);
     }
 
-    return octave_value_list ();
+    return octave_value();
 }
 

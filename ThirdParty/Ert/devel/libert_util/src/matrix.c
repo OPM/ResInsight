@@ -956,10 +956,10 @@ void matrix_inplace_matmul(matrix_type * A, const matrix_type * B) {
 static void * matrix_inplace_matmul_mt__(void * arg) {
 
   arg_pack_type * arg_pack = arg_pack_safe_cast( arg );
-  int row_offset     = arg_pack_iget_int( arg_pack , 0 );
-  int rows           = arg_pack_iget_int( arg_pack , 1 );
-  matrix_type * A    = arg_pack_iget_ptr( arg_pack , 2 );
-  matrix_type * B    = arg_pack_iget_ptr( arg_pack , 3 );
+  int row_offset         = arg_pack_iget_int( arg_pack , 0 );
+  int rows               = arg_pack_iget_int( arg_pack , 1 );
+  matrix_type * A        = arg_pack_iget_ptr( arg_pack , 2 );
+  const matrix_type * B  = arg_pack_iget_const_ptr( arg_pack , 3 );
 
   matrix_type * A_view = matrix_alloc_shared( A , row_offset , 0 , rows , matrix_get_columns( A ));
   matrix_inplace_matmul( A_view , B );
@@ -1002,7 +1002,7 @@ void matrix_inplace_matmul_mt2(matrix_type * A, const matrix_type * B , thread_p
       arg_pack_append_int(arglist[it] , row_offset );
       arg_pack_append_int(arglist[it] , row_size   );
       arg_pack_append_ptr(arglist[it] , A );
-      arg_pack_append_ptr(arglist[it] , B );
+      arg_pack_append_const_ptr(arglist[it] , B );
       
       thread_pool_add_job( thread_pool , matrix_inplace_matmul_mt__ , arglist[it]);
       row_offset += row_size;

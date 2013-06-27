@@ -220,7 +220,7 @@ void enkf_tui_plot_RFT_simIn(enkf_main_type * enkf_main, path_fmt_type * runpath
   bool plot_refcase = plot_config_get_plot_refcase( plot_config );
   ecl_config_type * ecl_config = enkf_main_get_ecl_config(enkf_main);
   ecl_refcase_list_type * refcase_list = ecl_config_get_refcase_list( ecl_config );
-  ecl_sum_type * refcase = ecl_refcase_list_get_default( refcase_list );
+  const ecl_sum_type * refcase = ecl_refcase_list_get_default( refcase_list );
   if (refcase) {
     
     /*
@@ -523,7 +523,6 @@ void enkf_tui_plot_RFT__(enkf_main_type * enkf_main,
       char cens[5];
       sprintf(cens , "%03d" , iens);
       msg_update(msg , cens);
-      bool has_node = true;
       node_id_type node_id = {.report_step = report_step , 
                               .iens = iens , 
                               .state = BOTH };

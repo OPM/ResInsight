@@ -109,7 +109,7 @@ void plot_driver_plot_yline( plot_driver_type * driver , const char * label , do
 
 void plot_driver_plot_xline( plot_driver_type * driver , const char * label , double x0 , double ymin , double ymax , line_attribute_type line_attr);
 
-void plot_driver_plot_hist( plot_driver_type * driver, const char * label , const double_vector_type * x , line_attribute_type line_attr);
+void plot_driver_plot_hist( plot_driver_type * driver, const char * label , double_vector_type * x , line_attribute_type line_attr);
 
 void plot_driver_set_axis( plot_driver_type * driver , plot_range_type * range , const char * timefmt , plot_color_type box_color , double tick_font_size);
 

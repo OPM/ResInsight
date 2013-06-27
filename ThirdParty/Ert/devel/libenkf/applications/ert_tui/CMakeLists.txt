@@ -24,7 +24,7 @@ set( src_list main.c enkf_tui_main.c  enkf_tui_fs.c  enkf_tui_ranking.c  enkf_tu
 execute_process(COMMAND date "+%Y-%m-%d %H:%M:%S" OUTPUT_VARIABLE BUILD_TIME )
 string(STRIP ${BUILD_TIME} BUILD_TIME)
 
-execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/git_commit.sh ${CMAKE_CURRENT_SOURCE_DIR} OUTPUT_VARIABLE GIT_COMMIT)
+execute_process(COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/git_commit.sh "${CMAKE_CURRENT_SOURCE_DIR}" OUTPUT_VARIABLE GIT_COMMIT)
 string(STRIP ${GIT_COMMIT} GIT_COMMIT)
 
 set_source_files_properties( main.c PROPERTIES COMPILE_DEFINITIONS "COMPILE_TIME_STAMP=\"${BUILD_TIME}\";GIT_COMMIT=\"${GIT_COMMIT}\";SITE_CONFIG_FILE=\"${SITE_CONFIG_FILE}\"")

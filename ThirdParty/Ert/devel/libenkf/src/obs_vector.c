@@ -607,18 +607,18 @@ obs_vector_type * obs_vector_alloc_from_BLOCK_OBSERVATION(const conf_instance_ty
                                                           const ecl_grid_type * grid , 
                                                           const ecl_sum_type * refcase , 
                                                           const history_type * history, 
-                                                          const ensemble_config_type * ensemble_config, 
+                                                          ensemble_config_type * ensemble_config, 
                                                           const time_t_vector_type * obs_time) {
 
   if(!conf_instance_is_of_class(conf_instance, "BLOCK_OBSERVATION"))
     util_abort("%s: internal error. expected \"BLOCK_OBSERVATION\" instance, got \"%s\".\n",
                __func__, conf_instance_get_class_name_ref(conf_instance) );
 
-  block_obs_source_type source_type;
-  const char * obs_label      = conf_instance_get_name_ref(conf_instance);
-  const char * source_string  = conf_instance_get_item_value_ref(conf_instance , "SOURCE");
-  const char * field_name     = conf_instance_get_item_value_ref(conf_instance , "FIELD");
-  char  * sum_kw = NULL;
+  block_obs_source_type source_type = SOURCE_SUMMARY;
+  const char * obs_label            = conf_instance_get_name_ref(conf_instance);
+  const char * source_string        = conf_instance_get_item_value_ref(conf_instance , "SOURCE");
+  const char * field_name           = conf_instance_get_item_value_ref(conf_instance , "FIELD");
+  const char * sum_kw = NULL;
   bool    OK     = true;
   
   if (strcmp(source_string , "FIELD") == 0) {

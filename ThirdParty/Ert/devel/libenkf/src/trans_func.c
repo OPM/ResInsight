@@ -70,16 +70,6 @@ static double trans_errf(double x, const arg_pack_type * arg) {
 }
 
 
-static void trans_errf_check(const char * func_name , const arg_pack_type * arg) {
-  double width    = arg_pack_iget_double(arg , 3);
-  if (width <= 0)
-    util_exit("In function:%s the witdh must be > 0.",func_name);
-}
-
-
-static double trans_none(double x , const arg_pack_type * arg) { 
-  return x;
-}
 
 
 static double trans_const(double x , const arg_pack_type * arg) { 
@@ -98,17 +88,6 @@ static double trans_derrf(double x , const arg_pack_type * arg) {
   
   y = floor( steps * 0.5*(1 + erf((x + skewness)/(width * sqrt(2.0)))) / (steps - 1) );
   return min + y * (max - min);
-}
-
-
-static void trans_derrf_check(const char * func_name , const arg_pack_type * arg) {
-  int    steps    = arg_pack_iget_int(arg , 0);
-  double width    = arg_pack_iget_double(arg , 4);
-  if (width <= 0)
-    util_exit("In function:%s the witdh must be > 0.",func_name);
-
-  if (steps <= 1)
-    util_exit("In function:%s the number of steps must be greater than 1.",func_name);
 }
 
 
@@ -135,13 +114,6 @@ static double trans_dunif(double x , const arg_pack_type * arg) {
   return (floor( y * steps) / (steps - 1)) * (max - min) + min;
 }
 
-
-static void trans_dunif_check(const char * func_name , const arg_pack_type * arg) {
-  int    steps = arg_pack_iget_int(arg , 0);
-  
-  if (steps <= 1)
-    util_exit("When using function:%s steps must be > 1 \n",func_name);
-}
 
 
 
@@ -181,15 +153,6 @@ static double trans_logunif(double x , const arg_pack_type * arg) {
 }
 
 
-static void trans_logunif_check(const char * func_name , const arg_pack_type * arg) {
-
-  double min = arg_pack_iget_double(arg , 0);
-  double max = arg_pack_iget_double(arg , 1);
-  if (min >= max )
-    util_exit("When using:%s frist argument must be less than second.\n",func_name);
-  if(min <= 0)  
-    util_exit("When using:%s both arguments must be greater than zero.\n",func_name);
-}
 
 /*****************************************************************/
 

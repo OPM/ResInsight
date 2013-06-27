@@ -32,12 +32,13 @@ typedef struct hash_struct      hash_type;
 typedef struct hash_iter_struct hash_iter_type;
 typedef void (hash_apply_ftype) (void * );
 
+UTIL_SAFE_CAST_HEADER(hash);
+UTIL_SAFE_CAST_HEADER_CONST(hash);
 
 void              hash_lock  (hash_type * );
 void              hash_unlock(hash_type * );
 hash_type       * hash_alloc();
 hash_type       * hash_alloc_unlocked();
-hash_type       * hash_safe_cast( void * arg);
 void              hash_iter_complete(hash_type * );
 void              hash_free(hash_type *);
 void              hash_free__(void *);

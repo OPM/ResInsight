@@ -17,17 +17,28 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector2.h"
+#include "cvfArray.h"
 
 #include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "cafPdmField.h"
+#include "cafPdmPointer.h"
 #include "cafAppEnum.h"
-#include "cvfScalarMapperContinuousLog.h"
-#include "cvfScalarMapperContinuousLinear.h"
-#include "cvfOverlayScalarMapperLegend.h"
-#include "cvfScalarMapperDiscreteLinear.h"
+
+namespace cvf
+{
+    class ScalarMapperContinuousLog;
+    class ScalarMapperContinuousLinear;
+    class OverlayScalarMapperLegend;
+    class ScalarMapperDiscreteLinear;
+    class ScalarMapperDiscreteLog;
+    class ScalarMapper;
+}
 
 class RimReservoirView;
+
 //==================================================================================================
 ///  
 ///  
@@ -75,6 +86,7 @@ public:
     void                                        recreateLegend();
     void                                        setColorRangeMode(ColorRangesType colorMode);
     void                                        setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax);
+    void                                        setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero);
     void                                        setPosition(cvf::Vec2ui position);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
@@ -104,6 +116,11 @@ private:
     double                                      m_globalAutoMin;
     double                                      m_localAutoMax;
     double                                      m_localAutoMin;
+
+    double                                      m_globalAutoPosClosestToZero;
+    double                                      m_globalAutoNegClosestToZero;
+    double                                      m_localAutoPosClosestToZero;
+    double                                      m_localAutoNegClosestToZero;
 
     cvf::Vec2ui                                 m_position;
 

@@ -38,6 +38,6 @@ void             menu_set_title(menu_type *, const char *);
 void             menu_item_set_label( menu_item_type * , const char *);
 void             menu_item_disable( menu_item_type * item );
 void             menu_item_enable( menu_item_type * item );
-
+void             menu_add_helptext(menu_type * menu, const char * label );
 
 #endif

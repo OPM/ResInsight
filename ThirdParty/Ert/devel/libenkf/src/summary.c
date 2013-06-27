@@ -312,7 +312,6 @@ bool summary_forward_load_vector(summary_type * summary , const char * ecl_file_
     if (ecl_sum != NULL) {
       double_vector_type * storage_vector = SELECT_VECTOR( summary , FORECAST );
       const char * var_key                = summary_config_get_var(summary->config);
-      const ecl_smspec_var_type var_type  = summary_config_get_var_type(summary->config , ecl_sum);
       load_fail_type load_fail_action     = summary_config_get_load_fail_mode(summary->config );
       bool normal_load = false;
       

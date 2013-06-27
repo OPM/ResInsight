@@ -220,7 +220,7 @@ extern "C" {
   void                        enkf_main_fprintf_config( const enkf_main_type * enkf_main );
   int_vector_type           * enkf_main_update_alloc_step_list( const enkf_main_type * enkf_main , int load_start , int step2 , int stride);
 
-  const qc_module_type * enkf_main_get_qc_module( const enkf_main_type * enkf_main );
+  qc_module_type       * enkf_main_get_qc_module( const enkf_main_type * enkf_main );
   bool                   enkf_main_has_QC_workflow( const enkf_main_type * enkf_main );
 
   void enkf_main_get_PC( const enkf_main_type * enkf_main , 
@@ -244,6 +244,7 @@ extern "C" {
   enkf_main_type      * enkf_main_alloc_empty( );
 
   rng_config_type     * enkf_main_get_rng_config( const enkf_main_type * enkf_main );
+  void                  enkf_main_rng_init( enkf_main_type * enkf_main);
 
 UTIL_SAFE_CAST_HEADER(enkf_main);
 

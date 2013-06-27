@@ -16,15 +16,22 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
+//#include "RiaStdInclude.h"
+#include "RimWell.h"
 
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
-#include "RimWell.h"
 #include "RivReservoirViewPartMgr.h"
 #include "RimReservoirView.h"
-
+#include "RimWellCollection.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimWell, "Well");
 

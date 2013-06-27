@@ -56,6 +56,8 @@ private:
 
     virtual void                initAfterRead();
 
+    virtual void                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
     // Fields:                        
     caf::PdmField<QString>      caseFileName;
 

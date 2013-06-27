@@ -53,7 +53,7 @@ extern "C" {
   field_type * field_alloc_shared(const field_config_type * , void * , int );
   void         field_free(field_type *);
   void         field_get_dims(const field_type *, int *, int *, int *);
-  void         field_fload_auto(field_type * , const char * );
+  bool         field_fload_auto(field_type * , const char * );
   void         field_export3D(const field_type * , void *, bool , ecl_type_enum , void *);
   void         field_export(const field_type * , const char * , fortio_type * , field_file_format_type , bool);
   field_type * field_copyc(const field_type *);
@@ -69,7 +69,7 @@ extern "C" {
   void          field_iadd(field_type * , const field_type *);
   void          field_imul_add(field_type * , double , const field_type *);
   ecl_kw_type * field_alloc_ecl_kw_wrapper(const field_type * );
-  void          field_update_sum(field_type * sum , const field_type * field , double lower_limit , double upper_limit);
+  void          field_update_sum(field_type * sum , field_type * field , double lower_limit , double upper_limit);
   void          field_upgrade_103(const char * filename);
   
   UTIL_IS_INSTANCE_HEADER(field);

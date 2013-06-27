@@ -755,7 +755,7 @@ static void config_parse__(config_type * config ,
   }
   free(config_file);
   path_stack_pop( path_stack );
-  vector_pop( config->path_elm_stack );
+  vector_pop_back( config->path_elm_stack );
 }
 
 

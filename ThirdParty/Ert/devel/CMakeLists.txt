@@ -19,14 +19,20 @@ ENABLE_TESTING()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
    set(ERT_LINUX TRUE )
    add_definitions( -DERT_LINUX )
-   set( CMAKE_C_FLAGS    "-g -O2 -Wall -std=gnu99" )
-   set( CMAKE_CXX_FLAGS  "-g -O2 -Wall" )
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    set(ERT_WINDOWS TRUE)
    add_definitions( -DERT_WINDOWS )
+endif()    
+
+
+if (ERT_WINDOWS)
    set( CMAKE_C_FLAGS    "-O2" )
    set( CMAKE_CXX_FLAGS  "-O2" )
+else()
+   set( CMAKE_C_FLAGS    "-g -O2 -Wall -Wno-unknown-pragmas -std=gnu99 " )
+   set( CMAKE_CXX_FLAGS  "-g -O2 -Wall" )
 endif()
+
 
 include(cmake/ert_check.cmake)
 include(cmake/ert_find.cmake)
@@ -48,7 +54,6 @@ else()
     set( SHARED_LIB OFF )
   endif(INSTALL_ERT)
 endif(MSVC)
-
 
 
 

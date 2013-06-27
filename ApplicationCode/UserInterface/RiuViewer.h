@@ -74,7 +74,6 @@ protected:
     void            keyPressEvent(QKeyEvent* event);
     void            mouseReleaseEvent(QMouseEvent* event);
     void            mousePressEvent(QMouseEvent* event);
-    void            contextMenuEvent(QContextMenuEvent* event);
 
     void            handlePickAction(int winPosX, int winPosY);
     cvf::Part*      pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint);

@@ -939,25 +939,6 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
   }
 }
 
-/**
-   This function is the opposite of the ecl_smspec_index_node
-   function; i.e. it will remove the smspec_node from the various
-   index tables. It will not actually destroy the node itself.  
-*/
-
-static void ecl_smspec_delete_node_index(ecl_smspec_type * ecl_smspec, smspec_node_type * smspec_node) {
-  {
-    const char * gen_key1 = smspec_node_get_gen_key1( smspec_node );
-    const char * gen_key2 = smspec_node_get_gen_key2( smspec_node );
-
-    if (gen_key1 != NULL)
-      hash_del( ecl_smspec->gen_var_index , gen_key1 );
-    
-    if (gen_key2 != NULL)
-      hash_del( ecl_smspec->gen_var_index , gen_key2 );
-  }
-  // Is currently not deleted from the special dictionaries.
-}
   
 
 void ecl_smspec_index_node( ecl_smspec_type * ecl_smspec , smspec_node_type * smspec_node) {

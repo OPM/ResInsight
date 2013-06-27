@@ -521,11 +521,12 @@ static UTIL_SAFE_CAST_FUNCTION( wconhist_state , WCONHIST_TYPE_ID)
 static double well_util_total( const time_t_vector_type * time, const double_vector_type * rate , int report_step ) {
   double total = 0;
   for (int index = 1; index <= report_step; index++) {
+    /* It is a HARD assumption that the rate values in @rate are given as volume / day. */
     double days = (time_t_vector_iget( time , index ) - time_t_vector_iget( time , index - 1)) / 86400;
-    total += (time_t_vector_iget( time , index ) - time_t_vector_iget( time , index - 1)) * double_vector_iget( rate , index );
+    total +=      days * double_vector_iget( rate , index );
   }
   
-  return total / 86400; /* It is a HARD assumption that the rate values in @rate are given as volume / day. */
+  return total; 
 }
 
 

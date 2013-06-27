@@ -24,12 +24,10 @@
 #include "cafPdmObject.h"
 
 #include "RimCase.h"
-#include "RimInputPropertyCollection.h"
-
-
-class QString;
 
 class RifReaderInterface;
+class RimInputPropertyCollection;
+class RimInputProperty;
 
 //==================================================================================================
 //

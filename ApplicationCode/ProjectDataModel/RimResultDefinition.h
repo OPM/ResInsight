@@ -74,7 +74,7 @@ protected:
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
 
-    mutable size_t                                                  m_gridScalarResultIndex;
+    //mutable size_t                                                  m_gridScalarResultIndex;
 
     caf::PdmPointer<RimReservoirView>                               m_reservoirView;
 

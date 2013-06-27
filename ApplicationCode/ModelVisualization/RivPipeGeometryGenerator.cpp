@@ -469,7 +469,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
     if (m_filteredPipeCenterCoords.size() > 0) return;
 
 
-    double distanceTolerance = 1e-10;
+    double squareDistanceTolerance = 1e-4*1e-4;
     double angleTolerance = 1e-5;
 
     size_t firstSegmentWithLength = 0;
@@ -477,7 +477,8 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
     for (i = 0; i < m_originalPipeCenterCoords->size() - 1; i++)
     {
         cvf::Vec3d candidateDir = (*m_originalPipeCenterCoords)[i] - (*m_originalPipeCenterCoords)[i+1];
-        if (candidateDir.normalize()) 
+        double dirLengthSq = candidateDir.lengthSquared();
+        if (dirLengthSq > squareDistanceTolerance && candidateDir.normalize()) 
         {
             firstSegmentWithLength = i;
             break;
@@ -502,14 +503,15 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
         cvf::Vec3d directionAB = coordB - coordA;
 
         // Skip segment lengths below tolerance
-        if (directionAB.lengthSquared() > distanceTolerance)
+        double dirLengthSq = directionAB.lengthSquared();
+        if (directionAB.lengthSquared() > squareDistanceTolerance)
         {
             lastValidDirectionAB = directionAB.getNormalized();
             lastValidSegment = i;
         }
 
         cvf::Vec3d directionBC = coordC - coordB;
-        if (directionBC.lengthSquared() < distanceTolerance)
+        if (directionBC.lengthSquared() < squareDistanceTolerance)
         {
             continue;
         }
@@ -550,7 +552,7 @@ void RivPipeGeometryGenerator::updateFilteredPipeCenterCoords()
     cvf::Vec3d coordB = m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 1);
 
     cvf::Vec3d directionAB = coordB - coordA;
-    if (directionAB.lengthSquared() > distanceTolerance)
+    if (directionAB.lengthSquared() > squareDistanceTolerance)
     {
         m_filteredPipeCenterCoords.push_back(m_originalPipeCenterCoords->get(m_originalPipeCenterCoords->size() - 1));
     }

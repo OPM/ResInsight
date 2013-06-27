@@ -48,15 +48,22 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuProcessMonitor.cpp
 )
 
+set( SOCKET_INTERFACE_FILES
+    SocketInterface/RiaSocketServer.cpp
+    SocketInterface/RiaProjectInfoCommands.cpp
+    SocketInterface/RiaCaseInfoCommands.cpp
+    SocketInterface/RiaGeometryCommands.cpp
+    SocketInterface/RiaPropertyDataCommands.cpp
+    SocketInterface/RiaSocketTools.cpp
+)
+
 
 list( APPEND CPP_SOURCES
      ${APPLICATION_FILES}
      ${USER_INTERFACE_FILES}
+     ${SOCKET_INTERFACE_FILES}
 )
 
-list( APPEND CPP_SOURCES
-    SocketInterface/RiaSocketServer.cpp
-)
 
 
 list( APPEND REFERENCED_CMAKE_FILES
@@ -74,6 +81,8 @@ endforeach (referencedfile)
 list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
+
+add_subdirectory(ssihubInterface)
 
 
 # Define files for MOC-ing
@@ -179,6 +188,7 @@ precompiled_header( RAW_SOURCES ALL_INCLUDES ${GCC_PCH_TARGET} ${PCH_NAME} ${PCH
 source_group( "Application"         FILES ${APPLICATION_FILES} )
 source_group( "ModelVisualization"  FILES ${MODEL_VISUALIZATION_FILES} )
 source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
+source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 
 add_executable(ResInsight
@@ -205,6 +215,8 @@ set( LINK_LIBRARIES
     LibGeometry
     LibCore
 
+    ssihubInterface
+
     ecl
     ert_util
     ert_geometry
@@ -229,7 +241,7 @@ target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 if (MSVC)
 
     # Qt DLLs
-    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd)
+    set (QTLIBLIST QtCore QtCored QtGui QtGuid QtOpenGl QtOpenGld QtNetwork QtNetworkd QtScript QtScriptd QtScriptTools QtScriptToolsd)
     foreach (qtlib ${QTLIBLIST})
         add_custom_command(TARGET ResInsight POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -261,6 +273,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
             ${QT_LIBRARY_DIR}/libQtGui.so*
             ${QT_LIBRARY_DIR}/libQtOpenGL.so*
             ${QT_LIBRARY_DIR}/libQtNetwork.so*
+            ${QT_LIBRARY_DIR}/libQtScript.so*
+            ${QT_LIBRARY_DIR}/libQtScriptTools.so*
         )
 
 endif()
@@ -274,6 +288,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
             ${QT_BINARY_DIR}/QtGui4.dll
             ${QT_BINARY_DIR}/QtOpenGL4.dll
             ${QT_BINARY_DIR}/QtNetwork4.dll
+            ${QT_BINARY_DIR}/QtScript4.dll
+            ${QT_BINARY_DIR}/QtScriptTools4.dll
         )
 endif()
 

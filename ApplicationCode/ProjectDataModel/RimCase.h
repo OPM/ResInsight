@@ -22,7 +22,6 @@
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "RimReservoirCellResultsCacher.h"
 #include "RifReaderInterface.h"
 
 class QString;
@@ -32,7 +31,7 @@ class RigGridBase;
 class RimReservoirView;
 class RimCaseCollection;
 class RimIdenticalGridCaseGroup;
-//class RimReservoirCellResultsCacher;
+class RimReservoirCellResultsStorage;
 
 //==================================================================================================
 // 
@@ -49,6 +48,7 @@ public:
 
     // Fields:                                        
     caf::PdmField<QString>                      caseUserDescription;
+    caf::PdmField<int>                          caseId;
     caf::PdmField<bool>                         releaseResultMemory;
     caf::PdmPointersField<RimReservoirView*>    reservoirViews;
     caf::PdmField<bool>                         flipXAxis;

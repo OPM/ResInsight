@@ -16,9 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
+//#include "RiaStdInclude.h"
 
 #include "cafPdmDocument.h"
+
+#include <QAction>
+#include <QMenu>
+#include <QContextMenuEvent>
+#include <QMessageBox>
+#include <QFileInfo>
+#include <QFileDialog>
+#include <QClipboard>
 
 #include "RimUiTreeView.h"
 #include "RimUiTreeModelPdm.h"
@@ -37,6 +45,27 @@
 #include "RimStatisticsCase.h"
 #include "RimResultCase.h"
 #include "RimMimeData.h"
+
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimResultSlot.h"
+#include "RimStatisticsCaseCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimCaseCollection.h"
+#include "RimScriptCollection.h"
+#include "RimWell.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "Rim3dOverlayInfoConfig.h"
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "RimProject.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -153,7 +182,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             }
             else if (dynamic_cast<RimStatisticsCaseCollection*>(uiItem->dataObject().p()))
             {
-                menu.addAction(QString("New Statistcs Case"), this, SLOT(slotNewStatisticsCase()));
+                menu.addAction(QString("New Statistics Case"), this, SLOT(slotNewStatisticsCase()));
             }
             else if (dynamic_cast<RimStatisticsCase*>(uiItem->dataObject().p()))
             {
@@ -190,6 +219,40 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 menu.addAction(QString("Add Script Path"), this, SLOT(slotAddScriptPath()));
                 menu.addAction(QString("Delete Script Path"), this, SLOT(slotDeleteScriptPath()));
+            }
+
+            // Execute script on selection of cases
+            RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+            if (ruiMainWindow)
+            {
+                std::vector<RimCase*> cases;
+                ruiMainWindow->selectedCases(cases);
+
+                if (cases.size() > 0)
+                {
+                    QMenu* executeMenu = menu.addMenu("Execute script");
+
+                    RiaApplication* app = RiaApplication::instance();
+                    RimProject* proj = app->project();
+                    if (proj && proj->scriptCollection())
+                    {
+                        RimScriptCollection* rootScriptCollection = proj->scriptCollection();
+
+                        // Root script collection holds a list of subdirectories of user defined script folders
+                        for (size_t i = 0; i < rootScriptCollection->subDirectories.size(); i++)
+                        {
+                            RimScriptCollection* subDir = rootScriptCollection->subDirectories[i];
+
+                            if (subDir)
+                            {
+                                appendScriptItems(executeMenu, subDir);
+                            }
+                        }
+                    }
+
+                    menu.addSeparator();
+                    menu.addMenu(executeMenu);
+                }
             }
 
             appendToggleItemActions(menu);
@@ -491,6 +554,83 @@ void RimUiTreeView::slotExecuteScript()
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotExecuteScriptForSelectedCases()
+{
+    QAction* action = qobject_cast<QAction*>(sender());
+
+    if (!action) return;
+
+    QString encodedModelIndex = action->data().toString();
+    QModelIndex mi = RimUiTreeView::getModelIndexFromString(model(), encodedModelIndex);
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mi);
+    if (uiItem)
+    {
+        RimCalcScript* calcScript = dynamic_cast<RimCalcScript*>(uiItem->dataObject().p());
+        if (!calcScript) return;
+
+        RiaApplication* app = RiaApplication::instance();
+        QString octavePath = app->octavePath();
+        if (!octavePath.isEmpty())
+        {
+            // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
+
+            // -p path
+            // Add path to the head of the search path for function files. The value of path specified on the command line
+            // will override any value of OCTAVE_PATH found in the environment, but not any commands in the system or
+            // user startup files that set the internal load path through one of the path functions.
+
+            // -q
+            // Don't print the usual greeting and version message at startup.
+
+
+            // TODO: Must rename RimCalcScript::absolutePath to absoluteFileName, as the code below is confusing
+            // absolutePath() is a function in QFileInfo
+            QFileInfo fi(calcScript->absolutePath());
+            QString octaveFunctionSearchPath = fi.absolutePath();
+
+            QStringList arguments;
+            arguments.append("--path");
+            arguments << octaveFunctionSearchPath;
+
+            arguments.append("-q");
+            arguments << calcScript->absolutePath();
+
+            // Get case ID from selected cases in selection model
+            std::vector<int> caseIdsInSelection;
+            {
+                QItemSelectionModel* m = selectionModel();
+                CVF_ASSERT(m);
+
+                caf::PdmObjectGroup group;
+
+                QModelIndexList mil = m->selectedRows();
+                populateObjectGroupFromModelIndexList(mil, &group);
+
+                std::vector<caf::PdmPointer<RimCase> > typedObjects;
+                group.objectsByType(&typedObjects);
+
+                for (size_t i = 0; i < typedObjects.size(); i++)
+                {
+                    RimCase* rimReservoir = typedObjects[i];
+                    caseIdsInSelection.push_back(rimReservoir->caseId);
+                }
+            }
+
+            if (caseIdsInSelection.size() > 0)
+            {
+                RiaApplication::instance()->launchProcessForMultipleCases(octavePath, arguments, caseIdsInSelection);
+            }
+        }
+    }
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -761,11 +901,7 @@ void RimUiTreeView::slotCloseCase()
             caf::PdmObjectGroup group;
 
             QModelIndexList mil = m->selectedRows();
-            for (int i = 0; i < mil.size(); i++)
-            {
-                caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mil.at(i));
-                group.addObject(uiItem->dataObject().p());
-            }
+            populateObjectGroupFromModelIndexList(mil, &group);
 
             std::vector<caf::PdmPointer<RimCase> > typedObjects;
             group.objectsByType(&typedObjects);
@@ -904,11 +1040,7 @@ void RimUiTreeView::createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGro
     if (!mdWithIndexes) return;
 
     QModelIndexList indexList = mdWithIndexes->indexes();
-    for (int i = 0; i < indexList.size(); i++)
-    {
-        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(indexList.at(i));
-        objectGroup->addObject(uiItem->dataObject().p());
-    }
+    populateObjectGroupFromModelIndexList(indexList, objectGroup);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1205,7 +1337,7 @@ void RimUiTreeView::storeTreeViewStateToString(QString& treeViewState)
 /// Find index based of an encode QString <row> <column>;<row> <column>;...;<row> <column>
 /// Set the decoded index as current index in the QAbstractItemView
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::applyCurrentIndexFromString(QAbstractItemView& itemView, const QString& currentIndexString)
+QModelIndex RimUiTreeView::getModelIndexFromString(QAbstractItemModel* model, const QString& currentIndexString)
 {
     QStringList modelIndexStringList = currentIndexString.split(";");
 
@@ -1220,33 +1352,33 @@ void RimUiTreeView::applyCurrentIndexFromString(QAbstractItemView& itemView, con
         int row = items[0].toInt();
         int col = items[1].toInt();
 
-        mi = itemView.model()->index(row, col, mi);
+        mi = model->index(row, col, mi);
     }
 
-    if (mi.isValid())
-    {
-        itemView.setCurrentIndex(mi);
-    }
+    return mi;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Store path to current index in item view using follwoing encoding into a QString <row> <column>;<row> <column>;...;<row> <column>
+/// Store path to model index in item view using follwoing encoding into a QString <row> <column>;<row> <column>;...;<row> <column>
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeView::storeCurrentIndexToString(const QAbstractItemView& itemView, QString& currentIndexString)
+void RimUiTreeView::encodeStringFromModelIndex(const QModelIndex mi, QString& encodedModelIndex)
 {
-    QModelIndex mi = itemView.currentIndex();
     if (!mi.isValid()) return;
 
-    QString path = QString("%1 %2").arg(mi.row()).arg(mi.column());
-    mi = mi.parent();
+    QModelIndex localModelIdx = mi;
 
-    while (mi.isValid())
+    while (localModelIdx.isValid())
     {
-        path = QString("%1 %2;").arg(mi.row()).arg(mi.column()) + path;
-        mi = mi.parent();
+        if (encodedModelIndex.isEmpty())
+        {
+            encodedModelIndex = QString("%1 %2").arg(localModelIdx.row()).arg(localModelIdx.column()) + encodedModelIndex;
+        }
+        else
+        {
+            encodedModelIndex = QString("%1 %2;").arg(localModelIdx.row()).arg(localModelIdx.column()) + encodedModelIndex;
+        }
+        localModelIdx = localModelIdx.parent();
     }
-
-    currentIndexString = path;
 }
 
 
@@ -1439,5 +1571,65 @@ void RimUiTreeView::slotToggleItemsOn()
 void RimUiTreeView::slotToggleItemsOff()
 {
     executeSelectionToggleOperation(TOGGLE_OFF);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup)
+{
+    CVF_ASSERT(objectGroup);
+
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (!myModel) return;
+
+    for (int i = 0; i < modelIndexList.size(); i++)
+    {
+        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(modelIndexList.at(i));
+        
+        if (uiItem && uiItem->dataObject() && uiItem->dataObject().p())
+        {
+            objectGroup->addObject(uiItem->dataObject().p());
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection)
+{
+    CVF_ASSERT(menu);
+
+    QDir dir(scriptCollection->directory);
+    QMenu* subMenu = menu->addMenu(dir.dirName());
+
+    for (size_t i = 0; i < scriptCollection->calcScripts.size(); i++)
+    {
+        RimCalcScript* calcScript = scriptCollection->calcScripts[i];
+        QFileInfo fi(calcScript->absolutePath());
+
+        QString menuText = fi.baseName();
+        QAction* scriptAction = subMenu->addAction(menuText, this, SLOT(slotExecuteScriptForSelectedCases()));
+
+        QModelIndex mi;
+        RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+        if (myModel)
+        {
+            mi = myModel->getModelIndexFromPdmObject(calcScript);
+        }
+
+        QString encodedModelIndex;
+        RimUiTreeView::encodeStringFromModelIndex(mi, encodedModelIndex);
+
+        scriptAction->setData(QVariant(encodedModelIndex));
+    }
+
+    for (size_t i = 0; i < scriptCollection->subDirectories.size(); i++)
+    {
+        RimScriptCollection* subDir = scriptCollection->subDirectories[i];
+
+        appendScriptItems(subMenu, subDir);
+    }
 }
 

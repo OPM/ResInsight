@@ -17,17 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QProcess>
+#include "cafPdmObject.h"
+#include "cafPdmField.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
-
-#include "cvfScalarMapperUniformLevels.h"
-#include "cvfOverlayScalarMapperLegend.h"
-#include "RimReservoirView.h"
+#include "cvfFont.h"
 
 #include <iostream>
-#include "RimProject.h"
 
 class RIProcess;
 class RigCaseData;
@@ -35,6 +33,8 @@ class RimCase;
 class Drawable;
 class RiaSocketServer;
 class RiaPreferences;
+class RimReservoirView;
+class RimProject;
 
 namespace caf
 {
@@ -68,7 +68,7 @@ public:
     RimReservoirView*       activeReservoirView();
     const RimReservoirView* activeReservoirView() const;
 
-    RimProject*         project() {return m_project;} 
+    RimProject*         project(); 
 
     void                createMockModel();
     void                createResultsMockModel();
@@ -90,7 +90,8 @@ public:
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
     bool                closeProject(bool askToSaveIfDirty);
-    
+    void                addWellPathsToModel(QList<QString> wellPathFilePaths);
+
     void                copySnapshotToClipboard();
     void                saveSnapshotPromtpForFilename();
     void                saveSnapshotAs(const QString& fileName);
@@ -114,6 +115,7 @@ public:
     QString             octavePath() const;
 
     bool                launchProcess(const QString& program, const QStringList& arguments);
+    bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
     void                terminateProcess();
     
     RiaPreferences*     preferences();
@@ -127,7 +129,7 @@ private:
     void		        onProjectOpenedOrClosed();
     void		        setWindowCaptionFromAppState();
     
-   
+    QImage              grabFrameBufferImage();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -140,6 +142,12 @@ private:
     RiaSocketServer*                    m_socketServer;
 
     caf::UiProcess*                     m_workerProcess;
+
+    // Execute for all settings
+    std::list<int>                      m_currentCaseIds;
+    QString                             m_currentProgram;
+    QStringList                         m_currentArguments;
+
 
     RiaPreferences*                     m_preferences;
 

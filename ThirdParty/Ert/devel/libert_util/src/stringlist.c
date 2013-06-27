@@ -332,7 +332,7 @@ void stringlist_idel(stringlist_type * stringlist , int index) {
 
 
 char * stringlist_pop( stringlist_type * stringlist) {
-  return vector_pop( stringlist->strings );
+  return vector_pop_back( stringlist->strings );
 }
 
 
