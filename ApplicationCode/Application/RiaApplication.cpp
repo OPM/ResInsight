@@ -18,45 +18,60 @@
 
 #include "RiaStdInclude.h"
 
-#include "cafLog.h"
+#include "RiaApplication.h"
+
 #include "cafEffectCache.h"
 #include "cafUtils.h"
-
-#include "cvfPart.h"
-
-#include "cvfStructGridGeometryGenerator.h"
+#include "cafAppEnum.h"
 
 #include "RiaVersionInfo.h"
 #include "RiaBaseDefs.h"
-
-#include "RiaApplication.h"
+//
 #include "RiuMainWindow.h"
 #include "RiuViewer.h"
 #include "RiuProcessMonitor.h"
 #include "RiaPreferences.h"
-
+//
 #include "RimResultCase.h"
 #include "RimInputCase.h"
 #include "RimReservoirView.h"
-
-#include "RigCaseData.h"
-#include "RigCell.h"
-#include "RigReservoirBuilderMock.h"
-
-#include <QSettings>
-#include "cafPdmDocument.h"
-#include "RifReaderMockModel.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
 #include "RiaSocketServer.h"
 #include "cafUiProcess.h"
-
+//
 #include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
 #include "cafProgressInfo.h"
 #include "RigGridManager.h"
+
+#include "RimProject.h"
+
+#include "RimResultSlot.h"
+
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimInputPropertyCollection.h"
+
+#include "RimDefines.h"
+#include "RimScriptCollection.h"
+#include "RimCaseCollection.h"
+
+////////////
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
 
 namespace caf
 {
@@ -267,58 +282,48 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
     ///////
     // Load the external data, and initialize stuff that needs specific ordering
+    
+    // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = projectFileName;
     writePreferences();
 
-    for (size_t cgIdx = 0; cgIdx < m_project->caseGroups.size(); ++cgIdx)
+    for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
-        // Load the Main case of each IdenticalGridCaseGroup
+        RimOilField* oilField = m_project->oilFields[oilFieldIdx];
+        RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+        if (analysisModels == NULL) continue;
 
-        RimIdenticalGridCaseGroup* igcg = m_project->caseGroups[cgIdx];
-        igcg->loadMainCaseAndActiveCellInfo();
+        for (size_t cgIdx = 0; cgIdx < analysisModels->caseGroups.size(); ++cgIdx)
+        {
+            // Load the Main case of each IdenticalGridCaseGroup
+            RimIdenticalGridCaseGroup* igcg = analysisModels->caseGroups[cgIdx];
+            igcg->loadMainCaseAndActiveCellInfo(); // VL is this supposed to be done for each RimOilField?
+        }
+    }
+
+    // Add well paths for each oil field
+    for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
+    {
+        RimOilField* oilField = m_project->oilFields[oilFieldIdx];
+        if (oilField == NULL) continue;        
+        if (oilField->wellPathCollection == NULL)
+        {
+            //printf("Create well path collection for oil field %i in loadProject.\n", oilFieldIdx);
+            oilField->wellPathCollection = new RimWellPathCollection();
+            oilField->wellPathCollection->setProject(m_project);
+        }
+
+        if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
     }
 
     // Now load the ReservoirViews for the cases
-
-    std::vector<RimCase*> casesToLoad;
-
     // Add all "native" cases in the project
-    for (size_t cIdx = 0; cIdx < m_project->reservoirs().size(); ++cIdx)
-    {
-        casesToLoad.push_back(m_project->reservoirs()[cIdx]);
-    }
-
-    for (size_t cgIdx = 0; cgIdx < m_project->caseGroups().size(); ++cgIdx)
-    {
-        // Add all statistics cases as well
-        if (m_project->caseGroups[cgIdx]->statisticsCaseCollection())
-        {
-            caf::PdmPointersField<RimCase*> & statCases = m_project->caseGroups[cgIdx]->statisticsCaseCollection()->reservoirs();
-            for (size_t scIdx = 0; scIdx < statCases.size(); ++scIdx)
-            {
-                casesToLoad.push_back(statCases[scIdx]);
-            }
-        }
-
-        // Add all source cases in a case group with a view attached
-        if (m_project->caseGroups[cgIdx]->caseCollection())
-        {
-            caf::PdmPointersField<RimCase*> & sourceCases = m_project->caseGroups[cgIdx]->caseCollection()->reservoirs();
-            for (size_t scIdx = 0; scIdx < sourceCases.size(); ++scIdx)
-            {
-                if (sourceCases[scIdx]->reservoirViews().size() > 0)
-                {
-                    casesToLoad.push_back(sourceCases[scIdx]);
-                }
-            }
-        }
-    }
-
-
+    std::vector<RimCase*> casesToLoad;
+    m_project->allCases(casesToLoad);
 
     caf::ProgressInfo caseProgress(casesToLoad.size() , "Reading Cases");
-
+    
     for (size_t cIdx = 0; cIdx < casesToLoad.size(); ++cIdx)
     {
         RimCase* ri = casesToLoad[cIdx];
@@ -337,7 +342,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
             viewProgress.setProgressDescription(riv->name());
 
             riv->loadDataAndUpdate();
-
+            this->setActiveReservoirView(riv);
             viewProgress.incrementProgress();
         }
 
@@ -347,6 +352,30 @@ bool RiaApplication::loadProject(const QString& projectFileName)
     onProjectOpenedOrClosed();
 
     return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Add a list of well path file paths (JSON files) to the well path collection
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
+{
+    if (m_project == NULL || m_project->oilFields.size() < 1) return;
+
+    RimOilField* oilField = m_project->activeOilField();
+    if (oilField == NULL) return;
+
+    if (oilField->wellPathCollection == NULL)
+    {
+        //printf("Create well path collection.\n");
+        oilField->wellPathCollection = new RimWellPathCollection();
+        oilField->wellPathCollection->setProject(m_project);
+        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(m_project);
+    }
+
+    if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
+    
+    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
 }
 
 
@@ -467,8 +496,7 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     onProjectOpenedOrClosed();
 
-    return true;
-    
+    return true;    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -517,7 +545,10 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     RimResultCase* rimResultReservoir = new RimResultCase();
     rimResultReservoir->setCaseInfo(caseName, caseFileName);
 
-    m_project->reservoirs.push_back(rimResultReservoir);
+    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    if (analysisModels == NULL) return false;
+
+    analysisModels->cases.push_back(rimResultReservoir);
 
     RimReservoirView* riv = rimResultReservoir->createAndAddReservoirView();
 
@@ -534,12 +565,8 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
 
-    // New case is inserted before the last item, the script item
-    int position = projectTreeItem->childCount() - 1;
-
-    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimResultReservoir);
+    uiModel->updateUiSubTree(analysisModels);
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
@@ -553,10 +580,15 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
+    m_project->assignCaseIdToCase(rimInputReservoir);
+
     rimInputReservoir->caseUserDescription = caseName;
     rimInputReservoir->openDataFileSet(caseFileNames);
 
-    m_project->reservoirs.push_back(rimInputReservoir);
+    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    if (analysisModels == NULL) return false;
+
+    analysisModels->cases.push_back(rimInputReservoir);
 
     RimReservoirView* riv = rimInputReservoir->createAndAddReservoirView();
 
@@ -571,12 +603,7 @@ bool RiaApplication::openInputEclipseCase(const QString& caseName, const QString
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
-
-    // New case is inserted before the last item, the script item
-    int position = projectTreeItem->childCount() - 1;
-
-    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, rimInputReservoir);
+    uiModel->updateUiSubTree(analysisModels);
 
     RiuMainWindow::instance()->setCurrentObjectInTreeView(riv->cellResult());
 
@@ -966,9 +993,16 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
         return;
     }
 
-    //MFLog::info("Simulation completed successfully.");
-
-    //MFMainWindow::instance()->slotLoadResultsFromSimulationFolder();
+    // If multiple cases are present, invoke launchProcess() which will set next current case, and run script on this case 
+    if (m_currentCaseIds.size() > 0)
+    {
+        launchProcess(m_currentProgram, m_currentArguments);
+    }
+    else
+    {
+        // Disable concept of current case
+        m_socketServer->setCurrentCaseId(-1);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -978,6 +1012,20 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 {
     if (m_workerProcess == NULL)
     {
+        // If multiple cases are present, pop the first case ID from the list and set as current case
+        if (m_currentCaseIds.size() > 0)
+        {
+            int nextCaseId = m_currentCaseIds.front();
+            m_currentCaseIds.pop_front();
+
+            m_socketServer->setCurrentCaseId(nextCaseId);
+        }
+        else
+        {
+            // Disable current case concept
+            m_socketServer->setCurrentCaseId(-1);
+        }
+
         m_workerProcess = new caf::UiProcess(this);
         connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
 
@@ -1003,6 +1051,20 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         QMessageBox::warning(NULL, "Script execution", "An Octave process is still running. Please stop this process before executing a new script.");
         return false;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds)
+{
+    m_currentCaseIds.clear();
+    std::copy( caseIds.begin(), caseIds.end(), std::back_inserter( m_currentCaseIds ) );
+
+    m_currentProgram = program;
+    m_currentArguments = arguments;
+
+    return launchProcess(m_currentProgram, m_currentArguments);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1086,7 +1148,7 @@ void RiaApplication::applyPreferences()
     {
         this->project()->setScriptDirectories(m_preferences->scriptDirectories());
         RimUiTreeModelPdm* treeModel = RiuMainWindow::instance()->uiPdmModel();
-        if (treeModel) treeModel->rebuildUiSubTree(this->project()->scriptCollection());
+        if (treeModel) treeModel->updateUiSubTree(this->project()->scriptCollection());
     }
 
 }
@@ -1164,9 +1226,9 @@ void RiaApplication::saveSnapshotPromtpForFilename()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::saveSnapshotAs(const QString& fileName)
 {
-    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    QImage image = grabFrameBufferImage();
+    if (!image.isNull())
     {
-        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
         if (image.save(fileName))
         {
             qDebug() << "Saved snapshot image to " << fileName;
@@ -1183,12 +1245,11 @@ void RiaApplication::saveSnapshotAs(const QString& fileName)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::copySnapshotToClipboard()
 {
-    if (m_activeReservoirView && m_activeReservoirView->viewer())
-    {
-        QImage image = m_activeReservoirView->viewer()->grabFrameBuffer();
-
         QClipboard* clipboard = QApplication::clipboard();
         if (clipboard)
+        {
+        QImage image = grabFrameBufferImage();
+        if (!image.isNull())
         {
             clipboard->setImage(image);
         }
@@ -1218,9 +1279,12 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
     QString snapshotPath = projectDir.absolutePath();
     snapshotPath += "/" + snapshotFolderName;
 
-    for (size_t i = 0; i < m_project->reservoirs().size(); ++i)
+    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
+    if (analysisModels == NULL) return;
+
+    for (size_t i = 0; i < analysisModels->cases().size(); ++i)
     {
-        RimCase* ri = m_project->reservoirs()[i];
+        RimCase* ri = analysisModels->cases()[i];
         if (!ri) continue;
 
         for (size_t j = 0; j < ri->reservoirViews().size(); j++)
@@ -1413,7 +1477,11 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         rimResultReservoir->readGridDimensions(mainCaseGridDimensions);
 
         mainResultCase = rimResultReservoir;
-        gridCaseGroup = m_project->createIdenticalCaseGroupFromMainCase(mainResultCase);
+        RimOilField* oilField = m_project->activeOilField();
+        if (oilField && oilField->analysisModels())
+        {
+            gridCaseGroup = oilField->analysisModels->createIdenticalCaseGroupFromMainCase(mainResultCase);
+        }
     }
 
     caf::ProgressInfo info(fileNames.size(), "Reading Active Cell data");
@@ -1436,7 +1504,11 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
         {
             if (rimResultReservoir->openAndReadActiveCellData(mainResultCase->reservoirData()))
             {
-                m_project->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
+                RimOilField* oilField = m_project->activeOilField();
+                if (oilField && oilField->analysisModels())
+                {
+                    oilField->analysisModels()->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
+                }
             }
             else
             {
@@ -1452,12 +1524,8 @@ bool RiaApplication::addEclipseCases(const QStringList& fileNames)
     }
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
-    caf::PdmUiTreeItem* projectTreeItem = uiModel->treeItemRoot();
-
-    // New case is inserted before the last item, the script item
-    int position = projectTreeItem->childCount() - 1;
-
-    uiModel->addToParentAndBuildUiItems(projectTreeItem, position, gridCaseGroup);
+ 
+    uiModel->updateUiSubTree( m_project->activeOilField()->analysisModels());
 
     if (gridCaseGroup->statisticsCaseCollection()->reservoirs.size() > 0)
     {
@@ -1479,3 +1547,34 @@ cvf::Font* RiaApplication::standardFont()
 
     return m_standardFont.p();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage RiaApplication::grabFrameBufferImage()
+{
+    QImage image;
+    if (m_activeReservoirView && m_activeReservoirView->viewer())
+    {
+        m_activeReservoirView->viewer()->repaint();
+
+        GLint currentReadBuffer;
+        glGetIntegerv(GL_READ_BUFFER, &currentReadBuffer);
+
+        glReadBuffer(GL_FRONT);
+        image = m_activeReservoirView->viewer()->grabFrameBuffer();
+
+        glReadBuffer(currentReadBuffer);
+    }
+
+    return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimProject* RiaApplication::project()
+{
+    return m_project;
+}
+

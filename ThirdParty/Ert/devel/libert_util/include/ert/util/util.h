@@ -173,6 +173,7 @@ typedef enum {left_pad   = 0,
   FILE       * util_mkdir_fopen( const char * filename , const char * mode );
   int          util_fmove( FILE * stream , long offset , long shift);
   FILE       * util_fopen(const char *  , const char *);
+  FILE       * util_fopen__(const char * filename , const char * mode);
   void         util_fclose( FILE * stream );
   bool         util_fopen_test(const char *, const char *);
   void         util_alloc_file_components(const char * , char ** , char **, char **);

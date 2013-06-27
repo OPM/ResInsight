@@ -17,20 +17,33 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimCaseCollection.h"
+
 #include "RimCase.h"
 #include "RimReservoirView.h"
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
 #include "RimStatisticsCase.h"
-#include "RimStatisticsCaseCollection.h"
+
 #include "RimResultCase.h"
 #include "cafProgressInfo.h"
 #include "RigActiveCellInfo.h"
+#include "RigActiveCellInfo.h"
+
 #include "RigGridManager.h"
+#include "RimReservoirCellResultsCacher.h"
+
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
 
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
@@ -43,6 +56,9 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     CAF_PDM_InitObject("Grid Case Group", ":/GridCaseGroup16x16.png", "", "");
 
     CAF_PDM_InitField(&name,    "UserDescription",  QString("Grid Case Group"), "Name", "", "", "");
+
+    CAF_PDM_InitField(&groupId, "GroupId", -1, "Case Group ID", "", "" ,"");
+    groupId.setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "Derived Statistics", ":/Histograms16x16.png", "", "");
     CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Cases", ":/Cases16x16.png", "", "");

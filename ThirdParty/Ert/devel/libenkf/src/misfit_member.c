@@ -111,7 +111,7 @@ misfit_member_type * misfit_member_fread_alloc( FILE * stream ) {
   {
     int iobs;
     for (iobs = 0; iobs < hash_size; iobs++) {
-      const char         * key   = util_fread_alloc_string( stream );
+      char * key                 = util_fread_alloc_string( stream );
       misfit_ts_type * misfit_ts = misfit_ts_fread_alloc( stream );
       misfit_member_install_vector( node , key , misfit_ts );
       free( key );

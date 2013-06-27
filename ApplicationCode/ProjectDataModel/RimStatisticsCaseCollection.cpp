@@ -22,6 +22,17 @@
 
 #include "RimStatisticsCaseCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
+#include "RimCaseCollection.h"
+
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirCellResultsCacher.h"
 
 
 CAF_PDM_SOURCE_INIT(RimStatisticsCaseCollection, "RimStatisticalCollection");

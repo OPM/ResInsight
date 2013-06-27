@@ -201,7 +201,7 @@ int vector_append_ref(vector_type * vector , const void * data) {
   return vector_append_node(vector , node);
 }
 
-void vector_push_ref(vector_type * vector , const void * data) {
+void vector_push_front_ref(vector_type * vector , const void * data) {
   node_data_type * node = node_data_alloc_ptr( data, NULL , NULL);
   vector_push_node(vector , node);
 }
@@ -237,7 +237,7 @@ int vector_append_owned_ref(vector_type * vector , const void * data , free_ftyp
   return vector_append_node(vector , node);
 }
 
-void vector_push_owned_ref(vector_type * vector , const void * data , free_ftype * del) {
+void vector_push_front_owned_ref(vector_type * vector , const void * data , free_ftype * del) {
   node_data_type * node = node_data_alloc_ptr( data, NULL , del);
   vector_push_node(vector , node);
 }
@@ -454,7 +454,7 @@ const void * vector_get_last_const(const vector_type * vector) {
 */
 
 
-void * vector_pop(vector_type * vector) {
+void * vector_pop_back(vector_type * vector) {
   if (vector->size == 0)
     util_abort("%s: asking to get the last element in an empty vector - impossible ... \n",__func__);
   {
@@ -474,11 +474,11 @@ void * vector_pop(vector_type * vector) {
    to vector_pop():
 */
 
-void * vector_unshift(vector_type * vector ) {
+void * vector_pop_front(vector_type * vector ) {
   if (vector->size == 0)
     util_abort("%s: asking to get the last element in an empty vector - impossible ... \n",__func__);
   {
-    node_data_type * node = vector->data[vector->size - 1];
+    node_data_type * node = vector->data[0];
     void * data = node_data_get_ptr( node );
     
     node_data_free_container( node );  /* Free the container holding data. */

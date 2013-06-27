@@ -41,6 +41,22 @@
 #include "RimCase.h"
 #include "RigCaseData.h"
 #include "RimMimeData.h"
+#include "RimCaseCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimProject.h"
+#include "RimScriptCollection.h"
+#include "RimWellCollection.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimWellPathCollection.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -221,32 +237,34 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
 {
     if (reservoir->parentCaseCollection())
     {
-    RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
-    QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
-    if (!caseCollectionModelIndex.isValid()) return;
+        RimCaseCollection* caseCollection = reservoir->parentCaseCollection();
+        QModelIndex caseCollectionModelIndex = getModelIndexFromPdmObject(caseCollection);
+        if (!caseCollectionModelIndex.isValid()) return;
 
-    QModelIndex mi = getModelIndexFromPdmObjectRecursive(caseCollectionModelIndex, reservoir);
-    if (mi.isValid())
-    {
-        caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
-        CVF_ASSERT(uiItem);
+        QModelIndex mi = getModelIndexFromPdmObjectRecursive(caseCollectionModelIndex, reservoir);
+        if (mi.isValid())
+        {
+            caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(mi);
+            CVF_ASSERT(uiItem);
 
-        // Remove Ui items pointing at the pdm object to delete
-        removeRows_special(mi.row(), 1, mi.parent());
-    }
+            // Remove Ui items pointing at the pdm object to delete
+            removeRows_special(mi.row(), 1, mi.parent());
+        }
 
-    if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
-    {
-        RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
-        CVF_ASSERT(caseGroup);
+        if (RimIdenticalGridCaseGroup::isStatisticsCaseCollection(caseCollection))
+        {
+            RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
+            CVF_ASSERT(caseGroup);
 
-        caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(reservoir);
-    }
-    else
-    {
-        RimProject* proj = RiaApplication::instance()->project();
-        proj->removeCaseFromAllGroups(reservoir);
-    }
+            caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject(reservoir);
+        }
+        else
+        {
+            RimProject* proj = RiaApplication::instance()->project();
+            RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
+            RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+            if (analysisModels) analysisModels->removeCaseFromAllGroups(reservoir);
+        }
     }
     else
     {
@@ -261,7 +279,9 @@ void RimUiTreeModelPdm::deleteReservoir(RimCase* reservoir)
             removeRows_special(mi.row(), 1, mi.parent());
         }
 
-        proj->removeCaseFromAllGroups(reservoir);
+        RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
+        RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+        if (analysisModels) analysisModels->removeCaseFromAllGroups(reservoir);
     }
 
     delete reservoir;
@@ -445,7 +465,7 @@ void RimUiTreeModelPdm::slotRefreshScriptTree(QString path)
     if (changedSColl)
     {
         changedSColl->readContentFromDisc();
-        this->rebuildUiSubTree(changedSColl);
+        this->updateUiSubTree(changedSColl);
     }
 }
 
@@ -470,7 +490,7 @@ void RimUiTreeModelPdm::addInputProperty(const QModelIndex& itemIndex, const QSt
         inputReservoir->openDataFileSet(fileNames);
     }
 
-    this->rebuildUiSubTree(inputPropertyCollection);
+    this->updateUiSubTree(inputPropertyCollection);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -544,7 +564,10 @@ RimStatisticsCase* RimUiTreeModelPdm::addStatisticalCalculation(const QModelInde
     {
         beginInsertRows(collectionIndex, position, position);
 
+        RimProject* proj = RiaApplication::instance()->project();
         RimStatisticsCase* createdObject = caseGroup->createAndAppendStatisticsCase();
+        proj->assignCaseIdToCase(createdObject);
+
         caf::PdmUiTreeItem* childItem = new caf::PdmUiTreeItem(parentCollectionItem, position, createdObject);
 
         endInsertRows();
@@ -582,9 +605,16 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
     beginInsertRows(rootIndex, position, position);
 
     RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
-    createdObject->createAndAppendStatisticsCase();
+    proj->assignIdToCaseGroup(createdObject);
+
+    RimCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
+    proj->assignCaseIdToCase(createdReservoir);
     createdObject->name = QString("Grid Case Group %1").arg(position + 1);
-    proj->caseGroups().push_back(createdObject);
+    RimAnalysisModels* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;
+    if (analysisModels)
+    {
+        analysisModels->caseGroups().push_back(createdObject);
+    }
 
     caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
     endInsertRows();
@@ -630,6 +660,8 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
         {
             RimResultCase* rimResultReservoir = typedObjects[i];
 
+            proj->assignCaseIdToCase(rimResultReservoir);
+
             if (gridCaseGroup->contains(rimResultReservoir))
             {
                 continue;
@@ -659,7 +691,9 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 }
             }
 
-            proj->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
+            RimOilField* activeOilField = proj ? proj->activeOilField() : NULL;
+            RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
+            if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
 
             caf::PdmObjectGroup::initAfterReadTraversal(rimResultReservoir);
 

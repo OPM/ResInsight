@@ -118,11 +118,11 @@ void * prefix ## _alloc__(const void *void_config) {                            
 #define VOID_READ_FROM_BUFFER_HEADER(prefix) void prefix ## _read_from_buffer__(void * , buffer_type * , int, state_enum);
 
 #define VOID_FLOAD(prefix)                                                         \
-void prefix ## _fload__(void * void_arg , const char * filename) {                 \
+bool prefix ## _fload__(void * void_arg , const char * filename) {                 \
    prefix ## _type * arg = prefix ## _safe_cast( void_arg );                       \
-   prefix ## _fload(arg , filename);                                               \
+   return prefix ## _fload(arg , filename);                                               \
 }
-#define VOID_FLOAD_HEADER(prefix) void prefix ## _fload__(void * , const char * );
+#define VOID_FLOAD_HEADER(prefix) bool prefix ## _fload__(void * , const char * );
 
 
 /*****************************************************************/

@@ -17,6 +17,7 @@ ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.h
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.h
 ${CEE_CURRENT_LIST_DIR}RigStatisticsMath.h
+${CEE_CURRENT_LIST_DIR}RigWellPath.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -32,6 +33,7 @@ ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.cpp
 ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.cpp
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.cpp
 ${CEE_CURRENT_LIST_DIR}RigStatisticsMath.cpp
+${CEE_CURRENT_LIST_DIR}RigWellPath.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

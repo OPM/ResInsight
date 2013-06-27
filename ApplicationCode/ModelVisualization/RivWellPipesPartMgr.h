@@ -18,6 +18,10 @@
 
 #pragma once
 
+#include "cvfBase.h"
+#include "cvfObject.h"
+#include "cvfVector3.h"
+
 #include "cafPdmPointer.h"
 #include <list>
 #include "RigSingleWellResultsData.h"
@@ -28,6 +32,8 @@ namespace cvf
     class ModelBasicList;
     class Transform;
     class Effect;
+    class DrawableGeo;
+    class ScalarMapper;
 }
 
 class RivPipeGeometryGenerator;

@@ -67,7 +67,7 @@ void data_ranking_free( data_ranking_type * ranking ) {
 
 static void data_ranking_init(data_ranking_type * ranking , 
                               enkf_fs_type * fs , 
-                              enkf_config_node_type * config_node, 
+                              const enkf_config_node_type * config_node, 
                               const char * key_index , 
                               int step , 
                               state_enum state ) {

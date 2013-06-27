@@ -100,19 +100,6 @@ static sched_block_type * sched_block_alloc_empty()
 
 
 
-static void sched_block_debug_fprintf( const sched_block_type * block ) {
-  util_fprintf_date( block->block_start_time , stdout );
-  printf(" -- ");
-  util_fprintf_date( block->block_end_time , stdout );
-  printf("\n");
-  {
-    int i;
-    for (i=0; i < vector_get_size( block->kw_list ); i++) {
-      const sched_kw_type * sched_kw = vector_iget_const( block->kw_list , i);
-      printf("%s \n",sched_kw_get_type_name( sched_kw ));
-    }
-  }
-}
 
 
 static void sched_block_free(sched_block_type * block)

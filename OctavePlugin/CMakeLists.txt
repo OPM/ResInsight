@@ -5,6 +5,20 @@ set(CPP_SOURCES
   riSetActiveCellProperty.cpp
   riGetActiveCellInfo.cpp
   riGetMainGridDimensions.cpp
+  riGetCurrentCase.cpp
+  riGetCaseGroups.cpp
+  riGetSelectedCases.cpp
+  riGetCases.cpp
+  riGetTimeStepDates.cpp
+  riGetTimeStepDays.cpp
+  riGetGridDimensions.cpp
+  riGetCoarseningInfo.cpp
+  riGetCellCenters.cpp
+  riGetActiveCellCenters.cpp
+  riGetCellCorners.cpp
+  riGetActiveCellCorners.cpp
+  riGetGridProperty.cpp
+  riSetGridProperty.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -99,9 +113,42 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCases.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDates.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDays.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetGridDimensions.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCoarseningInfo.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCenters.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCenters.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCorners.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCorners.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetGridProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riSetGridProperty.oct"
 
       SOURCES ${CPP_SOURCES}
   )
+
+    # Copy Octave generated *.oct files to application folder, will make it possible to use Octave functions
+    # directly from the location of the ResInsight binaries
+    if (MSVC)
+        foreach (oct_bin ${OCTAVE_BINARY_OCT_FILES})
+            
+            get_filename_component(Filename "${oct_bin}" NAME)
+
+            add_custom_command(TARGET octave_plugins POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${oct_bin}"
+                "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>/${Filename}"
+            )
+        endforeach( oct_bin )
+    endif(MSVC)
+
+    # Make ResInsight dependant on Octave, makes it easiser to debug Octave functionality by compiling ResInsight
+    add_dependencies(ResInsight octave_plugins)
+
 endif()
 
 if (PRIVATE_INSTALL)
@@ -124,3 +171,5 @@ else (PRIVATE_INSTALL)
 	DESTINATION ${OCTAVE_SITE_OCT_DIR}
 	)
 endif (PRIVATE_INSTALL)
+
+

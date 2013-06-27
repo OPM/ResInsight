@@ -36,7 +36,7 @@ void getMainGridDimensions(int32NDArray& gridDimensions, const QString &hostName
     {
         if (!socket.waitForReadyRead(Timeout))
         {
-            error((("Wating for header: ") + socket.errorString()).toLatin1().data());
+            error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
         }
     }

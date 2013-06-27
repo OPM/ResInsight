@@ -108,7 +108,7 @@ int main(int argc , char ** argv) {
           equal = equal && util_string_equal( stringlist_iget( case_list , i ) , ecl_refcase_list_iget_pathcase( refcase_list , i));
         
         test_assert_false( equal );
-        stringlist_sort( case_list , util_strcmp_int);
+        stringlist_sort( case_list , (string_cmp_ftype *) util_strcmp_int);
 
         equal = true;
         for (i=0; i < N; i++)

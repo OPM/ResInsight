@@ -53,9 +53,10 @@
 
 
 
-void enkf_tui_main_menu(enkf_main_type * enkf_main) {
+void enkf_tui_main_menu(void * arg) {
+  enkf_main_type * enkf_main = enkf_main_safe_cast( arg );
   menu_type * menu = menu_alloc("Main menu" , "Quit" , "qQ");
-
+  
   menu_add_item(menu , "Manage cases"                          , "cC" , enkf_tui_fs_menu        , enkf_main , NULL);
   menu_add_item(menu , "Run, restart or analyse experiment"    , "rR" , enkf_tui_run_menu       , enkf_main , NULL);
   menu_add_item(menu , "Quality check"                         , "uU" , enkf_tui_QC_menu        , enkf_main , NULL);

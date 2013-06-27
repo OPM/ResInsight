@@ -28,7 +28,6 @@ namespace caf
 
 //==================================================================================================
 /// Class used to build a tree item holding a data object
-/// Todo: Needs destructor !!!
 //==================================================================================================
 template <typename T>
 class UiTreeItem
@@ -98,23 +97,10 @@ public:
         child->m_parentItem = this;
     }
 
-    bool insertChildren(int position, int count)
+    void insertChild( int position, UiTreeItem* child)
     {
-        if (position < 0 || position > m_childItems.size())
-            return false;
-
-        for (int row = 0; row < count; ++row)
-        {
-            createChild(this, position + row);
-        }
-
-        return true;
-    }
-
-    // Create a new Ui tree item at given position pointing to a NULL data object
-    virtual UiTreeItem* createChild(UiTreeItem* parent, int position)
-    {
-        return new UiTreeItem(this, position, NULL);
+        m_childItems.insert(position, child);
+        child->m_parentItem = this;
     }
 
     bool removeChildren(int position, int count)
@@ -132,27 +118,40 @@ public:
         return true;
     }
 
+    bool removeChildrenNoDelete(int position, int count)
+    {
+        if (position < 0 || position + count > m_childItems.size())
+            return false;
+
+        for (int row = 0; row < count; ++row)
+        {
+            m_childItems.removeAt(position);
+        }
+        return true;
+    }
+
     void removeAllChildrenNoDelete()
     {
         m_childItems.clear();
     }
 
-    UiTreeItem* findUiItem(const T& dataObject)
+    // Returns the index of the first child with dataObject() == dataObject. -1 if not found
+    int findChildItemIndex(const T& dataObject)
     {
-        if (m_dataObject == dataObject) return this;
-        int i;
-        for (i = 0; i < m_childItems.size(); ++i)
+        for (int i = 0; i < m_childItems.size(); ++i)
         {
-            UiTreeItem* itemFound = m_childItems[i]->findUiItem(dataObject);
-            if (itemFound != NULL) return itemFound;
+            if (m_childItems[i]->dataObject() == dataObject)
+            {
+                return i;
+            }
         }
-        return NULL;
+        return -1;
     }
 
 private:
     QList<UiTreeItem*>  m_childItems;
     UiTreeItem*         m_parentItem;
-    T                  m_dataObject;
+    T                   m_dataObject;
 };
 
 

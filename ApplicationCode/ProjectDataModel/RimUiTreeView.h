@@ -24,6 +24,7 @@
 
 class QItemSelection;
 class RimIdenticalGridCaseGroup;
+class RimScriptCollection;
 
 namespace caf {
     class PdmObjectGroup;
@@ -46,8 +47,10 @@ public:
     void applyTreeViewStateFromString(const QString& treeViewState);
     void storeTreeViewStateToString(QString& treeViewState);
 
-    static void applyCurrentIndexFromString(QAbstractItemView& itemView, const QString& currentIndexString);
-    static void storeCurrentIndexToString(const QAbstractItemView& itemView, QString& currentIndexString);
+    void populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup);
+
+    static QModelIndex getModelIndexFromString(QAbstractItemModel* model, const QString& currentIndexString);
+    static void encodeStringFromModelIndex(const QModelIndex mi, QString& currentIndexString);
 
 protected:
     void contextMenuEvent(QContextMenuEvent* event);
@@ -68,6 +71,7 @@ private slots:
     void slotEditScript();
     void slotNewScript();
     void slotExecuteScript();
+    void slotExecuteScriptForSelectedCases();
 
     void slotAddView();
     void slotDeleteView();
@@ -126,6 +130,8 @@ private:
     void appendToggleItemActions(QMenu& contextMenu);
 
     void setExpandedUpToRoot(const QModelIndex& itemIndex);
+
+    void appendScriptItems(QMenu* menu, RimScriptCollection* scriptCollection);
 private:
     QAction* m_pasteAction;
 };

@@ -539,24 +539,6 @@ static void   __fprintf_close_python_list( FILE * stream ) {
 }
 
 
-static void __fprintf_python_list(FILE * stream , const char * id , const stringlist_type * list , const subst_list_type * private_args, const subst_list_type * global_args ) {
-  int size;
-  int i;
-  __fprintf_init_python_list( stream , id );
-  if (list == NULL)
-    size = 0;
-  else
-    size = stringlist_get_size(list);
-
-  for (i = 0; i < size; i++) {
-    const char * value = stringlist_iget(list , i);
-    __fprintf_string(stream , value , private_args , global_args);
-
-    if (i < (size - 1))
-      fprintf(stream,",");
-  }
-  __fprintf_close_python_list( stream );
-}
 
 
 

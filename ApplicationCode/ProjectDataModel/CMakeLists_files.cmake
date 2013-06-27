@@ -5,6 +5,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "2.8.2")
 endif()
 
 set (SOURCE_GROUP_HEADER_FILES
+${CEE_CURRENT_LIST_DIR}RimAnalysisModels.h
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.h
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.h
 ${CEE_CURRENT_LIST_DIR}RimCellPropertyFilter.h
@@ -13,6 +14,7 @@ ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.h
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.h
 ${CEE_CURRENT_LIST_DIR}RimDefines.h
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.h
+${CEE_CURRENT_LIST_DIR}RimOilField.h
 ${CEE_CURRENT_LIST_DIR}RimProject.h
 ${CEE_CURRENT_LIST_DIR}RimCase.h
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.h
@@ -26,6 +28,8 @@ ${CEE_CURRENT_LIST_DIR}RimResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.h
 ${CEE_CURRENT_LIST_DIR}RimWell.h
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.h
+${CEE_CURRENT_LIST_DIR}RimWellPath.h
+${CEE_CURRENT_LIST_DIR}RimWellPathCollection.h
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.h
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCase.h
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseCollection.h
@@ -41,6 +45,7 @@ ${CEE_CURRENT_LIST_DIR}RimMimeData.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
+${CEE_CURRENT_LIST_DIR}RimAnalysisModels.cpp
 ${CEE_CURRENT_LIST_DIR}RimCaseCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellPropertyFilter.cpp
@@ -49,6 +54,7 @@ ${CEE_CURRENT_LIST_DIR}RimCellRangeFilter.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellRangeFilterCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimDefines.cpp
 ${CEE_CURRENT_LIST_DIR}RimLegendConfig.cpp
+${CEE_CURRENT_LIST_DIR}RimOilField.cpp
 ${CEE_CURRENT_LIST_DIR}RimProject.cpp
 ${CEE_CURRENT_LIST_DIR}RimCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimIdenticalGridCaseGroup.cpp
@@ -62,6 +68,8 @@ ${CEE_CURRENT_LIST_DIR}RimResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimCellEdgeResultSlot.cpp
 ${CEE_CURRENT_LIST_DIR}RimWell.cpp
 ${CEE_CURRENT_LIST_DIR}RimWellCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPath.cpp
+${CEE_CURRENT_LIST_DIR}RimWellPathCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimScriptCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCase.cpp
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseCollection.cpp

@@ -12,6 +12,7 @@ ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.h
 ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.h
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.h
+${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.h
 ${CEE_CURRENT_LIST_DIR}RifReaderInterface.h
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.h
 )
@@ -24,6 +25,7 @@ ${CEE_CURRENT_LIST_DIR}RifEclipseRestartFilesetAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifEclipseUnifiedRestartFileAccess.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseInput.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderEclipseOutput.cpp
+${CEE_CURRENT_LIST_DIR}RifJsonEncodeDecode.cpp
 ${CEE_CURRENT_LIST_DIR}RifReaderMockModel.cpp
 )
 

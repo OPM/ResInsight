@@ -26,6 +26,17 @@
 #include "RimUiTreeModelPdm.h"
 
 
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+
+#include "RimReservoirCellResultsCacher.h"
+
 CAF_PDM_SOURCE_INIT(RimResultSlot, "ResultSlot");
 
 //--------------------------------------------------------------------------------------------------
@@ -91,7 +102,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
             m_legendConfigData.v().erase(it);
             m_legendConfigData.v().push_back(this->legendConfig());
             this->legendConfig = newLegend;
-            RiuMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
+            RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
             found = true;
             break;
         }
@@ -105,7 +116,7 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
          newLegend->resultVariableName = resultVarNameOfNewLegend;
          m_legendConfigData.v().push_back(this->legendConfig());
          this->legendConfig = newLegend;
-         RiuMainWindow::instance()->uiPdmModel()->rebuildUiSubTree(this);
+         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
 
     }
 }

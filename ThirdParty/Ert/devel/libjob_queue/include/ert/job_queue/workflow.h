@@ -38,6 +38,10 @@ extern "C" {
   void                      workflow_free( workflow_type * workflow );
   void                      workflow_free__( void * arg );
 
+  int                       workflow_get_stack_size( const workflow_type * workflow );
+  void                    * workflow_iget_stack_ptr( const workflow_type * workflow , int index);
+  void                    * workflow_pop_stack( workflow_type * workflow );
+
 #ifdef __cplusplus
 }
 #endif

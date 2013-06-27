@@ -36,7 +36,7 @@ void test_grid( const char * grid_filename , const char * data_filename) {
   for (int i=0; i < ecl_grid_dims_get_num_grids( grid_dims ); i++) {
     
     grid_dims_type   d1 = ecl_grid_iget_dims( ecl_grid , i);
-    grid_dims_type * d2 = ecl_grid_dims_iget_dims( grid_dims , i );
+    const grid_dims_type * d2 = ecl_grid_dims_iget_dims( grid_dims , i );
   
     test_assert_int_equal( d1.nx , d2->nx );
     test_assert_int_equal( d1.ny , d2->ny );

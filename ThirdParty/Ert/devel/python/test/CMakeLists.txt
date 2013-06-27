@@ -5,7 +5,7 @@ add_test( NAME python.import_all            WORKING_DIRECTORY ${CMAKE_CURRENT_SO
 add_test( NAME python.ert.util.stringlist   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} stringlist_test )
 
 add_test( NAME python.ert.ecl.ecl_grid      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} grid_test )
-add_test( NAME python.ert.ecl.ecl_kw      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} kw_test )
+add_test( NAME python.ert.ecl.ecl_kw        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} kw_test )
 add_test( NAME python.ert.ecl.ecl_sum       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} sum_test )
 add_test( NAME python.ert.ecl.ecl_file      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} file_test False)
 add_test( NAME python.ert.ecl.ecl_file_slow WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} file_test True)

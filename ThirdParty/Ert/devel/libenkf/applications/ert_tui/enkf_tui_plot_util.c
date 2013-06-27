@@ -94,8 +94,8 @@ plot_type * enkf_tui_plot_alloc(const plot_config_type * plot_config , const cha
   plot_type * plot;
   
   if (util_string_equal( plot_config_get_driver( plot_config ) , "PLPLOT")) {
-    arg_pack_append_ptr( arg_pack , file );
-    arg_pack_append_ptr( arg_pack , plot_config_get_image_type( plot_config ));
+    arg_pack_append_const_ptr( arg_pack , file );
+    arg_pack_append_const_ptr( arg_pack , plot_config_get_image_type( plot_config ));
   } else if (util_string_equal( plot_config_get_driver( plot_config ) , "TEXT")) {
 
     char * plot_path, *basename;

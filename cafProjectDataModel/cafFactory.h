@@ -28,13 +28,23 @@ namespace caf
     //==================================================================================================
     /// A generic Factory class template
     /// Usage:
-    ///     Initialization in source file (Initialization :
-    ///     bool TypeToCreate_Factory_initialized = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
-    /*INIT_FACTORY(BaseType, KeyType,TypeToCreate )
-         bool TypeToCreate_Factory_initialized = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(QString("TypeToCreate"));*/
+    ///     Simply add the classes that is supposed to be created by the factory by doing the folowing:
+    ///
+    ///     caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
+    ///
+    ///     This must only be done once for each TypeToCreate. It will assert if you try to do it several times.
+    ///     This method returns a bool to make it possible to make this initialization as a static variable initialization.
+    ///     That is useful if you do not want a centralized registering (but rather making each class register itself):
+    ///
+    ///     static bool uniqueVarname = caf::Factory<BaseType, KeyType>::instance()->registerCreator<TypeToCreate>(key);
+    ///
+    ///     See also cafPdmUiFieldEditorHandle.h for an advanced example.
+    ///
     ///     When you need an object:
+    ///
     ///     BaseType* newObject = caf::Factory<BaseType, KeyType>::instance()->create(key);
     //==================================================================================================
+
 
     template<typename BaseType, typename KeyType>
     class Factory

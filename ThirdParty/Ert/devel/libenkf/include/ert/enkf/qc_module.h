@@ -32,7 +32,7 @@ extern "C" {
   bool                qc_module_has_workflow( const qc_module_type * qc_module );
   qc_module_type    * qc_module_alloc(ert_workflow_list_type * workflow_list ,  const char * qc_path);
   void                qc_module_free();
-  bool                qc_module_run_workflow( qc_module_type * qc_module , void * self);
+  bool                qc_module_run_workflow( const qc_module_type * qc_module , void * self);
   runpath_list_type * qc_module_get_runpath_list( qc_module_type * qc_module );
   void                qc_module_set_path( qc_module_type * qc_module , const char * qc_path);
   const char    *     qc_module_get_path( const qc_module_type * qc_module );

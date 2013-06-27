@@ -91,7 +91,7 @@ typedef enum {CONFIG_STRING        = 1,
   void                      config_schema_item_free( config_schema_item_type * item);
   void                      config_schema_item_free__ (void * void_item);
 
-  
+  void                      config_schema_item_set_required_children_on_value(config_schema_item_type * item , const char * value , stringlist_type * child_list);
   void                      config_schema_item_set_common_selection_set(config_schema_item_type * item , int argc , const char ** argv);
   void                      config_schema_item_set_indexed_selection_set(config_schema_item_type * item , int index , int argc , const char ** argv);
   void                      config_schema_item_set_required_children(config_schema_item_type * item , stringlist_type * stringlist);

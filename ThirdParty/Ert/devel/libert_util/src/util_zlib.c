@@ -146,7 +146,7 @@ void util_fwrite_compressed(const void * _data , int size , FILE * stream) {
 */
 
 void util_fread_compressed(void *__data , FILE * stream) {
-  char * data = (char *) __data;
+  unsigned char * data = (unsigned char *) __data;
   int buffer_size;
   int size , offset;
   void * zbuffer;

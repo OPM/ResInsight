@@ -23,7 +23,14 @@
 #include "RimWellCollection.h"
 #include "RivWellPipesPartMgr.h"
 #include "RivWellHeadPartMgr.h"
+#include "RimCellEdgeResultSlot.h"
 
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

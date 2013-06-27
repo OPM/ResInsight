@@ -16,18 +16,21 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimCellEdgeResultSlot.h"
+#include "RimReservoirCellResultsCacher.h"
+
 #include "RimLegendConfig.h"
 #include "RimReservoirView.h"
-#include "RimCase.h"
-#include "RimReservoirView.h"
 #include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
-
 #include "cafPdmUiListEditor.h"
 
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "RimResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimCellEdgeResultSlot, "CellEdgeResultSlot");
 
@@ -329,5 +332,31 @@ void RimCellEdgeResultSlot::minMaxCellEdgeValues(double& min, double& max)
 
     min = globalMin;
     max = globalMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellEdgeResultSlot::posNegClosestToZero(double& pos, double& neg)
+{
+    pos = HUGE_VAL;
+    neg = -HUGE_VAL;
+
+    size_t resultIndices[6];
+    this->gridScalarIndices(resultIndices);
+
+    size_t idx;
+    for (idx = 0; idx < 6; idx++)
+    {
+        if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
+
+        {
+            double localPos, localNeg;
+            m_reservoirView->currentGridCellResults()->cellResults()->posNegClosestToZero(resultIndices[idx], localPos, localNeg);
+
+            if (localPos > 0 && localPos < pos) pos = localPos;
+            if (localNeg < 0 && localNeg > neg) neg = localNeg;
+        }
+    }
 }
 

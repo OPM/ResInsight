@@ -16,22 +16,37 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RivWellPipesPartMgr.h"
 
 #include "cvfLibCore.h"
-
-#include "RimCase.h"
-#include "RigCaseData.h"
-#include "RivWellPipesPartMgr.h"
-#include "RigCell.h"
-#include "RivPipeGeometryGenerator.h"
 #include "cvfModelBasicList.h"
 #include "cvfTransform.h"
 #include "cvfPart.h"
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfDrawableGeo.h"
 #include "cvfRay.h"
+
 #include "cafEffectGenerator.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+
+#include "RigCaseData.h"
+#include "RigCell.h"
+#include "RivPipeGeometryGenerator.h"
+
+#include "RimCase.h"
 #include "RimReservoirView.h"
+#include "RimWellCollection.h"
+#include "RimReservoirCellResultsCacher.h"
+
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

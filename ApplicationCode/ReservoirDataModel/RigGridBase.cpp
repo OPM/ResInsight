@@ -460,6 +460,83 @@ size_t RigGridBase::globalGridCellIndex(size_t localGridCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+size_t RigGridBase::addCoarseningBox(size_t i1, size_t i2, size_t j1, size_t j2, size_t k1, size_t k2)
+{
+    caf::SizeTArray6 box;
+    box[0] = i1;
+    box[1] = i2;
+    box[2] = j1;
+    box[3] = j2;
+    box[4] = k1;
+    box[5] = k2;
+
+    m_coarseningBoxInfo.push_back(box);
+
+    size_t coarseningBoxIndex = m_coarseningBoxInfo.size() - 1;
+
+    for (size_t k = k1; k <= k2; k++)
+    {
+        for (size_t j = j1; j <= j2; j++)
+        {
+            for (size_t i = i1; i <= i2; i++)
+            {
+                size_t cellIdx = this->cellIndexFromIJK(i, j, k);
+
+                RigCell& c = this->cell(cellIdx);
+                CVF_ASSERT(c.coarseningBoxIndex() == cvf::UNDEFINED_SIZE_T);
+
+                c.setCoarseningBoxIndex(coarseningBoxIndex);
+            }
+        }
+    }
+
+    return coarseningBoxIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigGridBase::coarseningBox(size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2) const
+{
+    CVF_ASSERT(coarseningBoxIndex < m_coarseningBoxInfo.size());
+
+    CVF_ASSERT(i1 && i2 && j1 && j2 && k1 && k2);
+
+    caf::SizeTArray6 box = m_coarseningBoxInfo[coarseningBoxIndex];
+    *i1 = box[0];
+    *i2 = box[1];
+    *j1 = box[2];
+    *j2 = box[3];
+    *k1 = box[4];
+    *k2 = box[5];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigGridBase::boundingBox()
+{
+    if (!m_boundingBox.isValid())
+    {
+        cvf::Vec3d cornerVerts[8];
+
+        for (size_t i = 0; i < cellCount(); i++)
+        {
+            cellCornerVertices(i, cornerVerts);
+
+            for (size_t j = 0; j < 8; j++)
+            {
+                m_boundingBox.add(cornerVerts[j]);
+            }
+        }
+    }
+    
+    return m_boundingBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility) const
 {
     CVF_TIGHT_ASSERT(m_grid);

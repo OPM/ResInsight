@@ -121,7 +121,7 @@ struct ecl_coarse_cell_struct {
 
 static UTIL_SAFE_CAST_FUNCTION( ecl_coarse_cell , ECL_COARSE_CELL_TYPE_ID )
 
-static void ecl_coarse_cell_assert( ecl_coarse_cell_type * coarse_cell ) {
+void ecl_coarse_cell_assert( ecl_coarse_cell_type * coarse_cell ) {
   int box_size =
     (1 + coarse_cell->ijk[1] - coarse_cell->ijk[0]) *
     (1 + coarse_cell->ijk[2] - coarse_cell->ijk[3]) *

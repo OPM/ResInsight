@@ -58,6 +58,7 @@ struct workflow_struct {
   vector_type           * cmd_list;
   workflow_joblist_type * joblist;
   config_error_type     * last_error;
+  vector_type           * stack; 
 };
 
 /*****************************************************************/
@@ -174,17 +175,33 @@ static bool workflow_try_compile( workflow_type * script , const subst_list_type
 
 
 bool workflow_run(workflow_type * workflow , void * self , bool verbose , const subst_list_type * context) {
+  vector_clear( workflow->stack );
   workflow_try_compile( workflow , context);
   
   if (workflow->compiled) {
     int icmd;
     for (icmd = 0; icmd < vector_get_size( workflow->cmd_list ); icmd++) {
       const cmd_type * cmd = vector_iget_const( workflow->cmd_list , icmd );
-      workflow_job_run( cmd->workflow_job , self , verbose , cmd->arglist );
+      void * return_value = workflow_job_run( cmd->workflow_job , self , verbose , cmd->arglist );
+      vector_push_front_ref( workflow->stack , return_value );
     }
     return true;
-  } else
+  } else 
     return false;
+}
+
+int workflow_get_stack_size( const workflow_type * workflow ) {
+  return vector_get_size( workflow->stack );
+}
+
+
+void * workflow_iget_stack_ptr( const workflow_type * workflow , int index) {
+  return vector_iget( workflow->stack , index );
+}
+
+
+void * workflow_pop_stack( workflow_type * workflow ) {
+  return vector_pop_front( workflow->stack);
 }
 
 
@@ -198,6 +215,7 @@ workflow_type * workflow_alloc( const char * src_file , workflow_joblist_type * 
   script->cmd_list        = vector_alloc_new();
   script->compiled        = false;
   script->last_error      = NULL;
+  script->stack           = vector_alloc_new();
   
   workflow_try_compile( script , NULL );
   return script;
@@ -210,6 +228,7 @@ static UTIL_SAFE_CAST_FUNCTION( workflow , WORKFLOW_TYPE_ID )
 void workflow_free( workflow_type * workflow ) {
   free( workflow->src_file );
   vector_free( workflow->cmd_list );
+  vector_free( workflow->stack );
 
   if (workflow->last_error)
     config_error_free( workflow->last_error );

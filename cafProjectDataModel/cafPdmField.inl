@@ -448,7 +448,8 @@ void PdmPointersField<DataType*>::push_back(DataType* pointer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Set the value at position index to pointer, overwriting any pointer already present at that 
+/// position without deleting the object pointed to.
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
 void PdmPointersField<DataType*>::set(size_t index, DataType* pointer)
@@ -459,27 +460,29 @@ void PdmPointersField<DataType*>::set(size_t index, DataType* pointer)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Insert pointer at position index, pushing the value previously at that position and all 
+/// the preceding values backwards 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-void PdmPointersField<DataType*>::insert(size_t indexAfter, DataType* pointer)
+void PdmPointersField<DataType*>::insert(size_t index, DataType* pointer)
 {
-    m_pointers.insert(m_pointers.begin()+indexAfter, pointer);
+    m_pointers.insert(m_pointers.begin()+index, pointer);
 
     if (pointer) pointer->addParentField(this);
 }
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Insert the pointers at position index, pushing the value previously at that position and all 
+/// the preceding values backwards 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
-void PdmPointersField<DataType*>::insert(size_t indexAfter, const std::vector<PdmPointer<DataType> >& objects)
+void PdmPointersField<DataType*>::insert(size_t index, const std::vector<PdmPointer<DataType> >& objects)
 {
-    m_pointers.insert(m_pointers.begin()+indexAfter, objects.begin(), objects.end());
+    m_pointers.insert(m_pointers.begin()+index, objects.begin(), objects.end());
 
     typename std::vector< PdmPointer< DataType > >::iterator it;
-    for (it = m_pointers.begin()+indexAfter; it != m_pointers.end(); ++it)
+    for (it = m_pointers.begin()+index; it != m_pointers.end(); ++it)
     {
         if (!it->isNull()) 
         {
@@ -489,7 +492,7 @@ void PdmPointersField<DataType*>::insert(size_t indexAfter, const std::vector<Pd
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Returns the number of times pointer is referenced from the container.
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
 size_t PdmPointersField<DataType*>::count(const DataType* pointer) const
@@ -509,7 +512,7 @@ size_t PdmPointersField<DataType*>::count(const DataType* pointer) const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Empty the container without deleting the objects pointed to. 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
 void PdmPointersField<DataType*>::clear()
@@ -520,7 +523,7 @@ void PdmPointersField<DataType*>::clear()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Deletes all the objects pointed to by the field, then clears the container.
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
 void PdmPointersField<DataType*>::deleteAllChildObjects()
@@ -535,7 +538,7 @@ void PdmPointersField<DataType*>::deleteAllChildObjects()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Removes the pointer at index from the container. Does not delete the object pointed to.
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
 void PdmPointersField<DataType*>::erase(size_t index)
@@ -545,7 +548,7 @@ void PdmPointersField<DataType*>::erase(size_t index)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template<typename DataType>
 void PdmPointersField<DataType*>::removeChildObject(PdmObject* object)
@@ -596,6 +599,7 @@ template<typename DataType>
  void PdmPointersField<DataType*>::readFieldData(QXmlStreamReader& xmlStream)
 {
     DataType * currentObject = NULL;
+    this->deleteAllChildObjects();
     PdmFieldIOHelper::skipCharactersAndComments(xmlStream);
     while (xmlStream.isStartElement())
     {
