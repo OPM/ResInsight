@@ -22,8 +22,10 @@
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafAppEnum.h"
 
 #include "RimCase.h"
+#include "RimDefines.h"
 
 class RimIdenticalGridCaseGroup;
 class RimResultDefinition;

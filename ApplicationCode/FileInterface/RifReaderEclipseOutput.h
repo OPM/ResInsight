@@ -51,6 +51,7 @@ public:
     bool                    dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values);
 
     static bool             transferGeometry(const ecl_grid_type* mainEclGrid, RigCaseData* eclipseCase);
+    static void             transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid);
 
 private:
     bool                    readActiveCellInfo();

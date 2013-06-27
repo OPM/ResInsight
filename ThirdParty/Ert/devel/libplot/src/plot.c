@@ -162,7 +162,7 @@ static void plot_set_log( plot_type * plot , bool logx , bool logy) {
    what init_arg should be like.
 */
 
-plot_type * plot_alloc(const char * __driver_type , void * init_arg , bool logx , bool logy)
+plot_type * plot_alloc(const char * __driver_type , const void * init_arg , bool logx , bool logy)
 {
   plot_type * plot = util_malloc(sizeof *plot );
   {

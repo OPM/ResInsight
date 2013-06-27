@@ -425,6 +425,7 @@ static void file_node_dump_index( const file_node_type * file_node , FILE * inde
 
 
 
+/*
 static file_node_type * file_node_index_fread_alloc( FILE * stream ) {
   node_status_type status = util_fread_int( stream );
   long int node_offset    = util_fread_long( stream );
@@ -437,7 +438,7 @@ static file_node_type * file_node_index_fread_alloc( FILE * stream ) {
     return file_node;
   }
 }
-
+*/
 
 static file_node_type * file_node_index_buffer_fread_alloc( buffer_type * buffer) {
   node_status_type status = buffer_fread_int( buffer );

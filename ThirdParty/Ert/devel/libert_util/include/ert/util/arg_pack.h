@@ -29,10 +29,11 @@ extern "C" {
 
 typedef struct arg_pack_struct arg_pack_type;
 typedef void   (arg_node_free_ftype)  (void *);
-typedef void * (arg_node_copyc_ftype) (void *);
+typedef void * (arg_node_copyc_ftype) (const void *);
 
   arg_pack_type * arg_pack_alloc();
   UTIL_SAFE_CAST_HEADER( arg_pack );
+  UTIL_SAFE_CAST_HEADER_CONST( arg_pack );
 
   void            arg_pack_free(arg_pack_type * );
   void            arg_pack_free__(void *);
@@ -41,14 +42,17 @@ typedef void * (arg_node_copyc_ftype) (void *);
   void            arg_pack_fscanf(arg_pack_type * arg , FILE * stream);
   void            arg_pack_fprintf(const arg_pack_type * , FILE * );
   
-  void            arg_pack_append_ptr(arg_pack_type * , const void *);
+  void            arg_pack_append_ptr(arg_pack_type * , void *);
+  void            arg_pack_append_const_ptr(arg_pack_type * , const void *);
   void            arg_pack_append_owned_ptr(arg_pack_type * , void * , arg_node_free_ftype *);
   void            arg_pack_append_copy(arg_pack_type * , void * , arg_node_copyc_ftype * , arg_node_free_ftype *);
   
-  void            arg_pack_iset_copy(arg_pack_type * arg_pack , int index , void * ptr, arg_node_copyc_ftype * copyc , arg_node_free_ftype * freef);
-  void            arg_pack_iset_ptr(arg_pack_type * arg_pack, int index , const void * ptr);
-  void            arg_pack_iset_owned_ptr(arg_pack_type * arg_pack, int index , void * ptr, arg_node_free_ftype * freef);
-  
+  /*
+    void            arg_pack_iset_copy(arg_pack_type * arg_pack , int index , void * ptr, arg_node_copyc_ftype * copyc , arg_node_free_ftype * freef);
+    void            arg_pack_iset_ptr(arg_pack_type * arg_pack, int index , void * ptr);
+    void            arg_pack_iset_owned_ptr(arg_pack_type * arg_pack, int index , void * ptr, arg_node_free_ftype * freef);
+  */
+  const void    * arg_pack_iget_const_ptr( const arg_pack_type * arg_pack , int index);
   void          * arg_pack_iget_ptr(const arg_pack_type * , int);
   void          * arg_pack_iget_adress(const arg_pack_type * , int);
   node_ctype      arg_pack_iget_ctype(const arg_pack_type * arg_pack ,int index);

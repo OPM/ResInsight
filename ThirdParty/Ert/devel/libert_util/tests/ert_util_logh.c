@@ -25,8 +25,6 @@
 #define LOG_FILE "/tmp/log.txt"
 
 int main(int argc , char ** argv) {
-  int log_level = 3;
-
   {
     log_type * logh = log_open( NULL , 0 );
     

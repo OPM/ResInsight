@@ -36,11 +36,11 @@ typedef struct {
 
 
 
-static text_state_type * text_state_alloc( void * init_arg ) {
+static text_state_type * text_state_alloc( const void * init_arg ) {
   text_state_type * state = util_malloc( sizeof * state );
   {
-    arg_pack_type * arg_pack = arg_pack_safe_cast( init_arg );
-    state->plot_path         = util_alloc_string_copy( arg_pack_iget_ptr( arg_pack , 0) );
+    const arg_pack_type * arg_pack = arg_pack_safe_cast_const( init_arg );
+    state->plot_path               = util_alloc_string_copy( arg_pack_iget_const_ptr( arg_pack , 0) );
     util_make_path( state->plot_path );
   }
   
@@ -184,7 +184,7 @@ void text_plot_hist( plot_driver_type * driver, const char * label , double_vect
 */
    
 
-plot_driver_type * text_driver_alloc(void * init_arg) {
+plot_driver_type * text_driver_alloc(const void * init_arg) {
   plot_driver_type * driver = plot_driver_alloc_empty("TEXT");
   driver->state             = text_state_alloc( init_arg );
   

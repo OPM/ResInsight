@@ -110,13 +110,13 @@ static void init_debug( const char * argv0) {
 
 
 void parse_workflows(int argc , char ** argv , stringlist_type * workflows) {
-  bool workflow_on = false;
+  /* bool workflow_on = false; */
   for (int iarg = 2; iarg < argc; iarg++) {
     stringlist_append_copy( workflows , argv[iarg]);
     
     /*if (strcmp( argv[iarg] , WORKFLOW_OPTION) == 0)
       workflow_on = true;
-    else {
+      else {
       if (workflow_on)
         stringlist_append_copy( workflows , argv[iarg]);
       else

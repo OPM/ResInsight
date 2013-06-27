@@ -28,7 +28,22 @@
 #include "RimProject.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RiaApplication.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimScriptCollection.h"
+#include "RimCaseCollection.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimWellPathCollection.h"
 
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimOilField.h"
+#include "RimAnalysisModels.h"
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
@@ -37,7 +52,7 @@ CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 RimResultCase::RimResultCase()
     : RimCase()
 {
-    CAF_PDM_InitObject("Eclipse Case", ":/AppLogo48x48.png", "", "");
+    CAF_PDM_InitObject("Eclipse Case", ":/Case48x48.png", "", "");
 
     CAF_PDM_InitField(&caseFileName, "CaseFileName",  QString(), "Case file name", "", "" ,"");
     caseFileName.setUiReadOnly(true);
@@ -48,9 +63,9 @@ RimResultCase::RimResultCase()
     caseDirectory.setUiHidden(true);
 
     flipXAxis.setIOWritable(true);
-    flipXAxis.setUiHidden(true);
+    //flipXAxis.setUiHidden(true);
     flipYAxis.setIOWritable(true);
-    flipYAxis.setUiHidden(true);
+    //flipYAxis.setUiHidden(true);
 
     m_activeCellInfoIsReadFromFile = false;
     m_gridAndWellDataIsReadFromFile = false;
@@ -289,8 +304,11 @@ void RimResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath
 //--------------------------------------------------------------------------------------------------
 void RimResultCase::setCaseInfo(const QString& userDescription, const QString& caseFileName)
 {
-    this->caseUserDescription      = userDescription;
-    this->caseFileName  = caseFileName;
+    this->caseUserDescription = userDescription;
+    this->caseFileName = caseFileName;
+
+    RimProject* proj = RiaApplication::instance()->project();
+    proj->assignCaseIdToCase(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,5 +326,15 @@ void RimResultCase::initAfterRead()
             caseFileName = QDir::fromNativeSeparators(caseDirectory()) + "/" + caseName() + ".EGRID";
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&caseUserDescription);
+    uiOrdering.add(&caseId);
+    uiOrdering.add(&caseFileName);
 }
 

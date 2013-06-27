@@ -141,10 +141,6 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
             cell.setParentCellIndex(parentCellIndex);
         }
     
-        // Coarse cell info
-        ecl_coarse_cell_type * coarseCellData = ecl_grid_get_cell_coarse_group1( localEclGrid , localCellIdx);
-        cell.setInCoarseCell(coarseCellData != NULL);
-
         // Corner coordinates
         int cIdx;
         for (cIdx = 0; cIdx < 8; ++cIdx)
@@ -308,7 +304,8 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     activeCellInfo->setGridActiveCellCounts(0, globalMatrixActiveSize);
     fractureActiveCellInfo->setGridActiveCellCounts(0, globalFractureActiveSize);
 
- 
+    transferCoarseningInfo(mainEclGrid, mainGrid);
+
 
     for (lgrIdx = 0; lgrIdx < numLGRs; ++lgrIdx)
     {
@@ -327,6 +324,9 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
 
         activeCellInfo->setGridActiveCellCounts(lgrIdx + 1, matrixActiveCellCount);
         fractureActiveCellInfo->setGridActiveCellCounts(lgrIdx + 1, fractureActiveCellCount);
+
+        transferCoarseningInfo(localEclGrid, localGrid);
+
         progInfo.setProgress(3 + lgrIdx);
     }
 
@@ -360,6 +360,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     m_filesWithSameBaseName = fileSet;
 
     // Read geometry
+    // Todo: Needs to check existence of file before calling ert, else it will abort
     ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
 
     progInfo.incrementProgress();
@@ -1022,5 +1023,27 @@ void RifReaderEclipseOutput::openInitFile()
 std::vector<QDateTime> RifReaderEclipseOutput::timeSteps()
 {
     return m_timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::transferCoarseningInfo(const ecl_grid_type* eclGrid, RigGridBase* grid)
+{
+    int coarseGroupCount = ecl_grid_get_num_coarse_groups(eclGrid);
+    for (int i = 0; i < coarseGroupCount; i++)
+    {
+        ecl_coarse_cell_type* coarse_cell = ecl_grid_iget_coarse_group(eclGrid, i);
+        CVF_ASSERT(coarse_cell);
+
+        size_t i1 = static_cast<size_t>(ecl_coarse_cell_get_i1(coarse_cell));
+        size_t i2 = static_cast<size_t>(ecl_coarse_cell_get_i2(coarse_cell));
+        size_t j1 = static_cast<size_t>(ecl_coarse_cell_get_j1(coarse_cell));
+        size_t j2 = static_cast<size_t>(ecl_coarse_cell_get_j2(coarse_cell));
+        size_t k1 = static_cast<size_t>(ecl_coarse_cell_get_k1(coarse_cell));
+        size_t k2 = static_cast<size_t>(ecl_coarse_cell_get_k2(coarse_cell));
+
+        grid->addCoarseningBox(i1, i2, j1, j2, k1, k2);
+    }
 }
 

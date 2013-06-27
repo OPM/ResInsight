@@ -27,16 +27,6 @@
 
 
 int main(int argc , char ** argv) {
-#ifdef ERT_LINUX
-  const char * root = "/tmp/root";
-  const char * rel_path = "rel/path";
-  const char * abs_path = "/tmp/root/abs/path";
-  const char * rel_true = "rel/path/XXX";
-  const char * abs_true = "/tmp/root/rel/path/XXX";
-  const char * path_true1 = "rel/path/XXX";
-  const char * path_true2 = "/tmp/root/rel/path/XXX";
-#endif
-  
   char * cwd = util_alloc_cwd();
 
   {

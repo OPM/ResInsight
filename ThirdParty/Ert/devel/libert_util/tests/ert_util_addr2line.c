@@ -74,7 +74,6 @@ void test_lookup(bool valid_address, bool change_cwd) {
 
 
 int main( int argc , char ** argv) {
-  char * path = argv[0];
   if (util_is_abs_path(argv[0])) {
     char * path;
     char * name;

@@ -24,6 +24,19 @@
 #include "RigGridBase.h"
 #include "RigCaseCellResultsData.h"
 #include "RigGridScalarDataAccess.h"
+#include "RimCase.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimWellCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimResultDefinition.h"
+
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirCellResultsCacher.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

@@ -48,6 +48,7 @@ extern "C" {
   VOID_IADDSQR_HEADER(surface);
   VOID_ISQRT_HEADER(surface);
   VOID_INITIALIZE_HEADER(surface);
+  VOID_FLOAD_HEADER(surface);
 
 #ifdef __cplusplus
 }

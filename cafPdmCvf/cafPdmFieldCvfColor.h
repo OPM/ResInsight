@@ -23,7 +23,7 @@
 #include <QTextStream>
 
 #include "cafPdmFieldImpl.h"
-
+#include "cvfBase.h"
 #include "cvfColor3.h"
 
 namespace caf 

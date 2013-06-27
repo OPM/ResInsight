@@ -24,6 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 RigActiveCellInfo::RigActiveCellInfo()
     :   m_globalActiveCellCount(0),
+        m_globalCellResultCount(0),
         m_activeCellPositionMin(cvf::Vec3d::ZERO),
         m_activeCellPositionMax(cvf::Vec3d::ZERO)
 {
@@ -36,6 +37,22 @@ RigActiveCellInfo::RigActiveCellInfo()
 void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
 {
     m_cellIndexToResultIndex.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellInfo::globalCellCount() const
+{
+    return m_cellIndexToResultIndex.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigActiveCellInfo::globalCellResultCount() const
+{
+    return m_globalCellResultCount;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,11 +88,16 @@ size_t RigActiveCellInfo::cellResultIndex(size_t globalCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setCellResultIndex(size_t globalCellIndex, size_t globalActiveCellIndex)
+void RigActiveCellInfo::setCellResultIndex(size_t globalCellIndex, size_t globalCellResultIndex)
 {
-    CVF_TIGHT_ASSERT(globalActiveCellIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT(globalCellResultIndex < m_cellIndexToResultIndex.size());
 
-    m_cellIndexToResultIndex[globalCellIndex] = globalActiveCellIndex;
+    m_cellIndexToResultIndex[globalCellIndex] = globalCellResultIndex;
+
+    if (globalCellResultIndex >= m_globalCellResultCount)
+    {
+        m_globalCellResultCount = globalCellResultIndex + 1;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

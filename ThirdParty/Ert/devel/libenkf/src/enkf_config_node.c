@@ -52,6 +52,7 @@ struct enkf_config_node_struct {
   ert_impl_type          impl_type;
   enkf_var_type           var_type; 
   bool                    vector_storage; 
+  bool                    forward_init;     /* Should the (parameter) node be initialized by loading results from the Forward model? */
 
   bool_vector_type      * internalize;      /* Should this node be internalized - observe that question of what to internalize is MOSTLY handled at a higher level - without consulting this variable. Can be NULL. */ 
   stringlist_type       * obs_keys;         /* Keys of observations which observe this node. */
@@ -104,9 +105,12 @@ bool enkf_config_node_has_vector( const enkf_config_node_type * node , enkf_fs_t
 
 static enkf_config_node_type * enkf_config_node_alloc__( enkf_var_type   var_type, 
                                                          ert_impl_type  impl_type, 
-                                                         const char * key) {
+                                                         const char * key,
+                                                         bool forward_init) {
+
   enkf_config_node_type * node = util_malloc( sizeof *node );
   UTIL_TYPE_ID_INIT( node , ENKF_CONFIG_NODE_TYPE_ID );
+  node->forward_init    = forward_init;
   node->var_type        = var_type;
   node->impl_type       = impl_type;
   node->key             = util_alloc_string_copy( key );
@@ -257,14 +261,15 @@ static void enkf_config_node_update( enkf_config_node_type * config_node ,
 
 
 enkf_config_node_type * enkf_config_node_alloc(enkf_var_type              var_type,
-                                               ert_impl_type             impl_type,
+                                               ert_impl_type              impl_type,
+                                               bool                       forward_init , 
                                                const char               * key , 
                                                const char               * init_file_fmt , 
                                                const char               * enkf_outfile_fmt , 
                                                const char               * enkf_infile_fmt  , 
                                                void                     * data) {
 
-  enkf_config_node_type * node = enkf_config_node_alloc__( var_type , impl_type , key );
+  enkf_config_node_type * node = enkf_config_node_alloc__( var_type , impl_type , key , forward_init);
   enkf_config_node_update( node , init_file_fmt, enkf_outfile_fmt , enkf_infile_fmt , NULL );
   node->data = data;
   return node;
@@ -291,15 +296,15 @@ void enkf_config_node_update_gen_kw( enkf_config_node_type * config_node ,
    This will create a new gen_kw_config instance which is NOT yet
    valid. 
 */
-enkf_config_node_type * enkf_config_node_new_gen_kw( const char * key , const char * tag_fmt ) {
-  enkf_config_node_type * config_node = enkf_config_node_alloc__( PARAMETER , GEN_KW , key );
+enkf_config_node_type * enkf_config_node_new_gen_kw( const char * key , const char * tag_fmt , bool forward_init) {
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( PARAMETER , GEN_KW , key , forward_init);
   config_node->data = gen_kw_config_alloc_empty( key , tag_fmt );
   return config_node;
 }
 
 
-enkf_config_node_type * enkf_config_node_new_surface( const char * key ) {
-  enkf_config_node_type * config_node = enkf_config_node_alloc__( PARAMETER , SURFACE , key );
+enkf_config_node_type * enkf_config_node_new_surface( const char * key , bool forward_init) {
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( PARAMETER , SURFACE , key , forward_init);
   config_node->data = surface_config_alloc_empty( );
   return config_node;
 }
@@ -318,7 +323,7 @@ void enkf_config_node_update_surface( enkf_config_node_type * config_node , cons
 /*****************************************************************/
 
 enkf_config_node_type * enkf_config_node_alloc_summary( const char * key , load_fail_type load_fail) {
-  enkf_config_node_type * config_node = enkf_config_node_alloc__( DYNAMIC_RESULT , SUMMARY , key );
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( DYNAMIC_RESULT , SUMMARY , key , false);
   config_node->data = summary_config_alloc( key , config_node->vector_storage , load_fail );
   return config_node;
 }
@@ -326,8 +331,8 @@ enkf_config_node_type * enkf_config_node_alloc_summary( const char * key , load_
 
 /*****************************************************************/
 
-enkf_config_node_type * enkf_config_node_new_gen_data( const char * key ) {
-  enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , GEN_DATA , key );
+enkf_config_node_type * enkf_config_node_new_gen_data( const char * key , bool forward_init) {
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , GEN_DATA , key , forward_init);
   config_node->data = gen_data_config_alloc_empty( key );
   return config_node;
 }
@@ -335,7 +340,7 @@ enkf_config_node_type * enkf_config_node_new_gen_data( const char * key ) {
 /*****************************************************************/
 
 enkf_config_node_type * enkf_config_node_new_container( const char * key ) {
-  enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , CONTAINER , key );
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , CONTAINER , key , false);
   config_node->data = container_config_alloc( key );
   return config_node;
 }
@@ -356,8 +361,8 @@ const char * enkf_config_node_iget_container_key( const enkf_config_node_type * 
    This will create a new gen_kw_config instance which is NOT yet
    valid. Mainly support code for the GUI.
 */
-enkf_config_node_type * enkf_config_node_new_field( const char * key , ecl_grid_type * ecl_grid, field_trans_table_type * trans_table) {
-  enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , FIELD , key );
+enkf_config_node_type * enkf_config_node_new_field( const char * key , ecl_grid_type * ecl_grid, field_trans_table_type * trans_table, bool forward_init) {
+  enkf_config_node_type * config_node = enkf_config_node_alloc__( INVALID , FIELD , key , forward_init);
   config_node->data = field_config_alloc_empty( key , ecl_grid , trans_table );
   return config_node;
 }
@@ -505,8 +510,8 @@ void enkf_config_node_update_gen_data( enkf_config_node_type * config_node,
 
 /*****************************************************************/                   
 
-const enkf_config_node_type * enkf_config_node_container_iget( const enkf_config_node_type * node , int index) {
-  return vector_iget_const( node->container_nodes , index );
+enkf_config_node_type * enkf_config_node_container_iget( const enkf_config_node_type * node , int index) {
+  return vector_iget( node->container_nodes , index );
 }
 
 int enkf_config_node_container_size( const enkf_config_node_type * node ) {
@@ -579,17 +584,13 @@ void enkf_config_node_set_min_std( enkf_config_node_type * config_node , enkf_no
   config_node->min_std = min_std;
 }
 
-/*
-(defun insert-curly ()
- (interactive)
- (insert "{}"))
-*/
+
 void enkf_config_node_set_internalize(enkf_config_node_type * node, int report_step) {
   ert_impl_type impl_type = enkf_config_node_get_impl_type( node );
   if (impl_type == CONTAINER) {
     int inode;
     int container_size = enkf_config_node_container_size( node );
-    for (inode == 0; inode < container_size; inode++) {
+    for (inode = 0; inode < container_size; inode++) {
       enkf_config_node_type * child_node = enkf_config_node_container_iget( node , inode );
       enkf_config_node_set_internalize( child_node , report_step );
     }
@@ -637,11 +638,24 @@ char * enkf_config_node_alloc_outfile(const enkf_config_node_type * node , int r
     return NULL;
 }
 
-char * enkf_config_node_alloc_initfile( const enkf_config_node_type * node , int iens) {
+/*
+  The path argument is used when the function is during forward_model
+  based initialisation.  
+*/
+
+char * enkf_config_node_alloc_initfile( const enkf_config_node_type * node , const char * path , int iens) {
   if (node->init_file_fmt == NULL)
     return NULL;
-  else
-    return path_fmt_alloc_file( node->init_file_fmt , false , iens );
+  else {
+    char * file = path_fmt_alloc_file( node->init_file_fmt , false , iens );
+    if (util_is_abs_path( file ))
+      return file;
+    else {
+      char * full_path = util_alloc_filename( path , file , NULL );
+      free( file );
+      return full_path;
+    }
+  }
 }
 
 
@@ -661,6 +675,11 @@ bool enkf_config_node_include_type(const enkf_config_node_type * config_node , i
   else
     return false;
 
+}
+
+
+bool enkf_config_node_use_forward_init(const enkf_config_node_type * config_node) {
+  return config_node->forward_init;
 }
 
 

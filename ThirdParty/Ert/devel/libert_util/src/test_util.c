@@ -108,6 +108,12 @@ void test_assert_bool_equal__( bool b1 , bool b2 , const char * file , int line)
 }
 
 
+void test_assert_bool_not_equal__( bool b1 , bool b2 , const char * file , int line) {
+  if (b1 == b2) 
+    test_error_exit( "%s:%d => Booleans are equal b1:[%d]  b2:[%d]\n" , file , line , b1 , b2 );
+}
+
+
 
 /*****************************************************************/
 

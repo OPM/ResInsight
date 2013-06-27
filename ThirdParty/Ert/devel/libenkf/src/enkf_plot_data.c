@@ -89,7 +89,7 @@ void * enkf_plot_data_load__( void *arg ) {
   enkf_plot_data_type * plot_data     = arg_pack_iget_ptr( arg_pack , 0 );
   enkf_config_node_type * config_node = arg_pack_iget_ptr( arg_pack , 1 );
   enkf_fs_type * fs                   = arg_pack_iget_ptr( arg_pack , 2 );
-  const char * user_key               = arg_pack_iget_ptr( arg_pack , 3 );
+  const char * user_key               = arg_pack_iget_const_ptr( arg_pack , 3 );
   state_enum state                    = arg_pack_iget_int( arg_pack , 4 );
   int step1                           = arg_pack_iget_int( arg_pack , 5 );
   int step2                           = arg_pack_iget_int( arg_pack , 6 );
@@ -158,7 +158,7 @@ void enkf_plot_data_load( enkf_plot_data_type * plot_data ,
       arg_pack_append_ptr( arg_list[i] , plot_data );
       arg_pack_append_ptr( arg_list[i] , config_node );
       arg_pack_append_ptr( arg_list[i] , fs );
-      arg_pack_append_ptr( arg_list[i] , user_key );
+      arg_pack_append_const_ptr( arg_list[i] , user_key );
       
       arg_pack_append_int( arg_list[i] , state );
       arg_pack_append_int( arg_list[i] , step1 );

@@ -32,6 +32,19 @@
 #include "RiuMainWindow.h"
 #include "RimUiTreeModelPdm.h"
 #include "cafProgressInfo.h"
+#include "RimCaseCollection.h"
+
+
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+
+#include "RimReservoirCellResultsCacher.h"
 
 namespace caf {
     template<>
@@ -318,6 +331,8 @@ void RimStatisticsCase::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     updatePercentileUiVisibility();
 
     uiOrdering.add(&caseUserDescription);
+    
+    uiOrdering.add(&caseId);
     uiOrdering.add(&m_calculateEditCommand);
     uiOrdering.add(&m_selectionSummary);
 
@@ -495,7 +510,7 @@ void RimStatisticsCase::setWellResultsAndUpdateViews(const cvf::Collection<RigSi
         reservoirView->wellCollection()->wells.deleteAllChildObjects();
         reservoirView->updateDisplayModelForWellResults();
 
-        treeModel->rebuildUiSubTree(reservoirView->wellCollection());
+        treeModel->updateUiSubTree(reservoirView->wellCollection());
 
         progInfo.incrementProgress();
     }
@@ -634,6 +649,15 @@ void RimStatisticsCase::clearComputedStatistics()
 {
     reservoirData()->results(RifReaderInterface::MATRIX_RESULTS)->clearAllResults();
     reservoirData()->results(RifReaderInterface::FRACTURE_RESULTS)->clearAllResults();
+
+    for (size_t i = 0; i < reservoirViews().size(); i++)
+    {
+        RimReservoirView* reservoirView = reservoirViews()[i];
+        CVF_ASSERT(reservoirView);
+
+        reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::ACTIVE);
+        reservoirView->createDisplayModelAndRedraw();
+    }
 
     this->updateConnectedEditors();
 }

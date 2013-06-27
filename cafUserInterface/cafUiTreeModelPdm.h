@@ -50,7 +50,7 @@ public:
 
     static PdmUiTreeItem*   getTreeItemFromIndex(const QModelIndex& index);
     QModelIndex             getModelIndexFromPdmObject(const PdmObject* object) const;
-    void                    rebuildUiSubTree(PdmObject* root);
+    void                    updateUiSubTree(PdmObject* root);
 
 public:
     // Overrides from QAbstractItemModel
@@ -63,16 +63,14 @@ public:
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-    // TO BE DELETED, NOT USED
-    virtual bool            insertRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
-
     virtual bool            removeRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
 
 protected:
     QModelIndex             getModelIndexFromPdmObjectRecursive(const QModelIndex& currentIndex, const PdmObject * object) const;
-
 private:
-    PdmUiTreeItem* m_treeItemRoot;
+    void                    updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeItem* uiModelSubTreeRoot, PdmUiTreeItem* updatedPdmSubTreeRoot);
+
+    PdmUiTreeItem*          m_treeItemRoot;
 };
 
 

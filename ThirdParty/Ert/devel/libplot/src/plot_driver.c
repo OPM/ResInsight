@@ -220,7 +220,7 @@ void plot_driver_plot_xline( plot_driver_type * driver , const char * label , do
 
 
 
-void plot_driver_plot_hist( plot_driver_type * driver, const char * label , const double_vector_type * x , line_attribute_type line_attr) {
+void plot_driver_plot_hist( plot_driver_type * driver, const char * label , double_vector_type * x , line_attribute_type line_attr) {
   driver->plot_hist( driver , label , x , line_attr );
 }
 

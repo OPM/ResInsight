@@ -411,8 +411,7 @@ void bootstrap_enkf_updateA(void * module_data ,
                             matrix_type * R , 
                             matrix_type * dObs , 
                             matrix_type * E ,
-                            matrix_type * D , 
-                            matrix_type * randrot) {
+                            matrix_type * D ) {
   
   bootstrap_enkf_data_type * bootstrap_data = bootstrap_enkf_data_safe_cast( module_data );
   {

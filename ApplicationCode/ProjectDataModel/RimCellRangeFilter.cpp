@@ -16,12 +16,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
+//#include "RiaStdInclude.h"
 
 #include "RimCellRangeFilter.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimReservoirView.h"
 #include "RigCaseData.h"
+#include "RimCase.h"
+
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirCellResultsCacher.h"
 
 #include "cafPdmUiSliderEditor.h"
 
@@ -269,7 +280,7 @@ RigGridBase* RimCellRangeFilter::selectedGrid()
     CVF_ASSERT(mainGrid);
 
     RigGridBase* grid = NULL;
-    if (gridIndex() >= mainGrid->gridCount())
+    if (static_cast<size_t>(gridIndex()) >= mainGrid->gridCount())
     {
         gridIndex = 0;
     }

@@ -42,7 +42,7 @@ RigCell::RigCell() :
     m_hostGrid(NULL),
     m_isInvalid(false),
     m_cellIndex(cvf::UNDEFINED_SIZE_T),
-    m_isInCoarseCell(false)
+    m_coarseningBoxIndex(cvf::UNDEFINED_SIZE_T)
 {
     memcpy(m_cornerIndices.m_array, undefinedCornersArray, 8*sizeof(size_t));
 

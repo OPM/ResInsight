@@ -16,13 +16,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-
 #include "RimCaseCollection.h"
+#include "RimCase.h"
 
 #include "RimReservoirView.h"
 #include "RimIdenticalGridCaseGroup.h"
+
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+
+#include "RimReservoirCellResultsCacher.h"
+#include "RimResultSlot.h"
+
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimWellCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimCaseCollection, "RimCaseCollection");
 

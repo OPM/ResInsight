@@ -455,7 +455,7 @@ void ecl_config_init( ecl_config_type * ecl_config , const config_type * config 
   
   /* Deprecated */
   if (config_item_set( config , PLOT_REFCASE_LIST_KEY)) {
-    char * case_list_file = config_get_value( config , PLOT_REFCASE_LIST_KEY);
+    const char * case_list_file = config_get_value( config , PLOT_REFCASE_LIST_KEY);
     FILE * stream = util_fopen(case_list_file , "r");
     bool at_eof;
     do {

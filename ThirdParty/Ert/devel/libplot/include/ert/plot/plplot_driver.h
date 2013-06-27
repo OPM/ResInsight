@@ -24,7 +24,7 @@ extern "C" {
 #endif
 #include <ert/plot/plot_driver.h>
 
-plot_driver_type * plplot_driver_alloc(); 
+plot_driver_type * plplot_driver_alloc(const void * init_arg); 
 
 #ifdef __cplusplus
 }

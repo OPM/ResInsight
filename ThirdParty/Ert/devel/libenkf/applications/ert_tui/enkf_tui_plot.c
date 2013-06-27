@@ -431,7 +431,7 @@ void enkf_tui_plot_ensemble__(enkf_main_type * enkf_main ,
     int num_refcase = ecl_refcase_list_get_size( refcase_list );
     
     for( int iref=0; iref < num_refcase; iref++) {
-      ecl_sum_type * refcase = ecl_refcase_list_iget_case( refcase_list , iref );
+      const ecl_sum_type * refcase = ecl_refcase_list_iget_case( refcase_list , iref );
       if ( ecl_sum_has_general_var( refcase , user_key)) {
         char * refcase_label     = util_alloc_sprintf("Refcase%d" , iref);
         plot_dataset_type  * d   = plot_alloc_new_dataset( plot , refcase_label , PLOT_XY );
@@ -500,7 +500,7 @@ void enkf_tui_plot_GEN_KW(void * arg) {
   enkf_main_type             * enkf_main       = enkf_main_safe_cast( arg );
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
   const enkf_fs_type  * fs = enkf_main_get_fs( enkf_main );
-  const time_map_type * time_map = enkf_fs_get_time_map( fs ); 
+  time_map_type * time_map = enkf_fs_get_time_map( fs ); 
   {
     const char * prompt  = "Which GEN_KW parameter do you want to plot";
     const enkf_config_node_type * config_node = NULL;
@@ -550,11 +550,11 @@ void enkf_tui_plot_all_GEN_KW(void * arg) {
   enkf_main_type             * enkf_main       = enkf_main_safe_cast( arg );
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
   const enkf_fs_type  * fs                     = enkf_main_get_fs( enkf_main );
-  const time_map_type * time_map               = enkf_fs_get_time_map( fs ); 
+  time_map_type * time_map                     = enkf_fs_get_time_map( fs ); 
   {
     int iens1 , iens2 , step1 , step2 , ikey;   
     stringlist_type * gen_kw_keys = ensemble_config_alloc_keylist_from_impl_type(ensemble_config , GEN_KW);
-    const int last_report         = time_map_get_last_step( time_map );
+    int last_report         = time_map_get_last_step( time_map );
 
     enkf_tui_util_scanf_report_steps(last_report , PROMPT_LEN , &step1 , &step2);
     enkf_tui_util_scanf_iens_range("Realizations members to plot(0 - %d)" , enkf_main_get_ensemble_size( enkf_main ) , PROMPT_LEN , &iens1 , &iens2);
@@ -623,7 +623,7 @@ void enkf_tui_plot_histogram(void * arg) {
   enkf_main_type             * enkf_main  = enkf_main_safe_cast( arg );
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
   enkf_fs_type  * fs                     = enkf_main_get_fs( enkf_main );
-  const time_map_type * time_map               = enkf_fs_get_time_map( fs );
+  time_map_type * time_map               = enkf_fs_get_time_map( fs );
   {
     const char * prompt  = "What do you want to plot (KEY:INDEX)";
     const enkf_config_node_type * config_node;
@@ -678,7 +678,7 @@ void enkf_tui_plot_ensemble(void * arg) {
   enkf_main_type             * enkf_main       = enkf_main_safe_cast( arg );
   const ensemble_config_type * ensemble_config = enkf_main_get_ensemble_config(enkf_main);
   const enkf_fs_type  * fs                     = enkf_main_get_fs( enkf_main );
-  const time_map_type * time_map               = enkf_fs_get_time_map( fs ); 
+  time_map_type * time_map               = enkf_fs_get_time_map( fs ); 
   {
     const bool prediction_mode = false;
     const char * prompt        = "What do you want to plot (KEY:INDEX)";
@@ -734,7 +734,7 @@ static void * enkf_tui_plot_ensemble_mt( void * void_arg ) {
   arg_pack_type * arg = arg_pack_safe_cast( void_arg );
   enkf_tui_plot_ensemble__(arg_pack_iget_ptr( arg  , 0 ),
                            arg_pack_iget_ptr( arg  , 1 ),
-                           arg_pack_iget_ptr( arg  , 2 ),
+                           arg_pack_iget_const_ptr( arg  , 2 ),
                            arg_pack_iget_ptr( arg  , 3 ),
                            arg_pack_iget_int( arg  , 4 ),
                            arg_pack_iget_int( arg  , 5 ),
@@ -775,7 +775,7 @@ void enkf_tui_plot_all_summary__( enkf_main_type * enkf_main , int iens1 , int i
       
       arg_pack_append_ptr( arg  , enkf_main );
       arg_pack_append_ptr( arg  , ensemble_config_get_node( ensemble_config , key ));
-      arg_pack_append_ptr( arg  , key );
+      arg_pack_append_const_ptr( arg  , key );
       arg_pack_append_ptr( arg  , NULL );
       arg_pack_append_int( arg  , step1 );
       arg_pack_append_int( arg  , step2 );
@@ -836,7 +836,7 @@ void enkf_tui_plot_observation(void * arg) {
     const int ens_size = enkf_main_get_ensemble_size( enkf_main );
     const char * prompt  = "What do you want to plot (KEY:INDEX)";
     enkf_fs_type   * fs   = enkf_main_get_fs(enkf_main);
-    const time_map_type * time_map = enkf_fs_get_time_map( fs ); 
+    time_map_type * time_map = enkf_fs_get_time_map( fs ); 
     const obs_vector_type * obs_vector;
     char * user_key;
     char * index_key;
@@ -955,7 +955,7 @@ void enkf_tui_plot_sensitivity(void * arg) {
   
   
   enkf_fs_type               * fs              = enkf_main_get_fs(enkf_main);
-  const time_map_type        * time_map        = enkf_fs_get_time_map( fs );
+  time_map_type        * time_map              = enkf_fs_get_time_map( fs );
   const int last_report                        = time_map_get_last_step( time_map );
   const int ens_size                           = enkf_main_get_ensemble_size( enkf_main );
   const enkf_config_node_type * config_node_x;
@@ -1118,7 +1118,7 @@ void enkf_tui_plot_RFT_time(void * arg) {
   enkf_main_type      * enkf_main = enkf_main_safe_cast( arg );
   enkf_obs_type       * enkf_obs  = enkf_main_get_obs( enkf_main );
   const enkf_fs_type  * fs        = enkf_main_get_fs( enkf_main );
-  const time_map_type * time_map  = enkf_fs_get_time_map( fs ); 
+  time_map_type * time_map  = enkf_fs_get_time_map( fs ); 
   {
     const char * state_kw;
     char * index_key = NULL;

@@ -53,7 +53,8 @@ void enkf_tui_workflow_run( void * arg ) {
       char * workflow_name = util_alloc_stdin_line();
       if (workflow_name != NULL) {
         if (ert_workflow_list_has_workflow( workflow_list , workflow_name )) {
-          if (!ert_workflow_list_run_workflow( workflow_list , workflow_name , enkf_main )) {
+          bool runOK = ert_workflow_list_run_workflow( workflow_list , workflow_name , enkf_main);
+          if (!runOK) {
             printf("Errors in workflow:%s \n", workflow_name );
             printf("-----------------------------------------------------------------\n");
             config_error_fprintf( ert_workflow_list_get_last_error( workflow_list ) , true , stdout);
@@ -68,10 +69,7 @@ void enkf_tui_workflow_run( void * arg ) {
 
 
 void enkf_tui_workflow_load( void * arg ) {
-  enkf_main_type * enkf_main = enkf_main_safe_cast( arg );
-  {
-    
-  }
+  // ...
 }
 
 

@@ -41,15 +41,6 @@ void test_int_vector(const int_vector_type * list , int length , ...) {
 
 
 
-static void test1( const int_vector_type * active_list ) {
-  test_assert_int_equal( int_vector_size( active_list ), 10 );
-  test_assert_int_equal( int_vector_iget( active_list , 0 )  , 1 );
-  test_assert_int_equal( int_vector_iget( active_list , 1 )  , 3);
-  test_assert_int_equal( int_vector_iget( active_list , 8 )  ,10 );
-  test_assert_int_equal( int_vector_iget( active_list , 9 )  ,15 );
-}
-
-
 void test_active_list() {
   int_vector_type * active_list = string_util_alloc_active_list("1,3- 10,15");
   test_assert_true( string_util_init_active_list("1,3- 10,15" , active_list) );
