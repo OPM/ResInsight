@@ -555,7 +555,7 @@ PdmUiTreeItem* UiTreeItemBuilderPdm::buildViewItems(PdmUiTreeItem* parentTreeIte
         // Fix for hidden legend definitions. There is only one visible legend definition, the others reside in a hidden container
         // Todo: This is a Hack. Must be rewritten when a more general ui tree building method is in place.
         // See comment at top of this method.
-        if (field->isUiHidden())
+        if (field->isUiHideChildren())
         {
             continue;
         }
