@@ -75,6 +75,8 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 {
     CVF_ASSERT(cellRangeFilter);
 
+    bool onlyExcludeFiltersActive = true;
+
     std::list< caf::PdmPointer<RimCellRangeFilter> >::const_iterator it;
     for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
     {
@@ -92,6 +94,8 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
                     rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
                     rangeFilter->propagateToSubGrids());
+
+                onlyExcludeFiltersActive = false;
             }
             else
             {
@@ -105,6 +109,22 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->propagateToSubGrids());
             }
         }
+    }
+
+    // If there are only exclude filters present, add active cell bounding box as an include filter
+    if (onlyExcludeFiltersActive && activeCellInfo())
+    {
+        cvf::Vec3st min, max;
+        activeCellInfo()->IJKBoundingBox(min, max);
+
+        cellRangeFilter->addCellIncludeRange(
+            min.x(),
+            min.y(),
+            min.z(),
+            max.x(),
+            max.y(),
+            max.z(),
+            true);
     }
 }
 

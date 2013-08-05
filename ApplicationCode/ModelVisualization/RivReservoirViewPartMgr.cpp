@@ -551,10 +551,11 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
     CVF_ASSERT(grid != NULL);
     CVF_ASSERT(nativeVisibility->size() == grid->cellCount());
 
+    // Initialize range filter with native visibility
+    if (cellVisibility != nativeVisibility) (*cellVisibility) = (*nativeVisibility);
+
     if (rangeFilterColl->hasActiveFilters())
     {
-        if (cellVisibility != nativeVisibility) (*cellVisibility) = (*nativeVisibility);
-
         // Build range filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
         rangeFilterColl->compoundCellRangeFilter(&gridCellRangeFilter, grid);
@@ -603,11 +604,6 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
                                                 && !gridCellRangeFilter.isCellExcluded(mainGridI, mainGridJ, mainGridK, isInSubGridArea);
             }
         }
-    }
-    else
-    {
-        cellVisibility->resize(grid->cellCount());
-        cellVisibility->setAll(false);
     }
 }
 
