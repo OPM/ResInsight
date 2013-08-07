@@ -148,27 +148,10 @@ void RimCellPropertyFilter::setDefaultValues()
 {
     CVF_ASSERT(m_parentContainer);
 
-    double min = 0.0;
-    double max = 0.0;
+    computeResultValueRange();
 
-    size_t scalarIndex = resultDefinition->gridScalarIndex();
-    if (scalarIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();
-        if (results)
-        {
-            results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
-        }
-    }
-
-    lowerBound = min;
-    lowerBound.setUiName(QString("Min (%1)").arg(min));
-
-    upperBound = max;
-    upperBound.setUiName(QString("Max (%1)").arg(max));
-
-    m_maximumResultValue = max;
-    m_minimumResultValue = min;
+    lowerBound = m_minimumResultValue;
+    upperBound = m_maximumResultValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,5 +199,32 @@ void RimCellPropertyFilter::defineEditorAttribute(const caf::PdmFieldHandle* fie
         myAttr->m_minimum = m_minimumResultValue;
         myAttr->m_maximum = m_maximumResultValue;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCellPropertyFilter::computeResultValueRange()
+{
+    CVF_ASSERT(m_parentContainer);
+
+    double min = 0.0;
+    double max = 0.0;
+
+    size_t scalarIndex = resultDefinition->gridScalarIndex();
+    if (scalarIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();
+        if (results)
+        {
+            results->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
+        }
+    }
+
+    m_maximumResultValue = max;
+    m_minimumResultValue = min;
+
+    lowerBound.setUiName(QString("Min (%1)").arg(min));
+    upperBound.setUiName(QString("Max (%1)").arg(max));
 }
 

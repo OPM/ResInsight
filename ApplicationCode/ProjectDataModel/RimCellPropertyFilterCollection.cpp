@@ -128,6 +128,7 @@ void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
         propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
         propertyFilter->resultDefinition->loadResult();
         propertyFilter->updateIconState();
+        propertyFilter->computeResultValueRange();
     }
 }
 
