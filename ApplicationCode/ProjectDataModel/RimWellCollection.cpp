@@ -76,8 +76,8 @@ RimWellCollection::RimWellCollection()
 {
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
-    CAF_PDM_InitField(&active,              "Active",        true,   "Active", "", "", "");
-    active.setUiHidden(true);
+    CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
+    isActive.setUiHidden(true);
 
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
@@ -130,6 +130,7 @@ RimWell* RimWellCollection::findWell(QString name)
 //--------------------------------------------------------------------------------------------------
 bool RimWellCollection::hasVisibleWellCells()
 {
+    if (!this->isActive()) return false;
     if (this->wellCellsToRangeFilterMode() == RANGE_ADD_NONE) return false;
     if (this->wells().size() == 0 ) return false;
 
@@ -164,7 +165,7 @@ bool RimWellCollection::hasVisibleWellCells()
 //--------------------------------------------------------------------------------------------------
 bool RimWellCollection::hasVisibleWellPipes()
 {
-    if (!this->active()) return false;
+    if (!this->isActive()) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_OFF) return false;
     if (this->wells().size() == 0 ) return false;
     if (this->wellPipeVisibility() == PIPES_FORCE_ALL_ON) return true;
@@ -178,12 +179,13 @@ bool RimWellCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showWellLabel == changedField || &active == changedField)
+    if (&showWellLabel == changedField || &isActive == changedField)
     {
-        this->updateUiIconFromState(active);
+        this->updateUiIconFromState(isActive);
 
         if (m_reservoirView) 
         {
+            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
             m_reservoirView->createDisplayModelAndRedraw();
         }
     }
@@ -276,7 +278,7 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWellCollection::objectToggleField()
 {
-    return &active;
+    return &isActive;
 }
 
 

@@ -153,7 +153,7 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
         || frameIndex >= this->wellResults()->m_wellCellsTimeSteps.size()) 
         return false;
 
-    if (!m_reservoirView->wellCollection()->active())
+    if (!m_reservoirView->wellCollection()->isActive())
         return false;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_ON)

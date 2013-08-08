@@ -68,7 +68,7 @@ public:
     typedef caf::AppEnum<RimWellCollection::WellFenceType> WellFenceEnum;
 
     caf::PdmField<bool>                 showWellLabel;
-    caf::PdmField<bool>                 active;
+    caf::PdmField<bool>                 isActive;
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
