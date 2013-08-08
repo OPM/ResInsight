@@ -265,7 +265,7 @@ void ProgressInfoStatic::start(size_t maxProgressValue, const QString& title)
 
     if (!maxProgressStack().size())
     {
-        progressDialog()->setWindowModality(Qt::WindowModal);
+        progressDialog()->setWindowModality(Qt::ApplicationModal);
         progressDialog()->setMinimum(0);
         progressDialog()->setWindowTitle(title);
         progressDialog()->setCancelButton(NULL);
