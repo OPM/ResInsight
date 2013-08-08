@@ -84,9 +84,6 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     if (m_rimReservoirView.isNull()) return;
 
     RigCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->reservoirData();
-    cvf::Vec3d activeCellsBoundingBoxMax = rigReservoir->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->geometryBoundingBox().max();
-    activeCellsBoundingBoxMax -= rigReservoir->mainGrid()->displayModelOffset();
-    activeCellsBoundingBoxMax.transformPoint(m_scaleTransform->worldTransform());
 
     RimWell* well = m_rimWell;
 
@@ -111,13 +108,18 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     whStartPos -= rigReservoir->mainGrid()->displayModelOffset();
     whStartPos.transformPoint(m_scaleTransform->worldTransform());
 
-    cvf::Vec3d whEndPos = whStartPos; 
-    whEndPos.z() += characteristicCellSize * m_rimReservoirView->wellCollection()->wellHeadScaleFactor();
-
-    // Move well head top arrow point at the top of active cell region to make sure all well heads are visible
-    if (whEndPos.z() < activeCellsBoundingBoxMax.z())
+    // Compute well head based on the z position of the top of the K column the well head is part of
+    cvf::Vec3d whEndPos;
     {
-        whEndPos.z() = activeCellsBoundingBoxMax.z();
+        size_t i, j, k;
+        rigReservoir->mainGrid()->ijkFromCellIndex(whCell.mainGridCellIndex(), &i, &j, &k);
+        size_t topCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, 0);
+
+        const RigCell& topCell = rigReservoir->mainGrid()->cell(topCellIndex);
+
+        whEndPos = topCell.faceCenter(cvf::StructGridInterface::NEG_K);
+        whEndPos -= rigReservoir->mainGrid()->displayModelOffset();
+        whEndPos.transformPoint(m_scaleTransform->worldTransform());
     }
 
     cvf::Vec3d arrowPosition = whEndPos;
