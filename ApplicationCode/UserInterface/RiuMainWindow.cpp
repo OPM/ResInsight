@@ -789,7 +789,7 @@ void RiuMainWindow::slotImportWellPathsFromFile()
     // Open dialog box to select well path files
     RiaApplication* app = RiaApplication::instance();
     QString defaultDir = app->defaultFileDialogDirectory("WELLPATH_DIR");
-    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(this, "Import Well Paths", defaultDir, "JSON Well Path (*.json);;ASCII Well Paths (*.asc *.asci *.ascii);;Dev Well Paths(*.dev);;All Files (*.*)");
+    QStringList wellPathFilePaths = QFileDialog::getOpenFileNames(this, "Import Well Paths", defaultDir, "Well Paths (*.json *.asc *.asci *.ascii *.dev);;All Files (*.*)");
 
     if (wellPathFilePaths.size() < 1) return;
 
