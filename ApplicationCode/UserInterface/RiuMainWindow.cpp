@@ -267,6 +267,8 @@ void RiuMainWindow::createActions()
     // Help actions
     m_aboutAction = new QAction("&About", this);    
     connect(m_aboutAction, SIGNAL(triggered()), SLOT(slotAbout()));
+    m_commandLineHelpAction = new QAction("&Command Line Help", this);    
+    connect(m_commandLineHelpAction, SIGNAL(triggered()), SLOT(slotShowCommandLineHelp()));
 
     // Draw style actions
     m_dsActionGroup = new QActionGroup(this);
@@ -365,6 +367,7 @@ void RiuMainWindow::createMenus()
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu("&Help");
     helpMenu->addAction(m_aboutAction);
+    helpMenu->addAction(m_commandLineHelpAction);
 }
 
 
@@ -1646,4 +1649,14 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
         app->addWellPathsToModel(wellPaths);
         if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotShowCommandLineHelp()
+{
+    RiaApplication* app = RiaApplication::instance();
+    QString text = app->commandLineParameterHelp();
+    app->showFormattedTextInMessageBox(text);
 }

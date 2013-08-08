@@ -237,6 +237,12 @@ endif()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
+if(WIN32) # Check if we are on Windows
+  if(MSVC) # Check if we are using the Visual Studio compiler
+    set_target_properties(ResInsight PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+  endif()
+ENDIF()
+
 # Copy Dlls
 if (MSVC)
 

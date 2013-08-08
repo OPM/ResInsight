@@ -837,42 +837,14 @@ bool RiaApplication::parseArguments()
 
     if (showHelp)
     {
-        QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
-        helpText += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
-        
-        helpText +=
-        "\nParameter              Description\n"
-        "-----------------------------------------------------------------\n"
-        "-last                    Open last used project\n"
-        "\n"
-        "-project <filename>      Open project file <filename>\n"
-        "\n"
-        "-case <casename>         Open Eclipse case <casename>\n"
-        "                         (do not include .GRID/.EGRID)\n"
-        "\n"
-        "-startdir                The default directory for open/save commands\n"
-        "\n"                      
-        "-savesnapshots           Save snapshot of all views to 'snapshots' folder in project file folder\n"
-        "                         Application closes after snapshots are written to file\n"
-        "\n"
-        "-regressiontest <folder> Run a regression test on all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
-        "                         " + RegTestNames::testProjectName + " files in the sub-folders will be opened and \n"
-        "                         snapshots of all the views is written to the sub-sub-folder " + RegTestNames::generatedFolderName + ". \n"
-        "                         Then difference images is generated in the sub-sub-folder " + RegTestNames::diffFolderName + " based \n"
-        "                         on the images in sub-sub-folder " + RegTestNames::baseFolderName + ".\n"
-        "                         The results are presented in " + RegTestNames::reportFileName + " that is\n"
-        "                         written in the given folder.\n"
-        "\n"
-        "-updateregressiontestbase <folder> For all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
-        "                         Copy the images in the sub-sub-folder " + RegTestNames::generatedFolderName + " to the sub-sub-folder\n" 
-        "                         " + RegTestNames::baseFolderName + " after deleting " + RegTestNames::baseFolderName + " completely.\n"
-        "\n"
-        "-help, -?                Displays help text\n"
-        "-----------------------------------------------------------------";
+        QString helpText = commandLineParameterHelp();
 
+#if defined(_MSC_VER) && defined(_WIN32)
+        showFormattedTextInMessageBox(helpText);
+#else
         fprintf(stdout, "%s\n", helpText.toAscii().data());
         fflush(stdout);
-
+#endif
         return false;
     }
 
@@ -1576,5 +1548,67 @@ QImage RiaApplication::grabFrameBufferImage()
 RimProject* RiaApplication::project()
 {
     return m_project;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::showFormattedTextInMessageBox(const QString& text)
+{
+    QString helpText = text;
+
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Information);
+    msgBox.setWindowTitle("ResInsight");
+
+    helpText.replace("&", "&amp;");
+    helpText.replace("<", "&lt;");
+    helpText.replace(">", "&gt;");
+
+    helpText = QString("<pre>%1</pre>").arg(helpText);
+    msgBox.setText(helpText);
+
+    msgBox.exec();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RiaApplication::commandLineParameterHelp() const
+{
+    QString text = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
+    text += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
+
+    text +=
+        "\nParameter              Description\n"
+        "-----------------------------------------------------------------\n"
+        "-last                    Open last used project\n"
+        "\n"
+        "-project <filename>      Open project file <filename>\n"
+        "\n"
+        "-case <casename>         Open Eclipse case <casename>\n"
+        "                         (do not include .GRID/.EGRID)\n"
+        "\n"
+        "-startdir                The default directory for open/save commands\n"
+        "\n"                      
+        "-savesnapshots           Save snapshot of all views to 'snapshots' folder in project file folder\n"
+        "                         Application closes after snapshots are written to file\n"
+        "\n"
+        "-regressiontest <folder> Run a regression test on all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
+        "                         " + RegTestNames::testProjectName + " files in the sub-folders will be opened and \n"
+        "                         snapshots of all the views is written to the sub-sub-folder " + RegTestNames::generatedFolderName + ". \n"
+        "                         Then difference images is generated in the sub-sub-folder " + RegTestNames::diffFolderName + " based \n"
+        "                         on the images in sub-sub-folder " + RegTestNames::baseFolderName + ".\n"
+        "                         The results are presented in " + RegTestNames::reportFileName + " that is\n"
+        "                         written in the given folder.\n"
+        "\n"
+        "-updateregressiontestbase <folder> For all sub-folders starting with \"" + RegTestNames::testFolderFilter + "\" of the given folder: \n"
+        "                         Copy the images in the sub-sub-folder " + RegTestNames::generatedFolderName + " to the sub-sub-folder\n" 
+        "                         " + RegTestNames::baseFolderName + " after deleting " + RegTestNames::baseFolderName + " completely.\n"
+        "\n"
+        "-help, -?                Displays help text\n"
+        "-----------------------------------------------------------------";
+
+    return text;
 }
 
