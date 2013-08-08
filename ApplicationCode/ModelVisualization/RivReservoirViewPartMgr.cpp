@@ -554,7 +554,7 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
     // Initialize range filter with native visibility
     if (cellVisibility != nativeVisibility) (*cellVisibility) = (*nativeVisibility);
 
-    if (rangeFilterColl->hasActiveFilters())
+    if (rangeFilterColl->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells())
     {
         // Build range filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
