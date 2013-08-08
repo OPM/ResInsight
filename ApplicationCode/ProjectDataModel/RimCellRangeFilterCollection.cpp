@@ -75,14 +75,12 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
 {
     CVF_ASSERT(cellRangeFilter);
 
-    bool onlyExcludeFiltersActive = true;
-
     std::list< caf::PdmPointer<RimCellRangeFilter> >::const_iterator it;
     for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); it++)
     {
         RimCellRangeFilter* rangeFilter = *it;
 
-        if (rangeFilter && rangeFilter->active() && static_cast<size_t>(rangeFilter->gridIndex()) == grid->gridIndex())
+        if (rangeFilter && rangeFilter->isActive() && static_cast<size_t>(rangeFilter->gridIndex()) == grid->gridIndex())
         {
             if (rangeFilter->filterMode == RimCellFilter::INCLUDE)
             {
@@ -94,8 +92,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->startIndexJ - 1 + rangeFilter->cellCountJ,
                     rangeFilter->startIndexK - 1 + rangeFilter->cellCountK,
                     rangeFilter->propagateToSubGrids());
-
-                onlyExcludeFiltersActive = false;
             }
             else
             {
@@ -109,22 +105,6 @@ void RimCellRangeFilterCollection::compoundCellRangeFilter(cvf::CellRangeFilter*
                     rangeFilter->propagateToSubGrids());
             }
         }
-    }
-
-    // If there are only exclude filters present, add active cell bounding box as an include filter
-    if (onlyExcludeFiltersActive && activeCellInfo())
-    {
-        cvf::Vec3st min, max;
-        activeCellInfo()->IJKBoundingBox(min, max);
-
-        cellRangeFilter->addCellIncludeRange(
-            min.x(),
-            min.y(),
-            min.z(),
-            max.x(),
-            max.y(),
-            max.z(),
-            true);
     }
 }
 
@@ -234,7 +214,7 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
     std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
     for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
     {
-        if ((*it)->active()) return true;
+        if ((*it)->isActive()) return true;
     }
 
     return false;
@@ -246,5 +226,22 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
 caf::PdmFieldHandle* RimCellRangeFilterCollection::objectToggleField()
 {
     return &active;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
+{
+    if (!active) return false; 
+
+    std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
+    for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
+    {
+        if ((*it)->isActive() && (*it)->filterMode() == RimCellFilter::INCLUDE) return true;
+    }
+
+    return false;
+
 }
 

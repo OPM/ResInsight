@@ -109,7 +109,7 @@ void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
     if (   &lowerBound == changedField 
         || &upperBound == changedField
         || &evaluationRegion == changedField
-        || &active == changedField
+        || &isActive == changedField
         || &filterMode == changedField)
     {
         m_parentContainer->fieldChangedByUi(changedField, oldValue, newValue);
@@ -169,7 +169,7 @@ void RimCellPropertyFilter::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     group1->add(&(resultDefinition->m_resultVariableUiField));
     
     // Fields declared in RimCellFilter
-    uiOrdering.add(&active);
+    uiOrdering.add(&isActive);
     uiOrdering.add(&filterMode);
 
     // Fields declared in this class (RimCellPropertyFilter)
