@@ -130,7 +130,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
 {
     if (nargout < 1)
     {
-        error("riGetActiveCellProperty: Missing output argument.\n");
+        error("riGetGridProperty: Missing output argument.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -138,14 +138,14 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
     int nargin = args.length ();
     if (nargin < 2)
     {
-        error("riGetActiveCellProperty: Too few arguments. The name of the property and index of the grid requested is neccesary.\n");
+        error("riGetGridProperty: Too few arguments. The name of the property and index of the grid requested is neccesary.\n");
         print_usage();
         return octave_value_list ();
     }
 
     if (nargin > 5)
     {
-        error("riGetActiveCellProperty: Too many arguments.\n");
+        error("riGetGridProperty: Too many arguments.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -187,7 +187,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
     // Check if we have more arguments than we should
     if (nargin > lastArgumentIndex + 1)
     {
-        error("riGetActiveCellProperty: Unexpected argument after the PorosityModel.\n");
+        error("riGetGridProperty: Unexpected argument after the PorosityModel.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -206,6 +206,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
     if (argIndices[2] >= 0) propertyName        = args(argIndices[2]).char_matrix_value().row_as_string(0);
     if (argIndices[3] >= 0) requestedTimeSteps  = args(argIndices[3]).int32_array_value();
     if (argIndices[4] >= 0) porosityModel       = args(argIndices[4]).string_value();
+
 
     if (porosityModel != "Matrix" && porosityModel != "Fracture")
     {
