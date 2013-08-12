@@ -72,12 +72,16 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
 
         if (caseId == -1)
         {
-            tmp += QString(" to current case.");
+            tmp += QString(" to current case,");
         }
         else
         {
-            tmp += QString(" to case with Id = %1.").arg(caseId);
+            tmp += QString(" to case with Id = %1,").arg(caseId);
         }
+        
+        tmp += QString(" grid index: %1, ").arg(gridIndex);
+
+        octave_stdout << tmp.toStdString() << " Time steps : " << timeStepCount << std::endl;
     }
     else
     {

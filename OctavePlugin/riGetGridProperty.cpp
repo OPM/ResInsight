@@ -104,12 +104,15 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     if (caseId < 0)
     {
-        tmp += QString(" from current case.");
+        tmp += QString(" from current case,");
     }
     else
     {
-        tmp += QString(" from case with Id: %1.").arg(caseId);
+        tmp += QString(" from case with Id: %1,").arg(caseId);
     }
+
+    tmp += QString(" grid index: %1, ").arg(gridIdx);
+
     octave_stdout << tmp.toStdString() << " I, J, K " << cellCountI << ", " << cellCountJ << ", " << cellCountK << ", Timesteps : " << timestepCount << std::endl;
 
     return;
