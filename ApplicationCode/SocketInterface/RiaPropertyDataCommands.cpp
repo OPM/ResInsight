@@ -317,7 +317,12 @@ public:
 
             for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < rigGrid->cellCount(); cellIdx++)
             {
-                values[cellIdx] = cellCenterDataAccessObject->cellScalar(cellIdx);
+                double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
+                if (cellValue == HUGE_VAL)
+                {
+                    cellValue = 0.0;
+                }
+                values[cellIdx] = cellValue;
             }
         }
 
