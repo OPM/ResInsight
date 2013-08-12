@@ -1,18 +1,17 @@
 #include <QtNetwork>
 #include <octave/oct.h>
 
+#include "riSettings.h"
 
 void getMainGridDimensions(int32NDArray& gridDimensions, const QString &hostName, quint16 port, QString caseName)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int Timeout = 5 * 1000;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -34,7 +33,7 @@ void getMainGridDimensions(int32NDArray& gridDimensions, const QString &hostName
 
     while (socket.bytesAvailable() < (int)(3*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;

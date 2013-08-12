@@ -20,7 +20,9 @@
 
 namespace riOctavePlugin
 {
-    const int timeOutMilliSecs = 5000;
+    const int connectTimeOutMilliSecs = 5000;
+    const int shortTimeOutMilliSecs = 5000;
+    const int longTimeOutMilliSecs = 6 * shortTimeOutMilliSecs;
 
     // Octave data structure : CaseInfo
     char caseInfo_CaseId[]      = "CaseId";

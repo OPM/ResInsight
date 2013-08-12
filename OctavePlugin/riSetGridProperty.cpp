@@ -9,7 +9,7 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     QTcpSocket socket;
     socket.connectToHost(hostName, port);
 
-    if (!socket.waitForConnected(riOctavePlugin::timeOutMilliSecs))
+    if (!socket.waitForConnected(riOctavePlugin::shortTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -93,7 +93,7 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     while(socket.bytesToWrite() && socket.state() == QAbstractSocket::ConnectedState)
     {
         // octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl;
-        socket.waitForBytesWritten(riOctavePlugin::timeOutMilliSecs);
+        socket.waitForBytesWritten(riOctavePlugin::longTimeOutMilliSecs);
         OCTAVE_QUIT;
     }
 

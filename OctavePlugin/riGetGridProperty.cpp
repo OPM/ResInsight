@@ -5,12 +5,12 @@
 void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16 serverPort,
                         const int& caseId, int gridIdx, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
 {
-    const int Timeout = riOctavePlugin::timeOutMilliSecs;
+    const int Timeout = riOctavePlugin::shortTimeOutMilliSecs;
 
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -40,7 +40,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     while (socket.bytesAvailable() < (int)(4*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -81,7 +81,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     while (socket.bytesAvailable() < (int)totalByteCount)
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error(("Waiting for data : " + socket.errorString()).toLatin1().data());
             return ;

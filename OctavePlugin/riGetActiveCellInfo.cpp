@@ -9,12 +9,10 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int timeout = riOctavePlugin::timeOutMilliSecs;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -35,7 +33,7 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
 
     while (socket.bytesAvailable() < (int)(2*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -69,7 +67,7 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
     {
         while (socket.bytesAvailable() < (int)byteCount)
         {
-            if (!socket.waitForReadyRead(timeout))
+            if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
             {
                 QString errorMsg = QString("Waiting for column number: %1 of %2: %3").arg(tIdx).arg(columnCount).arg(socket.errorString());
 
