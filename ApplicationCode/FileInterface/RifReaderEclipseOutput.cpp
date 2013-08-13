@@ -111,8 +111,6 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     {
         RigCell& cell = mainGrid->cells()[cellStartIndex + localCellIdx];
 
-        bool invalid = ecl_grid_cell_invalid1(localEclGrid, localCellIdx);
-        cell.setInvalid(invalid);
         cell.setCellIndex(localCellIdx);
 
         // Active cell index
@@ -163,10 +161,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         // Mark inactive long pyramid looking cells as invalid
         // Forslag
         //if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
-        if (!invalid)
-        {
-            cell.setInvalid(cell.isLongPyramidCell());
-        }
+        cell.setInvalid(cell.isLongPyramidCell());
 
 #pragma omp atomic
         computedCellCount++;
