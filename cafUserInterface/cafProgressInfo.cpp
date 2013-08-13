@@ -21,6 +21,7 @@
 #include <QPointer>
 #include <QProgressDialog>
 #include <QCoreApplication>
+#include <QApplication>
 #include <QThread>
 #include <assert.h>
 
@@ -56,6 +57,8 @@ namespace caf {
 ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title)
 {
     ProgressInfoStatic::start(maxProgressValue, title);
+
+     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +67,8 @@ ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title)
 ProgressInfo::~ProgressInfo()
 {
     ProgressInfoStatic::finished();
+    
+    QApplication::restoreOverrideCursor();
 }
 
 //--------------------------------------------------------------------------------------------------
