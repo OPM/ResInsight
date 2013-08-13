@@ -109,7 +109,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     whStartPos.transformPoint(m_scaleTransform->worldTransform());
 
     // Compute well head based on the z position of the top of the K column the well head is part of
-    cvf::Vec3d whEndPos;
+    cvf::Vec3d whEndPos = whStartPos;
     {
         size_t i, j, k;
         rigReservoir->mainGrid()->ijkFromCellIndex(whCell.mainGridCellIndex(), &i, &j, &k);
@@ -117,9 +117,11 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
         const RigCell& topCell = rigReservoir->mainGrid()->cell(topCellIndex);
 
-        whEndPos = topCell.faceCenter(cvf::StructGridInterface::NEG_K);
-        whEndPos -= rigReservoir->mainGrid()->displayModelOffset();
-        whEndPos.transformPoint(m_scaleTransform->worldTransform());
+        cvf::Vec3d topCellPos = topCell.faceCenter(cvf::StructGridInterface::NEG_K);
+        topCellPos -= rigReservoir->mainGrid()->displayModelOffset();
+        topCellPos.transformPoint(m_scaleTransform->worldTransform());
+
+        whEndPos.z() = topCellPos.z();
     }
 
     cvf::Vec3d arrowPosition = whEndPos;
