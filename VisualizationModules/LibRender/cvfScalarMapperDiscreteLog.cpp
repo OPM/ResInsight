@@ -33,6 +33,9 @@ namespace cvf {
 //==================================================================================================
 
 ScalarMapperDiscreteLog::ScalarMapperDiscreteLog()
+:   m_logRange(0.0),
+    m_logRangeMin(0.0),
+    m_hasNegativeRange(false)
 {
     m_decadeLevelCount = 2; 
 }
