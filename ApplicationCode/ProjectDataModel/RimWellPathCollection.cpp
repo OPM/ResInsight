@@ -249,14 +249,34 @@ void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
             size_t quoteStartIdx = line.find_first_of("'`´’‘");
             size_t quoteEndIdx = line.find_last_of("'`´’‘");
 
+            std::string wellName;
+
             if (quoteStartIdx < line.size() -1 )
+            {
+                // Extract the text between the quotes
+                wellName = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
+            }
+            else if (quoteStartIdx > line.length() && quoteEndIdx > line.length())
+            {
+                // Did not find any quotes
+                // Look for keyword Name
+                std::string lineLowerCase = line;
+                transform(lineLowerCase.begin(), lineLowerCase.end(), lineLowerCase.begin(), ::tolower );
+
+                std::string token = "name ";
+                size_t firstNameIdx = lineLowerCase.find_first_of(token);
+                if (firstNameIdx < lineLowerCase.length())
+                {
+                    wellName = line.substr(firstNameIdx + token.length());
+                }
+            }
+
+            if (wellName.size() > 0)
             {
                 // Create a new Well data 
                 fileWellDataArray.push_back(WellData());
                 fileWellDataArray.back().m_wellPathGeometry = new RigWellPath();
 
-                // Extract the text between the quotes
-                std::string wellName = line.substr(quoteStartIdx + 1, quoteEndIdx - 1 - quoteStartIdx);
                 fileWellDataArray.back().m_name = wellName.c_str();
             }
         }
