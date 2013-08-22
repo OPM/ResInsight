@@ -66,6 +66,16 @@ namespace caf
     }
 }
 
+namespace caf
+{
+    template<>
+    void RimWellCollection::WellHeadPositionEnum::setUp()
+    {
+        addItem(RimWellCollection::WELLHEAD_POS_ACTIVE_CELLS_BB,    "WELLHEAD_POS_ACTIVE_CELLS_BB", "Top of active cells BB");
+        addItem(RimWellCollection::WELLHEAD_POS_TOP_COLUMN,         "WELLHEAD_POS_TOP_COLUMN",      "Top of active cells IJ-column");
+        setDefault(RimWellCollection::WELLHEAD_POS_TOP_COLUMN);
+    }
+}
 
 CAF_PDM_SOURCE_INIT(RimWellCollection, "Wells");
 
@@ -82,6 +92,7 @@ RimWellCollection::RimWellCollection()
     CAF_PDM_InitField(&showWellHead,        "ShowWellHead",     true,   "Show well heads", "", "", "");
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "Well head scale", "", "", "");
+    CAF_PDM_InitField(&wellHeadPosition,    "WellHeadPosition", WellHeadPositionEnum(WELLHEAD_POS_TOP_COLUMN), "Well head position",  "", "", "");
 
     CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
 
@@ -231,7 +242,8 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
             || &pipeRadiusScaleFactor == changedField 
             || &wellHeadScaleFactor == changedField 
             || &showWellHead == changedField
-            || &isAutoDetectingBranches == changedField)
+            || &isAutoDetectingBranches == changedField
+            || &wellHeadPosition == changedField)
     {
         if (m_reservoirView) 
         {
