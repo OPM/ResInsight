@@ -597,6 +597,9 @@ void RifReaderEclipseOutput::buildMetaData()
                 staticDate.push_back(m_timeSteps.front());
             }
 
+            // Add ACTNUM
+            matrixResultNames += "ACTNUM";
+
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
@@ -615,6 +618,9 @@ void RifReaderEclipseOutput::buildMetaData()
             {
                 staticDate.push_back(m_timeSteps.front());
             }
+
+            // Add ACTNUM
+            fractureResultNames += "ACTNUM";
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
@@ -659,6 +665,14 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess(
 bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values)
 {
     CVF_ASSERT(values);
+
+    if (result.compare("ACTNUM", Qt::CaseInsensitive) == 0)
+    {
+        RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(matrixOrFracture);
+        values->resize(activeCellInfo->globalActiveCellCount(), 1.0);
+
+        return true;
+    }
 
     openInitFile();
 
