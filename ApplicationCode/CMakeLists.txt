@@ -191,7 +191,19 @@ source_group( "UserInterface"       FILES ${USER_INTERFACE_FILES} )
 source_group( "SocketInterface"     FILES ${SOCKET_INTERFACE_FILES} )
 
 
-add_executable(ResInsight
+# Default behaviour for a Qt application is a console application, resulting in a console window always being launced at startup
+# The following statement is used to control this behaviour
+#   set_target_properties( MY_TARGET PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")
+# This setting i not honored by Cmake - http://public.kitware.com/Bug/view.php?id=14326 
+# We use the following workaround described in the bug report
+#   ADD_EXECUTABLE(${TARGET_NAME} WIN32 ${SRC})
+# See CMake symbol WIN32_EXECUTABLE for details
+
+if (MSVC)
+    set( EXE_FILES WIN32)
+endif()
+set( EXE_FILES
+    ${EXE_FILES}
     ${CPP_SOURCES}
     ${MOC_FILES_CPP}
 	${FORM_FILES_CPP}
@@ -200,6 +212,8 @@ add_executable(ResInsight
 	${HEADER_FILES}
 	${REFERENCED_CMAKE_FILES}
 )
+
+add_executable( ResInsight ${EXE_FILES} )
 
 
 set( LINK_LIBRARIES
@@ -236,12 +250,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 endif()
 
 target_link_libraries( ResInsight ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
-
-if(WIN32) # Check if we are on Windows
-  if(MSVC) # Check if we are using the Visual Studio compiler
-    set_target_properties(ResInsight PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
-  endif()
-ENDIF()
 
 # Copy Dlls
 if (MSVC)
