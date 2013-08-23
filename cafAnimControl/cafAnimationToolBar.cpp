@@ -172,7 +172,7 @@ void AnimationToolBar::connectAnimationControl(caf::FrameAnimationControl* anima
         connect(m_timestepCombo,            SIGNAL(currentIndexChanged(int)), animationControl, SLOT(setCurrentFrame(int)));
         connect(m_frameRateSlider,          SIGNAL(valueChanged(int)), this, SLOT(slotFrameRateSliderChanged(int)));
 
-        connect(animationControl, SIGNAL(changeFrame(int)), m_timestepCombo, SLOT(setCurrentIndex (int)));
+        connect(animationControl, SIGNAL(changeFrame(int)), SLOT(slotUpdateComboBoxIndex(int)));
         connect(animationControl, SIGNAL(frameCountChanged(int)), this, SLOT(slotUpdateTimestepList(int)));
         int timeout = animationControl->timeout();
         double initialFrameRate = 1000;
@@ -316,6 +316,19 @@ void AnimationToolBar::slotFwdBwdModeToggled(bool on)
         m_animRepeatFromStartAction->setChecked(false);
         m_animRepeatFromStartAction->blockSignals(false);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void AnimationToolBar::slotUpdateComboBoxIndex(int value)
+{
+    // Update only the combo box index, but do not set current frame 
+    // Disconnect the signal temporarily when updating UI
+
+    disconnect(m_timestepCombo, SIGNAL(currentIndexChanged(int)), m_activeAnimationControl, SLOT(setCurrentFrame(int)));
+    m_timestepCombo->setCurrentIndex(value);
+    connect(m_timestepCombo, SIGNAL(currentIndexChanged(int)), m_activeAnimationControl, SLOT(setCurrentFrame(int)));
 }
 
 } // End namespace caf

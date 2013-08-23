@@ -156,6 +156,7 @@ private:
 
     // Help actions
     QAction*            m_aboutAction;
+    QAction*            m_commandLineHelpAction;
 
     // Animation
     caf::AnimationToolBar* m_animationToolBar;
@@ -231,6 +232,7 @@ private slots:
 
     // Help slots
     void    slotAbout();
+    void    slotShowCommandLineHelp();
 
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
     void    slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);

@@ -98,7 +98,7 @@ void RivReservoirPipesPartMgr::setScaleTransform(cvf::Transform * scaleTransform
 //--------------------------------------------------------------------------------------------------
 void RivReservoirPipesPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicList* model, size_t frameIndex)
 {
-    if (!m_reservoirView->wellCollection()->active() ) return;
+    if (!m_reservoirView->wellCollection()->isActive()) return;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_OFF) return;
 
