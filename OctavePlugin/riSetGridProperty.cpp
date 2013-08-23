@@ -9,7 +9,7 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     QTcpSocket socket;
     socket.connectToHost(hostName, port);
 
-    if (!socket.waitForConnected(riOctavePlugin::timeOutMilliSecs))
+    if (!socket.waitForConnected(riOctavePlugin::shortTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -41,7 +41,17 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     qint64 cellCountI = mxDims.elem(0);
     qint64 cellCountJ = mxDims.elem(1);
     qint64 cellCountK = mxDims.elem(2);
-    qint64 timeStepCount = mxDims.elem(3);
+    
+    qint64 timeStepCount = 0;
+    if (mxDims.length() > 3)
+    {
+        timeStepCount = mxDims.elem(3);
+    }
+    else
+    {
+        timeStepCount = 1;
+    }
+
     qint64 singleTimeStepByteCount = cellCountI * cellCountJ * cellCountK * sizeof(double);
 
     //octave_stdout << " Cell count I: " << cellCountI << " Cell count J: " << cellCountJ << " Cell count K: " << cellCountK << std::endl;
@@ -62,12 +72,16 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
 
         if (caseId == -1)
         {
-            tmp += QString(" to current case.");
+            tmp += QString(" to current case,");
         }
         else
         {
-            tmp += QString(" to case with Id = %1.").arg(caseId);
+            tmp += QString(" to case with Id = %1,").arg(caseId);
         }
+        
+        tmp += QString(" grid index: %1, ").arg(gridIndex);
+
+        octave_stdout << tmp.toStdString() << " Time steps : " << timeStepCount << std::endl;
     }
     else
     {
@@ -79,13 +93,13 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     while(socket.bytesToWrite() && socket.state() == QAbstractSocket::ConnectedState)
     {
         // octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl;
-        socket.waitForBytesWritten(riOctavePlugin::timeOutMilliSecs);
+        socket.waitForBytesWritten(riOctavePlugin::longTimeOutMilliSecs);
         OCTAVE_QUIT;
     }
 
     if (socket.bytesToWrite() && socket.state() != QAbstractSocket::ConnectedState)
     {
-        error("riSetActiveCellProperty : ResInsight refused to accept the data. Maybe the dimensions or porosity model is wrong.\n");
+        error("riSetGridProperty : ResInsight refused to accept the data. Maybe the dimensions or porosity model is wrong.\n");
     }
     return;
 }
@@ -128,9 +142,9 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
 
 
     dim_vector mxDims = propertyFrames.dims();
-    if (mxDims.length() != 4)
+    if (!(mxDims.length() == 3 || mxDims.length() == 4))
     {
-        error("riSetGridProperty: The supplied Data Matrix must have four dimensions: numI*numJ*numK*numTimeSteps");
+        error("riSetGridProperty: The supplied Data Matrix must have three dimensions (numI*numJ*numK*1) or four dimensions (numI*numJ*numK*numTimeSteps)");
         print_usage();
 
         return octave_value_list ();
@@ -200,8 +214,15 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
     if (argIndices[4] >= 0) timeStepIndices = args(argIndices[4]).int32_array_value();
     if (argIndices[5] >= 0) porosityModel   = args(argIndices[5]).string_value();
 
-    if (timeStepIndices.length())
+    if (timeStepIndices.length() > 1)
     {
+        if (mxDims.length() == 3)
+        {
+            error("riSetGridProperty: The input matrix has three dimensions, but there are more than one time step in [TimeStepIndices]. If more than one time step is defined, the data matrix must be 4D.");
+            print_usage();
+            return octave_value_list ();
+        }
+        
         int timeStepCount = mxDims.elem(3);
         if (timeStepIndices.length() != timeStepCount)
         {
@@ -213,7 +234,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
 
     if (porosityModel != "Matrix" && porosityModel != "Fracture")
     {
-        error("riSetActiveCellProperty: The value for \"PorosityModel\" is unknown. Please use either \"Matrix\" or \"Fracture\"\n");
+        error("riSetGridProperty: The value for \"PorosityModel\" is unknown. Please use either \"Matrix\" or \"Fracture\"\n");
         print_usage();
         return octave_value_list ();
     }

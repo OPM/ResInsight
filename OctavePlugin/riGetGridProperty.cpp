@@ -5,12 +5,12 @@
 void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16 serverPort,
                         const int& caseId, int gridIdx, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
 {
-    const int Timeout = riOctavePlugin::timeOutMilliSecs;
+    const int Timeout = riOctavePlugin::shortTimeOutMilliSecs;
 
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -40,7 +40,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     while (socket.bytesAvailable() < (int)(4*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -81,7 +81,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     while (socket.bytesAvailable() < (int)totalByteCount)
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error(("Waiting for data : " + socket.errorString()).toLatin1().data());
             return ;
@@ -104,12 +104,15 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     if (caseId < 0)
     {
-        tmp += QString(" from current case.");
+        tmp += QString(" from current case,");
     }
     else
     {
-        tmp += QString(" from case with Id: %1.").arg(caseId);
+        tmp += QString(" from case with Id: %1,").arg(caseId);
     }
+
+    tmp += QString(" grid index: %1, ").arg(gridIdx);
+
     octave_stdout << tmp.toStdString() << " I, J, K " << cellCountI << ", " << cellCountJ << ", " << cellCountK << ", Timesteps : " << timestepCount << std::endl;
 
     return;
@@ -130,7 +133,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
 {
     if (nargout < 1)
     {
-        error("riGetActiveCellProperty: Missing output argument.\n");
+        error("riGetGridProperty: Missing output argument.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -138,14 +141,14 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
     int nargin = args.length ();
     if (nargin < 2)
     {
-        error("riGetActiveCellProperty: Too few arguments. The name of the property and index of the grid requested is neccesary.\n");
+        error("riGetGridProperty: Too few arguments. The name of the property and index of the grid requested is neccesary.\n");
         print_usage();
         return octave_value_list ();
     }
 
     if (nargin > 5)
     {
-        error("riGetActiveCellProperty: Too many arguments.\n");
+        error("riGetGridProperty: Too many arguments.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -187,7 +190,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
     // Check if we have more arguments than we should
     if (nargin > lastArgumentIndex + 1)
     {
-        error("riGetActiveCellProperty: Unexpected argument after the PorosityModel.\n");
+        error("riGetGridProperty: Unexpected argument after the PorosityModel.\n");
         print_usage();
         return octave_value_list ();
     }
@@ -206,6 +209,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
     if (argIndices[2] >= 0) propertyName        = args(argIndices[2]).char_matrix_value().row_as_string(0);
     if (argIndices[3] >= 0) requestedTimeSteps  = args(argIndices[3]).int32_array_value();
     if (argIndices[4] >= 0) porosityModel       = args(argIndices[4]).string_value();
+
 
     if (porosityModel != "Matrix" && porosityModel != "Fracture")
     {

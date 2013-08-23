@@ -142,7 +142,7 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     RimCellPropertyFilterCollection* propertyFilterCollection = propertyFilter->parentContainer();
     CVF_ASSERT(propertyFilterCollection);
 
-    bool wasFilterActive = propertyFilter->active();
+    bool wasFilterActive = propertyFilter->isActive();
     bool wasSomeFilterActive = propertyFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete
@@ -182,7 +182,7 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
     RimCellRangeFilterCollection* rangeFilterCollection = rangeFilter->parentContainer();
     CVF_ASSERT(rangeFilterCollection);
 
-    bool wasFilterActive = rangeFilter->active();
+    bool wasFilterActive = rangeFilter->isActive();
     bool wasSomeFilterActive = rangeFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete

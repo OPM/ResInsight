@@ -128,6 +128,7 @@ void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
         propertyFilter->resultDefinition->setReservoirView(m_reservoirView.p());
         propertyFilter->resultDefinition->loadResult();
         propertyFilter->updateIconState();
+        propertyFilter->computeResultValueRange();
     }
 }
 
@@ -157,7 +158,7 @@ bool RimCellPropertyFilterCollection::hasActiveFilters() const
     std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
     for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
     {
-        if ((*it)->active() && (*it)->resultDefinition->hasResult()) return true;
+        if ((*it)->isActive() && (*it)->resultDefinition->hasResult()) return true;
     }
 
     return false;
@@ -173,7 +174,7 @@ bool RimCellPropertyFilterCollection::hasActiveDynamicFilters() const
     std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator it;
     for (it = propertyFilters.v().begin(); it != propertyFilters.v().end(); ++it)
     {
-        if ((*it)->active() && (*it)->resultDefinition->hasDynamicResult()) return true;
+        if ((*it)->isActive() && (*it)->resultDefinition->hasDynamicResult()) return true;
     }
 
     return false;
