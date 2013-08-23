@@ -49,6 +49,7 @@ RimResultSlot::RimResultSlot()
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
     m_legendConfigData.setUiHidden(true);
+    m_legendConfigData.setUiChildrenHidden(true);
 
     legendConfig = new RimLegendConfig();
 }
@@ -66,11 +67,14 @@ RimResultSlot::~RimResultSlot()
 //--------------------------------------------------------------------------------------------------
 void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &m_resultVariable)
+    RimResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
+
+    // Update of legend config must happen after RimResultDefinition::fieldChangedByUi(), as this function modifies this->resultVariable()
+    if (changedField == &m_resultVariableUiField)
     {
         if (oldValue != newValue)
         {
-           changeLegendConfig(this->resultVariable());
+            changeLegendConfig(this->resultVariable());
         }
 
         if (newValue != RimDefines::undefinedResultName())
@@ -78,8 +82,6 @@ void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
             if (m_reservoirView) m_reservoirView->animationMode = true;
         }
     }
-
-    RimResultDefinition::fieldChangedByUi(changedField, oldValue, newValue);
 
     if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
 }

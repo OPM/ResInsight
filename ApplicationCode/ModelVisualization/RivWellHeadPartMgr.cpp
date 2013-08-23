@@ -108,8 +108,47 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
     whStartPos -= rigReservoir->mainGrid()->displayModelOffset();
     whStartPos.transformPoint(m_scaleTransform->worldTransform());
 
-    cvf::Vec3d whEndPos = whStartPos; 
-    whEndPos.z() += characteristicCellSize * m_rimReservoirView->wellCollection()->wellHeadScaleFactor();
+    // Compute well head based on the z position of the top of the K column the well head is part of
+    cvf::Vec3d whEndPos = whStartPos;
+
+    if (m_rimReservoirView->wellCollection()->wellHeadPosition() == RimWellCollection::WELLHEAD_POS_TOP_COLUMN)
+    {
+        // Position well head at top active cell of IJ-column
+
+        size_t i, j, k;
+        rigReservoir->mainGrid()->ijkFromCellIndex(whCell.mainGridCellIndex(), &i, &j, &k);
+
+        size_t kIndexWellHeadCell = k;
+        k = 0;
+        
+        size_t topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
+        while(k < kIndexWellHeadCell && !m_rimReservoirView->currentActiveCellInfo()->isActive(topActiveCellIndex))
+        {
+            k++;
+            topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK(i, j, k);
+        }
+        
+        const RigCell& topActiveCell = rigReservoir->mainGrid()->cell(topActiveCellIndex);
+        cvf::Vec3d topCellPos = topActiveCell.faceCenter(cvf::StructGridInterface::NEG_K);
+        topCellPos -= rigReservoir->mainGrid()->displayModelOffset();
+        topCellPos.transformPoint(m_scaleTransform->worldTransform());
+
+        // Modify position if top active cell is closer to sea than well head
+        if (kIndexWellHeadCell > k)
+        {
+            whEndPos.z() = topCellPos.z() + characteristicCellSize;
+        }
+    }
+    else
+    {
+        // Position well head at top of active cells bounding box
+
+        cvf::Vec3d activeCellsBoundingBoxMax = m_rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max();
+        activeCellsBoundingBoxMax -= rigReservoir->mainGrid()->displayModelOffset();
+        activeCellsBoundingBoxMax.transformPoint(m_scaleTransform->worldTransform());
+
+        whEndPos.z() = activeCellsBoundingBoxMax.z();
+    }
 
     cvf::Vec3d arrowPosition = whEndPos;
     arrowPosition.z() += 2.0;

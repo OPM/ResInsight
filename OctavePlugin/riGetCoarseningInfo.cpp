@@ -9,12 +9,10 @@ void getCoarseningInfo(int32NDArray& coarseningInfo, const QString &hostName, qu
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int Timeout = 5 * 1000;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -35,7 +33,7 @@ void getCoarseningInfo(int32NDArray& coarseningInfo, const QString &hostName, qu
 
     while (socket.bytesAvailable() < (int)(sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;

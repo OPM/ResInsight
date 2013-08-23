@@ -9,12 +9,10 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int timeout = riOctavePlugin::timeOutMilliSecs;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -35,7 +33,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
 
     while (socket.bytesAvailable() < (int)(5 * sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -72,7 +70,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
 
     while (socket.bytesAvailable() < (qint64)(byteCount))
     {
-        if (!socket.waitForReadyRead(timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
             return;

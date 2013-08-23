@@ -224,31 +224,22 @@ public:
         }
 
         size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-        std::vector< std::vector<double> >* scalarResultFrames = NULL;
 
         if (gridIdx < 0  || rimCase->reservoirData()->gridCount() <= (size_t)gridIdx)
         {
             server->errorMessageDialog()->showMessage("ResInsight SocketServer: riGetGridProperty : \n"
                                                       "The gridIndex \"" + QString::number(gridIdx) + "\" does not point to an existing grid." );
-
         }
         else
         {
             // Find the requested data
-
             if (rimCase && rimCase->results(porosityModelEnum))
             {
                 scalarResultIndex = rimCase->results(porosityModelEnum)->findOrLoadScalarResult(propertyName);
-
-                if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-                {
-                    scalarResultFrames = &(rimCase->results(porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
-                }
-
             }
         }
 
-        if (scalarResultFrames == NULL)
+        if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the %1 model property named: \"%2\"").arg(porosityModelName).arg(propertyName));
 
@@ -257,6 +248,7 @@ public:
             return true;
         }
 
+
         // Create a list of all the requested time steps
 
         std::vector<size_t> requestedTimesteps;
@@ -264,7 +256,7 @@ public:
         if (args.size() <= 5)
         {
             // Select all
-            for (size_t tsIdx = 0; tsIdx < scalarResultFrames->size(); ++tsIdx)
+            for (size_t tsIdx = 0; tsIdx < rimCase->results(porosityModelEnum)->cellResults()->timeStepCount(scalarResultIndex); ++tsIdx)
             {
                 requestedTimesteps.push_back(tsIdx);
             }
@@ -297,7 +289,6 @@ public:
 
 
         RigGridBase* rigGrid = rimCase->reservoirData()->grid(gridIdx);
-        const RigActiveCellInfo* activeInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
 
         quint64 cellCountI = (quint64)rigGrid->cellCountI();
         quint64 cellCountJ = (quint64)rigGrid->cellCountJ();
@@ -318,27 +309,20 @@ public:
         
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-            for (size_t k = 0; k < cellCountK; k++)
+            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
+            if (cellCenterDataAccessObject.isNull())
             {
-                for (size_t j = 0; j < cellCountJ; j++)
+                continue;
+            }
+
+            for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < rigGrid->cellCount(); cellIdx++)
+            {
+                double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
+                if (cellValue == HUGE_VAL)
                 {
-                    for (size_t i = 0; i < cellCountI; i++)
-                    {
-                        size_t localCellIndex = rigGrid->cellIndexFromIJK(i,j,k);
-                        size_t gcIdx = rigGrid->globalGridCellIndex(localCellIndex);
-
-                        size_t resultIdx = activeInfo->cellResultIndex(gcIdx);
-
-                        if (resultIdx < scalarResultFrames->at(requestedTimesteps[tsIdx]).size())
-                        {
-                            values[valueIdx++] = scalarResultFrames->at(requestedTimesteps[tsIdx])[resultIdx];
-                        }
-                        else
-                        {
-                            values[valueIdx++] = HUGE_VAL;
-                        }
-                    }
+                    cellValue = 0.0;
                 }
+                values[cellIdx] = cellValue;
             }
         }
 
@@ -887,16 +871,28 @@ public:
 
         size_t cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
 
-        RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
-        size_t globalCellResultCount    = activeCellInfo->globalCellResultCount();
+        if (cellCountFromOctave != grid->cellCount())
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
+                RiaSocketServer::tr("Mismatch between expected and received data. Expected : %1, Received : %2").arg(grid->cellCount()).arg(cellCountFromOctave));
 
-        // Make sure the size of the retreiving container is correct.
-        // If it is, this is noops
+            m_invalidDataDetected = true;
+            currentClient->abort();
+
+            return true;
+        }
 
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
             size_t tsId = m_requestedTimesteps[tIdx];
-            m_scalarResultsToAdd->at(tsId).resize(globalCellResultCount, HUGE_VAL);
+
+            // Result data is stored in an array containing all cells for all grids
+            // The size of this array must match the test in RigCaseCellResultsData::isUsingGlobalActiveIndex(),
+            // as it is used to determine if we have data for active cells or all cells
+            // See RigCaseCellResultsData::isUsingGlobalActiveIndex()
+            size_t totalNumberOfCellsIncludingLgrCells = grid->mainGrid()->cells().size();
+
+            m_scalarResultsToAdd->at(tsId).resize(totalNumberOfCellsIncludingLgrCells, HUGE_VAL);
         }
 
         if ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepNumberToRead < m_timeStepCountToRead))
@@ -908,24 +904,12 @@ public:
             qint64 bytesRead = currentClient->read((char*)(doubleValues.data()), m_bytesPerTimeStepToRead);
             size_t doubleValueIndex = 0;
 
-            for (size_t k = 0; k < grid->cellCountK(); k++)
+            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_currentTimeStepNumberToRead, m_currentScalarIndex);
+            if (!cellCenterDataAccessObject.isNull())
             {
-                for (size_t j = 0; j < grid->cellCountJ(); j++)
+                for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < cellCountFromOctave; cellIdx++)
                 {
-                    for (size_t i = 0; i < grid->cellCountI(); i++)
-                    {
-                        size_t localCellIndex = grid->cellIndexFromIJK(i,j,k);
-                        size_t gcIdx = grid->globalGridCellIndex(localCellIndex);
-
-                        size_t resultIdx = activeCellInfo->cellResultIndex(gcIdx);
-
-                        if (resultIdx < m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead]).size())
-                        {
-                            m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead])[resultIdx] = doubleValues[doubleValueIndex];
-                        }
-
-                        doubleValueIndex++;
-                    }
+                    cellCenterDataAccessObject->setCellScalar(cellIdx, doubleValues[cellIdx]);
                 }
             }
 

@@ -435,6 +435,9 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     } 
     else if ( changedField == &showInactiveCells )
     {
+        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
+        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+
         createDisplayModelAndRedraw();
     } 
     else if ( changedField == &showMainGrid )
@@ -557,7 +560,7 @@ void RimReservoirView::createDisplayModel()
     if (! this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometryTypesToAdd;
-       
+        
         if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
         {
             geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
@@ -579,7 +582,7 @@ void RimReservoirView::createDisplayModel()
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
-      
+
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -674,6 +677,22 @@ void RimReservoirView::updateCurrentTimeStep()
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
         m_reservoirGridPartManager->updateCellColor(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
+
+
+        if (this->showInactiveCells())
+        {
+            std::vector<size_t> gridIndices;
+            this->indicesToVisibleGrids(&gridIndices);
+
+            if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
+            {
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
+            }
+            else
+            {
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices); 
+            }
+        }
 
         if (m_viewer)
         {

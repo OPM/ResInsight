@@ -60,6 +60,7 @@ public:
     void setParentContainer(RimCellPropertyFilterCollection* parentContainer);
     RimCellPropertyFilterCollection* parentContainer();
     void setDefaultValues();
+    void computeResultValueRange();
 
     caf::PdmField<RimResultDefinition*> resultDefinition;
 
