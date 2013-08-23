@@ -5,12 +5,10 @@
 void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, quint16 serverPort,
                         const qint64& caseId, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
 {
-    const int Timeout = riOctavePlugin::timeOutMilliSecs;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(Timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -40,7 +38,7 @@ void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, qu
 
     while (socket.bytesAvailable() < (int)(2*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(Timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -71,7 +69,7 @@ void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, qu
     {
         while (socket.bytesAvailable() < (int)byteCount)
         {
-            if (!socket.waitForReadyRead(Timeout))
+            if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
             {
                 error((("Waiting for timestep data number: ") + QString::number(tIdx)+  ": " + socket.errorString()).toLatin1().data());
                 octave_stdout << "Active cells: " << activeCellCount << ", Timesteps: " << timestepCount << std::endl;

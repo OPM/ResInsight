@@ -35,12 +35,12 @@ class PdmUiItemInfo
 {
 public:  
     PdmUiItemInfo()
-        : m_editorTypeName(""), m_isHidden(-1) , m_isReadOnly(-1)
+        : m_editorTypeName(""), m_isHidden(-1), m_isChildrenHidden(-1), m_isReadOnly(-1)
     {}
 
     PdmUiItemInfo( QString  uiName,   QIcon icon = QIcon(), QString  toolTip = "", QString  whatsThis = "")
         : m_uiName(uiName), m_icon(icon), m_toolTip(toolTip), m_whatsThis(whatsThis),
-          m_editorTypeName(""), m_isHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT)
+          m_editorTypeName(""), m_isHidden(false), m_isChildrenHidden(false), m_isReadOnly(false), m_labelAlignment(LEFT)
     { }
 
     enum LabelPosType { LEFT, TOP, HIDDEN };
@@ -52,8 +52,9 @@ private:
     QString             m_whatsThis;
     QIcon               m_icon;         
     QString             m_editorTypeName;   ///< Use this exact type of editor to edit this UiItem
-    int                 m_isHidden;     ///< UiItem should be hidden. -1 means not set
-    int                 m_isReadOnly;   ///< UiItem should be insensitive, or read only. -1 means not set.
+    int                 m_isHidden;         ///< UiItem should be hidden. -1 means not set
+    int                 m_isChildrenHidden; ///< Children of UiItem should be hidden. -1 means not set
+    int                 m_isReadOnly;       ///< UiItem should be insensitive, or read only. -1 means not set.
     LabelPosType       m_labelAlignment;
 };
 
@@ -114,6 +115,9 @@ public:
 
     bool             isUiHidden(QString uiConfigName = "") const;
     void             setUiHidden(bool isHidden, QString uiConfigName = "")                 { m_configItemInfos[uiConfigName].m_isHidden = isHidden; } 
+
+    bool             isUiChildrenHidden(QString uiConfigName = "") const;
+    void             setUiChildrenHidden(bool isChildrenHidden, QString uiConfigName = "")     { m_configItemInfos[uiConfigName].m_isChildrenHidden = isChildrenHidden; } 
 
     bool             isUiReadOnly(QString uiConfigName = "");
     void             setUiReadOnly(bool isReadOnly, QString uiConfigName = "")             { m_configItemInfos[uiConfigName].m_isReadOnly = isReadOnly; } 

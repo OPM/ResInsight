@@ -67,8 +67,16 @@ public:
     };
     typedef caf::AppEnum<RimWellCollection::WellFenceType> WellFenceEnum;
 
+    enum WellHeadPositionType
+    {
+        WELLHEAD_POS_ACTIVE_CELLS_BB, 
+        WELLHEAD_POS_TOP_COLUMN
+    };
+    typedef caf::AppEnum<RimWellCollection::WellHeadPositionType> WellHeadPositionEnum;
+
+
     caf::PdmField<bool>                 showWellLabel;
-    caf::PdmField<bool>                 active;
+    caf::PdmField<bool>                 isActive;
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
     caf::PdmField<bool>                 showWellCellFences;
@@ -81,6 +89,7 @@ public:
 
     caf::PdmField<double>               wellHeadScaleFactor;
     caf::PdmField<bool>                 showWellHead;
+    caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 

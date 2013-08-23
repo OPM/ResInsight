@@ -60,6 +60,7 @@ private slots:
     void slotFrameRateSliderChanged(int value);
     void slotFromStartModeToggled(bool on);
     void slotFwdBwdModeToggled(bool on);
+    void slotUpdateComboBoxIndex(int value);
 
 private:
     void init();

@@ -167,6 +167,22 @@ bool PdmUiItem::isUiHidden(QString uiConfigName) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool PdmUiItem::isUiChildrenHidden(QString uiConfigName) const
+{
+    const PdmUiItemInfo* conInfo = configInfo(uiConfigName);
+    const PdmUiItemInfo* defInfo = defaultInfo();
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+
+    if (conInfo && !(conInfo->m_isChildrenHidden == -1)) return conInfo->m_isChildrenHidden;
+    if (defInfo && !(defInfo->m_isChildrenHidden == -1)) return defInfo->m_isChildrenHidden;
+    if (sttInfo && !(sttInfo->m_isChildrenHidden == -1)) return sttInfo->m_isChildrenHidden;
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool PdmUiItem::isUiReadOnly(QString uiConfigName /*= ""*/)
 {
     const PdmUiItemInfo* conInfo = configInfo(uiConfigName);

@@ -17,12 +17,10 @@ void getTimeStepDates(  std::vector<qint32>& yearValues,
     QString serverName = hostName;
     quint16 serverPort = port;
 
-    const int timeout = riOctavePlugin::timeOutMilliSecs;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
-    if (!socket.waitForConnected(timeout))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -43,7 +41,7 @@ void getTimeStepDates(  std::vector<qint32>& yearValues,
 
     while (socket.bytesAvailable() < (int)(sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -55,7 +53,7 @@ void getTimeStepDates(  std::vector<qint32>& yearValues,
 
     while (socket.bytesAvailable() < (int)(byteCount))
     {
-        if (!socket.waitForReadyRead(timeout))
+        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
         {
             error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
             return;

@@ -125,6 +125,9 @@ public:
 
     cvf::Font*          standardFont();
 
+    QString             commandLineParameterHelp() const;
+    void                showFormattedTextInMessageBox(const QString& text);
+
 private:
     void		        onProjectOpenedOrClosed();
     void		        setWindowCaptionFromAppState();

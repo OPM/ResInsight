@@ -42,7 +42,7 @@ public:
     virtual ~RimCellFilter();
 
     caf::PdmField<QString>  name;
-    caf::PdmField<bool>     active;
+    caf::PdmField<bool>     isActive;
     caf::PdmField< caf::AppEnum< FilterModeType > > filterMode;
 
     void updateIconState();

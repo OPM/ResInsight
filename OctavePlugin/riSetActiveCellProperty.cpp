@@ -9,7 +9,7 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     QTcpSocket socket;
     socket.connectToHost(hostName, port);
 
-    if (!socket.waitForConnected(riOctavePlugin::timeOutMilliSecs))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -47,7 +47,7 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     socketStream << (qint64)timeStepByteCount;
 
     const double* internalData = propertyFrames.fortran_vec();
-    int dataWritten = socket.write((const char *)internalData, timeStepByteCount*timeStepCount);
+    qint64 dataWritten = socket.write((const char *)internalData, timeStepByteCount*timeStepCount);
 
     if (dataWritten == timeStepByteCount*timeStepCount)
     {
@@ -72,7 +72,7 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     while(socket.bytesToWrite() && socket.state() == QAbstractSocket::ConnectedState)
     {
         // octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl;
-        socket.waitForBytesWritten(riOctavePlugin::timeOutMilliSecs);
+        socket.waitForBytesWritten(riOctavePlugin::longTimeOutMilliSecs);
         OCTAVE_QUIT;
     }
 

@@ -44,6 +44,7 @@ public:
 
     void                compoundCellRangeFilter(cvf::CellRangeFilter* cellRangeFilter, const RigGridBase* grid) const;
     bool                hasActiveFilters() const;
+    bool                hasActiveIncludeFilters() const;
 
     void                setReservoirView(RimReservoirView* reservoirView);
     RimReservoirView*   reservoirView();

@@ -396,14 +396,14 @@ void RivReservoirViewPartMgr::createPropertyFilteredGeometry(size_t frameIndex)
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
 
-    bool hasActiveRangeFilters  = m_reservoirView->rangeFilterCollection()->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells();
+    bool hasActiveRangeFilters = m_reservoirView->rangeFilterCollection()->hasActiveIncludeFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells();
 
     for (size_t gIdx = 0; gIdx < grids.size(); ++gIdx)
     {
         cvf::ref<cvf::UByteArray> cellVisibility = m_propFilteredGeometryFrames[frameIndex]->cellVisibility(gIdx); 
         cvf::ref<cvf::UByteArray> rangeVisibility; 
         cvf::ref<cvf::UByteArray> fenceVisibility; 
-        cvf::cref<cvf::UByteArray> cellIsWellCellStatuses = res->wellCellsInGrid(gIdx); 
+        cvf::cref<cvf::UByteArray> isWellCell = res->wellCellsInGrid(gIdx); 
 
         if (m_geometriesNeedsRegen[RANGE_FILTERED]) createGeometry(RANGE_FILTERED);
         if (m_geometriesNeedsRegen[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER]) createGeometry(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
@@ -416,7 +416,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredGeometry(size_t frameIndex)
 #pragma omp parallel for
         for (int cellIdx = 0; cellIdx < static_cast<int>(cellVisibility->size()); ++cellIdx)
         {
-            (*cellVisibility)[cellIdx] = (!hasActiveRangeFilters && !(*cellIsWellCellStatuses)[cellIdx]) || (*rangeVisibility)[cellIdx] || (*fenceVisibility)[cellIdx];
+            (*cellVisibility)[cellIdx] = (*rangeVisibility)[cellIdx] || (*fenceVisibility)[cellIdx];
         }
         computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
 
@@ -551,10 +551,11 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
     CVF_ASSERT(grid != NULL);
     CVF_ASSERT(nativeVisibility->size() == grid->cellCount());
 
-    if (rangeFilterColl->hasActiveFilters())
-    {
-        if (cellVisibility != nativeVisibility) (*cellVisibility) = (*nativeVisibility);
+    // Initialize range filter with native visibility
+    if (cellVisibility != nativeVisibility) (*cellVisibility) = (*nativeVisibility);
 
+    if (rangeFilterColl->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells())
+    {
         // Build range filter for current grid
         cvf::CellRangeFilter gridCellRangeFilter;
         rangeFilterColl->compoundCellRangeFilter(&gridCellRangeFilter, grid);
@@ -579,6 +580,8 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
             parentGridVisibilities = reservoirGridPartMgr->cellVisibility(parentGridIndex);
         }
 
+        bool hasAdditiveRangeFilters = rangeFilterColl->hasActiveIncludeFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells();
+
 #pragma omp parallel for 
         for (int cellIndex = 0; cellIndex < static_cast<int>(grid->cellCount()); cellIndex++)
         {
@@ -599,15 +602,23 @@ void RivReservoirViewPartMgr::computeRangeVisibility(ReservoirGeometryCacheType 
 
                 bool isInSubGridArea = cell.subGrid() != NULL;
                 grid->ijkFromCellIndex(cellIndex, &mainGridI, &mainGridJ, &mainGridK);
-                (*cellVisibility)[cellIndex] = (visibleDueToParentGrid || gridCellRangeFilter.isCellVisible(mainGridI, mainGridJ, mainGridK, isInSubGridArea)) 
+                
+                bool nativeRangeVisibility = false;
+                   
+                if (hasAdditiveRangeFilters)
+                {
+                    nativeRangeVisibility = gridCellRangeFilter.isCellVisible(mainGridI, mainGridJ, mainGridK, isInSubGridArea);
+                }
+                else
+                {
+                    // Special handling when no include filters are present. Use native visibility 
+                    nativeRangeVisibility = (*nativeVisibility)[cellIndex];
+                }
+                
+                (*cellVisibility)[cellIndex] = (visibleDueToParentGrid || nativeRangeVisibility) 
                                                 && !gridCellRangeFilter.isCellExcluded(mainGridI, mainGridJ, mainGridK, isInSubGridArea);
             }
         }
-    }
-    else
-    {
-        cellVisibility->resize(grid->cellCount());
-        cellVisibility->setAll(false);
     }
 }
 
@@ -632,7 +643,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
         std::list< caf::PdmPointer< RimCellPropertyFilter > >::const_iterator pfIt;
         for (pfIt = propFilterColl->propertyFilters().begin(); pfIt !=  propFilterColl->propertyFilters().end(); ++pfIt)
         {
-            if ((*pfIt)->active()&& (*pfIt)->resultDefinition->hasResult())
+            if ((*pfIt)->isActive()&& (*pfIt)->resultDefinition->hasResult())
             {
                 const double lowerBound = (*pfIt)->lowerBound();
                 const double upperBound = (*pfIt)->upperBound();

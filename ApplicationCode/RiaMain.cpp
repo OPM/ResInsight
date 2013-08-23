@@ -21,32 +21,6 @@
 #include "RiuMainWindow.h"
 
 
-// Cmake is able to control subsystem on Windows using the following method http://www.cmake.org/Wiki/VSConfigSpecificSettings
-//
-// if(WIN32)
-//     set_target_properties(WindowApplicationExample PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
-//     set_target_properties(WindowApplicationExample PROPERTIES COMPILE_DEFINITIONS_DEBUG "_CONSOLE")
-//     set_target_properties(WindowApplicationExample PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:CONSOLE")
-//     set_target_properties(WindowApplicationExample PROPERTIES COMPILE_DEFINITIONS_RELWITHDEBINFO "_CONSOLE")
-//     set_target_properties(WindowApplicationExample PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
-//     set_target_properties(WindowApplicationExample PROPERTIES LINK_FLAGS_MINSIZEREL "/SUBSYSTEM:WINDOWS")
-// endif(WIN32)
-//
-//
-// Due to a bug in Cmake, use workaround described here http://public.kitware.com/Bug/view.php?id=12566
-#if defined(_MSC_VER) && defined(_WIN32)
-
-    #ifdef _DEBUG
-        #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
-    #else
-        #pragma comment(linker, "/SUBSYSTEM:WINDOWS")
-    #endif // _DEBUG
-
-#endif // defined(_MSC_VER) && defined(_WIN32)
-
-
-
-
 int main(int argc, char *argv[])
 {
     RiaApplication app(argc, argv);
