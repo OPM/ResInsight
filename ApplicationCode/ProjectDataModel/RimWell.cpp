@@ -148,12 +148,18 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
     if (m_reservoirView == NULL) return false;
     if (this->wellResults() == NULL) return false;
 
-    if (   this->wellResults()->firstResultTimeStep() == cvf::UNDEFINED_SIZE_T 
-        || frameIndex < this->wellResults()->firstResultTimeStep() 
-        || frameIndex >= this->wellResults()->m_wellCellsTimeSteps.size()) 
+    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
+    {
         return false;
+    }
 
-    if (!m_reservoirView->wellCollection()->active())
+    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
+    if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        return false;
+    }
+
+    if (!m_reservoirView->wellCollection()->isActive())
         return false;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_ON)

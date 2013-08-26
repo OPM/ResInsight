@@ -112,8 +112,6 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     {
         RigCell& cell = mainGrid->cells()[cellStartIndex + localCellIdx];
 
-        bool invalid = ecl_grid_cell_invalid1(localEclGrid, localCellIdx);
-        cell.setInvalid(invalid);
         cell.setCellIndex(localCellIdx);
 
         // Active cell index
@@ -164,10 +162,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         // Mark inactive long pyramid looking cells as invalid
         // Forslag
         //if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() && !cell.isActiveInFractureModel()) ) )
-        if (!invalid)
-        {
-            cell.setInvalid(cell.isLongPyramidCell());
-        }
+        cell.setInvalid(cell.isLongPyramidCell());
 
 #pragma omp atomic
         computedCellCount++;
@@ -361,6 +356,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     m_filesWithSameBaseName = fileSet;
 
     // Read geometry
+    // Todo: Needs to check existence of file before calling ert, else it will abort
     ecl_grid_type * mainEclGrid = ecl_grid_alloc( fileName.toAscii().data() );
 
     progInfo.incrementProgress();
@@ -600,6 +596,9 @@ void RifReaderEclipseOutput::buildMetaData()
                 staticDate.push_back(m_timeSteps.front());
             }
 
+            // Add ACTNUM
+            matrixResultNames += "ACTNUM";
+
             for (int i = 0; i < matrixResultNames.size(); ++i)
             {
                 size_t resIndex = matrixModelResults->addEmptyScalarResult(RimDefines::STATIC_NATIVE, matrixResultNames[i], false);
@@ -618,6 +617,9 @@ void RifReaderEclipseOutput::buildMetaData()
             {
                 staticDate.push_back(m_timeSteps.front());
             }
+
+            // Add ACTNUM
+            fractureResultNames += "ACTNUM";
 
             for (int i = 0; i < fractureResultNames.size(); ++i)
             {
@@ -662,6 +664,14 @@ RifEclipseRestartDataAccess* RifReaderEclipseOutput::createDynamicResultsAccess(
 bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values)
 {
     CVF_ASSERT(values);
+
+    if (result.compare("ACTNUM", Qt::CaseInsensitive) == 0)
+    {
+        RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(matrixOrFracture);
+        values->resize(activeCellInfo->globalActiveCellCount(), 1.0);
+
+        return true;
+    }
 
     openInitFile();
 
