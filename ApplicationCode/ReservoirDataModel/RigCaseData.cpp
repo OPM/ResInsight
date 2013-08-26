@@ -267,12 +267,17 @@ bool RigCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& share
 
         size_t ni, nj, nk;
         grid->neighborIJKAtCellFace(i, j, k, sourceFace, &ni, &nj, &nk);
-        size_t neighborCellIndex = grid->cellIndexFromIJK(ni, nj, nk);
 
-        if (neighborCellIndex == otherGridCellIndex)
+        if (grid->isCellValid(ni, nj, nk))
         {
-            sharedSourceFace = sourceFace;
-            return true;
+
+            size_t neighborCellIndex = grid->cellIndexFromIJK(ni, nj, nk);
+
+            if (neighborCellIndex == otherGridCellIndex)
+            {
+                sharedSourceFace = sourceFace;
+                return true;
+            }
         }
     }
 

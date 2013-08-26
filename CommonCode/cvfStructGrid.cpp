@@ -160,11 +160,11 @@ void StructGridInterface::neighborIJKAtCellFace(size_t i, size_t j, size_t k, Fa
     switch (face)
     {
         case POS_I : (*ni)++; break;
-        case NEG_I : (*ni)--; break;
+        case NEG_I : if (i > 0) (*ni)--; else (*ni) = cvf::UNDEFINED_SIZE_T; break;
         case POS_J : (*nj)++; break;
-        case NEG_J : (*nj)--; break;
+        case NEG_J : if (i > 0) (*nj)--; else (*nj) = cvf::UNDEFINED_SIZE_T; break;
         case POS_K : (*nk)++; break;
-        case NEG_K : (*nk)--; break;
+        case NEG_K : if (i > 0) (*nj)--; else (*nj) = cvf::UNDEFINED_SIZE_T; break;
     }
 }
 
