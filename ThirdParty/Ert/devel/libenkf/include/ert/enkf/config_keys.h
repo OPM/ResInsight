@@ -140,6 +140,7 @@ extern "C" {
 #define  RERUN_START_KEY                   "RERUN_START"
 #define  RSH_COMMAND_KEY                   "RSH_COMMAND"
 #define  RSH_HOST_KEY                      "RSH_HOST"
+#define  RUNPATH_FILE_KEY                  "RUNPATH_FILE"  
 #define  RUNPATH_KEY                       "RUNPATH"
 #define  ITER_RUNPATH_KEY                  "ITER_RUNPATH"
 #define  RERUN_PATH_KEY                    "RERUN_PATH"

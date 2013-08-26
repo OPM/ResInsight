@@ -98,10 +98,12 @@ rng_type * rng_config_alloc_rng( rng_config_type * rng_config ) {
          In the special case that seed_load == seed_store; we accept a
          seed_load argument pointing to a non-existant file.
       */
-      if (test_string_equal( seed_load , seed_store))
-        rng_init( rng , INIT_DEV_URANDOM );
-      else
-        util_abort("%s: tried to load random seed from non-existing file:%s \n",__func__ , seed_load);
+      if (seed_store) {
+        if (util_string_equal( seed_store , seed_load))
+          rng_init( rng , INIT_DEV_URANDOM );
+        else
+          util_abort("%s: tried to load random seed from non-existing file:%s \n",__func__ , seed_load);
+      }
     }
   } else
     rng_init( rng , INIT_DEV_URANDOM );

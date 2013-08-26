@@ -61,7 +61,6 @@ class EnsembleFetcher(PlotDataFetcherHandler):
         num_realizations = ert.main.ens_size
         var_type_set = False
         user_data = parameter.getUserData()
-
         if user_data is None:
             return False
 
@@ -115,7 +114,6 @@ class EnsembleFetcher(PlotDataFetcherHandler):
                 if config_node.get_impl_type == SummaryModel.TYPE:
                     start_time = 1
                 for step in range(start_time, stop_time):
-                    pikk = True                    
                     time_map = fs.get_time_map
                     sim_time_as_c_int = time_map.iget(step)
                     sim_time_as_time_t = time_t(sim_time_as_c_int)
@@ -128,7 +126,7 @@ class EnsembleFetcher(PlotDataFetcherHandler):
                         x_time.append(sim_time_as_ordinal)
                         y.append(valid.value)
                     #else:
-                    #print "Not valid: ", key, member, step, key_index, value, state.value()
+                        #print "Not valid: ", key, member, step, key_index, value, state.value()
                         
                     if not comparison_fs is None:
                         time_map = comparison_fs.get_time_map

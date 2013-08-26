@@ -96,7 +96,7 @@
 #  # in principle be shared among gert versions built for different operating
 #  # system versions:
 #
-#  export GERT_SHARE_PATH=/opt/ert/share
+#  export ERT_SHARE_PATH=/opt/ert/share
 #
 #  # The ERT site configuration file is assumed to be in
 #  # /opt/ert/etc/site-config, i.e. we set the variable ERT_SITE_CONFIG as:
@@ -106,7 +106,7 @@
 #  # Now the environment should be fully initialized, and we are ready to invoke
 #  # the gert_main.py script, i.e. this file:
 #
-#  exec python /opt/ert/python/ert_gui/gert_main.py
+#  exec python /opt/ert/python/ert_gui/gert_main.py $@
 #
 #-------------------- </Example shell script> --------------------
 
@@ -142,12 +142,12 @@ def main():
 
     splash = QtGui.QSplashScreen(resourceImage("newsplash") , QtCore.Qt.WindowStaysOnTopHint)
     splash.show()
-    splash.showMessage("Starting up...", color=QtCore.Qt.white)
+    splash.showMessage("Starting up...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
     app.processEvents()
 
     window = Application()
 
-    splash.showMessage("Bootstrapping...", color=QtCore.Qt.white)
+    splash.showMessage("Bootstrapping...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
     app.processEvents()
     
     ert         = ErtWrapper( )
@@ -186,7 +186,7 @@ def main():
         ert.bootstrap(enkf_config, site_config = site_config, strict = strict)
         window.setSaveFunction(ert.save)
 
-        splash.showMessage("Creating GUI...", color=QtCore.Qt.white)
+        splash.showMessage("Creating GUI...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
         app.processEvents()
 
         window.addPage("Configuration", resourceIcon("config"), ConfigPages(window))
@@ -194,7 +194,7 @@ def main():
         window.addPage("Run"  , resourceIcon("run"), RunPanel(window))
         window.addPage("Plots", resourceIcon("plot"), PlotPanel())
 
-        splash.showMessage("Communicating with ERT...", color=QtCore.Qt.white)
+        splash.showMessage("Communicating with ERT...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
         app.processEvents()
 
         ContentModel.contentModel = ert

@@ -336,16 +336,16 @@ static void well_state_add_LGR_connections( well_state_type * well_state , const
   // Go through all the LGRs and add connections; both in the bulk
   // grid and as wellhead.
   int num_lgr = ecl_grid_get_num_lgr( grid );
-  int lgr_nr;
-  for (lgr_nr = 0; lgr_nr < num_lgr; lgr_nr++) {
+  int lgr_index;
+  for (lgr_index = 0; lgr_index < num_lgr; lgr_index++) {
     ecl_file_push_block( ecl_file );                                  // <-------------------------//
     {                                                                                              //
-      ecl_file_subselect_block( ecl_file , LGR_KW , lgr_nr );                                      //
+      ecl_file_subselect_block( ecl_file , LGR_KW , lgr_index );                                      //
       {                                                                                            //  Restrict the file view
-        const char * grid_name = ecl_grid_iget_lgr_name( grid , lgr_nr );                          //
+        const char * grid_name = ecl_grid_iget_lgr_name( grid , lgr_index );                          //
         int well_nr = well_state_get_lgr_well_nr( well_state , ecl_file );                         //  to one LGR block.
         if (well_nr >= 0)                                                                          //
-          well_state_add_connections__( well_state , ecl_file , grid_name , lgr_nr + 1, well_nr ); //
+          well_state_add_connections__( well_state , ecl_file , grid_name , lgr_index + 1, well_nr ); //
       }                                                                                            //
     }                                                                                              //
     ecl_file_pop_block( ecl_file );                                   // <-------------------------//

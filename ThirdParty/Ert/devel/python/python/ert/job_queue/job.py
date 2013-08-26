@@ -17,36 +17,34 @@
 
 import time
 import datetime
-import ctypes
-from    ert.cwrap.cclass      import CClass
+from ert.cwrap.cclass import CClass
 
 # Enum values nicked from libjob_queue/src/basic_queue_driver.h
-STATUS_PENDING =  16
-STATUS_RUNNING =  32
-STATUS_DONE    =  64
-STATUS_EXIT    = 128 
+STATUS_PENDING = 16
+STATUS_RUNNING = 32
+STATUS_DONE = 64
+STATUS_EXIT = 128
 
 
 class Job(CClass):
-    def __init__(self , driver , c_ptr , queue_index , blocking = False):
-        self.driver      = driver
-        self.init_cobj( c_ptr , self.driver.free_job)
+    def __init__(self, driver, c_ptr, queue_index, blocking=False):
+        self.driver = driver
+        self.init_cobj(c_ptr, self.driver.free_job)
         self.submit_time = datetime.datetime.now()
         self.queue_index = queue_index
 
 
-        
     def block( self ):
         while True:
             status = self.status()
             if status == STATUS_DONE or status == STATUS_EXIT:
                 break
             else:
-                time.sleep( 1 )
-    
+                time.sleep(1)
+
     def kill( self ):
-        self.driver.kill_job( self )
-    
+        self.driver.kill_job(self)
+
 
     @property
     def run_time( self ):
@@ -55,12 +53,12 @@ class Job(CClass):
 
     @property
     def status( self ):
-        st =  self.driver.get_status( self )
+        st = self.driver.get_status(self)
         return st
 
     @property
     def running( self ):
-        status = self.driver.get_status( self )
+        status = self.driver.get_status(self)
         if status == STATUS_RUNNING:
             return True
         else:
@@ -69,7 +67,7 @@ class Job(CClass):
 
     @property
     def pending( self ):
-        status = self.driver.get_status( self )
+        status = self.driver.get_status(self)
         if status == STATUS_PENDING:
             return True
         else:
@@ -77,7 +75,7 @@ class Job(CClass):
 
     @property
     def complete( self ):
-        status = self.driver.get_status( self )
+        status = self.driver.get_status(self)
         if status == STATUS_DONE or status == STATUS_EXIT:
             return True
         else:

@@ -1215,16 +1215,16 @@ time_t ecl_util_get_start_date(const char * data_file) {
     util_abort("%s: sorry - could not find START in DATA file %s \n",__func__ , data_file);
   
   {
-    long int start_pos = ftell( stream );
+    long int start_pos = util_ftell( stream );
     int buffer_size;
 
     /* Look for terminating '/' */
     if (!parser_fseek_string( parser , stream , "/" , false , true))
       util_abort("%s: sorry - could not find \"/\" termination of START keyword in data_file: \n",__func__ , data_file);
     
-    buffer_size = (ftell(stream) - start_pos)  ;
+    buffer_size = (util_ftell(stream) - start_pos)  ;
     buffer = util_calloc( buffer_size + 1 , sizeof * buffer  );
-    fseek( stream , start_pos , SEEK_SET);
+    util_fseek( stream , start_pos , SEEK_SET);
     util_fread( buffer , sizeof * buffer , buffer_size ,stream ,  __func__);
     buffer[buffer_size] = '\0';
   }
@@ -1257,16 +1257,16 @@ int ecl_util_get_num_cpu(const char * data_file) {
   char * buffer;
   
   if (parser_fseek_string( parser , stream , "PARALLEL" , true , true)) {  /* Seeks case insensitive. */
-    long int start_pos = ftell( stream );
+    long int start_pos = util_ftell( stream );
     int buffer_size;
 
     /* Look for terminating '/' */
     if (!parser_fseek_string( parser , stream , "/" , false , true))
       util_abort("%s: sorry - could not find \"/\" termination of PARALLEL keyword in data_file: \n",__func__ , data_file);
     
-    buffer_size = (ftell(stream) - start_pos)  ;
+    buffer_size = (util_ftell(stream) - start_pos)  ;
     buffer = util_calloc( buffer_size + 1  , sizeof * buffer );
-    fseek( stream , start_pos , SEEK_SET);
+    util_fseek( stream , start_pos , SEEK_SET);
     util_fread( buffer , sizeof * buffer , buffer_size ,stream ,  __func__);
     buffer[buffer_size] = '\0';
   
@@ -1277,14 +1277,15 @@ int ecl_util_get_num_cpu(const char * data_file) {
       for (i=0; i < stringlist_get_size( tokens ); i++) {
         item = util_realloc_string_copy( item , stringlist_iget( tokens , i ));
         util_strupr( item );
-        if ( util_string_equal( item , "DISTRIBUTED" )) {
+        if (( util_string_equal( item , "DISTRIBUTED" )) || 
+            ( util_string_equal( item , "DIST" ))) { 
           num_cpu = atoi( stringlist_iget( tokens , i - 1));
           break;
         }
       }
       free( item );  
       stringlist_free( tokens );
-    }
+    }  
     free( buffer );
   }
 

@@ -15,22 +15,20 @@
 #  for more details. 
 
 
-import ctypes
-import libutil
-import tvector 
-from   ert.cwrap.cwrap       import *
-
-def quantile( data , q ):
-    return cfunc.quantile( data , q )
+from ert.util import UTIL_LIB
+from ert.cwrap import CWrapper, CWrapperNameSpace
 
 
-def quantile_sorted( data , q ):
-    return cfunc.quantile_sorted( data , q )
+def quantile( data, q ):
+    return cfunc.quantile(data, q)
 
 
-cwrapper = CWrapper( libutil.lib )
-cfunc    = CWrapperNameSpace("stat")
+def quantile_sorted( data, q ):
+    return cfunc.quantile_sorted(data, q)
 
 
-cfunc.quantile        = cwrapper.prototype("double statistics_empirical_quantile( double_vector , double )")
+cwrapper = CWrapper(UTIL_LIB)
+cfunc = CWrapperNameSpace("stat")
+
+cfunc.quantile = cwrapper.prototype("double statistics_empirical_quantile( double_vector , double )")
 cfunc.quantile_sorted = cwrapper.prototype("double statistics_empirical_quantile( double_vector , double )")

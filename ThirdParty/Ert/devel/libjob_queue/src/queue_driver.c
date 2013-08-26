@@ -69,6 +69,7 @@ struct queue_driver_struct {
   set_option_ftype * set_option;
   get_option_ftype * get_option;
   has_option_ftype * has_option;
+  init_option_list_ftype * init_options;
 
   void * data; /* Driver specific data - passed as first argument to the driver functions above. */
 
@@ -110,6 +111,7 @@ static queue_driver_type * queue_driver_alloc_empty() {
   driver->name = NULL;
   driver->data = NULL;
   driver->max_running_string = NULL;
+  driver->init_options = NULL;
 
   return driver;
 }
@@ -139,6 +141,7 @@ queue_driver_type * queue_driver_alloc(job_driver_type type) {
       driver->get_option = lsf_driver_get_option;
       driver->has_option = lsf_driver_has_option;
       driver->name = util_alloc_string_copy("LSF");
+      driver->init_options = lsf_driver_init_option_list;
       driver->data = lsf_driver_alloc();
       break;
     case LOCAL_DRIVER:
@@ -148,6 +151,7 @@ queue_driver_type * queue_driver_alloc(job_driver_type type) {
       driver->free_job = local_driver_free_job;
       driver->free_driver = local_driver_free__;
       driver->name = util_alloc_string_copy("local");
+      driver->init_options = local_driver_init_option_list;
       driver->data = local_driver_alloc();
       break;
     case RSH_DRIVER:
@@ -159,6 +163,7 @@ queue_driver_type * queue_driver_alloc(job_driver_type type) {
       driver->set_option = rsh_driver_set_option;
       driver->get_option = rsh_driver_get_option;
       driver->name = util_alloc_string_copy("RSH");
+      driver->init_options = rsh_driver_init_option_list;
       driver->data = rsh_driver_alloc();
       break;
     case TORQUE_DRIVER:
@@ -170,10 +175,11 @@ queue_driver_type * queue_driver_alloc(job_driver_type type) {
       driver->set_option = torque_driver_set_option;
       driver->get_option = torque_driver_get_option;
       driver->name = util_alloc_string_copy("TORQUE");
+      driver->init_options = torque_driver_init_option_list;
       driver->data = torque_driver_alloc();
       break;
     default:
-      util_abort("%s: unrecognized driver type:%d \n", type);
+      util_abort("%s: unrecognized driver type:%d \n", __func__, type);
   }
   return driver;
 }
@@ -275,6 +281,17 @@ const void * queue_driver_get_option(queue_driver_type * driver, const char * op
 }
 
 /*****************************************************************/
+
+void queue_driver_init_option_list(queue_driver_type * driver, stringlist_type * option_list) {
+  //Add options common for all driver types
+  stringlist_append_ref(option_list, MAX_RUNNING);
+  
+  //Add options for the specific driver type
+  if (driver->init_options) 
+    driver->init_options(option_list);
+  else 
+    util_abort("%s: driver:%s does not support run time reading of options\n", __func__, driver->name);
+ }
 
 
 queue_driver_type * queue_driver_alloc_LSF(const char * queue_name, const char * resource_request, const char * remote_lsf_server) {

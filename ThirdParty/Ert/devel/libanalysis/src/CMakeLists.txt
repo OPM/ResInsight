@@ -10,7 +10,9 @@ if (NEED_LIBDL)
    target_link_libraries( analysis dl )
 endif()
 
-
+if (USE_RUNPATH)
+   add_runpath( analysis )
+endif()
 
 # List of modules
 set( CMAKE_SHARED_MODULE_PREFIX "" )

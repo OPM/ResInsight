@@ -17,17 +17,12 @@
 Module for loading ECLIPSE RFT files.
 """
 
-import ctypes
 import types
 import warnings
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.ecl import EclRFTCell, EclPLTCell, ECL_LIB
+from ert.util import ctime
 
-import libecl
-from   ert.cwrap.cwrap       import *
-from   ert.cwrap.cclass      import CClass
-from   ert.util.ctime        import ctime
-from   ecl_rft_cell          import EclRFTCell, EclPLTCell
-
-        
 
 class EclRFTFile(CClass):
     """
@@ -224,9 +219,9 @@ class EclRFT(CClass):
 
     def __cell_ref( self , cell_ptr ):
         if self.is_RFT():
-            return EclRFTCell.ref( cell_ptr , self )
+            return EclRFTCell.asPythonReference( cell_ptr , self )
         elif self.is_PLT():
-            return EclPLTCell.ref( cell_ptr , self )
+            return EclPLTCell.asPythonReference( cell_ptr , self )
         else:
             raise NotImplementedError("Only RFT and PLT cells are implemented")
 
@@ -321,7 +316,7 @@ class EclRFT(CClass):
 
 # 2. Creating a wrapper object around the libecl library, 
 #    registering the type map : ecl_kw <-> EclKW
-cwrapper = CWrapper( libecl.lib )
+cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerType( "ecl_rft_file" , EclRFTFile )
 cwrapper.registerType( "ecl_rft"      , EclRFT )
 

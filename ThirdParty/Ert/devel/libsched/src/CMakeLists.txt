@@ -10,7 +10,9 @@ add_library( sched ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( sched PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
 target_link_libraries( sched ert_util ecl)
-
+if (USE_RUNPATH)
+   add_runpath( sched )
+endif()
 #-----------------------------------------------------------------
 if (INSTALL_ERT)
    install(TARGETS sched DESTINATION ${CMAKE_INSTALL_LIBDIR})

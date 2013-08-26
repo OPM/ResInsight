@@ -268,8 +268,8 @@ rms_tag_type * rms_file_fread_alloc_tag(rms_file_type * rms_file , const char *t
   
     bool cont          = true;
     bool tag_found     = false;
-    long int start_pos = ftell(rms_file->stream);
-    fseek(rms_file->stream , 0 , SEEK_SET);
+    long int start_pos = util_ftell(rms_file->stream);
+    util_fseek(rms_file->stream , 0 , SEEK_SET);
     rms_file_init_fread(rms_file);
     while (cont) {
       bool eof_tag;
@@ -283,7 +283,7 @@ rms_tag_type * rms_file_fread_alloc_tag(rms_file_type * rms_file , const char *t
         cont = false;
     }
     if (tag == NULL) {
-      fseek(rms_file->stream , start_pos , SEEK_SET);
+      util_fseek(rms_file->stream , start_pos , SEEK_SET);
       fprintf(stderr,"%s: could not find tag: \"%s\" (with %s=%s) in file:%s - aborting.\n",__func__ , tagname , keyname , keyvalue , rms_file->filename);
       abort();
     }
@@ -457,15 +457,15 @@ void rms_file_2eclipse(const char * rms_file , const char * ecl_path, bool ecl_f
 bool rms_file_is_roff(FILE * stream) {
   const int len              = strlen(rms_comment1);
   char *header               = malloc(strlen(rms_comment1) + 1);
-  const long int current_pos = ftell(stream);
+  const long int current_pos = util_ftell(stream);
   bool roff_file             = false;
 
-  fseek(stream , 1 + 1 + 8 , SEEK_CUR); /* Skipping #roff-bin#0#  WILL Fail with formatted files */
+  util_fseek(stream , 1 + 1 + 8 , SEEK_CUR); /* Skipping #roff-bin#0#  WILL Fail with formatted files */
   rms_util_fread_string(header , len+1 , stream);
   if (strncmp(rms_comment1 , header , len) == 0)
     roff_file = true;
   
-  fseek(stream , current_pos , SEEK_SET);
+  util_fseek(stream , current_pos , SEEK_SET);
   free(header);
   return roff_file;
 }
@@ -481,7 +481,7 @@ void old_rms_roff_load(const char *filename , const char *param_name , float *pa
   int size;
   FILE *stream     = fopen(filename , "r");
   
-  fseek(stream , offset , SEEK_SET);
+  util_fseek(stream , offset , SEEK_SET);
   fread(&size  , 1 , sizeof size , stream);
   n_read = fread(param , sizeof *param , size , stream);
   

@@ -12,10 +12,11 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
-from    ert.cwrap.cenum       import create_enum
-import  libconfig
+#  for more details.
 
-create_enum( libconfig.lib , "config_schema_item_type_enum_iget" , "content_type" , name_space = globals())
+from ert.cwrap import create_enum
+from ert.config import CONFIG_LIB
 
-create_enum( libconfig.lib , "config_schema_item_unrecognized_enum_iget" , "unrecognized" , name_space = globals())
+ContentTypeEnum = create_enum(CONFIG_LIB, "config_schema_item_type_enum_iget", "ContentTypeEnum")
+
+UnrecognizedEnum = create_enum(CONFIG_LIB, "config_schema_item_unrecognized_enum_iget", "UnrecognizedEnum")

@@ -121,7 +121,8 @@ extern "C" {
   typedef bool (set_option_ftype) (void *, const char*, const void *);
   typedef const void * (get_option_ftype) (const void *, const char *);
   typedef bool (has_option_ftype) (const void *, const char *);
-
+  typedef void (init_option_list_ftype) (stringlist_type *);
+  
 
   queue_driver_type * queue_driver_alloc_RSH(const char * rsh_cmd, const hash_type * rsh_hostlist);
   queue_driver_type * queue_driver_alloc_LSF(const char * queue_name, const char * resource_request, const char * remote_lsf_server);
@@ -133,11 +134,12 @@ extern "C" {
   void queue_driver_free_job(queue_driver_type * driver, void * job_data);
   void queue_driver_kill_job(queue_driver_type * driver, void * job_data);
   job_status_type queue_driver_get_status(queue_driver_type * driver, void * job_data);
-
+  
   const char * queue_driver_get_name(const queue_driver_type * driver);
 
   bool queue_driver_set_option(queue_driver_type * driver, const char * option_key, const void * value);
   const void * queue_driver_get_option(queue_driver_type * driver, const char * option_key);
+  void queue_driver_init_option_list(queue_driver_type * driver, stringlist_type * option_list);
 
   void queue_driver_free(queue_driver_type * driver);
   void queue_driver_free__(void * driver);

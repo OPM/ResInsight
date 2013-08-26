@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include <ert/util/test_work_area.h>
 #include <ert/util/test_util.h>
 #include <ert/job_queue/torque_driver.h>
 
@@ -71,29 +72,36 @@ void getoption_nooptionsset_defaultoptionsreturned() {
 }
 
 void create_submit_script_script_according_to_input() {
-  char ** args = util_calloc(2, sizeof * args);
-  args[0] = "/tmp/jaja/";
-  args[1] = "number2arg";
-  char * script_filename = util_alloc_filename("/tmp/", "qsub_script", "sh");
-  torque_job_create_submit_script(script_filename, "job_program.py", 2, (const char **) args);
-  printf("Create submit script OK\n");
+  test_work_area_type * work_area = test_work_area_alloc("job_torque_test" , true);
+  const char * script_filename = "qsub_script.sh";
 
-  FILE* file_stream = util_fopen(script_filename, "r");
-  bool at_eof = false;
+  {
+    char ** args = util_calloc(2, sizeof * args);
+    args[0] = "/tmp/jaja/";
+    args[1] = "number2arg";
+    torque_job_create_submit_script(script_filename, "job_program.py", 2, (const char **) args);
+    free( args );
+  }
+  
+  {
+    FILE* file_stream = util_fopen(script_filename, "r");
+    bool at_eof = false;
+    
+    char * line = util_fscanf_alloc_line(file_stream, &at_eof);
+    test_assert_string_equal("#!/bin/sh", line);
+    free(line);
 
-  char * line = util_fscanf_alloc_line(file_stream, &at_eof);
-  test_assert_string_equal("#!/bin/sh", line);
-  free(line);
+    line = util_fscanf_alloc_line(file_stream, &at_eof);
+    test_assert_string_equal("job_program.py /tmp/jaja/ number2arg", line);
+    free(line);
 
-  line = util_fscanf_alloc_line(file_stream, &at_eof);
-  test_assert_string_equal("job_program.py /tmp/jaja/ number2arg", line);
-  free(line);
+    line = util_fscanf_alloc_line(file_stream, &at_eof);
+    free(line);
+    test_assert_true(at_eof);
 
-  line = util_fscanf_alloc_line(file_stream, &at_eof);
-  free(line);
-  test_assert_true(at_eof);
-
-  fclose(file_stream);
+    fclose(file_stream);
+  }
+  test_work_area_free( work_area );
 }
 
 

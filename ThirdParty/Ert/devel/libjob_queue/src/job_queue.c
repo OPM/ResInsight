@@ -1344,6 +1344,11 @@ void job_queue_run_jobs(job_queue_type * queue , int num_total_run, bool verbose
     thread_pool_join( queue->work_pool );
     thread_pool_free( queue->work_pool );
   }
+  /*
+    Observe that after the job_queue_finalize() function has been
+    called the queue object should not be queried on any longer; that
+    will silently give horribly wrong results.
+  */
   job_queue_finalize( queue );
   pthread_mutex_unlock( &queue->run_mutex );
 }

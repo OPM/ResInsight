@@ -20,9 +20,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
-#include <util.h>
+#include <ert/util/util.h>
 #include <ctype.h>
-#include <menu.h>
+#include <ert/util/menu.h>
 #include <enkf_tui_run.h>
 #include <enkf_tui_export.h>
 #include <enkf_tui_plot.h>
@@ -34,8 +34,8 @@
 #include <enkf_tui_misc.h>
 #include <enkf_tui_simple.h>
 #include <enkf_tui_workflow.h>
-#include <enkf_main.h>
-#include <enkf_sched.h>
+#include <ert/enkf/enkf_main.h>
+#include <ert/enkf/enkf_sched.h>
 
 
 /**

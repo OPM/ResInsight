@@ -4,6 +4,9 @@ set( header_files geo_surface.h geo_util.h geo_pointset.h geo_region.h geo_polyg
 add_library( ert_geometry ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( ert_geometry PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 target_link_libraries( ert_geometry ert_util )
+if (USE_RUNPATH)
+   add_runpath( ert_geometry )
+endif()   
 
 
 #-----------------------------------------------------------------

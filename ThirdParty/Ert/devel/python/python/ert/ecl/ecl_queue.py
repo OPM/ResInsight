@@ -34,23 +34,19 @@ the EclQueue class it is important to consult the documentation of the
 JobQueue class in ert.job_queue.queue as well.
 """
 import os.path
-
-from   ert.job_queue.queue  import JobQueue
-import ert.job_queue.driver as queue_driver
-import libecl
-from   ecl_default import default
-import ecl_util
+from ert.ecl import EclUtil, EclDefault
+from ert.job_queue import JobQueue, Driver
 
 
-class EclQueue( JobQueue ):
-    def __init__(self , 
-                 driver = None , 
-                 driver_type = None,
-                 driver_options = None, 
-                 ecl_version = None,
-                 ecl_cmd = None,
-                 max_running = 0,
-                 size = 0):
+class EclQueue(JobQueue):
+    def __init__(self,
+                 driver=None,
+                 driver_type=None,
+                 driver_options=None,
+                 ecl_version=None,
+                 ecl_cmd=None,
+                 max_running=0,
+                 size=0):
 
         """
         Create a new queue instance to manage ECLIPSE simulations.
@@ -146,24 +142,25 @@ class EclQueue( JobQueue ):
              after the main thread has exited - not yet :-(
         """
         if ecl_cmd is None:
-            ecl_cmd = ecl_default.default.ecl_cmd
-            
+            ecl_cmd = EclDefault.ecl_cmd()
+
         if driver_type is None:
-            driver_type = ecl_default.default.driver_type
+            driver_type = EclDefault.driver_type()
 
         if ecl_version is None:
-            ecl_version = ecl_default.default.ecl_version
+            ecl_version = EclDefault.ecl_version()
 
         self.ecl_version = ecl_version
-        self.ecl_cmd     = ecl_cmd
+        self.ecl_cmd = ecl_cmd
         if driver is None:
             if driver_options is None:
-                driver_options = default.driver_options[ driver_type ]
-            driver = queue_driver.Driver( driver_type , max_running = max_running , options = driver_options )
-        JobQueue.__init__( self , driver , size = size)
+                driver_options = EclDefault.driver_options()[driver_type]
+            driver = Driver(driver_type, max_running=max_running, options=driver_options)
 
-        
-    def submit( self , data_file):
+        JobQueue.__init__(self, driver, size=size)
+
+
+    def submit( self, data_file):
         """
         Will submit a new simulation of case given by @data_file.
         
@@ -171,9 +168,10 @@ class EclQueue( JobQueue ):
         ert.job_queue.queue.job module which can be used to query the
         status of the job while it is running.
         """
-        (path_base , ext) = os.path.splitext( data_file )
-        (run_path , base) = os.path.split( path_base )
-        
-        argv = [ self.ecl_version , path_base , "%s" % ecl_util.get_num_cpu( data_file )]
-        return JobQueue.submit( self , self.ecl_cmd , run_path , base , argv)
+        (path_base, ext) = os.path.splitext(data_file)
+        (run_path, base) = os.path.split(path_base)
+
+        num_cpu = EclUtil.get_num_cpu(data_file)
+        argv = [self.ecl_version, path_base, "%s" % num_cpu]
+        return JobQueue.submit(self, self.ecl_cmd, run_path, base, argv, num_cpu=num_cpu)
 

@@ -30,7 +30,7 @@ import matplotlib.dates
 from zoomslider import ZoomSlider
 from ert_gui.widgets.configpanel import ConfigPanel
 from PyQt4.Qt import SIGNAL
-from PyQt4.QtCore import QDate, Qt, QPoint
+from PyQt4.QtCore import QDate, Qt, QPoint , pyqtSignal
 from plotconfig import PlotConfigPanel
 from PyQt4.QtGui import QTabWidget, QFormLayout, QFrame, QVBoxLayout, QHBoxLayout, QCheckBox, QPushButton, QToolButton, QMainWindow
 from PyQt4.QtGui import QCalendarWidget
@@ -38,6 +38,9 @@ import plotsettings
 import ert.ert.erttypes as erttypes
 
 class PlotPanel(QtGui.QWidget):
+    
+    changed = pyqtSignal()
+    
     def __init__(self):
         QtGui.QWidget.__init__(self)
 
@@ -87,9 +90,10 @@ class PlotPanel(QtGui.QWidget):
         
         self.setLayout(plotLayout)
 
-        self.connect(self.plot.plot_settings, QtCore.SIGNAL('plotSettingsChanged(PlotSettings)'), self.fetchSettings)
-
+        self.changed.connect( self.fetchSettings )
+        #self.connect(self.plot.plot_settings, QtCore.SIGNAL('plotSettingsChanged(PlotSettings)'), self.fetchSettings)
         ContentModel.modelConnect('casesUpdated()', self.updateList)
+
         
     def drawPlot(self):
         self.plot.setData(self.plotDataFetcher.data)

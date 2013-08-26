@@ -21,7 +21,6 @@
 #include <math.h>
 
 #include <ert/util/stringlist.h>
-#include <ert/util/util.h>
 #include <ert/util/test_util.h>
 
 #include <ert/ecl/ecl_util.h>
@@ -46,7 +45,6 @@ int main(int argc , char ** argv) {
   const ecl_kw_type * icon_kw = ecl_file_iget_named_kw( rst_file , ICON_KW , 0 );
   const ecl_kw_type * zwel_kw = ecl_file_iget_named_kw( rst_file , ZWEL_KW , 0 );
 
-  test_install_SIGNALS();
   { 
     int well_nr;
     for (well_nr = 0; well_nr < rst_head->nwells; well_nr++) {
@@ -79,7 +77,7 @@ int main(int argc , char ** argv) {
               printf("Branch      : %d \n",well_segment_get_branch_id( segment ));
               printf("Connections : [");
               {
-                well_conn_collection_type * connections = well_segment_get_global_connections( segment );
+                const well_conn_collection_type * connections = well_segment_get_global_connections( segment );
                 if (connections) {
                   int ic;
                   for (ic = 0; ic < well_conn_collection_get_size( connections ); ic++) {

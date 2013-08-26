@@ -97,6 +97,19 @@ class CClass(object):
         else:
             return ctypes.c_void_p( obj.c_ptr )
 
+    @classmethod
+    def asPythonObject( cls , c_ptr, cfree):
+        assert cfree is not None
+        obj = cls( )
+        obj.init_cobj( c_ptr , cfree)
+        return obj
+
+    @classmethod
+    def asPythonReference( cls , c_ptr , parent ):
+        obj = cls( )
+        obj.init_cref( c_ptr , parent )
+        return obj
+
 
     def init_cref(self , c_ptr , parent):
         self.c_ptr = c_ptr

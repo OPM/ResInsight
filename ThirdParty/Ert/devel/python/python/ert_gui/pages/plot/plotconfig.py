@@ -15,7 +15,7 @@
 #  for more details. 
 
 
-from PyQt4.QtCore import QObject, QSize
+from PyQt4.QtCore import QObject, QSize, pyqtSignal
 from PyQt4.Qt import SIGNAL
 from PyQt4.QtGui import QFormLayout, QFrame, QComboBox, QHBoxLayout, QDoubleSpinBox, QWidget, QPainter, QColor, QColorDialog
 from PyQt4.QtGui import QCheckBox, QDialog
@@ -40,6 +40,7 @@ class PlotConfig(object):
 
     def notify(self):
         """Tell all listeners that something has changed. Automatically called by setters."""
+        #self.signal_handler.emit(plotConfigChanged)
         self.signal_handler.emit(SIGNAL('plotConfigChanged(PlotConfig)'), self)
 
     def get_name(self):
@@ -125,11 +126,12 @@ class PlotConfigPanel(QFrame):
     plot_marker_styles = ["", ".", ",", "o", "*", "s", "+", "x", "p", "h", "H", "D", "d"]
     plot_line_styles = ["", "-", "--", "-.", ":"]
 
+    changed = pyqtSignal(object)
+
     def __init__(self, plot_config):
         QFrame.__init__(self)
         self.plot_config = plot_config
-        self.connect(plot_config.signal_handler, SIGNAL('plotConfigChanged(PlotConfig)'), self._fetchValues)
-
+        self.changed.connect( self._fetchValues )
         layout = QFormLayout()
         layout.setRowWrapPolicy(QFormLayout.WrapLongRows)
 

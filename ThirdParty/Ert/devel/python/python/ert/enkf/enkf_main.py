@@ -15,10 +15,6 @@
 #  for more details. 
 
 import  ctypes
-from    ert.cwrap.cwrap           import *
-from    ert.cwrap.cclass          import CClass
-from    ert.util.tvector          import * 
-from    ert.job_queue.job_queue   import JobQueue
 from    ert.enkf.enkf_enum        import *
 from    ert.ert.enums             import *
 from    ert.enkf.ens_config       import *
@@ -31,13 +27,14 @@ from    ert.enkf.gen_kw_config    import *
 from    ert.enkf.gen_data_config  import *
 from    ert.enkf.field_config     import *
 from    ert.enkf.enkf_obs         import *
-from    ert.enkf.plot_config      import *
+from    ert.enkf.plot_conf        import *
 from    ert.enkf.site_config      import *
 from    ert.enkf.libenkf          import *
 from    ert.enkf.enkf_fs          import *
 from    ert.enkf.ert_templates    import *
 from    ert.enkf.enkf_state       import *
-from    ert.util.log              import *
+from ert.util import Log
+
 
 class EnKFMain(CClass):
     
@@ -102,7 +99,7 @@ class EnKFMain(CClass):
      
     @property     
     def plot_config(self):
-        plot_conf = PlotConfig( c_ptr = cfunc.get_plot_config( self ), parent = self)
+        plot_conf = PlotConf( c_ptr = cfunc.get_plot_config( self ), parent = self)
         return plot_conf
      
     def set_eclbase(self, eclbase):
@@ -240,6 +237,12 @@ class EnKFMain(CClass):
 
     def fprintf_config(self):
         cfunc.fprintf_config(self)
+
+    def select_fs(self,path):
+        cfunc.select_fs(self,path)
+        
+    def fs_exists(self,case):
+        return cfunc.fs_exists(self,case)
     
 ##################################################################
 
@@ -299,3 +302,5 @@ cfunc.get_current_fs               = cwrapper.prototype("char* enkf_main_get_cur
 cfunc.alloc_caselist               = cwrapper.prototype("c_void_p enkf_main_alloc_caselist(enkf_main)")
 cfunc.fprintf_config               = cwrapper.prototype("void enkf_main_fprintf_config(enkf_main)")
 cfunc.create_new_config            = cwrapper.prototype("void enkf_main_create_new_config(char* , char*, char* , char* , int)")
+cfunc.select_fs                    = cwrapper.prototype("void enkf_main_select_fs(enkf_main, char*)")
+cfunc.fs_exists                    = cwrapper.prototype("bool enkf_main_fs_exists(enkf_main, char*)")

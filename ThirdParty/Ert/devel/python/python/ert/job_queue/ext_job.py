@@ -12,94 +12,90 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.job_queue import JOB_QUEUE_LIB
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-import  libjob_queue
 
 class ExtJob(CClass):
-    
-    def __init__(self , c_ptr , parent = None):
+    def __init__(self, c_ptr, parent=None):
         if parent:
-            self.init_cref( c_ptr , parent)
+            self.init_cref(c_ptr, parent)
         else:
-            self.init_cobj( c_ptr , cfunc.free )
-            
+            self.init_cobj(c_ptr, cfunc.free)
+
     @property
     def get_private_args_as_string(self):
         return cfunc.get_private_args_as_string(self)
 
     def set_private_args_as_string(self, args):
-        cfunc.set_private_args_as_string(self, args)    
+        cfunc.set_private_args_as_string(self, args)
 
     @property
     def get_help_text(self):
         return cfunc.get_help_text(self)
-    
+
     @property
     def is_private(self):
         return cfunc.is_private(self)
-        
+
     @property
     def get_config_file(self):
         return cfunc.get_config_file(self)
-    
+
     def set_config_file(self, config_file):
-        cfunc.set_config_file
-        
+        cfunc.set_config_file(self, config_file)
+
     @property
     def get_stdin_file(self):
         return cfunc.get_stdin_file(self)
-        
-    def set_stdin_file(self, file):
-        cfunc.set_stdin_file(self, file)
-        
-    @property    
+
+    def set_stdin_file(self, filename):
+        cfunc.set_stdin_file(self, filename)
+
+    @property
     def get_stdout_file(self):
         return cfunc.get_stdout_file(self)
 
-    def set_stdout_file(self, file):
-        cfunc.set_stdout_file(self, file)
-        
-    @property    
+    def set_stdout_file(self, filename):
+        cfunc.set_stdout_file(self, filename)
+
+    @property
     def get_stderr_file(self):
         return cfunc.get_stderr_file(self)
 
-    def set_stderr_file(self, file):
-        cfunc.set_stderr_file(self, file)
+    def set_stderr_file(self, filename):
+        cfunc.set_stderr_file(self, filename)
 
     @property
     def get_target_file(self):
         return cfunc.get_target_file(self)
 
-    def set_target_file(self, file):
-        cfunc.set_target_file(self, file)
-        
-    @property    
+    def set_target_file(self, filename):
+        cfunc.set_target_file(self, filename)
+
+    @property
     def get_executable(self):
         return cfunc.get_executable(self)
 
     def set_executable(self, executable):
         cfunc.set_executable(self, executable)
-        
-    @property    
+
+    @property
     def get_max_running(self):
         return cfunc.get_max_running(self)
 
     def set_max_running(self, max_running):
         cfunc.set_max_running(self, max_running)
-        
-    @property    
+
+    @property
     def get_max_running_minutes(self):
         return cfunc.get_max_running_minutes(self)
 
-    def set_max_running_minutes(self, min):
-        cfunc.set_max_running_minutes(self, min)
-        
-    @property    
+    def set_max_running_minutes(self, min_value):
+        cfunc.set_max_running_minutes(self, min_value)
+
+    @property
     def get_environment(self):
         return cfunc.get_environment(self)
 
@@ -107,29 +103,28 @@ class ExtJob(CClass):
         cfunc.set_environment(self, key, value)
 
     def clear_environment(self):
-        cfunc. clear_environment(self)
-    
+        cfunc.clear_environment(self)
+
     def save(self):
         cfunc.save(self)
 
     @staticmethod
     def alloc(name, root_path, private):
-        job = ExtJob(c_ptr = cfunc.alloc(name, root_path, private))
+        job = ExtJob(c_ptr=cfunc.alloc(name, root_path, private))
         return job
 
     @staticmethod
     def fscanf_alloc(name, root_path, private, config_file):
-        job = ExtJob(c_ptr = cfunc.fscanf_alloc(name, root_path, private, config_file))
+        job = ExtJob(c_ptr=cfunc.fscanf_alloc(name, root_path, private, config_file))
         return job
 
 ##################################################################
 
-cwrapper = CWrapper( libjob_queue.lib )
-cwrapper.registerType( "ext_job" , ExtJob )
+cwrapper = CWrapper(JOB_QUEUE_LIB)
+cwrapper.registerType("ext_job", ExtJob)
 
 cfunc = CWrapperNameSpace("ext_job")
-##################################################################
-##################################################################
+
 cfunc.free                       = cwrapper.prototype("void ext_job_free( ext_job )")
 cfunc.get_help_text              = cwrapper.prototype("char* ext_job_get_help_text(ext_job)")
 cfunc.get_private_args_as_string = cwrapper.prototype("char* ext_job_get_private_args_as_string(ext_job)")

@@ -36,12 +36,9 @@ python module is a minimal wrapping of this datastructure; mainly to
 support passing of FortIO handles to the underlying C functions. A
 more extensive wrapping of the fortio implementation would be easy.
 """
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace, CFILE
+from ert.ecl import ECL_LIB
 
-import libecl
-import ctypes
-from   ert.cwrap.cwrap       import *
-from    ert.cwrap.cfile      import CFILE
-from   ert.cwrap.cclass      import CClass
 
 class FortIO(CClass):
     """
@@ -59,7 +56,7 @@ class FortIO(CClass):
     #    """
     #    Create a FortIO handle connected to file @filename. @mode as in fopen()
     #
-    #    Will create a FortIO handle conntected to the file
+    #    Will create a FortIO handle connected to the file
     #    @filename. The @mode flag is passed directly to the final
     #    fopen() call and should be "r" to open the file for reading
     #    and "w" for writing.
@@ -147,7 +144,7 @@ class FortIO(CClass):
 
 # 2. Creating a wrapper object around the libecl library, 
 #    registering the type map : fortio <-> FortIO
-cwrapper = CWrapper( libecl.lib )
+cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerType("fortio" , FortIO )
 
 

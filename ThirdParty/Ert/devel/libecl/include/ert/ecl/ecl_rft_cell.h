@@ -42,6 +42,7 @@ UTIL_IS_INSTANCE_HEADER( ecl_rft_cell );
                                               double grat ,
                                               double wrat , 
                                               double connection_start, 
+                                              double connection_end,
                                               double flowrate,
                                               double oil_flowrate,
                                               double gas_flowrate,
@@ -67,6 +68,7 @@ UTIL_IS_INSTANCE_HEADER( ecl_rft_cell );
   double              ecl_rft_cell_get_grat( const ecl_rft_cell_type * cell );
   double              ecl_rft_cell_get_orat( const ecl_rft_cell_type * cell );
   double              ecl_rft_cell_get_connection_start( const ecl_rft_cell_type * cell );
+  double              ecl_rft_cell_get_connection_end( const ecl_rft_cell_type * cell );
   double              ecl_rft_cell_get_flowrate( const ecl_rft_cell_type * cell );
   double              ecl_rft_cell_get_oil_flowrate( const ecl_rft_cell_type * cell );  
   double              ecl_rft_cell_get_gas_flowrate( const ecl_rft_cell_type * cell );

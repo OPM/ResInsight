@@ -344,7 +344,7 @@ class SimulationPanelController:
 
     def pause(self, pause):
         """Pause the job queue after the currently running jobs are finished."""
-        job_queue = self.ert.main.site_config.get_job_queue
+        job_queue = self.ert.main.site_config.get_job_queue()
 
         if pause:
             self.statistics.stop()
@@ -358,8 +358,9 @@ class SimulationPanelController:
         killAll = QtGui.QMessageBox.question(self.view, "Remove all jobs?", "Are you sure you want to remove all jobs from the queue?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
 
         if killAll == QtGui.QMessageBox.Yes:
-            job_queue = self.ert.main.site_config.get_job_queue
-            job_queue.user_exit
+            job_queue = self.ert.main.site_config.get_job_queue( )
+            job_queue.user_exit( )
+
 
     def showSelectedSimulations(self):
         """Update information relating to a single job"""
@@ -443,7 +444,7 @@ class Simulation:
 
     def hasFailed(self):
         """Has the job failed?"""
-        return self.checkStatus(ert_job_status_type.ALL_FAIL)
+        return self.checkStatus(ert_job_status_type.FAILED)
 
     def notActive(self):
         """Is the job active?"""
@@ -451,7 +452,7 @@ class Simulation:
 
     def finishedSuccessfully(self):
         """Has  the job finished?"""
-        return self.checkStatus(ert_job_status_type.ALL_OK)
+        return self.checkStatus(ert_job_status_type.SUCCESS)
 
     def isUserKilled(self):
         """Has the job been killed by the user?"""
@@ -463,7 +464,7 @@ class Simulation:
         if len(self.statuslog) == 0 or not self.statuslog[len(self.statuslog) - 1] == status:
             self.statuslog.append(status)
 
-            if status == ert_job_status_type.ALL_OK:
+            if status == ert_job_status_type.SUCCESS:
                 self.setFinishedTime(int(time.time()))
 
         self.status = status

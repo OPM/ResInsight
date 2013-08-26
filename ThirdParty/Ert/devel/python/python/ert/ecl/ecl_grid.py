@@ -23,16 +23,13 @@ alone create a grid with ecl_grid module. The functionality is
 implemented in the EclGrid class. The ecl_grid module is a thin
 wrapper around the ecl_grid.c implementation from the libecl library.
 """
-
-
 import ctypes
-from   ert.cwrap.cwrap       import *
-from   ert.cwrap.cclass      import CClass
-from   ert.util.tvector      import DoubleVector  # Requires merging of typemaps ....
-import libecl
-import ecl_kw
-from   ert.cwrap.cfile       import CFILE
+
 import  numpy
+import sys
+from ert.cwrap import CClass, CFILE, CWrapper, CWrapperNameSpace
+from ert.ecl import EclTypeEnum, EclKW, ECL_LIB
+
 
 class EclGrid(CClass):
     """
@@ -567,11 +564,11 @@ class EclGrid(CClass):
             if dims[0] == self.nx and dims[1] == self.ny and dims[2] == self.nz:
                 dtype = array.dtype
                 if dtype == numpy.int32:
-                    type = ecl_kw.ECL_INT_TYPE
+                    type = EclTypeEnum.ECL_INT_TYPE
                 elif dtype == numpy.float32:
-                    type = ecl_kw.ECL_FLOAT_TYPE
+                    type = EclTypeEnum.ECL_FLOAT_TYPE
                 elif dtype == numpy.float64:
-                    type = ecl_kw.ECL_DOUBLE_TYPE
+                    type = EclTypeEnum.ECL_DOUBLE_TYPE
                 else:
                     sys.exit("Do not know how to create ecl_kw from type:%s" % dtype)
   
@@ -584,7 +581,7 @@ class EclGrid(CClass):
                     # Silently truncate to length 8 - ECLIPSE has it's challenges.
                     kw_name = kw_name[0:8]  
 
-                kw = ecl_kw.EclKW.new( kw_name , size , type )
+                kw = EclKW.new( kw_name , size , type )
                 active_index = 0
                 global_index = 0
                 for k in range( self.nz ):
@@ -713,7 +710,7 @@ class EclGrid(CClass):
 
 # 2. Creating a wrapper object around the libecl library, 
 #    registering the type map : ecl_kw <-> EclKW
-cwrapper = CWrapper( libecl.lib )
+cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerType( "ecl_grid" , EclGrid )
 
 # 3. Installing the c-functions used to manipulate ecl_kw instances.

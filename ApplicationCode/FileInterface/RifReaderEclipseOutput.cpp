@@ -155,7 +155,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, localCellIdx);
         if (subGrid != NULL)
         {
-            int subGridFileIndex = ecl_grid_get_grid_nr(subGrid);
+            int subGridFileIndex = ecl_grid_get_lgr_nr(subGrid);
             CVF_ASSERT(subGridFileIndex > 0);
             cell.setSubGrid(static_cast<RigLocalGrid*>(mainGrid->gridByIndex(subGridFileIndex)));
         }

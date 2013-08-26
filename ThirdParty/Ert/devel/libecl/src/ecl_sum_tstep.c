@@ -289,3 +289,10 @@ void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_k
 }
 
 
+bool ecl_sum_tstep_sim_time_equal( const ecl_sum_tstep_type * tstep1 , const ecl_sum_tstep_type * tstep2 ) {
+  if (tstep1->sim_time == tstep2->sim_time)
+    return true;
+  else
+    return false;
+}
+

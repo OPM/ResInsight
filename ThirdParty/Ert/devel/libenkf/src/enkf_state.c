@@ -752,7 +752,8 @@ static bool enkf_state_internalize_dynamic_results(enkf_state_type * enkf_state 
   
   if (ecl_config_active( ecl_config )) {
     bool eclipse_load = enkf_state_internalize_dynamic_eclipse_results( enkf_state , fs , model_config , loadOK, interactive , msg_list);
-    fprintf(stderr , "** Warning: could not load ECLIPSE summary data from %s - this will probably fail later ...\n" , enkf_state->run_info->run_path);
+    if (!eclipse_load) 
+      fprintf(stderr , "** Warning: could not load ECLIPSE summary data from %s - this will probably fail later ...\n" , enkf_state->run_info->run_path);
     return eclipse_load;
   } else
     return false;

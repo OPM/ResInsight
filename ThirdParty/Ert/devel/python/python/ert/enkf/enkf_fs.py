@@ -52,6 +52,10 @@ class EnkfFs(CClass):
     @property
     def get_time_map(self):
         return TimeMap(cfunc.get_time_map(self), parent = self)
+
+    @staticmethod
+    def exists(path):
+        return cfunc.exists(path)
     
 ##################################################################
 
@@ -66,3 +70,4 @@ cfunc.has_vector          = cwrapper.prototype("bool enkf_fs_has_vector(enkf_fs,
 cfunc.fread_node          = cwrapper.prototype("void enkf_fs_fread_node(enkf_fs, buffer, char*, c_uint, int, int, c_uint)")
 cfunc.fread_vector        = cwrapper.prototype("void enkf_fs_fread_vector(enkf_fs, buffer, char*, c_uint, int, c_uint)")
 cfunc.get_time_map        = cwrapper.prototype("c_void_p enkf_fs_get_time_map(enkf_fs)")
+cfunc.exists              = cwrapper.prototype("bool enkf_fs_exists(char*)")

@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <ert/util/type_macros.h>
 #include <ert/util/util.h>
 #include <ert/util/hash.h>
 #include <ert/util/stringlist.h>
@@ -25,13 +26,17 @@
 
 #include <ert/ecl/ecl_sum.h>
 #include <ert/ecl/ecl_util.h>
+#include <ert/ecl/ecl_smspec.h>
 
 #include <ert/sched/gruptree.h>
 #include <ert/sched/sched_history.h>
 #include <ert/sched/history.h>
 
 
+#define HISTORY_TYPE_ID 66143109
+
 struct history_struct{
+  UTIL_TYPE_ID_DECLARATION;
   const ecl_sum_type    * refcase;        /* ecl_sum instance used when the data are taken from a summary instance. Observe that this is NOT owned by history instance.*/
   const sched_file_type * sched_file;     /* Not owned. */
   sched_history_type    * sched_history;
@@ -73,13 +78,13 @@ const char * history_get_source_string( history_source_type history_source ) {
 }
 
 
-
-
+UTIL_IS_INSTANCE_FUNCTION( history , HISTORY_TYPE_ID )
 
 
 static history_type * history_alloc_empty(  )
 {
   history_type * history = util_malloc(sizeof * history);
+  UTIL_TYPE_ID_INIT( history , HISTORY_TYPE_ID );
   history->refcase       = NULL; 
   history->sched_history = NULL;
   history->sched_file    = NULL;
@@ -155,9 +160,9 @@ bool history_init_ts( const history_type * history , const char * summary_key , 
   double_vector_reset( value );
   bool_vector_reset( valid );
   bool_vector_set_default( valid , false);
-
+  
   if (history->source == SCHEDULE) {
-
+    
     for (int tstep = 0; tstep <= sched_history_get_last_history(history->sched_history); tstep++) {
       if (sched_history_open( history->sched_history , summary_key , tstep)) {
         bool_vector_iset( valid , tstep , true );
@@ -174,25 +179,36 @@ bool history_init_ts( const history_type * history , const char * summary_key , 
       /* Must create a new key with 'H' for historical values. */
       const ecl_smspec_type * smspec      = ecl_sum_get_smspec( history->refcase );
       const char            * join_string = ecl_smspec_get_join_string( smspec ); 
-        
-      local_key = util_alloc_sprintf( "%sH%s%s" , ecl_sum_get_keyword( history->refcase , summary_key ) , join_string , ecl_sum_get_wgname( history->refcase , summary_key ));
+      ecl_smspec_var_type           var_type = ecl_smspec_identify_var_type( summary_key );
+      
+      if ((var_type == ECL_SMSPEC_WELL_VAR) || (var_type == ECL_SMSPEC_GROUP_VAR))
+        local_key = util_alloc_sprintf( "%sH%s%s" , 
+                                        ecl_sum_get_keyword( history->refcase , summary_key ) , 
+                                        join_string , 
+                                        ecl_sum_get_wgname( history->refcase , summary_key ));
+      else if (var_type == ECL_SMSPEC_FIELD_VAR)
+        local_key = util_alloc_sprintf( "%sH" , ecl_sum_get_keyword( history->refcase , summary_key ));
+      else
+        local_key = NULL; // If we try to get historical values of e.g. Region quantities it will fail.
     } else
       local_key = (char *) summary_key;
 
-    if (ecl_sum_has_general_var( history->refcase , local_key )) {
-      for (int tstep = 0; tstep <= history_get_last_restart(history); tstep++) {
-        int time_index = ecl_sum_iget_report_end( history->refcase , tstep );
-        if (time_index >= 0) {
-          double_vector_iset( value , tstep , ecl_sum_get_general_var( history->refcase , time_index , local_key ));
-          bool_vector_iset( valid , tstep , true );
-        } else
-          bool_vector_iset( valid , tstep , false );    /* Did not have this report step */
+    if (local_key) {
+      if (ecl_sum_has_general_var( history->refcase , local_key )) {
+        for (int tstep = 0; tstep <= history_get_last_restart(history); tstep++) {
+          int time_index = ecl_sum_iget_report_end( history->refcase , tstep );
+          if (time_index >= 0) {
+            double_vector_iset( value , tstep , ecl_sum_get_general_var( history->refcase , time_index , local_key ));
+            bool_vector_iset( valid , tstep , true );
+          } else
+            bool_vector_iset( valid , tstep , false );    /* Did not have this report step */
+        }
+        initOK = true;
       }
-      initOK = true;
+
+      if (history->source == REFCASE_HISTORY) 
+        free( local_key );
     }
-    
-    if (history->source == REFCASE_HISTORY) 
-      free( local_key );
   }
   return initOK;
 }

@@ -12,19 +12,20 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from _ctypes import RTLD_GLOBAL
 
-
-
-from ctypes import *
-import ctypes.util
 import atexit
+from ctypes import CDLL
+import ctypes
 import re
 import sys
 import os
+from ert.ecl import ECL_LIB
+from ert.enkf import libenkf
+from ert.job_queue import JOB_QUEUE_LIB
+from ert.util import UTIL_LIB
 import erttypes
-import ert
-#import ert.enkf.enkf as enkf
 import ert.enkf.enkf_main as enkf
 
 def RH_version():
@@ -64,11 +65,8 @@ class ErtWrapper:
 
     def __loadLibraries(self ):
         """Load libraries that are required by ERT and ERT itself"""
-        CDLL("libblas.so"   , RTLD_GLOBAL)
-        CDLL("liblapack.so" , RTLD_GLOBAL)
-        CDLL("libz.so"      , RTLD_GLOBAL)
         CDLL("libnsl.so"    , RTLD_GLOBAL)
-        
+
         LSF_HOME = os.getenv("LSF_HOME")
         if LSF_HOME:
             CDLL("%s/lib/liblsf.so" % LSF_HOME   , RTLD_GLOBAL)
@@ -76,16 +74,10 @@ class ErtWrapper:
         else:
             sys.exit("Need a value for environment variable LSF_HOME")
         
-        self.util = self.__loadLibrary( "libert_util" )
-        self.__loadLibrary( "libert_geometry" )
-        self.ecl  = self.__loadLibrary( "libecl" )
-        self.__loadLibrary( "libsched" )
-        self.__loadLibrary( "librms"    )
-        self.__loadLibrary( "libconfig" )
-        self.__loadLibrary( "libanalysis" )
-        self.job_queue = self.__loadLibrary( "libjob_queue" )
-        self.enkf      = self.__loadLibrary( "libenkf" )
-
+        self.util = UTIL_LIB
+        self.ecl  = ECL_LIB
+        self.job_queue = JOB_QUEUE_LIB
+        self.enkf      = libenkf.lib
         self.enkf.enkf_main_install_SIGNALS()
 
         
@@ -232,7 +224,7 @@ class ErtWrapper:
     def __getErtPointer(self, function):
         """Returns a pointer from ERT as a c_long (64-bit support)"""
         func = getattr( self.enkf, function )
-        func.restype = c_long   # Should be c_size_t - if that exists.
+        func.restype = ctypes.c_long   # Should be c_size_t - if that exists.
         return func( self.main )
 
     

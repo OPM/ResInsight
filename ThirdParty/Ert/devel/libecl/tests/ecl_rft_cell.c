@@ -68,6 +68,7 @@ void test_rft_cell() {
   test_assert_double_equal( ECL_RFT_CELL_INVALID_VALUE , ecl_rft_cell_get_wrat( cell ));
   test_assert_double_equal( ECL_RFT_CELL_INVALID_VALUE , ecl_rft_cell_get_flowrate( cell ));
   test_assert_double_equal( ECL_RFT_CELL_INVALID_VALUE , ecl_rft_cell_get_connection_start( cell ));
+  test_assert_double_equal( ECL_RFT_CELL_INVALID_VALUE , ecl_rft_cell_get_connection_end( cell ));
   test_assert_double_equal( ECL_RFT_CELL_INVALID_VALUE , ecl_rft_cell_get_oil_flowrate( cell ));
   test_assert_double_equal( ECL_RFT_CELL_INVALID_VALUE , ecl_rft_cell_get_gas_flowrate( cell ));
   test_assert_double_equal( ECL_RFT_CELL_INVALID_VALUE , ecl_rft_cell_get_water_flowrate( cell ));
@@ -97,11 +98,12 @@ void test_plt_cell() {
   const double wrat = 0.45;
   const double flowrate = 100.0;
   const double connection_start = 891;
+  const double connection_end = 979; 
   const double oil_flowrate = 0.891;
   const double gas_flowrate = 7771;
   const double water_flowrate = 77614;
 
-  ecl_rft_cell_type * cell = ecl_rft_cell_alloc_PLT(i,j,k,depth,pressure,orat,grat,wrat,connection_start,flowrate,oil_flowrate , gas_flowrate , water_flowrate);
+  ecl_rft_cell_type * cell = ecl_rft_cell_alloc_PLT(i,j,k,depth,pressure,orat,grat,wrat,connection_start,connection_end, flowrate,oil_flowrate , gas_flowrate , water_flowrate);
   
   test_assert_int_equal( i , ecl_rft_cell_get_i( cell ));
   test_assert_int_equal( j , ecl_rft_cell_get_j( cell ));
@@ -122,6 +124,7 @@ void test_plt_cell() {
   test_assert_double_equal( grat , ecl_rft_cell_get_grat( cell ));
   test_assert_double_equal( wrat , ecl_rft_cell_get_wrat( cell ));
   test_assert_double_equal( connection_start, ecl_rft_cell_get_connection_start( cell ));
+  test_assert_double_equal( connection_end, ecl_rft_cell_get_connection_end( cell ));
   test_assert_double_equal(flowrate , ecl_rft_cell_get_flowrate( cell ));
   
   test_assert_double_equal(oil_flowrate   , ecl_rft_cell_get_oil_flowrate( cell ));

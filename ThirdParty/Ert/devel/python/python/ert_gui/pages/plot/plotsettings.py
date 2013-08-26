@@ -19,7 +19,7 @@ from plotconfig import PlotConfig
 import matplotlib
 from ert.ert.erttypes import time_t
 import datetime
-from  PyQt4.QtCore import QObject, SIGNAL
+from  PyQt4.QtCore import QObject, SIGNAL, pyqtSignal
 
 class PlotSettings(QObject):
     """
@@ -32,6 +32,8 @@ class PlotSettings(QObject):
     history_color = (255/255.0, 0/255.0, 0/255.0) # red
     refcase_color = (0/255.0, 200/255.0, 0/255.0) # green
     comparison_color = (199/255.0, 63/255.0, 0/255.0) # orange
+
+    changed = pyqtSignal(object)
 
     def __init__(self):
         QObject.__init__(self)
@@ -64,9 +66,9 @@ class PlotSettings(QObject):
                               self.std_plot_config,
                               self.errorbar_plot_config,
                               self.comparison_plot_config]
-
-        #for pc in self._plot_configs:
-        #    self.connect(pc.signal_handler, SIGNAL('plotConfigChanged(PlotConfig)'), self.notify)
+        
+        for pc in self._plot_configs:
+            self.changed.connect( self.notify )
 
         self._plot_config_dict = {}
         for pc in self._plot_configs:

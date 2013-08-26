@@ -35,7 +35,10 @@ if (BUILD_APPLICATIONS)
 
    foreach(prog ${program_list})
       target_link_libraries( ${prog} ecl ert_util )
-      
+      if (USE_RUNPATH)
+         add_runpath( ${prog} )
+      endif()   
+            
       #-----------------------------------------------------------------
       set (destination ${CMAKE_INSTALL_PREFIX}/bin)
       if (INSTALL_ERT)
@@ -52,6 +55,9 @@ if (BUILD_ENS_PLOT)
    include_directories( ${PLPLOT_HEADER} )
    add_executable( ens_plot.x ens_plot.c )
    target_link_libraries( ens_plot.x plot ecl)
+   if (USE_RUNPATH)
+      add_runpath( ens_plot.x )
+   endif()   
 
    set (destination ${CMAKE_INSTALL_PREFIX}/bin)
    if (INSTALL_ERT)
@@ -68,6 +74,9 @@ endif()
 if (BUILD_ECL_SUMMARY)
    add_executable( ecl_summary view_summary.c )
    target_link_libraries( ecl_summary ecl)
+   if (USE_RUNPATH)
+      add_runpath( ecl_summary )
+   endif()   
 
    set (destination ${CMAKE_INSTALL_PREFIX}/bin)
    if (INSTALL_ERT)

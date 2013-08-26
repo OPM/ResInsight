@@ -2,7 +2,6 @@ set( source_files ert_report.c time_map.c rng_config.c trans_func.c enkf_types.c
 
 set( header_files ert_report.h time_map.h rng_config.h enkf_analysis.h enkf_fs_type.h trans_func.h enkf_obs.h obs_data.h enkf_config_node.h block_obs.h field_config.h field.h enkf_macros.h ecl_static_kw.h enkf_state.h enkf_util.h enkf_main.h enkf_node.h enkf_fs.h gen_kw_config.h gen_kw.h enkf_types.h fs_driver.h  meas_data.h summary_obs.h summary_config.h summary_config.h gen_data_config.h gen_data.h gen_common.h gen_obs.h enkf_sched.h fs_types.h enkf_serialize.h plain_driver.h ecl_config.h ensemble_config.h model_config.h site_config.h active_list.h obs_vector.h field_trans.h plain_driver.h local_ministep.h container.h local_updatestep.h local_config.h analysis_config.h misfit_ensemble.h misfit_ensemble_typedef.h misfit_ts.h misfit_member.h data_ranking.h ranking_table.h ranking_common.h misfit_ranking.h block_fs_driver.h field_common.h gen_kw_common.h gen_data_common.h plot_config.h ert_template.h member_config.h enkf_defaults.h container_config.h local_dataset.h local_obsset.h surface.h surface_config.h local_context.h enkf_plot_data.h enkf_plot_member.h qc_module.h ert_report_list.h enkf_plot_arg.h runpath_list.h ert_workflow_list.h analysis_iter_config.h ecl_refcase_list.h)
 
-
 add_library( enkf  ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( enkf PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
@@ -11,6 +10,10 @@ set_target_properties( enkf PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 #list( APPEND src_files ${CMAKE_CURRENT_BINARY_DIR}/ert_build_info.h )
 
 target_link_libraries( enkf ecl sched analysis rms plot config job_queue )
+
+if (USE_RUNPATH)
+   add_runpath( enkf )
+endif()
 
 #-----------------------------------------------------------------
 if (INSTALL_ERT)

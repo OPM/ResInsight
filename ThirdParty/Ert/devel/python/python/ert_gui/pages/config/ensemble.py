@@ -81,10 +81,10 @@ def createEnsemblePage(configPanel, parent):
                 model = DataModel(key)
 
                 output_format_value = node.data_model.get_output_format
-                output_format = gen_data_file_format.resolveValue(output_format_value)
+                output_format = enums.gen_data_file_format.resolveValue(output_format_value)
 
                 input_format_value = node.data_model.get_input_format
-                input_format = gen_data_file_format.resolveValue(input_format_value)
+                input_format = enums.gen_data_file_format.resolveValue(input_format_value)
 
                 template_file = node.data_model.get_template_file
                 template_key = node.data_model.get_template_key

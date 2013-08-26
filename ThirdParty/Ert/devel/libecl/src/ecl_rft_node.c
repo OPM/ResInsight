@@ -170,22 +170,31 @@ static void ecl_rft_node_init_PLT_cells( ecl_rft_node_type * rft_node , const ec
   const float * gas_flowrate     = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONGTUB_KW , 0));
   const float * water_flowrate   = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONWTUB_KW , 0));
   const float * connection_start = NULL;
+  const float * connection_end   = NULL; 
 
-  /* This keyword is ONLY present if we are dealing with a MSW well. */
+  /* The keywords CONLENST_KW and CONLENEN_KW are ONLY present if we are dealing with a MSW well. */
   if (ecl_file_has_kw( rft , CONLENST_KW))
     connection_start = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONLENST_KW , 0));
+  
+  if (ecl_file_has_kw( rft , CONLENEN_KW))
+    connection_end = ecl_kw_get_float_ptr( ecl_file_iget_named_kw( rft , CONLENEN_KW , 0));
 
   {
     int c;
     for ( c = 0; c < ecl_kw_get_size( conipos ); c++) {
       ecl_rft_cell_type * cell;
       double cs = 0;
+      double ce = 0;
+      
       if (connection_start)
         cs = connection_start[c];
+      
+      if (connection_end)
+        ce = connection_end[c];
 
       /* The connection coordinates are shifted -= 1; i.e. all internal usage is offset 0. */
       cell = ecl_rft_cell_alloc_PLT( i[c] -1 , j[c] -1 , k[c] -1 , 
-                                     depth[c] , P[c] , OR[c] , GR[c] , WR[c] , cs , flowrate[c] , oil_flowrate[c] , gas_flowrate[c] , water_flowrate[c]);
+                                     depth[c] , P[c] , OR[c] , GR[c] , WR[c] , cs , ce,  flowrate[c] , oil_flowrate[c] , gas_flowrate[c] , water_flowrate[c]);
       ecl_rft_node_append_cell( rft_node , cell );
     }
   }

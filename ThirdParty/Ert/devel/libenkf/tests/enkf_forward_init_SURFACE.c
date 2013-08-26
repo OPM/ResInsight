@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include <ert/util/test_util.h>
+#include <ert/util/test_work_area.h>
 #include <ert/util/util.h>
 #include <ert/util/thread_pool.h>
 #include <ert/util/arg_pack.h>
@@ -44,17 +45,23 @@ void create_runpath(enkf_main_type * enkf_main ) {
 
 int main(int argc , char ** argv) {
   enkf_main_install_SIGNALS();
+  const char * root_path = argv[1];
+  const char * config_file = argv[2];
+  const char * init_file = argv[3];
+  const char * forward_init_string = argv[4];
+  test_work_area_type * work_area = test_work_area_alloc(config_file , false);
+
+  test_work_area_copy_directory_content( work_area , root_path );
+  test_work_area_install_file( work_area , init_file );
   {
-    const char * config_file = argv[1];
-    const char * init_file = argv[2];
-    const char * forward_init_string = argv[3];
+
     bool forward_init;
     bool strict = true;
     enkf_main_type * enkf_main;
 
     test_assert_true( util_sscanf_bool( forward_init_string , &forward_init));
 
-    util_clear_directory( "/tmp/Storage" , true , true );
+    util_clear_directory( "Storage" , true , true );
     enkf_main = enkf_main_bootstrap( NULL , config_file , strict , true );
     {
       enkf_state_type * state   = enkf_main_iget_state( enkf_main , 0 );
@@ -88,7 +95,7 @@ int main(int argc , char ** argv) {
                               .state = ANALYZED };
 
       create_runpath( enkf_main );
-      test_assert_true( util_is_directory( "/tmp/simulations/run0" ));
+      test_assert_true( util_is_directory( "simulations/run0" ));
       
       {
         bool loadOK = true;
@@ -102,9 +109,9 @@ int main(int argc , char ** argv) {
         
         test_assert_false( enkf_node_has_data( surface_node , fs, node_id ));
         
-        util_unlink_existing( "/tmp/simulations/run0/Surface.irap" );
+        util_unlink_existing( "simulations/run0/Surface.irap" );
         
-        test_assert_false( enkf_node_forward_init( surface_node , "/tmp/simulations/run0" , 0 ));
+        test_assert_false( enkf_node_forward_init( surface_node , "simulations/run0" , 0 ));
         enkf_state_forward_init( state , fs , &loadOK );
         test_assert_false( loadOK );
 
@@ -115,7 +122,7 @@ int main(int argc , char ** argv) {
       }
       
 
-      util_copy_file( init_file , "/tmp/simulations/run0/Surface.irap");
+      util_copy_file( init_file , "simulations/run0/Surface.irap");
       {
         bool loadOK = true;
         stringlist_type * msg_list = stringlist_alloc_new();
@@ -125,7 +132,7 @@ int main(int argc , char ** argv) {
           enkf_main_init_run(enkf_main , run_mode);     /* This is ugly */
         }
         
-        test_assert_true( enkf_node_forward_init( surface_node , "/tmp/simulations/run0" , 0 ));
+        test_assert_true( enkf_node_forward_init( surface_node , "simulations/run0" , 0 ));
         enkf_state_forward_init( state , fs , &loadOK );
         test_assert_true( loadOK );
         enkf_state_load_from_forward_model( state , fs , &loadOK , false , msg_list );
@@ -141,11 +148,11 @@ int main(int argc , char ** argv) {
           test_assert_double_equal( 2737.0122 , value);
         }
       }
-      util_clear_directory( "/tmp/simulations" , true , true );
+      util_clear_directory( "simulations" , true , true );
       create_runpath( enkf_main );
-      test_assert_true( util_is_directory( "/tmp/simulations/run0" ));
-      test_assert_true( util_is_file( "/tmp/simulations/run0/SURFACE.INC" ));
-      test_assert_true( enkf_node_fload( surface_node , "/tmp/simulations/run0/SURFACE.INC"));
+      test_assert_true( util_is_directory( "simulations/run0" ));
+      test_assert_true( util_is_file( "simulations/run0/SURFACE.INC" ));
+      test_assert_true( enkf_node_fload( surface_node , "simulations/run0/SURFACE.INC"));
       {
         double value;
         test_assert_true( enkf_node_user_get( surface_node , fs , "0" , node_id , &value)); 
@@ -154,7 +161,7 @@ int main(int argc , char ** argv) {
         test_assert_true( enkf_node_user_get( surface_node , fs , "5" , node_id , &value)); 
         test_assert_double_equal( 2737.0122 , value);
       }
-      util_clear_directory( "/tmp/simulations" , true , true );
+      util_clear_directory( "simulations" , true , true );
     }
     enkf_main_free( enkf_main );
   }

@@ -42,6 +42,7 @@ extern "C" {
   void            local_driver_free__(void * __driver );
   job_status_type local_driver_get_job_status(void * __driver , void * __job);
   void            local_driver_free_job(void * __job);
+  void            local_driver_init_option_list(stringlist_type * option_list);
 
 
 

@@ -12,17 +12,12 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.job_queue import ExtJob, JOB_QUEUE_LIB
+from ert.util import StringList
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-from    ert.enkf.enkf_enum             import *
-from    ert.enkf.libenkf import *
-import  libjob_queue
-from ert.util.stringlist import StringList
-from ert.job_queue.ext_job import ExtJob
+
 class ForwardModel(CClass):
     
     def __init__(self , c_ptr , parent = None):
@@ -48,7 +43,7 @@ class ForwardModel(CClass):
         cfunc.clear(self)
 ##################################################################
 
-cwrapper = CWrapper( libjob_queue.lib )
+cwrapper = CWrapper(JOB_QUEUE_LIB)
 cwrapper.registerType( "forward_model" , ForwardModel )
 
 cfunc = CWrapperNameSpace("forward_model")

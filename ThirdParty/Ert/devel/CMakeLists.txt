@@ -22,21 +22,24 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    set(ERT_WINDOWS TRUE)
    add_definitions( -DERT_WINDOWS )
+#  This symbol must be defined to support large (> 2GB) files on windows.
+   add_definitions( -DWINDOWS_LFS )
 endif()    
 
-
+# Treat warnings as errors if not on Windows
 if (ERT_WINDOWS)
    set( CMAKE_C_FLAGS    "-O2" )
    set( CMAKE_CXX_FLAGS  "-O2" )
 else()
-   set( CMAKE_C_FLAGS    "-g -O2 -Wall -Wno-unknown-pragmas -std=gnu99 " )
-   set( CMAKE_CXX_FLAGS  "-g -O2 -Wall" )
+   set( CMAKE_C_FLAGS    "-std=gnu99 -g -O2 -Wall -Wno-unknown-pragmas " )
+   set( CMAKE_CXX_FLAGS  "-g -Wall -O2 ")
 endif()
-
 
 include(cmake/ert_check.cmake)
 include(cmake/ert_find.cmake)
 include(cmake/Modules/UseMultiArch.cmake)
+include(cmake/ert_link.cmake)
+
 
 set( INSTALL_GROUP          ""     CACHE STRING "Group to install as - blank to install as current group")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
@@ -46,15 +49,9 @@ if (MSVC)
    set( LIBRARY_TYPE STATIC )
    set( SHARED_LIB OFF )
 else()
-  if (INSTALL_ERT)
    set( LIBRARY_TYPE SHARED )
    set( SHARED_LIB ON )
-  else()
-    set( LIBRARY_TYPE STATIC )
-    set( SHARED_LIB OFF )
-  endif(INSTALL_ERT)
-endif(MSVC)
-
+endif()
 
 
 if (MSVC)

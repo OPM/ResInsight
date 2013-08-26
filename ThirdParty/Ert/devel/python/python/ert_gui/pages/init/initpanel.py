@@ -20,7 +20,7 @@ from ert_gui.widgets.tablewidgets import KeywordList
 from ert_gui.widgets.validateddialog import ValidatedDialog
 import ert.ert.ertwrapper as ertwrapper
 from ert_gui.widgets.combochoice import ComboChoice
-
+from ert.enkf.enkf_fs import EnkfFs
 
 from ert_gui.widgets.helpedwidget import HelpedWidget
 from ert_gui.widgets.util import resourceIcon, createSeparator, may_take_a_long_time
@@ -77,8 +77,8 @@ class InitPanel(QtGui.QFrame):
             fs = ert.main.get_fs
 
             for case in cases:
-                if not fs.has_dir(case):
-                    fs.select_write_dir(case, True)
+                if not ert.main.fs_exists(case):
+                    ert.main.select_fs(case)
                     break
 
             self.currentCase.updateList(self.get_case_list(ert))

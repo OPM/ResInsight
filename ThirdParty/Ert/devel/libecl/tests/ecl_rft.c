@@ -36,10 +36,10 @@ void test_rft( const char * rft_file ) {
   test_assert_int_equal( 14 , ecl_rft_node_get_size( rft_node ));
   test_assert_false( ecl_rft_node_is_MSW( rft_node ));
   
-  test_assert_double_equal( 259.146    , ecl_rft_node_iget_pressure( rft_node , 0 ));
-  test_assert_double_equal( 0.0580598  , ecl_rft_node_iget_soil( rft_node , 0 ));
-  test_assert_double_equal( 0.940477   , ecl_rft_node_iget_swat( rft_node , 0 ));
-  test_assert_double_equal( 0.00146271 , ecl_rft_node_iget_sgas( rft_node , 0 ));
+  test_assert_double_equal( 260.6111   , ecl_rft_node_iget_pressure( rft_node , 0 ));
+  test_assert_double_equal( 0.0581993  , ecl_rft_node_iget_soil( rft_node , 0 ));
+  test_assert_double_equal( 0.9405648  , ecl_rft_node_iget_swat( rft_node , 0 ));
+  test_assert_double_equal( 0.00123579  , ecl_rft_node_iget_sgas( rft_node , 0 ));
 
   {
     int i,j,k;
@@ -67,9 +67,26 @@ void test_rft( const char * rft_file ) {
 }
 
 
-// Have no such case yet ...
 void test_plt_msw( const char * plt_file ) {
+  ecl_rft_file_type * plt = ecl_rft_file_alloc( plt_file );
+  ecl_rft_node_type * plt_node = ecl_rft_file_iget_node( plt , 11 );
 
+  test_assert_true( ecl_rft_node_is_PLT( plt_node ));
+  test_assert_true( ecl_rft_node_is_MSW( plt_node ));
+  test_assert_int_equal( 22 , ecl_rft_node_get_size( plt_node ));
+  ecl_rft_node_inplace_sort_cells( plt_node );
+  {
+    int i;
+    for (i=1; i < ecl_rft_node_get_size( plt_node ); i++) {
+      const ecl_rft_cell_type * prev_cell = ecl_rft_node_iget_cell( plt_node , i - 1);
+      const ecl_rft_cell_type * this_cell = ecl_rft_node_iget_cell( plt_node , i );
+
+      test_assert_true( ecl_rft_cell_get_connection_start( prev_cell ) < ecl_rft_cell_get_connection_start( this_cell ));
+      test_assert_true( ecl_rft_cell_get_connection_end( prev_cell ) < ecl_rft_cell_get_connection_end( this_cell ));
+    }
+  }
+
+  ecl_rft_file_free( plt );
 }
 
 

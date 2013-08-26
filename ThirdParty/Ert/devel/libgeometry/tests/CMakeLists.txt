@@ -1,5 +1,5 @@
 add_executable( geo_surface geo_surface.c )
-target_link_libraries( geo_surface ert_geometry )
+target_link_libraries( geo_surface ert_geometry test_util )
 
 add_test( geo_surface ${EXECUTABLE_OUTPUT_PATH}/geo_surface
                       ${PROJECT_SOURCE_DIR}/test-data/Statoil/Geometry/Surface.irap  

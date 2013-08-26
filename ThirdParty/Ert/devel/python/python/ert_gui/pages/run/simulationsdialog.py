@@ -100,7 +100,7 @@ class SimulationsDialog(QtGui.QDialog):
         selectAll = self._createAction("Select all", self.simulationList.selectAll)
         unselectAll = self._createAction("Unselect all", self.simulationList.clearSelection)
         selectRunning = self._createAction("Select all running", lambda : self.ctrl.select(ert_job_status_type.RUNNING))
-        selectFailed = self._createAction("Select all failed", lambda : self.ctrl.select(ert_job_status_type.ALL_FAIL))
+        selectFailed = self._createAction("Select all failed", lambda : self.ctrl.select(ert_job_status_type.FAILED))
         selectUserKilled = self._createAction("Select all user killed", lambda : self.ctrl.select(ert_job_status_type.USER_KILLED))
         selectWaiting = self._createAction("Select all waiting", lambda : self.ctrl.select(ert_job_status_type.WAITING, ert_job_status_type.PENDING))
 
@@ -209,7 +209,7 @@ class SimulationsDialogController:
                 for member in selectedMembers:
                     state = ert.main.iget_state(member)
                     status = state.get_run_status
-
+                    
                     simulations[member].simulation.setStatus(ert_job_status_type.resolveValue(status))
 
                     if not ert_job_status_type.NOT_ACTIVE == status:
