@@ -1004,30 +1004,34 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                             }
                         }
 
-                        RigWellResultBranch& outletResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletErtBranchIndex];
-
-                        int outletErtSegmentId = well_segment_get_branch_id(outletBranchSegment);
-                        size_t lastCellIndexForSegmentIdInOutletBranch = cvf::UNDEFINED_SIZE_T;
-
-                        for (size_t outletCellIdx = 0; outletCellIdx < outletResultBranch.m_branchResultPoints.size(); outletCellIdx++)
+                        if (outletErtBranchIndex != cvf::UNDEFINED_SIZE_T) // Todo: Is this a correct guarding ? Or is it indicating an error ?
                         {
-                            if (outletResultBranch.m_branchResultPoints[outletCellIdx].m_ertSegmentId == outletErtSegmentId)
+                            RigWellResultBranch& outletResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletErtBranchIndex];
+
+                            int outletErtSegmentId = well_segment_get_branch_id(outletBranchSegment);
+                            size_t lastCellIndexForSegmentIdInOutletBranch = cvf::UNDEFINED_SIZE_T;
+
+                            for (size_t outletCellIdx = 0; outletCellIdx < outletResultBranch.m_branchResultPoints.size(); outletCellIdx++)
                             {
-                                lastCellIndexForSegmentIdInOutletBranch = outletCellIdx;
+                                if (outletResultBranch.m_branchResultPoints[outletCellIdx].m_ertSegmentId == outletErtSegmentId)
+                                {
+                                    lastCellIndexForSegmentIdInOutletBranch = outletCellIdx;
+                                }
                             }
-                        }
 
-                        if (lastCellIndexForSegmentIdInOutletBranch == cvf::UNDEFINED_SIZE_T)
-                        {
-                            // Did not find the cell in the outlet branch based on branch id and segment id from outlet cell in leaf branch
-                            CVF_ASSERT(0);
-                        }
-                        else
-                        {
-                            RigWellResultPoint& outletCell = outletResultBranch.m_branchResultPoints[lastCellIndexForSegmentIdInOutletBranch];
+                            if (lastCellIndexForSegmentIdInOutletBranch == cvf::UNDEFINED_SIZE_T)
+                            {
+                                // Did not find the cell in the outlet branch based on branch id and segment id from outlet cell in leaf branch
+                                //std::cout << "Did not find the cell in the outlet branch based on branch id and segment id from outlet cell in leaf branch" << std::endl;
+                                //CVF_ASSERT(0);
+                            }
+                            else
+                            {
+                                RigWellResultPoint& outletCell = outletResultBranch.m_branchResultPoints[lastCellIndexForSegmentIdInOutletBranch];
 
-                            wellResultLeafBranch.m_outletBranchIndex_OBSOLETE = currentGridBranchStartIndex + outletErtBranchIndex;
-                            wellResultLeafBranch.m_outletBranchHeadCellIndex_OBSOLETE = lastCellIndexForSegmentIdInOutletBranch;
+                                wellResultLeafBranch.m_outletBranchIndex_OBSOLETE = currentGridBranchStartIndex + outletErtBranchIndex;
+                                wellResultLeafBranch.m_outletBranchHeadCellIndex_OBSOLETE = lastCellIndexForSegmentIdInOutletBranch;
+                            }
                         }
                     }
 
@@ -1122,9 +1126,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                     size_t outCellIdx = wellResFrame.m_wellResultBranches[bIdx].m_outletBranchHeadCellIndex_OBSOLETE;
 
                     const RigWellResultPoint* resPoint = wellResFrame.findResultCellFromOutletSpecification(outBranchIdx, outCellIdx);
-
-                    wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.insert(wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.begin(), *resPoint);
-                    
+                    if (resPoint) // Todo: Is this a correct guarding or indicating an error ?
+                    {
+                        wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.insert(wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.begin(), *resPoint);
+                    }
                 }
 
             }

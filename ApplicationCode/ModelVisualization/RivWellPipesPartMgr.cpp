@@ -252,8 +252,19 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
         for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
         {
-            if (resBranches[brIdx].m_branchResultPoints.size() == 0)
-                continue; // Skip empty branches. Do not know why they exist, but they make problems.
+
+            // Skip empty branches. Do not know why they exist, but they make problems.
+            bool hasValidData = false;
+            for (size_t cIdx = 0; cIdx < resBranches[brIdx].m_branchResultPoints.size(); ++cIdx)
+            {
+                if (resBranches[brIdx].m_branchResultPoints[cIdx].isValid())
+                {
+                    hasValidData = true;
+                    break;
+                }
+            }
+            if (!hasValidData) continue;
+
 
             prevWellResPoint = NULL;
 
