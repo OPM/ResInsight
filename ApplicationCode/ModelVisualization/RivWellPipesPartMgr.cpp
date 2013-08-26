@@ -47,7 +47,6 @@
 
 
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -219,27 +218,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
         cvf::Vec3d whIntermediate = whStartPos;
         whIntermediate.z() = (whStartPos.z() + whCell.center().z()) / 2.0;
 
-
         const RigWellResultPoint* prevWellResPoint = NULL;
-
-#if 0
-        // Use well head if branch head is not specified
-        if (!wellResults->isMultiSegmentWell())
-        {
-            // Create a new branch from wellhead
-
-            pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-            pipeBranchesCellIds.push_back(std::vector <RigWellResultPoint>());
-
-            prevResCell = whResCell;
-
-            pipeBranchesCLCoords.back().push_back(whStartPos);
-            pipeBranchesCellIds.back().push_back(*prevResCell);
-
-            pipeBranchesCLCoords.back().push_back(whIntermediate);
-            pipeBranchesCellIds.back().push_back(*prevResCell);
-        }
-#endif
 
         CVF_ASSERT(wellResults->isMultiSegmentWell() ||  resBranches.size() <= 1);
 
@@ -254,6 +233,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
         {
 
             // Skip empty branches. Do not know why they exist, but they make problems.
+
             bool hasValidData = false;
             for (size_t cIdx = 0; cIdx < resBranches[brIdx].m_branchResultPoints.size(); ++cIdx)
             {
@@ -268,66 +248,26 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
             prevWellResPoint = NULL;
 
-
             // Find the start the MSW well-branch centerline. Normal wells are started "once" at wellhead in the code above 
 
-           // if (wellResults->isMultiSegmentWell())
-           // {
-                pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-                pipeBranchesCellIds.push_back(std::vector <RigWellResultPoint>());
+            pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
+            pipeBranchesCellIds.push_back(std::vector <RigWellResultPoint>());
 
-                if (brIdx == 0)
-                {
-                    // The first branch contains segment number 1, and this is the only segment connected to well head
-                    // See Eclipse documentation for the keyword WELSEGS
-                    prevWellResPoint = whResCell;
+            if (brIdx == 0)
+            {
+                // The first branch contains segment number 1, and this is the only segment connected to well head
+                // See Eclipse documentation for the keyword WELSEGS
+                prevWellResPoint = whResCell;
 
-                    pipeBranchesCLCoords.back().push_back(whStartPos);
-                    pipeBranchesCellIds.back().push_back(*prevWellResPoint);
+                pipeBranchesCLCoords.back().push_back(whStartPos);
+                pipeBranchesCellIds.back().push_back(*prevWellResPoint);
 
-                    pipeBranchesCLCoords.back().push_back(whIntermediate);
-                    pipeBranchesCellIds.back().push_back(*prevWellResPoint);
-                }
-
-#if 0 // Branch is supposed to contain its start point except the 
-                else
-                {
-                    
-                    const RigWellResultPoint* leafBranchHead = staticWellFrame.findResultCellFromOutletSpecification(resBranches[brIdx].m_outletBranchIndex_OBSOLETE, resBranches[brIdx].m_outletBranchHeadCellIndex_OBSOLETE);
-                    if (leafBranchHead && leafBranchHead->hasGridConnections())
-                    {
-                        // Create a new branch and use branch head as previous result cell
-
-                        prevResCell = leafBranchHead;
-
-                        const RigCell& cell = rigReservoir->cellFromWellResultCell(*leafBranchHead);
-                        cvf::Vec3d branchHeadStartPos = cell.faceCenter(cvf::StructGridInterface::NEG_K);
-
-                        pipeBranchesCLCoords.back().push_back(branchHeadStartPos);
-                        pipeBranchesCellIds.back().push_back(*prevResCell);
-                    }
-                    else if (leafBranchHead)
-                    {
-                        cvf::Vec3d interpolatedCoord = leafBranchHead->m_bottomPosition;
-
-                        CVF_ASSERT(interpolatedCoord != cvf::Vec3d::UNDEFINED);
-                        if (interpolatedCoord != cvf::Vec3d::UNDEFINED)
-                        {
-                            pipeBranchesCLCoords.back().push_back(interpolatedCoord);
-                            pipeBranchesCellIds.back().push_back(RigWellResultPoint());
-                        }
-                    }
-                    else
-                    {
-                        // No branch head found: Possibly main branch
-                        CVF_ASSERT(false);
-                    }
-                    
-                }
-#endif
-           // }
+                pipeBranchesCLCoords.back().push_back(whIntermediate);
+                pipeBranchesCellIds.back().push_back(*prevWellResPoint);
+            }
 
             // Loop over all the resultCells in the branch
+
             const std::vector<RigWellResultPoint>& resBranchCells = resBranches[brIdx].m_branchResultPoints;
 
             for (int cIdx = 0; cIdx < static_cast<int>(resBranchCells.size()); cIdx++) // Need int because cIdx can temporarily end on -1
