@@ -742,17 +742,26 @@ struct SegmentPositionContribution
     SegmentPositionContribution( int         connectionSegmentId,
                                  cvf::Vec3d  connectionPosition,
                                  double      lengthFromConnection,
-                                 int         segmentIdUnder)
+                                 bool        isInsolating,
+                                 int         segmentIdUnder, 
+                                 int         segmentIdAbove, 
+                                 bool        isFromAbove)
         : m_connectionSegmentId(connectionSegmentId), 
           m_lengthFromConnection(lengthFromConnection),
+          m_isInsolating(isInsolating),
           m_connectionPosition(connectionPosition),
-          m_segmentIdUnder(segmentIdUnder)
+          m_segmentIdUnder(segmentIdUnder),
+          m_segmentIdAbove(segmentIdAbove),
+          m_isFromAbove(isFromAbove)
     {}
 
     int         m_connectionSegmentId;
     double      m_lengthFromConnection;
+    bool        m_isInsolating;
     cvf::Vec3d  m_connectionPosition;
     int         m_segmentIdUnder;
+    int         m_segmentIdAbove;
+    bool        m_isFromAbove;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -813,13 +822,40 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> 
 {
     std::vector<SegmentPositionContribution> filteredPositions;
     filteredPositions.reserve(positions.size());
+
+    bool hasContibFromBelow = false;
+    bool hasContribFromAbove = false;
+    double minDistFromContribAbove = HUGE_VAL;
+    double minDistFromContribBelow = HUGE_VAL;
+    std::vector<SegmentPositionContribution> contrFromAbove;
+    std::vector<SegmentPositionContribution> contrFromBelow;
+
+
     for (size_t i = 0; i < positions.size(); i++)
     {
         if (positions[i].m_connectionPosition != cvf::Vec3d::UNDEFINED)
         {
-            filteredPositions.push_back(positions[i]);
+            if (positions[i].m_isFromAbove && positions[i].m_lengthFromConnection < minDistFromContribAbove)
+            {
+                if (contrFromAbove.size()) contrFromAbove[0] = positions[i];
+                else contrFromAbove.push_back(positions[i]);
+
+                minDistFromContribAbove = positions[i].m_lengthFromConnection;
+            }
+
+            if (! positions[i].m_isFromAbove && positions[i].m_lengthFromConnection < minDistFromContribBelow)
+            {
+                if (contrFromBelow.size()) contrFromBelow[0] = positions[i];
+                else contrFromBelow.push_back(positions[i]);
+
+                minDistFromContribBelow = positions[i].m_lengthFromConnection;
+
+            }
         }
     }
+
+    filteredPositions = contrFromAbove;
+    filteredPositions.insert(filteredPositions.end(), contrFromBelow.begin(), contrFromBelow.end());
 
     std::vector<double> nominators(filteredPositions.size(), 0.0);
 
@@ -840,7 +876,7 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> 
         }
         else if (distance < 1.0)
         {
-            distance = 1.0;
+            //distance = 1.0;
         }
 
 
@@ -906,8 +942,10 @@ void propagatePosContribDownwards(std::map<int, std::vector<SegmentPositionContr
             if (! foundContribution)
             {
                 posContrib[i].m_lengthFromConnection += sementLength;
+                posContrib[i].m_isFromAbove = true;
                 posContribIt->second.push_back(posContrib[i]);
             }
+            posContrib[i].m_segmentIdAbove = ertSegmentId;
         }
 
         for (std::set<int>::iterator it = segmentIdsBelow.begin(); it != segmentIdsBelow.end(); ++it)
@@ -1002,6 +1040,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                 // 2. Always use the connections to the grid with the highest number (innermost LGR). 
                 // 3. Handle both and switch between them according to visual settings of grid visualization
                 // Will there ever exist connections to different grids for the same segment ?
+                // We have currently selected 2.
 
                 // Set the wellhead
 
@@ -1025,6 +1064,12 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                 std::map<int, std::vector<SegmentPositionContribution> > segmentIdToPositionContrib;
                 std::vector<int> upperSegmentIdsOfUnpositionedSegementGroup;
 
+                // For each branch, go from bottom segment upwards and transfer their connections to WellResultpoints.
+                // If they have no connections, create a resultpoint representing their bottom position, which will 
+                // receive an actual position at a later stage.
+                // I addition, distribute contributions for calculating segment bottom positions from bottom and up.
+
+
                 for (int bIdx = 0; bIdx < well_branch_collection_get_size(branches); bIdx++)
                 {
                     RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[ bIdx];
@@ -1037,10 +1082,11 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                     // Data for segment position calculation
                     int lastConnectionSegmentId        = -1;
                     cvf::Vec3d lastConnectionPos       = cvf::Vec3d::UNDEFINED;
+                    double lastConnectionCellSize      = 0;
                     double accLengthFromLastConnection = 0;
                     int segmentIdBelow                 = -1;
                     bool segmentBelowHasConnections    = false;
-                   
+                    std::set<int> ertSegIdsOfPosContribToRemove; 
 
 
                     while (segment && branchId == well_segment_get_branch_id(segment))
@@ -1074,6 +1120,9 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                                 well_conn_type* ert_connection = well_conn_collection_iget(connections, 0);
                                 RigWellResultPoint point       = createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment));
                                 lastConnectionPos              = grids[gridNr]->cell(point.m_gridCellIndex).center();
+                                cvf::Vec3d cellVxes[8];
+                                grids[gridNr]->cellCornerVertices(point.m_gridCellIndex, cellVxes);
+                                lastConnectionCellSize         = (lastConnectionPos - cellVxes[0]).length();
                                 lastConnectionSegmentId        = well_segment_get_id(segment);
                                 accLengthFromLastConnection    = well_segment_get_length(segment)/(connectionCount+1);
                                 if ( ! segmentBelowHasConnections) upperSegmentIdsOfUnpositionedSegementGroup.push_back(segmentIdBelow);
@@ -1094,9 +1143,11 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                             wellResultBranch.m_branchResultPoints.push_back(data);
 
                             // Store data for segment position calculation
+                            bool isAnInsolationContribution = accLengthFromLastConnection < lastConnectionCellSize;
 
+                          
                             segmentIdToPositionContrib[well_segment_get_id(segment)].push_back( 
-                                SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPos, accLengthFromLastConnection, segmentIdBelow));
+                                SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPos, accLengthFromLastConnection, isAnInsolationContribution, segmentIdBelow, -1, false));
                             accLengthFromLastConnection += well_segment_get_length(segment);
                            
                         }
@@ -1114,7 +1165,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                         }
                     }
 
-                    // Add resultpoint representing the bottom of the outlet segment, if not the branch ends at the wellhead.
+                    // Add resultpoint representing the outlet segment (bottom), if not the branch ends at the wellhead.
 
                     const well_segment_type* outletSegment = segment;
 
@@ -1154,8 +1205,13 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
 
                             // Store data for segment position calculation, and propagate it upwards until we meet a segment with connections
 
+                                bool isAnInsolationContribution = accLengthFromLastConnection < lastConnectionCellSize;
+
+                                cvf::Vec3d lastConnectionPosWOffset = lastConnectionPos;
+                                if (isAnInsolationContribution) lastConnectionPosWOffset += 0.5*lastConnectionCellSize*cvf::Vec3d::X_AXIS;
+
                                  segmentIdToPositionContrib[well_segment_get_id(outletSegment)].push_back( 
-                                    SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPos, accLengthFromLastConnection, segmentIdBelow));
+                                    SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPosWOffset, accLengthFromLastConnection, isAnInsolationContribution, segmentIdBelow, -1, false));
 
                                 /// Loop further to add this position contribution until a segment with connections is found
 
@@ -1193,7 +1249,8 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
 
                                     if (!segmentHasConnections)
                                     {
-                                        segmentIdToPositionContrib[well_segment_get_id(aboveOutletSegment)].push_back( SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPos, accLengthFromLastConnection, segmentIdBelow));
+                                        segmentIdToPositionContrib[well_segment_get_id(aboveOutletSegment)].push_back( 
+                                            SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPos, accLengthFromLastConnection, isAnInsolationContribution, segmentIdBelow, -1, false));
                                         accLengthFromLastConnection += well_segment_get_length(aboveOutletSegment);
                                     }
                                     else
@@ -1237,6 +1294,9 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                     bool previousResultPointWasCell = false;
                     if (bIdx == 0) previousResultPointWasCell = true; // Wellhead 
 
+                    // Go downwards until we find a none-cell resultpoint just after a cell-resultpoint
+                    // When we do, start propagating
+
                     for (size_t rpIdx = 0; rpIdx < wellResultBranch.m_branchResultPoints.size(); ++rpIdx)
                     {
                         RigWellResultPoint resPoint = wellResultBranch.m_branchResultPoints[rpIdx];
@@ -1260,7 +1320,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
 
                                 cvf::Vec3d         lastConnectionPos   = grids[prevResPoint.m_gridIndex]->cell(prevResPoint.m_gridCellIndex).center();
 
-                                SegmentPositionContribution posContrib(prevResPoint.m_ertSegmentId, lastConnectionPos, 0.0, -1);
+                                SegmentPositionContribution posContrib(prevResPoint.m_ertSegmentId, lastConnectionPos, 0.0, false,  -1, prevResPoint.m_ertSegmentId, true);
 
                                 int ertSegmentId = resPoint.m_ertSegmentId;
 
@@ -1269,6 +1329,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                                 CVF_ASSERT(posContribIt != segmentIdToPositionContrib.end());
 
                                 std::vector<SegmentPositionContribution> posContributions =  posContribIt->second;
+                                for (size_t i = 0; i < posContributions.size(); ++i)
+                                {
+                                    posContributions[i].m_segmentIdAbove = prevResPoint.m_ertSegmentId;
+                                }
                                 posContributions.push_back(posContrib);
 
                                 propagatePosContribDownwards(segmentIdToPositionContrib, allErtSegments, ertSegmentId, posContributions);
@@ -1280,6 +1344,62 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                 }
 
                 // Calculate the bottom position of all the unpositioned segments
+                // First merge all the contributions referring to the same segment under, to mean 
+                // the interpolated position at the closest split point below
+#if 0
+                std::map<int, std::vector<SegmentPositionContribution> >::iterator posContribIt = segmentIdToPositionContrib.begin();
+                while (posContribIt != segmentIdToPositionContrib.end())
+                {
+                    std::vector<SegmentPositionContribution> posContribs = posContribIt->second;
+                    // Merge contributions coming from above that has same segementAboveErtId
+                    // Merge contributions coming from below that has same segementBelowErtId
+
+                    // Split the contributions in above, below and by respective above/below segmentErtId
+                    std::map<int, std::vector<SegmentPositionContribution> > aboveErtIdToContribs;
+                    std::map<int, std::vector<SegmentPositionContribution> > belowErtIdToContribs;
+
+                    for (size_t pcIdx = 0; pcIdx < posContribs.size(); ++pcIdx)
+                    {
+                        if (posContribs[pcIdx].m_isFromAbove )
+                        {
+                            aboveErtIdToContribs[posContribs[pcIdx].m_segmentIdUnder].push_back(posContribs[pcIdx]);
+                        }
+                        else
+                        {
+                            belowErtIdToContribs[posContribs[pcIdx].m_segmentIdUnder].push_back(posContribs[pcIdx]);
+                        }
+                    }
+
+                    std::vector<SegmentPositionContribution> mergedPosContribs;
+                    std::map<int, std::vector<SegmentPositionContribution> >::iterator pcIt;
+                    for (pcIt = aboveErtIdToContribs.begin(); pcIt != aboveErtIdToContribs.end(); ++pcIt)
+                    {
+                        if (pcIt->second.size() == 1) 
+                        {
+                            mergedPosContribs.push_back(pcIt->second[0]);
+                        }
+                        else if (pcIt->second.size() > 1)
+                        {
+                            // Merge them
+                            // Find the closest distance -> splitpoint distance
+                            double splitPointDistance = HUGE_VAL;
+                            for (size_t pcIdx = 0; pcIdx < pcIt->second.size(); ++pcIdx)
+                            {
+                                if (pcIt->second[pcIdx].m_lengthFromConnection < splitPointDistance)
+                                {
+                                    splitPointDistance = pcIt->second[pcIdx].m_lengthFromConnection;
+                                }
+                            }
+                            // calculate splitpoint position
+                            // Merged posContrib made from splitpoint distance, and splitpoint
+
+                        }
+                    }
+
+
+                }
+#endif
+                // Then do the calculation based on the refined contributions
 
                 std::map<int, std::vector<SegmentPositionContribution> >::iterator posContribIt = segmentIdToPositionContrib.begin();
                 std::map<int, cvf::Vec3d> bottomPositions;
