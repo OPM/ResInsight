@@ -104,6 +104,14 @@ size_t RigSingleWellResultsData::firstResultTimeStep() const
     return cvf::UNDEFINED_SIZE_T;
 }
 
+bool operator== (const RigWellResultPoint& p1, const RigWellResultPoint& p2)
+{
+    return 
+        p1.m_gridIndex == p2.m_gridIndex 
+        && p1.m_gridCellIndex == p2.m_gridCellIndex
+        && p1.m_ertBranchId == p2.m_ertBranchId
+        && p1.m_ertSegmentId == p2.m_ertSegmentId;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -147,27 +155,23 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
             size_t  rStartIdx;
             size_t  rEndIdx;
 
-
-            size_t sGridIdx;
-            size_t sCellIdx;
-            size_t rGridIdx; 
-            size_t rCellIdx; 
-
             // First detect if we have cells on the start of the result frame, that is not in the static frame
             {
                 sEndIt = stBranch.begin();
                 bool found = false;
                 if (stBranch.size())
                 {
-                    sGridIdx = sEndIt->m_gridIndex;
-                    sCellIdx = sEndIt->m_gridCellIndex;
+                    size_t sGridIdx = sEndIt->m_gridIndex;
+                    size_t sCellIdx = sEndIt->m_gridCellIndex;
 
                     for (rEndIdx = 0; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                     {
-                        rGridIdx = resBranch[rEndIdx].m_gridIndex;
-                        rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
+                        size_t rGridIdx = resBranch[rEndIdx].m_gridIndex;
+                        size_t rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
 
-                        if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
+                        //if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
+                        if ((*sEndIt) == (resBranch[rEndIdx])) { found = true; break; }
+
                     }
                 }
 
@@ -202,16 +206,17 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
             if (sEndIt !=  stBranch.end()) ++sEndIt;
             for ( ; sEndIt != stBranch.end() ; ++sEndIt)
             {
-                sGridIdx = sEndIt->m_gridIndex;
-                sCellIdx = sEndIt->m_gridCellIndex;
+                size_t sGridIdx = sEndIt->m_gridIndex;
+                size_t sCellIdx = sEndIt->m_gridCellIndex;
 
                 bool found = false;
                 for (rEndIdx += 1; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                 {
-                    rGridIdx = resBranch[rEndIdx].m_gridIndex;
-                    rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
+                    size_t rGridIdx = resBranch[rEndIdx].m_gridIndex;
+                    size_t rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
 
-                    if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
+                    //if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
+                    if ((*sEndIt) == (resBranch[rEndIdx])) { found = true; break; }
                 }
 
                 if (found)
