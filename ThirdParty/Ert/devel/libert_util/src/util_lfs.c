@@ -81,7 +81,7 @@ int util_fseek(FILE * stream, offset_type offset, int whence) {
 
 
 void util_rewind(FILE * stream) {
-#ifdef WINDOWS_LFS_SUPPORT
+#ifdef WINDOWS_LFS
   _fseeki64(stream , 0L , SEEK_SET);
 #else
   rewind( stream );
@@ -93,7 +93,7 @@ void util_rewind(FILE * stream) {
 
 
 int util_stat(const char * filename , stat_type * stat_info) {
-#ifdef WINDOWS_LFS_SUPPORT
+#ifdef WINDOWS_LFS
   return _stat64(filename , stat_info);
 #else
   return stat(filename , stat_info);
@@ -102,7 +102,7 @@ int util_stat(const char * filename , stat_type * stat_info) {
 
 
 int util_fstat(int fileno, stat_type * stat_info) {
-#ifdef WINDOWS_LFS_SUPPORT
+#ifdef WINDOWS_LFS
   return _fstat64(fileno , stat_info);
 #else
   return fstat(fileno , stat_info);
