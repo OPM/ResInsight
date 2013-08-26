@@ -243,8 +243,8 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
         CVF_ASSERT(wellResults->isMultiSegmentWell() ||  resBranches.size() <= 1);
 
-      // The centerline is calculated by adding a point when the pipe enters a cell, 
-      // and one when the line leaves the cell.
+        // The centerline is calculated by adding a point when the pipe enters a cell, 
+        // and one when the line leaves the cell.
         // For the sake of the loop:
         // The currentResultPoint (Cell) and the one we index by the loop variable is the one we calculate the entry point to.
         // The previous cell is the one we leave, and calculate the "out-point" from 
@@ -328,7 +328,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                 if (!currentWellResPoint.isValid())
                 {
-                    CVF_ASSERT(false);
+                    //CVF_ASSERT(false); // Some segments does not get anything yet.
                     continue;
                 }
 
