@@ -97,7 +97,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
     std::vector< size_t > pipeBranchIds;
     std::vector< std::vector <cvf::Vec3d> > pipeBranchesCLCoords;
-    std::vector< std::vector <RigWellResultCell> > pipeBranchesCellIds;
+    std::vector< std::vector <RigWellResultPoint> > pipeBranchesCellIds;
 
     calculateWellPipeCenterline(pipeBranchesCLCoords, pipeBranchesCellIds);
 
@@ -163,10 +163,10 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Based on the points and cells, calculate a pipe centerline
 //--------------------------------------------------------------------------------------------------
 void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
-                                                        std::vector< std::vector <RigWellResultCell> >& pipeBranchesCellIds) const
+                                                        std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) const
 {
     CVF_ASSERT(m_rimWell.notNull());
     CVF_ASSERT(m_rimReservoirView.notNull());
@@ -193,7 +193,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
     // Match this position with well head position in RivWellHeadPartMgr::buildWellHeadParts()
     const RigCell& whCell = rigReservoir->cellFromWellResultCell(staticWellFrame.m_wellHead);
     cvf::Vec3d whStartPos = whCell.faceCenter(cvf::StructGridInterface::NEG_K);
-    const RigWellResultCell* whResCell = &(staticWellFrame.m_wellHead);
+    const RigWellResultPoint* whResCell = &(staticWellFrame.m_wellHead);
 
     // Loop over all the well branches
     const std::vector<RigWellResultBranch>& resBranches = staticWellFrame.m_wellResultBranches;
@@ -202,7 +202,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
     {
         for (size_t i = 0 ; i < resBranches.size(); ++i)
         {
-            if (resBranches[i].m_wellCells.size() != 0)
+            if (resBranches[i].m_branchResultPoints.size() != 0)
             {
                 hasResultCells = true;
             }
@@ -218,15 +218,15 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
         whIntermediate.z() = (whStartPos.z() + whCell.center().z()) / 2.0;
 
 
-        const RigWellResultCell* prevResCell = NULL;
+        const RigWellResultPoint* prevResCell = NULL;
         
         // Use well head if branch head is not specified
-        if (!wellResults->isMultiSegmentWell())
+        if (false && !wellResults->isMultiSegmentWell())
         {
             // Create a new branch from wellhead
 
             pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-            pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
+            pipeBranchesCellIds.push_back(std::vector <RigWellResultPoint>());
 
             prevResCell = whResCell;
 
@@ -237,9 +237,11 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
             pipeBranchesCellIds.back().push_back(*prevResCell);
         }
 
+        CVF_ASSERT(wellResults->isMultiSegmentWell() ||  resBranches.size() <= 1);
+
         for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
         {
-            if (resBranches[brIdx].m_wellCells.size() == 0)
+            if (resBranches[brIdx].m_branchResultPoints.size() == 0)
                 continue; // Skip empty branches. Do not know why they exist, but they make problems.
 
             prevResCell = NULL;
@@ -247,10 +249,10 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
             // Find the start the MSW well-branch centerline. Normal wells are started "once" at wellhead in the code above 
 
-            if (wellResults->isMultiSegmentWell())
-            {
+           // if (wellResults->isMultiSegmentWell())
+           // {
                 pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-                pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
+                pipeBranchesCellIds.push_back(std::vector <RigWellResultPoint>());
 
                 if (brIdx == 0)
                 {
@@ -264,9 +266,12 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     pipeBranchesCLCoords.back().push_back(whIntermediate);
                     pipeBranchesCellIds.back().push_back(*prevResCell);
                 }
+
+#if 0 // Branch is supposed to contain its start point except the 
                 else
                 {
-                    const RigWellResultCell* leafBranchHead = staticWellFrame.findResultCellFromOutletSpecification(resBranches[brIdx].m_outletBranchIndex, resBranches[brIdx].m_outletBranchHeadCellIndex);
+                    
+                    const RigWellResultPoint* leafBranchHead = staticWellFrame.findResultCellFromOutletSpecification(resBranches[brIdx].m_outletBranchIndex_OBSOLETE, resBranches[brIdx].m_outletBranchHeadCellIndex_OBSOLETE);
                     if (leafBranchHead && leafBranchHead->hasGridConnections())
                     {
                         // Create a new branch and use branch head as previous result cell
@@ -281,13 +286,13 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     }
                     else if (leafBranchHead)
                     {
-                        cvf::Vec3d interpolatedCoord = leafBranchHead->m_averageCenter;
+                        cvf::Vec3d interpolatedCoord = leafBranchHead->m_bottomPosition;
 
                         CVF_ASSERT(interpolatedCoord != cvf::Vec3d::UNDEFINED);
                         if (interpolatedCoord != cvf::Vec3d::UNDEFINED)
                         {
                             pipeBranchesCLCoords.back().push_back(interpolatedCoord);
-                            pipeBranchesCellIds.back().push_back(RigWellResultCell());
+                            pipeBranchesCellIds.back().push_back(RigWellResultPoint());
                         }
                     }
                     else
@@ -295,34 +300,36 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                         // No branch head found: Possibly main branch
                         CVF_ASSERT(false);
                     }
+                    
                 }
-            }
+#endif
+           // }
 
             // Loop over all the resultCells in the branch
-            const std::vector<RigWellResultCell>& resBranchCells = resBranches[brIdx].m_wellCells;
+            const std::vector<RigWellResultPoint>& resBranchCells = resBranches[brIdx].m_branchResultPoints;
 
             for (int cIdx = 0; cIdx < static_cast<int>(resBranchCells.size()); cIdx++) // Need int because cIdx can temporarily end on -1
             {
                 std::vector<cvf::Vec3d>&        branchCLCoords = pipeBranchesCLCoords.back();
-                std::vector<RigWellResultCell>& branchCellIds  = pipeBranchesCellIds.back();
+                std::vector<RigWellResultPoint>& branchCellIds  = pipeBranchesCellIds.back();
 
-                const RigWellResultCell& resCell = resBranchCells[cIdx];
+                const RigWellResultPoint& resPoint = resBranchCells[cIdx];
 
-                if (!resCell.hasConnections())
+                if (!resPoint.isValid())
                 {
                     continue;
                 }
 
-                if (resCell.hasBranchConnections())
+                if (!resPoint.isCell())
                 {
                     // Use the interpolated value of branch head
-                    cvf::Vec3d interpolatedCoord = resCell.m_averageCenter;
+                    cvf::Vec3d interpolatedCoord = resPoint.m_bottomPosition;
 
                     CVF_ASSERT(interpolatedCoord != cvf::Vec3d::UNDEFINED);
                     if (interpolatedCoord != cvf::Vec3d::UNDEFINED)
                     {
                         pipeBranchesCLCoords.back().push_back(interpolatedCoord);
-                        pipeBranchesCellIds.back().push_back(RigWellResultCell());
+                        pipeBranchesCellIds.back().push_back(RigWellResultPoint());
                     }
 
                     // Set previous result cell to NULL
@@ -331,23 +338,25 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     continue;
                 }
 
-                const RigCell& cell = rigReservoir->cellFromWellResultCell(resCell);
+                const RigCell& cell = rigReservoir->cellFromWellResultCell(resPoint);
 
                 // Check if this and the previous cells has shared faces
 
                 cvf::StructGridInterface::FaceType sharedFace;
-                if (prevResCell && rigReservoir->findSharedSourceFace(sharedFace, resCell, *prevResCell))
+                if (prevResCell && rigReservoir->findSharedSourceFace(sharedFace, resPoint, *prevResCell))
                 {
                     branchCLCoords.push_back(cell.faceCenter(sharedFace));
-                    branchCellIds.push_back(resCell);
+                    branchCellIds.push_back(resPoint);
                 }
                 else
                 {
+                    // This and the previous cell does not share a face.
                     cvf::Vec3d previousCoord;
+
+                    // If we have a previous cell, we need to go out of it, before entering this.
 
                     if (prevResCell)
                     {
-                        // This and the previous cell does not share a face. We need to go out of the previous cell, before entering this.
                         const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevResCell);
                         previousCoord = prevCell.center();
                     }
@@ -362,7 +371,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     if (   wellResults->isMultiSegmentWell()
                             || !isAutoDetectBranches
                             || (prevResCell == whResCell) 
-                            || (centerThisCell-previousCoord).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared()
+                            || (centerThisCell - previousCoord).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared()
                         )
                     {
                         // Not starting a "display" branch
@@ -391,7 +400,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                         }
 
                         branchCLCoords.push_back(intoThisCell);
-                        branchCellIds.push_back(resCell);
+                        branchCellIds.push_back(resPoint);
                     }
                     else
                     {
@@ -405,7 +414,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                         // Create new display branch
                         pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
-                        pipeBranchesCellIds.push_back(std::vector <RigWellResultCell>());
+                        pipeBranchesCellIds.push_back(std::vector <RigWellResultPoint>());
 
                         // Start the new branch by entering the first cell (the wellhead) and intermediate
                         prevResCell = whResCell;
@@ -422,7 +431,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     }
                 }
 
-                prevResCell = &resCell;
+                prevResCell = &resPoint;
              }
 
             if ( wellResults->isMultiSegmentWell())
@@ -509,14 +518,14 @@ void RivWellPipesPartMgr::updatePipeResultColor(size_t frameIndex)
         wellCellStates.clear();
         wellCellStates.resize(brIt->m_cellIds.size(), closed);
 
-        const std::vector <RigWellResultCell>& cellIds =  brIt->m_cellIds;
+        const std::vector <RigWellResultPoint>& cellIds =  brIt->m_cellIds;
 
         for (size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx)
         {
             // we need a faster lookup, I guess
-            const RigWellResultCell* wResCell = NULL;
+            const RigWellResultPoint* wResCell = NULL;
             
-            if (cellIds[wcIdx].hasGridConnections())
+            if (cellIds[wcIdx].isCell())
             {
                 wResCell = wResFrame.findResultCell(cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex);
             }

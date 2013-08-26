@@ -112,16 +112,16 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
-    std::map < size_t, std::list< RigWellResultCell > > staticWellBranches;
+    std::map < size_t, std::list< RigWellResultPoint > > staticWellBranches;
 
     // Add ResultCell data from the first timestep to the final result.
 
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
         size_t branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchIndex;
-        std::vector<RigWellResultCell>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_wellCells;
+        std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
        
-        std::list< RigWellResultCell >& branch =  staticWellBranches[branchNumber];
+        std::list< RigWellResultPoint >& branch =  staticWellBranches[branchNumber];
 
         for(size_t cIdx = 0; cIdx < frameCells.size(); ++cIdx)
         {
@@ -138,12 +138,12 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
         for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx)
         {
             size_t branchNumber = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchIndex;
-            std::vector<RigWellResultCell>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_wellCells;
+            std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
-            std::list< RigWellResultCell >& stBranch =  staticWellBranches[branchNumber];
-            std::list< RigWellResultCell >::iterator it;
-            std::list< RigWellResultCell >::iterator sStartIt;
-            std::list< RigWellResultCell >::iterator sEndIt;
+            std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchNumber];
+            std::list< RigWellResultPoint >::iterator it;
+            std::list< RigWellResultPoint >::iterator sStartIt;
+            std::list< RigWellResultPoint >::iterator sEndIt;
             size_t  rStartIdx;
             size_t  rEndIdx;
 
@@ -245,7 +245,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     // Populate the static well info 
 
-    std::map < size_t, std::list< RigWellResultCell > >::iterator bIt;
+    std::map < size_t, std::list< RigWellResultPoint > >::iterator bIt;
 
     m_staticWellCells.m_wellResultBranches.clear();
     m_staticWellCells.m_wellHead = m_wellCellsTimeSteps[0].m_wellHead;
@@ -262,15 +262,15 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
         rigBranch.m_branchIndex = bIt->first;
 
         // Clear well cells, and insert the collection of well cells for the static situation
-        rigBranch.m_wellCells.clear();
+        rigBranch.m_branchResultPoints.clear();
 
-        std::list< RigWellResultCell >& branch =  bIt->second;
-        std::list< RigWellResultCell >::iterator cIt;
+        std::list< RigWellResultPoint >& branch =  bIt->second;
+        std::list< RigWellResultPoint >::iterator cIt;
         for (cIt = branch.begin(); cIt != branch.end(); ++cIt)
         {
-            RigWellResultCell rwc = *cIt;
+            RigWellResultPoint rwc = *cIt;
             rwc.m_isOpen = false; // Reset the dynamic property
-            rigBranch.m_wellCells.push_back(*cIt);
+            rigBranch.m_branchResultPoints.push_back(*cIt);
         }
 
         m_staticWellCells.m_wellResultBranches.push_back(rigBranch);

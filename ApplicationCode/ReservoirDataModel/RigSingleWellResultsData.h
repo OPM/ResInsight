@@ -27,31 +27,31 @@
 #include <vector>
 #include "cvfVector3.h"
 
-struct RigWellResultCell
+struct RigWellResultPoint
 {
-    RigWellResultCell() : 
+    RigWellResultPoint() : 
         m_gridIndex(cvf::UNDEFINED_SIZE_T), 
         m_gridCellIndex(cvf::UNDEFINED_SIZE_T), 
         m_isOpen(false),
         m_ertBranchId(-1),
         m_ertSegmentId(-1),
-        m_averageCenter(cvf::Vec3d::UNDEFINED),
+        m_bottomPosition(cvf::Vec3d::UNDEFINED),
         m_branchConnectionCount(0)
     { }
 
-    bool hasBranchConnections() const
+    bool isPointValid() const
     {
-        return m_branchConnectionCount != 0;
+        return m_bottomPosition != cvf::Vec3d::UNDEFINED;
     }
 
-    bool hasGridConnections() const
+    bool isCell() const
     {
         return m_gridCellIndex != cvf::UNDEFINED_SIZE_T;
     }
 
-    bool hasConnections() const
+    bool isValid() const
     {
-        return hasGridConnections() || hasBranchConnections();
+        return isCell() || isPointValid();
     }
 
 
@@ -63,33 +63,30 @@ struct RigWellResultCell
     int     m_ertBranchId;
     int     m_ertSegmentId;
 
-    cvf::Vec3d m_averageCenter;
+    cvf::Vec3d m_bottomPosition;
     size_t     m_branchConnectionCount;
 };
+
 
 struct RigWellResultBranch
 {
     RigWellResultBranch() :
         m_branchIndex(cvf::UNDEFINED_SIZE_T),
         m_ertBranchId(-1),
-        m_outletBranchIndex(cvf::UNDEFINED_SIZE_T),
-        m_outletBranchHeadCellIndex(cvf::UNDEFINED_SIZE_T)
+        m_outletBranchIndex_OBSOLETE(cvf::UNDEFINED_SIZE_T),
+        m_outletBranchHeadCellIndex_OBSOLETE(cvf::UNDEFINED_SIZE_T)
     {}
 
 
     size_t                         m_branchIndex;
     int                            m_ertBranchId;
 
-    std::vector<RigWellResultCell> m_wellCells;
-    
+    std::vector<RigWellResultPoint> m_branchResultPoints;
+       
     // Grid cell from last connection in outlet segment. For MSW wells, this is either well head or a well result cell in another branch
     // For standard wells, this is always well head.
-    RigWellResultCell               m_branchHead;
-    
-    // Grid cell from last connection in outlet segment. For MSW wells, this is either well head or a well result cell in another branch
-    // For standard wells, this is always well head.
-    size_t                          m_outletBranchIndex;
-    size_t                          m_outletBranchHeadCellIndex;
+    size_t                          m_outletBranchIndex_OBSOLETE;
+    size_t                          m_outletBranchHeadCellIndex_OBSOLETE;
 
 };
 
@@ -104,7 +101,7 @@ public:
         m_productionType(UNDEFINED_PRODUCTION_TYPE)
     { }
 
-    const RigWellResultCell* findResultCell(size_t gridIndex, size_t gridCellIndex) const
+    const RigWellResultPoint* findResultCell(size_t gridIndex, size_t gridCellIndex) const
     {
         CVF_ASSERT(gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T);
 
@@ -115,12 +112,12 @@ public:
 
         for (size_t wb = 0; wb < m_wellResultBranches.size(); ++wb)
         {
-            for (size_t wc = 0; wc < m_wellResultBranches[wb].m_wellCells.size(); ++wc)
+            for (size_t wc = 0; wc < m_wellResultBranches[wb].m_branchResultPoints.size(); ++wc)
             {
-                if (   m_wellResultBranches[wb].m_wellCells[wc].m_gridCellIndex == gridCellIndex  
-                    && m_wellResultBranches[wb].m_wellCells[wc].m_gridIndex == gridIndex  )
+                if (   m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridCellIndex == gridCellIndex  
+                    && m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridIndex == gridIndex  )
                 {
-                    return &(m_wellResultBranches[wb].m_wellCells[wc]);
+                    return &(m_wellResultBranches[wb].m_branchResultPoints[wc]);
                 }
             }
         }
@@ -128,14 +125,14 @@ public:
         return NULL;
     }
 
-    const RigWellResultCell* findResultCellFromOutletSpecification(size_t branchIndex, size_t wellResultCellIndex) const
+    const RigWellResultPoint* findResultCellFromOutletSpecification(size_t branchIndex, size_t wellResultCellIndex) const
     {
         if (branchIndex != cvf::UNDEFINED_SIZE_T && branchIndex < m_wellResultBranches.size())
         {
             const RigWellResultBranch& resBranch = m_wellResultBranches[branchIndex];
-            if (wellResultCellIndex != cvf::UNDEFINED_SIZE_T && wellResultCellIndex < resBranch.m_wellCells.size())
+            if (wellResultCellIndex != cvf::UNDEFINED_SIZE_T && wellResultCellIndex < resBranch.m_branchResultPoints.size())
             {
-                return (&resBranch.m_wellCells[wellResultCellIndex]);
+                return (&resBranch.m_branchResultPoints[wellResultCellIndex]);
             }
         }
 
@@ -145,7 +142,7 @@ public:
 
     WellProductionType  m_productionType;
     bool                m_isOpen;
-    RigWellResultCell   m_wellHead;
+    RigWellResultPoint   m_wellHead;
     QDateTime           m_timestamp;
     
     std::vector<RigWellResultBranch> m_wellResultBranches;
