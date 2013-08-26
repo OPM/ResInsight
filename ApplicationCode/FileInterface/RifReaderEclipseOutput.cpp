@@ -1155,10 +1155,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
             {
                 // Loop over all the grids in the model. If we have connections in one, we will discard
                 // the main grid connections as the well connections are duplicated in the main grid and LGR grids 
+                // Verified on 10 k case JJS. But smarter things could be done, like showing the "main grid well" if turning off the LGR's
 
                 bool hasWellConnectionsInLGR = false;
-#if 0
-                // To be discussed with Statoil
+
                 for (size_t gridIdx = 1; gridIdx < grids.size(); ++gridIdx)
                 {
                     RigGridBase* lgrGrid = m_eclipseCase->grid(gridIdx);
@@ -1168,7 +1168,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                         break;
                     }
                 }
-#endif
+
                 size_t gridNr = hasWellConnectionsInLGR ? 1 : 0;
                 for (; gridNr < grids.size(); ++gridNr)
                 {

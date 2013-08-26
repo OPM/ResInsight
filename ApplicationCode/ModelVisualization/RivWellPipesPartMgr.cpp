@@ -164,6 +164,8 @@ void RivWellPipesPartMgr::buildWellPipeParts()
 
 //--------------------------------------------------------------------------------------------------
 /// Based on the points and cells, calculate a pipe centerline
+/// The returned CellIds is one less than the number of centerline points,
+/// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
 void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector <cvf::Vec3d> >& pipeBranchesCLCoords, 
                                                         std::vector< std::vector <RigWellResultPoint> >& pipeBranchesCellIds) const
@@ -218,10 +220,11 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
         whIntermediate.z() = (whStartPos.z() + whCell.center().z()) / 2.0;
 
 
-        const RigWellResultPoint* prevResCell = NULL;
-        
+        const RigWellResultPoint* prevWellResPoint = NULL;
+
+#if 0
         // Use well head if branch head is not specified
-        if (false && !wellResults->isMultiSegmentWell())
+        if (!wellResults->isMultiSegmentWell())
         {
             // Create a new branch from wellhead
 
@@ -236,15 +239,23 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
             pipeBranchesCLCoords.back().push_back(whIntermediate);
             pipeBranchesCellIds.back().push_back(*prevResCell);
         }
+#endif
 
         CVF_ASSERT(wellResults->isMultiSegmentWell() ||  resBranches.size() <= 1);
+
+      // The centerline is calculated by adding a point when the pipe enters a cell, 
+      // and one when the line leaves the cell.
+        // For the sake of the loop:
+        // The currentResultPoint (Cell) and the one we index by the loop variable is the one we calculate the entry point to.
+        // The previous cell is the one we leave, and calculate the "out-point" from 
+
 
         for (size_t brIdx = 0; brIdx < resBranches.size(); brIdx++)
         {
             if (resBranches[brIdx].m_branchResultPoints.size() == 0)
                 continue; // Skip empty branches. Do not know why they exist, but they make problems.
 
-            prevResCell = NULL;
+            prevWellResPoint = NULL;
 
 
             // Find the start the MSW well-branch centerline. Normal wells are started "once" at wellhead in the code above 
@@ -258,13 +269,13 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 {
                     // The first branch contains segment number 1, and this is the only segment connected to well head
                     // See Eclipse documentation for the keyword WELSEGS
-                    prevResCell = whResCell;
+                    prevWellResPoint = whResCell;
 
                     pipeBranchesCLCoords.back().push_back(whStartPos);
-                    pipeBranchesCellIds.back().push_back(*prevResCell);
+                    pipeBranchesCellIds.back().push_back(*prevWellResPoint);
 
                     pipeBranchesCLCoords.back().push_back(whIntermediate);
-                    pipeBranchesCellIds.back().push_back(*prevResCell);
+                    pipeBranchesCellIds.back().push_back(*prevWellResPoint);
                 }
 
 #if 0 // Branch is supposed to contain its start point except the 
@@ -313,117 +324,169 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 std::vector<cvf::Vec3d>&        branchCLCoords = pipeBranchesCLCoords.back();
                 std::vector<RigWellResultPoint>& branchCellIds  = pipeBranchesCellIds.back();
 
-                const RigWellResultPoint& resPoint = resBranchCells[cIdx];
+                const RigWellResultPoint& currentWellResPoint = resBranchCells[cIdx];
 
-                if (!resPoint.isValid())
+                if (!currentWellResPoint.isValid())
                 {
+                    CVF_ASSERT(false);
                     continue;
                 }
 
-                if (!resPoint.isCell())
+                if (!currentWellResPoint.isCell()) 
                 {
                     // Use the interpolated value of branch head
-                    cvf::Vec3d interpolatedCoord = resPoint.m_bottomPosition;
+                    CVF_ASSERT(currentWellResPoint.isPointValid());
 
-                    CVF_ASSERT(interpolatedCoord != cvf::Vec3d::UNDEFINED);
-                    if (interpolatedCoord != cvf::Vec3d::UNDEFINED)
+                    cvf::Vec3d currentPoint = currentWellResPoint.m_bottomPosition;
+
+                    // If we have a real previous cell, we need to go out of it, before adding the current point
+                    // That is: add a CL-point describing where it leaves the previous cell.
+
+                    if (prevWellResPoint && prevWellResPoint->isCell())
                     {
-                        pipeBranchesCLCoords.back().push_back(interpolatedCoord);
-                        pipeBranchesCellIds.back().push_back(RigWellResultPoint());
+                        // Create ray between the previous and this position
+
+                        const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevWellResPoint);
+                        cvf::Vec3d centerPreviousCell = prevCell.center();
+
+                        cvf::Ray rayToThisCell;
+                        rayToThisCell.setOrigin(centerPreviousCell);
+                        rayToThisCell.setDirection((currentPoint - centerPreviousCell).getNormalized());
+
+                        cvf::Vec3d outOfPrevCell(centerPreviousCell);
+
+                        bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                        //CVF_ASSERT(intersectionOk);
+                        //CVF_ASSERT(intersectionOk);
+                        if ((currentPoint - outOfPrevCell).lengthSquared() > 1e-3)
+                        {
+                            branchCLCoords.push_back(outOfPrevCell);
+                            branchCellIds.push_back(RigWellResultPoint());
+                        }
+
                     }
 
-                    // Set previous result cell to NULL
-                    prevResCell = NULL;
+                    pipeBranchesCLCoords.back().push_back(currentPoint);
+                    pipeBranchesCellIds.back().push_back(currentWellResPoint);
+                    
+                    prevWellResPoint = &currentWellResPoint;
 
                     continue;
                 }
 
-                const RigCell& cell = rigReservoir->cellFromWellResultCell(resPoint);
+                const RigCell& cell = rigReservoir->cellFromWellResultCell(currentWellResPoint);
 
                 // Check if this and the previous cells has shared faces
+              
 
                 cvf::StructGridInterface::FaceType sharedFace;
-                if (prevResCell && rigReservoir->findSharedSourceFace(sharedFace, resPoint, *prevResCell))
+                if (prevWellResPoint && prevWellResPoint->isCell() && rigReservoir->findSharedSourceFace(sharedFace, currentWellResPoint, *prevWellResPoint))
                 {
+                    // If they share faces, the shared face center is used as point
+                    // describing the entry of this cell. (And exit of the previous cell)
+
                     branchCLCoords.push_back(cell.faceCenter(sharedFace));
-                    branchCellIds.push_back(resPoint);
+                    branchCellIds.push_back(currentWellResPoint);
                 }
                 else
                 {
                     // This and the previous cell does not share a face.
-                    cvf::Vec3d previousCoord;
 
-                    // If we have a previous cell, we need to go out of it, before entering this.
-
-                    if (prevResCell)
-                    {
-                        const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevResCell);
-                        previousCoord = prevCell.center();
-                    }
-                    else
-                    {
-                        previousCoord = pipeBranchesCLCoords.back().back();
-                    }
-
+                    cvf::Vec3d centerPreviousCell(cvf::Vec3d::ZERO);
                     cvf::Vec3d centerThisCell = cell.center();
+                    bool distanceToWellHeadIsLonger = true;
 
-                    // First make sure this cell is not starting a new "display" branch 
+                    // If we have a previous well result point, use its center as measure point and ray intersection start 
+                    // when considering things. 
+
+                    if (prevWellResPoint && prevWellResPoint->isValid())
+                    {
+                        if (prevWellResPoint->isCell())
+                        {
+                            const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevWellResPoint);
+                            centerPreviousCell = prevCell.center();
+                        }
+                        else
+                        {
+                            centerPreviousCell = prevWellResPoint->m_bottomPosition;
+                        }
+
+                        distanceToWellHeadIsLonger = (centerThisCell - centerPreviousCell).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared();
+                    }
+                   
+
+                    // First make sure this cell is not starting a new "display" branch for none MSW's
+
                     if (   wellResults->isMultiSegmentWell()
                             || !isAutoDetectBranches
-                            || (prevResCell == whResCell) 
-                            || (centerThisCell - previousCoord).lengthSquared() <= (centerThisCell - whStartPos).lengthSquared()
+                            || (prevWellResPoint == whResCell) 
+                            || distanceToWellHeadIsLonger
                         )
                     {
-                        // Not starting a "display" branch
-                        // Create ray and intersect with cells
-
-                        cvf::Ray rayToThisCell;
-                        rayToThisCell.setOrigin(previousCoord);
-                        rayToThisCell.setDirection((centerThisCell - previousCoord).getNormalized());
-
+                        // Not starting a "display" branch for normal wells
+                        
                         cvf::Vec3d intoThisCell(centerThisCell);
-                        cell.firstIntersectionPoint(rayToThisCell, &intoThisCell);
 
-                        if (prevResCell)
+                        if (prevWellResPoint && prevWellResPoint->isValid())
                         {
-                            cvf::Vec3d outOfPrevCell(previousCoord);
+                            // We have a defined previous point
+                            // Create ray between the previous and this cell 
+                            
+                            cvf::Ray rayToThisCell;
+                            rayToThisCell.setOrigin(centerPreviousCell);
+                            rayToThisCell.setDirection((centerThisCell - centerPreviousCell).getNormalized());
 
-                            const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevResCell);
-                            bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
-                            //CVF_ASSERT(intersectionOk);
-                            //CVF_ASSERT(intersectionOk);
-                            if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)
+                            // Intersect with the current cell to find a better entry point than the cell center
+
+                            cell.firstIntersectionPoint(rayToThisCell, &intoThisCell);
+
+                            // If we have a real previous cell, we need to go out of it, before entering this.
+                            // That is: add a CL-point describing where it leaves the previous cell.
+
+                            if ( prevWellResPoint->isCell())
                             {
-                                branchCLCoords.push_back(outOfPrevCell);
-                                branchCellIds.push_back(*prevResCell);
+                                cvf::Vec3d outOfPrevCell(centerPreviousCell);
+
+                                const RigCell& prevCell = rigReservoir->cellFromWellResultCell(*prevWellResPoint);
+                                bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                                //CVF_ASSERT(intersectionOk);
+                                //CVF_ASSERT(intersectionOk);
+                                if ((intoThisCell - outOfPrevCell).lengthSquared() > 1e-3)
+                                {
+                                    branchCLCoords.push_back(outOfPrevCell);
+                                    branchCellIds.push_back(RigWellResultPoint());
+                                }
                             }
                         }
 
                         branchCLCoords.push_back(intoThisCell);
-                        branchCellIds.push_back(resPoint);
+                        branchCellIds.push_back(currentWellResPoint);
                     }
                     else
                     {
+                        // Need to start a "display branch" for a Normal Well.
+
                         CVF_ASSERT(!wellResults->isMultiSegmentWell());
 
                         // This cell is further from the previous cell than from the well head, 
                         // thus we interpret it as a new branch.
 
-                        // First finish the current branch
-                        branchCLCoords.push_back(branchCLCoords.back() + 1.5*(previousCoord - branchCLCoords.back())  );
+                        // First finish the current branch in the previous cell
+                        //branchCLCoords.push_back(branchCLCoords.back() + 1.5*(centerPreviousCell - branchCLCoords.back())  );
+                        finishPipeCenterLine(pipeBranchesCLCoords, centerPreviousCell);
 
                         // Create new display branch
                         pipeBranchesCLCoords.push_back(std::vector<cvf::Vec3d>());
                         pipeBranchesCellIds.push_back(std::vector <RigWellResultPoint>());
 
                         // Start the new branch by entering the first cell (the wellhead) and intermediate
-                        prevResCell = whResCell;
+                        prevWellResPoint = whResCell;
                         pipeBranchesCLCoords.back().push_back(whStartPos);
-                        pipeBranchesCellIds.back().push_back(*prevResCell);
+                        pipeBranchesCellIds.back().push_back(*prevWellResPoint);
 
                         // Include intermediate
                         pipeBranchesCLCoords.back().push_back(whIntermediate);
-                        pipeBranchesCellIds.back().push_back(*prevResCell);
+                        pipeBranchesCellIds.back().push_back(*prevWellResPoint);
 
                         // Well now we need to step one back to take this cell again, but in the new branch.
                         cIdx--;
@@ -431,34 +494,25 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     }
                 }
 
-                prevResCell = &resPoint;
+                prevWellResPoint = &currentWellResPoint;
              }
+            
+             // For the last cell, add the point 0.5 past the center of that cell
+             // Remember that prevWellResPoint actually is the last one in this branch.
 
-            if ( wellResults->isMultiSegmentWell())
-            {
-                // All MSW branches are completed using the point 0.5 past the center of last cell
-                size_t clCoordCount = pipeBranchesCLCoords.back().size();
-                CVF_ASSERT(clCoordCount >= 2);
-                cvf::Vec3d centerPrevCell = pipeBranchesCLCoords.back()[clCoordCount - 2];
-                cvf::Vec3d centerThisCell = pipeBranchesCLCoords.back()[clCoordCount - 1];
-
-                pipeBranchesCLCoords.back().push_back(centerThisCell + 1.5*(centerPrevCell - centerThisCell)  );
-            }
+             cvf::Vec3d centerLastCell;
+             if (prevWellResPoint && prevWellResPoint->isCell())
+             {
+                 const RigCell& prevCell =  rigReservoir->cellFromWellResultCell(*prevWellResPoint);
+                 centerLastCell = prevCell.center();
+                 finishPipeCenterLine(pipeBranchesCLCoords, centerLastCell);
+             }
+             else
+             {
+                 // Remove the ID that is superfluous since we will not add an ending point
+                 pipeBranchesCellIds.back().pop_back();
+             }
         }
-
-        if (!wellResults->isMultiSegmentWell())
-        {
-            // None MSW wells 
-            // For the last cell, add the point 0.5 past the center of that cell
-
-            size_t clCoordCount = pipeBranchesCLCoords.back().size();
-            CVF_ASSERT(clCoordCount >= 2);
-            cvf::Vec3d centerPrevCell = pipeBranchesCLCoords.back()[clCoordCount - 2];
-            cvf::Vec3d centerThisCell = pipeBranchesCLCoords.back()[clCoordCount - 1];
-
-            pipeBranchesCLCoords.back().push_back(centerThisCell + 1.5*(centerPrevCell - centerThisCell)  );
-        }
-
     }
 
     CVF_ASSERT(pipeBranchesCellIds.size() == pipeBranchesCLCoords.size());
@@ -466,6 +520,20 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
     {
         CVF_ASSERT(pipeBranchesCellIds[i].size() == pipeBranchesCLCoords[i].size()-1);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// All branches are completed using the point 0.5 past the center of 
+/// last cell.
+//--------------------------------------------------------------------------------------------------
+void RivWellPipesPartMgr::finishPipeCenterLine(std::vector< std::vector<cvf::Vec3d> > &pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter) const
+{
+    CVF_ASSERT(pipeBranchesCLCoords.size());
+    CVF_ASSERT(pipeBranchesCLCoords.back().size());
+
+    cvf::Vec3d entryPointLastCell = pipeBranchesCLCoords.back().back();
+
+    pipeBranchesCLCoords.back().push_back(entryPointLastCell + 1.5*(lastCellCenter - entryPointLastCell)  );
 }
 
 //--------------------------------------------------------------------------------------------------

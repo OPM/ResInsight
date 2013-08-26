@@ -229,6 +229,8 @@ cvf::UIntArray* RigCaseData::gridCellToWellIndex(size_t gridIndex)
 //--------------------------------------------------------------------------------------------------
 RigCell& RigCaseData::cellFromWellResultCell(const RigWellResultPoint& wellResultCell)
 {
+    CVF_ASSERT(wellResultCell.isCell());
+
     size_t gridIndex     = wellResultCell.m_gridIndex;
     size_t gridCellIndex = wellResultCell.m_gridCellIndex;
 
