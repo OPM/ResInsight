@@ -715,13 +715,13 @@ struct SegmentData
     SegmentData(const well_conn_collection_type* connections) :
     m_branchId(-1),
     m_segmentId(-1),
-    m_gridIndex(cvf::UNDEFINED_SIZE_T),
+    //m_gridIndex(cvf::UNDEFINED_SIZE_T),
     m_connections(connections)
     {}
 
     int m_branchId;
     int m_segmentId;
-    size_t m_gridIndex;
+    //size_t m_gridIndex;
     const well_conn_collection_type* m_connections;
 };
 
@@ -895,7 +895,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
 
 
                     // Fill the SegmentData list with the segments from ert in branch sorted order:
-                    // BrancN<TopSegment...BottomSegment>, ..., Branch0<TopSegment...BottomSegment>
+                    // Grid0(BrancN<TopSegment...BottomSegment>, ..., Branch0<TopSegment...BottomSegment>) ... GridN(BrancN<TopSegment...BottomSegment>, ..., Branch0<TopSegment...BottomSegment>)
 
                     std::list<SegmentData> segmentList;
                     std::vector<const well_segment_type*> outletBranchSegmentList;  // Keep a list of branch outlet segments to avoid traversal twice
@@ -916,7 +916,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                             SegmentData segmentData(NULL);
                             segmentData.m_branchId = branchId;
                             segmentData.m_segmentId = well_segment_get_id(segment);
-                            segmentData.m_gridIndex = gridNr;
+                            //segmentData.m_gridIndex = gridNr;
 
                             if (well_segment_has_grid_connections(segment, gridName.data()))
                             {
@@ -1111,8 +1111,22 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                             }
                         }
                     }
-
                 }
+
+                // Try to add a copy of the outlet wellResultPoint into the start of each branch
+
+                size_t bCount = wellResFrame.m_wellResultBranches.size();
+                for (size_t bIdx = 0; bIdx < bCount; ++bIdx)
+                {
+                    size_t outBranchIdx = wellResFrame.m_wellResultBranches[bIdx].m_outletBranchIndex_OBSOLETE;
+                    size_t outCellIdx = wellResFrame.m_wellResultBranches[bIdx].m_outletBranchHeadCellIndex_OBSOLETE;
+
+                    const RigWellResultPoint* resPoint = wellResFrame.findResultCellFromOutletSpecification(outBranchIdx, outCellIdx);
+
+                    wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.insert(wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.begin(), *resPoint);
+                    
+                }
+
             }
             else 
             {
