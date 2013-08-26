@@ -51,6 +51,12 @@ void test_days( const ecl_sum_type * ecl_sum ) {
 }
 
 
+void test_is_oil_producer( const ecl_sum_type * ecl_sum) {
+  test_assert_true( ecl_sum_is_oil_producer( ecl_sum , "OP_1"));
+  test_assert_false( ecl_sum_is_oil_producer( ecl_sum , "WI_1"));
+  test_assert_false( ecl_sum_is_oil_producer( ecl_sum , "DoesNotExist"));
+}
+
 
 
 
@@ -61,6 +67,7 @@ int main( int argc , char ** argv) {
 
   test_time_range( ecl_sum );
   test_days( ecl_sum );
+  test_is_oil_producer(ecl_sum);
 
   exit(0);
 }

@@ -23,7 +23,9 @@ import re
 import sys
 import os
 import erttypes
-
+import ert
+#import ert.enkf.enkf as enkf
+import ert.enkf.enkf_main as enkf
 
 def RH_version():
     RH  = open('/etc/redhat-release' , 'r').read().split()[6]
@@ -42,18 +44,8 @@ class ErtWrapper:
 
         
     def bootstrap(self, enkf_config , site_config , strict = True):
-        self.prototype("long enkf_main_bootstrap(char*, char*, bool)")
-        self.main = self.enkf.enkf_main_bootstrap(site_config, enkf_config, strict)
+        self.main = enkf.EnKFMain.bootstrap( enkf_config, site_config, strict )
         print "\nBootstrap complete!"
-
-
-        self.plot_config = self.__getErtPointer("enkf_main_get_plot_config")
-        self.analysis_config = self.__getErtPointer("enkf_main_get_analysis_config")
-        self.ecl_config = self.__getErtPointer("enkf_main_get_ecl_config")
-        self.site_config = self.__getErtPointer("enkf_main_get_site_config")
-        self.ensemble_config = self.__getErtPointer("enkf_main_get_ensemble_config")
-        self.model_config = self.__getErtPointer("enkf_main_get_model_config")
-        self.logh = self.__getErtPointer("enkf_main_get_logh")
 
         self.initializeTypes()
 
@@ -85,7 +77,7 @@ class ErtWrapper:
             sys.exit("Need a value for environment variable LSF_HOME")
         
         self.util = self.__loadLibrary( "libert_util" )
-        self.__loadLibrary( "libgeometry" )
+        self.__loadLibrary( "libert_geometry" )
         self.ecl  = self.__loadLibrary( "libecl" )
         self.__loadLibrary( "libsched" )
         self.__loadLibrary( "librms"    )
@@ -133,7 +125,7 @@ class ErtWrapper:
 
         prototype expects a string formatted like this:
 
-            "type functionName(type, ... ,type)"
+            #type functionName(type, ... ,type)#
 
         where type is a type available to ctypes
         Some type are automatically converted:
@@ -181,12 +173,6 @@ class ErtWrapper:
             return func
 
     def initializeTypes(self):
-        self.prototype("char* stringlist_iget(long, int)", lib=self.util)
-        self.prototype("long stringlist_alloc_new()", lib=self.util)
-        self.prototype("void stringlist_append_copy(long, char*)", lib=self.util)
-        self.prototype("int stringlist_get_size(long)", lib=self.util)
-        self.prototype("void stringlist_free(long)", lib=self.util)
-
         self.prototype("long hash_iter_alloc(long)", lib=self.util)
         self.prototype("char* hash_iter_get_next_key(long)", lib=self.util)
         self.prototype("char* hash_get(long, char*)", lib=self.util)
@@ -198,12 +184,6 @@ class ErtWrapper:
         self.prototype("char* subst_list_iget_key(long, int)", lib=self.util)
         self.prototype("char* subst_list_iget_value(long, int)", lib=self.util)
 
-        self.prototype("long bool_vector_alloc(int, bool)", lib=self.util)
-        self.prototype("void bool_vector_iset(long, int, bool)", lib=self.util)
-        self.prototype("long bool_vector_get_ptr(long)", lib=self.util)
-        self.prototype("void bool_vector_free(long)", lib=self.util)
-
-        self.prototype("void enkf_main_free(long)")
         self.prototype("void enkf_main_fprintf_config(long)")
         self.prototype("void enkf_main_create_new_config(long , char*, char* , char* , int)")
         
@@ -213,38 +193,6 @@ class ErtWrapper:
         erttypes.double_vector.initialize(self)
 
         
-    def getStringList(self, stringlist_pointer, free_after_use=False):
-        """Retrieve a list of strings"""
-        result = []
-
-        if stringlist_pointer == 0:
-            return result
-
-        number_of_strings = self.util.stringlist_get_size(stringlist_pointer)
-
-        for index in range(number_of_strings):
-            result.append(self.util.stringlist_iget(stringlist_pointer, index))
-
-        if free_after_use:
-            self.freeStringList(stringlist_pointer)
-
-        return result
-
-    def createStringList(self, list):
-        """Creates a new string list from the specified list. Remember to free the list after use."""
-        sl = self.util.stringlist_alloc_new()
-
-        for item in list:
-            self.util.stringlist_append_copy(sl , item)
-
-        return sl
-
-
-    def freeStringList(self, stringlistpointer):
-        """Must be used if the stringlist was allocated on the python side"""
-        self.util.stringlist_free(stringlistpointer)
-
-
     def getHash(self, hashpointer, intValue = False, return_type="char*"):
         """Retrieves a hash as a list of 2 element lists"""
         if hashpointer == 0:
@@ -288,27 +236,10 @@ class ErtWrapper:
         return func( self.main )
 
     
-    def createBoolVector(self, size, list):
-        """Allocates a bool vector"""
-        mask = self.util.bool_vector_alloc(size , False)
-
-        for index in list:
-            self.util.bool_vector_iset(mask, index, True)
-
-        return mask
-
-    def getBoolVectorPtr(self, mask):
-        """Returns the pointer to a bool vector"""
-        return self.util.bool_vector_get_ptr(mask)
-
-    def freeBoolVector(self, mask):
-        """Frees an allocated bool vector"""
-        self.util.bool_vector_free(mask)
-
     def cleanup(self):
         """Called at atexit to clean up before shutdown"""
         print "Calling enkf_main_free()"
-        self.enkf.enkf_main_free(self.main)
+        self.main.__del__
 
     def nonify(self, s):
         """Convert an empty string to None."""
@@ -316,7 +247,7 @@ class ErtWrapper:
 
     def save(self):
         """Save the state of ert to a configuration file."""
-        self.enkf.enkf_main_fprintf_config(self.main)
+        self.main.fprintf_config
 
 
         

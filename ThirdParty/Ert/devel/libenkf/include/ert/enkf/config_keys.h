@@ -110,7 +110,6 @@ extern "C" {
 #define  MAX_RUNNING_LOCAL_KEY             "MAX_RUNNING_LOCAL"
 #define  MAX_RUNNING_LSF_KEY               "MAX_RUNNING_LSF"
 #define  MAX_RUNNING_RSH_KEY               "MAX_RUNNING_RSH"
-#define  MAX_RUNNING_TORQUE_KEY            "MAX_RUNNING_TORQUE"
 #define  MAX_SUBMIT_KEY                    "MAX_SUBMIT" 
 #define  NUM_REALIZATIONS_KEY              "NUM_REALIZATIONS"      
 #define  OBS_CONFIG_KEY                    "OBS_CONFIG"

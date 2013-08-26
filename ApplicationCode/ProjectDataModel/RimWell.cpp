@@ -148,18 +148,12 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
     if (m_reservoirView == NULL) return false;
     if (this->wellResults() == NULL) return false;
 
-    if (frameIndex >= this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex.size())
-    {
+    if (   this->wellResults()->firstResultTimeStep() == cvf::UNDEFINED_SIZE_T 
+        || frameIndex < this->wellResults()->firstResultTimeStep() 
+        || frameIndex >= this->wellResults()->m_wellCellsTimeSteps.size()) 
         return false;
-    }
 
-    size_t wellTimeStepIndex = this->wellResults()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
-    if (wellTimeStepIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        return false;
-    }
-
-    if (!m_reservoirView->wellCollection()->isActive())
+    if (!m_reservoirView->wellCollection()->active())
         return false;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_ON)
@@ -202,13 +196,16 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
                 const std::vector<RigWellResultCell>& wsResCells = wellResSegments[wsIdx].m_wellCells;
                 for (size_t cIdx = 0; cIdx < wsResCells.size(); ++ cIdx)
                 {
-                    gridIndex = wsResCells[cIdx].m_gridIndex;
-                    gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
-
-                    cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-                    if ((*cellVisibility)[gridCellIndex]) 
+                    if (wsResCells[cIdx].hasGridConnections())
                     {
-                        return true;
+                        gridIndex = wsResCells[cIdx].m_gridIndex;
+                        gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
+
+                        cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+                        if ((*cellVisibility)[gridCellIndex]) 
+                        {
+                            return true;
+                        }
                     }
                 }
             }

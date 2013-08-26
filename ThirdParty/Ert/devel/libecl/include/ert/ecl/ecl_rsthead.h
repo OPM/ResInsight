@@ -63,6 +63,7 @@ extern "C" {
     int    nswlmx;          // The maximum number of segmented wells                
     int    nlbrmx;          // The maximum number of lateral branches pr well
     int    nilbrz;          // The number of entries pr segment in ILBR array  
+    int    nrsegz;          // The number of entries pr segment in RSEG array
 
     // Properteies from the LOGIHEAD keyword:
     bool   dualp;

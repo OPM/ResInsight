@@ -146,7 +146,6 @@ cfunc.submit          = cwrapper.prototype("c_void_p    queue_driver_submit_job(
 cfunc.free_job        = cwrapper.prototype("void        queue_driver_free_job( driver , job )")
 cfunc.cget_status     = cwrapper.prototype("int         job_queue_get_status( driver , job)")
 cfunc.kill_job        = cwrapper.prototype("void        queue_driver_kill_job( driver , job )")
-cfunc.set_str_option  = cwrapper.prototype("void        queue_driver_set_string_option( driver , char* , char*)")
 cfunc.set_max_running = cwrapper.prototype("void        queue_driver_set_max_running( driver , int )")
 cfunc.get_max_running = cwrapper.prototype("int         queue_driver_get_max_running( driver )")
 

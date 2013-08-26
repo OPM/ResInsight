@@ -56,7 +56,7 @@ public:
 private:
     bool                    readActiveCellInfo();
     void                    buildMetaData();
-    void                    readWellCells();
+    void                    readWellCells(const ecl_grid_type* mainEclGrid);
     
     void                    openInitFile();
     bool                    openDynamicAccess();

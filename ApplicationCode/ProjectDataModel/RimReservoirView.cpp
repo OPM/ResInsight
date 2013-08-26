@@ -435,9 +435,6 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     } 
     else if ( changedField == &showInactiveCells )
     {
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::INACTIVE);
-        m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-
         createDisplayModelAndRedraw();
     } 
     else if ( changedField == &showMainGrid )
@@ -560,7 +557,7 @@ void RimReservoirView::createDisplayModel()
     if (! this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometryTypesToAdd;
-        
+       
         if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
         {
             geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
@@ -582,7 +579,7 @@ void RimReservoirView::createDisplayModel()
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
-
+      
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -677,22 +674,6 @@ void RimReservoirView::updateCurrentTimeStep()
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
         m_reservoirGridPartManager->updateCellColor(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
-
-
-        if (this->showInactiveCells())
-        {
-            std::vector<size_t> gridIndices;
-            this->indicesToVisibleGrids(&gridIndices);
-
-            if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
-            {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
-            }
-            else
-            {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices); 
-            }
-        }
 
         if (m_viewer)
         {
@@ -1041,6 +1022,29 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 {
                     double scalarValue = dataAccessObject->cellScalar(cellIndex);
                     resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
+                }
+            }
+        }
+
+        cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
+        for (size_t i = 0; i < wellResults.size(); i++)
+        {
+            RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
+
+            if (m_currentTimeStep < singleWellResultData->firstResultTimeStep())
+            {
+                continue;
+            }
+
+            const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame(m_currentTimeStep);
+            const RigWellResultCell* wellResultCell = wellResultFrame.findResultCell(gridIndex, cellIndex);
+            if (wellResultCell)
+            {
+                resultInfoText->append(QString("(0-based) Branch Id : %1  Segment Id %2\n").arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
+                if (wellResultCell->hasBranchConnections())
+                {
+                    resultInfoText->append(QString("Branch Connection Count : %1\n").arg(wellResultCell->m_branchConnectionCount));
+                    resultInfoText->append(QString("Center coord : %1 %2 %3\n").arg(wellResultCell->m_averageCenter.x()).arg(wellResultCell->m_averageCenter.y()).arg(wellResultCell->m_averageCenter.z()));
                 }
             }
         }
@@ -1400,6 +1404,11 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                     {
                         if (wsResCells[cIdx].m_gridIndex == grid->gridIndex())
                         {
+                            if (!wsResCells[cIdx].hasGridConnections())
+                            {
+                                continue;
+                            }
+
                             size_t gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
                             (*visibleCells)[gridCellIndex] = true;
 

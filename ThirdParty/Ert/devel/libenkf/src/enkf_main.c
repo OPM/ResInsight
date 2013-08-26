@@ -2144,7 +2144,6 @@ enkf_main_type * enkf_main_alloc_empty( ) {
   
   enkf_main_init_subst_list( enkf_main );
   enkf_main_set_verbose( enkf_main , true );
-  printf("enkf_main->subst_list :%p \n",enkf_main->subst_list);
   return enkf_main;
 }
 

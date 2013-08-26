@@ -20,34 +20,59 @@ from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
 from    enkf_enum             import *
 import  libenkf
-class GenDataConfig(CClass):
+class FieldConfig(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
+            
+    @property
+    def get_type(self):
+        return cfunc.get_type(self)
 
+    @property
+    def get_truncation_mode(self):
+        return cfunc.get_truncation_mode(self)
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    @property
+    def get_truncation_min(self):
+        return cfunc.get_truncation_min(self)
 
+    @property
+    def get_init_transform_name(self):
+        return cfunc.get_init_transform_name(self)
 
+    @property
+    def get_output_transform_name(self):
+        return cfunc.get_output_transform_name(self)
 
+    @property
+    def get_truncation_max(self):
+        return cfunc.get_truncation_max(self)
+
+    @property
+    def get_nx(self):
+        return cfunc.get_nx(self)
+
+    @property
+    def get_ny(self):
+        return cfunc.get_ny(self)
+
+    @property
+    def get_nz(self):
+        return cfunc.get_ny(self)
+
+    def ijk_active(self, i,j,k):
+        return cfunc.ijk_active(self,i,j,k)
 ##################################################################
-
 cwrapper = CWrapper( libenkf.lib )
-cwrapper.registerType( "field_config" , GenDataConfig )
+cwrapper.registerType( "field_config" , FieldConfig )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("field_config")
-
-
+##################################################################
+##################################################################
 cfunc.free                      = cwrapper.prototype("void field_config_free( field_config )")
 cfunc.get_type                  = cwrapper.prototype("int field_config_get_type(field_config)")
 cfunc.get_truncation_mode       = cwrapper.prototype("int field_config_get_truncation_mode(field_config)")
@@ -55,4 +80,8 @@ cfunc.get_truncation_min        = cwrapper.prototype("double field_config_get_tr
 cfunc.get_truncation_max        = cwrapper.prototype("double field_config_get_truncation_max(field_config)")
 cfunc.get_init_transform_name   = cwrapper.prototype("char* field_config_get_init_transform_name(field_config)")
 cfunc.get_output_transform_name = cwrapper.prototype("char* field_config_get_output_transform_name(field_config)")
-cfunc.get_init_file_fmt         = cwrapper.prototype("char* field_config_get_init_file_fmt(field_config)")
+cfunc.ijk_active                = cwrapper.prototype("bool field_config_ijk_active(field_config, int, int, int)")
+cfunc.get_nx                    = cwrapper.prototype("int field_config_get_nx(field_config)")
+cfunc.get_ny                    = cwrapper.prototype("int field_config_get_ny(field_config)")
+cfunc.get_nz                    = cwrapper.prototype("int field_config_get_nz(field_config)")
+cfunc.get_grid                  = cwrapper.prototype("c_void_p field_config_get_grid(field_config)")

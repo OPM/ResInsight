@@ -17,6 +17,10 @@ for (root , dir_list , file_list) in os.walk( root_path ):
         (tmp , ext) = os.path.splitext( full_path )
         if ext == ".py":
             py_file = full_path
+            pyc_file = full_path + "c"
+            if os.path.exists( pyc_file ):
+                os.unlink( pyc_file )
+
             try:
                 print "Compiling: %s" % py_file
                 py_compile.compile( py_file , doraise = True )

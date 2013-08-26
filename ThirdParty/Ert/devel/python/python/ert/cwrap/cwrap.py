@@ -123,7 +123,15 @@ class CWrapper:
 
             return func
 
-
+    def safe_prototype(self,pattern , lib = None):
+        try:
+            func = self.prototype(pattern, lib)
+        except AttributeError:
+            func = None
+            sys.stderr.write("****Defunct function call: %s\n" % pattern)
+        return func
+                
+         
     def print_types(self):
         for ctype in self.registered_types.keys():
             print "%16s -> %s" % (ctype , self.registered_types[ ctype ])

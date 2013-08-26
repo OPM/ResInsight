@@ -5,5 +5,5 @@ add_test( geo_surface ${EXECUTABLE_OUTPUT_PATH}/geo_surface
                       ${PROJECT_SOURCE_DIR}/test-data/Statoil/Geometry/Surface.irap  
                       ${PROJECT_SOURCE_DIR}/test-data/Statoil/Geometry/Surface_incompatible.irap  )
 
-set_property( TEST geo_surface  PROPERTY LABELS Statoil )
+set_property( TEST geo_surface  PROPERTY LABELS StatoilData )
                

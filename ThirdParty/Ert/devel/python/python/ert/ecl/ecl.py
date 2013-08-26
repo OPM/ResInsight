@@ -37,7 +37,8 @@ from   ecl_kw                import EclKW
 from   ecl_case              import EclCase
 from   ecl_file              import EclFile
 from   ecl_sum               import EclSum
-from   ecl_rft               import EclRFTFile , EclRFT , EclRFTCell
+from   ecl_rft               import EclRFTFile , EclRFT 
+from   ecl_rft_cell          import EclRFTCell, EclPLTCell 
 from   ecl_grid              import EclGrid
 from   ecl_grav              import EclGrav
 from   ecl_subsidence        import EclSubsidence

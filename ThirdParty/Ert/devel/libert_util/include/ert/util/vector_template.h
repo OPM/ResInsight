@@ -51,6 +51,7 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   @TYPE@_vector_type * @TYPE@_vector_alloc_copy( const @TYPE@_vector_type * src);
   void                 @TYPE@_vector_imul(@TYPE@_vector_type * vector, int index, @TYPE@ factor);
   void                 @TYPE@_vector_scale(@TYPE@_vector_type * vector, @TYPE@ factor);
+  void                 @TYPE@_vector_div(@TYPE@_vector_type * vector, @TYPE@ divisor);
   @TYPE@               @TYPE@_vector_reverse_iget(const @TYPE@_vector_type * vector , int index);
   @TYPE@               @TYPE@_vector_iget(const @TYPE@_vector_type * , int);
   @TYPE@               @TYPE@_vector_safe_iget(const @TYPE@_vector_type * , int);

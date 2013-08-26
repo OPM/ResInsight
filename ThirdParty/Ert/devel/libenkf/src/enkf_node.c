@@ -341,21 +341,24 @@ void enkf_node_ecl_write(const enkf_node_type *enkf_node , const char *path , fo
 
 
 bool enkf_node_user_get(enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , node_id_type node_id , double * value) {
+  return enkf_node_user_get_no_id( enkf_node , fs , key , node_id.report_step , node_id.iens , node_id.state , value );
+}
+
+bool enkf_node_user_get_no_id(enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int report_step, int iens, state_enum state , double * value) {
+  node_id_type node_id = {.report_step = report_step , .iens = iens, .state = state };
   bool loadOK;
   FUNC_ASSERT( enkf_node->user_get );
   {
     loadOK = enkf_node_try_load( enkf_node , fs , node_id);
     
     if (loadOK) 
-      return enkf_node->user_get(enkf_node->data , key , node_id.report_step,  node_id.state , value);
+      return enkf_node->user_get(enkf_node->data , key , report_step,  state , value);
     else {
       *value = 0;
       return false;
     }
-
   }
 }
-
 
 bool enkf_node_user_get_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int iens , state_enum state , double_vector_type * values) {
   if (enkf_node->vector_storage) {

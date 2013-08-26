@@ -96,9 +96,11 @@ void create_submit_script_script_according_to_input() {
   fclose(file_stream);
 }
 
+
 int main(int argc, char ** argv) {
   getoption_nooptionsset_defaultoptionsreturned();
   setoption_setalloptions_optionsset();
+
   setoption_set_typed_options_wrong_format_returns_false();
   create_submit_script_script_according_to_input();
   exit(0);

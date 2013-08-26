@@ -2,9 +2,9 @@ include_directories( ext )
 file(GLOB ext_source "ext/*.c" )
 file(GLOB ext_header "ext/*.h" )
 
-set( source_files ecl_rsthead.c ecl_sum_tstep.c ecl_rst_file.c ecl_init_file.c ecl_grid_cache.c smspec_node.c ecl_kw_grdecl.c ecl_file_kw.c ecl_grav.c ecl_grav_calc.c ecl_smspec.c ecl_sum_data.c ecl_util.c ecl_kw.c ecl_sum.c fortio.c ecl_rft_file.c ecl_rft_node.c ecl_grid.c ecl_coarse_cell.c ecl_box.c ecl_io_config.c ecl_file.c ecl_region.c point.c tetrahedron.c ecl_subsidence.c ecl_grid_dims.c grid_dims.c ecl_grav_common.c ${ext_source})
+set( source_files ecl_rsthead.c ecl_sum_tstep.c ecl_rst_file.c ecl_init_file.c ecl_grid_cache.c smspec_node.c ecl_kw_grdecl.c ecl_file_kw.c ecl_grav.c ecl_grav_calc.c ecl_smspec.c ecl_sum_data.c ecl_util.c ecl_kw.c ecl_sum.c fortio.c ecl_rft_file.c ecl_rft_node.c ecl_rft_cell.c ecl_grid.c ecl_coarse_cell.c ecl_box.c ecl_io_config.c ecl_file.c ecl_region.c point.c tetrahedron.c ecl_subsidence.c ecl_grid_dims.c grid_dims.c ecl_grav_common.c ${ext_source})
 
-set( header_files ecl_rsthead.h ecl_sum_tstep.h ecl_rst_file.h ecl_init_file.h smspec_node.h ecl_grid_cache.h ecl_kw_grdecl.h ecl_file_kw.h ecl_grav.h ecl_grav_calc.h ecl_endian_flip.h ecl_smspec.h ecl_sum_data.h ecl_util.h ecl_kw.h ecl_sum.h fortio.h ecl_rft_file.h ecl_rft_node.h ecl_box.h ecl_coarse_cell.h ecl_grid.h ecl_io_config.h ecl_file.h ecl_region.h ecl_kw_magic.h ecl_subsidence.h ecl_grid_dims.h grid_dims.h ${ext_header} ecl_grav_common.h)
+set( header_files ecl_rsthead.h ecl_sum_tstep.h ecl_rst_file.h ecl_init_file.h smspec_node.h ecl_grid_cache.h ecl_kw_grdecl.h ecl_file_kw.h ecl_grav.h ecl_grav_calc.h ecl_endian_flip.h ecl_smspec.h ecl_sum_data.h ecl_util.h ecl_kw.h ecl_sum.h fortio.h ecl_rft_file.h ecl_rft_node.h ecl_rft_cell.h ecl_box.h ecl_coarse_cell.h ecl_grid.h ecl_io_config.h ecl_file.h ecl_region.h ecl_kw_magic.h ecl_subsidence.h ecl_grid_dims.h grid_dims.h ${ext_header} ecl_grav_common.h)
 
 
 

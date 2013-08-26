@@ -18,37 +18,38 @@ import  ctypes
 from    ert.cwrap.cwrap       import *
 from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
+from    ert.enkf.enkf_enum             import *
+import  ert.enkf.libenkf
+from ert.util.stringlist import StringList
 class GenKwConfig(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
 
+    @property
+    def get_template_file(self):
+        return cfunc.get_template_file(self)
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    @property
+    def get_parameter_file(self):
+        return cfunc.get_parameter_file(self)
 
-
+    @property
+    def alloc_name_list(self):
+        return StringList(c_ptr = cfunc.alloc_name_list(self), parent = self)
 
 ##################################################################
 
 cwrapper = CWrapper( libenkf.lib )
 cwrapper.registerType( "gen_kw_config" , GenKwConfig )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("gen_kw_config")
-
-
+##################################################################
+##################################################################
 cfunc.free                   = cwrapper.prototype("void gen_kw_config_free( gen_kw_config )")
 cfunc.get_template_file      = cwrapper.prototype("char* gen_kw_config_get_template_file(gen_kw_config)")
-cfunc.get_init_file_fmt      = cwrapper.prototype("char* gen_kw_config_get_init_file_fmt(gen_kw_config)")
 cfunc.get_parameter_file     = cwrapper.prototype("char* gen_kw_config_get_parameter_file(gen_kw_config)")
+cfunc.alloc_name_list        = cwrapper.prototype("c_void_p gen_kw_config_alloc_name_list(gen_kw_config)")

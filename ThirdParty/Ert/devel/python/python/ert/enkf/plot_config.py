@@ -19,35 +19,72 @@ from    ert.cwrap.cwrap       import *
 from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
 from    enkf_enum             import *
-import  libenkf
+import  ert.enkf.libenkf
+
 class PlotConfig(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
+
+    @property
+    def get_path(self):
+        return cfunc.get_path(self)
+    
+    def set_path(self, path):
+        cfunc.set_path(self, path)
         
+    @property
+    def get_driver(self):
+        return cfunc.get_driver(self)
+
+    def set_driver(self, driver):
+        cfunc.set_driver(self, driver)
         
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
-
-
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
-
-
-
+    @property
+    def get_errorbar_max(self):
+        return cfunc.get_errorbar_max(self)
+    
+    def set_errorbar_max(self, max):
+        cfunc.set_errorbar_max(self, max)
+        
+    @property
+    def get_width(self):
+        return cfunc.get_width(self)
+    
+    def set_width(self, value):
+        cfunc.set_width(self, value)
+        
+    @property
+    def get_height(self):
+        return cfunc.get_height(self)
+    
+    def set_height(self, value):
+        cfunc.set_height(self, value)
+        
+    @property
+    def get_viewer(self):
+        return cfunc.get_viewer(self)
+    
+    def set_viewer(self, value):
+        cfunc.set_viewer(self, value)
+        
+    @property
+    def get_image_type(self):
+        return cfunc.get_image_type(self)
+    
+    def set_image_type(self, value):
+        cfunc.set_image_type(self, value)
 ##################################################################
 
 cwrapper = CWrapper( libenkf.lib )
 cwrapper.registerType( "plot_config" , PlotConfig )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("plot_config")
-
-
+##################################################################
+##################################################################
 cfunc.free                = cwrapper.prototype("void plot_config_free( plot_config )")
 cfunc.get_path            = cwrapper.prototype("char* plot_config_get_path(plot_config)")
 cfunc.set_path            = cwrapper.prototype("void plot_config_set_path(plot_config, char*)")
@@ -63,3 +100,4 @@ cfunc.get_viewer          = cwrapper.prototype("char* plot_config_get_viewer(plo
 cfunc.set_viewer          = cwrapper.prototype("void plot_config_set_viewer(plot_config, char*)")
 cfunc.get_image_type      = cwrapper.prototype("char* plot_config_get_image_type(plot_config)")
 cfunc.set_image_type      = cwrapper.prototype("void plot_config_set_image_type(plot_config, char*)")
+
