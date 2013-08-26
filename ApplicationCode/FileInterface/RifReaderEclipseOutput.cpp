@@ -838,6 +838,11 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> 
         {
             return filteredPositions[i].m_connectionPosition;
         }
+        else if (distance < 1.0)
+        {
+            distance = 1.0;
+        }
+
 
         distance = 1.0 / distance;
         nominators[i] = distance;

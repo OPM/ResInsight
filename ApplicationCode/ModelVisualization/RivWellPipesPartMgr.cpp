@@ -267,7 +267,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 pipeBranchesCellIds.back().push_back(*prevWellResPoint);
             }
 
-            // Loop over all the resultCells in the branch
+            // Loop over all the resultPoints in the branch
 
             const std::vector<RigWellResultPoint>& resBranchCells = resBranches[brIdx].m_branchResultPoints;
 
@@ -278,11 +278,16 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                 const RigWellResultPoint& currentWellResPoint = resBranchCells[cIdx];
 
+                // Ignore invalid cells
+
                 if (!currentWellResPoint.isValid())
                 {
                     //CVF_ASSERT(false); // Some segments does not get anything yet.
                     continue;
                 }
+
+                // Add cl contribution for a geometrical resultPoint by adding exit point from previous cell, 
+                // and then the result point position 
 
                 if (!currentWellResPoint.isCell()) 
                 {
@@ -307,7 +312,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                         cvf::Vec3d outOfPrevCell(centerPreviousCell);
 
-                        bool intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
+                        int intersectionOk = prevCell.firstIntersectionPoint(rayToThisCell, &outOfPrevCell);
                         //CVF_ASSERT(intersectionOk);
                         //CVF_ASSERT(intersectionOk);
                         if ((currentPoint - outOfPrevCell).lengthSquared() > 1e-3)
@@ -318,18 +323,21 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                     }
 
-                    pipeBranchesCLCoords.back().push_back(currentPoint);
-                    pipeBranchesCellIds.back().push_back(currentWellResPoint);
+                    branchCLCoords.push_back(currentPoint);
+                    branchCellIds.push_back(currentWellResPoint);
                     
                     prevWellResPoint = &currentWellResPoint;
 
                     continue;
                 }
 
+                //
+                // Handle currentWellResPoint as a real cell result points.
+                //
+
                 const RigCell& cell = rigReservoir->cellFromWellResultCell(currentWellResPoint);
 
                 // Check if this and the previous cells has shared faces
-              
 
                 cvf::StructGridInterface::FaceType sharedFace;
                 if (prevWellResPoint && prevWellResPoint->isCell() && rigReservoir->findSharedSourceFace(sharedFace, currentWellResPoint, *prevWellResPoint))
@@ -343,6 +351,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                 else
                 {
                     // This and the previous cell does not share a face.
+                    // Then we need to calculate the exit of the previous cell, and the entry point into this cell
 
                     cvf::Vec3d centerPreviousCell(cvf::Vec3d::ZERO);
                     cvf::Vec3d centerThisCell = cell.center();
@@ -372,12 +381,12 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                     if (   wellResults->isMultiSegmentWell()
                             || !isAutoDetectBranches
                             || (prevWellResPoint == whResCell) 
-                            || distanceToWellHeadIsLonger
-                        )
+                            || distanceToWellHeadIsLonger)
                     {
                         // Not starting a "display" branch for normal wells
-                        
-                        cvf::Vec3d intoThisCell(centerThisCell);
+                        // Calculate the exit of the previous cell, and the entry point into this cell
+
+                        cvf::Vec3d intoThisCell(centerThisCell); // Use cell center as default for "into" point.
 
                         if (prevWellResPoint && prevWellResPoint->isValid())
                         {
@@ -390,7 +399,8 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
 
                             // Intersect with the current cell to find a better entry point than the cell center
 
-                            cell.firstIntersectionPoint(rayToThisCell, &intoThisCell);
+                            int intersectionCount = cell.firstIntersectionPoint(rayToThisCell, &intoThisCell);
+                            bool isPreviousResPointInsideCurrentCell = (intersectionCount % 2); // Must intersect uneven times to be inside. (1 % 2 = 1)
 
                             // If we have a real previous cell, we need to go out of it, before entering this.
                             // That is: add a CL-point describing where it leaves the previous cell.
@@ -409,6 +419,13 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
                                     branchCellIds.push_back(RigWellResultPoint());
                                 }
                             }
+                            else if (isPreviousResPointInsideCurrentCell)
+                            {
+                                // Since the previous point actually is inside this cell, 
+                                /// use that as the entry point into this cell
+                                intoThisCell = centerPreviousCell;
+                            }
+
                         }
 
                         branchCLCoords.push_back(intoThisCell);

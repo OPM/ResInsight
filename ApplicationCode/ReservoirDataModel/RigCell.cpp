@@ -242,9 +242,11 @@ cvf::Vec3d RigCell::faceCenter(cvf::StructGridInterface::FaceType face) const
 
 //--------------------------------------------------------------------------------------------------
 /// Find the intersection between the cell and the ray. The point closest to the ray origin is returned
-/// if no intersection is found, the intersection point is untouched.
+/// in \a intersectionPoint, while the return value is the total number of intersections with the 24 triangles
+/// the cell is interpreted as.
+/// If no intersection is found, the intersection point is untouched.
 //--------------------------------------------------------------------------------------------------
-bool RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const
+int RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const
 {
     CVF_ASSERT(intersectionPoint != NULL);
 
@@ -254,15 +256,13 @@ bool RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersecti
 
     cvf::Vec3d firstIntersection(cvf::Vec3d::ZERO);
     double minLsq = HUGE_VAL;
+    int intersectionCount = 0; 
 
     for (face = 0; face < 6 ; ++face)
     {
         cvf::StructGridInterface::cellFaceVertexIndices(static_cast<cvf::StructGridInterface::FaceType>(face), faceVertexIndices);
         cvf::Vec3d intersection;
         cvf::Vec3d faceCenter = this->faceCenter(static_cast<cvf::StructGridInterface::FaceType>(face));
-
-        ray.triangleIntersect(nodes[m_cornerIndices[faceVertexIndices[0]]], 
-            nodes[m_cornerIndices[faceVertexIndices[1]]], faceCenter, &intersection);
 
         for (size_t i = 0; i < 4; ++i)
         {
@@ -272,6 +272,7 @@ bool RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersecti
                                         faceCenter, 
                                         &intersection))
             {
+                intersectionCount++;
                 double lsq = (intersection - ray.origin() ).lengthSquared();
                 if (lsq < minLsq)
                 {
@@ -282,12 +283,11 @@ bool RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersecti
         }
     }
 
-    if (minLsq != HUGE_VAL)
+    if (intersectionCount > 0)
     {
         *intersectionPoint = firstIntersection;
-        return true;
     }
 
-    return false;
+    return intersectionCount;
 }
 
