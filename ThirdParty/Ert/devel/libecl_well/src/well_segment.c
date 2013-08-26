@@ -164,7 +164,9 @@ well_segment_type * well_segment_get_outlet( const well_segment_type * segment )
 bool well_segment_link( well_segment_type * segment , well_segment_type * outlet_segment ) {
   if (segment->outlet_segment_id == outlet_segment->segment_id) {
     segment->outlet_segment = outlet_segment;
-    outlet_segment->link_count++;
+    if (outlet_segment->branch_id == segment->branch_id){
+      outlet_segment->link_count++;
+    }
     return true;
   } else 
     /* 
