@@ -126,7 +126,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
-        size_t branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchIndex;
+        size_t branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
         std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
        
         std::list< RigWellResultPoint >& branch =  staticWellBranches[branchNumber];
@@ -145,7 +145,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
         for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx)
         {
-            size_t branchNumber = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchIndex;
+            size_t branchNumber = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
             std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
             std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchNumber];
@@ -161,17 +161,9 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
                 bool found = false;
                 if (stBranch.size())
                 {
-                    size_t sGridIdx = sEndIt->m_gridIndex;
-                    size_t sCellIdx = sEndIt->m_gridCellIndex;
-
                     for (rEndIdx = 0; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                     {
-                        size_t rGridIdx = resBranch[rEndIdx].m_gridIndex;
-                        size_t rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
-
-                        //if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
                         if ((*sEndIt) == (resBranch[rEndIdx])) { found = true; break; }
-
                     }
                 }
 
@@ -206,16 +198,9 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
             if (sEndIt !=  stBranch.end()) ++sEndIt;
             for ( ; sEndIt != stBranch.end() ; ++sEndIt)
             {
-                size_t sGridIdx = sEndIt->m_gridIndex;
-                size_t sCellIdx = sEndIt->m_gridCellIndex;
-
                 bool found = false;
                 for (rEndIdx += 1; !found && rEndIdx < resBranch.size(); ++rEndIdx)
                 {
-                    size_t rGridIdx = resBranch[rEndIdx].m_gridIndex;
-                    size_t rCellIdx = resBranch[rEndIdx].m_gridCellIndex;
-
-                    //if (sGridIdx == rGridIdx && sCellIdx == rCellIdx) { found = true; break; }
                     if ((*sEndIt) == (resBranch[rEndIdx])) { found = true; break; }
                 }
 
@@ -264,7 +249,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
         // Copy from first time step
         RigWellResultBranch rigBranch = m_wellCellsTimeSteps[0].m_wellResultBranches[bIt->first];
-        rigBranch.m_branchIndex = bIt->first;
+        rigBranch.m_ertBranchId = bIt->first;
 
         // Clear well cells, and insert the collection of well cells for the static situation
         rigBranch.m_branchResultPoints.clear();

@@ -206,6 +206,7 @@ void RivWellPipesPartMgr::calculateWellPipeCenterline(  std::vector< std::vector
             if (resBranches[i].m_branchResultPoints.size() != 0)
             {
                 hasResultCells = true;
+                break;
             }
         }
     }
