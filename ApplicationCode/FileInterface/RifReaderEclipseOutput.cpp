@@ -811,21 +811,32 @@ void getSegmentDataByBranchId(const std::list<SegmentData>& segments, std::vecto
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> positions)
 {
-    cvf::DoubleArray nominators(positions.size());
+    std::vector<SegmentPositionContribution> filteredPositions;
+    filteredPositions.reserve(positions.size());
+    for (size_t i = 0; i < positions.size(); i++)
+    {
+        if (positions[i].m_connectionPosition != cvf::Vec3d::UNDEFINED)
+        {
+            filteredPositions.push_back(positions[i]);
+        }
+    }
+
+    std::vector<double> nominators(filteredPositions.size(), 0.0);
+
     double denominator = 0.0;
     cvf::Vec3d interpolatedValue = cvf::Vec3d::ZERO;
     double distance;
 
-    for (size_t i = 0; i < positions.size(); i++)
+    for (size_t i = 0; i < filteredPositions.size(); i++)
     {
 #if 0 // Pure average test
         nominators[i] = 1.0;
 #else
-        distance = positions[i].m_lengthFromConnection;
+        distance = filteredPositions[i].m_lengthFromConnection;
 
         if (distance < 1e-6)
         {
-            return positions[i].m_connectionPosition;
+            return filteredPositions[i].m_connectionPosition;
         }
 
         distance = 1.0 / distance;
@@ -837,14 +848,17 @@ cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> 
 #if 0 // Pure average test
     denominator = positions.size(); // Pure average test
 #endif
-    for (size_t i = 0; i < positions.size(); i++)
+    for (size_t i = 0; i < filteredPositions.size(); i++)
     {
-        interpolatedValue += (nominators[i]/denominator) * positions[i].m_connectionPosition;
+        interpolatedValue += (nominators[i]/denominator) * filteredPositions[i].m_connectionPosition;
     }
 
     return interpolatedValue;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void propagatePosContribDownwards(std::map<int, std::vector<SegmentPositionContribution> > & segmentIdToPositionContrib,
     const well_segment_collection_type * allErtSegments,
     int ertSegmentId, 
