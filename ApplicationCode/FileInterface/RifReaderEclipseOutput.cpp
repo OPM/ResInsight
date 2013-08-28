@@ -1092,6 +1092,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                     // Data for segment position calculation
                     int lastConnectionSegmentId        = -1;
                     cvf::Vec3d lastConnectionPos       = cvf::Vec3d::UNDEFINED;
+                    cvf::Vec3d lastConnectionCellCorner= cvf::Vec3d::UNDEFINED;
                     double lastConnectionCellSize      = 0;
                     double accLengthFromLastConnection = 0;
                     int segmentIdBelow                 = -1;
@@ -1132,7 +1133,10 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                                 lastConnectionPos              = grids[gridNr]->cell(point.m_gridCellIndex).center();
                                 cvf::Vec3d cellVxes[8];
                                 grids[gridNr]->cellCornerVertices(point.m_gridCellIndex, cellVxes);
+                                lastConnectionCellCorner       = cellVxes[0];
                                 lastConnectionCellSize         = (lastConnectionPos - cellVxes[0]).length();
+
+
                                 lastConnectionSegmentId        = well_segment_get_id(segment);
                                 accLengthFromLastConnection    = well_segment_get_length(segment)/(connectionCount+1);
                                 if ( ! segmentBelowHasConnections) upperSegmentIdsOfUnpositionedSegementGroup.push_back(segmentIdBelow);
@@ -1218,7 +1222,7 @@ void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
                                 bool isAnInsolationContribution = accLengthFromLastConnection < lastConnectionCellSize;
 
                                 cvf::Vec3d lastConnectionPosWOffset = lastConnectionPos;
-                                if (isAnInsolationContribution) lastConnectionPosWOffset += 0.5*lastConnectionCellSize*cvf::Vec3d::X_AXIS;
+                                if (isAnInsolationContribution) lastConnectionPosWOffset += 0.4*(lastConnectionCellCorner-lastConnectionPos);
 
                                  segmentIdToPositionContrib[well_segment_get_id(outletSegment)].push_back( 
                                     SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPosWOffset, accLengthFromLastConnection, isAnInsolationContribution, segmentIdBelow, -1, false));
