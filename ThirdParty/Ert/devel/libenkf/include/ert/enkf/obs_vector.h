@@ -47,6 +47,7 @@ extern "C" {
   typedef void   (obs_get_ftype)                 (const void * , obs_data_type * , int , const active_list_type * );
   typedef void   (obs_meas_ftype)                (const void * , const void *, node_id_type , meas_data_type * , const active_list_type * );
   typedef void   (obs_user_get_ftype)            (void * , const char * , double * , double * , bool *); 
+  typedef void   (obs_scale_std_ftype)           (void * , double ); 
   typedef double (obs_chi2_ftype)                (const void * , const void *, node_id_type );
 
   typedef enum { GEN_OBS     = 1,
@@ -60,7 +61,6 @@ extern "C" {
   void                 obs_vector_del_node(obs_vector_type * obs_vector , int index);
   void                 obs_vector_free(obs_vector_type * );
   int                  obs_vector_get_num_active(const obs_vector_type * );
-  time_t               obs_vector_iget_obs_time( const obs_vector_type * vector , int index);
   bool                 obs_vector_iget_active(const obs_vector_type * , int );
   void                 obs_vector_iget_observations(const obs_vector_type *  , int  , obs_data_type * , const active_list_type * active_list);
   void                 obs_vector_measure(const obs_vector_type *  , enkf_fs_type * fs, state_enum state , int report_step , const enkf_state_type *  ,  meas_data_type * , const active_list_type * active_list);
@@ -70,13 +70,15 @@ extern "C" {
   void                 obs_vector_user_get(const obs_vector_type * obs_vector , const char * index_key , int report_step , double * value , double * std , bool * valid);
   int                  obs_vector_get_next_active_step(const obs_vector_type * , int );
   void               * obs_vector_iget_node(const obs_vector_type * , int );
-  obs_vector_type    * obs_vector_alloc_from_GENERAL_OBSERVATION(const conf_instance_type *  , const history_type * , const ensemble_config_type * , const time_t_vector_type * obs_time);
+  obs_vector_type    * obs_vector_alloc_from_GENERAL_OBSERVATION(const conf_instance_type *  , const history_type * , const ensemble_config_type * );
   void                 obs_vector_load_from_SUMMARY_OBSERVATION(obs_vector_type * obs_vector , const conf_instance_type *  , const history_type * , ensemble_config_type * );
   bool                 obs_vector_load_from_HISTORY_OBSERVATION(obs_vector_type * obs_vector , const conf_instance_type *  , const history_type * , ensemble_config_type * , double std_cutoff );
-  obs_vector_type    * obs_vector_alloc_from_BLOCK_OBSERVATION(const conf_instance_type *    , const ecl_grid_type * grid , const ecl_sum_type * refcase , const history_type *   , ensemble_config_type * , const time_t_vector_type * obs_time);
+  obs_vector_type    * obs_vector_alloc_from_BLOCK_OBSERVATION(const conf_instance_type *    , const ecl_grid_type * grid , const ecl_sum_type * refcase , const history_type *, ensemble_config_type * );
   void                 obs_vector_set_config_node(obs_vector_type *  , const enkf_config_node_type * );
-  obs_vector_type    * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key , enkf_config_node_type * config_node , const time_t_vector_type * obs_time , int num_reports);
-  
+  obs_vector_type    * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key , enkf_config_node_type * config_node, int num_reports);
+  void                 obs_vector_scale_std(obs_vector_type * obs_vector, double std_multiplier);
+  void                 obs_vector_install_node(obs_vector_type * obs_vector , int obs_index , void * node );
+
   double                  obs_vector_chi2(const obs_vector_type *  , enkf_fs_type *  , node_id_type node_id);
   
   void                    obs_vector_ensemble_chi2(const obs_vector_type * obs_vector , 

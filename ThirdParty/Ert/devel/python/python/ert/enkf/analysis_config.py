@@ -23,35 +23,57 @@ import  libenkf
 
 class AnalysisConfig(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
+            
+    @property
+    def get_rerun(self):
+        return cfunc.get_rerun( self )
+
+    def set_rerun(self, rerun):
+        cfunc.set_rerun(self, rerun)
         
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    @property
+    def get_rerun_start(self):
+        return cfunc.get_rerun_start( self )
 
+    def set_rerun_start(self, int):
+        cfunc.set_rerun_start( self , int)
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    @property
+    def get_log_path(self):
+        return cfunc.get_log_path( self )
 
+    def set_log_path(self, path):
+        cfunc.set_log_path( self, path) 
 
+    @property
+    def get_alpha(self):
+        return cfunc.get_alpha( self )
 
+    def set_alpha(self, alpha):
+        cfunc.set_alpha( self , alpha)
+
+    @property
+    def get_merge_observations(self):
+        return cfunc.get_merge_observations( self )
+    
+    def set_merge_observations(self, merge_observations):
+        return cfunc.set_merge_observations( self , merge_observations)
 ##################################################################
 
 cwrapper = CWrapper( libenkf.lib )
 cwrapper.registerType( "analysis_config" , AnalysisConfig )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("analysis_config")
 
 
 cfunc.free                   = cwrapper.prototype("void analysis_config_free( analysis_config )")
 cfunc.get_rerun              = cwrapper.prototype("int analysis_config_get_rerun( analysis_config )")
-cfunc.set_rerun              = cwrapper.prototype("void analysis_config_set_rerun analysis_config, bool)")
+cfunc.set_rerun              = cwrapper.prototype("void analysis_config_set_rerun( analysis_config, bool)")
 cfunc.get_rerun_start        = cwrapper.prototype("int analysis_config_get_rerun_start( analysis_config )")
 cfunc.set_rerun_start        = cwrapper.prototype("void analysis_config_set_rerun_start( analysis_config, int)")
 cfunc.get_log_path           = cwrapper.prototype("char* analysis_config_get_log_path( analysis_config)")
@@ -59,8 +81,5 @@ cfunc.set_log_path           = cwrapper.prototype("void analysis_config_set_log_
 cfunc.get_alpha              = cwrapper.prototype("double analysis_config_get_alpha(analysis_config)")
 cfunc.set_alpha              = cwrapper.prototype("void analysis_config_set_alpha(analysis_config, double)")
 cfunc.get_merge_observations = cwrapper.prototype("bool analysis_config_get_merge_observations(analysis_config)")
-cfunc.set_merge_observations = cwrapper.prototype("void analysis_config_set_merge_observations(analysis_config, int)")
-cfunc.get_enkf_mode          = cwrapper.prototype("int analysis_config_get_enkf_mode(analysis_config)")
-cfunc.set_enkf_mode          = cwrapper.prototype("void analysis_config_set_enkf_mode(analysis_config, int)")
-cfunc.get_truncation         = cwrapper.prototype("double analysis_config_get_truncation(analysis_config)")
-cfunc.get_truncation         = cwrapper.prototype("void analysis_config_set_truncation(analysis_config, double)")
+cfunc.set_merge_observations = cwrapper.prototype("void analysis_config_set_merge_observations(analysis_config, bool)")
+

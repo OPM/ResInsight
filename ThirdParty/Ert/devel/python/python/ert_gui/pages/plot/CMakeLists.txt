@@ -1,0 +1,1 @@
+add_python_package( "Python ert_gui.pages.plot" ${PYTHON_INSTALL_PREFIX}/ert_gui/pages/plot "__init__.py;fetcher.py;plotconfig.py;plotfigure.py;plotpanel.py;plotsettings.py;plotview.py;zoomslider.py;ensemblefetcher.py;plotdata.py;plotgenerator.py;plotrenderer.py;plotsettingsxml.py;rftfetcher.py" True)

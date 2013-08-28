@@ -39,7 +39,7 @@ extern "C" {
   void                qc_module_init( qc_module_type * qc_module , const config_type * config);
   void                qc_module_export_runpath_list( const qc_module_type * qc_module );
   void                qc_module_add_config_items( config_type * config );
-  void                qc_module_set_runpath_list_file( qc_module_type * qc_module , const char * filename);
+  void                qc_module_set_runpath_list_file( qc_module_type * qc_module , const char * path, const char * filename);
   const char        * qc_module_get_runpath_list_file( qc_module_type * qc_module);
 
 

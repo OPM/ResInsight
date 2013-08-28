@@ -239,7 +239,7 @@ char * util_alloc_filename_from_stream( FILE * input_stream ) {
 */
 
 bool util_ping(const char *hostname) { 
-  pid_t ping_pid = util_fork_exec(PING_CMD , 4 , (const char *[4]) {"-c" , "3" , "-q", hostname} , false , NULL , NULL , NULL , NULL , NULL);
+  pid_t ping_pid = util_fork_exec(PING_CMD , 4 , (const char *[4]) {"-c" , "3" , "-q", hostname} , false , NULL , NULL , NULL , "/dev/null" , "/dev/null");
   int wait_status;
   pid_t wait_pid = waitpid(ping_pid , &wait_status , 0);
 

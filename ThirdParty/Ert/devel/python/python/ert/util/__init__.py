@@ -36,3 +36,33 @@ The modules included in the util package are:
    
 """
 
+import ert.cwrap.clib as clib
+
+clib.load("libz" , "libz.so.1")
+
+# Depending on the Fortran compiler which has been used to compile
+# blas / lapack the there might be an additional dependency on libg2c:
+
+try:
+    # First try to load without libg2c
+    clib.load("libblas.so" , "libblas.so.3")
+    clib.load("liblapack.so")
+except ImportError:
+    # Then try to load with libg2c
+    clib.load("libg2c.so.0")
+    clib.load("libblas.so" , "libblas.so.3")
+    clib.load("liblapack.so")
+
+UTIL_LIB = clib.ert_load("libert_util.so")
+
+from .tvector import DoubleVector, IntVector, BoolVector, TimeVector, TVector
+from .stringlist import StringList
+from .stat import quantile, quantile_sorted
+from .matrix import Matrix
+from .log import Log
+from .lookup_table import LookupTable
+from .buffer import Buffer
+from .ctime import ctime
+from .hash import Hash
+from .test_area import TestArea, TestAreaContext
+from .latex import LaTeX

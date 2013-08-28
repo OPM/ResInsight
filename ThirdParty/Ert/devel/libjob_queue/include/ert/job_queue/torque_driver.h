@@ -65,9 +65,10 @@ extern "C" {
 
   const void * torque_driver_get_option(const void * __driver, const char * option_key);
   bool torque_driver_set_option(void * __driver, const char * option_key, const void * value);
+  void torque_driver_init_option_list(stringlist_type * option_list); 
   
   void torque_job_create_submit_script(const char * run_path, const char * submit_cmd, int argc, const char ** job_argv);
-
+    
   UTIL_SAFE_CAST_HEADER(torque_driver);
 
 #ifdef	__cplusplus

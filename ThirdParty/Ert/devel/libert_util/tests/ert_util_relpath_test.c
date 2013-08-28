@@ -28,7 +28,7 @@
 void test_path(int nr , const char * root , const char * path , const char * true_path) {
   char * rel_path = util_alloc_rel_path( root  , path);
 
-  if (!test_string_equal( rel_path , true_path))
+  if (!test_check_string_equal( rel_path , true_path))
     test_error_exit("Case:%d  rel_path(%s,%s) -> %s failed - expected: %s\n" , nr , root , path , rel_path , true_path);
   else
     printf("Case:%d OK \n",nr);

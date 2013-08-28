@@ -45,6 +45,7 @@ extern "C" {
   void            enkf_obs_free(  enkf_obs_type * enkf_obs);
   
   obs_vector_type * enkf_obs_get_vector(const enkf_obs_type * , const char * );
+  void enkf_obs_add_obs_vector(enkf_obs_type * enkf_obs, const char * key, const obs_vector_type * vector);
   
   void              enkf_obs_load(enkf_obs_type * enkf_obs,
                                   const history_type * history , 
@@ -80,6 +81,7 @@ extern "C" {
   stringlist_type * enkf_obs_alloc_matching_keylist(const enkf_obs_type * enkf_obs , const char * input_string);
   time_t            enkf_obs_iget_obs_time(enkf_obs_type * enkf_obs , int report_step);
   void              enkf_obs_fprintf_config( const enkf_obs_type * enkf_obs , FILE * stream);
+  void              enkf_obs_scale_std(enkf_obs_type * enkf_obs, double scale_factor);
   
 #ifdef __cplusplus
 }

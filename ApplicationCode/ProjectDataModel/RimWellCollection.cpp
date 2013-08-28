@@ -156,7 +156,7 @@ bool RimWellCollection::hasVisibleWellCells()
                 const RigWellResultFrame& wellResultFrame = well->wellResults()->m_wellCellsTimeSteps[tIdx];
                 for (size_t wsIdx = 0; !hasCells &&  wsIdx < wellResultFrame.m_wellResultBranches.size(); ++wsIdx)
                 {
-                    if (wellResultFrame.m_wellResultBranches[wsIdx].m_wellCells.size() > 0  ) hasCells = true; 
+                    if (wellResultFrame.m_wellResultBranches[wsIdx].m_branchResultPoints.size() > 0  ) hasCells = true; 
                 }
             }
         }

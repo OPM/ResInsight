@@ -162,7 +162,7 @@ double lookup_table_get_max_value(  lookup_table_type * lookup_table ) {
 
 double lookup_table_get_min_value(  lookup_table_type * lookup_table ) {
   lookup_table_assert_sorted( lookup_table );
-  return lookup_table->ymax;
+  return lookup_table->ymin;
 }
 
 

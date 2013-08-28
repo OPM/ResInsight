@@ -1,3 +1,8 @@
+check_function_exists( fseeko HAVE_FSEEKO )
+if (HAVE_HFSEEKO)
+   add_definitions( -DHAVE_FSEEKO )                       
+endif()
+
 check_function_exists( regexec HAVE_REGEXP )
 if (HAVE_REGEXP)
   add_definitions( -DHAVE_REGEXP )
@@ -84,6 +89,16 @@ if (HAVE_OPENDIR)
   add_definitions( -DHAVE__USLEEP )
 endif()
 
+# Checking based on compiling. Some of the code generates warnings, so we just cut down to bare-bone compiler flags.
+
+set( CMAKE_C_FLAGS_main ${CMAKE_C_FLAGS} )
+set( CMAKE_CXX_FLAGS_main ${CMAKE_CXX_FLAGS} )
+
+if (NOT ERT_WINDOWS)
+  set( CMAKE_C_FLAGS "-std=gnu99" )
+  set( CMAKE_CXX_FLAGS "")
+endif()
+
 try_compile( HAVE_ISFINITE ${CMAKE_BINARY_DIR} ${PROJECT_SOURCE_DIR}/cmake/Tests/test_isfinite.c )
 if (HAVE_ISFINITE)
   add_definitions( -DHAVE_ISFINITE )
@@ -110,3 +125,5 @@ if (ISREG_POSIX)
   add_definitions( -DHAVE_ISREG )
 endif()
 
+set( CMAKE_C_FLAGS ${CMAKE_C_FLAGS_main} )
+set( CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS_main} )

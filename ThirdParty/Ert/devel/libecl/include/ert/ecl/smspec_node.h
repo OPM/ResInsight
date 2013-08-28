@@ -61,6 +61,8 @@ typedef enum {ECL_SMSPEC_INVALID_VAR            =  0 ,
   char * smspec_alloc_group_key( const char * join_string , const char * keyword , const char * wgname);
   char * smspec_alloc_well_key( const char * join_string , const char * keyword , const char * wgname);
   char * smspec_alloc_region_key( const char * join_string , const char * keyword , int num);
+  char * smspec_alloc_region_2_region_r1r2_key( const char * join_string , const char * keyword , int r1, int r2);
+  char * smspec_alloc_region_2_region_num_key( const char * join_string , const char * keyword , int num);
   char * smspec_alloc_segment_key( const char * join_string , const char * keyword , const char * wgname , int num);
   char * smspec_alloc_block_num_key( const char * join_string , const char * keyword , int num);
   char * smspec_alloc_local_well_key( const char * join_string , const char * keyword , const char * lgr_name , const char * wgname);

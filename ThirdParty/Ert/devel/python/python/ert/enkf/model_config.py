@@ -14,49 +14,79 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
+import ctypes
+from ert.job_queue import ForwardModel
+from ert.sched import HistoryType
+from libenkf import *
+from enkf_enum import *
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+
+
 class ModelConfig(CClass):
-    
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self, c_ptr, parent=None):
+        if parent:
+            self.init_cref(c_ptr, parent)
+        else:
+            self.init_cobj(c_ptr, cfunc.free)
+
+    @property
+    def get_enkf_sched_file(self):
+        return cfunc.get_enkf_sched_file(self)
+
+    def set_enkf_sched_file(self, file):
+        cfunc.get_enkf_sched_file(self, file)
+
+    @property
+    def get_history_source(self):
+        return HistoryType(c_ptr=cfunc.get_history_source(self), parent=self)
+
+    def set_history_source(self, history_source, sched_file, refcase):
+        return cfunc.select_history(self, history_source, sched_file, refcase)
 
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    @property
+    def get_max_internal_submit(self):
+        return cfunc.get_max_internal_submit(self)
 
+    def set_max_internal_submit(self, max):
+        cfunc.get_max_internal_submit(self, max)
 
+    @property
+    def get_forward_model(self):
+        ford_model = ForwardModel(c_ptr=cfunc.get_forward_model(self), parent=self)
+        return ford_model
 
-##################################################################
+    @property
+    def get_case_table_file(self):
+        return cfunc.get_case_table_file(self)
 
-cwrapper = CWrapper( libenkf.lib )
-cwrapper.registerType( "model_config" , ModelConfig )
+    @property
+    def get_runpath_as_char(self):
+        return cfunc.get_runpath_as_char(self)
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
+    def select_runpath(self, path_key):
+        return cfunc.select_runpath(self, path_key)
+
+    ##################################################################
+
+cwrapper = CWrapper(libenkf.lib)
+cwrapper.registerType("model_config", ModelConfig)
+
 cfunc = CWrapperNameSpace("model_config")
 
+##################################################################
+##################################################################
 
-cfunc.free                = cwrapper.prototype("void model_config_free( model_config )")
+cfunc.free = cwrapper.prototype("void model_config_free( model_config )")
 cfunc.get_enkf_sched_file = cwrapper.prototype("char* model_config_get_enkf_sched_file( model_config )")
 cfunc.set_enkf_sched_file = cwrapper.prototype("void model_config_set_enkf_sched_file( model_config, char*)")
-cfunc.get_history_source  = cwrapper.prototype("int model_config_get_history_source(model_config)")
-cfunc.set_history_source  = cwrapper.prototype("void model_config_set_history_source(model_config, int)")
-cfunc.get_forward_model   = cwrapper.prototype("c_void_p model_config_get_forward_model(model_config)")
-cfunc.get_max_resample    = cwrapper.prototype("int model_config_get_max_resample(model_config)")
-cfunc.set_max_resample    = cwrapper.prototype("void model_config_set_max_resample(model_config, int)")
+cfunc.get_history_source = cwrapper.prototype("c_void_p model_config_get_history_source(model_config)")
+cfunc.select_history = cwrapper.prototype(
+    "bool model_config_select_history(model_config, history_type, c_void_p, ecl_sum)")
+cfunc.get_forward_model = cwrapper.prototype("c_void_p model_config_get_forward_model(model_config)")
+cfunc.get_max_internal_submit = cwrapper.prototype("int model_config_get_max_internal_submit(model_config)")
+cfunc.set_max_internal_submit = cwrapper.prototype("void model_config_set_max_internal_submit(model_config, int)")
 cfunc.get_case_table_file = cwrapper.prototype("char* model_config_get_case_table_file(model_config)")
 cfunc.get_runpath_as_char = cwrapper.prototype("char* model_config_get_runpath_as_char(model_config)")
-cfunc.set_runpath_fmt     = cwrapper.prototype("void model_config_set_runpath_fmt(model_config, char*)")
+cfunc.select_runpath = cwrapper.prototype("void model_config_select_runpath(model_config, char*)")
                                  

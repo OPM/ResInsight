@@ -60,12 +60,13 @@ ministep to the updatestep, otherwise it will not be able to do
 anything.
 
 
-CREATE_MINISTEP [NAME_OF_MINISTEP]
-----------------------------------
+CREATE_MINISTEP [NAME_OF_MINISTEP  OBSSET_NAME]
+-----------------------------------------------
 This function will create a new ministep with the name
-'NAME_OF_MINISTEP'. The ministep is then ready for adding data and
-observation keys. Before the ministep will be used you must attach it
-to an updatestep with the ATTACH_MINISTEP command
+'NAME_OF_MINISTEP'. The ministep will be based on the observation
+set given by OBSSET_NAME (which must be created first).The ministep 
+is then ready for adding data. Before the ministep can be used you 
+must attach it to an updatestep with the ATTACH_MINISTEP command
 
 CREATE_DATASET [NAME_OF_DATASET]
 --------------------------------

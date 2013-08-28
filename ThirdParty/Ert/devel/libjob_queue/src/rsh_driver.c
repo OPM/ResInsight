@@ -465,6 +465,12 @@ const void * rsh_driver_get_option( const void * __driver , const char * option_
 }
 
 
+void rsh_driver_init_option_list(stringlist_type * option_list) {
+  stringlist_append_ref(option_list, RSH_HOST);    
+  stringlist_append_ref(option_list, RSH_HOSTLIST);    
+  stringlist_append_ref(option_list, RSH_CMD);    
+  stringlist_append_ref(option_list, RSH_CLEAR_HOSTLIST);    
+}
 
 #undef RSH_JOB_ID    
 

@@ -24,7 +24,7 @@ void util_make_slink(const char *target , const char * link) {
 */
 
 bool util_is_link(const char * path) {
-  struct stat stat_buffer;
+  stat_type stat_buffer;
   if (lstat(path , &stat_buffer) == 0)
     return S_ISLNK(stat_buffer.st_mode);
   else if (errno == ENOENT)

@@ -333,6 +333,7 @@ void ecl_sum_free( ecl_sum_type * ecl_sum ) {
   
   util_safe_free( ecl_sum->path );
   util_safe_free( ecl_sum->ext );
+  util_safe_free( ecl_sum->abs_path );
 
   free( ecl_sum->base );
   free( ecl_sum->ecl_case );
@@ -882,8 +883,6 @@ void ecl_sum_fmt_init_summary_x( ecl_sum_fmt_type * fmt ) {
 #define DATE_STRING_LENGTH 128
 
 static void __ecl_sum_fprintf_line( const ecl_sum_type * ecl_sum , FILE * stream , int internal_index , const bool_vector_type * has_var , const int_vector_type * var_index , char * date_string , const ecl_sum_fmt_type * fmt) {
-  int ivar , day,month,year;
-  util_set_date_values(ecl_sum_iget_sim_time(ecl_sum , internal_index ) , &day , &month, &year);
   fprintf(stream , fmt->days_fmt , ecl_sum_iget_sim_days(ecl_sum , internal_index));
   fprintf(stream , fmt->sep );
 
@@ -895,12 +894,15 @@ static void __ecl_sum_fprintf_line( const ecl_sum_type * ecl_sum , FILE * stream
     fprintf(stream , date_string );
   }   
 
-  for (ivar = 0; ivar < int_vector_size( var_index ); ivar++) {  
-    if (bool_vector_iget( has_var , ivar )) {
-      fprintf(stream , fmt->sep);
-      fprintf(stream , fmt->value_fmt , ecl_sum_iget(ecl_sum , internal_index, int_vector_iget( var_index , ivar )));
+  {
+    int ivar;
+    for (ivar = 0; ivar < int_vector_size( var_index ); ivar++) {  
+      if (bool_vector_iget( has_var , ivar )) {
+        fprintf(stream , fmt->sep);
+        fprintf(stream , fmt->value_fmt , ecl_sum_iget(ecl_sum , internal_index, int_vector_iget( var_index , ivar )));
+      }   
     }   
-  }   
+  }
   
   fprintf(stream , fmt->newline);
 }
@@ -980,6 +982,7 @@ void ecl_sum_fprintf(const ecl_sum_type * ecl_sum , FILE * stream , const string
   bool_vector_free( has_var );
   if (current_locale != NULL)
     setlocale( LC_NUMERIC , current_locale);
+  free( date_string );
 }
 #undef DATE_STRING_LENGTH
 
@@ -1163,8 +1166,37 @@ char * ecl_sum_alloc_well_key( const ecl_sum_type * ecl_sum , const char * keywo
 
 
 
+bool ecl_sum_is_oil_producer( const ecl_sum_type * ecl_sum , const char * well) {
+  const char * WOPT_KEY = "WOPT";
+  bool oil_producer = false;
+
+  if (ecl_sum_has_well_var( ecl_sum , well , WOPT_KEY)) {
+    int last_step = ecl_sum_get_data_length( ecl_sum ) - 1;
+    double wopt = ecl_sum_get_well_var( ecl_sum , last_step , well , WOPT_KEY);
+
+    if (wopt > 0)
+      oil_producer = true;
+  }
+  
+  return oil_producer;
+}
 
 
+
+bool ecl_sum_report_step_equal( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2) {
+  if (ecl_sum1 == ecl_sum2)
+    return true; 
+  else
+    return ecl_sum_data_report_step_equal( ecl_sum1->data , ecl_sum2->data );
+}
+
+
+bool ecl_sum_report_step_compatible( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2) {
+  if (ecl_sum1 == ecl_sum2)
+    return true; 
+  else
+    return ecl_sum_data_report_step_compatible( ecl_sum1->data , ecl_sum2->data );
+}
 
 
 

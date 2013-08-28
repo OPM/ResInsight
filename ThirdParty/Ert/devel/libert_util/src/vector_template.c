@@ -500,6 +500,15 @@ void @TYPE@_vector_scale(@TYPE@_vector_type * vector, @TYPE@ factor) {
     vector->data[i] *= factor;
 }
 
+
+/* Vector / scalar; seperate _div function to ensure correct integer division. */
+void @TYPE@_vector_div(@TYPE@_vector_type * vector, @TYPE@ divisor) {
+  int i;
+  for (i=0; i < vector->size; i++)
+    vector->data[i] /= divisor;
+}
+
+
 /* vector + scalar */
 void @TYPE@_vector_shift(@TYPE@_vector_type * vector, @TYPE@ delta) {
   int i;

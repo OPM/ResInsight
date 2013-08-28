@@ -19,14 +19,11 @@ Implements EclCase class which is a container for one ECLIPSE case.
 This module is a pure Python module which does not directly invoke any
 C based functions.
 """
-
-import os.path
-import ecl_sum
-import ecl_grid
-import ecl_rft
-import ecl_default
-import ecl_util
+import os
 import warnings
+from ert.ecl import EclRFTFile, EclGrid, EclSum, EclUtil
+
+
 
 class EclCase:
     """
@@ -95,7 +92,7 @@ class EclCase:
         at these times will lead to an instant 'crash and burn'.
         """
         if not self.__sum:
-            self.__sum = ecl_sum.EclSum( self.case )
+            self.__sum = EclSum( self.case )
         return self.__sum
     
 
@@ -105,7 +102,7 @@ class EclCase:
         An EclGrid instance for the current case; or None.
         """
         if not self.__grid:
-            self.__grid = ecl_grid.EclGrid( self.case )
+            self.__grid = EclGrid( self.case )
         return self.__grid
 
 
@@ -115,7 +112,7 @@ class EclCase:
         An EclRFTFile instance for the current case; or None.
         """
         if not self.__rft:
-            self.__rft = ecl_rft.EclRFTFile( self.case )
+            self.__rft = EclRFTFile( self.case )
         return self.__rft
 
 
@@ -191,21 +188,21 @@ class EclCase:
         """
         import ert.job_queue.driver as queue_driver
         
-        num_cpu = ecl_util.get_num_cpu( self.datafile )
+        num_cpu = EclUtil.get_num_cpu( self.datafile )
         argv = [ecl_version , self.datafile , num_cpu]
 
         if ecl_cmd is None:
             ecl_cmd = ecl_default.default.ecl_cmd
 
         if driver_type is None:
-            driver_type = ecl_default.default.driver_type
+            driver_type = ECL_DEFAULT.driver_type
 
         if ecl_version is None:
-            ecl_version = ecl_default.default.ecl_version
+            ecl_version = ECL_DEFAULT.ecl_version
 
         if driver is None:
             if driver_options is None:
-                driver_options = ecl_default.default.driver_options[ driver_type ]
+                driver_options = ECL_DEFAULT.driver_options[ driver_type ]
             driver = queue_driver.Driver( driver_type , max_running = 0 , options = driver_options )
         job = driver.submit( self.base , ecl_cmd , self.path , argv , blocking = blocking)
         return job

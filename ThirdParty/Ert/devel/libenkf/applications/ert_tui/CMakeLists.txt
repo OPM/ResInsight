@@ -31,6 +31,9 @@ set_source_files_properties( main.c PROPERTIES COMPILE_DEFINITIONS "COMPILE_TIME
 
 add_executable( ert ${src_list} )
 target_link_libraries( ert enkf sched rms ecl config plot job_queue analysis ert_util )
+if (USE_RUNPATH)
+   add_runpath( ert )
+endif()
 
 if (ERT_INSTALL_PREFIX)
    set (destination ${CMAKE_INSTALL_PREFIX}/${ERT_INSTALL_PREFIX}/bin)

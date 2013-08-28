@@ -104,6 +104,7 @@ extern "C" {
 #define ZWEL_KW      "ZWEL"
 #define ICON_KW      "ICON"
 #define ISEG_KW      "ISEG"
+#define RSEG_KW      "RSEG"
 
 #define ECLIPSE100_OIL_DEN_KW   "OIL_DEN"
 #define ECLIPSE100_GAS_DEN_KW   "GAS_DEN"
@@ -135,8 +136,8 @@ extern "C" {
 #define INTEHEAD_NSEGMX_INDEX  176
 #define INTEHEAD_NLBRMX_INDEX  177
 #define INTEHEAD_NISEGZ_INDEX  178
+#define INTEHEAD_NRSEGZ_INDEX  179
 #define INTEHEAD_NILBRZ_INDEX  180
-
 
 #define DOUBHEAD_DAYS_INDEX 0
 
@@ -230,7 +231,12 @@ extern "C" {
 #define CONGRAT_KW   "CONGRAT"  /* Gas ... */
 #define CONORAT_KW   "CONORAT"  /* Oil ... */
 #define CONPRES_KW   "CONPRES"  /* Pressure ... */
-
+#define CONLENST_KW  "CONLENST" /* Length along MSW well */ 
+#define CONLENEN_KW  "CONLENEN" /* Length to connection end for MSW well */   
+#define CONVTUB_KW   "CONVTUB"  /* Volumetric flow at tubing head conditions. */ 
+#define CONOTUB_KW   "CONOTUB"  /* Volumetric oil flow at tubing head conditions. */ 
+#define CONGTUB_KW   "CONGTUB"  /* Volumetric gas flow at tubing head conditions. */ 
+#define CONWTUB_KW   "CONWTUB"  /* Volumetric water flow at tubing head conditions. */ 
 
 
 #define WELLETC_TYPE_INDEX  5 /* At this keyword the WELLETC keyword contains a string
@@ -264,7 +270,20 @@ extern "C" {
                                        the second element will be the name of the parent. */
 #define MAPUNITS_KW    "MAPUNITS"
 #define GRIDUNIT_KW    "GRIDUNIT"
-
+  
+#define NNCHEAD_KW     "NNCHEAD"   /*Non-neighbour connection header*/           
+#define NNC1_KW        "NNC1"      /*Upstream cell numbers for non-neighbour connections*/           
+#define NNC2_KW        "NNC2"      /*Downstream cell numbers for non-neighbour connections*/    
+#define NNCL_KW        "NNCL"      /*Cell numbers for LGR cells that are connected to global grid cells*/           
+#define NNCG_KW        "NNCG"      /*Cell numbers for global cells connected to LGR cells*/     
+#define NNCHEAD_NUMNNC_INDEX  0    /*Item 1 in non-neighbour connection header: number of NNCs. Only present for main grid*/
+#define NNCHEAD_LGR_INDEX     1    /*Item 2 in non-neighbour connection header: LGR number (0 for global grid)*/
+#define NNCHEADA_KW    "NNCHEADA"  /*Header for NNC's between two amalgamated LGRs*/
+#define NNA1_KW        "NNA1"      /*Cell numbers in connecting local grid ILOC1*/            
+#define NNA2_KW        "NNA2"      /*Cell numbers in connecting local grid ILOC2*/
+#define NNCHEADA_ILOC1_INDEX 0     /*ILOC1: Index of first LGR*/
+#define NNCHEADA_ILOC2_INDEX 1     /*ILOC2: Index of second LGR*/
+#define NNA_NUMNNC_INDEX     0     /*Item 1 in NNA1 or NNA2 is number of NNCs*/  
 
 /* EGRID keywords */
 #define LGR_PARENT_KW  "LGRPARNT"   /* The name of the parent for an LGR. */
@@ -277,7 +296,7 @@ extern "C" {
 #define ENDGRID_KW     "ENDGRID"
 #define ENDLGR_KW      "ENDLGR"
 #define CORSNUM_KW     "CORSNUM"
-
+  
 /* GRID keywords */
 #define GRIDHEAD_KW    "GRIDHEAD"   /* Header information for GRID files. */
 #define COORD_KW       "COORD"      /* Header information for one cell in GRID file. */
@@ -293,7 +312,7 @@ extern "C" {
 #define GRIDHEAD_NZ_INDEX     3
 #define GRIDHEAD_LGR_INDEX    4
 #define GRIDHEAD_SIZE       100
-
+  
 /* Observe that these indices are one value lower than the values used
    in the ecl_smspec file. */
 #define DIMENS_NX_INDEX     0

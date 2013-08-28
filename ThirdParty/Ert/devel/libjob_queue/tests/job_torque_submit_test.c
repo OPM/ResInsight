@@ -35,8 +35,8 @@ void test_submit(torque_driver_type * driver, const char * cmd) {
     }
 
     torque_driver_kill_job(driver, job);
-    printf("Waiting 5 seconds");
-    for (int i = 0; i < 5; i++) {
+    printf("Waiting 2 seconds");
+    for (int i = 0; i < 2; i++) {
       printf(".");
       fflush(stdout);
       sleep(1);

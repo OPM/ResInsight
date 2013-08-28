@@ -560,7 +560,7 @@ void RimReservoirView::createDisplayModel()
     if (! this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometryTypesToAdd;
-        
+       
         if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
         {
             geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
@@ -582,7 +582,7 @@ void RimReservoirView::createDisplayModel()
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
-
+      
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -1044,6 +1044,29 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 }
             }
         }
+
+        cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
+        for (size_t i = 0; i < wellResults.size(); i++)
+        {
+            RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
+
+            if (m_currentTimeStep < singleWellResultData->firstResultTimeStep())
+            {
+                continue;
+            }
+
+            const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame(m_currentTimeStep);
+            const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCell(gridIndex, cellIndex);
+            if (wellResultCell)
+            {
+                resultInfoText->append(QString("(0-based) Branch Id : %1  Segment Id %2\n").arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
+                if (wellResultCell->m_branchConnectionCount)
+                {
+                    resultInfoText->append(QString("Branch Connection Count : %1\n").arg(wellResultCell->m_branchConnectionCount));
+                    resultInfoText->append(QString("Center coord : %1 %2 %3\n").arg(wellResultCell->m_bottomPosition.x()).arg(wellResultCell->m_bottomPosition.y()).arg(wellResultCell->m_bottomPosition.z()));
+                }
+            }
+        }
     }
 }
 
@@ -1395,11 +1418,16 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                 const std::vector<RigWellResultBranch>& wellResSegments = wellResFrames[wfIdx].m_wellResultBranches;
                 for (size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx)
                 {
-                    const std::vector<RigWellResultCell>& wsResCells = wellResSegments[wsIdx].m_wellCells;
+                    const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
                     for (size_t cIdx = 0; cIdx < wsResCells.size(); ++ cIdx)
                     {
                         if (wsResCells[cIdx].m_gridIndex == grid->gridIndex())
                         {
+                            if (!wsResCells[cIdx].isCell())
+                            {
+                                continue;
+                            }
+
                             size_t gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
                             (*visibleCells)[gridCellIndex] = true;
 

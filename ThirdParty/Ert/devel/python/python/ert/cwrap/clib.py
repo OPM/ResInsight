@@ -19,12 +19,11 @@ Convenience module for loading shared library.
 
 import ctypes
 import os
-import os.path
 
 ert_lib_path = None
 
 
-def __load__( lib_list , ert_prefix):
+def __load__( lib_list, ert_prefix):
     """
     Thin wrapper around the ctypes.CDLL function for loading shared library.
     
@@ -44,17 +43,17 @@ def __load__( lib_list , ert_prefix):
     for lib in lib_list:
         try:
             if ert_prefix:
-                ert_lib = os.path.join( ert_lib_path , lib )
-                dll = ctypes.CDLL( ert_lib , ctypes.RTLD_GLOBAL )
+                ert_lib = os.path.join(ert_lib_path, lib)
+                dll = ctypes.CDLL(ert_lib, ctypes.RTLD_GLOBAL)
             else:
-                dll = ctypes.CDLL( lib , ctypes.RTLD_GLOBAL )
+                dll = ctypes.CDLL(lib, ctypes.RTLD_GLOBAL)
             return dll
-        except Exception,exc:
+        except Exception, exc:
             error_list[lib] = exc
 
     error_msg = "\nFailed to load shared library:%s\n\ndlopen() error:\n" % lib_list[0]
     for lib in error_list.keys():
-        error_msg += "   %16s : %s\n" % (lib , error_list[lib])
+        error_msg += "   %16s : %s\n" % (lib, error_list[lib])
     error_msg += "\n"
 
     LD_LIBRARY_PATH = os.getenv("LD_LIBRARY_PATH")
@@ -70,7 +69,7 @@ variable. Your current LD_LIBRARY_PATH setting is:
 
 You might need to update this variable?
 """ % LD_LIBRARY_PATH
-    raise ImportError( error_msg )
+    raise ImportError(error_msg)
 
 #################################################################
 
@@ -79,7 +78,7 @@ def load( *lib_list ):
     """
     Will try to load shared library with normal load semantics.
     """
-    return __load__(lib_list , False )
+    return __load__(lib_list, False)
 
 
 def ert_load( *lib_list ):
@@ -90,10 +89,10 @@ def ert_load( *lib_list ):
     """
     if ert_lib_path:
         try:
-            return __load__(lib_list , True )
+            return __load__(lib_list, True)
         except ImportError:
             # Try again - ignoring the ert_lib_path setting.
-            return load( *lib_list )
+            return load(*lib_list)
     else:
         # The ert_lib_path variable has not been set; just try a normal load.
-        return load( *lib_list )
+        return load(*lib_list)
