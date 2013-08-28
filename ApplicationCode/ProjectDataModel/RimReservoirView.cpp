@@ -1059,12 +1059,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCell(gridIndex, cellIndex);
             if (wellResultCell)
             {
-                resultInfoText->append(QString("(0-based) Branch Id : %1  Segment Id %2\n").arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
-                if (wellResultCell->m_branchConnectionCount)
-                {
-                    resultInfoText->append(QString("Branch Connection Count : %1\n").arg(wellResultCell->m_branchConnectionCount));
-                    resultInfoText->append(QString("Center coord : %1 %2 %3\n").arg(wellResultCell->m_bottomPosition.x()).arg(wellResultCell->m_bottomPosition.y()).arg(wellResultCell->m_bottomPosition.z()));
-                }
+                resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId +1).arg(wellResultCell->m_ertSegmentId+1));
             }
         }
     }
