@@ -74,6 +74,7 @@ extern "C" {
   const char           * model_config_iget_casename( const model_config_type * model_config , int index);
   //void                   model_config_set_max_resample( model_config_type * model_config , int max_resample );
   //int                    model_config_get_max_resample(const model_config_type * model_config );
+  void                   model_config_set_max_internal_submit(model_config_type * config, int max_resample);
   int                    model_config_get_max_internal_submit( const model_config_type * config );
   bool                   model_config_select_runpath( model_config_type * model_config , const char * path_key);
   void                   model_config_add_runpath( model_config_type * model_config , const char * path_key , const char * fmt );
@@ -82,7 +83,8 @@ extern "C" {
   void                   model_config_set_refcase( model_config_type * model_config , const ecl_sum_type * refcase );
   void                   model_config_fprintf_config( const model_config_type * model_config , int ens_size ,FILE * stream );
   model_config_type    * model_config_alloc_empty();
-  
+  bool                   model_config_select_history( model_config_type * model_config , history_source_type source_type, const sched_file_type * sched_file , const ecl_sum_type * refcase);
+
 #ifdef __cplusplus 
 }
 #endif

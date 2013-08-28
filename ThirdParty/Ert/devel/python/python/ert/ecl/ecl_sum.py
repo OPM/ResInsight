@@ -25,16 +25,11 @@ libecl/src directory.
 # regarding order of arguments: The C code generally takes the time
 # index as the first argument and the key/key_index as second
 # argument. In the python code this order has been reversed.
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.util import StringList, ctime, DoubleVector, TimeVector
+from ert.ecl import ECL_LIB
 
-
-
-import libecl
-from   ert.cwrap.cwrap       import *
-from   ert.cwrap.cclass      import CClass
-from   ert.util.stringlist   import StringList
-from   ert.util.ctime        import ctime 
-
-import  numpy
+import numpy
 
 
 #import ert.ecl_plot.sum_plot as sum_plot
@@ -45,11 +40,13 @@ import  numpy
 # implementation could be replaced with:
 #
 #   from matplotlib.dates import date2num
+from ert.util.tvector import TimeVector
+
 
 HOURS_PER_DAY     = 24.0
-MINUTES_PER_DAY   =  60*HOURS_PER_DAY
-SECONDS_PER_DAY   =  60*MINUTES_PER_DAY
-MUSECONDS_PER_DAY = 1e6*SECONDS_PER_DAY
+MINUTES_PER_DAY   = 60 * HOURS_PER_DAY
+SECONDS_PER_DAY   = 60 * MINUTES_PER_DAY
+MUSECONDS_PER_DAY = 1e6 * SECONDS_PER_DAY
 
 def date2num( dt ):
     """
@@ -507,7 +504,7 @@ class EclSMSPECNode( CClass ):
 
 class EclSum( CClass ):
     
-    def __new__( cls , load_case , join_string = ":" , include_restart = True):
+    def __new__( cls , load_case , join_string = ":" , include_restart = True, c_ptr = None, parent = None):
         """
         Loads a new EclSum instance with summary data.
 
@@ -525,16 +522,24 @@ class EclSum( CClass ):
         loader will, in the case of a restarted ECLIPSE simulation,
         try to load summary results also from the restarted case.
         """
-        c_ptr = cfunc.fread_alloc( load_case , join_string , include_restart)
         if c_ptr:
             obj = object.__new__( cls )
-            obj.init_cobj( c_ptr , cfunc.free )
+            if parent:
+                obj.init_cref( c_ptr , parent)
+            else:
+                obj.init_cobj( c_ptr , cfunc.free )
             return obj
         else:
-            return None
+            c_ptr = cfunc.fread_alloc( load_case , join_string , include_restart)
+            if c_ptr:
+                obj = object.__new__( cls )
+                obj.init_cobj( c_ptr , cfunc.free )
+                return obj
+            else:
+                return None
         
 
-    def __init__(self , load_case , join_string = ":" ,include_restart = True , c_ptr = None):
+    def __init__(self , load_case , join_string = ":" ,include_restart = True , c_ptr = None, parent = None):
         """
         Initialize a new EclSum instance.
 
@@ -1221,15 +1226,27 @@ class EclSum( CClass ):
         cfunc.fwrite_sum( self )
         
         
-        
+    def alloc_time_vector(self, report_only):
+        c_ptr = cfunc.alloc_time_vector(self, report_only)
+        v = TimeVector.asPythonObject(c_ptr, TimeVector.free)
+        return v
+
+    def alloc_data_vector(self, data_index, report_only):
+        c_ptr = cfunc.alloc_data_vector(self, data_index, report_only)
+        v = DoubleVector.asPythonObject(c_ptr, DoubleVector.free)
+        return v
 
 
+    def get_general_var_index(self, key):
+        c_ptr = cfunc.get_general_var_index( self , key )
+        v = TimeVector.asPythonObject(c_ptr, TimeVector.free)
+        return v
 
 #################################################################
 
 # 2. Creating a wrapper object around the libecl library, 
 #    registering the type map : ecl_kw <-> EclKW
-cwrapper = CWrapper( libecl.lib )
+cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerType( "ecl_sum" , EclSum )
 cwrapper.registerType( "smspec_node" , EclSMSPECNode )
 
@@ -1280,7 +1297,8 @@ cfunc.get_report_time               = cwrapper.prototype("time_t   ecl_sum_get_r
 
 cfunc.fwrite_sum                    = cwrapper.prototype("void     ecl_sum_fwrite(ecl_sum)")
 cfunc.set_case                      = cwrapper.prototype("void     ecl_sum_set_case(ecl_sum, char*)")
-
+cfunc.alloc_time_vector             = cwrapper.prototype("c_void_p ecl_sum_alloc_time_vector(ecl_sum, bool)")
+cfunc.alloc_data_vector             = cwrapper.prototype("c_void_p ecl_sum_alloc_data_vector(ecl_sum, int, bool)")
 #-----------------------------------------------------------------
 # smspec node related stuff
 

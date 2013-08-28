@@ -12,42 +12,45 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.job_queue import ExtJob, JOB_QUEUE_LIB
+from ert.util import StringList
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-import  libjob_queue
+
 class ForwardModel(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
+            
+    @property
+    def alloc_joblist(self):
+        s = StringList(initial = None, c_ptr = cfunc.alloc_joblist(self))
+        return s
 
+    def iget_job(self, index):
+        job = ExtJob( cfunc.iget_job( self, index ), parent = self)
+        return job
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    def add_job(self, name):
+        job = ExtJob( cfunc.add_job( self, name ), parent = self)
+        return job
 
-
-
+    def clear(self):
+        cfunc.clear(self)
 ##################################################################
 
-cwrapper = CWrapper( libjob_queue.lib )
+cwrapper = CWrapper(JOB_QUEUE_LIB)
 cwrapper.registerType( "forward_model" , ForwardModel )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("forward_model")
-
-
+##################################################################
+##################################################################
 cfunc.free                       = cwrapper.prototype("void forward_model_free( forward_model )")
 cfunc.clear                      = cwrapper.prototype("void forward_model_clear(forward_model)")
 cfunc.add_job                    = cwrapper.prototype("c_void_p forward_model_add_job(forward_model, char*)")
 cfunc.alloc_joblist              = cwrapper.prototype("c_void_p forward_model_alloc_joblist(forward_model)")
+cfunc.iget_job                   = cwrapper.prototype("c_void_p forward_model_iget_job( forward_model, int)")

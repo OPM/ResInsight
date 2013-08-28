@@ -576,6 +576,10 @@ const char * enkf_config_node_get_enkf_infile( const enkf_config_node_type * con
   return path_fmt_get_fmt( config_node->enkf_infile_fmt );
 }
 
+const char * enkf_config_node_get_init_file_fmt( const enkf_config_node_type * config_node)
+{
+  return path_fmt_get_fmt( config_node->init_file_fmt );
+}
 
 void enkf_config_node_set_min_std( enkf_config_node_type * config_node , enkf_node_type * min_std ) {
   if (config_node->min_std != NULL)

@@ -168,6 +168,9 @@ void RigGridBase::cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) c
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJK(size_t i, size_t j, size_t k) const
 {
+    CVF_TIGHT_ASSERT(i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
+    CVF_TIGHT_ASSERT(i < m_gridPointDimensions.x() && j < m_gridPointDimensions.y() && k < m_gridPointDimensions.z()  );
+
     size_t ci = i + j*(m_gridPointDimensions.x() - 1) + k*((m_gridPointDimensions.x() - 1)*(m_gridPointDimensions.y() - 1));
     return ci;
 }

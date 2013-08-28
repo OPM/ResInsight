@@ -1,6 +1,6 @@
 #  Copyright (C) 2011  Statoil ASA, Norway. 
 #   
-#  The file 'ecl_default.py' is part of ERT - Ensemble based Reservoir Tool. 
+#  The file 'ecl_default.py' is part of ERT - Ensemble based Reservoir Tool.
 #   
 #  ERT is free software: you can redistribute it and/or modify 
 #  it under the terms of the GNU General Public License as published by 
@@ -56,77 +56,119 @@ The ecl_local module can define the following variables:
 Depending on the computing environment some variables might be
 irrelevant; it is not necessary to set variables which will not be
 used.
-""" 
+"""
 
-class EclDefault:
-    __ecl_cmd = None
-    __ecl_version = None
-    __lsf_resource_request = None
-    __driver_type = None
-    __driver_options = None
 
-    def __init__(self):
-        pass
+class EclDefault(object):
+    _initialized = False
 
-    def safe_get( self , attr ):
-        """
-        Internal function to get class attributes.
-        
-        Will raise NotImplemtedError if the attribute has not been
-        loaded from the site spesific ecl_default module.
-        """
-        if hasattr( self , "__%s" % attr):
-            value = getattr( self , "__%s" % attr)
-            return value
-        else:
-            raise NotImplementedError("The default attribute:%s has not been set - you must update/provide a ecl_local module." % attr)
-        
-    @property
-    def ecl_cmd( self ):
+    _ecl_cmd = None
+    _ecl_version = None
+    _lsf_resource_request = None
+    _driver_type = None
+    _driver_options = None
+
+    @staticmethod
+    def _initializeEclDefaults():
+        if not EclDefault._initialized:
+            try:
+                import ert.ecl.ecl_local as ecl_local
+
+                if hasattr(ecl_local, "ecl_cmd"):
+                    EclDefault._ecl_cmd = ecl_local.ecl_cmd
+
+                if hasattr(ecl_local, "ecl_version"):
+                    EclDefault._ecl_version = ecl_local.ecl_version
+
+                if hasattr(ecl_local, "lsf_resource_request"):
+                    EclDefault._lsf_resource_request = ecl_local.lsf_resource_request
+
+                if hasattr(ecl_local, "driver_type"):
+                    EclDefault._driver_type = ecl_local.driver_type
+
+                if hasattr(ecl_local, "driver_options"):
+                    EclDefault._driver_options = ecl_local.driver_options
+
+
+            except ImportError as e:
+                pass
+
+            EclDefault._initialized = True
+
+
+    @staticmethod
+    def ecl_cmd():
         """
         The path to the executable used to invoke ECLIPSE.
         """
-        return self.safe_get( "ecl_cmd" )
+        EclDefault._initializeEclDefaults()
+
+        if EclDefault._ecl_cmd is None:
+            EclDefault._attributeIsNotSet("ecl_cmd")
+        return EclDefault._ecl_cmd
+
+    @staticmethod
+    def driver_type():
+        EclDefault._initializeEclDefaults()
+
+        if EclDefault._driver_type is None:
+            EclDefault._attributeIsNotSet("driver_type")
+        return EclDefault._driver_type
+
+    @staticmethod
+    def driver_options():
+        EclDefault._initializeEclDefaults()
+
+        if EclDefault._driver_options is None:
+            EclDefault._attributeIsNotSet("driver_options")
+        return EclDefault._driver_options
+
+    @staticmethod
+    def ecl_version():
+        EclDefault._initializeEclDefaults()
+
+        if EclDefault._ecl_version is None:
+            EclDefault._attributeIsNotSet("ecl_version")
+        return EclDefault._ecl_version
+
+    @staticmethod
+    def lsf_resource_request():
+        EclDefault._initializeEclDefaults()
+
+        if EclDefault._lsf_resource_request is None:
+            EclDefault._attributeIsNotSet("lsf_resource_request")
+        return EclDefault._lsf_resource_request
+
+    @staticmethod
+    def _attributeIsNotSet(attribute_name):
+        raise NotImplementedError("The default attribute:%s has not been set - you must update/provide a ecl_local module." % attribute_name)
+
+
+#Legacy import support
+
+class default_wrapper(object):
+    #from warnings import warn
+    #warn("The ecl_default namespace is deprecated! Please retrieve ecl_default values from the class: ert.ecl.EclDefault!")
 
     @property
-    def driver_type( self ):
-        return self.safe_get( "driver_type" )
+    def ecl_cmd(self):
+        return EclDefault.ecl_cmd()
 
     @property
-    def driver_options( self ):
-        return self.safe_get( "driver_options" )
+    def driver_type(self):
+        return EclDefault.driver_type()
 
     @property
-    def ecl_version( self ):
-        return self.safe_get( "ecl_version" )
+    def driver_options(self):
+        return EclDefault.driver_options()
 
     @property
-    def lsf_resource_request( self ):
-        return self.safe_get( "lsf_resource_request" )
+    def ecl_version(self):
+        return EclDefault.ecl_version()
+
+    @property
+    def lsf_resource_request(self):
+        return EclDefault.lsf_resource_request()
 
 
-try:
-    import ecl_local
-
-    if hasattr( ecl_local , "ecl_cmd"):
-        EclDefault.__ecl_cmd = ecl_local.ecl_cmd
-
-    if hasattr( ecl_local , "ecl_version"):
-        EclDefault.__ecl_version = ecl_local.ecl_version
-
-    if hasattr( ecl_local , "lsf_resource_request"):
-        EclDefault.__lsf_resource_request = ecl_local.lsf_resource_request
-
-    if hasattr( ecl_local , "driver_type"):
-        EclDefault.__driver_type = ecl_local.driver_type
-
-    if hasattr( ecl_local , "driver_options"):
-        EclDefault.__driver_options = ecl_local.driver_options
-
-    
-except ImportError:
-    pass
-
-
-default = EclDefault()
-
+default = default_wrapper()

@@ -37,6 +37,8 @@
 #include <ert/plot/plot_dataset.h> 
 
 #include <ert/ecl/ecl_rft_file.h>
+#include <ert/ecl/ecl_rft_node.h>
+#include <ert/ecl/ecl_rft_cell.h>
 
 #include <ert/enkf/enkf_main.h>
 #include <ert/enkf/enkf_obs.h>
@@ -245,7 +247,12 @@ void enkf_tui_plot_RFT_simIn(enkf_main_type * enkf_main, path_fmt_type * runpath
     for (int nobs =0; nobs<lines; nobs++){
       int start_index = 0;
       int i; int j; int k;
-      int global_index = ecl_grid_get_global_index_from_xyz(grid,double_vector_iget(UTM_x,nobs) ,double_vector_iget(UTM_y,nobs) ,double_vector_iget(TVD_z,nobs) ,start_index);
+      int global_index = ecl_grid_get_global_index_from_xyz( grid , 
+                                                             double_vector_iget(UTM_x,nobs) ,
+                                                             double_vector_iget(UTM_y,nobs) ,
+                                                             double_vector_iget(TVD_z,nobs) ,
+                                                             start_index);
+      
       ecl_grid_get_ijk1(grid , global_index, &i, &j , &k);
       int is_active = ecl_grid_get_active_index1(grid , global_index);
       int_vector_iset(i_values, nobs, i);
@@ -287,17 +294,16 @@ void enkf_tui_plot_RFT_simIn(enkf_main_type * enkf_main, path_fmt_type * runpath
     else{
       for( int nobs = 0; nobs < lines; nobs++){
         if( int_vector_iget(active,nobs) > -1){
-          int cell_index = ecl_rft_node_lookup_ijk( rft_refcase_node , 
-                                                    int_vector_iget(i_values,nobs) , 
-                                                    int_vector_iget(j_values,nobs) , 
-                                                    int_vector_iget(k_values,nobs) ); //lookup cell
-
-          if(cell_index > -1){
-            double pressure_value = ecl_rft_node_iget_pressure( rft_refcase_node , cell_index); // Pressure
+          const ecl_rft_cell_type * cell = ecl_rft_node_lookup_ijk( rft_refcase_node , 
+                                                                    int_vector_iget(i_values,nobs) , 
+                                                                    int_vector_iget(j_values,nobs) , 
+                                                                    int_vector_iget(k_values,nobs) ); 
+          
+          if (cell) {
+            double pressure_value = ecl_rft_cell_get_pressure( cell );
             double_vector_append(RFT_refcase, pressure_value);
             bool_vector_append(refcase_has_data, true);
-          }
-          else{
+          } else {
             double_vector_append(RFT_refcase, 0.0);
             bool_vector_append(refcase_has_data, false);
           }
@@ -337,17 +343,19 @@ void enkf_tui_plot_RFT_simIn(enkf_main_type * enkf_main, path_fmt_type * runpath
         else{
           for( int nobs = 0; nobs < lines; nobs++){
             if( int_vector_iget(active,nobs) > -1){
-              int cell_index = ecl_rft_node_lookup_ijk( rftnode , int_vector_iget(i_values,nobs), int_vector_iget(j_values,nobs),int_vector_iget(k_values,nobs) ); //lookup cell
-              double pressure_value = ecl_rft_node_iget_pressure( rftnode , cell_index); // Pressure
-              double_vector_iset(simulated_pressures,nobs , pressure_value);
-              if(cell_index > -1)
+              const ecl_rft_cell_type * cell = ecl_rft_node_lookup_ijk( rftnode , 
+                                                                        int_vector_iget(i_values,nobs), 
+                                                                        int_vector_iget(j_values,nobs),
+                                                                        int_vector_iget(k_values,nobs) ); //lookup cell
+              if (cell) {
+                double pressure_value = ecl_rft_cell_get_pressure( cell );
+                double_vector_iset(simulated_pressures, nobs , pressure_value);
                 bool_vector_iset(has_data, nobs, true);
-              else
+              } else {
+                double_vector_iset(simulated_pressures,nobs ,0.0);
                 bool_vector_iset(has_data, nobs, false);
-            }
-            else {
-              double_vector_iset(simulated_pressures,nobs ,0.0);
-              bool_vector_iset(has_data, nobs, false);
+              }
+              
             }
           }
         }

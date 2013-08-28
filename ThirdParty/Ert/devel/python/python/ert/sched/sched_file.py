@@ -12,16 +12,11 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.sched import SCHED_LIB
+from ert.util import ctime
 
-
-import  types
-import  ctypes
-import  libsched
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cfile       import CFILE
-from    ert.cwrap.cclass      import CClass
-from    ert.util.ctime        import ctime 
 
 class SchedFile(CClass):
 
@@ -39,7 +34,7 @@ class SchedFile(CClass):
 
 
 
-cwrapper = CWrapper( libsched.lib )
+cwrapper = CWrapper(SCHED_LIB)
 cwrapper.registerType( "sched_file" , SchedFile )
 
 # 3. Installing the c-functions used to manipulate ecl_kw instances.

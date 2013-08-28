@@ -22,6 +22,8 @@
 #include <QList>
 #include <QDateTime>
 
+#include "RigSingleWellResultsData.h"
+
 class RifEclipseOutputFileTools;
 class RifEclipseRestartDataAccess;
 class RigGridBase;
@@ -30,7 +32,7 @@ class RigActiveCellInfo;
 
 typedef struct ecl_grid_struct ecl_grid_type;
 typedef struct ecl_file_struct ecl_file_type;
-
+typedef struct well_conn_struct well_conn_type;
 
 //==================================================================================================
 //
@@ -56,8 +58,14 @@ public:
 private:
     bool                    readActiveCellInfo();
     void                    buildMetaData();
-    void                    readWellCells();
+    void                    readWellCells(const ecl_grid_type* mainEclGrid);
+
+    std::string             ertGridName( size_t gridNr );
+
+    static RigWellResultPoint createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId);
     
+
+
     void                    openInitFile();
     bool                    openDynamicAccess();
 

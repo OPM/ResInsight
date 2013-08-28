@@ -26,7 +26,7 @@
 
 void test_strcat(char * s1 , const char *s2 , const char * expected) {
   char * cat = util_strcat_realloc(s1 , s2 );
-  if (test_string_equal( cat , expected ))
+  if (test_check_string_equal( cat , expected ))
     util_safe_free( cat );
   else
     test_error_exit("util_strcat_realloc(%s,%s) Got:%s  expected:%s \n",s1,s2,cat , expected);

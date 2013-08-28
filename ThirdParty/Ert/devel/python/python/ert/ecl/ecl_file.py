@@ -35,19 +35,13 @@ implementation from the libecl library.
 [1]: In particular for restart files, which do not have a special
      RestartFile class, there is some specialized functionality.
 """
-
-import os.path
-import datetime
-import ctypes
-import types
-import libecl
 import re
+import types
+import datetime
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.ecl import EclKW, ECL_LIB
+from ert.util import ctime
 
-from   ert.cwrap.cwrap       import *
-from   ert.cwrap.cclass      import CClass
-from   ecl_kw                import EclKW
-from   ert.util.ctime        import ctime 
-from   ert.util.stringlist   import StringList
 
 class EclFile(CClass):
 
@@ -73,7 +67,7 @@ class EclFile(CClass):
         
         if dtime:
             OK = cfunc.restart_block_time( obj , ctime( dtime ))
-        elif not report_step == None:
+        elif not report_step is None:
             OK = cfunc.restart_block_step( obj , report_step )
         else:
             raise TypeError("restart_block() requires either dtime or report_step argument - none given.")
@@ -703,7 +697,7 @@ class EclFile(CClass):
         
 
 # 2. Creating a wrapper object around the libecl library, 
-cwrapper = CWrapper( libecl.lib )
+cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerType( "ecl_file" , EclFile )
 
 

@@ -108,6 +108,7 @@ extern "C" {
 
 
   bool             enkf_node_user_get_vector( enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int iens , state_enum state , double_vector_type * values);
+  bool             enkf_node_user_get_no_id(enkf_node_type * enkf_node , enkf_fs_type * fs , const char * key , int report_step, int iens, state_enum state , double * value);
   bool             enkf_node_user_get(enkf_node_type *  , enkf_fs_type * , const char * , node_id_type , double * );
   enkf_node_type * enkf_node_alloc(const enkf_config_node_type *);
   enkf_node_type * enkf_node_copyc(const enkf_node_type * );

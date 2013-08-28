@@ -15,4 +15,13 @@
 #  for more details. 
 """
 Simple package for working with 2D geometry.
+
 """
+from ert.cwrap import clib
+
+import ert.util
+
+ERT_GEOMETRY_LIB = clib.ert_load("libert_geometry.so")
+
+from .geo_polygon import GeoPolygon
+

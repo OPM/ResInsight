@@ -181,6 +181,20 @@ void lsf_job_free(lsf_job_type * job) {
 }
 
 
+void lsf_job_export_hostnames( const lsf_job_type * job , stringlist_type * hostlist) {
+  int host_nr;
+  
+  stringlist_clear( hostlist );
+  for (host_nr = 0; host_nr < job->num_exec_host; host_nr++)
+    stringlist_append_copy( hostlist , job->exec_host[ host_nr ]);
+}
+
+
+long lsf_job_get_jobnr( const lsf_job_type * job ) {
+  return job->lsf_jobnr;
+}
+
+
 static int lsf_job_parse_bsub_stdout(const lsf_driver_type * driver , const char * stdout_file) {
   int     jobid = -1;
   FILE * stream = util_fopen(stdout_file , "r");
@@ -859,6 +873,16 @@ bool lsf_driver_has_option( const void * __driver , const char * option_key) {
   return false;
 }
 
+void lsf_driver_init_option_list(stringlist_type * option_list) {
+  stringlist_append_ref(option_list, LSF_QUEUE);
+  stringlist_append_ref(option_list, LSF_RESOURCE);
+  stringlist_append_ref(option_list, LSF_SERVER);
+  stringlist_append_ref(option_list, LSF_RSH_CMD);
+  stringlist_append_ref(option_list, LSF_LOGIN_SHELL);
+  stringlist_append_ref(option_list, LSF_BSUB_CMD);
+  stringlist_append_ref(option_list, LSF_BJOBS_CMD);
+  stringlist_append_ref(option_list, LSF_BKILL_CMD);
+}
 
 
 

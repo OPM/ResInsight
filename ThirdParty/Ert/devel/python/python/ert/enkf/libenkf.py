@@ -13,9 +13,10 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
-import ert.util.libutil               
-import ert.ecl.libecl
-import ert.job_queue.libjob_queue
+
+import ert.util
+import ert.ecl
+import ert.job_queue
 import ert.rms.librms
 import ert.cwrap.clib as clib
 

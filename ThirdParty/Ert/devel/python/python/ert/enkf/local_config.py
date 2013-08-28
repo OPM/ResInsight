@@ -20,33 +20,34 @@ from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
 from    enkf_enum             import *
 import  libenkf
+from ert.util.stringlist import StringList
 class LocalConfig(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
+            
+    @property
+    def get_config_files(self):
+        config_files = StringList(c_ptr = cfunc.get_config_files(self), parent = self)
+        return config_files
 
+    def clear_config_files(self):
+        cfunc.clear_config_files(self)
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
-
-
-
+    def add_config_file(self, file):
+        cfunc.add_config_file(self, file)
 ##################################################################
 
 cwrapper = CWrapper( libenkf.lib )
 cwrapper.registerType( "local_config" , LocalConfig )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("local_config")
 
+##################################################################
+##################################################################
 
 cfunc.free               = cwrapper.prototype("void local_config_free( local_config )")
 cfunc.get_config_files   = cwrapper.prototype("c_void_p local_config_get_config_files( local_config )")

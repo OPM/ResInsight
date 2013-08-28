@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <ert/util/test_work_area.h>
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
 #include <ert/util/thread_pool.h>
@@ -55,8 +56,9 @@ void ecl_test( const char * ecl_case ) {
 
 
 void simple_test() {
-time_map_type * time_map = time_map_alloc( );
-  const char * mapfile = "/tmp/map";
+  time_map_type * time_map = time_map_alloc( );
+  test_work_area_type * work_area = test_work_area_alloc("enkf_time_map" , true);
+  const char * mapfile = "map";
   
   test_assert_true( time_map_update( time_map , 0 , 100 )   );
   test_assert_true( time_map_update( time_map , 1 , 200 )   );
@@ -83,6 +85,7 @@ time_map_type * time_map = time_map_alloc( );
     time_map_fwrite( time_map , mapfile);
     test_assert_time_t_not_equal( mtime1 , util_file_mtime( mapfile ) );
   }
+  test_work_area_free( work_area );
 }
 
 

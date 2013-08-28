@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include <ert/util/test_util.h>
+#include <ert/util/test_work_area.h>
 #include <ert/util/util.h>
 #include <ert/util/thread_pool.h>
 #include <ert/util/arg_pack.h>
@@ -44,16 +45,19 @@ void create_runpath(enkf_main_type * enkf_main ) {
 
 int main(int argc , char ** argv) {
   enkf_main_install_SIGNALS();
+  const char * root_path = argv[1];
+  const char * config_file = argv[2];
+  const char * forward_init_string = argv[3];
+  test_work_area_type * work_area = test_work_area_alloc(config_file , false);
+  test_work_area_copy_directory_content( work_area , root_path );
   {
-    const char * config_file = argv[1];
-    const char * forward_init_string = argv[2];
     bool forward_init;
     bool strict = true;
     enkf_main_type * enkf_main;
-
+    
     test_assert_true( util_sscanf_bool( forward_init_string , &forward_init));
 
-    util_clear_directory( "/tmp/Storage" , true , true );
+    util_clear_directory( "Storage" , true , true );
     enkf_main = enkf_main_bootstrap( NULL , config_file , strict , true );
     {
       enkf_state_type * state   = enkf_main_iget_state( enkf_main , 0 );
@@ -87,7 +91,7 @@ int main(int argc , char ** argv) {
                               .state = ANALYZED };
 
       create_runpath( enkf_main );
-      test_assert_true( util_is_directory( "/tmp/simulations/run0" ));
+      test_assert_true( util_is_directory( "simulations/run0" ));
       
       {
         run_mode_type run_mode = ENSEMBLE_EXPERIMENT; 
@@ -95,13 +99,13 @@ int main(int argc , char ** argv) {
         
         
         test_assert_false( enkf_node_has_data( gen_param_node , fs, node_id ));
-        util_unlink_existing( "/tmp/simulations/run0/PARAM_INIT" );
+        util_unlink_existing( "simulations/run0/PARAM_INIT" );
       }
       
 
 
       {
-        FILE * stream = util_fopen("/tmp/simulations/run0/PARAM_INIT" , "w");
+        FILE * stream = util_fopen("simulations/run0/PARAM_INIT" , "w");
         fprintf(stream , "0\n1\n2\n3\n" );
         fclose( stream );
       }
@@ -115,7 +119,7 @@ int main(int argc , char ** argv) {
           enkf_main_init_run(enkf_main , run_mode);     /* This is ugly */
         }
         
-        test_assert_true( enkf_node_forward_init( gen_param_node , "/tmp/simulations/run0" , 0 ));
+        test_assert_true( enkf_node_forward_init( gen_param_node , "simulations/run0" , 0 ));
         enkf_state_forward_init( state , fs , &loadOK );
         test_assert_true( loadOK );
         enkf_state_load_from_forward_model( state , fs , &loadOK , false , msg_list );
@@ -134,12 +138,12 @@ int main(int argc , char ** argv) {
           test_assert_double_equal( 2 , value);
         }
       }
-      util_clear_directory( "/tmp/simulations" , true , true );
+      util_clear_directory( "simulations" , true , true );
       create_runpath( enkf_main );
-      test_assert_true( util_is_directory( "/tmp/simulations/run0" ));
-      test_assert_true( util_is_file( "/tmp/simulations/run0/PARAM.INC" ));
+      test_assert_true( util_is_directory( "simulations/run0" ));
+      test_assert_true( util_is_file( "simulations/run0/PARAM.INC" ));
       {
-        FILE * stream = util_fopen("/tmp/simulations/run0/PARAM.INC" , "r");
+        FILE * stream = util_fopen("simulations/run0/PARAM.INC" , "r");
         double v0,v1,v2,v3;
         fscanf(stream , "%lg %lg %lg %lg" , &v0,&v1,&v2,&v3);
         fclose( stream );                
@@ -148,9 +152,10 @@ int main(int argc , char ** argv) {
         test_assert_double_equal( 2 , v2);
         test_assert_double_equal( 3 , v3);
       }
-      util_clear_directory( "/tmp/simulations" , true , true );
+      util_clear_directory( "simulations" , true , true );
     }
     enkf_main_free( enkf_main );
   }
+  test_work_area_free( work_area );
 }
 

@@ -101,11 +101,11 @@ void rms_util_fskip_string(FILE *stream) {
 
 
 int rms_util_fread_strlen(FILE *stream) {
-  long int init_pos = ftell(stream);
+  long int init_pos = util_ftell(stream);
   int len;
   rms_util_fskip_string(stream);
-  len = ftell(stream) - init_pos;
-  fseek(stream , init_pos , SEEK_SET);
+  len = util_ftell(stream) - init_pos;
+  util_fseek(stream , init_pos , SEEK_SET);
   return len;
 }
 
@@ -116,7 +116,7 @@ int rms_util_fread_strlen(FILE *stream) {
 bool rms_util_fread_string(char *string , int max_length , FILE *stream) {
   bool read_ok = true;
   bool cont    = true;
-  long int init_pos = ftell(stream);
+  long int init_pos = util_ftell(stream);
   int pos = 0;
   while (cont) {
     fread(&string[pos] , sizeof *string , 1 , stream);
@@ -128,7 +128,7 @@ bool rms_util_fread_string(char *string , int max_length , FILE *stream) {
       if (max_length > 0) {
         if (pos == max_length) {
           read_ok = false;
-          fseek(stream , init_pos , SEEK_SET);
+          util_fseek(stream , init_pos , SEEK_SET);
           cont = false;
         }
       }

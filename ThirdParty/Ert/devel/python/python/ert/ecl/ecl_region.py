@@ -25,15 +25,51 @@ combined e.g. with logical &.
 When the selection process is complete the region instance can be
 queried for the corresponding list of indices.
 """
+import ctypes
 import warnings
-import libecl
-from   ert.cwrap.cwrap       import *
-from   ert.cwrap.cclass      import CClass
-from   ert.util.tvector      import IntVector
-from   ert.geo.geo_polygon   import GeoPolygon
-from   ecl_kw                import ECL_INT_TYPE , ECL_FLOAT_TYPE , ECL_DOUBLE_TYPE, EclKW
-import ecl_grid
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.ecl import EclKW, EclTypeEnum, ECL_LIB
+from ert.geo import GeoPolygon
+from ert.util import IntVector
 
+
+def select_method(select):
+    """
+    The select_method method decorator is applied to all the
+    select_xxx() methods. The purpose of this decorator is to
+    allow the select_xxx() methods to have an optional argument
+    @intersect. If the @intersect argument is True the results of
+    the current select method will be and'ed with the current
+    selection, instead of or'ed which is the default.
+
+    Consider this example:
+
+       region = EclRegion( grid , False )
+       region.select_islice(0 , 5)     # Selects all cells with i:[0:5]
+       region.select_jslice(0 , 5)     # Selects all cells with j:[0:5]
+
+    When these two calls have completed selection will contain all
+    the cells which are either in i-interval [0:5] or in
+    j-interval [0:5]. If we supply the @intersect argument in the
+    second call the j selection will only be applied to the cells
+    in i:[0:5] interval:
+
+       region = EclRegion( grid , False )
+       region.select_islice(0 , 5)     # Selects all cells with i:[0:5]
+       region.select_jslice(0 , 5)     # Selects all cells with j:[0:5] AND i:[0:5]
+    """
+
+    def select_wrapper(self , *args ,  **kwargs):
+        intersect = kwargs.has_key('intersect') and kwargs['intersect']
+        if intersect:
+            new_region = EclRegion( self.grid , False )
+            select(new_region , *args )
+
+            self &= new_region
+        else:
+            select(self , *args )
+
+    return select_wrapper
 
 class EclRegion(CClass):
     
@@ -202,45 +238,6 @@ class EclRegion(CClass):
         cfunc.reset( self )
 
     ##################################################################
-
-    
-    def select_method(select):
-        """
-        The select_method method decorator is applied to all the
-        select_xxx() methods. The purpose of this decorator is to
-        allow the select_xxx() methods to have an optional argument
-        @intersect. If the @intersect argument is True the results of
-        the current select method will be and'ed with the current
-        selection, instead of or'ed which is the default.
-
-        Consider this example:
-
-           region = EclRegion( grid , False )
-           region.select_islice(0 , 5)     # Selects all cells with i:[0:5]
-           region.select_jslice(0 , 5)     # Selects all cells with j:[0:5]
-
-        When these two calls have completed selection will contain all
-        the cells which are either in i-interval [0:5] or in
-        j-interval [0:5]. If we supply the @intersect argument in the
-        second call the j selection will only be applied to the cells
-        in i:[0:5] interval:
-
-           region = EclRegion( grid , False )
-           region.select_islice(0 , 5)     # Selects all cells with i:[0:5]
-           region.select_jslice(0 , 5)     # Selects all cells with j:[0:5] AND i:[0:5]
-        """
-        
-        def select_wrapper(self , *args ,  **kwargs):
-            intersect = kwargs.has_key('intersect') and kwargs['intersect']
-            if intersect:
-                new_region = EclRegion( self.grid , False )
-                select(new_region , *args )
-                
-                self &= new_region
-            else:
-                select(self , *args )
-
-        return select_wrapper
 
             
     @select_method
@@ -735,9 +732,9 @@ class EclRegion(CClass):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , shift , {ECL_INT_TYPE    : cfunc.shift_kw_int, 
-                                                ECL_FLOAT_TYPE  : cfunc.shift_kw_float , 
-                                                ECL_DOUBLE_TYPE : cfunc.shift_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , shift , {EclTypeEnum.ECL_INT_TYPE    : cfunc.shift_kw_int,
+                                                EclTypeEnum.ECL_FLOAT_TYPE  : cfunc.shift_kw_float ,
+                                                EclTypeEnum.ECL_DOUBLE_TYPE : cfunc.shift_kw_double} , force_active)
 
     def isub_kw( self , target_kw , delta_kw , force_active = False):
         if isinstance(delta_kw , EclKW):
@@ -753,9 +750,9 @@ class EclRegion(CClass):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , scale , {ECL_INT_TYPE    : cfunc.scale_kw_int, 
-                                                ECL_FLOAT_TYPE  : cfunc.scale_kw_float , 
-                                                ECL_DOUBLE_TYPE : cfunc.scale_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , scale , {EclTypeEnum.ECL_INT_TYPE    : cfunc.scale_kw_int,
+                                                EclTypeEnum.ECL_FLOAT_TYPE  : cfunc.scale_kw_float ,
+                                                EclTypeEnum.ECL_DOUBLE_TYPE : cfunc.scale_kw_double} , force_active)
 
     def imul_kw( self , target_kw , other , force_active = False):
         if isinstance(other , EclKW):
@@ -790,9 +787,9 @@ class EclRegion(CClass):
         """
         See usage documentation on iadd_kw().
         """
-        self.scalar_apply_kw( ecl_kw , value , {ECL_INT_TYPE    : cfunc.set_kw_int, 
-                                                ECL_FLOAT_TYPE  : cfunc.set_kw_float , 
-                                                ECL_DOUBLE_TYPE : cfunc.set_kw_double} , force_active)
+        self.scalar_apply_kw( ecl_kw , value , {EclTypeEnum.ECL_INT_TYPE    : cfunc.set_kw_int,
+                                                EclTypeEnum.ECL_FLOAT_TYPE  : cfunc.set_kw_float ,
+                                                EclTypeEnum.ECL_DOUBLE_TYPE : cfunc.set_kw_double} , force_active)
 
     
 
@@ -813,7 +810,7 @@ class EclRegion(CClass):
         IntVector instance with active indices in the region.
         """
         c_ptr = cfunc.get_active_list( self )
-        active_list = IntVector.ref( c_ptr , self )
+        active_list = IntVector.asPythonReference( c_ptr , self )
         return active_list
 
     @property
@@ -822,7 +819,7 @@ class EclRegion(CClass):
         IntVector instance with global indices in the region.
         """
         c_ptr = cfunc.get_global_list( self )
-        global_list = IntVector.ref( c_ptr , self )    
+        global_list = IntVector.asPythonReference( c_ptr , self )
         return global_list
 
     @property
@@ -864,7 +861,7 @@ class EclRegion(CClass):
     
     def kw_index_list(self , ecl_kw , force_active):
         c_ptr = cfunc.get_kw_index_list( self , ecl_kw , force_active)
-        index_list = IntVector.ref( c_ptr , self )
+        index_list = IntVector.asPythonReference( c_ptr , self )
         return index_list
 
 
@@ -878,7 +875,7 @@ class EclRegion(CClass):
 
 
 # 2. Creating a wrapper object around the libecl library.
-cwrapper = CWrapper( libecl.lib )
+cwrapper = CWrapper(ECL_LIB)
 cwrapper.registerType( "ecl_region" , EclRegion )
 
 # 3. Installing the c-functions used to manipulate.

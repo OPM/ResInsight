@@ -330,11 +330,6 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
 
 
 
-
-
-
-
-
 /**
    In general the gen_obs observation vector can be smaller than the
    gen_data field it is observing, i.e. we can have a situation like
@@ -368,11 +363,11 @@ void gen_obs_get_observations(gen_obs_type * gen_obs , obs_data_type * obs_data,
    The function gen_obs_user_get_with_data_index() will do the
    translation from data based indexing to observation based indexing, i.e.
    
-      gen_obs_user_get_with_data_index("obs_key:4") 
+      gen_obs_user_get_with_data_index("4") 
 
    will do an inverse lookup of the '4' and further call
 
-      gen_obs_user_get("obs_key:2")
+      gen_obs_user_get("2")
 
 */
           
@@ -415,6 +410,18 @@ void gen_obs_user_get_with_data_index(const gen_obs_type * gen_obs , const char 
     }
   }
 }
+
+void gen_obs_scale_std(gen_obs_type * gen_obs, double std_multiplier) {
+  for (int i = 0; i < gen_obs->obs_size; i++) {
+    gen_obs->obs_std[i] *= std_multiplier;
+  }
+}
+
+void gen_obs_scale_std__(void * gen_obs, double std_multiplier) {
+  gen_obs_type * observation = gen_obs_safe_cast(gen_obs);
+  gen_obs_scale_std(observation, std_multiplier);
+}
+
 
 
 

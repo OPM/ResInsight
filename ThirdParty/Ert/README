@@ -207,57 +207,45 @@ in the devel/python/docs directory and in the Python classes
 themselves.
 
 
-5. Testing
+5. Test
 
-The ERT is very weak on tests, but that is being improved. There are two different 
-categories of tests:
- 
-     CMake tests: CMake has a system for adding and running tests, and
-         these can be invoked with the command 'make test' after the
-         normal build process has completed, or alternatively the
-         'ctest' test-runner which allows more options on which tests to run.
+The ert codebase has a small but increasing test coverage. The tests
+are typically located in a per-library subdirectory tests/. The test
+framework is based on ctest which basically works like this:
 
-    Python test: The python directory devel/python/test has several
-         python unittests. These tests test both the Python wrappers
-         and the underlying C code and serve as quite good integration
-         tests. Read the content of devel/python/test/README carfully
-         before you invoke the Python tests, you might have to update
-         the local_(csh|bash) scripts to reflect your build output
-         path.
+  1. In the CMakeLists.txt file testing is enabled with
+     ENABLE_TESTING().
 
+  2. Tests are added with:
 
-5.1 Test data & labels
+        add_test( test_name test_executable arg1 arg2 arg3 ... )
 
-Unfortunately a large fraction of the test data is based on Statoil
-internal data, and is not available on GitHub. All the tests which are
-based on Statoil internal test data are labeled with the label
-'Statoil', and using the 'ctest' program you can use the -L and -LE
-options to include/exclude tests based on their label.
+     If the executable exits with status 0 the test has passed,
+     otherwise it has failed. The executable run by the test can
+     typically be an executable built as part of the solution, but can
+     in principle be an arbitrary executable like a dedicated test
+     runner or e.g. the Python interpreter.
 
-   ctest -L Statoil      # Run all the tests with the 'Statoil' label
-   ctest -LE Statoil     # Run all the tests without the 'Statoil' label
+5.1 Test of C code
 
-The argument to the -L and -LE options are regular expressions,
-i.e. in the case above all tests which have a label matching the
-regexp 'Statoil' will be run. A test can only have one single label,
-but due to to the regexp mechanism we can create a 'list-like'
-structure by chaining labels together; by convention the label
-elements are joined with ':'. In the example
+The main part of the testing infrastructure is small C applications
+which are added like this:
 
-   set_property( TEST test_name PROPERTY LABELS Statoil:Python )
+    add_executable( test_exe test_source.c )
+    target_link_libraries( test_exe lib )
+    add_test( test_name ${EXECUTABLE_OUTPUT_PATH}/test_exe commandline_arg1 commandline_arg2 )
 
-the labels 'Statoil' and 'Python' are applied to the test. The labels
-in use are:
+Where the two first lines create the test executable in the normal
+way, and the last line adds it as a test.
 
-  Statoil: This indicates that the test makes use of Statoil internal
-           test data, and will fail if the Statoil test data have not
-           been made available according to the description in
-           devel/test-data/README.txt
+5.2 Test of Python Code
 
-  Python: This indicates that the test is a Python unittest, and the
-          Python interpreter will be the test runner for the test.
+In devel/python/test there are several files with Python tests, these
+files are executable files and they are invoked directly from the
+commandline. A limited number of the tests have been integrated in the
+ctest system.
 
-5.2 Test names
+5.3 Test names
 
 The tests in the cmake build system follow the naming convention of
 the library which functionality they are testing - i.e. all tests in
@@ -269,5 +257,45 @@ can be used to include and exclude tests based on their name
    ctest -E ecl      # Run all tests NOT matching the regexp 'ecl'
 
 
-The python tests are not yet integrated into this convention....
-  
+5.4 Test labels
+
+Using the cmake set_property() function it is possible to assigne
+labels to the test, and the -L and -LE options to ctest can be used to
+limit which tests to run. A test can only have one label; in the
+current ctest setup different labels are combined into one composite
+label with a ":" separator, i.e. 
+
+      set_property( TEST test_xxx PROPERTY LABELS StatoilData:Python)
+
+will set the 'StatoilData' and 'Python' properties on test_xxx. The
+labels currently maintained in the ert test setup are:
+
+   StatoilData: This implies that the test makes use of Statoil
+      internal data. If you are in Statoil/Bergen you can see more
+      details in file devel/test-data/README for how to make this data
+      available. 
+
+      If you are not in Statoil/Bergen you must pass the option: "-EL
+      StatoilData" to ctest to skip all the tests which require
+      Statoil data.
+
+   StatoilBuild: There is one python test which makes use of Statoil
+      internal configuration data, this test is labeled with
+      StatoilBuild. If you want to run this test you must set the
+      cmake option ECL_LOCAL_TARGET to point to a file which contains
+      some local configuration settings, e.g. where the ECLIPSE binary
+      is installed.
+
+   Python: This label is used to indicate that we are talking about a
+      Python test.
+
+   LSF: This labels indicates that the test needs a working LSF
+      environment to run.
+
+
+
+   ctest -L Statoil         # Run all tests labeled with Statoil - both
+                            # StatoilData and StatoilBuild
+
+   ctest -EL "Statoil|LSF"  # Exclude all tests labeled with Statoil or LSF.
+

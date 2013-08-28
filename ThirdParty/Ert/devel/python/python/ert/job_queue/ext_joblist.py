@@ -12,42 +12,47 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.job_queue import JOB_QUEUE_LIB, ExtJob
+from ert.util import StringList
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-#from    enkf_enum             import *
-import  libjob_queue
+
 class ExtJoblist(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
+                    
+    @property
+    def get_jobs(self):
+        return cfunc.get_jobs( self )
 
+    @property
+    def alloc_list(self):
+        return StringList(c_ptr = cfunc.alloc_list( self ), parent = self)
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    def del_job(self, job):
+        return cfunc.del_job(self, job)
 
+    def has_job(self, job):
+        return cfunc.has_job(self, job)
 
+    def get_job(self, job):
+        return ExtJob( c_ptr = cfunc.get_job( self , job), parent = self)
 
+    def add_job(self, job_name, new_job):
+        cfunc.add_job(self, job_name, new_job)
 ##################################################################
 
-cwrapper = CWrapper( libjob_queue.lib )
+cwrapper = CWrapper(JOB_QUEUE_LIB)
 cwrapper.registerType( "ext_joblist" , ExtJoblist )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("ext_joblist")
-
-
+##################################################################
+##################################################################
 cfunc.free                       = cwrapper.prototype("void ext_joblist_free( ext_joblist )")
 cfunc.alloc_list                 = cwrapper.prototype("c_void_p ext_joblist_alloc_list(ext_joblist)")
 cfunc.get_job                    = cwrapper.prototype("c_void_p ext_joblist_get_job(ext_joblist, char*)")

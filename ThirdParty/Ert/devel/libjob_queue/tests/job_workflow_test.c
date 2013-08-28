@@ -22,6 +22,7 @@
 #include <signal.h>
 
 #include <ert/util/test_util.h>
+#include <ert/util/test_work_area.h>
 #include <ert/util/util.h>
 
 #include <ert/config/config.h>
@@ -78,12 +79,11 @@ static void create_exjob( const char * workflow , const char * bin_path)
 
 
 int main( int argc , char ** argv) {
-#ifdef ERT_LINUX
-  const char * exjob_file = "/tmp/xflow";
-#endif
-
+  const char * exjob_file = "job";
   const char * bin_path = argv[1];
   const char * internal_workflow = argv[2];
+  test_work_area_type * work_area = test_work_area_alloc( "job_workflow_test" , true);
+
   signal(SIGSEGV , util_abort_signal);    
   create_exjob( exjob_file , bin_path );
   {
@@ -113,8 +113,8 @@ int main( int argc , char ** argv) {
     
     
     {
-      const char * workflow_file = "/tmp/workflow";
-      const char * tmp_file = "/tmp/fileX";
+      const char * workflow_file = "workflow";
+      const char * tmp_file = "fileX";
       workflow_type * workflow;
       
       create_workflow( workflow_file , tmp_file , int_value );
@@ -161,8 +161,8 @@ int main( int argc , char ** argv) {
   }
   {
     workflow_joblist_type * joblist = workflow_joblist_alloc();
-    const char * workflow_file = "/tmp/workflow";
-    const char * tmp_file = "/tmp/fileX";
+    const char * workflow_file = "workflow";
+    const char * tmp_file = "fileX";
     int read_value;
     int int_value = 100;
     workflow_type * workflow;
@@ -174,5 +174,6 @@ int main( int argc , char ** argv) {
     test_assert_false( workflow_run( workflow , &read_value , false , NULL) );
     test_assert_int_equal( workflow_get_stack_size( workflow ) , 0 );
   }
+  test_work_area_free( work_area );
   exit(0);
 }

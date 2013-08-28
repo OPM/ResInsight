@@ -3,6 +3,9 @@ set( header_files rms_file.h rms_util.h rms_tag.h rms_type.h rms_tagkey.h rms_st
 
 add_library( rms ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( rms PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+if (USE_RUNPATH)
+   add_runpath( rms )
+endif()   
 
 #-----------------------------------------------------------------
 if (INSTALL_ERT)

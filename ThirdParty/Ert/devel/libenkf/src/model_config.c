@@ -286,7 +286,7 @@ int model_config_get_max_internal_submit( const model_config_type * config ) {
   return config->max_internal_submit;
 }
 
-static void model_config_set_max_internal_submit( model_config_type * model_config , int max_resample ) {
+void model_config_set_max_internal_submit( model_config_type * model_config , int max_resample ) {
   model_config->max_internal_submit = max_resample;
 }
 
@@ -330,7 +330,7 @@ model_config_type * model_config_alloc_empty() {
 }
 
 
-static bool model_config_select_history( model_config_type * model_config , history_source_type source_type, const sched_file_type * sched_file , const ecl_sum_type * refcase) {
+bool model_config_select_history( model_config_type * model_config , history_source_type source_type, const sched_file_type * sched_file , const ecl_sum_type * refcase) {
   bool selectOK = false;
 
   if (source_type == SCHEDULE && sched_file != NULL) {
@@ -512,7 +512,6 @@ history_type * model_config_get_history(const model_config_type * config) {
 }
 
 int model_config_get_last_history_restart(const model_config_type * config) {
-  printf("config->history:%p \n",config->history);
   return history_get_last_restart( config->history );
 }
 

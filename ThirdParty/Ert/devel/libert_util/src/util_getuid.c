@@ -1,15 +1,15 @@
 uid_t util_get_entry_uid( const char * file ) {
-  struct stat buffer;
-  stat( file , &buffer);
+  stat_type buffer;
+  util_stat( file , &buffer);
   return buffer.st_uid;
 }
 
 
 
 bool util_chmod_if_owner( const char * filename , mode_t new_mode) {
-  struct stat buffer;
+  stat_type buffer;
   uid_t  exec_uid = getuid(); 
-  stat( filename , &buffer );
+  util_stat( filename , &buffer );
   
   if (exec_uid == buffer.st_uid) {  /* OKAY - the current running uid is also the owner of the file. */
     mode_t current_mode = buffer.st_mode & ( S_IRWXU + S_IRWXG + S_IRWXO );
@@ -39,8 +39,8 @@ bool util_chmod_if_owner( const char * filename , mode_t new_mode) {
 
 
 bool util_addmode_if_owner( const char * filename , mode_t add_mode) {
-  struct stat buffer;
-  stat( filename , &buffer );
+  stat_type buffer;
+  util_stat( filename , &buffer );
   
   {
     mode_t current_mode = buffer.st_mode & ( S_IRWXU + S_IRWXG + S_IRWXO );
@@ -56,8 +56,8 @@ bool util_addmode_if_owner( const char * filename , mode_t add_mode) {
    Implements shell chmod -??? behaviour.
 */
 bool util_delmode_if_owner( const char * filename , mode_t del_mode) {
-  struct stat buffer;
-  stat( filename , &buffer );
+  stat_type buffer;
+  util_stat( filename , &buffer );
   
   {
     mode_t current_mode = buffer.st_mode & ( S_IRWXU + S_IRWXG + S_IRWXO );

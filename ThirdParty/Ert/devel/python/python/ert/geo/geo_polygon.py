@@ -16,32 +16,28 @@
 """
 Create a polygon
 """
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.geo import ERT_GEOMETRY_LIB
 
-
-import ctypes
-import libgeo
-from    ert.cwrap.cwrap  import *
-from    ert.cwrap.cclass import CClass
 
 class GeoPolygon(CClass):
-
-    def __init__(self , points):
+    def __init__(self, points):
         c_ptr = cfunc.alloc_new()
-        self.init_cobj( c_ptr , cfunc.free )
-        for (xc,yz) in points:
-            self.add_point( self , xc , yc )
+        self.init_cobj(c_ptr, cfunc.free)
+        for (xc, yc) in points:
+            self.add_point(xc, yc)
 
 
-    def add_point( self , xc , yc ):
-        cfunc.add_point( self , xc , yc )
+    def add_point( self, xc, yc ):
+        cfunc.add_point(self, xc, yc)
 
 
 #################################################################
 
-cwrapper = CWrapper( libgeo.lib )
-cwrapper.registerType( "geo_polygon" , GeoPolygon )
+cwrapper = CWrapper(ERT_GEOMETRY_LIB)
+cwrapper.registerType("geo_polygon", GeoPolygon)
 
-cfunc                   = CWrapperNameSpace("geo_polygon")
-cfunc.alloc_new         = cwrapper.prototype("c_void_p geo_polygon_alloc( )")
-cfunc.add_point         = cwrapper.prototype("void     geo_polygon_add_point( geo_polygon , double , double )")
-cfunc.free              = cwrapper.prototype("void     geo_polygon_free( geo_polygon )")
+cfunc           = CWrapperNameSpace("geo_polygon")
+cfunc.alloc_new = cwrapper.prototype("c_void_p geo_polygon_alloc( )")
+cfunc.add_point = cwrapper.prototype("void     geo_polygon_add_point( geo_polygon , double , double )")
+cfunc.free      = cwrapper.prototype("void     geo_polygon_free( geo_polygon )")

@@ -420,12 +420,12 @@ static void rms_tagkey_set_data_size(rms_tagkey_type *tagkey , FILE *stream , in
 
   if (tagkey->rms_type == rms_char_type) {
     if (stream != NULL) {
-      const long int init_pos = ftell(stream);
+      const long int init_pos = util_ftell(stream);
       int i;
       for (i=0; i < tagkey->size; i++)
         rms_util_fskip_string(stream);
-      tagkey->data_size = ftell(stream) - init_pos;
-      fseek(stream , init_pos , SEEK_SET);
+      tagkey->data_size = util_ftell(stream) - init_pos;
+      util_fseek(stream , init_pos , SEEK_SET);
     } else 
       tagkey->data_size = strlen + 1;
   } else

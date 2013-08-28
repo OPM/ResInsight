@@ -35,6 +35,7 @@
 #include "ecl_kw_magic.h"
 
 #include "cafProgressInfo.h"
+#include <map>
 
 //--------------------------------------------------------------------------------------------------
 ///     ECLIPSE cell numbering layout:
@@ -153,7 +154,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, localCellIdx);
         if (subGrid != NULL)
         {
-            int subGridFileIndex = ecl_grid_get_grid_nr(subGrid);
+            int subGridFileIndex = ecl_grid_get_lgr_nr(subGrid);
             CVF_ASSERT(subGridFileIndex > 0);
             cell.setSubGrid(static_cast<RigLocalGrid*>(mainGrid->gridByIndex(subGridFileIndex)));
         }
@@ -366,14 +367,10 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
     progInfo.incrementProgress();
 
-    progInfo.setProgressDescription("Releasing reader memory");
-    ecl_grid_free( mainEclGrid );
-    progInfo.incrementProgress();
+    m_eclipseCase = eclipseCase;
 
     progInfo.setProgressDescription("Reading Result index");
     progInfo.setNextProgressIncrement(60);
-
-    m_eclipseCase = eclipseCase;
     
     // Build results meta data
     buildMetaData();
@@ -381,9 +378,11 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
-    
-    readWellCells();
+    readWellCells(mainEclGrid);
 
+    progInfo.setProgressDescription("Releasing reader memory");
+    ecl_grid_free( mainEclGrid );
+    progInfo.incrementProgress();
 
     return true;
 }
@@ -719,16 +718,263 @@ bool RifReaderEclipseOutput::dynamicResult(const QString& result, PorosityModelR
     return true;
 }
 
+
+
+// Helper structure to handle the metadata for connections in segments
+struct SegmentData
+{
+    SegmentData(const well_conn_collection_type* connections) :
+    m_branchId(-1),
+    m_segmentId(-1),
+    //m_gridIndex(cvf::UNDEFINED_SIZE_T),
+    m_connections(connections)
+    {}
+
+    int m_branchId;
+    int m_segmentId;
+    //size_t m_gridIndex;
+    const well_conn_collection_type* m_connections;
+};
+
+struct SegmentTreeNode
+{
+    SegmentTreeNode() : outletSegment(NULL), mainChildSegment(NULL) {}
+    std::vector<RigWellResultPoint> connections;
+
+    SegmentTreeNode* outletSegment;
+    SegmentTreeNode* mainChildSegment;
+    std::vector<SegmentTreeNode*> additionalChildSegments;
+};
+
+
+struct SegmentPositionContribution
+{
+    SegmentPositionContribution( int         connectionSegmentId,
+                                 cvf::Vec3d  connectionPosition,
+                                 double      lengthFromConnection,
+                                 bool        isInsolating,
+                                 int         segmentIdUnder, 
+                                 int         segmentIdAbove, 
+                                 bool        isFromAbove)
+        : m_connectionSegmentId(connectionSegmentId), 
+          m_lengthFromConnection(lengthFromConnection),
+          m_isInsolating(isInsolating),
+          m_connectionPosition(connectionPosition),
+          m_segmentIdUnder(segmentIdUnder),
+          m_segmentIdAbove(segmentIdAbove),
+          m_isFromAbove(isFromAbove)
+    {}
+
+    int         m_connectionSegmentId;
+    double      m_lengthFromConnection;
+    bool        m_isInsolating;
+    cvf::Vec3d  m_connectionPosition;
+    int         m_segmentIdUnder;
+    int         m_segmentIdAbove;
+    bool        m_isFromAbove;
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint(const RigGridBase* grid, const well_conn_type* ert_connection, int ertBranchId, int ertSegmentId)
+{
+    CVF_ASSERT(ert_connection);
+    CVF_ASSERT(grid);
+
+    RigWellResultPoint resultPoint;
+    int cellI = well_conn_get_i( ert_connection );
+    int cellJ = well_conn_get_j( ert_connection );
+    int cellK = well_conn_get_k( ert_connection );
+    bool isCellOpen = well_conn_open( ert_connection );
+
+    // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
+    // Adjust K so index is always in valid grid region
+    if (cellK >= static_cast<int>(grid->cellCountK()))
+    {
+        cellK -= static_cast<int>(grid->cellCountK());
+    }
+
+    // The K value might also be -1. It is not yet known why, or what it is supposed to mean, 
+    // but for now we will interpret as 0.
+    // TODO: Ask Joakim Haave regarding this.
+    if (cellK < 0) cellK = 0;
+
+    resultPoint.m_gridIndex = grid->gridIndex();
+    resultPoint.m_gridCellIndex = grid->cellIndexFromIJK(cellI, cellJ, cellK);
+
+    resultPoint.m_isOpen = isCellOpen;
+
+    resultPoint.m_ertBranchId = ertBranchId;
+    resultPoint.m_ertSegmentId = ertSegmentId;
+
+    return resultPoint;
+}
+
+
+void getSegmentDataByBranchId(const std::list<SegmentData>& segments, std::vector<SegmentData>& branchSegments, int branchId)
+{
+    std::list<SegmentData>::const_iterator it;
+
+    for (it = segments.begin(); it != segments.end(); it++)
+    {
+        if (it->m_branchId == branchId)
+        {
+            branchSegments.push_back(*it);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Inverse distance interpolation of the supplied points and distance weights
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d interpolate3DPosition(const std::vector<SegmentPositionContribution> positions)
+{
+    std::vector<SegmentPositionContribution> filteredPositions;
+    filteredPositions.reserve(positions.size());
+
+    bool hasContibFromBelow = false;
+    bool hasContribFromAbove = false;
+    double minDistFromContribAbove = HUGE_VAL;
+    double minDistFromContribBelow = HUGE_VAL;
+    std::vector<SegmentPositionContribution> contrFromAbove;
+    std::vector<SegmentPositionContribution> contrFromBelow;
+
+
+    for (size_t i = 0; i < positions.size(); i++)
+    {
+        if (positions[i].m_connectionPosition != cvf::Vec3d::UNDEFINED)
+        {
+            if (positions[i].m_isFromAbove && positions[i].m_lengthFromConnection < minDistFromContribAbove)
+            {
+                if (contrFromAbove.size()) contrFromAbove[0] = positions[i];
+                else contrFromAbove.push_back(positions[i]);
+
+                minDistFromContribAbove = positions[i].m_lengthFromConnection;
+            }
+
+            if (! positions[i].m_isFromAbove && positions[i].m_lengthFromConnection < minDistFromContribBelow)
+            {
+                if (contrFromBelow.size()) contrFromBelow[0] = positions[i];
+                else contrFromBelow.push_back(positions[i]);
+
+                minDistFromContribBelow = positions[i].m_lengthFromConnection;
+
+            }
+        }
+    }
+
+    filteredPositions = contrFromAbove;
+    filteredPositions.insert(filteredPositions.end(), contrFromBelow.begin(), contrFromBelow.end());
+
+    std::vector<double> nominators(filteredPositions.size(), 0.0);
+
+    double denominator = 0.0;
+    cvf::Vec3d interpolatedValue = cvf::Vec3d::ZERO;
+    double distance;
+
+    for (size_t i = 0; i < filteredPositions.size(); i++)
+    {
+#if 0 // Pure average test
+        nominators[i] = 1.0;
+#else
+        distance = filteredPositions[i].m_lengthFromConnection;
+
+        if (distance < 1e-6)
+        {
+            return filteredPositions[i].m_connectionPosition;
+        }
+        else if (distance < 1.0)
+        {
+            //distance = 1.0;
+        }
+
+
+        distance = 1.0 / distance;
+        nominators[i] = distance;
+        denominator  += distance;
+
+#endif
+    }
+#if 0 // Pure average test
+    denominator = positions.size(); // Pure average test
+#endif
+    for (size_t i = 0; i < filteredPositions.size(); i++)
+    {
+        interpolatedValue += (nominators[i]/denominator) * filteredPositions[i].m_connectionPosition;
+    }
+
+    return interpolatedValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void propagatePosContribDownwards(std::map<int, std::vector<SegmentPositionContribution> > & segmentIdToPositionContrib,
+    const well_segment_collection_type * allErtSegments,
+    int ertSegmentId, 
+    std::vector<SegmentPositionContribution> posContrib)
+{
+
+    std::map<int, std::vector<SegmentPositionContribution> >::iterator posContribIt;
+    posContribIt = segmentIdToPositionContrib.find(ertSegmentId);
+
+
+    if ( posContribIt != segmentIdToPositionContrib.end())
+    {
+        // Create a set of the segments below this, that has to be followed.
+
+        std::set<int> segmentIdsBelow;
+        for (size_t i = 0 ; i < posContribIt->second.size(); ++i)
+        {
+            segmentIdsBelow.insert(posContribIt->second[i].m_segmentIdUnder);
+        }
+
+        // Get the segment length to add to the contributions
+
+        well_segment_type  *segment       = well_segment_collection_get( allErtSegments , posContribIt->first); 
+        double sementLength               = well_segment_get_length(segment);
+
+        // If we do not have the contribution represented, add it, and accumulate the length
+        // If it is already present, do not touch
+        for (size_t i = 0; i < posContrib.size(); ++i)
+        {
+            bool foundContribution = false;
+            for (size_t j = 0 ; j < posContribIt->second.size(); ++j)
+            {
+                if (posContribIt->second[j].m_connectionSegmentId == posContrib[i].m_connectionSegmentId)
+                {
+                    foundContribution = true;
+                    break;
+                }
+            }
+
+            if (! foundContribution)
+            {
+                posContrib[i].m_lengthFromConnection += sementLength;
+                posContrib[i].m_isFromAbove = true;
+                posContribIt->second.push_back(posContrib[i]);
+            }
+            posContrib[i].m_segmentIdAbove = ertSegmentId;
+        }
+
+        for (std::set<int>::iterator it = segmentIdsBelow.begin(); it != segmentIdsBelow.end(); ++it)
+        {
+            propagatePosContribDownwards(segmentIdToPositionContrib, allErtSegments, (*it), posContrib);
+        }
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::readWellCells()
+void RifReaderEclipseOutput::readWellCells(const ecl_grid_type* mainEclGrid)
 {
     CVF_ASSERT(m_eclipseCase);
 
     if (m_dynamicResultsAccess.isNull()) return;
 
-    well_info_type* ert_well_info = well_info_alloc(NULL);
+    well_info_type* ert_well_info = well_info_alloc(mainEclGrid);
     if (!ert_well_info) return;
 
     m_dynamicResultsAccess->readWellData(ert_well_info);
@@ -794,97 +1040,740 @@ void RifReaderEclipseOutput::readWellCells()
             wellResFrame.m_isOpen = well_state_is_open( ert_well_state );
 
 
-
-
-            // Loop over all the grids in the model. If we have connections in one, we will discard
-            // the maingrid connections as they are "duplicates"
-
-            bool hasWellConnectionsInLGR = false;
-            for (size_t gridNr = 1; gridNr < grids.size(); ++gridNr)
+            if (well_state_is_MSW(ert_well_state))
             {
-                int branchCount = well_state_iget_lgr_num_branches(ert_well_state, static_cast<int>(gridNr));
-                if (branchCount > 0)
-                {
-                    hasWellConnectionsInLGR = true;
-                    break;
-                }
-            }
-            size_t gridNr = hasWellConnectionsInLGR ? 1 : 0;
-            for (; gridNr < grids.size(); ++gridNr)
-            {
+                wellResults->setMultiSegmentWell(true);
 
-                // Wellhead. If several grids have a wellhead definition for this well, we use tha last one. (Possibly the innermost LGR)
-                const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
-                if (ert_wellhead)
-                {
-                    int cellI = well_conn_get_i( ert_wellhead );
-                    int cellJ = well_conn_get_j( ert_wellhead );
-                    int cellK = CVF_MAX(0, well_conn_get_k(ert_wellhead)); // Why this ?
+#if 1
+                // how do we handle LGR-s ? 
+                // 1. Create separate visual branches for each Grid, with its own wellhead
+                // 2. Always use the connections to the grid with the highest number (innermost LGR). 
+                // 3. Handle both and switch between them according to visual settings of grid visualization
+                // Will there ever exist connections to different grids for the same segment ?
+                // We have currently selected 2.
 
-                    // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
-                    // Adjust K so index is always in valid grid region
-                    if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
+                // Set the wellhead
+
+                int lastGridNr = static_cast<int>(grids.size()) - 1;
+                for (int gridNr = lastGridNr; gridNr >= 0; --gridNr)
+                {
+                    //  If several grids have a wellhead definition for this well, we use the last one. 
+                    // (Possibly the innermost LGR)
+
+                    const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
+                    if (ert_wellhead)
                     {
-                        cellK -= static_cast<int>(grids[gridNr]->cellCountK());
+                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        break;
                     }
-                    
-                    wellResFrame.m_wellHead.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI, cellJ, cellK);
-                    wellResFrame.m_wellHead.m_gridIndex = gridNr;
                 }
 
+                well_branch_collection_type* branches = well_state_get_branches(ert_well_state);
+                int branchCount = well_branch_collection_get_size(branches);
+                wellResFrame.m_wellResultBranches.resize( branchCount);
+                std::map<int, std::vector<SegmentPositionContribution> > segmentIdToPositionContrib;
+                std::vector<int> upperSegmentIdsOfUnpositionedSegementGroup;
 
-                int branchCount = well_state_iget_lgr_num_branches(ert_well_state, static_cast<int>(gridNr));
-                if (branchCount > 0)
+                // For each branch, go from bottom segment upwards and transfer their connections to WellResultpoints.
+                // If they have no connections, create a resultpoint representing their bottom position, which will 
+                // receive an actual position at a later stage.
+                // I addition, distribute contributions for calculating segment bottom positions from bottom and up.
+
+
+                for (int bIdx = 0; bIdx < well_branch_collection_get_size(branches); bIdx++)
                 {
-                    if (static_cast<int>(wellResFrame.m_wellResultBranches.size()) < branchCount) wellResFrame.m_wellResultBranches.resize(branchCount);
+                    RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[ bIdx];
 
-                    for (int branchIdx = 0; branchIdx < branchCount; ++branchIdx )
+                    const well_segment_type* segment = well_branch_collection_iget_start_segment(branches, bIdx);
+
+                    int branchId = well_segment_get_branch_id(segment);
+                    wellResultBranch.m_ertBranchId = branchId;
+
+                    // Data for segment position calculation
+                    int lastConnectionSegmentId        = -1;
+                    cvf::Vec3d lastConnectionPos       = cvf::Vec3d::UNDEFINED;
+                    cvf::Vec3d lastConnectionCellCorner= cvf::Vec3d::UNDEFINED;
+                    double lastConnectionCellSize      = 0;
+                    double accLengthFromLastConnection = 0;
+                    int segmentIdBelow                 = -1;
+                    bool segmentBelowHasConnections    = false;
+                    std::set<int> ertSegIdsOfPosContribToRemove; 
+
+
+                    while (segment && branchId == well_segment_get_branch_id(segment))
                     {
-                        // Connections
-                        int connectionCount = well_state_iget_num_lgr_connections(ert_well_state, static_cast<int>(gridNr), branchIdx);
-                        if (connectionCount > 0)
+                        // Loop backwards, making us select the connection in the innermost lgr as the truth
+                        bool segmentHasConnections = false;
+
+                        for (int gridNr = lastGridNr; gridNr >= 0; --gridNr)
                         {
+                            std::string gridName = this->ertGridName(gridNr);
 
-                            RigWellResultBranch& wellSegment = wellResFrame.m_wellResultBranches[branchIdx]; // Is this completely right? Is the branch index actually the same between lgrs ?
-                            wellSegment.m_branchNumber = branchIdx;
-                            size_t existingConnCount = wellSegment.m_wellCells.size();
-                            wellSegment.m_wellCells.resize(existingConnCount + connectionCount);
+                            // If this segment has connections in any grid, transfer the innermost ones
 
-                            int connIdx;
-                            for (connIdx = 0; connIdx < connectionCount; connIdx++)
+                            if (well_segment_has_grid_connections(segment, gridName.data()))
                             {
-                                const well_conn_type* ert_connection = well_state_iget_lgr_connections( ert_well_state, static_cast<int>(gridNr), branchIdx)[connIdx];
-                                CVF_ASSERT(ert_connection);
+                                const well_conn_collection_type* connections = well_segment_get_connections(segment, gridName.data());
+                                int connectionCount = well_conn_collection_get_size(connections);
 
-                                RigWellResultCell& data = wellSegment.m_wellCells[existingConnCount + connIdx];
-                                data.m_gridIndex = gridNr;
+                                // Loop backwards to put the deepest connections first in the array. (The segments are also traversed deep to shallow)
+                                for (int connIdx = connectionCount-1; connIdx >= 0; connIdx--)
                                 {
-                                    int cellI = well_conn_get_i( ert_connection );
-                                    int cellJ = well_conn_get_j( ert_connection );
-                                    int cellK = well_conn_get_k( ert_connection );
-                                    bool open = well_conn_open( ert_connection );
-                                    int branch = well_conn_get_branch( ert_connection );
-                                    int segment = well_conn_get_segment( ert_connection );
-                                    
-                                    // If a well is defined in fracture region, the K-value is from (cellCountK - 1) -> cellCountK*2 - 1
-                                    // Adjust K so index is always in valid grid region
-                                    if (cellK >= static_cast<int>(grids[gridNr]->cellCountK()))
+                                    well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
+                                    wellResultBranch.m_branchResultPoints.push_back(
+                                        createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment)));
+                                }
+
+                                segmentHasConnections = true;
+
+                                // Prepare data for segment position calculation
+
+                                well_conn_type* ert_connection = well_conn_collection_iget(connections, 0);
+                                RigWellResultPoint point       = createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(segment));
+                                lastConnectionPos              = grids[gridNr]->cell(point.m_gridCellIndex).center();
+                                cvf::Vec3d cellVxes[8];
+                                grids[gridNr]->cellCornerVertices(point.m_gridCellIndex, cellVxes);
+                                lastConnectionCellCorner       = cellVxes[0];
+                                lastConnectionCellSize         = (lastConnectionPos - cellVxes[0]).length();
+
+
+                                lastConnectionSegmentId        = well_segment_get_id(segment);
+                                accLengthFromLastConnection    = well_segment_get_length(segment)/(connectionCount+1);
+                                if ( ! segmentBelowHasConnections) upperSegmentIdsOfUnpositionedSegementGroup.push_back(segmentIdBelow);
+
+                                break; // Stop looping over grids
+                            }
+                        }
+                        
+                        // If the segment did not have connections at all, we need to create a resultpoint representing the bottom of the segment
+                        // and store it as an unpositioned segment
+
+                        if (!segmentHasConnections)
+                        {
+                            RigWellResultPoint data;
+                            data.m_ertBranchId = branchId;
+                            data.m_ertSegmentId = well_segment_get_id(segment);
+
+                            wellResultBranch.m_branchResultPoints.push_back(data);
+
+                            // Store data for segment position calculation
+                            bool isAnInsolationContribution = accLengthFromLastConnection < lastConnectionCellSize;
+
+                          
+                            segmentIdToPositionContrib[well_segment_get_id(segment)].push_back( 
+                                SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPos, accLengthFromLastConnection, isAnInsolationContribution, segmentIdBelow, -1, false));
+                            accLengthFromLastConnection += well_segment_get_length(segment);
+                           
+                        }
+
+                        segmentIdBelow = well_segment_get_id(segment);
+                        segmentBelowHasConnections = segmentHasConnections;
+
+                        if (well_segment_get_outlet_id(segment) == -1)
+                        {
+                            segment = NULL;
+                        }
+                        else
+                        {
+                            segment = well_segment_get_outlet(segment);
+                        }
+                    }
+
+                    // Add resultpoint representing the outlet segment (bottom), if not the branch ends at the wellhead.
+
+                    const well_segment_type* outletSegment = segment;
+
+                    if (outletSegment)
+                    {
+                        bool outletSegmentHasConnections = false;
+
+                        for (int gridNr = lastGridNr; gridNr >= 0; --gridNr)
+                        {
+                            std::string gridName = this->ertGridName(gridNr);
+
+                            // If this segment has connections in any grid, use the deepest innermost one
+
+                            if (well_segment_has_grid_connections(outletSegment, gridName.data()))
+                            {
+                                const well_conn_collection_type* connections = well_segment_get_connections(outletSegment, gridName.data());
+                                int connectionCount = well_conn_collection_get_size(connections);
+
+                                // Select the deepest connection 
+                                well_conn_type* ert_connection = well_conn_collection_iget(connections, connectionCount-1);
+                                wellResultBranch.m_branchResultPoints.push_back(
+                                    createWellResultPoint(grids[gridNr], ert_connection, branchId, well_segment_get_id(outletSegment)));
+
+                                outletSegmentHasConnections = true;
+                                break; // Stop looping over grids
+                            }
+                        }
+
+                        if (!outletSegmentHasConnections)
+                        {
+                            // Store the result point
+
+                            RigWellResultPoint data;
+                            data.m_ertBranchId = well_segment_get_branch_id(outletSegment);
+                            data.m_ertSegmentId = well_segment_get_id(outletSegment);
+                            wellResultBranch.m_branchResultPoints.push_back(data);
+
+                            // Store data for segment position calculation, and propagate it upwards until we meet a segment with connections
+
+                                bool isAnInsolationContribution = accLengthFromLastConnection < lastConnectionCellSize;
+
+                                cvf::Vec3d lastConnectionPosWOffset = lastConnectionPos;
+                                if (isAnInsolationContribution) lastConnectionPosWOffset += 0.4*(lastConnectionCellCorner-lastConnectionPos);
+
+                                 segmentIdToPositionContrib[well_segment_get_id(outletSegment)].push_back( 
+                                    SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPosWOffset, accLengthFromLastConnection, isAnInsolationContribution, segmentIdBelow, -1, false));
+
+                                /// Loop further to add this position contribution until a segment with connections is found
+
+                                accLengthFromLastConnection += well_segment_get_length(outletSegment);
+                                segmentIdBelow = well_segment_get_id(outletSegment);
+
+                                const well_segment_type* aboveOutletSegment = NULL;
+
+                                if (well_segment_get_outlet_id(outletSegment) == -1)
+                                {
+                                    aboveOutletSegment = NULL;
+                                }
+                                else
+                                {
+                                    aboveOutletSegment = well_segment_get_outlet(outletSegment);
+                                }
+
+                                while (aboveOutletSegment )
+                                {
+                                    // Loop backwards, just because we do that the other places
+                                    bool segmentHasConnections = false;
+
+                                    for (int gridNr = lastGridNr; gridNr >= 0; --gridNr)
                                     {
-                                        cellK -= static_cast<int>(grids[gridNr]->cellCountK());
+                                        std::string gridName = this->ertGridName(gridNr);
+
+                                        // If this segment has connections in any grid, stop traversal
+
+                                        if (well_segment_has_grid_connections(aboveOutletSegment, gridName.data()))
+                                        {
+                                            segmentHasConnections = true;
+                                            break;
+                                        }
                                     }
 
-                                    data.m_gridCellIndex = grids[gridNr]->cellIndexFromIJK(cellI , cellJ , cellK);
-                                    
-                                    data.m_isOpen    = open;
-                                    data.m_branchId  = branch;
-                                    data.m_segmentId = segment;
+                                    if (!segmentHasConnections)
+                                    {
+                                        segmentIdToPositionContrib[well_segment_get_id(aboveOutletSegment)].push_back( 
+                                            SegmentPositionContribution(lastConnectionSegmentId, lastConnectionPos, accLengthFromLastConnection, isAnInsolationContribution, segmentIdBelow, -1, false));
+                                        accLengthFromLastConnection += well_segment_get_length(aboveOutletSegment);
+                                    }
+                                    else
+                                    {
+                                        break; // We have found a segment with connections. We do not need to propagate position contributions further
+                                    }
+
+                                    segmentIdBelow = well_segment_get_id(aboveOutletSegment);
+
+                                    if (well_segment_get_outlet_id(aboveOutletSegment) == -1)
+                                    {
+                                        aboveOutletSegment = NULL;
+                                    }
+                                    else
+                                    {
+                                        aboveOutletSegment = well_segment_get_outlet(aboveOutletSegment);
+                                    }
                                 }
+                            
+                           
+                        }
+                    }
+                    else
+                    {
+                        // Add wellhead as result point Nope. Not Yet, but it is a good idea. 
+                        // The centerline calculations would be a bit simpler, I think.
+                    }
+
+                    // Reverse the order of the resultpoints in this branch, making the deepest come last
+
+                    std::reverse(wellResultBranch.m_branchResultPoints.begin(), wellResultBranch.m_branchResultPoints.end());
+                }
+
+                // Propagate position contributions from connections above unpositioned segments downwards
+
+                well_segment_collection_type * allErtSegments = well_state_get_segments( ert_well_state );
+
+                for (size_t bIdx = 0; bIdx <  wellResFrame.m_wellResultBranches.size(); ++bIdx)
+                {
+                    RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[ bIdx];
+                    bool previousResultPointWasCell = false;
+                    if (bIdx == 0) previousResultPointWasCell = true; // Wellhead 
+
+                    // Go downwards until we find a none-cell resultpoint just after a cell-resultpoint
+                    // When we do, start propagating
+
+                    for (size_t rpIdx = 0; rpIdx < wellResultBranch.m_branchResultPoints.size(); ++rpIdx)
+                    {
+                        RigWellResultPoint resPoint = wellResultBranch.m_branchResultPoints[rpIdx];
+                        if ( resPoint.isCell() )
+                        {
+                            previousResultPointWasCell = true;
+                        }
+                        else
+                        {
+                            if (previousResultPointWasCell)
+                            {
+                                RigWellResultPoint prevResPoint;
+                                if (bIdx == 0 && rpIdx == 0)
+                                {
+                                    prevResPoint            = wellResFrame.m_wellHead;
+                                }
+                                else
+                                {
+                                    prevResPoint            = wellResultBranch.m_branchResultPoints[rpIdx - 1 ];
+                                }
+
+                                cvf::Vec3d         lastConnectionPos   = grids[prevResPoint.m_gridIndex]->cell(prevResPoint.m_gridCellIndex).center();
+
+                                SegmentPositionContribution posContrib(prevResPoint.m_ertSegmentId, lastConnectionPos, 0.0, false,  -1, prevResPoint.m_ertSegmentId, true);
+
+                                int ertSegmentId = resPoint.m_ertSegmentId;
+
+                                std::map<int, std::vector<SegmentPositionContribution> >::iterator posContribIt;
+                                posContribIt = segmentIdToPositionContrib.find(ertSegmentId);
+                                CVF_ASSERT(posContribIt != segmentIdToPositionContrib.end());
+
+                                std::vector<SegmentPositionContribution> posContributions =  posContribIt->second;
+                                for (size_t i = 0; i < posContributions.size(); ++i)
+                                {
+                                    posContributions[i].m_segmentIdAbove = prevResPoint.m_ertSegmentId;
+                                }
+                                posContributions.push_back(posContrib);
+
+                                propagatePosContribDownwards(segmentIdToPositionContrib, allErtSegments, ertSegmentId, posContributions);
+                            }
+
+                            previousResultPointWasCell = false;
+                        }
+                    }
+                }
+
+                // Calculate the bottom position of all the unpositioned segments
+                // First merge all the contributions referring to the same segment under, to mean 
+                // the interpolated position at the closest split point below
+#if 0
+                std::map<int, std::vector<SegmentPositionContribution> >::iterator posContribIt = segmentIdToPositionContrib.begin();
+                while (posContribIt != segmentIdToPositionContrib.end())
+                {
+                    std::vector<SegmentPositionContribution> posContribs = posContribIt->second;
+                    // Merge contributions coming from above that has same segementAboveErtId
+                    // Merge contributions coming from below that has same segementBelowErtId
+
+                    // Split the contributions in above, below and by respective above/below segmentErtId
+                    std::map<int, std::vector<SegmentPositionContribution> > aboveErtIdToContribs;
+                    std::map<int, std::vector<SegmentPositionContribution> > belowErtIdToContribs;
+
+                    for (size_t pcIdx = 0; pcIdx < posContribs.size(); ++pcIdx)
+                    {
+                        if (posContribs[pcIdx].m_isFromAbove )
+                        {
+                            aboveErtIdToContribs[posContribs[pcIdx].m_segmentIdUnder].push_back(posContribs[pcIdx]);
+                        }
+                        else
+                        {
+                            belowErtIdToContribs[posContribs[pcIdx].m_segmentIdUnder].push_back(posContribs[pcIdx]);
+                        }
+                    }
+
+                    std::vector<SegmentPositionContribution> mergedPosContribs;
+                    std::map<int, std::vector<SegmentPositionContribution> >::iterator pcIt;
+                    for (pcIt = aboveErtIdToContribs.begin(); pcIt != aboveErtIdToContribs.end(); ++pcIt)
+                    {
+                        if (pcIt->second.size() == 1) 
+                        {
+                            mergedPosContribs.push_back(pcIt->second[0]);
+                        }
+                        else if (pcIt->second.size() > 1)
+                        {
+                            // Merge them
+                            // Find the closest distance -> splitpoint distance
+                            double splitPointDistance = HUGE_VAL;
+                            for (size_t pcIdx = 0; pcIdx < pcIt->second.size(); ++pcIdx)
+                            {
+                                if (pcIt->second[pcIdx].m_lengthFromConnection < splitPointDistance)
+                                {
+                                    splitPointDistance = pcIt->second[pcIdx].m_lengthFromConnection;
+                                }
+                            }
+                            // calculate splitpoint position
+                            // Merged posContrib made from splitpoint distance, and splitpoint
+
+                        }
+                    }
+
+
+                }
+#endif
+                // Then do the calculation based on the refined contributions
+
+                std::map<int, std::vector<SegmentPositionContribution> >::iterator posContribIt = segmentIdToPositionContrib.begin();
+                std::map<int, cvf::Vec3d> bottomPositions;
+                while (posContribIt != segmentIdToPositionContrib.end())
+                {
+                    bottomPositions[posContribIt->first] = interpolate3DPosition(posContribIt->second);
+                    posContribIt++;
+                }
+
+                // Distribute the positions to the resultpoints stored in the wellResultBranch.m_branchResultPoints
+
+                for (size_t bIdx = 0; bIdx <  wellResFrame.m_wellResultBranches.size(); ++bIdx)
+                {
+                    RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[ bIdx];
+                    bool previousResultPointWasCell = false;
+                    for (size_t rpIdx = 0; rpIdx < wellResultBranch.m_branchResultPoints.size(); ++rpIdx)
+                    {
+                        RigWellResultPoint & resPoint = wellResultBranch.m_branchResultPoints[rpIdx];
+                        if ( ! resPoint.isCell() )
+                        {
+                            resPoint.m_bottomPosition = bottomPositions[resPoint.m_ertSegmentId];
+                        }
+                    }
+                }
+
+#else
+                for (size_t gridNr = 0; gridNr < grids.size(); ++gridNr)
+                {
+                    // Set the wellhead
+                    {
+                        //  If several grids have a wellhead definition for this well, we use the last one. 
+                        // (Possibly the innermost LGR)
+
+                        const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
+                        if (ert_wellhead)
+                        {
+                            wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        }
+                    }
+
+                    // Find the grid name to be used later as key towards ert
+
+                    std::string gridName;
+                    if (gridNr == 0)
+                    {
+                        gridName = ECL_GRID_GLOBAL_GRID;
+                    }
+                    else
+                    {
+                        RigGridBase* rigGrid = m_eclipseCase->grid(gridNr);
+                        gridName = rigGrid->gridName();
+                    }
+
+
+                    // Fill the SegmentData list with the segments from ert in branch sorted order:
+                    // Grid0(BrancN<TopSegment...BottomSegment>, ..., Branch0<TopSegment...BottomSegment>) ... GridN(BrancN<TopSegment...BottomSegment>, ..., Branch0<TopSegment...BottomSegment>)
+
+                    std::list<SegmentData> segmentList;
+                    std::vector<const well_segment_type*> outletBranchSegmentList;  // Keep a list of branch outlet segments to avoid traversal twice
+                    std::vector<int> ertBranchIDs;
+
+                    well_branch_collection_type* branches = well_state_get_branches(ert_well_state);
+                    int branchCount = well_branch_collection_get_size(branches);
+
+                    for (int branchIdx = 0; branchIdx < well_branch_collection_get_size(branches); branchIdx++)
+                    {
+                        const well_segment_type* segment = well_branch_collection_iget_start_segment(branches, branchIdx);
+                        int branchId = well_segment_get_branch_id(segment);
+
+                        ertBranchIDs.push_back(branchId);
+
+                        while (segment && branchId == well_segment_get_branch_id(segment))
+                        {
+                            SegmentData segmentData(NULL);
+                            segmentData.m_branchId = branchId;
+                            segmentData.m_segmentId = well_segment_get_id(segment);
+                            //segmentData.m_gridIndex = gridNr;
+
+                            if (well_segment_has_grid_connections(segment, gridName.data()))
+                            {
+                                const well_conn_collection_type* connections = well_segment_get_connections(segment, gridName.data());
+                                segmentData.m_connections = connections;
+                            }
+
+                            // Insert in front, as the segments are accessed starting from grid cell closes to well head
+                            segmentList.push_front(segmentData);
+
+                            if (well_segment_get_outlet_id(segment) == -1)
+                            {
+                                break;
+                            }
+
+                            segment = well_segment_get_outlet(segment);
+                        }
+
+                        outletBranchSegmentList.push_back(segment);
+                    }
+
+                    size_t currentGridBranchStartIndex = wellResFrame.m_wellResultBranches.size();
+                    wellResFrame.m_wellResultBranches.resize(currentGridBranchStartIndex + branchCount);
+
+                    // Import all well result cells for all connections, adding one ResultPoint to represent the bottom position 
+                    // for each segment having no connections
+
+                    for (int branchIdx = 0; branchIdx < branchCount; branchIdx++)
+                    {
+                        RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + branchIdx];
+                        wellResultBranch.m_branchIndex = branchIdx;
+
+                        int ertBranchId = ertBranchIDs[branchIdx];
+                        wellResultBranch.m_ertBranchId = ertBranchId;
+
+                        std::vector<SegmentData> branchSegments;
+                        getSegmentDataByBranchId(segmentList, branchSegments, ertBranchId);
+
+                        for (size_t segmentIdx = 0; segmentIdx < branchSegments.size(); segmentIdx++)
+                        {
+                            SegmentData& connData = branchSegments[segmentIdx];
+
+                            if (!connData.m_connections)
+                            {
+                                RigWellResultPoint data;
+                                data.m_ertBranchId = connData.m_branchId;
+                                data.m_ertSegmentId = connData.m_segmentId;
+
+                                wellResultBranch.m_branchResultPoints.push_back(data);
+                            }
+                            else
+                            {
+                                int connectionCount = well_conn_collection_get_size(connData.m_connections);
+
+                                size_t existingCellCount = wellResultBranch.m_branchResultPoints.size();
+                                wellResultBranch.m_branchResultPoints.resize(existingCellCount + connectionCount);
+
+                                for (int connIdx = 0; connIdx < connectionCount; connIdx++)
+                                {
+                                    well_conn_type* ert_connection = well_conn_collection_iget(connData.m_connections, connIdx);
+                                    wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = 
+                                        createWellResultPoint(grids[gridNr], ert_connection, connData.m_branchId, connData.m_segmentId);
+                                }
+                            }
+                        }
+                    }
+
+                    // Assign outlet well cells to leaf branch well heads
+
+                    for (int branchIdx = 0; branchIdx < branchCount; branchIdx++)
+                    {
+                        RigWellResultBranch& wellResultLeafBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + branchIdx];
+
+                        const well_segment_type* outletBranchSegment = outletBranchSegmentList[branchIdx];
+                        CVF_ASSERT(outletBranchSegment);
+
+                        int outletErtBranchId = well_segment_get_branch_id(outletBranchSegment);
+
+                        size_t outletErtBranchIndex = cvf::UNDEFINED_SIZE_T;
+                        for (size_t i = 0; i < ertBranchIDs.size(); i++)
+                        {
+                            if (ertBranchIDs[i] == outletErtBranchId)
+                            {
+                                outletErtBranchIndex = i;
+                            }
+                        }
+
+                        if (outletErtBranchIndex != cvf::UNDEFINED_SIZE_T) // Todo: Is this a correct guarding ? Or is it indicating an error ?
+                        {
+                            RigWellResultBranch& outletResultBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + outletErtBranchIndex];
+
+                            int outletErtSegmentId = well_segment_get_branch_id(outletBranchSegment);
+                            size_t lastCellIndexForSegmentIdInOutletBranch = cvf::UNDEFINED_SIZE_T;
+
+                            for (size_t outletCellIdx = 0; outletCellIdx < outletResultBranch.m_branchResultPoints.size(); outletCellIdx++)
+                            {
+                                if (outletResultBranch.m_branchResultPoints[outletCellIdx].m_ertSegmentId == outletErtSegmentId)
+                                {
+                                    lastCellIndexForSegmentIdInOutletBranch = outletCellIdx;
+                                }
+                            }
+
+                            if (lastCellIndexForSegmentIdInOutletBranch == cvf::UNDEFINED_SIZE_T)
+                            {
+                                // Did not find the cell in the outlet branch based on branch id and segment id from outlet cell in leaf branch
+                                //std::cout << "Did not find the cell in the outlet branch based on branch id and segment id from outlet cell in leaf branch" << std::endl;
+                                //CVF_ASSERT(0);
+                            }
+                            else
+                            {
+                                RigWellResultPoint& outletCell = outletResultBranch.m_branchResultPoints[lastCellIndexForSegmentIdInOutletBranch];
+
+                                wellResultLeafBranch.m_outletBranchIndex_OBSOLETE = currentGridBranchStartIndex + outletErtBranchIndex;
+                                wellResultLeafBranch.m_outletBranchHeadCellIndex_OBSOLETE = lastCellIndexForSegmentIdInOutletBranch;
+                            }
+                        }
+                    }
+
+
+                    // Update outlet well cells with no grid cell connections
+
+                    for (int branchIdx = 0; branchIdx < branchCount; branchIdx++)
+                    {
+                        RigWellResultBranch& wellResultLeafBranch = wellResFrame.m_wellResultBranches[currentGridBranchStartIndex + branchIdx];
+
+                        const RigWellResultPoint* leafBranchHead = wellResFrame.findResultCellFromOutletSpecification(wellResultLeafBranch.m_outletBranchIndex_OBSOLETE, wellResultLeafBranch.m_outletBranchHeadCellIndex_OBSOLETE);
+                        if (!leafBranchHead || leafBranchHead->isCell())
+                        {
+                            continue;
+                        }
+
+                        RigWellResultBranch& outletResultBranch = wellResFrame.m_wellResultBranches[wellResultLeafBranch.m_outletBranchIndex_OBSOLETE];
+
+                        size_t firstCellIndexWithGridConnectionInLeafBranch = cvf::UNDEFINED_SIZE_T;
+                        for (size_t j = 0; j < wellResultLeafBranch.m_branchResultPoints.size(); j++)
+                        {
+                            if (wellResultLeafBranch.m_branchResultPoints[j].isCell())
+                            {
+                                firstCellIndexWithGridConnectionInLeafBranch = j;
+                                break;
+                            }
+                        }
+
+                        if (firstCellIndexWithGridConnectionInLeafBranch != cvf::UNDEFINED_SIZE_T)
+                        {
+                            const RigCell& firstCellWithGridConnectionInLeafBranch = m_eclipseCase->cellFromWellResultCell(wellResultLeafBranch.m_branchResultPoints[firstCellIndexWithGridConnectionInLeafBranch]);
+                            cvf::Vec3d firstGridConnectionCenterInLeafBranch = firstCellWithGridConnectionInLeafBranch.center();
+
+                            size_t cellIndexInOutletBranch = wellResultLeafBranch.m_outletBranchHeadCellIndex_OBSOLETE;
+                            CVF_ASSERT(cellIndexInOutletBranch != cvf::UNDEFINED_SIZE_T);
+
+                            RigWellResultPoint& currCell = outletResultBranch.m_branchResultPoints[cellIndexInOutletBranch];
+
+                            while (cellIndexInOutletBranch != cvf::UNDEFINED_SIZE_T && !currCell.isCell())
+                            {
+                                size_t branchConnectionCount = currCell.m_branchConnectionCount;
+                                if (branchConnectionCount == 0)
+                                {
+                                    currCell.m_bottomPosition = firstGridConnectionCenterInLeafBranch;
+                                }
+                                else
+                                {
+                                    cvf::Vec3d currentWeightedCoord = currCell.m_bottomPosition * branchConnectionCount / static_cast<double>(branchConnectionCount + 1);
+                                    cvf::Vec3d additionalWeightedCoord = firstGridConnectionCenterInLeafBranch / static_cast<double>(branchConnectionCount + 1);
+
+                                    currCell.m_bottomPosition = currentWeightedCoord + additionalWeightedCoord;
+                                }
+
+                                currCell.m_branchConnectionCount++;
+
+                                if (cellIndexInOutletBranch == 0)
+                                {
+                                    cellIndexInOutletBranch = cvf::UNDEFINED_SIZE_T;
+
+                                    // Find the branch the outlet is connected to, and continue update of
+                                    // segments until a segment with a grid connection is found
+                                    const RigWellResultPoint* leafBranchHead = wellResFrame.findResultCellFromOutletSpecification(outletResultBranch.m_outletBranchIndex_OBSOLETE, outletResultBranch.m_outletBranchHeadCellIndex_OBSOLETE);
+
+                                    if (leafBranchHead &&
+                                        !leafBranchHead->isCell() &&
+                                        leafBranchHead->m_ertBranchId != outletResultBranch.m_ertBranchId)
+                                    {
+                                        outletResultBranch = wellResFrame.m_wellResultBranches[outletResultBranch.m_outletBranchIndex_OBSOLETE];
+                                        cellIndexInOutletBranch = outletResultBranch.m_outletBranchHeadCellIndex_OBSOLETE;
+                                    }
+                                }
+                                else
+                                {
+                                    cellIndexInOutletBranch--;
+                                }
+
+                                if(cellIndexInOutletBranch >= 0 && cellIndexInOutletBranch < outletResultBranch.m_branchResultPoints.size())
+                                {
+                                    currCell = outletResultBranch.m_branchResultPoints[cellIndexInOutletBranch];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Try to add a copy of the outlet wellResultPoint into the start of each branch
+
+                size_t bCount = wellResFrame.m_wellResultBranches.size();
+                for (size_t bIdx = 0; bIdx < bCount; ++bIdx)
+                {
+                    size_t outBranchIdx = wellResFrame.m_wellResultBranches[bIdx].m_outletBranchIndex_OBSOLETE;
+                    size_t outCellIdx = wellResFrame.m_wellResultBranches[bIdx].m_outletBranchHeadCellIndex_OBSOLETE;
+
+                    const RigWellResultPoint* resPoint = wellResFrame.findResultCellFromOutletSpecification(outBranchIdx, outCellIdx);
+                    if (resPoint) // Todo: Is this a correct guarding or indicating an error ?
+                    {
+                        wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.insert(wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints.begin(), *resPoint);
+                    }
+                }
+#endif
+            }
+            else 
+            {
+                // Code handling None-MSW Wells ... Normal wells that is.
+
+                // Loop over all the grids in the model. If we have connections in one, we will discard
+                // the main grid connections as the well connections are duplicated in the main grid and LGR grids 
+                // Verified on 10 k case JJS. But smarter things could be done, like showing the "main grid well" if turning off the LGR's
+
+                bool hasWellConnectionsInLGR = false;
+
+                for (size_t gridIdx = 1; gridIdx < grids.size(); ++gridIdx)
+                {
+                    RigGridBase* lgrGrid = m_eclipseCase->grid(gridIdx);
+                    if (well_state_has_grid_connections(ert_well_state, lgrGrid->gridName().data()))
+                    {
+                        hasWellConnectionsInLGR = true;
+                        break;
+                    }
+                }
+
+                size_t gridNr = hasWellConnectionsInLGR ? 1 : 0;
+                for (; gridNr < grids.size(); ++gridNr)
+                {
+
+                    // Wellhead. If several grids have a wellhead definition for this well, we use the last one. (Possibly the innermost LGR)
+                    const well_conn_type* ert_wellhead = well_state_iget_wellhead(ert_well_state, static_cast<int>(gridNr));
+                    if (ert_wellhead)
+                    {
+                        wellResFrame.m_wellHead = createWellResultPoint(grids[gridNr], ert_wellhead, -1, -1 );
+                        //std::cout << "Wellhead YES at timeIdx: " << timeIdx <<  " wellIdx: " << wellIdx << " Grid: " << gridNr << std::endl;
+                    }
+                    else
+                    {
+                        // std::cout << "Wellhead NO  at timeIdx: " << timeIdx <<  " wellIdx: " << wellIdx << " Grid: " << gridNr << std::endl;
+                        //CVF_ASSERT(0); // This is just a test assert to see if this condition exists in some files and it does.
+                        // All the grids does not necessarily have a well head definition. 
+                    }
+
+                    const well_conn_collection_type* connections = well_state_get_grid_connections(ert_well_state, this->ertGridName(gridNr).data());
+
+                    // Import all well result cells for all connections
+                    if (connections)
+                    {
+                        int connectionCount = well_conn_collection_get_size(connections);
+                        if (connectionCount)
+                        {
+                            wellResFrame.m_wellResultBranches.push_back(RigWellResultBranch());
+                            RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches.back();
+
+                            wellResultBranch.m_branchIndex = 0;
+                            wellResultBranch.m_ertBranchId = 0; // Normal wells have only one branch
+
+                            size_t existingCellCount = wellResultBranch.m_branchResultPoints.size();
+                            wellResultBranch.m_branchResultPoints.resize(existingCellCount + connectionCount);
+
+                            for (int connIdx = 0; connIdx < connectionCount; connIdx++)
+                            {
+                                well_conn_type* ert_connection = well_conn_collection_iget(connections, connIdx);
+                                wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = 
+                                    createWellResultPoint(grids[gridNr], ert_connection, -1, -1);
                             }
                         }
                     }
                 }
             }
         }
+
 
         wellResults->computeMappingFromResultTimeIndicesToWellTimeIndices(m_timeSteps);
 
@@ -1054,5 +1943,25 @@ void RifReaderEclipseOutput::transferCoarseningInfo(const ecl_grid_type* eclGrid
 
         grid->addCoarseningBox(i1, i2, j1, j2, k1, k2);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::string RifReaderEclipseOutput::ertGridName(size_t gridNr)
+{
+    std::string gridName;
+    if (gridNr == 0)
+    {
+        gridName = ECL_GRID_GLOBAL_GRID;
+    }
+    else
+    {
+        CVF_ASSERT(m_eclipseCase);
+        CVF_ASSERT(m_eclipseCase->gridCount() > gridNr);
+        gridName = m_eclipseCase->grid(gridNr)->gridName();
+    }
+
+    return gridName;
 }
 

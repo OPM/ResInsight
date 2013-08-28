@@ -71,7 +71,7 @@
 
 
 bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
-  long start_pos = ftell( stream );
+  long start_pos = util_ftell( stream );
   long current_pos;
   char next_kw[256];
   
@@ -83,14 +83,14 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
   {
     while (true) {
       char c;
-      if (ftell(stream) == 0) 
+      if (util_ftell(stream) == 0) 
         /*
           We are at the very beginning of the file. Can just jump out of
           the loop.
         */
         break;
       
-      fseek( stream , -1 , SEEK_CUR );
+      util_fseek( stream , -1 , SEEK_CUR );
       c = fgetc( stream );
       if (c == '\n') {
         /* 
@@ -98,7 +98,7 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
            have not reached any !isspace() characters on the way and
            can go back to start_pos and read from there.
         */
-        fseek( stream , start_pos , SEEK_SET );
+        util_fseek( stream , start_pos , SEEK_SET );
         break;
       }
       
@@ -111,25 +111,25 @@ bool ecl_kw_grdecl_fseek_next_kw( FILE * stream ) {
         util_fskip_lines( stream , 1 );
         break;
       }
-      fseek( stream , -2 , SEEK_CUR );
+      util_fseek( stream , -2 , SEEK_CUR );
     }
   }
   
   
   while (true) {
-    current_pos = ftell( stream );
+    current_pos = util_ftell( stream );
     if (fscanf(stream , "%s" , next_kw) == 1) {
       if ((next_kw[0] == next_kw[1]) && (next_kw[0] == ECL_COMMENT_CHAR)) 
         // This is a comment line - skip it.
         util_fskip_lines( stream , 1 );
       else {
         // This is a valid keyword i.e. a non-commented out string; return true.
-        fseek( stream , current_pos , SEEK_SET );
+        util_fseek( stream , current_pos , SEEK_SET );
         return true;
       }
     } else {
       // EOF reached - return False.
-      fseek( stream , start_pos , SEEK_SET );
+      util_fseek( stream , start_pos , SEEK_SET );
       return false;
     }
   }
@@ -167,17 +167,17 @@ char * ecl_kw_grdecl_alloc_next_header( FILE * stream ) {
 */
 
 static bool ecl_kw_grdecl_fseek_kw__(const char * kw , FILE * stream) {
-  long init_pos = ftell( stream );
+  long init_pos = util_ftell( stream );
   while (true) {
     if (ecl_kw_grdecl_fseek_next_kw( stream )) {
       char next_kw[256];
       fscanf( stream , "%s" , next_kw);
       if (strcmp( kw , next_kw ) == 0) {
-        fseek( stream , -strlen(next_kw) , SEEK_CUR);
+        util_fseek( stream , -strlen(next_kw) , SEEK_CUR);
         return true;
       }
     } else {
-      fseek( stream , init_pos , SEEK_SET);
+      util_fseek( stream , init_pos , SEEK_SET);
       return false;
     }
   }
@@ -274,13 +274,13 @@ bool ecl_kw_grdecl_fseek_kw(const char * kw , bool rewind , FILE * stream) {
   if (ecl_kw_grdecl_fseek_kw__(kw , stream))
     return true;       /* OK - we found the kw between current file pos and EOF. */
   else if (rewind) {
-    long int init_pos = ftell(stream);
+    long int init_pos = util_ftell(stream);
     
-    fseek(stream , 0L , SEEK_SET);
+    util_fseek(stream , 0L , SEEK_SET);
     if (ecl_kw_grdecl_fseek_kw__( kw , stream )) /* Try again from the beginning of the file. */
       return true;                              
     else
-      fseek(stream , init_pos , SEEK_SET);       /* Could not find it - reposition to initial position. */
+      util_fseek(stream , init_pos , SEEK_SET);       /* Could not find it - reposition to initial position. */
   }
 
   /* OK: If we are here - that means that we failed to find the kw. */

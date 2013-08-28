@@ -20,43 +20,76 @@ from    ert.cwrap.cclass      import CClass
 from    ert.util.tvector      import * 
 from    enkf_enum             import *
 import  libenkf
+from    ert.enkf.gen_data_config import GenDataConfig
+from    ert.enkf.gen_kw_config   import GenKwConfig
+from    ert.enkf.field_config    import FieldConfig
+from    ert.enkf.enkf_node import EnkfNode
+
 class EnkfConfigNode(CClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self , c_ptr , parent = None):
+        if parent:
+            self.init_cref( c_ptr , parent)
+        else:
+            self.init_cobj( c_ptr , cfunc.free )
 
+    @property
+    def get_impl_type( self ):
+        return cfunc.get_impl_type( self )
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    @property
+    def get_var_type( self ):
+        return cfunc.get_var_type( self )
 
+    @property
+    def get_ref(self):
+        return cfunc.get_ref( self)
 
+    @property
+    def get_min_std_file(self):
+        return cfunc.get_min_std_file( self)
 
+    @property
+    def get_enkf_outfile(self):
+        return cfunc.get_enkf_outfile( self)
+
+    @property
+    def field_model(self):
+        return FieldConfig(c_ptr = cfunc.get_ref( self), parent = self)
+
+    @property
+    def data_model(self):
+        return GenDataConfig(c_ptr = cfunc.get_ref( self), parent = self)
+
+    @property
+    def keyword_model(self):
+        return GenKwConfig(c_ptr = cfunc.get_ref( self), parent = self)
+
+    @property
+    def get_enkf_infile(self):
+        return cfunc.get_enkf_infile( self)
+
+    @property
+    def alloc_node(self):
+        node = EnkfNode.alloc(self)
+        return node
+
+    @property
+    def get_init_file_fmt(self):
+        return cfunc.get_init_file_fmt(self)
 ##################################################################
 
 cwrapper = CWrapper( libenkf.lib )
 cwrapper.registerType( "enkf_config_node" , EnkfConfigNode )
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
 cfunc = CWrapperNameSpace("enkf_config_node")
-
-
-cfunc.free                   = cwrapper.prototype("void enkf_config_node_free( enkf_config_node )")
-cfunc.get_impl_type          = cwrapper.prototype("c_void_p enkf_config_node_get_impl_type(enkf_config_node)")
-cfunc.get_ref                = cwrapper.prototype("c_void_p enkf_config_node_get_ref(enkf_config_node)")
-cfunc.is_valid               = cwrapper.prototype("bool enkf_config_node_is_valid(enkf_config_node)")
-cfunc.get_min_std_file       = cwrapper.prototype("char* enkf_config_node_get_min_std_file(enkf_config_node)")
-cfunc.get_enkf_outfile       = cwrapper.prototype("char* enkf_config_node_get_enkf_outfile(enkf_config_node)")
-cfunc.get_enkf_infile        = cwrapper.prototype("char* enkf_config_node_get_enkf_infile(enkf_config_node)")
-cfunc.update_gen_kw          = cwrapper.prototype("void enkf_config_node_update_gen_kw(enkf_config_node, char*, char*, char*, char*, char*)")
-cfunc.update_state_field     = cwrapper.prototype("void enkf_config_node_update_state_field(enkf_config_node, int, double, double)")
-cfunc.update_parameter_field = cwrapper.prototype("void enkf_config_node_update_parameter_field(enkf_config_node, char*, char*, char*, int, double, double, char*, char*)")
-cfunc.update_general_field   = cwrapper.prototype("void enkf_config_node_update_general_field(enkf_config_node, char*, char*, char*, char*, int, double, double, char*, char*, char*)")
-cfunc.update_gen_data        = cwrapper.prototype("void enkf_config_node_update_gen_data(enkf_config_node, int, int, char*, char*, char*, char*, char*, char*)")
+##################################################################
+##################################################################
+cfunc.free                = cwrapper.prototype("void enkf_config_node_free( enkf_config_node )")
+cfunc.get_ref             = cwrapper.prototype("c_void_p enkf_config_node_get_ref(enkf_config_node)")
+cfunc.get_impl_type       = cwrapper.prototype("c_void_p enkf_config_node_get_impl_type(enkf_config_node)")
+cfunc.get_enkf_outfile    = cwrapper.prototype("char* enkf_config_node_get_enkf_outfile(enkf_config_node)")
+cfunc.get_min_std_file    = cwrapper.prototype("char* enkf_config_node_get_min_std_file(enkf_config_node)")
+cfunc.get_enkf_infile     = cwrapper.prototype("char* enkf_config_node_get_enkf_infile(enkf_config_node)")
+cfunc.get_init_file_fmt   = cwrapper.prototype("char* enkf_config_node_get_init_file_fmt(enkf_config_node)")
+cfunc.get_var_type        = cwrapper.prototype("c_void_p enkf_config_node_get_var_type(enkf_config_node)")

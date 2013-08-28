@@ -40,7 +40,12 @@ extern "C" {
 {.value = 4 , .name = "TORQUE_DRIVER"}                             
                         
 #define JOB_DRIVER_ENUM_SIZE 5
-
+  
+  /*
+    The options supported by the base queue_driver.
+   */
+#define MAX_RUNNING          "MAX_RUNNING"
+  
   typedef enum {
     JOB_QUEUE_NOT_ACTIVE = 1, /* This value is used in external query routines - for jobs which are (currently) not active. */
     //JOB_QUEUE_LOADING            =     2 ,   /* This value is used by external routines. Not used in the libjob_queue implementation. */
@@ -116,7 +121,8 @@ extern "C" {
   typedef bool (set_option_ftype) (void *, const char*, const void *);
   typedef const void * (get_option_ftype) (const void *, const char *);
   typedef bool (has_option_ftype) (const void *, const char *);
-
+  typedef void (init_option_list_ftype) (stringlist_type *);
+  
 
   queue_driver_type * queue_driver_alloc_RSH(const char * rsh_cmd, const hash_type * rsh_hostlist);
   queue_driver_type * queue_driver_alloc_LSF(const char * queue_name, const char * resource_request, const char * remote_lsf_server);
@@ -128,13 +134,12 @@ extern "C" {
   void queue_driver_free_job(queue_driver_type * driver, void * job_data);
   void queue_driver_kill_job(queue_driver_type * driver, void * job_data);
   job_status_type queue_driver_get_status(queue_driver_type * driver, void * job_data);
-
-  void queue_driver_set_max_running(queue_driver_type * driver, int max_running);
-  int queue_driver_get_max_running(const queue_driver_type * driver);
+  
   const char * queue_driver_get_name(const queue_driver_type * driver);
 
   bool queue_driver_set_option(queue_driver_type * driver, const char * option_key, const void * value);
   const void * queue_driver_get_option(queue_driver_type * driver, const char * option_key);
+  void queue_driver_init_option_list(queue_driver_type * driver, stringlist_type * option_list);
 
   void queue_driver_free(queue_driver_type * driver);
   void queue_driver_free__(void * driver);
