@@ -120,13 +120,13 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
-    std::map < size_t, std::list< RigWellResultPoint > > staticWellBranches;
+    std::map < int, std::list< RigWellResultPoint > > staticWellBranches;
 
     // Add ResultCell data from the first timestep to the final result.
 
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
-        size_t branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
+        int branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
         std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
        
         std::list< RigWellResultPoint >& branch =  staticWellBranches[branchNumber];
@@ -145,10 +145,10 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
         for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx)
         {
-            size_t branchNumber = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
+            int branchId = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
             std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
-            std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchNumber];
+            std::list< RigWellResultPoint >& stBranch =  staticWellBranches[branchId];
             std::list< RigWellResultPoint >::iterator it;
             std::list< RigWellResultPoint >::iterator sStartIt;
             std::list< RigWellResultPoint >::iterator sEndIt;
@@ -235,7 +235,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     // Populate the static well info 
 
-    std::map < size_t, std::list< RigWellResultPoint > >::iterator bIt;
+    std::map < int, std::list< RigWellResultPoint > >::iterator bIt;
 
     m_staticWellCells.m_wellResultBranches.clear();
     m_staticWellCells.m_wellHead = m_wellCellsTimeSteps[0].m_wellHead;
