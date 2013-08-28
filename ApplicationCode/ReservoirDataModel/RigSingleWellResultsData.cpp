@@ -283,3 +283,30 @@ bool RigSingleWellResultsData::isMultiSegmentWell() const
     return m_isMultiSegmentWell;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigWellResultPoint* RigWellResultFrame::findResultCell(size_t gridIndex, size_t gridCellIndex) const
+{
+    CVF_ASSERT(gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T);
+
+    if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
+    {
+        return &m_wellHead;
+    }
+
+    for (size_t wb = 0; wb < m_wellResultBranches.size(); ++wb)
+    {
+        for (size_t wc = 0; wc < m_wellResultBranches[wb].m_branchResultPoints.size(); ++wc)
+        {
+            if (   m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridCellIndex == gridCellIndex  
+                && m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridIndex == gridIndex  )
+            {
+                return &(m_wellResultBranches[wb].m_branchResultPoints[wc]);
+            }
+        }
+    }
+
+    return NULL;
+}
