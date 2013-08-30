@@ -981,3 +981,81 @@ private:
 
 static bool RiaSetGridProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaSetGridProperty>(RiaSetGridProperty::commandName());
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetPropertyNames : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetPropertyNames"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int caseId = args[1].toInt();
+        RimCase* rimCase = server->findReservoir(caseId);
+        if (!rimCase)
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+
+            return true;
+        }
+
+        QString porosityModelName = args[2];
+        RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
+
+        if (porosityModelName == "Fracture")
+        {
+            porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
+        }
+
+        std::vector<QString> propNames;
+        std::vector<QString> propTypes;
+
+        RigCaseCellResultsData* results = rimCase->reservoirData()->results(porosityModelEnum);
+       
+        std::vector<RimDefines::ResultCatType> resTypes;
+        std::vector<QString> resTypeNames;
+        resTypes.push_back(RimDefines::DYNAMIC_NATIVE);
+        resTypeNames.push_back("DynamicNative");
+        resTypes.push_back(RimDefines::STATIC_NATIVE );
+        resTypeNames.push_back("StaticNative");
+        resTypes.push_back(RimDefines::GENERATED     );
+        resTypeNames.push_back("Generated");
+        resTypes.push_back(RimDefines::INPUT_PROPERTY);
+        resTypeNames.push_back("Input");
+
+        for (size_t rtIdx = 0; rtIdx < resTypes.size(); ++rtIdx)
+        {
+            RimDefines::ResultCatType resType = resTypes[rtIdx];
+
+            QStringList names = results->resultNames(resType);
+            for (int pnIdx = 0; pnIdx < names.size(); ++pnIdx){
+                propNames.push_back(names[pnIdx]);
+                propTypes.push_back(resTypeNames[rtIdx]);
+            }
+        }
+
+        quint64 byteCount = sizeof(quint64);
+        quint64 propCount = propNames.size();
+
+        for (size_t rtIdx = 0; rtIdx < propCount; rtIdx++)
+        {
+            byteCount += propNames[rtIdx].size() * sizeof(QChar);
+            byteCount += propTypes[rtIdx].size() * sizeof(QChar);
+        }
+
+        socketStream << byteCount;
+        socketStream << propCount;
+
+        for (size_t rtIdx = 0; rtIdx < propCount; rtIdx++)
+        {
+            socketStream << propNames[rtIdx];
+            socketStream << propTypes[rtIdx];
+        }
+
+
+        return true;
+    }
+};
+
+static bool RiaGetPropertyNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetPropertyNames>(RiaGetPropertyNames::commandName());

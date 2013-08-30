@@ -30,6 +30,10 @@ namespace riOctavePlugin
     char caseInfo_CaseType[]    = "CaseType";
     char caseInfo_CaseGroupId[] = "CaseGroupId";
 
+    // Octave data structure:  PropertyInfo 
+    char propertyInfo_PropName[]    = "PropName";
+    char propertyInfo_PropType[]    = "PropType";
+
     // Octave data structure : CaseGroupInfo
     char caseGroupInfo_CaseGroupId[]      = "CaseGroupId";
     char caseGroupInfo_CaseGroupName[]    = "CaseName";
