@@ -10,15 +10,25 @@ set( QOBJECT_HEADERS
 qt4_wrap_cpp( MOC_FILES_CPP ${QOBJECT_HEADERS} )
 
 add_library( ${PROJECT_NAME}
-    cafEffectCache.cpp
-    cafEffectGenerator.cpp
-    cafLog.cpp
-    cafMessagePanel.cpp
-    cafMouseState.cpp
-    cafUtils.cpp
-    cvfStructGrid.cpp
-    
-    cvfStructGridGeometryGenerator.cpp
+	cafEffectCache.cpp
+	cafEffectCache.h
+	cafEffectGenerator.cpp
+	cafEffectGenerator.h
+	cafLog.cpp
+	cafLog.h
+	cafMessagePanel.cpp
+	cafMessagePanel.h
+	cafMouseState.cpp
+	cafMouseState.h
+	cafUtils.cpp
+	cafUtils.h
+	cvfStructGrid.cpp
+	cvfStructGrid.h
+	
+	cvfStructGridCutPlane.h
+	cvfStructGridGeometryGenerator.cpp
+	cvfStructGridGeometryGenerator.h
+	cvfStructGridScalarDataAccess.h
 
     ${MOC_FILES_CPP}
 )

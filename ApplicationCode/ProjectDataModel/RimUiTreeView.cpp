@@ -545,6 +545,8 @@ void RimUiTreeView::slotExecuteScript()
             QStringList arguments;
             arguments.append("--path");
             arguments << octaveFunctionSearchPath;
+            arguments.append("--path");
+            arguments << QApplication::applicationDirPath();
 
             arguments.append("-q");
             arguments << calcScript->absolutePath();
@@ -597,6 +599,8 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
             QStringList arguments;
             arguments.append("--path");
             arguments << octaveFunctionSearchPath;
+            arguments.append("--path");
+            arguments << QApplication::applicationDirPath();
 
             arguments.append("-q");
             arguments << calcScript->absolutePath();
