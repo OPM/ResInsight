@@ -16,74 +16,59 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "ssihubInterface.h"
-#include "ssihubDialog.h"
-#include "ssihubWebServiceInterface.h"
+#include "RimOilRegionEntry.h"
+#include "RimOilFieldEntry.h"
 
-#include <math.h>
-#include "RiuWellImportWizard.h"
+CAF_PDM_SOURCE_INIT(RimOilRegionEntry, "RimOilRegionEntry");
 
-namespace ssihub {
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Interface::Interface()
+RimOilRegionEntry::RimOilRegionEntry()
 {
-    m_north = HUGE_VAL;
-    m_south = HUGE_VAL;
-    m_east = HUGE_VAL;
-    m_west = HUGE_VAL;
-}
+    CAF_PDM_InitObject("OilRegionEntry", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&name,       "OilRegionEntry",      "OilRegionEntry", "", "", "");
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void Interface::setWebServiceAddress(const QString wsAdress)
-{
-    m_webServiceAddress = wsAdress;
+    CAF_PDM_InitFieldNoDefault(&fields, "Fields", "",  "", "", "");
+
+    CAF_PDM_InitField(&selected,       "Selected",         true,   "Selected", "", "", "");
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Interface::setJsonDestinationFolder(const QString folder)
+caf::PdmFieldHandle* RimOilRegionEntry::userDescriptionField()
 {
-    m_jsonDestinationFolder = folder;
+    return &name;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Interface::setRegion(int north, int south, int east, int west)
+caf::PdmFieldHandle* RimOilRegionEntry::objectToggleField()
 {
-    m_east = east;
-    m_west = west;
-    m_north = north;
-    m_south = south;
+    return &selected;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QStringList Interface::jsonWellPaths()
+void RimOilRegionEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    RuiWellImportWizard::showImportWizard(m_webServiceAddress, m_jsonDestinationFolder);
-
-    FetchWellPathsDialog fetchWellPaths;
-    fetchWellPaths.setSsiHubUrl(m_webServiceAddress);
-    fetchWellPaths.setDestinationFolder(m_jsonDestinationFolder);
-    fetchWellPaths.setRegion(m_north, m_south, m_east, m_west);
-
-    QStringList importedWellPathFiles;
-    if (fetchWellPaths.exec() == QDialog::Accepted)
+    if (&selected == changedField)
     {
-        importedWellPathFiles = fetchWellPaths.downloadedJsonWellPathFiles();
+        for (size_t i = 0; i < fields.size(); i++)
+        {
+            fields[i]->selected = newValue.toBool();
+        }
     }
-    
-    return importedWellPathFiles;
+
+//    this->updateConnectedEditors();
 }
 
-}; // namespace ssihub
+
+

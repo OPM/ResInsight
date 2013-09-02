@@ -553,7 +553,9 @@ void FetchWellPathsDialog::updateFieldsModel()
         JsonReader jsonReader;
         QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(fileName);
 
-        QStringList fieldNames;
+        QStringList regions;
+        QStringList fields;
+        QStringList edmIds;
         QMapIterator<QString, QVariant> it(jsonMap);
         while (it.hasNext())
         {
@@ -564,11 +566,13 @@ void FetchWellPathsDialog::updateFieldsModel()
             {
                 QMap<QString, QVariant> fieldMap = it.value().toMap();
 
-                fieldNames.push_back(fieldMap["name"].toString());
+                regions.push_back(fieldMap["region"].toString());
+                fields.push_back(fieldMap["name"].toString());
+                edmIds.push_back(fieldMap["edmId"].toString());
             }
         }
 
-        m_fieldModel->setStringList(fieldNames);
+        m_fieldModel->setStringList(fields);
     }
 }
 
@@ -757,6 +761,41 @@ void FetchWellPathsDialog::checkDownloadQueueAndIssueRequests()
 
         m_currentDownloadState = DOWNLOAD_WELL_PATH;
         issueHttpRequestToFile(completeUrlText, singleWellPathFilePath);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void FetchWellPathsDialog::requestFieldData(QStringList& regions, QStringList& fields, QStringList& edmIds)
+{
+    downloadFields();
+
+    QString fileName = jsonFieldsFilePath();
+
+    if (QFile::exists(fileName))
+    {
+        JsonReader jsonReader;
+        QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(fileName);
+
+        QStringList regions;
+        QStringList fields;
+        QStringList edmIds;
+        QMapIterator<QString, QVariant> it(jsonMap);
+        while (it.hasNext())
+        {
+            it.next();
+
+            QString key = it.key();
+            if (key[0].isDigit())
+            {
+                QMap<QString, QVariant> fieldMap = it.value().toMap();
+
+                regions.push_back(fieldMap["region"].toString());
+                fields.push_back(fieldMap["name"].toString());
+                edmIds.push_back(fieldMap["edmId"].toString());
+            }
+        }
     }
 }
 

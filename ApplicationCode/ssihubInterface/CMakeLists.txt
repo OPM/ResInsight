@@ -8,7 +8,10 @@ set( QOBJECT_HEADERS
     ssihubDialog.h 
     httpwindow.h
 
+    RiuWellImportWizard.h
+
 )
+
 
 set( QT_UI_FILES   
     authenticationdialog.ui 
@@ -23,6 +26,8 @@ include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 
     ${CMAKE_CURRENT_SOURCE_DIR}/../FileInterface
+	${CMAKE_CURRENT_SOURCE_DIR}/../../cafProjectDataModel 
+	${CMAKE_CURRENT_SOURCE_DIR}/../../cafUserInterface
 )
 
 
@@ -32,8 +37,18 @@ add_library( ${PROJECT_NAME}
     ssihubDialog.cpp
     httpwindow.cpp
 
+    RimWellPathImport.h
+    RimWellPathImport.cpp
+    RimOilRegionEntry.h
+    RimOilRegionEntry.cpp
+    RimOilFieldEntry.h
+    RimOilFieldEntry.cpp
+    RiuWellImportWizard.h
+    RiuWellImportWizard.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/../FileInterface/RifJsonEncodeDecode.cpp
 
     ${MOC_FILES_CPP}
     ${FORM_FILES_CPP}
+    ${HEADER_FILES}
 )

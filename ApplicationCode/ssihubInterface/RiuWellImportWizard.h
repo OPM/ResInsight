@@ -18,35 +18,53 @@
 
 #pragma once
 
-#include <QDialog>
+#include <QString>
+#include <QWizard>
 #include <QNetworkAccessManager>
 #include <QUrl>
-
 #include <QItemSelection>
 
-QT_BEGIN_NAMESPACE
-class QDialogButtonBox;
 class QFile;
-class QLabel;
-class QLineEdit;
 class QProgressDialog;
-class QPushButton;
-class QSslError;
-class QAuthenticator;
-class QNetworkReply;
-class QStringListModel;
-class QListView;
-class QStandardItemModel;
-class QCheckBox;
-QT_END_NAMESPACE
+class QLabel;
+
+
+class RimWellPathImport;
+
+
+namespace caf
+{
+    class UiTreeModelPdm;
+    class PdmUiTreeView;
+}
+
+
+class IntroPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    IntroPage(const QString& webServiceAddress, QWidget *parent = 0);
+
+};
+
+
+class FieldSelectionPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    FieldSelectionPage(RimWellPathImport* wellPathImport, caf::UiTreeModelPdm* treeModelPdm, caf::PdmUiTreeView* pdmUiTreeView, QWidget* parent = 0);
+
+    virtual void initializePage();
+
+private:
+    //RimWellPathImport* m_wellPathImportObject;
+};
 
 
 
-
-namespace ssihub {
-
-
-class FetchWellPathsDialog : public QDialog
+class RiuWellImportWizard : public QWizard
 {
     Q_OBJECT
 
@@ -54,24 +72,18 @@ public:
     enum DownloadState{ DOWNLOAD_FIELDS, DOWNLOAD_WELLS, DOWNLOAD_WELL_PATH, DOWNLOAD_UNDEFINED};
 
 public:
-    FetchWellPathsDialog(QWidget *parent = 0);
+    RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = 0);
 
-    void        setSsiHubUrl(const QString& httpAddress);
-    void        setDestinationFolder(const QString& folder);
-    void        setRegion(int north, int south, int east, int west);
+    void setWebServiceAddress(const QString& wsAdress);
+    void setJsonDestinationFolder(const QString& folder);
+    void setWellPathImportObject(RimWellPathImport* wellPathImportObject);
 
-    QStringList downloadedJsonWellPathFiles();
-
-protected:
-    virtual void showEvent(QShowEvent* event);
-
-public:
+private:
     void        startRequest(QUrl url);
     void        setUrl(const QString& httpAddress);
-    
+
     QString     jsonFieldsFilePath();
     QString     jsonWellsFilePath();
-    QString     jsonWellsInArea();
 
     void        updateFieldsModel();
 
@@ -79,26 +91,23 @@ public:
 
     void        getWellPathLinks(QStringList* surveyLinks, QStringList* planLinks);
     void        issueDownloadOfWellPaths(const QStringList& surveyLinks, const QStringList& planLinks);
-    
-    void        requestFieldData(QStringList& regions, QStringList& fields, QStringList& edmIds);
-
-signals:
-    void        signalFieldsDownloaded();
 
 
-private slots:
+
+
+public slots:
     void        downloadWellPaths();
     void        downloadFields();
     void        checkDownloadQueueAndIssueRequests();
 
-    void        issueHttpRequestToFile( QString completeUrlText, QString fieldsFileName );
+    void        issueHttpRequestToFile( QString completeUrlText, QString destinationFileName );
     void        cancelDownload();
     void        httpFinished();
 
     void        httpReadyRead();
     void        updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
     void        refreshButtonStatus();
-    void        slotAuthenticationRequired(QNetworkReply*,QAuthenticator *);
+    void        slotAuthenticationRequired(QNetworkReply* networkReply, QAuthenticator* authenticator);
 
     void        slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
 
@@ -109,31 +118,14 @@ private slots:
 #endif
 
 private:
-    QLabel*             m_statusLabel;
-    QLabel*             m_urlLabel;
-    QLineEdit*          m_urlLineEdit;
-    QLabel*             m_urlSsiHubLabel;
-    QLineEdit*          m_urlSsiHubLineEdit;
-    
-    QPushButton*        m_downloadFieldsButton;
-    QListView*          m_fieldListView;
+    QString m_webServiceAddress;
+    QString m_destinationFolder;
 
-    QListView*          m_wellPathsView;
-    QStandardItemModel* m_wellPathsModel;
-
-
-    QCheckBox*          m_filterWellsByUtmArea;
-    QLineEdit*          m_northLineEdit;
-    QLineEdit*          m_southLineEdit;
-    QLineEdit*          m_eastLineEdit;
-    QLineEdit*          m_westLineEdit;
-
-    QCheckBox*          m_importSurveyCheckBox;
-    QCheckBox*          m_importPlansCheckBox;
+    RimWellPathImport* m_wellPathImport;
+//    caf::UiTreeModelPdm* m_treeModelPdm;
+    caf::PdmUiTreeView* m_pdmTreeView;
 
     QProgressDialog*    m_progressDialog;
-    QPushButton*        m_downloadWellPathsButton;
-    QDialogButtonBox*   m_buttonBox;
 
     QUrl                    m_url;
     QNetworkAccessManager   m_networkAccessManager;
@@ -142,12 +134,26 @@ private:
     bool                    m_httpRequestAborted;
 
 
-    QString             m_destinationFolder;
-    QStringListModel*   m_fieldModel;
-    
     QStringList         m_wellPathRequestQueue;
 
     DownloadState       m_currentDownloadState;
+
+
+    // To be deleted
+    QLabel*             m_statusLabel;
+
 };
 
-} // namespace ssihub
+
+
+
+
+
+
+
+
+class RuiWellImportWizard
+{
+public:
+    static void showImportWizard(const QString& webServiceAddress, const QString& jsonDestinationFolder);
+};

@@ -42,6 +42,12 @@
 #include <QDir>
 
 #include "ssihubInterface.h"
+#include "TestTools.h"
+#include "RiuWellImportWizard.h"
+
+
+
+
 
 int main(int argc, char *argv[])
 {
@@ -61,7 +67,7 @@ int main(int argc, char *argv[])
     int west =   400000;
     wsInterface.setRegion(north, south, east, west);
 
-    QStringList jsonWellPathFileNames = wsInterface.jsonWellPaths();
+    //QStringList jsonWellPathFileNames = wsInterface.jsonWellPaths();
 
 //     void setWebServiceAddress(const QString wsAdress);
 //     void setJsonDestinationFolder(const QString folder);
@@ -69,6 +75,11 @@ int main(int argc, char *argv[])
 // 
 //     QStringList jsonWellPaths();
 
+    RimWellPathImport* wellPathImportObject = TestTools::createMockObject();
+
+    RiuWellImportWizard wizard(wsAddress, destinationFolder, wellPathImportObject);
+
+    wizard.show();
 
     return app.exec();
 }

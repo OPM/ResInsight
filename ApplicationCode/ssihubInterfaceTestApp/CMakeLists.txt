@@ -12,9 +12,13 @@ find_package( OpenGL )
 
 
 add_subdirectory(../ssihubInterface "${CMAKE_CURRENT_BINARY_DIR}/ssihubInterface")
+add_subdirectory(../../cafProjectDataModel "${CMAKE_CURRENT_BINARY_DIR}/cafProjectDataModel")
+add_subdirectory(../../cafUserInterface "${CMAKE_CURRENT_BINARY_DIR}/cafUserInterface")
 
 include_directories(
     ${ssihubInterface_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/../../cafProjectDataModel 
+	${CMAKE_CURRENT_SOURCE_DIR}/../../cafUserInterface
 )
 
 
@@ -39,11 +43,17 @@ qt4_add_resources( QRC_FILES_CPP
 # add the executable 
 add_executable ( ${PROJECT_NAME}
     main.cpp
+    TestTools.cpp
+    TestTools.h
     ${MOC_FILES_CPP}
     ${QRC_FILES_CPP}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
+
+    cafProjectDataModel
+    cafUserInterface
+
     ssihubInterface
     ${QT_LIBRARIES}
 )
