@@ -463,6 +463,17 @@ PdmUiTreeItem* UiTreeModelPdm::treeItemRoot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void UiTreeModelPdm::notifyModelChanged()
+{
+    QModelIndex startModelIdx = index(0,0);
+    QModelIndex endModelIdx = index(rowCount(startModelIdx), 0);
+
+    emit dataChanged(startModelIdx, endModelIdx);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 PdmUiTreeItem* caf::UiTreeModelPdm::getTreeItemFromIndex(const QModelIndex& index)
 {
     if (index.isValid())

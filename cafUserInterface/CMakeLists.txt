@@ -25,6 +25,7 @@ set( QOBJECT_HEADERS
     cafPdmUiColorEditor.h
     
     cafPdmUiPropertyView.h
+    cafPdmUiTreeView.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -59,6 +60,8 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiSliderEditor.h
 	cafPdmUiTextEditor.cpp
 	cafPdmUiTextEditor.h
+    cafPdmUiTreeViewEditor.cpp
+    cafPdmUiTreeViewEditor.h
 	cafProgressInfo.cpp
 	cafProgressInfo.h
 	cafUiProcess.cpp
@@ -66,6 +69,7 @@ add_library( ${PROJECT_NAME}
 	cafUiTreeItem.h
 	cafUiTreeModelPdm.cpp
 	cafUiTreeModelPdm.h
+    cafPdmUiTreeView.cpp
 
     ${MOC_FILES_CPP}
 )

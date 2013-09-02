@@ -52,6 +52,8 @@ public:
     QModelIndex             getModelIndexFromPdmObject(const PdmObject* object) const;
     void                    updateUiSubTree(PdmObject* root);
 
+    void                    notifyModelChanged();
+
 public:
     // Overrides from QAbstractItemModel
     virtual QModelIndex     index(int row, int column, const QModelIndex &parentIndex = QModelIndex( )) const;
