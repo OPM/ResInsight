@@ -25,7 +25,7 @@ add_library( ${PROJECT_NAME}
 	cvfStructGrid.cpp
 	cvfStructGrid.h
 	
-	cvfStructGridCutPlane.h
+	
 	cvfStructGridGeometryGenerator.cpp
 	cvfStructGridGeometryGenerator.h
 	cvfStructGridScalarDataAccess.h
