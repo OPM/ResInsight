@@ -26,6 +26,8 @@ set( QOBJECT_HEADERS
     
     cafPdmUiPropertyView.h
     cafPdmUiTreeView.h
+    cafPdmUiListView.h
+    cafPdmUiListViewEditor.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -52,6 +54,9 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiLineEditor.h
 	cafPdmUiListEditor.cpp
 	cafPdmUiListEditor.h
+    cafPdmUiListViewEditor.cpp
+    cafPdmUiListViewEditor.h
+    cafPdmUiListView.cpp
 	cafPdmUiPropertyView.cpp
 	cafPdmUiPropertyView.h
 	cafPdmUiPushButtonEditor.cpp
@@ -62,6 +67,7 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiTextEditor.h
     cafPdmUiTreeViewEditor.cpp
     cafPdmUiTreeViewEditor.h
+    cafPdmUiTreeView.cpp
 	cafProgressInfo.cpp
 	cafProgressInfo.h
 	cafUiProcess.cpp
@@ -69,7 +75,6 @@ add_library( ${PROJECT_NAME}
 	cafUiTreeItem.h
 	cafUiTreeModelPdm.cpp
 	cafUiTreeModelPdm.h
-    cafPdmUiTreeView.cpp
 
     ${MOC_FILES_CPP}
 )

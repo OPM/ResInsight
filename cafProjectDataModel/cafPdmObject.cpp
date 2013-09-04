@@ -263,6 +263,15 @@ void PdmObject::editorAttribute(const PdmFieldHandle* field, QString uiConfigNam
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute)
+{
+    this->defineObjectEditorAttribute(uiConfigName, attribute);
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Check if a string is a valid Xml element name
 //
 /// http://www.w3schools.com/xml/xml_elements.asp
@@ -299,6 +308,7 @@ bool PdmObject::isValidXmlElementName(const QString& name)
 
     return true;
 }
+
 
 
 } //End of namespace caf
