@@ -22,6 +22,7 @@ set(CPP_SOURCES
   riGetPropertyNames.cpp
   riGetWellNames.cpp
   riGetWellStatus.cpp
+  riGetWellCells.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -86,7 +87,7 @@ else()
                     -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
                     -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
                 DEPENDS "${srcFileName}"
-                COMMENT "Generating ${octFileName}"
+                COMMENT "===> Generating ${octFileName}"
             )
         else()
             add_custom_command(
@@ -133,6 +134,7 @@ else()
 	  "${CMAKE_CURRENT_BINARY_DIR}/riGetPropertyNames.oct"
 	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
 	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
+	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
       SOURCES ${CPP_SOURCES}
   )
 

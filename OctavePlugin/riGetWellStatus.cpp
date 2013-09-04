@@ -177,6 +177,7 @@ DEFUN_DLD (riGetWellStatus, args, nargout,
     if (wellType.size() != wellStatus.size() )
     {
         error("riGetWellStatus: Inconsistent data received from ResInsight.\n");
+        return octave_value();
     }
     else
     {
@@ -196,12 +197,10 @@ DEFUN_DLD (riGetWellStatus, args, nargout,
         Octave_map m;
 
         m.assign(riOctavePlugin::wellStatus_WellType,    cellValuesB);
-        m.assign(riOctavePlugin::wellStatus_WellStatus,    cellValuesC);
+        m.assign(riOctavePlugin::wellStatus_WellStatus,  cellValuesC);
 
         return octave_value(m);
     }
-
-
    
 }
 

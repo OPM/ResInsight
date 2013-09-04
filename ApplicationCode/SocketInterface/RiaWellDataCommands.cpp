@@ -228,3 +228,121 @@ public:
 };
 
 static bool RiaGetWellStatus_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>(RiaGetWellStatus::commandName());
+
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetWellCells : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetWellCells"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int caseId          = args[1].toInt();
+        QString wellName    = args[2];
+        size_t timeStepIdx  = args[3].toInt() - 1; // Interpret timeStepIdx from octave as 1-based
+
+        RimCase* rimCase = server->findReservoir(caseId);
+        if (!rimCase)
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+
+            socketStream << (quint64)0;
+            return true;
+        }
+ 
+        const cvf::Collection<RigSingleWellResultsData>& allWellRes =  rimCase->reservoirData()->wellResults();
+        cvf::ref<RigSingleWellResultsData> currentWellResult;
+        for (size_t cIdx = 0; cIdx < allWellRes.size(); ++cIdx)
+        {
+            if (allWellRes[cIdx]->m_wellName == wellName)
+            {
+                currentWellResult = allWellRes[cIdx];
+                break;
+            }
+        }
+
+        if (currentWellResult.isNull())
+        {
+            server->errorMessageDialog()->showMessage(
+                RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the well with name : \"%1\"").arg(wellName));
+
+            socketStream << (quint64)0;
+            return true;
+        }
+
+        if (!currentWellResult->hasWellResult(timeStepIdx))
+        {
+            socketStream << (quint64)0;
+            return true;
+        }
+
+        std::vector<qint32> cellIs; 
+        std::vector<qint32> cellJs; 
+        std::vector<qint32> cellKs;
+        std::vector<qint32> gridIndices;
+        std::vector<qint32> cellStatuses;
+        std::vector<qint32> branchIds;
+        std::vector<qint32> segmentIds;
+
+        // Fetch results
+        const RigWellResultFrame& wellResFrame = currentWellResult->wellResultFrame(timeStepIdx); 
+        std::vector<RigGridBase*> grids;
+        rimCase->reservoirData()->allGrids(&grids);
+
+        for (size_t bIdx = 0; bIdx < wellResFrame.m_wellResultBranches.size(); ++bIdx)
+        {
+            const std::vector<RigWellResultPoint>& branchResPoints =  wellResFrame.m_wellResultBranches[bIdx].m_branchResultPoints;
+            for (size_t rpIdx = 0; rpIdx < branchResPoints.size(); ++rpIdx)
+            {
+                const RigWellResultPoint& resPoint = branchResPoints[rpIdx];
+
+                if (resPoint.isCell())
+                {
+                    size_t i; 
+                    size_t j;
+                    size_t k;
+                    size_t gridIdx =  resPoint.m_gridIndex ;
+                    grids[gridIdx]->ijkFromCellIndex(resPoint.m_gridCellIndex, &i, &j, &k);
+                    bool isOpen    = resPoint.m_isOpen;
+                    int branchId   = resPoint.m_ertBranchId;
+                    int segmentId  = resPoint.m_ertSegmentId;
+
+                    cellIs      .push_back( static_cast<qint32>(i) ); 
+                    cellJs      .push_back( static_cast<qint32>(j) ); 
+                    cellKs      .push_back( static_cast<qint32>(k) );
+                    gridIndices .push_back( static_cast<qint32>(gridIdx) );
+                    cellStatuses.push_back( static_cast<qint32>(isOpen) );
+                    branchIds   .push_back( branchId );
+                    segmentIds  .push_back( segmentId);
+                }
+            }
+        }
+
+        quint64 byteCount = sizeof(quint64);
+        quint64 cellCount = cellIs.size();
+
+        byteCount += cellCount*( 7 * sizeof(qint32));
+
+        socketStream << byteCount;
+        socketStream << cellCount;
+
+        for (size_t cIdx = 0; cIdx < cellCount; cIdx++)
+        {
+            socketStream << cellIs[cIdx]; 
+            socketStream << cellJs[cIdx]; 
+            socketStream << cellKs[cIdx];
+            socketStream << gridIndices[cIdx];
+            socketStream << cellStatuses[cIdx];
+            socketStream << branchIds[cIdx];
+            socketStream << segmentIds[cIdx];
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetWellCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellCells>(RiaGetWellCells::commandName());
