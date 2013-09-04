@@ -31,12 +31,6 @@ class RimWellPathImport : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum WellTypeEnum
-    {
-        WELL_ALL,
-        WELL_SURVEY,
-        WELL_PLAN
-    };
 
     enum UtmFilterEnum
     {
@@ -48,7 +42,9 @@ public:
 public:
     RimWellPathImport();
 
-    caf::PdmField< caf::AppEnum< WellTypeEnum > >   wellMode;
+    caf::PdmField<bool>                             wellTypeSurvey;
+    caf::PdmField<bool>                             wellTypePlans;
+    caf::PdmField<bool>                             wellTypeAll;
 
     caf::PdmField< caf::AppEnum< UtmFilterEnum > >  utmFilterMode;
     caf::PdmField<double>                           north;

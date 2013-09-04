@@ -21,26 +21,19 @@
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 
-#include "RimOilFieldEntry.h"
+#include "RimWellsEntry.h"
 
 
 
-
-class RimOilRegionEntry : public caf::PdmObject
+class RimWellCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilRegionEntry();
+    RimWellCollection();
+    ~RimWellCollection();
 
-    virtual caf::PdmFieldHandle*        userDescriptionField();
-    virtual caf::PdmFieldHandle*        objectToggleField();
-
-    virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
-
-    caf::PdmField<QString>                      name;
-    caf::PdmField<bool>                         selected;
-    caf::PdmPointersField<RimOilFieldEntry*>    fields;
+    caf::PdmPointersField<RimWellPathEntry*> wells;
 };
 
 

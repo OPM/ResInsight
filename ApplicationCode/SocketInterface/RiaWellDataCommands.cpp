@@ -1,0 +1,230 @@
+//
+//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+// 
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+// 
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+// 
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RiaStdInclude.h"
+#include "RiaSocketCommand.h"
+#include "RiaSocketServer.h"
+#include "RiaSocketTools.h"
+
+#include "RiuMainWindow.h"
+
+#include "RigCaseData.h"
+#include "RigCaseCellResultsData.h"
+
+#include "RimReservoirCellResultsCacher.h"
+#include "RimCase.h"
+#include "RimInputCase.h"
+#include "RimInputPropertyCollection.h"
+#include "RimUiTreeModelPdm.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimWellCollection.h"
+#include "Rim3dOverlayInfoConfig.h"
+
+#include <QTcpSocket>
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetWellNames : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetWellNames"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int caseId = args[1].toInt();
+        RimCase* rimCase = server->findReservoir(caseId);
+        if (!rimCase)
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+
+            return true;
+        }
+
+        std::vector<QString> wellNames;
+
+        const cvf::Collection<RigSingleWellResultsData>& wells = rimCase->reservoirData()->wellResults();
+ 
+        for (size_t wIdx = 0; wIdx < wells.size(); ++wIdx)
+        {
+            wellNames.push_back(wells[wIdx]->m_wellName);
+        }
+
+        quint64 byteCount = sizeof(quint64);
+        quint64 wellCount = wellNames.size();
+
+        for (size_t wIdx = 0; wIdx < wellCount; wIdx++)
+        {
+            byteCount += wellNames[wIdx].size() * sizeof(QChar);
+        }
+
+        socketStream << byteCount;
+        socketStream << wellCount;
+
+        for (size_t wIdx = 0; wIdx < wellCount; wIdx++)
+        {
+            socketStream << wellNames[wIdx];
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetWellNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellNames>(RiaGetWellNames::commandName());
+
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaGetWellStatus : public RiaSocketCommand
+{
+public:
+    static QString commandName () { return QString("GetWellStatus"); }
+
+    virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
+    {
+        int caseId          = args[1].toInt();
+        QString wellName    = args[2];
+
+        RimCase* rimCase = server->findReservoir(caseId);
+        if (!rimCase)
+        {
+            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the case with ID : \"%1\"").arg(caseId));
+
+            return true;
+        }
+
+        // Create a list of all the requested time steps
+
+        std::vector<size_t> requestedTimesteps;
+        //First find the well result for the correct well
+
+        const cvf::Collection<RigSingleWellResultsData>& allWellRes =  rimCase->reservoirData()->wellResults();
+        cvf::ref<RigSingleWellResultsData> currentWellResult;
+        for (size_t tsIdx = 0; tsIdx < allWellRes.size(); ++tsIdx)
+        {
+            if (allWellRes[tsIdx]->m_wellName == wellName)
+            {
+                currentWellResult = allWellRes[tsIdx];
+                break;
+            }
+        }
+
+        if (currentWellResult.isNull())
+        {
+            server->errorMessageDialog()->showMessage(
+                RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("Could not find the well with name : \"%1\"").arg(wellName));
+
+            return true;
+        }
+
+
+        if (args.size() <= 3)
+        {
+            // Select all timesteps. 
+
+            for (size_t tsIdx = 0; tsIdx <  currentWellResult->m_resultTimeStepIndexToWellTimeStepIndex.size(); ++tsIdx)
+            {
+                requestedTimesteps.push_back(tsIdx);
+            }
+        }
+        else
+        {
+            bool timeStepReadError = false;
+            for (int argIdx = 3; argIdx < args.size(); ++argIdx)
+            {
+                bool conversionOk = false;
+                int tsIdx = args[argIdx].toInt(&conversionOk);
+
+                if (conversionOk)
+                {
+                    requestedTimesteps.push_back(tsIdx);
+                }
+                else
+                {
+                    timeStepReadError = true;
+                }
+            }
+
+            if (timeStepReadError)
+            {
+                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetGridProperty : \n")
+                    + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
+            }
+        }
+
+        std::vector<QString> wellTypes;
+        std::vector<qint32> wellStatuses;
+
+        for (size_t tsIdx = 0; tsIdx < requestedTimesteps.size(); ++tsIdx)
+        {
+            QString wellType = "NotDefined";
+            qint32 wellStatus = 0;
+            if (currentWellResult->hasWellResult(tsIdx))
+            {
+                switch(currentWellResult->wellResultFrame(tsIdx).m_productionType)
+                {
+                case RigWellResultFrame::PRODUCER:
+                    wellType = "Producer";
+                    break;
+                case RigWellResultFrame::OIL_INJECTOR:
+                    wellType = "OilInjector";
+                    break;
+                case RigWellResultFrame::WATER_INJECTOR:
+                    wellType = "WaterInjector";
+                    break;
+                case RigWellResultFrame::GAS_INJECTOR:
+                    wellType = "GasInjector";
+                    break;
+                }
+
+                wellStatus = currentWellResult->wellResultFrame(tsIdx).m_isOpen ? 1 : 0;
+            }
+
+            wellTypes.push_back(wellType);
+            wellStatuses.push_back(wellStatus);
+        }
+
+        quint64 byteCount = sizeof(quint64);
+        quint64 timeStepCount = wellTypes.size();
+
+        for (size_t tsIdx = 0; tsIdx < timeStepCount; tsIdx++)
+        {
+            byteCount += wellTypes[tsIdx].size() * sizeof(QChar);
+            byteCount += sizeof(qint32);
+        }
+
+        socketStream << byteCount;
+        socketStream << timeStepCount;
+
+        for (size_t tsIdx = 0; tsIdx < timeStepCount; tsIdx++)
+        {
+            socketStream << wellTypes[tsIdx];
+            socketStream << wellStatuses[tsIdx];
+        }
+
+        return true;
+    }
+};
+
+static bool RiaGetWellStatus_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>(RiaGetWellStatus::commandName());

@@ -20,6 +20,8 @@ set(CPP_SOURCES
   riGetGridProperty.cpp
   riSetGridProperty.cpp
   riGetPropertyNames.cpp
+  riGetWellNames.cpp
+  riGetWellStatus.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -129,6 +131,8 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetGridProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riSetGridProperty.oct"
 	  "${CMAKE_CURRENT_BINARY_DIR}/riGetPropertyNames.oct"
+	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
+	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
       SOURCES ${CPP_SOURCES}
   )
 

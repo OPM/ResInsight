@@ -20,31 +20,45 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
-
-#include "RimWellsEntry.h"
-
+#include "cafAppEnum.h"
 
 
-class RimOilFieldEntry : public caf::PdmObject
+
+
+class RimWellPathEntry : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilFieldEntry();
+    enum WellTypeEnum
+    {
+        WELL_SURVEY,
+        WELL_PLAN,
+        WELL_ALL
+    };
+
+
+public:
+    RimWellPathEntry();
+
+    static RimWellPathEntry* createWellPathEntry(const QString& name, const QString& surveyType, const QString& requestUrl, const QString& absolutePath, WellTypeEnum wellType);
+
 
     virtual caf::PdmFieldHandle*    userDescriptionField();
     virtual caf::PdmFieldHandle*    objectToggleField();
-
-    void parseWellsResponse(const QString& absolutePath, const QString& wsAddress);
     
-    caf::PdmField<QString>          name;
-    caf::PdmField<QString>          edmId;
-    caf::PdmField<bool>             selected;
-    caf::PdmField<QString>          wellsFilePath;  // Location of the response file from request "/wells"
+    caf::PdmField<QString>                          name;
+    caf::PdmField<bool>                             selected;
 
-    caf::PdmPointersField<RimWellPathEntry*> wells;
+    caf::PdmField< caf::AppEnum< WellTypeEnum > >   wellPathType;
+    caf::PdmField<QString>                          surveyType;
+    caf::PdmField<QString>                          requestUrl;
 
+    bool                                            isWellPathValid();
+    caf::PdmField<QString>                          wellPathFilePath;  // Location of the well path response
 
+private:
+    static QString undefinedWellPathLocation();
 };
 
 

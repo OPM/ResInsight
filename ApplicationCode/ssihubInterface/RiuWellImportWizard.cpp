@@ -41,6 +41,7 @@
 
 #include "RifJsonEncodeDecode.h"
 #include "cafPdmUiTreeView.h"
+#include "RimWellCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -63,10 +64,15 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
 
     addPage(new FieldSelectionPage(m_wellPathImport, NULL, m_pdmTreeView, this));
 
+    addPage(new WellSelectionPage(m_wellPathImport, this));
+    m_wellSummaryPageId = addPage(new WellSummaryPage(m_wellPathImport, this));
+
     m_statusLabel = new QLabel(tr("Status : idle"));
     m_statusLabel->setWordWrap(true);
 
     m_progressDialog = new QProgressDialog(this);
+
+    m_wellCollection = new RimWellCollection;
 
 
     connect(&m_networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
@@ -120,13 +126,6 @@ QString RiuWellImportWizard::jsonWellsFilePath()
     return m_destinationFolder + "/wellpaths.json";
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::downloadWellPaths()
-{
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -137,16 +136,10 @@ void RiuWellImportWizard::downloadFields()
     if (QFile::exists(wellFileName))
     {
         QFile::remove(wellFileName);
-
-//        m_wellPathsModel->clear();
-//        m_wellPathsModel->setColumnCount(2);
-
-        // clear
     }
 
     m_wellPathImport->regions.deleteAllChildObjects();
     m_wellPathImport->updateConnectedEditors();
-
 
     QString completeUrlText = m_webServiceAddress + "/resinsight/projects";
     QString destinationFileName = jsonFieldsFilePath();
@@ -178,6 +171,7 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -200,7 +194,6 @@ void RiuWellImportWizard::issueHttpRequestToFile(QString completeUrlText, QStrin
     // schedule the request
     m_httpRequestAborted = false;
     startRequest(m_url);
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,7 +259,12 @@ void RiuWellImportWizard::httpFinished()
 
     if (m_currentDownloadState == DOWNLOAD_WELL_PATH)
     {
+        
+        qDebug() << "Downloaded " << m_file->fileName();
+
+        /*
         QString singleWellPathFilePath = m_file->fileName();
+
 
         QFile file(singleWellPathFilePath);
         if (file.open(QFile::ReadOnly))
@@ -309,6 +307,7 @@ void RiuWellImportWizard::httpFinished()
                 }
             }
         }
+        */
     }
 
 
@@ -319,16 +318,9 @@ void RiuWellImportWizard::httpFinished()
     delete m_file;
     m_file = 0;
 
-    if (m_currentDownloadState == DOWNLOAD_WELLS)
+    if (m_currentDownloadState == DOWNLOAD_WELLS || m_currentDownloadState == DOWNLOAD_WELL_PATH)
     {
-        QStringList survey;
-        QStringList plans;
-
-        getWellPathLinks(&survey, &plans);
-
-        m_currentDownloadState = DOWNLOAD_UNDEFINED;
-
-        issueDownloadOfWellPaths(survey, plans);
+        checkDownloadQueueAndIssueRequests_v2();
     }
     else if (m_currentDownloadState == DOWNLOAD_FIELDS)
     {
@@ -578,6 +570,172 @@ void RiuWellImportWizard::updateFieldsModel()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::downloadWells()
+{
+    for (size_t rIdx = 0; rIdx < m_wellPathImport->regions.size(); rIdx++)
+    {
+        RimOilRegionEntry* oilRegion = m_wellPathImport->regions[rIdx];
+        if (oilRegion->selected)
+        {
+            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
+            {
+                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
+                if (oilField->selected)
+                {
+                    DownloadEntity urlToFile;
+
+                    QString wellRequest;
+                    if (m_wellPathImport->utmFilterMode == RimWellPathImport::UTM_FILTER_OFF)
+                    {
+                        wellRequest = QString("/resinsight/projects/%1/wells").arg(oilField->edmId);
+                    }
+                    else
+                    {
+                        wellRequest = QString("/resinsight/projects/%1/wellsInArea?north=%2&south=%3&east=%4&west=%5&utmZone=32N")
+                            .arg(oilField->edmId)
+                            .arg(QString::number(m_wellPathImport->north, 'g', 10))
+                            .arg(QString::number(m_wellPathImport->south, 'g', 10))
+                            .arg(QString::number(m_wellPathImport->east, 'g', 10))
+                            .arg(QString::number(m_wellPathImport->west, 'g', 10));
+                    }
+
+                    urlToFile.requestUrl = m_webServiceAddress + wellRequest;
+                    urlToFile.responseFilename = m_destinationFolder + QString("/wells_%1.json").arg(oilField->edmId);
+
+                    oilField->wellsFilePath = urlToFile.responseFilename;
+
+                    m_wellRequestQueue.push_back(urlToFile);
+                }
+            }
+        }
+    }
+
+    m_currentDownloadState = DOWNLOAD_WELLS;
+    checkDownloadQueueAndIssueRequests_v2();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::downloadWellPaths()
+{
+    for (size_t rIdx = 0; rIdx < m_wellPathImport->regions.size(); rIdx++)
+    {
+        RimOilRegionEntry* oilRegion = m_wellPathImport->regions[rIdx];
+        if (oilRegion->selected)
+        {
+            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
+            {
+                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
+                if (oilField->selected)
+                {
+                    for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
+                    {
+                        RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
+                        
+                        if (!wellPathEntry->isWellPathValid())
+                            continue;
+                        
+                        DownloadEntity urlToFile;
+
+                        urlToFile.requestUrl = wellPathEntry->requestUrl;
+                        urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
+
+                        m_wellRequestQueue.push_back(urlToFile);
+                    }
+                }
+            }
+        }
+    }
+
+    m_currentDownloadState = DOWNLOAD_WELL_PATH;
+
+    checkDownloadQueueAndIssueRequests_v2();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::checkDownloadQueueAndIssueRequests_v2()
+{
+    if (m_wellRequestQueue.size() > 0)
+    {
+        DownloadEntity firstItem = m_wellRequestQueue[0];
+        m_wellRequestQueue.pop_front();
+
+        QString completeUrlText = firstItem.requestUrl;
+        QString absoluteFilePath = firstItem.responseFilename;
+
+        issueHttpRequestToFile(completeUrlText, absoluteFilePath);
+
+        return;
+    }
+
+
+    if (m_currentDownloadState == DOWNLOAD_WELLS)
+    {
+        m_wellCollection->wells.clear();
+
+        // Update UI with downloaded wells
+
+        for (size_t rIdx = 0; rIdx < m_wellPathImport->regions.size(); rIdx++)
+        {
+            RimOilRegionEntry* oilRegion = m_wellPathImport->regions[rIdx];
+            if (oilRegion->selected)
+            {
+                for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
+                {
+                    RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
+                    if (oilField->selected)
+                    {
+                        oilField->parseWellsResponse(m_destinationFolder, m_webServiceAddress);
+
+                        for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
+                        {
+                            m_wellCollection->wells.push_back(oilField->wells[wIdx]);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        m_wellCollection->updateConnectedEditors();
+    }
+    else if (m_currentDownloadState == DOWNLOAD_WELL_PATH)
+    {
+        WellSummaryPage* wellSummaryPage = dynamic_cast<WellSummaryPage*>(page(m_wellSummaryPageId));
+        if (wellSummaryPage)
+        {
+            wellSummaryPage->updateSummaryPage();
+        }
+    }
+
+    m_currentDownloadState = DOWNLOAD_UNDEFINED;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RiuWellImportWizard::~RiuWellImportWizard()
+{
+    delete m_wellCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellCollection* RiuWellImportWizard::wellCollection()
+{
+    return m_wellCollection;
+}
+
+
 
 
 
@@ -660,102 +818,87 @@ void FieldSelectionPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWizardPage* createFieldSelectionPage(RimWellPathImport* wellPathImport)
+WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent /*= 0*/)
 {
-    QWizardPage* page = new QWizardPage;
-    page->setTitle("Field Selection");
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void WellSelectionPage::initializePage()
+{
+    RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>(wizard());
+    wiz->downloadWells();
 
     QVBoxLayout* layout = new QVBoxLayout;
-    page->setLayout(layout);
+    setLayout(layout);
 
-    QLabel* label = new QLabel("Select fields");
+    QLabel* label = new QLabel("Select wells");
     layout->addWidget(label);
 
-    // Tree view
-    caf::PdmUiTreeItem* treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, wellPathImport);
-    caf::UiTreeModelPdm* treeModelPdm = new caf::UiTreeModelPdm(page);
-    treeModelPdm->setTreeItemRoot(treeItemRoot);
+    m_wellSelectionTreeView = new caf::PdmUiTreeView(this);
+    m_wellSelectionTreeView->showTree(wiz->wellCollection());
 
-    QTreeView* treeView = new QTreeView(page);
-    treeView->setModel(treeModelPdm);
-    layout->addWidget(treeView);
+    layout->addWidget(m_wellSelectionTreeView);
 
-    // Property view
-    caf::PdmUiPropertyView* propertyView = new caf::PdmUiPropertyView(page);
-    layout->addWidget(propertyView);
-
-    propertyView->showProperties(wellPathImport);
-
-    return page;
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QWizardPage* createLoginPage(const QString& webServiceAddress)
+WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* parent /*= 0*/)
 {
-    QWizardPage* page = new QWizardPage;
-    page->setTitle("SSIHUB - Login");
+    m_wellPathImportObject = wellPathImport;
 
     QVBoxLayout* layout = new QVBoxLayout;
+    setLayout(layout);
 
-    QLabel* label = new QLabel("Please enter your login information for SSIHUB at : " + webServiceAddress);
-    layout->addWidget(label);
+    m_textEdit = new QTextEdit(this);
 
-    QFormLayout* formLayout = new QFormLayout;
-    layout->addLayout(formLayout);
-
-    QLineEdit* usernameLineEdit = new QLineEdit(page);
-    QLineEdit* passwordlLineEdit = new QLineEdit(page);
-    passwordlLineEdit->setEchoMode(QLineEdit::Password);
-
-    formLayout->addRow("&Username:", usernameLineEdit);
-    formLayout->addRow("&Password:", passwordlLineEdit);
-
-    page->setLayout(layout);
-
-
-    return page;
-}
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QWizardPage* createWellPathSelectionPage()
-{
-    QWizardPage* page = new QWizardPage;
-
-    return page;
+    layout->addWidget(m_textEdit);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RuiWellImportWizard::showImportWizard(const QString& webServiceAddress, const QString& jsonDestinationFolder)
+void WellSummaryPage::initializePage()
 {
-    return;
+    RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>(wizard());
+    wiz->downloadWellPaths();
+}
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void WellSummaryPage::updateSummaryPage()
+{
+    m_textEdit->setText("Summary of imported wells\n\n");
 
-    ssihub::FetchWellPathsDialog fetchWellPaths;
-    fetchWellPaths.setSsiHubUrl(webServiceAddress);
-    fetchWellPaths.setDestinationFolder(jsonDestinationFolder);
-    //fetchWellPaths.setRegion(m_north, m_south, m_east, m_west);
+    for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
+    {
+        RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
+        if (oilRegion->selected)
+        {
+            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
+            {
+                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
+                if (oilField->selected)
+                {
+                    QString oilFieldText = QString("\nRegion : %1  -  Field : %2").arg(oilRegion->name).arg(oilField->name);
+                    m_textEdit->append(oilFieldText);
 
-    QStringList regions, fields, edmIds;
-    fetchWellPaths.requestFieldData(regions, fields, edmIds);
+                    for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
+                    {
+                        RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
+                        QString wellStatus = QString("%1 %2").arg(oilField->wells[wIdx]->name).arg(oilField->wells[wIdx]->wellPathFilePath);
 
-
-    RimWellPathImport* wellPathImport = new RimWellPathImport;
-    wellPathImport->updateRegions(regions, fields, edmIds);
-
-
-    QWizard wizard;
-    wizard.addPage(createFieldSelectionPage(wellPathImport));
-    wizard.addPage(createWellPathSelectionPage());
-
-    wizard.setField("username", "dymmy");
-    wizard.setField("password", "dymmy");
-
-    wizard.setWindowTitle("ssihub Well Path Import Wizard");
-    wizard.exec();
+                        m_textEdit->append(wellStatus);
+                    }
+                }
+            }
+        }
+    }
 }
 

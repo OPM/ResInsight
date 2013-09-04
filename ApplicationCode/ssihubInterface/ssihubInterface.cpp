@@ -70,6 +70,7 @@ void Interface::setRegion(int north, int south, int east, int west)
 //--------------------------------------------------------------------------------------------------
 QStringList Interface::jsonWellPaths()
 {
+    /*
     RuiWellImportWizard::showImportWizard(m_webServiceAddress, m_jsonDestinationFolder);
 
     FetchWellPathsDialog fetchWellPaths;
@@ -84,6 +85,9 @@ QStringList Interface::jsonWellPaths()
     }
     
     return importedWellPathFiles;
+    */
+
+    return QStringList();
 }
 
 }; // namespace ssihub

@@ -44,6 +44,7 @@
 #include "ssihubInterface.h"
 #include "TestTools.h"
 #include "RiuWellImportWizard.h"
+#include "RimWellPathImport.h"
 
 
 
@@ -76,6 +77,10 @@ int main(int argc, char *argv[])
 //     QStringList jsonWellPaths();
 
     RimWellPathImport* wellPathImportObject = TestTools::createMockObject();
+    wellPathImportObject->north = north;
+    wellPathImportObject->south = south;
+    wellPathImportObject->east = east;
+    wellPathImportObject->west = west;
 
     RiuWellImportWizard wizard(wsAddress, destinationFolder, wellPathImportObject);
 

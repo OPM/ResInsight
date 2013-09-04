@@ -29,6 +29,7 @@ namespace caf {
         setDefault(RimWellPathImport::UTM_FILTER_PROJECT);
     }
 
+    /*
     template<>
     void caf::AppEnum< RimWellPathImport::WellTypeEnum >::setUp()
     {
@@ -37,6 +38,7 @@ namespace caf {
         addItem(RimWellPathImport::WELL_PLAN,    "WELL_PLAN",    "Plan");
         setDefault(RimWellPathImport::WELL_ALL);
     }
+    */
 
 } // End namespace caf
 
@@ -52,8 +54,9 @@ RimWellPathImport::RimWellPathImport()
 {
     CAF_PDM_InitObject("RimWellPathImport", "", "", "");
 
-    caf::AppEnum<RimWellPathImport::WellTypeEnum> defaultWellMode = WELL_ALL;
-    CAF_PDM_InitField(&wellMode, "WellMode", defaultWellMode, "Well types",   "", "", "");
+    CAF_PDM_InitField(&wellTypeSurvey,       "WellTypeSurvey",         true,   "Survey", "", "", "");
+    CAF_PDM_InitField(&wellTypePlans,        "WellTypePlans",          true,   "Plans", "", "", "");
+    CAF_PDM_InitField(&wellTypeAll,          "WellTypeAll",            true,   "All", "", "", "");
  
     caf::AppEnum<RimWellPathImport::UtmFilterEnum> defaultUtmMode = UTM_FILTER_OFF;
     CAF_PDM_InitField(&utmFilterMode, "UtmMode", defaultUtmMode, "Utm filter",   "", "", "");

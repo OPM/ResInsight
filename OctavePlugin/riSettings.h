@@ -34,6 +34,10 @@ namespace riOctavePlugin
     char propertyInfo_PropName[]    = "PropName";
     char propertyInfo_PropType[]    = "PropType";
 
+    // Octave data structure:  WellStatus 
+    char wellStatus_WellType[]     = "WellType";
+    char wellStatus_WellStatus[]    = "WellStatus";
+
     // Octave data structure : CaseGroupInfo
     char caseGroupInfo_CaseGroupId[]      = "CaseGroupId";
     char caseGroupInfo_CaseGroupName[]    = "CaseName";

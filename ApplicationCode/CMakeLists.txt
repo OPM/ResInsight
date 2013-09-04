@@ -54,6 +54,7 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaCaseInfoCommands.cpp
     SocketInterface/RiaGeometryCommands.cpp
     SocketInterface/RiaPropertyDataCommands.cpp
+	SocketInterface/RiaWellDataCommands.cpp
     SocketInterface/RiaSocketTools.cpp
 )
 

@@ -27,9 +27,11 @@
 class QFile;
 class QProgressDialog;
 class QLabel;
+class QTextEdit;
 
 
 class RimWellPathImport;
+class RimWellCollection;
 
 
 namespace caf
@@ -63,6 +65,43 @@ private:
 };
 
 
+class WellSelectionPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
+
+    virtual void initializePage();
+
+private:
+    caf::PdmUiTreeView* m_wellSelectionTreeView;
+
+};
+
+class WellSummaryPage : public QWizardPage
+{
+    Q_OBJECT
+
+public:
+    WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
+
+    virtual void initializePage();
+
+    void updateSummaryPage();
+
+private:
+    RimWellPathImport*  m_wellPathImportObject;
+    QTextEdit*          m_textEdit;
+};
+
+
+class DownloadEntity
+{
+public:
+    QString requestUrl;
+    QString responseFilename;
+};
 
 class RiuWellImportWizard : public QWizard
 {
@@ -73,10 +112,13 @@ public:
 
 public:
     RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = 0);
+    ~RiuWellImportWizard();
 
     void setWebServiceAddress(const QString& wsAdress);
     void setJsonDestinationFolder(const QString& folder);
     void setWellPathImportObject(RimWellPathImport* wellPathImportObject);
+
+    RimWellCollection* wellCollection();
 
 private:
     void        startRequest(QUrl url);
@@ -97,8 +139,11 @@ private:
 
 public slots:
     void        downloadWellPaths();
+    void        downloadWells();
     void        downloadFields();
     void        checkDownloadQueueAndIssueRequests();
+    
+    void        checkDownloadQueueAndIssueRequests_v2();
 
     void        issueHttpRequestToFile( QString completeUrlText, QString destinationFileName );
     void        cancelDownload();
@@ -122,8 +167,9 @@ private:
     QString m_destinationFolder;
 
     RimWellPathImport* m_wellPathImport;
-//    caf::UiTreeModelPdm* m_treeModelPdm;
     caf::PdmUiTreeView* m_pdmTreeView;
+
+    RimWellCollection* m_wellCollection;
 
     QProgressDialog*    m_progressDialog;
 
@@ -134,7 +180,8 @@ private:
     bool                    m_httpRequestAborted;
 
 
-    QStringList         m_wellPathRequestQueue;
+    QStringList             m_wellPathRequestQueue;
+    QList<DownloadEntity>   m_wellRequestQueue;
 
     DownloadState       m_currentDownloadState;
 
@@ -142,6 +189,8 @@ private:
     // To be deleted
     QLabel*             m_statusLabel;
 
+    int                 m_wellSummaryPageId;
+
 };
 
 
@@ -152,8 +201,3 @@ private:
 
 
 
-class RuiWellImportWizard
-{
-public:
-    static void showImportWizard(const QString& webServiceAddress, const QString& jsonDestinationFolder);
-};

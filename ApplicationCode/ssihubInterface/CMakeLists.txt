@@ -43,6 +43,10 @@ add_library( ${PROJECT_NAME}
     RimOilRegionEntry.cpp
     RimOilFieldEntry.h
     RimOilFieldEntry.cpp
+    RimWellsEntry.h
+    RimWellsEntry.cpp
+    RimWellCollection.h
+    RimWellCollection.cpp
     RiuWellImportWizard.h
     RiuWellImportWizard.cpp
 
