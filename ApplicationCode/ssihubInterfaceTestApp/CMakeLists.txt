@@ -15,6 +15,8 @@ add_subdirectory(../ssihubInterface "${CMAKE_CURRENT_BINARY_DIR}/ssihubInterface
 add_subdirectory(../../cafProjectDataModel "${CMAKE_CURRENT_BINARY_DIR}/cafProjectDataModel")
 add_subdirectory(../../cafUserInterface "${CMAKE_CURRENT_BINARY_DIR}/cafUserInterface")
 
+add_subdirectory(../../cafTests/cafTestApplication "${CMAKE_CURRENT_BINARY_DIR}/cafTestApplication")
+
 include_directories(
     ${ssihubInterface_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/../../cafProjectDataModel 
