@@ -41,9 +41,7 @@ public:
     ~PdmUiTreeView();
 
     void setUiConfigurationName(QString uiConfigName);
-    caf::PdmObject* currentObject();
-public slots:
-    void showTree(caf::PdmObject* object);
+    void setPdmObject(caf::PdmObject* object);
 
 private:
     PdmUiTreeViewEditor*    m_treeViewEditor; 
