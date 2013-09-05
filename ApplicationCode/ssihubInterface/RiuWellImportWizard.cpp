@@ -49,11 +49,9 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
     m_webServiceAddress = webServiceAddress;
 
 
-    m_pdmTreeView = new caf::PdmUiTreeView(this);
-    m_pdmTreeView->setPdmObject(wellPathImportObject);
 
-    addPage(new IntroPage(webServiceAddress, this));
-    addPage(new FieldSelectionPage(m_wellPathImport, m_pdmTreeView, this));
+    addPage(new AuthenticationPage(webServiceAddress, this));
+    addPage(new FieldSelectionPage(m_wellPathImport, this));
     addPage(new WellSelectionPage(m_wellPathImport, this));
     m_wellSummaryPageId = addPage(new WellSummaryPage(m_wellPathImport, this));
 
@@ -64,6 +62,8 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
     m_progressDialog = new QProgressDialog(this);
 
     m_wellCollection = new RimWellCollection;
+
+    m_firstTimeRequestingAuthentication = true;
 
 
     connect(&m_networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
@@ -226,6 +226,7 @@ void RiuWellImportWizard::httpFinished()
     m_file->close();
 
 
+
     QVariant redirectionTarget = m_reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (m_reply->error()) {
         m_file->remove();
@@ -336,8 +337,17 @@ void RiuWellImportWizard::httpReadyRead()
     // signal of the QNetworkReply
     if (m_file)
         m_file->write(m_reply->readAll());
-
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::httpError(QNetworkReply::NetworkError code)
+{
+//    QMessageBox::information(this, tr("HTTP Error"), tr("Download failed: %1.").arg(m_reply->errorString()));
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -361,32 +371,26 @@ void RiuWellImportWizard::refreshButtonStatus()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// This slot will be called for the first network reply that will need authentication.
+/// If the authentication is successful, the username/password is cached in the QNetworkAccessManager
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::slotAuthenticationRequired(QNetworkReply* networkReply, QAuthenticator* authenticator)
 {
-    /*
-     QDialog dlg;
-     Ui::Dialog ui;
-     ui.setupUi(&dlg);
-     dlg.adjustSize();
-     ui.siteDescription->setText(tr("%1 at %2").arg(authenticator->realm()).arg(m_url.host()));
+    if (m_firstTimeRequestingAuthentication)
+    {
+        // Use credentials from first wizard page
+        authenticator->setUser(field("username").toString());
+        authenticator->setPassword(field("password").toString());
 
-    // Did the URL have information? Fill the UI
-    // This is only relevant if the URL-supplied credentials were wrong
-    ui.userEdit->setText(m_url.userName());
-    ui.passwordEdit->setText(m_url.password());
-    ui.passwordEdit->setEchoMode(QLineEdit::Password);
-
-    if (dlg.exec() == QDialog::Accepted) {
-        authenticator->setUser(ui.userEdit->text());
-        authenticator->setPassword(ui.passwordEdit->text());
+        m_firstTimeRequestingAuthentication = false;
     }
+    else
+    {
+        QMessageBox::information(this, "Authentication failed", "Failed to authenticate credentials. You will now be directed back to the first wizard page.");
+        m_firstTimeRequestingAuthentication = true;
 
-    */
-
-    authenticator->setUser(field("username").toString());
-    authenticator->setPassword(field("password").toString());
+        restart();
+    }
 }
 
 #ifndef QT_NO_OPENSSL
@@ -439,6 +443,8 @@ void RiuWellImportWizard::startRequest(QUrl url)
         this, SLOT(httpFinished()));
     connect(m_reply, SIGNAL(readyRead()),
         this, SLOT(httpReadyRead()));
+    connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
+        this, SLOT(httpError(QNetworkReply::NetworkError)));
     connect(m_reply, SIGNAL(downloadProgress(qint64,qint64)),
         this, SLOT(updateDataReadProgress(qint64,qint64)));
 
@@ -725,6 +731,14 @@ RimWellCollection* RiuWellImportWizard::wellCollection()
     return m_wellCollection;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::resetAuthenticationCount()
+{
+    m_firstTimeRequestingAuthentication = true;
+}
+
 
 
 
@@ -738,7 +752,7 @@ RimWellCollection* RiuWellImportWizard::wellCollection()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-IntroPage::IntroPage(const QString& webServiceAddress, QWidget *parent /*= 0*/) : QWizardPage(parent)
+AuthenticationPage::AuthenticationPage(const QString& webServiceAddress, QWidget *parent /*= 0*/) : QWizardPage(parent)
 {
     setTitle("SSIHUB - Login");
 
@@ -768,7 +782,18 @@ IntroPage::IntroPage(const QString& webServiceAddress, QWidget *parent /*= 0*/) 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, caf::PdmUiTreeView* pdmUiTreeView, QWidget *parent /*= 0*/)
+void AuthenticationPage::initializePage()
+{
+    RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>(wizard());
+    wiz->resetAuthenticationCount();
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, QWidget *parent /*= 0*/)
 {
     setTitle("Field Selection");
 
@@ -777,18 +802,20 @@ FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, caf::P
 
     QLabel* label = new QLabel("Select fields");
     layout->addWidget(label);
-    //layout->addStretch(10);
 
-    layout->addWidget(pdmUiTreeView);
 
-    //pdmUiTreeView->setMinimumHeight(500);
+    // Tree view
+    caf::PdmUiTreeView* treeView = new caf::PdmUiTreeView(this);
+    treeView->setPdmObject(wellPathImport);
+    layout->addWidget(treeView);
+    layout->setStretchFactor(treeView, 10);
+
  
     // Property view
     caf::PdmUiPropertyView* propertyView = new caf::PdmUiPropertyView(this);
     layout->addWidget(propertyView);
     propertyView->showProperties(wellPathImport);
 
-    layout->setStretchFactor(pdmUiTreeView, 10);
 
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 }

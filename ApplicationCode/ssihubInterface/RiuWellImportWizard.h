@@ -23,6 +23,7 @@
 #include <QNetworkAccessManager>
 #include <QUrl>
 #include <QItemSelection>
+#include <QNetworkReply>
 
 class QFile;
 class QProgressDialog;
@@ -43,13 +44,14 @@ namespace caf
 }
 
 
-class IntroPage : public QWizardPage
+class AuthenticationPage : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    IntroPage(const QString& webServiceAddress, QWidget *parent = 0);
+    AuthenticationPage(const QString& webServiceAddress, QWidget *parent = 0);
 
+    virtual void initializePage();
 };
 
 
@@ -58,7 +60,7 @@ class FieldSelectionPage : public QWizardPage
     Q_OBJECT
 
 public:
-    FieldSelectionPage(RimWellPathImport* wellPathImport, caf::PdmUiTreeView* pdmUiTreeView, QWidget* parent = 0);
+    FieldSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
 
     virtual void initializePage();
 };
@@ -119,7 +121,10 @@ public:
     void setJsonDestinationFolder(const QString& folder);
     void setWellPathImportObject(RimWellPathImport* wellPathImportObject);
 
+
+    // Methods used from the wizard pages
     RimWellCollection* wellCollection();
+    void        resetAuthenticationCount();
 
 private:
     void        startRequest(QUrl url);
@@ -148,9 +153,11 @@ public slots:
 
     void        issueHttpRequestToFile( QString completeUrlText, QString destinationFileName );
     void        cancelDownload();
-    void        httpFinished();
 
+    void        httpFinished();
     void        httpReadyRead();
+    void        httpError(QNetworkReply::NetworkError code);
+
     void        updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
     void        refreshButtonStatus();
     void        slotAuthenticationRequired(QNetworkReply* networkReply, QAuthenticator* authenticator);
@@ -160,7 +167,6 @@ public slots:
 
 #ifndef QT_NO_OPENSSL
     void sslErrors(QNetworkReply*,const QList<QSslError> &errors);
-
 #endif
 
 private:
@@ -179,6 +185,8 @@ private:
     QNetworkReply*          m_reply;
     QFile*                  m_file;
     bool                    m_httpRequestAborted;
+
+    bool                    m_firstTimeRequestingAuthentication;
 
 
     QStringList             m_wellPathRequestQueue;
