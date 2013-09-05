@@ -60,7 +60,7 @@ PdmUiTreeViewEditor::~PdmUiTreeViewEditor()
 QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
 {
     m_mainWidget = new QWidget(parent);
-    m_layout     = new QGridLayout();
+    m_layout     = new QVBoxLayout();
     m_layout->setContentsMargins(0, 0, 0, 0);
     m_mainWidget->setLayout(m_layout);
 

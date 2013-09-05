@@ -25,6 +25,7 @@
 #include <QPointer>
 
 class QGridLayout;
+class QVBoxLayout;
 class QTreeView;
 
 namespace caf 
@@ -52,7 +53,7 @@ private:
 
 private:
     QPointer<QWidget>   m_mainWidget;
-    QGridLayout*        m_layout;
+    QVBoxLayout*        m_layout;
 
     QTreeView*          m_treeView;
     UiTreeModelPdm*     m_treeModelPdm;

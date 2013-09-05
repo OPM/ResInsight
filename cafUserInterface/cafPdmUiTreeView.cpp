@@ -121,6 +121,9 @@ void PdmUiTreeView::showTree(caf::PdmObject* object)
         assert(widget);
 
         this->m_layout->insertWidget(0, widget);
+
+        this->m_layout->setStretchFactor(widget, 10);
+
     }
 
     m_treeViewEditor->setPdmObject(object);
