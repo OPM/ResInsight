@@ -188,10 +188,13 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
             size_t gridIndex = wrsf.m_wellHead.m_gridIndex; 
             size_t gridCellIndex = wrsf.m_wellHead.m_gridCellIndex;
 
-            cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
-            if ((*cellVisibility)[gridCellIndex]) 
+            if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
             {
-                return true;
+                cvf::cref<cvf::UByteArray> cellVisibility = rvMan->cellVisibility(visGridParts[gpIdx], gridIndex, frameIndex);
+                if ((*cellVisibility)[gridCellIndex]) 
+                {
+                    return true;
+                }
             }
 
             // Then check the rest of the well, with all the branches

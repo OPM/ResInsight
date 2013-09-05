@@ -33,10 +33,12 @@ RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     if (mainGrid == NULL)
     {
         m_gridIndex = 0;
+        m_gridId    = 0;
     }
     else
     {
         m_gridIndex = cvf::UNDEFINED_SIZE_T;
+        m_gridId = cvf::UNDEFINED_INT;
     }
 }
 

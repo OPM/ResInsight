@@ -44,7 +44,8 @@ public:
     size_t                                  gridCount() const           { return m_localGrids.size() + 1; }
     RigGridBase*                            gridByIndex(size_t localGridIndex);
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
-    
+    RigGridBase*                            gridById(int localGridId);
+   
     void                                    computeCachedData();
 
     // Overrides
@@ -62,6 +63,7 @@ private:
     std::vector<cvf::Vec3d>                 m_nodes;        ///< Global vertex table
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
+    std::vector<size_t>                     m_gridIdToIndexMapping; ///< Mapping from LGR Id to index.
 
     cvf::Vec3d                              m_displayModelOffset;
 
