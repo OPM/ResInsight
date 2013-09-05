@@ -22,25 +22,18 @@
 #include <QtGui>
 #include <QtNetwork>
 
-
-/*
-#include <QWizard>
-#include <QVBoxLayout>
-#include <QTreeView>
-#include <QLabel>
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QFile>
-#include <QUuid>
-*/
-
 #include "cafPdmUiPropertyView.h"
-#include "RimWellPathImport.h"
-#include "cafUiTreeModelPdm.h"
-#include "ssihubDialog.h"
-
-#include "RifJsonEncodeDecode.h"
 #include "cafPdmUiTreeView.h"
+#include "cafPdmDocument.h"
+#include "cafPdmUiListViewEditor.h"
+#include "cafPdmUiListView.h"
+#include "cafUiTreeModelPdm.h"
+
+#include "RimWellPathImport.h"
+
+#include "ssihubDialog.h"
+#include "RifJsonEncodeDecode.h"
+
 #include "RimWellCollection.h"
 
 
@@ -55,17 +48,15 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
     m_destinationFolder = downloadFolder;
     m_webServiceAddress = webServiceAddress;
 
-//    m_treeModelPdm = new caf::UiTreeModelPdm(this);
-
-    addPage(new IntroPage(webServiceAddress, this));
 
     m_pdmTreeView = new caf::PdmUiTreeView(this);
-    m_pdmTreeView->showTree(wellPathImportObject);
+    m_pdmTreeView->setPdmObject(wellPathImportObject);
 
-    addPage(new FieldSelectionPage(m_wellPathImport, NULL, m_pdmTreeView, this));
-
+    addPage(new IntroPage(webServiceAddress, this));
+    addPage(new FieldSelectionPage(m_wellPathImport, m_pdmTreeView, this));
     addPage(new WellSelectionPage(m_wellPathImport, this));
     m_wellSummaryPageId = addPage(new WellSummaryPage(m_wellPathImport, this));
+
 
     m_statusLabel = new QLabel(tr("Status : idle"));
     m_statusLabel->setWordWrap(true);
@@ -704,7 +695,6 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests_v2()
             }
         }
 
-
         m_wellCollection->updateConnectedEditors();
     }
     else if (m_currentDownloadState == DOWNLOAD_WELL_PATH)
@@ -778,7 +768,7 @@ IntroPage::IntroPage(const QString& webServiceAddress, QWidget *parent /*= 0*/) 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, caf::UiTreeModelPdm* treeModelPdm, caf::PdmUiTreeView* pdmUiTreeView, QWidget *parent /*= 0*/)
+FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, caf::PdmUiTreeView* pdmUiTreeView, QWidget *parent /*= 0*/)
 {
     setTitle("Field Selection");
 
@@ -787,13 +777,20 @@ FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, caf::U
 
     QLabel* label = new QLabel("Select fields");
     layout->addWidget(label);
+    //layout->addStretch(10);
 
     layout->addWidget(pdmUiTreeView);
 
+    //pdmUiTreeView->setMinimumHeight(500);
+ 
     // Property view
     caf::PdmUiPropertyView* propertyView = new caf::PdmUiPropertyView(this);
     layout->addWidget(propertyView);
     propertyView->showProperties(wellPathImport);
+
+    layout->setStretchFactor(pdmUiTreeView, 10);
+
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -820,6 +817,14 @@ void FieldSelectionPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent /*= 0*/)
 {
+    QVBoxLayout* layout = new QVBoxLayout;
+    setLayout(layout);
+
+    QLabel* label = new QLabel("Select wells");
+    layout->addWidget(label);
+
+    m_wellSelectionTreeView = new caf::PdmUiTreeView(this);
+    layout->addWidget(m_wellSelectionTreeView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -828,19 +833,11 @@ WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget*
 void WellSelectionPage::initializePage()
 {
     RiuWellImportWizard* wiz = dynamic_cast<RiuWellImportWizard*>(wizard());
+    if (!wiz) return;
+
     wiz->downloadWells();
 
-    QVBoxLayout* layout = new QVBoxLayout;
-    setLayout(layout);
-
-    QLabel* label = new QLabel("Select wells");
-    layout->addWidget(label);
-
-    m_wellSelectionTreeView = new caf::PdmUiTreeView(this);
-    m_wellSelectionTreeView->showTree(wiz->wellCollection());
-
-    layout->addWidget(m_wellSelectionTreeView);
-
+    m_wellSelectionTreeView->setPdmObject(wiz->wellCollection());
 }
 
 
@@ -856,8 +853,12 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     setLayout(layout);
 
     m_textEdit = new QTextEdit(this);
-
     layout->addWidget(m_textEdit);
+
+    m_listView = new caf::PdmUiListView(this);
+    layout->addWidget(m_listView);
+
+    m_objectGroup = new caf::PdmObjectGroup;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -874,6 +875,8 @@ void WellSummaryPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 void WellSummaryPage::updateSummaryPage()
 {
+    m_objectGroup->objects.clear();
+
     m_textEdit->setText("Summary of imported wells\n\n");
 
     for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
@@ -895,10 +898,15 @@ void WellSummaryPage::updateSummaryPage()
                         QString wellStatus = QString("%1 %2").arg(oilField->wells[wIdx]->name).arg(oilField->wells[wIdx]->wellPathFilePath);
 
                         m_textEdit->append(wellStatus);
+
+                        m_objectGroup->objects.push_back(wellPathEntry);
                     }
                 }
             }
         }
     }
+
+    m_listView->setPdmObject(m_objectGroup);
+    m_objectGroup->updateConnectedEditors();
 }
 

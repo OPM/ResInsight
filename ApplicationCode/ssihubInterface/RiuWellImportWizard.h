@@ -38,6 +38,8 @@ namespace caf
 {
     class UiTreeModelPdm;
     class PdmUiTreeView;
+    class PdmUiListView;
+    class PdmObjectGroup;
 }
 
 
@@ -56,12 +58,9 @@ class FieldSelectionPage : public QWizardPage
     Q_OBJECT
 
 public:
-    FieldSelectionPage(RimWellPathImport* wellPathImport, caf::UiTreeModelPdm* treeModelPdm, caf::PdmUiTreeView* pdmUiTreeView, QWidget* parent = 0);
+    FieldSelectionPage(RimWellPathImport* wellPathImport, caf::PdmUiTreeView* pdmUiTreeView, QWidget* parent = 0);
 
     virtual void initializePage();
-
-private:
-    //RimWellPathImport* m_wellPathImportObject;
 };
 
 
@@ -93,6 +92,8 @@ public:
 private:
     RimWellPathImport*  m_wellPathImportObject;
     QTextEdit*          m_textEdit;
+    caf::PdmUiListView* m_listView;
+    caf::PdmObjectGroup*m_objectGroup;
 };
 
 
