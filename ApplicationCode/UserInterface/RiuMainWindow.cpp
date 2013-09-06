@@ -59,8 +59,6 @@
 #include "RimCellRangeFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 
-#include "ssihubInterface/ssihubInterface.h"
-
 
 
 //==================================================================================================
@@ -99,8 +97,6 @@ RiuMainWindow::RiuMainWindow()
 
 
     m_treeModelPdm = new RimUiTreeModelPdm(this);
-
-    m_ssihubInterface = new ssihub::Interface;
 
     createActions();
     createMenus();
@@ -1601,6 +1597,7 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotImportWellPathsFromSSIHub()
 {
+    /*
     CVF_ASSERT(m_ssihubInterface);
 
     RiaApplication* app = RiaApplication::instance();
@@ -1649,6 +1646,8 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
         app->addWellPathsToModel(wellPaths);
         if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
     }
+
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
