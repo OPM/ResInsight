@@ -31,7 +31,6 @@
 
 #include "RimWellPathImport.h"
 
-#include "ssihubDialog.h"
 #include "RifJsonEncodeDecode.h"
 
 
@@ -47,21 +46,15 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
     m_webServiceAddress = webServiceAddress;
 
 
+    m_progressDialog = new QProgressDialog(this);
+    m_wellCollection = new caf::PdmObjectGroup;
+    m_firstTimeRequestingAuthentication = true;
+
 
     addPage(new AuthenticationPage(webServiceAddress, this));
     addPage(new FieldSelectionPage(m_wellPathImportObject, this));
     addPage(new WellSelectionPage(m_wellPathImportObject, this));
     m_wellSummaryPageId = addPage(new WellSummaryPage(m_wellPathImportObject, this));
-
-
-    m_statusLabel = new QLabel(tr("Status : idle"));
-    m_statusLabel->setWordWrap(true);
-
-    m_progressDialog = new QProgressDialog(this);
-
-    m_wellCollection = new caf::PdmObjectGroup;
-
-    m_firstTimeRequestingAuthentication = true;
 
 
     connect(&m_networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply*,QAuthenticator*)),
@@ -115,7 +108,6 @@ QString RiuWellImportWizard::jsonWellsFilePath()
     return m_destinationFolder + "/wellpaths.json";
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -137,27 +129,6 @@ void RiuWellImportWizard::downloadFields()
     issueHttpRequestToFile(completeUrlText, destinationFileName);
 
     return;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
-{
-    if (m_wellPathRequestQueue.size() > 0)
-    {
-        QString link = m_wellPathRequestQueue[0];
-        m_wellPathRequestQueue.pop_front();
-
-        QString completeUrlText = m_webServiceAddress + link;
-
-        QUuid guid = QUuid::createUuid();
-        QString singleWellPathFilePath = m_destinationFolder + QString("/wellpath_%1.json").arg(guid);
-
-        m_currentDownloadState = DOWNLOAD_WELL_PATH;
-        issueHttpRequestToFile(completeUrlText, singleWellPathFilePath);
-    }
-
 }
 
 
@@ -193,9 +164,6 @@ void RiuWellImportWizard::cancelDownload()
     //m_statusLabel->setText(tr("Download canceled."));
     m_httpRequestAborted = true;
     m_reply->abort();
-
-    refreshButtonStatus();
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,15 +183,8 @@ void RiuWellImportWizard::httpFinished()
         return;
     }
 
-    if (m_wellPathRequestQueue.size() == 0)
-    {
-        m_progressDialog->hide();
-    }
-
     m_file->flush();
     m_file->close();
-
-
 
     QVariant redirectionTarget = m_reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
     if (m_reply->error()) {
@@ -244,17 +205,12 @@ void RiuWellImportWizard::httpFinished()
                 return;
         }
     } else {
-        m_statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
+        //m_statusLabel->setText(tr("Downloaded data to %1.").arg(m_destinationFolder));
     }
 
     if (m_currentDownloadState == DOWNLOAD_WELL_PATH)
     {
-        
-        qDebug() << "Downloaded " << m_file->fileName();
-
-        /*
         QString singleWellPathFilePath = m_file->fileName();
-
 
         QFile file(singleWellPathFilePath);
         if (file.open(QFile::ReadOnly))
@@ -276,16 +232,6 @@ void RiuWellImportWizard::httpFinished()
             QString wellPathName = getValue("name", singleWellPathContent);
             if (!singleWellPathContent.isEmpty() && !wellPathName.isEmpty())
             {
-//                 int currentRowCount = m_wellPathsModel->rowCount();
-//                 m_wellPathsModel->setRowCount(m_wellPathsModel->rowCount() + 1);
-// 
-//                 QModelIndex miName = m_wellPathsModel->index(currentRowCount, 0);
-//                 m_wellPathsModel->setData(miName, wellPathName);
-// 
-//                 QModelIndex miFileName = m_wellPathsModel->index(currentRowCount, 1);
-//                 m_wellPathsModel->setData(miFileName, singleWellPathFilePath);
-
-
                 // Write out the content without leading/trailing []
                 file.close();
                 file.remove(singleWellPathFilePath);
@@ -297,11 +243,7 @@ void RiuWellImportWizard::httpFinished()
                 }
             }
         }
-        */
     }
-
-
-    refreshButtonStatus();
 
     m_reply->deleteLater();
     m_reply = 0;
@@ -310,18 +252,13 @@ void RiuWellImportWizard::httpFinished()
 
     if (m_currentDownloadState == DOWNLOAD_WELLS || m_currentDownloadState == DOWNLOAD_WELL_PATH)
     {
-        checkDownloadQueueAndIssueRequests_v2();
+        checkDownloadQueueAndIssueRequests();
     }
     else if (m_currentDownloadState == DOWNLOAD_FIELDS)
     {
         updateFieldsModel();
         m_currentDownloadState = DOWNLOAD_UNDEFINED;
     }
-    else
-    {
-        checkDownloadQueueAndIssueRequests();
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,16 +274,6 @@ void RiuWellImportWizard::httpReadyRead()
         m_file->write(m_reply->readAll());
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::httpError(QNetworkReply::NetworkError code)
-{
-//    QMessageBox::information(this, tr("HTTP Error"), tr("Download failed: %1.").arg(m_reply->errorString()));
-}
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -360,13 +287,6 @@ void RiuWellImportWizard::updateDataReadProgress(qint64 bytesRead, qint64 totalB
 
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::refreshButtonStatus()
-{
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// This slot will be called for the first network reply that will need authentication.
@@ -411,23 +331,12 @@ void RiuWellImportWizard::sslErrors(QNetworkReply*,const QList<QSslError> &error
 #endif
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::slotSelectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
-{
-
-}
-
-
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiuWellImportWizard::setUrl(const QString& httpAddress)
 {
-//    m_urlLineEdit->setText(httpAddress);
-
     m_url = httpAddress;
 }
 
@@ -441,11 +350,8 @@ void RiuWellImportWizard::startRequest(QUrl url)
         this, SLOT(httpFinished()));
     connect(m_reply, SIGNAL(readyRead()),
         this, SLOT(httpReadyRead()));
-    connect(m_reply, SIGNAL(error(QNetworkReply::NetworkError)),
-        this, SLOT(httpError(QNetworkReply::NetworkError)));
     connect(m_reply, SIGNAL(downloadProgress(qint64,qint64)),
         this, SLOT(updateDataReadProgress(qint64,qint64)));
-
 }
 
 
@@ -473,61 +379,6 @@ QString RiuWellImportWizard::getValue(const QString& key, const QString& stringC
     return QString();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::getWellPathLinks(QStringList* surveyLinks, QStringList* planLinks)
-{
-    QStringList entities;
-
-    QString filename = jsonWellsFilePath();
-    if (QFile::exists(filename))
-    {
-        JsonReader jsonReader;
-        QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(filename);
-
-        QMapIterator<QString, QVariant> it(jsonMap);
-        while (it.hasNext())
-        {
-            it.next();
-
-            QString key = it.key();
-            if (key[0].isDigit())
-            {
-                QMap<QString, QVariant> slotMap = it.value().toMap();
-                QMap<QString, QVariant> linkMap = slotMap["links"].toMap();
-
-                QString surveyLink = linkMap["survey"].toString();
-                surveyLinks->push_back(surveyLink);
-
-                QString planLink = linkMap["plans"].toString();
-                planLinks->push_back(planLink);
-            }
-        }
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::issueDownloadOfWellPaths(const QStringList& surveyLinks, const QStringList& planLinks)
-{
-    m_wellPathRequestQueue.clear();
-
-//    if (m_importSurveyCheckBox->isChecked())
-    {
-        m_wellPathRequestQueue += surveyLinks;
-    }
-
-//    if (m_importPlansCheckBox->isChecked())
-    {
-        m_wellPathRequestQueue += planLinks;
-    }
-
-    checkDownloadQueueAndIssueRequests();
-
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -609,7 +460,7 @@ void RiuWellImportWizard::downloadWells()
     }
 
     m_currentDownloadState = DOWNLOAD_WELLS;
-    checkDownloadQueueAndIssueRequests_v2();
+    checkDownloadQueueAndIssueRequests();
 }
 
 
@@ -649,14 +500,14 @@ void RiuWellImportWizard::downloadWellPaths()
 
     m_currentDownloadState = DOWNLOAD_WELL_PATH;
 
-    checkDownloadQueueAndIssueRequests_v2();
+    checkDownloadQueueAndIssueRequests();
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::checkDownloadQueueAndIssueRequests_v2()
+void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 {
     if (m_wellRequestQueue.size() > 0)
     {
@@ -670,7 +521,6 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests_v2()
 
         return;
     }
-
 
     if (m_currentDownloadState == DOWNLOAD_WELLS)
     {
@@ -711,6 +561,8 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests_v2()
     }
 
     m_currentDownloadState = DOWNLOAD_UNDEFINED;
+
+    m_progressDialog->hide();
 }
 
 //--------------------------------------------------------------------------------------------------

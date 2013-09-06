@@ -1620,10 +1620,10 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
 
     wellPathsFolderPath += "/" + wellPathFolderName;
 
-    app->project()->wellPathImport;
 
+    RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
 
-    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport, this);
+    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
     if (QDialog::Accepted == wellImportwizard.exec())
     {
         QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
@@ -1632,59 +1632,9 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
             app->addWellPathsToModel(wellPaths);
             app->project()->createDisplayModelAndRedrawAllViews();
         }
+
+        app->project()->wellPathImport = copyOfWellPathImport;
     }
-
-    /*
-    CVF_ASSERT(m_ssihubInterface);
-
-    RiaApplication* app = RiaApplication::instance();
-    if (!app->project())
-    {
-        return;
-    }
-
-    if (!QFile::exists(app->project()->fileName()))
-    {
-        return;
-    }
-
-    QString wellPathsFolderPath;
-    QString projectFileName = app->project()->fileName();
-    QFileInfo fileInfo(projectFileName);
-    wellPathsFolderPath = fileInfo.canonicalPath();
-    QString wellPathFolderName = fileInfo.completeBaseName() + "_wellpaths";
-
-    QDir projFolder(wellPathsFolderPath);
-    projFolder.mkdir(wellPathFolderName);
-
-    wellPathsFolderPath += "/" + wellPathFolderName;
-
-    m_ssihubInterface->setWebServiceAddress(app->preferences()->ssihubAddress);
-    m_ssihubInterface->setJsonDestinationFolder(wellPathsFolderPath);
-
-    double north = cvf::UNDEFINED_DOUBLE;
-    double south = cvf::UNDEFINED_DOUBLE;
-    double east = cvf::UNDEFINED_DOUBLE;
-    double west = cvf::UNDEFINED_DOUBLE;
-
-    app->project()->computeUtmAreaOfInterest(&north, &south, &east, &west);
-
-    if (north != cvf::UNDEFINED_DOUBLE &&
-        south != cvf::UNDEFINED_DOUBLE &&
-        east != cvf::UNDEFINED_DOUBLE &&
-        west != cvf::UNDEFINED_DOUBLE)
-    {
-        m_ssihubInterface->setRegion(north, south, east, west);
-    }
-
-    QStringList wellPaths = m_ssihubInterface->jsonWellPaths();
-    if (wellPaths.size() > 0)
-    {
-        app->addWellPathsToModel(wellPaths);
-        if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
-    }
-
-    */
 }
 
 //--------------------------------------------------------------------------------------------------

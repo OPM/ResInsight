@@ -119,6 +119,8 @@ void RimProject::close()
     casesObsolete.deleteAllChildObjects();
     caseGroupsObsolete.deleteAllChildObjects();
 
+    wellPathImport = new RimWellPathImport();
+
     fileName = "";
 
     nextValidCaseId = 0;

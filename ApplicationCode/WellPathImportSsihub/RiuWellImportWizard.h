@@ -32,7 +32,6 @@ class QTextEdit;
 
 
 class RimWellPathImport;
-class RimWellCollection;
 
 
 namespace caf
@@ -44,6 +43,9 @@ namespace caf
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class AuthenticationPage : public QWizardPage
 {
     Q_OBJECT
@@ -55,6 +57,9 @@ public:
 };
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class FieldSelectionPage : public QWizardPage
 {
     Q_OBJECT
@@ -66,6 +71,9 @@ public:
 };
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class WellSelectionPage : public QWizardPage
 {
     Q_OBJECT
@@ -80,6 +88,10 @@ private:
 
 };
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class WellSummaryPage : public QWizardPage
 {
     Q_OBJECT
@@ -99,6 +111,9 @@ private:
 };
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class DownloadEntity
 {
 public:
@@ -106,6 +121,10 @@ public:
     QString responseFilename;
 };
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RiuWellImportWizard : public QWizard
 {
     Q_OBJECT
@@ -128,6 +147,27 @@ public:
     caf::PdmObjectGroup* wellCollection();
     void        resetAuthenticationCount();
 
+public slots:
+    void        downloadWellPaths();
+    void        downloadWells();
+    void        downloadFields();
+    
+    void        checkDownloadQueueAndIssueRequests();
+
+    void        issueHttpRequestToFile( QString completeUrlText, QString destinationFileName );
+    void        cancelDownload();
+
+    void        httpFinished();
+    void        httpReadyRead();
+
+    void        updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
+    void        slotAuthenticationRequired(QNetworkReply* networkReply, QAuthenticator* authenticator);
+
+
+#ifndef QT_NO_OPENSSL
+    void sslErrors(QNetworkReply*,const QList<QSslError> &errors);
+#endif
+
 private:
     void        startRequest(QUrl url);
     void        setUrl(const QString& httpAddress);
@@ -139,48 +179,18 @@ private:
 
     QString     getValue(const QString& key, const QString& stringContent);
 
-    void        getWellPathLinks(QStringList* surveyLinks, QStringList* planLinks);
-    void        issueDownloadOfWellPaths(const QStringList& surveyLinks, const QStringList& planLinks);
 
-
-
-
-public slots:
-    void        downloadWellPaths();
-    void        downloadWells();
-    void        downloadFields();
-    void        checkDownloadQueueAndIssueRequests();
-    
-    void        checkDownloadQueueAndIssueRequests_v2();
-
-    void        issueHttpRequestToFile( QString completeUrlText, QString destinationFileName );
-    void        cancelDownload();
-
-    void        httpFinished();
-    void        httpReadyRead();
-    void        httpError(QNetworkReply::NetworkError code);
-
-    void        updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
-    void        refreshButtonStatus();
-    void        slotAuthenticationRequired(QNetworkReply* networkReply, QAuthenticator* authenticator);
-
-    void        slotSelectionChanged( const QItemSelection & selected, const QItemSelection & deselected );
-
-
-#ifndef QT_NO_OPENSSL
-    void sslErrors(QNetworkReply*,const QList<QSslError> &errors);
-#endif
 
 private:
-    QString m_webServiceAddress;
-    QString m_destinationFolder;
+    QString                 m_webServiceAddress;
+    QString                 m_destinationFolder;
 
-    RimWellPathImport* m_wellPathImportObject;
-    caf::PdmUiTreeView* m_pdmTreeView;
+    RimWellPathImport*      m_wellPathImportObject;
+    caf::PdmUiTreeView*     m_pdmTreeView;
 
-    caf::PdmObjectGroup* m_wellCollection;
+    caf::PdmObjectGroup*    m_wellCollection;
 
-    QProgressDialog*    m_progressDialog;
+    QProgressDialog*        m_progressDialog;
 
     QUrl                    m_url;
     QNetworkAccessManager   m_networkAccessManager;
@@ -190,25 +200,9 @@ private:
 
     bool                    m_firstTimeRequestingAuthentication;
 
-
-    QStringList             m_wellPathRequestQueue;
     QList<DownloadEntity>   m_wellRequestQueue;
 
-    DownloadState       m_currentDownloadState;
-
-
-    // To be deleted
-    QLabel*             m_statusLabel;
-
-    int                 m_wellSummaryPageId;
-
+    DownloadState           m_currentDownloadState;
+    int                     m_wellSummaryPageId;
 };
-
-
-
-
-
-
-
-
 
