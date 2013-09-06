@@ -219,6 +219,8 @@ add_executable( ResInsight ${EXE_FILES} )
 
 
 set( LINK_LIBRARIES
+    WellPathImportSsihub
+
     cafPdmCvf
     cafUserInterface
     cafProjectDataModel
@@ -230,8 +232,6 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
-
-    WellPathImportSsihub
 
     ecl
     ert_util
