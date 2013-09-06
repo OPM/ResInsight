@@ -121,9 +121,11 @@ public:
     void setJsonDestinationFolder(const QString& folder);
     void setWellPathImportObject(RimWellPathImport* wellPathImportObject);
 
+    QStringList absoluteFilePathsToWellPaths() const;
+
 
     // Methods used from the wizard pages
-    RimWellCollection* wellCollection();
+    caf::PdmObjectGroup* wellCollection();
     void        resetAuthenticationCount();
 
 private:
@@ -173,10 +175,10 @@ private:
     QString m_webServiceAddress;
     QString m_destinationFolder;
 
-    RimWellPathImport* m_wellPathImport;
+    RimWellPathImport* m_wellPathImportObject;
     caf::PdmUiTreeView* m_pdmTreeView;
 
-    RimWellCollection* m_wellCollection;
+    caf::PdmObjectGroup* m_wellCollection;
 
     QProgressDialog*    m_progressDialog;
 

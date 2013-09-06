@@ -19,6 +19,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_BINARY_DIR}/Generated
 	${CMAKE_CURRENT_BINARY_DIR}
 )

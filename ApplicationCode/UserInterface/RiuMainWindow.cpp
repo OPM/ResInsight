@@ -58,6 +58,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RiuWellImportWizard.h"
 
 
 
@@ -1597,6 +1598,42 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotImportWellPathsFromSSIHub()
 {
+    RiaApplication* app = RiaApplication::instance();
+    if (!app->project())
+    {
+        return;
+    }
+
+    if (!QFile::exists(app->project()->fileName()))
+    {
+        return;
+    }
+
+    QString wellPathsFolderPath;
+    QString projectFileName = app->project()->fileName();
+    QFileInfo fileInfo(projectFileName);
+    wellPathsFolderPath = fileInfo.canonicalPath();
+    QString wellPathFolderName = fileInfo.completeBaseName() + "_wellpaths";
+
+    QDir projFolder(wellPathsFolderPath);
+    projFolder.mkdir(wellPathFolderName);
+
+    wellPathsFolderPath += "/" + wellPathFolderName;
+
+    app->project()->wellPathImport;
+
+
+    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, app->project()->wellPathImport, this);
+    if (QDialog::Accepted == wellImportwizard.exec())
+    {
+        QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
+        if (wellPaths.size() > 0)
+        {
+            app->addWellPathsToModel(wellPaths);
+            app->project()->createDisplayModelAndRedrawAllViews();
+        }
+    }
+
     /*
     CVF_ASSERT(m_ssihubInterface);
 

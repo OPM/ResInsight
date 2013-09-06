@@ -71,6 +71,10 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&treeViewState, "TreeViewState", "",  "", "", "");
     treeViewState.setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
+    wellPathImport = new RimWellPathImport();
+    wellPathImport.setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
     currentModelIndexPath.setUiHidden(true);
 
