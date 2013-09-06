@@ -43,6 +43,8 @@ RimWell::RimWell()
     CAF_PDM_InitObject("Well", ":/Well.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&name,       "WellName",             "Name", "", "", "");
+    CAF_PDM_InitField(&showWell,         "ShowWell",      true, "Show well ", "", "", "");
+    showWell.setUiHidden(true);
 
     CAF_PDM_InitField(&showWellLabel,         "ShowWellLabel",      true, "Show well label", "", "", "");
 
@@ -96,6 +98,14 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
             m_reservoirView->createDisplayModelAndRedraw();
         }
     }
+    else if (&showWell == changedField)
+    {
+        if (m_reservoirView)
+        {
+            m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            m_reservoirView->createDisplayModelAndRedraw();
+        }
+    }
     else if (&showWellCells == changedField)
     {
         if (m_reservoirView)
@@ -137,7 +147,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimWell::objectToggleField()
 {
-    return &showWellPipes;
+    return &showWell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +176,9 @@ bool RimWell::calculateWellPipeVisibility(size_t frameIndex)
         return true;
 
     if (m_reservoirView->wellCollection()->wellPipeVisibility() == RimWellCollection::PIPES_FORCE_ALL_OFF)
+        return false;
+
+    if ( this->showWell() == false )
         return false;
 
     if ( this->showWellPipes() == false )

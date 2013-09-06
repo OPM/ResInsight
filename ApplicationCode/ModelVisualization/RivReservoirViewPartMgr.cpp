@@ -399,7 +399,8 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
 
-    bool hasActiveRangeFilters = m_reservoirView->rangeFilterCollection()->hasActiveIncludeFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells();
+    bool hasActiveRangeFilters = m_reservoirView->rangeFilterCollection()->hasActiveFilters();
+    bool hasVisibleWellCells = m_reservoirView->wellCollection()->hasVisibleWellCells();
 
     for (size_t gIdx = 0; gIdx < grids.size(); ++gIdx)
     {
@@ -408,11 +409,35 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
         cvf::ref<cvf::UByteArray> fenceVisibility; 
         cvf::cref<cvf::UByteArray> isWellCell = res->wellCellsInGrid(gIdx); 
 
-        if (m_geometriesNeedsRegen[RANGE_FILTERED]) createGeometry(RANGE_FILTERED);
-        if (m_geometriesNeedsRegen[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER]) createGeometry(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+        if (hasActiveRangeFilters && hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[RANGE_FILTERED]) createGeometry(RANGE_FILTERED);
+            if (m_geometriesNeedsRegen[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER]) createGeometry(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
 
-        rangeVisibility = m_geometries[RANGE_FILTERED].cellVisibility(gIdx);
-        fenceVisibility = m_geometries[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER].cellVisibility(gIdx);
+            rangeVisibility = m_geometries[RANGE_FILTERED].cellVisibility(gIdx);
+            fenceVisibility = m_geometries[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER].cellVisibility(gIdx);
+        }
+        else if (hasActiveRangeFilters && !hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[RANGE_FILTERED]) createGeometry(RANGE_FILTERED);
+
+            rangeVisibility = m_geometries[RANGE_FILTERED].cellVisibility(gIdx);
+            fenceVisibility = m_geometries[RANGE_FILTERED].cellVisibility(gIdx);
+        }
+        else if (!hasActiveRangeFilters && hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[VISIBLE_WELL_FENCE_CELLS]) createGeometry(VISIBLE_WELL_FENCE_CELLS);
+
+            rangeVisibility = m_geometries[VISIBLE_WELL_FENCE_CELLS].cellVisibility(gIdx);
+            fenceVisibility = m_geometries[VISIBLE_WELL_FENCE_CELLS].cellVisibility(gIdx);
+        }
+        else if (!hasActiveRangeFilters && !hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[ACTIVE]) createGeometry(ACTIVE);
+
+            rangeVisibility = m_geometries[ACTIVE].cellVisibility(gIdx);
+            fenceVisibility = m_geometries[ACTIVE].cellVisibility(gIdx);
+        }
 
         cellVisibility->resize(rangeVisibility->size());
 
@@ -421,6 +446,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
         {
             (*cellVisibility)[cellIdx] = (*rangeVisibility)[cellIdx] || (*fenceVisibility)[cellIdx];
         }
+
         computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
 
         m_propFilteredGeometryFrames[frameIndex]->setCellVisibility(gIdx, cellVisibility.p());
@@ -450,29 +476,63 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
 
-    bool hasActiveRangeFilters  = m_reservoirView->rangeFilterCollection()->hasActiveFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells();
+    bool hasActiveRangeFilters = m_reservoirView->rangeFilterCollection()->hasActiveFilters();
+    bool hasVisibleWellCells = m_reservoirView->wellCollection()->hasVisibleWellCells();
 
     for (size_t gIdx = 0; gIdx < grids.size(); ++gIdx)
     {
         cvf::ref<cvf::UByteArray> cellVisibility = m_propFilteredWellGeometryFrames[frameIndex]->cellVisibility(gIdx); 
         cvf::ref<cvf::UByteArray> rangeVisibility; 
-        cvf::ref<cvf::UByteArray> wellCellsOutsideVisibility; 
-        cvf::cref<cvf::UByteArray> cellIsWellCellStatuses = res->wellCellsInGrid(gIdx); 
+        cvf::ref<cvf::UByteArray> wellCellsOutsideRange; 
+        cvf::ref<cvf::UByteArray> wellFenceCells;  
 
+        if (hasActiveRangeFilters && hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[RANGE_FILTERED_WELL_CELLS]) createGeometry(RANGE_FILTERED_WELL_CELLS);
+            rangeVisibility = m_geometries[RANGE_FILTERED_WELL_CELLS].cellVisibility(gIdx);
 
-        if (m_geometriesNeedsRegen[RANGE_FILTERED_WELL_CELLS]) createGeometry(RANGE_FILTERED_WELL_CELLS);
-        rangeVisibility = m_geometries[RANGE_FILTERED_WELL_CELLS].cellVisibility(gIdx);
+            if (m_geometriesNeedsRegen[VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER]) createGeometry(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+            wellCellsOutsideRange = m_geometries[VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER].cellVisibility(gIdx);
 
-        if (m_geometriesNeedsRegen[VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER]) createGeometry(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-        wellCellsOutsideVisibility = m_geometries[VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER].cellVisibility(gIdx);
+            if (m_geometriesNeedsRegen[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER]) createGeometry(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+            wellFenceCells = m_geometries[VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER].cellVisibility(gIdx);
+
+        }
+        else if (hasActiveRangeFilters && !hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[RANGE_FILTERED_WELL_CELLS]) createGeometry(RANGE_FILTERED_WELL_CELLS);
+            rangeVisibility = m_geometries[RANGE_FILTERED_WELL_CELLS].cellVisibility(gIdx);
+            wellCellsOutsideRange = rangeVisibility;
+            wellFenceCells = rangeVisibility;
+        }
+        else if (!hasActiveRangeFilters && hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[VISIBLE_WELL_CELLS]) createGeometry(VISIBLE_WELL_CELLS);
+            wellCellsOutsideRange = m_geometries[VISIBLE_WELL_CELLS].cellVisibility(gIdx);
+
+            if (m_geometriesNeedsRegen[VISIBLE_WELL_FENCE_CELLS]) createGeometry(VISIBLE_WELL_FENCE_CELLS);
+            wellFenceCells = m_geometries[VISIBLE_WELL_FENCE_CELLS].cellVisibility(gIdx);
+
+            rangeVisibility = wellCellsOutsideRange;
+        }
+        else if (!hasActiveRangeFilters && !hasVisibleWellCells)
+        {
+            if (m_geometriesNeedsRegen[ALL_WELL_CELLS]) createGeometry(ALL_WELL_CELLS);
+            wellFenceCells = m_geometries[ALL_WELL_CELLS].cellVisibility(gIdx);
+            wellCellsOutsideRange = wellFenceCells;
+            rangeVisibility = wellFenceCells;
+        }
 
         cellVisibility->resize(rangeVisibility->size());
+
 #pragma omp parallel for
         for (int cellIdx = 0; cellIdx < static_cast<int>(cellVisibility->size()); ++cellIdx)
         {
-            (*cellVisibility)[cellIdx] = (!hasActiveRangeFilters && (*cellIsWellCellStatuses)[cellIdx]) || (*rangeVisibility)[cellIdx] || (*wellCellsOutsideVisibility)[cellIdx];
+            (*cellVisibility)[cellIdx] =  (*wellFenceCells)[cellIdx] || (*rangeVisibility)[cellIdx] || (*wellCellsOutsideRange)[cellIdx];
         }
+
         computePropertyVisibility(cellVisibility.p(), grids[gIdx], frameIndex, cellVisibility.p(), m_reservoirView->propertyFilterCollection()); 
+
         m_propFilteredWellGeometryFrames[frameIndex]->setCellVisibility(gIdx, cellVisibility.p());
     }
 

@@ -149,7 +149,7 @@ bool RimWellCollection::hasVisibleWellCells()
     for (size_t i = 0 ; !hasCells && i < this->wells().size(); ++i)
     {
         RimWell* well = this->wells()[i];
-        if ( well && well->wellResults() && (well->showWellCells() || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) )
+        if ( well && well->wellResults() && ((well->showWell() && well->showWellCells()) || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) )
         {
             for (size_t tIdx = 0; !hasCells &&  tIdx < well->wellResults()->m_wellCellsTimeSteps.size(); ++tIdx )
             {
@@ -275,6 +275,7 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     wellHeadGroup->add(&showWellHead);
     wellHeadGroup->add(&wellHeadScaleFactor);
     wellHeadGroup->add(&showWellLabel);
+    wellHeadGroup->add(&wellHeadPosition);
 
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
     wellPipe->add(&wellPipeVisibility);
