@@ -218,7 +218,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
     {
         if (frameIndex >= m_propFilteredGeometryFramesNeedsRegen.size() || m_propFilteredGeometryFramesNeedsRegen[frameIndex])
         {
-            createPropertyFilteredGeometry(frameIndex);
+            createPropertyFilteredNoneWellCellGeometry(frameIndex);
         }
         m_propFilteredGeometryFrames[frameIndex]->appendPartsToModel(model, gridIndices);
     }
@@ -381,7 +381,7 @@ void RivReservoirViewPartMgr::computeVisibility(cvf::UByteArray* cellVisibility,
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::createPropertyFilteredGeometry(size_t frameIndex)
+void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t frameIndex)
 {
     RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
 
@@ -390,9 +390,12 @@ void RivReservoirViewPartMgr::createPropertyFilteredGeometry(size_t frameIndex)
         m_propFilteredGeometryFrames.resize(frameIndex + 1);
         m_propFilteredGeometryFramesNeedsRegen.resize(frameIndex + 1, true);
     }
+
     if ( m_propFilteredGeometryFrames[frameIndex].isNull())  m_propFilteredGeometryFrames[frameIndex] = new RivReservoirPartMgr;
+
     m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(res);
     m_propFilteredGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
+
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
 
