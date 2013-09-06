@@ -24,6 +24,8 @@
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include "cafPdmObjectFactory.h"
+#include "cafPdmDocument.h"
 
 namespace caf
 {
@@ -307,6 +309,58 @@ bool PdmObject::isValidXmlElementName(const QString& name)
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmObject* PdmObject::deepCopy()
+{
+    QString encodedXml;
+    
+    {
+        PdmObjectGroup typedObjectGroup;
+        typedObjectGroup.addObject(this);
+
+        QXmlStreamWriter xmlStream(&encodedXml);
+        xmlStream.setAutoFormatting(true);
+
+        typedObjectGroup.writeFields(xmlStream);
+    }
+
+    PdmObject* pdmCopy = NULL;
+    {
+        // Read back XML into object group, factory methods will be called that will create new objects
+        PdmObjectGroup destinationObjectGroup;
+        QXmlStreamReader xmlStream(encodedXml);
+        destinationObjectGroup.readFields(xmlStream);
+
+        if (destinationObjectGroup.objects.size() == 1)
+        {   
+            pdmCopy = destinationObjectGroup.objects[0];
+        }
+    }
+
+    return pdmCopy;
+
+    /*
+   PdmObject* cloneRoot = PdmObjectFactory::instance()->create(this->classKeyword());
+
+
+
+    QString encodedXml;
+    {
+        QXmlStreamWriter xmlStream(&encodedXml);
+        xmlStream.setAutoFormatting(true);
+
+        this->writeFields(xmlStream);
+    }
+
+    QXmlStreamReader xmlStream(encodedXml);
+    cloneRoot->readFields(xmlStream);
+
+    return cloneRoot;
+    */
 }
 
 

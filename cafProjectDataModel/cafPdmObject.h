@@ -122,6 +122,8 @@ public:
     void                    readFields (QXmlStreamReader& inputStream );
     void                    writeFields(QXmlStreamWriter& outputStream);
 
+    PdmObject*              deepCopy();
+
     /// The registered fields contained in this PdmObject. Registered by subclasses.
     void                    fields(std::vector<PdmFieldHandle*>& fields) const;
     /// The fields containing pointers to this PdmObject. Use ownerObject() on the fieldHandle to get the PdmObject parent.
