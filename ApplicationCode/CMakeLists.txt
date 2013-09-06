@@ -83,7 +83,7 @@ list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
 
-add_subdirectory(ssihubInterface)
+add_subdirectory(WellPathImportSsihub)
 
 
 # Define files for MOC-ing
@@ -230,7 +230,7 @@ set( LINK_LIBRARIES
     LibGeometry
     LibCore
 
-    ssihubInterface
+    WellPathImportSsihub
 
     ecl
     ert_util

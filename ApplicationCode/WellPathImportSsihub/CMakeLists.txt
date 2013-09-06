@@ -1,20 +1,14 @@
 cmake_minimum_required (VERSION 2.8)
 
-project (ssihubInterface)
+project (WellPathImportSsihub)
 
 # These headers need to go through Qt's MOC compiler
 set( QOBJECT_HEADERS   
-    ssihubWebServiceInterface.h
-    ssihubDialog.h 
-    httpwindow.h
-
     RiuWellImportWizard.h
-
 )
 
 
 set( QT_UI_FILES   
-    authenticationdialog.ui 
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -32,11 +26,6 @@ include_directories(
 
 
 add_library( ${PROJECT_NAME}
-    ssihubInterface.cpp
-    ssihubWebServiceInterface.cpp
-    ssihubDialog.cpp
-    httpwindow.cpp
-
     RimWellPathImport.h
     RimWellPathImport.cpp
     RimOilRegionEntry.h

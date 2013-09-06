@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 
-project ( ssihubTestApplication )
+project ( WellPathImportSsihubTestApp )
 
 
 set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
@@ -11,14 +11,15 @@ include (${QT_USE_FILE})
 find_package( OpenGL )
 
 
-add_subdirectory(../ssihubInterface "${CMAKE_CURRENT_BINARY_DIR}/ssihubInterface")
+
+add_subdirectory(../WellPathImportSsihub "${CMAKE_CURRENT_BINARY_DIR}/WellPathImportSsihub")
 add_subdirectory(../../cafProjectDataModel "${CMAKE_CURRENT_BINARY_DIR}/cafProjectDataModel")
 add_subdirectory(../../cafUserInterface "${CMAKE_CURRENT_BINARY_DIR}/cafUserInterface")
 
 add_subdirectory(../../cafTests/cafTestApplication "${CMAKE_CURRENT_BINARY_DIR}/cafTestApplication")
 
 include_directories(
-    ${ssihubInterface_SOURCE_DIR}
+    ${WellPathImportSsihub_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/../../cafProjectDataModel 
 	${CMAKE_CURRENT_SOURCE_DIR}/../../cafUserInterface
 )
@@ -56,7 +57,7 @@ target_link_libraries ( ${PROJECT_NAME}
     cafProjectDataModel
     cafUserInterface
 
-    ssihubInterface
+    WellPathImportSsihub
     ${QT_LIBRARIES}
 )
 

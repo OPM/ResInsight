@@ -41,7 +41,6 @@
 #include <QApplication>
 #include <QDir>
 
-#include "ssihubInterface.h"
 #include "TestTools.h"
 #include "RiuWellImportWizard.h"
 #include "RimWellPathImport.h"
@@ -58,23 +57,11 @@ int main(int argc, char *argv[])
     QString destinationFolder("c:/tmp/resinsight_ws");
     QString wsAddress("http://127.0.0.1:5000");
     
-    ssihub::Interface wsInterface;
-    wsInterface.setWebServiceAddress(wsAddress);
-    wsInterface.setJsonDestinationFolder(destinationFolder);
 
     int north = 7500000;
     int south = 7000000;
     int east =   401000;
     int west =   400000;
-    wsInterface.setRegion(north, south, east, west);
-
-    //QStringList jsonWellPathFileNames = wsInterface.jsonWellPaths();
-
-//     void setWebServiceAddress(const QString wsAdress);
-//     void setJsonDestinationFolder(const QString folder);
-//     void setRegion(int east, int west, int north, int south);
-// 
-//     QStringList jsonWellPaths();
 
     RimWellPathImport* wellPathImportObject = TestTools::createMockObject();
     wellPathImportObject->north = north;
