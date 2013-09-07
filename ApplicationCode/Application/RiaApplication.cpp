@@ -1612,3 +1612,45 @@ QString RiaApplication::commandLineParameterHelp() const
     return text;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Schedule a creation of the Display model and redraw of the reservoir view
+/// The redraw will happen as soon as the event loop is entered
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resViewToUpdate)
+{
+    m_resViewsToUpdate.push_back(resViewToUpdate);
+
+    if (!m_resViewUpdateTimer) 
+    {
+        m_resViewUpdateTimer = new QTimer(this);
+        connect(m_resViewUpdateTimer, SIGNAL(timeout()), this, SLOT(slotUpdateScheduledDisplayModels()));
+    }
+
+    if (!m_resViewUpdateTimer->isActive())
+    {
+        m_resViewUpdateTimer->setSingleShot(true);
+        m_resViewUpdateTimer->start(0);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::slotUpdateScheduledDisplayModels()
+{
+    // Compress to remove duplicates
+    std::set<RimReservoirView*> resViewsToUpdate;
+    for (size_t i = 0; i < m_resViewsToUpdate.size(); ++i)
+    {
+        resViewsToUpdate.insert(m_resViewsToUpdate[i]);
+    }
+
+    for (std::set<RimReservoirView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it )
+    {
+        if (*it)
+        {
+            (*it)->createDisplayModelAndRedraw();
+        }
+    }
+}
+
