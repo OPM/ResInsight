@@ -44,7 +44,6 @@ public:
 
     caf::PdmField<bool>                             wellTypeSurvey;
     caf::PdmField<bool>                             wellTypePlans;
-    caf::PdmField<bool>                             wellTypeAll;
 
     caf::PdmField< caf::AppEnum< UtmFilterEnum > >  utmFilterMode;
     caf::PdmField<double>                           north;
@@ -55,5 +54,12 @@ public:
     caf::PdmPointersField<RimOilRegionEntry*>       regions;
 
     void updateRegions(const QStringList& regions, const QStringList& fields, const QStringList& edmIds);
+
+    virtual void initAfterRead();
+    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+
+//private:
+    void updateFieldVisibility();
+
 };
 

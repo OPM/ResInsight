@@ -29,17 +29,6 @@ namespace caf {
         setDefault(RimWellPathImport::UTM_FILTER_PROJECT);
     }
 
-    /*
-    template<>
-    void caf::AppEnum< RimWellPathImport::WellTypeEnum >::setUp()
-    {
-        addItem(RimWellPathImport::WELL_ALL,     "WELL_ALL",     "All");
-        addItem(RimWellPathImport::WELL_SURVEY,  "WELL_SURVEY",  "Survey");
-        addItem(RimWellPathImport::WELL_PLAN,    "WELL_PLAN",    "Plan");
-        setDefault(RimWellPathImport::WELL_ALL);
-    }
-    */
-
 } // End namespace caf
 
 
@@ -56,7 +45,6 @@ RimWellPathImport::RimWellPathImport()
 
     CAF_PDM_InitField(&wellTypeSurvey,       "WellTypeSurvey",         true,   "Survey", "", "", "");
     CAF_PDM_InitField(&wellTypePlans,        "WellTypePlans",          true,   "Plans", "", "", "");
-    CAF_PDM_InitField(&wellTypeAll,          "WellTypeAll",            true,   "All", "", "", "");
  
     caf::AppEnum<RimWellPathImport::UtmFilterEnum> defaultUtmMode = UTM_FILTER_OFF;
     CAF_PDM_InitField(&utmFilterMode, "UtmMode", defaultUtmMode, "Utm filter",   "", "", "");
@@ -76,10 +64,48 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
 {
     assert(regionStrings.size() == fieldStrings.size() && regionStrings.size() == edmIds.size());
 
+    std::vector<RimOilRegionEntry*> regionsToRemove;
+    
+    // Remove regions and fields not present in last request
+    for (size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++)
+    {
+        if (!regionStrings.contains(this->regions[regionIdx]->name))
+        {
+            regionsToRemove.push_back(this->regions[regionIdx]);
+        }
+        else
+        {
+            std::vector<RimOilFieldEntry*> fieldsToRemove;
+
+            for (size_t fIdx = 0; fIdx < this->regions[regionIdx]->fields.size(); fIdx++)
+            {
+                if (!fieldStrings.contains(this->regions[regionIdx]->fields[fIdx]->name))
+                {
+                    fieldsToRemove.push_back(this->regions[regionIdx]->fields[fIdx]);
+                }
+            }
+
+            for (size_t i = 0; i < fieldsToRemove.size(); i++)
+            {
+                this->regions[regionIdx]->fields.removeChildObject(fieldsToRemove[i]);
+
+                delete fieldsToRemove[i];
+            }
+        }
+    }
+
+    for (size_t i = 0; i < regionsToRemove.size(); i++)
+    {
+        this->regions.removeChildObject(regionsToRemove[i]);
+
+        delete regionsToRemove[i];
+    }
+
+
     for (int i = 0; i < regionStrings.size(); i++)
     {
         RimOilRegionEntry* oilRegionEntry = NULL;
-        bool edmIdFound = false;
+        RimOilFieldEntry*  oilFieldEntry = NULL;
 
         for (size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++)
         {
@@ -91,28 +117,70 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
                 {
                     if (this->regions[regionIdx]->fields[fIdx]->edmId == edmIds[i])
                     {
-                        edmIdFound = true;
+                        oilFieldEntry = this->regions[regionIdx]->fields[fIdx];
                     }
                 }
             }
         }
 
-        if (!edmIdFound)
+        if (!oilRegionEntry)
         {
-            if (!oilRegionEntry)
-            {
-                oilRegionEntry = new RimOilRegionEntry;
-                oilRegionEntry->name = regionStrings[i];
+            oilRegionEntry = new RimOilRegionEntry;
+            oilRegionEntry->name = regionStrings[i];
 
-                this->regions.push_back(oilRegionEntry);
-            }
+            this->regions.push_back(oilRegionEntry);
+        }
 
+        assert(oilRegionEntry);
+
+        if (!oilFieldEntry)
+        {
             RimOilFieldEntry* oilFieldEntry = new RimOilFieldEntry;
             oilFieldEntry->name = fieldStrings[i];
             oilFieldEntry->edmId = edmIds[i];
 
             oilRegionEntry->fields.push_back(oilFieldEntry);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathImport::initAfterRead()
+{
+    updateFieldVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathImport::updateFieldVisibility()
+{
+    if (utmFilterMode == UTM_FILTER_OFF)
+    {
+        north.setUiReadOnly(true);
+        south.setUiReadOnly(true);
+        east.setUiReadOnly(true);
+        west.setUiReadOnly(true);
+    }
+    else
+    {
+        north.setUiReadOnly(false);
+        south.setUiReadOnly(false);
+        east.setUiReadOnly(false);
+        west.setUiReadOnly(false);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathImport::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &utmFilterMode)
+    {
+        updateFieldVisibility();
     }
 }
 

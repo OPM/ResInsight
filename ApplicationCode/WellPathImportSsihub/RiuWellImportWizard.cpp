@@ -119,9 +119,6 @@ void RiuWellImportWizard::downloadFields()
         QFile::remove(wellFileName);
     }
 
-    m_wellPathImportObject->regions.deleteAllChildObjects();
-    m_wellPathImportObject->updateConnectedEditors();
-
     QString completeUrlText = m_webServiceAddress + "/resinsight/projects";
     QString destinationFileName = jsonFieldsFilePath();
 
@@ -700,7 +697,6 @@ FieldSelectionPage::FieldSelectionPage(RimWellPathImport* wellPathImport, QWidge
     caf::PdmUiPropertyView* propertyView = new caf::PdmUiPropertyView(this);
     layout->addWidget(propertyView);
     propertyView->showProperties(wellPathImport);
-
 
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
