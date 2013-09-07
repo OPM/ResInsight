@@ -40,8 +40,11 @@ RimOilFieldEntry::RimOilFieldEntry()
 
     CAF_PDM_InitFieldNoDefault(&name,       "OilFieldName",      "OilFieldName", "", "", "");
     CAF_PDM_InitFieldNoDefault(&edmId,      "EdmId",             "EdmId", "", "", "");
-
     CAF_PDM_InitField(&selected,       "Selected",         true,   "Selected", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&wellsFilePath,      "wellsFilePath",             "wellsFilePath", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&wells, "Wells", "",  "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,5 +111,41 @@ void RimOilFieldEntry::parseWellsResponse(const QString& absolutePath, const QSt
         }
     }
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimOilFieldEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &selected)
+    {
+        updateEnabledState();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimOilFieldEntry::initAfterRead()
+{
+    updateEnabledState();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimOilFieldEntry::updateEnabledState()
+{
+    bool wellsReadOnly = !selected;
+    if (this->isUiReadOnly())
+    {
+        wellsReadOnly = true;
+    }
+
+    for (size_t i = 0; i < wells.size(); i++)
+    {
+        wells[i]->setUiReadOnly(wellsReadOnly);
+    }
 }
 

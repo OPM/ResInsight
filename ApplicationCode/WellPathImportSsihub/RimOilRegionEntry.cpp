@@ -61,13 +61,20 @@ void RimOilRegionEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (&selected == changedField)
     {
-        for (size_t i = 0; i < fields.size(); i++)
-        {
-            fields[i]->selected = newValue.toBool();
-        }
+        updateState();
     }
+}
 
-//    this->updateConnectedEditors();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimOilRegionEntry::updateState()
+{
+    for (size_t i = 0; i < fields.size(); i++)
+    {
+        fields[i]->setUiReadOnly(!selected);
+        fields[i]->updateEnabledState();
+    }
 }
 
 

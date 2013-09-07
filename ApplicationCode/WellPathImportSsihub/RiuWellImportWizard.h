@@ -134,7 +134,6 @@ public:
 
 public:
     RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = 0);
-    ~RiuWellImportWizard();
 
     void setWebServiceAddress(const QString& wsAdress);
     void setJsonDestinationFolder(const QString& folder);
@@ -187,8 +186,6 @@ private:
 
     RimWellPathImport*      m_wellPathImportObject;
     caf::PdmUiTreeView*     m_pdmTreeView;
-
-    caf::PdmObjectGroup*    m_wellCollection;
 
     QProgressDialog*        m_progressDialog;
 

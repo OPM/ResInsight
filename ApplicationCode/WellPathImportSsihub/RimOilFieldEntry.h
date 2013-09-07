@@ -32,11 +32,9 @@ class RimOilFieldEntry : public caf::PdmObject
 public:
     RimOilFieldEntry();
 
-    virtual caf::PdmFieldHandle*    userDescriptionField();
-    virtual caf::PdmFieldHandle*    objectToggleField();
 
     void parseWellsResponse(const QString& absolutePath, const QString& wsAddress);
-    
+
     caf::PdmField<QString>          name;
     caf::PdmField<QString>          edmId;
     caf::PdmField<bool>             selected;
@@ -44,6 +42,14 @@ public:
 
     caf::PdmPointersField<RimWellPathEntry*> wells;
 
+
+    virtual caf::PdmFieldHandle*    userDescriptionField();
+    virtual caf::PdmFieldHandle*    objectToggleField();
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                    initAfterRead();
+
+//private:
+    void updateEnabledState();
 
 };
 

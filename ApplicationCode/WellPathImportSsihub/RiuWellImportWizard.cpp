@@ -47,7 +47,6 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
 
 
     m_progressDialog = new QProgressDialog(this);
-    m_wellCollection = new caf::PdmObjectGroup;
     m_firstTimeRequestingAuthentication = true;
 
 
@@ -521,8 +520,6 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 
     if (m_currentDownloadState == DOWNLOAD_WELLS)
     {
-        m_wellCollection->objects.clear();
-
         // Update UI with downloaded wells
 
         for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
@@ -536,17 +533,12 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
                     if (oilField->selected)
                     {
                         oilField->parseWellsResponse(m_destinationFolder, m_webServiceAddress);
-
-                        for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
-                        {
-                            m_wellCollection->objects.push_back(oilField->wells[wIdx]);
-                        }
                     }
                 }
             }
         }
 
-        m_wellCollection->updateConnectedEditors();
+        m_wellPathImportObject->updateConnectedEditors();
     }
     else if (m_currentDownloadState == DOWNLOAD_WELL_PATH)
     {
@@ -560,22 +552,6 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
     m_currentDownloadState = DOWNLOAD_UNDEFINED;
 
     m_progressDialog->hide();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-RiuWellImportWizard::~RiuWellImportWizard()
-{
-    delete m_wellCollection;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-caf::PdmObjectGroup* RiuWellImportWizard::wellCollection()
-{
-    return m_wellCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -733,6 +709,8 @@ WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget*
 
     m_wellSelectionTreeView = new caf::PdmUiTreeView(this);
     layout->addWidget(m_wellSelectionTreeView);
+
+    m_wellSelectionTreeView->setPdmObject(wellPathImport);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -745,7 +723,7 @@ void WellSelectionPage::initializePage()
 
     wiz->downloadWells();
 
-    m_wellSelectionTreeView->setPdmObject(wiz->wellCollection());
+//    m_wellSelectionTreeView->setPdmObject(wiz->wellCollection());
 }
 
 

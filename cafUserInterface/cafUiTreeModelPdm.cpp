@@ -322,6 +322,12 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
             {
                 flagMask = flagMask | Qt::ItemIsUserCheckable;
             }
+
+            if (pdmObject->isUiReadOnly())
+            {
+                flagMask = flagMask & (~Qt::ItemIsEnabled);
+            }
+
         }
     }
     else
