@@ -104,7 +104,7 @@ private slots:
 signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
 
-private:
+public:
     enum SelectionToggleType
     {
         TOGGLE_ON,

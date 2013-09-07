@@ -1495,6 +1495,7 @@ void RimUiTreeView::slotToggleItems()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::executeSelectionToggleOperation(SelectionToggleType toggleState)
 {
+    /*
     int nextCheckBoxState = 0;
 
     if (toggleState == TOGGLE_ON)
@@ -1528,28 +1529,28 @@ void RimUiTreeView::executeSelectionToggleOperation(SelectionToggleType toggleSt
             }
         }
     }
-
+    */
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+   // caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
     // Special handling for wells
     // Set toggle state for all wells without triggering model update,
     // and perform a single display model update at last
-    RimWell* well = dynamic_cast<RimWell*>(uiItem->dataObject().p());
-    if (well)
+    //RimWell* well = dynamic_cast<RimWell*>(uiItem->dataObject().p());
+    //if (well)
     {
-        myModel->setObjectToggleStateForSelection(selectionModel()->selectedIndexes(), nextCheckBoxState);
+        myModel->setObjectToggleStateForSelection(selectionModel()->selectedIndexes(), toggleState);
 
-        RimReservoirView* reservoirView = NULL;
-        well->firstAncestorOfType(reservoirView);
-        if (reservoirView)
-        {
-            reservoirView->createDisplayModelAndRedraw();
-        }
+        //RimReservoirView* reservoirView = NULL;
+        //well->firstAncestorOfType(reservoirView);
+        //if (reservoirView)
+        //{
+        //    reservoirView->createDisplayModelAndRedraw();
+        //}
 
         return;
     }
-
+/*
     foreach (QModelIndex index, selectionModel()->selectedIndexes())
     {
         if (!index.isValid())
@@ -1559,6 +1560,7 @@ void RimUiTreeView::executeSelectionToggleOperation(SelectionToggleType toggleSt
 
         myModel->setData(index, nextCheckBoxState, Qt::CheckStateRole);
     }
+    */
 }
 
 //--------------------------------------------------------------------------------------------------

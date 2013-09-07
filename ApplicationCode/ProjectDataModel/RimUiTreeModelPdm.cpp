@@ -55,6 +55,7 @@
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimUiTreeView.h"
 
 
 
@@ -1009,6 +1010,8 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
 {
     bool toggleOn = (state == Qt::Checked);
 
+    std::set<RimReservoirView*> resViewsToUpdate;
+
     foreach (QModelIndex index, selectedIndexes)
     {
         if (!index.isValid())
@@ -1028,11 +1031,29 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
             if (field)
             {
                 // Does not use setValueFromUi(), so the caller must make sure dependencies are updated
-                field->v() = toggleOn;
+                if (state == RimUiTreeView::TOGGLE_ON) field->setValueFromUi(true);
+                if (state == RimUiTreeView::TOGGLE_OFF) field->setValueFromUi(false);
+                if (state == RimUiTreeView::TOGGLE) field->setValueFromUi(!(field->v()));
 
-                emitDataChanged(index);
+                //emitDataChanged(index);
+                //field->updateConnectedEditors();
+
+               /* caf::PdmObject* ownerObj = field->ownerObject();
+
+                RimReservoirView* resView = dynamic_cast<RimReservoirView*>(ownerObj);
+                if(resView) resViewsToUpdate.insert(resView);
+                else if (ownerObj)
+                {
+                    ownerObj->firstAncestorOfType(resView);
+                    if (resView) resViewsToUpdate.insert(resView);
+                }*/
             }
         }
     }
+
+ /*   for (std::set<RimReservoirView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it)
+    {
+        (*it)->createDisplayModelAndRedraw();
+    }*/
 }
 
