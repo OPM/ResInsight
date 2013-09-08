@@ -69,9 +69,14 @@ int main(int argc, char *argv[])
     wellPathImportObject->east = east;
     wellPathImportObject->west = west;
 
-    RiuWellImportWizard wizard(wsAddress, destinationFolder, wellPathImportObject);
+    QString username("admin");
+    QString password("resinsight");
 
+
+    RiuWellImportWizard wizard(wsAddress, destinationFolder, wellPathImportObject);
+    wizard.setCredentials(username, password);
     wizard.show();
+
 
     return app.exec();
 }

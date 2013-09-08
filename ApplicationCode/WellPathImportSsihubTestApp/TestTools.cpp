@@ -47,5 +47,6 @@ RimWellPathImport* TestTools::createMockObject()
 
     wellPathImport->regions.push_back(regionB);
 
+    wellPathImport->utmFilterMode = RimWellPathImport::UTM_FILTER_PROJECT;
     return wellPathImport;
 }
