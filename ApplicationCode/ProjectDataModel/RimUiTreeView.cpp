@@ -220,6 +220,10 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Add Script Path"), this, SLOT(slotAddScriptPath()));
                 menu.addAction(QString("Delete Script Path"), this, SLOT(slotDeleteScriptPath()));
             }
+            else if (dynamic_cast<RimWellPathCollection*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("Delete All Well Paths"), this, SLOT(slotDeleteAllWellPaths()));
+            }
 
             // Execute script on selection of cases
             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
@@ -1637,5 +1641,18 @@ void RimUiTreeView::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCo
 
         appendScriptItems(subMenu, subDir);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotDeleteAllWellPaths()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        myModel->deleteAllWellPaths(currentIndex());
+    }
+   
 }
 

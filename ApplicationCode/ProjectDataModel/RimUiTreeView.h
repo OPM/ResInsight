@@ -101,6 +101,8 @@ private slots:
     void slotToggleItemsOn();
     void slotToggleItemsOff();
 
+    void slotDeleteAllWellPaths();
+
 signals:
     void selectedObjectChanged( caf::PdmObject* pdmObject );
 

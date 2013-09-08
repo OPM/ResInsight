@@ -1057,3 +1057,25 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
     }*/
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::deleteAllWellPaths(const QModelIndex& itemIndex)
+{
+    if (!itemIndex.isValid()) return;
+
+    caf::PdmUiTreeItem* uiItem = getTreeItemFromIndex(itemIndex);
+    if (!uiItem) return;
+
+    caf::PdmObject* object = uiItem->dataObject().p();
+    RimWellPathCollection* wellPathCollection = dynamic_cast<RimWellPathCollection*>(object);
+    if (!wellPathCollection) return;
+
+    // Remove item from UI tree model before delete of project data structure
+    removeRows_special(0, uiItem->childCount(), itemIndex);
+
+    wellPathCollection->wellPaths.deleteAllChildObjects();
+
+    clearClipboard();
+}
+
