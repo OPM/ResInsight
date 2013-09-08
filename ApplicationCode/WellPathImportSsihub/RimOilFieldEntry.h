@@ -33,14 +33,14 @@ public:
     RimOilFieldEntry();
 
 
-    void parseWellsResponse(const QString& absolutePath, const QString& wsAddress);
-
     caf::PdmField<QString>          name;
     caf::PdmField<QString>          edmId;
     caf::PdmField<bool>             selected;
     caf::PdmField<QString>          wellsFilePath;  // Location of the response file from request "/wells"
 
     caf::PdmPointersField<RimWellPathEntry*> wells;
+
+    RimWellPathEntry* find(const QString& name, RimWellPathEntry::WellTypeEnum wellPathType);
 
 
     virtual caf::PdmFieldHandle*    userDescriptionField();

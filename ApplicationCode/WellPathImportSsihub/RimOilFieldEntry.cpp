@@ -24,6 +24,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMap>
+#include <QDebug>
 
 CAF_PDM_SOURCE_INIT(RimOilFieldEntry, "RimOilFieldEntry");
 
@@ -66,56 +67,6 @@ caf::PdmFieldHandle* RimOilFieldEntry::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimOilFieldEntry::parseWellsResponse(const QString& absolutePath, const QString& wsAddress)
-{
-    wells.deleteAllChildObjects();
-
-    if (QFile::exists(wellsFilePath))
-    {
-        JsonReader jsonReader;
-        QMap<QString, QVariant> jsonMap = jsonReader.decodeFile(wellsFilePath);
-
-        QMapIterator<QString, QVariant> it(jsonMap);
-        while (it.hasNext())
-        {
-            it.next();
-
-            QString key = it.key();
-            if (key[0].isDigit())
-            {
-                QMap<QString, QVariant> rootMap = it.value().toMap();
-                QMap<QString, QVariant> surveyMap = rootMap["survey"].toMap();
-
-                {
-                    QString name = surveyMap["name"].toString();
-                    QMap<QString, QVariant> linksMap = surveyMap["links"].toMap();
-                    QString requestUrl = wsAddress + linksMap["entity"].toString();
-                    QString surveyType = surveyMap["surveyType"].toString();
-                    RimWellPathEntry* surveyWellPathEntry = RimWellPathEntry::createWellPathEntry(name, surveyType, requestUrl, absolutePath, RimWellPathEntry::WELL_SURVEY);
-                    wells.push_back(surveyWellPathEntry);
-                }
-
-                QMap<QString, QVariant> plansMap = rootMap["plans"].toMap();
-                QMapIterator<QString, QVariant> planIt(plansMap);
-                while (planIt.hasNext())
-                {
-                    planIt.next();
-                    QString name = surveyMap["name"].toString();
-                    QMap<QString, QVariant> linksMap = surveyMap["links"].toMap();
-                    QString requestUrl = wsAddress + linksMap["entity"].toString();
-                    QString surveyType = surveyMap["surveyType"].toString();
-                    RimWellPathEntry* surveyWellPathEntry = RimWellPathEntry::createWellPathEntry(name, surveyType, requestUrl, absolutePath, RimWellPathEntry::WELL_PLAN);
-                    wells.push_back(surveyWellPathEntry);
-                }
-            }
-        }
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RimOilFieldEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &selected)
@@ -147,5 +98,22 @@ void RimOilFieldEntry::updateEnabledState()
     {
         wells[i]->setUiReadOnly(wellsReadOnly);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathEntry* RimOilFieldEntry::find(const QString& name, RimWellPathEntry::WellTypeEnum wellPathType)
+{
+    for (size_t i = 0; i < wells.size(); i++)
+    {
+        RimWellPathEntry* wellPathEntry = wells[i];
+        if (wellPathEntry->name == name && wellPathEntry->wellPathType == wellPathType)
+        {
+            return wellPathEntry;
+        }
+    }
+
+    return NULL;
 }
 

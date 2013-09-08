@@ -32,6 +32,7 @@ class QTextEdit;
 
 
 class RimWellPathImport;
+class RimOilFieldEntry;
 
 
 namespace caf
@@ -82,6 +83,7 @@ public:
     WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
 
     virtual void initializePage();
+    void expandAllTreeNodes();
 
 private:
     caf::PdmUiTreeView* m_wellSelectionTreeView;
@@ -167,6 +169,9 @@ public slots:
     void sslErrors(QNetworkReply*,const QList<QSslError> &errors);
 #endif
 
+private slots:
+    void        slotCurrentIdChanged(int currentId);
+
 private:
     void        startRequest(QUrl url);
     void        setUrl(const QString& httpAddress);
@@ -175,6 +180,8 @@ private:
     QString     jsonWellsFilePath();
 
     void        updateFieldsModel();
+    void        parseWellsResponse(RimOilFieldEntry* oilFieldEntry);
+
 
     QString     getValue(const QString& key, const QString& stringContent);
 
@@ -200,6 +207,9 @@ private:
     QList<DownloadEntity>   m_wellRequestQueue;
 
     DownloadState           m_currentDownloadState;
+    
+    int                     m_fieldSelectionPageId;
+    int                     m_wellSelectionPageId;
     int                     m_wellSummaryPageId;
 };
 
