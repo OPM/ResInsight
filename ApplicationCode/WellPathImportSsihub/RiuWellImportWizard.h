@@ -81,11 +81,14 @@ class WellSelectionPage : public QWizardPage
 
 public:
     WellSelectionPage(RimWellPathImport* wellPathImport, QWidget* parent = 0);
+    ~WellSelectionPage();
 
     virtual void initializePage();
     void expandAllTreeNodes();
 
 private:
+    caf::PdmObjectGroup*  m_regionsWithVisibleWells;
+    RimWellPathImport*  m_wellPathImportObject;
     caf::PdmUiTreeView* m_wellSelectionTreeView;
 
 };

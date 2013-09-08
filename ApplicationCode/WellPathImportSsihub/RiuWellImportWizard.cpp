@@ -614,9 +614,7 @@ void RiuWellImportWizard::slotCurrentIdChanged(int currentId)
             for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
             {
                 RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
-                {
-                    oilField->wells.setUiHidden(hideWells);
-                }
+                oilField->wells.setUiHidden(hideWells);
             }
         }
     }
@@ -837,7 +835,11 @@ WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget*
     m_wellSelectionTreeView = new caf::PdmUiTreeView(this);
     layout->addWidget(m_wellSelectionTreeView);
 
-    m_wellSelectionTreeView->setPdmObject(wellPathImport);
+    m_wellPathImportObject = wellPathImport;
+
+    m_regionsWithVisibleWells = new caf::PdmObjectGroup;
+
+    //m_wellSelectionTreeView->setPdmObject(wellPathImport);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -856,7 +858,28 @@ void WellSelectionPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 void WellSelectionPage::expandAllTreeNodes()
 {
-    m_wellSelectionTreeView->treeView()->expandAll();
+    m_regionsWithVisibleWells->objects.clear();
+
+    for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
+    {
+        RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
+        if (oilRegion->selected)
+        {
+            m_regionsWithVisibleWells->objects.push_back(oilRegion);
+        }
+    }
+
+    m_wellSelectionTreeView->setPdmObject(m_regionsWithVisibleWells);
+    m_regionsWithVisibleWells->updateConnectedEditors();
+    //m_wellSelectionTreeView->treeView()->expandAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+WellSelectionPage::~WellSelectionPage()
+{
+    delete m_regionsWithVisibleWells;
 }
 
 
