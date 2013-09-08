@@ -64,7 +64,7 @@ public:
     void            allCases(std::vector<RimCase*>& cases); // VL endre impl
     void            createDisplayModelAndRedrawAllViews(); // VL endre impl
 
-    void            computeUtmAreaOfInterest(double* north, double* south, double* east, double* west);
+    void            computeUtmAreaOfInterest();
 
     RimOilField*    activeOilField();
 

@@ -143,12 +143,8 @@ public:
 public:
     RiuWellImportWizard(const QString& webServiceAddress, const QString& downloadFolder, RimWellPathImport* wellPathImportObject, QWidget *parent = 0);
 
-    void setWebServiceAddress(const QString& wsAdress);
-    void setJsonDestinationFolder(const QString& folder);
-    void setWellPathImportObject(RimWellPathImport* wellPathImportObject);
-
+    void        setCredentials(const QString& username, const QString& password);
     QStringList absoluteFilePathsToWellPaths() const;
-
 
     // Methods used from the wizard pages
     caf::PdmObjectGroup* wellCollection();
@@ -190,7 +186,6 @@ private:
 
 
     QString     getValue(const QString& key, const QString& stringContent);
-
 
 
 private:

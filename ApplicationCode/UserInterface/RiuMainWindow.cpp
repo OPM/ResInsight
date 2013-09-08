@@ -1609,6 +1609,9 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
         return;
     }
 
+    // Update the UTM bounding box from the reservoir
+    app->project()->computeUtmAreaOfInterest();
+
     QString wellPathsFolderPath;
     QString projectFileName = app->project()->fileName();
     QFileInfo fileInfo(projectFileName);
@@ -1624,6 +1627,15 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
     RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
 
     RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
+    
+    // Get password/username from application cache
+    {
+        QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
+        QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
+
+        wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
+    }
+
     if (QDialog::Accepted == wellImportwizard.exec())
     {
         QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
@@ -1634,6 +1646,9 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
         }
 
         app->project()->wellPathImport = copyOfWellPathImport;
+
+        app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
+        app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
     }
 }
 

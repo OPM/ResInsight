@@ -142,6 +142,8 @@ void RimWellPathImport::updateRegions(const QStringList& regionStrings, const QS
             oilRegionEntry->fields.push_back(oilFieldEntry);
         }
     }
+
+    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,19 +159,19 @@ void RimWellPathImport::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathImport::updateFieldVisibility()
 {
-    if (utmFilterMode == UTM_FILTER_OFF)
-    {
-        north.setUiReadOnly(true);
-        south.setUiReadOnly(true);
-        east.setUiReadOnly(true);
-        west.setUiReadOnly(true);
-    }
-    else
+    if (utmFilterMode == UTM_FILTER_CUSTOM)
     {
         north.setUiReadOnly(false);
         south.setUiReadOnly(false);
         east.setUiReadOnly(false);
         west.setUiReadOnly(false);
+    }
+    else
+    {
+        north.setUiReadOnly(true);
+        south.setUiReadOnly(true);
+        east.setUiReadOnly(true);
+        west.setUiReadOnly(true);
     }
 }
 

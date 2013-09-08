@@ -130,6 +130,9 @@ public:
     QString             commandLineParameterHelp() const;
     void                showFormattedTextInMessageBox(const QString& text);
 
+    void                setCacheDataObject(const QString& key, const QVariant& dataObject);
+    QVariant            cacheDataObject(const QString& key) const;
+
 private:
     void		        onProjectOpenedOrClosed();
     void		        setWindowCaptionFromAppState();
@@ -163,4 +166,6 @@ private:
     QString                             m_startupDefaultDirectory;
 
     cvf::ref<cvf::Font>                 m_standardFont;
+
+    QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
 };

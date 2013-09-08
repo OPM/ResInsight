@@ -71,30 +71,6 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::setWebServiceAddress(const QString& wsAddress)
-{
-    m_webServiceAddress = wsAddress;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::setJsonDestinationFolder(const QString& folder)
-{
-    m_destinationFolder = folder;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::setWellPathImportObject(RimWellPathImport* wellPathImportObject)
-{
-    m_wellPathImportObject = wellPathImportObject;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 QString RiuWellImportWizard::jsonFieldsFilePath()
 {
     return m_destinationFolder + "/fields.json";
@@ -722,6 +698,16 @@ void RiuWellImportWizard::parseWellsResponse(RimOilFieldEntry* oilFieldEntry)
         wellSelectionPage->expandAllTreeNodes();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuWellImportWizard::setCredentials(const QString& username, const QString& password)
+{
+    // Set the initial value of the fields defined in the Authorization page
+    setField("username", username);
+    setField("password", password);
+}
+
 
 
 
@@ -747,8 +733,8 @@ AuthenticationPage::AuthenticationPage(const QString& webServiceAddress, QWidget
     QFormLayout* formLayout = new QFormLayout;
     layout->addLayout(formLayout);
 
-    QLineEdit* usernameLineEdit = new QLineEdit("admin", this);
-    QLineEdit* passwordlLineEdit = new QLineEdit("resinsight", this);
+    QLineEdit* usernameLineEdit = new QLineEdit("", this);
+    QLineEdit* passwordlLineEdit = new QLineEdit("", this);
     passwordlLineEdit->setEchoMode(QLineEdit::Password);
 
     formLayout->addRow("&Username:", usernameLineEdit);
@@ -953,7 +939,7 @@ void WellSummaryPage::updateSummaryPage()
                         }
                         else
                         {
-                            errorString += QString("Failed to get file %1 from well %2\n").arg(oilField->wells[wIdx]->wellPathFilePath).arg(oilField->wells[wIdx]->name);
+                            errorString += QString("Failed to get file '%1' from well '%2'\n").arg(oilField->wells[wIdx]->wellPathFilePath).arg(oilField->wells[wIdx]->name);
                         }
 
                         m_objectGroup->objects.push_back(wellPathEntry);
@@ -964,7 +950,7 @@ void WellSummaryPage::updateSummaryPage()
     }
 
 
-    m_textEdit->setText(QString("Downloaded successfully %1 well paths. Please push 'Finish' button to import well paths into ResInsight.\n\n").arg(wellPathCount));
+    m_textEdit->setText(QString("Downloaded successfully %1 well paths.\nPlease push 'Finish' button to import well paths into ResInsight.\n\n").arg(wellPathCount));
     if (!errorString.isEmpty())
     {
         m_textEdit->append("Detected following errors during well path download. See details below.");

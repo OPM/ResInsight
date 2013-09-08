@@ -435,9 +435,8 @@ RimOilField* RimProject::activeOilField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimProject::computeUtmAreaOfInterest(double* north, double* south, double* east, double* west)
+void RimProject::computeUtmAreaOfInterest()
 {
-    CVF_ASSERT(north && south && east && west);
     std::vector<RimCase*> cases;
     allCases(cases);
 
@@ -460,11 +459,18 @@ void RimProject::computeUtmAreaOfInterest(double* north, double* south, double* 
 
     if (projectBB.isValid())
     {
-        *north = projectBB.max().y();
-        *south = projectBB.min().y();
+        double north, south, east, west;
 
-        *west = projectBB.min().x();
-        *east = projectBB.max().x();
+        north = projectBB.max().y();
+        south = projectBB.min().y();
+
+        west = projectBB.min().x();
+        east = projectBB.max().x();
+
+        wellPathImport->north = north;
+        wellPathImport->south = south;
+        wellPathImport->east = east;
+        wellPathImport->west = west;
     }
 }
 

@@ -1654,3 +1654,26 @@ void RiaApplication::slotUpdateScheduledDisplayModels()
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::setCacheDataObject(const QString& key, const QVariant& dataObject)
+{
+    m_sessionCache[key] = dataObject;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QVariant RiaApplication::cacheDataObject(const QString& key) const
+{
+    QMap<QString, QVariant>::const_iterator it = m_sessionCache.find(key);
+
+    if (it != m_sessionCache.end())
+    {
+        return it.value();
+    }
+
+    return QVariant();
+}
+
