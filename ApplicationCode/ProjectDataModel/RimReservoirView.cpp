@@ -314,6 +314,15 @@ void RimReservoirView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimReservoirView::scheduleCreateDisplayModelAndRedraw()
+{
+    RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimReservoirView::createDisplayModelAndRedraw()
 {
     if (m_viewer)
@@ -449,13 +458,13 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
-        createDisplayModelAndRedraw();
+        scheduleCreateDisplayModelAndRedraw();
     } 
     else if ( changedField == &propertyFilterCollection)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
 
-        createDisplayModelAndRedraw();
+        scheduleCreateDisplayModelAndRedraw();
     } 
     else if (changedField == &meshMode)
     {
@@ -496,8 +505,9 @@ void RimReservoirView::createDisplayModel()
 {
     if (m_viewer.isNull()) return;
 
-    // static int callCount = 0;
-    // qDebug() << "RimReservoirView::createDisplayModel()" << callCount++;
+     //static int callCount = 0;
+     //std::cout << "RimReservoirView::createDisplayModel() " << callCount++ << std::endl;
+     //RiuMainWindow::instance()->setResultInfo(QString ("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
 
     if (!(m_reservoir && m_reservoir->reservoirData())) return;
 

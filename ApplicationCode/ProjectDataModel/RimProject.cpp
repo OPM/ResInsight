@@ -416,7 +416,7 @@ void RimProject::createDisplayModelAndRedrawAllViews()
         for (size_t viewIdx = 0; viewIdx < rimCase->reservoirViews.size(); viewIdx++)
         {
             RimReservoirView* reservoirView = rimCase->reservoirViews[viewIdx];
-            reservoirView->createDisplayModelAndRedraw();
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }

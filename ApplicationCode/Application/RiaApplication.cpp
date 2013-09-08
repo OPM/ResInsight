@@ -154,6 +154,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     // The creation of a font is time consuming, so make sure you really need your own font
     // instead of using the application font
     m_standardFont = new cvf::FixedAtlasFont(cvf::FixedAtlasFont::STANDARD);
+    m_resViewUpdateTimer = NULL;
 }
 
 

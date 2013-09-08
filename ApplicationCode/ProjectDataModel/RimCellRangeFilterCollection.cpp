@@ -153,7 +153,7 @@ void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* c
     m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
     m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
-    m_reservoirView->createDisplayModelAndRedraw();
+    m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
 
 

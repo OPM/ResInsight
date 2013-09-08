@@ -95,7 +95,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
     {
         if (m_reservoirView) 
         {
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (&showWell == changedField)
@@ -103,7 +103,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         if (m_reservoirView)
         {
             m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (&showWellCells == changedField)
@@ -111,7 +111,7 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         if (m_reservoirView)
         {
             m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
 
     }
@@ -120,24 +120,24 @@ void RimWell::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QV
         if (m_reservoirView)
         {
             m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
 
     }
     else if (&showWellPipes == changedField)
     {
-        if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
     else if (&wellPipeColor == changedField)
     {
-        if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+        if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
     }
     else if (&pipeRadiusScaleFactor == changedField)
     {
         if (m_reservoirView)
         {
             m_reservoirView->schedulePipeGeometryRegen();
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }
