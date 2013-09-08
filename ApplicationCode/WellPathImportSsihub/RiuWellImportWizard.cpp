@@ -882,6 +882,7 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     setLayout(layout);
 
     m_textEdit = new QTextEdit(this);
+    m_textEdit->setReadOnly(true);
     layout->addWidget(m_textEdit);
 
     QPushButton* button = new QPushButton("Details", this);
