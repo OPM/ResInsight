@@ -898,8 +898,13 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     m_textEdit = new QTextEdit(this);
     layout->addWidget(m_textEdit);
 
+    QPushButton* button = new QPushButton("Details", this);
+    connect(button, SIGNAL(clicked()), this, SLOT(slotShowDetails()));
+    layout->addWidget(button);
+
     m_listView = new caf::PdmUiListView(this);
     layout->addWidget(m_listView);
+    m_listView->hide();
 
     m_objectGroup = new caf::PdmObjectGroup;
 }
@@ -922,6 +927,9 @@ void WellSummaryPage::updateSummaryPage()
 
     m_textEdit->setText("Summary of imported wells\n\n");
 
+    size_t wellPathCount = 0;
+    QString errorString;
+
     for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
     {
         RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
@@ -939,17 +947,14 @@ void WellSummaryPage::updateSummaryPage()
                     {
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
 
-                        QString wellStatus;
                         if (QFile::exists(oilField->wells[wIdx]->wellPathFilePath))
                         {
-                            wellStatus = QString("%1 %2").arg(oilField->wells[wIdx]->name).arg(oilField->wells[wIdx]->wellPathFilePath);
+                            wellPathCount++;
                         }
                         else
                         {
-                            wellStatus = QString("Failed to get file %1 from well %2").arg(oilField->wells[wIdx]->wellPathFilePath).arg(oilField->wells[wIdx]->name);
+                            errorString += QString("Failed to get file %1 from well %2\n").arg(oilField->wells[wIdx]->wellPathFilePath).arg(oilField->wells[wIdx]->name);
                         }
-
-                        m_textEdit->append(wellStatus);
 
                         m_objectGroup->objects.push_back(wellPathEntry);
                     }
@@ -958,7 +963,24 @@ void WellSummaryPage::updateSummaryPage()
         }
     }
 
+
+    m_textEdit->setText(QString("Downloaded successfully %1 well paths. Please push 'Finish' button to import well paths into ResInsight.\n\n").arg(wellPathCount));
+    if (!errorString.isEmpty())
+    {
+        m_textEdit->append("Detected following errors during well path download. See details below.");
+        m_textEdit->append(errorString);
+
+    }
+
     m_listView->setPdmObject(m_objectGroup);
     m_objectGroup->updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void WellSummaryPage::slotShowDetails()
+{
+    m_listView->show();
 }
 

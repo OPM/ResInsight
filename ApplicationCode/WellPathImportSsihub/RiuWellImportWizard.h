@@ -108,6 +108,9 @@ public:
 
     void updateSummaryPage();
 
+private slots:
+    void slotShowDetails();
+
 private:
     RimWellPathImport*  m_wellPathImportObject;
     QTextEdit*          m_textEdit;
