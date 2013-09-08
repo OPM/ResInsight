@@ -81,6 +81,11 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::configureAndUpdateUi(const QString& uiConfigName)
 {
+    if (this->pdmObject())
+    {
+        this->pdmObject()->objectEditorAttribute(uiConfigName, &m_editorAttributes);
+    }
+
     if (!m_treeModelPdm->treeItemRoot() || m_treeModelPdm->treeItemRoot()->dataObject() != this->pdmObject())
     {
         caf::PdmUiTreeItem* treeItemRoot = caf::UiTreeItemBuilderPdm::buildViewItems(NULL, -1, this->pdmObject());
@@ -101,6 +106,10 @@ void PdmUiTreeViewEditor::configureAndUpdateUi(const QString& uiConfigName)
             addEditorRecursively(children[cIdx], m_proxyEditor);
         }
     }
+
+
+    PdmUiTreeViewEditorAttribute leab;
+
 
     // Notify all connected views that the complete model is updated
     m_treeModelPdm->notifyModelChanged();
@@ -140,6 +149,14 @@ void PdmUiTreeViewEditor::childObjects(PdmObject* pdmObject, std::vector<PdmObje
     {
         if (fields[fIdx]) fields[fIdx]->childObjects(&children);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTreeView* PdmUiTreeViewEditor::treeView()
+{
+    return m_treeView;
 }
 
 

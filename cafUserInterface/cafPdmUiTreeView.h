@@ -22,6 +22,7 @@
 #include <QWidget>
 
 class QVBoxLayout;
+class QTreeView;
 
 namespace caf
 {
@@ -40,8 +41,10 @@ public:
     PdmUiTreeView(QWidget* parent = 0, Qt::WindowFlags f = 0);
     ~PdmUiTreeView();
 
-    void setUiConfigurationName(QString uiConfigName);
-    void setPdmObject(caf::PdmObject* object);
+    void        setUiConfigurationName(QString uiConfigName);
+    void        setPdmObject(caf::PdmObject* object);
+
+    QTreeView*  treeView();
 
 private:
     PdmUiTreeViewEditor*    m_treeViewEditor; 

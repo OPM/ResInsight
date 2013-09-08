@@ -20,6 +20,7 @@
 #pragma once
 
 #include "cafPdmUiObjectEditorHandle.h"
+#include "cafPdmUiFieldEditorHandle.h"
 
 #include <QWidget>
 #include <QPointer>
@@ -36,11 +37,27 @@ class UiTreeModelPdm;
 class PdmUiProxyEditorHandle;
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class PdmUiTreeViewEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    PdmUiTreeViewEditorAttribute()
+    {
+    }
+
+public:
+};
+
+
 class PdmUiTreeViewEditor : public PdmUiObjectEditorHandle
 {
 public:
     PdmUiTreeViewEditor();
     ~PdmUiTreeViewEditor();
+
+    QTreeView*          treeView();
 
 protected:
     virtual QWidget*    createWidget(QWidget* parent);
@@ -60,6 +77,8 @@ private:
 
     // Forward update events to the tree view editor connected to Pdm root object using a proxy editor
     PdmUiProxyEditorHandle* m_proxyEditor;
+
+    PdmUiTreeViewEditorAttribute m_editorAttributes;
 };
 
 

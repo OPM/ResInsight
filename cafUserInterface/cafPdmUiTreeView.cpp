@@ -81,5 +81,13 @@ void PdmUiTreeView::setPdmObject(caf::PdmObject* object)
     m_treeViewEditor->setPdmObject(object);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QTreeView* PdmUiTreeView::treeView()
+{
+    return m_treeViewEditor->treeView();
+}
+
 } //End of namespace caf
 
