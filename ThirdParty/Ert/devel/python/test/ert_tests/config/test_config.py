@@ -15,7 +15,6 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
-from unittest2 import TestSuite, TextTestRunner
 from ert.config import ContentTypeEnum, UnrecognizedEnum, SchemaItem, ContentItem, ContentNode, ConfigParser
 from ert_tests import ExtendedTestCase
 
@@ -29,6 +28,9 @@ class ConfigTest(ExtendedTestCase):
         self.assertTrue(ContentTypeEnum.CONFIG_STRING)
         self.assertTrue(ContentTypeEnum.CONFIG_INVALID)
         self.assertTrue(UnrecognizedEnum.CONFIG_UNRECOGNIZED_ERROR)
+
+        self.assertEqual(ContentTypeEnum.CONFIG_STRING, 1)
+        self.assertEqual(ContentTypeEnum.CONFIG_INVALID, 512)
 
 
     def test_parse(self):
@@ -72,16 +74,4 @@ class ConfigTest(ExtendedTestCase):
         self.assertEqual(schema_item.iget_type(0), ContentTypeEnum.CONFIG_INT)
         schema_item.set_argc_minmax(3, 6)
 
-
-def fast_suite():
-    suite = TestSuite()
-    suite.addTest(ConfigTest('test_enums'))
-    suite.addTest(ConfigTest('test_schema'))
-    suite.addTest(ConfigTest('test_parse'))
-    return suite
-
-
-if __name__ == "__main__":
-    TextTestRunner().run(fast_suite())
-
-
+        del schema_item

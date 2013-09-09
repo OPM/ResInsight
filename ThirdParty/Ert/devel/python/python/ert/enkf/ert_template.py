@@ -12,42 +12,36 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import CWrapper, BaseCClass
+from ert.enkf import ENKF_LIB
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
-class ErtTemplate(CClass):
-    
-    def __init__(self , c_ptr , parent = None):
-        if parent:
-            self.init_cref( c_ptr , parent)
-        else:
-            self.init_cobj( c_ptr , cfunc.free )
 
-    @property
+class ErtTemplate(BaseCClass):
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly!")
+
     def get_template_file(self):
-        return cfunc.get_template_file(self)
+        """ @rtype: str """
+        return ErtTemplate.cNamespace().get_template_file(self)
 
-    @property
     def get_target_file(self):
-        return cfunc.get_target_file(self)
+        """ @rtype: str """
+        return ErtTemplate.cNamespace().get_target_file(self)
 
-    @property
     def get_args_as_string(self):
-        return cfunc.get_args_as_string(self)   
-##################################################################
+        """ @rtype: str """
+        return ErtTemplate.cNamespace().get_args_as_string(self)
 
-cwrapper = CWrapper( libenkf.lib )
-cwrapper.registerType( "ert_template" , ErtTemplate )
+    def free(self):
+        ErtTemplate.cNamespace().free(self)
 
-cfunc = CWrapperNameSpace("ert_template")
-##################################################################
-##################################################################
-cfunc.free                   = cwrapper.prototype("void ert_template_free( ert_template )")
-cfunc.get_template_file      = cwrapper.prototype("char* ert_template_get_template_file(ert_template)")
-cfunc.get_target_file        = cwrapper.prototype("char* ert_template_get_target_file(ert_template)")
-cfunc.get_args_as_string     = cwrapper.prototype("char* ert_template_get_args_as_string(ert_template)")
+cwrapper = CWrapper(ENKF_LIB)
+cwrapper.registerType("ert_template", ErtTemplate)
+cwrapper.registerType("ert_template_obj", ErtTemplate.createPythonObject)
+cwrapper.registerType("ert_template_ref", ErtTemplate.createCReference)
+
+ErtTemplate.cNamespace().free = cwrapper.prototype("void ert_template_free( ert_template )")
+ErtTemplate.cNamespace().get_template_file = cwrapper.prototype("char* ert_template_get_template_file(ert_template)")
+ErtTemplate.cNamespace().get_target_file = cwrapper.prototype("char* ert_template_get_target_file(ert_template)")
+ErtTemplate.cNamespace().get_args_as_string = cwrapper.prototype("char* ert_template_get_args_as_string(ert_template)")

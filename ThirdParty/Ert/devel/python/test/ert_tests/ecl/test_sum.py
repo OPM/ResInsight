@@ -20,7 +20,8 @@ import datetime
 from unittest2 import skip, skipUnless, skipIf
 from ert.ecl import EclSum
 
-from ert.util import StringList, TestAreaContext
+from ert.util import StringList, TimeVector, DoubleVector
+from ert.util.test_area import TestAreaContext
 
 from ert_tests import ExtendedTestCase
 
@@ -260,4 +261,11 @@ class SumTest(ExtendedTestCase):
             tmp = var.split(":")
             nr = int(tmp[2])
             self.assertTrue(nr >= 0)
+
+    def test_return_types(self):
+        self.assertIsInstance(self.ecl_sum.alloc_time_vector(True), TimeVector)
+        key_index = self.ecl_sum.get_general_var_index("FOPT")
+        self.assertIsInstance(self.ecl_sum.alloc_data_vector(key_index, True), DoubleVector)
+
+
 

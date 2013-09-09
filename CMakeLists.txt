@@ -16,16 +16,22 @@ else()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
+option (RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ON)
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
         # Linux specific code
         set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
         set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
         set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
         #set(CMAKE_EXE_LINKER_FLAGS  "-Xlinker -rpath .")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+		if(RESINSIGHT_USE_OPENMP)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+		endif()
 #        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g1")
 ELSE()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
+	if(RESINSIGHT_USE_OPENMP)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
+	endif()
 ENDIF() 
 
 
@@ -121,11 +127,11 @@ if (NOT "${RESINSIGHT_PLATFORM}" STREQUAL "")
 endif()
 
 # override system install prefix if private installation chosen
-option (PRIVATE_INSTALL "Install in a private directory" ON)
-if (PRIVATE_INSTALL)
+option (RESINSIGHT_PRIVATE_INSTALL "Install as an independent bundle including the neccesary Qt libraries" ON)
+if (RESINSIGHT_PRIVATE_INSTALL)
     set (CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/Install/)
     #set (CMAKE_INSTALL_PREFIX /usr/${RESINSIGHT_FINAL_NAME})
-endif (PRIVATE_INSTALL)
+endif (RESINSIGHT_PRIVATE_INSTALL)
 
 ################################################################################
 # Application 

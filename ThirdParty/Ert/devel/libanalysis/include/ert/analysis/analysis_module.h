@@ -42,7 +42,7 @@ extern "C" {
 #define ANALYSIS_USE_A                4       // The module will read the content of A - but not modify it.
 #define ANALYSIS_UPDATE_A             8       // The update will be based on modifying A directly, and not on an X matrix. 
 #define ANALYSIS_SCALE_DATA          16
-
+#define ANALYSIS_ITERABLE            32       // The module can bu uused as an iterative smoother.
 
 #define EXTERNAL_MODULE_NAME "analysis_table" 
 #define EXTERNAL_MODULE_SYMBOL analysis_table

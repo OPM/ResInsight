@@ -422,7 +422,6 @@ void fortio_fclose(fortio_type *fortio) {
 
 
 bool fortio_is_fortio_file(fortio_type * fortio) {
-  FILE * stream = fortio->stream;
   offset_type init_pos = fortio_ftell(fortio);
   int elm_read;
   bool is_fortio_file = false;

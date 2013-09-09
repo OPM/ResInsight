@@ -1,6 +1,7 @@
 import os
 from unittest2 import skip
 from ert.util import LaTeX
+from ert.util.test_area import TestAreaContext
 from ert_tests import ExtendedTestCase
 
 
@@ -18,13 +19,15 @@ class LatexTest(ExtendedTestCase):
         lx = LaTeX("%s/test_error.tex" % self.local_path)
         self.assertFalse(lx.compile())
 
-    @skip("Unknown errors!")
+    #@skip("Unknown errors!")
     def test_cleanup( self ):
-        lx = LaTeX("%s/report_OK.tex" % self.statoil_path, in_place=True)
-        self.assertTrue(lx.in_place)
-        self.assertTrue(lx.compile())
-        for ext in ["log", "aux", "nav", "out", "snm", "toc"]:
-            self.assertFalse(os.path.exists("%s/report_OK.%s" % (self.statoil_path, ext)))
+        with TestAreaContext("latex") as work_area:
+            work_area.copy_directory_content(self.statoil_path)
+            lx = LaTeX("report_OK.tex", in_place=True)
+            self.assertTrue(lx.in_place)
+            self.assertTrue(lx.compile())
+            for ext in ["log", "aux", "nav", "out", "snm", "toc"]:
+                self.assertFalse(os.path.exists("report_OK.%s" % ext))
 
         lx = LaTeX("%s/report_OK.tex" % self.statoil_path, in_place=False)
         self.assertFalse(lx.in_place)
@@ -38,7 +41,7 @@ class LatexTest(ExtendedTestCase):
         self.assertTrue(os.path.exists("%s/report_OK.log" % run_path))
 
 
-    @skip("Unknown errors!")
+    #@skip("Unknown errors!")
     def test_report(self):
         lx = LaTeX("%s/report_error.tex" % self.statoil_path)
         lx.timeout = 4
@@ -47,7 +50,7 @@ class LatexTest(ExtendedTestCase):
         lx = LaTeX("%s/report_OK.tex" % self.statoil_path)
         self.assertTrue(lx.compile())
 
-    @skip("Unknown errors!")
+    #@skip("Unknown errors!")
     def test_target(self):
         lx = LaTeX("%s/report_OK.tex" % self.statoil_path)
         self.assertTrue(lx.compile())

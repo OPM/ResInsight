@@ -33,7 +33,7 @@ extern "C" {
   nnc_vector_type         * nnc_vector_alloc(int lgr_nr);   
   void                      nnc_vector_free( nnc_vector_type * nnc_vector );
   void                      nnc_vector_add_nnc(nnc_vector_type * nnc_vector, int global_cell_number); 
-  const int_vector_type   * nnc_vector_get_index_list(const nnc_vector_type * nnc_vector); 
+  const int_vector_type   * nnc_vector_get_index_list(nnc_vector_type * nnc_vector);
   int                       nnc_vector_get_lgr_nr(const nnc_vector_type * nnc_vector );
   void                      nnc_vector_free__(void * arg);
   

@@ -23,4 +23,5 @@ SCHED_LIB = clib.ert_load("libsched.so")
 
 
 from .sched_file import SchedFile
-from .history import HistoryType
+from .history_source_enum import HistorySourceEnum
+from .history import History

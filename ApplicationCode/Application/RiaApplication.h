@@ -68,6 +68,8 @@ public:
     RimReservoirView*       activeReservoirView();
     const RimReservoirView* activeReservoirView() const;
 
+    void                scheduleDisplayModelUpdateAndRedraw(RimReservoirView* resViewToUpdate);
+
     RimProject*         project(); 
 
     void                createMockModel();
@@ -128,6 +130,9 @@ public:
     QString             commandLineParameterHelp() const;
     void                showFormattedTextInMessageBox(const QString& text);
 
+    void                setCacheDataObject(const QString& key, const QVariant& dataObject);
+    QVariant            cacheDataObject(const QString& key) const;
+
 private:
     void		        onProjectOpenedOrClosed();
     void		        setWindowCaptionFromAppState();
@@ -137,10 +142,14 @@ private:
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
+    void                slotUpdateScheduledDisplayModels();
 
 private:
     caf::PdmPointer<RimReservoirView>   m_activeReservoirView;
     caf::PdmPointer<RimProject>         m_project;
+
+    std::vector<caf::PdmPointer<RimReservoirView> > m_resViewsToUpdate;
+    QTimer*                             m_resViewUpdateTimer;
 
     RiaSocketServer*                    m_socketServer;
 
@@ -151,11 +160,12 @@ private:
     QString                             m_currentProgram;
     QStringList                         m_currentArguments;
 
-
     RiaPreferences*                     m_preferences;
 
     std::map<QString, QString>          m_fileDialogDefaultDirectories;
     QString                             m_startupDefaultDirectory;
 
     cvf::ref<cvf::Font>                 m_standardFont;
+
+    QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
 };

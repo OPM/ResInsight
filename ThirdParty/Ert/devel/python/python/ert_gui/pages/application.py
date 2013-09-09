@@ -69,7 +69,7 @@ class Application(QtGui.QMainWindow):
             self.save_function()
 
     def _createDock(self):
-        dock = QDockWidget("Workflow")
+        dock = QDockWidget("")
         dock.setObjectName("ERTGUI Workflow")
         dock.setWidget(self.contentsWidget)
         dock.setFeatures(QDockWidget.DockWidgetClosable)

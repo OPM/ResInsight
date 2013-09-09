@@ -25,6 +25,7 @@ extern "C" {
 
 #include <ert/util/hash.h>
 #include <ert/util/stringlist.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/sched/history.h>
 
@@ -63,7 +64,7 @@ extern "C" {
                                     enkf_fs_type           * fs,
                                     const int_vector_type  * step_list , 
                                     state_enum               state,
-                                    int                      ens_size,
+                                    const int_vector_type  * ens_active_list, 
                                     const enkf_state_type ** ensemble ,
                                     meas_data_type         * meas_data,
                                     obs_data_type          * obs_data,

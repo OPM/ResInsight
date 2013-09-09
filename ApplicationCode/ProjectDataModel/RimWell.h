@@ -55,6 +55,8 @@ public:
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                        defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering);
 
+    caf::PdmField<bool>                 showWell;
+
     caf::PdmField<QString>              name;
     caf::PdmField<bool>                 showWellLabel;
     

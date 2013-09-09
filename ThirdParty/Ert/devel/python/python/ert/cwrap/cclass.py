@@ -16,6 +16,7 @@
 
 import ctypes
 
+
 class CClass(object):
     """
     Base class used by all the classes wrapping a C 'class'.
@@ -86,38 +87,38 @@ class CClass(object):
          C object.
     
     """
-    c_ptr  = None
-    cfree  = None
+    c_ptr = None
+    cfree = None
     parent = None
-    
+
     @classmethod
-    def from_param( cls , obj ):
+    def from_param( cls, obj ):
         if obj is None:
             return ctypes.c_void_p()
         else:
-            return ctypes.c_void_p( obj.c_ptr )
+            return ctypes.c_void_p(obj.c_ptr)
 
     @classmethod
-    def asPythonObject( cls , c_ptr, cfree):
+    def asPythonObject( cls, c_ptr, cfree):
         assert cfree is not None
-        obj = cls( )
-        obj.init_cobj( c_ptr , cfree)
+        obj = cls()
+        obj.init_cobj(c_ptr, cfree)
         return obj
 
     @classmethod
-    def asPythonReference( cls , c_ptr , parent ):
-        obj = cls( )
-        obj.init_cref( c_ptr , parent )
+    def asPythonReference( cls, c_ptr, parent ):
+        obj = cls()
+        obj.init_cref(c_ptr, parent)
         return obj
 
 
-    def init_cref(self , c_ptr , parent):
+    def init_cref(self, c_ptr, parent):
         self.c_ptr = c_ptr
         self.parent = parent
         self.cfree = None
 
 
-    def init_cobj( self , c_ptr , cfree):
+    def init_cobj( self, c_ptr, cfree):
         self.c_ptr = c_ptr
         self.parent = None
         self.cfree = cfree
@@ -128,5 +129,5 @@ class CClass(object):
             # Important to check the c_ptr; in the case of failed object creation
             # we can have a Python object with c_ptr == None.
             if self.c_ptr:
-                self.cfree( self )
+                self.cfree(self)
                 

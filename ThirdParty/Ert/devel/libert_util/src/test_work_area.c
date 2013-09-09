@@ -106,7 +106,7 @@ test_work_area_type * test_work_area_alloc(const char * test_name, bool retain) 
   if (test_name) {
     uid_t uid = getuid();
     struct passwd * pw = getpwuid( uid );
-    rng_type * rng = rng_alloc(MZRAN , INIT_CLOCK );
+    rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM );
     char * path = util_alloc_sprintf( PATH_FMT , pw->pw_name , test_name , rng_get_int( rng , 100000000 ));
     test_work_area_type * work_area = test_work_area_alloc__( path , retain );
     free( path );

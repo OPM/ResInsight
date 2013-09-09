@@ -16,7 +16,7 @@
 #  for more details.
 import os
 from ert.ecl import EclKW, EclTypeEnum, EclFile
-from ert.util import TestAreaContext
+from ert.util.test_area import TestAreaContext
 
 from ert_tests import ExtendedTestCase
 

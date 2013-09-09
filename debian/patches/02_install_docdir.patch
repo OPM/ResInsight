@@ -13,7 +13,7 @@ index 7995ceb..4930b98 100644
  
  include_directories(
      ${CMAKE_CURRENT_SOURCE_DIR}
-@@ -313,7 +317,7 @@ else (PRIVATE_INSTALL)
+@@ -313,7 +317,7 @@ else (RESINSIGHT_PRIVATE_INSTALL)
  	)
    # license go in /usr/share/doc
    install (FILES ${RESINSIGHT_LICENSE_FILES}

@@ -23,7 +23,7 @@
 #include <ert/util/int_vector.h>
 #include <ert/util/bool_vector.h>
 #include <ert/util/string_util.h>
-
+#include <ert/util/type_vector_functions.h>
 
 /*****************************************************************/
 
@@ -127,21 +127,13 @@ static int_vector_type * string_util_sscanf_alloc_active_list(const char * range
 
 /*****************************************************************/
 
-static bool_vector_type * alloc_mask( const int_vector_type * active_list ) {
-  bool_vector_type * mask = bool_vector_alloc( 0 , false );
-  int i;
-  for (i=0; i < int_vector_size( active_list ); i++) 
-    bool_vector_iset( mask , int_vector_iget( active_list , i) , true );
-
-  return mask;
-}
 
 
 
 bool string_util_update_active_list( const char * range_string , int_vector_type * active_list ) {
   int_vector_sort( active_list );
   {
-    bool_vector_type * mask = alloc_mask( active_list );
+    bool_vector_type * mask = int_vector_alloc_mask( active_list );
     bool valid = false;
 
     if (string_util_update_active_mask( range_string , mask )) {

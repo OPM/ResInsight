@@ -65,11 +65,13 @@ void test_nnc_lgr( const char * grid_filename ) {
   const int_vector_type * nnc_cell_number_vec = nnc_info_get_index_list(nnc_info, 0);
   test_assert_not_NULL(nnc_cell_number_vec);
   
+  int_vector_fprintf(nnc_cell_number_vec , stdout , "nnc_cell_number" , "%6d");
+
   test_assert_int_equal(int_vector_size(nnc_cell_number_vec), 1); 
   test_assert_int_equal(int_vector_iget(nnc_cell_number_vec, 0), 151053); 
   
   //LGR
-  const int data[] = {126394, 126305};
+  const int data[] = {126305, 126394};
     
   ecl_grid_type * lgr_grid = ecl_grid_iget_lgr(ecl_grid, 0);
   test_assert_not_NULL( lgr_grid );
@@ -85,7 +87,7 @@ void test_nnc_lgr( const char * grid_filename ) {
   
   int i;
   for (i = 0; i < int_vector_size(lgr_nnc_cell_number_vec); i++)
-    test_assert_int_equal(int_vector_iget(lgr_nnc_cell_number_vec, i), data[i]); 
+    test_assert_int_equal(data[i], int_vector_iget(lgr_nnc_cell_number_vec, i));
   
   ecl_grid_free(ecl_grid);
 }
@@ -98,7 +100,7 @@ void test_nnc_multiple_lgr( const char * grid_filename) {
   
   {  
     //Global grid, check NNC for cell with global index 736
-    int data[] = {11957, 20336, 3528, 6321, 9114, 11907, 20286};
+    int data[] = {3528, 6321, 9114, 11907, 11957, 20286 , 20336};
     
     const nnc_info_type * nnc_info = ecl_grid_get_cell_nnc_info1(ecl_grid, 736);
     test_assert_not_NULL(nnc_info); 
@@ -120,7 +122,7 @@ void test_nnc_multiple_lgr( const char * grid_filename) {
   
   {  
     //Global grid, check NNC for cell with global index 138291
-    int data[] = {141035, 143828, 141085, 143878};
+    int data[] = {141035, 141085, 143828, 143878};
     
     const nnc_info_type * nnc_info = ecl_grid_get_cell_nnc_info1(ecl_grid, 138291);
     test_assert_not_NULL(nnc_info); 
@@ -138,7 +140,7 @@ void test_nnc_multiple_lgr( const char * grid_filename) {
   
   {
     //LGR nr 1, cell global index 0:  check NNCs to main grid
-    int data[] = {29012, 26220};
+    int data[] = {26220 , 29012};
     
     ecl_grid_type * lgr_grid = ecl_grid_iget_lgr(ecl_grid, 0); 
     test_assert_not_NULL(lgr_grid);
@@ -211,7 +213,7 @@ void test_nnc_multiple_lgr( const char * grid_filename) {
   
   {
     //LGR nr 99, check NNC for cell with global index 736
-    int data[] = {126671, 79142};
+    int data[] = {79142 ,126671};
     
     ecl_grid_type * lgr_grid = ecl_grid_iget_lgr(ecl_grid, 98-1); //Subtract 1: LGR nr 98 is not present in the test file. LGRs are numbered 1-97 and 99-110 in test file.
     test_assert_not_NULL(lgr_grid);
@@ -333,7 +335,7 @@ int main(int argc , char ** argv) {
   
   test_nnc_global_grid( EGRID_file1 );
   test_nnc_lgr( EGRID_file2 );
-  test_nnc_multiple_lgr( EGRID_file3 ); 
+  test_nnc_multiple_lgr( EGRID_file3 );
   test_nnc_amalgamated_lgrs(EGRID_file3);
   test_nnc_dual_poro( EGRID_file4 );
   

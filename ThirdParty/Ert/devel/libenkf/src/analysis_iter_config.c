@@ -47,24 +47,6 @@ int analysis_iter_config_get_num_iterations( const analysis_iter_config_type * c
   return config->num_iterations;
 }
 
-
-
-analysis_iter_config_type * analysis_iter_config_alloc() {
-   analysis_iter_config_type * config = util_malloc( sizeof * config );    
-   config->runpath_fmt    = NULL;
-   config->case_fmt    = NULL;
-   config->storage        = stringlist_alloc_new();
-   analysis_iter_config_set_num_iterations( config , DEFAULT_ANALYSIS_NUM_ITERATIONS );
-   return config;
-}
-
-void analysis_iter_config_free( analysis_iter_config_type * config ) {
-  util_safe_free( config->runpath_fmt );
-  util_safe_free( config->case_fmt );
-  stringlist_free( config->storage );
-}
-
-
 /**
    This should contain a format string with two %d modifiers, the
    first will be replaced with the iteration number, and the second
@@ -86,9 +68,35 @@ static void analysis_iter_config_set_runpath_fmt( analysis_iter_config_type * co
   }
 }
 
-static void analysis_iter_config_set_case_fmt( analysis_iter_config_type * config , const char * case_fmt) {
+void analysis_iter_config_set_case_fmt( analysis_iter_config_type * config , const char * case_fmt) {
   config->case_fmt = util_realloc_string_copy( config->case_fmt , case_fmt );
 }
+
+char * analysis_iter_config_get_case_fmt( analysis_iter_config_type * config) {
+  return config->case_fmt;
+}
+
+
+analysis_iter_config_type * analysis_iter_config_alloc() {
+   analysis_iter_config_type * config = util_malloc( sizeof * config );  
+   config->runpath_fmt = NULL;
+   analysis_iter_config_set_runpath_fmt( config, DEFAULT_ANALYSIS_ITER_RUNPATH);
+   config->case_fmt = NULL;
+   analysis_iter_config_set_case_fmt( config, DEFAULT_ANALYSIS_ITER_CASE);
+   config->storage        = stringlist_alloc_new();
+   analysis_iter_config_set_num_iterations( config , DEFAULT_ANALYSIS_NUM_ITERATIONS );
+   return config;
+}
+
+void analysis_iter_config_free( analysis_iter_config_type * config ) {
+  util_safe_free( config->runpath_fmt );
+  util_safe_free( config->case_fmt );
+  stringlist_free( config->storage );
+}
+
+
+
+
 
 const char * analysis_iter_config_iget_runpath_fmt( analysis_iter_config_type * config , int iter) {
   if (config->runpath_fmt != NULL) {

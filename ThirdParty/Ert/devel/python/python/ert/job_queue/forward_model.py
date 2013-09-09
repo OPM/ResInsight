@@ -13,44 +13,40 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.cwrap import CWrapper, BaseCClass
 from ert.job_queue import ExtJob, JOB_QUEUE_LIB
 from ert.util import StringList
 
 
-class ForwardModel(CClass):
-    
-    def __init__(self , c_ptr , parent = None):
-        if parent:
-            self.init_cref( c_ptr , parent)
-        else:
-            self.init_cobj( c_ptr , cfunc.free )
-            
-    @property
-    def alloc_joblist(self):
-        s = StringList(initial = None, c_ptr = cfunc.alloc_joblist(self))
-        return s
+class ForwardModel(BaseCClass):
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly!")
+
+    def joblist(self):
+        """ @rtype: StringList """
+        return ForwardModel.cNamespace().alloc_joblist(self)
 
     def iget_job(self, index):
-        job = ExtJob( cfunc.iget_job( self, index ), parent = self)
-        return job
+        """ @rtype: ExtJob """
+        return ForwardModel.cNamespace().iget_job(self, index).setParent(self)
 
     def add_job(self, name):
-        job = ExtJob( cfunc.add_job( self, name ), parent = self)
-        return job
+        """ @rtype: ExtJob """
+        return ForwardModel.cNamespace().add_job(self, name).setParent(self)
 
     def clear(self):
-        cfunc.clear(self)
-##################################################################
+        ForwardModel.cNamespace().clear(self)
+
+    def free(self):
+        ForwardModel.cNamespace().free(self)
 
 cwrapper = CWrapper(JOB_QUEUE_LIB)
-cwrapper.registerType( "forward_model" , ForwardModel )
+cwrapper.registerType("forward_model", ForwardModel)
+cwrapper.registerType("forward_model_obj", ForwardModel.createPythonObject)
+cwrapper.registerType("forward_model_ref", ForwardModel.createCReference)
 
-cfunc = CWrapperNameSpace("forward_model")
-##################################################################
-##################################################################
-cfunc.free                       = cwrapper.prototype("void forward_model_free( forward_model )")
-cfunc.clear                      = cwrapper.prototype("void forward_model_clear(forward_model)")
-cfunc.add_job                    = cwrapper.prototype("c_void_p forward_model_add_job(forward_model, char*)")
-cfunc.alloc_joblist              = cwrapper.prototype("c_void_p forward_model_alloc_joblist(forward_model)")
-cfunc.iget_job                   = cwrapper.prototype("c_void_p forward_model_iget_job( forward_model, int)")
+ForwardModel.cNamespace().free = cwrapper.prototype("void forward_model_free( forward_model )")
+ForwardModel.cNamespace().clear = cwrapper.prototype("void forward_model_clear(forward_model)")
+ForwardModel.cNamespace().add_job = cwrapper.prototype("ext_job_ref forward_model_add_job(forward_model, char*)")
+ForwardModel.cNamespace().alloc_joblist = cwrapper.prototype("stringlist_obj forward_model_alloc_joblist(forward_model)")
+ForwardModel.cNamespace().iget_job = cwrapper.prototype("ext_job_ref forward_model_iget_job( forward_model, int)")

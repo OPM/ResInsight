@@ -1,0 +1,1 @@
+install(PROGRAMS ert_module DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

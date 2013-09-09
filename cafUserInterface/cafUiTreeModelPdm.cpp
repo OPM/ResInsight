@@ -322,6 +322,12 @@ Qt::ItemFlags UiTreeModelPdm::flags(const QModelIndex &index) const
             {
                 flagMask = flagMask | Qt::ItemIsUserCheckable;
             }
+
+            if (pdmObject->isUiReadOnly())
+            {
+                flagMask = flagMask & (~Qt::ItemIsEnabled);
+            }
+
         }
     }
     else
@@ -390,61 +396,64 @@ void UiTreeModelPdm::updateUiSubTree(PdmObject* pdmRoot)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Makes the olUiTreeRoot tree become identical to the tree in newUiTreeRoot, 
+/// Makes the destinationSubTreeRoot tree become identical to the tree in sourceSubTreeRoot, 
 /// calling begin..() end..() to make the UI update accordingly.
 /// This assumes that all the items have a pointer an unique PdmObject 
 //--------------------------------------------------------------------------------------------------
-void UiTreeModelPdm::updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeItem* uiModelSubTreeRoot, PdmUiTreeItem* updatedPdmSubTreeRoot)
+void UiTreeModelPdm::updateModelSubTree(const QModelIndex& modelIdxOfDestinationSubTreeRoot, PdmUiTreeItem* destinationSubTreeRoot, PdmUiTreeItem* sourceSubTreeRoot)
 {
     // First loop over children in the old ui tree, deleting the ones not present in 
     // the newUiTree
 
-    for (int i = 0; i < uiModelSubTreeRoot->childCount() ; ++i)
+    for (int resultChildIdx = 0; resultChildIdx < destinationSubTreeRoot->childCount() ; ++resultChildIdx)
     {
-        PdmUiTreeItem* oldChild = uiModelSubTreeRoot->child(i);
-        int childIndex = updatedPdmSubTreeRoot->findChildItemIndex(oldChild->dataObject());
+        PdmUiTreeItem* oldChild = destinationSubTreeRoot->child(resultChildIdx);
+        int childIndex = sourceSubTreeRoot->findChildItemIndex(oldChild->dataObject());
 
         if (childIndex == -1) // Not found
         {
-            this->beginRemoveRows(uiSubTreeRootModelIdx, i, i);
-            uiModelSubTreeRoot->removeChildren(i, 1);
+            this->beginRemoveRows(modelIdxOfDestinationSubTreeRoot, resultChildIdx, resultChildIdx);
+            destinationSubTreeRoot->removeChildren(resultChildIdx, 1);
             this->endRemoveRows();
-            i--;
+            resultChildIdx--;
         }
     }
 
     // Then loop over the children in the new ui tree, finding the corresponding items in the old tree. 
     // If they are found, we move them to the correct position. 
-    // If not found, we pulls the item out of the old ui tree, inserting it into the old tree.
+    // If not found, we pulls the item out of the old ui tree, inserting it into the new tree to avoid the default delete operation in ~UiTreeItem()
 
-    for (int i = 0; i < updatedPdmSubTreeRoot->childCount() ; ++i)
+    int sourceChildCount = sourceSubTreeRoot->childCount();
+    int sourceChildIdx = 0;
+
+    for (int resultChildIdx = 0; resultChildIdx < sourceChildCount; ++resultChildIdx, ++sourceChildIdx)
     {
-        PdmUiTreeItem* newChild = updatedPdmSubTreeRoot->child(i);
-        int childIndex = uiModelSubTreeRoot->findChildItemIndex(newChild->dataObject());
+        PdmUiTreeItem* newChild = sourceSubTreeRoot->child(sourceChildIdx);
+        int childIndex = destinationSubTreeRoot->findChildItemIndex(newChild->dataObject());
 
         if (childIndex == -1) // Not found
         {
-            this->beginInsertRows(uiSubTreeRootModelIdx, i, i);
-            uiModelSubTreeRoot->insertChild(i, newChild);
+            this->beginInsertRows(modelIdxOfDestinationSubTreeRoot, resultChildIdx, resultChildIdx);
+            destinationSubTreeRoot->insertChild(resultChildIdx, newChild);
             this->endInsertRows();
-            updatedPdmSubTreeRoot->removeChildrenNoDelete(i, 1);
-            i--;
+            sourceSubTreeRoot->removeChildrenNoDelete(sourceChildIdx, 1);
+            sourceChildIdx--;
         }
-        else if (childIndex != i) // Found, but must be moved
+        else if (childIndex != resultChildIdx) // Found, but must be moved
         {
-            assert(childIndex > i);
+            assert(childIndex > resultChildIdx);
 
-            PdmUiTreeItem* oldChild = uiModelSubTreeRoot->child(childIndex);
-            this->beginMoveRows(uiSubTreeRootModelIdx, childIndex, childIndex, uiSubTreeRootModelIdx, i);
-            uiModelSubTreeRoot->removeChildrenNoDelete(childIndex, 1);
-            uiModelSubTreeRoot->insertChild(i, oldChild);
+            PdmUiTreeItem* oldChild = destinationSubTreeRoot->child(childIndex);
+            this->beginMoveRows(modelIdxOfDestinationSubTreeRoot, childIndex, childIndex, modelIdxOfDestinationSubTreeRoot, resultChildIdx);
+            destinationSubTreeRoot->removeChildrenNoDelete(childIndex, 1);
+            destinationSubTreeRoot->insertChild(resultChildIdx, oldChild);
             this->endMoveRows();
-            updateModelSubTree( index(i, 0, uiSubTreeRootModelIdx) ,oldChild, newChild);
+            updateModelSubTree( index(resultChildIdx, 0, modelIdxOfDestinationSubTreeRoot), oldChild, newChild);
         }
         else // Found the corresponding item in the right place.
         {
-            PdmUiTreeItem* oldChild = uiModelSubTreeRoot->child(childIndex);
-            updateModelSubTree( index(i, 0, uiSubTreeRootModelIdx) ,oldChild, newChild);
+            PdmUiTreeItem* oldChild = destinationSubTreeRoot->child(childIndex);
+            updateModelSubTree( index(resultChildIdx, 0, modelIdxOfDestinationSubTreeRoot), oldChild, newChild);
         }
     }
 
@@ -458,6 +467,17 @@ void UiTreeModelPdm::updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx
 PdmUiTreeItem* UiTreeModelPdm::treeItemRoot()
 {
     return m_treeItemRoot;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void UiTreeModelPdm::notifyModelChanged()
+{
+    QModelIndex startModelIdx = index(0,0);
+    QModelIndex endModelIdx = index(rowCount(startModelIdx), 0);
+
+    emit dataChanged(startModelIdx, endModelIdx);
 }
 
 //--------------------------------------------------------------------------------------------------

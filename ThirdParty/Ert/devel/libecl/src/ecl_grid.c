@@ -2133,7 +2133,7 @@ static void ecl_grid_init_nnc_cells( ecl_grid_type * grid1, ecl_grid_type * grid
       ecl_cell_type * grid1_cell = ecl_grid_get_cell(grid1, grid1_cell_index);
       ecl_cell_type * grid2_cell = ecl_grid_get_cell(grid2, grid2_cell_index); 
 
-                //Add the non-neighbour connection in both directions
+      //Add the non-neighbour connection in both directions
       nnc_info_add_nnc(grid1_cell->nnc_info, grid2->lgr_nr, grid2_cell_index);
       nnc_info_add_nnc(grid2_cell->nnc_info, grid1->lgr_nr, grid1_cell_index);
       
@@ -2149,28 +2149,35 @@ static void ecl_grid_init_nnc_cells( ecl_grid_type * grid1, ecl_grid_type * grid
 */
 static void ecl_grid_init_nnc(ecl_grid_type * main_grid, ecl_file_type * ecl_file) {
   int num_nnchead_kw = ecl_file_get_num_named_kw( ecl_file , NNCHEAD_KW ); 
-  int num_nncg_kw    = ecl_file_get_num_named_kw( ecl_file , NNCG_KW );
   
   int i; 
   for (i = 0; i < num_nnchead_kw; i++) { 
-    ecl_kw_type * nnchead_kw = ecl_file_iget_named_kw( ecl_file , NNCHEAD_KW , i);
-    int lgr_nr =  ecl_kw_iget_int(nnchead_kw, NNCHEAD_LGR_INDEX);  
-    ecl_kw_type * keyword1 = NULL; 
-    ecl_kw_type * keyword2 = NULL; 
-    
-    if (ECL_GRID_MAINGRID_LGR_NR == lgr_nr) {
-      keyword1 = ecl_file_iget_named_kw( ecl_file , NNC1_KW , i);
-      keyword2 = ecl_file_iget_named_kw( ecl_file , NNC2_KW , i);
-    } else {
-      int nnc_lgr_index = (num_nnchead_kw == num_nncg_kw) ? i : i-1; //Subtract 1 if no nnc data for main grid
-      keyword1 = ecl_file_iget_named_kw( ecl_file , NNCL_KW , nnc_lgr_index);
-      keyword2 = ecl_file_iget_named_kw( ecl_file , NNCG_KW , nnc_lgr_index);
-    }
-    
+    ecl_file_push_block(ecl_file);               /* <---------------------------------------------------------------- */
+    ecl_file_select_block(ecl_file , NNCHEAD_KW , i);
     {
-      ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;  
-      ecl_grid_init_nnc_cells(grid, main_grid, keyword1, keyword2); 
+      ecl_kw_type * nnchead_kw = ecl_file_iget_named_kw(ecl_file, NNCHEAD_KW, 0);
+      int lgr_nr = ecl_kw_iget_int(nnchead_kw, NNCHEAD_LGR_INDEX);
+
+      if (ecl_file_has_kw(ecl_file , NNC1_KW)) {
+        const ecl_kw_type * nnc1 = ecl_file_iget_named_kw(ecl_file, NNC1_KW, 0);
+        const ecl_kw_type * nnc2 = ecl_file_iget_named_kw(ecl_file, NNC2_KW, 0);
+
+        {
+          ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
+          ecl_grid_init_nnc_cells(grid, grid, nnc1, nnc2);
+        }
+      }
+
+      if (ecl_file_has_kw(ecl_file , NNCL_KW)) {
+        const ecl_kw_type * nncl = ecl_file_iget_named_kw(ecl_file, NNCL_KW, 0);
+        const ecl_kw_type * nncg = ecl_file_iget_named_kw(ecl_file, NNCG_KW, 0);
+        {
+          ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
+          ecl_grid_init_nnc_cells(grid, main_grid, nncl, nncg);
+        }
+      }
     }
+    ecl_file_pop_block( ecl_file );            /* <------------------------------------------------------------------  */
   }
 }
 
