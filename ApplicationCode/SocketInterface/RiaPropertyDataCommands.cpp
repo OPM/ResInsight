@@ -904,7 +904,7 @@ public:
             qint64 bytesRead = currentClient->read((char*)(doubleValues.data()), m_bytesPerTimeStepToRead);
             size_t doubleValueIndex = 0;
 
-            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_currentTimeStepNumberToRead, m_currentScalarIndex);
+            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
             if (!cellCenterDataAccessObject.isNull())
             {
                 for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < cellCountFromOctave; cellIdx++)
