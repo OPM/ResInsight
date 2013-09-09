@@ -20,6 +20,7 @@
 
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
+#include <ert/util/test_work_area.h>
 
 #include <ert/ecl/fortio.h>
 #include <ert/ecl/ecl_endian_flip.h>
@@ -79,10 +80,15 @@ int main( int argc , char ** argv) {
   
   test_existing_read( file );
   test_not_existing_read( );
-  test_write( "/tmp/file.x" , true );
-  test_write( "/tmp/path/does/not/exist" , false );
   test_open_close_read( file );
   test_wrapper( file );
+  test_write( "/tmp/path/does/not/exist" , false );  
+  {
+    test_work_area_type * work_area = test_work_area_alloc("ecl_fortio.write" , true );
+    util_make_path("path");
+    test_write( "path/file.x" , true );
+    test_work_area_free( work_area );
+  }
   
   exit(0);
 }

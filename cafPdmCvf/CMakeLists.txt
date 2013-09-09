@@ -9,6 +9,8 @@ include_directories(
 
 
 add_library( ${PROJECT_NAME}
-    cafPdmFieldCvfColor.cpp
+	cafPdmFieldCvfColor.cpp
+	cafPdmFieldCvfColor.h
 	cafPdmFieldCvfMat4d.cpp
+	cafPdmFieldCvfMat4d.h
 )

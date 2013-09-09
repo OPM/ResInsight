@@ -39,7 +39,8 @@
 #include <ert/ecl/point.h>
 #include <ert/ecl/tetrahedron.h>
 #include <ert/ecl/grid_dims.h>
-
+#include <ert/ecl/nnc_info.h>
+#include <ert/ecl/nnc_index_list.h>
 
 /*
   If openmp is enabled the main loop in ecl_grid_init_GRDECL_data is
@@ -358,6 +359,73 @@
 */
 
 
+/*
+  About nnc
+  ---------
+
+  When loading a grid file the various NNC related keywords are read
+  in to assemble information of the NNC. The NNC information is
+  organized as follows:
+
+    1. The field nnc_index_list is a thin wrapper around a int_vector
+       instance which will return a sorted list of indicies of cells
+       which have attached NNC information.
+
+    2. For cells with NNC's attached the information is kept in a
+       nnc_info_type structure. For a particular cell the nnc_info
+       structure keeps track of which other cells this particular cell
+       is connected to, on a per grid (i.e. LGR) basis. 
+
+       In the nnc_info structure the different grids are identified
+       through the lgr_nr.
+
+
+
+  Example usage:
+  --------------
+
+     ecl_grid_type * grid = ecl_grid_alloc("FILE.EGRID");
+
+     // Get a int_vector instance with all the cells which have nnc info
+     // attached.
+     const int_vector_type * cells_with_nnc = ecl_grid_get_nnc_index_list( grid );
+
+     // Iterate over all the cells with nnc info:
+     for (int i=0; i < int_vector_size( cells_with_nnc ); i++) {
+         int cell_index =  int_vector_iget( cells_with_nnc , i);
+         const nnc_info_type * nnc_info = ecl_grid_get_nnc_info1( grid , cell_index);
+
+         // Get all the nnc connections from @cell_index to other cells in the same grid
+         {
+            const int_vector_type * nnc_list = nnc_info_get_self_index_list( nnc_info );
+            for (int j=0; j < int_vector_size( nnc_list ); j++) 
+               printf("Cell[%d] -> %d  in the same grid \n",cell_index , int_vector_iget(nnc_list , j));
+         }
+             
+
+         {
+             for (int lgr_index=0; lgr_index < nnc_info_get_size( nnc_info ); lgr_index++) {
+                nnc_vector_type * nnc_vector = nnc_info_iget_vector( nnc_info , lgr_index );
+                int lgr_nr = nnc_vector_get_lgr_nr( nnc_vector );
+                if (lgr_nr != nnc_info_get_lgr_nr( nnc_info )) {
+                   const int_vector_type * nnc_list = nnc_vector_get_index_list( nnc_vector );
+                   for (int j=0; j < int_vector_size( nnc_list ); j++) 
+                       printf("Cell[%d] -> %d  in lgr:%d/%s \n",cell_index , int_vector_iget(nnc_list , j) , lgr_nr  , ecl_grid_get_lgr_name(ecl_grid , lgr_nr));   
+                }  
+             }   
+         }  
+     }
+
+
+  Dual porosity and nnc: In ECLIPSE the connection between the matrix
+  properties and the fracture properties in a cell is implemented as a
+  nnc where the fracture cell has global index in the range [nx*ny*nz,
+  2*nz*ny*nz). In ert we we have not implemented this double covering
+  in the case of dual porosity models, and therefor NNC involving 
+  fracture cells are not considered.
+*/
+
+
 
 /*
   about tetraheder decomposition
@@ -467,6 +535,7 @@ struct ecl_cell_struct {
   int                    host_cell;          /* the global index of the host cell for an lgr cell, set to -1 for normal cells. */
   int                    coarse_group;       /* The index of the coarse group holding this cell -1 for non-coarsened cells. */
   int                    cell_flags;
+  nnc_info_type        * nnc_info;           /* Non-neighbour connection info*/
 };  
 
 
@@ -476,7 +545,8 @@ struct ecl_cell_struct {
 
 struct ecl_grid_struct {
   UTIL_TYPE_ID_DECLARATION;
-  int                   grid_nr;       /* this corresponds to item 4 in gridhead - 0 for the main grid. */ 
+  int                   lgr_nr;        /* EGRID files: corresponds to item 4 in gridhead - 0 for the main grid. 
+                                          GRID files: 0 for the main grid, then 1 -> number of LGRs in order read from file*/ 
   char                * name;          /* the name of the file for the main grid - name of the lgr for lgrs. */
   int                   ny,nz,nx;
   int                   size;          /* == nx*ny*nz */
@@ -488,6 +558,7 @@ struct ecl_grid_struct {
 
   int                 * fracture_index_map;     /* For fractures: this a list of nx*ny*nz elements, where value -1 means inactive cell .*/
   int                 * inv_fracture_index_map; /* For fractures: this is list of total_active elements - which point back to the index_map. */ 
+  nnc_index_list_type * nnc_index_list;
 
 #ifdef LARGE_CELL_MALLOC
   ecl_cell_type      *  cells;
@@ -506,19 +577,20 @@ struct ecl_grid_struct {
   /*
     the two fields below are for *storing* lgr grid instances. observe
     that these fields will be NULL for lgr grids, i.e. grids with
-    grid_nr > 0. 
+    lgr_nr > 0. 
   */
-  vector_type         * LGR_list;      /* a vector of ecl_grid instances for lgr's - the index corresponds to the grid_nr. */
+  vector_type         * LGR_list;      /* a vector of ecl_grid instances for LGRs - the index corresponds to the order LGRs are read from file*/
+  int_vector_type     * lgr_index_map; /* a vector that maps LGR-nr for EGRID files to index into the LGR_list.*/
   hash_type           * LGR_hash;      /* a hash of pointers to ecl_grid instances - for name based lookup of lgr. */
   int                   parent_box[6]; /* integers i1,i2, j1,j2, k1,k2 of the parent grid region containing this lgr. the indices are inclusive - zero offset */
                                        /* not used yet .. */ 
   
-  int                   dualp_flag;    
-  bool                  use_mapaxes;
-  double                unit_x[2];
-  double                unit_y[2];
-  double                origo[2];
-  float                 mapaxes[6];
+  int                    dualp_flag;    
+  bool                   use_mapaxes;
+  double                 unit_x[2];
+  double                 unit_y[2];
+  double                 origo[2];
+  float                  mapaxes[6];
   /*------------------------------:       the fields below this line are used for blocking algorithms - and not allocated by default.*/
   int                    block_dim; /* == 2 for maps and 3 for fields. 0 when not in use. */
   int                    block_size;
@@ -826,6 +898,8 @@ static void ecl_cell_init( ecl_cell_type * cell , bool init_valid) {
   
   if (init_valid)
     cell->cell_flags = CELL_FLAG_VALID;
+  
+  cell->nnc_info = NULL;
 }
 
 
@@ -1089,6 +1163,7 @@ static void ecl_cell_init_regular( ecl_cell_type * cell , const double * offset 
 /* starting on the ecl_grid proper implementation                */
 
 UTIL_SAFE_CAST_FUNCTION(ecl_grid , ECL_GRID_ID);
+UTIL_IS_INSTANCE_FUNCTION( ecl_grid , ECL_GRID_ID);
 
 /**
    this function allocates the internal index_map and inv_index_map fields.
@@ -1121,6 +1196,14 @@ static void ecl_grid_taint_cells( ecl_grid_type * ecl_grid ) {
 
 
 static void ecl_grid_free_cells( ecl_grid_type * grid ) {
+
+  int i;
+  for (i=0; i < grid->size; i++) {
+    ecl_cell_type * cell = ecl_grid_get_cell( grid , i );
+    if (cell->nnc_info)
+      nnc_info_free(cell->nnc_info);
+  }
+
 #ifndef LARGE_CELL_MALLOC
   int i;
   for (i=0; i < grid->size; i++) {
@@ -1161,7 +1244,7 @@ static void ecl_grid_alloc_cells( ecl_grid_type * grid , bool init_valid) {
    is performed.
 */
 
-static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int dualp_flag , int nx , int ny , int nz, int grid_nr , bool init_valid) {
+static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int dualp_flag , int nx , int ny , int nz, int lgr_nr, bool init_valid) {
   ecl_grid_type * grid = util_malloc(sizeof * grid );
   UTIL_TYPE_ID_INIT(grid , ECL_GRID_ID);
   grid->total_active   = 0;
@@ -1170,7 +1253,7 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int du
   grid->ny                    = ny;
   grid->nz                    = nz;
   grid->size                  = nx*ny*nz;
-  grid->grid_nr               = grid_nr;
+  grid->lgr_nr                = lgr_nr; 
   grid->global_grid           = global_grid;
   grid->coarsening_active     = false;
 
@@ -1181,8 +1264,9 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int du
   grid->index_map             = NULL; 
   grid->fracture_index_map    = NULL;
   grid->inv_fracture_index_map = NULL;
+  grid->nnc_index_list         = nnc_index_list_alloc( );
   ecl_grid_alloc_cells( grid , init_valid );
-
+  
 
   if (global_grid != NULL) {
     /* this is an lgr instance, and we inherit the global grid
@@ -1205,21 +1289,22 @@ static ecl_grid_type * ecl_grid_alloc_empty(ecl_grid_type * global_grid , int du
   }
 
 
-  grid->block_dim      = 0;
-  grid->values         = NULL;
-  if (grid_nr == 0) {  /* this is the main grid */
-    grid->LGR_list = vector_alloc_new(); 
-    vector_append_ref( grid->LGR_list , grid ); /* adding a 'self' pointer as first inistance - without destructor! */
-    grid->LGR_hash = hash_alloc();
+  grid->block_dim       = 0;
+  grid->values          = NULL;
+  if (ECL_GRID_MAINGRID_LGR_NR == lgr_nr) {  /* this is the main grid */
+    grid->LGR_list      = vector_alloc_new(); 
+    grid->lgr_index_map = int_vector_alloc(0,0);
+    grid->LGR_hash      = hash_alloc();
   } else {
-    grid->LGR_list     = NULL;
-    grid->LGR_hash     = NULL;
+    grid->LGR_list      = NULL;
+    grid->lgr_index_map = NULL; 
+    grid->LGR_hash      = NULL;
   }
-  grid->name         = NULL;
-  grid->parent_name  = NULL;
-  grid->parent_grid  = NULL;
-  grid->children     = hash_alloc();
-  grid->coarse_cells = vector_alloc_new();
+  grid->name            = NULL;
+  grid->parent_name     = NULL;
+  grid->parent_grid     = NULL;
+  grid->children        = hash_alloc();
+  grid->coarse_cells    = vector_alloc_new();
   return grid;
 }
 
@@ -1321,12 +1406,12 @@ static void ecl_grid_set_cell_GRID(ecl_grid_type * ecl_grid , int coords_size , 
 
 
     /* 
-       The grid_nr > 0 test essentially checks if this is a LGR; if
-       this test applies we either have bug - or a GRID file with LGRs
-       and only 4/5 elements in the coords keywords. In the latter
-       case we must start using the LGRILG keyword.
+       The ECL_GRID_MAINGRID_LGR_NR != ecl_grid->lgr_nr test checks if 
+       this is a LGR; if this test applies we either have bug - or a 
+       GRID file with LGRs and only 4/5 elements in the coords keywords.
+       In the latter case we must start using the LGRILG keyword.
     */
-    if ((ecl_grid->grid_nr > 0) && (coords_size != 7)) 
+    if ((ECL_GRID_MAINGRID_LGR_NR != ecl_grid->lgr_nr) && (coords_size != 7)) 
       util_abort("%s: Need 7 element coords keywords for LGR - or reimplement to use LGRILG keyword.\n",__func__);
     
     switch(coords_size) {
@@ -1698,13 +1783,9 @@ static void ecl_grid_init_mapaxes( ecl_grid_type * ecl_grid , const float * mapa
 
 
 static void ecl_grid_add_lgr( ecl_grid_type * main_grid , ecl_grid_type * lgr_grid) {
-  int next_grid_nr = vector_get_size( main_grid->LGR_list );
-  if (next_grid_nr != lgr_grid->grid_nr) 
-    util_abort("%s: index based insertion of lgr grid failed. next_grid_nr:%d  lgr->grid_nr:%d \n",__func__ , next_grid_nr , lgr_grid->grid_nr);
-  {
-    vector_append_owned_ref( main_grid->LGR_list , lgr_grid , ecl_grid_free__);
-    hash_insert_ref( main_grid->LGR_hash , lgr_grid->name , lgr_grid);
-  }
+  vector_append_owned_ref( main_grid->LGR_list , lgr_grid , ecl_grid_free__);
+  int_vector_iset(main_grid->lgr_index_map, lgr_grid->lgr_nr, vector_get_size(main_grid->LGR_list)-1); 
+  hash_insert_ref( main_grid->LGR_hash , lgr_grid->name , lgr_grid);
 }
 
 
@@ -1763,7 +1844,7 @@ static void ecl_grid_set_lgr_name_EGRID(ecl_grid_type * lgr_grid , const ecl_fil
   ecl_kw_type * lgrname_kw = ecl_file_iget_named_kw( ecl_file , LGR_KW , grid_nr - 1);
   lgr_grid->name = util_alloc_strip_copy( ecl_kw_iget_ptr( lgrname_kw , 0) );  /* trailing zeros are stripped away. */
   if (ecl_file_has_kw( ecl_file , LGR_PARENT_KW)) {
-    ecl_kw_type * parent_kw = ecl_file_iget_named_kw( ecl_file , LGR_PARENT_KW , grid_nr - 1);
+    ecl_kw_type * parent_kw = ecl_file_iget_named_kw( ecl_file , LGR_PARENT_KW , grid_nr -1);
     char * parent = util_alloc_strip_copy( ecl_kw_iget_ptr( parent_kw , 0));
 
     if (strlen( parent ) > 0) 
@@ -1794,7 +1875,7 @@ static void ecl_grid_set_lgr_name_GRID(ecl_grid_type * lgr_grid , const ecl_file
       
       if ((strlen(parent) == 0) || (strcmp(parent , GLOBAL_STRING ) == 0))
         free( parent );
-      else
+      else 
         lgr_grid->parent_name = parent;
     }
   }
@@ -1892,9 +1973,9 @@ void ecl_grid_init_GRDECL_data(ecl_grid_type * ecl_grid ,  const float * zcorn ,
 static ecl_grid_type * ecl_grid_alloc_GRDECL_data__(ecl_grid_type * global_grid , 
                                                     int dualp_flag , int nx , int ny , int nz , 
                                                     const float * zcorn , const float * coord , const int * actnum, const float * mapaxes, const int * corsnum, 
-                                                    int grid_nr) {
+                                                    int lgr_nr) {
 
-  ecl_grid_type * ecl_grid = ecl_grid_alloc_empty(global_grid , dualp_flag , nx,ny,nz,grid_nr,true);
+  ecl_grid_type * ecl_grid = ecl_grid_alloc_empty(global_grid , dualp_flag , nx,ny,nz,lgr_nr,true);
   
   if (mapaxes != NULL)
     ecl_grid_init_mapaxes( ecl_grid , mapaxes );
@@ -1929,15 +2010,14 @@ static ecl_grid_type * ecl_grid_alloc_GRDECL_kw__(ecl_grid_type * global_grid ,
                                                   const ecl_kw_type * coord_kw , 
                                                   const ecl_kw_type * actnum_kw ,    /* Can be NULL */ 
                                                   const ecl_kw_type * mapaxes_kw ,   /* Can be NULL */
-                                                  const ecl_kw_type * corsnum_kw ,   /* Can be NULL */
-                                                  int grid_nr) {
-  
-  int gtype, nx,ny,nz;
+                                                  const ecl_kw_type * corsnum_kw) {   /* Can be NULL */ 
+   int gtype, nx,ny,nz, lgr_nr;
   
   gtype   = ecl_kw_iget_int(gridhead_kw , GRIDHEAD_TYPE_INDEX);
   nx      = ecl_kw_iget_int(gridhead_kw , GRIDHEAD_NX_INDEX);
   ny      = ecl_kw_iget_int(gridhead_kw , GRIDHEAD_NY_INDEX);
   nz      = ecl_kw_iget_int(gridhead_kw , GRIDHEAD_NZ_INDEX);
+  lgr_nr  = ecl_kw_iget_int(gridhead_kw , GRIDHEAD_LGR_INDEX);
 
   /*
     The code used to have this test:
@@ -1950,7 +2030,7 @@ static ecl_grid_type * ecl_grid_alloc_GRDECL_kw__(ecl_grid_type * global_grid ,
 
   if (gtype != GRIDHEAD_GRIDTYPE_CORNERPOINT)
     util_abort("%s: gtype:%d fatal error when loading grid - must have corner point grid - aborting\n",__func__ , gtype );
-
+  
   {
     const float * mapaxes_data = NULL;
     const int   * actnum_data  = NULL;
@@ -1973,7 +2053,7 @@ static ecl_grid_type * ecl_grid_alloc_GRDECL_kw__(ecl_grid_type * global_grid ,
                                         actnum_data,
                                         mapaxes_data, 
                                         corsnum_data,
-                                        grid_nr);
+                                        lgr_nr);
   }
 }
 
@@ -1982,7 +2062,7 @@ static ecl_grid_type * ecl_grid_alloc_GRDECL_kw__(ecl_grid_type * global_grid ,
    If you create/load ecl_kw instances for the various fields, this
    function can be used to create a GRID instance, without going
    through a GRID/EGRID file. Does not support LGR or coarsening
-   hierarchies.  
+   hierarchies. 
 */
 
 ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , 
@@ -1990,14 +2070,141 @@ ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz ,
                                           const ecl_kw_type * coord_kw , 
                                           const ecl_kw_type * actnum_kw ,      /* Can be NULL */
                                           const ecl_kw_type * mapaxes_kw ) {   /* Can be NULL */
-                                         
+
 
   ecl_kw_type * gridhead_kw = ecl_grid_alloc_gridhead_kw( nx , ny , nz , 0);
-  ecl_grid_type * ecl_grid = ecl_grid_alloc_GRDECL_kw__(NULL , FILEHEAD_SINGLE_POROSITY , gridhead_kw , zcorn_kw , coord_kw , actnum_kw , mapaxes_kw , NULL , 0);
+  ecl_grid_type * ecl_grid = ecl_grid_alloc_GRDECL_kw__(NULL , FILEHEAD_SINGLE_POROSITY , gridhead_kw , zcorn_kw , coord_kw , actnum_kw , mapaxes_kw , NULL);
   ecl_kw_free( gridhead_kw );
   return ecl_grid;
 
 }
+
+
+
+
+
+
+static void ecl_grid_init_cell_nnc_info(ecl_grid_type * ecl_grid, int global_index) {
+  ecl_cell_type * grid_cell = ecl_grid_get_cell(ecl_grid, global_index);
+  
+  if (!grid_cell->nnc_info) 
+    grid_cell->nnc_info = nnc_info_alloc(ecl_grid->lgr_nr); 
+}
+
+
+/*
+  This function populates nnc_info for cells with non neighbour connections
+ */
+static void ecl_grid_init_nnc_cells( ecl_grid_type * grid1, ecl_grid_type * grid2, const ecl_kw_type * keyword1, const ecl_kw_type * keyword2) {
+  
+  int * grid1_nnc_cells = ecl_kw_get_int_ptr(keyword1);
+  int * grid2_nnc_cells = ecl_kw_get_int_ptr(keyword2);
+  int nnc_count = ecl_kw_get_size(keyword2); 
+
+  int i;
+  for (i = 0; i < nnc_count; i++) {
+    int grid1_cell_index = grid1_nnc_cells[i] -1;
+    int grid2_cell_index = grid2_nnc_cells[i] -1;
+    
+    
+  /*
+    In the ECLIPSE output format grids with dual porosity are (to some
+    extent ...) modeled as two independent grids stacked on top of
+    eachother, where the fracture cells have global index in the range
+    [nx*ny*nz, 2*nx*ny*nz). 
+
+    The physical connection between the matrix and the fractures in
+    cell nr c is modelled as an nnc: cell[c] -> cell[c + nx*ny*nz]. In
+    the ert ecl library we only have cells in the range [0,nx*ny*nz),
+    and fracture is a property of a cell, we therefor do not include
+    nnc connections involving fracture cells (i.e. cell_index >=
+    nx*ny*nz).
+  */
+    if ((FILEHEAD_SINGLE_POROSITY != grid1->dualp_flag) &&  
+        ((grid1_cell_index >= grid1->size) ||                      
+         (grid2_cell_index >= grid2->size)))
+      break; 
+    
+
+    ecl_grid_init_cell_nnc_info(grid1, grid1_cell_index);
+    ecl_grid_init_cell_nnc_info(grid2, grid2_cell_index);
+    
+    {
+      ecl_cell_type * grid1_cell = ecl_grid_get_cell(grid1, grid1_cell_index);
+      ecl_cell_type * grid2_cell = ecl_grid_get_cell(grid2, grid2_cell_index); 
+
+      //Add the non-neighbour connection in both directions
+      nnc_info_add_nnc(grid1_cell->nnc_info, grid2->lgr_nr, grid2_cell_index);
+      nnc_info_add_nnc(grid2_cell->nnc_info, grid1->lgr_nr, grid1_cell_index);
+      
+      nnc_index_list_add_index( grid1->nnc_index_list , grid1_cell_index );
+      nnc_index_list_add_index( grid2->nnc_index_list , grid2_cell_index );
+    }
+  }
+}
+
+
+/*
+  This function reads the non-neighbour connection data from file and initializes the grid structure with the the nnc data
+*/
+static void ecl_grid_init_nnc(ecl_grid_type * main_grid, ecl_file_type * ecl_file) {
+  int num_nnchead_kw = ecl_file_get_num_named_kw( ecl_file , NNCHEAD_KW ); 
+  
+  int i; 
+  for (i = 0; i < num_nnchead_kw; i++) { 
+    ecl_file_push_block(ecl_file);               /* <---------------------------------------------------------------- */
+    ecl_file_select_block(ecl_file , NNCHEAD_KW , i);
+    {
+      ecl_kw_type * nnchead_kw = ecl_file_iget_named_kw(ecl_file, NNCHEAD_KW, 0);
+      int lgr_nr = ecl_kw_iget_int(nnchead_kw, NNCHEAD_LGR_INDEX);
+
+      if (ecl_file_has_kw(ecl_file , NNC1_KW)) {
+        const ecl_kw_type * nnc1 = ecl_file_iget_named_kw(ecl_file, NNC1_KW, 0);
+        const ecl_kw_type * nnc2 = ecl_file_iget_named_kw(ecl_file, NNC2_KW, 0);
+
+        {
+          ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
+          ecl_grid_init_nnc_cells(grid, grid, nnc1, nnc2);
+        }
+      }
+
+      if (ecl_file_has_kw(ecl_file , NNCL_KW)) {
+        const ecl_kw_type * nncl = ecl_file_iget_named_kw(ecl_file, NNCL_KW, 0);
+        const ecl_kw_type * nncg = ecl_file_iget_named_kw(ecl_file, NNCG_KW, 0);
+        {
+          ecl_grid_type * grid = (lgr_nr > 0) ? ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr) : main_grid;
+          ecl_grid_init_nnc_cells(grid, main_grid, nncl, nncg);
+        }
+      }
+    }
+    ecl_file_pop_block( ecl_file );            /* <------------------------------------------------------------------  */
+  }
+}
+
+/*
+  This function reads the non-neighbour connection data for amalgamated LGRs (that is, non-neighbour
+  connections between two LGRs) and initializes the grid structure with the nnc data. 
+ */
+static void ecl_grid_init_nnc_amalgamated(ecl_grid_type * main_grid, ecl_file_type * ecl_file) {
+  int num_nncheada_kw   = ecl_file_get_num_named_kw( ecl_file , NNCHEADA_KW ); 
+      
+  int i; 
+  for (i = 0; i < num_nncheada_kw; i++) { 
+    ecl_kw_type * nncheada_kw = ecl_file_iget_named_kw( ecl_file , NNCHEADA_KW , i);
+    int lgr_nr1 = ecl_kw_iget_int(nncheada_kw, NNCHEADA_ILOC1_INDEX);  
+    int lgr_nr2 = ecl_kw_iget_int(nncheada_kw, NNCHEADA_ILOC2_INDEX);  
+    
+    ecl_grid_type * lgr_grid1 = ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr1); 
+    ecl_grid_type * lgr_grid2 = ecl_grid_get_lgr_from_lgr_nr(main_grid, lgr_nr2); 
+    
+    ecl_kw_type * nna1_kw = ecl_file_iget_named_kw( ecl_file , NNA1_KW , i);
+    ecl_kw_type * nna2_kw = ecl_file_iget_named_kw( ecl_file , NNA2_KW , i);
+    
+    ecl_grid_init_nnc_cells( lgr_grid1 ,lgr_grid2,  nna1_kw, nna2_kw);
+  
+  }
+}
+
 
 
 
@@ -2044,7 +2251,7 @@ static ecl_grid_type * ecl_grid_alloc_EGRID__( ecl_grid_type * main_grid , const
       corsnum_kw   = ecl_file_iget_named_kw( ecl_file , CORSNUM_KW , 0);
   }
 
-  
+
   
   {
     ecl_grid_type * ecl_grid = ecl_grid_alloc_GRDECL_kw__( main_grid , 
@@ -2054,10 +2261,9 @@ static ecl_grid_type * ecl_grid_alloc_EGRID__( ecl_grid_type * main_grid , const
                                                            coord_kw , 
                                                            actnum_kw , 
                                                            mapaxes_kw , 
-                                                           corsnum_kw ,
-                                                           grid_nr );
-
-    if (grid_nr > 0) ecl_grid_set_lgr_name_EGRID(ecl_grid , ecl_file , grid_nr);
+                                                           corsnum_kw );
+                                                           
+    if (ECL_GRID_MAINGRID_LGR_NR != grid_nr) ecl_grid_set_lgr_name_EGRID(ecl_grid , ecl_file , grid_nr);
     return ecl_grid;
   }
 }
@@ -2090,6 +2296,10 @@ static ecl_grid_type * ecl_grid_alloc_EGRID(const char * grid_file) {
       }
     }
     main_grid->name = util_alloc_string_copy( grid_file );
+    
+    ecl_grid_init_nnc(main_grid, ecl_file); 
+    ecl_grid_init_nnc_amalgamated(main_grid, ecl_file); 
+    
     ecl_file_close( ecl_file );
     return main_grid;
   }
@@ -2105,7 +2315,7 @@ static ecl_grid_type * ecl_grid_alloc_GRID_data__(ecl_grid_type * global_grid , 
   if (dualp_flag != FILEHEAD_SINGLE_POROSITY)
     nz = nz / 2;
   {
-    ecl_grid_type * grid = ecl_grid_alloc_empty( global_grid , dualp_flag , nx , ny , nz , grid_nr , false);
+    ecl_grid_type * grid = ecl_grid_alloc_empty( global_grid , dualp_flag , nx , ny , nz , grid_nr, false);
     
     if (mapaxes != NULL)
       ecl_grid_init_mapaxes( grid , mapaxes );
@@ -2343,7 +2553,7 @@ static ecl_grid_type * ecl_grid_alloc_GRID(const char * grid_file) {
 */
 
 ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum) {
-  ecl_grid_type * grid = ecl_grid_alloc_empty(NULL , FILEHEAD_SINGLE_POROSITY , nx , ny , nz , 0,true);
+  ecl_grid_type * grid = ecl_grid_alloc_empty(NULL , FILEHEAD_SINGLE_POROSITY , nx , ny , nz , 0, true);
   const double offset[3] = {0,0,0};
 
   int k,j,i;
@@ -2601,7 +2811,10 @@ ecl_grid_type * ecl_grid_load_case( const char * case_input ) {
   ecl_grid_type * ecl_grid = NULL;
   char * grid_file = ecl_grid_alloc_case_filename( case_input );
   if (grid_file != NULL) {
-    ecl_grid = ecl_grid_alloc( grid_file );
+
+    if (util_file_exists( grid_file )) 
+      ecl_grid = ecl_grid_alloc( grid_file );
+    
     free( grid_file );
   }
   return ecl_grid;
@@ -2946,13 +3159,15 @@ void ecl_grid_free(ecl_grid_type * grid) {
       double_vector_free( grid->values[i] );
     free( grid->values );
   }
-  if (grid->grid_nr == 0) { /* This is the main grid. */
+  if (ECL_GRID_MAINGRID_LGR_NR == grid->lgr_nr) { /* This is the main grid. */
     vector_free( grid->LGR_list );
+    int_vector_free( grid->lgr_index_map);
     hash_free( grid->LGR_hash );
   }
   if (grid->coord_kw != NULL)
     ecl_kw_free( grid->coord_kw );
   
+  nnc_index_list_free( grid->nnc_index_list );
   vector_free( grid->coarse_cells );
   hash_free( grid->children );
   util_safe_free( grid->parent_name );
@@ -3040,10 +3255,10 @@ grid_dims_type  ecl_grid_iget_dims( const ecl_grid_type * grid , int grid_nr) {
   grid_dims_type dims;
   const ecl_grid_type * lgr;
 
-  if (grid_nr == 0) 
+  if (grid_nr == 0)
     lgr = grid;
   else
-    lgr = ecl_grid_iget_lgr( grid , grid_nr - 1 );
+    lgr = ecl_grid_iget_lgr(grid, grid_nr - 1); 
   
   dims.nx = lgr->nx;
   dims.ny = lgr->ny;
@@ -3365,6 +3580,25 @@ double ecl_grid_get_cell_thickness3( const ecl_grid_type * grid , int i , int j 
 }
 
 
+const int_vector_type * ecl_grid_get_nnc_index_list( ecl_grid_type * grid ) {
+  return nnc_index_list_get_list( grid->nnc_index_list );
+}
+
+
+const nnc_info_type * ecl_grid_get_cell_nnc_info1( const ecl_grid_type * grid , int global_index) {
+  const ecl_cell_type * cell = ecl_grid_get_cell( grid , global_index);
+  return cell->nnc_info;
+} 
+
+
+
+const nnc_info_type * ecl_grid_get_cell_nnc_info3( const ecl_grid_type * grid , int i , int j , int k) {
+  const int global_index = ecl_grid_get_global_index3(grid , i,j,k);
+  return ecl_grid_get_cell_nnc_info1(grid, global_index); 
+}
+
+
+
 /*****************************************************************/
 /* Functions to query whether a cell is active or not.           */
 
@@ -3409,7 +3643,7 @@ double ecl_grid_cell_invalid1A(const ecl_grid_type * grid , int active_index) {
 /* Functions for LGR query/lookup/... */
 
 static void __assert_main_grid(const ecl_grid_type * ecl_grid) {
-  if (ecl_grid->grid_nr != 0) 
+  if (ecl_grid->lgr_nr != ECL_GRID_MAINGRID_LGR_NR) 
     util_abort("%s: tried to get LGR grid from another LGR_grid - only main grid can be used as first input \n",__func__);
 }
 
@@ -3468,20 +3702,37 @@ bool ecl_grid_have_coarse_cells( const ecl_grid_type * main_grid ) {
 */
 int ecl_grid_get_num_lgr(const ecl_grid_type * main_grid ) {
   __assert_main_grid( main_grid );
-  return vector_get_size( main_grid->LGR_list ) - 1;  
+  return vector_get_size( main_grid->LGR_list );  
 }
 
 /**
-   The lgr_nr has zero offset, not counting the main grid, i.e.
-
-      ecl_grid_iget_lgr( ecl_grid , 0);
-   
-   will return the first LGR - and fail HARD if there are no LGR's.
+   The lgr_index has zero offset
+   ecl_grid_iget_lgr( ecl_grid , 0); will return the first lgr
+   ecl_grid_iget_lgr( ecl_grid , 1); will return the second lgr
+   The method will fail HARD if lgr_index is out of bounds.
 */
 
-ecl_grid_type * ecl_grid_iget_lgr(const ecl_grid_type * main_grid, int lgr_nr) {
+ecl_grid_type * ecl_grid_iget_lgr(const ecl_grid_type * main_grid, int lgr_index) {
   __assert_main_grid( main_grid );
-  return vector_iget(  main_grid->LGR_list , lgr_nr + 1);
+  return vector_iget(  main_grid->LGR_list , lgr_index);
+}
+
+/* 
+   This function returns the lgr with the given lgr_nr. The lgr_nr is
+   the fourth element in the GRIDHEAD for EGRID files.  The lgr nr is
+   equal to the grid nr if the grid's are consecutive numbered and
+   read from file in increasing lgr nr order. 
+
+   This method can only be used for EGRID files. For GRID files the
+   lgr_nr is 0 for all grids.
+*/
+
+ecl_grid_type * ecl_grid_get_lgr_from_lgr_nr(const ecl_grid_type * main_grid, int lgr_nr) {
+  __assert_main_grid( main_grid );
+  {
+    int lgr_index = int_vector_iget( main_grid->lgr_index_map , lgr_nr );
+    return vector_iget(  main_grid->LGR_list , lgr_index);
+  }
 }
 
 
@@ -3523,7 +3774,7 @@ const ecl_grid_type * ecl_grid_get_cell_lgr1A(const ecl_grid_type * grid , int a
    Will return the global grid for a lgr. If the input grid is indeed
    a global grid itself the function will return NULL.
 */
-const ecl_grid_type * ecl_grid_get_global_grid( const ecl_grid_type * grid ) {
+    const ecl_grid_type * ecl_grid_get_global_grid( const ecl_grid_type * grid ) {
   return grid->global_grid;
 }
 
@@ -3541,26 +3792,39 @@ stringlist_type * ecl_grid_alloc_lgr_name_list(const ecl_grid_type * ecl_grid) {
   }
 }
 
+const char * ecl_grid_iget_lgr_name( const ecl_grid_type * ecl_grid , int lgr_index) {
+  __assert_main_grid( ecl_grid );
+  if (lgr_index < (vector_get_size( ecl_grid->LGR_list ))) {
+    const ecl_grid_type * lgr = vector_iget( ecl_grid->LGR_list , lgr_index);
+    return lgr->name;
+  } else 
+    return NULL;
+}
+
+
+const char * ecl_grid_get_lgr_name( const ecl_grid_type * ecl_grid , int lgr_nr) {
+  __assert_main_grid( ecl_grid );
+  {
+    int lgr_index = int_vector_iget( ecl_grid->lgr_index_map , lgr_nr );
+    return ecl_grid_iget_lgr_name( ecl_grid , lgr_index );
+  }
+}
 
 
 /*****************************************************************/
 
 /**
-   This function returns the grid_nr field of the field; this is just
-   the occurence number in the grid file. Starting with 0 at the main
+   This function returns the lgr_nr field of the grid; for GRID files, this 
+   is just the occurence number in the grid file. Starting with 0 at the main
    grid, and then increasing consecutively through the lgr sections.
-
-   Observe that there is A MAJOR POTENTIAL for confusion with the
-   ecl_grid_iget_lgr() function, the latter does not refer to the main
-   grid and returns the first lgr section (which has grid_nr == 1) for
-   input argument 0.
+   For EGRID files, this is the LGR number (fourth element in the 
+   gridhead).
 */
 
 
-int ecl_grid_get_grid_nr( const ecl_grid_type * ecl_grid ) { 
-  return ecl_grid->grid_nr; 
+int ecl_grid_get_lgr_nr( const ecl_grid_type * ecl_grid ) { 
+  return ecl_grid->lgr_nr; 
 }
-
 
 const char * ecl_grid_get_name( const ecl_grid_type * ecl_grid ) {
   return ecl_grid->name;
@@ -3600,7 +3864,7 @@ void ecl_grid_summarize(const ecl_grid_type * ecl_grid) {
   printf("      Origo X................: %10.2f \n",ecl_grid->origo[0]);
   printf("      Origo Y................: %10.2f \n",ecl_grid->origo[1]);
   
-  if (ecl_grid->grid_nr == 0) {
+  if (ECL_GRID_MAINGRID_LGR_NR == ecl_grid->lgr_nr) {
     int grid_nr;
     for (grid_nr=1; grid_nr < vector_get_size( ecl_grid->LGR_list ); grid_nr++) {
       printf("\n");
@@ -3941,7 +4205,7 @@ bool ecl_grid_test_lgr_consistency( const ecl_grid_type * ecl_grid ) {
 
 
 static void ecl_grid_dump__(const ecl_grid_type * grid , FILE * stream) {
-  util_fwrite_int( grid->grid_nr , stream );
+  util_fwrite_int( grid->lgr_nr , stream );
   util_fwrite_string( grid->name , stream );
   util_fwrite_int( grid->nx   , stream );
   util_fwrite_int( grid->nz   , stream );
@@ -3962,7 +4226,7 @@ static void ecl_grid_dump__(const ecl_grid_type * grid , FILE * stream) {
 
 
 static void ecl_grid_dump_ascii__(const ecl_grid_type * grid , bool active_only , FILE * stream) {
-  fprintf(stream , "Grid nr           : %d\n",grid->grid_nr);
+  fprintf(stream , "Grid nr           : %d\n",grid->lgr_nr);
   fprintf(stream , "Grid name         : %s\n",grid->name);
   fprintf(stream , "nx                : %6d\n",grid->nx);
   fprintf(stream , "ny                : %6d\n",grid->ny);
@@ -3994,15 +4258,21 @@ static void ecl_grid_dump_ascii__(const ecl_grid_type * grid , bool active_only 
 
 
 void ecl_grid_dump(const ecl_grid_type * grid , FILE * stream) {
-  int i;
-  for (i = 0; i < vector_get_size( grid->LGR_list ); i++) 
-    ecl_grid_dump__( vector_iget_const( grid->LGR_list , i) , stream ); 
+  ecl_grid_dump__(grid, stream ); 
+  {
+          int i;
+      for (i = 0; i < vector_get_size( grid->LGR_list ); i++) 
+         ecl_grid_dump__( vector_iget_const( grid->LGR_list , i) , stream ); 
+  }
 }
 
 void ecl_grid_dump_ascii(const ecl_grid_type * grid , bool active_only , FILE * stream) {
-  int i;
-  for (i = 0; i < vector_get_size( grid->LGR_list ); i++) 
-    ecl_grid_dump_ascii__( vector_iget_const( grid->LGR_list , i) , active_only , stream ); 
+  ecl_grid_dump_ascii__( grid , active_only , stream ); 
+  {
+          int i;
+          for (i = 0; i < vector_get_size( grid->LGR_list ); i++) 
+         ecl_grid_dump_ascii__( vector_iget_const( grid->LGR_list , i) , active_only , stream ); 
+        }
 }
 
 
@@ -4166,6 +4436,8 @@ void ecl_grid_fwrite_GRID( const ecl_grid_type * grid , const char * filename) {
   
   if (grid->coarsening_active)
     coords_size = 7;
+  
+  ecl_grid_fwrite_GRID__( grid , coords_size , fortio );
   
   {
     int grid_nr; 
@@ -4578,7 +4850,7 @@ static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio
     }
   }
   
-  ecl_grid_fwrite_gridhead_kw( grid->nx , grid->ny , grid->nz , grid->grid_nr , fortio);
+  ecl_grid_fwrite_gridhead_kw( grid->nx , grid->ny , grid->nz , grid->lgr_nr , fortio);
   /* Writing main grid data */
   {
     {
@@ -4624,6 +4896,8 @@ static void ecl_grid_fwrite_EGRID__( ecl_grid_type * grid , fortio_type * fortio
 void ecl_grid_fwrite_EGRID( ecl_grid_type * grid , const char * filename) {  
   bool fmt_file        = false;
   fortio_type * fortio = fortio_open_writer( filename , fmt_file , ECL_ENDIAN_FLIP );
+  
+  ecl_grid_fwrite_EGRID__( grid , fortio );
   {
     int grid_nr; 
     for (grid_nr = 0; grid_nr < vector_get_size( grid->LGR_list ); grid_nr++) {

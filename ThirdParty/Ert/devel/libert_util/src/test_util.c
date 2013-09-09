@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include <string.h>
+#include <signal.h>
 
 #include <ert/util/util.h>
 #include <ert/util/test_util.h>
@@ -52,7 +53,7 @@ void test_exit__(const char * file , int line , const char * fmt , ...) {
 }
 
 
-bool test_string_equal( const char * s1 , const char * s2 ) {
+bool test_check_string_equal( const char * s1 , const char * s2 ) {
   bool equal = true;
   if (s1 == NULL && s2 == NULL)
     return true;
@@ -71,7 +72,7 @@ bool test_string_equal( const char * s1 , const char * s2 ) {
 
 
 void test_assert_string_equal__( const char * s1 , const char * s2 , const char * file, int line) {
-  bool equal = test_string_equal( s1 , s2 );
+  bool equal = test_check_string_equal( s1 , s2 );
   if (!equal) 
     test_error_exit( "%s:%d => String are different s1:[%s]  s2:[%s]\n" , file , line , s1 , s2 );
 }
@@ -156,7 +157,7 @@ void test_assert_ptr_equal__( const void * p1 , const void * p2 , const char * f
 void test_assert_ptr_not_equal__( const void * p1 , const void * p2 , const char * file , int line) {
   bool equal = (p1 == p2);
   if (equal) 
-    test_error_exit( "%s:%d => Pointers are different p1:[%p]  p2:[%p]\n" , file , line , p1 , p2 );
+    test_error_exit( "%s:%d => Pointers are equal p1:[%p]  p2:[%p]\n" , file , line , p1 , p2 );
 }
 
 
@@ -192,18 +193,31 @@ void test_assert_mem_not_equal__( const void * p1 , const void * p2 , size_t byt
 }
 
 
+bool test_check_double_equal( double d1 , double d2) {
+  const double tolerance = 1e-5;
+  return util_double_approx_equal__( d1 , d2 , tolerance );
+}
+
 
 void test_assert_double_equal__( double d1 , double d2, const char * file , int line) {
-  if (!util_double_approx_equal(d1 , d2))
+  if (!test_check_double_equal(d1 , d2))
     test_error_exit( "%s:%d => double values:%g %g are not sufficiently similar\n" , file , line , d1 , d2);
 }
 
 
 void test_assert_double_not_equal__( double d1 , double d2, const char * file , int line) {
-  if (util_double_approx_equal(d1 , d2))
+  if (test_check_double_equal(d1 , d2))
     test_error_exit( "%s:%d => double values:%15.12g %15.12g are equal.\n" , file , line , d1 , d2);
 }
 
+/*****************************************************************/
+
+void test_install_SIGNALS(void) {
+  signal(SIGSEGV , util_abort_signal);    /* Segmentation violation, i.e. overwriting memory ... */
+  signal(SIGINT  , util_abort_signal);    /* Control C */
+  signal(SIGTERM , util_abort_signal);    /* If killing the program with SIGTERM (the default kill signal) you will get a backtrace. 
+                                             Killing with SIGKILL (-9) will not give a backtrace.*/
+}
 
 
 /*****************************************************************/

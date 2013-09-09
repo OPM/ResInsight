@@ -49,6 +49,8 @@ RimCellPropertyFilter::RimCellPropertyFilter()
     CAF_PDM_InitObject("Cell Property Filter", ":/CellFilter_Values.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&evaluationRegion, "EvaluationRegion", "Evaluation region", "", "", "");
+    evaluationRegion.setUiHidden(true);
+    evaluationRegion.setIOWritable(false);
 
     CAF_PDM_InitFieldNoDefault(&resultDefinition, "ResultDefinition", "Result definition", "", "", "");
     resultDefinition = new RimResultDefinition();

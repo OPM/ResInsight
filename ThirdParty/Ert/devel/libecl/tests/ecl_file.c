@@ -21,6 +21,7 @@
 
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
+#include <ert/util/test_work_area.h>
 
 #include <ert/ecl/ecl_file.h>
 #include <ert/ecl/ecl_endian_flip.h>
@@ -103,9 +104,12 @@ void test_close_stream1(const char * src_file , const char * target_file ) {
 
 
 void test_writable(const char * src_file ) {
-  util_copy_file( src_file , "/tmp/ECL.UNRST" );
+  test_work_area_type * work_area = test_work_area_alloc("ecl_file_writable" , true);
+  char * fname = util_split_alloc_filename( src_file );
+
+  test_work_area_copy_file( work_area , src_file );
   {
-    ecl_file_type * ecl_file = ecl_file_open( "/tmp/ECL.UNRST" , ECL_FILE_WRITABLE);
+    ecl_file_type * ecl_file = ecl_file_open( fname , ECL_FILE_WRITABLE);
     ecl_kw_type * swat = ecl_file_iget_named_kw( ecl_file , "SWAT" , 0 );
     ecl_kw_type * swat0 = ecl_kw_alloc_copy( swat );
     test_assert_true( ecl_kw_equal( swat , swat0 ));
@@ -114,26 +118,30 @@ void test_writable(const char * src_file ) {
     test_assert_true( ecl_file_writable( ecl_file ));
     ecl_file_close( ecl_file );
 
-    ecl_file = ecl_file_open( "/tmp/ECL.UNRST" , 0);
+    ecl_file = ecl_file_open( fname , 0);
     swat = ecl_file_iget_named_kw( ecl_file , "SWAT" , 0 );
     test_assert_true( util_double_approx_equal( ecl_kw_iget_float( swat , 0 ) , 1000 ));
   }
-  util_unlink_existing( "/tmp/ECL.UNRST" );
+  test_work_area_free( work_area );
 }
 
 
 int main( int argc , char ** argv) {
-  
   const char * src_file = argv[1];
-  const char * filename = argv[2];
-  char * target_file = util_alloc_filename("/tmp" , filename , NULL );
+  const char * target_file = argv[2];
   
-  test_flags( src_file );
-  test_loadall(src_file , target_file );
-  test_close_stream1( src_file , target_file );
-  test_close_stream2( src_file , target_file );
-  test_writable( src_file );
-  util_unlink_existing( target_file );
-                 
+  {
+    test_work_area_type * work_area = test_work_area_alloc("ecl_file" , true);
+    
+    test_work_area_install_file( work_area , src_file );
+    test_flags( src_file );
+    test_loadall(src_file , target_file );
+    
+    test_close_stream1( src_file , target_file);
+    test_close_stream2( src_file , target_file);
+    test_writable( src_file );
+
+    test_work_area_free( work_area );
+  }
   exit(0);
 }

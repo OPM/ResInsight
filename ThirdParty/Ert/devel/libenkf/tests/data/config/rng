@@ -1,6 +1,6 @@
 NUM_REALIZATIONS  25
-STORE_SEED   /tmp/seed2
-LOAD_SEED    /tmp/seed2
+STORE_SEED   seed2
+LOAD_SEED    seed2
 
 -- The settings below here are artifacts which should not be necessary ...
 JOB_SCRIPT script.sh

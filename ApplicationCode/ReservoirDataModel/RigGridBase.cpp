@@ -33,10 +33,12 @@ RigGridBase::RigGridBase(RigMainGrid* mainGrid):
     if (mainGrid == NULL)
     {
         m_gridIndex = 0;
+        m_gridId    = 0;
     }
     else
     {
         m_gridIndex = cvf::UNDEFINED_SIZE_T;
+        m_gridId = cvf::UNDEFINED_INT;
     }
 }
 
@@ -168,6 +170,9 @@ void RigGridBase::cellCornerVertices(size_t cellIndex, cvf::Vec3d vertices[8]) c
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJK(size_t i, size_t j, size_t k) const
 {
+    CVF_TIGHT_ASSERT(i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
+    CVF_TIGHT_ASSERT(i < m_gridPointDimensions.x() && j < m_gridPointDimensions.y() && k < m_gridPointDimensions.z()  );
+
     size_t ci = i + j*(m_gridPointDimensions.x() - 1) + k*((m_gridPointDimensions.x() - 1)*(m_gridPointDimensions.y() - 1));
     return ci;
 }
@@ -392,10 +397,9 @@ void RigGridBase::computeFaults()
 
                     // Check if vertices are matching
                     double tolerance = 1e-6;
-                    size_t i;
-                    for (i = 0; i < 4; i++)
+                    for (size_t cellFaceIdx = 0; cellFaceIdx < 4; cellFaceIdx++)
                     {
-                        if (currentCellFaceVertices[i].pointDistance(neighbourCellFaceVertices[i]) > tolerance )
+                        if (currentCellFaceVertices[cellFaceIdx].pointDistance(neighbourCellFaceVertices[cellFaceIdx]) > tolerance )
                         {
                             sharedFaceVertices = false;
                         }

@@ -20,21 +20,22 @@
 #include <unistd.h>
 
 #include <ert/util/util.h>
+#include <ert/util/test_work_area.h>
 #include <ert/util/test_util.h>
 
 #include <ert/ecl/ecl_util.h>
 
-void test_content( const char * src_file , bool fmt_file ) {
-  char * base_name , *path;
-  char * target_file;
-  bool fmt;
-  util_alloc_file_components( src_file , &path , &base_name , NULL);
-  target_file = util_alloc_filename( "/tmp" , base_name , NULL );
-  util_copy_file( src_file , target_file);
-
-  test_assert_true( ecl_util_fmt_file( target_file , &fmt ));
-  test_assert_bool_equal( fmt , fmt_file );
-  unlink( target_file );
+void test_content( test_work_area_type * work_area , const char * src_file , bool fmt_file ) {
+  test_work_area_install_file( work_area , src_file );
+  {
+    char * base_name;
+    bool fmt;
+    util_alloc_file_components( src_file , NULL , &base_name , NULL);
+    util_copy_file( src_file , base_name );
+    
+    test_assert_true( ecl_util_fmt_file( base_name , &fmt ));
+    test_assert_bool_equal( fmt , fmt_file );
+  }
 }
 
 
@@ -43,11 +44,11 @@ void test_content( const char * src_file , bool fmt_file ) {
 void test_small( ) {
   bool fmt;
   
-  FILE * stream = util_fopen("/tmp/small.txt" , "w");
+  FILE * stream = util_fopen("small.txt" , "w");
   fprintf(stream , "Some bytes\n");
   fclose( stream );
   
-  test_assert_false( ecl_util_fmt_file( "/tmp/small.txt" , &fmt ));
+  test_assert_false( ecl_util_fmt_file( "small.txt" , &fmt ));
 }
 
 
@@ -55,29 +56,32 @@ void test_small( ) {
 
 
 int main(int argc , char ** argv) {
-  const char * binary_file = argv[1];
-  const char * text_file = argv[2];
+  test_work_area_type * work_area = test_work_area_alloc( "ecl_fmt" , true);
+  {
+    const char * binary_file = argv[1];
+    const char * text_file = argv[2];
 
 
-  bool fmt_file;
+    bool fmt_file;
 
-  test_assert_true( ecl_util_fmt_file( binary_file , &fmt_file ));
-  test_assert_false( fmt_file );
+    test_assert_true( ecl_util_fmt_file( binary_file , &fmt_file ));
+    test_assert_false( fmt_file );
 
-  test_assert_true( ecl_util_fmt_file( text_file , &fmt_file ));
-  test_assert_true( fmt_file );
+    test_assert_true( ecl_util_fmt_file( text_file , &fmt_file ));
+    test_assert_true( fmt_file );
 
-  test_assert_true( ecl_util_fmt_file( "TEST.EGRID" , &fmt_file ));
-  test_assert_false( fmt_file );  
+    test_assert_true( ecl_util_fmt_file( "TEST.EGRID" , &fmt_file ));
+    test_assert_false( fmt_file );  
 
-  test_assert_true( ecl_util_fmt_file( "TEST.FEGRID" , &fmt_file ));
-  test_assert_true( fmt_file );  
+    test_assert_true( ecl_util_fmt_file( "TEST.FEGRID" , &fmt_file ));
+    test_assert_true( fmt_file );  
 
-  test_assert_false(ecl_util_fmt_file( "TEST_DOES_NOT_EXIST" , &fmt_file ));
+    test_assert_false(ecl_util_fmt_file( "TEST_DOES_NOT_EXIST" , &fmt_file ));
 
-  test_content( binary_file , false );
-  test_content( text_file , true );
-  test_small( );
-
+    test_content( work_area , binary_file , false );
+    test_content( work_area , text_file , true );
+    test_small( );
+  }
+  test_work_area_free( work_area );
   exit(0);
 }

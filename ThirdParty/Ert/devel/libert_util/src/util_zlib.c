@@ -201,7 +201,7 @@ void util_fread_compressed(void *__data , FILE * stream) {
 */
 
 void * util_fread_alloc_compressed(FILE * stream) {
-  long   current_pos = ftell(stream);
+  long   current_pos = util_ftell(stream);
   char * data;
   int    size;
 
@@ -209,7 +209,7 @@ void * util_fread_alloc_compressed(FILE * stream) {
   if (size == 0) 
     return NULL;
   else {
-    fseek(stream , current_pos , SEEK_SET);
+    util_fseek(stream , current_pos , SEEK_SET);
     data = util_calloc(size , sizeof * data );
     util_fread_compressed(data , stream);
     return data;
@@ -226,7 +226,7 @@ int util_fread_sizeof_compressed(FILE * stream) {
   int    size;
 
   fread(&size  , sizeof size , 1 , stream); 
-  fseek(  stream , pos , SEEK_SET );
+  util_fseek(  stream , pos , SEEK_SET );
   return size;
 }
 
@@ -244,7 +244,7 @@ void util_fskip_compressed(FILE * stream) {
   do {
     unsigned long compressed_size;
     fread(&compressed_size , sizeof compressed_size , 1 , stream);
-    fseek(stream  , compressed_size , SEEK_CUR);
+    util_fseek(stream  , compressed_size , SEEK_CUR);
     fread(&offset , sizeof offset , 1 , stream);
   } while (offset < size);
 }

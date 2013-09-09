@@ -119,7 +119,7 @@ static bool __read_int(FILE * stream , int * value, bool endian_flip) {
 
 static bool fortio_is_fortran_stream__(FILE * stream , bool endian_flip) {
   const bool strict_checking = true;          /* True: requires that *ALL* records in the file are fortran formatted */
-  long init_pos              = ftell(stream);
+  offset_type init_pos              = util_ftell(stream);
   bool is_fortran_stream     = false;
   int header , tail;
   bool cont;
@@ -128,7 +128,7 @@ static bool fortio_is_fortran_stream__(FILE * stream , bool endian_flip) {
     cont = false;
     if (__read_int(stream , &header , endian_flip)) {
       if (header >= 0) {
-        if (fseek(stream , header , SEEK_CUR) == 0) {
+        if (util_fseek(stream , (offset_type) header , SEEK_CUR) == 0) {
           if (__read_int(stream , &tail , endian_flip)) {
             cont = true;
             /* 
@@ -155,7 +155,7 @@ static bool fortio_is_fortran_stream__(FILE * stream , bool endian_flip) {
       } 
     }
   } while (cont);
-  fseek(stream , init_pos , SEEK_SET);
+  util_fseek(stream , init_pos , SEEK_SET);
   return is_fortran_stream;
 }
 
@@ -422,8 +422,7 @@ void fortio_fclose(fortio_type *fortio) {
 
 
 bool fortio_is_fortio_file(fortio_type * fortio) {
-  FILE * stream = fortio->stream;
-  int init_pos = ftell(stream);
+  offset_type init_pos = fortio_ftell(fortio);
   int elm_read;
   bool is_fortio_file = false;
   elm_read = fread(&fortio->active_header , sizeof(fortio->active_header) , 1 , fortio->stream);
@@ -433,7 +432,7 @@ bool fortio_is_fortio_file(fortio_type * fortio) {
     if (fortio->endian_flip_header)
       util_endian_flip_vector(&fortio->active_header , sizeof fortio->active_header , 1);
 
-    if (fseek(stream , fortio->active_header , SEEK_CUR) == 0) {
+    if (fortio_fseek(fortio , (offset_type) fortio->active_header , SEEK_CUR) == 0) {
       if (fread(&trailer , sizeof(fortio->active_header) , 1 , fortio->stream) == 1) {
         if (fortio->endian_flip_header)
           util_endian_flip_vector(&trailer , sizeof trailer , 1);
@@ -444,7 +443,7 @@ bool fortio_is_fortio_file(fortio_type * fortio) {
     } 
   }
 
-  fseek(stream , init_pos , SEEK_SET);
+  fortio_fseek(fortio , init_pos , SEEK_SET);
   return is_fortio_file;
 }
 
@@ -527,7 +526,7 @@ void fortio_fread_buffer(fortio_type * fortio, char * buffer , int buffer_size) 
 
 int fortio_fskip_record(fortio_type *fortio) {
   int record_size = fortio_init_read(fortio);
-  fseek(fortio->stream , record_size , SEEK_CUR);
+  fortio_fseek(fortio , (offset_type) record_size , SEEK_CUR);
   fortio_complete_read(fortio);
   return record_size;
 }
@@ -624,7 +623,7 @@ static fortio_status_type fortio_check_record( FILE * stream , bool endian_flip 
     if (endian_flip)
       util_endian_flip_vector(&header , sizeof header , 1);
     
-    if (fseek(  stream , header , SEEK_CUR ) != 0) 
+    if (util_fseek(  stream , (offset_type) header , SEEK_CUR ) != 0) 
       /* The fseek() failed - i.e. the data section was not sufficiently long. */
       status = FORTIO_MISSING_DATA;
     else {
@@ -697,13 +696,13 @@ fortio_status_type fortio_check_file( const char * filename , bool endian_flip) 
 }
 
 
-long fortio_ftell( const fortio_type * fortio ) {
-  return ftell( fortio->stream );
+offset_type fortio_ftell( const fortio_type * fortio ) {
+  return util_ftell( fortio->stream );
 }
 
 
-int fortio_fseek( fortio_type * fortio , long offset , int whence) {
-  int fseek_return = fseek( fortio->stream , offset , whence );
+int fortio_fseek( fortio_type * fortio , offset_type offset , int whence) {
+  int fseek_return = util_fseek( fortio->stream , offset , whence );
   /*
     if fseek_return != 0 -> util_abort().
   */
@@ -723,6 +722,6 @@ FILE        * fortio_get_FILE(const fortio_type *fortio)        { return fortio-
 int           fortio_get_record_size(const fortio_type *fortio) { return fortio->active_header; }
 //bool          fortio_endian_flip(const fortio_type *fortio)   { return fortio->endian_flip_header; }
 bool          fortio_fmt_file(const fortio_type *fortio)        { return fortio->fmt_file; }
-void          fortio_rewind(const fortio_type *fortio)          { rewind(fortio->stream); }
+void          fortio_rewind(const fortio_type *fortio)          { util_rewind(fortio->stream); }
 const char  * fortio_filename_ref(const fortio_type * fortio)   { return (const char *) fortio->filename; }
 

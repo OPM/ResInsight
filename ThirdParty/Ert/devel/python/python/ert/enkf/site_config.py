@@ -12,73 +12,177 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import BaseCClass, CWrapper
+from ert.enkf import ENKF_LIB
+from ert.job_queue import JobQueue, ExtJoblist
+from ert.util import StringList, Hash
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
-class SiteConfig(CClass):
+
+class SiteConfig(BaseCClass):
     
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly!")
 
+    def get_queue_name(self):
+        """ @rtype: str """
+        return SiteConfig.cNamespace().get_queue_name( self )
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+    def set_job_queue(self, queue):
+        SiteConfig.cNamespace().set_job_queue( self , queue)
 
+    def get_lsf_queue(self):
+        """ @rtype: str """
+        return SiteConfig.cNamespace().get_lsf_queue( self )
 
+    def set_lsf_queue(self, queue):
+        SiteConfig.cNamespace().set_lsf_queue( self , queue)
 
-##################################################################
+    def get_max_running_lsf(self):
+        """ @rtype: int """
+        return SiteConfig.cNamespace().get_max_running_lsf( self )
 
-cwrapper = CWrapper( libenkf.lib )
+    def set_max_running_lsf(self, max_running):
+        SiteConfig.cNamespace().set_max_running_lsf( self , max_running)
+
+    def get_lsf_request(self):
+        """ @rtype: str """
+        return SiteConfig.cNamespace().get_lsf_request( self )
+
+    def set_lsf_request(self, lsf_request):
+        SiteConfig.cNamespace().set_lsf_request( self , lsf_request)
+
+    def clear_rsh_host_list(self):
+        SiteConfig.cNamespace().clear_rsh_host_list( self )
+
+    def get_rsh_command(self):
+        """ @rtype: str """
+        return SiteConfig.cNamespace().get_rsh_command( self )
+
+    def set_rsh_command(self, rsh_command):
+        SiteConfig.cNamespace().set_rsh_command( self , rsh_command)
+
+    def get_max_running_rsh(self):
+        """ @rtype: int """
+        return SiteConfig.cNamespace().get_max_running_rsh( self )
+
+    def set_max_running_rsh(self, max_running):
+        SiteConfig.cNamespace().set_max_running_rsh( self , max_running)
+
+    def get_max_running_local(self):
+        """ @rtype: int """
+        return SiteConfig.cNamespace().get_max_running_local( self )
+
+    def set_max_running_local(self, max_running):
+        SiteConfig.cNamespace().set_max_running_local( self , max_running)
+
+    def get_job_script(self):
+        """ @rtype: str """
+        return SiteConfig.cNamespace().get_job_script( self )
+
+    def set_job_script(self, job_script):
+        SiteConfig.cNamespace().set_job_script( self , job_script)
+
+    def get_env_hash(self):
+        """ @rtype: StringHash """
+        return SiteConfig.cNamespace().get_env_hash( self )
+
+    def setenv(self, var, value):
+        SiteConfig.cNamespace().setenv( self , var, value)
+
+    def clear_env(self):
+        SiteConfig.cNamespace().clear_env( self )
+
+    def get_path_variables(self):
+        """ @rtype: StringList """
+        return SiteConfig.cNamespace().get_path_variables(self).setParent(self)
+
+    def get_path_values(self):
+        """ @rtype: StringList """
+        return SiteConfig.cNamespace().get_path_values(self).setParent(self)
+
+    def clear_pathvar(self):
+        SiteConfig.cNamespace().clear_pathvar( self )
+
+    def update_pathvar(self, pathvar, value):
+        SiteConfig.cNamespace().update_pathvar( self, pathvar, value)
+
+    def get_installed_jobs(self):
+        """ @rtype: ExtJoblist """
+        return SiteConfig.cNamespace().get_installed_jobs(self).setParent(self)
+
+    def get_max_submit(self):
+        """ @rtype: int """
+        return SiteConfig.cNamespace().get_max_submit( self )
+
+    def set_max_submit(self, max_value):
+        SiteConfig.cNamespace().set_max_submit( self , max_value)
+
+    def get_license_root_path(self):
+        """ @rtype: str """
+        return SiteConfig.cNamespace().get_license_root_path( self )
+
+    def set_license_root_pathmax_submit(self, path):
+        SiteConfig.cNamespace().set_license_root_path( self , path)
+
+    def queue_is_running(self):
+        """ @rtype: bool """
+        return SiteConfig.cNamespace().queue_is_running( self )
+
+    def get_job_queue(self):
+        """ @rtype: JobQueue """
+        return  SiteConfig.cNamespace().get_job_queue(self).setParent(self)
+
+    def get_rsh_host_list(self):
+        """ @rtype: IntegerHash """
+        host_list = SiteConfig.cNamespace().get_rsh_host_list(self)
+        return host_list
+
+    def add_rsh_host(self, host, max_running):
+        SiteConfig.cNamespace().add_rsh_host(self, host, max_running)
+
+    def free(self):
+        SiteConfig.cNamespace().free(self)
+
+cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType( "site_config" , SiteConfig )
-
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("site_config")
+cwrapper.registerType( "site_config_obj" , SiteConfig.createPythonObject)
+cwrapper.registerType( "site_config_ref" , SiteConfig.createCReference)
 
 
-cfunc.free                  = cwrapper.prototype("void site_config_free( site_config )")
-cfunc.get_queue_name        = cwrapper.prototype("char* site_config_get_queue_name(site_config)")
-cfunc.set_job_queue         = cwrapper.prototype("void site_config_set_job_queue(site_config, char*)")
-cfunc.get_lsf_queue         = cwrapper.prototype("char* site_config_get_lsf_queue(site_config)")
-cfunc.set_lsf_queue         = cwrapper.prototype("void site_config_set_lsf_queue(site_config, char*)")
-cfunc.get_max_running_lsf   = cwrapper.prototype("int site_config_get_max_running_lsf(site_config)")
-cfunc.set_max_running_lsf   = cwrapper.prototype("void site_config_set_max_running_lsf(site_config, int)")
-cfunc.get_lsf_request       = cwrapper.prototype("char* site_config_get_lsf_request(site_config)")
-cfunc.set_lsf_request       = cwrapper.prototype("void site_config_set_lsf_request(site_config, char*)")
-cfunc.get_rsh_command       = cwrapper.prototype("char* site_config_get_rsh_command(site_config)")
-cfunc.set_rsh_command       = cwrapper.prototype("void site_config_set_rsh_command(site_config, char*)")
-cfunc.get_max_running_rsh   = cwrapper.prototype("int site_config_get_max_running_rsh(site_config)")
-cfunc.set_max_running_rsh   = cwrapper.prototype("void site_config_set_max_running_rsh(site_config, int)")
-cfunc.get_rsh_host_list     = cwrapper.prototype("c_void_p site_config_get_rsh_host_list(site_config)")
-cfunc.clear_rsh_host_list   = cwrapper.prototype("void site_config_clear_rsh_host_list(site_config)")
-cfunc.add_rsh_host          = cwrapper.prototype("void site_config_add_rsh_host(site_config, char*, int)")
-cfunc.get_max_running_local = cwrapper.prototype("int site_config_get_max_running_local(site_config)")
-cfunc.set_max_running_local = cwrapper.prototype("void site_config_set_max_running_local(site_config, int)")
-cfunc.get_installed_jobs    = cwrapper.prototype("c_void_p site_config_get_installed_jobs(site_config)")
-cfunc.get_max_submit        = cwrapper.prototype("int site_config_get_max_submit(site_config)")
-cfunc.set_max_submit        = cwrapper.prototype("void site_config_set_max_submit(site_config, int)")
-cfunc.get_license_root_path = cwrapper.prototype("char* site_config_get_license_root_path(site_config)")
-cfunc.set_license_root_path = cwrapper.prototype("void site_config_set_license_root_path(site_config, char*)")
-cfunc.get_job_script        = cwrapper.prototype("char* site_config_get_job_script(site_config)"),
-cfunc.set_job_script        = cwrapper.prototype("void site_config_set_job_script(site_config, char*)")
-cfunc.get_env_hash          = cwrapper.prototype("c_void_p site_config_get_env_hash(site_config)"),
-cfunc.clear_env             = cwrapper.prototype("void site_config_clear_env(site_config)"),
-cfunc.setenv                = cwrapper.prototype("void site_config_setenv(site_config, char*, char*)")
-cfunc.get_path_variables    = cwrapper.prototype("c_void_p site_config_get_path_variables(site_config)"),
-cfunc.get_path_values       = cwrapper.prototype("c_void_p site_config_get_path_values(site_config)"),
-cfunc.clear_pathvar         = cwrapper.prototype("void site_config_clear_pathvar(site_config)"),
-cfunc.update_pathvar        = cwrapper.prototype("void site_config_update_pathvar(site_config, char*, char*)")
-cfunc.get_installed_jobs    = cwrapper.prototype("c_void_p site_config_get_installed_jobs(site_config)"),
-cfunc.get_license_root_path = cwrapper.prototype("char* site_config_get_license_root_path(site_config)")
+SiteConfig.cNamespace().free                  = cwrapper.prototype("void site_config_free( site_config )")
+SiteConfig.cNamespace().get_queue_name        = cwrapper.prototype("char* site_config_get_queue_name(site_config)")
+SiteConfig.cNamespace().set_job_queue         = cwrapper.prototype("void site_config_set_job_queue(site_config, char*)")
+SiteConfig.cNamespace().get_lsf_queue         = cwrapper.prototype("char* site_config_get_lsf_queue(site_config)")
+SiteConfig.cNamespace().set_lsf_queue         = cwrapper.prototype("void site_config_set_lsf_queue(site_config, char*)")
+SiteConfig.cNamespace().get_max_running_lsf   = cwrapper.prototype("int site_config_get_max_running_lsf(site_config)")
+SiteConfig.cNamespace().set_max_running_lsf   = cwrapper.prototype("void site_config_set_max_running_lsf(site_config, int)")
+SiteConfig.cNamespace().get_lsf_request       = cwrapper.prototype("char* site_config_get_lsf_request(site_config)")
+SiteConfig.cNamespace().set_lsf_request       = cwrapper.prototype("void site_config_set_lsf_request(site_config, char*)")
+
+SiteConfig.cNamespace().get_rsh_command       = cwrapper.prototype("char* site_config_get_rsh_command(site_config)")
+SiteConfig.cNamespace().set_rsh_command       = cwrapper.prototype("void site_config_set_rsh_command(site_config, char*)")
+SiteConfig.cNamespace().get_max_running_rsh   = cwrapper.prototype("int site_config_get_max_running_rsh(site_config)")
+SiteConfig.cNamespace().set_max_running_rsh   = cwrapper.prototype("void site_config_set_max_running_rsh(site_config, int)")
+SiteConfig.cNamespace().get_rsh_host_list     = cwrapper.prototype("integer_hash_ref site_config_get_rsh_host_list(site_config)")
+SiteConfig.cNamespace().clear_rsh_host_list   = cwrapper.prototype("void site_config_clear_rsh_host_list(site_config)")
+SiteConfig.cNamespace().add_rsh_host          = cwrapper.prototype("void site_config_add_rsh_host(site_config, char*, int)")
+
+SiteConfig.cNamespace().get_max_running_local = cwrapper.prototype("int site_config_get_max_running_local(site_config)")
+SiteConfig.cNamespace().set_max_running_local = cwrapper.prototype("void site_config_set_max_running_local(site_config, int)")
+SiteConfig.cNamespace().get_installed_jobs    = cwrapper.prototype("ext_joblist_ref site_config_get_installed_jobs(site_config)")
+SiteConfig.cNamespace().get_max_submit        = cwrapper.prototype("int site_config_get_max_submit(site_config)")
+SiteConfig.cNamespace().set_max_submit        = cwrapper.prototype("void site_config_set_max_submit(site_config, int)")
+SiteConfig.cNamespace().get_license_root_path = cwrapper.prototype("char* site_config_get_license_root_path(site_config)")
+SiteConfig.cNamespace().set_license_root_path = cwrapper.prototype("void site_config_set_license_root_path(site_config, char*)")
+SiteConfig.cNamespace().get_job_script        = cwrapper.prototype("char* site_config_get_job_script(site_config)")
+SiteConfig.cNamespace().set_job_script        = cwrapper.prototype("void site_config_set_job_script(site_config, char*)")
+SiteConfig.cNamespace().get_env_hash          = cwrapper.prototype("string_hash_ref site_config_get_env_hash(site_config)")
+SiteConfig.cNamespace().clear_env             = cwrapper.prototype("void site_config_clear_env(site_config)")
+SiteConfig.cNamespace().setenv                = cwrapper.prototype("void site_config_setenv(site_config, char*, char*)")
+SiteConfig.cNamespace().get_path_variables    = cwrapper.prototype("stringlist_ref site_config_get_path_variables(site_config)")
+SiteConfig.cNamespace().get_path_values       = cwrapper.prototype("stringlist_ref site_config_get_path_values(site_config)")
+SiteConfig.cNamespace().clear_pathvar         = cwrapper.prototype("void site_config_clear_pathvar(site_config)")
+SiteConfig.cNamespace().update_pathvar        = cwrapper.prototype("void site_config_update_pathvar(site_config, char*, char*)")
+SiteConfig.cNamespace().get_job_queue         = cwrapper.prototype("job_queue_ref site_config_get_job_queue(site_config)")
+SiteConfig.cNamespace().queue_is_running      = cwrapper.prototype("bool site_config_queue_is_running(site_config)")

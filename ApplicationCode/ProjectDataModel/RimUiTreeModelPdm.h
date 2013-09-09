@@ -55,6 +55,7 @@ public:
     bool                        deleteReservoirView(const QModelIndex& itemIndex);
     void                        deleteInputProperty(const QModelIndex& itemIndex);
     void                        deleteReservoir(RimCase* reservoir);
+    void                        deleteAllWellPaths(const QModelIndex& itemIndex);
 
     RimCellPropertyFilter*      addPropertyFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);
     RimCellRangeFilter*         addRangeFilter(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);

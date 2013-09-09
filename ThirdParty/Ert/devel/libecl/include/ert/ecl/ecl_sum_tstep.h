@@ -51,6 +51,7 @@ typedef struct ecl_sum_tstep_struct ecl_sum_tstep_type;
   void ecl_sum_tstep_iset( ecl_sum_tstep_type * tstep , int index , float value);
   void ecl_sum_tstep_set_from_node( ecl_sum_tstep_type * tstep , const smspec_node_type * smspec_node , float value);
   void ecl_sum_tstep_set_from_key( ecl_sum_tstep_type * tstep , const char * gen_key , float value);
+  bool ecl_sum_tstep_sim_time_equal( const ecl_sum_tstep_type * tstep1 , const ecl_sum_tstep_type * tstep2 );
 
   UTIL_SAFE_CAST_HEADER( ecl_sum_tstep );
   UTIL_SAFE_CAST_HEADER_CONST( ecl_sum_tstep );

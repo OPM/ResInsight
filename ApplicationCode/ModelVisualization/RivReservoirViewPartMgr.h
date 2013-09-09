@@ -39,18 +39,18 @@ public:
 
     enum ReservoirGeometryCacheType
     {
-        ACTIVE,
-        ALL_WELL_CELLS,
-        VISIBLE_WELL_CELLS,
-        VISIBLE_WELL_FENCE_CELLS,
-        INACTIVE,
-        RANGE_FILTERED,
-        RANGE_FILTERED_INACTIVE,
-        RANGE_FILTERED_WELL_CELLS,
-        VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER,
-        VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER,
-        PROPERTY_FILTERED,
-        PROPERTY_FILTERED_WELL_CELLS // Includes RANGE_FILTERED_WELL_CELLS and VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER and VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER
+        ACTIVE,                                         ///< All Active cells without ALL_WELL_CELLS
+        ALL_WELL_CELLS,                                 ///< All cells ever having a connection to a well (Might be inactive cells as well. Wellhead cells typically)
+        VISIBLE_WELL_CELLS,                             ///< ALL_WELL_CELLS && visible well cells including Fence
+        VISIBLE_WELL_FENCE_CELLS,                       ///< (! ALL_WELL_CELLS) && visible well cells including Fence
+        INACTIVE,                                       ///< All inactive cells, but invalid cells might or might not be included
+        RANGE_FILTERED,                                 ///< ACTIVE Filtered by the set of range filters
+        RANGE_FILTERED_INACTIVE,                        ///< INACTIVE Filtered by the set of range filters
+        RANGE_FILTERED_WELL_CELLS,                      ///< ALL_WELL_CELLS Filtered by the set of range filters
+        VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER,        ///< VISIBLE_WELL_CELLS && !RANGE_FILTERED_WELL_CELLS
+        VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER,  ///< VISIBLE_WELL_FENCE_CELLS && !RANGE_FILTERED
+        PROPERTY_FILTERED,                              ///< (RANGE_FILTERED || VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER) && !ExcludedByPropFilter && IncludedByPropFilter
+        PROPERTY_FILTERED_WELL_CELLS                    ///< (!(hasActiveRangeFilters || visibleWellCells) && (*ALL_WELL_CELLS)) || RANGE_FILTERED_WELL_CELLS || VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER
     };
 
     void                        clearGeometryCache();
@@ -72,7 +72,7 @@ private:
     void                        createGeometry(ReservoirGeometryCacheType geometryType);
     void                        computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx);
 
-    void                        createPropertyFilteredGeometry(size_t frameIndex);
+    void                        createPropertyFilteredNoneWellCellGeometry(size_t frameIndex);
     void                        createPropertyFilteredWellGeometry(size_t frameIndex);
 
     void                        clearGeometryCache(ReservoirGeometryCacheType geomType);

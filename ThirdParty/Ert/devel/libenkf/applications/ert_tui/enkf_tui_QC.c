@@ -24,6 +24,7 @@
 #include <time.h>
 
 #include <ert/util/double_vector.h>
+#include <ert/util/int_vector.h>
 #include <ert/util/util.h>
 #include <ert/util/menu.h>
 #include <ert/util/arg_pack.h>
@@ -31,6 +32,7 @@
 #include <ert/util/bool_vector.h>
 #include <ert/util/msg.h>
 #include <ert/util/vector.h>
+#include <ert/util/type_vector_functions.h>
 
 #include <ert/plot/plot.h>
 #include <ert/plot/plot_dataset.h> 
@@ -62,12 +64,18 @@ void enkf_tui_QC_plot_get_PC( enkf_main_type * enkf_main , int step1 , int step2
                               double truncation , int ncomp , 
                               matrix_type * PC , matrix_type * PC_obs) {
   
-  int               ens_size             = enkf_main_get_ensemble_size( enkf_main );
+  bool_vector_type * ens_mask            = bool_vector_alloc(0 , false);
   obs_data_type  *  obs_data             = obs_data_alloc();
-  meas_data_type *  meas_data            = meas_data_alloc( ens_size );
   analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
   int_vector_type * step_list            = int_vector_alloc(0,0);    
+  enkf_fs_type * source_fs               = enkf_main_get_fs( enkf_main);
+  state_map_type * state_map             = enkf_fs_get_state_map(source_fs);
+  int_vector_type * ens_active_list;
+  meas_data_type *  meas_data;
 
+  state_map_select_matching(state_map , ens_mask , STATE_HAS_DATA);
+  ens_active_list = bool_vector_alloc_active_list(ens_mask);
+  meas_data = meas_data_alloc(ens_active_list);
   {
     for (int step =step1; step <= step2; step++) 
       int_vector_append( step_list , step );
@@ -81,10 +89,10 @@ void enkf_tui_QC_plot_get_PC( enkf_main_type * enkf_main , int step1 , int step2
     double alpha      = analysis_config_get_alpha( analysis_config );
 
     enkf_obs_get_obs_and_measure(enkf_main_get_obs( enkf_main ),
-                                 enkf_main_get_fs( enkf_main ), 
+                                 source_fs ,
                                  step_list , 
                                  state, 
-                                 ens_size,
+                                 ens_active_list , 
                                  (const enkf_state_type **) enkf_main_get_ensemble( enkf_main ),
                                  meas_data , 
                                  obs_data , 
@@ -105,6 +113,7 @@ void enkf_tui_QC_plot_get_PC( enkf_main_type * enkf_main , int step1 , int step2
     matrix_free( dObs );
   }
 
+  bool_vector_free(ens_mask);
   int_vector_free( step_list );
   obs_data_free( obs_data );
   meas_data_free( meas_data );

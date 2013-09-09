@@ -105,11 +105,11 @@ void util_make_path(const char *_path) {
 char * util_alloc_tmp_file(const char * path, const char * prefix , bool include_pid ) {
   // Should be reimplemented to use mkstemp() 
   const int pid_digits    = 6;
-  const int pid_max       = 1000000;
   const int random_digits = 6;
   const int random_max    = 1000000;
 
 #ifdef HAVE_PID_T  
+  const int pid_max     = 1000000;
   pid_t  pid            = getpid() % pid_max;
 #else
   int    pid            = 0;
@@ -201,7 +201,30 @@ int util_proc_mem_free(void) {
 
 
 
+char * util_split_alloc_dirname( const char * input_path ) {
+  char * path;
+  util_alloc_file_components( input_path , &path , NULL , NULL);
+  return path;
+}
 
+
+char * util_split_alloc_filename( const char * input_path ) {
+  char * filename = NULL;
+  {
+    char * basename;
+    char * extension;
+  
+    util_alloc_file_components( input_path , NULL , &basename , &extension);
+  
+    if (basename) 
+      filename = util_alloc_filename( NULL , basename , extension );
+    
+    util_safe_free( basename );
+    util_safe_free( extension );
+  }
+  
+  return filename;
+}
 
 
 

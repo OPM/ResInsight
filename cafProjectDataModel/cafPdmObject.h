@@ -122,6 +122,8 @@ public:
     void                    readFields (QXmlStreamReader& inputStream );
     void                    writeFields(QXmlStreamWriter& outputStream);
 
+    PdmObject*              deepCopy();
+
     /// The registered fields contained in this PdmObject. Registered by subclasses.
     void                    fields(std::vector<PdmFieldHandle*>& fields) const;
     /// The fields containing pointers to this PdmObject. Use ownerObject() on the fieldHandle to get the PdmObject parent.
@@ -144,8 +146,11 @@ public:
     /// supplied by the \sa defineUiOrdering method that can be reimplemented
     void                    uiOrdering(QString uiConfigName, PdmUiOrdering& uiOrdering) ;
 
-    /// For a specific field, return editor specific parameters used to customize the editor behavior..
+    /// For a specific field, return editor specific parameters used to customize the editor behavior.
     void                    editorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute);
+
+    /// Return object editor specific parameters used to customize the editor behavior.
+    void                    objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute);
 
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual 
@@ -181,6 +186,9 @@ protected: // Virtual
 
     /// Override to provide editor specific data for the field and uiConfigName 
     virtual void            defineEditorAttribute(const PdmFieldHandle* field, QString uiConfigName, PdmUiEditorAttribute * attribute) {}
+
+    /// Override to provide editor specific data for the uiConfigName for the object
+    virtual void            defineObjectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute * attribute) {}
 
 public:
     /// operator= implemented to avoid copying the internal m_fields

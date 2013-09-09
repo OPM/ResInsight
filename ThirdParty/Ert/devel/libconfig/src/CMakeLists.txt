@@ -5,6 +5,9 @@ add_library( config ${LIBRARY_TYPE} ${source_files} )
 set_target_properties( config PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
 target_link_libraries( config ert_util )
+if (USE_RUNPATH)
+   add_runpath( config )
+endif()
 
 if (INSTALL_ERT)
    install(TARGETS config DESTINATION ${CMAKE_INSTALL_LIBDIR})

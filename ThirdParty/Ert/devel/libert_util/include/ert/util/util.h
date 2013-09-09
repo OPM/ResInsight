@@ -22,12 +22,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <time.h>
 #include <stdarg.h>
+#include <sys/types.h>
+#include <time.h>
+
+#ifdef HAVE_GETPWUID
+#include <pwd.h>
+#endif
+
 
 #ifdef HAVE_GETUID
 #include <sys/stat.h>
-#include <sys/types.h>
 #endif
 
 #ifdef ERT_WINDOWS
@@ -47,6 +52,28 @@ extern"C" {
 #endif
 
 
+/*
+  These ifdefs are an attempt to support large files (> 2GB)
+  transparently on both Windows and Linux. See source file
+  libert_util/src/util_lfs.c for more details.
+
+  The symbol WINDOWS_LFS should be defined during compilation
+  if you want support of large files on windows.
+*/
+
+#ifdef WINDOWS_LFS
+typedef struct _stat64 stat_type;
+typedef __int64 offset_type;
+#else
+typedef struct stat stat_type;
+#ifdef HAVE_FSEEKO
+  typedef off_t offset_type;
+#else
+  typedef long offset_type;
+#endif
+#endif
+
+
 
 /*****************************************************************/
 /*
@@ -63,6 +90,7 @@ typedef bool (walk_dir_callback_ftype)   (const char * , /* The current director
                                           const char * , /* The current file / directory */
                                           int          , /* The current depth in the file hiearcrcy. */
                                           void *);       /* Arbitrary argument */
+
 
 
 typedef enum {left_pad   = 0,
@@ -141,6 +169,11 @@ typedef enum {left_pad   = 0,
   int          util_roundf( float x );
   int          util_round( double x );
 
+  offset_type        util_ftell(FILE * stream);
+  int          util_fseek(FILE * stream, offset_type offset, int whence);
+  void         util_rewind(FILE * stream);
+  int          util_stat(const char * filename , stat_type * stat_info);
+  int          util_fstat(int fileno, stat_type * stat_info);
 
 #ifdef HAVE_VA_COPY
 #define UTIL_VA_COPY(target,src) va_copy(target,src)
@@ -150,7 +183,8 @@ typedef enum {left_pad   = 0,
 
 
 #ifdef HAVE_OPENDIR
-  void         util_copy_directory(const char *  , const char * , const char *);
+  void         util_copy_directory_content(const char * src_path , const char * target_path);
+  void         util_copy_directory(const char *  , const char *);
   void         util_walk_directory(const char * root_path , walk_file_callback_ftype * file_callback , void * file_callback_arg , walk_dir_callback_ftype * dir_callback , void * dir_callback_arg);
 #endif
 
@@ -176,6 +210,8 @@ typedef enum {left_pad   = 0,
   FILE       * util_fopen__(const char * filename , const char * mode);
   void         util_fclose( FILE * stream );
   bool         util_fopen_test(const char *, const char *);
+  char       * util_split_alloc_dirname( const char * input_path );
+  char       * util_split_alloc_filename( const char * input_path );
   void         util_alloc_file_components(const char * , char ** , char **, char **);
   //char           * util_realloc_full_path(char * , const char *, const char *);
   char       * util_alloc_tmp_file(const char * , const char * , bool );
@@ -247,6 +283,7 @@ typedef enum {left_pad   = 0,
   void         util_fread_dev_urandom(int , char * );
   bool         util_string_isspace(const char * s);
   
+  char *  util_alloc_dump_filename();
   void    util_exit(const char * fmt , ...);
   void    util_abort(const char * fmt , ...);
   void    util_abort_signal(int );
@@ -329,6 +366,7 @@ typedef enum {left_pad   = 0,
   bool     util_files_equal( const char * file1 , const char * file2 );
   double   util_kahan_sum(const double *data, size_t N);
   bool     util_double_approx_equal( double d1 , double d2);
+  bool     util_double_approx_equal__( double d1 , double d2, double epsilon);
   int      util_fnmatch( const char * pattern , const char * string );
   void     util_localtime( time_t * t , struct tm * ts );
 

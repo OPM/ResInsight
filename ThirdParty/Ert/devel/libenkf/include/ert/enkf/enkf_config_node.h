@@ -139,6 +139,7 @@ extern "C" {
   const            char * enkf_config_node_get_min_std_file( const enkf_config_node_type * config_node );
   const            char * enkf_config_node_get_enkf_outfile( const enkf_config_node_type * conifg_node );
   const            char * enkf_config_node_get_enkf_infile( const enkf_config_node_type * config_node );
+  const            char * enkf_config_node_get_init_file_fmt( const enkf_config_node_type * config_node );
   char                  * enkf_config_node_alloc_initfile( const enkf_config_node_type * node , const char * path , int iens);
 
   void enkf_config_node_set_internalize(enkf_config_node_type * node, int report_step);

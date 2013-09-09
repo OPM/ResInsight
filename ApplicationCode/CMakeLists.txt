@@ -19,6 +19,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
     ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
+    ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_BINARY_DIR}/Generated
 	${CMAKE_CURRENT_BINARY_DIR}
 )
@@ -54,6 +55,7 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaCaseInfoCommands.cpp
     SocketInterface/RiaGeometryCommands.cpp
     SocketInterface/RiaPropertyDataCommands.cpp
+	SocketInterface/RiaWellDataCommands.cpp
     SocketInterface/RiaSocketTools.cpp
 )
 
@@ -82,7 +84,7 @@ list( APPEND CPP_SOURCES
     ${CODE_SOURCE_FILES}
 )
 
-add_subdirectory(ssihubInterface)
+add_subdirectory(WellPathImportSsihub)
 
 
 # Define files for MOC-ing
@@ -217,6 +219,8 @@ add_executable( ResInsight ${EXE_FILES} )
 
 
 set( LINK_LIBRARIES
+    WellPathImportSsihub
+
     cafPdmCvf
     cafUserInterface
     cafProjectDataModel
@@ -228,8 +232,6 @@ set( LINK_LIBRARIES
     LibRender
     LibGeometry
     LibCore
-
-    ssihubInterface
 
     ecl
     ert_util
@@ -275,50 +277,50 @@ set (RESINSIGHT_LICENSE_FILES
   )
 
 # bundle libraries together with private installation
-if (PRIVATE_INSTALL)
+if (RESINSIGHT_PRIVATE_INSTALL)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  # tell binary to first attempt to load libraries from its own directory
-  set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	  # tell binary to first attempt to load libraries from its own directory
+	  set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
 
-    # Find Qt libraries and sym links
-    file (GLOB RESINSIGHT_FILES
-            ${QT_LIBRARY_DIR}/libQtCore.so*
-            ${QT_LIBRARY_DIR}/libQtGui.so*
-            ${QT_LIBRARY_DIR}/libQtOpenGL.so*
-            ${QT_LIBRARY_DIR}/libQtNetwork.so*
-            ${QT_LIBRARY_DIR}/libQtScript.so*
-            ${QT_LIBRARY_DIR}/libQtScriptTools.so*
-        )
+		# Find Qt libraries and sym links
+		file (GLOB RESINSIGHT_FILES
+				${QT_LIBRARY_DIR}/libQtCore.so*
+				${QT_LIBRARY_DIR}/libQtGui.so*
+				${QT_LIBRARY_DIR}/libQtOpenGL.so*
+				${QT_LIBRARY_DIR}/libQtNetwork.so*
+				${QT_LIBRARY_DIR}/libQtScript.so*
+				${QT_LIBRARY_DIR}/libQtScriptTools.so*
+			)
 
-endif()
+	endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-  # put a .exe.local file in the target directory to pick up DLLs from there
-  install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	  # put a .exe.local file in the target directory to pick up DLLs from there
+	  install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
 
-    set (RESINSIGHT_FILES
-            ${QT_BINARY_DIR}/QtCore4.dll
-            ${QT_BINARY_DIR}/QtGui4.dll
-            ${QT_BINARY_DIR}/QtOpenGL4.dll
-            ${QT_BINARY_DIR}/QtNetwork4.dll
-            ${QT_BINARY_DIR}/QtScript4.dll
-            ${QT_BINARY_DIR}/QtScriptTools4.dll
-        )
-endif()
+		set (RESINSIGHT_FILES
+				${QT_BINARY_DIR}/QtCore4.dll
+				${QT_BINARY_DIR}/QtGui4.dll
+				${QT_BINARY_DIR}/QtOpenGL4.dll
+				${QT_BINARY_DIR}/QtNetwork4.dll
+				${QT_BINARY_DIR}/QtScript4.dll
+				${QT_BINARY_DIR}/QtScriptTools4.dll
+			)
+	endif()
 
-set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
+	set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
 
-install(TARGETS ResInsight DESTINATION ${RESINSIGHT_FINAL_NAME})
+	install(TARGETS ResInsight DESTINATION ${RESINSIGHT_FINAL_NAME})
 
-install(FILES ${RESINSIGHT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
+	install(FILES ${RESINSIGHT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
-endif()
+	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+	endif()
 
-else (PRIVATE_INSTALL)
+else (RESINSIGHT_PRIVATE_INSTALL)
   # binaries go in /usr/bin
   install (TARGETS ResInsight
 	DESTINATION bin
@@ -343,4 +345,4 @@ else (PRIVATE_INSTALL)
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
 	DESTINATION share/applications
 	)
-endif (PRIVATE_INSTALL)
+endif (RESINSIGHT_PRIVATE_INSTALL)

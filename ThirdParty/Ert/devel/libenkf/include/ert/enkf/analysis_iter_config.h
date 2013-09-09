@@ -28,6 +28,8 @@ typedef struct analysis_iter_config_struct analysis_iter_config_type;
 
   void                            analysis_iter_config_set_num_iterations( analysis_iter_config_type * config , int num_iterations);
   int                             analysis_iter_config_get_num_iterations( const analysis_iter_config_type * config );
+  void                            analysis_iter_config_set_case_fmt( analysis_iter_config_type * config, const char * case_fmt);
+  char *                          analysis_iter_config_get_case_fmt( analysis_iter_config_type * config);
   analysis_iter_config_type * analysis_iter_config_alloc();
   void                            analysis_iter_config_free( analysis_iter_config_type * config );
   const char *                    analysis_iter_config_iget_case( analysis_iter_config_type * config , int iter);

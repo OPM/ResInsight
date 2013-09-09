@@ -57,6 +57,9 @@ public:
     void                        setGridIndex(size_t index) { m_gridIndex = index; }
     size_t                      gridIndex() const { return m_gridIndex; }
 
+    void                        setGridId(int id) { m_gridId = id; }
+    int                         gridId() const { return m_gridId; }
+
     double                      characteristicIJCellSize();
 
     std::string                 gridName() const;
@@ -108,6 +111,7 @@ private:
     cvf::Vec3st                 m_gridPointDimensions;
     size_t                      m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t                      m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
+    int                         m_gridId; ///< The LGR id of this grid. Main grid has id 0.
     RigMainGrid*                m_mainGrid;
     cvf::BoundingBox            m_boundingBox;
 

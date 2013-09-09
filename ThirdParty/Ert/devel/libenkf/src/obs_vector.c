@@ -58,8 +58,8 @@ struct obs_vector_struct {
   obs_meas_ftype       *measure;      /* Function used to measure on the state, and add to to the S matrix. */
   obs_user_get_ftype   *user_get;     /* Function to get an observation based on KEY:INDEX input from user.*/
   obs_chi2_ftype       *chi2;         /* Function to evaluate chi-squared for an observation. */ 
+  obs_scale_std_ftype  *scale_std;    /* Function to scale the standard deviation with a given factor */
   
-  const time_t_vector_type       * obs_time;    /* Global vector owned by the enkf_obs structure. */
   vector_type                    * nodes; 
   char                           * obs_key;     /* The key this observation vector has in the enkf_obs layer. */ 
   enkf_config_node_type          * config_node; /* The config_node of the node type we are observing - shared reference */
@@ -108,8 +108,7 @@ static void obs_vector_resize(obs_vector_type * vector , int new_size) {
 }
 
 
-
-obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key , enkf_config_node_type * config_node , const time_t_vector_type * obs_time , int num_reports) {
+obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key , enkf_config_node_type * config_node, int num_reports) {
   obs_vector_type * vector = util_malloc(sizeof * vector );
   
   UTIL_TYPE_ID_INIT( vector , OBS_VECTOR_TYPE_ID);
@@ -118,7 +117,8 @@ obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key
   vector->get_obs    = NULL;
   vector->user_get   = NULL;
   vector->chi2       = NULL;
-  
+  vector->scale_std  = NULL;
+
   switch (obs_type) {
   case(SUMMARY_OBS):
     vector->freef      = summary_obs_free__;
@@ -126,6 +126,7 @@ obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key
     vector->get_obs    = summary_obs_get_observations__;
     vector->user_get   = summary_obs_user_get__;
     vector->chi2       = summary_obs_chi2__;
+    vector->scale_std  = summary_obs_scale_std__;
     break;
   case(BLOCK_OBS):
     vector->freef      = block_obs_free__;
@@ -133,6 +134,7 @@ obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key
     vector->get_obs    = block_obs_get_observations__;
     vector->user_get   = block_obs_user_get__;
     vector->chi2       = block_obs_chi2__;
+    vector->scale_std  = block_obs_scale_std__;
     break;
   case(GEN_OBS):
     vector->freef      = gen_obs_free__;
@@ -140,6 +142,7 @@ obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key
     vector->get_obs    = gen_obs_get_observations__;
     vector->user_get   = gen_obs_user_get__;
     vector->chi2       = gen_obs_chi2__; 
+    vector->scale_std  = gen_obs_scale_std__;
     break;
   default:
     util_abort("%s: internal error - obs_type:%d not recognized \n",__func__ , obs_type);
@@ -150,8 +153,7 @@ obs_vector_type * obs_vector_alloc(obs_impl_type obs_type , const char * obs_key
   vector->obs_key            = util_alloc_string_copy( obs_key );
   vector->num_active         = 0;
   vector->nodes              = vector_alloc_new();
-  vector->obs_time           = obs_time;
-  obs_vector_resize(vector , num_reports + 1); /* +1 here ?? Ohh  - these fucking +/- problems. */
+  obs_vector_resize(vector , num_reports + 1); /* +1 here ?? Ohh  - these +/- problems. */
   
   return vector;
 }
@@ -198,7 +200,7 @@ static void obs_vector_assert_node_type( const obs_vector_type * obs_vector , co
     type_OK = gen_obs_is_instance( node );
     break;
   default:
-    util_abort("%s: What the fuck? \n",__func__);
+    util_abort("%s: Error in type check: \n",__func__);
     type_OK = false;
   }
   if (!type_OK) 
@@ -229,7 +231,7 @@ void obs_vector_clear_nodes( obs_vector_type * obs_vector ) {
 
 
 
-static void obs_vector_install_node(obs_vector_type * obs_vector , int index , void * node) {
+void obs_vector_install_node(obs_vector_type * obs_vector , int index , void * node) {
   obs_vector_assert_node_type( obs_vector , node );
   {
     if (vector_iget_const( obs_vector->nodes , index ) == NULL)
@@ -238,8 +240,6 @@ static void obs_vector_install_node(obs_vector_type * obs_vector , int index , v
     vector_iset_owned_ref( obs_vector->nodes , index , node , obs_vector->freef );
   }
 }
-
-
 
 /**
    Observe that @summary_key is the key used to look up the
@@ -253,14 +253,6 @@ static void obs_vector_add_summary_obs( obs_vector_type * obs_vector , int obs_i
 }
 
 
-time_t obs_vector_iget_obs_time( const obs_vector_type * obs_vector , int report_step) {
-  return time_t_vector_safe_iget( obs_vector->obs_time , report_step );
-}
-
-
-
-
-
 /*****************************************************************/
 
 int obs_vector_get_num_active(const obs_vector_type * vector) {
@@ -271,7 +263,7 @@ int obs_vector_get_num_active(const obs_vector_type * vector) {
 /**
    IFF - only one - report step is active this function will return
    that report step. If more than report step is active, the function
-   is ambigous, and will fail HARD. Check with get_num_active first!
+   is ambiguous, and will fail HARD. Check with get_num_active first!
 */
 
 int obs_vector_get_active_report_step(const obs_vector_type * vector) {
@@ -395,7 +387,7 @@ void obs_vector_load_from_SUMMARY_OBSERVATION(obs_vector_type * obs_vector , con
 
 
 
-obs_vector_type * obs_vector_alloc_from_GENERAL_OBSERVATION(const conf_instance_type * conf_instance , const history_type * history, const ensemble_config_type * ensemble_config , const time_t_vector_type * obs_time) {
+obs_vector_type * obs_vector_alloc_from_GENERAL_OBSERVATION(const conf_instance_type * conf_instance , const history_type * history, const ensemble_config_type * ensemble_config) {
   if(!conf_instance_is_of_class(conf_instance, "GENERAL_OBSERVATION"))
     util_abort("%s: internal error. expected \"GENERAL_OBSERVATION\" instance, got \"%s\".\n",
                __func__, conf_instance_get_class_name_ref(conf_instance) );
@@ -404,7 +396,7 @@ obs_vector_type * obs_vector_alloc_from_GENERAL_OBSERVATION(const conf_instance_
   if (ensemble_config_has_key( ensemble_config , state_kw )) {
     const char * obs_key         = conf_instance_get_name_ref(conf_instance);
     int          size            = history_get_last_restart( history );
-    obs_vector_type * obs_vector = obs_vector_alloc( GEN_OBS , obs_key , ensemble_config_get_node(ensemble_config , state_kw ) , obs_time , size);
+    obs_vector_type * obs_vector = obs_vector_alloc( GEN_OBS , obs_key , ensemble_config_get_node(ensemble_config , state_kw ), size);
     int          obs_restart_nr   = __conf_instance_get_restart_nr(conf_instance , obs_key , history , size);
     const char * index_file       = NULL;
     const char * index_list       = NULL;
@@ -587,6 +579,17 @@ bool obs_vector_load_from_HISTORY_OBSERVATION(obs_vector_type * obs_vector ,
   }
 }
 
+void obs_vector_scale_std(obs_vector_type * obs_vector, double std_multiplier) {
+  vector_type * observation_nodes = obs_vector->nodes;
+  
+  for (int i=0; i<vector_get_size(observation_nodes); i++) {
+    if (obs_vector_iget_active(obs_vector, i)) {
+      void * observation = obs_vector_iget_node(obs_vector, i);
+      obs_vector->scale_std(observation, std_multiplier);
+    }
+    
+  }
+}
 
 
 static const char * __summary_kw( const char * field_name ) {
@@ -597,7 +600,7 @@ static const char * __summary_kw( const char * field_name ) {
   else if (strcmp( field_name , "SGAS") == 0)
     return "BSGAS";
   else {
-    util_abort("%s: sorry - could not \'translate\' field:%s to block summayr variable\n",__func__ , field_name);
+    util_abort("%s: sorry - could not \'translate\' field:%s to block summary variable\n",__func__ , field_name);
     return NULL;
   }
 }
@@ -607,8 +610,7 @@ obs_vector_type * obs_vector_alloc_from_BLOCK_OBSERVATION(const conf_instance_ty
                                                           const ecl_grid_type * grid , 
                                                           const ecl_sum_type * refcase , 
                                                           const history_type * history, 
-                                                          ensemble_config_type * ensemble_config, 
-                                                          const time_t_vector_type * obs_time) {
+                                                          ensemble_config_type * ensemble_config) {
 
   if(!conf_instance_is_of_class(conf_instance, "BLOCK_OBSERVATION"))
     util_abort("%s: internal error. expected \"BLOCK_OBSERVATION\" instance, got \"%s\".\n",
@@ -692,7 +694,7 @@ obs_vector_type * obs_vector_alloc_from_BLOCK_OBSERVATION(const conf_instance_ty
       block_obs_type * block_obs  = block_obs_alloc(obs_label, source_type , NULL , field_config , grid , num_obs_pts, obs_i, obs_j, obs_k, obs_value, obs_std);
       
       if (block_obs != NULL) {
-        obs_vector = obs_vector_alloc( BLOCK_OBS , obs_label , ensemble_config_get_node(ensemble_config , field_name) , obs_time , size );
+        obs_vector = obs_vector_alloc( BLOCK_OBS , obs_label , ensemble_config_get_node(ensemble_config , field_name), size );
         obs_vector_install_node( obs_vector , obs_restart_nr , block_obs);
       }
     } else if (source_type == SOURCE_SUMMARY) {
@@ -723,7 +725,7 @@ obs_vector_type * obs_vector_alloc_from_BLOCK_OBSERVATION(const conf_instance_ty
         {
           block_obs_type * block_obs  = block_obs_alloc(obs_label, source_type , summary_keys , container_config , grid , num_obs_pts, obs_i, obs_j, obs_k, obs_value, obs_std);
           if (block_obs != NULL) {
-            obs_vector = obs_vector_alloc( BLOCK_OBS , obs_label , container_config , obs_time , size );
+            obs_vector = obs_vector_alloc( BLOCK_OBS , obs_label , container_config, size );
             obs_vector_install_node( obs_vector , obs_restart_nr , block_obs);
           }
         }
@@ -754,7 +756,14 @@ void obs_vector_iget_observations(const obs_vector_type * obs_vector , int repor
 }
 
 
-void obs_vector_measure(const obs_vector_type * obs_vector , enkf_fs_type * fs , state_enum state , int report_step , const enkf_state_type * enkf_state ,  meas_data_type * meas_data , const active_list_type * active_list) {
+void obs_vector_measure(const obs_vector_type * obs_vector , 
+                        enkf_fs_type * fs , 
+                        state_enum state , 
+                        int report_step , 
+                        int active_iens_index , 
+                        const enkf_state_type * enkf_state ,  
+                        meas_data_type * meas_data , 
+                        const active_list_type * active_list) {
   
   void * obs_node = vector_iget( obs_vector->nodes , report_step );
   if ( obs_node != NULL ) {
@@ -764,6 +773,7 @@ void obs_vector_measure(const obs_vector_type * obs_vector , enkf_fs_type * fs ,
                              .iens        = enkf_state_get_iens( enkf_state ) };
     
     enkf_node_load(enkf_node , fs , node_id);
+    node_id.iens = active_iens_index;
     obs_vector->measure(obs_node , enkf_node_value_ptr(enkf_node) , node_id , meas_data , active_list);
   }
 }

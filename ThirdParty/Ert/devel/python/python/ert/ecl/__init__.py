@@ -68,7 +68,36 @@ per module organization:
      all symbols in the package are available under the common
      namespace 'ecl'.
 
-  libecl: This module contains some low-level ctypes trickery to
-     actually load the shared library libecl.so.
 """
+from ert.cwrap import clib
+
+import ert.util
+import ert.geo
+
+
+
+try:
+    clib.load("libgomp" , "libgomp.so.1")
+    openmp = True
+except ImportError:
+    openmp = False
+
+ECL_LIB = clib.ert_load("libecl.so")
+
+
+from .ecl_sum import EclSum #, EclSumVector, EclSumNode, EclSMSPECNode
+from .ecl_util import EclFileEnum, EclFileFlagEnum, EclPhaseEnum, EclTypeEnum, EclUtil
+from .ecl_default import EclDefault
+from .ecl_rft_cell import EclPLTCell, EclRFTCell
+from .ecl_rft import EclRFT, EclRFTFile
+from .fortio import FortIO
+from .ecl_kw import EclKW
+from .ecl_file import EclFile
+from .ecl_grid import EclGrid
+from .ecl_region import EclRegion
+from .ecl_subsidence import EclSubsidence
+from .ecl_grav_calc import phase_deltag, deltag
+from .ecl_queue import EclQueue
+
+#from .ecl_queue import
 

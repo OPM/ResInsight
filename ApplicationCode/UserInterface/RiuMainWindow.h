@@ -262,6 +262,4 @@ private:
 
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
     std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
-    
-    ssihub::Interface*          m_ssihubInterface;
 };

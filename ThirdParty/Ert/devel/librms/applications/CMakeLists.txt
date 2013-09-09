@@ -8,6 +8,10 @@ add_executable( tag_list     tag_list.c    )
 set(program_list rms_extract rms_setname rms_stat rms_test tag_list)
 foreach(prog ${program_list})
    target_link_libraries( ${prog} rms ecl util )
+   if (USE_RUNPATH)
+      add_runpath( ${prog} )
+   endif()   
+
    #-----------------------------------------------------------------
    if (RMS_INSTALL_PREFIX)
       set (destination ${RMS_INSTALL_PREFIX}/bin)

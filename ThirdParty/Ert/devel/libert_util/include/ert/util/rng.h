@@ -22,6 +22,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdio.h>
 
 #include <ert/util/type_macros.h>
 

@@ -64,7 +64,6 @@ void test_submit(lsf_driver_type * driver , const char * server , const char * b
     
     free( run_path );
   }
-  printf("Submit:%s OK \n",server);
 }
 
 

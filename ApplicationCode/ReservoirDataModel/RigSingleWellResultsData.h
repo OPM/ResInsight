@@ -25,35 +25,68 @@
 #include "RimDefines.h"
 #include <QDateTime>
 #include <vector>
+#include "cvfVector3.h"
 
-struct RigWellResultCell
+//==================================================================================================
+/// Stores the info on a significant point in the well. Either a well-to-grid connection, or the 
+/// bottom position of a connection less well-segment
+//==================================================================================================
+struct RigWellResultPoint
 {
-    RigWellResultCell() : 
+    RigWellResultPoint() : 
         m_gridIndex(cvf::UNDEFINED_SIZE_T), 
         m_gridCellIndex(cvf::UNDEFINED_SIZE_T), 
-        m_branchId(-1),
-        m_segmentId(-1),
-        m_isOpen(false) 
+        m_isOpen(false),
+        m_ertBranchId(-1),
+        m_ertSegmentId(-1),
+        m_bottomPosition(cvf::Vec3d::UNDEFINED)
     { }
 
-    size_t m_gridIndex;
-    size_t m_gridCellIndex;     //< Index to cell which is included in the well
-    int    m_branchId;
-    int    m_segmentId;
+    bool isPointValid() const
+    {
+        return m_bottomPosition != cvf::Vec3d::UNDEFINED;
+    }
 
-    bool   m_isOpen;            //< Marks the well as open or closed as of Eclipse simulation
+    bool isCell() const
+    {
+        return m_gridCellIndex != cvf::UNDEFINED_SIZE_T;
+    }
+
+    bool isValid() const
+    {
+        return isCell() || isPointValid();
+    }
+
+    size_t                            m_gridIndex;
+    size_t                            m_gridCellIndex;     //< Index to cell which is included in the well
+
+    bool                              m_isOpen;            //< Marks the well as open or closed as of Eclipse simulation
+
+    int                               m_ertBranchId;
+    int                               m_ertSegmentId;
+
+    cvf::Vec3d                        m_bottomPosition;    //< The estimated bottom position of the well segment, when we have no grid cell connections for the segment.
 };
 
+//==================================================================================================
+/// This class contains the connection information from and including a splitpoint to the end of 
+/// that particular branch.
+//==================================================================================================
 struct RigWellResultBranch
 {
     RigWellResultBranch() :
-        m_branchNumber(cvf::UNDEFINED_SIZE_T)
+        m_ertBranchId(-1)
     {}
 
-    size_t                         m_branchNumber;
-    std::vector<RigWellResultCell> m_wellCells;
+    int                               m_ertBranchId;
+    std::vector<RigWellResultPoint>   m_branchResultPoints;
 };
 
+//==================================================================================================
+/// This class contains the well information for one timestep. 
+/// The main content is the vector of RigWellResultBranch which contains all the simple pipe 
+/// sections that make up the well
+//==================================================================================================
 class RigWellResultFrame
 {
 public:
@@ -65,34 +98,14 @@ public:
         m_productionType(UNDEFINED_PRODUCTION_TYPE)
     { }
 
-    const RigWellResultCell* findResultCell(size_t gridIndex, size_t gridCellIndex) const
-    {
-        if (m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
-        {
-            return &m_wellHead;
-        }
+    const RigWellResultPoint*         findResultCell(size_t gridIndex, size_t gridCellIndex) const;
 
-        for (size_t wb = 0; wb < m_wellResultBranches.size(); ++wb)
-        {
-            for (size_t wc = 0; wc < m_wellResultBranches[wb].m_wellCells.size(); ++wc)
-            {
-                if (   m_wellResultBranches[wb].m_wellCells[wc].m_gridCellIndex == gridCellIndex  
-                    && m_wellResultBranches[wb].m_wellCells[wc].m_gridIndex == gridIndex  )
-                {
-                    return &(m_wellResultBranches[wb].m_wellCells[wc]);
-                }
-            }
-        }
-
-        return NULL;
-    }
-
-    WellProductionType  m_productionType;
-    bool                m_isOpen;
-    RigWellResultCell   m_wellHead;
-    QDateTime           m_timestamp;
+    WellProductionType                m_productionType;
+    bool                              m_isOpen;
+    RigWellResultPoint                m_wellHead;
+    QDateTime                         m_timestamp;
     
-    std::vector<RigWellResultBranch> m_wellResultBranches;
+    std::vector<RigWellResultBranch>  m_wellResultBranches;
 };
 
 
@@ -102,22 +115,26 @@ public:
 class RigSingleWellResultsData : public cvf::Object
 {
 public:
-    bool hasWellResult(size_t resultTimeStepIndex) const;
-    size_t firstResultTimeStep() const;
+    RigSingleWellResultsData() { m_isMultiSegmentWell = false; }
 
-    const RigWellResultFrame& wellResultFrame(size_t resultTimeStepIndex) const;
+    void                              setMultiSegmentWell(bool isMultiSegmentWell);
+    bool                              isMultiSegmentWell() const;
 
-    void computeStaticWellCellPath();
+    bool                              hasWellResult(size_t resultTimeStepIndex) const;
+    size_t                            firstResultTimeStep() const;
 
-    void computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
+    const RigWellResultFrame&         wellResultFrame(size_t resultTimeStepIndex) const;
 
-public:
-    QString                             m_wellName;
-
-    std::vector<size_t>                 m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
-    std::vector< RigWellResultFrame >   m_wellCellsTimeSteps;
-    RigWellResultFrame                  m_staticWellCells;
-
-
+    void                              computeStaticWellCellPath();
+                                      
+    void                              computeMappingFromResultTimeIndicesToWellTimeIndices(const std::vector<QDateTime>& resultTimes);
+                                      
+public:                               
+    QString                           m_wellName;
+    bool                              m_isMultiSegmentWell;
+                                      
+    std::vector<size_t>               m_resultTimeStepIndexToWellTimeStepIndex;   // Well result timesteps may differ from result timesteps
+    std::vector< RigWellResultFrame > m_wellCellsTimeSteps;
+    RigWellResultFrame                m_staticWellCells;
 };
 

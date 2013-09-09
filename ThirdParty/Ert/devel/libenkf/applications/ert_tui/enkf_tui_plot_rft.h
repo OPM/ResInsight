@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#include <enkf_main.h>
+#include <ert/enkf/enkf_main.h>
   
   void   enkf_tui_plot_RFT_sim_all_MD( void * arg);
   void   enkf_tui_plot_RFT_sim_all_TVD( void * arg);
