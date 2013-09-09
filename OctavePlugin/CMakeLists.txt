@@ -19,6 +19,10 @@ set(CPP_SOURCES
   riGetActiveCellCorners.cpp
   riGetGridProperty.cpp
   riSetGridProperty.cpp
+  riGetPropertyNames.cpp
+  riGetWellNames.cpp
+  riGetWellStatus.cpp
+  riGetWellCells.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -36,9 +40,9 @@ set(OCTAVE_BINARY_OCT_FILES)
 # To be able to do so, we need to establish all Qt-related variables for a 32-bit configuration
 # In addition, VS2010 32-bit compile environment must be launched
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows" AND CMAKE_CL_64)
-    find_program(32BIT_QMAKE 32bitqmake)
-    if(32BIT_QMAKE)
-        get_filename_component(32BIT_QMAKE_PATH ${32BIT_QMAKE} PATH)    # Get path to 32-bit Qt binary directory
+    find_program(RESINSIGHT_OCTAVE_PLUGIN_32BIT_QMAKE_EXE 32bitqmake)
+    if(RESINSIGHT_OCTAVE_PLUGIN_32BIT_QMAKE_EXE)
+        get_filename_component(32BIT_QMAKE_PATH ${RESINSIGHT_OCTAVE_PLUGIN_32BIT_QMAKE_EXE} PATH)    # Get path to 32-bit Qt binary directory
         STRING(REPLACE "/bin" "" OCTAVE_QT_ROOT ${32BIT_QMAKE_PATH})
 
         SET(OCTAVE_QT_INCLUDE_DIR            ${OCTAVE_QT_ROOT}/include)
@@ -54,13 +58,13 @@ else()
 endif()
 
     
-find_program(MKOCTFILE_EXECUTABLE mkoctfile)
-if(NOT MKOCTFILE_EXECUTABLE)
+find_program(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE mkoctfile)
+if(NOT RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE)
   message(WARNING "Failed to find mkoctfile")
 else()
 
   # Get path to Octave binary directory to be able to build .oct files if Octave is not in path
-  get_filename_component(OCTAVE_PATH ${MKOCTFILE_EXECUTABLE} PATH)
+  get_filename_component(OCTAVE_PATH ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE} PATH)
 
   foreach(srcFileName IN LISTS CPP_SOURCES)
   
@@ -79,16 +83,16 @@ else()
             add_custom_command(
                 OUTPUT "${octFileName}"
                 COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
-                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${MKOCTFILE_EXECUTABLE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
+                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
                     -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
                     -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
                 DEPENDS "${srcFileName}"
-                COMMENT "Generating ${octFileName}"
+                COMMENT "===> Generating ${octFileName}"
             )
         else()
             add_custom_command(
                 OUTPUT "${octFileName}"
-                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${MKOCTFILE_EXECUTABLE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
+                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${OCTAVE_PATH} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
                     -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
                     -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
                 DEPENDS "${srcFileName}"
@@ -98,7 +102,7 @@ else()
     else()
         add_custom_command(
             OUTPUT "${octFileName}"
-            COMMAND ${MKOCTFILE_EXECUTABLE} -I${QT_QTNETWORK_INCLUDE_DIR} -I${QT_QTCORE_INCLUDE_DIR} -I${QT_INCLUDE_DIR} ${RPATH_COMMAND} -L${QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
+            COMMAND ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE} -I${QT_QTNETWORK_INCLUDE_DIR} -I${QT_QTCORE_INCLUDE_DIR} -I${QT_INCLUDE_DIR} ${RPATH_COMMAND} -L${QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
             DEPENDS "${srcFileName}"
             COMMENT "Generating ${octFileName}"
         )
@@ -127,7 +131,10 @@ else()
       "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCorners.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetGridProperty.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riSetGridProperty.oct"
-
+	  "${CMAKE_CURRENT_BINARY_DIR}/riGetPropertyNames.oct"
+	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
+	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
+	  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
       SOURCES ${CPP_SOURCES}
   )
 
@@ -151,9 +158,9 @@ else()
 
 endif()
 
-if (PRIVATE_INSTALL)
+if (RESINSIGHT_PRIVATE_INSTALL)
 install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME})
-else (PRIVATE_INSTALL)
+else (RESINSIGHT_PRIVATE_INSTALL)
   # probe for site location of .oct files
   if (NOT OCTAVE_SITE_OCT_DIR)
 	find_program (OCTAVE_CONFIG_COMMAND
@@ -170,6 +177,6 @@ else (PRIVATE_INSTALL)
   install (FILES ${OCTAVE_BINARY_OCT_FILES}
 	DESTINATION ${OCTAVE_SITE_OCT_DIR}
 	)
-endif (PRIVATE_INSTALL)
+endif (RESINSIGHT_PRIVATE_INSTALL)
 
 

@@ -196,7 +196,7 @@ void log_sync(log_type * logh) {
 #ifdef HAVE_FSYNC
   fsync( logh->fd );
 #endif
-  fseek( logh->stream , 0 , SEEK_END );
+  util_fseek( logh->stream , 0 , SEEK_END );
 }
 
 

@@ -27,37 +27,34 @@
 # choice.
 
 
-import sys
-import ctypes
-import libutil
-from   ert.cwrap.cwrap       import *
-from   ert.cwrap.cclass      import CClass
+from ert.util import UTIL_LIB
+from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+
 
 class Matrix(CClass):
+    def __init__(self, rows, columns):
+        c_ptr = cfunc.matrix_alloc(rows, columns)
+        self.init_cobj(c_ptr, cfunc.free)
 
-    def __init__(self , rows , columns):
-        c_ptr = cfunc.matrix_alloc( rows , columns )
-        self.init_cobj( c_ptr , cfunc.free )
-            
     def __getitem__(self, index_tuple ):
-        print index_tuple
-        (i,j) = index_tuple
-        return cfunc.iget( self , i,j)
+        # print index_tuple
+        (i, j) = index_tuple
+        return cfunc.iget(self, i, j)
 
-    def __setitem__(self, index_tuple , value):
-        (i,j) = index_tuple
-        return cfunc.iset( self , i,j , value)
+    def __setitem__(self, index_tuple, value):
+        (i, j) = index_tuple
+        return cfunc.iset(self, i, j, value)
 
 
 #################################################################
 
-CWrapper.registerType( "matrix" , Matrix )
-cwrapper = CWrapper( libutil.lib )
-cfunc    = CWrapperNameSpace("matrix")
+CWrapper.registerType("matrix", Matrix)
+cwrapper = CWrapper(UTIL_LIB)
+cfunc = CWrapperNameSpace("matrix")
 
 cfunc.matrix_alloc = cwrapper.prototype("c_void_p   matrix_alloc( int , int )")
-cfunc.free         = cwrapper.prototype("void       matrix_free( matrix )")
-cfunc.iget         = cwrapper.prototype("double     matrix_iget( matrix , int , int )")
-cfunc.iset         = cwrapper.prototype("void       matrix_iset( matrix , int , int , double)")
+cfunc.free = cwrapper.prototype("void       matrix_free( matrix )")
+cfunc.iget = cwrapper.prototype("double     matrix_iget( matrix , int , int )")
+cfunc.iset = cwrapper.prototype("void       matrix_iset( matrix , int , int , double)")
         
     

@@ -29,6 +29,10 @@ typedef struct gen_obs_struct gen_obs_type;
 gen_obs_type * gen_obs_alloc(gen_data_config_type * config , const char * obs_key , const char * , double , double , const char * , const char * , const char  * );
 void           gen_obs_user_get_with_data_index(const gen_obs_type * gen_obs , const char * index_key , double * value , double * std , bool * valid);
 
+void           gen_obs_scale_std(gen_obs_type * gen_obs, double std_multiplier );
+void           gen_obs_scale_std__(void * gen_obs, double std_multiplier );
+
+
 VOID_CHI2_HEADER(gen_obs);
 UTIL_IS_INSTANCE_HEADER(gen_obs);
 VOID_FREE_HEADER(gen_obs);

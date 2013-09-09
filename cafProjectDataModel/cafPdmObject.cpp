@@ -24,6 +24,8 @@
 
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
+#include "cafPdmObjectFactory.h"
+#include "cafPdmDocument.h"
 
 namespace caf
 {
@@ -263,6 +265,15 @@ void PdmObject::editorAttribute(const PdmFieldHandle* field, QString uiConfigNam
 }
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute)
+{
+    this->defineObjectEditorAttribute(uiConfigName, attribute);
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Check if a string is a valid Xml element name
 //
 /// http://www.w3schools.com/xml/xml_elements.asp
@@ -299,6 +310,59 @@ bool PdmObject::isValidXmlElementName(const QString& name)
 
     return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmObject* PdmObject::deepCopy()
+{
+    QString encodedXml;
+    
+    {
+        PdmObjectGroup typedObjectGroup;
+        typedObjectGroup.addObject(this);
+
+        QXmlStreamWriter xmlStream(&encodedXml);
+        xmlStream.setAutoFormatting(true);
+
+        typedObjectGroup.writeFields(xmlStream);
+    }
+
+    PdmObject* pdmCopy = NULL;
+    {
+        // Read back XML into object group, factory methods will be called that will create new objects
+        PdmObjectGroup destinationObjectGroup;
+        QXmlStreamReader xmlStream(encodedXml);
+        destinationObjectGroup.readFields(xmlStream);
+
+        if (destinationObjectGroup.objects.size() == 1)
+        {   
+            pdmCopy = destinationObjectGroup.objects[0];
+        }
+    }
+
+    return pdmCopy;
+
+    /*
+   PdmObject* cloneRoot = PdmObjectFactory::instance()->create(this->classKeyword());
+
+
+
+    QString encodedXml;
+    {
+        QXmlStreamWriter xmlStream(&encodedXml);
+        xmlStream.setAutoFormatting(true);
+
+        this->writeFields(xmlStream);
+    }
+
+    QXmlStreamReader xmlStream(encodedXml);
+    cloneRoot->readFields(xmlStream);
+
+    return cloneRoot;
+    */
+}
+
 
 
 } //End of namespace caf

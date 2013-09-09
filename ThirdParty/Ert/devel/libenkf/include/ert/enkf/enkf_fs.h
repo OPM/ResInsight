@@ -34,6 +34,8 @@ extern "C" {
 #include <ert/enkf/fs_types.h>
 #include <ert/enkf/enkf_fs_type.h>
 #include <ert/enkf/time_map.h>
+#include <ert/enkf/cases_config.h>
+#include <ert/enkf/state_map.h>
 #include <ert/enkf/misfit_ensemble_typedef.h>
   
   const      char * enkf_fs_get_mount_point( const enkf_fs_type * fs );
@@ -92,8 +94,10 @@ extern "C" {
   FILE             * enkf_fs_open_excase_file( const enkf_fs_type * fs , const char * input_name);
   FILE             * enkf_fs_open_excase_tstep_file( const enkf_fs_type * fs , const char * input_name , int tstep );
   FILE             * enkf_fs_open_excase_member_file( const enkf_fs_type * fs , const char * input_name , int iens );
-  
+
+  state_map_type       * enkf_fs_get_state_map( const enkf_fs_type * fs );
   time_map_type        * enkf_fs_get_time_map( const enkf_fs_type * fs );
+  cases_config_type    * enkf_fs_get_cases_config( const enkf_fs_type * fs);
   misfit_ensemble_type * enkf_fs_get_misfit_ensemble( const enkf_fs_type * fs );
 
   UTIL_SAFE_CAST_HEADER( enkf_fs );

@@ -42,8 +42,8 @@ RimCellRangeFilterCollection::RimCellRangeFilterCollection()
     CAF_PDM_InitObject("Cell Range Filters", ":/CellFilter_Range.png", "", "");
 
     CAF_PDM_InitFieldNoDefault(&rangeFilters,   "RangeFilters", "Range Filters", "", "", "");
-    CAF_PDM_InitField(&active,                  "Active", true, "Active", "", "", "");
-    active.setUiHidden(true);
+    CAF_PDM_InitField(&isActive,                  "Active", true, "Active", "", "", "");
+    isActive.setUiHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,14 +146,14 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    updateUiIconFromState(active);
+    updateUiIconFromState(isActive);
 
     CVF_ASSERT(m_reservoirView);
 
     m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
     m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
-    m_reservoirView->createDisplayModelAndRedraw();
+    m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
 
 
@@ -209,7 +209,7 @@ void RimCellRangeFilterCollection::remove(RimCellRangeFilter* rangeFilter)
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilterCollection::hasActiveFilters() const
 {
-    if (!active) return false; 
+    if (!isActive()) return false; 
 
     std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
     for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)
@@ -225,7 +225,7 @@ bool RimCellRangeFilterCollection::hasActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCellRangeFilterCollection::objectToggleField()
 {
-    return &active;
+    return &isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,7 +233,7 @@ caf::PdmFieldHandle* RimCellRangeFilterCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 bool RimCellRangeFilterCollection::hasActiveIncludeFilters() const
 {
-    if (!active) return false; 
+    if (!isActive) return false; 
 
     std::list< caf::PdmPointer< RimCellRangeFilter > >::const_iterator it;
     for (it = rangeFilters.v().begin(); it != rangeFilters.v().end(); ++it)

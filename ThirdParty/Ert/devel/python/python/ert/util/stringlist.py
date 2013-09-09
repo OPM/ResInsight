@@ -30,31 +30,16 @@ be an iterable consisting of strings, and the strings property will
 return a normal python list of string objects, used in this way you
 hardly need to notice that the StringList class is at play.
 """
+import sys
 
-import libutil
-import types
-import ctypes
-from   ert.cwrap.cwrap  import *
-from   ert.cwrap.cclass import CClass
-
+from ert.util import UTIL_LIB
+from types import StringType, IntType
+from ert.cwrap import CWrapper, BaseCClass
 
 
-class StringList(CClass):
+class StringList(BaseCClass):
 
-    #@classmethod
-    #def NULL( cls ):
-    #    obj = object.__new__( cls )
-    #    obj.c_ptr = None 
-    #    return obj
-    #
-    #
-    #@classmethod
-    #def wrap_ptr( cls , c_ptr ):
-    #    obj = cls( c_ptr = c_ptr )
-    #    return obj
-
-
-    def __init__( self , initial = None , c_ptr = None):
+    def __init__( self, initial=None):
         """
         Creates a new stringlist instance.
         
@@ -72,76 +57,74 @@ class StringList(CClass):
         an already created stringlist instance; this Python will take
         ownership of the underlying object.
         """
-        if c_ptr:
-            self.init_cobj( c_ptr , cfunc.free )
-        else:
-            c_ptr = cfunc.stringlist_alloc( )
-            self.init_cobj( c_ptr , cfunc.free )
 
-            if initial:
-                for s in initial:
-                    if isinstance( s , types.StringType):
-                        self.append( s )
-                    else:
-                        raise TypeError("Item:%s not a string" % s)
+        c_ptr = StringList.cNamespace().stringlist_alloc()
+        super(StringList, self).__init__(c_ptr)
+
+        if initial:
+            for s in initial:
+                if isinstance(s, StringType):
+                    self.append(s)
+                else:
+                    raise TypeError("Item:%s not a string" % s)
 
 
-    def __setitem__(self, index , value):
-        if isinstance( index , types.IntType):
+    def __setitem__(self, index, value):
+        if isinstance(index, IntType):
             length = self.__len__()
             if index < 0:
                 # Will only wrap backwards once
-                index = self.size + index
+                index = self.size() + index
 
             if index < 0 or index >= length:
                 raise IndexError
-            if isinstance(value , types.StringType):
-                cfunc.stringlist_iset( self , index , value)
+            if isinstance(value, StringType):
+                StringList.cNamespace().stringlist_iset(self, index, value)
             else:
                 raise TypeError("Item:%s not string type" % value)
 
 
-    def __getitem__(self , index):
+    def __getitem__(self, index):
         """
         Implements [] read operator on the stringlist.
         
         The __getitem__ method supports negative, i.e. from the right,
         indexing; but not slices.
         """
-        if isinstance( index , types.IntType):
+        if isinstance(index, IntType):
             length = self.__len__()
             if index < 0:
                 index += length
             if index < 0 or index >= length:
                 raise IndexError
             else:
-                return cfunc.stringlist_iget( self , index )
+                return StringList.cNamespace().stringlist_iget(self, index)
         else:
             raise TypeError("Index should be integer type")
 
-    def __contains__(self , s):
+    def __contains__(self, s):
         """
         Implements the 'in' operator.
 
         The 'in' check is based on string equality.
         """
-        return cfunc.contains( self , s )
+        return StringList.cNamespace().contains(self, s)
 
-    def contains(self , s):
+    def contains(self, s):
         """
         Checks if the list contains @s.
 
         Functionality also available through the 'in' builtin in
         Python.
         """
-        return self.__contains__( s )
+        return self.__contains__(s)
 
 
     def __len__(self):
         """
         The length of the list - used to support builtin len().
         """
-        return cfunc.stringlist_get_size( self )
+        return StringList.cNamespace().stringlist_get_size(self)
 
 
     def __str__(self):
@@ -151,7 +134,7 @@ class StringList(CClass):
         buffer = "["
         length = len(self)
         for i in range(length):
-            if i == length -1:
+            if i == length - 1:
                 buffer += "\'%s\'" % self[i]
             else:
                 buffer += "\'%s\'," % self[i]
@@ -166,17 +149,17 @@ class StringList(CClass):
         Will raise IndexError if list is empty.
         """
         if len(self):
-            return cfunc.pop( self )
+            return StringList.cNamespace().pop(self)
         else:
             raise IndexError("pop() failed - the list is empty")
-        
+
 
     def append(self, s):
         """
         Appends a new string @s to list.
         """
-        if isinstance( s, types.StringType):
-            cfunc.stringlist_append( self , s)
+        if isinstance(s, StringType):
+            StringList.cNamespace().stringlist_append(self, s)
         else:
             sys.exit("Type mismatch")
 
@@ -191,7 +174,7 @@ class StringList(CClass):
         """
         slist = []
         for s in self:
-            slist.append( s )
+            slist.append(s)
         return slist
 
     @property
@@ -200,12 +183,12 @@ class StringList(CClass):
         Will return the last element in list. Raise IndexError if empty.
         """
         if len(self):
-            return cfunc.last( self )
+            return StringList.cNamespace().last(self)
         else:
             raise IndexError("The list is empty")
 
 
-    def sort(self , cmp_flag = 0):
+    def sort(self, cmp_flag=0):
         """
         Will sort the list inplace.
 
@@ -217,22 +200,25 @@ class StringList(CClass):
              2 : util_strcmp_float() string comparison
 
         """
-        cfunc.sort( self , cmp_flag )
+        StringList.cNamespace().sort(self, cmp_flag)
+
+    def free(self):
+        StringList.cNamespace().free(self)
 
 
+CWrapper.registerType("stringlist", StringList)
+CWrapper.registerType("stringlist_obj", StringList.createPythonObject)
+CWrapper.registerType("stringlist_ref", StringList.createCReference)
+cwrapper = CWrapper(UTIL_LIB)
 
-CWrapper.registerType( "stringlist" , StringList )
-
-cwrapper = CWrapper( libutil.lib )
-cfunc    = CWrapperNameSpace("StringList")
-cfunc.stringlist_alloc      = cwrapper.prototype("c_void_p stringlist_alloc_new( )")
-cfunc.free                  = cwrapper.prototype("void stringlist_free( stringlist )")
-cfunc.stringlist_append     = cwrapper.prototype("void stringlist_append_copy( stringlist , char* )")
-cfunc.stringlist_iget       = cwrapper.prototype("char* stringlist_iget( stringlist , int )")
-cfunc.stringlist_iget_copy  = cwrapper.prototype("char* stringlist_iget_copy(stringlist, int)")
-cfunc.stringlist_iset       = cwrapper.prototype("void  stringlist_iset_copy( stringlist , int , char* )")
-cfunc.stringlist_get_size   = cwrapper.prototype("int  stringlist_get_size( stringlist )") 
-cfunc.contains              = cwrapper.prototype("bool stringlist_contains(stringlist , char*)")
-cfunc.sort                  = cwrapper.prototype("void stringlist_python_sort( stringlist , int)")
-cfunc.pop                   = cwrapper.prototype("char* stringlist_pop( stringlist )")
-cfunc.last                  = cwrapper.prototype("char* stringlist_get_last( stringlist )")
+StringList.cNamespace().stringlist_alloc = cwrapper.prototype("c_void_p stringlist_alloc_new( )")
+StringList.cNamespace().free = cwrapper.prototype("void stringlist_free( stringlist )")
+StringList.cNamespace().stringlist_append = cwrapper.prototype("void stringlist_append_copy( stringlist , char* )")
+StringList.cNamespace().stringlist_iget = cwrapper.prototype("char* stringlist_iget( stringlist , int )")
+StringList.cNamespace().stringlist_iget_copy = cwrapper.prototype("char* stringlist_iget_copy(stringlist, int)")
+StringList.cNamespace().stringlist_iset = cwrapper.prototype("void  stringlist_iset_copy( stringlist , int , char* )")
+StringList.cNamespace().stringlist_get_size = cwrapper.prototype("int  stringlist_get_size( stringlist )")
+StringList.cNamespace().contains = cwrapper.prototype("bool stringlist_contains(stringlist , char*)")
+StringList.cNamespace().sort = cwrapper.prototype("void stringlist_python_sort( stringlist , int)")
+StringList.cNamespace().pop = cwrapper.safe_prototype("char* stringlist_pop( stringlist )")
+StringList.cNamespace().last = cwrapper.safe_prototype("char* stringlist_get_last( stringlist )")

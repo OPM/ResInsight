@@ -19,6 +19,7 @@
 #pragma once
 
 #include "cafPdmDocument.h"
+#include "RimWellPathImport.h"
 
 class RimOilField;
 class RimCase;
@@ -43,6 +44,7 @@ public:
 
     caf::PdmPointersField<RimOilField*>                 oilFields;
     caf::PdmField<RimScriptCollection*>                 scriptCollection;
+    caf::PdmField<RimWellPathImport*>                   wellPathImport;
     caf::PdmField<QString>                              treeViewState;
     caf::PdmField<QString>                              currentModelIndexPath;
     caf::PdmField<int>                                  nextValidCaseId;          // Unique case ID within a project, used to identify a case from Octave scripts
@@ -62,7 +64,7 @@ public:
     void            allCases(std::vector<RimCase*>& cases); // VL endre impl
     void            createDisplayModelAndRedrawAllViews(); // VL endre impl
 
-    void            computeUtmAreaOfInterest(double* north, double* south, double* east, double* west);
+    void            computeUtmAreaOfInterest();
 
     RimOilField*    activeOilField();
 

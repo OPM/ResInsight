@@ -30,9 +30,26 @@ namespace riOctavePlugin
     char caseInfo_CaseType[]    = "CaseType";
     char caseInfo_CaseGroupId[] = "CaseGroupId";
 
+    // Octave data structure:  PropertyInfo 
+    char propertyInfo_PropName[]    = "PropName";
+    char propertyInfo_PropType[]    = "PropType";
+
+    // Octave data structure:  WellStatus 
+    char wellStatus_WellType[]     = "WellType";
+    char wellStatus_WellStatus[]    = "WellStatus";
+
     // Octave data structure : CaseGroupInfo
     char caseGroupInfo_CaseGroupId[]      = "CaseGroupId";
     char caseGroupInfo_CaseGroupName[]    = "CaseName";
+
+    // Octave data structure : WellCellInfo
+    char wellCellInfo_I[]           = "I";   
+    char wellCellInfo_J[]           = "J";   
+    char wellCellInfo_K[]           = "K";   
+    char wellCellInfo_GridIndex	[]  = "GridIndex"; 
+    char wellCellInfo_CellStatus[]  = "CellStatus"; 
+    char wellCellInfo_BranchId[]    = "BranchId";   
+    char wellCellInfo_SegmentId[]   = "SegmentId";  
 
     // Octave data structure : TimeStepDate
     char timeStepDate_Year[]     = "Year";

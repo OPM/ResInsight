@@ -49,6 +49,7 @@ extern "C" {
   
   bool         rsh_driver_set_option( void * __driver, const char * option_key , const void * value );
   const void * rsh_driver_get_option( const void * __driver , const char * option_key);
+  void         rsh_driver_init_option_list(stringlist_type * option_list);
   
 #ifdef __cplusplus
 }

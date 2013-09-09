@@ -41,6 +41,6 @@ char *                        enkf_tui_util_scanf_report_step_as_char(int , cons
 void                          enkf_tui_util_msg(const char * , ...);
 int                           enkf_tui_util_scanf_int_with_default(const char * prompt , int prompt_len , bool * default_used);
 int                           enkf_tui_util_scanf_int_with_default_return_to_menu(const char * prompt , int prompt_len , bool * default_used);
-
+double                        enkf_tui_util_scanf_double_with_lower_limit(const char * prompt , int prompt_len , double min_value);
 bool                          enkf_tui_util_sscanf_active_list( bool_vector_type * iactive , const char * select_string , int ens_size );
 #endif

@@ -25,6 +25,7 @@ extern "C" {
 
 #include <ert/util/hash.h>
 #include <ert/util/stringlist.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/sched/history.h>
 
@@ -45,6 +46,7 @@ extern "C" {
   void            enkf_obs_free(  enkf_obs_type * enkf_obs);
   
   obs_vector_type * enkf_obs_get_vector(const enkf_obs_type * , const char * );
+  void enkf_obs_add_obs_vector(enkf_obs_type * enkf_obs, const char * key, const obs_vector_type * vector);
   
   void              enkf_obs_load(enkf_obs_type * enkf_obs,
                                   const history_type * history , 
@@ -62,7 +64,7 @@ extern "C" {
                                     enkf_fs_type           * fs,
                                     const int_vector_type  * step_list , 
                                     state_enum               state,
-                                    int                      ens_size,
+                                    const int_vector_type  * ens_active_list, 
                                     const enkf_state_type ** ensemble ,
                                     meas_data_type         * meas_data,
                                     obs_data_type          * obs_data,
@@ -80,6 +82,7 @@ extern "C" {
   stringlist_type * enkf_obs_alloc_matching_keylist(const enkf_obs_type * enkf_obs , const char * input_string);
   time_t            enkf_obs_iget_obs_time(enkf_obs_type * enkf_obs , int report_step);
   void              enkf_obs_fprintf_config( const enkf_obs_type * enkf_obs , FILE * stream);
+  void              enkf_obs_scale_std(enkf_obs_type * enkf_obs, double scale_factor);
   
 #ifdef __cplusplus
 }

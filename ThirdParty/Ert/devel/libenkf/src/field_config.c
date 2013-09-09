@@ -954,8 +954,6 @@ bool field_config_parse_user_key__( const char * index_key , int *i , int *j , i
       *k = int_vector_iget( indices , 2) - 1;
     } 
 
-    int_vector_fprintf( indices , stdout , "INDEXLIST" , " %4d");
-    
     int_vector_free( indices );
   }
   if (length == 3)

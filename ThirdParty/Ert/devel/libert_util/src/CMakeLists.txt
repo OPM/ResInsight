@@ -1,6 +1,11 @@
-set(source_files rng.c lookup_table.c statistics.c mzran.c set.c hash_node.c hash_sll.c hash.c node_data.c node_ctype.c util.c thread_pool.c msg.c arg_pack.c path_fmt.c menu.c subst_list.c subst_func.c vector.c parser.c stringlist.c matrix.c buffer.c log.c template.c timer.c test_util.c time_interval.c string_util.c)
+set(source_files rng.c lookup_table.c statistics.c mzran.c set.c hash_node.c hash_sll.c hash.c node_data.c node_ctype.c util.c thread_pool.c msg.c arg_pack.c path_fmt.c menu.c subst_list.c subst_func.c vector.c parser.c stringlist.c matrix.c buffer.c log.c template.c timer.c time_interval.c string_util.c type_vector_functions.c)
 
-set(header_files ssize_t.h type_macros.h rng.h lookup_table.h statistics.h mzran.h set.h hash.h hash_node.h hash_sll.h node_data.h node_ctype.h util.h thread_pool.h msg.h arg_pack.h path_fmt.h  stringlist.h menu.h subst_list.h subst_func.h vector.h parser.h matrix.h buffer.h log.h template.h timer.h test_util.h time_interval.h string_util.h)
+set(header_files ssize_t.h type_macros.h rng.h lookup_table.h statistics.h mzran.h set.h hash.h hash_node.h hash_sll.h node_data.h node_ctype.h util.h thread_pool.h msg.h arg_pack.h path_fmt.h  stringlist.h menu.h subst_list.h subst_func.h vector.h parser.h matrix.h buffer.h log.h template.h timer.h time_interval.h string_util.h type_vector_functions.h)
+
+set( test_source test_util.c test_work_area.c )
+
+
+#set_property(SOURCE hash.c PROPERTY COMPILE_FLAGS "-Wno-error")
 
 
 if (WITH_LATEX)
@@ -43,8 +48,17 @@ if (WITH_PTHREAD)
   list( APPEND header_files thread_pool_posix.h )
 endif()
 
-add_library( ert_util  ${LIBRARY_TYPE}  ${source_files} )
+add_library( ert_util   ${LIBRARY_TYPE}  ${source_files} )
+if (BUILD_TESTS)
+   add_library( test_util  ${LIBRARY_TYPE}  ${test_source} )
+   target_link_libraries( test_util ert_util )
+endif()
+
 set_target_properties( ert_util PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+if (USE_RUNPATH)
+   add_runpath( ert_util )
+endif()   
+
 
 if (WITH_PTHREAD)
   target_link_libraries( ert_util ${PTHREAD_LIBRARY} )

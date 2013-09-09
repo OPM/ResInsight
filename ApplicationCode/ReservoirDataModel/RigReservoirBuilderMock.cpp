@@ -407,7 +407,7 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
                 {
                     if (connIdx == (size_t)(connectionCount/4)) continue;
 
-                    RigWellResultCell data;
+                    RigWellResultPoint data;
                     data.m_gridIndex = 0;
 
                     if (connIdx < dim.y()-2)
@@ -425,28 +425,28 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
                         data.m_isOpen = false;
                     }
 
-                    if (wellSegment.m_wellCells.size() == 0 || wellSegment.m_wellCells.back().m_gridCellIndex != data.m_gridCellIndex)
+                    if (wellSegment.m_branchResultPoints.size() == 0 || wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex)
                     {
-                        wellSegment.m_wellCells.push_back(data);
+                        wellSegment.m_branchResultPoints.push_back(data);
 
                         if (connIdx == connectionCount / 2 )
                         {
-                            RigWellResultCell deadEndData = data;
+                            RigWellResultPoint deadEndData = data;
                             deadEndData.m_gridCellIndex = data.m_gridCellIndex + 1;
                             deadEndData.m_isOpen = true;
 
-                            RigWellResultCell deadEndData1 = data;
+                            RigWellResultPoint deadEndData1 = data;
                             deadEndData1.m_gridCellIndex = data.m_gridCellIndex + 2;
                             deadEndData.m_isOpen = false;
 
-                            wellSegment.m_wellCells.push_back(deadEndData);
-                             wellSegment.m_wellCells.push_back(deadEndData1);
+                            wellSegment.m_branchResultPoints.push_back(deadEndData);
+                             wellSegment.m_branchResultPoints.push_back(deadEndData1);
 
                              deadEndData.m_isOpen = true;
-                             wellSegment.m_wellCells.push_back(deadEndData);
+                             wellSegment.m_branchResultPoints.push_back(deadEndData);
 
                              data.m_isOpen = true;
-                            wellSegment.m_wellCells.push_back(data);
+                            wellSegment.m_branchResultPoints.push_back(data);
                         }
                     }
 
@@ -454,9 +454,9 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
                     {
                         data.m_gridCellIndex =  grid->cellIndexFromIJK(1 , 1 + connIdx , 2 + connIdx);
 
-                        if (wellSegment.m_wellCells.size() == 0 || wellSegment.m_wellCells.back().m_gridCellIndex != data.m_gridCellIndex)
+                        if (wellSegment.m_branchResultPoints.size() == 0 || wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex)
                         {
-                            wellSegment.m_wellCells.push_back(data);
+                            wellSegment.m_branchResultPoints.push_back(data);
                         }
                     }
                 }

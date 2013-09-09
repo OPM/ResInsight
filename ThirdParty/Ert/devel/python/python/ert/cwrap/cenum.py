@@ -21,19 +21,20 @@ import ctypes
 import sys
 
 
-
-def make_enum(name , attrs):
+def make_enum(name, attributes):
     class cls(object):
         pass
 
     cls.__name__ = name
-    for key in attrs.keys():
-        setattr(cls , key , attrs[key])
+    cls.enum_names = []
+    for key in attributes.keys():
+        setattr(cls, key, attributes[key])
+        cls.enum_names.append(key)
+
     return cls
 
 
-
-def create_enum( lib, func_name , enum_name , name_space = None):
+def create_enum( lib, func_name, enum_name, name_space=None):
     """
     Create and insert enum values as integer constants.
 
@@ -98,27 +99,27 @@ def create_enum( lib, func_name , enum_name , name_space = None):
     """
 
     try:
-        func = getattr( lib , func_name )
+        func = getattr(lib, func_name)
     except AttributeError:
-        sys.exit("Could not find enum description function:%s - can not load enum:%s." % (func_name , enum_name))
+        sys.exit("Could not find enum description function:%s - can not load enum:%s." % (func_name, enum_name))
 
     func.restype = ctypes.c_char_p
-    func.argtypes = [ ctypes.c_int , ctypes.POINTER(ctypes.c_int) ]
+    func.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_int)]
     enum = {}
     index = 0
     while True:
         value = ctypes.c_int()
-        name  = func( index , ctypes.byref( value ))
+        name = func(index, ctypes.byref(value))
         if name:
             if name_space:
-                name_space[ name ] = value.value
-            enum[ name ] = value.value
+                name_space[name] = value.value
+            enum[name] = value.value
             index += 1
         else:
             break
-    enum = make_enum( enum_name , enum )
+    enum = make_enum(enum_name, enum)
     if name_space:
-        name_space[ enum_name ] = enum
+        name_space[enum_name] = enum
     return enum
         
 

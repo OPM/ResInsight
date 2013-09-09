@@ -51,16 +51,25 @@ void test_days( const ecl_sum_type * ecl_sum ) {
 }
 
 
+void test_is_oil_producer( const ecl_sum_type * ecl_sum) {
+  test_assert_true( ecl_sum_is_oil_producer( ecl_sum , "OP_1"));
+  test_assert_false( ecl_sum_is_oil_producer( ecl_sum , "WI_1"));
+  test_assert_false( ecl_sum_is_oil_producer( ecl_sum , "DoesNotExist"));
+}
+
+
 
 
 
 int main( int argc , char ** argv) {
-  const char * casename = argv[1];
+  const char * case1 = argv[1];
 
-  ecl_sum_type * ecl_sum = ecl_sum_fread_alloc_case( casename , ":");
-
-  test_time_range( ecl_sum );
-  test_days( ecl_sum );
-
+  ecl_sum_type * ecl_sum1 = ecl_sum_fread_alloc_case( case1 , ":");
+  
+  test_assert_true( ecl_sum_is_instance( ecl_sum1 ));
+  test_time_range( ecl_sum1 );
+  test_days( ecl_sum1 );
+  test_is_oil_producer(ecl_sum1);
+  ecl_sum_free( ecl_sum1 );
   exit(0);
 }

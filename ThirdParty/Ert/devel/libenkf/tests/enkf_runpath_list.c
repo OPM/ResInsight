@@ -24,6 +24,7 @@
 #include <ert/util/util.h>
 #include <ert/util/thread_pool.h>
 #include <ert/util/arg_pack.h>
+#include <ert/util/test_work_area.h>
 
 #include <ert/enkf/runpath_list.h>
 
@@ -98,7 +99,8 @@ int main(int argc , char ** argv) {
     }
     
     {
-      const char *filename = "/tmp/runpath_list.txt";
+      test_work_area_type * work_area = test_work_area_alloc("enkf_runpath_list" , true);
+      const char *filename = "runpath_list.txt";
       {
         FILE * stream = util_fopen( filename, "w");
         runpath_list_fprintf( list , stream );
@@ -118,6 +120,7 @@ int main(int argc , char ** argv) {
         }
         fclose( stream );
       }
+      test_work_area_free( work_area );
     }
   }
   runpath_list_free( list );

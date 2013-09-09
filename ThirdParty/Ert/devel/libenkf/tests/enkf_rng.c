@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include <ert/util/test_util.h>
+#include <ert/util/test_work_area.h>
 
 #include <ert/enkf/enkf_main.h>
 #include <ert/enkf/enkf_state.h>
@@ -30,6 +31,7 @@
 int main(int argc , char ** argv) {
   unsigned int rand1,rand2;
   {
+    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-0", false);
     {
       enkf_main_type * enkf_main = enkf_main_alloc_empty();
       enkf_main_resize_ensemble( enkf_main , 10 );
@@ -50,12 +52,14 @@ int main(int argc , char ** argv) {
       enkf_main_free( enkf_main );
     }
     test_assert_uint_not_equal( rand1 , rand2 );
+    test_work_area_free( work_area );
   }
 
   /*****************************************************************/
 
   {
-    const char * seed_file = "/tmp/seed";
+    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-1" , false );
+    const char * seed_file = "seed";
     {
       enkf_main_type * enkf_main = enkf_main_alloc_empty();
       {
@@ -88,19 +92,24 @@ int main(int argc , char ** argv) {
       enkf_main_free( enkf_main );
     }
     test_assert_uint_equal( rand1 , rand2 );
-    util_unlink_existing( seed_file );
+    test_work_area_free( work_area );
+    
   }
   /*****************************************************************/
   {
+    const char * config_path = argv[1];
+    const char * config_file = argv[2];
+    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-2" , false );
+    test_work_area_copy_directory_content( work_area , config_path );
     {
-      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , argv[1] , true , true );
+      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , true , true );
       enkf_state_type * state = enkf_main_iget_state( enkf_main , 9 );
       rand1 = enkf_state_get_random( state );
       enkf_main_free( enkf_main );
     }
 
     {
-      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , argv[1] , true , true );
+      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , true , true );
       enkf_state_type * state = enkf_main_iget_state( enkf_main , 9 );
       rand2 = enkf_state_get_random( state );
       enkf_main_free( enkf_main );
@@ -108,12 +117,13 @@ int main(int argc , char ** argv) {
     test_assert_uint_equal( rand1 , rand2 );
     
     {
-      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , argv[1] , true , true );
+      enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , true , true );
       enkf_state_type * state = enkf_main_iget_state( enkf_main , 9 );
       rand2 = enkf_state_get_random( state );
       enkf_main_free( enkf_main );
     }
     test_assert_uint_equal( rand1 , rand2 );
+    test_work_area_free( work_area );
   }
   exit(0);
 }

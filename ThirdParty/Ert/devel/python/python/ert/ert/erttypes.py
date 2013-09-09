@@ -23,6 +23,12 @@ import ctypes
 
 class time_t(ctypes.c_long):
     """A convenience class for working with time_t objects."""
+#    def __init__(self , c_ptr , parent = None):
+#        if parent:
+#            self.init_cref( c_ptr , parent)
+#        else:
+#            self.init_cobj( c_ptr , cfunc.free )
+
 
     def time(self):
         """Return this time_t as a time.localtime() object"""

@@ -199,6 +199,10 @@ bool local_driver_set_option( void * __driver , const char * option_key , const 
   return false;
 }
 
+void local_driver_init_option_list(stringlist_type * option_list) {
+  //No options specific for local driver; do nothing
+}
+
 #undef LOCAL_DRIVER_ID  
 #undef LOCAL_JOB_ID    
 

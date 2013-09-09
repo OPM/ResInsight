@@ -17,12 +17,11 @@
 Module with utility functions from util.c
 """
 
-import ctypes
-import libutil
-from   ert.cwrap.cwrap       import *
+from ert.util import UTIL_LIB
+from ert.cwrap import CWrapper, CWrapperNameSpace
 
 
-def strcmp_int( s1 , s2):
+def strcmp_int( s1, s2):
     """
     Function to compare strings with embedded integers. 
 
@@ -45,20 +44,20 @@ def strcmp_int( s1 , s2):
     character, wheras the strcmp_float() function will interpret '.'
     as a descimal point.
     """
-    return cfunc.strcmp_int( s1 , s2 )
+    return cfunc.strcmp_int(s1, s2)
 
 
-def strcmp_float( s1 , s2):
+def strcmp_float( s1, s2):
     """
     Function to compare strings with embedded numbers.
 
     See documentation of strcmp_int() for further details.
     """
-    return cfunc.strcmp_float( s1 , s2 )
+    return cfunc.strcmp_float(s1, s2)
 
 
-cwrapper = CWrapper( libutil.lib )
-cfunc    = CWrapperNameSpace("util_func")
+cwrapper = CWrapper(UTIL_LIB)
+cfunc = CWrapperNameSpace("util_func")
 
-cfunc.strcmp_int   = cwrapper.prototype("int util_strcmp_int( char* , char* )")
+cfunc.strcmp_int = cwrapper.prototype("int util_strcmp_int( char* , char* )")
 cfunc.strcmp_float = cwrapper.prototype("int util_strcmp_float( char* , char* )")

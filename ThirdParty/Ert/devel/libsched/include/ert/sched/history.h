@@ -28,6 +28,7 @@ extern "C" {
 
 #include <ert/util/bool_vector.h>
 #include <ert/util/double_vector.h>
+#include <ert/util/type_macros.h>
 
 #include <ert/ecl/ecl_sum.h>
 
@@ -66,6 +67,8 @@ typedef struct history_struct history_type;
   int            history_get_restart_nr_from_days(const history_type *, double days);
   time_t         history_get_time_t_from_restart_nr( const history_type * history , int restart_nr);
   int            history_get_restart_nr_from_time_t( const history_type * history , time_t time);
+
+  UTIL_IS_INSTANCE_HEADER( history );
   
 #ifdef __cplusplus
 }

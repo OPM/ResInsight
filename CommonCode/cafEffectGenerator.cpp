@@ -483,7 +483,7 @@ ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* te
     CVF_ASSERT(texImg->height() == 1);
 
     cvf::ref<cvf::TextureImage> modTexImg = new cvf::TextureImage;
-    modTexImg->allocate(texImg->width(), texImg->height() + 2);
+    modTexImg->allocate(texImg->width(), texImg->height() + 3); // Make the texture a power of two to avoid behind the scenes scaling and the following artefacts
     modTexImg->fill(cvf::Color4ub(cvf::Color3ub(undefScalarColor), 255)); // Undefined color
 
     for (cvf::uint i = 0 ; i < texImg->width(); ++i)
@@ -492,6 +492,7 @@ ScalarMapperEffectGenerator::addAlphaAndUndefStripes(const cvf::TextureImage* te
         modTexImg->setPixel(i, 0, legendColor);
         legendColor.a() = static_cast<cvf::ubyte>(opacityLevel * 255);
         modTexImg->setPixel(i, 1, legendColor);
+        modTexImg->setPixel(i, 2, legendColor);
     }
 
     return modTexImg;

@@ -26,6 +26,9 @@ RigMainGrid::RigMainGrid(void)
     m_displayModelOffset = cvf::Vec3d::ZERO;
     
     m_gridIndex = 0;
+    m_gridId = 0;
+    m_gridIdToIndexMapping.push_back(0); 
+
     m_flipXAxis = false;
     m_flipYAxis = false;
 } 
@@ -40,8 +43,19 @@ RigMainGrid::~RigMainGrid(void)
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
 {
+    CVF_ASSERT(localGrid && localGrid->gridId() != cvf::UNDEFINED_INT); // The grid ID must be set.
+    CVF_ASSERT(localGrid->gridId() >= 0); // We cant handle negative ID's if they exist.
+
     m_localGrids.push_back(localGrid);
     localGrid->setGridIndex(m_localGrids.size()); // Maingrid itself has grid index 0
+
+    
+    if (m_gridIdToIndexMapping.size() <= localGrid->gridId())
+    {
+        m_gridIdToIndexMapping.resize(localGrid->gridId() + 1, cvf::UNDEFINED_SIZE_T);
+    }
+
+    m_gridIdToIndexMapping[localGrid->gridId()] = localGrid->gridIndex();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,5 +168,14 @@ void RigMainGrid::setFlipAxis(bool flipXAxis, bool flipYAxis)
         m_flipXAxis = flipXAxis;
         m_flipYAxis = flipYAxis;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigGridBase* RigMainGrid::gridById(int localGridId)
+{
+    CVF_ASSERT (localGridId >= 0 && localGridId < m_gridIdToIndexMapping.size());
+    return this->gridByIndex(m_gridIdToIndexMapping[localGridId]);
 }
 

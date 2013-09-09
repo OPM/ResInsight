@@ -20,12 +20,39 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <ert/util/test_util.h>
+
 #include <ert/enkf/model_config.h>
 
 
-int main(int argc , char ** argv) {
-  model_config_type * model_config = model_config_alloc_empty();
+void test_create() {
+  model_config_type * model_config = model_config_alloc();
+  test_assert_true( model_config_is_instance( model_config));
   model_config_free( model_config );
+}
+
+
+void test_runpath() {
+  model_config_type * model_config = model_config_alloc();
+  model_config_add_runpath(model_config , "KEY" , "RunPath%d");
+  model_config_add_runpath(model_config , "KEY2" , "2-RunPath%d");
+  test_assert_true( model_config_select_runpath(model_config , "KEY"));
+  test_assert_false( model_config_select_runpath(model_config , "KEYX"));
+  test_assert_string_equal("RunPath%d" , model_config_get_runpath_as_char(model_config));
+
+  model_config_set_runpath( model_config , "PATH%d");
+  test_assert_string_equal("PATH%d" , model_config_get_runpath_as_char(model_config));
+  test_assert_true( model_config_select_runpath(model_config , "KEY2"));
+  test_assert_string_equal("2-RunPath%d" , model_config_get_runpath_as_char(model_config));
+  test_assert_true( model_config_select_runpath(model_config , "KEY"));
+  test_assert_string_equal("PATH%d" , model_config_get_runpath_as_char(model_config));
+
+  model_config_free( model_config );
+}
+
+
+int main(int argc , char ** argv) {
+  test_create();
   exit(0);
 }
 

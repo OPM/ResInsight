@@ -6,6 +6,9 @@ add_library( plot ${LIBRARY_TYPE} ${source_files} )
 
 target_link_libraries( plot ert_util ${PLPLOT_LIBRARY} )
 set_target_properties( plot PROPERTIES VERSION 1.0 SOVERSION 1.0 )
+if (USE_RUNPATH)
+   add_runpath( plot )
+endif()
 #-----------------------------------------------------------------
 if (INSTALL_ERT)
    install(TARGETS plot DESTINATION ${CMAKE_INSTALL_LIBDIR})

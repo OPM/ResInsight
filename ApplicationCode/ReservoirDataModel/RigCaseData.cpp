@@ -164,19 +164,21 @@ void RigCaseData::computeWellCellsPrGrid()
             size_t gridIndex        =  wellCells.m_wellHead.m_gridIndex;
             size_t gridCellIndex    =  wellCells.m_wellHead.m_gridCellIndex;
 
-            CVF_ASSERT(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size());
-            m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-            m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+            if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
+                m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+            }
 
             size_t sIdx;
             for (sIdx = 0; sIdx < wellCells.m_wellResultBranches.size(); ++sIdx)
             {
                 RigWellResultBranch& wellSegment = wellCells.m_wellResultBranches[sIdx];
                 size_t cdIdx;
-                for (cdIdx = 0; cdIdx < wellSegment.m_wellCells.size(); ++cdIdx)
+                for (cdIdx = 0; cdIdx < wellSegment.m_branchResultPoints.size(); ++cdIdx)
                 {
-                    gridIndex     = wellSegment.m_wellCells[cdIdx].m_gridIndex;
-                    gridCellIndex = wellSegment.m_wellCells[cdIdx].m_gridCellIndex;
+                    gridIndex     = wellSegment.m_branchResultPoints[cdIdx].m_gridIndex;
+                    gridCellIndex = wellSegment.m_branchResultPoints[cdIdx].m_gridCellIndex;
 
                     if(gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
                     {
@@ -227,8 +229,10 @@ cvf::UIntArray* RigCaseData::gridCellToWellIndex(size_t gridIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCell& RigCaseData::cellFromWellResultCell(const RigWellResultCell& wellResultCell)
+RigCell& RigCaseData::cellFromWellResultCell(const RigWellResultPoint& wellResultCell)
 {
+    CVF_ASSERT(wellResultCell.isCell());
+
     size_t gridIndex     = wellResultCell.m_gridIndex;
     size_t gridCellIndex = wellResultCell.m_gridCellIndex;
 
@@ -241,7 +245,7 @@ RigCell& RigCaseData::cellFromWellResultCell(const RigWellResultCell& wellResult
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace,const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const
+bool RigCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace,const RigWellResultPoint& sourceWellCellResult, const RigWellResultPoint& otherWellCellResult) const
 {
     size_t gridIndex = sourceWellCellResult.m_gridIndex;
     size_t gridCellIndex = sourceWellCellResult.m_gridCellIndex;
@@ -265,12 +269,17 @@ bool RigCaseData::findSharedSourceFace(cvf::StructGridInterface::FaceType& share
 
         size_t ni, nj, nk;
         grid->neighborIJKAtCellFace(i, j, k, sourceFace, &ni, &nj, &nk);
-        size_t neighborCellIndex = grid->cellIndexFromIJK(ni, nj, nk);
 
-        if (neighborCellIndex == otherGridCellIndex)
+        if (grid->isCellValid(ni, nj, nk))
         {
-            sharedSourceFace = sourceFace;
-            return true;
+
+            size_t neighborCellIndex = grid->cellIndexFromIJK(ni, nj, nk);
+
+            if (neighborCellIndex == otherGridCellIndex)
+            {
+                sharedSourceFace = sourceFace;
+                return true;
+            }
         }
     }
 

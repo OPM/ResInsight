@@ -1,17 +1,15 @@
 /*
-  This file implements the fully fledged util abort() function which
+  This file implements the fully fledged utilï¿½abort() function which
   assumes that the current build has the following features:
 
     fork()      : To support calling external program addr2line().
-    pthread     : To serialize the use of util abort() - not very important.
-    execinfo.h  : The backtrace functions backtrace() and backtrace symbols().
+    pthread     : To serialize the use of utilï¿½abort() - not very important.
+    execinfo.h  : The backtrace functions backtrace() and backtraceï¿½symbols().
     _GNU_SOURCE : To get the dladdr() function.
 
   If not all these features are availbale the simpler version in
-  util abort_simple.c is built instead.
+  utilï¿½abort_simple.c is built instead.
 */
-
-
 
 /**
   This function uses the external program addr2line to convert the
@@ -175,15 +173,36 @@ static void util_fprintf_backtrace(FILE * stream) {
   fprintf(stream , "--------------------------------------------------------------------------------\n");
 }
 
+char * util_alloc_dump_filename() {
+  time_t timestamp = time(NULL);
+  struct tm *converted = localtime(&timestamp);
+  char day[32];
+  size_t last = strftime(day, 32, "%Y%m%d-%H%M%S", converted);
+  day[last] = '\0';
+
+  struct passwd *pwd = getpwuid(getuid());
+  char * filename = util_alloc_sprintf("/tmp/ert_abort_dump.%s.%s.log", pwd->pw_name, day);
+  return filename;
+}
+
 void util_abort(const char * fmt , ...) {
   pthread_mutex_lock( &__abort_mutex ); /* Abort before unlock() */
   {
+    char * filename = util_alloc_dump_filename();
+
+    bool dump_to_file = true;
+    FILE * abort_dump = fopen(filename, "w");
+    if (abort_dump == NULL) {
+      abort_dump = stderr;
+      dump_to_file = false;
+    }
+    
     va_list ap;
 
     va_start(ap , fmt);
-    fprintf(stderr , "\n\n");
-    fprintf(stderr , "\n\n");
-    vfprintf(stderr , fmt , ap);
+    fprintf(abort_dump , "\n\n");
+    vfprintf(abort_dump , fmt , ap);
+    fprintf(abort_dump , "\n\n");
     va_end(ap);
 
     /*
@@ -191,37 +210,29 @@ void util_abort(const char * fmt , ...) {
       addr2line; the call is based on util_fork_exec() which is
       currently only available on POSIX.
     */
-
     const bool include_backtrace = true;
     if (include_backtrace) {
       if (__abort_program_message != NULL) {
-        fprintf(stderr,"--------------------------------------------------------------------------------\n");
-        fprintf(stderr,"%s",__abort_program_message);
-        fprintf(stderr, "Current executable ..: %s\n" , program_invocation_name);
-        fprintf(stderr,"--------------------------------------------------------------------------------\n");
+        fprintf(abort_dump,"--------------------------------------------------------------------------------\n");
+        fprintf(abort_dump,"%s",__abort_program_message);
+        fprintf(abort_dump, "Current executable ..: %s\n" , program_invocation_name);
+        fprintf(abort_dump,"--------------------------------------------------------------------------------\n");
       }
 
-      fprintf(stderr,"\n");
-      fprintf(stderr,"****************************************************************************\n");
-      fprintf(stderr,"**                                                                        **\n");
-      fprintf(stderr,"**           A fatal error occured, and we have to abort.                 **\n");
-      fprintf(stderr,"**                                                                        **\n");
-      fprintf(stderr,"**  We now *try* to provide a backtrace, which would be very useful       **\n");
-      fprintf(stderr,"**  when debugging. The process of making a (human readable) backtrace    **\n");
-      fprintf(stderr,"**  is quite complex, among other things it involves several calls to the **\n");
-      fprintf(stderr,"**  external program addr2line. We have arrived here because the program  **\n");
-      fprintf(stderr,"**  state is already quite broken, so the backtrace might be (seriously)  **\n");
-      fprintf(stderr,"**  broken as well.                                                       **\n");
-      fprintf(stderr,"**                                                                        **\n");
-      fprintf(stderr,"****************************************************************************\n");
-
-      util_fprintf_backtrace( stderr );
+      fprintf(abort_dump,"\n");
+      util_fprintf_backtrace( abort_dump );
     }
-  }
-  pthread_mutex_unlock( &__abort_mutex );
 
-  signal(SIGABRT , SIG_DFL);
-  fprintf(stderr , "Aborting ... \n");
+    if (dump_to_file) {
+      util_fclose(abort_dump);
+      fprintf(stderr, "\n\nA fatal error occured, see file %s for details \n", filename);
+    }
+
+    free(filename);
+  }
+  
+  pthread_mutex_unlock(&__abort_mutex);
+  signal(SIGABRT, SIG_DFL);
   abort();
 }
 

@@ -2374,7 +2374,7 @@ void ecl_kw_inplace_update_file(const ecl_kw_type * ecl_kw , const char * filena
 /******************************************************************/
 
 bool ecl_kw_is_kw_file(FILE * stream , bool fmt_file ) {
-  const long int init_pos = ftell(stream);
+  const long int init_pos = util_ftell(stream);
   bool kw_file;
   
   {
@@ -2394,7 +2394,7 @@ bool ecl_kw_is_kw_file(FILE * stream , bool fmt_file ) {
     ecl_kw_free(ecl_kw);
   }
   
-  fseek(stream , init_pos , SEEK_SET);
+  util_fseek(stream , init_pos , SEEK_SET);
   return kw_file;
 }
 
@@ -2403,7 +2403,7 @@ bool ecl_kw_is_kw_file(FILE * stream , bool fmt_file ) {
 
 
 bool ecl_kw_is_grdecl_file(FILE * stream) {
-  const long int init_pos = ftell(stream);
+  const long int init_pos = util_ftell(stream);
   bool grdecl_file;
   bool at_eof = false;
   util_fskip_chars(stream ,  " \r\n\t"  , &at_eof);  /* Skipping intial space */
@@ -2427,7 +2427,7 @@ bool ecl_kw_is_grdecl_file(FILE * stream) {
       } while (c == ' ');
     }
   }
-  fseek(stream , init_pos , SEEK_SET);
+  util_fseek(stream , init_pos , SEEK_SET);
   return grdecl_file;
 }
 

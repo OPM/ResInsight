@@ -42,8 +42,9 @@
 #include <ert/enkf/plain_driver.h>
 #include <ert/enkf/gen_data.h>
 #include <ert/enkf/time_map.h>
+#include <ert/enkf/state_map.h>
 #include <ert/enkf/misfit_ensemble.h>
-
+#include <ert/enkf/cases_config.h>
 
 /**
 
@@ -204,7 +205,9 @@
 #define ENKF_FS_TYPE_ID       1089763
 #define ENKF_MOUNT_MAP        "enkf_mount_info"
 #define TIME_MAP_FILE         "time-map"
+#define STATE_MAP_FILE        "state-map"
 #define MISFIT_ENSEMBLE_FILE  "misfit-ensemble"
+#define CASE_CONFIG_FILE      "case_config"
 
 struct enkf_fs_struct {
   UTIL_TYPE_ID_DECLARATION;
@@ -221,6 +224,8 @@ struct enkf_fs_struct {
 
   bool                     read_only;             /* Whether this filesystem has been mounted read-only. */
   time_map_type          * time_map;
+  cases_config_type      * cases_config;
+  state_map_type         * state_map;
   misfit_ensemble_type   * misfit_ensemble;
   /* 
      The variables below here are for storing arbitrary files within 
@@ -242,6 +247,8 @@ static enkf_fs_type * enkf_fs_alloc_empty( const char * mount_point , bool read_
   enkf_fs_type * fs          = util_malloc(sizeof * fs );
   UTIL_TYPE_ID_INIT( fs , ENKF_FS_TYPE_ID );
   fs->time_map               = time_map_alloc();
+  fs->cases_config           = cases_config_alloc();
+  fs->state_map              = state_map_alloc();
   fs->misfit_ensemble        = misfit_ensemble_alloc();
   fs->index                  = NULL;
   fs->eclipse_static         = NULL;
@@ -438,6 +445,35 @@ static void enkf_fs_fread_time_map( enkf_fs_type * fs ) {
 }
 
 
+static void enkf_fs_fsync_cases_config( enkf_fs_type * fs ) {
+  char * filename = enkf_fs_alloc_case_filename( fs , CASE_CONFIG_FILE );
+  cases_config_fwrite( fs->cases_config , filename );
+  free( filename );
+}
+
+static void enkf_fs_fsync_state_map( enkf_fs_type * fs ) {
+  char * filename = enkf_fs_alloc_case_filename( fs , STATE_MAP_FILE );
+  state_map_fwrite( fs->state_map , filename );
+  free( filename );
+}
+
+
+
+static void enkf_fs_fread_cases_config( enkf_fs_type * fs ) {
+  char * filename = enkf_fs_alloc_case_filename( fs , CASE_CONFIG_FILE );
+  cases_config_fread( fs->cases_config , filename );
+  free( filename );
+}
+
+
+static void enkf_fs_fread_state_map( enkf_fs_type * fs ) {
+  char * filename = enkf_fs_alloc_case_filename( fs , STATE_MAP_FILE );
+  state_map_fread( fs->state_map , filename );
+  free( filename );
+}
+
+
+
 static void enkf_fs_fread_misfit( enkf_fs_type * fs ) {
   FILE * stream = enkf_fs_open_excase_file( fs , MISFIT_ENSEMBLE_FILE );
   if (stream != NULL) {
@@ -480,6 +516,8 @@ enkf_fs_type * enkf_fs_open( const char * mount_point , bool read_only) {
     fclose( stream );
     enkf_fs_init_path_fmt( fs );
     enkf_fs_fread_time_map( fs );
+    enkf_fs_fread_cases_config( fs );
+    enkf_fs_fread_state_map( fs );
     enkf_fs_fread_misfit( fs );
   }
   return fs;
@@ -528,7 +566,9 @@ void enkf_fs_close( enkf_fs_type * fs ) {
   path_fmt_free( fs->case_tstep_fmt );
   path_fmt_free( fs->case_tstep_member_fmt );
 
+  state_map_free( fs->state_map );
   time_map_free( fs->time_map );
+  cases_config_free( fs->cases_config );
   free( fs );
 }
 
@@ -590,6 +630,8 @@ void enkf_fs_fsync( enkf_fs_type * fs ) {
   enkf_fs_fsync_driver( fs->index );
 
   enkf_fs_fsync_time_map( fs );
+  enkf_fs_fsync_cases_config( fs) ;
+  enkf_fs_fsync_state_map( fs );
 }
 
 
@@ -867,6 +909,14 @@ FILE * enkf_fs_open_excase_tstep_member_file( const enkf_fs_type * fs , const ch
 
 time_map_type * enkf_fs_get_time_map( const enkf_fs_type * fs ) {
   return fs->time_map;
+}
+
+cases_config_type * enkf_fs_get_cases_config( const enkf_fs_type * fs) {
+  return fs->cases_config;
+}
+
+state_map_type * enkf_fs_get_state_map( const enkf_fs_type * fs ) {
+  return fs->state_map;
 }
 
 

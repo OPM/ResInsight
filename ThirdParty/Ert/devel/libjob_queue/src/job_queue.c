@@ -1139,8 +1139,55 @@ static void job_queue_handle_EXIT( job_queue_type * queue , job_queue_node_type 
 }
 
 
+/*****************************************************************/
 
+int job_queue_get_max_running_option(queue_driver_type * driver) {
+  char * max_running_string = (char*)queue_driver_get_option(driver, MAX_RUNNING);
+  int max_running;
+  if (!util_sscanf_int(max_running_string, &max_running)) {
+    fprintf(stderr, "%s: Unable to parse option MAX_RUNNING with value %s to an int", __func__, max_running_string);
+  }
+  return max_running;
+}
+
+void job_queue_set_max_running_option(queue_driver_type * driver, int max_running) {
+  char * max_running_string = util_alloc_sprintf("%d", max_running);
+  queue_driver_set_option(driver, MAX_RUNNING, max_running_string);
+  free(max_running_string);
+}
+
+
+/**
+   Observe that if the max number of running jobs is decreased,
+   nothing will be done to reduce the number of jobs currently
+   running; but no more jobs will be submitted until the number of
+   running has fallen below the new limit.
+
+   The updated value will also be pushed down to the current driver.
   
+   NOTE: These next three *max_running functions should not be used, rather
+   use the set_option feature, with MAX_RUNNING. They are (maybe) used by python
+   therefore not removed. 
+*/
+int job_queue_get_max_running( const job_queue_type * queue ) {
+  return job_queue_get_max_running_option(queue->driver);
+}
+
+void job_queue_set_max_running( job_queue_type * queue , int max_running ) {
+  job_queue_set_max_running_option(queue->driver, max_running);
+}
+
+/*
+  The return value is the new value for max_running.
+*/
+int job_queue_inc_max_runnning( job_queue_type * queue, int delta ) {
+  job_queue_set_max_running( queue , job_queue_get_max_running( queue ) + delta );
+  return job_queue_get_max_running( queue );
+}
+
+/*****************************************************************/
+
+
 /**
    If the total number of jobs is not known in advance the job_queue_run_jobs
    function can be called with @num_total_run == 0. In that case it is paramount
@@ -1297,6 +1344,11 @@ void job_queue_run_jobs(job_queue_type * queue , int num_total_run, bool verbose
     thread_pool_join( queue->work_pool );
     thread_pool_free( queue->work_pool );
   }
+  /*
+    Observe that after the job_queue_finalize() function has been
+    called the queue object should not be queried on any longer; that
+    will silently give horribly wrong results.
+  */
   job_queue_finalize( queue );
   pthread_mutex_unlock( &queue->run_mutex );
 }
@@ -1518,34 +1570,6 @@ bool job_queue_has_driver(const job_queue_type * queue ) {
     return true;
 } 
 
-
-/**
-   Observe that if the max number of running jobs is decreased,
-   nothing will be done to reduce the number of jobs currently
-   running; but no more jobs will be submitted until the number of
-   running has fallen below the new limit.
-
-   The updated value will also be pushed down to the current driver.
-*/
-
-void job_queue_set_max_running( job_queue_type * queue , int max_running ) {
-  queue_driver_set_max_running( queue->driver , max_running );
-}
-
-/*
-  The return value is the new value for max_running.
-*/
-int job_queue_inc_max_runnning( job_queue_type * queue, int delta ) {
-  job_queue_set_max_running( queue , job_queue_get_max_running( queue ) + delta );
-  return job_queue_get_max_running( queue );
-}
-
-int job_queue_get_max_running( const job_queue_type * queue ) {
-  return queue_driver_get_max_running( queue->driver );
-}
-
-
-/*****************************************************************/
 
 
 job_driver_type job_queue_lookup_driver_name( const char * driver_name ) {

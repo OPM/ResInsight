@@ -26,18 +26,22 @@
 #include <string.h>
 #include <pthread.h>
 
+#include <ert/util/type_macros.h>
 #include <ert/util/util.h>
 #include <ert/util/hash.h>
 #include <ert/util/matrix.h>
 #include <ert/util/set.h>
 #include <ert/util/vector.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/enkf/meas_data.h>
 
 #define MEAS_BLOCK_TYPE_ID 661936407
+#define MEAS_DATA_TYPE_ID  561000861
 
 
 struct meas_data_struct {
+  UTIL_TYPE_ID_DECLARATION;
   int                 ens_size;
   vector_type       * data; 
   pthread_mutex_t     data_mutex;
@@ -146,15 +150,6 @@ static void meas_data_assign_block( meas_block_type * target_block , const meas_
   }
 }
 
-static void meas_block_memcpy( meas_block_type * target_block , const meas_block_type * src_block) {
-  if (target_block->data_size != src_block->data_size) 
-    util_abort("%s: size mismatch. target:%d  src:%d \n",__func__ , target_block->data_size , src_block->data_size );
-
-  memcpy( target_block->data   , src_block->data   , src_block->data_size * sizeof * src_block->data );
-  memcpy( target_block->active , src_block->active , src_block->obs_size * sizeof * src_block->active ); 
-}
-
-
 
 void meas_block_calculate_ens_stats( meas_block_type * meas_block ) {
   bool include_inactive = true;
@@ -222,18 +217,23 @@ int meas_block_get_total_size( const meas_block_type * meas_block ) {
 
 /*****************************************************************/
 
+UTIL_IS_INSTANCE_FUNCTION( meas_data , MEAS_DATA_TYPE_ID )
 
-meas_data_type * meas_data_alloc(int ens_size) {
-  meas_data_type * meas = util_malloc(sizeof * meas );
+meas_data_type * meas_data_alloc( const int_vector_type * ens_active_list ) {
+  int ens_size = int_vector_size( ens_active_list );
   if (ens_size <= 0) 
     util_abort("%s: ens_size must be > 0 - aborting \n",__func__);
-
-  meas->ens_size     = ens_size;
-  meas->data         = vector_alloc_new();
-  meas->lookup_keys  = set_alloc_empty();
-  pthread_mutex_init( &meas->data_mutex , NULL );
-
-  return meas;
+  {
+    meas_data_type * meas = util_malloc(sizeof * meas );
+    UTIL_TYPE_ID_INIT( meas , MEAS_DATA_TYPE_ID );
+    
+    meas->ens_size     = ens_size;
+    meas->data         = vector_alloc_new();
+    meas->lookup_keys  = set_alloc_empty();
+    pthread_mutex_init( &meas->data_mutex , NULL );
+    
+    return meas;
+  }
 }
 
 
@@ -323,21 +323,6 @@ void meas_data_assign_vector(meas_data_type * target_matrix, const meas_data_typ
   }
 }
 
-
-meas_data_type * meas_data_alloc_copy( const meas_data_type * src_matrix ) {
-  meas_data_type * copy_matrix = meas_data_alloc( src_matrix->ens_size );
-
-  for (int block_nr = 0; block_nr < vector_get_size( src_matrix->data ); block_nr++) {
-    const meas_block_type * src_block = meas_data_iget_block_const( src_matrix , block_nr );
-    meas_data_add_block( copy_matrix , src_block->obs_key , src_block->report_step , src_block->obs_size );
-    {
-      meas_block_type * copy_block = meas_data_iget_block( copy_matrix , block_nr );
-      meas_block_memcpy( copy_block , src_block );
-    }
-  }
-  
-  return copy_matrix;
-}
 
 
 

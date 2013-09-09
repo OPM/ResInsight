@@ -200,7 +200,11 @@ typedef struct ecl_sum_struct       ecl_sum_type;
   ecl_sum_tstep_type  * ecl_sum_add_tstep( ecl_sum_type * ecl_sum , int report_step , double sim_days);
   void                  ecl_sum_update_wgname( ecl_sum_type * ecl_sum , smspec_node_type * node , const char * wgname );
 
+  bool                  ecl_sum_is_oil_producer( const ecl_sum_type * ecl_sum , const char * well);
   char                * ecl_sum_alloc_well_key( const ecl_sum_type * ecl_sum , const char * keyword , const char * wgname);
+  bool                  ecl_sum_report_step_equal( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2);
+  bool                  ecl_sum_report_step_compatible( const ecl_sum_type * ecl_sum1 , const ecl_sum_type * ecl_sum2);
+
 UTIL_IS_INSTANCE_HEADER( ecl_sum );
 
 #ifdef __cplusplus

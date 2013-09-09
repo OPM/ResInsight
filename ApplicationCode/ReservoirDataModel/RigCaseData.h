@@ -65,8 +65,8 @@ public:
     cvf::UByteArray*                            wellCellsInGrid(size_t gridIndex);
     cvf::UIntArray*                             gridCellToWellIndex(size_t gridIndex);
 
-    RigCell&                                    cellFromWellResultCell(const RigWellResultCell& wellResultCell);
-    bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultCell& sourceWellCellResult, const RigWellResultCell& otherWellCellResult) const;
+    RigCell&                                    cellFromWellResultCell(const RigWellResultPoint& wellResultCell);
+    bool                                        findSharedSourceFace(cvf::StructGridInterface::FaceType& sharedSourceFace, const RigWellResultPoint& sourceWellCellResult, const RigWellResultPoint& otherWellCellResult) const;
 
     void                                        computeActiveCellBoundingBoxes();
 

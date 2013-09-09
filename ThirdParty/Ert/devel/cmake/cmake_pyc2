@@ -11,7 +11,11 @@ target_file = sys.argv[2]
 
 (target_path , tail) = os.path.split( target_file )
 if not os.path.exists( target_path ):
-   os.makedirs( target_path )
+   try:
+      os.makedirs( target_path )
+   except:
+      # When running with make -j 4 there might be a race to create this directory.
+      pass
 
 shutil.copyfile( src_file , target_file )
 try:

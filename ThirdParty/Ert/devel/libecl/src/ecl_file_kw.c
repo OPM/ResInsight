@@ -56,7 +56,7 @@ struct inv_map_struct {
 
 struct ecl_file_kw_struct {
   UTIL_TYPE_ID_DECLARATION;
-  long             file_offset;
+  offset_type            file_offset;
   ecl_type_enum    ecl_type;
   int              kw_size;
   char           * header;
@@ -135,7 +135,7 @@ UTIL_IS_INSTANCE_FUNCTION( ecl_file_kw , ECL_FILE_KW_TYPE_ID )
 
 
 
-static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_type_enum ecl_type , int size , long offset) {
+static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_type_enum ecl_type , int size , offset_type offset) {
   ecl_file_kw_type * file_kw = util_malloc( sizeof * file_kw );
   UTIL_TYPE_ID_INIT( file_kw , ECL_FILE_KW_TYPE_ID );
   
@@ -160,7 +160,7 @@ static ecl_file_kw_type * ecl_file_kw_alloc__( const char * header , ecl_type_en
    access the ecl_file_kw instances.  
 */
 
-ecl_file_kw_type * ecl_file_kw_alloc( const ecl_kw_type * ecl_kw , long offset ) {
+ecl_file_kw_type * ecl_file_kw_alloc( const ecl_kw_type * ecl_kw , offset_type offset ) {
   return ecl_file_kw_alloc__( ecl_kw_get_header( ecl_kw ) , ecl_kw_get_type( ecl_kw ) , ecl_kw_get_size( ecl_kw ) , offset );
 }
 

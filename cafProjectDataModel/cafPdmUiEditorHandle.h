@@ -70,6 +70,33 @@ private:
 };
 
 
+//==================================================================================================
+/// Proxy editor handle used to propagate updates to the editor responsible for the UI for this object
+///
+/// A tree view control is connected to the root item, and all nodes in the tree will have a proxy editor
+/// pointing to the root node editor controlling the UI for the whole tree
+//==================================================================================================
+class PdmUiProxyEditorHandle: public PdmUiEditorHandle
+{
+public:
+    PdmUiProxyEditorHandle(PdmUiEditorHandle* mainEditorHandle) : PdmUiEditorHandle() { m_mainEditorHandle = mainEditorHandle; }
+    virtual ~PdmUiProxyEditorHandle() {};
+
+protected: // Interface to override:
+
+    /// Supposed to update all parts of the widgets, both visibility, sensitivity, decorations and field data
+    virtual void configureAndUpdateUi(const QString& uiConfigName)
+    {
+        if (m_mainEditorHandle)
+        {
+            m_mainEditorHandle->updateUi(uiConfigName);
+        }
+    };
+
+private:
+    PdmUiEditorHandle* m_mainEditorHandle;
+};
+
 
 } // End of namespace caf
 

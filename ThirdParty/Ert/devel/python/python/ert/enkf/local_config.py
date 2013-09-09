@@ -12,44 +12,38 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import BaseCClass, CWrapper
+from ert.enkf import ENKF_LIB
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
-class LocalConfig(CClass):
-    
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+from ert.util import StringList
 
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+class LocalConfig(BaseCClass):
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly!")
+
+    def get_config_files(self):
+        """ @rtype: StringList """
+        return LocalConfig.cNamespace().get_config_files(self).setParent(self)
+
+    def clear_config_files(self):
+        LocalConfig.cNamespace().clear_config_files(self)
+
+    def add_config_file(self, filename):
+        LocalConfig.cNamespace().add_config_file(self, filename)
+
+    def free(self):
+        LocalConfig.cNamespace().free(self)
 
 
+cwrapper = CWrapper(ENKF_LIB)
+cwrapper.registerType("local_config", LocalConfig)
+cwrapper.registerType("local_config_obj", LocalConfig.createPythonObject)
+cwrapper.registerType("local_config_ref", LocalConfig.createCReference)
 
-##################################################################
-
-cwrapper = CWrapper( libenkf.lib )
-cwrapper.registerType( "local_config" , LocalConfig )
-
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("local_config")
-
-
-cfunc.free               = cwrapper.prototype("void local_config_free( local_config )")
-cfunc.get_config_files   = cwrapper.prototype("c_void_p local_config_get_config_files( local_config )")
-cfunc.clear_config_files = cwrapper.prototype("void local_config_clear_config_files( local_config )")
-cfunc.add_config_file    = cwrapper.prototype("void local_config_add_config_file( local_config , char*)")
+LocalConfig.cNamespace().free = cwrapper.prototype("void local_config_free( local_config )")
+LocalConfig.cNamespace().get_config_files = cwrapper.prototype("stringlist_ref local_config_get_config_files( local_config )")
+LocalConfig.cNamespace().clear_config_files = cwrapper.prototype("void local_config_clear_config_files( local_config )")
+LocalConfig.cNamespace().add_config_file = cwrapper.prototype("void local_config_add_config_file( local_config , char*)")
 

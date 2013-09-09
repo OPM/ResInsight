@@ -161,6 +161,21 @@ enkf_impl_type.GEN_KW = enkf_impl_type("Keyword", 107)
 enkf_impl_type.SUMMARY = enkf_impl_type("Summary", 110)
 enkf_impl_type.GEN_DATA = enkf_impl_type("Data", 113)
 
+class enkf_var_type(enum):
+    #INVALID_VAR      =  None  #,    /* */
+    PARAMETER        =  None  #,    /* A parameter which is updated with enkf: PORO , MULTFLT , ..*/
+    DYNAMIC_STATE    =  None  #,    /* Dynamic data which are needed for a restart - i.e. pressure and saturations.  */
+    DYNAMIC_RESULT   =  None  #,    /* Dynamic results which are NOT needed for a restart - i.e. well rates. */
+    #STATIC_STATE     =  None  #,    /* Keywords like XCON++ from eclipse restart files - which are just dragged along          */ 
+    #INDEX_STATE      =  None
+
+#enkf_var_type.INVALID_VAR
+enkf_var_type.PARAMETER = enkf_var_type("Parameter", 1)
+enkf_var_type.DYNAMIC_STATE = enkf_var_type("DynamicState", 2)
+enkf_var_type.DYNAMIC_RESULT = enkf_var_type("DynamicResult", 4)
+#enkf_var_type.STATIC_STATE
+#enkf_var_type.INDEX_STATE 
+
 
 class ert_job_status_type(enum):
     """These "enum" values are all copies from the header file "basic_queue_driver.h"."""
@@ -179,6 +194,9 @@ class ert_job_status_type(enum):
     ALL_FAIL    = None
     USER_KILLED = None
     USER_EXIT   = None
+    SUCCESS     = None
+    RUNNING_CALLBACK = None
+    FAILED      = None
 
 ert_job_status_type.NOT_ACTIVE = ert_job_status_type("JOB_QUEUE_NOT_ACTIVE", 1)
 ert_job_status_type.LOADING = ert_job_status_type("JOB_QUEUE_LOADING", 2)
@@ -194,6 +212,11 @@ ert_job_status_type.ALL_OK = ert_job_status_type("JOB_QUEUE_ALL_OK", 1024)
 ert_job_status_type.ALL_FAIL = ert_job_status_type("JOB_QUEUE_ALL_FAIL", 2048)
 ert_job_status_type.USER_KILLED = ert_job_status_type("JOB_QUEUE_USER_KILLED", 4096)
 ert_job_status_type.USER_EXIT = ert_job_status_type("JOB_QUEUE_USER_EXIT", 8192)
+ert_job_status_type.SUCCESS = ert_job_status_type("JOB_QUEUE_SUCCESS", 16384)
+ert_job_status_type.RUNNING_CALLBACK = ert_job_status_type("JOB_QUEUE_RUNNING_CALLBACK", 32768)
+ert_job_status_type.JOB_QUEUE_FAILED = ert_job_status_type("JOB_QUEUE_FAILED", 65536)
+
+
 
 
 class gen_data_file_format(enum):
@@ -269,6 +292,17 @@ keep_runpath_type.DEFAULT_KEEP = keep_runpath_type("DEFAULT_KEEP", 0)
 keep_runpath_type.EXPLICIT_DELETE = keep_runpath_type("EXPLICIT_DELETE", 1)
 keep_runpath_type.EXPLICIT_KEEP = keep_runpath_type("EXPLICIT_KEEP", 2)
 
+class  run_mode_type(enum):
+    ENKF_ASSIMILATION = None
+    ENSEMBLE_EXPERIMENT = None
+    SMOOTHER_UPDATE = None
+    INIT_ONLY = None
+
+run_mode_type.ENKF_ASSIMILATION = run_mode_type( "ENKF_ASSIMILATION", 1)
+run_mode_type.ENKF_EXPERIMENT = run_mode_type( "ENKF_EXPERIMENT", 2)
+run_mode_type.SMOOTHER_UPDATE = run_mode_type( "SMOOTHER_UPDATE", 4)
+run_mode_type.INIT_ONLY = run_mode_type( "INIT_ONLY", 8)
+    
 class history_source_type(enum):
     SCHEDULE = None
     REFCASE_SIMULATED = None

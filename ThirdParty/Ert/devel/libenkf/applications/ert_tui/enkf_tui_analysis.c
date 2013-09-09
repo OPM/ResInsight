@@ -65,6 +65,17 @@ void enkf_tui_analysis_analyze_selected__(void * arg) {
   }
 }
 
+void enkf_tui_analysis_scale_observation_std__(void * arg) {
+  enkf_main_type * enkf_main = enkf_main_safe_cast(arg);
+
+  double scale_factor = enkf_tui_util_scanf_double_with_lower_limit("Global scaling factor", PROMPT_LEN, 0);
+
+  if (enkf_main_have_obs(enkf_main)) {
+    enkf_obs_type * observations = enkf_main_get_obs(enkf_main);
+    enkf_obs_scale_std(observations, scale_factor);
+  }
+}
+
 
 
 /**
@@ -228,19 +239,26 @@ void enkf_tui_analysis_menu(void * arg) {
   arg_pack_type * arg_pack = arg_pack_alloc();
   arg_pack_append_ptr( arg_pack , enkf_main );
   arg_pack_append_ptr( arg_pack , menu );
-  
+
   {
-    enkf_tui_analysis_update_title( enkf_main , menu );
-    menu_add_item(menu , "Analyze one step manually"              , "aA"  , enkf_tui_analysis_analyze__          , enkf_main , NULL);
-    menu_add_item(menu , "Analyze interval manually"              , "iI"  , enkf_tui_analysis_smooth__           , enkf_main , NULL);
-    menu_add_item(menu , "Analyze selected steps manually"        , "nN"  , enkf_tui_analysis_analyze_selected__ , enkf_main , NULL);
-    menu_add_separator( menu );
-    menu_add_item(menu , "Select analysis module"                 , "sS" , enkf_tui_analysis_select_module__ , arg_pack  , NULL);
-    menu_add_item(menu , "List available modules"                 , "lL" , enkf_tui_analysis_list_modules__  , enkf_main , NULL);
-    menu_add_item(menu , "Modify analysis module parameters"      , "mM" , enkf_tui_analysis_update_module__ , enkf_main , NULL);
-    menu_add_item(menu , "Reload current module (external only)"  , "rR" , enkf_tui_analysis_reload_module__ , enkf_main , NULL);
+    enkf_tui_analysis_update_title(enkf_main, menu);
+    menu_add_item(menu, "Analyze one step manually", "aA", enkf_tui_analysis_analyze__, enkf_main, NULL);
+    menu_add_item(menu, "Analyze interval manually", "iI", enkf_tui_analysis_smooth__, enkf_main, NULL);
+    menu_add_item(menu, "Analyze selected steps manually", "nN", enkf_tui_analysis_analyze_selected__, enkf_main, NULL);
+    menu_add_separator(menu);
+    {
+      menu_item_type * item = menu_add_item(menu, "Global scaling of uncertainty", "gG", enkf_tui_analysis_scale_observation_std__, enkf_main, NULL);
+      if (!enkf_main_have_obs(enkf_main)) {
+        menu_item_disable(item);
+      }
+    }
+    menu_add_separator(menu);
+    menu_add_item(menu, "Select analysis module", "sS", enkf_tui_analysis_select_module__, arg_pack, NULL);
+    menu_add_item(menu, "List available modules", "lL", enkf_tui_analysis_list_modules__, enkf_main, NULL);
+    menu_add_item(menu, "Modify analysis module parameters", "mM", enkf_tui_analysis_update_module__, enkf_main, NULL);
+    menu_add_item(menu, "Reload current module (external only)", "rR", enkf_tui_analysis_reload_module__, enkf_main, NULL);
   }
   menu_run(menu);
   menu_free(menu);
-  arg_pack_free( arg_pack );
+  arg_pack_free(arg_pack);
 }

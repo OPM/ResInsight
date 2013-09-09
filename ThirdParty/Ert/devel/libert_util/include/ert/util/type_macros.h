@@ -95,6 +95,41 @@ const type ## _type * type ## _safe_cast_const( const void * __arg ) {          
 }
 #define UTIL_SAFE_CAST_HEADER_CONST( type ) const type ## _type * type ## _safe_cast_const( const void * __arg )
 
+
+
+
+#define UTIL_TRY_CAST_FUNCTION(type , TYPE_ID)                                           \
+type ## _type * type ## _try_cast( void * __arg ) {                                      \
+   if (__arg == NULL)                                                                    \
+      return NULL;                                                                       \
+   {                                                                                     \
+      type ## _type * arg = (type ## _type *) __arg;                                     \
+      if ( arg->__type_id == TYPE_ID)                                                    \
+         return arg;                                                                     \
+      else                                                                               \
+         return NULL;                                                                    \
+   }                                                                                     \
+}
+#define UTIL_TRY_CAST_HEADER( type ) type ## _type * type ## _try_cast( void * __arg )
+
+
+#define UTIL_TRY_CAST_FUNCTION_CONST(type , TYPE_ID)                                     \
+const type ## _type * type ## _try_cast_const( const void * __arg ) {                          \
+   if (__arg == NULL)                                                                    \
+      return NULL;                                                                       \
+   {                                                                                     \
+      const type ## _type * arg = (type ## _type *) __arg;                               \
+      if ( arg->__type_id == TYPE_ID)                                                    \
+         return arg;                                                                     \
+      else                                                                               \
+         return NULL;                                                                    \
+   }                                                                                     \
+}
+#define UTIL_TRY_CAST_HEADER_CONST( type ) const type ## _type * type ## _try_cast_const( const void * __arg )
+
+
+
+
 #define UTIL_TYPE_ID_DECLARATION           int   __type_id
 #define UTIL_TYPE_ID_INIT(var , TYPE_ID)   var->__type_id = TYPE_ID;
 

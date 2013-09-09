@@ -12,42 +12,41 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
-
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-import  libjob_queue
-class ForwardModel(CClass):
-    
-    def __init__(self , c_ptr = None):
-        self.owner = False
-        self.c_ptr = c_ptr
-        
-        
-    def __del__(self):
-        if self.owner:
-            cfunc.free( self )
+#  for more details.
+from ert.cwrap import CWrapper, BaseCClass
+from ert.job_queue import ExtJob, JOB_QUEUE_LIB
+from ert.util import StringList
 
 
-    def has_key(self , key):
-        return cfunc.has_key( self ,key )
+class ForwardModel(BaseCClass):
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly!")
 
+    def joblist(self):
+        """ @rtype: StringList """
+        return ForwardModel.cNamespace().alloc_joblist(self)
 
+    def iget_job(self, index):
+        """ @rtype: ExtJob """
+        return ForwardModel.cNamespace().iget_job(self, index).setParent(self)
 
-##################################################################
+    def add_job(self, name):
+        """ @rtype: ExtJob """
+        return ForwardModel.cNamespace().add_job(self, name).setParent(self)
 
-cwrapper = CWrapper( libjob_queue.lib )
-cwrapper.registerType( "forward_model" , ForwardModel )
+    def clear(self):
+        ForwardModel.cNamespace().clear(self)
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("forward_model")
+    def free(self):
+        ForwardModel.cNamespace().free(self)
 
+cwrapper = CWrapper(JOB_QUEUE_LIB)
+cwrapper.registerType("forward_model", ForwardModel)
+cwrapper.registerType("forward_model_obj", ForwardModel.createPythonObject)
+cwrapper.registerType("forward_model_ref", ForwardModel.createCReference)
 
-cfunc.free                       = cwrapper.prototype("void forward_model_free( forward_model )")
-cfunc.clear                      = cwrapper.prototype("void forward_model_clear(forward_model)")
-cfunc.add_job                    = cwrapper.prototype("c_void_p forward_model_add_job(forward_model, char*)")
-cfunc.alloc_joblist              = cwrapper.prototype("c_void_p forward_model_alloc_joblist(forward_model)")
+ForwardModel.cNamespace().free = cwrapper.prototype("void forward_model_free( forward_model )")
+ForwardModel.cNamespace().clear = cwrapper.prototype("void forward_model_clear(forward_model)")
+ForwardModel.cNamespace().add_job = cwrapper.prototype("ext_job_ref forward_model_add_job(forward_model, char*)")
+ForwardModel.cNamespace().alloc_joblist = cwrapper.prototype("stringlist_obj forward_model_alloc_joblist(forward_model)")
+ForwardModel.cNamespace().iget_job = cwrapper.prototype("ext_job_ref forward_model_iget_job( forward_model, int)")

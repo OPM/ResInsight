@@ -129,6 +129,20 @@ private:
 };
 
 
+
+class StructGridScalarDataAccessHugeVal : public cvf::StructGridScalarDataAccess
+{
+public:
+    virtual double cellScalar(size_t cellIndex) const
+    {
+        return HUGE_VAL;
+    }
+    virtual void   setCellScalar(size_t cellIndex, double value)
+    {
+    }
+};
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -151,6 +165,17 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::create
     }
 
     std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(scalarSetIndex);
+
+    // A generated result with a generated results for a subset of time steps, will end up with a result container with less entries than time steps
+    // See RiaSetGridProperty command in RiaPropertyDataCommands
+    //
+    // Some functions requires a valid data access object to be present, these might be rewritten to avoid this dummy object always returning HUGE_VAL
+    if (timeStepIndex >= scalarSetResults.size())
+    {
+         cvf::ref<cvf::StructGridScalarDataAccess> object = new StructGridScalarDataAccessHugeVal;
+
+         return object;
+    }
 
     std::vector<double>* resultValues = NULL;
     if (timeStepIndex < scalarSetResults.size())

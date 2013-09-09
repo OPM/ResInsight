@@ -30,7 +30,10 @@ extern "C" {
 #include <ert/ecl/ecl_coarse_cell.h>
 #include <ert/ecl/ecl_kw.h>  
 #include <ert/ecl/grid_dims.h>
+#include <ert/ecl/nnc_info.h>
 
+#define ECL_GRID_GLOBAL_GRID   "Global"  // used as key in hash tables over grids.
+#define  ECL_GRID_MAINGRID_LGR_NR 0
 
   typedef double (block_function_ftype) ( const double_vector_type *); 
   typedef struct ecl_grid_struct ecl_grid_type;
@@ -75,6 +78,10 @@ extern "C" {
   int             ecl_grid_get_global_index3(const ecl_grid_type * , int  , int , int );
   int             ecl_grid_get_global_index1A(const ecl_grid_type * ecl_grid , int active_index);
   int             ecl_grid_get_global_index1F(const ecl_grid_type * ecl_grid , int active_fracture_index);
+
+  const int_vector_type * ecl_grid_get_nnc_index_list( ecl_grid_type * grid );
+  const nnc_info_type * ecl_grid_get_cell_nnc_info3( const ecl_grid_type * grid , int i , int j , int k); 
+  const nnc_info_type * ecl_grid_get_cell_nnc_info1( const ecl_grid_type * grid , int global_index); 
   
   ecl_grid_type * ecl_grid_alloc_GRDECL_kw( int nx, int ny , int nz , const ecl_kw_type * zcorn_kw , const ecl_kw_type * coord_kw , const ecl_kw_type * actnum_kw , const ecl_kw_type * mapaxes_kw );
   ecl_grid_type * ecl_grid_alloc_GRDECL_data(int , int , int , const float *  , const float *  , const int * , const float * mapaxes);
@@ -83,7 +90,7 @@ extern "C" {
   ecl_grid_type * ecl_grid_load_case( const char * case_input );
   ecl_grid_type * ecl_grid_alloc_rectangular( int nx , int ny , int nz , double dx , double dy , double dz , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum);
-
+    
   bool            ecl_grid_exists( const char * case_input );
   char          * ecl_grid_alloc_case_filename( const char * case_input );
   
@@ -130,16 +137,19 @@ extern "C" {
   
   void            ecl_grid_dump(const ecl_grid_type * grid , FILE * stream);
   void            ecl_grid_dump_ascii(const ecl_grid_type * grid , bool active_only , FILE * stream);
-  
+    
   /* lgr related functions */
   const ecl_grid_type   * ecl_grid_get_cell_lgr3(const ecl_grid_type * grid , int i, int j , int k);
   const ecl_grid_type   * ecl_grid_get_cell_lgr1A(const ecl_grid_type * grid , int active_index);
   const ecl_grid_type   * ecl_grid_get_cell_lgr1(const ecl_grid_type * grid , int global_index );
   int                     ecl_grid_get_num_lgr(const ecl_grid_type * main_grid );
-  int                     ecl_grid_get_grid_nr( const ecl_grid_type * ecl_grid );
-  ecl_grid_type         * ecl_grid_iget_lgr(const ecl_grid_type * main_grid , int lgr_nr);
+  int                     ecl_grid_get_lgr_nr( const ecl_grid_type * ecl_grid );
+  ecl_grid_type         * ecl_grid_iget_lgr(const ecl_grid_type * main_grid , int lgr_index); 
+  ecl_grid_type         * ecl_grid_get_lgr_from_lgr_nr(const ecl_grid_type * main_grid, int lgr_nr);
   ecl_grid_type         * ecl_grid_get_lgr(const ecl_grid_type * main_grid, const char * __lgr_name);
   bool                    ecl_grid_has_lgr(const ecl_grid_type * main_grid, const char * __lgr_name);
+  const char            * ecl_grid_iget_lgr_name( const ecl_grid_type * ecl_grid , int lgr_index);
+  const char            * ecl_grid_get_lgr_name( const ecl_grid_type * ecl_grid , int lgr_nr);
   stringlist_type       * ecl_grid_alloc_lgr_name_list(const ecl_grid_type * ecl_grid);
   int                     ecl_grid_get_parent_cell1( const ecl_grid_type * grid , int global_index);
   int                     ecl_grid_get_parent_cell3( const ecl_grid_type * grid , int i , int j , int k);
@@ -171,6 +181,8 @@ extern "C" {
   void             ecl_grid_cell_ri_export( const ecl_grid_type * ecl_grid , int global_index , double * ri_points);
 
   bool             ecl_grid_dual_grid( const ecl_grid_type * ecl_grid );
+
+  UTIL_IS_INSTANCE_HEADER( ecl_grid );
   
 #ifdef __cplusplus
 }

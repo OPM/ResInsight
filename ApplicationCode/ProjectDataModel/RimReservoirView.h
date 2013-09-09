@@ -158,6 +158,8 @@ public:
 public:
     void                                    loadDataAndUpdate();
     void                                    createDisplayModelAndRedraw();
+    void                                    scheduleCreateDisplayModelAndRedraw();
+
     void                                    scheduleGeometryRegen(unsigned short geometryType);
     void                                    scheduleReservoirGridGeometryRegen();
     void                                    schedulePipeGeometryRegen();

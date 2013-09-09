@@ -823,7 +823,7 @@ static void ecl_file_scan( ecl_file_type * ecl_file ) {
   fortio_fseek( ecl_file->fortio , 0 , SEEK_SET );
   {
     ecl_kw_type * work_kw = ecl_kw_alloc_new("WORK-KW" , 0 , ECL_INT_TYPE , NULL);
-    long current_offset;
+    offset_type current_offset;
     while (true) {
       current_offset = fortio_ftell( ecl_file->fortio );
       if (ecl_kw_fread_header( work_kw , ecl_file->fortio )) {

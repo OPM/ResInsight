@@ -19,12 +19,14 @@
 #include <stdbool.h>
 
 #include <ert/util/test_util.h>
+#include <ert/util/test_work_area.h>
 #include <ert/util/util.h>
 #include <ert/util/log.h>
 
-#define LOG_FILE "/tmp/log.txt"
+#define LOG_FILE "log.txt"
 
 int main(int argc , char ** argv) {
+  test_work_area_type * work_area = test_work_area_alloc("util/logh" , false);
   {
     log_type * logh = log_open( NULL , 0 );
     
@@ -40,5 +42,6 @@ int main(int argc , char ** argv) {
     test_assert_true( log_is_open( logh ));
     log_close( logh );
   }
+  test_work_area_free( work_area );
   exit(0);
 }

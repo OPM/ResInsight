@@ -187,7 +187,7 @@ static void rms_tag_add_tagkey(const rms_tag_type *tag , const rms_tagkey_type *
 
 
 static bool rms_tag_at_endtag(FILE *stream) {
-  const int init_pos = ftell(stream);
+  const int init_pos = util_ftell(stream);
   bool at_endtag;
   char tag[7];
   if (rms_util_fread_string(tag , 7 , stream)) {
@@ -199,7 +199,7 @@ static bool rms_tag_at_endtag(FILE *stream) {
     at_endtag = false;
   
   if (!at_endtag)
-    fseek(stream , init_pos , SEEK_SET);
+    util_fseek(stream , init_pos , SEEK_SET);
   return at_endtag;
 }
 

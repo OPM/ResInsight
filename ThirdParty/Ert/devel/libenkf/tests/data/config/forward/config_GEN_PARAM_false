@@ -1,9 +1,0 @@
-JOBNAME  Job%d
-RUNPATH /tmp/simulations/run%d
-NUM_REALIZATIONS 1
-
-ENSPATH /tmp/Storage
-JOB_SCRIPT script.sh
-
-
-GEN_PARAM  PARAM           PARAM.INC             INIT_FILES:PARAM_INIT   INPUT_FORMAT:ASCII   OUTPUT_FORMAT:ASCII

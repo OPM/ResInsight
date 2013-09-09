@@ -53,7 +53,7 @@
 struct smspec_node_struct {
   UTIL_TYPE_ID_DECLARATION;
   char                 * gen_key1;           /* The main composite key, i.e. WWCT:OP3 for this element. */ 
-  char                 * gen_key2;           /* Some of the ijk based elements will have both a xxx:i,j,k and a xxx:num key. Mostly NULL. */
+  char                 * gen_key2;           /* Some of the ijk based elements will have both a xxx:i,j,k and a xxx:num key. Some of the region_2_region elements will have both a xxx:num and a xxx:r2-r2 key. Mostly NULL. */
   ecl_smspec_var_type    var_type;           /* The variable type */
   char                 * wgname;             /* The value of the WGNAMES vector for this element. */
   char                 * keyword;            /* The value of the KEYWORDS vector for this elements. */
@@ -89,6 +89,8 @@ struct smspec_node_struct {
 #define ECL_SUM_KEYFMT_GROUP                  "%s%s%s"
 #define ECL_SUM_KEYFMT_WELL                   "%s%s%s"
 #define ECL_SUM_KEYFMT_REGION                 "%s%s%d"
+#define ECL_SUM_KEYFMT_REGION_2_REGION_R1R2   "%s%s%d-%d"
+#define ECL_SUM_KEYFMT_REGION_2_REGION_NUM    "%s%s%d"
 #define ECL_SUM_KEYFMT_SEGMENT                "%s%s%s%s%d"
 #define ECL_SUM_KEYFMT_LOCAL_WELL             "%s%s%s%s%s"
 
@@ -118,6 +120,23 @@ char * smspec_alloc_region_key( const char * join_string , const char * keyword 
                             join_string , 
                             num );
 }
+
+char * smspec_alloc_region_2_region_r1r2_key( const char * join_string , const char * keyword , int r1, int r2) {
+  return util_alloc_sprintf(ECL_SUM_KEYFMT_REGION_2_REGION_R1R2,
+                            keyword,
+                            join_string, 
+                            r1, 
+                            r2);
+}
+
+char * smspec_alloc_region_2_region_num_key( const char * join_string , const char * keyword , int num) {
+  return util_alloc_sprintf(ECL_SUM_KEYFMT_REGION_2_REGION_NUM,  
+                            keyword , 
+                            join_string , 
+                            num);
+}
+  
+
 
 char * smspec_alloc_block_ijk_key( const char * join_string , const char * keyword , int i , int j , int k) {
   return util_alloc_sprintf(ECL_SUM_KEYFMT_BLOCK_IJK , 
@@ -308,10 +327,11 @@ static void smspec_node_set_flags( smspec_node_type * smspec_node) {
     file. 
   */
   {
-    if (smspec_node->var_type == ECL_SMSPEC_COMPLETION_VAR || 
-        smspec_node->var_type == ECL_SMSPEC_SEGMENT_VAR || 
-        smspec_node->var_type == ECL_SMSPEC_REGION_VAR  ||
-        smspec_node->var_type == ECL_SMSPEC_BLOCK_VAR   ||
+    if (smspec_node->var_type == ECL_SMSPEC_COMPLETION_VAR      || 
+        smspec_node->var_type == ECL_SMSPEC_SEGMENT_VAR         || 
+        smspec_node->var_type == ECL_SMSPEC_REGION_VAR          ||
+        smspec_node->var_type == ECL_SMSPEC_REGION_2_REGION_VAR ||
+        smspec_node->var_type == ECL_SMSPEC_BLOCK_VAR           ||
         smspec_node->var_type == ECL_SMSPEC_AQUIFER_VAR) 
       smspec_node->need_nums = true;
     else
@@ -354,7 +374,7 @@ smspec_node_type * smspec_node_alloc_new(int params_index, float default_value) 
   node->keyword       = NULL;
   node->lgr_name      = NULL;
   node->lgr_ijk       = NULL;  
-  
+    
   smspec_node_set_invalid_flags( node );
   return node;               // This is NOT usable
 }
@@ -446,9 +466,18 @@ static void smspec_node_set_gen_keys( smspec_node_type * smspec_node , const cha
     // KEYWORD:NUM
     smspec_node->gen_key1 = smspec_alloc_region_key( key_join_string , smspec_node->keyword , smspec_node->num);
     break;
-  case(ECL_SMSPEC_SEGMENT_VAR):
-    // KEYWORD:WGNAME:NUM 
-    smspec_node->gen_key1 = smspec_alloc_segment_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->num);
+  case (ECL_SMSPEC_SEGMENT_VAR): 
+    // KEYWORD:WGNAME:NUM  
+    smspec_node->gen_key1 = smspec_alloc_segment_key( key_join_string , smspec_node->keyword , smspec_node->wgname , smspec_node->num);  
+    break;
+  case(ECL_SMSPEC_REGION_2_REGION_VAR):
+    // KEYWORDS:RXF:NUM and RXF:R1-R2
+    smspec_node->gen_key1 = smspec_alloc_region_2_region_num_key( key_join_string , smspec_node->keyword , smspec_node->num);
+    {
+      int r1 = smspec_node->num % 32768;
+      int r2 = ((smspec_node->num-r1) / 32768)-10;
+      smspec_node->gen_key2 = smspec_alloc_region_2_region_r1r2_key( key_join_string , smspec_node->keyword , r1, r2);
+    }
     break;
   case(ECL_SMSPEC_MISC_VAR):
     // KEYWORD
@@ -549,7 +578,7 @@ bool smspec_node_init( smspec_node_type * smspec_node,
       initOK = false;
     break;
   case(ECL_SMSPEC_SEGMENT_VAR):
-    if (wgnameOK) {
+    if (wgnameOK && num >= 0) {
       smspec_node_set_wgname( smspec_node , wgname );
       smspec_node_set_num( smspec_node , grid_dims , num );
     } else
@@ -561,6 +590,10 @@ bool smspec_node_init( smspec_node_type * smspec_node,
     break;
   case(ECL_SMSPEC_REGION_VAR):
     /* Region variable : NUM */
+    smspec_node_set_num( smspec_node , grid_dims , num );
+    break;
+  case(ECL_SMSPEC_REGION_2_REGION_VAR):
+    /* Region 2 region variable : NUM */
     smspec_node_set_num( smspec_node , grid_dims , num );
     break;
   case(ECL_SMSPEC_BLOCK_VAR):

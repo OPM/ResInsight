@@ -314,6 +314,15 @@ void RimReservoirView::clampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimReservoirView::scheduleCreateDisplayModelAndRedraw()
+{
+    RiaApplication::instance()->scheduleDisplayModelUpdateAndRedraw(this);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimReservoirView::createDisplayModelAndRedraw()
 {
     if (m_viewer)
@@ -449,13 +458,13 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED);
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
 
-        createDisplayModelAndRedraw();
+        scheduleCreateDisplayModelAndRedraw();
     } 
     else if ( changedField == &propertyFilterCollection)
     {
         m_reservoirGridPartManager->scheduleGeometryRegen(RivReservoirViewPartMgr::PROPERTY_FILTERED);
 
-        createDisplayModelAndRedraw();
+        scheduleCreateDisplayModelAndRedraw();
     } 
     else if (changedField == &meshMode)
     {
@@ -496,8 +505,9 @@ void RimReservoirView::createDisplayModel()
 {
     if (m_viewer.isNull()) return;
 
-    // static int callCount = 0;
-    // qDebug() << "RimReservoirView::createDisplayModel()" << callCount++;
+     //static int callCount = 0;
+     //std::cout << "RimReservoirView::createDisplayModel() " << callCount++ << std::endl;
+     //RiuMainWindow::instance()->setResultInfo(QString ("RimReservoirView::createDisplayModel() ") + QString::number(callCount++));
 
     if (!(m_reservoir && m_reservoir->reservoirData())) return;
 
@@ -560,13 +570,27 @@ void RimReservoirView::createDisplayModel()
     if (! this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometryTypesToAdd;
-        
-        if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
+
+        if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
         {
             geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
             geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
             geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
             geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+            if (this->showInactiveCells())
+            {
+                geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+            }
+        }
+        else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+        {
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
+        }
+        else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
+        {
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+            geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
             if (this->showInactiveCells())
             {
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
@@ -582,7 +606,7 @@ void RimReservoirView::createDisplayModel()
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
-
+      
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -657,7 +681,6 @@ void RimReservoirView::createDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateCurrentTimeStep()
 {
-    //printf("########## updateCurrentTimeStep for frame %i ##########\n", m_currentTimeStep.v());
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
 
     if (this->propertyFilterCollection()->hasActiveFilters())
@@ -666,7 +689,6 @@ void RimReservoirView::updateCurrentTimeStep()
 
         std::vector<size_t> gridIndices;
         this->indicesToVisibleGrids(&gridIndices);
-
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
@@ -683,8 +705,8 @@ void RimReservoirView::updateCurrentTimeStep()
         {
             std::vector<size_t> gridIndices;
             this->indicesToVisibleGrids(&gridIndices);
-
-            if (this->rangeFilterCollection()->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
+ 
+            if (this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
             }
@@ -707,19 +729,28 @@ void RimReservoirView::updateCurrentTimeStep()
 
         m_visibleGridParts = geometriesToRecolor;
     }
-    else if (rangeFilterCollection->hasActiveFilters() || this->wellCollection()->hasVisibleWellCells())
+    else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
     {
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
     }
+    else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+    {
+        geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+        geometriesToRecolor.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
+    }
+    else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
+    {
+        geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+        geometriesToRecolor.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+    }
     else 
     {
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ACTIVE);
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
     }
-
     
 
     for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
@@ -1042,6 +1073,24 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                     double scalarValue = dataAccessObject->cellScalar(cellIndex);
                     resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
                 }
+            }
+        }
+
+        cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
+        for (size_t i = 0; i < wellResults.size(); i++)
+        {
+            RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
+
+            if (m_currentTimeStep < singleWellResultData->firstResultTimeStep())
+            {
+                continue;
+            }
+
+            const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame(m_currentTimeStep);
+            const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCell(gridIndex, cellIndex);
+            if (wellResultCell)
+            {
+                resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId +1).arg(wellResultCell->m_ertSegmentId+1));
             }
         }
     }
@@ -1374,7 +1423,7 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
     for (size_t wIdx = 0; wIdx < this->wellCollection()->wells().size(); ++wIdx)
     {
         RimWell* well =  this->wellCollection()->wells()[wIdx];
-        if (this->wellCollection()->wellCellsToRangeFilterMode() == RimWellCollection::RANGE_ADD_ALL || well->showWellCells())
+        if (this->wellCollection()->wellCellsToRangeFilterMode() == RimWellCollection::RANGE_ADD_ALL || (well->showWell() && well->showWellCells()) )
         {
             RigSingleWellResultsData* wres = well->wellResults();
             if (!wres) continue;
@@ -1395,11 +1444,16 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                 const std::vector<RigWellResultBranch>& wellResSegments = wellResFrames[wfIdx].m_wellResultBranches;
                 for (size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx)
                 {
-                    const std::vector<RigWellResultCell>& wsResCells = wellResSegments[wsIdx].m_wellCells;
+                    const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
                     for (size_t cIdx = 0; cIdx < wsResCells.size(); ++ cIdx)
                     {
                         if (wsResCells[cIdx].m_gridIndex == grid->gridIndex())
                         {
+                            if (!wsResCells[cIdx].isCell())
+                            {
+                                continue;
+                            }
+
                             size_t gridCellIndex = wsResCells[cIdx].m_gridCellIndex;
                             (*visibleCells)[gridCellIndex] = true;
 
