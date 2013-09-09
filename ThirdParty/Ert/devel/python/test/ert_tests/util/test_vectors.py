@@ -192,12 +192,6 @@ class UtilTest(TestCase):
         self.assertTrue(iv)
 
 
-    def test_asPythonObject(self):
-        v = DoubleVector.asPythonObject(0, DoubleVector.free)
-
-        self.assertIsInstance(v, DoubleVector)
-        self.assertIsNotNone(v.cfree)
-
 
     def test_time_vector(self):
         time_vector = TimeVector()

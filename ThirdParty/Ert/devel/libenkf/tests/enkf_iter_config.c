@@ -27,6 +27,7 @@
 #include <ert/util/thread_pool.h>
 #include <ert/util/arg_pack.h>
 
+#include <ert/enkf/enkf_defaults.h>
 #include <ert/enkf/analysis_iter_config.h>
 #include <ert/enkf/config_keys.h>
 
@@ -61,8 +62,10 @@ int main(int argc , char ** argv) {
 
   {
     analysis_iter_config_type * iter_config = analysis_iter_config_alloc();
-    test_assert_string_equal( analysis_iter_config_iget_case( iter_config , 5) , NULL );
-    test_assert_string_equal( analysis_iter_config_iget_runpath_fmt( iter_config , 5) , NULL );
+    char itercase[50];
+    sprintf(itercase,DEFAULT_ANALYSIS_ITER_CASE,5);
+    test_assert_string_equal( analysis_iter_config_iget_case( iter_config , 5) , itercase );
+    test_assert_string_equal( analysis_iter_config_iget_runpath_fmt( iter_config , 5) , DEFAULT_ANALYSIS_ITER_RUNPATH );
     
     analysis_iter_config_init( iter_config , config );
     
@@ -71,7 +74,7 @@ int main(int argc , char ** argv) {
     test_assert_string_equal( analysis_iter_config_iget_runpath_fmt( iter_config , 5) , "run/iter5/real%d" );    
     
     analysis_iter_config_free( iter_config );
-  }
+   }
   remove( config_file );
   free( config_file );
   config_free( config );

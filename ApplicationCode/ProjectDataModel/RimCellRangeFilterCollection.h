@@ -35,7 +35,7 @@ public:
     virtual ~RimCellRangeFilterCollection();
 
     // Fields
-    caf::PdmField<bool> active;
+    caf::PdmField<bool> isActive;
     caf::PdmField< std::list< caf::PdmPointer< RimCellRangeFilter > > > rangeFilters;
 
     // Methods

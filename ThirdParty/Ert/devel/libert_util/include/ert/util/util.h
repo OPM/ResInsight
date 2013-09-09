@@ -22,9 +22,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <time.h>
 #include <stdarg.h>
 #include <sys/types.h>
+#include <time.h>
+
+#ifdef HAVE_GETPWUID
+#include <pwd.h>
+#endif
+
 
 #ifdef HAVE_GETUID
 #include <sys/stat.h>
@@ -278,6 +283,7 @@ typedef enum {left_pad   = 0,
   void         util_fread_dev_urandom(int , char * );
   bool         util_string_isspace(const char * s);
   
+  char *  util_alloc_dump_filename();
   void    util_exit(const char * fmt , ...);
   void    util_abort(const char * fmt , ...);
   void    util_abort_signal(int );

@@ -149,7 +149,7 @@ bool RimWellCollection::hasVisibleWellCells()
     for (size_t i = 0 ; !hasCells && i < this->wells().size(); ++i)
     {
         RimWell* well = this->wells()[i];
-        if ( well && well->wellResults() && (well->showWellCells() || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) )
+        if ( well && well->wellResults() && ((well->showWell() && well->showWellCells()) || this->wellCellsToRangeFilterMode() == RANGE_ADD_ALL) )
         {
             for (size_t tIdx = 0; !hasCells &&  tIdx < well->wellResults()->m_wellCellsTimeSteps.size(); ++tIdx )
             {
@@ -197,7 +197,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         if (m_reservoirView) 
         {
             m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     if (&wellCellsToRangeFilterMode == changedField)
@@ -205,7 +205,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         if (m_reservoirView) 
         {
             m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (&showWellCellFences == changedField)
@@ -213,14 +213,14 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         if (m_reservoirView) 
         {   
             m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (&wellCellTransparencyLevel == changedField)
     {
         if (m_reservoirView) 
         {   
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (&wellCellFenceType == changedField)
@@ -228,14 +228,14 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         if (m_reservoirView) 
         {   
             m_reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (&wellPipeVisibility == changedField)
     {
         if (m_reservoirView) 
         {   
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
     else if (  &pipeCrossSectionVertexCount == changedField 
@@ -248,7 +248,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         if (m_reservoirView) 
         {
             m_reservoirView->schedulePipeGeometryRegen();
-            m_reservoirView->createDisplayModelAndRedraw();
+            m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }
@@ -275,6 +275,7 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     wellHeadGroup->add(&showWellHead);
     wellHeadGroup->add(&wellHeadScaleFactor);
     wellHeadGroup->add(&showWellLabel);
+    wellHeadGroup->add(&wellHeadPosition);
 
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
     wellPipe->add(&wellPipeVisibility);

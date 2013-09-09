@@ -17,7 +17,7 @@
 import os
 from ert.ecl import FortIO, EclTypeEnum, EclKW
 from ert_tests import ExtendedTestCase
-from ert.util import TestAreaContext
+from ert.util.test_area import TestAreaContext
 
 
 
@@ -25,7 +25,6 @@ from ert.util import TestAreaContext
 class FortIOTest(ExtendedTestCase):
     def setUp(self):
         self.unrst_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST")
-        self.file_list = []
 
 
     def test_open_read(self):

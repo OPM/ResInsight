@@ -25,6 +25,9 @@ set( QOBJECT_HEADERS
     cafPdmUiColorEditor.h
     
     cafPdmUiPropertyView.h
+    cafPdmUiTreeView.h
+    cafPdmUiListView.h
+    cafPdmUiListViewEditor.h
 )
 
 if ( (${CMAKE_VERSION} VERSION_LESS 2.8.6) OR (NOT CMAKE_AUTOMOC) )
@@ -33,23 +36,45 @@ endif()
 
 
 add_library( ${PROJECT_NAME}
-    cafBasicAboutDialog.cpp 
-    cafUiTreeModelPdm.cpp
-    cafUiProcess.cpp
-    cafPdmUiDefaultObjectEditor.cpp
+	cafBasicAboutDialog.cpp
+	cafBasicAboutDialog.h
+	cafPdmUiCheckBoxEditor.cpp
+	cafPdmUiCheckBoxEditor.h
+	cafPdmUiColorEditor.cpp
+	cafPdmUiColorEditor.h
+	cafPdmUiComboBoxEditor.cpp
+	cafPdmUiComboBoxEditor.h
+	cafPdmUiDefaultObjectEditor.cpp
+	cafPdmUiDefaultObjectEditor.h
+	cafPdmUiDoubleSliderEditor.cpp
+	cafPdmUiDoubleSliderEditor.h
+	cafPdmUiFilePathEditor.cpp
+	cafPdmUiFilePathEditor.h
+	cafPdmUiLineEditor.cpp
+	cafPdmUiLineEditor.h
+	cafPdmUiListEditor.cpp
+	cafPdmUiListEditor.h
+    cafPdmUiListViewEditor.cpp
+    cafPdmUiListViewEditor.h
+    cafPdmUiListView.cpp
+	cafPdmUiPropertyView.cpp
+	cafPdmUiPropertyView.h
+	cafPdmUiPushButtonEditor.cpp
+	cafPdmUiPushButtonEditor.h
+	cafPdmUiSliderEditor.cpp
+	cafPdmUiSliderEditor.h
+	cafPdmUiTextEditor.cpp
+	cafPdmUiTextEditor.h
+    cafPdmUiTreeViewEditor.cpp
+    cafPdmUiTreeViewEditor.h
+    cafPdmUiTreeView.cpp
 	cafProgressInfo.cpp
+	cafProgressInfo.h
+	cafUiProcess.cpp
+	cafUiProcess.h
+	cafUiTreeItem.h
+	cafUiTreeModelPdm.cpp
+	cafUiTreeModelPdm.h
 
-    cafPdmUiLineEditor.cpp
-    cafPdmUiCheckBoxEditor.cpp
-    cafPdmUiComboBoxEditor.cpp
-    cafPdmUiPushButtonEditor.cpp
-    cafPdmUiFilePathEditor.cpp
-    cafPdmUiListEditor.cpp
-    cafPdmUiSliderEditor.cpp
-    cafPdmUiDoubleSliderEditor.cpp
-    cafPdmUiColorEditor.cpp
-    cafPdmUiTextEditor.cpp
-
-    cafPdmUiPropertyView.cpp
     ${MOC_FILES_CPP}
 )

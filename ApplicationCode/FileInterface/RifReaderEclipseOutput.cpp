@@ -154,9 +154,9 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, localCellIdx);
         if (subGrid != NULL)
         {
-            int subGridFileIndex = ecl_grid_get_lgr_nr(subGrid);
-            CVF_ASSERT(subGridFileIndex > 0);
-            cell.setSubGrid(static_cast<RigLocalGrid*>(mainGrid->gridByIndex(subGridFileIndex)));
+            int subGridId = ecl_grid_get_lgr_nr(subGrid);
+            CVF_ASSERT(subGridId > 0);
+            cell.setSubGrid(static_cast<RigLocalGrid*>(mainGrid->gridById(subGridId)));
         }
 
         // Mark inactive long pyramid looking cells as invalid
@@ -260,12 +260,15 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         ecl_grid_type* localEclGrid = ecl_grid_iget_lgr(mainEclGrid, lgrIdx);
 
         std::string lgrName = ecl_grid_get_name(localEclGrid);
+        int lgrId = ecl_grid_get_lgr_nr(localEclGrid);
+
         cvf::Vec3st  gridPointDim(0,0,0);
         gridPointDim.x() = ecl_grid_get_nx(localEclGrid) + 1;
         gridPointDim.y() = ecl_grid_get_ny(localEclGrid) + 1;
         gridPointDim.z() = ecl_grid_get_nz(localEclGrid) + 1;
 
         RigLocalGrid* localGrid = new RigLocalGrid(mainGrid);
+        localGrid->setGridId(lgrId);
         mainGrid->addLocalGrid(localGrid);
 
         localGrid->setIndexToStartOfCells(totalCellCount);

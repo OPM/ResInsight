@@ -20,7 +20,7 @@
 
 #ifdef  WITH_PTHREAD
 #define WITH_THREAD_POOL   
-#include "thread_pool_posix.h"
+#include <ert/util/thread_pool_posix.h>
 #endif
 
 #endif

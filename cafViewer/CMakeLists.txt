@@ -17,10 +17,16 @@ endif()
 
 
 add_library( ${PROJECT_NAME}
-	cafViewer.cpp
-	cafNavigationPolicy.cpp
 	cafCadNavigation.cpp
+	cafCadNavigation.h
 	cafCeetronNavigation.cpp
+	cafCeetronNavigation.h
+	cafNavigationPolicy.cpp
+	cafNavigationPolicy.h
 	cafOpenGLWidget.cpp
+	cafOpenGLWidget.h
+	cafViewer.cpp
+	cafViewer.h
+
     ${MOC_FILES_CPP}
 )

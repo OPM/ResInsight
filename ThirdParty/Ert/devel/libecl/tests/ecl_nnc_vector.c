@@ -35,6 +35,11 @@ int main(int argc , char ** argv) {
   nnc_vector_add_nnc( vector , 200 );
   nnc_vector_add_nnc( vector , 300 );
 
+  nnc_vector_add_nnc( vector , 100 );
+  nnc_vector_add_nnc( vector , 200 );
+  nnc_vector_add_nnc( vector , 300 );
+
+
   {
     const int_vector_type * index_list = nnc_vector_get_index_list( vector );
     

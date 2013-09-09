@@ -63,6 +63,6 @@ from .log import Log
 from .lookup_table import LookupTable
 from .buffer import Buffer
 from .ctime import ctime
-from .hash import Hash
-from .test_area import TestArea, TestAreaContext
+from .hash import Hash, StringHash, DoubleHash, IntegerHash
 from .latex import LaTeX
+from .substitution_list import SubstitutionList

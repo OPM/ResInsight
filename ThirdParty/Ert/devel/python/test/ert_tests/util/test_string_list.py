@@ -73,3 +73,12 @@ class StringListTest(TestCase):
         s = StringList(["A", "B"])
         s.append("C")
         self.assertEqual(list(s), ["A", "B", "C"])
+
+    def test_negative_index(self):
+        s = StringList(["A", "B", "C"])
+
+        self.assertEqual(s[-1], "C")
+        self.assertEqual(s[-3], "A")
+
+        with self.assertRaises(LookupError):
+            s = s[-4]

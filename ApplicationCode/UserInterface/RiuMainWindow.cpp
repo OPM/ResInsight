@@ -58,8 +58,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-
-#include "ssihubInterface/ssihubInterface.h"
+#include "RiuWellImportWizard.h"
 
 
 
@@ -99,8 +98,6 @@ RiuMainWindow::RiuMainWindow()
 
 
     m_treeModelPdm = new RimUiTreeModelPdm(this);
-
-    m_ssihubInterface = new ssihub::Interface;
 
     createActions();
     createMenus();
@@ -1601,8 +1598,6 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotImportWellPathsFromSSIHub()
 {
-    CVF_ASSERT(m_ssihubInterface);
-
     RiaApplication* app = RiaApplication::instance();
     if (!app->project())
     {
@@ -1613,6 +1608,9 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
     {
         return;
     }
+
+    // Update the UTM bounding box from the reservoir
+    app->project()->computeUtmAreaOfInterest();
 
     QString wellPathsFolderPath;
     QString projectFileName = app->project()->fileName();
@@ -1625,29 +1623,32 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
 
     wellPathsFolderPath += "/" + wellPathFolderName;
 
-    m_ssihubInterface->setWebServiceAddress(app->preferences()->ssihubAddress);
-    m_ssihubInterface->setJsonDestinationFolder(wellPathsFolderPath);
 
-    double north = cvf::UNDEFINED_DOUBLE;
-    double south = cvf::UNDEFINED_DOUBLE;
-    double east = cvf::UNDEFINED_DOUBLE;
-    double west = cvf::UNDEFINED_DOUBLE;
+    RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
 
-    app->project()->computeUtmAreaOfInterest(&north, &south, &east, &west);
-
-    if (north != cvf::UNDEFINED_DOUBLE &&
-        south != cvf::UNDEFINED_DOUBLE &&
-        east != cvf::UNDEFINED_DOUBLE &&
-        west != cvf::UNDEFINED_DOUBLE)
+    RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
+    
+    // Get password/username from application cache
     {
-        m_ssihubInterface->setRegion(north, south, east, west);
+        QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
+        QString ssihubPassword = app->cacheDataObject("ssihub_password").toString();
+
+        wellImportwizard.setCredentials(ssihubUsername, ssihubPassword);
     }
 
-    QStringList wellPaths = m_ssihubInterface->jsonWellPaths();
-    if (wellPaths.size() > 0)
+    if (QDialog::Accepted == wellImportwizard.exec())
     {
-        app->addWellPathsToModel(wellPaths);
-        if (app->project()) app->project()->createDisplayModelAndRedrawAllViews();
+        QStringList wellPaths = wellImportwizard.absoluteFilePathsToWellPaths();
+        if (wellPaths.size() > 0)
+        {
+            app->addWellPathsToModel(wellPaths);
+            app->project()->createDisplayModelAndRedrawAllViews();
+        }
+
+        app->project()->wellPathImport = copyOfWellPathImport;
+
+        app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
+        app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
     }
 }
 

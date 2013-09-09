@@ -220,6 +220,10 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
                 menu.addAction(QString("Add Script Path"), this, SLOT(slotAddScriptPath()));
                 menu.addAction(QString("Delete Script Path"), this, SLOT(slotDeleteScriptPath()));
             }
+            else if (dynamic_cast<RimWellPathCollection*>(uiItem->dataObject().p()))
+            {
+                menu.addAction(QString("Delete All Well Paths"), this, SLOT(slotDeleteAllWellPaths()));
+            }
 
             // Execute script on selection of cases
             RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
@@ -545,6 +549,8 @@ void RimUiTreeView::slotExecuteScript()
             QStringList arguments;
             arguments.append("--path");
             arguments << octaveFunctionSearchPath;
+            arguments.append("--path");
+            arguments << QApplication::applicationDirPath();
 
             arguments.append("-q");
             arguments << calcScript->absolutePath();
@@ -597,6 +603,8 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
             QStringList arguments;
             arguments.append("--path");
             arguments << octaveFunctionSearchPath;
+            arguments.append("--path");
+            arguments << QApplication::applicationDirPath();
 
             arguments.append("-q");
             arguments << calcScript->absolutePath();
@@ -1472,9 +1480,23 @@ void RimUiTreeView::appendToggleItemActions(QMenu& contextMenu)
             contextMenu.addSeparator();
         }
 
-        contextMenu.addAction(QString("Toggle"), this, SLOT(slotToggleItems()));
-        contextMenu.addAction(QString("Toggle All On"), this, SLOT(slotToggleItemsOn()));
-        contextMenu.addAction(QString("Toggle All Off"), this, SLOT(slotToggleItemsOff()));
+        if (selectionModel()->selectedIndexes().size() > 1)
+        {
+            contextMenu.addAction(QString("On"), this, SLOT(slotToggleItemsOn()));
+            contextMenu.addAction(QString("Off"), this, SLOT(slotToggleItemsOff()));
+            contextMenu.addAction(QString("Toggle"), this, SLOT(slotToggleItems()));
+        }
+        else
+        {
+            QModelIndex mIdx = selectionModel()->selectedIndexes()[0];
+            caf::PdmUiTreeItem* treeItem = caf::UiTreeModelPdm::getTreeItemFromIndex(mIdx);
+            if (treeItem && treeItem->childCount())
+            {
+                contextMenu.addAction(QString("Sub Items On"), this, SLOT(slotToggleItemsOn()));
+                contextMenu.addAction(QString("Sub Items Off"), this, SLOT(slotToggleItemsOff()));
+                contextMenu.addAction(QString("Toggle Sub items"), this, SLOT(slotToggleItems()));
+            }
+        }
     }
 }
 
@@ -1491,70 +1513,11 @@ void RimUiTreeView::slotToggleItems()
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeView::executeSelectionToggleOperation(SelectionToggleType toggleState)
 {
-    int nextCheckBoxState = 0;
-
-    if (toggleState == TOGGLE_ON)
-    {
-        nextCheckBoxState = Qt::Checked;
-    }
-    else if (toggleState == TOGGLE_OFF)
-    {
-        nextCheckBoxState = Qt::Unchecked;
-    }
-    else if (toggleState == TOGGLE)
-    {
-        QModelIndex curr = currentIndex();
-
-        // Check if the current model index supports checkable items
-        if (model()->flags(curr) & Qt::ItemIsUserCheckable)
-        {
-            QModelIndexList selectedIndexes = selectionModel()->selectedIndexes();
-            if (selectedIndexes.contains(curr))
-            {
-                QVariant currentState = model()->data(curr, Qt::CheckStateRole);
-                int state = currentState.toInt();
-                if (state == Qt::Checked)
-                {
-                    nextCheckBoxState = Qt::Unchecked;
-                }
-                else
-                {
-                    nextCheckBoxState = Qt::Checked;
-                }
-            }
-        }
-    }
-
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
 
-    // Special handling for wells
-    // Set toggle state for all wells without triggering model update,
-    // and perform a single display model update at last
-    RimWell* well = dynamic_cast<RimWell*>(uiItem->dataObject().p());
-    if (well)
-    {
-        myModel->setObjectToggleStateForSelection(selectionModel()->selectedIndexes(), nextCheckBoxState);
+    myModel->setObjectToggleStateForSelection(selectionModel()->selectedIndexes(), toggleState);
 
-        RimReservoirView* reservoirView = NULL;
-        well->firstAncestorOfType(reservoirView);
-        if (reservoirView)
-        {
-            reservoirView->createDisplayModelAndRedraw();
-        }
-
-        return;
-    }
-
-    foreach (QModelIndex index, selectionModel()->selectedIndexes())
-    {
-        if (!index.isValid())
-        {
-            continue;
-        }
-
-        myModel->setData(index, nextCheckBoxState, Qt::CheckStateRole);
-    }
+    return;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1631,5 +1594,18 @@ void RimUiTreeView::appendScriptItems(QMenu* menu, RimScriptCollection* scriptCo
 
         appendScriptItems(subMenu, subDir);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeView::slotDeleteAllWellPaths()
+{
+    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (myModel)
+    {
+        myModel->deleteAllWellPaths(currentIndex());
+    }
+   
 }
 

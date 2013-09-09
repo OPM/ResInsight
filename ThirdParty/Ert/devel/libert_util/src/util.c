@@ -38,7 +38,9 @@
 #ifdef HAVE_FORK
 #ifdef WITH_PTHREAD
 #ifdef HAVE_EXECINFO
+#ifdef HAVE_GETPWUID
 #define HAVE_UTIL_ABORT
+#endif
 #endif
 #endif
 #endif

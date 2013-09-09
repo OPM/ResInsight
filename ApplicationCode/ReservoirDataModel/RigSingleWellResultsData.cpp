@@ -85,6 +85,11 @@ void RigSingleWellResultsData::computeMappingFromResultTimeIndicesToWellTimeIndi
 //--------------------------------------------------------------------------------------------------
 bool RigSingleWellResultsData::hasWellResult(size_t resultTimeStepIndex) const
 {
+    if (resultTimeStepIndex >= m_resultTimeStepIndexToWellTimeStepIndex.size())
+    {
+        return false;
+    }
+
     size_t wellTimeStepIndex = m_resultTimeStepIndexToWellTimeStepIndex[resultTimeStepIndex];
 
     return wellTimeStepIndex != cvf::UNDEFINED_SIZE_T;

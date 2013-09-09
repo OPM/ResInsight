@@ -37,7 +37,7 @@ void create_runpath(enkf_main_type * enkf_main ) {
   int start_report         = 0;
   int init_step_parameters = 0;
   bool_vector_iset( iactive , ens_size - 1 , true );
-  enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state);
+  enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state, true);
   bool_vector_free(iactive);
 }
 
@@ -111,7 +111,7 @@ int main(int argc , char ** argv) {
       }
       
       {
-        bool loadOK = true;
+        int error = 0;
         stringlist_type * msg_list = stringlist_alloc_new();
 
         {
@@ -120,11 +120,18 @@ int main(int argc , char ** argv) {
         }
         
         test_assert_true( enkf_node_forward_init( gen_param_node , "simulations/run0" , 0 ));
-        enkf_state_forward_init( state , fs , &loadOK );
-        test_assert_true( loadOK );
-        enkf_state_load_from_forward_model( state , fs , &loadOK , false , msg_list );
+        
+        enkf_state_forward_init( state , fs , &error );
+        test_assert_int_equal(0, error); 
+         {
+          enkf_fs_type * fs = enkf_main_get_fs( enkf_main );
+          state_map_type * state_map = enkf_fs_get_state_map(fs);
+          state_map_iset(state_map , 0 , STATE_INITIALIZED);
+        }
+        enkf_state_load_from_forward_model( state , fs , &error , false , msg_list );
+
         stringlist_free( msg_list );
-        test_assert_true( loadOK );
+        test_assert_int_equal(0, error); 
 
         {
           double value;

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <ert/util/type_macros.h>
 #include <ert/util/util.h>
 #include <ert/util/path_fmt.h>
 #include <ert/util/hash.h>
@@ -73,12 +74,15 @@
   only options visible to the user.
  */
 
+#define MODEL_CONFIG_TYPE_ID 661053
 struct model_config_struct {
+  UTIL_TYPE_ID_DECLARATION;
   stringlist_type      * case_names;                 /* A list of "iens -> name" mappings - can be NULL. */
   char                 * case_table_file; 
   forward_model_type   * forward_model;             /* The forward_model - as loaded from the config file. Each enkf_state object internalizes its private copy of the forward_model. */  
   history_type         * history;                   /* The history object. */
   path_fmt_type        * current_runpath;           /* path_fmt instance for runpath - runtime the call gets arguments: (iens, report_step1 , report_step2) - i.e. at least one %d must be present.*/  
+  char                 * current_path_key;
   hash_type            * runpath_map;                 
   char                 * jobname_fmt;               /* Format string with one '%d' for the jobname - can be NULL in which case the eclbase name will be used. */
   enkf_sched_type      * enkf_sched;                /* The enkf_sched object controlling when the enkf is ON|OFF, strides in report steps and special forward model - allocated on demand - right before use. */ 
@@ -170,6 +174,7 @@ void model_config_add_runpath( model_config_type * model_config , const char * p
 bool model_config_select_runpath( model_config_type * model_config , const char * path_key) {
   if (hash_has_key( model_config->runpath_map , path_key )) {
     model_config->current_runpath = hash_get( model_config->runpath_map , path_key );
+    model_config->current_path_key = util_realloc_string_copy( model_config->current_path_key , path_key);
     return true;
   } else {
     if (model_config->current_runpath != NULL)  // OK - we already have a valid selection - stick to that and return False.
@@ -180,6 +185,16 @@ bool model_config_select_runpath( model_config_type * model_config , const char 
     }
   }
 }
+
+
+void model_config_set_runpath(model_config_type * model_config , const char * fmt) {
+  if (model_config->current_path_key) {
+    model_config_add_runpath(model_config , model_config->current_path_key , fmt);
+    model_config_select_runpath( model_config , model_config->current_path_key );
+  } else
+    util_abort("%s: current path has not been set \n",__func__);
+}
+
 
 
  /**
@@ -241,6 +256,9 @@ fs_driver_impl model_config_get_dbase_type(const model_config_type * model_confi
   return model_config->dbase_type;
 }
 
+const ecl_sum_type * model_config_get_refcase( const model_config_type * model_config ) {
+  return model_config->refcase;  
+}
 
 void * model_config_get_dbase_args( const model_config_type * model_config ) {
   return NULL;
@@ -291,8 +309,9 @@ void model_config_set_max_internal_submit( model_config_type * model_config , in
 }
 
 
+UTIL_IS_INSTANCE_FUNCTION( model_config , MODEL_CONFIG_TYPE_ID)
 
-model_config_type * model_config_alloc_empty() {
+model_config_type * model_config_alloc() {
   model_config_type * model_config  = util_malloc(sizeof * model_config );
   /**
      There are essentially three levels of initialisation:
@@ -302,11 +321,13 @@ model_config_type * model_config_alloc_empty() {
      3. Initialize with user supplied values.
 
   */
+  UTIL_TYPE_ID_INIT(model_config , MODEL_CONFIG_TYPE_ID);
   model_config->case_names                = NULL;
   model_config->enspath                   = NULL;
   model_config->rftpath                   = NULL;
   model_config->dbase_type                = INVALID_DRIVER_ID;
   model_config->current_runpath           = NULL;
+  model_config->current_path_key          = NULL;
   model_config->enkf_sched                = NULL;
   model_config->enkf_sched_file           = NULL;   
   model_config->case_table_file           = NULL;
@@ -476,6 +497,7 @@ void model_config_free(model_config_type * model_config) {
   util_safe_free( model_config->enkf_sched_file );
   util_safe_free( model_config->select_case );
   util_safe_free( model_config->case_table_file );
+  util_safe_free( model_config->current_path_key);
 
   if (model_config->history != NULL)
     history_free(model_config->history);
