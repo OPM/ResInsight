@@ -2,6 +2,9 @@ add_executable( ecl_coarse_test ecl_coarse_test.c )
 target_link_libraries( ecl_coarse_test ecl test_util )
 add_test( ecl_coarse_test  ${EXECUTABLE_OUTPUT_PATH}/ecl_coarse_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/LGCcase/LGC_TESTCASE2 )
 
+add_executable( ecl_nnc_amalgamated ecl_nnc_amalgamated.c )
+target_link_libraries( ecl_nnc_amalgamated ecl test_util )
+add_test( ecl_nnc_amalgamated  ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_amalgamated  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/nestedLGRcase/TESTCASE_NESTEDLGR.EGRID )
 
 add_executable( ecl_restart_test ecl_restart_test.c )
 target_link_libraries( ecl_restart_test ecl test_util )
@@ -60,6 +63,14 @@ add_executable( ecl_nnc_info_test ecl_nnc_info_test.c )
 target_link_libraries( ecl_nnc_info_test ecl test_util )
 add_test (ecl_nnc_info_test ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_info_test )
 
+
+add_executable( ecl_nnc_vector ecl_nnc_vector.c )
+target_link_libraries( ecl_nnc_vector ecl test_util )
+add_test(ecl_nnc_vector ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_vector )
+
+add_executable( ecl_nnc_index_list ecl_nnc_index_list.c )
+target_link_libraries( ecl_nnc_index_list ecl test_util )
+add_test (ecl_nnc_index_list ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_index_list )
 
 add_executable( ecl_kw_grdecl ecl_kw_grdecl.c )
 target_link_libraries( ecl_kw_grdecl ecl test_util )
@@ -173,3 +184,4 @@ set_property( TEST ecl_region2region PROPERTY LABELS StatoilData)
 set_property( TEST ecl_grid_case PROPERTY LABELS StatoilData)
 set_property( TEST ecl_rft_rft PROPERTY LABELS StatoilData)
 set_property( TEST ecl_rft_plt PROPERTY LABELS StatoilData)
+set_property( TEST ecl_nnc_amalgamated PROPERTY LABELS StatoilData)

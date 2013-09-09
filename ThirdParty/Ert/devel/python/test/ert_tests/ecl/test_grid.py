@@ -17,7 +17,8 @@
 import time
 from unittest2 import skipIf
 from ert.ecl import EclTypeEnum, EclKW, EclGrid
-from ert.util import DoubleVector, TestAreaContext
+from ert.util import DoubleVector
+from ert.util.test_area import TestAreaContext
 from ert_tests import ExtendedTestCase
 
 

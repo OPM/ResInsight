@@ -14,7 +14,6 @@
 #
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
-import traceback
 
 from ert_tests import ExtendedTestCase
 
@@ -26,15 +25,20 @@ class ErtImportTest(ExtendedTestCase):
 
     def test_ert_config(self):
         self.assertImportable("ert.config")
-        self.assertImportable("ert.config.config_enums")
+        self.assertImportable("ert.config.content_type_enum")
         self.assertImportable("ert.config.config_parser")
+        self.assertImportable("ert.config.unrecognized_enum")
+
 
     def test_ert_cwrap(self):
         self.assertImportable("ert.cwrap")
+        self.assertImportable("ert.cwrap.basecclass")
+        self.assertImportable("ert.cwrap.basecenum")
         self.assertImportable("ert.cwrap.cclass")
         self.assertImportable("ert.cwrap.cenum")
         self.assertImportable("ert.cwrap.cfile")
         self.assertImportable("ert.cwrap.clib")
+        self.assertImportable("ert.cwrap.cnamespace")
         self.assertImportable("ert.cwrap.cwrap")
 
     def test_ert_ecl(self):
@@ -54,6 +58,8 @@ class ErtImportTest(ExtendedTestCase):
         self.assertImportable("ert.ecl.ecl_rft_cell")
         self.assertImportable("ert.ecl.ecl_subsidence")
         self.assertImportable("ert.ecl.ecl_sum")
+        self.assertImportable("ert.ecl.ecl_sum_node")
+        self.assertImportable("ert.ecl.ecl_sum_vector")
         self.assertImportable("ert.ecl.ecl_util")
         self.assertImportable("ert.ecl.fortio")
 
@@ -63,35 +69,40 @@ class ErtImportTest(ExtendedTestCase):
         self.assertImportable("ert.enkf.analysis_config")
         self.assertImportable("ert.enkf.block_obs")
         self.assertImportable("ert.enkf.ecl_config")
-        self.assertImportable("ert.enkf.enkf")
-        self.assertImportable("ert.enkf.enkf_config_node")
         self.assertImportable("ert.enkf.enkf_enum")
         self.assertImportable("ert.enkf.enkf_fs")
         self.assertImportable("ert.enkf.enkf_main")
-        self.assertImportable("ert.enkf.enkf_node")
         self.assertImportable("ert.enkf.enkf_obs")
         self.assertImportable("ert.enkf.enkf_state")
         self.assertImportable("ert.enkf.ens_config")
         self.assertImportable("ert.enkf.ert_template")
         self.assertImportable("ert.enkf.ert_templates")
-        self.assertImportable("ert.enkf.field")
-        self.assertImportable("ert.enkf.field_config")
-        self.assertImportable("ert.enkf.gen_data_config")
-        self.assertImportable("ert.enkf.gen_kw_config")
-        self.assertImportable("ert.enkf.libenkf")
         self.assertImportable("ert.enkf.local_config")
         self.assertImportable("ert.enkf.model_config")
-        self.assertImportable("ert.enkf.obs_vector")
-        self.assertImportable("ert.enkf.plot_conf")
+        self.assertImportable("ert.enkf.plot_config")
         self.assertImportable("ert.enkf.site_config")
-        self.assertImportable("ert.enkf.time_map")
 
-    def test_ert_ert(self):
-        self.assertImportable("ert.ert")
-        self.assertImportable("ert.ert.c_enums")
-        self.assertImportable("ert.ert.enums")
-        self.assertImportable("ert.ert.erttypes")
-        self.assertImportable("ert.ert.ertwrapper")
+
+    def test_ert_enkf_data(self):
+        self.assertImportable("ert.enkf.data")
+        self.assertImportable("ert.enkf.data.enkf_config_node")
+        self.assertImportable("ert.enkf.data.enkf_node")
+        self.assertImportable("ert.enkf.data.field")
+        self.assertImportable("ert.enkf.data.field_config")
+        self.assertImportable("ert.enkf.data.gen_data_config")
+        self.assertImportable("ert.enkf.data.gen_kw_config")
+        self.assertImportable("ert.enkf.data.summary_config")
+
+    def test_ert_enkf_util(self):
+        self.assertImportable("ert.enkf.util")
+        self.assertImportable("ert.enkf.util.obs_vector")
+        self.assertImportable("ert.enkf.util.time_map")
+
+    # def test_ert_ert(self):
+    #     self.assertImportable("ert.ert")
+    #     self.assertImportable("ert.ert.c_enums")
+    #     self.assertImportable("ert.ert.enums")
+    #     self.assertImportable("ert.ert.ertwrapper")
 
     def test_ert_geo(self):
         self.assertImportable("ert.geo")
@@ -114,9 +125,10 @@ class ErtImportTest(ExtendedTestCase):
     def test_ert_sched(self):
         self.assertImportable("ert.sched")
         self.assertImportable("ert.sched.history")
+        self.assertImportable("ert.sched.history_source_enum")
         self.assertImportable("ert.sched.sched_file")
 
-    def test_ert_sched(self):
+    def test_ert_util(self):
         self.assertImportable("ert.util")
         self.assertImportable("ert.util.buffer")
         self.assertImportable("ert.util.ctime")
@@ -127,6 +139,7 @@ class ErtImportTest(ExtendedTestCase):
         self.assertImportable("ert.util.matrix")
         self.assertImportable("ert.util.stat")
         self.assertImportable("ert.util.stringlist")
+        self.assertImportable("ert.util.substitution_list")
         self.assertImportable("ert.util.test_area")
         self.assertImportable("ert.util.tvector")
         self.assertImportable("ert.util.util_func")

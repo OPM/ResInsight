@@ -13,36 +13,34 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.cwrap import BaseCClass, CWrapper
 from ert.sched import SCHED_LIB
 from ert.util import ctime
 
 
-class SchedFile(CClass):
-
-    def __init__(self , filename , start_time):
-        c_ptr = cfunc.parse( filename , ctime( start_time ))
-        self.init_cobj( c_ptr , cfunc.free )
-
+class SchedFile(BaseCClass):
+    def __init__(self, filename, start_time):
+        c_ptr = SchedFile.cNamespace().parse(filename, ctime(start_time))
+        super(SchedFile, self).__init__(c_ptr)
 
     @property
     def length(self):
-        return cfunc.length( self )
+        """ @rtype: int """
+        return SchedFile.cNamespace().length(self)
 
-    def write( self , filename , num_dates , add_end = True):
-        cfunc.write(self , num_dates , filename , add_end)
+    def write(self, filename, num_dates, add_end=True):
+        SchedFile.cNamespace().write(self, num_dates, filename, add_end)
 
+    def free(self):
+        SchedFile.cNamespace().free(self)
 
 
 cwrapper = CWrapper(SCHED_LIB)
-cwrapper.registerType( "sched_file" , SchedFile )
+cwrapper.registerType("sched_file", SchedFile)
+cwrapper.registerType("sched_file_obj", SchedFile.createPythonObject)
+cwrapper.registerType("sched_file_ref", SchedFile.createCReference)
 
-# 3. Installing the c-functions used to manipulate ecl_kw instances.
-#    These functions are used when implementing the EclKW class, not
-#    used outside this scope.
-cfunc = CWrapperNameSpace("sched_file")
-
-cfunc.parse  = cwrapper.prototype("c_void_p sched_file_parse_alloc( char*, time_t )")
-cfunc.write  = cwrapper.prototype("void     sched_file_fprintf_i( sched_file , int , char* , bool)")
-cfunc.length = cwrapper.prototype("int      sched_file_get_num_restart_files( sched_file )")
-cfunc.free   = cwrapper.prototype("void     sched_file_free( sched_file )")
+SchedFile.cNamespace().parse = cwrapper.prototype("c_void_p sched_file_parse_alloc( char*, time_t )")
+SchedFile.cNamespace().write = cwrapper.prototype("void sched_file_fprintf_i( sched_file , int , char* , bool)")
+SchedFile.cNamespace().length = cwrapper.prototype("int sched_file_get_num_restart_files( sched_file )")
+SchedFile.cNamespace().free = cwrapper.prototype("void sched_file_free( sched_file )")

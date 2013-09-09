@@ -14,11 +14,10 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details. 
 
-from    ert.cwrap.cenum       import create_enum
-import  libenkf
+from ert.cwrap.cenum import create_enum
+from ert.enkf import ENKF_LIB
 
-name_space = globals()
-name_space["enkf_state_enum"] = create_enum( libenkf.lib , "enkf_state_enum_iget" , "enkf_state_enum")
-name_space["enkf_run_enum"]   = create_enum( libenkf.lib , "enkf_run_enum_iget"   , "enkf_run_enum")
+EnkfStateEnum = create_enum(ENKF_LIB, "enkf_state_enum_iget", "enkf_state_enum")
+EnkfRunEnum = create_enum(ENKF_LIB, "enkf_run_enum_iget", "enkf_run_enum")
 
 

@@ -74,11 +74,14 @@ if (HAVE_SETENV)
   add_definitions( -DPOSIX_SETENV )
 endif()
 
-
-
 check_function_exists( opendir HAVE_OPENDIR )
 if (HAVE_OPENDIR)
   add_definitions( -DHAVE_OPENDIR )
+endif()
+
+check_function_exists( getpwuid HAVE_GETPWUID )
+if (HAVE_GETPWUID)
+  add_definitions( -DHAVE_GETPWUID )
 endif()
 
 # The usleep() check uses the symbol HAVE__USLEEP with double

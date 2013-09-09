@@ -88,7 +88,11 @@ class RegionTest(ExtendedTestCase):
         reg = EclRegion(self.grid, False)
         reg.select_islice(0, 5)
         OK = True
-        for gi in reg.global_list:
+
+        global_list = reg.global_list
+        self.assertEqual(global_list.parent(), reg)
+
+        for gi in global_list:
             (i, j, k) = self.grid.get_ijk(global_index=gi)
             if i > 5:
                 OK = False
@@ -125,4 +129,5 @@ class RegionTest(ExtendedTestCase):
 
         self.assertTrue(OK)
         self.assertTrue(2 * 3 * 6 == len(reg.global_list))
+
 

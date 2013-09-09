@@ -12,8 +12,11 @@ SET(PYTHON_SOURCES
     ecl_region.py
     ecl_rft.py
     ecl_rft_cell.py
+    ecl_smspec_node.py
     ecl_subsidence.py
     ecl_sum.py
+    ecl_sum_node.py
+    ecl_sum_vector.py
     ecl_util.py
     fortio.py
 

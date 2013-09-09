@@ -12,74 +12,65 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import BaseCClass, CWrapper
+from ert.enkf import ENKF_LIB
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
 
-class AnalysisConfig(CClass):
-    
-    def __init__(self , c_ptr , parent = None):
-        if parent:
-            self.init_cref( c_ptr , parent)
-        else:
-            self.init_cobj( c_ptr , cfunc.free )
-            
-    @property
+class AnalysisConfig(BaseCClass):
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly!")
+
     def get_rerun(self):
-        return cfunc.get_rerun( self )
+        return AnalysisConfig.cNamespace().get_rerun(self)
 
     def set_rerun(self, rerun):
-        cfunc.set_rerun(self, rerun)
-        
-    @property
+        AnalysisConfig.cNamespace().set_rerun(self, rerun)
+
     def get_rerun_start(self):
-        return cfunc.get_rerun_start( self )
+        return AnalysisConfig.cNamespace().get_rerun_start(self)
 
-    def set_rerun_start(self, int):
-        cfunc.set_rerun_start( self , int)
+    def set_rerun_start(self, index):
+        AnalysisConfig.cNamespace().set_rerun_start(self, index)
 
-    @property
     def get_log_path(self):
-        return cfunc.get_log_path( self )
+        return AnalysisConfig.cNamespace().get_log_path(self)
 
     def set_log_path(self, path):
-        cfunc.set_log_path( self, path) 
+        AnalysisConfig.cNamespace().set_log_path(self, path)
 
-    @property
     def get_alpha(self):
-        return cfunc.get_alpha( self )
+        return AnalysisConfig.cNamespace().get_alpha(self)
 
     def set_alpha(self, alpha):
-        cfunc.set_alpha( self , alpha)
+        AnalysisConfig.cNamespace().set_alpha(self, alpha)
 
-    @property
     def get_merge_observations(self):
-        return cfunc.get_merge_observations( self )
-    
+        return AnalysisConfig.cNamespace().get_merge_observations(self)
+
     def set_merge_observations(self, merge_observations):
-        return cfunc.set_merge_observations( self , merge_observations)
-##################################################################
+        return AnalysisConfig.cNamespace().set_merge_observations(self, merge_observations)
 
-cwrapper = CWrapper( libenkf.lib )
-cwrapper.registerType( "analysis_config" , AnalysisConfig )
+    def free(self):
+        AnalysisConfig.cNamespace().free(self)
 
-cfunc = CWrapperNameSpace("analysis_config")
+    ##################################################################
+
+cwrapper = CWrapper(ENKF_LIB)
+cwrapper.registerType("analysis_config", AnalysisConfig)
+cwrapper.registerType("analysis_config_obj", AnalysisConfig.createPythonObject)
+cwrapper.registerType("analysis_config_ref", AnalysisConfig.createCReference)
 
 
-cfunc.free                   = cwrapper.prototype("void analysis_config_free( analysis_config )")
-cfunc.get_rerun              = cwrapper.prototype("int analysis_config_get_rerun( analysis_config )")
-cfunc.set_rerun              = cwrapper.prototype("void analysis_config_set_rerun( analysis_config, bool)")
-cfunc.get_rerun_start        = cwrapper.prototype("int analysis_config_get_rerun_start( analysis_config )")
-cfunc.set_rerun_start        = cwrapper.prototype("void analysis_config_set_rerun_start( analysis_config, int)")
-cfunc.get_log_path           = cwrapper.prototype("char* analysis_config_get_log_path( analysis_config)")
-cfunc.set_log_path           = cwrapper.prototype("void analysis_config_set_log_path( analysis_config, char*)")
-cfunc.get_alpha              = cwrapper.prototype("double analysis_config_get_alpha(analysis_config)")
-cfunc.set_alpha              = cwrapper.prototype("void analysis_config_set_alpha(analysis_config, double)")
-cfunc.get_merge_observations = cwrapper.prototype("bool analysis_config_get_merge_observations(analysis_config)")
-cfunc.set_merge_observations = cwrapper.prototype("void analysis_config_set_merge_observations(analysis_config, bool)")
+AnalysisConfig.cNamespace().free                   = cwrapper.prototype("void analysis_config_free( analysis_config )")
+AnalysisConfig.cNamespace().get_rerun              = cwrapper.prototype("int analysis_config_get_rerun( analysis_config )")
+AnalysisConfig.cNamespace().set_rerun              = cwrapper.prototype("void analysis_config_set_rerun( analysis_config, bool)")
+AnalysisConfig.cNamespace().get_rerun_start        = cwrapper.prototype("int analysis_config_get_rerun_start( analysis_config )")
+AnalysisConfig.cNamespace().set_rerun_start        = cwrapper.prototype("void analysis_config_set_rerun_start( analysis_config, int)")
+AnalysisConfig.cNamespace().get_log_path           = cwrapper.prototype("char* analysis_config_get_log_path( analysis_config)")
+AnalysisConfig.cNamespace().set_log_path           = cwrapper.prototype("void analysis_config_set_log_path( analysis_config, char*)")
+AnalysisConfig.cNamespace().get_alpha              = cwrapper.prototype("double analysis_config_get_alpha(analysis_config)")
+AnalysisConfig.cNamespace().set_alpha              = cwrapper.prototype("void analysis_config_set_alpha(analysis_config, double)")
+AnalysisConfig.cNamespace().get_merge_observations = cwrapper.prototype("bool analysis_config_get_merge_observations(analysis_config)")
+AnalysisConfig.cNamespace().set_merge_observations = cwrapper.prototype("void analysis_config_set_merge_observations(analysis_config, bool)")
 

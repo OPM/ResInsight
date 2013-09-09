@@ -193,6 +193,13 @@ bool ecl_config_has_schedule( const ecl_config_type * ecl_config ) {
     return true;
 }
 
+bool ecl_config_has_init_section( const ecl_config_type * ecl_config ) {
+  if (ecl_config->init_section == NULL)
+    return false;
+  else
+    return true;
+}
+
 
 /**
    Observe: This function makes a hard assumption that the
@@ -311,7 +318,10 @@ void ecl_config_set_init_section( ecl_config_type * ecl_config , const char * in
        2. If the INIT_SECTION points to a not existing file:
 
           a. We assert that INIT_SECTION points to a pure filename,
-             i.e. /some/path/which/does/not/exist is NOT accepted.
+             i.e. /some/path/which/does/not/exist is NOT accepted. In
+             the case the input argument contain a path a error message
+             will be printed on stderr and the ->init_section will not
+             be set.
           b. The ecl_config->input_init_section is set to point to this
              file.
           c. WE TRUST THE USER TO SUPPLY CONTENT (THROUGH SOME FUNKY
@@ -351,7 +361,7 @@ void ecl_config_set_init_section( ecl_config_type * ecl_config , const char * in
      
   */
   if (ecl_config->can_restart) {  /* The <INIT> tag is set. */
-    ecl_config->input_init_section = util_realloc_string_copy( ecl_config->input_init_section , input_init_section );  /* input_init_section = path/to/init_section         */
+    ecl_config->input_init_section = util_realloc_string_copy( ecl_config->input_init_section , input_init_section );   /* input_init_section = path/to/init_section         */
     if (util_file_exists( ecl_config->input_init_section )) {                                                           /* init_section       = $CWD/path/to/init_section */ 
       util_safe_free( ecl_config->init_section );
       ecl_config->init_section = util_alloc_realpath(input_init_section);
@@ -360,10 +370,11 @@ void ecl_config_set_init_section( ecl_config_type * ecl_config , const char * in
       
       util_alloc_file_components( ecl_config->input_init_section , &path , NULL , NULL );
       if (path != NULL) 
-        util_abort("%s: When INIT_SECTION:%s is set to a non-existing file - you can not have any path components.\n",__func__ , input_init_section);
+        fprintf(stderr,"** Warning: %s: When INIT_SECTION:%s points to a non-existing file - you can not have any path components.\n",__func__ , input_init_section);
+      else 
+        ecl_config->init_section = util_alloc_string_copy(input_init_section);
       
       util_safe_free( path );
-      ecl_config->init_section = util_alloc_string_copy(input_init_section);
     }
   } else
     /* 

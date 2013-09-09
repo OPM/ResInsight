@@ -9,6 +9,7 @@ set(PYTHON_SOURCES
     matrix.py
     stat.py
     stringlist.py
+    substitution_list.py
     tvector.py
     util_func.py
 

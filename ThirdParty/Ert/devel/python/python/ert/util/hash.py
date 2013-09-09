@@ -12,29 +12,137 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ctypes import c_void_p
+
+from ert.cwrap import CWrapper, BaseCClass
+from ert.util import UTIL_LIB, StringList
 
 
-from ert.cwrap import CWrapper, CWrapperNameSpace, CClass
-from ert.util import UTIL_LIB
+
+class Hash(BaseCClass):
+    """
+    Base hash class that supports string c_void_p values
+    """
+    def __init__(self):
+        c_ptr = Hash.cNamespace().alloc()
+        super(Hash, self).__init__(c_ptr)
+
+    def __len__(self):
+        return Hash.cNamespace().size(self)
+
+    def __getitem__(self, key):
+        if Hash.cNamespace().has_key(self, key):
+            return Hash.cNamespace().get(self, key)
+        else:
+            raise KeyError("Hash does not have key: %s" % key)
+
+    def __setitem__(self, key, value):
+        if isinstance(value, c_void_p):
+            Hash.cNamespace().insert_ref(self, key, value)
+        else:
+            raise ValueError("Hash does not support type: %s" % value.__class__)
+
+    def __contains__(self, key):
+        """ @rtype: bool """
+        return Hash.cNamespace().has_key(self, key)
+
+    def __iter__(self):
+        for key in self.keys():
+            yield key
+
+    def keys(self):
+        """ @rtype: StringList """
+        return Hash.cNamespace().keys(self)
+
+    def free(self):
+        Hash.cNamespace().free(self)
 
 
-class Hash(CClass):
-    def __init__( self ):
-        self.c_ptr = cfunc.hash_alloc()
+class StringHash(Hash):
+    def __init__(self):
+        super(StringHash, self).__init__()
 
-    def __del__( self ):
-        cfunc.hash_del(self)
+    def __setitem__(self, key, value):
+        if isinstance(value, str):
+            StringHash.cNamespace().insert_string(self, key, value)
+        else:
+            raise ValueError("StringHash does not support type: %s" % value.__class__)
 
-    def __getitem__(self, key):  #todo: missing implementation?
-        pass
+
+    def __getitem__(self, key):
+        if key in self:
+            return StringHash.cNamespace().get_string(self, key)
+        else:
+            raise KeyError("Hash does not have key: %s" % key)
+
+class IntegerHash(Hash):
+    def __init__(self):
+        super(IntegerHash, self).__init__()
+
+    def __setitem__(self, key, value):
+        if isinstance(value, int):
+            IntegerHash.cNamespace().insert_int(self, key, value)
+        else:
+            raise ValueError("IntegerHash does not support type: %s" % value.__class__)
 
 
-CWrapper.registerType("hash", Hash)
+    def __getitem__(self, key):
+        if key in self:
+            return IntegerHash.cNamespace().get_int(self, key)
+        else:
+            raise KeyError("Hash does not have key: %s" % key)
+
+class DoubleHash(Hash):
+    def __init__(self):
+        super(DoubleHash, self).__init__()
+
+    def __setitem__(self, key, value):
+        if isinstance(value, int):
+            value = float(value)
+
+        if isinstance(value, float):
+            DoubleHash.cNamespace().insert_double(self, key, value)
+        else:
+            raise ValueError("DoubleHash does not support type: %s" % value.__class__)
+
+
+    def __getitem__(self, key):
+        if key in self:
+            return DoubleHash.cNamespace().get_double(self, key)
+        else:
+            raise KeyError("Hash does not have key: %s" % key)
+
+
 cwrapper = CWrapper(UTIL_LIB)
+CWrapper.registerType("hash", Hash) #c_void_p type
+CWrapper.registerType("integer_hash", IntegerHash)
+CWrapper.registerType("string_has", StringHash)
+CWrapper.registerType("double_hash", DoubleHash)
 
-cfunc = CWrapperNameSpace("hash")
+CWrapper.registerType("hash_obj", Hash.createPythonObject) #c_void_p type
+CWrapper.registerType("string_hash_obj", StringHash.createPythonObject)
+CWrapper.registerType("integer_hash_obj", IntegerHash.createPythonObject)
+CWrapper.registerType("double_hash_obj", DoubleHash.createPythonObject)
 
-cfunc.hash_alloc = cwrapper.prototype("long hash_alloc( )")
-cfunc.hash_free = cwrapper.prototype("void hash_free( hash )")
-cfunc.hash_get = cwrapper.prototype("long hash_get(hash , char*)")
+CWrapper.registerType("hash_ref", Hash.createCReference) #c_void_p type
+CWrapper.registerType("string_hash_ref", StringHash.createCReference)
+CWrapper.registerType("integer_hash_ref", IntegerHash.createCReference)
+CWrapper.registerType("double_hash_ref", DoubleHash.createCReference)
+
+
+Hash.cNamespace().alloc = cwrapper.prototype("long hash_alloc()")
+Hash.cNamespace().free = cwrapper.prototype("void hash_free(hash)")
+Hash.cNamespace().size = cwrapper.prototype("int hash_get_size(hash)")
+Hash.cNamespace().keys = cwrapper.prototype("stringlist_obj hash_alloc_stringlist(hash)")
+Hash.cNamespace().has_key = cwrapper.prototype("bool hash_has_key(hash, char*)")
+
+Hash.cNamespace().get = cwrapper.prototype("c_void_p hash_get(hash, char*)")
+IntegerHash.cNamespace().get_int = cwrapper.prototype("int hash_get_int(hash, char*)")
+DoubleHash.cNamespace().get_double = cwrapper.prototype("double hash_get_double(hash, char*)")
+StringHash.cNamespace().get_string = cwrapper.prototype("char* hash_get_string(hash, char*)")
+
+Hash.cNamespace().insert_ref = cwrapper.prototype("void hash_insert_ref(hash, char*, c_void_p)")
+IntegerHash.cNamespace().insert_int = cwrapper.prototype("void hash_insert_int(hash, char*, int)")
+DoubleHash.cNamespace().insert_double = cwrapper.prototype("void hash_insert_double(hash, char*, double)")
+StringHash.cNamespace().insert_string = cwrapper.prototype("void hash_insert_string(hash, char*, char*)")

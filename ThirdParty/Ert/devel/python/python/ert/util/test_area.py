@@ -14,34 +14,35 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 
-from ert.cwrap import clib, CClass, CWrapper, CWrapperNameSpace
+from ert.cwrap import clib, BaseCClass, CWrapper
 
 
 lib = clib.ert_load("libtest_util.so")
 
 
-class TestArea(CClass):
+class TestArea(BaseCClass):
     def __init__(self, test_name, store_area=False):
-        c_ptr = cfunc.test_area_alloc(test_name, store_area)
-        if not c_ptr:
-            raise Exception("Failed to create TestArea instance")
+        c_ptr = TestArea.cNamespace().test_area_alloc(test_name, store_area)
+        super(TestArea, self).__init__(c_ptr)
 
-        self.init_cobj(c_ptr, cfunc.free)
 
 
     def install_file( self, filename):
-        cfunc.install_file(self, filename)
+        TestArea.cNamespace().install_file(self, filename)
 
 
     def copy_directory( self, directory):
-        cfunc.copy_directory(self, directory)
+        TestArea.cNamespace().copy_directory(self, directory)
 
 
     def copy_directory_content( self, directory):
-        cfunc.copy_directory_content(self, directory)
+        TestArea.cNamespace().copy_directory_content(self, directory)
 
     def copy_file( self, filename):
-        cfunc.copy_file(self, filename)
+        TestArea.cNamespace().copy_file(self, filename)
+
+    def free(self):
+        TestArea.cNamespace().free(self)
 
 
 class TestAreaContext(object):
@@ -63,15 +64,14 @@ class TestAreaContext(object):
 
 
 
-CWrapper.registerType("test_area", TestArea)
-
 cwrapper = CWrapper(lib)
+CWrapper.registerType("test_area", TestArea)
+CWrapper.registerType("test_area_obj", TestArea.createPythonObject)
+CWrapper.registerType("test_area_ref", TestArea.createCReference)
 
-cfunc = CWrapperNameSpace("TestArea")
-
-cfunc.test_area_alloc = cwrapper.prototype("c_void_p test_work_area_alloc( char* , bool)")
-cfunc.free = cwrapper.prototype("void test_work_area_free( test_area )")
-cfunc.install_file = cwrapper.prototype("void test_work_area_install_file( test_area , char* )")
-cfunc.copy_directory = cwrapper.prototype("void test_work_area_copy_directory( test_area , char* )")
-cfunc.copy_file = cwrapper.prototype("void test_work_area_copy_file( test_area , char* )")
-cfunc.copy_directory_content = cwrapper.prototype("void test_work_area_copy_directory_content( test_area , char* )")
+TestArea.cNamespace().test_area_alloc = cwrapper.prototype("c_void_p test_work_area_alloc( char* , bool)")
+TestArea.cNamespace().free = cwrapper.prototype("void test_work_area_free( test_area )")
+TestArea.cNamespace().install_file = cwrapper.prototype("void test_work_area_install_file( test_area , char* )")
+TestArea.cNamespace().copy_directory = cwrapper.prototype("void test_work_area_copy_directory( test_area , char* )")
+TestArea.cNamespace().copy_file = cwrapper.prototype("void test_work_area_copy_file( test_area , char* )")
+TestArea.cNamespace().copy_directory_content = cwrapper.prototype("void test_work_area_copy_directory_content( test_area , char* )")

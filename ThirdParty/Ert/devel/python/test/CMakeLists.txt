@@ -10,6 +10,9 @@ set(TEST_SOURCES
     ert_tests/config/__init__.py
     ert_tests/config/test_config.py
 
+    ert_tests/cwrap/__init__.py
+    ert_tests/cwrap/test_cwrap.py
+
     ert_tests/ecl/__init__.py
     ert_tests/ecl/test_ecl_default.py
     ert_tests/ecl/test_ecl_file.py
@@ -25,19 +28,24 @@ set(TEST_SOURCES
     ert_tests/ecl/test_rft_cell.py
     ert_tests/ecl/test_sum.py
 
+    ert_tests/enkf/__init__.py
+    ert_tests/enkf/test_enkf.py
+    ert_tests/enkf/test_enkf_library.py
+
     ert_tests/sched/__init__.py
     ert_tests/sched/test_sched.py
 
     ert_tests/util/__init__.py
     ert_tests/util/test_ctime.py
+    ert_tests/util/test_hash.py
     ert_tests/util/test_lookup_table.py
     ert_tests/util/test_matrix.py
     ert_tests/util/test_stat.py
     ert_tests/util/test_string_list.py
     ert_tests/util/test_vectors.py
 
+
     ecl_isosurf.py
-    enkf_test.py
     ens_config_test.py
     grav_test.py
     grid_test0.py
@@ -80,9 +88,15 @@ add_test( NAME python.ert.util.ctime
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
           COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.util.test_ctime.CTimeTest)
 
-add_test( NAME python.ert.util.latex
+
+add_test( NAME python.ert.util.hash
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.util.test_latex.LatexTest )
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.util.test_hash.HashTest)
+
+
+#add_test( NAME python.ert.util.latex
+#          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.util.test_latex.LatexTest )
 
 add_test( NAME python.ert.util.lookup_table
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -96,6 +110,15 @@ add_test( NAME python.ert.util.stat
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
           COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.util.test_stat.StatTest )
 
+
+#ENKF
+add_test( NAME python.ert.enkf
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.enkf.test_enkf.EnKFTest)
+
+add_test( NAME python.ert.enkf_library
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.enkf.test_enkf_library.EnKFLibraryTest)
 
 #ECL
 
@@ -181,6 +204,18 @@ add_test( NAME python.ert.config
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
           COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.config.test_config.ConfigTest)
 
+#CWRAP
+add_test( NAME python.ert.cwrap
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.cwrap.test_cwrap.CWRapTest)
+
+add_test( NAME python.ert.cwrap.basecclass
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.cwrap.test_basecclass.BaseCClassTest)
+
+add_test( NAME python.ert.cwrap.basecenum
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+          COMMAND ctest_run.py ${PROJECT_BINARY_DIR}/${PYTHON_INSTALL_PREFIX} ert_tests.cwrap.test_basecenum.BaseCEnumTest)
 
 
 

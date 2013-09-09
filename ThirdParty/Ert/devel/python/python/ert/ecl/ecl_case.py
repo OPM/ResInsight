@@ -21,7 +21,7 @@ C based functions.
 """
 import os
 import warnings
-from ert.ecl import EclRFTFile, EclGrid, EclSum, EclUtil
+from ert.ecl import EclRFTFile, EclGrid, EclSum, EclUtil, EclDefault, EclQueue
 
 
 
@@ -192,17 +192,17 @@ class EclCase:
         argv = [ecl_version , self.datafile , num_cpu]
 
         if ecl_cmd is None:
-            ecl_cmd = ecl_default.default.ecl_cmd
+            ecl_cmd = EclDefault.ecl_cmd()
 
         if driver_type is None:
-            driver_type = ECL_DEFAULT.driver_type
+            driver_type = EclDefault.driver_type()
 
         if ecl_version is None:
-            ecl_version = ECL_DEFAULT.ecl_version
+            ecl_version = EclDefault.ecl_version()
 
         if driver is None:
             if driver_options is None:
-                driver_options = ECL_DEFAULT.driver_options[ driver_type ]
+                driver_options = EclDefault.driver_options()[ driver_type ]
             driver = queue_driver.Driver( driver_type , max_running = 0 , options = driver_options )
         job = driver.submit( self.base , ecl_cmd , self.path , argv , blocking = blocking)
         return job
@@ -222,5 +222,7 @@ class EclCase:
         The @queue argument should be an existing EclQueue() instance
         which will collect the jobs, and pass them on to a driver when
         there is free capacity.
+
+        @type queue: EclQueue
         """
-        queue.submit( self.datafile )
+        queue.submitDatafile( self.datafile )

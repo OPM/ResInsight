@@ -95,6 +95,10 @@ add_executable( ert_util_file_readable ert_util_file_readable.c )
 target_link_libraries( ert_util_file_readable ert_util test_util )
 add_test( ert_util_file_readable ${EXECUTABLE_OUTPUT_PATH}/ert_util_file_readable ${FILE_READABLE_SERVERS})
 
+add_executable( ert_util_type_vector_functions ert_util_type_vector_functions.c )
+target_link_libraries( ert_util_type_vector_functions ert_util test_util )
+add_test( ert_util_type_vector_functions ${EXECUTABLE_OUTPUT_PATH}/ert_util_type_vector_functions)
+
 add_executable( ert_util_addr2line ert_util_addr2line.c )
 target_link_libraries( ert_util_addr2line ert_util test_util )
 add_test( ert_util_addr2line ${EXECUTABLE_OUTPUT_PATH}/ert_util_addr2line)
@@ -118,3 +122,7 @@ add_executable( ert_util_arg_pack ert_util_arg_pack.c)
 set_target_properties( ert_util_arg_pack PROPERTIES COMPILE_FLAGS "-Werror")
 target_link_libraries( ert_util_arg_pack ert_util test_util )
 add_test( ert_util_arg_pack ${EXECUTABLE_OUTPUT_PATH}/ert_util_arg_pack)
+
+add_executable( ert_util_abort_gnu_tests ert_util_abort_gnu_tests.c)
+target_link_libraries( ert_util_abort_gnu_tests ert_util test_util)
+add_test( ert_util_abort_gnu_tests ${EXECUTABLE_OUTPUT_PATH}/ert_util_abort_gnu_tests)

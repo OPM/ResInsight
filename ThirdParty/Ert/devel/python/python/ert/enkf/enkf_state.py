@@ -12,53 +12,41 @@
 #  FITNESS FOR A PARTICULAR PURPOSE.   
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
-#  for more details. 
+#  for more details.
+from ert.cwrap import BaseCClass, CWrapper
+from ert.enkf import ENKF_LIB
 
-import  ctypes
-from    ert.cwrap.cwrap       import *
-from    ert.cwrap.cclass      import CClass
-from    ert.util.tvector      import * 
-from    enkf_enum             import *
-import  libenkf
-from ert.util.ctime import ctime
-#from ert.util.ctime import time_t
-class EnKFState(CClass):
-    
-    def __init__(self , c_ptr , parent = None):
-        if parent:
-            self.init_cref( c_ptr , parent)
-        else:
-            self.init_cobj( c_ptr , cfunc.free )
+
+class EnKFState(BaseCClass):
+    def __init__(self):
+        raise NotImplementedError("Class can not be instantiated directly!")
 
     def kill_simulation(self):
-        cfunc.kill_simulation(self)
-    
+        EnKFState.cNamespace().kill_simulation(self)
+
     def resubmit_simulation(self, sim_number):
-        cfunc.resubmit_simulation(self, sim_number)
-    
-    @property
+        EnKFState.cNamespace().resubmit_simulation(self, sim_number)
+
     def get_run_status(self):
-        return cfunc.get_run_status(self)
-    
-    @property    
+        return EnKFState.cNamespace().get_run_status(self)
+
     def get_start_time(self):
-        return cfunc.get_start_time(self)
-    
-    @property    
+        return EnKFState.cNamespace().get_start_time(self)
+
     def get_submit_time(self):
-        return cfunc.get_submit_time(self)
-##################################################################
+        return EnKFState.cNamespace().get_submit_time(self)
 
-cwrapper = CWrapper( libenkf.lib )
-cwrapper.registerType( "enkf_state" , EnKFState )
+    def free(self):
+        EnKFState.cNamespace().free(self)
 
-cfunc = CWrapperNameSpace("enkf_state")
+cwrapper = CWrapper(ENKF_LIB)
+cwrapper.registerType("enkf_state", EnKFState)
+cwrapper.registerType("enkf_state_obj", EnKFState.createPythonObject)
+cwrapper.registerType("enkf_state_ref", EnKFState.createCReference)
 
-##################################################################
-##################################################################
-cfunc.free                = cwrapper.prototype("void enkf_state_free( enkf_state )")
-cfunc.kill_simulation     = cwrapper.prototype("void enkf_state_kill_simulation(enkf_state)")
-cfunc.resubmit_simulation = cwrapper.prototype("void enkf_state_resubmit_simulation(enkf_state, int)")
-cfunc.get_run_status      = cwrapper.prototype("int enkf_state_get_run_status(enkf_state)")
-cfunc.get_start_time      = cwrapper.prototype("int enkf_state_get_start_time(enkf_state)")
-cfunc.get_submit_time     = cwrapper.prototype("int enkf_state_get_submit_time(enkf_state)")
+EnKFState.cNamespace().free = cwrapper.prototype("void enkf_state_free( enkf_state )")
+EnKFState.cNamespace().kill_simulation = cwrapper.prototype("void enkf_state_kill_simulation(enkf_state)")
+EnKFState.cNamespace().resubmit_simulation = cwrapper.prototype("void enkf_state_resubmit_simulation(enkf_state, int)")
+EnKFState.cNamespace().get_run_status = cwrapper.prototype("int enkf_state_get_run_status(enkf_state)")
+EnKFState.cNamespace().get_start_time = cwrapper.prototype("int enkf_state_get_start_time(enkf_state)")
+EnKFState.cNamespace().get_submit_time = cwrapper.prototype("int enkf_state_get_submit_time(enkf_state)")

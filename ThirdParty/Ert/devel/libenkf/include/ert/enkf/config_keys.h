@@ -112,6 +112,7 @@ extern "C" {
 #define  MAX_RUNNING_RSH_KEY               "MAX_RUNNING_RSH"
 #define  MAX_SUBMIT_KEY                    "MAX_SUBMIT" 
 #define  NUM_REALIZATIONS_KEY              "NUM_REALIZATIONS"      
+#define  MIN_REALIZATIONS_KEY              "MIN_REALIZATIONS" 
 #define  OBS_CONFIG_KEY                    "OBS_CONFIG"
 #define  OBS_CONFIG_KEY                    "OBS_CONFIG" 
 #define  PLOT_DRIVER_KEY                   "PLOT_DRIVER"

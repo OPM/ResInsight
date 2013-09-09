@@ -157,10 +157,10 @@ class EclQueue(JobQueue):
                 driver_options = EclDefault.driver_options()[driver_type]
             driver = Driver(driver_type, max_running=max_running, options=driver_options)
 
-        JobQueue.__init__(self, driver, size=size)
+        super(EclQueue, self).__init__(driver, size=size)
 
 
-    def submit( self, data_file):
+    def submitDataFile(self, data_file):
         """
         Will submit a new simulation of case given by @data_file.
         
@@ -173,5 +173,5 @@ class EclQueue(JobQueue):
 
         num_cpu = EclUtil.get_num_cpu(data_file)
         argv = [self.ecl_version, path_base, "%s" % num_cpu]
-        return JobQueue.submit(self, self.ecl_cmd, run_path, base, argv, num_cpu=num_cpu)
+        return super(EclQueue, self).submit(self.ecl_cmd, run_path, base, argv, num_cpu=num_cpu)
 
