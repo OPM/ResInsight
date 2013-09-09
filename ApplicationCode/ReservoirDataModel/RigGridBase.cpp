@@ -397,10 +397,9 @@ void RigGridBase::computeFaults()
 
                     // Check if vertices are matching
                     double tolerance = 1e-6;
-                    size_t i;
-                    for (i = 0; i < 4; i++)
+                    for (size_t cellFaceIdx = 0; cellFaceIdx < 4; cellFaceIdx++)
                     {
-                        if (currentCellFaceVertices[i].pointDistance(neighbourCellFaceVertices[i]) > tolerance )
+                        if (currentCellFaceVertices[cellFaceIdx].pointDistance(neighbourCellFaceVertices[cellFaceIdx]) > tolerance )
                         {
                             sharedFaceVertices = false;
                         }
