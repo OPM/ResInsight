@@ -1002,9 +1002,6 @@ RimCase* RimUiTreeModelPdm::caseFromItemIndex(const QModelIndex& itemIndex)
 
 //--------------------------------------------------------------------------------------------------
 /// Set toggle state for list of model indices. 
-///
-/// NOTE:   Set toggle state directly on object, does not use setValueFromUi()
-///         The caller must make sure the relevant dependencies are updated
 //--------------------------------------------------------------------------------------------------
 void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selectedIndexes, int state)
 {
@@ -1025,36 +1022,44 @@ void RimUiTreeModelPdm::setObjectToggleStateForSelection(QModelIndexList selecte
         caf::PdmObject* obj = treeItem->dataObject();
         assert(obj);
 
-        if (obj && obj->objectToggleField())
+        if (selectedIndexes.size() != 1)
         {
-            caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(obj->objectToggleField());
-            if (field)
+            if (obj && obj->objectToggleField())
             {
-                // Does not use setValueFromUi(), so the caller must make sure dependencies are updated
-                if (state == RimUiTreeView::TOGGLE_ON) field->setValueFromUi(true);
-                if (state == RimUiTreeView::TOGGLE_OFF) field->setValueFromUi(false);
-                if (state == RimUiTreeView::TOGGLE) field->setValueFromUi(!(field->v()));
-
-                //emitDataChanged(index);
-                //field->updateConnectedEditors();
-
-               /* caf::PdmObject* ownerObj = field->ownerObject();
-
-                RimReservoirView* resView = dynamic_cast<RimReservoirView*>(ownerObj);
-                if(resView) resViewsToUpdate.insert(resView);
-                else if (ownerObj)
+                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(obj->objectToggleField());
+                if (field)
                 {
-                    ownerObj->firstAncestorOfType(resView);
-                    if (resView) resViewsToUpdate.insert(resView);
-                }*/
+                    if (state == RimUiTreeView::TOGGLE_ON)  field->setValueFromUi(true);
+                    if (state == RimUiTreeView::TOGGLE_OFF) field->setValueFromUi(false);
+                    if (state == RimUiTreeView::TOGGLE)     field->setValueFromUi(!(field->v()));
+                }
+            }
+        }
+        else 
+        {
+            // If only one item is selected, loop over its children, and toggle them instead of the 
+            // selected item directly
+
+            for (int cIdx = 0; cIdx < treeItem->childCount(); ++ cIdx)
+            {
+                caf::PdmUiTreeItem*  child = treeItem->child(cIdx);
+                if (!child) continue;
+
+                caf::PdmObject* childObj = child->dataObject();
+
+                if (childObj && childObj->objectToggleField())
+                {
+                    caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>* >(childObj->objectToggleField());
+                    if (field)
+                    {
+                        if (state == RimUiTreeView::TOGGLE_ON)  field->setValueFromUi(true);
+                        if (state == RimUiTreeView::TOGGLE_OFF) field->setValueFromUi(false);
+                        if (state == RimUiTreeView::TOGGLE)     field->setValueFromUi(!(field->v()));
+                    }
+                }
             }
         }
     }
-
- /*   for (std::set<RimReservoirView*>::iterator it = resViewsToUpdate.begin(); it != resViewsToUpdate.end(); ++it)
-    {
-        (*it)->createDisplayModelAndRedraw();
-    }*/
 }
 
 //--------------------------------------------------------------------------------------------------
