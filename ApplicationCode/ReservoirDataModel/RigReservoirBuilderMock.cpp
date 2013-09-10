@@ -209,6 +209,7 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 
         // Create local grid and set local grid dimensions
         RigLocalGrid* localGrid = new RigLocalGrid(eclipseCase->mainGrid());
+        localGrid->setGridId(1);
         eclipseCase->mainGrid()->addLocalGrid(localGrid);
         localGrid->setParentGrid(eclipseCase->mainGrid());
         
