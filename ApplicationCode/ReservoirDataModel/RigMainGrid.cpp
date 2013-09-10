@@ -50,7 +50,7 @@ void RigMainGrid::addLocalGrid(RigLocalGrid* localGrid)
     localGrid->setGridIndex(m_localGrids.size()); // Maingrid itself has grid index 0
 
     
-    if (m_gridIdToIndexMapping.size() <= localGrid->gridId())
+    if (m_gridIdToIndexMapping.size() <= static_cast<size_t>(localGrid->gridId()))
     {
         m_gridIdToIndexMapping.resize(localGrid->gridId() + 1, cvf::UNDEFINED_SIZE_T);
     }
@@ -175,7 +175,7 @@ void RigMainGrid::setFlipAxis(bool flipXAxis, bool flipYAxis)
 //--------------------------------------------------------------------------------------------------
 RigGridBase* RigMainGrid::gridById(int localGridId)
 {
-    CVF_ASSERT (localGridId >= 0 && localGridId < m_gridIdToIndexMapping.size());
+    CVF_ASSERT (localGridId >= 0 && static_cast<size_t>(localGridId) < m_gridIdToIndexMapping.size());
     return this->gridByIndex(m_gridIdToIndexMapping[localGridId]);
 }
 

@@ -258,8 +258,8 @@ void RimProject::initAfterRead()
 	
 	if (casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0)
 	{
-		printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
-		    casesObsolete().size(), caseGroupsObsolete.size());
+		//printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
+		  //  casesObsolete().size(), caseGroupsObsolete.size());
 	}
 
     // Set project pointer to each well path
