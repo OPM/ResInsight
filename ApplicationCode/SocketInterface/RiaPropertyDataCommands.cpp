@@ -315,14 +315,14 @@ public:
                 continue;
             }
 
-            for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < rigGrid->cellCount(); cellIdx++)
+            for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
             {
                 double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
                 if (cellValue == HUGE_VAL)
                 {
                     cellValue = 0.0;
                 }
-                values[cellIdx] = cellValue;
+                values[valueIdx++] = cellValue;
             }
         }
 
