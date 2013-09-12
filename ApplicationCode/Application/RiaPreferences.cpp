@@ -114,12 +114,10 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::resetToDefaults()
 {
-    std::vector<caf::PdmFieldHandle*> fields;
-    this->fields(fields);
+    useShaders = true;
+    showHud = false;
 
-    for (size_t i = 0; i < fields.size(); ++i)
-    {
-        fields[i]->resetToDefaultValue();
-    }
+    autocomputeSOIL = true;
+    autocomputeDepthRelatedProperties = true;
 }
 
