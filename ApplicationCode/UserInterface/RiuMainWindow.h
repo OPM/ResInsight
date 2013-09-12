@@ -87,6 +87,7 @@ public:
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
+    void			loadWinGeoAndDockToolBarLayout();
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
@@ -101,7 +102,6 @@ private:
     void            createToolBars();
     void            createDockPanels();
     void			saveWinGeoAndDockToolBarLayout();
-    void			loadWinGeoAndDockToolBarLayout();
 
     bool            checkForDocumentModifications();
 

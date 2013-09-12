@@ -865,9 +865,11 @@ bool RiaApplication::parseArguments()
         if (mainWnd)
         {
             mainWnd->hideAllDockWindows();
-        }
 
-        runRegressionTest(regressionTestPath);
+            runRegressionTest(regressionTestPath);
+
+            mainWnd->loadWinGeoAndDockToolBarLayout();
+        }
 
         return false;
     }
