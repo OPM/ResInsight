@@ -952,7 +952,12 @@ public:
                 {
                     if (m_currentReservoir->reservoirViews[i])
                     {
-                        m_currentReservoir->reservoirViews[i]->updateCurrentTimeStepAndRedraw();
+                        // As new result might have been introduced, update all editors connected
+                        m_currentReservoir->reservoirViews[i]->cellResult->updateConnectedEditors();
+
+                        // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
+                        // a full display model rebuild is required
+                        m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
                     }
                 }
             }

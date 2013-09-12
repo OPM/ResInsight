@@ -75,6 +75,9 @@ RimProject::RimProject(void)
     wellPathImport = new RimWellPathImport();
     wellPathImport.setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
+    //wellPathImport.setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
     currentModelIndexPath.setUiHidden(true);
 

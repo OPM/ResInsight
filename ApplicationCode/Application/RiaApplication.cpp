@@ -350,6 +350,14 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         caseProgress.incrementProgress();
     }
 
+    // Loop over command objects and execute them
+    for (size_t i = 0; i < m_project->commandObjects.size(); i++)
+    {
+        m_commandQueue.push_back(m_project->commandObjects[i]);
+    }
+
+    executeCommandObjects();
+
     onProjectOpenedOrClosed();
 
     return true;
@@ -494,6 +502,8 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     caf::EffectGenerator::clearEffectCache();
     m_project->close();
+
+    m_commandQueue.clear();
 
     onProjectOpenedOrClosed();
 
@@ -958,6 +968,10 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
     //    MFLog::error("Simulation execution crashed or was aborted.");
         return;
     }
+
+
+    executeCommandObjects();
+
 
     // Exit code != 0 means we have an error
     if (exitCode != 0)
@@ -1676,5 +1690,29 @@ QVariant RiaApplication::cacheDataObject(const QString& key) const
     }
 
     return QVariant();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addCommandObject(RimCommandObject* commandObject)
+{
+    m_commandQueue.push_back(commandObject);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::executeCommandObjects()
+{
+    if (m_commandQueue.size() > 0)
+    {
+        std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
+
+        RimCommandObject* first = *it;
+        first->redo();
+
+        m_commandQueue.pop_front();
+    }
 }
 

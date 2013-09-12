@@ -59,6 +59,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiuWellImportWizard.h"
+#include "RimCalcScript.h"
 
 
 
@@ -198,6 +199,8 @@ void RiuMainWindow::createActions()
     m_snapshotToClipboard       = new QAction(QIcon(":/SnapShot.png"), "Copy Snapshot To Clipboard", this);
     m_snapshotAllViewsToFile    = new QAction(QIcon(":/SnapShotSaveViews.png"), "Snapshot All Views To File", this);
 
+    m_createCommandObject       = new QAction("Create Command Object", this);
+
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
 
@@ -220,6 +223,8 @@ void RiuMainWindow::createActions()
     connect(m_snapshotToFile,	        SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
     connect(m_snapshotToClipboard,	    SIGNAL(triggered()), SLOT(slotSnapshotToClipboard()));
     connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
+
+    connect(m_createCommandObject,      SIGNAL(triggered()), SLOT(slotCreateCommandObject()));
     
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
@@ -355,9 +360,13 @@ void RiuMainWindow::createMenus()
     debugMenu->addAction(m_mockResultsModelAction);
     debugMenu->addAction(m_mockLargeResultsModelAction);
     debugMenu->addAction(m_mockInputModelAction);
+    debugMenu->addSeparator();
+    debugMenu->addAction(m_createCommandObject);
+
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
+    // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");
     connect(m_windowMenu, SIGNAL(aboutToShow()), SLOT(slotBuildWindowActions()));
 
@@ -1581,7 +1590,7 @@ void RiuMainWindow::selectedCases(std::vector<RimCase*>& cases)
         QModelIndexList selectedModelIndexes = m_treeView->selectionModel()->selectedIndexes();
         
         caf::PdmObjectGroup group;
-        m_treeView->populateObjectGroupFromModelIndexList(selectedModelIndexes, &group);
+        m_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndexes, &group);
 
         std::vector<caf::PdmPointer<RimCase> > typedObjects;
         group.objectsByType(&typedObjects);
@@ -1660,4 +1669,32 @@ void RiuMainWindow::slotShowCommandLineHelp()
     RiaApplication* app = RiaApplication::instance();
     QString text = app->commandLineParameterHelp();
     app->showFormattedTextInMessageBox(text);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotCreateCommandObject()
+{
+    RiaApplication* app = RiaApplication::instance();
+    if (!app->project()) return;
+
+    QItemSelectionModel* selectionModel = m_treeView->selectionModel();
+    if (selectionModel)
+    {
+        QModelIndexList selectedModelIndices = selectionModel->selectedIndexes();
+        
+        caf::PdmObjectGroup selectedObjects;
+        m_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndices, &selectedObjects);
+
+        std::vector<RimCommandObject*> commandObjects;
+        RimCommandFactory::createCommandObjects(selectedObjects, commandObjects);
+
+        for (size_t i = 0; i < commandObjects.size(); i++)
+        {
+            app->project()->commandObjects.push_back(commandObjects[i]);
+        }
+
+        app->project()->updateConnectedEditors();
+    }
 }

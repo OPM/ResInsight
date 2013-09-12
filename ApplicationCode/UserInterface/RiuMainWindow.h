@@ -154,6 +154,8 @@ private:
     QAction*		    m_snapshotToClipboard;
     QAction*		    m_snapshotAllViewsToFile;
 
+    QAction*            m_createCommandObject;
+
     // Help actions
     QAction*            m_aboutAction;
     QAction*            m_commandLineHelpAction;
@@ -220,6 +222,8 @@ private slots:
     void    slotSnapshotToFile();
     void    slotSnapshotToClipboard();
     void    slotSnapshotAllViewsToFile();
+
+    void    slotCreateCommandObject();
 
     // Mock models
     void    slotMockModel();
