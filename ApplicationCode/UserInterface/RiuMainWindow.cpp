@@ -1688,7 +1688,7 @@ void RiuMainWindow::slotCreateCommandObject()
         m_treeModelPdm->populateObjectGroupFromModelIndexList(selectedModelIndices, &selectedObjects);
 
         std::vector<RimCommandObject*> commandObjects;
-        RimCommandFactory::createCommandObjects(selectedObjects, commandObjects);
+        RimCommandFactory::createCommandObjects(selectedObjects, &commandObjects);
 
         for (size_t i = 0; i < commandObjects.size(); i++)
         {

@@ -99,7 +99,7 @@ void RimCommandExecuteScript::undo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimCommandFactory::createCommandObjects(const caf::PdmObjectGroup& selectedObjects, std::vector<RimCommandObject*>& commandObjects)
+void RimCommandFactory::createCommandObjects(const caf::PdmObjectGroup& selectedObjects, std::vector<RimCommandObject*>* commandObjects)
 {
     for (size_t i = 0; i < selectedObjects.objects.size(); i++)
     {
@@ -114,12 +114,12 @@ void RimCommandFactory::createCommandObjects(const caf::PdmObjectGroup& selected
             {
                 QTextStream in(&file);
                 QByteArray byteArray = file.readAll();
-               QString scriptText(byteArray);
+                QString scriptText(byteArray);
 
                 RimCommandExecuteScript* command = new RimCommandExecuteScript;
                 command->scriptText = scriptText;
 
-                commandObjects.push_back(command);
+                commandObjects->push_back(command);
             }
         }
     }

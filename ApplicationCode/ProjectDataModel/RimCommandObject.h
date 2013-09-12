@@ -22,13 +22,13 @@
 #include "cvfObject.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmDocument.h"
 
 #include <QString>
 
-//==================================================================================================
-// 
-// 
-//==================================================================================================
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RimCommandObject : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -41,6 +41,9 @@ public:
 };
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RimCommandExecuteScript : public RimCommandObject
 {
     CAF_PDM_HEADER_INIT;
@@ -55,8 +58,12 @@ public:
 };
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 class RimCommandFactory
 {
 public:
-    static void createCommandObjects(const caf::PdmObjectGroup& selectedObjects, std::vector<RimCommandObject*>& commandObjects);
+    static void createCommandObjects(const caf::PdmObjectGroup& selectedObjects, std::vector<RimCommandObject*>* commandObjects);
 };
+
