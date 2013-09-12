@@ -57,6 +57,36 @@ else()
     SET(OCTAVE_QT_LIBRARY_DIR            ${QT_LIBRARY_DIR})
 endif()
 
+# recreate the magic that CMake does for MacOS X frameworks in the
+# include list when we call mkoctfile as a custom command
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set (QT_INCLUDES)
+    set (QT_FRAMEWORKS)
+    # QT_INCLUDE_DIR contains two items; the first is the directory
+    # containing header files, the second is the framework. This
+    # setup is specially processed in include_directories (); CMake
+    # will add -F before the frameworks. We will have to replicate
+    # that setup here when we want to pass it directly to a command
+    # see <http://www.cmake.org/Bug/print_bug_page.php?bug_id=10632>
+    foreach (item IN ITEMS ${QT_QTNETWORK_INCLUDE_DIR} ${QT_QTCORE_INCLUDE_DIR} ${QT_INCLUDE_DIR})
+        if ("${item}" MATCHES ".framework$")
+            get_filename_component (frmwrk_path ${item} PATH)
+            get_filename_component (frmwrk_name ${item} NAME_WE)
+            # mkoctfile doesn't support arbitrary compiler command,
+            # so we must wrap in -Wl, to pass to the linker
+            list (APPEND QT_FRAMEWORKS "-Wl,-F${frmwrk_path}")
+            list (APPEND QT_FRAMEWORKS "-Wl,-framework,${frmwrk_name}")
+        else ()
+            list (APPEND QT_INCLUDES "-I${item}")
+        endif ()
+    endforeach (item)
+    if (QT_INCLUDES)
+        list (REMOVE_DUPLICATES QT_INCLUDES)
+    endif ()
+    if (QT_FRAMEWORKS)
+        list (REMOVE_DUPLICATES QT_FRAMEWORKS)
+    endif ()
+endif ()
     
 find_program(RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE mkoctfile)
 if(NOT RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE)
@@ -99,6 +129,13 @@ else()
                 COMMENT "Generating ${octFileName}"
             )
         endif()
+    elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+        add_custom_command(
+            OUTPUT "${octFileName}"
+            COMMAND ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE_EXE} ${QT_INCLUDES} ${QT_FRAMEWORKS} ${RPATH_COMMAND} -L${QT_LIBRARY_DIR} -Wl,-framework,QtCore -Wl,-framework,QtNetwork -o "${octFileName}" "${srcFileName}"
+            DEPENDS "${srcFileName}"
+            COMMENT "Generating ${octFileName}"
+        )
     else()
         add_custom_command(
             OUTPUT "${octFileName}"
