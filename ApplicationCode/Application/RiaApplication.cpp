@@ -355,6 +355,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
     // current active view ( see restoreTreeViewState() )
     // Default behavior for scripts is to use current active view for data read/write
     onProjectOpenedOrClosed();
+    processEvents();
 
     // Loop over command objects and execute them
     for (size_t i = 0; i < m_project->commandObjects.size(); i++)
