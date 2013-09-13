@@ -51,12 +51,19 @@ public:
     RimCommandExecuteScript();
     virtual ~RimCommandExecuteScript();
 
-    caf::PdmField<QString> scriptText;
+    caf::PdmField<QString>  name;
+    caf::PdmField<bool>     isEnabled;
+    caf::PdmField<bool>     execute;
+    caf::PdmField<QString>  scriptText;
 
     virtual void redo();
     virtual void undo();
 
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
+
+    virtual caf::PdmFieldHandle* userDescriptionField();
+
+    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 };
 
 

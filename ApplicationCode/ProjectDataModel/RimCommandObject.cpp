@@ -21,6 +21,7 @@
 #include "RimCalcScript.h"
 
 #include "cafPdmUiTextEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmDocument.h"
 
 #include <QFile>
@@ -49,9 +50,19 @@ RimCommandObject::~RimCommandObject()
 //--------------------------------------------------------------------------------------------------
 RimCommandExecuteScript::RimCommandExecuteScript()
 {
+    CAF_PDM_InitFieldNoDefault(&name,       "Name",      "Name", "", "", "");
+
     CAF_PDM_InitField(&scriptText, "ScriptText",  QString(), "ScriptText", "", "" ,"");
     scriptText.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
 
+    CAF_PDM_InitField(&isEnabled,         "IsEnabled",      true, "Enabled ", "", "", "");
+    
+    
+    CAF_PDM_InitField(&execute,         "Execute",      true, "Execute", "", "", "");
+    execute.setIOWritable(false);
+    execute.setIOReadable(false);
+    execute.setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+    execute.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +78,8 @@ RimCommandExecuteScript::~RimCommandExecuteScript()
 //--------------------------------------------------------------------------------------------------
 void RimCommandExecuteScript::redo()
 {
+    if (!isEnabled) return;
+
     RiaApplication* app = RiaApplication::instance();
     QString octavePath = app->octavePath();
     if (!octavePath.isEmpty())
@@ -103,6 +116,27 @@ void RimCommandExecuteScript::defineEditorAttribute(const caf::PdmFieldHandle* f
     if (myAttr)
     {
         myAttr->showSaveButton = true;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimCommandExecuteScript::userDescriptionField()
+{
+    return &name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCommandExecuteScript::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (&execute == changedField)
+    {
+        RiaApplication* app = RiaApplication::instance();
+        app->addCommandObject(this);
+        app->executeCommandObjects();
     }
 }
 
