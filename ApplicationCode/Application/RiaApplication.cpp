@@ -356,6 +356,10 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         m_commandQueue.push_back(m_project->commandObjects[i]);
     }
 
+    // Lock the command queue
+    m_commandQueueLock.lock();
+
+    // Execute command objects, and release the mutex when the queue is empty
     executeCommandObjects();
 
     onProjectOpenedOrClosed();
@@ -1374,6 +1378,14 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         if (testCaseFolder.exists(regTestProjectName))
         {
              loadProject(testCaseFolder.filePath(regTestProjectName));
+
+             // Wait until all command objects have completed
+             while (!m_commandQueueLock.tryLock())
+             {
+                 processEvents();
+             }
+             m_commandQueueLock.unlock();
+
              saveSnapshotForAllViews(generatedFolderName);
 
              QDir baseDir(testCaseFolder.filePath(baseFolderName));
@@ -1715,6 +1727,11 @@ void RiaApplication::executeCommandObjects()
         first->redo();
 
         m_commandQueue.pop_front();
+    }
+    else
+    {
+        // Unlock the command queue lock when the command queue is empty
+        m_commandQueueLock.unlock();
     }
 }
 

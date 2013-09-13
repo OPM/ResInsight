@@ -19,6 +19,8 @@
 #pragma once
 #include <QApplication>
 #include <QProcess>
+#include <QMutex>
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cvfBase.h"
@@ -174,4 +176,5 @@ private:
     QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
 
     std::list<RimCommandObject*>       m_commandQueue;
+    QMutex                             m_commandQueueLock;
 };
