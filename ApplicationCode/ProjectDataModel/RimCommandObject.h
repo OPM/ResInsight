@@ -55,6 +55,8 @@ public:
 
     virtual void redo();
     virtual void undo();
+
+    virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
 };
 
 

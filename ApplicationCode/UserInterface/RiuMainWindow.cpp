@@ -139,6 +139,8 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     slotRefreshViewActions();
     refreshAnimationActions();
     refreshDrawStyleActions();
+
+    m_processMonitor->slotClearTextEdit();
 }
 
 //--------------------------------------------------------------------------------------------------

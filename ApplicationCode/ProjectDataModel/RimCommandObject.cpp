@@ -51,6 +51,7 @@ RimCommandExecuteScript::RimCommandExecuteScript()
 {
     CAF_PDM_InitField(&scriptText, "ScriptText",  QString(), "ScriptText", "", "" ,"");
     scriptText.setUiEditorTypeName(caf::PdmUiTextEditor::uiEditorTypeName());
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,6 +92,18 @@ void RimCommandExecuteScript::redo()
 void RimCommandExecuteScript::undo()
 {
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimCommandExecuteScript::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute)
+{
+    caf::PdmUiTextEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>(attribute);
+    if (myAttr)
+    {
+        myAttr->showSaveButton = true;
+    }
 }
 
 

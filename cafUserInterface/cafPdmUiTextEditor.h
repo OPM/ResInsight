@@ -22,6 +22,7 @@
 #include <QString>
 #include <QWidget>
 #include <QPointer>
+#include <QPushButton>
 #include <QTextEdit>
 #include <QLabel>
 
@@ -40,6 +41,7 @@ public:
     PdmUiTextEditorAttribute()
     {
         textMode = PLAIN;
+        showSaveButton = false;
     }
 
     enum TextMode 
@@ -49,7 +51,8 @@ public:
     };
 
 public:
-    TextMode textMode;
+    TextMode    textMode;
+    bool        showSaveButton;
 };
 
 
@@ -69,10 +72,12 @@ protected:
 
 protected slots:
     void                slotTextChanged();
+    void                slotSaveButtonClicked();
 
 private:
-    QPointer<QTextEdit> m_textEdit;
-    QPointer<QLabel>    m_label;
+    QPointer<QTextEdit>     m_textEdit;
+    QPointer<QPushButton>   m_saveButton;
+    QPointer<QLabel>        m_label;
 
     PdmUiTextEditorAttribute::TextMode m_textMode; 
 };
