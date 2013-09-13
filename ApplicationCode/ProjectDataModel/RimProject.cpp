@@ -124,6 +124,8 @@ void RimProject::close()
 
     wellPathImport = new RimWellPathImport();
 
+    commandObjects.deleteAllChildObjects();
+
     fileName = "";
 
     nextValidCaseId = 0;
