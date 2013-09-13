@@ -585,9 +585,6 @@ public:
             ++m_currentTimeStepNumberToRead;
         }
 
-//         std::cout << "RiaSetActiveCellProperty, completed " << std::endl;
-//         currentClient->disconnect();
-//         std::cout << "RiaSetActiveCellProperty, completed (after disconnect) " << std::endl;
 
         // If we have read all the data, refresh the views
 
@@ -625,12 +622,15 @@ public:
                 {
                     if (m_currentReservoir->reservoirViews[i])
                     {
-                        m_currentReservoir->reservoirViews[i]->updateCurrentTimeStepAndRedraw();
+                        // As new result might have been introduced, update all editors connected
+                        m_currentReservoir->reservoirViews[i]->cellResult->updateConnectedEditors();
+
+                        // It is usually not needed to create new display model, but if any derived geometry based on generated data (from Octave) 
+                        // a full display model rebuild is required
+                        m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
                     }
                 }
             }
-
-//            std::cout << "RiaSetActiveCellProperty, completed : scalarIndex : " << m_currentScalarIndex;
 
             return true;
         }
