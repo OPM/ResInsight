@@ -350,6 +350,12 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         caseProgress.incrementProgress();
     }
 
+    // NB! This function must be called before executing command objects, 
+    // because the tree view state is restored from project file and sets
+    // current active view ( see restoreTreeViewState() )
+    // Default behavior for scripts is to use current active view for data read/write
+    onProjectOpenedOrClosed();
+
     // Loop over command objects and execute them
     for (size_t i = 0; i < m_project->commandObjects.size(); i++)
     {
@@ -361,8 +367,6 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
     // Execute command objects, and release the mutex when the queue is empty
     executeCommandObjects();
-
-    onProjectOpenedOrClosed();
 
     return true;
 }
