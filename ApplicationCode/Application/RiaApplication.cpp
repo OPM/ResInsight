@@ -1025,6 +1025,18 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         }
 
         m_workerProcess = new caf::UiProcess(this);
+
+        // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
+
+        QProcessEnvironment penv = m_workerProcess->processEnvironment();
+        QString ldPath = penv.value("LD_LIBRARY_PATH", "");
+
+        if (ldPath == "") ldPath = QApplication::applicationDirPath();
+        else  ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+
+        penv.insert("LD_LIBRARY_PATH", ldPath);
+        m_workerProcess->setProcessEnvironment(penv);
+
         connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
 
         RiuMainWindow::instance()->processMonitor()->startMonitorWorkProcess(m_workerProcess);
