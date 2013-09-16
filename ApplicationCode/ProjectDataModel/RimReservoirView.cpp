@@ -1081,7 +1081,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         {
             RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
 
-            if (m_currentTimeStep < singleWellResultData->firstResultTimeStep())
+            if (m_currentTimeStep < static_cast<int>(singleWellResultData->firstResultTimeStep()))
             {
                 continue;
             }

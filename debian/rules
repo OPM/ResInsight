@@ -13,7 +13,7 @@
 	dh $@
 
 override_dh_auto_configure:
-	dh_auto_configure --buildsystem=cmake -- -DCMAKE_BUILD_TYPE=Release -DPRIVATE_INSTALL=0 -DCMAKE_INSTALL_DOCDIR=share/doc/resinsight
+	dh_auto_configure --buildsystem=cmake -- -DCMAKE_BUILD_TYPE=Release -DRESINSIGHT_PRIVATE_INSTALL=0 -DCMAKE_INSTALL_DOCDIR=share/doc/resinsight
 
 .PHONY: override_dh_strip
 override_dh_strip:

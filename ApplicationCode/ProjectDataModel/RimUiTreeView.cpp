@@ -560,7 +560,6 @@ void RimUiTreeView::slotExecuteScript()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -574,6 +573,8 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
     QModelIndex mi = RimUiTreeView::getModelIndexFromString(model(), encodedModelIndex);
 
     RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
+    if (!myModel) return;
+
     caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(mi);
     if (uiItem)
     {
@@ -618,7 +619,8 @@ void RimUiTreeView::slotExecuteScriptForSelectedCases()
                 caf::PdmObjectGroup group;
 
                 QModelIndexList mil = m->selectedRows();
-                populateObjectGroupFromModelIndexList(mil, &group);
+
+                myModel->populateObjectGroupFromModelIndexList(mil, &group);
 
                 std::vector<caf::PdmPointer<RimCase> > typedObjects;
                 group.objectsByType(&typedObjects);
@@ -909,7 +911,7 @@ void RimUiTreeView::slotCloseCase()
             caf::PdmObjectGroup group;
 
             QModelIndexList mil = m->selectedRows();
-            populateObjectGroupFromModelIndexList(mil, &group);
+            myModel->populateObjectGroupFromModelIndexList(mil, &group);
 
             std::vector<caf::PdmPointer<RimCase> > typedObjects;
             group.objectsByType(&typedObjects);
@@ -1048,7 +1050,7 @@ void RimUiTreeView::createPdmObjectsFromClipboard(caf::PdmObjectGroup* objectGro
     if (!mdWithIndexes) return;
 
     QModelIndexList indexList = mdWithIndexes->indexes();
-    populateObjectGroupFromModelIndexList(indexList, objectGroup);
+    myModel->populateObjectGroupFromModelIndexList(indexList, objectGroup);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1534,27 +1536,6 @@ void RimUiTreeView::slotToggleItemsOn()
 void RimUiTreeView::slotToggleItemsOff()
 {
     executeSelectionToggleOperation(TOGGLE_OFF);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimUiTreeView::populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup)
-{
-    CVF_ASSERT(objectGroup);
-
-    RimUiTreeModelPdm* myModel = dynamic_cast<RimUiTreeModelPdm*>(model());
-    if (!myModel) return;
-
-    for (int i = 0; i < modelIndexList.size(); i++)
-    {
-        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(modelIndexList.at(i));
-        
-        if (uiItem && uiItem->dataObject() && uiItem->dataObject().p())
-        {
-            objectGroup->addObject(uiItem->dataObject().p());
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

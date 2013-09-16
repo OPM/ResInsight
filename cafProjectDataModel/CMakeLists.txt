@@ -28,4 +28,7 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiObjectEditorHandle.h
 	cafPdmUiOrdering.cpp
 	cafPdmUiOrdering.h
+	cafPdmUiTreeOrdering.cpp
+	cafPdmUiTreeOrdering.h
+
 )
