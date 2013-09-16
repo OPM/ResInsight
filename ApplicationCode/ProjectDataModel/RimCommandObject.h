@@ -36,6 +36,8 @@ public:
     RimCommandObject();
     virtual ~RimCommandObject();
 
+    virtual bool isAsyncronous() { return false; };
+
     virtual void redo() {};
     virtual void undo() {};
 };
@@ -64,6 +66,35 @@ public:
     virtual caf::PdmFieldHandle* userDescriptionField();
 
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+
+    virtual bool isAsyncronous();
+};
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class RimCommandIssueFieldChanged : public RimCommandObject
+{
+    CAF_PDM_HEADER_INIT;
+public:
+    RimCommandIssueFieldChanged();
+    virtual ~RimCommandIssueFieldChanged();
+
+    caf::PdmField<QString>  commandName;
+    caf::PdmField<QString>  objectName;
+    caf::PdmField<QString>  fieldName;
+    caf::PdmField<QString>  fieldValueToApply;
+
+    virtual void redo();
+    virtual void undo();
+
+    virtual caf::PdmFieldHandle* userDescriptionField();
+
+private:
+    void childObjects(caf::PdmObject* pdmObject, std::vector<caf::PdmObject*>& children);
+    caf::PdmObject* findObjectByName(caf::PdmObject* root, const QString& objectName);
+    caf::PdmFieldHandle* findFieldByKeyword(caf::PdmObject* pdmObject, const QString& fieldName);
+
 };
 
 

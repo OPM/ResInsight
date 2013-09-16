@@ -1289,12 +1289,12 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
     QString snapshotPath = projectDir.absolutePath();
     snapshotPath += "/" + snapshotFolderName;
 
-    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
-    if (analysisModels == NULL) return;
+    std::vector<RimCase*> projectCases;
+    m_project->allCases(projectCases);
 
-    for (size_t i = 0; i < analysisModels->cases().size(); ++i)
+    for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = analysisModels->cases()[i];
+        RimCase* ri = projectCases[i];
         if (!ri) continue;
 
         for (size_t j = 0; j < ri->reservoirViews().size(); j++)
@@ -1736,6 +1736,23 @@ void RiaApplication::addCommandObject(RimCommandObject* commandObject)
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::executeCommandObjects()
 {
+    std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
+    while (it != m_commandQueue.end())
+    {
+        RimCommandObject* toBeRemoved = *it;
+        if (!toBeRemoved->isAsyncronous())
+        {
+            toBeRemoved->redo();
+
+            it++;
+            m_commandQueue.remove(toBeRemoved);
+        }
+        else
+        {
+            it++;
+        }
+    }
+
     if (m_commandQueue.size() > 0)
     {
         std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
