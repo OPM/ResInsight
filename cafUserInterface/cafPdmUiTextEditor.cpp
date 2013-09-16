@@ -30,6 +30,7 @@
 #include <QTextEdit>
 #include <QLabel>
 #include <QIntValidator>
+#include <QVBoxLayout>
 
 #include <assert.h>
 #include "cafFactory.h"
@@ -69,6 +70,17 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &leab);
     m_textMode = leab.textMode;
 
+    if (leab.showSaveButton)
+    {
+        disconnect(m_textEdit, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+        m_saveButton->show();
+    }
+    else
+    {
+        connect(m_textEdit, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
+        m_saveButton->hide();
+    }
+
     m_textEdit->blockSignals(true);
     switch (leab.textMode)
     {
@@ -89,9 +101,25 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiTextEditor::createEditorWidget(QWidget * parent)
 {
-    m_textEdit = new QTextEdit(parent);
+    QWidget* containerWidget = new QWidget(parent);
+
+    m_textEdit = new QTextEdit(containerWidget);
     connect(m_textEdit, SIGNAL(textChanged()), this, SLOT(slotTextChanged()));
-    return m_textEdit;
+
+    m_saveButton = new QPushButton("Save changes", containerWidget);
+    connect(m_saveButton, SIGNAL(clicked()), this, SLOT(slotSaveButtonClicked()));
+
+    QVBoxLayout* layout = new QVBoxLayout;
+    layout->addWidget(m_textEdit);
+
+    QHBoxLayout* buttonLayout = new QHBoxLayout;
+    buttonLayout->insertStretch(0, 10);
+    buttonLayout->addWidget(m_saveButton);
+
+    layout->addLayout(buttonLayout);
+    containerWidget->setLayout(layout);
+
+    return containerWidget;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,6 +152,14 @@ void PdmUiTextEditor::slotTextChanged()
     v = textValue;
 
     this->setValueToField(v);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTextEditor::slotSaveButtonClicked()
+{
+    slotTextChanged();
 }
 
 

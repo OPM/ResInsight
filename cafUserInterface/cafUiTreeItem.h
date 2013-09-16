@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include <QAbstractItemModel>
+//#include <QAbstractItemModel>
+#include <QList>
 #include <assert.h>
 
 
@@ -47,7 +48,7 @@ public:
         setDataObject(dataObject);
     }
 
-    ~UiTreeItem()
+    virtual ~UiTreeItem()
     {
         qDeleteAll(m_childItems);
     }

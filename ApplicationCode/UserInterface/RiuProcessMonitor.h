@@ -52,6 +52,9 @@ public:
     void                    startMonitorWorkProcess(caf::UiProcess* process);
     void                    stopMonitorWorkProcess();
 
+public slots:
+    void                    slotClearTextEdit();
+
 private:
     void                    setStatusMsg(const QString& status, int messageType);
     void                    addStringToLog(const QString& text);
@@ -61,6 +64,5 @@ private slots:
     void                    slotProcReadyReadStdOut();
     void                    slotProcReadyReadStdErr();
     void                    slotTerminateProcess();
-    void                    slotClearTextEdit();
 };
 

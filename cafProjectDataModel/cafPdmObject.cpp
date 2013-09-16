@@ -26,6 +26,7 @@
 #include <QXmlStreamWriter>
 #include "cafPdmObjectFactory.h"
 #include "cafPdmDocument.h"
+#include "cafPdmUiTreeOrdering.h"
 
 namespace caf
 {
@@ -363,6 +364,71 @@ PdmObject* PdmObject::deepCopy()
     */
 }
 
+//--------------------------------------------------------------------------------------------------
+/// This method is to be used to create a tree-representation of the object hierarchy starting at this
+/// object. The caller is responsible to delete the returned PdmUiTreeOrdering
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeOrdering* PdmObject::uiTreeOrdering(QString uiConfigName /*= ""*/)
+{
+    PdmUiTreeOrdering* uiTreeOrdering = new PdmUiTreeOrdering(NULL, -1, this);
+
+    this->defineUiTreeOrdering(*uiTreeOrdering, uiConfigName);
+
+    if (!uiTreeOrdering->forgetRemainingFields())
+    {
+        // Add the remaining Fields To UiConfig
+
+        for (size_t fIdx = 0; fIdx < m_fields.size(); ++fIdx)
+        {
+            if ( (m_fields[fIdx]->hasChildObjects()) && !uiTreeOrdering->containsField(m_fields[fIdx]))
+            {
+                uiTreeOrdering->add( m_fields[fIdx]);
+            }
+        }
+    }
+
+    expandUiTree(uiTreeOrdering, uiConfigName);
+    return uiTreeOrdering;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName /*= "" */)
+{
+    if (!root) return;
+
+    if ( root->childCount() == 0)
+    {
+        if (!root->isSubTreeDefined() && root->dataObject())
+        {
+
+            if (root->m_field)
+            {
+                std::vector<PdmObject*> fieldsChildObjects;
+                root->m_field->childObjects(&fieldsChildObjects);
+                for (size_t cIdx = 0; cIdx < fieldsChildObjects.size(); ++cIdx)
+                {
+                    root->add(fieldsChildObjects[cIdx]);
+                }
+            }
+            else
+            {
+                root->dataObject()->defineUiTreeOrdering(*root, uiConfigName);
+            }
+        }
+    }
+
+    for (int cIdx = 0; cIdx < root->childCount(); ++cIdx)
+    {
+        PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(root->child(cIdx));
+        if (!child->isSubTreeDefined())
+        {
+            expandUiTree(child);
+        }
+    }
+}
 
 
 } //End of namespace caf
