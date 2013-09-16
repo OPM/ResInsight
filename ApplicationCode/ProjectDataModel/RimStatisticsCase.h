@@ -64,6 +64,7 @@ public:
         INTERPOLATED_OBSERVATION
     };
 
+    caf::PdmField< bool >                                          m_calculateEditCommand;
  
 private:
     RimIdenticalGridCaseGroup* caseGroup();
@@ -76,6 +77,8 @@ private:
     void updateSelectionSummaryLabel();
     void updatePercentileUiVisibility();
 
+    void updateConnectedEditorsAndReservoirViews();
+
     void setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults);
 
     // Pdm system overrides
@@ -86,7 +89,6 @@ private:
     virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
 
     // Fields
-     caf::PdmField< bool >                                          m_calculateEditCommand;
 
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModel;

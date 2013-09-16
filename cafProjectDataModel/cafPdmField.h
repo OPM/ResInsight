@@ -66,8 +66,11 @@ public:
 
     virtual QVariant uiValue() const                                { return QVariant(); }
     virtual void     setValueFromUi(const QVariant& )               {  }
+
+    virtual bool     hasChildObjects();
     virtual void     childObjects(std::vector<PdmObject*>* )        {  }
     virtual void     removeChildObject(PdmObject* )                 {  }
+
     virtual QList<PdmOptionItemInfo> 
                      valueOptions( bool* useOptionsOnly)            {  return  QList<PdmOptionItemInfo>(); }
 

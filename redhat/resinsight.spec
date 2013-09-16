@@ -41,7 +41,7 @@ This package contains the ResInsight octave plugins.
 %patch3 -p1
 
 %build
-cmake28 -DPRIVATE_INSTALL=0 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_DOCDIR=share/doc/resinsight-0.9.2
+cmake28 -DRESINSIGHT_PRIVATE_INSTALL=0 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_INSTALL_DOCDIR=share/doc/resinsight-0.9.2
 make
 
 %install

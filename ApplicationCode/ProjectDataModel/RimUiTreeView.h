@@ -47,8 +47,6 @@ public:
     void applyTreeViewStateFromString(const QString& treeViewState);
     void storeTreeViewStateToString(QString& treeViewState);
 
-    void populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup);
-
     static QModelIndex getModelIndexFromString(QAbstractItemModel* model, const QString& currentIndexString);
     static void encodeStringFromModelIndex(const QModelIndex mi, QString& currentIndexString);
 

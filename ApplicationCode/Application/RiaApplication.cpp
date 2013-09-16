@@ -350,7 +350,24 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         caseProgress.incrementProgress();
     }
 
+    // NB! This function must be called before executing command objects, 
+    // because the tree view state is restored from project file and sets
+    // current active view ( see restoreTreeViewState() )
+    // Default behavior for scripts is to use current active view for data read/write
     onProjectOpenedOrClosed();
+    processEvents();
+
+    // Loop over command objects and execute them
+    for (size_t i = 0; i < m_project->commandObjects.size(); i++)
+    {
+        m_commandQueue.push_back(m_project->commandObjects[i]);
+    }
+
+    // Lock the command queue
+    m_commandQueueLock.lock();
+
+    // Execute command objects, and release the mutex when the queue is empty
+    executeCommandObjects();
 
     return true;
 }
@@ -494,6 +511,8 @@ bool RiaApplication::closeProject(bool askToSaveIfDirty)
 
     caf::EffectGenerator::clearEffectCache();
     m_project->close();
+
+    m_commandQueue.clear();
 
     onProjectOpenedOrClosed();
 
@@ -855,9 +874,11 @@ bool RiaApplication::parseArguments()
         if (mainWnd)
         {
             mainWnd->hideAllDockWindows();
-        }
 
-        runRegressionTest(regressionTestPath);
+            runRegressionTest(regressionTestPath);
+
+            mainWnd->loadWinGeoAndDockToolBarLayout();
+        }
 
         return false;
     }
@@ -959,6 +980,10 @@ void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatu
         return;
     }
 
+
+    executeCommandObjects();
+
+
     // Exit code != 0 means we have an error
     if (exitCode != 0)
     {
@@ -1000,6 +1025,18 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
         }
 
         m_workerProcess = new caf::UiProcess(this);
+
+        // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
+
+        QProcessEnvironment penv = m_workerProcess->processEnvironment();
+        QString ldPath = penv.value("LD_LIBRARY_PATH", "");
+
+        if (ldPath == "") ldPath = QApplication::applicationDirPath();
+        else  ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+
+        penv.insert("LD_LIBRARY_PATH", ldPath);
+        m_workerProcess->setProcessEnvironment(penv);
+
         connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
 
         RiuMainWindow::instance()->processMonitor()->startMonitorWorkProcess(m_workerProcess);
@@ -1252,12 +1289,12 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
     QString snapshotPath = projectDir.absolutePath();
     snapshotPath += "/" + snapshotFolderName;
 
-    RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
-    if (analysisModels == NULL) return;
+    std::vector<RimCase*> projectCases;
+    m_project->allCases(projectCases);
 
-    for (size_t i = 0; i < analysisModels->cases().size(); ++i)
+    for (size_t i = 0; i < projectCases.size(); i++)
     {
-        RimCase* ri = analysisModels->cases()[i];
+        RimCase* ri = projectCases[i];
         if (!ri) continue;
 
         for (size_t j = 0; j < ri->reservoirViews().size(); j++)
@@ -1358,6 +1395,14 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         if (testCaseFolder.exists(regTestProjectName))
         {
              loadProject(testCaseFolder.filePath(regTestProjectName));
+
+             // Wait until all command objects have completed
+             while (!m_commandQueueLock.tryLock())
+             {
+                 processEvents();
+             }
+             m_commandQueueLock.unlock();
+
              saveSnapshotForAllViews(generatedFolderName);
 
              QDir baseDir(testCaseFolder.filePath(baseFolderName));
@@ -1676,5 +1721,51 @@ QVariant RiaApplication::cacheDataObject(const QString& key) const
     }
 
     return QVariant();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::addCommandObject(RimCommandObject* commandObject)
+{
+    m_commandQueue.push_back(commandObject);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::executeCommandObjects()
+{
+    std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
+    while (it != m_commandQueue.end())
+    {
+        RimCommandObject* toBeRemoved = *it;
+        if (!toBeRemoved->isAsyncronous())
+        {
+            toBeRemoved->redo();
+
+            it++;
+            m_commandQueue.remove(toBeRemoved);
+        }
+        else
+        {
+            it++;
+        }
+    }
+
+    if (m_commandQueue.size() > 0)
+    {
+        std::list< RimCommandObject* >::iterator it = m_commandQueue.begin();
+
+        RimCommandObject* first = *it;
+        first->redo();
+
+        m_commandQueue.pop_front();
+    }
+    else
+    {
+        // Unlock the command queue lock when the command queue is empty
+        m_commandQueueLock.unlock();
+    }
 }
 

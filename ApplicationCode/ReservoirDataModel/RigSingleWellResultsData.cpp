@@ -247,7 +247,7 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     for (bIt = staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt)
     {
-        if (bIt->first >= m_wellCellsTimeSteps[0].m_wellResultBranches.size())
+        if (bIt->first >= static_cast<int>(m_wellCellsTimeSteps[0].m_wellResultBranches.size()))
         {
             continue;
         }

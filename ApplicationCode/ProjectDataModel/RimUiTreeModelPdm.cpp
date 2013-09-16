@@ -1084,3 +1084,21 @@ void RimUiTreeModelPdm::deleteAllWellPaths(const QModelIndex& itemIndex)
     clearClipboard();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimUiTreeModelPdm::populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup)
+{
+    CVF_ASSERT(objectGroup);
+
+    for (int i = 0; i < modelIndexList.size(); i++)
+    {
+        caf::PdmUiTreeItem* uiItem = UiTreeModelPdm::getTreeItemFromIndex(modelIndexList.at(i));
+
+        if (uiItem && uiItem->dataObject() && uiItem->dataObject().p())
+        {
+            objectGroup->addObject(uiItem->dataObject().p());
+        }
+    }
+}
+
