@@ -200,7 +200,9 @@ void RimStatisticsCase::computeStatistics()
 
     getSourceCases(sourceCases);
 
-    if (sourceCases.size() == 0)
+    if (sourceCases.size() == 0
+        || !sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)
+        || !sourceCases.at(0)->results(RifReaderInterface::MATRIX_RESULTS)->cellResults())
     {
         return;
     }
@@ -298,7 +300,6 @@ void RimStatisticsCase::getSourceCases(std::vector<RimCase*>& sourceCases)
         {
             CVF_ASSERT(gridCaseGroup->caseCollection);
             CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]);
-            CVF_ASSERT(gridCaseGroup->caseCollection->reservoirs[i]->reservoirData());
 
             RimCase* sourceCase = gridCaseGroup->caseCollection->reservoirs[i];
             sourceCases.push_back(sourceCase);
