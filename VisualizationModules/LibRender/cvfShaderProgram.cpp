@@ -268,7 +268,9 @@ bool ShaderProgram::useProgram(OpenGLContext* oglContext) const
     }
 
     CVF_ASSERT(OglRc::safeOglId(m_oglRcProgram.p()) != 0);
+#ifndef CVF_OSX
     CVF_ASSERT(validateProgram(oglContext));
+#endif
     
     // Need this check to clear any "hanging" errors that is not produced by glUseProgram below, but still 
     // will make this method return false.
