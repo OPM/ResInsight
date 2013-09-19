@@ -115,6 +115,9 @@ String OpenGL::mapOpenGLErrorToString(cvfGLenum errorCode)
 		case GL_INVALID_VALUE:      errCodeStr = "GL_INVALID_VALUE";      break;
 		case GL_INVALID_OPERATION:  errCodeStr = "GL_INVALID_OPERATION";  break;
 		case GL_OUT_OF_MEMORY:      errCodeStr = "GL_OUT_OF_MEMORY";      break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION:
+		                            errCodeStr = "GL_INVALID_FRAMEBUFFER_OPERATION";
+		                                                                  break;
 #ifndef CVF_OPENGL_ES
 		case GL_STACK_OVERFLOW:     errCodeStr = "GL_STACK_OVERFLOW";     break;
 		case GL_STACK_UNDERFLOW:    errCodeStr = "GL_STACK_UNDERFLOW";    break;
