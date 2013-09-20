@@ -271,7 +271,7 @@ void Camera::setProjectionAsPixelExact2D()
 void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor)
 {
     // Use old view direction, but look towards model center
-    Vec3d eye = fitViewEyePosition(boundingBox, dir, up, coverageFactor);
+    Vec3d eye = computeFitViewEyePosition(boundingBox, dir, up, coverageFactor, m_fieldOfViewYDeg, viewport()->aspectRatio());
 
     // Will update cached values
     setFromLookAt(eye, boundingBox.center(), up);
@@ -281,10 +281,8 @@ void Camera::fitView(const BoundingBox& boundingBox, const Vec3d& dir, const Vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-Vec3d Camera::fitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor) const
+Vec3d Camera::computeFitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& dir, const Vec3d& up, double coverageFactor, double fieldOfViewYDeg, double aspectRatio) 
 {
-    CVF_ASSERT(projection() == PERSPECTIVE);
-
     cvf::Vec3d corners[8];
     boundingBox.cornerVertices(corners);
 
@@ -299,9 +297,9 @@ Vec3d Camera::fitViewEyePosition(const BoundingBox& boundingBox, const Vec3d& di
     cvf::Plane planeSide;
     planeSide.setFromPointAndNormal(boundingBox.center(), right);
 
-    // m_fieldOfViewYDeg is the complete angle in degrees, get half in radians
-    double fovY = Math::toRadians(m_fieldOfViewYDeg/2.0);
-    double fovX = Math::atan(Math::tan(fovY)*aspectRatio());
+    // fieldOfViewYDeg is the complete angle in degrees, get half in radians
+    double fovY = Math::toRadians(fieldOfViewYDeg/2.0);
+    double fovX = Math::atan(Math::tan(fovY)*aspectRatio);
 
     double dist = 0;
 
@@ -392,9 +390,7 @@ void Camera::fitViewOrtho(const BoundingBox& boundingBox, double eyeDist, const 
 
 
 //--------------------------------------------------------------------------------------------------
-/// Set the front and back clipping planes close to the given bounding box (perspective projection)
-///
-/// Note that this will setup a perspective projection with the new clipping planes.
+/// Set the front and back clipping planes close to the given bounding box
 //--------------------------------------------------------------------------------------------------
 void Camera::setClipPlanesFromBoundingBox(const BoundingBox& boundingBox, double minNearPlaneDistance)
 {

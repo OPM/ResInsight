@@ -15,8 +15,8 @@ void main()
     vec3 N;
     N.xy = vec2(v_circleFactors.x, v_circleFactors.y);
     float mag = dot(N.xy, N.xy);
-    if (mag > 1) discard;   
-    N.z = sqrt(1 - mag);
+    if (mag > 1.0) discard;   
+    N.z = sqrt(1.0 - mag);
 
     float diffuse = max(0.0, dot(lightDir, N));
 

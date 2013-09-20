@@ -31,9 +31,11 @@
 #include <cstdarg>
 #endif
 
+#ifdef CVF_ANDROID
+#include <android/log.h>
+#endif
+
 namespace cvf {
-
-
 
 //==================================================================================================
 ///
@@ -70,6 +72,8 @@ void Trace::show(const char* format, ...)
 
 #ifdef WIN32
     _vsnprintf_s(temp, maxFormatLength, format, argList);
+#elif defined(CVF_ANDROID)
+    __android_log_print(ANDROID_LOG_DEBUG, "CVF_TAG", format, argList);
 #else
     vsprintf(temp, format, argList);
 #endif
@@ -115,6 +119,8 @@ void Trace::showTraceOutput(String text, bool addNewLine)
         WriteConsoleA(hStdOutputHandle, ascii.ptr(), stringLength, &iDum, NULL);
         if (addNewLine) WriteConsole(hStdOutputHandle, "\n", 1, &iDum, NULL);
     }
+#elif defined(CVF_ANDROID)
+    __android_log_print(ANDROID_LOG_DEBUG, "CVF_TAG", "%s", text.toAscii().ptr());
 #else
     fprintf(stderr, "%s", text.toAscii().ptr());
     if (addNewLine) 

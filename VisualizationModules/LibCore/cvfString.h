@@ -77,8 +77,9 @@ public:
     CharArray           toAscii() const;                // Useful when you need a const char* pointer.
     std::string         toStdString() const;
     std::wstring        toStdWString() const;
-
     CharArray           toUtf8() const;
+
+    static String       fromAscii(const char* str, size_t strSize = npos);
     static String       fromUtf8(const char* str);
 
     bool                isEmpty() const;

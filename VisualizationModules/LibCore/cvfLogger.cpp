@@ -68,9 +68,10 @@ const String& Logger::name() const
 
 
 //--------------------------------------------------------------------------------------------------
-/// Set the logging level of this logger
+/// Sets the logging level of this logger
 ///
 /// Set a level of 0 to disable all logging for this logger. 
+/// \sa Logger::Level
 //--------------------------------------------------------------------------------------------------
 void Logger::setLevel(int logLevel)
 {

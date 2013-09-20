@@ -22,7 +22,7 @@
 #include <QString>
 
 #include "cafPdmUiItem.h"
-#include "../cafUserInterface/cafUiTreeItem.h"
+#include "cafUiTreeItem.h"
 #include "cafPdmPointer.h"
 
 namespace caf 

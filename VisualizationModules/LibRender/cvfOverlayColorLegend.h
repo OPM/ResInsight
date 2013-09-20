@@ -31,34 +31,7 @@ class Font;
 class ShaderProgram;
 class MatrixState;
 class TextDrawer;
-
-
-//==================================================================================================
-//
-// Helper for storing layout info
-//
-//==================================================================================================
-struct OverlayColorLegendLayoutInfo
-{
-    OverlayColorLegendLayoutInfo(const Vec2i& pos, const Vec2ui& setSize)
-    {
-        position = pos;
-        size = setSize;
-    }
-
-    float charHeight;
-    float lineSpacing;
-    Vec2f margins;
-    float tickX;
-    float x0, x1;
-
-    Rectf legendRect;
-
-    ref<DoubleArray> tickPixelPos;
-
-    Vec2i position;
-    Vec2ui size;
-};
+struct OverlayColorLegendLayoutInfo;
 
 
 //==================================================================================================
@@ -83,6 +56,7 @@ public:
     void            configureLevels(const Color3ubArray& levelColors, const DoubleArray& tickValues);
 
     void            setSizeHint(const Vec2ui& size);
+    void            setWidthToFitText();
     
     void            setColor(const Color3f& color);
     const Color3f&  color() const;
@@ -96,12 +70,12 @@ public:
     String          title() const;
 
 protected:
-    void         render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
-    virtual void renderLegend(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const MatrixState& matrixState);
-    virtual void renderLegendImmediateMode(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout);
-    virtual void setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout);
+    void            render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);
+    virtual void    renderLegend(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout, const MatrixState& matrixState);
+    virtual void    renderLegendImmediateMode(OpenGLContext* oglContext, OverlayColorLegendLayoutInfo* layout);
+    virtual void    setupTextDrawer(TextDrawer* textDrawer, OverlayColorLegendLayoutInfo* layout);
 
-    void layoutInfo(OverlayColorLegendLayoutInfo* layout);
+    void            layoutInfo(OverlayColorLegendLayoutInfo* layout);
 
 protected:
     Color3ubArray       m_levelColors;          // Colors for n levels
@@ -115,6 +89,28 @@ protected:
     int                 m_lineWidth;
     std::vector<String> m_titleStrings;
     ref<Font>           m_font;
+
+    const cvf::uint     m_margin;
+};
+
+
+//==================================================================================================
+//
+// Internal helper for storing layout info to allow for custom rendered legends
+//
+//==================================================================================================
+struct OverlayColorLegendLayoutInfo
+{
+    float               charHeight;
+    float               lineSpacing;
+    Vec2f               margins;
+    float               tickX;
+    float               x0;
+    float               x1;
+    Rectf               legendRect;
+    Vec2i               position;
+    Vec2ui              size;
+    ref<DoubleArray>    tickPixelPos;
 };
 
 }

@@ -580,6 +580,31 @@ CharArray String::toUtf8() const
 }
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// Returns a String initialized with the first \a strSize characters from the string str
+///
+/// If \a strSize is npos, this function will compute the length of the string.
+//--------------------------------------------------------------------------------------------------
+cvf::String String::fromAscii(const char* str, size_t strSize)
+{
+    if (str != NULL)
+    {
+        if (strSize == npos)
+        {
+            strSize = strlen(str);
+        }
+
+        // Raw conversion, no UTF8
+        return String(std::wstring(str, str + strSize));
+    }
+    else
+    {
+        return String();
+    }
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

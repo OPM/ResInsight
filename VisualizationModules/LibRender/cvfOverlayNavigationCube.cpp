@@ -454,15 +454,19 @@ void OverlayNavigationCube::renderCubeGeos(OpenGLContext* oglContext, bool softw
             }
         }
 
-        Color3f faceColor;
-        switch (face)
+        Color3f faceColor = Color3f(Color3::WHITE);
+
+        if (!hasTexture)
         {
-            case NCF_X_POS:
-            case NCF_X_NEG:     faceColor = m_xFaceColor; break;
-            case NCF_Y_POS:
-            case NCF_Y_NEG:     faceColor = m_yFaceColor; break;
-            case NCF_Z_POS:
-            case NCF_Z_NEG:     faceColor = m_zFaceColor; break;
+            switch (face)
+            {
+                case NCF_X_POS:
+                case NCF_X_NEG:     faceColor = m_xFaceColor; break;
+                case NCF_Y_POS:
+                case NCF_Y_NEG:     faceColor = m_yFaceColor; break;
+                case NCF_Z_POS:
+                case NCF_Z_NEG:     faceColor = m_zFaceColor; break;
+            }
         }
 
         for (size_t i  = 0; i < m_cubeGeos.size(); ++i)
@@ -480,16 +484,12 @@ void OverlayNavigationCube::renderCubeGeos(OpenGLContext* oglContext, bool softw
 
                 if (software)
                 {
-                    if (hasTexture)
-                    {
-                        glColor3f(1.0f, 1.0f, 1.0f);
-                    }
-                    else
-                    {
-                        glColor3fv(renderFaceColor.ptr());
-                    }
-
+#ifdef CVF_OPENGL_ES
+                    CVF_FAIL_MSG("Not supported on OpenGL ES");
+#else
+                    glColor3fv(renderFaceColor.ptr());
                     m_cubeGeos[i]->renderImmediateMode(oglContext, matrixState);
+#endif
                 }
                 else
                 {
@@ -567,8 +567,12 @@ void OverlayNavigationCube::render2dItems(OpenGLContext* oglContext, const Vec2i
 
             if (software)
             {
+#ifdef CVF_OPENGL_ES
+                CVF_FAIL_MSG("Not supported on OpenGL ES");
+#else
                 glColor3fv(renderFaceColor.ptr());
                 m_2dGeos[i]->renderImmediateMode(oglContext, matrixState);
+#endif
             }
             else
             {
@@ -1105,7 +1109,7 @@ OverlayNavigationCube::NavCubeItem OverlayNavigationCube::navCubeItem(NavCubeFac
 //--------------------------------------------------------------------------------------------------
 bool OverlayNavigationCube::pick(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size)
 {
-    return pickItem(winCoordX, winCoordY, position, size) != cvf::UNDEFINED_UINT;
+    return pickItem(winCoordX, winCoordY, position, size) != cvf::UNDEFINED_SIZE_T;
 }
 
 
