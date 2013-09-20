@@ -1533,7 +1533,7 @@ String String::arg(double a, int fieldWidth, char format, int precision, const w
 /// 
 /// \param other  Modifiable reference to the string that should have its contents swapped.
 /// 
-/// \warning Note that signature differs from normal CeeVizFramework practice. This is done to be 
+/// \warning Note that signature differs from normal practice. This is done to be 
 ///          consistent with the signature of std::swap()
 //--------------------------------------------------------------------------------------------------
 void String::swap(String& other)

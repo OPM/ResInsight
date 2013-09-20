@@ -32,7 +32,7 @@ namespace cvfqt {
 /// \class cvfqt::Utils
 /// \ingroup GuiQt
 ///
-/// Static helper class for CeeViz/Qt interop
+/// Static helper class for Qt interop
 /// 
 //==================================================================================================
 

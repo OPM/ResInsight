@@ -752,7 +752,7 @@ T Array<T>::max(size_t* index) const
 /// 
 /// \param other  Modifiable reference to the array that should have its contents swapped.
 /// 
-/// \warning Note that signature differs from normal CeeVizFramework practice. This is done to be 
+/// \warning Note that signature differs from normal practice. This is done to be 
 ///          consistent with the signature of std::swap()
 //--------------------------------------------------------------------------------------------------
 template <typename T>

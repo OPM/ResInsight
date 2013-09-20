@@ -18,12 +18,12 @@
 //##################################################################################################
 
 // Doxygen module definition
-/// \ingroup CeeVizFramework
+/// \ingroup VizFramework
 /// @{
 /// \defgroup Core Core module
 /// @}
 
-/// \defgroup CeeVizFramework CeeViz Framework Basis
+/// \defgroup VizFramework Framework Basis
 
 // Intentionally on top to be included first
 #include "cvfBase.h"

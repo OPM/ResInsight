@@ -23,7 +23,7 @@
 #error No platform defined
 #endif
 
-//  Global include file with definitions useful for all CeeVizFramework files
+//  Global include file with definitions useful for all library files
 
 // Disable some annoying warnings so we can compile with warning level Wall
 #ifdef WIN32

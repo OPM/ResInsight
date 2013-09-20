@@ -354,7 +354,7 @@ bool ref<T>::operator<(const ref& rhs) const
 /// Swap the associated pointer in this and the passed ref object. Will not modify the reference 
 /// count of any of the associated objects.
 /// 
-/// \warning Note that signature differs from normal CeeVizFramework practice. This is done to be 
+/// \warning Note that signature differs from normal practice. This is done to be 
 ///          consistent with the signature of std::swap()
 //--------------------------------------------------------------------------------------------------
 template<typename T>

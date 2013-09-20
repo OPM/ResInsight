@@ -18,7 +18,7 @@
 //##################################################################################################
 
 // Doxygen module definition
-/// \ingroup CeeVizFramework
+/// \ingroup VizFramework
 /// @{
 /// \defgroup Viewing Viewing module
 /// @}

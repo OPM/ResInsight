@@ -53,7 +53,7 @@ CvfBoundQGLContext::~CvfBoundQGLContext()
     {
         // TODO
         // Need to resolve the case where the Qt QGLcontext (that we're deriving from) is deleted
-        // and CeeViz is still holding a reference to one or more OpenGLContext objects
+        // and we are still holding a reference to one or more OpenGLContext objects
         // By the time we get here we expect that we're holding the only reference
         CVF_ASSERT(m_cvfGLContext->refCount() == 1);
         m_cvfGLContext = NULL;

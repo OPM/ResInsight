@@ -19,7 +19,7 @@
 
 
 // Doxygen module definition
-/// \ingroup CeeVizFramework
+/// \ingroup VizFramework
 /// @{
 /// \defgroup Geometry Geometry module
 /// @}

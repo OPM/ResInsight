@@ -318,7 +318,7 @@ void RenderSequence::preRenderApplyExpectedOpenGLState(OpenGLContext* oglContext
 
 
         // These settings differ from OpenGL defaults,
-        // but form a suitable starting point for rendering with CeeViz
+        // but form a suitable starting point for rendering
         // ------------------------------------------------
 
         // TODO Work out a proper solution for this

@@ -132,7 +132,7 @@ void ConstantFrameRate::attachRendering(Rendering* rendering)
         RenderQueueSorterTargetFramerate* rqs = new RenderQueueSorterTargetFramerate;
         m_rendering->setRenderQueueSorter(rqs);
 
-        // Currently, we need to enable pixel size culling in order to get CeeViz to 
+        // Currently, we need to enable pixel size culling in order to
         // compute the screen projected areas of the part's bounding boxes
         m_rendering->cullSettings()->enablePixelSizeCulling(true);
 
