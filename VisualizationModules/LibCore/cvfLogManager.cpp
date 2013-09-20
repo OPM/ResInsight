@@ -19,7 +19,6 @@
 
 #include "cvfBase.h"
 #include "cvfLogManager.h"
-#include "cvfLogger.h"
 #include "cvfLogDestinationConsole.h"
 
 namespace cvf {
@@ -137,7 +136,9 @@ Logger* LogManager::rootLogger()
 
 
 //--------------------------------------------------------------------------------------------------
+/// Sets the logging level of the given logger and all its descendants.
 /// 
+/// Specify an empty name to set logging level of all current loggers.
 //--------------------------------------------------------------------------------------------------
 void LogManager::setLevelRecursive(const String& baseLoggerName, int logLevel)
 {
@@ -167,7 +168,7 @@ void LogManager::setLevelRecursive(const String& baseLoggerName, int logLevel)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Sets the log destination for the specified logger and all its children.
 //--------------------------------------------------------------------------------------------------
 void LogManager::setDestinationRecursive(const String& baseLoggerName, LogDestination* logDestination)
 {

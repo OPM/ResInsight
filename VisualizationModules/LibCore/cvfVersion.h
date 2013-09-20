@@ -24,4 +24,4 @@
 #define CVF_MAJOR_VERSION       "0"         // Major version number
 #define CVF_MINOR_VERSION       "9"         // Minor version number
 #define CVF_SPECIAL_BUILD       ""          // Special build description
-#define CVF_BUILD_NUMBER        "4"         // Build number. Increase for each shipment
+#define CVF_BUILD_NUMBER        "5"         // Build number. Increase for each shipment
