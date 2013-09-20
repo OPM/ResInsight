@@ -67,6 +67,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#elif defined(CVF_ANDROID)
+
+// Android includes
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 #elif defined(CVF_IOS)
 
 // iOS includes

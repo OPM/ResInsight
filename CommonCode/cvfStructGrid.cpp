@@ -172,12 +172,12 @@ void StructGridInterface::neighborIJKAtCellFace(size_t i, size_t j, size_t k, Fa
 //--------------------------------------------------------------------------------------------------
 /// Models with large absolute values for coordinate scalars will often end up with z-fighting due
 /// to numerical limits in float used by OpenGL. displayModelOffset() is intended
-//  to be subtracted from a domain model coordinate when building geometry for CeeViz
+//  to be subtracted from a domain model coordinate when building geometry
 //
 //  Used in StructGridGeometryGenerator::computeArrays()
 //
 //  Vec3d domainModelCoord = ...
-//  Vec3d coordUsedInCeeViz = domainModelCoord - displayModelOffset();
+//  Vec3d vizCoord = domainModelCoord - displayModelOffset();
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d StructGridInterface::displayModelOffset() const
 {

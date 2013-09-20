@@ -21,6 +21,7 @@
 
 #include "cvfRenderState.h"
 #include "cvfColor4.h"
+#include "cvfPlane.h"
 
 namespace cvf {
 
@@ -206,5 +207,27 @@ private:
 
 
 
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class RenderStateClipPlanes_FF : public RenderState
+{
+public:
+    RenderStateClipPlanes_FF();
+
+    void            addPlane(const cvf::Plane& plane);
+    size_t          planeCount() const;
+    const Plane&    plane(size_t index);
+    void            removeAllPlanes();
+
+    virtual void    applyOpenGL(OpenGLContext* oglContext) const;
+    virtual bool    isFixedFunction() const;
+
+private:
+    std::vector<Plane>  m_clipPlanes;
+};
 
 }  // namespace cvf

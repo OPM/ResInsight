@@ -17,9 +17,17 @@ varying vec2 v_texCoord;
 //--------------------------------------------------------------------------------------------------
 void main ()
 {
+#ifdef CVF_CALC_SHADOW_COORD_IMPL
+	calcShadowCoord();
+#endif
+
 	// Transforms vertex position and normal vector to eye space
 	v_ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;
 	v_ecNormal = cvfu_normalMatrix * cvfa_normal;
+
+#ifdef CVF_CALC_CLIP_DISTANCES_IMPL
+	calcClipDistances(vec4(v_ecPosition, 1));
+#endif
 
 	gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;
 

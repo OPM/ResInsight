@@ -23,7 +23,7 @@
 #include "cvfOpenGLContext.h"
 #include "cvfOpenGLResourceManager.h"
 #include "cvfOpenGLCapabilities.h"
-#include "cvfLogDestinationConsole.h"
+#include "cvfLogManager.h"
 
 #include <memory.h>
 
@@ -58,7 +58,7 @@ OpenGLContextGroup::OpenGLContextGroup()
     m_wglewContextStruct(NULL)
 {
     m_resourceManager = new OpenGLResourceManager;
-    m_logger = new Logger("cvf.OpenGL", Logger::LL_WARNING, new LogDestinationConsole);
+    m_logger = CVF_GET_LOGGER("cee.cvf.OpenGL"); 
     m_capabilities = new OpenGLCapabilities;
 }
 

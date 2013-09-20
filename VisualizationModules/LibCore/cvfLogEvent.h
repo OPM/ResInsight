@@ -49,10 +49,10 @@ private:
     void                swap(LogEvent& other);
 
 private:
-    String          m_source;
-    String          m_message;
-    Logger::Level   m_level;
-    CodeLocation    m_codeLocation;
+    String          m_source;       // Source of the log event, normally name of the logger
+    String          m_message;      // The logged message
+    Logger::Level   m_level;        // The log level of the event
+    CodeLocation    m_codeLocation; // Source code location of log statement
 };
 
 

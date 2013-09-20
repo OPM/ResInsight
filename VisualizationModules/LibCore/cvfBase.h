@@ -19,7 +19,7 @@
 
 #pragma once
 
-#if !defined(WIN32) && !defined(CVF_LINUX) && !defined(CVF_IOS) && !defined(CVF_OSX)
+#if !defined(WIN32) && !defined(CVF_LINUX) && !defined(CVF_IOS) && !defined(CVF_OSX) && !defined(CVF_ANDROID)
 #error No platform defined
 #endif
 
@@ -50,7 +50,7 @@
 #endif
 
 
-#if defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX)
+#if defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX) || defined(CVF_ANDROID)
 // Used by int64_t on *nix below
 #include <stdint.h>     
 #endif
@@ -88,7 +88,7 @@ typedef unsigned int     uint;
 // 64bit integer support via the int64 type
 #ifdef WIN32
 typedef __int64 int64;  
-#elif defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX)
+#elif defined(CVF_LINUX) || defined(CVF_IOS) || defined(CVF_OSX) || defined(CVF_ANDROID)
 typedef int64_t int64;  
 #endif 
 

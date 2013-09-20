@@ -21,10 +21,10 @@
 
 #include "cvfObject.h"
 #include "cvfVector3.h"
+#include "cvfTimer.h"
 
 namespace cvf {
 
-class Timer;
 
 //==================================================================================================
 //
@@ -38,7 +38,7 @@ public:
 
     void setDuration(double seconds);
 
-    bool newPosition(Vec3d* pos, Vec3d* dir, Vec3d* up);
+    bool newPosition(Vec3d* pos, Vec3d* dir, Vec3d* up, double* relativeTimeStamp = NULL);
 
 private:
     Vec3d m_currentPos;

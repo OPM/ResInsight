@@ -62,7 +62,8 @@ OverlayColorLegend::OverlayColorLegend(Font* font)
     m_color(Color3::BLACK),
     m_lineColor(Color3::BLACK),
     m_lineWidth(1),
-    m_font(font)
+    m_font(font),
+    m_margin(4)
 {
     CVF_ASSERT(font);
     CVF_ASSERT(!font->isEmpty());
@@ -220,7 +221,9 @@ bool OverlayColorLegend::pick(int x, int y, const Vec2i& position, const Vec2ui&
 {
     Recti oglRect(position, static_cast<int>(size.x()), static_cast<int>(size.y()));
 
-    OverlayColorLegendLayoutInfo layoutInViewPortCoords(oglRect.min(), Vec2ui(static_cast<uint>(oglRect.width()), static_cast<uint>(oglRect.height())));
+    OverlayColorLegendLayoutInfo layoutInViewPortCoords;
+    layoutInViewPortCoords.position = oglRect.min();
+    layoutInViewPortCoords.size     = Vec2ui(static_cast<uint>(oglRect.width()), static_cast<uint>(oglRect.height()));
     layoutInfo(&layoutInViewPortCoords);
 
     Vec2i legendBarOrigin = oglRect.min();
@@ -258,7 +261,9 @@ void OverlayColorLegend::render(OpenGLContext* oglContext, const Vec2i& position
 
     // Get layout information
     // Todo: Cache this between renderings. Update only when needed.
-    OverlayColorLegendLayoutInfo layout(position, size);
+    OverlayColorLegendLayoutInfo layout;
+    layout.position = position;
+    layout.size     = size;
     layoutInfo(&layout);
 
     // Set up text drawer
@@ -560,7 +565,7 @@ void OverlayColorLegend::layoutInfo(OverlayColorLegendLayoutInfo* layout)
     ref<Glyph> glyph = m_font->getGlyph(L'A');
     layout->charHeight = static_cast<float>(glyph->height());
     layout->lineSpacing = layout->charHeight*1.5f;
-    layout->margins = Vec2f(4.0f, 4.0f);
+    layout->margins = Vec2f(static_cast<float>(m_margin), static_cast<float>(m_margin));
 
     float legendWidth = 25.0f;
     float legendHeight = static_cast<float>(layout->size.y()) - 2*layout->margins.y() - static_cast<float>(m_titleStrings.size())*layout->lineSpacing - layout->lineSpacing;
@@ -647,6 +652,31 @@ void OverlayColorLegend::setLineWidth(int lineWidth)
 int OverlayColorLegend::lineWidth() const
 {
     return m_lineWidth;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OverlayColorLegend::setWidthToFitText()
+{
+    cvf::uint textWidth = 0;
+    for (size_t i = 0; i < m_titleStrings.size(); ++i)
+    {
+        cvf::uint lineWidth = m_font->textExtent(m_titleStrings[i]).x();
+
+        if (lineWidth > textWidth)
+        {
+            textWidth = lineWidth;
+        }
+    }
+    
+    cvf::uint minWidth = m_font->textExtent("-0.00000e-000").x() + 40;
+
+    // +1 to cater for any rasterization inaccuracy
+    textWidth = CVF_MAX(minWidth + 1, textWidth + m_margin + 1);
+
+    m_sizeHint.x() = textWidth;
 }
 
 } // namespace cvf
