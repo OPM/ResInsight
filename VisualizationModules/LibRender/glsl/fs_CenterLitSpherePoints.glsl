@@ -11,7 +11,7 @@ void main()
 {
     //const vec3  ecLightPosition = vec3(0.5, 5.0, 7.0);
     //vec3 lightDir = normalize(ecLightPosition - v_ecPosition);
-	const vec3 lightDir = vec3(0, 0, 1);
+	const vec3 lightDir = vec3(0.0, 0.0, 1.0);
 
     // Calculate normal from texture coordinates
     vec3 N;
@@ -19,8 +19,8 @@ void main()
 	float mag = dot(N.xy, N.xy);
 	
 	// Kill pixels outside circle
-    if (mag > 1) discard;   
-    N.z = sqrt(1 - mag);
+    if (mag > 1.0) discard;   
+    N.z = sqrt(1.0 - mag);
 
     // Calculate diffuse lighting
     float diffuse = max(0.0, dot(lightDir, N));
@@ -28,7 +28,7 @@ void main()
     vec4 color = srcFragment();
     gl_FragColor = vec4(color.rgb*diffuse, color.a);
 
-    //gl_FragDepth = gl_FragCoord.z - 15.0*(1-mag);
+    //gl_FragDepth = gl_FragCoord.z - 15.0*(1.0-mag);
 }
 
 

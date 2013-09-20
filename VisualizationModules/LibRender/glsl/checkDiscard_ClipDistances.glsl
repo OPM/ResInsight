@@ -13,6 +13,6 @@ void checkDiscardFragment()
 	int i;
 	for (i = 0; i < u_clipPlaneCount; i++)
 	{
-		if (v_clipDist[i] < 0) discard;
+		if (v_clipDist[i] < 0.0) discard;
 	}
 }

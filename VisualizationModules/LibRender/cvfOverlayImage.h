@@ -61,6 +61,8 @@ public:
     void                setBlending(Blending mode);
 
     const TextureImage* image() const;
+    float               globalAlpha() const;
+    Blending            blending() const;
 
 private:
     void render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software);

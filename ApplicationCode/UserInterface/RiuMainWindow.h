@@ -87,6 +87,7 @@ public:
     RiuProcessMonitor* processMonitor();
 
     void            hideAllDockWindows();
+    void			loadWinGeoAndDockToolBarLayout();
 
     void            setCurrentObjectInTreeView(caf::PdmObject* object);
 
@@ -101,7 +102,6 @@ private:
     void            createToolBars();
     void            createDockPanels();
     void			saveWinGeoAndDockToolBarLayout();
-    void			loadWinGeoAndDockToolBarLayout();
 
     bool            checkForDocumentModifications();
 
@@ -153,6 +153,8 @@ private:
     QAction*		    m_snapshotToFile;
     QAction*		    m_snapshotToClipboard;
     QAction*		    m_snapshotAllViewsToFile;
+
+    QAction*            m_createCommandObject;
 
     // Help actions
     QAction*            m_aboutAction;
@@ -220,6 +222,8 @@ private slots:
     void    slotSnapshotToFile();
     void    slotSnapshotToClipboard();
     void    slotSnapshotAllViewsToFile();
+
+    void    slotCreateCommandObject();
 
     // Mock models
     void    slotMockModel();

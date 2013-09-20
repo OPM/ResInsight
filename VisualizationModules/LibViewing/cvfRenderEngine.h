@@ -28,6 +28,7 @@ class RenderQueue;
 class UniformSet;
 class Camera;
 class OpenGLContext;
+class Logger;
 
 
 //==================================================================================================
@@ -73,6 +74,8 @@ private:
     bool                m_disableApplyEffects;
     bool                m_forceImmediateMode;           // Can be used to force immediate mode drawing for debugging purposes (good old glBegin()/glEnd())
     bool                m_enableItemCountUpdate;
+
+    ref<Logger>         m_logger;
 };
 
 }

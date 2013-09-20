@@ -1,5 +1,10 @@
 
+#ifdef CVF_OPENGL_ES 
+uniform mediump int u_clipPlaneCount;
+#else
 uniform int u_clipPlaneCount;
+#endif
+
 uniform vec4 u_ecClipPlanes[6];
 
 // The dimensioning should probably be via a define to be consistent between vs and fs

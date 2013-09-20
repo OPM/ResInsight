@@ -19,6 +19,8 @@
 #pragma once
 #include <QApplication>
 #include <QProcess>
+#include <QMutex>
+
 #include "cafPdmObject.h"
 #include "cafPdmField.h"
 #include "cvfBase.h"
@@ -35,6 +37,7 @@ class RiaSocketServer;
 class RiaPreferences;
 class RimReservoirView;
 class RimProject;
+class RimCommandObject;
 
 namespace caf
 {
@@ -133,6 +136,9 @@ public:
     void                setCacheDataObject(const QString& key, const QVariant& dataObject);
     QVariant            cacheDataObject(const QString& key) const;
 
+    void                addCommandObject(RimCommandObject* commandObject);
+    void                executeCommandObjects();
+
 private:
     void		        onProjectOpenedOrClosed();
     void		        setWindowCaptionFromAppState();
@@ -168,4 +174,7 @@ private:
     cvf::ref<cvf::Font>                 m_standardFont;
 
     QMap<QString, QVariant>             m_sessionCache;     // Session cache used to store username/passwords per session
+
+    std::list<RimCommandObject*>       m_commandQueue;
+    QMutex                             m_commandQueueLock;
 };

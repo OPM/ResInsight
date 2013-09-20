@@ -22,12 +22,12 @@
 #include "cvfObject.h"
 #include "cvfString.h"
 #include "cvfMutex.h"
+#include "cvfLogger.h"
 
 #include <map>
 
 namespace cvf {
 
-class Logger;
 class LogDestination;
 
 
@@ -67,6 +67,9 @@ private:
     CVF_DISABLE_COPY_AND_ASSIGN(LogManager);
 };
 
+
+// Helper macros for getting or creating a named logger
+#define CVF_GET_LOGGER(loggerName)    (cvf::LogManager::instance()->logger(loggerName))
 
 
 } // cvf

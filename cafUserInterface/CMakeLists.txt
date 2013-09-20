@@ -72,7 +72,6 @@ add_library( ${PROJECT_NAME}
 	cafProgressInfo.h
 	cafUiProcess.cpp
 	cafUiProcess.h
-	cafUiTreeItem.h
 	cafUiTreeModelPdm.cpp
 	cafUiTreeModelPdm.h
 

@@ -42,7 +42,7 @@ public:
     void	setApplicationVersion(const QString& ver);
     void	setCopyright(const QString& copyright);
 
-    void	showCeeVizVersion(bool show);
+    void	showVizLibraryVersion(bool show);
     void	showQtVersion(bool show);
     void	addVersionEntry(const QString& verLabel, const QString& verText);
     void	setIsDebugBuild(bool isDebugBuild);
@@ -59,7 +59,7 @@ private:
     QString         m_appVersion;		    // Application version info. Can be empty
     QString			m_appCopyright;	        // Application copyright string. Can be empty
 
-    bool			m_showCeeVizVersion;	// Flags whether CeeViz version info should be shown
+    bool			m_showVizLibraryVersion;	
     bool			m_showQtVersion;	    // Flags whether Qt version info should be shown
     QStringList     m_verLabels;		    // Labels for user specified version entries
     QStringList     m_verTexts;		        // The actual version text for user specified version entries

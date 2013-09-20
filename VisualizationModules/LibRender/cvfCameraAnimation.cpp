@@ -65,7 +65,7 @@ CameraAnimation::CameraAnimation(const Vec3d& currentPos, const Vec3d& currentDi
 /// }
 /// \endcode
 //--------------------------------------------------------------------------------------------------
-bool CameraAnimation::newPosition(Vec3d* pos, Vec3d* dir, Vec3d* up)
+bool CameraAnimation::newPosition(Vec3d* pos, Vec3d* dir, Vec3d* up, double* relativeTimeStamp)
 {
     if (m_animDone)
     {
@@ -84,6 +84,7 @@ bool CameraAnimation::newPosition(Vec3d* pos, Vec3d* dir, Vec3d* up)
         *pos = m_newPos;
         *dir = m_newDir;
         *up = m_newUp;
+        if (relativeTimeStamp) *relativeTimeStamp = 1.0;
 
         m_animDone = true;
 
@@ -93,6 +94,8 @@ bool CameraAnimation::newPosition(Vec3d* pos, Vec3d* dir, Vec3d* up)
     *pos = m_currentPos + (m_newPos - m_currentPos)*(timeNow/m_animDuration);
     *dir = m_currentDir + (m_newDir - m_currentDir)*(timeNow/m_animDuration);
     *up  = m_currentUp  + (m_newUp  - m_currentUp )*(timeNow/m_animDuration);
+
+    if (relativeTimeStamp) *relativeTimeStamp = timeNow/m_animDuration;
 
     return true;
 }
