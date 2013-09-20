@@ -26,12 +26,12 @@
 #include "cvfEffect.h"
 #include "cvfRenderStateSet.h"
 #include "cvfShaderProgram.h"
-#include "cvfTrace.h"
 #include "cvfOpenGL.h"
 #include "cvfBufferObjectManaged.h"
 #include "cvfMatrixState.h"
 #include "cvfCamera.h"
 #include "cvfRenderStateTextureBindings.h"
+#include "cvfLogManager.h"
 
 #include <memory.h>
 
@@ -59,7 +59,8 @@ RenderEngine::RenderEngine()
     m_disableDrawableRender(false),
     m_disableApplyEffects(false),
     m_forceImmediateMode(false),
-    m_enableItemCountUpdate(false)
+    m_enableItemCountUpdate(false),
+    m_logger(CVF_GET_LOGGER("cee.cvf"))
 {
 }
 
@@ -110,11 +111,7 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
     size_t numPartsInQueue = renderQueue->count();
     size_t numPartsToDraw = std::min(numPartsInQueue, maxNumPartsToDraw);
 
-    bool debugLogging = CVF_SHOULD_LOG_RENDER_DEBUG(oglContext);
-    if (debugLogging)
-    {
-        CVF_LOG_RENDER_DEBUG(oglContext, "RenderEngine::render(), numParts=" + String(static_cast<uint>(numPartsInQueue)));
-    }
+    CVF_LOG_DEBUG(m_logger, "RenderEngine::render(), numParts=" + String(static_cast<uint>(numPartsInQueue)));
 
     size_t i;
     for (i = 0; i < numPartsToDraw; i++)
@@ -129,10 +126,7 @@ void RenderEngine::render(OpenGLContext* oglContext, RenderQueue* renderQueue, s
         CVF_ASSERT(effect);
         CVF_ASSERT(part);
         
-        if (debugLogging)
-        {
-            CVF_LOG_RENDER_DEBUG(oglContext, String("part#=%1, partName='%2'").arg(static_cast<uint>(i)).arg(part->name()));
-        }
+        CVF_LOG_DEBUG(m_logger, String("part#=%1, partName='%2'").arg(static_cast<uint>(i)).arg(part->name()));
 
         // Update matrix state to reflect any part transformations
         // Register if the pass modifies the view matrix so that we can reset it at the end of this part

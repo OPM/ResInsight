@@ -5,14 +5,14 @@
 #include "riSettings.h"
 
 void getWellCells(  std::vector<int>& cellIs, 
-                    std::vector<int>& cellJs, 
-                    std::vector<int>& cellKs,
-                    std::vector<int>& gridIndices,
-                    std::vector<int>& cellStatuses,
-                    std::vector<int>& branchIds,
-                    std::vector<int>& segmentIds,
-                    const QString &hostName, quint16 port, 
-                    const qint64& caseId, const QString& wellName, int requestedTimeStep)
+    std::vector<int>& cellJs, 
+    std::vector<int>& cellKs,
+    std::vector<int>& gridIndices,
+    std::vector<int>& cellStatuses,
+    std::vector<int>& branchIds,
+    std::vector<int>& segmentIds,
+    const QString &hostName, quint16 port, 
+    const qint64& caseId, const QString& wellName, int requestedTimeStep)
 {
     QString serverName = hostName;
     quint16 serverPort = port;
@@ -30,7 +30,7 @@ void getWellCells(  std::vector<int>& cellIs,
 
     QString command;
     command += QString("GetWellCells") + " " + QString::number(caseId) + " " + wellName + " " +  QString::number(requestedTimeStep) ;
- 
+
     QByteArray cmdBytes = command.toLatin1();
 
     QDataStream socketStream(&socket);
@@ -116,12 +116,13 @@ DEFUN_DLD (riGetWellCells, args, nargout,
     "as a vector of Structures. \n"
     "The Structure is defined as:\n"
     "WellCellInfo  { \n"
-    "    I, J, K 	= int	 # Index to the cell in the grid\n"
-    "    GridIndex	= int	 # the index of the grid. Main grid has index 0.\n"
-    "    CellStatus	= int	 # is either 0 or 1, meaning the cell is closed or open respectively.\n"
+    "    I, J, K 		= int	 # Index to the cell in the grid\n"
+    "    GridIndex	    = int	 # the index of the grid. Main grid has index 0.\n"
+    "    CellStatus	    = int	 # is either 0 or 1, meaning the cell is closed or open respectively\n"
+    "    BranchId	    = int	 # Branch id of the branch intersecting the cell\n"
+    "    SegmentId	    = int	 # Branch segment id of the branch intersecting the cell\n"
     "}\n"
     "If the CaseId is not defined, ResInsight’s Current Case is used.\n"
-
     )
 {
     if (nargout != 1)
@@ -138,7 +139,7 @@ DEFUN_DLD (riGetWellCells, args, nargout,
         print_usage();
         return octave_value();
     }
- 
+
     if (nargin > 3)
     {
         error("riGetWellCells: Too many arguments, this function takes at most three arguments.\n");
@@ -204,12 +205,12 @@ DEFUN_DLD (riGetWellCells, args, nargout,
     std::vector<int> segmentIds;
 
     getWellCells( cellIs, cellJs, cellKs,
-                  gridIndices,
-                  cellStatuses,
-                  branchIds,
-                  segmentIds,
-                  "127.0.0.1", 40001, 
-                  caseId, QString::fromStdString(wellName), requestedTimeStep);
+        gridIndices,
+        cellStatuses,
+        branchIds,
+        segmentIds,
+        "127.0.0.1", 40001, 
+        caseId, QString::fromStdString(wellName), requestedTimeStep);
 
     size_t cellCount = cellIs.size();
 

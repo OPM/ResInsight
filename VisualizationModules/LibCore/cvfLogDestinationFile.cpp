@@ -33,6 +33,12 @@
 
 namespace cvf {
 
+
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
 class FileWrapper
 {
 public:
@@ -77,6 +83,7 @@ private:
 };
 
 
+
 //==================================================================================================
 ///
 /// \class cvf::LogDestinationFile
@@ -89,6 +96,14 @@ private:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+LogDestinationFile::LogDestinationFile(const String& fileName)
+:   m_fileName(fileName)
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void LogDestinationFile::log(const LogEvent& logEvent)
 {
     String str;
@@ -97,20 +112,20 @@ void LogDestinationFile::log(const LogEvent& logEvent)
     Logger::Level logEventLevel = logEvent.level();
     if (logEventLevel == Logger::LL_ERROR)
     {
-        str = "ERROR: " + logEvent.message();
+        str = logEvent.source() + "**ERROR**: " + logEvent.message();
         addLocationInfo = true;
     }
     else if (logEventLevel == Logger::LL_WARNING)
     {
-        str = "warn:  " + logEvent.message();
+        str = logEvent.source() + "(warn):  " + logEvent.message();
     }
     else if (logEventLevel == Logger::LL_INFO)
     {
-        str = "info:  " + logEvent.message();
+        str = logEvent.source() + "(i): " + logEvent.message();
     }
     else if (logEventLevel == Logger::LL_DEBUG)
     {
-        str = "debug: " + logEvent.message();
+        str = logEvent.source() + "(d): " + logEvent.message();
     }
 
     if (addLocationInfo)

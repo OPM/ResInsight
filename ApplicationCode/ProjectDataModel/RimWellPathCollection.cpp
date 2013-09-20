@@ -294,7 +294,7 @@ RimWellPathAsciiFileReader::WellData RimWellPathAsciiFileReader::readWellData(QS
 
     CVF_ASSERT(it != m_fileNameToWellDataGroupMap.end());
 
-    if (indexInFile < it->second.size())
+    if (indexInFile < static_cast<int>(it->second.size()))
     {
         return it->second[indexInFile];
     }

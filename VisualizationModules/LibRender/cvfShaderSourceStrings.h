@@ -7,7 +7,12 @@
 //#############################################################################################################################
 static const char calcClipDistances_inl[] =
 "                                                                                                      \n"
+"#ifdef CVF_OPENGL_ES                                                                                  \n"
+"uniform mediump int u_clipPlaneCount;                                                                 \n"
+"#else                                                                                                 \n"
 "uniform int u_clipPlaneCount;                                                                         \n"
+"#endif                                                                                                \n"
+"                                                                                                      \n"
 "uniform vec4 u_ecClipPlanes[6];                                                                       \n"
 "                                                                                                      \n"
 "// The dimensioning should probably be via a define to be consistent between vs and fs                \n"
@@ -81,7 +86,7 @@ static const char checkDiscard_ClipDistances_inl[] =
 "    int i;                                                                                            \n"
 "    for (i = 0; i < u_clipPlaneCount; i++)                                                            \n"
 "    {                                                                                                 \n"
-"        if (v_clipDist[i] < 0) discard;                                                               \n"
+"        if (v_clipDist[i] < 0.0) discard;                                                             \n"
 "    }                                                                                                 \n"
 "}                                                                                                     \n";
 
@@ -103,7 +108,7 @@ static const char fs_CenterLitSpherePoints_inl[] =
 "{                                                                                                     \n"
 "    //const vec3  ecLightPosition = vec3(0.5, 5.0, 7.0);                                              \n"
 "    //vec3 lightDir = normalize(ecLightPosition - v_ecPosition);                                      \n"
-"    const vec3 lightDir = vec3(0, 0, 1);                                                              \n"
+"    const vec3 lightDir = vec3(0.0, 0.0, 1.0);                                                        \n"
 "                                                                                                      \n"
 "    // Calculate normal from texture coordinates                                                      \n"
 "    vec3 N;                                                                                           \n"
@@ -111,8 +116,8 @@ static const char fs_CenterLitSpherePoints_inl[] =
 "    float mag = dot(N.xy, N.xy);                                                                      \n"
 "                                                                                                      \n"
 "    // Kill pixels outside circle                                                                     \n"
-"    if (mag > 1) discard;                                                                             \n"
-"    N.z = sqrt(1 - mag);                                                                              \n"
+"    if (mag > 1.0) discard;                                                                           \n"
+"    N.z = sqrt(1.0 - mag);                                                                            \n"
 "                                                                                                      \n"
 "    // Calculate diffuse lighting                                                                     \n"
 "    float diffuse = max(0.0, dot(lightDir, N));                                                       \n"
@@ -120,7 +125,7 @@ static const char fs_CenterLitSpherePoints_inl[] =
 "    vec4 color = srcFragment();                                                                       \n"
 "    gl_FragColor = vec4(color.rgb*diffuse, color.a);                                                  \n"
 "                                                                                                      \n"
-"    //gl_FragDepth = gl_FragCoord.z - 15.0*(1-mag);                                                   \n"
+"    //gl_FragDepth = gl_FragCoord.z - 15.0*(1.0-mag);                                                 \n"
 "}                                                                                                     \n";
 
 
@@ -454,8 +459,8 @@ static const char fs_ParticleTraceComets_inl[] =
 "    vec3 N;                                                                                           \n"
 "    N.xy = vec2(v_circleFactors.x, v_circleFactors.y);                                                \n"
 "    float mag = dot(N.xy, N.xy);                                                                      \n"
-"    if (mag > 1) discard;                                                                             \n"
-"    N.z = sqrt(1 - mag);                                                                              \n"
+"    if (mag > 1.0) discard;                                                                           \n"
+"    N.z = sqrt(1.0 - mag);                                                                            \n"
 "                                                                                                      \n"
 "    float diffuse = max(0.0, dot(lightDir, N));                                                       \n"
 "                                                                                                      \n"
@@ -941,7 +946,7 @@ static const char vs_DistanceScaledPoints_inl[] =
 "    // Compute the point diameter in window coords (pixels)                                           \n"
 "    // Scale with distance for perspective correction of the size                                     \n"
 "    float dist = length(v_ecPosition);                                                                \n"
-"    gl_PointSize = 2*u_pointRadius/(cvfu_pixelHeightAtUnitDistance*dist);                             \n"
+"    gl_PointSize = 2.0*u_pointRadius/(cvfu_pixelHeightAtUnitDistance*dist);                           \n"
 "}                                                                                                     \n";
 
 
@@ -968,9 +973,17 @@ static const char vs_EnvironmentMapping_inl[] =
 "//--------------------------------------------------------------------------------------------------  \n"
 "void main ()                                                                                          \n"
 "{                                                                                                     \n"
+"#ifdef CVF_CALC_SHADOW_COORD_IMPL                                                                     \n"
+"    calcShadowCoord();                                                                                \n"
+"#endif                                                                                                \n"
+"                                                                                                      \n"
 "    // Transforms vertex position and normal vector to eye space                                      \n"
 "    v_ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;                                          \n"
 "    v_ecNormal = cvfu_normalMatrix * cvfa_normal;                                                     \n"
+"                                                                                                      \n"
+"#ifdef CVF_CALC_CLIP_DISTANCES_IMPL                                                                   \n"
+"    calcClipDistances(vec4(v_ecPosition, 1));                                                         \n"
+"#endif                                                                                                \n"
 "                                                                                                      \n"
 "    gl_Position = cvfu_modelViewProjectionMatrix*cvfa_vertex;                                         \n"
 "                                                                                                      \n"

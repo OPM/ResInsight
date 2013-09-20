@@ -87,6 +87,7 @@ void RenderStateTracker::setupDefaultRenderStates()
     m_defaultRenderStates[RenderState::MATERIAL_FF]         = new RenderStateMaterial_FF;
     m_defaultRenderStates[RenderState::NORMALIZE_FF]        = new RenderStateNormalize_FF(false);
     m_defaultRenderStates[RenderState::TEXTURE_MAPPING_FF]  = new RenderStateTextureMapping_FF;
+    m_defaultRenderStates[RenderState::CLIP_PLANES_FF]      = new RenderStateClipPlanes_FF;
 #endif
 }
 

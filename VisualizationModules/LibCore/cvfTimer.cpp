@@ -27,7 +27,7 @@
 #pragma warning (pop)
 #endif
 
-#ifdef CVF_LINUX
+#if defined(CVF_LINUX) || defined(CVF_ANDROID)
 #include <time.h>
 #endif
 
@@ -68,7 +68,7 @@ public:
 };
 #endif //WIN32
 
-#ifdef CVF_LINUX
+#if defined(CVF_LINUX) || defined(CVF_ANDROID)
 class PrivateTimerState
 {
 public:
@@ -83,7 +83,7 @@ public:
     timespec    m_timeStart;
     timespec    m_timeMark;
 };
-#endif // CVF_LINUX
+#endif // CVF_LINUX || CVF_ANDROID
 
 
 #if defined(CVF_IOS) || defined(CVF_OSX)
@@ -107,7 +107,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// Static helper on Linux to compute difference between two timespecs
 //--------------------------------------------------------------------------------------------------
-#ifdef CVF_LINUX
+#if defined(CVF_LINUX) || defined(CVF_ANDROID)
 static timespec ComputeTimespecDiff(const timespec start, const timespec end)
 {
     timespec temp;
@@ -170,7 +170,7 @@ void Timer::restart()
     m_timerState->m_startTick = tick.QuadPart;
     m_timerState->m_lastLapTick = m_timerState->m_startTick;
 
-#elif CVF_LINUX
+#elif defined(CVF_LINUX) || defined(CVF_ANDROID)
 
     clock_gettime(CLOCK_MONOTONIC, &m_timerState->m_timeStart);
     m_timerState->m_timeMark = m_timerState->m_timeStart;
@@ -196,7 +196,7 @@ double Timer::time() const
     QueryPerformanceCounter(&nowTick);
     return static_cast<double>((nowTick.QuadPart - m_timerState->m_startTick))/static_cast<double>(m_timerState->m_ticksPerSecond);
 
-#elif CVF_LINUX
+#elif defined(CVF_LINUX) || defined(CVF_ANDROID)
 
     timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);
@@ -230,7 +230,7 @@ double Timer::lapTime()
     double lapTime = static_cast<double>((nowTick.QuadPart - m_timerState->m_lastLapTick))/static_cast<double>(m_timerState->m_ticksPerSecond);
     m_timerState->m_lastLapTick = nowTick.QuadPart;
 
-#elif CVF_LINUX
+#elif defined(CVF_LINUX) || defined(CVF_ANDROID)
 
     timespec timeNow;
     clock_gettime(CLOCK_MONOTONIC, &timeNow);

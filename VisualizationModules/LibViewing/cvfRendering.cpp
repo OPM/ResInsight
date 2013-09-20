@@ -38,6 +38,7 @@
 #include "cvfShaderProgram.h"
 #include "cvfRayIntersectSpec.h"
 #include "cvfHitItemCollection.h"
+#include "cvfLogManager.h"
 
 namespace cvf {
 
@@ -67,7 +68,8 @@ Rendering::Rendering(const String& renderingName)
     m_enableMask(0xffffffff),
     m_clearMode(Viewport::CLEAR_COLOR_DEPTH),    
     m_maxNumPartsToDraw(std::numeric_limits<size_t>::max()),
-    m_enablePerformanceTiming(true)
+    m_enablePerformanceTiming(true),
+    m_logger(CVF_GET_LOGGER("cee.cvf"))
 {
     m_camera = new Camera;
     m_visibleParts = new PartRenderHintCollection;
@@ -142,11 +144,7 @@ void Rendering::render(OpenGLContext* oglContext)
 {
     CVF_ASSERT(m_camera.notNull() && m_camera->viewport());
 
-    bool debugLogging = CVF_SHOULD_LOG_RENDER_DEBUG(oglContext);
-    if (debugLogging)
-    {
-        CVF_LOG_RENDER_DEBUG(oglContext, String("Entering Rendering::render(), renderingName='%1'").arg(m_renderingName));
-    }
+    CVF_LOG_DEBUG(m_logger, String("Entering Rendering::render(), renderingName='%1'").arg(m_renderingName));
 
     CVF_CHECK_OGL(oglContext);
 
@@ -278,10 +276,7 @@ void Rendering::render(OpenGLContext* oglContext)
 
     CVF_CHECK_OGL(oglContext);
 
-    if (debugLogging)
-    {
-        CVF_LOG_RENDER_DEBUG(oglContext, String("Exiting Rendering::render(), renderingName='%1'").arg(m_renderingName));
-    }
+    CVF_LOG_DEBUG(m_logger, String("Exiting Rendering::render(), renderingName='%1'").arg(m_renderingName));
 }
 
 
@@ -293,6 +288,13 @@ void Rendering::renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRe
     OverlayItemRectMap itemRectMap;
     calculateOverlayItemLayout(&itemRectMap);
     
+    // Must setup a scissor to limit the overlay items to the current viewport, as they might setup a local viewport (e.g. navigation cube)
+    GLboolean scissorWasOn = glIsEnabled(GL_SCISSOR_TEST);
+    int scissorBox[4] = {0, 0, -1, -1};
+    glGetIntegerv(GL_SCISSOR_BOX, scissorBox);
+    glScissor(static_cast<GLsizei>(m_camera->viewport()->x()), static_cast<GLsizei>(m_camera->viewport()->y()), static_cast<GLsizei>(m_camera->viewport()->width()), static_cast<GLsizei>(m_camera->viewport()->height()));
+    glEnable(GL_SCISSOR_TEST);
+
     OverlayItemRectMap::iterator it;
     for (it = itemRectMap.begin(); it != itemRectMap.end(); ++it)
     {
@@ -327,6 +329,10 @@ void Rendering::renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRe
             }
         }
     }
+
+    // Restore scissor settings
+    if (!scissorWasOn) glDisable(GL_SCISSOR_TEST);
+    glScissor(scissorBox[0], scissorBox[1], scissorBox[2], scissorBox[3]); 
 }
 
 

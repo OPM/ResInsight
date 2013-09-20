@@ -155,6 +155,8 @@ private:
 
     PerformanceInfo                 m_performanceInfo;
     bool                            m_enablePerformanceTiming;
+
+    ref<Logger>                     m_logger;
 };
 
 }

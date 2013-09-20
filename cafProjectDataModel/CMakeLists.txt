@@ -7,6 +7,7 @@ add_library( ${PROJECT_NAME}
 	cafFactory.h
 	cafFixedArray.h
 	cafOmpMutex.h
+	cafUiTreeItem.h
 	cafPdmDocument.cpp
 	cafPdmDocument.h
 	cafPdmField.cpp
@@ -28,4 +29,7 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiObjectEditorHandle.h
 	cafPdmUiOrdering.cpp
 	cafPdmUiOrdering.h
+	cafPdmUiTreeOrdering.cpp
+	cafPdmUiTreeOrdering.h
+
 )

@@ -14,7 +14,7 @@ DOWNLOADING RESINSIGHT
 CONTRIBUTION
 Please use master branch for contributions and pull requests. Please do not use branch 'internal' for contributions.
 
-BUILDING RESINSIGHT
+BUILDING RESINSIGHT - Linux
 ResInsight uses the cmake build system and requires cmake version 2.8 or higher. Moreover, you need version 4.7.3 of Qt or newer, look below for dependecy list. An out-of-tree build is typically done with
  mkdir ResInsight/build
  cd ResInsight/build
@@ -22,6 +22,14 @@ ResInsight uses the cmake build system and requires cmake version 2.8 or higher.
  make
  make install
 You will find the ResInsight binary under the Install directory in your build directory.
+
+BUILDING RESINSIGHT - Windows
+Open the CMake GUI.
+Set the path to the source code: <ResInsight-sourcecode-folder>
+Set the path to the build directory: <ResInsight-build-folder>
+Click "Configure" and select your preferred compiler, "Visual Studio 10" or "Visual Studio 10 Win64"
+Set the build variables and click "Configure" again.
+Click "Generate", and a project file will be created in the build directory <ResInsight-build-folder>
 
 DEPENDENCIES FOR DEBIAN BASED DISTRIBUTIONS
  sudo apt-get install git cmake build-essential octave octave-headers qt4-dev-tools

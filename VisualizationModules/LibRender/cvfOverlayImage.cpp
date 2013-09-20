@@ -61,8 +61,6 @@ OverlayImage::OverlayImage(TextureImage* image)
 {
     CVF_ASSERT(image);
 
-    m_size.x() = image->width();
-    m_size.y() = image->height();
     m_blendMode = NO_BLENDING;
     
     m_sampler = new cvf::Sampler;
@@ -342,6 +340,9 @@ void OverlayImage::setImage(TextureImage* image)
     m_image = image;
     m_pow2Image = NULL;
 
+    m_size.x() = image->width();
+    m_size.y() = image->height();
+
     m_texture = new Texture(image);
 
     m_textureBindings = NULL;
@@ -381,6 +382,24 @@ void OverlayImage::setGlobalAlpha(float alphaFactor)
 void OverlayImage::setBlending(Blending mode)
 {
     m_blendMode = mode;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+float OverlayImage::globalAlpha() const
+{
+    return m_alpha;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+OverlayImage::Blending OverlayImage::blending() const
+{
+    return m_blendMode;
 }
 
 } // namespace cvf

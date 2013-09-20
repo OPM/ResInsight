@@ -672,5 +672,100 @@ bool RenderStateTextureMapping_FF::isFixedFunction() const
     return true;
 }
 
-} // namespace cvf
+//==================================================================================================
+///
+/// \class cvf::RenderStateClipPlanes_FF
+/// \ingroup Render 
+///
+/// Encapsulate OpenGL glClipPlane() and glEnable()/glDisable() with GL_CLIP_PLANE0 + idx
+///
+//==================================================================================================
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RenderStateClipPlanes_FF::RenderStateClipPlanes_FF()
+:   RenderState(CLIP_PLANES_FF)
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RenderStateClipPlanes_FF::addPlane(const cvf::Plane& plane)
+{
+    m_clipPlanes.push_back(plane);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RenderStateClipPlanes_FF::planeCount() const
+{
+    return m_clipPlanes.size();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const Plane& RenderStateClipPlanes_FF::plane(size_t index)
+{
+    CVF_ASSERT(index < m_clipPlanes.size());
+    return m_clipPlanes[index];
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RenderStateClipPlanes_FF::removeAllPlanes()
+{
+    m_clipPlanes.clear();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Supports 6 clipping planes, as all implementations of OpenGL is required to have at least 6
+//--------------------------------------------------------------------------------------------------
+void RenderStateClipPlanes_FF::applyOpenGL(OpenGLContext* oglContext) const
+{
+    for (size_t idx = 0; idx < m_clipPlanes.size(); idx++)
+    {
+        if (idx > 5)
+        {
+            break;
+        }
+
+        // Set and enable plane
+        GLdouble plane[4];
+
+        plane[0] = m_clipPlanes[idx].A();
+        plane[1] = m_clipPlanes[idx].B();
+        plane[2] = m_clipPlanes[idx].C();
+        plane[3] = m_clipPlanes[idx].D();
+
+        glClipPlane((GLenum)(GL_CLIP_PLANE0 + idx), plane);
+        glEnable((GLenum)(GL_CLIP_PLANE0 + idx));
+    }
+
+    for (size_t idx = m_clipPlanes.size(); idx < 6; idx++)
+    {
+        glDisable((GLenum)(GL_CLIP_PLANE0 + idx));
+    }
+
+    CVF_CHECK_OGL(oglContext);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RenderStateClipPlanes_FF::isFixedFunction() const
+{
+    return true;
+}
+
+} // namespace cvf

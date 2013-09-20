@@ -94,7 +94,7 @@ void UiTableModelPdm::computeColumnCount()
             std::vector<PdmFieldHandle*> fields;
             m_pdmObjectGroup->objects[i]->fields(fields);
 
-            if (m_columnCount < fields.size())
+            if (m_columnCount < static_cast<int>(fields.size()))
             {
                 m_columnCount = static_cast<int>(fields.size());
             }
@@ -117,7 +117,7 @@ QVariant caf::UiTableModelPdm::data(const QModelIndex &index, int role /*= Qt::D
 {
     if (m_pdmObjectGroup && (role == Qt::DisplayRole || role == Qt::EditRole))
     {
-        if (index.row() < m_pdmObjectGroup->objects.size())
+        if (index.row() < static_cast<int>(m_pdmObjectGroup->objects.size()))
         {
             PdmObject* pdmObject = m_pdmObjectGroup->objects[index.row()];
             if (pdmObject)
@@ -125,7 +125,7 @@ QVariant caf::UiTableModelPdm::data(const QModelIndex &index, int role /*= Qt::D
                 std::vector<PdmFieldHandle*> fields;
                 pdmObject->fields(fields);
 
-                if (index.column() < fields.size())
+                if (index.column() < static_cast<int>(fields.size()))
                 {
                     size_t fieldIndex = 0;
 

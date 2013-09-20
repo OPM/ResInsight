@@ -53,6 +53,7 @@ public:
         MATERIAL_FF,            //Fixed function
         NORMALIZE_FF,           //Fixed function
         TEXTURE_MAPPING_FF,     //Fixed function
+        CLIP_PLANES_FF,         //Fixed function
 #endif
 
         COUNT                   // Must be the last entry

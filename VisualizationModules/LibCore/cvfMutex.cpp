@@ -27,7 +27,7 @@
 #pragma warning (pop)
 #endif
 
-#ifdef CVF_LINUX
+#if defined CVF_LINUX || defined(CVF_ANDROID)
 #include <pthread.h>
 #endif
 
@@ -71,10 +71,10 @@ private:
 
 //==================================================================================================
 //
-// Linux implementation using POSIX/Pthreads
+// Linux and Android implementation using POSIX/Pthreads
 //
 //==================================================================================================
-#ifdef CVF_LINUX
+#if defined(CVF_LINUX) || defined(CVF_ANDROID) || defined(CVF_IOS) || defined(CVF_OSX)
 class MutexImpl
 {
 public:

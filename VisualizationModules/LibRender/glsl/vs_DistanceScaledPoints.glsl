@@ -27,5 +27,5 @@ void main ()
 	// Compute the point diameter in window coords (pixels)
 	// Scale with distance for perspective correction of the size
     float dist = length(v_ecPosition);
-    gl_PointSize = 2*u_pointRadius/(cvfu_pixelHeightAtUnitDistance*dist);
+    gl_PointSize = 2.0*u_pointRadius/(cvfu_pixelHeightAtUnitDistance*dist);
 }

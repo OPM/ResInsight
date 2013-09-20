@@ -75,6 +75,9 @@ RimProject::RimProject(void)
     wellPathImport = new RimWellPathImport();
     wellPathImport.setUiHidden(true);
 
+    CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
+    //wellPathImport.setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&currentModelIndexPath, "TreeViewCurrentModelIndexPath", "",  "", "", "");
     currentModelIndexPath.setUiHidden(true);
 
@@ -120,6 +123,8 @@ void RimProject::close()
     caseGroupsObsolete.deleteAllChildObjects();
 
     wellPathImport = new RimWellPathImport();
+
+    commandObjects.deleteAllChildObjects();
 
     fileName = "";
 
@@ -258,8 +263,8 @@ void RimProject::initAfterRead()
 	
 	if (casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0)
 	{
-		printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
-		    casesObsolete().size(), caseGroupsObsolete.size());
+		//printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from Project to analysisModels", 
+		  //  casesObsolete().size(), caseGroupsObsolete.size());
 	}
 
     // Set project pointer to each well path
