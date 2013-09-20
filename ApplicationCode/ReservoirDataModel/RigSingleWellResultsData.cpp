@@ -125,16 +125,17 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 {
     if (m_wellCellsTimeSteps.size() == 0) return;
 
+    // Mapping of Branch ERT ID to ResultPoint list
     std::map < int, std::list< RigWellResultPoint > > staticWellBranches;
 
     // Add ResultCell data from the first timestep to the final result.
 
     for (size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx)
     {
-        int branchNumber = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
+        int branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
         std::vector<RigWellResultPoint>& frameCells = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
        
-        std::list< RigWellResultPoint >& branch =  staticWellBranches[branchNumber];
+        std::list< RigWellResultPoint >& branch =  staticWellBranches[branchErtId];
 
         for(size_t cIdx = 0; cIdx < frameCells.size(); ++cIdx)
         {
@@ -247,24 +248,14 @@ void RigSingleWellResultsData::computeStaticWellCellPath()
 
     for (bIt = staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt)
     {
-        if (bIt->first >= static_cast<int>(m_wellCellsTimeSteps[0].m_wellResultBranches.size()))
-        {
-            continue;
-        }
-
         // Copy from first time step
-        RigWellResultBranch rigBranch = m_wellCellsTimeSteps[0].m_wellResultBranches[bIt->first];
+        RigWellResultBranch rigBranch; 
         rigBranch.m_ertBranchId = bIt->first;
-
-        // Clear well cells, and insert the collection of well cells for the static situation
-        rigBranch.m_branchResultPoints.clear();
 
         std::list< RigWellResultPoint >& branch =  bIt->second;
         std::list< RigWellResultPoint >::iterator cIt;
         for (cIt = branch.begin(); cIt != branch.end(); ++cIt)
         {
-            RigWellResultPoint rwc = *cIt;
-            rwc.m_isOpen = false; // Reset the dynamic property
             rigBranch.m_branchResultPoints.push_back(*cIt);
         }
 
