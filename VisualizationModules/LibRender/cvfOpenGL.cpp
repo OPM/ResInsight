@@ -182,7 +182,11 @@ void OpenGL::cvf_check_ogl(OpenGLContext* oglContext, const CodeLocation& codeLo
             CVF_ASSERT(oglContext->isCurrent());
 
             Logger* logger = oglContext->group()->logger();
+#if !defined(_DEBUG) && defined(CVF_OSX)
+            if (logger && (err != GL_INVALID_FRAMEBUFFER_OPERATION))
+#else
             if (logger)
+#endif /* defined(_DEBUG) */
             {
                 String errCodeStr = mapOpenGLErrorToString(err);
                 String msg = "OGL(" + errCodeStr + "): ";
