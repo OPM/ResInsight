@@ -13,15 +13,15 @@ find_package( OpenGL )
 
 
 add_subdirectory(../WellPathImportSsihub "${CMAKE_CURRENT_BINARY_DIR}/WellPathImportSsihub")
-add_subdirectory(../../cafProjectDataModel "${CMAKE_CURRENT_BINARY_DIR}/cafProjectDataModel")
-add_subdirectory(../../cafUserInterface "${CMAKE_CURRENT_BINARY_DIR}/cafUserInterface")
+add_subdirectory(../../Fwk/AppFwk/cafProjectDataModel "${CMAKE_CURRENT_BINARY_DIR}/cafProjectDataModel")
+add_subdirectory(../../Fwk/AppFwk/cafUserInterface "${CMAKE_CURRENT_BINARY_DIR}/cafUserInterface")
 
-add_subdirectory(../../cafTests/cafTestApplication "${CMAKE_CURRENT_BINARY_DIR}/cafTestApplication")
+#add_subdirectory(../../cafTests/cafTestApplication "${CMAKE_CURRENT_BINARY_DIR}/cafTestApplication")
 
 include_directories(
     ${WellPathImportSsihub_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/../../cafProjectDataModel 
-	${CMAKE_CURRENT_SOURCE_DIR}/../../cafUserInterface
+	${WellPathImportSsihub_SOURCE_DIR}/../../Fwk/AppFwk/cafProjectDataModel 
+	${WellPathImportSsihub_SOURCE_DIR}/../../Fwk/AppFwk/cafUserInterface
 )
 
 
