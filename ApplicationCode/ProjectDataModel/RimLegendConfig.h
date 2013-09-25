@@ -68,7 +68,9 @@ public:
         WHITE_PINK,
         PINK_WHITE,
         WHITE_BLACK,
-        BLACK_WHITE
+        BLACK_WHITE,
+        BLUE_WHITE_RED,
+        RED_WHITE_BLUE
     };
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;

@@ -61,6 +61,8 @@ namespace caf {
         addItem(RimLegendConfig::OPPOSITE_NORMAL,"OPPOSITE_NORMAL", "Full color, Blue on top");
         addItem(RimLegendConfig::WHITE_PINK,     "WHITE_PIMK",      "White to pink");
         addItem(RimLegendConfig::PINK_WHITE,     "PINK_WHITE",      "Pink to white");
+        addItem(RimLegendConfig::BLUE_WHITE_RED,    "BLUE_WHITE_RED",     "Blue, white, red");
+        addItem(RimLegendConfig::RED_WHITE_BLUE,    "RED_WHITE_BLUE",     "Red, white, blue");
         addItem(RimLegendConfig::WHITE_BLACK,    "WHITE_BLACK",     "White to black");
         addItem(RimLegendConfig::BLACK_WHITE,    "BLACK_WHITE",     "Black to white");
         setDefault(RimLegendConfig::NORMAL);
@@ -277,7 +279,8 @@ void RimLegendConfig::updateLegend()
            legendColors.add(cvf::Color3ub(  0, 127, 255));
            legendColors.add(cvf::Color3ub(  0,   0, 255));
        }
-       break;  case BLACK_WHITE:
+       break;  
+   case BLACK_WHITE:
    case WHITE_BLACK:
        {
            legendColors.reserve(2);
@@ -309,6 +312,25 @@ void RimLegendConfig::updateLegend()
            }
        }
        break;
+   case BLUE_WHITE_RED:
+   case RED_WHITE_BLUE:
+       {
+           legendColors.reserve(3);
+           if (m_colorRangeMode() == BLUE_WHITE_RED)
+           {
+               legendColors.add(cvf::Color3ub::BLUE);
+               legendColors.add(cvf::Color3ub::WHITE);
+               legendColors.add(cvf::Color3ub::RED);
+           }
+           else
+           {
+               legendColors.add(cvf::Color3ub::RED);
+               legendColors.add(cvf::Color3ub::WHITE);
+               legendColors.add(cvf::Color3ub::BLUE);
+           }
+       }
+       break;
+
    }
 
    m_linDiscreteScalarMapper->setColors(legendColors);
