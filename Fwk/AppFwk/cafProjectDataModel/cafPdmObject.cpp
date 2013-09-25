@@ -398,9 +398,25 @@ PdmUiTreeOrdering* PdmObject::uiTreeOrdering(QString uiConfigName /*= ""*/)
 
         for (size_t fIdx = 0; fIdx < m_fields.size(); ++fIdx)
         {
-            if ( (m_fields[fIdx]->hasChildObjects()) && !uiTreeOrdering->containsField(m_fields[fIdx]))
+            if (m_fields[fIdx]->hasChildObjects() && !uiTreeOrdering->containsField(m_fields[fIdx]))
             {
-                uiTreeOrdering->add( m_fields[fIdx]);
+                if (m_fields[fIdx]->isUiHidden() && !m_fields[fIdx]->isUiChildrenHidden())
+                {
+                    std::vector<PdmObject*> children;
+                    m_fields[fIdx]->childObjects(&children);
+
+                    for (size_t cIdx = 0; cIdx < children.size(); cIdx++)
+                    {
+                        if (!uiTreeOrdering->containsObject(children[cIdx]))
+                        {
+                            uiTreeOrdering->add(children[cIdx]);
+                        }
+                    }
+                }
+                else if ( !m_fields[fIdx]->isUiHidden())
+                {
+                    uiTreeOrdering->add(m_fields[fIdx]);
+                }
             }
         }
     }
@@ -422,7 +438,7 @@ void PdmObject::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName /*= "
         if (!root->isSubTreeDefined() && root->dataObject())
         {
 
-            if (root->m_field)
+            if (root->m_field && !root->m_field->isUiChildrenHidden(uiConfigName))
             {
                 std::vector<PdmObject*> fieldsChildObjects;
                 root->m_field->childObjects(&fieldsChildObjects);

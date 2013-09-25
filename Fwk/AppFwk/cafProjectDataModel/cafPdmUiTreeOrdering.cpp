@@ -72,14 +72,14 @@ namespace caf
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    bool PdmUiTreeOrdering::containsField(PdmFieldHandle* field)
+    bool PdmUiTreeOrdering::containsField(const PdmFieldHandle* field) const
     {
         assert (field);
         for (int cIdx = 0; cIdx < this->childCount(); ++cIdx)
         {
             PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(this->child(cIdx));
 
-            if (!(child->m_field == field)) 
+            if (child->m_field == field)
             {
                 return true;
             }
@@ -87,6 +87,26 @@ namespace caf
 
         return false;
     }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    bool PdmUiTreeOrdering::containsObject(const PdmObject* object) const
+    {
+        assert (object);
+        for (int cIdx = 0; cIdx < this->childCount(); ++cIdx)
+        {
+            PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(this->child(cIdx));
+
+            if (child->dataObject() == object)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     //--------------------------------------------------------------------------------------------------
     ///  Creates an new PdmUiTreeOrdering item, and adds it to parent. If position is -1, it is added 
@@ -100,6 +120,8 @@ namespace caf
     {
 
     }
+
+
 
 } //End of namespace caf
 

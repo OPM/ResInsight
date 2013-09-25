@@ -57,6 +57,7 @@ class PdmFieldHandle;
 
 class PdmUiTreeOrdering : public UiTreeItem< PdmPointer<PdmObject> >
 {
+public:
     PdmUiTreeOrdering(PdmUiTreeOrdering* parent = NULL, int position = -1, PdmObject* dataObject = NULL);
 
     void                add(PdmFieldHandle * field);
@@ -68,11 +69,14 @@ class PdmUiTreeOrdering : public UiTreeItem< PdmPointer<PdmObject> >
     /// To stop the tree generation at this level, setSubTreeDefined to true
     void                setSubTreeDefined(bool isSubTreeDefined )   { m_isSubTreeDefined = isSubTreeDefined; }
 
+    PdmFieldHandle*     field() const                               { return m_field; }
+
 private:
     friend class PdmObject;
     bool                forgetRemainingFields() const       { return m_forgetRemainingFields; }
     bool                isSubTreeDefined() const            { return m_isSubTreeDefined; }
-    bool                containsField(PdmFieldHandle* field);
+    bool                containsField(const PdmFieldHandle* field) const;
+    bool                containsObject(const PdmObject* object) const;
 
 private:
     PdmFieldHandle*     m_field;
