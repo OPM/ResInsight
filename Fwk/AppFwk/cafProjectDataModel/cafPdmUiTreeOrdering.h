@@ -75,8 +75,8 @@ private:
     friend class PdmObject;
     bool                forgetRemainingFields() const       { return m_forgetRemainingFields; }
     bool                isSubTreeDefined() const            { return m_isSubTreeDefined; }
-    bool                containsField(const PdmFieldHandle* field) const;
-    bool                containsObject(const PdmObject* object) const;
+    bool                containsField(const PdmFieldHandle* field);
+    bool                containsObject(const PdmObject* object);
 
 private:
     PdmFieldHandle*     m_field;

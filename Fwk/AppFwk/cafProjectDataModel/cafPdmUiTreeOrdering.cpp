@@ -72,7 +72,7 @@ namespace caf
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    bool PdmUiTreeOrdering::containsField(const PdmFieldHandle* field) const
+    bool PdmUiTreeOrdering::containsField(const PdmFieldHandle* field)
     {
         assert (field);
         for (int cIdx = 0; cIdx < this->childCount(); ++cIdx)
@@ -91,7 +91,7 @@ namespace caf
     //--------------------------------------------------------------------------------------------------
     /// 
     //--------------------------------------------------------------------------------------------------
-    bool PdmUiTreeOrdering::containsObject(const PdmObject* object) const
+    bool PdmUiTreeOrdering::containsObject(const PdmObject* object)
     {
         assert (object);
         for (int cIdx = 0; cIdx < this->childCount(); ++cIdx)
