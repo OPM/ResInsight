@@ -157,11 +157,11 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         {
             if (m_userDefinedMaxValue == m_userDefinedMaxValue.defaultValue() && m_globalAutoMax != cvf::UNDEFINED_DOUBLE)
             {
-                m_userDefinedMaxValue = adjust(m_globalAutoMax, m_precision);
+                m_userDefinedMaxValue = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
             }
             if (m_userDefinedMinValue == m_userDefinedMinValue.defaultValue() && m_globalAutoMin != cvf::UNDEFINED_DOUBLE)
             {   
-                m_userDefinedMinValue = adjust(m_globalAutoMin, m_precision);
+                m_userDefinedMinValue = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
             }
         }
 
@@ -186,24 +186,24 @@ void RimLegendConfig::updateLegend()
 
    if (m_rangeMode == AUTOMATIC_ALLTIMESTEPS)
    {
-       adjustedMin = adjust(m_globalAutoMin, m_precision);
-       adjustedMax = adjust(m_globalAutoMax, m_precision);
+       adjustedMin = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
+       adjustedMax = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
 
        posClosestToZero = m_globalAutoPosClosestToZero;
        negClosestToZero = m_globalAutoNegClosestToZero;
    }
    else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
    {
-       adjustedMin = adjust(m_localAutoMin, m_precision);
-       adjustedMax = adjust(m_localAutoMax, m_precision);
+       adjustedMin = roundToNumSignificantDigits(m_localAutoMin, m_precision);
+       adjustedMax = roundToNumSignificantDigits(m_localAutoMax, m_precision);
 
        posClosestToZero = m_localAutoPosClosestToZero;
        negClosestToZero = m_localAutoNegClosestToZero;
    }
    else
    {
-       adjustedMin = adjust(m_userDefinedMinValue, m_precision);
-       adjustedMax = adjust(m_userDefinedMaxValue, m_precision);
+       adjustedMin = roundToNumSignificantDigits(m_userDefinedMinValue, m_precision);
+       adjustedMax = roundToNumSignificantDigits(m_userDefinedMaxValue, m_precision);
 
        posClosestToZero = m_globalAutoPosClosestToZero;
        negClosestToZero = m_globalAutoNegClosestToZero;
@@ -362,10 +362,28 @@ void RimLegendConfig::updateLegend()
    }
 
    m_legend->setScalarMapper(m_currentScalarMapper.p());
-   m_legend->setTickPrecision(m_precision());
+   double decadesInRange = 0;
 
+   if (m_mappingMode == LOG10_CONTINUOUS || m_mappingMode == LOG10_DISCRETE)
+   {
+       decadesInRange  = abs(adjustedMin - adjustedMax) ? abs(adjustedMin) : abs(adjustedMax);
+       decadesInRange = log10(decadesInRange);
+   }
+   else
+   {
+       double absRange = abs(adjustedMax - adjustedMin);
+       decadesInRange = log10(absRange);
+   }
+
+   decadesInRange = cvf::Math::ceil(decadesInRange);
+
+   // Using Fixed format 
    NumberFormatType nft = m_tickNumberFormat();
    m_legend->setTickFormat((cvf::OverlayScalarMapperLegend::NumberFormat)nft);
+
+   // Set the fixed number of digits after the decimal point to the number needed to show all the significant digits.
+   int numDecimalDigits = m_precision() - decadesInRange;
+   m_legend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
@@ -392,11 +410,11 @@ void RimLegendConfig::updateLegend()
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax)
 {
-    m_globalAutoMin = adjust(globalMin, m_precision);
-    m_globalAutoMax = adjust(globalMax, m_precision);
+    m_globalAutoMin = roundToNumSignificantDigits(globalMin, m_precision);
+    m_globalAutoMax = roundToNumSignificantDigits(globalMax, m_precision);
 
-    m_localAutoMin = adjust(localMin, m_precision);
-    m_localAutoMax = adjust(localMax, m_precision);
+    m_localAutoMin = roundToNumSignificantDigits(localMin, m_precision);
+    m_localAutoMax = roundToNumSignificantDigits(localMax, m_precision);
 
     updateLegend();
 }
@@ -507,9 +525,9 @@ void RimLegendConfig::recreateLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Adjust double value to given precision
+/// Rounding the double value to given number of significant digits
 //--------------------------------------------------------------------------------------------------
-double RimLegendConfig::adjust(double domainValue, double precision)
+double RimLegendConfig::roundToNumSignificantDigits(double domainValue, double numSignificantDigits)
 {
     double absDomainValue = cvf::Math::abs(domainValue);
     if (absDomainValue == 0.0)
@@ -520,11 +538,13 @@ double RimLegendConfig::adjust(double domainValue, double precision)
     double logDecValue = log10(absDomainValue);
     logDecValue = cvf::Math::ceil(logDecValue);
 
-    double factor = pow(10.0, precision - logDecValue);
+    double factor = pow(10.0, numSignificantDigits - logDecValue);
 
     double tmp = domainValue * factor;
     double integerPart;
-    modf(tmp, &integerPart);
+    double fraction = modf(tmp, &integerPart);
+
+    if (abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
 
     double newDomainValue = integerPart / factor;
 
