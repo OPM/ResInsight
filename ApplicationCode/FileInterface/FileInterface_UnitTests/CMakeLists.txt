@@ -15,9 +15,9 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
     ${ResInsight_SOURCE_DIR}/ThirdParty
 
-    ${ResInsight_SOURCE_DIR}/cafProjectDataModel
+    ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/cafProjectDataModel
 
-    ${ResInsight_SOURCE_DIR}/CommonCode
+    ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/CommonCode
 
 	#Remove when RigStatistics is out
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
@@ -47,7 +47,7 @@ source_group( "ReservoirDataModel"       FILES ${CODE_SOURCE_FILES} )
 set( CPP_SOURCES
     ${CPP_SOURCES}
 
-    ${ResInsight_SOURCE_DIR}/cafUserInterface/cafProgressInfo.cpp
+    ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/cafUserInterface/cafProgressInfo.cpp
 )
 
 source_group( "Headers"             FILES ${CODE_HEADER_FILES} )

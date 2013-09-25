@@ -19,9 +19,9 @@ include_directories(
     ${ResInsight_SOURCE_DIR}/ApplicationCode/ProjectDataModel
     ${ResInsight_SOURCE_DIR}/ThirdParty
 
-    ${ResInsight_SOURCE_DIR}/cafProjectDataModel
+    ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/cafProjectDataModel
 
-    ${ResInsight_SOURCE_DIR}/CommonCode
+    ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/CommonCode
 
 	#Remove when RigStatistics is out
     #${ResInsight_SOURCE_DIR}/ApplicationCode/ModelVisualization
@@ -33,7 +33,7 @@ include ("${CMAKE_CURRENT_SOURCE_DIR}/../CMakeLists_files.cmake")
 
 set( UNIT_TEST_CPP_SOURCES
 
-    ${ResInsight_SOURCE_DIR}/cafUserInterface/cafProgressInfo.cpp
+    ${ResInsight_SOURCE_DIR}/Fwk/AppFwk/cafUserInterface/cafProgressInfo.cpp
 
     main.cpp
     RigActiveCellInfo-Test.cpp
