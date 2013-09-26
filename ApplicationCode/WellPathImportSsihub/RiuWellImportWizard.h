@@ -72,6 +72,10 @@ public:
 };
 
 
+
+class ObjectGroupWithHeaders;
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -84,10 +88,10 @@ public:
     ~WellSelectionPage();
 
     virtual void initializePage();
-    void expandAllTreeNodes();
+    void buildWellTreeView();
 
 private:
-    caf::PdmObjectGroup*  m_regionsWithVisibleWells;
+    ObjectGroupWithHeaders*  m_regionsWithVisibleWells;
     RimWellPathImport*  m_wellPathImportObject;
     caf::PdmUiTreeView* m_wellSelectionTreeView;
 
@@ -163,7 +167,6 @@ public slots:
     void        httpFinished();
     void        httpReadyRead();
 
-    void        updateDataReadProgress(qint64 bytesRead, qint64 totalBytes);
     void        slotAuthenticationRequired(QNetworkReply* networkReply, QAuthenticator* authenticator);
 
 
@@ -195,7 +198,7 @@ private:
     RimWellPathImport*      m_wellPathImportObject;
     caf::PdmUiTreeView*     m_pdmTreeView;
 
-    QProgressDialog*        m_progressDialog;
+    QProgressDialog*        m_myProgressDialog;
 
     QUrl                    m_url;
     QNetworkAccessManager   m_networkAccessManager;

@@ -20,8 +20,8 @@ include_directories(
 	${CMAKE_CURRENT_BINARY_DIR}
 
     ${CMAKE_CURRENT_SOURCE_DIR}/../FileInterface
-	${CMAKE_CURRENT_SOURCE_DIR}/../../cafProjectDataModel 
-	${CMAKE_CURRENT_SOURCE_DIR}/../../cafUserInterface
+	${CMAKE_CURRENT_SOURCE_DIR}/../../Fwk/AppFwk/cafProjectDataModel 
+	${CMAKE_CURRENT_SOURCE_DIR}/../../Fwk/AppFwk/cafUserInterface
 )
 
 

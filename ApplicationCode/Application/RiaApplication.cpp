@@ -444,9 +444,9 @@ bool RiaApplication::saveProjectPromptForFileName()
         startPath = app->defaultFileDialogDirectory("BINARY_GRID");
     }
 
-    startPath += "/ResInsightProject.rip";
+    startPath += "/ResInsightProject.rsp";
 
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Project Files (*.rip *.xml)"));
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Project Files (*.rsp);;All files(*.*)"));
     if (fileName.isEmpty())
     {
         return false;
@@ -1028,7 +1028,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 
         // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
 
-        QProcessEnvironment penv = m_workerProcess->processEnvironment();
+        QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
         QString ldPath = penv.value("LD_LIBRARY_PATH", "");
 
         if (ldPath == "") ldPath = QApplication::applicationDirPath();
