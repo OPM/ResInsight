@@ -62,7 +62,10 @@ PdmUiListView::PdmUiListView(QWidget* parent, Qt::WindowFlags f)
 
     m_listViewEditor = new PdmUiListViewEditor();
 
-    m_layout->addWidget(m_listViewEditor->getOrCreateWidget(this));
+    QWidget* widget = m_listViewEditor->getOrCreateWidget(this);
+    m_layout->addWidget(widget);
+
+    this->m_layout->setStretchFactor(widget, 10);
 }
 
 //--------------------------------------------------------------------------------------------------

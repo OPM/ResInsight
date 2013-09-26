@@ -20,6 +20,7 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
+#include "cafProgressInfo.h"
 
 #include "RimWellPathCollection.h"
 #include "RimWellPath.h"
@@ -122,9 +123,14 @@ void RimWellPathCollection::setProject( RimProject* project )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::readWellPathFiles()
 {
+    caf::ProgressInfo progress(wellPaths.size(), "Reading well paths from file");
+
     for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
     {
         wellPaths[wpIdx]->readWellPathFile();
+
+        progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name));
+        progress.incrementProgress();
     }
 }
 

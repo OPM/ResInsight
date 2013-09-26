@@ -46,8 +46,7 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
     m_destinationFolder = downloadFolder;
     m_webServiceAddress = webServiceAddress;
 
-
-    m_progressDialog = new QProgressDialog(this);
+    m_myProgressDialog = new QProgressDialog(this);
     m_firstTimeRequestingAuthentication = true;
 
 
@@ -64,8 +63,6 @@ RiuWellImportWizard::RiuWellImportWizard(const QString& webServiceAddress, const
     connect(&m_networkAccessManager, SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),
         this, SLOT(sslErrors(QNetworkReply*,QList<QSslError>)));
 #endif
-
-    connect(m_progressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
 
 }
 
@@ -122,9 +119,6 @@ void RiuWellImportWizard::issueHttpRequestToFile(QString completeUrlText, QStrin
         return;
     }
 
-    m_progressDialog->setWindowTitle(tr("HTTP"));
-    m_progressDialog->setLabelText(tr("Downloading %1.").arg(destinationFileName));
-
     // schedule the request
     m_httpRequestAborted = false;
     startRequest(m_url);
@@ -153,7 +147,7 @@ void RiuWellImportWizard::httpFinished()
             m_file = 0;
         }
         m_reply->deleteLater();
-        m_progressDialog->hide();
+        m_myProgressDialog->hide();
         return;
     }
 
@@ -216,7 +210,12 @@ void RiuWellImportWizard::httpFinished()
                     out << singleWellPathContent;
                 }
             }
+
+            m_myProgressDialog->setLabelText(QString("Downloaded well path : %1").arg(wellPathName));
         }
+
+        int newValue = m_myProgressDialog->maximum() - m_wellRequestQueue.size();
+        m_myProgressDialog->setValue(newValue);
     }
 
     m_reply->deleteLater();
@@ -247,20 +246,6 @@ void RiuWellImportWizard::httpReadyRead()
     if (m_file)
         m_file->write(m_reply->readAll());
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuWellImportWizard::updateDataReadProgress(qint64 bytesRead, qint64 totalBytes)
-{
-    if (m_httpRequestAborted)
-        return;
-
-    m_progressDialog->setMaximum(totalBytes);
-    m_progressDialog->setValue(bytesRead);
-
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// This slot will be called for the first network reply that will need authentication.
@@ -324,8 +309,6 @@ void RiuWellImportWizard::startRequest(QUrl url)
         this, SLOT(httpFinished()));
     connect(m_reply, SIGNAL(readyRead()),
         this, SLOT(httpReadyRead()));
-    connect(m_reply, SIGNAL(downloadProgress(qint64,qint64)),
-        this, SLOT(updateDataReadProgress(qint64,qint64)));
 }
 
 
@@ -421,7 +404,7 @@ void RiuWellImportWizard::downloadWells()
                     }
                     else
                     {
-                        wellRequest = QString("/resinsight/projects/%1/wellsInArea?north=%2&south=%3&east=%4&west=%5&utmZone=32N")
+                        wellRequest = QString("/resinsight/projects/%1/wellsInArea?north=%2&south=%3&east=%4&west=%5&utmzone=32N")
                             .arg(oilField->edmId)
                             .arg(QString::number(m_wellPathImportObject->north, 'g', 10))
                             .arg(QString::number(m_wellPathImportObject->south, 'g', 10))
@@ -463,16 +446,15 @@ void RiuWellImportWizard::downloadWellPaths()
                     for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
                     {
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
-                        
-                        if (!wellPathEntry->isWellPathValid())
-                            continue;
-                        
-                        DownloadEntity urlToFile;
+                        if (wellPathEntry->selected && wellPathEntry->isWellPathValid())
+                        {
+                            DownloadEntity urlToFile;
 
-                        urlToFile.requestUrl = wellPathEntry->requestUrl;
-                        urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
+                            urlToFile.requestUrl = wellPathEntry->requestUrl;
+                            urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
 
-                        m_wellRequestQueue.push_back(urlToFile);
+                            m_wellRequestQueue.push_back(urlToFile);
+                        }
                     }
                 }
             }
@@ -480,6 +462,11 @@ void RiuWellImportWizard::downloadWellPaths()
     }
 
     m_currentDownloadState = DOWNLOAD_WELL_PATH;
+
+    m_myProgressDialog->setMaximum(m_wellRequestQueue.size());
+    m_myProgressDialog->setValue(0);
+    m_myProgressDialog->show();
+
 
     checkDownloadQueueAndIssueRequests();
 }
@@ -505,6 +492,8 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 
     if (m_currentDownloadState == DOWNLOAD_WELLS)
     {
+        m_myProgressDialog->hide();
+
         // Update UI with downloaded wells
 
         for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
@@ -536,7 +525,7 @@ void RiuWellImportWizard::checkDownloadQueueAndIssueRequests()
 
     m_currentDownloadState = DOWNLOAD_UNDEFINED;
 
-    m_progressDialog->hide();
+    m_myProgressDialog->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -877,14 +866,57 @@ void WellSelectionPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 void WellSelectionPage::buildWellTreeView()
 {
-    m_regionsWithVisibleWells->objects.clear();
+    for (size_t rIdx = 0; rIdx < m_regionsWithVisibleWells->objects.size(); rIdx++)
+    {
+        caf::PdmObjectGroup* regGroup = dynamic_cast<caf::PdmObjectGroup*>(m_regionsWithVisibleWells->objects[rIdx]);
+        if (!regGroup)
+            continue;
+
+        for (size_t fIdx = 0; fIdx < regGroup->objects.size(); fIdx++)
+        {
+            caf::PdmObjectGroup* fieldGroup = dynamic_cast<caf::PdmObjectGroup*>(regGroup->objects[fIdx]);
+            if (!fieldGroup)
+                continue;
+
+            // RimWellPathEntry objects are present here, they must be taken out out the container, but not deleted
+            // If fieldGroup->objects->deleteObjects is performed, the objects are deleted
+            fieldGroup->objects.clear();
+        }
+    }
+
+    // Delete all temporary pdm object groups
+    m_regionsWithVisibleWells->deleteObjects();
 
     for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
     {
         RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
         if (oilRegion->selected)
         {
-            m_regionsWithVisibleWells->objects.push_back(oilRegion);
+            caf::PdmObjectGroup* regGroup = new caf::PdmObjectGroup;
+            regGroup->setUiName(oilRegion->userDescriptionField()->uiValue().toString());
+
+            m_regionsWithVisibleWells->objects.push_back(regGroup);
+
+            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
+            {
+                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
+                if (oilField->selected)
+                {
+                    caf::PdmObjectGroup* fieldGroup = new caf::PdmObjectGroup;
+                    fieldGroup->setUiName(oilField->userDescriptionField()->uiValue().toString());
+
+                    regGroup->objects.push_back(fieldGroup);
+
+                    for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
+                    {
+                        RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
+                        if (wellPathEntry->selected)
+                        {
+                            fieldGroup->objects.push_back(wellPathEntry);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -920,11 +952,12 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     m_textEdit->setReadOnly(true);
     layout->addWidget(m_textEdit);
 
-    QPushButton* button = new QPushButton("Details", this);
+    QPushButton* button = new QPushButton("Show/hide details", this);
     connect(button, SIGNAL(clicked()), this, SLOT(slotShowDetails()));
     layout->addWidget(button);
 
     m_listView = new caf::PdmUiListView(this);
+    layout->setStretchFactor(m_listView, 10);
     layout->addWidget(m_listView);
     m_listView->hide();
 
@@ -1007,6 +1040,13 @@ void WellSummaryPage::updateSummaryPage()
 //--------------------------------------------------------------------------------------------------
 void WellSummaryPage::slotShowDetails()
 {
-    m_listView->show();
+    if (m_listView->isHidden())
+    {
+        m_listView->show();
+    }
+    else
+    {
+        m_listView->hide();
+    }
 }
 
