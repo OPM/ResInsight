@@ -767,7 +767,7 @@ void RiuMainWindow::slotOpenProject()
     {
         RiaApplication* app = RiaApplication::instance();
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
-        QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rip)");
+        QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
 
         if (fileName.isEmpty()) return;
 

@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 
 project (ResInsight)
 
-set (VIZ_MODULES_FOLDER_NAME VisualizationModules)
+set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 
 
@@ -98,12 +98,12 @@ include_directories(
 # Ceetron Application Framework
 ################################################################################
 
-add_subdirectory(cafProjectDataModel)
-add_subdirectory(CommonCode)
-add_subdirectory(cafAnimControl)
-add_subdirectory(cafViewer)
-add_subdirectory(cafUserInterface)
-add_subdirectory(cafPdmCvf)
+add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
+add_subdirectory(Fwk/AppFwk/CommonCode)
+add_subdirectory(Fwk/AppFwk/cafAnimControl)
+add_subdirectory(Fwk/AppFwk/cafViewer)
+add_subdirectory(Fwk/AppFwk/cafUserInterface)
+add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 
 include_directories(
     ${cafUserInterface_SOURCE_DIR}

@@ -61,6 +61,8 @@ namespace caf {
         addItem(RimLegendConfig::OPPOSITE_NORMAL,"OPPOSITE_NORMAL", "Full color, Blue on top");
         addItem(RimLegendConfig::WHITE_PINK,     "WHITE_PIMK",      "White to pink");
         addItem(RimLegendConfig::PINK_WHITE,     "PINK_WHITE",      "Pink to white");
+        addItem(RimLegendConfig::BLUE_WHITE_RED,    "BLUE_WHITE_RED",     "Blue, white, red");
+        addItem(RimLegendConfig::RED_WHITE_BLUE,    "RED_WHITE_BLUE",     "Red, white, blue");
         addItem(RimLegendConfig::WHITE_BLACK,    "WHITE_BLACK",     "White to black");
         addItem(RimLegendConfig::BLACK_WHITE,    "BLACK_WHITE",     "Black to white");
         setDefault(RimLegendConfig::NORMAL);
@@ -104,13 +106,13 @@ RimLegendConfig::RimLegendConfig()
         m_localAutoNegClosestToZero(0)
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
-    CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "","");
-    CAF_PDM_InitField(&m_precision, "Precision", 2, "Precision", "", "","");
-    CAF_PDM_InitField(&m_tickNumberFormat, "TickNumberFormat", caf::AppEnum<RimLegendConfig::NumberFormatType>(FIXED), "Precision", "", "","");
+    CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "A hint on how many tick marks you whish.","");
+    CAF_PDM_InitField(&m_precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
+    CAF_PDM_InitField(&m_tickNumberFormat, "TickNumberFormat", caf::AppEnum<RimLegendConfig::NumberFormatType>(FIXED), "Number format", "", "","");
 
-    CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Color range", "", "", "");
+    CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Colors", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
-    CAF_PDM_InitField(&m_rangeMode, "RangeType", caf::AppEnum<RimLegendConfig::RangeModeType>(AUTOMATIC_ALLTIMESTEPS), "Legend range type", "", "Switches between automatic and user defined range on the legend", "");
+    CAF_PDM_InitField(&m_rangeMode, "RangeType", caf::AppEnum<RimLegendConfig::RangeModeType>(AUTOMATIC_ALLTIMESTEPS), "Range type", "", "Switches between automatic and user defined range on the legend", "");
     CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
@@ -155,11 +157,11 @@ void RimLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changedField, 
         {
             if (m_userDefinedMaxValue == m_userDefinedMaxValue.defaultValue() && m_globalAutoMax != cvf::UNDEFINED_DOUBLE)
             {
-                m_userDefinedMaxValue = adjust(m_globalAutoMax, m_precision);
+                m_userDefinedMaxValue = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
             }
             if (m_userDefinedMinValue == m_userDefinedMinValue.defaultValue() && m_globalAutoMin != cvf::UNDEFINED_DOUBLE)
             {   
-                m_userDefinedMinValue = adjust(m_globalAutoMin, m_precision);
+                m_userDefinedMinValue = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
             }
         }
 
@@ -184,24 +186,24 @@ void RimLegendConfig::updateLegend()
 
    if (m_rangeMode == AUTOMATIC_ALLTIMESTEPS)
    {
-       adjustedMin = adjust(m_globalAutoMin, m_precision);
-       adjustedMax = adjust(m_globalAutoMax, m_precision);
+       adjustedMin = roundToNumSignificantDigits(m_globalAutoMin, m_precision);
+       adjustedMax = roundToNumSignificantDigits(m_globalAutoMax, m_precision);
 
        posClosestToZero = m_globalAutoPosClosestToZero;
        negClosestToZero = m_globalAutoNegClosestToZero;
    }
    else if (m_rangeMode == AUTOMATIC_CURRENT_TIMESTEP)
    {
-       adjustedMin = adjust(m_localAutoMin, m_precision);
-       adjustedMax = adjust(m_localAutoMax, m_precision);
+       adjustedMin = roundToNumSignificantDigits(m_localAutoMin, m_precision);
+       adjustedMax = roundToNumSignificantDigits(m_localAutoMax, m_precision);
 
        posClosestToZero = m_localAutoPosClosestToZero;
        negClosestToZero = m_localAutoNegClosestToZero;
    }
    else
    {
-       adjustedMin = adjust(m_userDefinedMinValue, m_precision);
-       adjustedMax = adjust(m_userDefinedMaxValue, m_precision);
+       adjustedMin = roundToNumSignificantDigits(m_userDefinedMinValue, m_precision);
+       adjustedMax = roundToNumSignificantDigits(m_userDefinedMaxValue, m_precision);
 
        posClosestToZero = m_globalAutoPosClosestToZero;
        negClosestToZero = m_globalAutoNegClosestToZero;
@@ -277,7 +279,8 @@ void RimLegendConfig::updateLegend()
            legendColors.add(cvf::Color3ub(  0, 127, 255));
            legendColors.add(cvf::Color3ub(  0,   0, 255));
        }
-       break;  case BLACK_WHITE:
+       break;  
+   case BLACK_WHITE:
    case WHITE_BLACK:
        {
            legendColors.reserve(2);
@@ -309,6 +312,25 @@ void RimLegendConfig::updateLegend()
            }
        }
        break;
+   case BLUE_WHITE_RED:
+   case RED_WHITE_BLUE:
+       {
+           legendColors.reserve(3);
+           if (m_colorRangeMode() == BLUE_WHITE_RED)
+           {
+               legendColors.add(cvf::Color3ub::BLUE);
+               legendColors.add(cvf::Color3ub::WHITE);
+               legendColors.add(cvf::Color3ub::RED);
+           }
+           else
+           {
+               legendColors.add(cvf::Color3ub::RED);
+               legendColors.add(cvf::Color3ub::WHITE);
+               legendColors.add(cvf::Color3ub::BLUE);
+           }
+       }
+       break;
+
    }
 
    m_linDiscreteScalarMapper->setColors(legendColors);
@@ -340,10 +362,34 @@ void RimLegendConfig::updateLegend()
    }
 
    m_legend->setScalarMapper(m_currentScalarMapper.p());
-   m_legend->setTickPrecision(m_precision());
+   double decadesInRange = 0;
 
+   if (m_mappingMode == LOG10_CONTINUOUS || m_mappingMode == LOG10_DISCRETE)
+   {
+       // For log mapping, use the min value as reference for num valid digits
+       decadesInRange  = abs(adjustedMin) < abs(adjustedMax) ? abs(adjustedMin) : abs(adjustedMax);
+       decadesInRange = log10(decadesInRange);
+   }
+   else
+   {
+       // For linear mapping, use the max value as reference for num valid digits
+       double absRange = CVF_MAX(abs(adjustedMax), abs(adjustedMin));
+       decadesInRange = log10(absRange);
+   }
+
+   decadesInRange = cvf::Math::ceil(decadesInRange);
+
+   // Using Fixed format 
    NumberFormatType nft = m_tickNumberFormat();
    m_legend->setTickFormat((cvf::OverlayScalarMapperLegend::NumberFormat)nft);
+
+   // Set the fixed number of digits after the decimal point to the number needed to show all the significant digits.
+   int numDecimalDigits = m_precision();
+   if (nft != SCIENTIFIC)
+   {
+       numDecimalDigits -= decadesInRange;
+   }
+   m_legend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
 
    if (m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
@@ -370,11 +416,11 @@ void RimLegendConfig::updateLegend()
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax)
 {
-    m_globalAutoMin = adjust(globalMin, m_precision);
-    m_globalAutoMax = adjust(globalMax, m_precision);
+    m_globalAutoMin = roundToNumSignificantDigits(globalMin, m_precision);
+    m_globalAutoMax = roundToNumSignificantDigits(globalMax, m_precision);
 
-    m_localAutoMin = adjust(localMin, m_precision);
-    m_localAutoMax = adjust(localMax, m_precision);
+    m_localAutoMin = roundToNumSignificantDigits(localMin, m_precision);
+    m_localAutoMax = roundToNumSignificantDigits(localMax, m_precision);
 
     updateLegend();
 }
@@ -485,9 +531,9 @@ void RimLegendConfig::recreateLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Adjust double value to given precision
+/// Rounding the double value to given number of significant digits
 //--------------------------------------------------------------------------------------------------
-double RimLegendConfig::adjust(double domainValue, double precision)
+double RimLegendConfig::roundToNumSignificantDigits(double domainValue, double numSignificantDigits)
 {
     double absDomainValue = cvf::Math::abs(domainValue);
     if (absDomainValue == 0.0)
@@ -498,11 +544,13 @@ double RimLegendConfig::adjust(double domainValue, double precision)
     double logDecValue = log10(absDomainValue);
     logDecValue = cvf::Math::ceil(logDecValue);
 
-    double factor = pow(10.0, precision - logDecValue);
+    double factor = pow(10.0, numSignificantDigits - logDecValue);
 
     double tmp = domainValue * factor;
     double integerPart;
-    modf(tmp, &integerPart);
+    double fraction = modf(tmp, &integerPart);
+
+    if (abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
 
     double newDomainValue = integerPart / factor;
 
@@ -525,5 +573,23 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
     if (m_localAutoNegClosestToZero == -HUGE_VAL) m_localAutoNegClosestToZero = 0;
 
     updateLegend();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
+    formatGr->add(&m_numLevels);
+    formatGr->add(&m_precision);
+    formatGr->add(&m_tickNumberFormat);
+    formatGr->add(&m_colorRangeMode);
+
+    caf::PdmUiOrdering * mappingGr = uiOrdering.addNewGroup("Mapping");
+    mappingGr->add(&m_mappingMode);
+    mappingGr->add(&m_rangeMode);
+    mappingGr->add(&m_userDefinedMaxValue);
+    mappingGr->add(&m_userDefinedMinValue);
 }
 

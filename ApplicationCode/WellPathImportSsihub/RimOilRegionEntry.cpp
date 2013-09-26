@@ -34,7 +34,7 @@ RimOilRegionEntry::RimOilRegionEntry()
 
     CAF_PDM_InitFieldNoDefault(&fields, "Fields", "",  "", "", "");
 
-    CAF_PDM_InitField(&selected,       "Selected",         true,   "Selected", "", "", "");
+    CAF_PDM_InitField(&selected,       "Selected",         false,   "Selected", "", "", "");
 
 }
 

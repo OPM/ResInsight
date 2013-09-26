@@ -57,9 +57,11 @@ public:
 
     virtual void initAfterRead();
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
 
-//private:
     void updateFieldVisibility();
+
+
 
 };
 
