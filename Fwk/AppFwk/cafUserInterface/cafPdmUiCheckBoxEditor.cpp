@@ -77,6 +77,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     m_label->setToolTip(field()->uiToolTip(uiConfigName));
 
     m_checkBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_checkBox->setToolTip(field()->uiToolTip(uiConfigName));
 
     PdmUiCheckBoxEditorAttribute attributes;
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);

@@ -79,7 +79,10 @@ void PdmUiLineEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+
     m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
 
     PdmUiLineEditorAttribute leab;
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &leab);

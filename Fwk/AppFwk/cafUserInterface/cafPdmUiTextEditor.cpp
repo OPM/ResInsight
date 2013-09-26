@@ -80,9 +80,11 @@ void PdmUiTextEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     //m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_label->setToolTip(field()->uiToolTip(uiConfigName));
 
     m_textEdit->setReadOnly(field()->isUiReadOnly(uiConfigName));
     //m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?
+    m_textEdit->setToolTip(field()->uiToolTip(uiConfigName));
 
     PdmUiTextEditorAttribute leab;
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &leab);

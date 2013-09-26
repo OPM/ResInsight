@@ -77,6 +77,8 @@ void PdmUiPushButtonEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     //m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_pushButton->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_pushButton->setToolTip(field()->uiToolTip(uiConfigName));
+    m_label->setToolTip(field()->uiToolTip(uiConfigName));
 
     PdmUiPushButtonEditorAttribute attributes;
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);

@@ -98,11 +98,14 @@ public:
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                initAfterRead();
+    virtual void                                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 private:
     void                                        updateFieldVisibility();
     cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
-    
+
+ 
+
 private:
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
 
