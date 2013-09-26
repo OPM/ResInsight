@@ -1028,7 +1028,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 
         // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
 
-        QProcessEnvironment penv = m_workerProcess->processEnvironment();
+        QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
         QString ldPath = penv.value("LD_LIBRARY_PATH", "");
 
         if (ldPath == "") ldPath = QApplication::applicationDirPath();
