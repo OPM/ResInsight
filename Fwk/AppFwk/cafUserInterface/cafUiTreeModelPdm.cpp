@@ -501,6 +501,33 @@ void UiTreeModelPdm::notifyModelChanged()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QVariant UiTreeModelPdm::headerData(int section, Qt::Orientation orientation, int role /*= Qt::DisplayRole */) const
+{
+    if (role != Qt::DisplayRole)
+        return QVariant();
+
+    if (section < m_columnHeaders.size())
+    {
+        return m_columnHeaders[section];
+    }
+
+    return QVariant();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void UiTreeModelPdm::setColumnHeaders(const QStringList& columnHeaders)
+{
+    m_columnHeaders = columnHeaders;
+}
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 PdmUiTreeItem* caf::UiTreeModelPdm::getTreeItemFromIndex(const QModelIndex& index)
 {
     if (index.isValid())

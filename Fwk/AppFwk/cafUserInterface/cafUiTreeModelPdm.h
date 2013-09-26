@@ -40,6 +40,8 @@
 #include "cafUiTreeItem.h"
 
 #include <QAbstractItemModel>
+#include <QStringList>
+
 #include <assert.h>
 #include "cafPdmPointer.h"
 
@@ -71,6 +73,7 @@ public:
     void                    updateUiSubTree(PdmObject* root);
 
     void                    notifyModelChanged();
+    void                    setColumnHeaders(const QStringList& columnHeaders);
 
 public:
     // Overrides from QAbstractItemModel
@@ -79,9 +82,11 @@ public:
     virtual int             rowCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
     virtual int             columnCount(const QModelIndex &parentIndex = QModelIndex( ) ) const;
     virtual QVariant        data(const QModelIndex &index, int role = Qt::DisplayRole ) const;
+    virtual QVariant        headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole ) const;
     
     virtual Qt::ItemFlags   flags(const QModelIndex &index) const;
     virtual bool            setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
 
     virtual bool            removeRows_special(int position, int rows, const QModelIndex &parent = QModelIndex());
 
@@ -91,6 +96,7 @@ private:
     void                    updateModelSubTree(const QModelIndex& uiSubTreeRootModelIdx, PdmUiTreeItem* uiModelSubTreeRoot, PdmUiTreeItem* updatedPdmSubTreeRoot);
 
     PdmUiTreeItem*          m_treeItemRoot;
+    QStringList             m_columnHeaders;
 };
 
 

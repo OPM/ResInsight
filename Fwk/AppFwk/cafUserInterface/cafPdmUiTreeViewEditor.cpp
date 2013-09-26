@@ -45,6 +45,29 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QTreeView>
+#include <QSortFilterProxyModel>
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+class MySortFilterProxyModel : public QSortFilterProxyModel
+{
+public:
+    MySortFilterProxyModel(QObject *parent = 0)
+        : QSortFilterProxyModel(parent)
+    {
+
+    }
+
+    void notifyModelChanged()
+    {
+        QModelIndex startModelIdx = index(0,0);
+        QModelIndex endModelIdx = index(rowCount(startModelIdx), 0);
+
+        emit dataChanged(startModelIdx, endModelIdx);
+    }
+};
 
 
 
@@ -84,8 +107,14 @@ QWidget* PdmUiTreeViewEditor::createWidget(QWidget* parent)
 
     m_treeModelPdm = new caf::UiTreeModelPdm(m_mainWidget);
     m_treeView = new QTreeView(m_mainWidget);
-    m_treeView->setHeaderHidden(true);
-    m_treeView->setModel(m_treeModelPdm);
+
+    m_proxyTreeModelPdm = new MySortFilterProxyModel(m_mainWidget);
+    m_proxyTreeModelPdm->setSourceModel(m_treeModelPdm);
+    m_treeView->setModel(m_proxyTreeModelPdm);
+
+    m_treeView->setSortingEnabled(true);
+    m_treeView->sortByColumn(1, Qt::AscendingOrder);
+
     
     m_layout->addWidget(m_treeView);
 
@@ -125,12 +154,11 @@ void PdmUiTreeViewEditor::configureAndUpdateUi(const QString& uiConfigName)
         }
     }
 
-
-    PdmUiTreeViewEditorAttribute leab;
-
+    m_treeModelPdm->setColumnHeaders(m_editorAttributes.columnHeaders);
 
     // Notify all connected views that the complete model is updated
     m_treeModelPdm->notifyModelChanged();
+    m_proxyTreeModelPdm->notifyModelChanged();
 }
 
 //--------------------------------------------------------------------------------------------------

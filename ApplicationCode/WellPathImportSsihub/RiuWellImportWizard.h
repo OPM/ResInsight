@@ -72,6 +72,10 @@ public:
 };
 
 
+
+class ObjectGroupWithHeaders;
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -84,10 +88,10 @@ public:
     ~WellSelectionPage();
 
     virtual void initializePage();
-    void expandAllTreeNodes();
+    void buildWellTreeView();
 
 private:
-    caf::PdmObjectGroup*  m_regionsWithVisibleWells;
+    ObjectGroupWithHeaders*  m_regionsWithVisibleWells;
     RimWellPathImport*  m_wellPathImportObject;
     caf::PdmUiTreeView* m_wellSelectionTreeView;
 
