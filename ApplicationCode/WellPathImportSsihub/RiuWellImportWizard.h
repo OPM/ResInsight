@@ -84,7 +84,7 @@ public:
     ~WellSelectionPage();
 
     virtual void initializePage();
-    void expandAllTreeNodes();
+    void buildWellTreeView();
 
 private:
     caf::PdmObjectGroup*  m_regionsWithVisibleWells;

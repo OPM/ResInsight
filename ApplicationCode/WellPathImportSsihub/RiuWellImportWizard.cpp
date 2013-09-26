@@ -385,6 +385,13 @@ void RiuWellImportWizard::updateFieldsModel()
         }
 
         m_wellPathImportObject->updateRegions(regions, fields, edmIds);
+
+        for (size_t i = 0; i < m_wellPathImportObject->regions.size(); i++)
+        {
+            m_wellPathImportObject->regions[i]->updateState();
+        }
+        
+
         m_wellPathImportObject->updateConnectedEditors();
     }
 }
@@ -695,7 +702,7 @@ void RiuWellImportWizard::parseWellsResponse(RimOilFieldEntry* oilFieldEntry)
 
     WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>(page(m_wellSelectionPageId));
     if (wellSelectionPage)
-        wellSelectionPage->expandAllTreeNodes();
+        wellSelectionPage->buildWellTreeView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -842,7 +849,7 @@ void WellSelectionPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void WellSelectionPage::expandAllTreeNodes()
+void WellSelectionPage::buildWellTreeView()
 {
     m_regionsWithVisibleWells->objects.clear();
 
@@ -857,7 +864,8 @@ void WellSelectionPage::expandAllTreeNodes()
 
     m_wellSelectionTreeView->setPdmObject(m_regionsWithVisibleWells);
     m_regionsWithVisibleWells->updateConnectedEditors();
-    //m_wellSelectionTreeView->treeView()->expandAll();
+    
+    m_wellSelectionTreeView->treeView()->expandAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -877,6 +885,7 @@ WellSelectionPage::~WellSelectionPage()
 WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* parent /*= 0*/)
 {
     m_wellPathImportObject = wellPathImport;
+    m_wellPathImportObject->setUiHidden(true);
 
     QVBoxLayout* layout = new QVBoxLayout;
     setLayout(layout);
