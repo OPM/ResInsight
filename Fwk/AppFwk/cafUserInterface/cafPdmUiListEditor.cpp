@@ -130,7 +130,10 @@ void PdmUiListEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+
     m_listView->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_listView->setToolTip(field()->uiToolTip(uiConfigName));
 
     /// Demo code Not used yet
     // PdmUiListEditorAttribute attributes;

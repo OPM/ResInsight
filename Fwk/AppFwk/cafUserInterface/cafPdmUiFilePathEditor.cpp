@@ -81,8 +81,10 @@ void PdmUiFilePathEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_label->setToolTip(field()->uiToolTip(uiConfigName));
 
     m_lineEdit->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_lineEdit->setToolTip(field()->uiToolTip(uiConfigName));
 
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &m_attributes);
 

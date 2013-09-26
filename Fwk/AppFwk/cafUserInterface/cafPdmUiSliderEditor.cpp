@@ -75,8 +75,13 @@ void PdmUiSliderEditor::configureAndUpdateUi(const QString& uiConfigName)
     }
 
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_label->setToolTip(field()->uiToolTip(uiConfigName));
+
     m_spinBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_spinBox->setToolTip(field()->uiToolTip(uiConfigName));
+
     m_slider->setEnabled(!field()->isUiReadOnly(uiConfigName));
+    m_slider->setToolTip(field()->uiToolTip(uiConfigName));
 
     field()->ownerObject()->editorAttribute(field(), uiConfigName, &m_attributes);
 
