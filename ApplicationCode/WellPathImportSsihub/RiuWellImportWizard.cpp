@@ -463,16 +463,15 @@ void RiuWellImportWizard::downloadWellPaths()
                     for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
                     {
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
-                        
-                        if (!wellPathEntry->isWellPathValid())
-                            continue;
-                        
-                        DownloadEntity urlToFile;
+                        if (wellPathEntry->selected && wellPathEntry->isWellPathValid())
+                        {
+                            DownloadEntity urlToFile;
 
-                        urlToFile.requestUrl = wellPathEntry->requestUrl;
-                        urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
+                            urlToFile.requestUrl = wellPathEntry->requestUrl;
+                            urlToFile.responseFilename = wellPathEntry->wellPathFilePath;
 
-                        m_wellRequestQueue.push_back(urlToFile);
+                            m_wellRequestQueue.push_back(urlToFile);
+                        }
                     }
                 }
             }
@@ -877,14 +876,57 @@ void WellSelectionPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 void WellSelectionPage::buildWellTreeView()
 {
-    m_regionsWithVisibleWells->objects.clear();
+    for (size_t rIdx = 0; rIdx < m_regionsWithVisibleWells->objects.size(); rIdx++)
+    {
+        caf::PdmObjectGroup* regGroup = dynamic_cast<caf::PdmObjectGroup*>(m_regionsWithVisibleWells->objects[rIdx]);
+        if (!regGroup)
+            continue;
+
+        for (size_t fIdx = 0; fIdx < regGroup->objects.size(); fIdx++)
+        {
+            caf::PdmObjectGroup* fieldGroup = dynamic_cast<caf::PdmObjectGroup*>(regGroup->objects[rIdx]);
+            if (!fieldGroup)
+                continue;
+
+            // RimWellPathEntry objects are present here, they must be taken out out the container, but not deleted
+            // If fieldGroup->objects->deleteObjects is performed, the objects are deleted
+            fieldGroup->objects.clear();
+        }
+    }
+
+    // Delete all temporary pdm object groups
+    m_regionsWithVisibleWells->deleteObjects();
 
     for (size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++)
     {
         RimOilRegionEntry* oilRegion = m_wellPathImportObject->regions[rIdx];
         if (oilRegion->selected)
         {
-            m_regionsWithVisibleWells->objects.push_back(oilRegion);
+            caf::PdmObjectGroup* regGroup = new caf::PdmObjectGroup;
+            regGroup->setUiName(oilRegion->userDescriptionField()->uiValue().toString());
+
+            m_regionsWithVisibleWells->objects.push_back(regGroup);
+
+            for (size_t fIdx = 0; fIdx < oilRegion->fields.size(); fIdx++)
+            {
+                RimOilFieldEntry* oilField = oilRegion->fields[fIdx];
+                if (oilField->selected)
+                {
+                    caf::PdmObjectGroup* fieldGroup = new caf::PdmObjectGroup;
+                    fieldGroup->setUiName(oilField->userDescriptionField()->uiValue().toString());
+
+                    regGroup->objects.push_back(fieldGroup);
+
+                    for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
+                    {
+                        RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
+                        if (wellPathEntry->selected)
+                        {
+                            fieldGroup->objects.push_back(wellPathEntry);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -920,11 +962,12 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     m_textEdit->setReadOnly(true);
     layout->addWidget(m_textEdit);
 
-    QPushButton* button = new QPushButton("Details", this);
+    QPushButton* button = new QPushButton("Show/hide details", this);
     connect(button, SIGNAL(clicked()), this, SLOT(slotShowDetails()));
     layout->addWidget(button);
 
     m_listView = new caf::PdmUiListView(this);
+    layout->setStretchFactor(m_listView, 10);
     layout->addWidget(m_listView);
     m_listView->hide();
 
@@ -1007,6 +1050,13 @@ void WellSummaryPage::updateSummaryPage()
 //--------------------------------------------------------------------------------------------------
 void WellSummaryPage::slotShowDetails()
 {
-    m_listView->show();
+    if (m_listView->isHidden())
+    {
+        m_listView->show();
+    }
+    else
+    {
+        m_listView->hide();
+    }
 }
 
