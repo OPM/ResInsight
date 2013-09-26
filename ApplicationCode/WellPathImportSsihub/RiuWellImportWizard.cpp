@@ -32,6 +32,7 @@
 #include "RimWellPathImport.h"
 
 #include "RifJsonEncodeDecode.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -809,6 +810,31 @@ void FieldSelectionPage::initializePage()
 
 
 
+//--------------------------------------------------------------------------------------------------
+/// Helper class used to define column headers
+//--------------------------------------------------------------------------------------------------
+class ObjectGroupWithHeaders : public caf::PdmObjectGroup
+{
+public:
+    ObjectGroupWithHeaders() : caf::PdmObjectGroup()
+    {
+
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    virtual void defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+    {
+        caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            QStringList colHeaders;
+            colHeaders << "Wells";
+            myAttr->columnHeaders = colHeaders;
+        }
+    }
+};
 
 
 
@@ -830,9 +856,7 @@ WellSelectionPage::WellSelectionPage(RimWellPathImport* wellPathImport, QWidget*
 
     m_wellPathImportObject = wellPathImport;
 
-    m_regionsWithVisibleWells = new caf::PdmObjectGroup;
-
-    //m_wellSelectionTreeView->setPdmObject(wellPathImport);
+    m_regionsWithVisibleWells = new ObjectGroupWithHeaders;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -844,6 +868,8 @@ void WellSelectionPage::initializePage()
     if (!wiz) return;
 
     wiz->downloadWells();
+
+    setButtonText(QWizard::NextButton, "Download");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -903,6 +929,8 @@ WellSummaryPage::WellSummaryPage(RimWellPathImport* wellPathImport, QWidget* par
     m_listView->hide();
 
     m_objectGroup = new caf::PdmObjectGroup;
+
+    setButtonText(QWizard::FinishButton, "Import");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -942,17 +970,19 @@ void WellSummaryPage::updateSummaryPage()
                     for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
                     {
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
-
-                        if (QFile::exists(oilField->wells[wIdx]->wellPathFilePath))
+                        if (wellPathEntry->selected)
                         {
-                            wellPathCount++;
-                        }
-                        else
-                        {
-                            errorString += QString("Failed to get file '%1' from well '%2'\n").arg(oilField->wells[wIdx]->wellPathFilePath).arg(oilField->wells[wIdx]->name);
-                        }
+                            if (QFile::exists(oilField->wells[wIdx]->wellPathFilePath))
+                            {
+                                wellPathCount++;
+                            }
+                            else
+                            {
+                                errorString += QString("Failed to get file '%1' from well '%2'\n").arg(oilField->wells[wIdx]->wellPathFilePath).arg(oilField->wells[wIdx]->name);
+                            }
 
-                        m_objectGroup->objects.push_back(wellPathEntry);
+                            m_objectGroup->objects.push_back(wellPathEntry);
+                        }
                     }
                 }
             }
@@ -960,7 +990,7 @@ void WellSummaryPage::updateSummaryPage()
     }
 
 
-    m_textEdit->setText(QString("Downloaded successfully %1 well paths.\nPlease push 'Finish' button to import well paths into ResInsight.\n\n").arg(wellPathCount));
+    m_textEdit->setText(QString("Downloaded successfully %1 well paths.\nPlease push 'Import' button to import well paths into ResInsight.\n\n").arg(wellPathCount));
     if (!errorString.isEmpty())
     {
         m_textEdit->append("Detected following errors during well path download. See details below.");

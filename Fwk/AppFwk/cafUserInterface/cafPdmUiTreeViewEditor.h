@@ -43,6 +43,8 @@
 #include <QWidget>
 #include <QPointer>
 
+class MySortFilterProxyModel;
+
 class QGridLayout;
 class QVBoxLayout;
 class QTreeView;
@@ -66,6 +68,7 @@ public:
     }
 
 public:
+    QStringList columnHeaders;
 };
 
 
@@ -90,8 +93,9 @@ private:
     QPointer<QWidget>   m_mainWidget;
     QVBoxLayout*        m_layout;
 
-    QTreeView*          m_treeView;
-    UiTreeModelPdm*     m_treeModelPdm;
+    QTreeView*              m_treeView;
+    UiTreeModelPdm*         m_treeModelPdm;
+    MySortFilterProxyModel* m_proxyTreeModelPdm;
 
     // Forward update events to the tree view editor connected to Pdm root object using a proxy editor
     PdmUiProxyEditorHandle* m_proxyEditor;
