@@ -184,7 +184,7 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 
         for (size_t i = 0; i < cases.size(); i++)
         {
-            if (cases[i]->caseId == caseId)
+            if (cases[i]->caseId == currCaseId)
             {
                 return cases[i];
             }
