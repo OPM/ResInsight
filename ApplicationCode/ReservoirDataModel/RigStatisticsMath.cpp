@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <math.h>
+#include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
 /// A function to do basic statistical calculations 
@@ -103,7 +104,7 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles(const std
         {
             double pVal = HUGE_VAL;
 
-            size_t pValIndex = static_cast<size_t>(sortedValues.size() * fabs(pValPositions[i]) / 100);
+            size_t pValIndex = static_cast<size_t>(sortedValues.size() * cvf::Math::abs(pValPositions[i]) / 100);
 
             if (pValIndex >= sortedValues.size() ) pValIndex = sortedValues.size() - 1;
 
@@ -142,7 +143,7 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles(const st
         {
             double pVal = HUGE_VAL;
 
-            double doubleIndex = (sortedValues.size() - 1) * fabs(pValPositions[i]) / 100.0;
+            double doubleIndex = (sortedValues.size() - 1) * cvf::Math::abs(pValPositions[i]) / 100.0;
 
             size_t lowerValueIndex = static_cast<size_t>(floor(doubleIndex));
             size_t upperValueIndex = lowerValueIndex + 1;

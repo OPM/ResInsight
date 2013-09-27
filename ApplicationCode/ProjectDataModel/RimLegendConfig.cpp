@@ -367,13 +367,13 @@ void RimLegendConfig::updateLegend()
    if (m_mappingMode == LOG10_CONTINUOUS || m_mappingMode == LOG10_DISCRETE)
    {
        // For log mapping, use the min value as reference for num valid digits
-       decadesInRange  = abs(adjustedMin) < abs(adjustedMax) ? abs(adjustedMin) : abs(adjustedMax);
+       decadesInRange  = cvf::Math::abs(adjustedMin) < cvf::Math::abs(adjustedMax) ? cvf::Math::abs(adjustedMin) : cvf::Math::abs(adjustedMax);
        decadesInRange = log10(decadesInRange);
    }
    else
    {
        // For linear mapping, use the max value as reference for num valid digits
-       double absRange = CVF_MAX(abs(adjustedMax), abs(adjustedMin));
+       double absRange = CVF_MAX(cvf::Math::abs(adjustedMax), cvf::Math::abs(adjustedMin));
        decadesInRange = log10(absRange);
    }
 
@@ -387,7 +387,7 @@ void RimLegendConfig::updateLegend()
    int numDecimalDigits = m_precision();
    if (nft != SCIENTIFIC)
    {
-       numDecimalDigits -= decadesInRange;
+       numDecimalDigits -= static_cast<int>(decadesInRange);
    }
    m_legend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
@@ -550,7 +550,7 @@ double RimLegendConfig::roundToNumSignificantDigits(double domainValue, double n
     double integerPart;
     double fraction = modf(tmp, &integerPart);
 
-    if (abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
+    if (cvf::Math::abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
 
     double newDomainValue = integerPart / factor;
 
