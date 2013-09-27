@@ -177,10 +177,7 @@ DEFUN_DLD (riGetActiveCellInfo, args, nargout,
             {
                 porosityModel = args(1).char_matrix_value().row_as_string(0).c_str();
             }
-        }
-
-
-        octave_stdout << "Porosity: " << porosityModel.toStdString() << " CaseId : " << caseId << std::endl;
+        }     
 
         getActiveCellInfo(propertyFrames, "127.0.0.1", 40001, caseId, porosityModel);
 
