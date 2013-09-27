@@ -5,8 +5,6 @@
 void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16 serverPort,
                         const int& caseId, int gridIdx, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
 {
-    const int Timeout = riOctavePlugin::shortTimeOutMilliSecs;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
