@@ -155,6 +155,7 @@ private:
     QAction*		    m_snapshotAllViewsToFile;
 
     QAction*            m_createCommandObject;
+    QAction*            m_showRegressionTestDialog;
 
     // Help actions
     QAction*            m_aboutAction;
@@ -224,6 +225,8 @@ private slots:
     void    slotSnapshotAllViewsToFile();
 
     void    slotCreateCommandObject();
+
+    void    slotShowRegressionTestDialog();
 
     // Mock models
     void    slotMockModel();

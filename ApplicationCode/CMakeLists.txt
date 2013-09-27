@@ -36,6 +36,7 @@ set( APPLICATION_FILES
     Application/RiaPreferences.cpp
 	Application/RiaImageFileCompare.cpp
 	Application/RiaImageCompareReporter.cpp
+	Application/RiaRegressionTest.cpp
 )
 
 set( USER_INTERFACE_FILES
@@ -151,6 +152,7 @@ list( REMOVE_ITEM RAW_SOURCES
 	
 	Application/RiaImageFileCompare.cpp
 	Application/RiaImageCompareReporter.cpp
+	Application/RiaRegressionTest.cpp
 	    
     FileInterface/RifEclipseInputFileTools.cpp
     FileInterface/RifEclipseOutputFileTools.cpp

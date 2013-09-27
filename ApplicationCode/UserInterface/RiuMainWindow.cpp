@@ -60,6 +60,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiuWellImportWizard.h"
 #include "RimCalcScript.h"
+#include "RiaRegressionTest.h"
 
 
 
@@ -202,6 +203,7 @@ void RiuMainWindow::createActions()
     m_snapshotAllViewsToFile    = new QAction(QIcon(":/SnapShotSaveViews.png"), "Snapshot All Views To File", this);
 
     m_createCommandObject       = new QAction("Create Command Object", this);
+    m_showRegressionTestDialog  = new QAction("Regression Test Dialog", this);
 
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
@@ -227,6 +229,7 @@ void RiuMainWindow::createActions()
     connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
 
     connect(m_createCommandObject,      SIGNAL(triggered()), SLOT(slotCreateCommandObject()));
+    connect(m_showRegressionTestDialog, SIGNAL(triggered()), SLOT(slotShowRegressionTestDialog()));
     
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
@@ -364,7 +367,8 @@ void RiuMainWindow::createMenus()
     debugMenu->addAction(m_mockInputModelAction);
     debugMenu->addSeparator();
     debugMenu->addAction(m_createCommandObject);
-
+    debugMenu->addSeparator();
+    debugMenu->addAction(m_showRegressionTestDialog);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
@@ -1197,13 +1201,13 @@ void RiuMainWindow::slotEditPreferences()
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
-        app->writePreferences();
+        app->writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences();
     }
     else
     {
         // Read back currently stored values using QSettings
-        app->readPreferences();
+        app->readFieldsFromApplicationStore(app->preferences());
     }
 }
 
@@ -1698,5 +1702,30 @@ void RiuMainWindow::slotCreateCommandObject()
         }
 
         app->project()->updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotShowRegressionTestDialog()
+{
+    RiaRegressionTest regTestConfig;
+
+    RiaApplication* app = RiaApplication::instance();
+    app->readFieldsFromApplicationStore(&regTestConfig);
+
+    RiuPreferencesDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
+    if (regressionTestDialog.exec() == QDialog::Accepted)
+    {
+        // Write preferences using QSettings and apply them to the application
+        app->writeFieldsToApplicationStore(&regTestConfig);
+
+        QString currentApplicationPath = QDir::currentPath();
+
+        QDir::setCurrent(regTestConfig.applicationWorkingFolder);
+        app->executeRegressionTests(regTestConfig.regressionTestFolder);
+
+        QDir::setCurrent(currentApplicationPath);
     }
 }
