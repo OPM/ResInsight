@@ -74,6 +74,7 @@ RimProject::RimProject(void)
     CAF_PDM_InitFieldNoDefault(&wellPathImport, "WellPathImport", "WellPathImport", "", "", "");
     wellPathImport = new RimWellPathImport();
     wellPathImport.setUiHidden(true);
+    wellPathImport.setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&commandObjects, "CommandObjects", "CommandObjects", "", "", "");
     //wellPathImport.setUiHidden(true);
