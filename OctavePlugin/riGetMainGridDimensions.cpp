@@ -33,7 +33,7 @@ void getMainGridDimensions(int32NDArray& gridDimensions, const QString &hostName
 
     while (socket.bytesAvailable() < (int)(3*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;

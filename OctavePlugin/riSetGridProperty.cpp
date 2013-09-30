@@ -9,7 +9,7 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     QTcpSocket socket;
     socket.connectToHost(hostName, port);
 
-    if (!socket.waitForConnected(riOctavePlugin::shortTimeOutMilliSecs))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
