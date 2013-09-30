@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <math.h>
+#include "cvfBase.h"
 #include "cvfMath.h"
 
 //--------------------------------------------------------------------------------------------------
