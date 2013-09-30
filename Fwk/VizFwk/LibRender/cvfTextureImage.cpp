@@ -217,10 +217,12 @@ void TextureImage::setPixel(uint x, uint y, const Color4ub& clr)
     CVF_TIGHT_ASSERT(y < m_height);
 
     const uint idx = 4*(y*m_width + x);
-    m_dataRgba[idx]     = clr.r();
-    m_dataRgba[idx + 1] = clr.g(); 
-    m_dataRgba[idx + 2] = clr.b(); 
-    m_dataRgba[idx + 3] = clr.a(); 
+    const ubyte* data = clr.ptr();
+
+    m_dataRgba[idx]     = data[0];
+    m_dataRgba[idx + 1] = data[1]; 
+    m_dataRgba[idx + 2] = data[2]; 
+    m_dataRgba[idx + 3] = data[3]; 
 }
 
 
