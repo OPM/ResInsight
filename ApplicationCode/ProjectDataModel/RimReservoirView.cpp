@@ -1431,12 +1431,16 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
             const std::vector< RigWellResultFrame >& wellResFrames = wres->m_wellCellsTimeSteps;
             for (size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx)
             {
-                // Add the wellhead cell
-
+                // Add the wellhead cell if it is active
                 if (wellResFrames[wfIdx].m_wellHead.m_gridIndex == grid->gridIndex())
                 {
                     size_t gridCellIndex = wellResFrames[wfIdx].m_wellHead.m_gridCellIndex;
-                    (*visibleCells)[gridCellIndex] = true;
+                    size_t globalGridCellIndex = grid->globalGridCellIndex(gridCellIndex);
+
+                    if (activeCellInfo->isActive(globalGridCellIndex))
+                    {
+                        (*visibleCells)[gridCellIndex] = true;
+                    }
                 }
 
                 // Add all the cells from the branches
