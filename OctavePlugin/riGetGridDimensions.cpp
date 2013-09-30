@@ -46,8 +46,8 @@ void getGridDimensions(int32NDArray& gridDimensions, const QString &hostName, qu
     quint64 gridCount = byteCount / (3 * sizeof(quint64));
 
     dim_vector dv (1, 1);
-    dv(0) = 3;
-    dv(1) = gridCount;
+    dv(0) = gridCount;
+    dv(1) = 3;
 
     gridDimensions.resize(dv);
 
@@ -61,9 +61,9 @@ void getGridDimensions(int32NDArray& gridDimensions, const QString &hostName, qu
         socketStream >> jCount;
         socketStream >> kCount;
 
-        gridDimensions(0, i) = iCount;
-        gridDimensions(1, i) = jCount;
-        gridDimensions(2, i) = kCount;
+        gridDimensions(i, 0) = iCount;
+        gridDimensions(i, 1) = jCount;
+        gridDimensions(i, 2) = kCount;
     }
 
     QString tmp = QString("riGetGridDimensions : Read grid dimensions");
