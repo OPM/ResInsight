@@ -50,6 +50,7 @@
 #include "cafAnimationToolBar.h"
 #include "cafPdmUiPropertyView.h"
 #include "cvfqtBasicAboutDialog.h"
+#include "cvfTimer.h"
 
 #include "cafPdmFieldCvfMat4d.h"
 
@@ -204,6 +205,7 @@ void RiuMainWindow::createActions()
 
     m_createCommandObject       = new QAction("Create Command Object", this);
     m_showRegressionTestDialog  = new QAction("Regression Test Dialog", this);
+    m_executePaintEventPerformanceTest = new QAction("&Paint Event Performance Test", this);
 
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
@@ -230,6 +232,7 @@ void RiuMainWindow::createActions()
 
     connect(m_createCommandObject,      SIGNAL(triggered()), SLOT(slotCreateCommandObject()));
     connect(m_showRegressionTestDialog, SIGNAL(triggered()), SLOT(slotShowRegressionTestDialog()));
+    connect(m_executePaintEventPerformanceTest, SIGNAL(triggered()), SLOT(slotExecutePaintEventPerformanceTest()));
     
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
@@ -369,6 +372,7 @@ void RiuMainWindow::createMenus()
     debugMenu->addAction(m_createCommandObject);
     debugMenu->addSeparator();
     debugMenu->addAction(m_showRegressionTestDialog);
+    debugMenu->addAction(m_executePaintEventPerformanceTest);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
@@ -1727,5 +1731,32 @@ void RiuMainWindow::slotShowRegressionTestDialog()
         app->executeRegressionTests(regTestConfig.regressionTestFolder);
 
         QDir::setCurrent(currentApplicationPath);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotExecutePaintEventPerformanceTest()
+{
+
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
+    {
+        size_t redrawCount = 50;
+
+        caf::Viewer* viewer = RiaApplication::instance()->activeReservoirView()->viewer();
+
+        cvf::Timer timer;
+        for (size_t i = 0; i < redrawCount; i++)
+        {
+            viewer->repaint();
+        }
+
+        double totalTimeMS = timer.time() * 1000.0;
+
+        double msPerFrame = totalTimeMS  / redrawCount;
+
+        QString resultInfo = QString("Total time '%1 ms' for %2 number of redraws, frame time '%3 ms'").arg(totalTimeMS).arg(redrawCount).arg(msPerFrame);
+        setResultInfo(resultInfo);
     }
 }
