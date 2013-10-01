@@ -31,7 +31,7 @@ void getCaseGroups(std::vector<QString>& groupNames, std::vector<int>& groupIds,
     // Get response. First wait for the header
     while (socket.bytesAvailable() < (int)(2*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
             return;
@@ -49,7 +49,7 @@ void getCaseGroups(std::vector<QString>& groupNames, std::vector<int>& groupIds,
     // Get response. Read all data for command
     while (socket.bytesAvailable() < (int)byteCount)
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
             return;

@@ -454,28 +454,13 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
         // Convert the QImage into the cvf::TextureImage, 
         // handling vertical mirroring and (possible) byteswapping
 
-        if (((int)m_overlayTextureImage->height()) !=  this->height() || ((int)m_overlayTextureImage->width() !=  this->width()))
+        if (((int)m_overlayTextureImage->height()) != this->height() || ((int)m_overlayTextureImage->width() != this->width()))
         {
             m_overlayTextureImage->allocate(this->width(), this->height());
         }
 
-        int height =  m_overlayTextureImage->height();
-        int width =  m_overlayTextureImage->width();
-
-#pragma omp parallel for
-        for (int y = 0 ; y < height; ++y)
-        {
-            int negy =  height - 1 - y;
-            for (int x = 0 ; x < width; ++x)
-            {
-                // Should probably do direct conversion on byte level. Would be faster
-                // QImage.bits() and cvf::TextureImage.ptr() (casting away const)
-                QRgb qtRgbaVal = m_overlayPaintingQImage.pixel(x, negy);
-                cvf::Color4ub cvfRgbVal(qRed(qtRgbaVal), qGreen(qtRgbaVal), qBlue(qtRgbaVal), qAlpha(qtRgbaVal)); 
-                m_overlayTextureImage->setPixel(x, y, cvfRgbVal);
-            }
-        }
-
+        cvfqt::Utils::copyFromQImage(m_overlayTextureImage.p(), m_overlayPaintingQImage);
+        
         m_overlayImage->setImage(m_overlayTextureImage.p());
         m_overlayImage->setPixelSize(cvf::Vec2ui(this->width(), this->height()));
     }

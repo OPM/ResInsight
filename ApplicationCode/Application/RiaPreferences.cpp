@@ -44,6 +44,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&defaultGridLines,                "defaultGridLines", true, "Gridlines", "", "", "");
     CAF_PDM_InitField(&defaultGridLineColors,           "defaultGridLineColors", cvf::Color3f(0.92f, 0.92f, 0.92f), "Mesh color", "", "", "");
     CAF_PDM_InitField(&defaultFaultGridLineColors,      "defaultFaultGridLineColors", cvf::Color3f(0.08f, 0.08f, 0.08f), "Mesh color along faults", "", "", "");
+    CAF_PDM_InitField(&defaultWellLabelColor,           "defaultWellLableColor", cvf::Color3f(0.92f, 0.92f, 0.92f), "Well label color", "", "The default well label color in new views", "");
 
     CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer background", "", "The viewer background color for new views", "");
 
@@ -102,7 +103,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     defaultSettingsGroup->add(&defaultGridLines);
     defaultSettingsGroup->add(&defaultGridLineColors);
     defaultSettingsGroup->add(&defaultFaultGridLineColors);
-
+    defaultSettingsGroup->add(&defaultWellLabelColor);
 
     caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
     autoComputeGroup->add(&autocomputeSOIL);

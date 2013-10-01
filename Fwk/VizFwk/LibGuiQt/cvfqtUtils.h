@@ -40,6 +40,11 @@
 #include "cvfString.h"
 
 #include <QtCore/QString>
+#include <QImage>
+
+namespace cvf {
+    class TextureImage;
+}
 
 namespace cvfqt {
 
@@ -54,6 +59,8 @@ class Utils
 public:
     static QString	    toQString(const cvf::String& ceeString);
     static cvf::String	fromQString(const QString& qtString);
+
+    static void         copyFromQImage(cvf::TextureImage* textureImage, const QImage& qtImage);
 };
 
 }

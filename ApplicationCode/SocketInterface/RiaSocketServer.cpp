@@ -161,7 +161,13 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 //--------------------------------------------------------------------------------------------------
 RimCase* RiaSocketServer::findReservoir(int caseId)
 {
+    int currCaseId = caseId;
     if (caseId < 0)
+    {
+        currCaseId = this->currentCaseId();
+    }
+
+    if (currCaseId < 0)
     {
         if (RiaApplication::instance()->activeReservoirView())
         {
@@ -178,7 +184,7 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 
         for (size_t i = 0; i < cases.size(); i++)
         {
-            if (cases[i]->caseId == caseId)
+            if (cases[i]->caseId == currCaseId)
             {
                 return cases[i];
             }
@@ -222,8 +228,6 @@ void RiaSocketServer::readCommandFromOctave()
     }
 
     CVF_ASSERT(args.size() > 0); 
-
-    std::cout << args[0].data() << std::endl;
 
     m_currentCommand = RiaSocketCommandFactory::instance()->create(args[0]);
 

@@ -367,13 +367,13 @@ void RimLegendConfig::updateLegend()
    if (m_mappingMode == LOG10_CONTINUOUS || m_mappingMode == LOG10_DISCRETE)
    {
        // For log mapping, use the min value as reference for num valid digits
-       decadesInRange  = abs(adjustedMin) < abs(adjustedMax) ? abs(adjustedMin) : abs(adjustedMax);
+       decadesInRange  = cvf::Math::abs(adjustedMin) < cvf::Math::abs(adjustedMax) ? cvf::Math::abs(adjustedMin) : cvf::Math::abs(adjustedMax);
        decadesInRange = log10(decadesInRange);
    }
    else
    {
        // For linear mapping, use the max value as reference for num valid digits
-       double absRange = CVF_MAX(abs(adjustedMax), abs(adjustedMin));
+       double absRange = CVF_MAX(cvf::Math::abs(adjustedMax), cvf::Math::abs(adjustedMin));
        decadesInRange = log10(absRange);
    }
 
@@ -387,7 +387,7 @@ void RimLegendConfig::updateLegend()
    int numDecimalDigits = m_precision();
    if (nft != SCIENTIFIC)
    {
-       numDecimalDigits -= decadesInRange;
+       numDecimalDigits -= static_cast<int>(decadesInRange);
    }
    m_legend->setTickPrecision(cvf::Math::clamp(numDecimalDigits, 0, 20));
 
@@ -416,13 +416,45 @@ void RimLegendConfig::updateLegend()
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setAutomaticRanges(double globalMin, double globalMax, double localMin, double localMax)
 {
-    m_globalAutoMin = roundToNumSignificantDigits(globalMin, m_precision);
-    m_globalAutoMax = roundToNumSignificantDigits(globalMax, m_precision);
+    double candidateGlobalAutoMin = roundToNumSignificantDigits(globalMin, m_precision);
+    double candidateGlobalAutoMax = roundToNumSignificantDigits(globalMax, m_precision);
 
-    m_localAutoMin = roundToNumSignificantDigits(localMin, m_precision);
-    m_localAutoMax = roundToNumSignificantDigits(localMax, m_precision);
+    double candidateLocalAutoMin = roundToNumSignificantDigits(localMin, m_precision);
+    double candidateLocalAutoMax = roundToNumSignificantDigits(localMax, m_precision);
 
-    updateLegend();
+    bool needsUpdate = false;
+    const double epsilon = std::numeric_limits<double>::epsilon();
+    
+    if (cvf::Math::abs(candidateGlobalAutoMax - m_globalAutoMax) > epsilon)
+    {
+        needsUpdate = true;
+    }
+
+    if (cvf::Math::abs(candidateGlobalAutoMin - m_globalAutoMin) > epsilon)
+    {
+        needsUpdate = true;
+    }
+
+    if (cvf::Math::abs(candidateLocalAutoMax - m_localAutoMax) > epsilon)
+    {
+        needsUpdate = true;
+    }
+
+    if (cvf::Math::abs(candidateLocalAutoMin - m_localAutoMin) > epsilon)
+    {
+        needsUpdate = true;
+    }
+
+    if (needsUpdate)
+    {
+        m_globalAutoMin = candidateGlobalAutoMin;
+        m_globalAutoMax = candidateGlobalAutoMax;
+
+        m_localAutoMin = candidateLocalAutoMin;
+        m_localAutoMax = candidateLocalAutoMax;
+
+        updateLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -550,7 +582,7 @@ double RimLegendConfig::roundToNumSignificantDigits(double domainValue, double n
     double integerPart;
     double fraction = modf(tmp, &integerPart);
 
-    if (abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
+    if (cvf::Math::abs(fraction)>= 0.5) (integerPart >= 0) ? integerPart++: integerPart-- ;
 
     double newDomainValue = integerPart / factor;
 
@@ -562,17 +594,40 @@ double RimLegendConfig::roundToNumSignificantDigits(double domainValue, double n
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, double globalNegClosestToZero, double localPosClosestToZero, double localNegClosestToZero)
 {
-    m_globalAutoPosClosestToZero = globalPosClosestToZero;
-    m_globalAutoNegClosestToZero = globalNegClosestToZero;
-    m_localAutoPosClosestToZero = localPosClosestToZero;
-    m_localAutoNegClosestToZero = localNegClosestToZero;
+    bool needsUpdate = false;
+    const double epsilon = std::numeric_limits<double>::epsilon();
 
-    if (m_globalAutoPosClosestToZero == HUGE_VAL) m_globalAutoPosClosestToZero = 0;
-    if (m_globalAutoNegClosestToZero == -HUGE_VAL) m_globalAutoNegClosestToZero = 0; 
-    if (m_localAutoPosClosestToZero == HUGE_VAL) m_localAutoPosClosestToZero = 0;
-    if (m_localAutoNegClosestToZero == -HUGE_VAL) m_localAutoNegClosestToZero = 0;
+    if (cvf::Math::abs(globalPosClosestToZero - m_globalAutoPosClosestToZero) > epsilon)
+    {
+        needsUpdate = true;
+    }
+    if (cvf::Math::abs(globalNegClosestToZero - m_globalAutoNegClosestToZero) > epsilon)
+    {
+        needsUpdate = true;
+    }
+    if (cvf::Math::abs(localPosClosestToZero - m_localAutoPosClosestToZero) > epsilon)
+    {
+        needsUpdate = true;
+    }
+    if (cvf::Math::abs(localNegClosestToZero - m_localAutoNegClosestToZero) > epsilon)
+    {
+        needsUpdate = true;
+    }
 
-    updateLegend();
+    if (needsUpdate)
+    {
+        m_globalAutoPosClosestToZero = globalPosClosestToZero;
+        m_globalAutoNegClosestToZero = globalNegClosestToZero;
+        m_localAutoPosClosestToZero = localPosClosestToZero;
+        m_localAutoNegClosestToZero = localNegClosestToZero;
+
+        if (m_globalAutoPosClosestToZero == HUGE_VAL) m_globalAutoPosClosestToZero = 0;
+        if (m_globalAutoNegClosestToZero == -HUGE_VAL) m_globalAutoNegClosestToZero = 0; 
+        if (m_localAutoPosClosestToZero == HUGE_VAL) m_localAutoPosClosestToZero = 0;
+        if (m_localAutoNegClosestToZero == -HUGE_VAL) m_localAutoNegClosestToZero = 0;
+
+        updateLegend();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
