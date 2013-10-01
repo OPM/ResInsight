@@ -42,6 +42,9 @@
 #include "RimAnalysisModels.h"
 #include <fstream>
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 namespace caf
 {
     template<>
@@ -64,6 +67,9 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&showWellPathLabel,               "ShowWellPathLabel",        true,                       "Show well path labels", "", "", "");
+
+    cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+    CAF_PDM_InitField(&wellPathLabelColor,              "WellPathLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
 
     CAF_PDM_InitField(&wellPathVisibility,              "GlobalWellPathVisibility", WellVisibilityEnum(ALL_ON), "Global well path visibility",  "", "", "");
 
