@@ -67,6 +67,8 @@ public:
 
     bool                    parseArguments();
 
+    void                    executeRegressionTests(const QString& regressionTestPath);
+
     void                    setActiveReservoirView(RimReservoirView*);
     RimReservoirView*       activeReservoirView();
     const RimReservoirView* activeReservoirView() const;
@@ -124,8 +126,8 @@ public:
     void                terminateProcess();
     
     RiaPreferences*     preferences();
-    void                readPreferences();
-    void                writePreferences();
+    void                readFieldsFromApplicationStore(caf::PdmObject* object);
+    void                writeFieldsToApplicationStore(const caf::PdmObject* object);
     void                applyPreferences();
 
     cvf::Font*          standardFont();

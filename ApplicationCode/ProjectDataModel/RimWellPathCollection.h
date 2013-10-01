@@ -52,6 +52,7 @@ public:
     typedef caf::AppEnum<RimWellPathCollection::WellVisibilityType> WellVisibilityEnum;
 
     caf::PdmField<bool>                 showWellPathLabel;
+    caf::PdmField<cvf::Color3f>         wellPathLabelColor;
 
     caf::PdmField<WellVisibilityEnum>   wellPathVisibility;
     caf::PdmField<double>               wellPathRadiusScaleFactor;
