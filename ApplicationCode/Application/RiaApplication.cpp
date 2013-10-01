@@ -143,12 +143,12 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     m_socketServer = new RiaSocketServer( this);
     m_workerProcess = NULL;
 
-
-    m_startupDefaultDirectory = QDir::homePath();
-
 #ifdef WIN32
-    //m_startupDefaultDirectory += "/My Documents/";
+    m_startupDefaultDirectory = QDir::homePath();
+#else
+    m_startupDefaultDirectory = QDir::currentPath();
 #endif
+
     setDefaultFileDialogDirectory("MULTICASEIMPORT", "/");
 
     // The creation of a font is time consuming, so make sure you really need your own font
