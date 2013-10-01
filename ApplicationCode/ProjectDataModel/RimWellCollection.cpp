@@ -29,6 +29,8 @@
 
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimCellEdgeResultSlot.h"
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 namespace caf
 {
@@ -93,6 +95,8 @@ RimWellCollection::RimWellCollection()
     CAF_PDM_InitField(&showWellLabel,       "ShowWellLabel",    true,   "Show well labels", "", "", "");
     CAF_PDM_InitField(&wellHeadScaleFactor, "WellHeadScale",    1.0,    "Well head scale", "", "", "");
     CAF_PDM_InitField(&wellHeadPosition,    "WellHeadPosition", WellHeadPositionEnum(WELLHEAD_POS_TOP_COLUMN), "Well head position",  "", "", "");
+    cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+    CAF_PDM_InitField(&wellLabelColor,      "WellLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
 
     CAF_PDM_InitField(&wellPipeVisibility,  "GlobalWellPipeVisibility", WellVisibilityEnum(PIPES_OPEN_IN_VISIBLE_CELLS), "Global well pipe visibility",  "", "", "");
 
@@ -243,7 +247,8 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
             || &wellHeadScaleFactor == changedField 
             || &showWellHead == changedField
             || &isAutoDetectingBranches == changedField
-            || &wellHeadPosition == changedField)
+            || &wellHeadPosition == changedField
+            || &wellLabelColor == changedField)
     {
         if (m_reservoirView) 
         {
@@ -276,6 +281,7 @@ void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderin
     wellHeadGroup->add(&wellHeadScaleFactor);
     wellHeadGroup->add(&showWellLabel);
     wellHeadGroup->add(&wellHeadPosition);
+    wellHeadGroup->add(&wellLabelColor);
 
     caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
     wellPipe->add(&wellPipeVisibility);
