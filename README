@@ -1,10 +1,13 @@
 This is the README file for ResInsight. 
 
-ResInsight is a 3D viewer and post processing tool for reservoir models. It has been co-developed by Statoil and Ceetron AS / Ceetron Solutions with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models. The software is copyrighted by Ceetron and Statoil and licensed under GPL 3+. See COPYING for details.
+ResInsight is a 3D viewer and post processing tool for reservoir models. It has been co-developed by Statoil and Ceetron AS / Ceetron Solutions AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models. The software is copyrighted by Ceetron and Statoil and licensed under GPL 3+. See COPYING for details.
 
 DEPENDENCIES
-ResInsight uses the Ensambles/ert library to access eclipse result files, and the two projects collaborates closly. The source code of the approved ert library version is embedded in the ResInsight source code tree, making downloading and building simple.
-ResInsight also features an interface to octave, making it possible to retreive data from ResInsights, process them using octave, and write them back into ResInsight for viewing. If you want to build ResInsight with this feature, you need to install octave.
+ResInsight uses the Ensambles/ert library to access eclipse result files, and the two projects collaborates closely. The source code of the approved ert library version is embedded in the ResInsight source code tree, making downloading and building simple.
+ResInsight also features an interface to Octave, making it possible to retrieve data from ResInsight, process them using Octave, and write them back into ResInsight for viewing. If you want to build ResInsight with this feature, you need to install Octave.
+
+http://www.gnu.org/software/octave/
+https://github.com/Ensembles/ert
 
 ON WHAT PLATFORMS DOES IT RUN?
 ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on linux and windows platforms, but the tested platforms are currently 64 bit RHE 5, RHE 6 and Windows 7.
@@ -19,7 +22,7 @@ DOWNLOADING RESINSIGHT
 
 CONTRIBUTION
 Contributions are very welcome, although it might take some time for the team to accept pull requests that is not in the main line of the projects focus. Please use the dev branch for contributions and pull requests, as it is the branch dedicated to the day to day development. The master branch is used as a branch for distributing the latest stable release.
-Release branches that might pop up are dedicated bugfix branches for the release in question.
+Release branches that might pop up are dedicated bug fix branches for the release in question.
 
 BUILDING RESINSIGHT - Linux
 ResInsight uses the cmake build system and requires cmake version 2.8 or higher. Moreover, you need version 4.7.3 of Qt or newer, look below for dependecy list. An out-of-tree build is typically done with
