@@ -20,6 +20,7 @@
 
 #include "cvfArray.h"
 #include "cvfCollection.h"
+#include "RivGridPartMgr.h"
 
 namespace cvf
 {
@@ -29,7 +30,6 @@ namespace cvf
 
 class RimResultSlot;
 class RimCellEdgeResultSlot;
-class RivGridPartMgr;
 class RigCaseData;
 
 
