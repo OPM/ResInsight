@@ -147,10 +147,12 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     bool wasSomeFilterActive = propertyFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
 
     propertyFilterCollection->remove(propertyFilter);
     delete propertyFilter;
+
+    // updateUiSubTree(propertyFilterCollection); // To be enabled
 
     if (wasFilterActive)
     {
@@ -187,10 +189,12 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
     bool wasSomeFilterActive = rangeFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
 
     rangeFilterCollection->remove(rangeFilter);
     delete rangeFilter;
+
+    // updateUiSubTree(rangeFilterCollection); // To be enabled
 
     if (wasFilterActive)
     {
@@ -221,11 +225,12 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
     CVF_ASSERT(reservoirView);
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
 
     reservoirView->eclipseCase()->removeReservoirView(reservoirView);
     delete reservoirView;
 
+    // updateUiSubTree(reservoirView->eclipseCase()); // To be enabled
     clearClipboard();
 
     return true;
