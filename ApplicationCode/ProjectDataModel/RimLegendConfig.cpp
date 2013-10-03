@@ -107,7 +107,7 @@ RimLegendConfig::RimLegendConfig()
 {
     CAF_PDM_InitObject("Legend Definition", ":/Legend.png", "", "");
     CAF_PDM_InitField(&m_numLevels, "NumberOfLevels", 8, "Number of levels", "", "A hint on how many tick marks you whish.","");
-    CAF_PDM_InitField(&m_precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
+    CAF_PDM_InitField(&m_precision, "Precision", 4, "Significant digits", "", "The number of significant digits displayed in the legend numbers","");
     CAF_PDM_InitField(&m_tickNumberFormat, "TickNumberFormat", caf::AppEnum<RimLegendConfig::NumberFormatType>(FIXED), "Number format", "", "","");
 
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Colors", "", "", "");
