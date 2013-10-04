@@ -78,7 +78,7 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
 
     if (socket.bytesToWrite() && socket.state() != QAbstractSocket::ConnectedState)
     {
-        error("riSetActiveCellProperty : ResInsight refused to accept the data. Maybe the dimentions or porosity model is wrong");
+        error("riSetActiveCellProperty : ResInsight refused to accept the data. Maybe the dimensions or porosity model is wrong");
     }
     return;
 }
