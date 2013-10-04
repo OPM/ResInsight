@@ -52,12 +52,13 @@ public:
     void                    startMonitorWorkProcess(caf::UiProcess* process);
     void                    stopMonitorWorkProcess();
 
+    void                    addStringToLog(const QString& text);
+
 public slots:
     void                    slotClearTextEdit();
 
 private:
     void                    setStatusMsg(const QString& status, int messageType);
-    void                    addStringToLog(const QString& text);
 
 private slots:
     void                    slotShowProcStatusMsg(const QString& message, int messageType);
