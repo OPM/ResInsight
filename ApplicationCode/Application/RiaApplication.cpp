@@ -1378,7 +1378,11 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         imageCompareReporter.addImageDirectoryComparisonSet(testFolderName.toStdString(), reportBaseFolderName.toStdString(), reportGeneratedFolderName.toStdString(), reportDiffFolderName.toStdString());
     }
 
-    imageCompareReporter.generateHTMLReport(testDir.filePath(RegTestNames::reportFileName).toStdString());
+    QString htmlReportFileName = testDir.filePath(RegTestNames::reportFileName);
+    imageCompareReporter.generateHTMLReport(htmlReportFileName.toStdString());
+
+    // Open HTML report
+    QDesktopServices::openUrl(htmlReportFileName);
 
     // Generate diff images
     this->preferences()->resetToDefaults();
