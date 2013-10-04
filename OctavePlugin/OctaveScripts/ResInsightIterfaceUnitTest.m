@@ -134,13 +134,13 @@ WellNames2 = riGetWellNames(1);
 
 ### Vector[WellCellInfo] riGetWellCells([CaseId], WellName, TimeStep)
 printf ("===== Testing ====> riGetWellCells\n");
-WellCellInfos1 = riGetWellCells(1, WellNames1(1), 3);
-WellCellInfos2 = riGetWellCells(WellNames1(1), 3);
+WellCellInfos1 = riGetWellCells(1, WellNames1(1,:), 3);
+WellCellInfos2 = riGetWellCells(WellNames1(1,:), 3);
 
-if(0)
+
 ### Vector[WellStatus] riGetWellStatus ([CaseId], WellName, [RequestedTimeSteps])
 printf ("===== Testing ====> riGetWellStatus\n");
-WellStatuses1 = riGetWellStatus(1, WellNames1(1), [1,3]);
-WellStatuses2 = riGetWellStatus( WellNames1(1), [1,3]);
-WellStatuses3 = riGetWellStatus(WellNames1(1));
-endif
+WellStatuses1 = riGetWellStatus(1, WellNames1(1,:), [1,3]);
+disp(WellStatuses1(1));
+WellStatuses2 = riGetWellStatus( WellNames1(1,:), [1,3]);
+WellStatuses3 = riGetWellStatus(WellNames1(1,:));
