@@ -1760,3 +1760,11 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
         setResultInfo(resultInfo);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setDefaultWindowSize()
+{
+    resize(1000, 810);
+}

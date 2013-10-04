@@ -105,6 +105,7 @@ public:
     void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
     void                updateRegressionTest(const QString& testRootPath );
+    void                regressionTestSetFixedSizeForAllViews();
 
     void                processNonGuiEvents();
 

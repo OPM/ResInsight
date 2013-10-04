@@ -93,6 +93,8 @@ public:
 
     void            selectedCases(std::vector<RimCase*>& cases);
 
+    void            setDefaultWindowSize();
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 

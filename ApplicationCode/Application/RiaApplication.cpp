@@ -1401,6 +1401,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              }
              m_commandQueueLock.unlock();
 
+             regressionTestSetFixedSizeForAllViews();
+
              saveSnapshotForAllViews(generatedFolderName);
 
              QDir baseDir(testCaseFolder.filePath(baseFolderName));
@@ -1776,11 +1778,43 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
     if (mainWnd)
     {
         mainWnd->hideAllDockWindows();
-
+ 
+        mainWnd->setDefaultWindowSize();
         runRegressionTest(regressionTestPath);
 
         mainWnd->loadWinGeoAndDockToolBarLayout();
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::regressionTestSetFixedSizeForAllViews()
+{
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd) return;
+
+    if (m_project.isNull()) return;
+
+    std::vector<RimCase*> projectCases;
+    m_project->allCases(projectCases);
+
+    for (size_t i = 0; i < projectCases.size(); i++)
+    {
+        RimCase* ri = projectCases[i];
+        if (!ri) continue;
+
+        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        {
+            RimReservoirView* riv = ri->reservoirViews()[j];
+
+            if (riv && riv->viewer())
+            {
+                // This size is set to match the regression test reference images
+                riv->viewer()->setFixedSize(1000, 745);
+            }
+        }
+    }
+}
 
