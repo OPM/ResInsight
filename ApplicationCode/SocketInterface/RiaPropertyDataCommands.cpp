@@ -21,6 +21,7 @@
 #include "RiaSocketTools.h"
 
 #include "RiuMainWindow.h"
+#include "RiuProcessMonitor.h"
 
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
@@ -483,19 +484,16 @@ public:
 
         if (m_invalidActiveCellCountDetected) return true;
 
-        if (!currentClient->bytesAvailable()) return false;
+        // If nothing should be read, or we already have read everything, do nothing
 
-        QDataStream socketStream(currentClient);
-        socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
+        if ((m_timeStepCountToRead == 0) || (m_currentTimeStepNumberToRead >= m_timeStepCountToRead) )  return true;
+
+        if (!currentClient->bytesAvailable()) return false;
 
         if (m_timeStepCountToRead != m_requestedTimesteps.size())
         {
             CVF_ASSERT(false);
         }
-
-        // If nothing should be read, or we already have read everything, do nothing
-
-        if ((m_timeStepCountToRead == 0) || (m_currentTimeStepNumberToRead >= m_timeStepCountToRead) )  return true;
 
         // Check if a complete timestep is available, return and whait for readyRead() if not
         if (currentClient->bytesAvailable() < (int)m_bytesPerTimeStepToRead) return false;
@@ -541,6 +539,9 @@ public:
             readBuffer.resize(cellCountFromOctave, HUGE_VAL);
             internalMatrixData = readBuffer.data();
         }
+
+        QDataStream socketStream(currentClient);
+        socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
         // Read available complete timestepdata
 
@@ -656,6 +657,7 @@ private:
 
 static bool RiaSetActiveCellProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaSetActiveCellProperty>(RiaSetActiveCellProperty::commandName());
 
+#define PMonLog( MessageString ) RiuMainWindow::instance()->processMonitor()->addStringToLog( MessageString );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -705,7 +707,10 @@ public:
 
 
         // Read header
-        if (server->currentClient()->bytesAvailable() < (int)sizeof(quint64)*5) return true;
+        if (server->currentClient()->bytesAvailable() < (int)sizeof(quint64)*5)
+        {
+            return true;
+        }
 
         quint64 cellCountI = 0;
         quint64 cellCountJ = 0;
@@ -729,6 +734,8 @@ public:
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                 RiaSocketServer::tr("Zero data to read for ") + ":\"" + m_currentReservoir->caseUserDescription() + "\"\n");
+
+            return true;
         }
 
 
@@ -791,6 +798,7 @@ public:
             if (timeStepReadError)
             {
                 server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: riGetActiveCellProperty : \n") + RiaSocketServer::tr("An error occured while interpreting the requested timesteps."));
+                return true;
             }
 
         }
@@ -826,12 +834,17 @@ public:
 
     virtual bool interpretMore(RiaSocketServer* server, QTcpSocket* currentClient)
     {
-        if (m_invalidDataDetected) return true;
+
+        if (m_invalidDataDetected){
+            RiuMainWindow::instance()->processMonitor()->addStringToLog("[ResInsight SocketServer] > True \n");
+            return true;
+        }
+
+        // If nothing should be read, or we already have read everything, do nothing
+
+        if ((m_timeStepCountToRead == 0) || (m_currentTimeStepNumberToRead >= m_timeStepCountToRead) )  return true;
 
         if (!currentClient->bytesAvailable()) return false;
-
-        QDataStream socketStream(currentClient);
-        socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
         RigGridBase* grid = m_currentReservoir->reservoirData()->grid(m_currentGridIndex);
         if (!grid)
@@ -840,19 +853,7 @@ public:
                 RiaSocketServer::tr("No grid found") + ":\"" + m_currentReservoir->caseUserDescription() + "\"\n");
 
             m_invalidDataDetected = true;
-            currentClient->abort();
-
-            return true;
-        }
-
-        // Do nothing if we have not enough data
-        if (m_timeStepCountToRead == 0 || m_bytesPerTimeStepToRead == 0)
-        {
-            server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
-                RiaSocketServer::tr("Zero data to read for ") + ":\"" + m_currentReservoir->caseUserDescription() + "\"\n");
-
-            m_invalidDataDetected = true;
-            currentClient->abort();
+            currentClient->abort(); // Hmmm... should we not let the server handle this ?
 
             return true;
         }
@@ -862,11 +863,7 @@ public:
             CVF_ASSERT(false);
         }
 
-        // If nothing should be read, or we already have read everything, do nothing
-
-        if ((m_timeStepCountToRead == 0) || (m_currentTimeStepNumberToRead >= m_timeStepCountToRead) )  return true;
-
-        // Check if a complete timestep is available, return and whait for readyRead() if not
+        // Check if a complete timestep is available, return and wait for readyRead() if not
         if (currentClient->bytesAvailable() < (int)m_bytesPerTimeStepToRead) return false;
 
         size_t cellCountFromOctave = m_bytesPerTimeStepToRead / sizeof(double);
@@ -878,7 +875,6 @@ public:
 
             m_invalidDataDetected = true;
             currentClient->abort();
-
             return true;
         }
 
@@ -895,7 +891,7 @@ public:
             m_scalarResultsToAdd->at(tsId).resize(totalNumberOfCellsIncludingLgrCells, HUGE_VAL);
         }
 
-        if ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepNumberToRead < m_timeStepCountToRead))
+        while ((currentClient->bytesAvailable() >= (int)m_bytesPerTimeStepToRead) && (m_currentTimeStepNumberToRead < m_timeStepCountToRead))
         {
             // Read a single time step with data
 
@@ -904,7 +900,9 @@ public:
             qint64 bytesRead = currentClient->read((char*)(doubleValues.data()), m_bytesPerTimeStepToRead);
             size_t doubleValueIndex = 0;
 
-            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
+            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = 
+                m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
+
             if (!cellCenterDataAccessObject.isNull())
             {
                 for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < cellCountFromOctave; cellIdx++)
@@ -965,6 +963,7 @@ public:
             return true;
         }
 
+        
         return false;
     }
 
