@@ -176,7 +176,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
 
     // Check if we have a Requested TimeSteps
 
-    if (!(nargin > argIndices[4] && args(argIndices[4]).is_matrix_type()))
+    if (!(nargin > argIndices[4] && args(argIndices[4]).is_matrix_type() && !args(argIndices[4]).is_string()))
     {
         argIndices[4] = -1;
         for (size_t aIdx = 5; aIdx < argIndices.size(); ++aIdx)

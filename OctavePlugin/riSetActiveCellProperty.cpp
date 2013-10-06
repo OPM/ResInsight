@@ -146,7 +146,7 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
 
     // Check if we have a Requested TimeSteps
 
-    if (!(nargin > argIndices[3] && args(argIndices[3]).is_matrix_type()))
+    if (!(nargin > argIndices[3] && args(argIndices[3]).is_matrix_type() && !args(argIndices[3]).is_string()))
     {
         argIndices[3] = -1;
         for (size_t aIdx = 4; aIdx < argIndices.size(); ++aIdx)
