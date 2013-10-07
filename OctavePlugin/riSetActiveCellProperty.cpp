@@ -92,6 +92,8 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
            "\n"
            "Interprets the supplied matrix as a property set defined for the active cells in the case, "
            "and puts the data into ResInsight as a \"Generated\" property with the name \"PropertyName\"."
+           "The \"TimeStepIndices\" argument is used to \"label\" all the time steps present in the supplied data matrix,"
+           "and must thus be complete. The time step data will then be put into ResInsight at the time steps requested."  
            "If the CaseId is not defined, ResInsight’s Current Case is used."
            )
 {

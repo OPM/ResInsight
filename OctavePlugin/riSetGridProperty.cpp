@@ -112,6 +112,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
            "\triSetGridProperty( Matrix[numI][numJ][numK][numTimeSteps], [CaseId], GridIndex, PropertyName, [TimeStepIndices], [PorosityModel = \"Matrix\"|\"Fracture\"] ) \n"
            "\n"
            "Interprets the supplied matrix as a property set defined for all cells in one of the grids in a case, and puts the data into ResInsight as a \"Generated\" property with the name \"PropertyName\".\n"
+           "The \"TimeStepIndices\" argument is used to \"label\" all the time steps present in the supplied data matrix, and must thus be complete. The time step data will then be put into ResInsight at the time steps requested."
            "If the CaseId is not defined, ResInsight’s Current Case is used.\n"
            )
 {
