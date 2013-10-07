@@ -1,47 +1,79 @@
 ### The case with caseid 1 has to be selected/active in ResInsight when running this test-script
 ### Coarsening and Dual porosity is not exercised by this tes yet. We need models
 
-if (1)
-test OctaveInterfaceTest.m
-else
-
 ### CaseInfo riGetCurrentCase()
-printf ("===== Testing ====> riGetCurrentCase\n");
-caseInfo = riGetCurrentCase();
-disp(caseInfo);
-
+%!test
+%! printf ("===== Testing ====> riGetCurrentCase\n");
+%! caseInfo = riGetCurrentCase();
+%! assert ( caseInfo.CaseId == 1 );
+%! assert ( caseInfo.CaseName == "BRUGGE_0000" );
+%! assert ( caseInfo.CaseType == "SourceCase" );
+%! assert ( caseInfo.CaseGroupId == 0 );
 
 ### Vector[CaseInfo] riGetSelectedCases()
-printf ("===== Testing ====> riGetSelectedCases\n");
-caseInfoVector1 = riGetSelectedCases();
-disp(caseInfoVector1);
-
-if(0)
+%!test
+%! printf ("===== Testing ====> riGetSelectedCases\n");
+%! caseInfoVector1 = riGetSelectedCases();
+%! assert ( caseInfoVector1.CaseId == 1 );
+%! assert ( caseInfoVector1.CaseName == "BRUGGE_0000" );
+%! assert ( caseInfoVector1.CaseType == "SourceCase" );
+%! assert ( caseInfoVector1.CaseGroupId == 0 );
+ 
 
 ### Vector[CaseGroupInfo] riGetCaseGroups()
-printf ("===== Testing ====> riGetCaseGroups\n");
-caseGroupInfoVector = riGetCaseGroups();
+%!test
+%! printf ("===== Testing ====> riGetCaseGroups\n");
+%! caseGroupInfoVector = riGetCaseGroups();
+%! assert (rows(caseGroupInfoVector) == 2);
+%! assert (caseGroupInfoVector(2).CaseGroupId == 1);
+%! assert (caseGroupInfoVector(2).CaseGroupName == "Grid Case Group 2");
 
 ### Vector[CaseInfo] riGetCases([CaseGroupId])
-printf ("===== Testing ====> riGetCases\n");
-caseinfoVector2 = riGetCases();
-caseinfoVector3 = riGetCases(caseGroupInfoVector(2).CaseGroupId);
+%!test
+%! printf ("===== Testing ====> riGetCases\n");
+%! caseInfoVector3 = riGetCases();
+%! assert(rows(caseInfoVector3) == 10);
+%! assert(caseInfoVector3(2).CaseName == "BRUGGE_0040");
+%! assert(caseInfoVector3(2).CaseType == "ResultCase");
+%! assert(caseInfoVector3(3).CaseType == "StatisticsCase");
+%! assert(caseInfoVector3(4).CaseType == "SourceCase");
+%! caseinfoVector3 = riGetCases(1);
+%! assert(rows(caseinfoVector3) == 3);
+
 
 ### Matrix[numActiveCells][9] riGetActiveCellInfo([CaseId], [PorosityModel = "Matrix"|"Fracture"] )
-printf ("===== Testing ====> riGetActiveCellInfo\n");
-ACInfo1 = riGetActiveCellInfo();
-ACInfo2 = riGetActiveCellInfo("Matrix");
-ACInfo3 = riGetActiveCellInfo(1, "Matrix");
+%!test
+%! printf ("===== Testing ====> riGetActiveCellInfo\n");
+%! ACInfo1 = riGetActiveCellInfo();
+%! assert(rows(ACInfo1) == 43374);
+%! assert(columns(ACInfo1) == 9);
+%! ACInfo2 = riGetActiveCellInfo("Matrix");
+%! assert(ACInfo1 == ACInfo2);
+%! ACInfo3 = riGetActiveCellInfo(1, "Matrix");
+%! assert(ACInfo1 == ACInfo3);
+%! ACInfo4 = riGetActiveCellInfo(1);
+%! assert(ACInfo1 == ACInfo4);
 
 ### Matrix[numCoarseGroups][6] riGetCoarseningInfo([CaseId])
-printf ("===== Testing ====> riGetCoarseningInfo\n");
-CoarseInfo1 = riGetCoarseningInfo();
-CoarseInfo2 = riGetCoarseningInfo(1);
+%!xtest
+%! printf ("===== Testing ====> riGetCoarseningInfo\n");
+%! CoarseInfo1 = riGetCoarseningInfo();
+%! assert(rows(CoarseInfo1) == 0);
+%! assert(columns(CoarseInfo1) == 6);
+%! CoarseInfo2 = riGetCoarseningInfo(1);
+%! assert(CoarseInfo1 == CoarseInfo2);
 
 ### Matrix[numGrids][3] riGetGridDimensions([CaseId])
-printf ("===== Testing ====> riGetGridDimensions\n");
-GridDims1 = riGetGridDimensions();
-GridDims2 = riGetGridDimensions(1);
+%!test
+%! printf ("===== Testing ====> riGetGridDimensions\n");
+%! GridDims1 = riGetGridDimensions();
+%! assert(rows(GridDims1) == 1);
+%! assert(columns(GridDims1) == 3);
+%! GridDims2 = riGetGridDimensions(0);
+%! assert(rows(GridDims2) == 2);
+%! assert(columns(GridDims2) == 3);
+%! assert( GridDims2(2,1) == 12);
+%! assert( GridDims2(2,3) == 36);
 
 ### Vector[TimeStepDate] riGetTimestepDates([CaseId])
 printf ("===== Testing ====> riGetTimestepDates\n");
@@ -150,5 +182,4 @@ disp(WellStatuses1(1));
 WellStatuses2 = riGetWellStatus( WellNames1(1,:), [1,3]);
 WellStatuses3 = riGetWellStatus(WellNames1(1,:));
 
-endif
 endif
