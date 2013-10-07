@@ -73,19 +73,17 @@ extern "C" {
 
 #define JOB_STATUS_ENUM_DEFS  \
 {.value =    1 , .name = "JOB_QUEUE_NOT_ACTIVE" }, \
-{.value =    2 , .name = "JOB_QUEUE_LOADING" },    \
 {.value =    4 , .name = "JOB_QUEUE_WAITING" },    \
 {.value =    8 , .name = "JOB_QUEUE_SUBMITTED" },  \
 {.value =   16 , .name = "JOB_QUEUE_PENDING" },    \
 {.value =   32 , .name = "JOB_QUEUE_RUNNING" },    \
 {.value =   64 , .name = "JOB_QUEUE_DONE" },       \
 {.value =  128 , .name = "JOB_QUEUE_EXIT" },       \
-{.value =  256 , .name = "JOB_QUEUE_RUN_OK" },     \
-{.value =  512 , .name = "JOB_QUEUE_RUN_FAIL" },   \
-{.value = 1024 , .name = "JOB_QUEUE_ALL_OK" },     \
-{.value = 2048 , .name = "JOB_QUEUE_ALL_FAIL" },   \
 {.value = 4096 , .name = "JOB_QUEUE_USER_KILLED" },\
-{.value = 8192 , .name = "JOB_QUEUE_USER_EXIT" }
+{.value = 8192 , .name = "JOB_QUEUE_USER_EXIT" },\
+{.value = 16384 , .name = "JOB_QUEUE_SUCCESS" },\
+{.value = 32768 , .name = "JOB_QUEUE_RUNNING_CALLBACK" },\
+{.value = 65536 , .name = "JOB_QUEUE_FAILED" }
 #define JOB_STATUS_ENUM_SIZE JOB_QUEUE_MAX_STATE
 
 
@@ -103,7 +101,7 @@ extern "C" {
     job which is not in this state, the only thing happening is that the
     function job_queue_kill_simulation() wil return false.
    */
-#define JOB_QUEUE_CAN_KILL    (JOB_QUEUE_WAITING + JOB_QUEUE_RUNNING + JOB_QUEUE_PENDING + JOB_QUEUE_SUBMITTED)
+#define JOB_QUEUE_CAN_KILL    (JOB_QUEUE_WAITING + JOB_QUEUE_RUNNING + JOB_QUEUE_PENDING + JOB_QUEUE_SUBMITTED + JOB_QUEUE_USER_EXIT)
 
 
 
@@ -144,7 +142,7 @@ extern "C" {
   void queue_driver_free(queue_driver_type * driver);
   void queue_driver_free__(void * driver);
   const char * queue_driver_type_enum_iget(int index, int * value);
-  const char * queue_driver_status_emun_iget(int index, int * value);
+  const char * queue_driver_status_enum_iget(int index, int * value);
 
 #ifdef __cplusplus
 }

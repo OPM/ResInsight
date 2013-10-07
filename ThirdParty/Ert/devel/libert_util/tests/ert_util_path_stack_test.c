@@ -44,7 +44,7 @@ int main(int argc , char ** argv) {
     if (!path_stack_push( path_stack, path1 ))
       test_error_exit("Failed to push:%s \n",path1 );
     
-    chdir( path2 );
+    util_chdir( path2 );
     if (util_is_cwd( path1 ))
       test_error_exit("Failed to chdir(%s) \n",path2 );
     

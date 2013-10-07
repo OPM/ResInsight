@@ -10,10 +10,13 @@ option( BUILD_TESTS         "Should the tests be built" OFF)
 option( BUILD_APPLICATIONS  "Should we build small utility applications" OFF)
 option( BUILD_ECL_SUMMARY   "Build the commandline application ecl_summary" OFF)
 option( BUILD_PYTHON        "Run py_compile on the python wrappers" OFF)
+option( BUILD_SHARED_LIBS   "Build shared libraries" ON )
 option( INSTALL_ERT         "Should anything be installed when issuing make install?" ON)
-
+option( ERT_BUILD_GUI       "Should the pyQt based gui be compiled and installed" OFF )
+option( ERT_USE_OPENMP      "Use OpenMP - currently only in EclGrid" ON)
 
 include( CheckFunctionExists )
+include( CheckTypeSize )
 ENABLE_TESTING()
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -26,6 +29,7 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
    add_definitions( -DWINDOWS_LFS )
 endif()    
 
+
 # Treat warnings as errors if not on Windows
 if (ERT_WINDOWS)
    set( CMAKE_C_FLAGS    "-O2" )
@@ -35,29 +39,42 @@ else()
    set( CMAKE_CXX_FLAGS  "-g -Wall -O2 ")
 endif()
 
+if (ERT_USE_OPENMP)
+   find_package(OpenMP)
+   if (OPENMP_FOUND) 
+       message(STATUS "Enabling OpenMP support")
+       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+       set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${OpenMP_SHARED_LINKER_FLAGS}")
+   else()
+       message(STATUS "OpenMP package not found - OpenMP disabled")
+   endif()
+endif()
+
+
 include(cmake/ert_check.cmake)
 include(cmake/ert_find.cmake)
 include(cmake/Modules/UseMultiArch.cmake)
 include(cmake/ert_link.cmake)
 
 
-set( INSTALL_GROUP          ""     CACHE STRING "Group to install as - blank to install as current group")
+set(INSTALL_GROUP          ""     CACHE STRING "Group to install as - blank to install as current group")
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
-if (MSVC)
-   set( LIBRARY_TYPE STATIC )
-   set( SHARED_LIB OFF )
-else()
-   if (INSTALL_ERT)
-      set( LIBRARY_TYPE SHARED )
-      set( SHARED_LIB ON )
-   else()
-      set( LIBRARY_TYPE STATIC )
-      set( SHARED_LIB OFF )
-   endif(INSTALL_ERT)
-endif()
 
+if (BUILD_SHARED_LIBS)
+   set( LIBRARY_TYPE SHARED )
+else()
+   set( LIBRARY_TYPE STATIC )
+   if (BUILD_ERT)
+      message(FATAL_ERROR "The full ERT application must be built with shared libraries")
+   endif()
+   if (BUILD_PYTHON)
+      message(FATAL_ERROR "The Python wrappers require shared libraries")
+   endif()
+endif()
 
 if (MSVC)
    add_definitions( -D__func__="\\"????\\"")
@@ -67,12 +84,10 @@ endif()
 if (ERT_LINUX)
    set( NEED_LIBM TRUE )
    set( LINK_STATIC FALSE )
-   set( NEED_LIBDL ON )    
    add_definitions( -DHAVE_PROC )
 else()
    set( NEED_LIBM FALSE )
    set( LINK_STATIC TRUE )
-   set( NEED_LIBDL OFF )    
 endif()
 
 
@@ -105,8 +120,6 @@ add_subdirectory( libecl_well )
 #-----------------------------------------------------------------
 if (BUILD_ERT)
 #-----------------------------------------------------------------
-   option(USE_LSF "Include support for LSF" ON)
-
    include_directories( ${PROJECT_SOURCE_DIR}/libconfig/include )
    add_subdirectory( libconfig )
 

@@ -434,7 +434,7 @@ config_type *summary_plot_init_config(const char *config_file)
         /* Change Path to your enkf config dir */
         char *path;
         util_alloc_file_components(config_file, &path, NULL, NULL);
-        chdir(path);
+        util_chdir(path);
         util_safe_free(path);
     }
     return config;

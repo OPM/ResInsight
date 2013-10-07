@@ -39,7 +39,9 @@
 #ifdef WITH_PTHREAD
 #ifdef HAVE_EXECINFO
 #ifdef HAVE_GETPWUID
+#ifdef HAVE_DLADDR
 #define HAVE_UTIL_ABORT
+#endif
 #endif
 #endif
 #endif
@@ -4989,5 +4991,5 @@ int util_type_get_id( const void * data ) {
   return type_id;
 }  
 
-
+#include "util_chdir.c"
 

@@ -1,4 +1,8 @@
-from unittest2 import TestLoader, TextTestRunner
+
+try:
+    from unittest2 import TestLoader, TextTestRunner
+except ImportError:
+    from unittest import TestLoader, TextTestRunner
 
 
 def runTestsInDirectory(path="."):

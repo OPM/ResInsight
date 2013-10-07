@@ -18,10 +18,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <lsf/lsbatch.h>
-
 #include <ert/util/test_util.h>
 
+#include <ert/job_queue/lsf_job_stat.h>
 #include <ert/job_queue/lsf_driver.h>
 #include <ert/job_queue/lsb.h>
 

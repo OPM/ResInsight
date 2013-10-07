@@ -72,7 +72,7 @@ void getoption_nooptionsset_defaultoptionsreturned() {
 }
 
 void create_submit_script_script_according_to_input() {
-  test_work_area_type * work_area = test_work_area_alloc("job_torque_test" , true);
+  test_work_area_type * work_area = test_work_area_alloc("job_torque_test" );
   const char * script_filename = "qsub_script.sh";
 
   {

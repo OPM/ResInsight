@@ -1427,6 +1427,13 @@ double matrix_trace(const matrix_type *matrix) {
 }
 
 
+bool matrix_check_dims( const matrix_type * m , int rows , int columns) {
+  if ((m->rows == rows) && (m->columns == columns))
+     return true;
+  else
+    return false;
+}
+
 
 double matrix_diag_std(const matrix_type * Sk,double mean)
 {

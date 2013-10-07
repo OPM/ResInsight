@@ -4,4 +4,9 @@ set( RML_SOURCE_FILES
      rml_enkf.c 
      rml_enkf_common.c )
 
-ert_module( rml_enkf ${args} "${RML_SOURCE_FILES}")
+set( RMLI_SOURCE_FILES 
+     rml_enkf_imodel.c
+     rml_enkf_common.c )
+
+ert_module( ${LIBRARY_OUTPUT_PATH}/rml_enkf ${args}  "${RML_SOURCE_FILES}")
+ert_module( ${LIBRARY_OUTPUT_PATH}/rmli_enkf ${args} "${RMLI_SOURCE_FILES}")

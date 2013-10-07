@@ -110,102 +110,101 @@
 #
 #-------------------- </Example shell script> --------------------
 
-from PyQt4 import QtGui, QtCore
 import sys
 import os
-
-
-from ert.ert.ertwrapper import ErtWrapper
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QApplication, QSplashScreen
+from ert.enkf import EnKFMain
+from ert_gui.main_window import GertMainWindow
+from ert_gui.models import ErtConnector
+from ert_gui.pages.configuration_panel import ConfigurationPanel
+from ert_gui.pages.simulation_panel import SimulationPanel
+from ert_gui.widgets.help_dock import HelpDock
 
 import ert_gui.widgets.util
-import ert_gui.widgets.help
-ert_gui.widgets.help.help_prefix = os.getenv("ERT_SHARE_PATH")+ "/gui/help/"
-ert_gui.widgets.util.img_prefix  = os.getenv("ERT_SHARE_PATH")+ "/gui/img/"
 
-from ert.enkf.enkf_main import EnKFMain
+ert_gui.widgets.util.img_prefix = os.getenv("ERT_SHARE_PATH") + "/gui/img/"
 
 from ert_gui.newconfig import NewConfigurationDialog
-from ert_gui.pages.application import Application
-from ert_gui.pages.init.initpanel import InitPanel
-from ert_gui.pages.run.runpanel import RunPanel
-from ert_gui.widgets.helpedwidget import ContentModel
-from ert_gui.widgets.util import resourceImage, resourceIcon
 
+from ert_gui.widgets.util import resourceImage
 
-
-import matplotlib
 
 def main():
-    app = QtGui.QApplication(sys.argv) #Early so that QT is initialized before other imports
-    from ert_gui.pages.config.configpages import ConfigPages
-    from ert_gui.pages.plot.plotpanel import PlotPanel
+    QApplication.setGraphicsSystem("raster")
+    app = QApplication(sys.argv) #Early so that QT is initialized before other imports
 
-    splash = QtGui.QSplashScreen(resourceImage("newsplash") , QtCore.Qt.WindowStaysOnTopHint)
+    splash = QSplashScreen(resourceImage("newsplash"), Qt.WindowStaysOnTopHint)
     splash.show()
-    splash.showMessage("Starting up...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
+    splash.showMessage("Starting up...", Qt.AlignLeft, Qt.white)
     app.processEvents()
 
-    window = Application()
+    HelpDock.setHelpLinkPrefix(os.getenv("ERT_SHARE_PATH") + "/gui/help/")
 
-    splash.showMessage("Bootstrapping...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
+    splash.showMessage("Bootstrapping...", Qt.AlignLeft, Qt.white)
     app.processEvents()
-    
-    ert         = ErtWrapper( )
-    strict      = True
+
+    strict = True
     site_config = os.getenv("ERT_SITE_CONFIG")
     if len(sys.argv) == 1:
-        print "-----------------------------------------------------------------"
-        print "-- You must supply the name of configuration file as the first --"
-        print "-- commandline argument:                                       --"
-        print "--                                                             --"
-        print "-- bash%  gert <config_file>                                   --"
-        print "--                                                             --"
-        print "-- If the configuration file does not exist, gert will create  --"
-        print "-- create a new configuration file.                            --"
-        print "-----------------------------------------------------------------"
-    #sys.exit(0)
+        print("-----------------------------------------------------------------")
+        print("-- You must supply the name of configuration file as the first --")
+        print("-- commandline argument:                                       --")
+        print("--                                                             --")
+        print("-- bash%  gert <config_file>                                   --")
+        print("--                                                             --")
+        print("-- If the configuration file does not exist, gert will create  --")
+        print("-- create a new configuration file.                            --")
+        print("-----------------------------------------------------------------")
     else:
         enkf_config = sys.argv[1]
         if not os.path.exists(enkf_config):
-            print "Trying to start new config"
+            print("Trying to start new config")
             new_configuration_dialog = NewConfigurationDialog(enkf_config)
             success = new_configuration_dialog.exec_()
             if not success:
-                print "Can not run without a configuration file."
+                print("Can not run without a configuration file.")
                 sys.exit(1)
             else:
-                enkf_config      = new_configuration_dialog.getConfigurationPath()
+                enkf_config = new_configuration_dialog.getConfigurationPath()
                 firste_case_name = new_configuration_dialog.getCaseName()
-                dbase_type       = new_configuration_dialog.getDBaseType()
+                dbase_type = new_configuration_dialog.getDBaseType()
                 num_realizations = new_configuration_dialog.getNumberOfRealizations()
-                storage_path     = new_configuration_dialog.getStoragePath()
+                storage_path = new_configuration_dialog.getStoragePath()
 
-                EnKFMain.create_new_config(enkf_config, storage_path , firste_case_name, dbase_type, num_realizations)
+                EnKFMain.createNewConfig(enkf_config, storage_path, firste_case_name, dbase_type, num_realizations)
                 strict = False
 
-        ert.bootstrap(enkf_config, site_config = site_config, strict = strict)
-        window.setSaveFunction(ert.save)
+        ert = EnKFMain(enkf_config, site_config=site_config, strict=strict)
+        ErtConnector.setErt(ert)
 
-        splash.showMessage("Creating GUI...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
+        window = GertMainWindow()
+        window.setSaveFunction(ert.saveConfig())
+
+        splash.showMessage("Creating GUI...", Qt.AlignLeft, Qt.white)
         app.processEvents()
 
-        window.addPage("Configuration", resourceIcon("config"), ConfigPages(window))
-        window.addPage("Init" , resourceIcon("db"), InitPanel(window))
-        window.addPage("Run"  , resourceIcon("run"), RunPanel(window))
-        window.addPage("Plots", resourceIcon("plot"), PlotPanel())
+        simulation_panel = SimulationPanel()
+        window.addTab(simulation_panel.getName(), simulation_panel)
+        configuration_panel = ConfigurationPanel()
+        window.addTab(configuration_panel.getName(), configuration_panel)
 
-        splash.showMessage("Communicating with ERT...", QtCore.Qt.AlignLeft, QtCore.Qt.white)
+        splash.showMessage("Communicating with ERT...", Qt.AlignLeft, Qt.white)
         app.processEvents()
 
-        ContentModel.contentModel = ert
-        ContentModel.updateObservers()
+
 
         window.show()
         splash.finish(window)
 
+
+
+        HelpDock.setHelpMessageLink("welcome_to_ert")
+
         sys.exit(app.exec_())
 
-if __name__ =="__main__":
+
+if __name__ == "__main__":
     main()
 
 

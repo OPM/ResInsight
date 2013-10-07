@@ -99,7 +99,7 @@ int main(int argc , char ** argv) {
     }
     
     {
-      test_work_area_type * work_area = test_work_area_alloc("enkf_runpath_list" , true);
+      test_work_area_type * work_area = test_work_area_alloc("enkf_runpath_list" );
       const char *filename = "runpath_list.txt";
       {
         FILE * stream = util_fopen( filename, "w");

@@ -107,7 +107,7 @@ void test_copy() {
 
 
 void test_io( ) {
-  test_work_area_type * work_area = test_work_area_alloc( "enkf-state-map" , false );
+  test_work_area_type * work_area = test_work_area_alloc( "enkf-state-map" );
   {
     state_map_type * state_map = state_map_alloc();
     state_map_type * copy1 , *copy2;
@@ -145,6 +145,29 @@ void test_update_undefined( ) {
 
   state_map_update_undefined( map , 5 , STATE_INITIALIZED );
   test_assert_int_equal( STATE_INITIALIZED , state_map_iget( map , 5 ) );
+  
+  state_map_update_undefined( map , 10 , STATE_INITIALIZED );
+  test_assert_int_equal( STATE_INITIALIZED , state_map_iget( map , 10 ) );
+  
+  state_map_free( map );
+}
+
+
+void test_update_matching( ) {
+  state_map_type * map = state_map_alloc( );
+  
+  state_map_iset( map , 10 , STATE_INITIALIZED );
+  state_map_iset( map , 3 , STATE_PARENT_FAILURE );
+  test_assert_int_equal( STATE_UNDEFINED , state_map_iget( map , 5 ) );
+  test_assert_int_equal( STATE_INITIALIZED , state_map_iget( map , 10 ) );
+
+  state_map_update_matching( map , 5 , STATE_UNDEFINED | STATE_LOAD_FAILURE , STATE_INITIALIZED );
+  state_map_update_matching( map , 10 , STATE_UNDEFINED | STATE_LOAD_FAILURE , STATE_INITIALIZED );
+  state_map_update_matching( map , 3 , STATE_UNDEFINED | STATE_LOAD_FAILURE , STATE_INITIALIZED );
+  
+  test_assert_int_equal( STATE_INITIALIZED , state_map_iget( map , 5 ) );
+  test_assert_int_equal( STATE_INITIALIZED , state_map_iget( map , 10 ) );
+  test_assert_int_equal( STATE_PARENT_FAILURE , state_map_iget( map , 3 ) );
   
   state_map_update_undefined( map , 10 , STATE_INITIALIZED );
   test_assert_int_equal( STATE_INITIALIZED , state_map_iget( map , 10 ) );

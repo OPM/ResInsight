@@ -56,6 +56,7 @@
 #include <ert/enkf/time_map.h>
 #include <ert/enkf/ert_report_list.h>
 #include <ert/enkf/ecl_refcase_list.h>
+#include <ert/enkf/pca_plot_data.h>
 
 #include <ert_tui_const.h>
 #include <enkf_tui_util.h>
@@ -88,32 +89,84 @@ static void __plot_add_data(plot_type * plot , const char * label , int N , cons
 
 
 
-void enkf_tui_plot_PC( enkf_main_type * enkf_main , const char * plot_name , const matrix_type * PC , const matrix_type * PC_obs) {
+
+
+void enkf_tui_plot_PC_list( enkf_main_type * enkf_main , const vector_type * PC_list ) {
+  plot_config_type * plot_config = enkf_main_get_plot_config( enkf_main );
+  char * plot_file = enkf_tui_plot_alloc_plot_file( plot_config , enkf_main_get_current_fs( enkf_main ), "PC_list" );
+  plot_type * plot = enkf_tui_plot_alloc(plot_config , 
+                                         "Standardized PC value " , 
+                                         "Observation #", 
+                                         "Principle components" , 
+                                         plot_file);
+
+  int num_obs = vector_get_size( PC_list );
+  int iobs;
+  for (iobs = 0; iobs < num_obs; iobs++) {
+    const pca_plot_data_type * pca_data = vector_iget_const( PC_list , iobs );
+    const pca_plot_vector_type * pca_vector = pca_plot_data_iget_vector( pca_data , 0 );
+    int ens_size = pca_plot_vector_get_size( pca_vector );
+    {
+      char * data_label = util_alloc_sprintf("%s - simulated" , pca_plot_data_get_name( pca_data ));
+      plot_dataset_type * sim_data = plot_alloc_new_dataset( plot , data_label , PLOT_XY );
+      plot_dataset_set_style( sim_data , POINTS );
+      plot_dataset_set_point_color( sim_data , BLUE);
+      for (int iens = 0; iens < ens_size; iens++)
+        plot_dataset_append_point_xy( sim_data , 
+                                      pca_plot_vector_iget_sim_value( pca_vector , iens ),
+                                      iobs );
+      free( data_label );
+    }
+    {
+      char * obs_label = util_alloc_sprintf("%s - obs" , pca_plot_data_get_name( pca_data ));
+      plot_dataset_type * obs_data = plot_alloc_new_dataset( plot , obs_label , PLOT_XY );
+      plot_dataset_set_style( obs_data , POINTS );
+      plot_dataset_set_point_color( obs_data , RED);
+      plot_dataset_append_point_xy( obs_data , pca_plot_vector_get_obs_value( pca_vector ) , iobs );
+      free( obs_label );
+    }
+    // POsition of text is not considered when the autorange is applied; i.e. with
+    // fixed coordinates it might fall outside the clipping region ...
+    plot_add_text( plot , -0.75 , iobs , 0.35 , pca_plot_data_get_name( pca_data ));
+  }
+  enkf_tui_show_plot( plot , plot_config , plot_file ); /* Frees the plot - logical ehhh. */
+  free( plot_file );
+}
+
+
+
+void enkf_tui_plot_PC( enkf_main_type * enkf_main , const char * plot_name , const pca_plot_data_type * plot_data) {
   plot_config_type * plot_config = enkf_main_get_plot_config( enkf_main );
   char * plot_file = enkf_tui_plot_alloc_plot_file( plot_config , enkf_main_get_current_fs( enkf_main ), plot_name );
   plot_type * plot = enkf_tui_plot_alloc(plot_config , "PC number", /* y akse */ "Standardized PC value " , "Principle components" , plot_file);
 
 
   {
-    const int num_PC   = matrix_get_rows( PC );
-    const int ens_size = matrix_get_columns( PC );
+    const int num_PC   = pca_plot_data_get_size( plot_data );
+    const int ens_size = pca_plot_data_get_ens_size( plot_data );
     int ipc, iens;
 
     {
       plot_dataset_type * sim_data = plot_alloc_new_dataset( plot , "simulated" , PLOT_XY );
       plot_dataset_set_style( sim_data , POINTS );
       plot_dataset_set_point_color( sim_data , BLUE);
-      for (ipc = 0; ipc < num_PC; ipc++) 
+      for (ipc = 0; ipc < num_PC; ipc++) {
+        const pca_plot_vector_type * pca_vector = pca_plot_data_iget_vector( plot_data , ipc );
         for (iens =0; iens < ens_size; iens++)
-          plot_dataset_append_point_xy( sim_data , (ipc + 1) , matrix_iget( PC , ipc , iens ));
+          plot_dataset_append_point_xy( sim_data , 
+                                        (ipc + 1) , 
+                                        pca_plot_vector_iget_sim_value( pca_vector , iens ));
+      }
     }
 
     {
       plot_dataset_type * obs_data = plot_alloc_new_dataset( plot , "observation" , PLOT_XY );
       plot_dataset_set_style( obs_data , POINTS );
       plot_dataset_set_point_color( obs_data , RED);
-      for (ipc = 0; ipc < num_PC; ipc++) 
-        plot_dataset_append_point_xy( obs_data , (ipc + 1) , matrix_iget( PC_obs , ipc , 0 ));
+      for (ipc = 0; ipc < num_PC; ipc++) {
+        const pca_plot_vector_type * pca_vector = pca_plot_data_iget_vector( plot_data , ipc );
+        plot_dataset_append_point_xy( obs_data , (ipc + 1) , pca_plot_vector_get_obs_value( pca_vector ));
+      }
     }
   }
   enkf_tui_show_plot( plot , plot_config , plot_file ); /* Frees the plot - logical ehhh. */

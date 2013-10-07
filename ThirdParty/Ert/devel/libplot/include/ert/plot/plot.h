@@ -57,7 +57,7 @@ void plot_set_labels(plot_type * item, const char *xlabel, const char *ylabel, c
 
 void plot_data(plot_type * item);
 void plot_free(plot_type * item);
-void plot_update_range(plot_type * item, plot_range_type * );
+void plot_update_range(plot_type * item);
 
 void plot_set_window_size(plot_type * , int , int );
 void plot_invert_y_axis(plot_type * );
@@ -77,10 +77,12 @@ void          plot_set_range(plot_type * plot , double xmin , double xmax , doub
 void          plot_set_label_color(plot_type * , plot_color_type );
 void          plot_set_box_color(plot_type *   , plot_color_type );
 void          plot_set_label_fontsize(plot_type * , double );
-  void          plot_set_axis_fontsize(plot_type * plot , double axis_font_size_scale);
+void          plot_set_axis_fontsize(plot_type * plot , double axis_font_size_scale);
 const char *  plot_set_default_timefmt(plot_type * plot , time_t t1 , time_t t2);
 void          plot_set_timefmt(plot_type * plot , const char * timefmt);
+void          plot_add_text( plot_type * plot , double x , double y , double font_scale , const char * text);
 
+UTIL_IS_INSTANCE_HEADER( plot );
 
 /**
  * @}

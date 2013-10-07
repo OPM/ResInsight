@@ -82,7 +82,7 @@ int main( int argc , char ** argv) {
   const char * exjob_file = "job";
   const char * bin_path = argv[1];
   const char * internal_workflow = argv[2];
-  test_work_area_type * work_area = test_work_area_alloc( "job_workflow_test" , true);
+  test_work_area_type * work_area = test_work_area_alloc( "job_workflow_test" );
 
   signal(SIGSEGV , util_abort_signal);    
   create_exjob( exjob_file , bin_path );

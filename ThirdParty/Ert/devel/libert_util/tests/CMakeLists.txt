@@ -14,6 +14,10 @@ add_executable( ert_util_type_vector_test ert_util_type_vector_test.c )
 target_link_libraries( ert_util_type_vector_test ert_util test_util )
 add_test( ert_util_type_vector_test ${EXECUTABLE_OUTPUT_PATH}/ert_util_type_vector_test )
 
+add_executable( ert_util_matrix ert_util_matrix.c )
+target_link_libraries( ert_util_matrix ert_util test_util )
+add_test( ert_util_matrix ${EXECUTABLE_OUTPUT_PATH}/ert_util_matrix )
+
 add_executable( ert_util_filename ert_util_filename.c )
 target_link_libraries( ert_util_filename ert_util test_util )
 add_test( ert_util_filename ${EXECUTABLE_OUTPUT_PATH}/ert_util_filename )
@@ -103,10 +107,14 @@ add_executable( ert_util_addr2line ert_util_addr2line.c )
 target_link_libraries( ert_util_addr2line ert_util test_util )
 add_test( ert_util_addr2line ${EXECUTABLE_OUTPUT_PATH}/ert_util_addr2line)
 
+add_executable( ert_util_parent_path ert_util_parent_path.c )
+target_link_libraries( ert_util_parent_path ert_util test_util )
+add_test( ert_util_parent_path ${EXECUTABLE_OUTPUT_PATH}/ert_util_parent_path)
+
 add_executable( ert_util_work_area ert_util_work_area.c )
 target_link_libraries( ert_util_work_area ert_util test_util )
 add_test( NAME ert_util_work_area 
-          COMMAND ${EXECUTABLE_OUTPUT_PATH}/ert_util_work_area data/file1.txt ${CMAKE_CURRENT_SOURCE_DIR}/data/file2.txt data
+          COMMAND ${EXECUTABLE_OUTPUT_PATH}/ert_util_work_area data2/file1 ${CMAKE_CURRENT_SOURCE_DIR}/data2/file2 data2
           WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 

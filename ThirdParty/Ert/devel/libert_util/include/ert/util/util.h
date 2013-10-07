@@ -253,6 +253,7 @@ typedef enum {left_pad   = 0,
   char      ** util_alloc_stringlist_copy(const char **, int );
   void         util_split_string(const char *, const char *, int *, char ***);
   void         util_path_split(const char * , int *, char ***);
+  char       * util_alloc_parent_path( const char * path);
   void         util_binary_split_string(const char * , const char * , bool  , char ** , char ** );
   void         util_binary_split_string_from_max_length(const char * , const char * , int  , char ** , char ** );
   char       * util_alloc_joined_string(const char **  , int , const char * );
@@ -378,7 +379,7 @@ typedef enum {left_pad   = 0,
   void         util_unsetenv( const char * variable);
   char       * util_alloc_envvar( const char * value );
   bool         util_is_link(const char * );  // Will always return false on windows
-
+  int          util_chdir(const char * path);  
 
 
 #define UTIL_FWRITE_SCALAR(s,stream) { if (fwrite(&s , sizeof s , 1 , stream) != 1) util_abort("%s: write failed: %s\n",__func__ , strerror(errno)); }

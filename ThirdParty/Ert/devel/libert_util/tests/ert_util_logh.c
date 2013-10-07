@@ -26,7 +26,7 @@
 #define LOG_FILE "log.txt"
 
 int main(int argc , char ** argv) {
-  test_work_area_type * work_area = test_work_area_alloc("util/logh" , false);
+  test_work_area_type * work_area = test_work_area_alloc("util/logh");
   {
     log_type * logh = log_open( NULL , 0 );
     
