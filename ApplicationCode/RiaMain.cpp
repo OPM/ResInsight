@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
     RiaApplication app(argc, argv);
 
     QLocale::setDefault(QLocale(QLocale::English, QLocale::UnitedStates));
+    setlocale(LC_NUMERIC,"C");
 
     RiuMainWindow window;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
