@@ -25,6 +25,7 @@
 #include <ert/ecl/ecl_util.h>
 #include <ert/ecl/ecl_grid.h>
 
+#include <ert/ecl_well/well_const.h>
 #include <ert/ecl_well/well_segment.h>
 #include <ert/ecl_well/well_conn.h>
 #include <ert/ecl_well/well_conn_collection.h>
@@ -36,7 +37,7 @@ int main(int argc , char ** argv) {
   {
     int segment_id = 78;
     int outlet_segment_id = 100;
-    int branch_nr = ECLIPSE_WELL_SEGMENT_BRANCH_MAIN_STEM_VALUE;
+    int branch_nr = WELL_SEGMENT_BRANCH_MAIN_STEM_VALUE;
     well_segment_type * ws = well_segment_alloc(segment_id , outlet_segment_id , branch_nr, rseg_data);
     well_conn_type * conn1 = well_conn_alloc_MSW(1,1,1,true,well_conn_dirX,segment_id);
     well_conn_type * conn2 = well_conn_alloc_MSW(1,1,1,true,well_conn_dirX,segment_id + 1);
