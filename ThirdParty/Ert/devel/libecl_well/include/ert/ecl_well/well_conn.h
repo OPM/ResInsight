@@ -61,7 +61,7 @@ extern "C" {
   int                well_conn_get_k(const well_conn_type * conn);
   well_conn_dir_enum well_conn_get_dir(const well_conn_type * conn);
   bool               well_conn_open( const well_conn_type * conn );
-  int                well_conn_get_segment( const well_conn_type * conn );
+  int                well_conn_get_segment_id( const well_conn_type * conn );
   bool               well_conn_fracture_connection( const well_conn_type * conn);
   bool               well_conn_matrix_connection( const well_conn_type * conn);
   bool               well_conn_equal( const well_conn_type *conn1  , const well_conn_type * conn2);

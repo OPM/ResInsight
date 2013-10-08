@@ -33,17 +33,12 @@ extern "C" {
 #include <ert/ecl_well/well_conn_collection.h>
 #include <ert/ecl_well/well_conn.h>
 
-  /* The values are shifted one down compared to ISEG description in table 6.1 in ECLIPSE file formats reference. */
-  
-#define ECLIPSE_WELL_SEGMENT_OUTLET_END_VALUE        -1    
-#define ECLIPSE_WELL_SEGMENT_BRANCH_MAIN_STEM_VALUE   0
-#define ECLIPSE_WELL_SEGMENT_BRANCH_INACTIVE_VALUE   -1
 
 
   
   typedef struct well_segment_struct well_segment_type;
 
-  well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const ecl_kw_type * rseg_kw , const ecl_rsthead_type * header , int well_nr, int segment_id);
+  well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const ecl_kw_type * rseg_kw , const ecl_rsthead_type * header , int well_nr, int segment_index , int segment_id);
   well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , int branch_id , const double * rseg_data);
   void                well_segment_free(well_segment_type * segment );
   void                well_segment_free__(void * arg);

@@ -65,7 +65,7 @@ int well_segment_collection_get_size( const well_segment_collection_type * segme
 void well_segment_collection_add( well_segment_collection_type * segment_collection , well_segment_type * segment) {
   int segment_id = well_segment_get_id( segment );
   int current_index = int_vector_safe_iget( segment_collection->segment_index_map , segment_id );
-  if (current_index >= 0) 
+  if (current_index >= 0)
     vector_iset_owned_ref( segment_collection->__segment_storage , current_index , segment , well_segment_free__);
   else {
     int new_index = vector_get_size(segment_collection->__segment_storage);
@@ -111,10 +111,11 @@ int well_segment_collection_load_from_kw( well_segment_collection_type * segment
   int segments_added = 0;
       
   if (segment_well_nr != IWEL_SEGMENTED_WELL_NR_NORMAL_VALUE) {
-    int segment_id;
-    for (segment_id = 0; segment_id < rst_head->nsegmx; segment_id++) {
-      well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_kw , rst_head , segment_well_nr , segment_id );
-      
+    int segment_index;
+    for (segment_index = 0; segment_index < rst_head->nsegmx; segment_index++) {
+      int segment_id = segment_index + WELL_SEGMENT_OFFSET;
+      well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_kw , rst_head , segment_well_nr , segment_index , segment_id );
+
       if (well_segment_active( segment )) {
         well_segment_collection_add( segment_collection , segment );
         segments_added++;
@@ -122,7 +123,6 @@ int well_segment_collection_load_from_kw( well_segment_collection_type * segment
         well_segment_free( segment );
     }
   }
-  
   return segments_added;
 }
 
@@ -148,7 +148,7 @@ void well_segment_collection_add_connections(well_segment_collection_type * segm
   for (iconn = 0; iconn < well_conn_collection_get_size( connections ); iconn++) {
     well_conn_type * conn = well_conn_collection_iget( connections , iconn );
     if (well_conn_MSW( conn )) {
-      int segment_id =  well_conn_get_segment( conn );
+      int segment_id =  well_conn_get_segment_id( conn );
       well_segment_type * segment = well_segment_collection_get( segment_collection , segment_id );
       well_segment_add_connection( segment , grid_name , conn );
     }
@@ -166,4 +166,7 @@ void well_segment_collection_add_branches( const well_segment_collection_type * 
       well_branch_collection_add_start_segment( branches , segment );
   }
 }
+
+
+
 
