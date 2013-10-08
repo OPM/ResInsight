@@ -291,32 +291,38 @@
 %! assert(cidx == 8);
 %! assert(nactive , rows(riGetActiveCellInfo()));
 
-%! assert (ActiveCellCorners1(500,1,:) ,[3493.7,   9184.6,  -6074.4], [0.1, 0.1, 0.1]);
+%! assert(ActiveCellCorners1(500,1, 1), 3207.2, 0.1);
+%! assert(ActiveCellCorners1(500,1, 2), 9080.7, 0.1);
+%! assert(ActiveCellCorners1(500,1, 3), -6076.8, 0.1);
 %! assert (ActiveCellCorners1 , ActiveCellCorners2);
 %! assert (ActiveCellCorners1 , ActiveCellCorners3);
 %! assert (ActiveCellCorners1 , ActiveCellCorners4);
 
 ### Vector[WellNames] riGetWellNames([CaseId])
-%!test
+%!xtest
 %! printf ("===== Testing ====> riGetWellNames\n");
 %! WellNames1 = riGetWellNames();
 %! WellNames2 = riGetWellNames(1);
-%! assert (rows(WellNames1), 60);
-%! assert (WellNames1 == WellNames2);
+%! assert (rows(WellNames1), 113);
+%! assert (WellNames1{113}, "P20-03");
+%! assert (rows(WellNames1) == rows(WellNames2));
+%! assert (WellNames2{113}, "P20-03");
 
 ### Vector[WellCellInfo] riGetWellCells([CaseId], WellName, TimeStep)
 %!xtest
 %! printf ("===== Testing ====> riGetWellCells\n");
-%! WellCellInfos1 = riGetWellCells(1, WellNames1(1,:), 3);
-%! WellCellInfos2 = riGetWellCells(WellNames1(1,:), 3);
+%! WellNames1 = riGetWellNames();
+%! WellCellInfos1 = riGetWellCells(1, WellNames1{1}, 3);
+%! WellCellInfos2 = riGetWellCells(WellNames1{1}, 3);
 
 
 ### Vector[WellStatus] riGetWellStatus ([CaseId], WellName, [RequestedTimeSteps])
 %!xtest
 %! printf ("===== Testing ====> riGetWellStatus\n");
-%! WellStatuses1 = riGetWellStatus(1, WellNames1(1,:), [1,3]);
+%! WellNames1 = riGetWellNames();
+%! WellStatuses1 = riGetWellStatus(1, WellNames1{1}, [1,3]);
 %! disp(WellStatuses1(1));
-%! WellStatuses2 = riGetWellStatus( WellNames1(1,:), [1,3]);
-%! WellStatuses3 = riGetWellStatus(WellNames1(1,:));
+%! WellStatuses2 = riGetWellStatus( WellNames1{1}, [1,3]);
+%! WellStatuses3 = riGetWellStatus(WellNames1{1});
 
 endif
