@@ -597,13 +597,12 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
+bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
     m_project->assignCaseIdToCase(rimInputReservoir);
 
-    rimInputReservoir->caseUserDescription = caseName;
-    rimInputReservoir->openDataFileSet(caseFileNames);
+    rimInputReservoir->openDataFileSet(fileNames);
 
     RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
@@ -662,7 +661,7 @@ void RiaApplication::createLargeResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    openInputEclipseCase("Input Mock Debug Model Simple", QStringList("Input Mock Debug Model Simple"));
+    openInputEclipseCaseFromFileNames(QStringList("Input Mock Debug Model Simple"));
 }
 
 //--------------------------------------------------------------------------------------------------

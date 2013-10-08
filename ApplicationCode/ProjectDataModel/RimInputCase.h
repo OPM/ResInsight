@@ -46,7 +46,7 @@ public:
     caf::PdmField<RimInputPropertyCollection*> m_inputPropertyCollection;
 
     // File open methods
-    void                        openDataFileSet(const QStringList& filenames);
+    void                        openDataFileSet(const QStringList& fileNames);
     void                        loadAndSyncronizeInputProperties();
 
     void                        removeProperty(RimInputProperty* inputProperty);

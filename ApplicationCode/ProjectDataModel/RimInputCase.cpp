@@ -75,16 +75,22 @@ RimInputCase::~RimInputCase()
 /// Open the supplied file set. If no grid data has been read, it will first find the possible 
 /// grid data among the files then read all supported properties from the files matching the grid
 //--------------------------------------------------------------------------------------------------
-void RimInputCase::openDataFileSet(const QStringList& filenames)
+void RimInputCase::openDataFileSet(const QStringList& fileNames)
 {
-    if (filenames.contains("Input Mock Debug Model"))
+    if (fileNames.contains("Input Mock Debug Model Simple"))
     {
-        cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(filenames[0]);
+        cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(fileNames[0]);
         results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
         results(RifReaderInterface::FRACTURE_RESULTS)->setReaderInterface(readerInterface.p());
 
         reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->computeDerivedData();
         reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->computeDerivedData();
+        
+        QFileInfo gridFileName(fileNames[0]);
+        QString caseName = gridFileName.completeBaseName();
+        this->caseUserDescription = caseName;
+        
+        computeCachedData();
 
         return;
     }
@@ -97,11 +103,16 @@ void RimInputCase::openDataFileSet(const QStringList& filenames)
     // First find and read the grid data 
     if (this->reservoirData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
-         for (int i = 0; i < filenames.size(); i++)
+         for (int i = 0; i < fileNames.size(); i++)
          {
-             if (RifEclipseInputFileTools::openGridFile(filenames[i], this->reservoirData()))
+             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->reservoirData()))
              {
-                 m_gridFileName = filenames[i];
+                 m_gridFileName = fileNames[i];
+
+                 QFileInfo gridFileName(fileNames[i]);
+                 QString caseName = gridFileName.completeBaseName();
+
+                 this->caseUserDescription = caseName;
 
                  this->reservoirData()->mainGrid()->setFlipAxis(flipXAxis, flipYAxis);
 
@@ -119,13 +130,13 @@ void RimInputCase::openDataFileSet(const QStringList& filenames)
 
     // Then read the properties possibly in the grid file
     QStringList filesToRead;
-    for (int i = 0; i < filenames.size(); i++)
+    for (int i = 0; i < fileNames.size(); i++)
     {
         size_t j;
         bool exist = false;
         for (j = 0; j < m_additionalFileNames().size(); j++)
         {
-            if (m_additionalFileNames()[j] == filenames[i])
+            if (m_additionalFileNames()[j] == fileNames[i])
             {
                 exist = true;
             }
@@ -133,7 +144,7 @@ void RimInputCase::openDataFileSet(const QStringList& filenames)
 
         if (!exist)
         {
-            filesToRead.push_back(filenames[i]);
+            filesToRead.push_back(fileNames[i]);
         }
     }
 
@@ -171,7 +182,7 @@ bool RimInputCase::openEclipseGridFile()
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
-        if (m_gridFileName().contains("Input Mock Debug Model"))
+        if (m_gridFileName().contains("Input Mock Debug Model Simple"))
         {
             readerInterface = this->createMockModel(this->m_gridFileName());
         }

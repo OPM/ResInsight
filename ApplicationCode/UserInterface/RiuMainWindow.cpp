@@ -761,7 +761,7 @@ void RiuMainWindow::slotOpenInputFiles()
         // Remember the path to next time
         app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
  
-        app->openInputEclipseCase("Eclipse Input Files", fileNames);
+        app->openInputEclipseCaseFromFileNames(fileNames);
     }
 }
 
