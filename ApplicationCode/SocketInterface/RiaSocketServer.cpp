@@ -18,6 +18,7 @@
 #include "RiaStdInclude.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketCommand.h"
+#include "RiaSocketTools.h"
 
 #include <QtGui>
 #include <QtNetwork>
@@ -68,6 +69,10 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
 
     m_tcpServer = new QTcpServer(this);
 
+    m_nextPendingConnectionTimer = new QTimer(this);
+    m_nextPendingConnectionTimer->setInterval(100);
+    m_nextPendingConnectionTimer->setSingleShot(true);
+
     if (!m_tcpServer->listen(QHostAddress::LocalHost, 40001)) 
     {
         m_errorMessageDialog->showMessage("Octave communication disabled :\n"
@@ -81,6 +86,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
         return;
     }
 
+    connect(m_nextPendingConnectionTimer, SIGNAL(timeout()), this, SLOT(handleNextPendingConnection()));
     connect(m_tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewClientConnection()));
 }
 
@@ -110,6 +116,8 @@ void RiaSocketServer::slotNewClientConnection()
 
     if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
     {
+        //PMonLog("Starting Timer");
+        m_nextPendingConnectionTimer->start(); // Reset and start again
         return;
     }
 
@@ -312,7 +320,16 @@ void RiaSocketServer::handleNextPendingConnection()
 {
     if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
     {
+        //PMonLog("Starting Timer");
+        m_nextPendingConnectionTimer->start(); // Reset and start again
         return;
+    }
+
+    // Stop timer
+    if (m_nextPendingConnectionTimer->isActive())
+    {    
+        //PMonLog("Stopping Timer"); 
+        m_nextPendingConnectionTimer->stop();
     }
 
     terminateCurrentConnection();
