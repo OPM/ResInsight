@@ -311,9 +311,9 @@ public:
                     int branchId   = resPoint.m_ertBranchId;
                     int segmentId  = resPoint.m_ertSegmentId;
 
-                    cellIs      .push_back( static_cast<qint32>(i) ); 
-                    cellJs      .push_back( static_cast<qint32>(j) ); 
-                    cellKs      .push_back( static_cast<qint32>(k) );
+                    cellIs      .push_back( static_cast<qint32>(i + 1) ); // NB: 1-based index in Octave
+                    cellJs      .push_back( static_cast<qint32>(j + 1) ); // NB: 1-based index in Octave
+                    cellKs      .push_back( static_cast<qint32>(k + 1) ); // NB: 1-based index in Octave
                     gridIndices .push_back( static_cast<qint32>(gridIdx) );
                     cellStatuses.push_back( static_cast<qint32>(isOpen) );
                     branchIds   .push_back( branchId );
