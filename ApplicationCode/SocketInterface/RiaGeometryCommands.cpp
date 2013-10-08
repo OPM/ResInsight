@@ -18,6 +18,7 @@
 #include "RiaStdInclude.h"
 #include "RiaSocketCommand.h"
 #include "RiaSocketServer.h"
+#include "RiaSocketTools.h"
 
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
@@ -45,20 +46,9 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        int argCaseGroupId = -1;
-        size_t argGridIndex = 0;
+        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        size_t argGridIndex = args[2].toUInt();
 
-        if (args.size() == 2)
-        {
-            argGridIndex = args[1].toInt();
-        }
-        else if (args.size() == 3)
-        {
-            argCaseGroupId = args[1].toInt();
-            argGridIndex = args[2].toUInt();
-        }
-
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
         if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
         {
             // No data available
@@ -135,37 +125,10 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        int argCaseGroupId = -1;
-        QString porosityModelName;
+        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
-        if (args.size() == 2)
-        {
-            bool numberConversionOk = false;
-            int tmpValue = args[1].toInt(&numberConversionOk);
-            if (numberConversionOk)
-            {
-                argCaseGroupId = tmpValue;
-            }
-            else
-            {
-                porosityModelName = args[1];
-            }
-        }
-        else if (args.size() == 3)
-        {
-            bool numberConversionOk = false;
-            int tmpValue = args[1].toInt(&numberConversionOk);
-            if (numberConversionOk)
-            {
-                argCaseGroupId = args[1].toUInt();
-                porosityModelName = args[2];
-            }
-            else
-            {
-                argCaseGroupId = args[2].toUInt();
-                porosityModelName = args[1];
-            }
-        }
+        QString porosityModelName;
+        porosityModelName = args[2];
 
         RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
         if (porosityModelName.toUpper() == "FRACTURE")
@@ -173,7 +136,6 @@ public:
             porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
         }
 
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
         if (!rimCase || !rimCase->reservoirData())
         {
             // No data available
@@ -240,20 +202,9 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        int argCaseGroupId = -1;
-        size_t argGridIndex = 0;
+        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
+        size_t argGridIndex = args[2].toUInt();
 
-        if (args.size() == 2)
-        {
-            argGridIndex = args[1].toInt();
-        }
-        else if (args.size() == 3)
-        {
-            argCaseGroupId = args[1].toInt();
-            argGridIndex = args[2].toUInt();
-        }
-
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
         if (!rimCase || !rimCase->reservoirData() || (argGridIndex >= rimCase->reservoirData()->gridCount()) )
         {
             // No data available
@@ -335,37 +286,10 @@ public:
 
     virtual bool interpretCommand(RiaSocketServer* server, const QList<QByteArray>&  args, QDataStream& socketStream)
     {
-        int argCaseGroupId = -1;
-        QString porosityModelName;
+        RimCase* rimCase = RiaSocketTools::findCaseFromArgs(server, args);
 
-        if (args.size() == 2)
-        {
-            bool numberConversionOk = false;
-            int tmpValue = args[1].toInt(&numberConversionOk);
-            if (numberConversionOk)
-            {
-                argCaseGroupId = tmpValue;
-            }
-            else
-            {
-                porosityModelName = args[1];
-            }
-        }
-        else if (args.size() == 3)
-        {
-            bool numberConversionOk = false;
-            int tmpValue = args[1].toInt(&numberConversionOk);
-            if (numberConversionOk)
-            {
-                argCaseGroupId = args[1].toUInt();
-                porosityModelName = args[2];
-            }
-            else
-            {
-                argCaseGroupId = args[2].toUInt();
-                porosityModelName = args[1];
-            }
-        }
+        QString porosityModelName;
+        porosityModelName = args[2];
 
         RifReaderInterface::PorosityModelResultType porosityModelEnum = RifReaderInterface::MATRIX_RESULTS;
         if (porosityModelName.toUpper() == "FRACTURE")
@@ -373,7 +297,6 @@ public:
             porosityModelEnum = RifReaderInterface::FRACTURE_RESULTS;
         }
 
-        RimCase* rimCase = server->findReservoir(argCaseGroupId);
         if (!rimCase || !rimCase->reservoirData() )
         {
             // No data available
