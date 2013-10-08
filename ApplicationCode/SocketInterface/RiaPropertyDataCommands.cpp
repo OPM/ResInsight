@@ -657,7 +657,7 @@ private:
 
 static bool RiaSetActiveCellProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaSetActiveCellProperty>(RiaSetActiveCellProperty::commandName());
 
-#define PMonLog( MessageString ) RiuMainWindow::instance()->processMonitor()->addStringToLog( MessageString );
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
