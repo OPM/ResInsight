@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 import sys
-from unittest2 import TextTestRunner
+
+try:
+    from unittest2 import TextTestRunner
+except ImportError:
+    from unittest import TextTestRunner
+
 from ert_tests.run_tests import getTestsFromTestClass
 
 

@@ -59,6 +59,23 @@ class BaseCEnumTest(ExtendedTestCase):
             e = enum.ONE ^ enum2.ONE
 
 
+    def test_in_operator(self):
+        class PowerOf2(BaseCEnum):
+            pass
+
+        PowerOf2.addEnum("ONE", 1)
+        PowerOf2.addEnum("TWO", 2)
+        PowerOf2.addEnum("FOUR", 4)
+
+        three = PowerOf2.ONE | PowerOf2.TWO
+
+        self.assertEqual(int(three), 3)
+
+        self.assertIn(PowerOf2.TWO, three)
+        self.assertIn(PowerOf2.ONE, three)
+        self.assertNotIn(PowerOf2.FOUR, three)
+
+
     def test_enum_populate_from_c(self):
         class ContentTypeEnum(BaseCEnum):
             pass

@@ -35,7 +35,7 @@ void getWellNames(std::vector<QString>& wellNames, const QString &hostName, quin
 
     while (socket.bytesAvailable() < (int)(sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -50,7 +50,7 @@ void getWellNames(std::vector<QString>& wellNames, const QString &hostName, quin
 
     while (socket.bytesAvailable() < (int)(byteCount))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
             return;
@@ -112,16 +112,13 @@ DEFUN_DLD (riGetWellNames, args, nargout,
 
         // Create cells with N items for each field in the data structure
 
-        //charMatrix octaveWellNames;
         string_vector octaveWellNames;
         for (size_t i = 0; i < caseCount; i++)
         {
             octaveWellNames.append(wellNames[i].toStdString());
         }
 
-        // Build a map between the field name and field cell values
-
-        return octave_value(octaveWellNames);
+        return octave_value(Cell(octaveWellNames));
     }
 
     return octave_value();

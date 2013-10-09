@@ -28,8 +28,8 @@
 
 #include <ert/job_queue/queue_driver.h>
 #include <ert/job_queue/lsf_driver.h>
+#include <ert/job_queue/lsf_job_stat.h>
 
-#include <lsf/lsbatch.h>
 #ifdef HAVE_LSF_LIBRARY
 #include <ert/job_queue/lsb.h>
 #endif
@@ -383,6 +383,7 @@ static int lsf_driver_submit_internal_job( lsf_driver_type * driver ,
   }
 #else
   lsf_driver_internal_error( driver );
+  return -1;
 #endif
 }
 
@@ -762,6 +763,7 @@ static void lsf_driver_set_bkill_cmd( lsf_driver_type * driver , const char * bk
   driver->bkill_cmd = util_realloc_string_copy( driver->bkill_cmd , bkill_cmd );    
 }
 
+#ifdef HAVE_LSF_LIBRARY
 static void lsf_driver_set_internal_submit( lsf_driver_type * driver) {
   /* No remote server has been set - assuming we can issue proper library calls. */
   /* The BSUB_QUEUE variable must NOT be set when using the shell
@@ -772,7 +774,7 @@ static void lsf_driver_set_internal_submit( lsf_driver_type * driver) {
   util_safe_free( driver->remote_lsf_server );
   driver->remote_lsf_server = NULL;
 }
-
+#endif
 
 static void lsf_driver_set_remote_server( lsf_driver_type * driver , const char * remote_server) {
   if (remote_server == NULL) {

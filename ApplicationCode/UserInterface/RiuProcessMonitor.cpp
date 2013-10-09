@@ -52,13 +52,15 @@ RiuProcessMonitor::RiuProcessMonitor(QDockWidget* pParent)
     m_textEdit->setReadOnly(true);
     m_textEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
 
-    //QFont font("Courier", 8);
-    QFont font("Terminal", 10);
+    QFont font("Courier", 8);
+    //QFont font("Terminal", 11);
     m_textEdit->setFont(font);
 
     QVBoxLayout* pLayout = new QVBoxLayout();
     pLayout->addLayout(pTopLayout);
     pLayout->addWidget(m_textEdit);
+
+    pLayout->setContentsMargins(0, 0, 0, 0);
 
     setLayout(pLayout);
 

@@ -225,7 +225,7 @@ ecl_rft_node_type * ecl_rft_node_alloc(const ecl_file_type * rft) {
     /* Time information. */
     {
       int * time = ecl_kw_get_int_ptr( date_kw );
-      rft_node->recording_date = util_make_date( time[DATE_DAY_INDEX] , time[DATE_MONTH_INDEX] , time[DATE_YEAR_INDEX] );
+      rft_node->recording_date = ecl_util_make_date( time[DATE_DAY_INDEX] , time[DATE_MONTH_INDEX] , time[DATE_YEAR_INDEX] );
     }
     rft_node->days = ecl_kw_iget_float( ecl_file_iget_named_kw( rft , TIME_KW , 0 ) , 0);
     if (ecl_file_has_kw( rft , CONLENST_KW))

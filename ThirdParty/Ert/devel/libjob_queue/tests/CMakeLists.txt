@@ -21,9 +21,16 @@ add_test( job_loadFail2 ${EXECUTABLE_OUTPUT_PATH}/job_loadFail ${CMAKE_CURRENT_S
 add_test( job_loadFail3 ${EXECUTABLE_OUTPUT_PATH}/job_loadFail ${CMAKE_CURRENT_SOURCE_DIR}/data/internalFail ${CMAKE_CURRENT_SOURCE_DIR}/data/externalFail)
 
 
-add_executable( job_queue_test job_queue_test.c )
+add_executable( job_program_output job_program_output.c )
+target_link_libraries( job_program_output util test_util)
+
+add_executable( job_queue_test job_job_queue_test.c )
 target_link_libraries( job_queue_test job_queue test_util )
-add_test( job_queue_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_test )
+add_test( job_queue_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_test ${EXECUTABLE_OUTPUT_PATH}/job_program_output )
+
+add_executable( job_queue_driver_test job_queue_driver_test.c )
+target_link_libraries( job_queue_driver_test job_queue test_util )
+add_test( job_queue_driver_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_driver_test )
 
 
 # This should be a space separated list of servers which will be 
@@ -35,14 +42,13 @@ add_test( job_queue_test ${EXECUTABLE_OUTPUT_PATH}/job_queue_test )
 #
 set(LSF_SERVERS "LOCAL" CACHE STRING  "List of LSF servers for testing")
 
+if (HAVE_LSF_LIBRARY)
+   add_executable( job_lsf_test job_lsf_test.c )
+   target_link_libraries( job_lsf_test job_queue util test_util )
+   add_test( job_lsf_test ${EXECUTABLE_OUTPUT_PATH}/job_lsf_test )
+endif()
 
-add_executable( job_lsf_test job_lsf_test.c )
-target_link_libraries( job_lsf_test job_queue util test_util )
 
-add_executable( job_lsf_submit_test job_lsf_submit_test.c )
-target_link_libraries( job_lsf_submit_test job_queue util test_util )
-
-add_executable( job_program job_program.c )
 
 if (HAVE_LSF_LIBRARY)
    add_executable( job_lsb job_lsb.c )
@@ -50,8 +56,10 @@ if (HAVE_LSF_LIBRARY)
    add_test( job_lsb ${EXECUTABLE_OUTPUT_PATH}/job_lsb )
 endif()
 
+add_executable( job_lsf_submit_test job_lsf_submit_test.c )
+target_link_libraries( job_lsf_submit_test job_queue util test_util )
+add_executable( job_program job_program.c )
 
-add_test( job_lsf_test ${EXECUTABLE_OUTPUT_PATH}/job_lsf_test )
 if (LSF_SERVERS)
    add_test( job_lsf_submit_test ${EXECUTABLE_OUTPUT_PATH}/job_lsf_submit_test ${EXECUTABLE_OUTPUT_PATH}/job_program ${LSF_SERVERS})
    set_property( TEST job_lsf_submit_test PROPERTY LABELS LSF)

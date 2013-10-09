@@ -1,3 +1,15 @@
+set(NEED_LIBDL OFF)
+find_library( DL_LIBRARY NAMES dl )
+find_path( DLFUNC_HEADER dlfcn.h )
+if (DL_LIBRARY AND DLFUNC_HEADER)
+    set(CMAKE_REQUIRED_LIBRARIES dl)
+
+    check_function_exists( dladdr HAVE_DLADDR )
+    if (HAVE_DLADDR)
+       add_definitions( -DHAVE_DLADDR )                       
+       set(NEED_LIBDL ON)
+    endif()
+endif()
 #-----------------------------------------------------------------
 find_library( ZLIB_LIBRARY NAMES z )
 find_path( ZLIB_HEADER zlib.h /usr/include )
@@ -66,6 +78,9 @@ if (GETOPT_HEADER)
 endif()
 #-----------------------------------------------------------------
 find_path( UNISTD_HEADER unistd.h /usr/include )
+if (UNISTD_HEADER)
+   add_definitions( -DHAVE_UNISTD )
+endif()
 
 if (ERT_WINDOWS)
    find_library( SHLWAPI_LIBRARY NAMES Shlwapi )

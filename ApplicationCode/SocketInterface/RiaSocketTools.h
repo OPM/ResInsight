@@ -18,6 +18,7 @@
 class RimCase;
 class RiaSocketServer;
 
+#define PMonLog( MessageString ) RiuMainWindow::instance()->processMonitor()->addStringToLog( MessageString );
 
 class RiaSocketTools
 {

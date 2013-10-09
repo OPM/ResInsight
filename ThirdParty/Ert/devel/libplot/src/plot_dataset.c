@@ -411,10 +411,20 @@ void plot_dataset_draw(plot_dataset_type * d , plot_driver_type * driver, const 
     plot_driver_plot_x1x2y( driver , d->label , d->x1 , d->x2 , d->y , d->line_attr);
     break;
   case(PLOT_YLINE):
-    plot_driver_plot_yline( driver , d->label , plot_range_get_xmin(range) , plot_range_get_xmax(range) , double_vector_iget( d->y , 0) , d->line_attr);
+    plot_driver_plot_yline( driver , 
+                            d->label , 
+                            plot_range_get_current_xmin(range) , 
+                            plot_range_get_current_xmax(range) , 
+                            double_vector_iget( d->y , 0) , 
+                            d->line_attr);
     break;
   case(PLOT_XLINE):
-    plot_driver_plot_xline( driver , d->label , double_vector_iget( d->x , 0) , plot_range_get_ymin(range) , plot_range_get_ymax(range) , d->line_attr);
+    plot_driver_plot_xline( driver , 
+                            d->label , 
+                            double_vector_iget( d->x , 0) , 
+                            plot_range_get_current_ymin(range) , 
+                            plot_range_get_current_ymax(range) , 
+                            d->line_attr);
     break;
   default:
     util_abort("%s: internal error ... \n",__func__);
@@ -423,94 +433,27 @@ void plot_dataset_draw(plot_dataset_type * d , plot_driver_type * driver, const 
 }
 
 
-void plot_dataset_update_range_histogram(plot_dataset_type * d, plot_range_type * range) {
-  plot_range_set_auto_xmin(range , double_vector_get_min( d->x ));
-  plot_range_set_auto_xmax(range , double_vector_get_max( d->x ));
-  plot_range_set_auto_ymin(range , 0 );
-  plot_range_set_auto_ymax(range , double_vector_size( d->x ) );  /* Pure heuristics. */
+void plot_dataset_update_range_histogram(const plot_dataset_type * d, plot_range_type * range) {
+  plot_range_update_vector_x( range , d->x );
+  plot_range_update_y( range , 0 );
+  plot_range_update_y( range , double_vector_size( d->x ) );  /* Pure heuristics. */
 }
 
 
 
 
-/**
- * @brief Get extrema values from one dataset
- * @param d your current dataset
- * @param x_max pointer to max x-value
- * @param y_max pointer to max y-value
- * @param x_min pointer to the new x minimum
- * @param y_min pointer to the new y minimum
- * 
- * Find the extrema values in the plot item, checks all added dataset.
- */
-void plot_dataset_update_range(plot_dataset_type * d, bool * first_pass , plot_range_type * range) {
+
+void plot_dataset_update_range(const plot_dataset_type * d, plot_range_type * range) {
+  
   const int size = plot_dataset_get_size( d );
   if (size > 0) {
-    double tmp_x_max = plot_range_safe_get_xmax(range);
-    double tmp_y_max = plot_range_safe_get_ymax(range);
-    double tmp_x_min = plot_range_safe_get_xmin(range);
-    double tmp_y_min = plot_range_safe_get_ymin(range);
-
-    int i;
-    double *x1 , *x2, *y1 , *y2;
-
+    if (d->data_mask & PLOT_DATA_X)  plot_range_update_vector_x( range , d->x );
+    if (d->data_mask & PLOT_DATA_X1) plot_range_update_vector_x( range , d->x1 );
+    if (d->data_mask & PLOT_DATA_X2) plot_range_update_vector_x( range , d->x2 );
     
-    x1 = NULL;
-    x2 = NULL;
-    y1 = NULL;
-    y2 = NULL;
-    
-    if (d->data_mask & PLOT_DATA_X)     {x1 = double_vector_get_ptr(d->x);  x2 = double_vector_get_ptr(d->x); }
-    if (d->data_mask & PLOT_DATA_X1)     x1 = double_vector_get_ptr(d->x1);
-    if (d->data_mask & PLOT_DATA_X2)     x2 = double_vector_get_ptr(d->x2);
-
-
-    if (d->data_mask & PLOT_DATA_Y)  {y1 = double_vector_get_ptr(d->y) ;  y2 = double_vector_get_ptr(d->y) ; }
-    if (d->data_mask & PLOT_DATA_Y1)  y1 = double_vector_get_ptr(d->y1) ;
-    if (d->data_mask & PLOT_DATA_Y2)  y2 = double_vector_get_ptr(d->y2) ;
-
-    if (x1 != NULL) {
-      if (*first_pass) {
-        /* To ensure sensible initialisation */
-        tmp_x_min = x1[0];
-        tmp_x_max = x2[0];
-      }
-      
-      for (i=0; i < size; i++) {
-        if (x1[i] < tmp_x_min)
-          tmp_x_min = x1[i];
-        
-        if (x2[i] > tmp_x_max)
-          tmp_x_max = x2[i];
-      }
-    }
-
-
-    if (y1 != NULL) {
-      if (*first_pass) {
-        tmp_y_min = y1[0];
-        tmp_y_max = y2[0];
-      }
-      
-      for (i=0; i < size; i++) {
-        if (y1[i] < tmp_y_min)
-          tmp_y_min = y1[i];
-        
-        if (y2[i] > tmp_y_max)
-          tmp_y_max = y2[i];
-      }
-    }
-    
-    /**
-       If the range value has been set manually these functions
-       just return without doing anything.
-    */
-    plot_range_set_auto_xmin(range , tmp_x_min);
-    plot_range_set_auto_xmax(range , tmp_x_max);
-    plot_range_set_auto_ymin(range , tmp_y_min);
-    plot_range_set_auto_ymax(range , tmp_y_max);
-    
-    *first_pass = false;
+    if (d->data_mask & PLOT_DATA_Y)  plot_range_update_vector_y( range , d->y );
+    if (d->data_mask & PLOT_DATA_Y1) plot_range_update_vector_y( range , d->y1 );
+    if (d->data_mask & PLOT_DATA_Y2) plot_range_update_vector_y( range , d->y2 );
   }
 }
 

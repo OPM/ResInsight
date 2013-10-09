@@ -7,6 +7,9 @@ target_link_libraries( enkf_site_config enkf test_util )
 add_executable( enkf_time_map enkf_time_map.c )
 target_link_libraries( enkf_time_map enkf test_util )
 
+add_executable( enkf_pca_plot enkf_pca_plot.c )
+target_link_libraries( enkf_pca_plot enkf test_util)
+add_test( enkf_pca_plot ${EXECUTABLE_OUTPUT_PATH}/enkf_pca_plot)
 
 add_executable( enkf_cases_config enkf_cases_config.c )
 target_link_libraries( enkf_cases_config enkf test_util )
@@ -14,7 +17,14 @@ add_test( enkf_cases_config  ${EXECUTABLE_OUTPUT_PATH}/enkf_cases_config )
 
 add_executable( enkf_analysis_config enkf_analysis_config.c )
 target_link_libraries( enkf_analysis_config enkf test_util )
-add_test( enkf_analysis  ${EXECUTABLE_OUTPUT_PATH}/enkf_analysis_config )
+add_test( enkf_analysis  ${EXECUTABLE_OUTPUT_PATH}/enkf_analysis_config)
+
+add_executable( enkf_analysis_config_ext_module enkf_analysis_config_ext_module.c )
+target_link_libraries( enkf_analysis_config_ext_module enkf test_util )
+add_test( enkf_analysis_config_ext_module ${EXECUTABLE_OUTPUT_PATH}/enkf_analysis_config_ext_module 
+	rml_enkf ${LIBRARY_OUTPUT_PATH}/rml_enkf.so
+	rmli_enkf ${LIBRARY_OUTPUT_PATH}/rmli_enkf.so )
+	
 
 add_executable( enkf_state_map enkf_state_map.c )
 target_link_libraries( enkf_state_map enkf test_util )
@@ -27,6 +37,22 @@ target_link_libraries( enkf_ensemble_GEN_PARAM enkf test_util )
 
 add_executable( enkf_ensemble enkf_ensemble.c )
 target_link_libraries( enkf_ensemble enkf test_util )
+
+add_executable( enkf_local_obsdata_node enkf_local_obsdata_node.c )
+target_link_libraries( enkf_local_obsdata_node enkf test_util)
+add_test( enkf_local_obsdata_node ${EXECUTABLE_OUTPUT_PATH}/enkf_local_obsdata_node )
+
+add_executable( enkf_local_obsdata enkf_local_obsdata.c )
+target_link_libraries( enkf_local_obsdata enkf test_util)
+add_test( enkf_local_obsdata ${EXECUTABLE_OUTPUT_PATH}/enkf_local_obsdata )
+
+add_executable( enkf_active_list enkf_active_list.c )
+target_link_libraries( enkf_active_list enkf test_util)
+add_test( enkf_active_list ${EXECUTABLE_OUTPUT_PATH}/enkf_active_list )
+
+add_executable( enkf_obs_tstep_list enkf_obs_tstep_list.c )
+target_link_libraries( enkf_obs_tstep_list enkf test_util)
+add_test( enkf_obs_tstep_list ${EXECUTABLE_OUTPUT_PATH}/enkf_obs_tstep_list )
 
 add_executable( enkf_main enkf_main.c )
 target_link_libraries( enkf_main enkf test_util )

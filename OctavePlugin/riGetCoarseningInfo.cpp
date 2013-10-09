@@ -33,7 +33,7 @@ void getCoarseningInfo(int32NDArray& coarseningInfo, const QString &hostName, qu
 
     while (socket.bytesAvailable() < (int)(sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -46,8 +46,8 @@ void getCoarseningInfo(int32NDArray& coarseningInfo, const QString &hostName, qu
     quint64 boxCount = byteCount / (6 * sizeof(qint32));
 
     dim_vector dv (1, 1);
-    dv(0) = 6;
-    dv(1) = boxCount;
+    dv(0) = boxCount;
+    dv(1) = 6;
 
     coarseningInfo.resize(dv);
 
@@ -67,12 +67,12 @@ void getCoarseningInfo(int32NDArray& coarseningInfo, const QString &hostName, qu
         socketStream >> k1;
         socketStream >> k2;
 
-        coarseningInfo(0, i) = i1;
-        coarseningInfo(1, i) = i2;
-        coarseningInfo(2, i) = j1;
-        coarseningInfo(3, i) = j2;
-        coarseningInfo(4, i) = k1;
-        coarseningInfo(5, i) = k2;
+        coarseningInfo(i, 0) = i1;
+        coarseningInfo(i, 1) = i2;
+        coarseningInfo(i, 2) = j1;
+        coarseningInfo(i, 3) = j2;
+        coarseningInfo(i, 4) = k1;
+        coarseningInfo(i, 5) = k2;
     }
 
     return;

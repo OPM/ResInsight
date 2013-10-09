@@ -30,5 +30,6 @@
 
 int main( int argc , char ** argv) {
   ecl_grid_type * ecl_grid = ecl_grid_alloc( argv[1] );
+  ecl_grid_free( ecl_grid );
   exit(0);
 }

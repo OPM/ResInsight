@@ -14,7 +14,11 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
-from unittest2 import skipIf
+try:
+    from unittest2 import skipIf
+except ImportError:
+    from unittest import skipIf
+
 from ert.ecl import EclFile, FortIO
 from ert.ecl.ecl_util import EclFileFlagEnum
 

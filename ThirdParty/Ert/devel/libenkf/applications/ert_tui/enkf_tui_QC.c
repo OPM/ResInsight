@@ -32,6 +32,7 @@
 #include <ert/util/bool_vector.h>
 #include <ert/util/msg.h>
 #include <ert/util/vector.h>
+#include <ert/util/matrix.h>
 #include <ert/util/type_vector_functions.h>
 
 #include <ert/plot/plot.h>
@@ -52,6 +53,8 @@
 #include <ert/enkf/plot_config.h>
 #include <ert/enkf/member_config.h>
 #include <ert/enkf/enkf_analysis.h>
+#include <ert/enkf/obs_tstep_list.h>
+#include <ert/enkf/pca_plot_data.h>
 
 #include <enkf_tui_util.h>
 #include <enkf_tui_plot.h>
@@ -60,100 +63,78 @@
 #include <enkf_tui_plot_util.h>
 
 
-void enkf_tui_QC_plot_get_PC( enkf_main_type * enkf_main , int step1 , int step2 , state_enum state , const local_obsset_type * obsset , 
-                              double truncation , int ncomp , 
-                              matrix_type * PC , matrix_type * PC_obs) {
-  
-  bool_vector_type * ens_mask            = bool_vector_alloc(0 , false);
-  obs_data_type  *  obs_data             = obs_data_alloc();
-  analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
-  int_vector_type * step_list            = int_vector_alloc(0,0);    
-  enkf_fs_type * source_fs               = enkf_main_get_fs( enkf_main);
-  state_map_type * state_map             = enkf_fs_get_state_map(source_fs);
-  int_vector_type * ens_active_list;
-  meas_data_type *  meas_data;
 
-  state_map_select_matching(state_map , ens_mask , STATE_HAS_DATA);
-  ens_active_list = bool_vector_alloc_active_list(ens_mask);
-  meas_data = meas_data_alloc(ens_active_list);
-  {
-    for (int step =step1; step <= step2; step++) 
-      int_vector_append( step_list , step );
-  }
-  
-  obs_data_reset( obs_data );
-  meas_data_reset( meas_data );
+void enkf_tui_QC_plot_PC_list( void * arg ) {
+  enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );  
+  stringlist_type * all_obs_keys   = enkf_obs_alloc_keylist( enkf_main_get_obs( enkf_main ));
+  stringlist_type * obs_keys = stringlist_alloc_new();
 
   {
-    double std_cutoff = analysis_config_get_std_cutoff( analysis_config );
-    double alpha      = analysis_config_get_alpha( analysis_config );
-
-    enkf_obs_get_obs_and_measure(enkf_main_get_obs( enkf_main ),
-                                 source_fs ,
-                                 step_list , 
-                                 state, 
-                                 ens_active_list , 
-                                 (const enkf_state_type **) enkf_main_get_ensemble( enkf_main ),
-                                 meas_data , 
-                                 obs_data , 
-                                 obsset );
-  
-    enkf_analysis_deactivate_outliers( obs_data , meas_data  , std_cutoff , alpha);
+    char * keys_input;
+    util_printf_prompt("Observation keys (wildcards allowed) - [default: all]", PROMPT_LEN, '=', "=> ");
+    keys_input = util_alloc_stdin_line();
+    if (keys_input)
+    {
+      stringlist_type * pattern_list = stringlist_alloc_from_split(keys_input, " ,");
+      for (int i = 0; i < stringlist_get_size(pattern_list); i++)
+      {
+        const char * pattern = stringlist_iget(pattern_list, i);
+        stringlist_append_matching_elements(obs_keys, all_obs_keys, pattern);
+      }
+      free(keys_input);
+    }
   }
-  
+
+  if (stringlist_get_size(obs_keys) > 0)
   {
-    int active_size      = obs_data_get_active_size( obs_data );
-    matrix_type * S      = meas_data_allocS( meas_data , active_size );
-    matrix_type * dObs   = obs_data_allocdObs( obs_data , active_size );
+    const int last_report = enkf_main_get_history_length(enkf_main);
+    vector_type * PC_list = vector_alloc_new();
+    const int ncomp = 1;
 
-    obs_data_scale( obs_data , S , NULL , NULL , NULL , dObs );
-    enkf_main_get_PC( enkf_main , S , dObs , local_obsset_get_name( obsset ) , step1 , step2 , truncation , ncomp , PC , PC_obs );
-    
-    matrix_free( S );
-    matrix_free( dObs );
-  }
+    for (int iobs = 0; iobs < stringlist_get_size(obs_keys); iobs++)
+    {
+      local_obsdata_node_type * obsnode = local_obsdata_node_alloc(stringlist_iget(obs_keys, iobs));
+      local_obsdata_type * obsdata = local_obsdata_alloc_wrapper(obsnode);
+      local_obsdata_node_add_range(obsnode, 0, last_report);
+      {
+        pca_plot_data_type * plot_data = enkf_main_alloc_pca_plot_data(enkf_main, obsdata, ncomp);
+        vector_append_owned_ref(PC_list, plot_data, pca_plot_data_free__);
+      }
+      local_obsdata_free(obsdata);
+    }
+    enkf_tui_plot_PC_list(enkf_main , PC_list);
+    vector_free(PC_list);
+  } else
+    printf("Sorry: no observation keys mathced the pattern(s).\n");
 
-  bool_vector_free(ens_mask);
-  int_vector_free( step_list );
-  obs_data_free( obs_data );
-  meas_data_free( meas_data );
+  stringlist_free( obs_keys );
+  stringlist_free( all_obs_keys );
 }
 
 
 
 void enkf_tui_QC_plot_PC( void * arg ) {
   enkf_main_type  * enkf_main  = enkf_main_safe_cast( arg );  
-  local_config_type * local_config = enkf_main_get_local_config( enkf_main );
-  analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
-  int               ens_size             = enkf_main_get_ensemble_size( enkf_main );
   const int last_report                  = enkf_main_get_history_length( enkf_main );
   int step1,step2;
-  int ncomp;
-  double truncation;
+  double truncation_or_ncomp;
+  local_obsdata_type * obsdata = local_obsdata_alloc("PCA Observations");
+  char * keys_input;
   
-  state_enum state = FORECAST;
-  const local_updatestep_type * update_step;
-  local_obsset_type     * obsset;
   
-
   enkf_tui_util_scanf_report_steps(last_report , PROMPT_LEN , &step1 , &step2);
+  util_printf_prompt("Observation keys (wildcards allowed) - [default: all]" , PROMPT_LEN , '=' , "=> ");
+  keys_input = util_alloc_stdin_line();
+
   util_printf_prompt("Truncation: [0,1): Explained variance  [1,ens_size): fixed" , PROMPT_LEN , '=' , "=> ");
+
   {
     char * input = util_alloc_stdin_line();
 
     if (input == NULL)
       return;
     else {
-      double truncation_or_ncomp;
-      if (util_sscanf_double( input , &truncation_or_ncomp)) {
-        if (truncation_or_ncomp < 1) {
-          truncation = truncation_or_ncomp;
-          ncomp = -1;
-        } else {
-          truncation = -1;
-          ncomp = util_int_min( (int) truncation_or_ncomp , ens_size );
-        }
-      } else {
+      if (!util_sscanf_double( input , &truncation_or_ncomp)) {
         fprintf(stderr , "Failed to parse:%s as number \n",input);
         free( input );
         return;
@@ -163,41 +144,57 @@ void enkf_tui_QC_plot_PC( void * arg ) {
     free( input );
   }
   
-  update_step = local_config_iget_updatestep( local_config , step2 );
   {
-    int obsset_nr = 0;
-    if (local_updatestep_get_num_ministep( update_step) > 1) {
-      stringlist_type * obsset_list = stringlist_alloc_new();
-      for (int i =0; i < local_updatestep_get_num_ministep( update_step ); i++) {
-        local_obsset_type * obsset = local_updatestep_iget_obsset( update_step , i );
-        stringlist_append_ref( obsset_list , local_obsset_get_name( obsset ));
-        
-        printf("  %02d : %s \n", i +1 , local_obsset_get_name( obsset ));
-      }
-      stringlist_free( obsset_list );
+    stringlist_type * all_keys = enkf_obs_alloc_keylist( enkf_main_get_obs( enkf_main ));
+    stringlist_type * obs_keys = stringlist_alloc_new();
 
-      obsset_nr = util_scanf_int( "Choose observation set" , PROMPT_LEN );
-      obsset_nr--;
-    }
-    if ((obsset_nr < 0) || (obsset_nr >= local_updatestep_get_num_ministep( update_step)))
-      return;
-    
-    obsset = local_updatestep_iget_obsset( update_step , obsset_nr );
-  }
-    
-  {
+    if (keys_input) {
+      stringlist_type * input_keys = stringlist_alloc_from_split( keys_input , " ");
+      int i;
+      for (i=0; i < stringlist_get_size( input_keys ); i++)
+        stringlist_append_matching_elements( obs_keys , all_keys , stringlist_iget( input_keys , i ));
+      stringlist_free( input_keys );
+    } else 
+      stringlist_deep_copy( obs_keys , all_keys );
+
+
+
+
+    {
+      int iobs;
+      
+      for (iobs = 0; iobs < stringlist_get_size( obs_keys); iobs++) {
+        const char * obs_key = stringlist_iget( obs_keys , iobs );
+        if (!local_obsdata_has_node( obsdata , obs_key )) {
+          local_obsdata_node_type * obs_node = local_obsdata_node_alloc( obs_key );
+
+          local_obsdata_node_add_range( obs_node , step1 , step2 );
+          local_obsdata_add_node( obsdata , obs_node );
+        }
+      }
+      
+      stringlist_free( all_keys );
+      stringlist_free( obs_keys );
+    } 
+  }  
+  
+  if (local_obsdata_get_size( obsdata )) {
     matrix_type * PC     = matrix_alloc(1,1);
     matrix_type * PC_obs = matrix_alloc(1,1);
+    analysis_config_type * analysis_config = enkf_main_get_analysis_config( enkf_main );
     char * plot_name = util_alloc_sprintf(analysis_config_get_PC_filename( analysis_config ) , 
-                                          step1 , step2 , local_obsset_get_name( obsset ));
+                                          step1 , step2 , "obs");
+
+    pca_plot_data_type * plot_data = enkf_main_alloc_pca_plot_data( enkf_main , obsdata , truncation_or_ncomp);
     
-    enkf_tui_QC_plot_get_PC( enkf_main , step1 , step2 , state , obsset , truncation , ncomp , PC , PC_obs );
-    enkf_tui_plot_PC( enkf_main , plot_name , PC , PC_obs );
+    enkf_tui_plot_PC( enkf_main , plot_name , plot_data );
     
     free( plot_name );
     matrix_free( PC );
     matrix_free( PC_obs );
+    pca_plot_data_free( plot_data );
   }
+  local_obsdata_free( obsdata );
 }
 
 
@@ -221,11 +218,18 @@ void enkf_tui_QC_menu(void * arg) {
   
   {
     menu_type * menu = menu_alloc("Quality check of prior" , "Back" , "bB");
-    menu_item_type * plot_PC_item         = menu_add_item( menu , "Plot of prior principal components"    , "pP"  , enkf_tui_QC_plot_PC , enkf_main , NULL);
+    menu_item_type * plot_PC_item         = menu_add_item( menu , "Plot of prior principal components"    , "pP"  , 
+                                                           enkf_tui_QC_plot_PC , enkf_main , NULL);
+
+    menu_item_type * plot_PC_list_item    = menu_add_item( menu , "Plot first principal component for all observations" , "aA" , 
+                                                            enkf_tui_QC_plot_PC_list, enkf_main , NULL);
+
     menu_item_type * run_QC_workflow_item = menu_add_item( menu , "Run QC workflow"    , "rR"  , enkf_tui_QC_run_workflow , enkf_main , NULL);
     
-    if (!enkf_main_have_obs( enkf_main )) 
+    if (!enkf_main_have_obs( enkf_main )) {
       menu_item_disable( plot_PC_item );
+      menu_item_disable( plot_PC_list_item );
+    }
     
     if (!enkf_main_has_QC_workflow( enkf_main ))
       menu_item_disable( run_QC_workflow_item );

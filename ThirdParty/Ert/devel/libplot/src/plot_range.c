@@ -61,206 +61,44 @@
 
 
 struct plot_range_struct {
-  double padding[4];     
-  double limits[4];
-  double final[4];  
-  bool   final_set[4];
-  bool   set[4];
   bool   invert_x_axis;
   bool   invert_y_axis; 
-  bool   auto_range[4];
+
+  double current_xmin;
+  double current_ymin;
+  double current_xmax;
+  double current_ymax;
+
+  double manual_xmin;
+  double manual_xmax;
+  double manual_ymin;
+  double manual_ymax;
+  
+  bool   auto_xmin;
+  bool   auto_xmax;
+  bool   auto_ymin;
+  bool   auto_ymax;
+  
+  double left_padding, right_padding, top_padding, bottom_padding;
 };
 
 /*****************************************************************/
 
-void plot_range_fprintf(const plot_range_type * range, FILE * stream) {
-  printf("x1: %g    x2:%g   y1:%g   y2:%g \n",range->limits[XMIN] , range->limits[XMAX] , range->limits[YMIN] , range->limits[YMAX]);
-}
-
-
-/*****************************************************************/
-
-static void plot_range_set__(plot_range_type * plot_range , int index , double value) {
-  plot_range->limits[index]     = value;
-  plot_range->set[index]        = true;
-  plot_range->auto_range[index] = false;
-  plot_range->padding[index]    = 0;   /* If you are explicitly setting a limit - you get no padding. */
-}
-
-
-void plot_range_set_ymax(plot_range_type * plot_range , double ymax) {
-  plot_range_set__(plot_range , YMAX , ymax);
-}
-
-void plot_range_set_ymin(plot_range_type * plot_range , double ymin) {
-  plot_range_set__(plot_range , YMIN , ymin);
-}
-
-void plot_range_set_xmax(plot_range_type * plot_range , double xmax) {
-  plot_range_set__(plot_range , XMAX , xmax);
-}
-
-void plot_range_set_xmin(plot_range_type * plot_range , double xmin) {
-  plot_range_set__(plot_range , XMIN , xmin);
-}
-
-/*****************************************************************/
-
-/**
-   The set_auto functions can always be called, but if the range in
-   question has been set manually, the function just returns without
-   doing anything.
-*/
-
-static void plot_range_set_auto__(plot_range_type * plot_range , int index , double value) {
-  if (plot_range->auto_range[index]) {
-    plot_range->limits[index] = value;
-    plot_range->set[index]    = true;
-  }
-}
-
-void plot_range_set_auto_ymax(plot_range_type * plot_range , double ymax) {
-  plot_range_set_auto__(plot_range , YMAX , ymax);
-}
-
-void plot_range_set_auto_ymin(plot_range_type * plot_range , double ymin) {
-  plot_range_set_auto__(plot_range , YMIN , ymin);
-}
-
-void plot_range_set_auto_xmax(plot_range_type * plot_range , double xmax) {
-  plot_range_set_auto__(plot_range , XMAX , xmax);
-}
-
-void plot_range_set_auto_xmin(plot_range_type * plot_range , double xmin) {
-  plot_range_set_auto__(plot_range , XMIN , xmin);
-}
-
-/*****************************************************************/
-/* 
-   These functions will fail if the corresponding value has not
-   been set, either from an automatic set, or manually.
-*/
-
-static double plot_range_get_final__(const plot_range_type * plot_range , int index) {
-  if (plot_range->final_set[index])
-    return plot_range->final[index];
-  else {
-    util_abort("%s: tried to get xmin - but that has not been set.\n",__func__);
-    return 0;
-  }
-}
-
-double plot_range_get_final_xmin(const plot_range_type * plot_range) {
-  return plot_range_get_final__(plot_range , XMIN);
-}
-
-double plot_range_get_final_xmax(const plot_range_type * plot_range) {
-  return plot_range_get_final__(plot_range , XMAX);
-}
-
-double plot_range_get_final_ymin(const plot_range_type * plot_range) {
-  return plot_range_get_final__(plot_range , YMIN);
-}
-
-double plot_range_get_final_ymax(const plot_range_type * plot_range) {
-  return plot_range_get_final__(plot_range , YMAX);
-}
-
-
-
-/*****************************************************************/
-/* 
-   These functions will fail if the corresponding value has not
-   been set, either from an automatic set, or manually.
-*/
-
-static double plot_range_get__(const plot_range_type * plot_range , int index) {
-  if (plot_range->set[index])
-    return plot_range->limits[index];
-  else {
-    util_abort("%s: tried to get xmin - but that has not been set.\n",__func__);
-    return 0;
-  }
-}
-
-double plot_range_get_xmin(const plot_range_type * plot_range) {
-  return plot_range_get__(plot_range , XMIN);
-}
-
-double plot_range_get_xmax(const plot_range_type * plot_range) {
-  return plot_range_get__(plot_range , XMAX);
-}
-
-double plot_range_get_ymin(const plot_range_type * plot_range) {
-  return plot_range_get__(plot_range , YMIN);
-}
-
-double plot_range_get_ymax(const plot_range_type * plot_range) {
-  return plot_range_get__(plot_range , YMAX);
-}
-
-/*****************************************************************/
-/*
-  The _safe_ functions will return the value of range->limits[]
-  irrespective of whether it has been set with a sensible value or
-  not.
-*/
-
-static double plot_range_safe_get__(const plot_range_type * plot_range , int index) {
-  return plot_range->limits[index];
-}
-
-
-double plot_range_safe_get_xmin(const plot_range_type * plot_range) {
-  return plot_range_safe_get__(plot_range , XMIN);
-}
-
-double plot_range_safe_get_xmax(const plot_range_type * plot_range) {
-  return plot_range_safe_get__(plot_range , XMAX);
-}
-
-double plot_range_safe_get_ymin(const plot_range_type * plot_range) {
-  return plot_range_safe_get__(plot_range , YMIN);
-}
-
-double plot_range_safe_get_ymax(const plot_range_type * plot_range) {
-  return plot_range_safe_get__(plot_range , YMAX);
-}
-
-/*****************************************************************/
-
-static void plot_range_set_padding__(plot_range_type * plot_range , int index , double value) {
-  plot_range->padding[index] = value;
-}
-
-
-void plot_range_set_left_padding(plot_range_type * plot_range , double value) {
-  plot_range_set_padding__(plot_range , XMIN , value);
-}
-
-void plot_range_set_right_padding(plot_range_type * plot_range , double value) {
-  plot_range_set_padding__(plot_range , XMAX , value);
-}
-
-void plot_range_set_top_padding(plot_range_type * plot_range , double value) {
-  plot_range_set_padding__(plot_range , YMAX , value);
-}
-
-void plot_range_set_bottom_padding(plot_range_type * plot_range , double value) {
-  plot_range_set_padding__(plot_range , YMIN , value);
-}
-
-/*****************************************************************/
-
-void plot_range_invert_x_axis(plot_range_type * range, bool invert) {
+void plot_range_set_invert_x_axis(plot_range_type * range, bool invert) {
   range->invert_x_axis = invert;
 }
 
-void plot_range_invert_y_axis(plot_range_type * range, bool invert) {
+void plot_range_set_invert_y_axis(plot_range_type * range, bool invert) {
   range->invert_y_axis = invert;
 }
 
+bool plot_range_get_invert_x_axis(const plot_range_type * range) {
+  return range->invert_x_axis;
+}
 
+bool plot_range_get_invert_y_axis(const plot_range_type * range) {
+  return range->invert_y_axis;
+}
 
 /*****************************************************************/
 
@@ -273,15 +111,26 @@ void plot_range_invert_y_axis(plot_range_type * range, bool invert) {
 
 plot_range_type * plot_range_alloc() {
   plot_range_type * range = util_malloc(sizeof * range );
-  int i;
-  
-  for (i=0; i < 4; i++) {
-    range->limits[i]      = 0;
-    range->padding[i]     = 0.025;  /* Default add some padding */
-    range->set[i]         = false;
-    range->final_set[i]   = false;
-    range->auto_range[i]  = true;
-  }
+
+  range->left_padding = PLOT_RANGE_DEFAULT_PADDING;
+  range->right_padding = PLOT_RANGE_DEFAULT_PADDING;
+  range->top_padding = PLOT_RANGE_DEFAULT_PADDING;
+  range->bottom_padding = PLOT_RANGE_DEFAULT_PADDING;
+
+  range->manual_xmin = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+  range->manual_xmax = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+  range->manual_ymin = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+  range->manual_ymax = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+
+  range->current_xmin =  DBL_MAX;
+  range->current_xmax = -DBL_MAX;
+  range->current_ymin =  DBL_MAX;
+  range->current_ymax = -DBL_MAX;
+
+  range->auto_xmin = true;
+  range->auto_xmax = true;
+  range->auto_ymin = true;
+  range->auto_ymax = true;
   
   range->invert_x_axis = false;
   range->invert_y_axis = false;
@@ -294,108 +143,210 @@ void plot_range_free(plot_range_type * plot_range) {
   free(plot_range);
 }
 
+/*****************************************************************/
 
-void plot_range_set_range( plot_range_type * range , double xmin , double xmax , double ymin , double ymax) {
-  plot_range_set_xmin(range , xmin);
-  plot_range_set_xmax(range , xmax);
-  plot_range_set_ymin(range , ymin);
-  plot_range_set_ymax(range , ymax);
+void plot_range_update_x( plot_range_type * range , double x ) {
+  range->current_xmin = util_double_min( range->current_xmin , x );
+  range->current_xmax = util_double_max( range->current_xmax , x );
 }
 
 
-/**
-   This function return the final xmin,xmax,ymin and ymax
-   functions. To avvoid filling up plplot specific function calls,
-   this function does not call plwind(), which would have been
-   natural.
+void plot_range_update_y( plot_range_type * range , double y ) {
+  range->current_ymin = util_double_min( range->current_ymin , y );
+  range->current_ymax = util_double_max( range->current_ymax , y );
+}
 
-   From the calling scope:
-   {
-      double x1,x2,y1,y2;
-      plot_range_apply(range , &x1 , &x2 , &y1 , &y2);
-      plwind( x1,x2,y1,y2);
-   }
 
-*/
+void plot_range_update( plot_range_type * range , double x , double y) {
+  plot_range_update_x( range , x );
+  plot_range_update_y( range , y );
+}
 
-   
-void plot_range_apply(plot_range_type * plot_range) {
-  double x1 = 0;
-  double x2 = 0;
-  double y1 = 0;
-  double y2 = 0;
-  {
-    double xmin   = plot_range_get__(plot_range , XMIN );
-    double xmax   = plot_range_get__(plot_range , XMAX );
-    double ymin   = plot_range_get__(plot_range , YMIN );
-    double ymax   = plot_range_get__(plot_range , YMAX );
-    double width  = fabs(xmax - xmin);
-    double height = fabs(ymax - ymin);
-    
-    
-    if (plot_range->invert_x_axis) {
-      x1 = xmax;
-      x2 = xmin;
-      
-      if (plot_range->auto_range[XMAX]) x1 += width * plot_range->padding[XMAX];
-      if (plot_range->auto_range[XMIN]) x2 -= width * plot_range->padding[XMIN];
-    } else {
-      x1 = xmin;
-      x2 = xmax;
-      
-      if (plot_range->auto_range[XMIN]) x1 -= width * plot_range->padding[XMIN];
-      if (plot_range->auto_range[XMAX]) x2 += width * plot_range->padding[XMAX];
-    }
-    
-    if (plot_range->invert_y_axis) {
-      y1 = ymax;
-      y2 = ymin;
-      
-      if (plot_range->auto_range[YMAX]) y1 += height * plot_range->padding[YMAX];
-      if (plot_range->auto_range[YMIN]) y2 -= height * plot_range->padding[YMIN];
-    } else {
-      y1 = ymin;
-      y2 = ymax;
-      if (plot_range->auto_range[YMIN]) y1 -= height * plot_range->padding[YMIN];
-      if (plot_range->auto_range[YMAX]) y2 += height * plot_range->padding[YMIN];
-    }
-  } 
-  
-  
-  /* Special case for only one point. */
-  {
-    if (x1 == x2) {
-      if (x1 == 0) {
-        x1 = -0.50;
-        x2 =  0.50;
-      } else {
-        x1 -= 0.05 * abs(x1);
-        x2 += 0.05 * abs(x2);
-      }
-    }
-    
-    if (y1 == y2) {
-      if (y1 == 0.0) {
-        y1 = -0.50;
-        y2 =  0.50;
-      } else {
-        y1 -= 0.05 * abs(y1);
-        y2 += 0.05 * abs(y2);
-      }
-    }
-  }
-  {
-    int i;
-    for (i=0; i < 4; i++)
-      plot_range->final_set[i] = true;
-  }
-  
-  plot_range->final[XMIN] = x1;
-  plot_range->final[XMAX] = x2;
-  plot_range->final[YMIN] = y1;
-  plot_range->final[YMAX] = y2;
+void plot_range_update_vector_x( plot_range_type * range , const double_vector_type * x ) {
+  int i;
+  const double * x_data = double_vector_get_const_ptr( x );
+  for (i=0; i < double_vector_size( x ); i++)
+    plot_range_update_x( range , x_data[i] );
+}
+
+
+void plot_range_update_vector_y( plot_range_type * range , const double_vector_type * y ) {
+  int i;
+  const double * y_data = double_vector_get_const_ptr( y );
+  for (i=0; i < double_vector_size( y ); i++)
+    plot_range_update_y( range , y_data[i] );
+}
+
+
+void plot_range_update_vector( plot_range_type * range , const double_vector_type * x , const double_vector_type * y) {
+  plot_range_update_vector_x( range , x );
+  plot_range_update_vector_y( range , y );
+}
+
+
+double plot_range_get_current_xmin( const plot_range_type * range ) {
+  return range->current_xmin;
+}
+
+double plot_range_get_current_xmax( const plot_range_type * range ) {
+  return range->current_xmax;
+}
+
+double plot_range_get_current_ymin( const plot_range_type * range ) {
+  return range->current_ymin;
+}
+
+double plot_range_get_current_ymax( const plot_range_type * range ) {
+  return range->current_ymax;
+}
+
+
+/*****************************************************************/ 
+
+
+void plot_range_set_left_padding(plot_range_type * plot_range , double value) {
+  plot_range->left_padding = value;
+}
+
+void plot_range_set_right_padding(plot_range_type * plot_range , double value) {
+  plot_range->right_padding = value;
+}
+
+void plot_range_set_top_padding(plot_range_type * plot_range , double value) {
+  plot_range->top_padding = value;
+}
+
+void plot_range_set_bottom_padding(plot_range_type * plot_range , double value) {
+  plot_range->bottom_padding = value;
+}
+
+double plot_range_get_left_padding(const plot_range_type * plot_range ) {
+  return plot_range->left_padding;
+}
+
+double plot_range_get_right_padding(const plot_range_type * plot_range ) {
+  return   plot_range->right_padding;
+}
+
+double plot_range_get_top_padding(const plot_range_type * plot_range ) {
+  return   plot_range->top_padding;
+}
+
+double plot_range_get_bottom_padding(const plot_range_type * plot_range ) {
+  return   plot_range->bottom_padding;
+}
+
+
+/*****************************************************************/
+
+double plot_range_get_manual_xmin( const plot_range_type * range ) {
+  return range->manual_xmin;
+}
+
+double plot_range_get_manual_xmax( const plot_range_type * range ) {
+  return range->manual_xmax;
+}
+
+double plot_range_get_manual_ymin( const plot_range_type * range ) {
+  return range->manual_ymin;
+}
+
+double plot_range_get_manual_ymax( const plot_range_type * range ) {
+  return range->manual_ymax;
+}
+
+void plot_range_set_manual_xmin(  plot_range_type * range , double value) {
+  range->manual_xmin = value;
+  range->auto_xmin = false;
+}
+
+void plot_range_set_manual_xmax(  plot_range_type * range , double value) {
+  range->manual_xmax = value;
+  range->auto_xmax = false;
+}
+
+void plot_range_set_manual_ymin(  plot_range_type * range , double value) {
+  range->manual_ymin = value;
+  range->auto_ymin = false;
+}
+
+void plot_range_set_manual_ymax(  plot_range_type * range , double value) {
+  range->manual_ymax = value;
+  range->auto_ymax = false;
+}
+
+void plot_range_unset_manual_xmin(  plot_range_type * range ) {
+  range->manual_xmin = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+  range->auto_xmin = true;
+}
+
+void plot_range_unset_manual_xmax(  plot_range_type * range ) {
+  range->manual_xmax = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+  range->auto_xmax = true;
+}
+
+void plot_range_unset_manual_ymin(  plot_range_type * range ) {
+  range->manual_ymin = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+  range->auto_ymin = true;
+}
+
+void plot_range_unset_manual_ymax(  plot_range_type * range ) {
+  range->manual_ymax = PLOT_RANGE_DEFAULT_MANUAL_LIMIT;
+  range->auto_ymax = true;
 }
 
 
 
+/*****************************************************************/
 
+void plot_range_get_limits( const plot_range_type * range , double * x1 , double * x2 , double * y1 , double * y2) {
+  double xmin = range->auto_xmin ? range->current_xmin : range->manual_xmin;
+  double xmax = range->auto_xmax ? range->current_xmax : range->manual_xmax;
+  double ymin = range->auto_ymin ? range->current_ymin : range->manual_ymin;
+  double ymax = range->auto_ymax ? range->current_ymax : range->manual_ymax;
+
+
+
+  double width  = fabs(xmax - xmin);
+  double height = fabs(ymax - ymin);
+  
+  if (width == 0)
+    width = 0.05 * xmax;
+
+  if (height == 0)
+    height = 0.05 * ymax;
+  
+  {
+    double left_padding , right_padding;
+    if (range->invert_x_axis) {
+      left_padding = range->auto_xmax ? range->left_padding : 0;
+      right_padding = range->auto_xmin ? range->right_padding : 0;  
+      
+      *x1 = xmax + width  * left_padding;
+      *x2 = xmin - width  * right_padding;
+    } else {
+      left_padding = range->auto_xmin ? range->left_padding : 0;
+      right_padding = range->auto_xmax ? range->right_padding : 0;  
+      
+      *x1 = xmin - width  * left_padding;
+      *x2 = xmax + width  * right_padding;
+    }
+  }
+
+  {
+    double top_padding , bottom_padding;
+    if (range->invert_y_axis) {
+      bottom_padding = range->auto_ymax ? range->bottom_padding : 0;
+      top_padding = range->auto_ymin ? range->top_padding : 0;
+      
+      *y1 = ymax + height * bottom_padding;
+      *y2 = ymin - height * top_padding;
+    } else {
+      bottom_padding = range->auto_ymin ? range->bottom_padding : 0;
+      top_padding = range->auto_ymax ? range->top_padding : 0;
+      
+      *y1 = ymin - height * bottom_padding;
+      *y2 = ymax + height * top_padding;
+    }
+  }
+ }

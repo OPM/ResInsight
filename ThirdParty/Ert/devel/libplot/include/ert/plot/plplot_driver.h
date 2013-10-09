@@ -22,9 +22,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <stdbool.h>
+
 #include <ert/plot/plot_driver.h>
 
-plot_driver_type * plplot_driver_alloc(const void * init_arg); 
+  void               plplot_close_driver( plot_driver_type * driver );
+  bool               plplot_driver_check_init_arg( const void * init_arg );
+  plot_driver_type * plplot_driver_alloc(const void * init_arg); 
 
 #ifdef __cplusplus
 }

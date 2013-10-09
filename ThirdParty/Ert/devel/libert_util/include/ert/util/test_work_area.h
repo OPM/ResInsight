@@ -26,9 +26,15 @@ extern "C" {
 
 #include <stdbool.h>
 
+#include <ert/util/type_macros.h>
+
   typedef struct test_work_area_struct test_work_area_type;
 
-  test_work_area_type * test_work_area_alloc(const char * test_name , bool store);
+  test_work_area_type * test_work_area_alloc(const char * test_name );
+  test_work_area_type * test_work_area_alloc_with_prefix(const char * prefix , const char * test_name);
+  test_work_area_type * test_work_area_alloc__(const char * prefix , const char * test_path);
+  void                  test_work_area_set_store( test_work_area_type * work_area , bool store);
+
   void                  test_work_area_free(test_work_area_type * work_area);
   const char          * test_work_area_get_cwd( const test_work_area_type * work_area ); 
   const char          * test_work_area_get_original_cwd( const test_work_area_type * work_area );
@@ -36,6 +42,11 @@ extern "C" {
   void                  test_work_area_copy_directory( test_work_area_type * work_area , const char * input_directory);
   void                  test_work_area_copy_directory_content( test_work_area_type * work_area , const char * input_directory);
   void                  test_work_area_copy_file( test_work_area_type * work_area , const char * input_file);
+  bool                  test_work_area_copy_parent_directory( test_work_area_type * work_area , const char * input_path);
+  bool                  test_work_area_copy_parent_content( test_work_area_type * work_area , const char * input_path);
+  
+
+  UTIL_IS_INSTANCE_HEADER( test_work_area );
 
 #ifdef __cplusplus
 }

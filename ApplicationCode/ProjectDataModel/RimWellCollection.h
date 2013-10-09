@@ -76,6 +76,8 @@ public:
 
 
     caf::PdmField<bool>                 showWellLabel;
+    caf::PdmField<cvf::Color3f>         wellLabelColor;
+
     caf::PdmField<bool>                 isActive;
 
     caf::PdmField<WellCellsRangeFilterEnum>   wellCellsToRangeFilterMode;
@@ -90,6 +92,7 @@ public:
     caf::PdmField<double>               wellHeadScaleFactor;
     caf::PdmField<bool>                 showWellHead;
     caf::PdmField<WellHeadPositionEnum> wellHeadPosition;
+
 
     caf::PdmField<bool>                 isAutoDetectingBranches;
 

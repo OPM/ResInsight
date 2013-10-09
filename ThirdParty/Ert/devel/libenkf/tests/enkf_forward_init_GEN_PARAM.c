@@ -48,7 +48,7 @@ int main(int argc , char ** argv) {
   const char * root_path = argv[1];
   const char * config_file = argv[2];
   const char * forward_init_string = argv[3];
-  test_work_area_type * work_area = test_work_area_alloc(config_file , false);
+  test_work_area_type * work_area = test_work_area_alloc(config_file );
   test_work_area_copy_directory_content( work_area , root_path );
   {
     bool forward_init;

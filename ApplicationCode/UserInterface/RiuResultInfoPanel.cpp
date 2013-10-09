@@ -42,6 +42,9 @@ RiuResultInfoPanel::RiuResultInfoPanel(QDockWidget* parent)
 
 	QVBoxLayout* layout = new QVBoxLayout();
 	layout->addWidget(m_textEdit);
+
+    layout->setContentsMargins(0, 0, 0, 0);
+
 	setLayout(layout);
 }
 

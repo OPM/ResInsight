@@ -335,6 +335,7 @@ static void arg_node_fprintf(const arg_node_type * node , FILE * stream) {
 
 UTIL_SAFE_CAST_FUNCTION( arg_pack , ARG_PACK_TYPE_ID)
 UTIL_SAFE_CAST_FUNCTION_CONST( arg_pack , ARG_PACK_TYPE_ID)
+UTIL_IS_INSTANCE_FUNCTION(arg_pack , ARG_PACK_TYPE_ID)
 
 static void __arg_pack_assert_index(const arg_pack_type * arg , int iarg) {
   if (iarg < 0 || iarg >= arg->size) 
@@ -558,7 +559,9 @@ void arg_pack_append_owned_ptr(arg_pack_type * arg_pack, void * ptr, arg_node_fr
   arg_pack_iset_owned_ptr( arg_pack , arg_pack->size , ptr , freef);
 }
 
-
+int arg_pack_size( const arg_pack_type * arg_pack ) {
+  return arg_pack->size;
+}
 
 /******************************************************************/
 /* Functions for formatted reading/writing of arg_pack instances. */

@@ -32,3 +32,4 @@ CTest*.cmake
 
 # Target program
 /ApplicationCode/ResInsight
+/.project

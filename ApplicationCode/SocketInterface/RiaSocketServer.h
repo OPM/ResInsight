@@ -28,6 +28,7 @@ class QTcpServer;
 class QTcpSocket;
 class QNetworkSession;
 class QErrorMessage;
+class QTimer;
 class RimCase;
 class RiaSocketCommand;
 
@@ -59,11 +60,11 @@ private slots:
     void                slotNewClientConnection();
     void                slotCurrentClientDisconnected();
     void                slotReadyRead();
+    void                handleNextPendingConnection();
+
 private:
-    void                handleClientConnection( QTcpSocket* clientToHandle);
     void                terminateCurrentConnection();
-    void                readCommandFromOctave();
-    void                handlePendingIncomingConnectionRequests();
+    bool                readCommandFromOctave();
 
 private:
     QTcpServer*         m_tcpServer;
@@ -73,6 +74,8 @@ private:
     qint64              m_currentCommandSize; ///< The size in bytes of the command we are currently reading.
 
     RiaSocketCommand*   m_currentCommand;
+
+    QTimer*             m_nextPendingConnectionTimer;
 
     int                 m_currentCaseId;    // Set to -1 to use default server behavior
 };

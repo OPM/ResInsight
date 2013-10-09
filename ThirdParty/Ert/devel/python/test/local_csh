@@ -1,4 +1,6 @@
 setenv PYTHONPATH $PWD/../python:$PYTHONPATH
+setenv PYTHONPATH $PWD/../test:$PYTHONPATH
+
 set lib_path="../lib64";
 
 if ( -d "$lib_path")  then

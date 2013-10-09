@@ -16,15 +16,19 @@
    for more details. 
 */
 
+#ifdef HAVE_GETUID
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-
-#include <ert/util/test_work_area.h>
 #include <ert/util/util.h>
+#include <ert/util/test_work_area.h>
+#include <ert/util/type_macros.h>
 #include <ert/util/rng.h>
 
 /*
@@ -38,7 +42,7 @@
   problems, to achieve this the directories created will be per user.
 
   When creating the work area you pass in a boolean flag whether you
-  want the area to be retained when the destructor is called. After
+  want the area to be storeed when the destructor is called. After
   the the work_area is destroyed the cwd is changed back to the value
   it had before the area was created.
 
@@ -70,59 +74,88 @@
   ...
 
   -- Destroy test_work_area structure; since the work_area is created
-  -- with input flag @retain set to true the are on disk will not be
+  -- with input flag @store set to true the are on disk will not be
   -- cleared. After the test_work_area_free( ) function has been
   -- called the original cwd will be restored.
 
   test_work_area_free( work_area );
 */
   
+#define DEFAULT_STORE  false
+#define DEFAULT_PREFIX "/tmp"
 
-#define PATH_FMT       "/tmp/%s/ert-test/%s/%08d"     /* /tmp/username/ert-test/test_name/random-integer */
+#define TEST_PATH_FMT  "%s/ert-test/%s/%08d"     /* username/ert-test/test_name/random-integer */
+#define FULL_PATH_FMT  "%s/%s"                   /* prefix/test-path */
+
+#define TEST_WORK_AREA_TYPE_ID 1107355
 
 struct test_work_area_struct {
-  bool        retain;
+  UTIL_TYPE_ID_DECLARATION;
+  bool        store;
   char      * cwd;
   char      * original_cwd;
 };
 
 
-static test_work_area_type * test_work_area_alloc__(const char * path , bool retain) {
-  util_make_path( path );
-  if (true) {
-    test_work_area_type * work_area = util_malloc( sizeof * work_area );
-    work_area->retain = retain;
-    work_area->cwd = util_alloc_string_copy( path );
-    work_area->original_cwd = util_alloc_cwd();
-    chdir( work_area->cwd );  
-    
-    return work_area;
-  }
+test_work_area_type * test_work_area_alloc__(const char * prefix , const char * test_path) {
+  test_work_area_type * work_area = NULL;
+  
+  if (util_is_directory( prefix )) {
+    char * test_cwd = util_alloc_sprintf(FULL_PATH_FMT , prefix , test_path );
+    util_make_path( test_cwd );
+    if (true) {
+      work_area = util_malloc( sizeof * work_area );
+
+      UTIL_TYPE_ID_INIT( work_area , TEST_WORK_AREA_TYPE_ID );
+      work_area->original_cwd = util_alloc_cwd();
+      work_area->cwd = test_cwd;
+      util_chdir( work_area->cwd );  
+      test_work_area_set_store( work_area , DEFAULT_STORE);
+    } else 
+      free( test_cwd );
+  } 
+  return work_area;
 }
 
 
+UTIL_IS_INSTANCE_FUNCTION( test_work_area , TEST_WORK_AREA_TYPE_ID)
 
-test_work_area_type * test_work_area_alloc(const char * test_name, bool retain) {
+test_work_area_type * test_work_area_alloc_with_prefix(const char * prefix , const char * test_name) {
   if (test_name) {
+    rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM );
+#ifdef HAVE_GETUID
     uid_t uid = getuid();
     struct passwd * pw = getpwuid( uid );
-    rng_type * rng = rng_alloc(MZRAN , INIT_DEV_URANDOM );
-    char * path = util_alloc_sprintf( PATH_FMT , pw->pw_name , test_name , rng_get_int( rng , 100000000 ));
-    test_work_area_type * work_area = test_work_area_alloc__( path , retain );
-    free( path );
+    char * user_name = util_alloc_string_copy( pw->pw_name );
+#else
+    char * user_name =  util_alloc_sprintf("ert-test-%08d" , rng_get_int(rng , 100000000));
+#endif
+    char * test_path = util_alloc_sprintf( TEST_PATH_FMT , user_name , test_name , rng_get_int( rng , 100000000 ));
+    test_work_area_type * work_area = test_work_area_alloc__( prefix , test_path);
+    free( test_path );
     rng_free( rng );
+    free( user_name );
     return work_area;
   } else 
     return NULL;
 }
 
 
+test_work_area_type * test_work_area_alloc(const char * test_name) {
+  return test_work_area_alloc_with_prefix( DEFAULT_PREFIX , test_name);
+}
+
+
+void test_work_area_set_store( test_work_area_type * work_area , bool store) {
+  work_area->store = store;
+}
+
 
 void test_work_area_free(test_work_area_type * work_area) { 
-  if (!work_area->retain)
+  if (!work_area->store)
     util_clear_directory( work_area->cwd , true , true );
-
-  chdir( work_area->original_cwd );
+  
+  util_chdir( work_area->original_cwd );
   free( work_area->original_cwd );
   free( work_area->cwd );
   free( work_area );
@@ -137,6 +170,7 @@ const char * test_work_area_get_cwd( const test_work_area_type * work_area ) {
 const char * test_work_area_get_original_cwd( const test_work_area_type * work_area ) {
   return work_area->original_cwd;
 }
+
 
 
 /**
@@ -214,3 +248,40 @@ void test_work_area_copy_file( test_work_area_type * work_area , const char * in
 }
 
 
+
+static bool test_work_area_copy_parent__( test_work_area_type * work_area , const char * input_path, bool copy_content) {
+  char * full_path;
+  
+  if (util_is_abs_path( input_path ))
+    full_path = util_alloc_string_copy( input_path );
+  else 
+    full_path = util_alloc_filename( work_area->original_cwd , input_path , NULL);
+    
+  if (util_entry_exists( full_path)) {
+    char * parent_path = NULL;
+
+    parent_path = util_alloc_parent_path( full_path );
+    
+    if (copy_content)
+      test_work_area_copy_directory_content( work_area , parent_path );
+    else
+      test_work_area_copy_directory( work_area , parent_path );
+    
+    free( full_path );
+    free( parent_path );
+    return true;
+  } else {
+    free( full_path );
+    return false;
+  }
+}
+
+
+bool test_work_area_copy_parent_directory( test_work_area_type * work_area , const char * input_path) {
+  return test_work_area_copy_parent__( work_area , input_path , false );
+}
+
+
+bool test_work_area_copy_parent_content( test_work_area_type * work_area , const char * input_path) {
+  return test_work_area_copy_parent__( work_area , input_path , true );
+}

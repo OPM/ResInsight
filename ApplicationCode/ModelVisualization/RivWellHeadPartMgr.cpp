@@ -290,7 +290,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
-        drawableText->setTextColor(cvf::Color3f(0.92f, 0.92f, 0.92f));
+        drawableText->setTextColor(m_rimReservoirView->wellCollection()->wellLabelColor());
 
         cvf::String cvfString = cvfqt::Utils::fromQString(well->name());
 

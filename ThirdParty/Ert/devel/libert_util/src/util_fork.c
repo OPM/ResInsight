@@ -75,7 +75,7 @@ pid_t util_fork_exec(const char * executable , int argc , const char ** argv ,
 
     nice(19);    /* Remote process is run with nice(19). */
     if (run_path != NULL) {
-      if (chdir(run_path) != 0) 
+      if (util_chdir(run_path) != 0) 
         util_abort("%s: failed to change to directory:%s  %s \n",__func__ , run_path , strerror(errno));
     }
 

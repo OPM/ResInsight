@@ -43,7 +43,7 @@ void getWellStatus(std::vector<QString>& wellTypes, std::vector<int>& wellStatus
 
     while (socket.bytesAvailable() < (int)(sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -55,7 +55,7 @@ void getWellStatus(std::vector<QString>& wellTypes, std::vector<int>& wellStatus
 
     while (socket.bytesAvailable() < (int)(byteCount))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
             return;

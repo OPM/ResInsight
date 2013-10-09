@@ -15,6 +15,7 @@
 #  for more details.
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
+from ert.job_queue import JobStatusType
 
 
 class EnKFState(BaseCClass):
@@ -27,7 +28,8 @@ class EnKFState(BaseCClass):
     def resubmit_simulation(self, sim_number):
         EnKFState.cNamespace().resubmit_simulation(self, sim_number)
 
-    def get_run_status(self):
+    def getRunStatus(self):
+        """ @rtype: JobStatusType """
         return EnKFState.cNamespace().get_run_status(self)
 
     def get_start_time(self):
@@ -47,6 +49,6 @@ cwrapper.registerType("enkf_state_ref", EnKFState.createCReference)
 EnKFState.cNamespace().free = cwrapper.prototype("void enkf_state_free( enkf_state )")
 EnKFState.cNamespace().kill_simulation = cwrapper.prototype("void enkf_state_kill_simulation(enkf_state)")
 EnKFState.cNamespace().resubmit_simulation = cwrapper.prototype("void enkf_state_resubmit_simulation(enkf_state, int)")
-EnKFState.cNamespace().get_run_status = cwrapper.prototype("int enkf_state_get_run_status(enkf_state)")
+EnKFState.cNamespace().get_run_status = cwrapper.prototype("job_status_type_enum enkf_state_get_run_status(enkf_state)")
 EnKFState.cNamespace().get_start_time = cwrapper.prototype("int enkf_state_get_start_time(enkf_state)")
 EnKFState.cNamespace().get_submit_time = cwrapper.prototype("int enkf_state_get_submit_time(enkf_state)")

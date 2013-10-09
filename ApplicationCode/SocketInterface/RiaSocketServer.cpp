@@ -18,6 +18,7 @@
 #include "RiaStdInclude.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketCommand.h"
+#include "RiaSocketTools.h"
 
 #include <QtGui>
 #include <QtNetwork>
@@ -68,6 +69,10 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
 
     m_tcpServer = new QTcpServer(this);
 
+    m_nextPendingConnectionTimer = new QTimer(this);
+    m_nextPendingConnectionTimer->setInterval(100);
+    m_nextPendingConnectionTimer->setSingleShot(true);
+
     if (!m_tcpServer->listen(QHostAddress::LocalHost, 40001)) 
     {
         m_errorMessageDialog->showMessage("Octave communication disabled :\n"
@@ -81,6 +86,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
         return;
     }
 
+    connect(m_nextPendingConnectionTimer, SIGNAL(timeout()), this, SLOT(handleNextPendingConnection()));
     connect(m_tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewClientConnection()));
 }
 
@@ -106,54 +112,28 @@ unsigned short RiaSocketServer::serverPort()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::slotNewClientConnection()
 {
-    // If we are currently handling a connection, just ignore the new one until the queue is empty.
+    // If we are currently handling a connection, just ignore the new one until the current one is disconnected. 
 
-    if (m_currentClient != NULL)
+    if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
     {
-        if (m_currentClient->state() == QAbstractSocket::ConnectedState)
-        {
-            return;
-        }
-        else
-        {
-            if (m_currentCommand)
-            {
-                if (m_currentCommand->interpretMore(this, m_currentClient))
-                {
-                    delete m_currentCommand;
-                    m_currentCommand = NULL;
-                }
+        //PMonLog("Starting Timer");
+        m_nextPendingConnectionTimer->start(); // Reset and start again
+        return;
+    }
 
-                CVF_ASSERT(m_currentCommand == NULL);
-            }
+    // Read pending data from socket
 
-            terminateCurrentConnection();
+    if (m_currentClient && m_currentCommand)
+    {
+        bool isFinshed = m_currentCommand->interpretMore(this, m_currentClient);
+
+        if (!isFinshed)
+        {
+            m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Warning : The command did not finish up correctly at the presence of a new one."));
         }
     }
 
-    handlePendingIncomingConnectionRequests();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
-{
-    CVF_ASSERT(clientToHandle != NULL);
-    CVF_ASSERT(m_currentClient == NULL);
-    CVF_ASSERT(m_currentCommand == NULL);
-
-    m_currentClient = clientToHandle;
-    m_currentCommandSize = 0;
-
-    connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
-
-    if (m_currentClient->bytesAvailable())
-    {
-        this->readCommandFromOctave();
-    }
-
-    connect(m_currentClient, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
+    handleNextPendingConnection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,7 +141,13 @@ void RiaSocketServer::handleClientConnection(QTcpSocket* clientToHandle)
 //--------------------------------------------------------------------------------------------------
 RimCase* RiaSocketServer::findReservoir(int caseId)
 {
+    int currCaseId = caseId;
     if (caseId < 0)
+    {
+        currCaseId = this->currentCaseId();
+    }
+
+    if (currCaseId < 0)
     {
         if (RiaApplication::instance()->activeReservoirView())
         {
@@ -178,7 +164,7 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 
         for (size_t i = 0; i < cases.size(); i++)
         {
-            if (cases[i]->caseId == caseId)
+            if (cases[i]->caseId == currCaseId)
             {
                 return cases[i];
             }
@@ -189,26 +175,29 @@ RimCase* RiaSocketServer::findReservoir(int caseId)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Reads the command name size, the command string and creates a new command object based on the string read.
+/// Tries to interpret the command as well.
+/// Returns whether the command actually was completely finished in one go.
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::readCommandFromOctave()
+bool RiaSocketServer::readCommandFromOctave()
 {
     QDataStream socketStream(m_currentClient);
     socketStream.setVersion(riOctavePlugin::qtDataStreamVersion);
 
     // If we have not read the currentCommandSize
     // read the size of the command if all the data is available
+
     if (m_currentCommandSize == 0) 
     {
-        if (m_currentClient->bytesAvailable() < (int)sizeof(qint64)) return;
+        if (m_currentClient->bytesAvailable() < (int)sizeof(qint64)) return false;
 
         socketStream >> m_currentCommandSize;
     }
 
     // Check if the complete command is available, return and whait for readyRead() if not
-    if (m_currentClient->bytesAvailable() < m_currentCommandSize) return;
+    if (m_currentClient->bytesAvailable() < m_currentCommandSize) return false;
 
-    // Now we can read the command
+    // Now we can read the command name
 
     QByteArray command = m_currentClient->read( m_currentCommandSize);
     QTextStream commandStream(command);
@@ -223,29 +212,19 @@ void RiaSocketServer::readCommandFromOctave()
 
     CVF_ASSERT(args.size() > 0); 
 
-    std::cout << args[0].data() << std::endl;
+    // Create the actual RiaSocketCommand object that will interpret the socket data
 
     m_currentCommand = RiaSocketCommandFactory::instance()->create(args[0]);
 
     if (m_currentCommand)
     {
         bool finished = m_currentCommand->interpretCommand(this, args, socketStream);
-        if (finished)
-        {
-            delete m_currentCommand;
-            m_currentCommand = NULL;
-
-            handlePendingIncomingConnectionRequests();
-            return;
-        }
+        return finished;
     }
     else
     {
-        handlePendingIncomingConnectionRequests();
-
         m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Unknown command: %1").arg(args[0].data()));
-        terminateCurrentConnection();
-        return;
+        return true;
     }
 }
 
@@ -257,19 +236,56 @@ void RiaSocketServer::slotCurrentClientDisconnected()
 {
     if (m_currentCommand)
     {
-        if (m_currentCommand->interpretMore(this, m_currentClient))
-        {
-            delete m_currentCommand;
-            m_currentCommand = NULL;
-        }
+        // Make sure we read what can be read.
+        bool isFinished = m_currentCommand->interpretMore(this, m_currentClient);
 
-        /// What do we do here ?
-        CVF_ASSERT(m_currentCommand == NULL);
+        if (!isFinished)
+        {
+            m_errorMessageDialog->showMessage(tr("ResInsight SocketServer: \n") + tr("Warning : The command was interrupted and did not finish because the connection to octave disconnected."));
+        }
     }
 
-    terminateCurrentConnection();
+    handleNextPendingConnection();
+}
 
-    handlePendingIncomingConnectionRequests();
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::slotReadyRead()
+{
+    if (m_currentCommand)
+    {
+        bool isFinished = m_currentCommand->interpretMore(this, m_currentClient);
+
+        if (isFinished)
+        {
+            handleNextPendingConnection();
+        }
+    }
+    else
+    {
+        bool isFinished = readCommandFromOctave();
+        if (isFinished)
+        {
+            handleNextPendingConnection();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaSocketServer::setCurrentCaseId(int caseId)
+{
+    m_currentCaseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RiaSocketServer::currentCaseId() const
+{
+    return m_currentCaseId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,53 +314,47 @@ void RiaSocketServer::terminateCurrentConnection()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// 
 //--------------------------------------------------------------------------------------------------
-void RiaSocketServer::slotReadyRead()
+void RiaSocketServer::handleNextPendingConnection()
 {
-    if (m_currentCommand)
+    if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
     {
-        if (m_currentCommand->interpretMore(this, m_currentClient))
+        //PMonLog("Starting Timer");
+        m_nextPendingConnectionTimer->start(); // Reset and start again
+        return;
+    }
+
+    // Stop timer
+    if (m_nextPendingConnectionTimer->isActive())
+    {    
+        //PMonLog("Stopping Timer"); 
+        m_nextPendingConnectionTimer->stop();
+    }
+
+    terminateCurrentConnection();
+
+    QTcpSocket* clientToHandle = m_tcpServer->nextPendingConnection();
+    if (clientToHandle)
+    {
+        CVF_ASSERT(m_currentClient == NULL);
+        CVF_ASSERT(m_currentCommand == NULL);
+
+        m_currentClient = clientToHandle;
+        m_currentCommandSize = 0;
+
+        connect(m_currentClient, SIGNAL(disconnected()), this, SLOT(slotCurrentClientDisconnected()));
+        connect(m_currentClient, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
+
+        if (m_currentClient->bytesAvailable())
         {
-            delete m_currentCommand;
-            m_currentCommand = NULL;
-
-            handlePendingIncomingConnectionRequests();
+            bool isFinished = this->readCommandFromOctave();
+            if (isFinished)
+            {
+                // Call ourselves recursively until there are none left, or until it can not be processed in one go.
+                this->handleNextPendingConnection();
+            }
         }
-    }
-    else
-    {
-        readCommandFromOctave();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::setCurrentCaseId(int caseId)
-{
-    m_currentCaseId = caseId;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-int RiaSocketServer::currentCaseId() const
-{
-    return m_currentCaseId;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiaSocketServer::handlePendingIncomingConnectionRequests()
-{
-    QTcpSocket* newClient = m_tcpServer->nextPendingConnection();
-    if (newClient)
-    {
-        terminateCurrentConnection();
-
-        this->handleClientConnection(newClient);
     }
 }
 

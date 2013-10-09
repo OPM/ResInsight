@@ -1,1 +1,0 @@
-add_python_package( "Python ert_gui.pages.config.parameters" ${PYTHON_INSTALL_PREFIX}/ert_gui/pages/config/parameters "__init__.py;datapanel.py;fieldpanel.py;keywordpanel.py;parameterdialog.py;parametermodels.py;parameterpanel.py" True)

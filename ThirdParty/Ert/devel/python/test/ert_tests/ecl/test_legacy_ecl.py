@@ -14,7 +14,11 @@
 #
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
 #  for more details.
-from unittest2 import TestCase
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
+
 from ert.ecl import EclTypeEnum, EclFileFlagEnum, EclPhaseEnum
 
 import ert.ecl.ecl as ecl

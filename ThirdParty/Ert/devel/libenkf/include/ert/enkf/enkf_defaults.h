@@ -95,31 +95,34 @@
    Defaults for the EnKF analysis. The analysis_config object is
    instantiated with these values.
 */
-#define DEFAULT_ENKF_MODE               ENKF_STANDARD
-#define DEFAULT_NCOMP                   1
-#define DEFAULT_ENKF_TRUNCATION         0.99
-#define DEFAULT_ENKF_ALPHA              1.50      /* Should be raised ?? */
-#define DEFAULT_ENKF_STD_CUTOFF         1e-6
-#define DEFAULT_MERGE_OBSERVATIONS      false
-#define DEFAULT_RERUN                   false
-#define DEFAULT_RERUN_START             0  
-#define DEFAULT_UPDATE_LOG_PATH         "update_log"
-#define DEFAULT_CV_NFOLDS               10
-#define DEFAULT_ENKF_SCALING            true
-#define DEFAULT_ENKF_KERNEL_REG         false
-#define DEFAULT_ENKF_KERNEL_FUNC        1       /*Default is the Gaussian */
-#define DEFAULT_ENKF_KERNEL_PARAM       1       /*Scale by the maximum value in the distance matrix */
-#define DEFAULT_ENKF_CV                 false
-#define DEFAULT_ENKF_BOOTSTRAP          false
-#define DEFAULT_ENKF_PEN_PRESS          false
-#define DEFAULT_ENKF_FORCE_NCOMP        false
-#define DEFAULT_UPDATE_RESULTS          false
-#define DEFAULT_SINGLE_NODE_UPDATE      true
-#define DEFAULT_ANALYSIS_MODULE         "STD_ENKF"
-#define DEFAULT_ANALYSIS_NUM_ITERATIONS 4
-#define DEFAULT_ANALYSIS_ITER_CASE      "ITERATED_ENSEMBLE_SMOOTHER%d"
-#define DEFAULT_ANALYSIS_ITER_RUNPATH   "Simulations/Real%d"
-#define DEFAULT_ANALYSIS_MIN_REALISATIONS 0   // 0: No lower limit
+#define DEFAULT_ENKF_MODE                  ENKF_STANDARD
+#define DEFAULT_NCOMP                      1
+#define DEFAULT_ENKF_TRUNCATION            0.99
+#define DEFAULT_ENKF_ALPHA                 1.50      /* Should be raised ?? */
+#define DEFAULT_ENKF_STD_CUTOFF            1e-6
+#define DEFAULT_MERGE_OBSERVATIONS         false
+#define DEFAULT_RERUN                      false
+#define DEFAULT_RERUN_START                0  
+#define DEFAULT_UPDATE_LOG_PATH            "update_log"
+#define DEFAULT_CV_NFOLDS                  10
+#define DEFAULT_ENKF_SCALING               true
+#define DEFAULT_ENKF_KERNEL_REG            false
+#define DEFAULT_ENKF_KERNEL_FUNC           1       /*Default is the Gaussian */
+#define DEFAULT_ENKF_KERNEL_PARAM          1       /*Scale by the maximum value in the distance matrix */
+#define DEFAULT_ENKF_CV                    false
+#define DEFAULT_ENKF_BOOTSTRAP             false
+#define DEFAULT_ENKF_PEN_PRESS             false
+#define DEFAULT_ENKF_FORCE_NCOMP           false
+#define DEFAULT_UPDATE_RESULTS             false
+#define DEFAULT_SINGLE_NODE_UPDATE         false
+#define DEFAULT_ANALYSIS_MODULE            "STD_ENKF"
+#define DEFAULT_ANALYSIS_NUM_ITERATIONS    4
+#define DEFAULT_ANALYSIS_ITER_CASE         "ITERATED_ENSEMBLE_SMOOTHER%d"
+#define DEFAULT_ANALYSIS_ITER_RUNPATH      "Simulations/Real%d"
+#define DEFAULT_ANALYSIS_MIN_REALISATIONS  0   // 0: No lower limit
+#define DEFAULT_ANALYSIS_STOP_LONG_RUNNING false 
+#define DEFAULT_MAX_RUNTIME                0
+
 
 /* Default directories. */
 #define DEFAULT_QC_PATH          "QC"

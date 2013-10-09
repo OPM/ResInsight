@@ -1,5 +1,9 @@
 from ert.util import Matrix
-from unittest2 import TestCase
+
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 class MatrixTest(TestCase):
     def test_matrix(self):

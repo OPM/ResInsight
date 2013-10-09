@@ -43,7 +43,7 @@ void getWellCells(  std::vector<int>& cellIs,
 
     while (socket.bytesAvailable() < (int)(sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -60,7 +60,7 @@ void getWellCells(  std::vector<int>& cellIs,
 
     while (socket.bytesAvailable() < (int)(byteCount))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
             return;
@@ -71,7 +71,7 @@ void getWellCells(  std::vector<int>& cellIs,
     quint64 cellCount;
     socketStream >> cellCount;
 
-    octave_stdout << "riGetWellCells2: Num cells = " << cellCount << std::endl;
+    octave_stdout << "riGetWellCells: Number of cells in well " << wellName.toLatin1().data() << " : " <<  cellCount << std::endl;
 
     cellIs        .reserve(cellCount);      
     cellJs        .reserve(cellCount);

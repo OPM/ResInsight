@@ -164,10 +164,15 @@ void RigCaseData::computeWellCellsPrGrid()
             size_t gridIndex        =  wellCells.m_wellHead.m_gridIndex;
             size_t gridCellIndex    =  wellCells.m_wellHead.m_gridCellIndex;
 
-            if (gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T)
+            if (gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
             {
-                m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
-                m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                size_t globalGridCellIndex = grids[gridIndex]->globalGridCellIndex(gridCellIndex);
+                if (m_activeCellInfo->isActive(globalGridCellIndex) 
+                    || m_fractureActiveCellInfo->isActive(globalGridCellIndex))
+                {
+                    m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
+                    m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));
+                }
             }
 
             size_t sIdx;

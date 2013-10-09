@@ -38,12 +38,12 @@ public:
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
+    void                                updateState();
+
     caf::PdmField<QString>                      name;
     caf::PdmField<bool>                         selected;
     caf::PdmPointersField<RimOilFieldEntry*>    fields;
 
-private:
-    void updateState();
 };
 
 

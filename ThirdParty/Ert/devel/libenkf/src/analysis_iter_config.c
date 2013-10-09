@@ -55,7 +55,7 @@ int analysis_iter_config_get_num_iterations( const analysis_iter_config_type * c
    an extra '%'.  
 */
 
-static void analysis_iter_config_set_runpath_fmt( analysis_iter_config_type * config , const char * runpath_fmt) {
+void analysis_iter_config_set_runpath_fmt( analysis_iter_config_type * config , const char * runpath_fmt) {
   util_safe_free( config->runpath_fmt );
   if (runpath_fmt != NULL) {
     config->runpath_fmt = util_calloc( strlen(runpath_fmt ) + 2 , sizeof * config->runpath_fmt);
@@ -66,6 +66,10 @@ static void analysis_iter_config_set_runpath_fmt( analysis_iter_config_type * co
       perc_ptr[0] = '%';
     }
   }
+}
+
+char * analysis_iter_config_get_runpath_fmt( analysis_iter_config_type * config){
+  return config->runpath_fmt;
 }
 
 void analysis_iter_config_set_case_fmt( analysis_iter_config_type * config , const char * case_fmt) {

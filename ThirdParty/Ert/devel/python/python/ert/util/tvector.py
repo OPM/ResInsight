@@ -143,7 +143,7 @@ class TVector(BaseCClass):
         s = ""
         lines = self.size / width
         if not fmt:
-            fmt = self.def_fmt + " "
+            fmt = self.default_format + " "
 
         if max_lines is None or lines <= max_lines:
             s += self.str_data( width , 0 , self.size , fmt)
@@ -366,7 +366,7 @@ class TVector(BaseCClass):
         """
         cfile = CFILE( stream )
         if not fmt:
-            fmt = self.def_fmt
+            fmt = self.default_format
         self.cNamespace().fprintf(self , cfile , name , fmt)
 
     @property
@@ -491,11 +491,15 @@ class TVector(BaseCClass):
 # invoke the ugly cls.initialized flag.
 
 class DoubleVector(TVector):
+    default_format       = "%8.4f"
+
     def __init__(self, default_value=0, initial_size=0):
         super(DoubleVector, self).__init__(default_value, initial_size)
 
 
 class BoolVector(TVector):
+    default_format       = "%8d"
+
     def __init__(self, default_value=0, initial_size=0):
         super(BoolVector, self).__init__(default_value, initial_size)
 
@@ -513,16 +517,18 @@ class BoolVector(TVector):
            "1,4-7,10X" =>  {}
         
         The empty list will evaluate to false
+        @rtype: BoolVector
         """
         return cls.cNamespace().create_active_mask(range_string)
 
     @classmethod
-    def create_from_list(cls, size, source_list):
-        """Allocates a bool vector from a Python list"""
+    def createFromList(cls, size, source_list):
+        """Allocates a bool vector from a Python list of indexes"""
         bool_vector = BoolVector(False, size)
 
-        for index in range(len(source_list)):
-            bool_vector[index] = source_list[index]
+        for index in source_list:
+            index = int(index)
+            bool_vector[index] = True
 
         return bool_vector
 
@@ -532,7 +538,7 @@ class BoolVector(TVector):
 
 
 class IntVector(TVector):
-
+    default_format       = "%d"
 
     def __init__(self, default_value=0, initial_size=0):
         super(IntVector, self).__init__(default_value, initial_size)
@@ -556,6 +562,8 @@ class IntVector(TVector):
 
 
 class TimeVector(TVector):
+    default_format = "%d"
+
     def __init__(self, default_value=0, initial_size=0):
         super(TimeVector, self).__init__(default_value, initial_size)
 

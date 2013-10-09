@@ -111,7 +111,8 @@ typedef @TYPE@ (@TYPE@_ftype) (@TYPE@);
   int                  @TYPE@_vector_count_equal( const @TYPE@_vector_type * vector , @TYPE@ cmp_value);
   int                  @TYPE@_vector_element_size( const @TYPE@_vector_type * vector );
   
-  UTIL_SAFE_CAST_HEADER( @TYPE@_vector );
+  //UTIL_SAFE_CAST_HEADER( @TYPE@_vector );
+  UTIL_IS_INSTANCE_HEADER( @TYPE@_vector );
 
 #ifdef __cplusplus 
 }
