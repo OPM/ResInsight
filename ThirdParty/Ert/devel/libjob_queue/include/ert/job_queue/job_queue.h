@@ -45,7 +45,8 @@ extern "C" {
   int                 job_queue_add_job_mt(job_queue_type * , 
                                            const char * run_cmd , 
                                            job_callback_ftype * done_callback, 
-                                           job_callback_ftype * retry_callback , 
+                                           job_callback_ftype * retry_callback,
+                                           job_callback_ftype * exit_callback,
                                            void * callback_arg , 
                                            int num_cpu , 
                                            const char * , 
@@ -56,7 +57,8 @@ extern "C" {
   int                 job_queue_add_job_st(job_queue_type * , 
                                            const char * run_cmd , 
                                            job_callback_ftype * done_callback, 
-                                           job_callback_ftype * retry_callback , 
+                                           job_callback_ftype * retry_callback,
+                                           job_callback_ftype * exit_callback,
                                            void * callback_arg , 
                                            int num_cpu , 
                                            const char * , 
@@ -64,7 +66,8 @@ extern "C" {
                                            int argc , 
                                            const char ** argv );
 
-  void                job_queue_run_jobs(job_queue_type * , int , bool verbose);
+  void                job_queue_reset(job_queue_type * queue);
+  void                job_queue_run_jobs(job_queue_type * queue, int num_total_run, bool verbose);
   void                job_queue_run_jobs_threaded(job_queue_type * queue , int num_total_run, bool verbose);
   void *              job_queue_run_jobs__(void * );
   job_status_type     job_queue_iget_job_status(const job_queue_type * , int );
@@ -72,14 +75,20 @@ extern "C" {
  
   int                 job_queue_iget_status_summary( const job_queue_type * queue , job_status_type status);
   time_t              job_queue_iget_sim_start( job_queue_type * queue, int job_index);
+  time_t              job_queue_iget_sim_end( job_queue_type * queue, int job_index); 
   time_t              job_queue_iget_submit_time( job_queue_type * queue, int job_index);
   job_driver_type     job_queue_lookup_driver_name( const char * driver_name );
   
+  void                job_queue_set_max_job_duration(job_queue_type * queue, int max_duration_seconds); 
+  int                 job_queue_get_max_job_duration(const job_queue_type * queue); 
+  void                job_queue_set_job_stop_time(job_queue_type * queue, time_t time); 
+  time_t              job_queue_get_job_stop_time(const job_queue_type * queue); 
+  void                job_queue_set_auto_job_stop_time(job_queue_type * queue);
   bool                job_queue_kill_job( job_queue_type * queue , int job_index);
   bool                job_queue_is_running( const job_queue_type * queue );
   void                job_queue_set_max_submit( job_queue_type * job_queue , int max_submit );
   int                 job_queue_get_max_submit(const job_queue_type * job_queue );
-  
+  bool                job_queue_get_open(const job_queue_type * job_queue);
   bool                job_queue_get_pause( const job_queue_type * job_queue );
   void                job_queue_set_pause_on( job_queue_type * job_queue);
   void                job_queue_set_pause_off( job_queue_type * job_queue);
@@ -91,6 +100,7 @@ extern "C" {
   int                 job_queue_get_num_waiting( const job_queue_type * queue);
   int                 job_queue_get_num_complete( const job_queue_type * queue);
   int                 job_queue_get_num_failed( const job_queue_type * queue);
+  int                 job_queue_get_num_killed( const job_queue_type * queue);
   const char        * job_queue_iget_failed_job( const job_queue_type * queue , int job_index);
   const char        * job_queue_iget_error_reason( const job_queue_type * queue , int job_index);
   const char        * job_queue_iget_stderr_capture( const job_queue_type * queue , int job_index);

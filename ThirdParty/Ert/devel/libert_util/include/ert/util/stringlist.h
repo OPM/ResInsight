@@ -103,6 +103,8 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   int               stringlist_select_matching(stringlist_type * names , const char * pattern);
 #endif
   int               stringlist_select_matching_files(stringlist_type * names , const char * path , const char * file_pattern);
+  int               stringlist_select_matching_elements(stringlist_type * target , const stringlist_type * src , const char * pattern);
+  int stringlist_append_matching_elements(stringlist_type * target , const stringlist_type * src , const char * pattern);
   UTIL_IS_INSTANCE_HEADER(stringlist);
 
 #ifdef __cplusplus

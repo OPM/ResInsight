@@ -6,23 +6,11 @@ set_target_properties( analysis PROPERTIES COMPILE_DEFINITIONS INTERNAL_LINK)
 set_target_properties( analysis PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 
 target_link_libraries( analysis ert_util )
-if (NEED_LIBDL)
-   target_link_libraries( analysis dl )
-endif()
+target_link_libraries( analysis dl )
 
 if (USE_RUNPATH)
    add_runpath( analysis )
 endif()
-
-
-## List of modules
-#set( CMAKE_SHARED_MODULE_PREFIX "" )
-##add_library( std_enkf  MODULE  std_enkf.c )
-#add_library( sqrt_enkf MODULE sqrt_enkf.c )
-#add_library( rml_enkf  MODULE rml_enkf.c rml_enkf_common.c )
-#
-#ert_module( std_enkf std_enkf.c )
-
 
 
 #-----------------------------------------------------------------

@@ -10,6 +10,13 @@ add_executable( ecl_restart_test ecl_restart_test.c )
 target_link_libraries( ecl_restart_test ecl test_util )
 add_test( ecl_restart_test ${EXECUTABLE_OUTPUT_PATH}/ecl_restart_test ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST )
 
+add_executable( ecl_util_make_date_no_shift ecl_util_make_date_no_shift.c )
+target_link_libraries( ecl_util_make_date_no_shift ecl test_util )
+add_test( ecl_util_make_date_no_shift ${EXECUTABLE_OUTPUT_PATH}/ecl_util_make_date_no_shift )
+
+add_executable( ecl_util_make_date_shift ecl_util_make_date_shift.c )
+target_link_libraries( ecl_util_make_date_shift ecl test_util )
+add_test( ecl_util_make_date_shift ${EXECUTABLE_OUTPUT_PATH}/ecl_util_make_date_shift )
 
 add_executable( ecl_grid_lgr_name ecl_grid_lgr_name.c )
 target_link_libraries( ecl_grid_lgr_name ecl test_util )

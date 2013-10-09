@@ -58,6 +58,9 @@ class Hash(BaseCClass):
     def free(self):
         Hash.cNamespace().free(self)
 
+    def __str__(self):
+        return str(["%s: %s" % (key, self[key]) for key in self.keys()])
+
 
 class StringHash(Hash):
     def __init__(self):

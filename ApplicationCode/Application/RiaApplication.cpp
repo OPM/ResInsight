@@ -597,13 +597,12 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
+bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
     m_project->assignCaseIdToCase(rimInputReservoir);
 
-    rimInputReservoir->caseUserDescription = caseName;
-    rimInputReservoir->openDataFileSet(caseFileNames);
+    rimInputReservoir->openDataFileSet(fileNames);
 
     RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
@@ -662,7 +661,7 @@ void RiaApplication::createLargeResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    openInputEclipseCase("Input Mock Debug Model Simple", QStringList("Input Mock Debug Model Simple"));
+    openInputEclipseCaseFromFileNames(QStringList("Input Mock Debug Model Simple"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1378,7 +1377,11 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         imageCompareReporter.addImageDirectoryComparisonSet(testFolderName.toStdString(), reportBaseFolderName.toStdString(), reportGeneratedFolderName.toStdString(), reportDiffFolderName.toStdString());
     }
 
-    imageCompareReporter.generateHTMLReport(testDir.filePath(RegTestNames::reportFileName).toStdString());
+    QString htmlReportFileName = testDir.filePath(RegTestNames::reportFileName);
+    imageCompareReporter.generateHTMLReport(htmlReportFileName.toStdString());
+
+    // Open HTML report
+    QDesktopServices::openUrl(htmlReportFileName);
 
     // Generate diff images
     this->preferences()->resetToDefaults();
@@ -1396,6 +1399,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
                  processEvents();
              }
              m_commandQueueLock.unlock();
+
+             regressionTestSetFixedSizeForAllViews();
 
              saveSnapshotForAllViews(generatedFolderName);
 
@@ -1772,11 +1777,43 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
     if (mainWnd)
     {
         mainWnd->hideAllDockWindows();
-
+ 
+        mainWnd->setDefaultWindowSize();
         runRegressionTest(regressionTestPath);
 
         mainWnd->loadWinGeoAndDockToolBarLayout();
     }
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::regressionTestSetFixedSizeForAllViews()
+{
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd) return;
+
+    if (m_project.isNull()) return;
+
+    std::vector<RimCase*> projectCases;
+    m_project->allCases(projectCases);
+
+    for (size_t i = 0; i < projectCases.size(); i++)
+    {
+        RimCase* ri = projectCases[i];
+        if (!ri) continue;
+
+        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        {
+            RimReservoirView* riv = ri->reservoirViews()[j];
+
+            if (riv && riv->viewer())
+            {
+                // This size is set to match the regression test reference images
+                riv->viewer()->setFixedSize(1000, 745);
+            }
+        }
+    }
+}
 

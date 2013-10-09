@@ -14,8 +14,12 @@
 #   
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
+try:
+    from unittest2 import skipIf
+except ImportError:
+    from unittest import skipIf
+
 import time
-from unittest2 import skipIf
 from ert.ecl import EclTypeEnum, EclKW, EclGrid
 from ert.util import DoubleVector
 from ert.util.test_area import TestAreaContext
@@ -60,8 +64,7 @@ class GridTest(ExtendedTestCase):
 
 
     def test_rect(self):
-        #work_area = TestArea("python/grid-test/testRect", True)
-        with TestAreaContext("python/grid-test/testRect", True):
+        with TestAreaContext("python/grid-test/testRect"):
             a1 = 1.0
             a2 = 2.0
             a3 = 3.0
@@ -111,8 +114,7 @@ class GridTest(ExtendedTestCase):
 
 
     def test_save(self):
-        #work_area = TestArea("python/grid-test/testSave", True)
-        with TestAreaContext("python/grid-test/testSave", True):
+        with TestAreaContext("python/grid-test/testSave"):
             g1 = EclGrid(self.egrid_file())
 
             g1.save_EGRID("test.EGRID")
@@ -155,8 +157,7 @@ class GridTest(ExtendedTestCase):
 
     @skipIf(ExtendedTestCase.slowTestShouldNotRun(), "Slow test of dual grid skipped!")
     def test_dual(self):
-        #work_area = TestArea("python/grid-test/testDual", True)
-        with TestAreaContext("python/grid-test/testDual", True):
+        with TestAreaContext("python/grid-test/testDual"):
             grid = EclGrid(self.egrid_file())
             self.assertFalse(grid.dual_grid)
             self.assertTrue(grid.nactive_fracture == 0)

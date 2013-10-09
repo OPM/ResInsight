@@ -40,7 +40,7 @@ namespace riOctavePlugin
 
     // Octave data structure : CaseGroupInfo
     char caseGroupInfo_CaseGroupId[]      = "CaseGroupId";
-    char caseGroupInfo_CaseGroupName[]    = "CaseName";
+    char caseGroupInfo_CaseGroupName[]    = "CaseGroupName";
 
     // Octave data structure : WellCellInfo
     char wellCellInfo_I[]           = "I";   

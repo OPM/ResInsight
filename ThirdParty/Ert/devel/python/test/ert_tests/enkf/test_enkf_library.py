@@ -1,11 +1,11 @@
 import os
 from ert.ecl import EclSum
-from ert.enkf import BlockObs, AnalysisConfig, EclConfig, GenKwConfig, EnkfConfigNode, SiteConfig, EnkfStateEnum
+from ert.enkf import BlockObs, AnalysisConfig, EclConfig, GenKwConfig, EnkfConfigNode, SiteConfig, ObsVector
 from ert.enkf import GenDataConfig, FieldConfig, EnkfFs, EnkfObs, EnKFState, EnsConfig
 from ert.enkf import ErtTemplate, ErtTemplates, LocalConfig, ModelConfig, PlotConfig
 from ert.enkf.enkf_main import EnKFMain
 
-from ert.enkf.util import ObsVector, TimeMap
+from ert.enkf.util import TimeMap
 from ert.util.test_area import TestAreaContext
 from ert_tests import ExtendedTestCase
 
@@ -17,17 +17,14 @@ class EnKFLibraryTest(ExtendedTestCase):
 
 
     def test_failed_class_creation(self):
-        classes = [AnalysisConfig, BlockObs, FieldConfig, GenKwConfig, GenDataConfig,
-                   EnkfConfigNode, EnkfFs, EnkfObs, TimeMap, ObsVector, EnKFState, EnsConfig,
+        classes = [BlockObs, FieldConfig, GenKwConfig, GenDataConfig,
+                   EnkfConfigNode, EnkfFs, EnkfObs, TimeMap, EnKFState, EnsConfig,
                    ErtTemplate, ErtTemplates, LocalConfig, ModelConfig, PlotConfig, SiteConfig]
 
         for cls in classes:
             with self.assertRaises(NotImplementedError):
                 temp = cls()
 
-
-    def test_enums(self):
-        print(EnkfStateEnum.enum_names)
 
     def test_ecl_config_creation(self):
         with self.assertRaises(NotImplementedError):
@@ -44,7 +41,9 @@ class EnKFLibraryTest(ExtendedTestCase):
             with self.assertRaises(AttributeError):
                 self.assertIsInstance(main.ecl_config().get_refcase(), EclSum)
 
-            time_map = main.get_fs().get_time_map()
+            file_system = main.getFileSystem()
+            self.assertEqual(file_system.getCaseName(), "default")
+            time_map = file_system.get_time_map()
             self.assertIsInstance(time_map, TimeMap)
 
             del main

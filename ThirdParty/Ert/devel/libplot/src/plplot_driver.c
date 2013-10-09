@@ -21,14 +21,16 @@
 #include <string.h>
 #include <math.h>
 
-#include <ert/util/util.h>
-#include <ert/util/arg_pack.h>
-
 #include <plplot/plplot.h>
 
+#include <ert/util/util.h>
+#include <ert/util/arg_pack.h>
+#include <ert/util/node_ctype.h>
+
+#include <ert/plot/plplot_driver.h>
 #include <ert/plot/plot_driver.h>
 #include <ert/plot/plot_const.h>
-
+#include <ert/plot/plot_text.h>
 
 
 typedef struct {
@@ -66,6 +68,8 @@ static void plplot_state_set_log( plplot_state_type * state , bool logx , bool l
   //else
   //  state->plbox_yopt = util_realloc_string_copy( state->plbox_yopt , PLOT_DEFAULT_PLBOX_YOPT );
 }
+
+
 
 
 static plplot_state_type * plplot_state_alloc( const void * init_arg ) {
@@ -113,7 +117,7 @@ static void plplot_state_close( plplot_state_type * state ) {
 
 
 
-static void plplot_close_driver( plot_driver_type * driver ) {
+void plplot_close_driver( plot_driver_type * driver ) {
   plplot_state_close( driver->state );
 }
 
@@ -170,14 +174,12 @@ static void plplot_set_labels( plot_driver_type * driver , const char * title , 
 
 
 
-static void plplot_set_axis(plot_driver_type * driver , plot_range_type * range , const char * timefmt , plot_color_type box_color , double tick_font_size) {
+static void plplot_set_axis(plot_driver_type * driver , const plot_range_type * range , const char * timefmt , plot_color_type box_color , double tick_font_size) {
   plplot_state_type * state = driver->state;
   {
-    double xmin = plot_range_get_final_xmin( range );
-    double xmax = plot_range_get_final_xmax( range );
-    double ymin = plot_range_get_final_ymin( range );
-    double ymax = plot_range_get_final_ymax( range );
-    plplot_state_type * state = driver->state;
+    double xmin , xmax , ymin , ymax;
+    plot_range_get_limits( range , &xmin , &xmax , &ymin , &ymax);
+    
     if (state->logx) {
       xmin = log( xmin );
       xmax = log( xmax );
@@ -354,6 +356,35 @@ void plplot_plot_hist( plot_driver_type * driver, const char * label , double_ve
 
 
 
+void plplot_text( plot_driver_type * driver , const plot_text_type * plot_text) {
+  double just = 0.0;  // Left justified
+  plschr( 0.0 , plot_text_get_font_scale( plot_text ) );
+  plcol0( BLACK );
+  
+  plptex( plot_text_get_x( plot_text ) , 
+          plot_text_get_y( plot_text ) , 
+          1 , 0 , just , 
+          plot_text_get_text( plot_text ));
+
+  plschr( 0.0 , 1.0 );
+}
+
+
+bool plplot_driver_check_init_arg( const void * init_arg ) {
+  if (arg_pack_is_instance( init_arg )) {
+    const arg_pack_type * arg_pack = arg_pack_safe_cast_const( init_arg );
+    if (arg_pack_size( arg_pack ) == 2) {
+      if ((arg_pack_iget_ctype( arg_pack , 0 ) == CTYPE_VOID_POINTER) &&
+          (arg_pack_iget_ctype( arg_pack , 1 ) == CTYPE_VOID_POINTER))
+        return true;
+      else
+        return false;
+    } else
+      return false;
+  } else
+    return false;
+}
+
 
 /**
    This function allocates a plplot based plot driver. The init_arg
@@ -374,19 +405,22 @@ void plplot_plot_hist( plot_driver_type * driver, const char * label , double_ve
 */
 
 plot_driver_type * plplot_driver_alloc(const void * init_arg) {
-  plot_driver_type * driver = plot_driver_alloc_empty("PLPLOT");
-  driver->state           = plplot_state_alloc( init_arg );
-  
-  driver->close_driver    = plplot_close_driver;
-  driver->set_window_size = plplot_set_window_size;
-  driver->set_labels      = plplot_set_labels; 
-  driver->set_axis        = plplot_set_axis;
-  
-  driver->plot_xy         = plplot_plot_xy;
-  driver->plot_xy1y2      = plplot_plot_xy1y2;
-  driver->plot_x1x2y      = plplot_plot_x1x2y;
-  driver->plot_hist       = plplot_plot_hist;
-  driver->set_log         = plplot_set_log; 
-
-  return driver;
+  if (plplot_driver_check_init_arg( init_arg )) {
+    plot_driver_type * driver = plot_driver_alloc_empty("PLPLOT");
+    driver->state           = plplot_state_alloc( init_arg );
+    
+    driver->close_driver    = plplot_close_driver;
+    driver->set_window_size = plplot_set_window_size;
+    driver->set_labels      = plplot_set_labels; 
+    driver->set_axis        = plplot_set_axis;
+    
+    driver->plot_xy         = plplot_plot_xy;
+    driver->plot_xy1y2      = plplot_plot_xy1y2;
+    driver->plot_x1x2y      = plplot_plot_x1x2y;
+    driver->plot_hist       = plplot_plot_hist;
+    driver->set_log         = plplot_set_log; 
+    driver->text            = plplot_text;
+    return driver;
+  } else
+    return NULL;
 }

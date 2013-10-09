@@ -173,6 +173,8 @@ bool            ecl_util_fmt_file(const char * filename , bool * __fmt_file);
 char          * ecl_util_alloc_exfilename_anyfmt(const char * path, const char * base , ecl_file_enum file_type , bool start_fmt , int report_nr);
 int             ecl_util_get_month_nr(const char * month_name);
 int             ecl_util_fname_report_cmp(const void *f1, const void *f2);
+time_t          ecl_util_make_date(int mday , int month , int year);
+time_t          ecl_util_make_date__(int mday , int month , int year, int * year_offset);
 
 bool            ecl_util_valid_basename( const char * basename );
 const char *    ecl_util_get_phase_name( ecl_phase_enum phase );

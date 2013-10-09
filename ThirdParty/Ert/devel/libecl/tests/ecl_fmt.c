@@ -56,7 +56,7 @@ void test_small( ) {
 
 
 int main(int argc , char ** argv) {
-  test_work_area_type * work_area = test_work_area_alloc( "ecl_fmt" , true);
+  test_work_area_type * work_area = test_work_area_alloc( "ecl_fmt");
   {
     const char * binary_file = argv[1];
     const char * text_file = argv[2];

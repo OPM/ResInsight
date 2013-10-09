@@ -1,6 +1,10 @@
 from datetime import datetime
-from unittest2 import TestCase
 from ert.util import ctime
+
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 
 class CTimeTest(TestCase):

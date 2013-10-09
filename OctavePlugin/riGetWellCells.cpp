@@ -71,7 +71,7 @@ void getWellCells(  std::vector<int>& cellIs,
     quint64 cellCount;
     socketStream >> cellCount;
 
-    octave_stdout << "riGetWellCells2: Num cells = " << cellCount << std::endl;
+    octave_stdout << "riGetWellCells: Number of cells in well " << wellName.toLatin1().data() << " : " <<  cellCount << std::endl;
 
     cellIs        .reserve(cellCount);      
     cellJs        .reserve(cellCount);

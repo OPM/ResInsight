@@ -73,11 +73,35 @@ void test_continue( ) {
 }
 
 
+void test_current_module_options() {
+  analysis_config_type * ac = create_analysis_config( );
+  test_assert_NULL( analysis_config_get_active_module( ac ));
+  analysis_config_load_internal_module(ac , "STD_ENKF" , "std_enkf_symbol_table");
+
+  test_assert_false( analysis_config_get_module_option( ac , ANALYSIS_SCALE_DATA));
+  test_assert_true(analysis_config_select_module(ac , "STD_ENKF"));
+  test_assert_false( analysis_config_select_module(ac , "DOES_NOT_EXIST"));
+
+  test_assert_true( analysis_module_is_instance( analysis_config_get_active_module( ac )));
+  test_assert_true( analysis_config_get_module_option( ac , ANALYSIS_SCALE_DATA));
+  test_assert_false( analysis_config_get_module_option( ac , ANALYSIS_ITERABLE));
+  analysis_config_free( ac );
+}
+
+void test_stop_long_running( ) {
+  analysis_config_type * ac = create_analysis_config( );
+  test_assert_bool_equal( false , analysis_config_get_stop_long_running( ac ) );
+  analysis_config_set_stop_long_running( ac , true );
+  test_assert_bool_equal( true , analysis_config_get_stop_long_running( ac ) );
+  analysis_config_free( ac );
+}
 
 int main(int argc , char ** argv) {  
   test_create();
   test_min_realisations();
   test_continue();
+  test_current_module_options();
+  test_stop_long_running();
   exit(0);
 }
 

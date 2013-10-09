@@ -246,6 +246,11 @@ static void * thread_pool_main_loop( void * arg ) {
                Here is the actual pthread_create() call creating an
                additional running thread.
             */
+            
+            /*Cleanup of previous run threads. Needed to avoid memory leak*/
+            if (job_slot->run_count > 0)
+              pthread_join(job_slot->thread, NULL); 
+            
             pthread_create( &job_slot->thread , NULL , thread_pool_start_job , tp_arg );
             job_slot->run_count += 1;
             tp->queue_index++;

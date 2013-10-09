@@ -40,6 +40,10 @@ class EnkfFs(BaseCClass):
     def get_time_map(self):
         return EnkfFs.cNamespace().get_time_map(self).setParent(self)
 
+    def getCaseName(self):
+        """ @rtype: str """
+        return EnkfFs.cNamespace().get_case_name(self)
+
     @classmethod
     def exists(cls, path):
         return cls.cNamespace().exists(path)
@@ -61,3 +65,4 @@ EnkfFs.cNamespace().fread_node = cwrapper.prototype("void enkf_fs_fread_node(enk
 EnkfFs.cNamespace().fread_vector = cwrapper.prototype("void enkf_fs_fread_vector(enkf_fs, buffer, char*, c_uint, int, c_uint)")
 EnkfFs.cNamespace().get_time_map = cwrapper.prototype("time_map_ref enkf_fs_get_time_map(enkf_fs)")
 EnkfFs.cNamespace().exists = cwrapper.prototype("bool enkf_fs_exists(char*)")
+EnkfFs.cNamespace().get_case_name = cwrapper.prototype("char* enkf_fs_get_case_name(enkf_fs)")

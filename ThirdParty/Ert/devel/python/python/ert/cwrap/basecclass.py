@@ -6,16 +6,20 @@ class BaseCClass(object):
     namespaces = {}
 
     def __init__(self, c_pointer, parent=None, is_reference=False):
-        self._c_pointer = None
-        self._parent = None
-        self._is_reference = False
-
         if not c_pointer > 0:
             raise ValueError("Must have a valid pointer value!")
 
-        self._c_pointer = c_pointer
-        self._parent = parent
-        self._is_reference = is_reference
+        self.__c_pointer = c_pointer
+        self.__parent = parent
+        self.__is_reference = is_reference
+
+    def __new__(cls, *more, **kwargs):
+        obj = super(BaseCClass, cls).__new__(cls, *more, **kwargs)
+        obj.__c_pointer = None
+        obj.__parent = None
+        obj.__is_reference = False
+
+        return obj
 
 
     @classmethod
@@ -27,13 +31,13 @@ class BaseCClass(object):
 
     @classmethod
     def from_param(cls, c_class_object):
-        if not isinstance(c_class_object, BaseCClass):
-            raise ValueError("c_class_object must be an BaseCClass instance!")
+        if c_class_object is not None and not isinstance(c_class_object, BaseCClass):
+            raise ValueError("c_class_object must be a BaseCClass instance!")
 
-        if c_class_object is None or not hasattr(c_class_object, "_c_pointer"):
+        if c_class_object is None:
             return ctypes.c_void_p()
         else:
-            return ctypes.c_void_p(c_class_object._c_pointer)
+            return ctypes.c_void_p(c_class_object.__c_pointer)
 
     @classmethod
     def createPythonObject(cls, c_pointer):
@@ -51,9 +55,14 @@ class BaseCClass(object):
             return new_obj
         return None
 
+    def convertToCReference(self, parent):
+        self.__is_reference = True
+        self.__parent = parent
+
+
     def setParent(self, parent=None):
-        if self._is_reference:
-            self._parent = parent
+        if self.__is_reference:
+            self.__parent = parent
         else:
             raise UserWarning("Can only set parent on reference types!")
 
@@ -61,18 +70,24 @@ class BaseCClass(object):
 
     def isReference(self):
         """ @rtype: bool """
-        return self._is_reference
+        return self.__is_reference
 
     def parent(self):
-        return self._parent
+        return self.__parent
+
+    def __eq__(self, other):
+        if isinstance(other, BaseCClass):
+            return self.__c_pointer == other.__c_pointer
+
+        super(BaseCClass, self).__eq__(other)
 
     def free(self):
         raise NotImplementedError("A CClass requires a free method implementation!")
 
     def __del__(self):
         if self.free is not None:
-            if hasattr(self, "_is_reference") and not self._is_reference:
+            if not self.__is_reference:
                 # Important to check the c_pointer; in the case of failed object creation
                 # we can have a Python object with c_pointer == None.
-                if self._c_pointer > 0:
+                if self.__c_pointer > 0:
                     self.free()

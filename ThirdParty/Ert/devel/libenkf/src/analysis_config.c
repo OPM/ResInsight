@@ -57,8 +57,11 @@ struct analysis_config_struct {
   bool                            update_results;              /* Should result values like e.g. WWCT be updated? */
   bool                            single_node_update;          /* When creating the default ALL_ACTIVE local configuration. */ 
   rng_type                      * rng;  
-  analysis_iter_config_type * iter_config;
-  int                         min_realisations; 
+  analysis_iter_config_type     * iter_config;
+  int                             min_realisations; 
+  bool                            stop_long_running;
+  int                             max_runtime; 
+  
 }; 
 
 
@@ -135,6 +138,22 @@ bool analysis_config_have_enough_realisations( const analysis_config_type * conf
     else
       return false;
   }
+}
+
+void analysis_config_set_stop_long_running( analysis_config_type * config, bool stop_long_running ) {
+  config->stop_long_running = stop_long_running;
+} 
+
+bool analysis_config_get_stop_long_running( const analysis_config_type * config) {
+  return config->stop_long_running;
+}
+
+int analysis_config_get_max_runtime( const analysis_config_type * config ) {
+  return config->max_runtime;  
+} 
+
+void analysis_config_set_max_runtime( analysis_config_type * config, int max_runtime ) {
+  config->max_runtime = max_runtime; 
 }
 
 void analysis_config_set_min_realisations( analysis_config_type * config , int min_realisations) {
@@ -260,13 +279,16 @@ void analysis_config_load_internal_module( analysis_config_type * config ,
 
 
 
-void analysis_config_load_external_module( analysis_config_type * config , 
+bool analysis_config_load_external_module( analysis_config_type * config ,
                                            const char * user_name , const char * lib_name) {
   analysis_module_type * module = analysis_module_alloc_external( config->rng , user_name , lib_name );
-  if (module != NULL)
+  if (module != NULL) {
     hash_insert_hash_owned_ref( config->analysis_modules , user_name , module , analysis_module_free__ );
-  else
+    return true;
+  } else {
     fprintf(stderr,"** Warning: failed to load module %s from %s.\n",user_name , lib_name);
+    return false;
+  }
 }
 
 
@@ -336,9 +358,27 @@ bool analysis_config_has_module(analysis_config_type * config , const char * mod
   return hash_has_key( config->analysis_modules , module_name );
 }
 
+bool analysis_config_get_module_option( const analysis_config_type * config , long flag) {
+  if (config->analysis_module)
+    return analysis_module_check_option(config->analysis_module , flag);
+  else
+    return false;
+}
+
+
 bool analysis_config_select_module( analysis_config_type * config , const char * module_name ) {
   if (analysis_config_has_module( config , module_name )) { 
-    config->analysis_module = analysis_config_get_module( config , module_name );
+    analysis_module_type * module = analysis_config_get_module( config , module_name );
+    
+    if (analysis_module_check_option( module , ANALYSIS_ITERABLE)) {
+      if (analysis_config_get_single_node_update( config )) {
+        fprintf(stderr," ** Warning: the module:%s requires the setting \"SINGLE_NODE_UPDATE FALSE\" in the config file.\n" , module_name);
+        fprintf(stderr," **          the module has NOT been selected. \n");
+        return false;
+      } 
+    }
+    
+    config->analysis_module = module;
     return true;
   } else {
     if (config->analysis_module == NULL)
@@ -355,6 +395,16 @@ bool analysis_config_select_module( analysis_config_type * config , const char *
 analysis_module_type * analysis_config_get_active_module( analysis_config_type * config ) {
   return config->analysis_module;
 }
+
+
+const char * analysis_config_get_active_module_name( const analysis_config_type * config ) {
+  if (config->analysis_module)
+    return analysis_module_get_name( config->analysis_module );
+  else
+    return NULL;
+}
+
+
 
 /*****************************************************************/
 
@@ -401,6 +451,14 @@ void analysis_config_init( analysis_config_type * analysis , const config_type *
 
   if (config_item_set( config , MIN_REALIZATIONS_KEY ))
     analysis_config_set_min_realisations( analysis , config_get_value_as_int( config , MIN_REALIZATIONS_KEY ));
+  
+  if (config_item_set( config , STOP_LONG_RUNNING_KEY ))
+    analysis_config_set_stop_long_running( analysis , config_get_value_as_bool( config , STOP_LONG_RUNNING_KEY ));
+  
+  if (config_item_set( config, MAX_RUNTIME_KEY)) {
+    analysis_config_set_max_runtime( analysis, config_get_value_as_int( config, MAX_RUNTIME_KEY )); 
+  }
+  
   
   /* Loading external modules */
   {
@@ -508,7 +566,9 @@ analysis_config_type * analysis_config_alloc( rng_type * rng ) {
   analysis_config_set_store_PC( config                 , DEFAULT_STORE_PC );
   analysis_config_set_PC_filename( config              , DEFAULT_PC_FILENAME );
   analysis_config_set_PC_path( config                  , DEFAULT_PC_PATH );
-  analysis_config_set_min_realisations( config , DEFAULT_ANALYSIS_MIN_REALISATIONS );
+  analysis_config_set_min_realisations( config         , DEFAULT_ANALYSIS_MIN_REALISATIONS );
+  analysis_config_set_stop_long_running( config        , DEFAULT_ANALYSIS_STOP_LONG_RUNNING );
+  analysis_config_set_max_runtime( config              , DEFAULT_MAX_RUNTIME );
 
   config->analysis_module  = NULL;
   config->analysis_modules = hash_alloc();
@@ -547,7 +607,14 @@ void analysis_config_add_config_items( config_type * config ) {
   config_add_key_value( config , RERUN_START_KEY             , false , CONFIG_INT);
   config_add_key_value( config , UPDATE_LOG_PATH_KEY         , false , CONFIG_STRING);
   config_add_key_value( config , MIN_REALIZATIONS_KEY        , false , CONFIG_INT );
-
+  config_add_key_value( config , MAX_RUNTIME_KEY             , false , CONFIG_INT );
+  
+  item = config_add_key_value( config , STOP_LONG_RUNNING_KEY, false,  CONFIG_BOOL ); 
+  stringlist_type * child_list = stringlist_alloc_new(); 
+  stringlist_append_ref(child_list, MIN_REALIZATIONS_KEY); 
+  config_schema_item_set_required_children_on_value(item , "TRUE" , child_list); 
+  stringlist_free(child_list); 
+  
   config_add_key_value( config , ANALYSIS_SELECT_KEY         , false , CONFIG_STRING);
 
   item = config_add_schema_item( config , ANALYSIS_LOAD_KEY , false  );
@@ -561,9 +628,9 @@ void analysis_config_add_config_items( config_type * config ) {
   config_schema_item_set_argc_minmax( item , 3 , CONFIG_DEFAULT_ARG_MAX);
   analysis_iter_config_add_config_items( config );
 }
+  
 
-
-
+  
 void analysis_config_fprintf_config( analysis_config_type * config , FILE * stream) {
   fprintf( stream , CONFIG_COMMENTLINE_FORMAT );
   fprintf( stream , CONFIG_COMMENT_FORMAT , "Here comes configuration information related to the EnKF analysis.");

@@ -41,7 +41,7 @@ void test_lookup(bool valid_address, bool change_cwd) {
   
   if (change_cwd) {
     char * cwd = util_alloc_cwd();
-    chdir("/tmp");
+    util_chdir("/tmp");
     if (valid_address) {
       test_assert_false( util_addr2line_lookup( bt_addr[0] , &func_name , &file_name , &line_nr));
       test_assert_string_equal( func_name , func );
@@ -53,7 +53,7 @@ void test_lookup(bool valid_address, bool change_cwd) {
       test_assert_string_equal( file_name , NULL);
       test_assert_int_equal( 0 , line_nr );
     }
-    chdir(cwd);
+    util_chdir(cwd);
     free( cwd );
   } else {
     if (valid_address) {
@@ -87,7 +87,7 @@ int main( int argc , char ** argv) {
     */
     util_alloc_file_components( argv[0] , &path , &name, NULL);
     
-    chdir(path);
+    util_chdir(path);
     dot_name = util_alloc_sprintf("./%s" , name);
     child_pid = util_fork_exec( dot_name , 0 , NULL , true , NULL , NULL , NULL , NULL , NULL);
     exit(0);

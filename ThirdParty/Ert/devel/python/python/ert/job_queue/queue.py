@@ -171,11 +171,14 @@ class JobQueue(BaseCClass):
         done_callback = None
         callback_arg = None
         retry_callback = None
+        exit_callback = None
+
 
         queue_index = JobQueue.cNamespace().add_job_mt(self,
                                                     cmd,
                                                     done_callback,
                                                     retry_callback,
+                                                    exit_callback,
                                                     callback_arg,
                                                     num_cpu,
                                                     run_path,
@@ -252,7 +255,7 @@ class JobQueue(BaseCClass):
     def set_max_running( self, max_running ):
         self.driver.set_max_running(max_running)
 
-    def user_exit(self):
+    def killAllJobs(self):
         JobQueue.cNamespace().user_exit(self)
 
     def set_pause_on(self):
@@ -277,8 +280,8 @@ JobQueue.cNamespace().free            = cwrapper.prototype("void job_queue_free(
 JobQueue.cNamespace().set_max_running = cwrapper.prototype("void job_queue_set_max_running( job_queue , int)")
 JobQueue.cNamespace().get_max_running = cwrapper.prototype("int  job_queue_get_max_running( job_queue )")
 JobQueue.cNamespace().set_driver      = cwrapper.prototype("void job_queue_set_driver( job_queue , c_void_p )")
-JobQueue.cNamespace().add_job_mt     = cwrapper.prototype("int   job_queue_add_job_mt( job_queue , char* , c_void_p , c_void_p , c_void_p , int , char* , char* , int , char**)")
-JobQueue.cNamespace().add_job_st     = cwrapper.prototype("int   job_queue_add_job_st( job_queue , char* , c_void_p , c_void_p , c_void_p , int , char* , char* , int , char**)")
+JobQueue.cNamespace().add_job_mt     = cwrapper.prototype("int   job_queue_add_job_mt( job_queue , char* , c_void_p , c_void_p , c_void_p , c_void_p , int , char* , char* , int , char**)")
+JobQueue.cNamespace().add_job_st     = cwrapper.prototype("int   job_queue_add_job_st( job_queue , char* , c_void_p , c_void_p , c_void_p , c_void_p , int , char* , char* , int , char**)")
 JobQueue.cNamespace().start_queue     = cwrapper.prototype("void job_queue_run_jobs( job_queue , int , bool)")
 JobQueue.cNamespace().run_jobs        = cwrapper.prototype("void job_queue_run_jobs_threaded(job_queue , int , bool)")
 

@@ -31,7 +31,7 @@
 int main(int argc , char ** argv) {
   unsigned int rand1,rand2;
   {
-    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-0", false);
+    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-0");
     {
       enkf_main_type * enkf_main = enkf_main_alloc_empty();
       enkf_main_resize_ensemble( enkf_main , 10 );
@@ -58,7 +58,7 @@ int main(int argc , char ** argv) {
   /*****************************************************************/
 
   {
-    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-1" , false );
+    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-1" );
     const char * seed_file = "seed";
     {
       enkf_main_type * enkf_main = enkf_main_alloc_empty();
@@ -99,7 +99,7 @@ int main(int argc , char ** argv) {
   {
     const char * config_path = argv[1];
     const char * config_file = argv[2];
-    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-2" , false );
+    test_work_area_type * work_area = test_work_area_alloc("enkf-rng-2" );
     test_work_area_copy_directory_content( work_area , config_path );
     {
       enkf_main_type * enkf_main = enkf_main_bootstrap( NULL , config_file , true , true );

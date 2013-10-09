@@ -318,12 +318,13 @@ void enkf_tui_run_menu(void * arg) {
   {
     const ecl_config_type * ecl_config = enkf_main_get_ecl_config( enkf_main );
     const model_config_type * model_config = enkf_main_get_model_config( enkf_main );
+    const analysis_config_type * analysis_config = enkf_main_get_analysis_config(enkf_main);
     
     menu_item_type * enkf_item         = menu_add_item(menu , "Start EnKF run from beginning"          , "sS" , enkf_tui_run_start         , enkf_main , NULL);
     menu_item_type * restart_enkf_item = menu_add_item(menu , "Restart EnKF run from arbitrary state"  , "rR" , enkf_tui_run_restart__       , enkf_main , NULL);
     menu_item_type * ES_item           = menu_add_item(menu , "Integrated smoother update"             , "iI" , enkf_tui_run_smoother      , enkf_main , NULL);
     menu_item_type * it_ES_item        = menu_add_item(menu , "Iterated smoother [RML-EnKF]"           , "tT" , enkf_tui_run_iterated_ES   , enkf_main , NULL);
-    menu_item_type * one_more_item     = menu_add_item(menu , "One more iteration"                     , "mM" , enkf_tui_run_one_more_iteration , enkf_main , NULL);
+    menu_item_type * one_more_item     = menu_add_item(menu , "One more iteration (disabled)"          , "mM" , enkf_tui_run_one_more_iteration , enkf_main , NULL);
               
     if (!ecl_config_has_schedule( ecl_config )) {
       menu_item_disable( enkf_item );
@@ -333,9 +334,20 @@ void enkf_tui_run_menu(void * arg) {
     if (!ecl_config_has_init_section( ecl_config )) 
       menu_item_disable( enkf_item );
 
+    menu_item_disable( one_more_item );
+    if (!analysis_config_get_module_option(analysis_config , ANALYSIS_ITERABLE)) {
+      menu_item_disable( it_ES_item );
+      menu_item_disable( one_more_item );
+    } else {
+      menu_item_disable( enkf_item );
+      menu_item_disable( restart_enkf_item );
+      menu_item_disable( ES_item );
+    }
+      
     if (!model_config_has_history( model_config )) {
       menu_item_disable( it_ES_item );
       menu_item_disable( ES_item );
+      menu_item_disable( one_more_item );
     }
   }
   menu_add_separator(menu);
@@ -367,5 +379,4 @@ void enkf_tui_run_menu(void * arg) {
   menu_add_item(menu , "Help"                                  , "hH" , enkf_tui_help_menu_run   , enkf_main , NULL); 
   menu_run(menu);
   menu_free(menu);
-
 }

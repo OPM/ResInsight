@@ -21,12 +21,12 @@ from ert_tests import ExtendedTestCase
 
 class ErtGuiImportTest(ExtendedTestCase):
 
-    pass
-    # def test_ert_gui(self):
-    #     self.assertImportable("ert_gui")
-    #     self.assertImportable("ert_gui.gert_main")
-    #     self.assertImportable("ert_gui.newconfig")
-    #
+    def test_ert_gui(self):
+        self.assertImportable("ert_gui")
+        self.assertImportable("ert_gui.gert_main")
+        self.assertImportable("ert_gui.main_window")
+        self.assertImportable("ert_gui.newconfig")
+
     # def test_ert_gui_widgets(self):
     #     self.assertImportable("ert_gui.widgets")
     #     self.assertImportable("ert_gui.widgets.activelabel")

@@ -6,8 +6,9 @@ set (VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 
 
+################################################################################
 # Setup the main platform defines
-#-----------------------------------------------------
+################################################################################
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_definitions(-DCVF_LINUX)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -16,23 +17,28 @@ else()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
 endif()
 
-option (RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ON)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
+    set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
+endif() 
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-        # Linux specific code
-        set(CMAKE_CXX_FLAGS 		"-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat")
-        set(CMAKE_CXX_FLAGS_DEBUG 	"-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
-        set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
-        #set(CMAKE_EXE_LINKER_FLAGS  "-Xlinker -rpath .")
-		if(RESINSIGHT_USE_OPENMP)
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-		endif()
-#        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -g1")
-ELSE()
-	if(RESINSIGHT_USE_OPENMP)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp")
-	endif()
-ENDIF() 
+
+################################################################################
+# OpenMP
+################################################################################
+option (RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ON)
+if (RESINSIGHT_USE_OPENMP)
+    find_package(OpenMP)
+    if(OPENMP_FOUND)
+        message(STATUS "Enabling OpenMP support")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+    else()
+        message(STATUS "Disabling OpenMP support")
+    endif()
+endif()
 
 
 ################################################################################
@@ -46,8 +52,10 @@ include (ResInsightVersion.cmake)
 ################################################################################
 
 # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
-# into ResInsight
-SET(INSTALL_ERT OFF CACHE BOOL "Build ERT without installing")
+SET(INSTALL_ERT OFF CACHE BOOL "ERT: Install library")
+SET(BUILD_SHARED_LIBS OFF CACHE BOOL "ERT: Build shared libraries")
+SET(ERT_USE_OPENMP ${OPENMP_FOUND} CACHE BOOL "ERT: Compile using OpenMP")
+
 
 add_subdirectory(ThirdParty/Ert/devel)
 

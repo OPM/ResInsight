@@ -112,16 +112,13 @@ DEFUN_DLD (riGetWellNames, args, nargout,
 
         // Create cells with N items for each field in the data structure
 
-        //charMatrix octaveWellNames;
         string_vector octaveWellNames;
         for (size_t i = 0; i < caseCount; i++)
         {
             octaveWellNames.append(wellNames[i].toStdString());
         }
 
-        // Build a map between the field name and field cell values
-
-        return octave_value(octaveWellNames);
+        return octave_value(Cell(octaveWellNames));
     }
 
     return octave_value();

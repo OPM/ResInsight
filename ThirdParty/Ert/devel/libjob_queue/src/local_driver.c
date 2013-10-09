@@ -104,17 +104,12 @@ void local_driver_free_job( void * __job ) {
 void local_driver_kill_job( void * __driver , void * __job) {
   local_job_type    * job  = local_job_safe_cast( __job );
   
-  kill( job->child_process , SIGSTOP );
-  if (job->active) 
-    pthread_cancel( job->run_thread );
+  if (job->active) {
+    pthread_cancel( job->run_thread ); 
+  }
   
-}
-
-
-
-
-
-
+  kill( job->child_process , SIGTERM );
+  }
 
 
 void * submit_job_thread__(void * __arg) {
@@ -129,12 +124,13 @@ void * submit_job_thread__(void * __arg) {
   int          argc        = arg_pack_iget_int(arg_pack , 2);
   char ** argv             = arg_pack_iget_ptr(arg_pack , 3);
   local_job_type * job     = arg_pack_iget_ptr(arg_pack , 4);
+  arg_pack_free(arg_pack); 
   
   job->child_process = util_fork_exec(executable , argc , (const char **) argv , false , NULL , NULL /* run_path */ , NULL , NULL , NULL); 
+  util_free_stringlist( argv , argc );
   waitpid(job->child_process , NULL , 0);
   job->status = JOB_QUEUE_DONE;
   pthread_exit(NULL);
-  util_free_stringlist( argv , argc );
   return NULL;
 }
 

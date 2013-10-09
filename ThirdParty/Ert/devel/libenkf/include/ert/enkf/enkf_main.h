@@ -58,12 +58,13 @@ extern "C" {
 #include <ert/enkf/ranking_table.h>
 #include <ert/enkf/qc_module.h>
 #include <ert/enkf/rng_config.h>
+#include <ert/enkf/pca_plot_data.h>
 
   /*****************************************************************/
   
   typedef struct enkf_main_struct enkf_main_type;
-  void                          enkf_main_close_alt_fs(enkf_main_type * enkf_main , enkf_fs_type * fs);
-  enkf_fs_type                * enkf_main_get_alt_fs(enkf_main_type * enkf_main , const char * case_path , bool read_only , bool create);
+  void                          enkf_main_close_alt_fs(const enkf_main_type * enkf_main , enkf_fs_type * fs);
+  enkf_fs_type                * enkf_main_get_alt_fs(const enkf_main_type * enkf_main , const char * case_path , bool read_only , bool create);
   stringlist_type             * enkf_main_alloc_caselist( const enkf_main_type * enkf_main );
   void                          enkf_main_set_fs( enkf_main_type * enkf_main , enkf_fs_type * fs , const char * case_path );
   char                        * enkf_main_alloc_mount_point( const enkf_main_type * enkf_main , const char * case_path);
@@ -144,6 +145,7 @@ extern "C" {
   ert_impl_type                enkf_main_impl_type(const enkf_main_type *, const char * );
   enkf_state_type             * enkf_main_iget_state(const enkf_main_type * , int );
   enkf_state_type            ** enkf_main_get_ensemble( enkf_main_type * enkf_main);
+  const enkf_state_type      ** enkf_main_get_ensemble_const( const enkf_main_type * enkf_main);
   
   const enkf_config_node_type * enkf_main_get_config_node(const enkf_main_type * , const char *);
   const sched_file_type       * enkf_main_get_sched_file(const enkf_main_type *);
@@ -200,6 +202,11 @@ extern "C" {
                                             const stringlist_type * node_list);
   
   
+pca_plot_data_type * enkf_main_alloc_pca_plot_data( const enkf_main_type * enkf_main , 
+                                                    local_obsdata_type * obs_data, 
+                                                    double truncation_or_ncomp);
+
+  
   void                     enkf_main_set_case_table( enkf_main_type * enkf_main , const char * case_table_file );
   void                     enkf_main_list_users(  set_type * users , const char * executable );
   const ext_joblist_type * enkf_main_get_installed_jobs( const enkf_main_type * enkf_main );
@@ -218,6 +225,7 @@ extern "C" {
   void                        enkf_main_install_SIGNALS(void);
   const                char * enkf_main_get_SVN_VERSION( void );
   const                char * enkf_main_get_COMPILE_TIME( void );
+  bool                        enkf_main_case_is_initialized( const enkf_main_type * enkf_main , const char * case_name ,  bool_vector_type * __mask);
   bool                        enkf_main_is_initialized( const enkf_main_type * enkf_main ,bool_vector_type * __mask);
   void                        enkf_main_del_node(enkf_main_type * enkf_main , const char * key);
   void                        enkf_main_update_node( enkf_main_type * enkf_main , const char * key );
@@ -227,15 +235,22 @@ extern "C" {
   qc_module_type       * enkf_main_get_qc_module( const enkf_main_type * enkf_main );
   bool                   enkf_main_has_QC_workflow( const enkf_main_type * enkf_main );
 
-  void enkf_main_get_PC( const enkf_main_type * enkf_main , 
-                         const matrix_type * S, 
+  void enkf_main_get_PC( const matrix_type * S, 
                          const matrix_type * dObs,
-                         const char * obsset_name , 
-                         int step1 , int step2 , 
                          double truncation , 
                          int ncomp , 
                          matrix_type * PC , 
                          matrix_type * PC_obs);
+  
+  void enkf_main_init_PC( const enkf_main_type * enkf_main , 
+                          const local_obsdata_type * obsdata , 
+                          double truncation_or_ncomp , 
+                          matrix_type * PC , 
+                          matrix_type * PC_obs );
+
+  void enkf_main_fprintf_PC(const char * filename , 
+                            matrix_type * PC , 
+                            matrix_type * PC_obs);
   
   
   void                   enkf_main_set_verbose( enkf_main_type * enkf_main , bool verbose);
@@ -251,6 +266,7 @@ extern "C" {
   void                  enkf_main_rng_init( enkf_main_type * enkf_main);
 
 UTIL_SAFE_CAST_HEADER(enkf_main);
+UTIL_IS_INSTANCE_HEADER(enkf_main);
 
 #ifdef __cplusplus
 }

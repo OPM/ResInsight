@@ -30,7 +30,7 @@
 
 
 #define WELL_CONN_NORMAL_WELL_SEGMENT_ID -999
-#define ECLIPSE_NORMAL_WELL_SEGMENT_ID     -1
+//#define ECLIPSE_NORMAL_WELL_SEGMENT_ID     -1
 
 /*
   Observe that when the (ijk) values are initialized they are
@@ -47,7 +47,7 @@ struct  well_conn_struct {
   int                k;
   well_conn_dir_enum dir;
   bool               open;         
-  int                segment;             // -1: Ordinary well
+  int                segment_id;             // -1: Ordinary well
   bool               matrix_connection;   // k >= nz => fracture (and k -= nz )
 };
   
@@ -62,7 +62,7 @@ bool well_conn_equal( const well_conn_type *conn1  , const well_conn_type * conn
 
 
 bool well_conn_MSW( const well_conn_type * conn ) {
-  if (conn->segment == WELL_CONN_NORMAL_WELL_SEGMENT_ID)
+  if (conn->segment_id == WELL_CONN_NORMAL_WELL_SEGMENT_ID)
     return false;
   else
     return true;
@@ -91,10 +91,10 @@ static well_conn_type * well_conn_alloc__( int i , int j , int k , well_conn_dir
     conn->dir = dir;
     
     conn->matrix_connection = matrix_connection;
-    if (segment_id == ECLIPSE_NORMAL_WELL_SEGMENT_ID)
-      conn->segment = WELL_CONN_NORMAL_WELL_SEGMENT_ID;
+    if (segment_id == CONN_NORMAL_WELL_SEGMENT_VALUE)
+      conn->segment_id = WELL_CONN_NORMAL_WELL_SEGMENT_ID;
     else
-      conn->segment = segment_id;
+      conn->segment_id = segment_id;
 
     return conn;
   } else {
@@ -110,8 +110,8 @@ well_conn_type * well_conn_alloc( int i , int j , int k , well_conn_dir_enum dir
 
 
 
-well_conn_type * well_conn_alloc_MSW( int i , int j , int k , well_conn_dir_enum dir , bool open, int segment) {
-  return well_conn_alloc__(i , j , k , dir , open , segment , true );
+well_conn_type * well_conn_alloc_MSW( int i , int j , int k , well_conn_dir_enum dir , bool open, int segment_id) {
+  return well_conn_alloc__(i , j , k , dir , open , segment_id , true );
 }
 
 
@@ -122,8 +122,8 @@ well_conn_type * well_conn_alloc_fracture( int i , int j , int k , well_conn_dir
 
 
 
-well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , well_conn_dir_enum dir , bool open, int segment) {
-  return well_conn_alloc__(i , j , k , dir , open , segment , false);
+well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , well_conn_dir_enum dir , bool open, int segment_id) {
+  return well_conn_alloc__(i , j , k , dir , open , segment_id , false);
 }
 
 
@@ -145,7 +145,7 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
     int i       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_I_ITEM ) - 1;
     int j       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_J_ITEM ) - 1;
     int k       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_K_ITEM ) - 1;
-    int segment = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_ITEM ) - 1;
+    int segment_id = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_ITEM ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET;
     bool matrix_connection = true;
     bool open;
     well_conn_dir_enum dir = well_conn_fracX;
@@ -199,7 +199,7 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
       }
     }
     
-    conn = well_conn_alloc__(i,j,k,dir,open,segment,matrix_connection);
+    conn = well_conn_alloc__(i,j,k,dir,open,segment_id,matrix_connection);
     
     /**
        For multisegmented wells ONLY the global part of the restart
@@ -298,8 +298,8 @@ bool well_conn_open( const well_conn_type * conn ) {
 }
 
 
-int well_conn_get_segment( const well_conn_type * conn ) {
-  return conn->segment;
+int well_conn_get_segment_id( const well_conn_type * conn ) {
+  return conn->segment_id;
 }
 
 bool well_conn_fracture_connection( const well_conn_type * conn) {

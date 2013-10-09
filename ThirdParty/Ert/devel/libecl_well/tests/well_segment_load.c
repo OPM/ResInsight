@@ -52,11 +52,12 @@ int main(int argc , char ** argv) {
       well_segment_collection_type * segments = well_segment_collection_alloc();
       int seg_well_nr = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_SEGMENTED_WELL_NR_ITEM) - 1; // -1: Ordinary well.
       if (seg_well_nr >= 0) {
-        int segment_id;
+        int segment_index;
         int segment_count = 0;
         
-        for (segment_id = 0; segment_id < rst_head->nsegmx; segment_id++) {
-          well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_kw , rst_head , seg_well_nr , segment_id );
+        for (segment_index = 0; segment_index < rst_head->nsegmx; segment_index++) {
+          int segment_id = segment_index + WELL_SEGMENT_OFFSET;
+          well_segment_type * segment = well_segment_alloc_from_kw( iseg_kw , rseg_kw , rst_head , seg_well_nr , segment_index , segment_id );
           
           test_assert_true( well_segment_is_instance( segment ));
           

@@ -88,7 +88,7 @@ public:
     bool                openEclipseCaseFromFile(const QString& fileName);
     bool                openEclipseCase(const QString& caseName, const QString& caseFileName);
     bool                addEclipseCases(const QStringList& fileNames);
-    bool                openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames);
+    bool                openInputEclipseCaseFromFileNames(const QStringList& fileNames);
 
     bool                loadLastUsedProject();
     QString             currentProjectFileName() const;
@@ -105,6 +105,7 @@ public:
     void                saveSnapshotForAllViews(const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
     void                updateRegressionTest(const QString& testRootPath );
+    void                regressionTestSetFixedSizeForAllViews();
 
     void                processNonGuiEvents();
 

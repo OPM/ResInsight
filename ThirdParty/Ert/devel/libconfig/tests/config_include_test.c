@@ -46,7 +46,7 @@ void parse_test(config_type * config ,
   util_alloc_file_components( config_file , &config_path , NULL , NULL);
   path_stack_push( path_stack , NULL );
   if (root_path != NULL)
-    chdir( root_path );
+    util_chdir( root_path );
   
   config_abs_path = util_alloc_abs_path( config_path );
   config_rel_path = util_alloc_rel_path(  NULL , config_abs_path);

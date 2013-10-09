@@ -80,7 +80,7 @@ int main(int argc , char ** argv) {
   test_path( 6 , root6 , path6 , true6 );
   test_path( 7 , root7 , path7 , true7 );
   {
-    chdir(root8);
+    util_chdir(root8);
     test_path( 8 , NULL , path8 , true8 );
   }
 
