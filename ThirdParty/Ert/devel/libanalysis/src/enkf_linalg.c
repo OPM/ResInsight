@@ -180,8 +180,6 @@ int enkf_linalg_svdS(const matrix_type * S ,
         }
       }
 
-      printf("PCA completed: Number of significant terms = %d\n",num_significant);
-      
       /* Inverting the significant singular values */
       for (i = 0; i < num_significant; i++)
         inv_sig0[i] = 1.0 / sig0[i];
@@ -700,9 +698,15 @@ double enkf_linalg_data_mismatch(matrix_type *D , matrix_type *R , matrix_type *
 {
   matrix_type * tmp = matrix_alloc (matrix_get_columns(D), matrix_get_columns(R));
   double mean;
- 
+  
+  printf("-----------------------------------------------------------------\n");
+  printf("%s:%d Calling matrix_dgemm() \n",__func__ , __LINE__);
+  //            C   A  B
   matrix_dgemm(tmp, D, R,true, false, 1.0, 0.0);
+  printf("-----------------------------------------------------------------\n");
+  printf("%s:%d Calling matrix_dgemm() \n",__func__ , __LINE__);
   matrix_dgemm(Sk, tmp, D, false, false, 1.0, 0.0);
+  printf("-----------------------------------------------------------------\n");
 
   printf("The data mismatch computed");
                                   
@@ -712,7 +716,7 @@ double enkf_linalg_data_mismatch(matrix_type *D , matrix_type *R , matrix_type *
  return mean;
 }
 
-void enkf_linalg_Covariance(matrix_type *Cd, matrix_type *E, double nsc ,int nrobs)
+void enkf_linalg_Covariance(matrix_type *Cd, const matrix_type *E, double nsc ,int nrobs)
 {
   matrix_matlab_dump( E, "matrixE.dat");
   printf("Starting Dgemm for EE(T)\n");

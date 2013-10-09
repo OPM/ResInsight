@@ -66,3 +66,4 @@ from .ctime import ctime
 from .hash import Hash, StringHash, DoubleHash, IntegerHash
 from .latex import LaTeX
 from .substitution_list import SubstitutionList
+from .test_area import TestArea , TestAreaContext

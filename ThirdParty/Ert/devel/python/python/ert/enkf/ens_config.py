@@ -16,6 +16,7 @@
 from ert.cwrap import BaseCClass, CWrapper
 from ert.enkf import ENKF_LIB
 from ert.enkf.data import EnkfConfigNode
+from ert.enkf.enums import EnkfVarType
 from ert.util import StringList
 
 
@@ -51,8 +52,9 @@ class EnsConfig(BaseCClass):
         """ @rtype: EnkfConfigNode """
         return EnsConfig.cNamespace().add_field(self, key, eclipse_grid).setParent(self)
 
-    def alloc_keylist_from_var_type(self, var_mask):
+    def getKeylistFromVarType(self, var_mask):
         """ @rtype: StringList """
+        assert isinstance(var_mask, EnkfVarType)
         return EnsConfig.cNamespace().alloc_keylist_from_var_type(self, var_mask).setParent(self)
 
     def free(self):
@@ -72,4 +74,4 @@ EnsConfig.cNamespace().add_summary = cwrapper.prototype("enkf_config_node_ref en
 EnsConfig.cNamespace().add_gen_kw = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_gen_kw( ens_config, char*)")
 EnsConfig.cNamespace().add_gen_data = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_gen_data( ens_config, char*)")
 EnsConfig.cNamespace().add_field = cwrapper.prototype("enkf_config_node_ref ensemble_config_add_field( ens_config, char*, ecl_grid)")
-EnsConfig.cNamespace().alloc_keylist_from_var_type = cwrapper.prototype("stringlist_ref ensemble_config_alloc_keylist_from_var_type(ens_config, int)")
+EnsConfig.cNamespace().alloc_keylist_from_var_type = cwrapper.prototype("stringlist_ref ensemble_config_alloc_keylist_from_var_type(ens_config, enkf_var_type_enum)")

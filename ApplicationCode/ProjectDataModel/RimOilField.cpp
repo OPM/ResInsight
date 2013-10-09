@@ -25,7 +25,6 @@
 #include "RimIdenticalGridCaseGroup.h"
 
 #include "RiaApplication.h"
-#include "RiaVersionInfo.h"
 
 #include "RigGridManager.h"
 #include "RigCaseData.h"

@@ -92,7 +92,7 @@ int main(int argc , char ** argv) {
     test_assert_int_equal( i , well_conn_get_i( conn ));
     test_assert_int_equal( j , well_conn_get_j( conn ));
     test_assert_int_equal( k , well_conn_get_k( conn ));
-    test_assert_int_equal( segment , well_conn_get_segment( conn ));
+    test_assert_int_equal( segment , well_conn_get_segment_id( conn ));
     test_assert_bool_equal( open , well_conn_open( conn ));
     test_assert_int_equal( dir , well_conn_get_dir( conn ));
     test_assert_true( well_conn_MSW( conn ));
@@ -109,7 +109,7 @@ int main(int argc , char ** argv) {
     test_assert_int_equal( i , well_conn_get_i( conn ));
     test_assert_int_equal( j , well_conn_get_j( conn ));
     test_assert_int_equal( k , well_conn_get_k( conn ));
-    test_assert_int_equal( segment , well_conn_get_segment( conn ));
+    test_assert_int_equal( segment , well_conn_get_segment_id( conn ));
     test_assert_bool_equal( open , well_conn_open( conn ));
     test_assert_int_equal( dir , well_conn_get_dir( conn ));
     test_assert_true( well_conn_MSW( conn ));

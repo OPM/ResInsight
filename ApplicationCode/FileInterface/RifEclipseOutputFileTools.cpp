@@ -22,6 +22,7 @@
 #include "ecl_file.h"
 #include "ecl_kw_magic.h"
 #include "ecl_grid.h"
+#include "ecl_rsthead.h"
 
 #include <QFileInfo>
 #include <QDebug>
@@ -91,25 +92,25 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
         ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
         if (kwINTEHEAD)
         {
-            int day     = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX);
-            int month   = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX);
-            int year    = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX);
-            QDate simulationStart(year, month, day);
+            time_t ertTimeStamp = ecl_rsthead_date(kwINTEHEAD);
+            QDateTime simulationStart = QDateTime::fromTime_t(ertTimeStamp);
 
             for (int i = 0; i < days.size(); i++)
             {
+                QDateTime reportDateTime(simulationStart);
+                CVF_ASSERT(reportDateTime.isValid());
+
                 double dayValue = days[i];
                 double floorDayValue = cvf::Math::floor(dayValue);
-                double dayFraction = dayValue - floorDayValue;
+                reportDateTime = reportDateTime.addDays(static_cast<int>(floorDayValue));
 
+                double dayFraction = dayValue - floorDayValue;
                 int seconds = static_cast<int>(dayFraction * 24.0 * 60.0 * 60.0);
                 QTime time(0, 0);
                 time = time.addSecs(seconds);
 
-                QDate reportDate = simulationStart;
-                reportDate = reportDate.addDays(static_cast<int>(floorDayValue));
+                reportDateTime.setTime(time);
 
-                QDateTime reportDateTime(reportDate, time);
                 if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
                 {
                     timeStepsFound.push_back(reportDateTime);
@@ -124,14 +125,10 @@ void RifEclipseOutputFileTools::timeSteps(ecl_file_type* ecl_file, std::vector<Q
             ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, i);
             if (kwINTEHEAD)
             {
-                int day     = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_DAY_INDEX);
-                int month   = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_MONTH_INDEX);
-                int year    = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_YEAR_INDEX);
+                time_t ertTimeStamp = ecl_rsthead_date(kwINTEHEAD);
+                QDateTime reportDateTime = QDateTime::fromTime_t(ertTimeStamp);
+                CVF_ASSERT(reportDateTime.isValid());
 
-                QDate reportDate(year, month, day);
-                CVF_ASSERT(reportDate.isValid());
-                
-                QDateTime reportDateTime(reportDate);
                 if (std::find(timeStepsFound.begin(), timeStepsFound.end(), reportDateTime) ==  timeStepsFound.end())
                 {
                     timeStepsFound.push_back(reportDateTime);

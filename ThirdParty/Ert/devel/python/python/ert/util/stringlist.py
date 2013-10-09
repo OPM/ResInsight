@@ -58,7 +58,7 @@ class StringList(BaseCClass):
         ownership of the underlying object.
         """
 
-        c_ptr = StringList.cNamespace().stringlist_alloc()
+        c_ptr = StringList.cNamespace().alloc()
         super(StringList, self).__init__(c_ptr)
 
         if initial:
@@ -79,7 +79,7 @@ class StringList(BaseCClass):
             if index < 0 or index >= length:
                 raise IndexError
             if isinstance(value, StringType):
-                StringList.cNamespace().stringlist_iset(self, index, value)
+                StringList.cNamespace().iset(self, index, value)
             else:
                 raise TypeError("Item:%s not string type" % value)
 
@@ -98,7 +98,7 @@ class StringList(BaseCClass):
             if index < 0 or index >= length:
                 raise IndexError
             else:
-                return StringList.cNamespace().stringlist_iget(self, index)
+                return StringList.cNamespace().iget(self, index)
         else:
             raise TypeError("Index should be integer type")
 
@@ -124,7 +124,7 @@ class StringList(BaseCClass):
         """
         The length of the list - used to support builtin len().
         """
-        return StringList.cNamespace().stringlist_get_size(self)
+        return StringList.cNamespace().get_size(self)
 
 
     def __str__(self):
@@ -159,7 +159,7 @@ class StringList(BaseCClass):
         Appends a new string @s to list.
         """
         if isinstance(s, StringType):
-            StringList.cNamespace().stringlist_append(self, s)
+            StringList.cNamespace().append(self, s)
         else:
             sys.exit("Type mismatch")
 
@@ -202,6 +202,11 @@ class StringList(BaseCClass):
         """
         StringList.cNamespace().sort(self, cmp_flag)
 
+    def index(self, value):
+        """ @rtype: int """
+        assert isinstance(value, str)
+        return StringList.cNamespace().find_first(self, value)
+
     def free(self):
         StringList.cNamespace().free(self)
 
@@ -211,14 +216,15 @@ CWrapper.registerType("stringlist_obj", StringList.createPythonObject)
 CWrapper.registerType("stringlist_ref", StringList.createCReference)
 cwrapper = CWrapper(UTIL_LIB)
 
-StringList.cNamespace().stringlist_alloc = cwrapper.prototype("c_void_p stringlist_alloc_new( )")
+StringList.cNamespace().alloc = cwrapper.prototype("c_void_p stringlist_alloc_new( )")
 StringList.cNamespace().free = cwrapper.prototype("void stringlist_free( stringlist )")
-StringList.cNamespace().stringlist_append = cwrapper.prototype("void stringlist_append_copy( stringlist , char* )")
-StringList.cNamespace().stringlist_iget = cwrapper.prototype("char* stringlist_iget( stringlist , int )")
-StringList.cNamespace().stringlist_iget_copy = cwrapper.prototype("char* stringlist_iget_copy(stringlist, int)")
-StringList.cNamespace().stringlist_iset = cwrapper.prototype("void  stringlist_iset_copy( stringlist , int , char* )")
-StringList.cNamespace().stringlist_get_size = cwrapper.prototype("int  stringlist_get_size( stringlist )")
+StringList.cNamespace().append = cwrapper.prototype("void stringlist_append_copy( stringlist , char* )")
+StringList.cNamespace().iget = cwrapper.prototype("char* stringlist_iget( stringlist , int )")
+StringList.cNamespace().iget_copy = cwrapper.prototype("char* stringlist_iget_copy(stringlist, int)")
+StringList.cNamespace().iset = cwrapper.prototype("void  stringlist_iset_copy( stringlist , int , char* )")
+StringList.cNamespace().get_size = cwrapper.prototype("int  stringlist_get_size( stringlist )")
 StringList.cNamespace().contains = cwrapper.prototype("bool stringlist_contains(stringlist , char*)")
 StringList.cNamespace().sort = cwrapper.prototype("void stringlist_python_sort( stringlist , int)")
 StringList.cNamespace().pop = cwrapper.safe_prototype("char* stringlist_pop( stringlist )")
 StringList.cNamespace().last = cwrapper.safe_prototype("char* stringlist_get_last( stringlist )")
+StringList.cNamespace().find_first = cwrapper.safe_prototype("int stringlist_find_first(stringlist, char*)")

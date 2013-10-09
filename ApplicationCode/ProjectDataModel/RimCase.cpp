@@ -22,6 +22,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
+#include <QDebug>
 
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderMockModel.h"
@@ -399,7 +400,7 @@ RimReservoirCellResultsStorage* RimCase::results(RifReaderInterface::PorosityMod
 //--------------------------------------------------------------------------------------------------
 ///  Relocate the supplied file name, based on the search path as follows:
 ///  fileName, newProjectPath/fileNameWoPath, relocatedPath/fileNameWoPath
-///  If the file is not found in any of the positions, the fileName is returned unchanged
+///  If the file is not found in any of the positions, the fileName is returned but converted to Qt Style path separators: "/"
 ///
 ///  The relocatedPath is found in this way:
 ///  use the start of newProjectPath
@@ -407,11 +408,33 @@ RimReservoirCellResultsStorage* RimCase::results(RifReaderInterface::PorosityMod
 ///  such that the common start of oldProjectPath and m_gridFileName is removed from m_gridFileName
 ///  and replaced with the start of newProjectPath up to where newProjectPath starts to be equal to oldProjectPath
 //--------------------------------------------------------------------------------------------------
-QString RimCase::relocateFile(const QString& fileName,  const QString& newProjectPath, const QString& oldProjectPath, 
+QString RimCase::relocateFile(const QString& orgFileName,  const QString& orgNewProjectPath, const QString& orgOldProjectPath, 
                               bool* foundFile, std::vector<QString>* searchedPaths)
 {
     if (foundFile) *foundFile = true;
-
+    
+    // Make sure we have a Qt formatted path ( using "/" not "\")
+    QString fileName = QDir::fromNativeSeparators(orgFileName);
+    QString newProjectPath = QDir::fromNativeSeparators(orgNewProjectPath);
+    QString oldProjectPath = QDir::fromNativeSeparators(orgOldProjectPath);
+    
+    // If we from a file or whatever gets a real windows path on linux, we need to manually convert it
+    // because Qt will not. QDir::fromNativeSeparators does nothing on linux.
+    
+    bool isWindowsPath = false;
+    if (orgFileName.count("/")) isWindowsPath = false; // "/" are not allowed in a windows path
+    else if (orgFileName.count("\\") 
+             && !QFile::exists(orgFileName)) // To make sure we do not convert single linux files containing "\"
+    {
+        isWindowsPath = true; 
+    }
+    
+    if (isWindowsPath)
+    {
+        // Windows absolute path detected. transform.
+        fileName.replace(QString("\\"), QString("/"));
+    }
+    
     if (searchedPaths) searchedPaths->push_back(fileName);
     if (QFile::exists(fileName))
     {

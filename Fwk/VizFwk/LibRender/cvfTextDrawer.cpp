@@ -53,6 +53,7 @@
 #include "cvfRenderStateDepth.h"
 #include "cvfRenderStateBlending.h"
 #include "cvfRenderStatePolygonOffset.h"
+#include "cvfOpenGLCapabilities.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
@@ -349,8 +350,20 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 
         RenderStateLighting_FF light(false);
         light.applyOpenGL(oglContext);
-#endif
+
+        // The active texture may be set to something different than unit 0 if we end up using
+        // software rendering here, BUT the context actually has higher capabilities
+        // Must be set before any texture related OpenGL calls
+        if (oglContext->capabilities()->supportsOpenGL2())
+        {
+            glActiveTexture(GL_TEXTURE0);
+        }
+
+        // Will get turned on during rendering of text, but must be off for background and border
+        glDisable(GL_TEXTURE_2D);
+
         projCam.applyOpenGL();
+#endif
     }
     else
     {
@@ -417,7 +430,7 @@ void TextDrawer::doRender2d(OpenGLContext* oglContext, const MatrixState& matrix
 #ifndef CVF_OPENGL_ES
                     glEnable(GL_COLOR_MATERIAL);
                     glDisable(GL_TEXTURE_2D);
-                    glColor4fv(m_backgroundColor.ptr());
+                    glColor3fv(m_backgroundColor.ptr());
                     glBegin(GL_TRIANGLE_FAN);
                     glVertex3fv(v1);
                     glVertex3fv(v2);

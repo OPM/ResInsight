@@ -140,18 +140,26 @@ else()
 
     # Copy Octave generated *.oct files to application folder, will make it possible to use Octave functions
     # directly from the location of the ResInsight binaries
-    if (MSVC)
+    if (true)
         foreach (oct_bin ${OCTAVE_BINARY_OCT_FILES})
             
             get_filename_component(Filename "${oct_bin}" NAME)
 
-            add_custom_command(TARGET octave_plugins POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${oct_bin}"
-                "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>/${Filename}"
-            )
+            if(MSVC)
+                add_custom_command(TARGET octave_plugins POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${oct_bin}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>/${Filename}"
+                )
+            else()
+                add_custom_command(TARGET octave_plugins POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${oct_bin}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/${Filename}"
+                )
+            endif()    
         endforeach( oct_bin )
-    endif(MSVC)
+    endif()
 
     # Make ResInsight dependant on Octave, makes it easiser to debug Octave functionality by compiling ResInsight
     add_dependencies(ResInsight octave_plugins)

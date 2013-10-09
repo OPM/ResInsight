@@ -648,7 +648,7 @@ static void config_parse__(config_type * config ,
     current_path_elm = config_add_path_elm( config , config_path );
     path_stack_push_cwd( path_stack );
     if (config_path != NULL) {
-      chdir( config_path );
+      util_chdir( config_path );
       free( config_path );
     }
   }

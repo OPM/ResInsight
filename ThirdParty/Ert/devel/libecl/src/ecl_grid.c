@@ -42,13 +42,6 @@
 #include <ert/ecl/nnc_info.h>
 #include <ert/ecl/nnc_index_list.h>
 
-/*
-  If openmp is enabled the main loop in ecl_grid_init_GRDECL_data is
-  parallelized with openmp.  
-*/
-#ifdef HAVE_OPENMP
-#include <omp.h>
-#endif
 
 /**
   this function implements functionality to load eclispe grid files,

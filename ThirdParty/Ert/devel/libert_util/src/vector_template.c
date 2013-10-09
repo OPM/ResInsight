@@ -132,9 +132,8 @@ typedef struct {
 } sort_node_type;
 
 
-
-UTIL_SAFE_CAST_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
-
+static UTIL_SAFE_CAST_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
+UTIL_IS_INSTANCE_FUNCTION(@TYPE@_vector , TYPE_VECTOR_ID);
 
 
 static void @TYPE@_vector_realloc_data__(@TYPE@_vector_type * vector , int new_alloc_size) {
@@ -930,19 +929,22 @@ int @TYPE@_vector_get_min_index(const @TYPE@_vector_type * vector, bool reverse)
 */
 
 int @TYPE@_vector_index(const @TYPE@_vector_type * vector , @TYPE@ value) {
-  int index = 0;
-  while (true) {
-    if (vector->data[index] == value)
-      break;
-    
-    index++;
-    if (index == vector->size) {
-      index = -1;  /* Not found */
-      break;
+  if (vector->size) {
+    int index = 0;
+    while (true) {
+      if (vector->data[index] == value)
+        break;
+      
+      index++;
+      if (index == vector->size) {
+        index = -1;  /* Not found */
+        break;
+      }
     }
-  }
-  
-  return index;
+    
+    return index;
+  } else
+    return -1;
 }
 
 
@@ -952,47 +954,50 @@ int @TYPE@_vector_index(const @TYPE@_vector_type * vector , @TYPE@ value) {
 */
 
 int @TYPE@_vector_index_sorted(const @TYPE@_vector_type * vector , @TYPE@ value) {
-  if (value < vector->data[0])
-    return -1;
-  if (value == vector->data[ 0 ])
-    return 0;
-
-  {
-    int last_index = vector->size - 1;
-    if (value > vector->data[ last_index ])
-      return -1;
-    if (value == vector->data[ last_index])
-      return last_index;
-  }
-
-
-  {
-    int lower_index = 0;
-    int upper_index = vector->size - 1;
+  if (vector->size) {
     
-    while (true) {
-      if ((upper_index - lower_index) <= 1)
-        /* Not found */
+    if (value < vector->data[0])
+      return -1;
+    if (value == vector->data[ 0 ])
+      return 0;
+    
+    {
+      int last_index = vector->size - 1;
+      if (value > vector->data[ last_index ])
         return -1;
-
-      {
-        int center_index = (lower_index + upper_index) / 2;
-        @TYPE@ center_value = vector->data[ center_index ];
+      if (value == vector->data[ last_index])
+        return last_index;
+    }
+    
+    
+    {
+      int lower_index = 0;
+      int upper_index = vector->size - 1;
+      
+      while (true) {
+        if ((upper_index - lower_index) <= 1)
+          /* Not found */
+          return -1;
         
-        if (center_value == value)
-          /* Found it */
-          return center_index;
-        else {
-          if (center_value > value)
-            upper_index = center_index;
-          else
-            lower_index = center_index;
+        {
+          int center_index = (lower_index + upper_index) / 2;
+          @TYPE@ center_value = vector->data[ center_index ];
+          
+          if (center_value == value)
+            /* Found it */
+            return center_index;
+          else {
+            if (center_value > value)
+              upper_index = center_index;
+            else
+              lower_index = center_index;
+          }
         }
       }
     }
-  }
+  } else
+    return -1;
 }
-
 
 /*****************************************************************/
 /* Functions for sorting a vector instance. */

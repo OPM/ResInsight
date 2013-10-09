@@ -59,8 +59,10 @@ before giving up completely.
 """
 import os.path
 import cwrap.clib
+import sys
+import warnings
 
-
+required_version_hex = 0x02060000
 
 ert_lib_path = os.getenv("ERT_LIBRARY_PATH")
 if ert_lib_path:
@@ -75,3 +77,7 @@ else:
         ert_lib_path = None
     
 cwrap.clib.ert_lib_path = ert_lib_path
+
+if sys.hexversion < required_version_hex:
+    raise Exception("ERT Python requires at least version 2.6 of Python")
+

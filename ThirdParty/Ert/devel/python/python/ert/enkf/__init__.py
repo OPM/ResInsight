@@ -17,17 +17,21 @@
 
 import ert.cwrap.clib as clib
 
-clib.ert_load("libanalysis.so")
+import ert.analysis
 ENKF_LIB = clib.ert_load("libenkf.so")
 
-from ert.enkf.util import ObsVector, TimeMap
+from .enums import EnkfStateType, EnkfVarType, EnkfRunEnum, LoadFailTypeEnum, EnkfObservationImplementationType
 
-from .enkf_enum import EnkfStateEnum, EnkfRunEnum
+from .util import TimeMap
+from .enkf_fs import EnkfFs
 
+from .observations import SummaryObservation, ObsVector
+
+from .analysis_iter_config import AnalysisIterConfig
 from .analysis_config import AnalysisConfig
 from .block_obs import BlockObs
 from .ecl_config import EclConfig
-from .enkf_fs import EnkfFs
+
 from .enkf_obs import EnkfObs
 from .enkf_state import EnKFState
 from .ens_config import EnsConfig
@@ -37,6 +41,7 @@ from .local_config import LocalConfig
 from .model_config import ModelConfig
 from .plot_config import PlotConfig
 from .site_config import SiteConfig
+from .enkf_main import EnKFMain
 
-from ert.enkf.data import EnkfConfigNode, EnkfNode, GenDataConfig, GenKwConfig, FieldConfig, Field
+from .data import EnkfConfigNode, EnkfNode, GenDataConfig, GenKwConfig, FieldConfig, Field
 

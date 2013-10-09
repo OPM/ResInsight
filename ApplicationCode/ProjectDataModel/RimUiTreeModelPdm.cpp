@@ -147,10 +147,12 @@ bool RimUiTreeModelPdm::deletePropertyFilter(const QModelIndex& itemIndex)
     bool wasSomeFilterActive = propertyFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
 
     propertyFilterCollection->remove(propertyFilter);
     delete propertyFilter;
+
+    // updateUiSubTree(propertyFilterCollection); // To be enabled
 
     if (wasFilterActive)
     {
@@ -187,10 +189,12 @@ bool RimUiTreeModelPdm::deleteRangeFilter(const QModelIndex& itemIndex)
     bool wasSomeFilterActive = rangeFilterCollection->hasActiveFilters();
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
 
     rangeFilterCollection->remove(rangeFilter);
     delete rangeFilter;
+
+    // updateUiSubTree(rangeFilterCollection); // To be enabled
 
     if (wasFilterActive)
     {
@@ -221,11 +225,12 @@ bool RimUiTreeModelPdm::deleteReservoirView(const QModelIndex& itemIndex)
     CVF_ASSERT(reservoirView);
 
     // Remove Ui items pointing at the pdm object to delete
-    removeRows_special(itemIndex.row(), 1, itemIndex.parent());
+    removeRows_special(itemIndex.row(), 1, itemIndex.parent()); // To be deleted
 
     reservoirView->eclipseCase()->removeReservoirView(reservoirView);
     delete reservoirView;
 
+    // updateUiSubTree(reservoirView->eclipseCase()); // To be enabled
     clearClipboard();
 
     return true;
@@ -591,38 +596,28 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
 
-    QModelIndex scriptModelIndex = getModelIndexFromPdmObject(proj->scriptCollection());
-    if (!scriptModelIndex.isValid()) return NULL;
-
-    caf::PdmUiTreeItem* currentItem = getTreeItemFromIndex(scriptModelIndex);
-    if (!currentItem) return NULL;
-
-    QModelIndex rootIndex = scriptModelIndex.parent();
-    caf::PdmUiTreeItem* rootTreeItem = currentItem->parent();
-
-    // New case group is inserted before the last item, the script item
-    int position = rootTreeItem->childCount() - 1;
-
-    beginInsertRows(rootIndex, position, position);
-
-    RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
-    proj->assignIdToCaseGroup(createdObject);
-
-    RimCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
-    proj->assignCaseIdToCase(createdReservoir);
-    createdObject->name = QString("Grid Case Group %1").arg(position + 1);
     RimAnalysisModels* analysisModels = proj->activeOilField() ? proj->activeOilField()->analysisModels() : NULL;
+
     if (analysisModels)
     {
+        RimIdenticalGridCaseGroup* createdObject = new RimIdenticalGridCaseGroup;
+        proj->assignIdToCaseGroup(createdObject);
+
+        RimCase* createdReservoir = createdObject->createAndAppendStatisticsCase();
+        proj->assignCaseIdToCase(createdReservoir);
+        createdObject->name = QString("Grid Case Group %1").arg(analysisModels->caseGroups().size() + 1);
+
         analysisModels->caseGroups().push_back(createdObject);
+
+        this->updateUiSubTree(analysisModels);
+        insertedModelIndex = getModelIndexFromPdmObject(createdObject);
+
+        return createdObject;
     }
-
-    caf::PdmUiTreeItem* childItem = caf::UiTreeItemBuilderPdm::buildViewItems(rootTreeItem, position, createdObject);
-    endInsertRows();
-
-    insertedModelIndex = index(position, 0, rootIndex);
-
-    return createdObject;
+    else
+    {
+        return NULL;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

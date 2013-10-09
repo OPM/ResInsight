@@ -37,6 +37,7 @@ extern "C" {
   int                      state_map_get_size( state_map_type * map);
   realisation_state_enum   state_map_iget( state_map_type * map , int index);
   void                     state_map_update_undefined( state_map_type * map , int index , realisation_state_enum new_state);
+  void                     state_map_update_matching( state_map_type * map , int index , int state_mask , realisation_state_enum new_state);
   void                     state_map_iset( state_map_type * map ,int index , realisation_state_enum state);
   bool                     state_map_equal( state_map_type * map1 , state_map_type * map2);
   void                     state_map_fwrite( state_map_type * map , const char * filename);

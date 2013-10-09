@@ -78,7 +78,7 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
 
     if (socket.bytesToWrite() && socket.state() != QAbstractSocket::ConnectedState)
     {
-        error("riSetActiveCellProperty : ResInsight refused to accept the data. Maybe the dimentions or porosity model is wrong");
+        error("riSetActiveCellProperty : ResInsight refused to accept the data. Maybe the dimensions or porosity model is wrong");
     }
     return;
 }
@@ -92,6 +92,8 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
            "\n"
            "Interprets the supplied matrix as a property set defined for the active cells in the case, "
            "and puts the data into ResInsight as a \"Generated\" property with the name \"PropertyName\"."
+           "The \"TimeStepIndices\" argument is used to \"label\" all the time steps present in the supplied data matrix,"
+           "and must thus be complete. The time step data will then be put into ResInsight at the time steps requested."  
            "If the CaseId is not defined, ResInsight’s Current Case is used."
            )
 {
@@ -146,7 +148,7 @@ DEFUN_DLD (riSetActiveCellProperty, args, nargout,
 
     // Check if we have a Requested TimeSteps
 
-    if (!(nargin > argIndices[3] && args(argIndices[3]).is_matrix_type()))
+    if (!(nargin > argIndices[3] && args(argIndices[3]).is_matrix_type() && !args(argIndices[3]).is_string()))
     {
         argIndices[3] = -1;
         for (size_t aIdx = 4; aIdx < argIndices.size(); ++aIdx)

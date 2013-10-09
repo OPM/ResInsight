@@ -36,7 +36,9 @@ typedef struct analysis_iter_config_struct analysis_iter_config_type;
   const char *                    analysis_iter_config_iget_runpath_fmt( analysis_iter_config_type * config , int iter);
   void                            analysis_iter_config_add_config_items( config_type * config );
   void                            analysis_iter_config_init(analysis_iter_config_type * iter_config , const config_type * config);
-
+  void                            analysis_iter_config_set_runpath_fmt( analysis_iter_config_type * config , const char * runpath_fmt);
+  char *                          analysis_iter_config_get_runpath_fmt( analysis_iter_config_type * config);
+    
 #ifdef __cplusplus 
 }
 #endif

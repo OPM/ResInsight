@@ -82,7 +82,7 @@ void path_stack_free( path_stack_type * path_stack ) {
 
 bool path_stack_push( path_stack_type * path_stack , const char * path ) {
   if (path != NULL)
-    if (chdir( path ) != 0)
+    if (util_chdir( path ) != 0)
       return false;
   
   path_stack_push_cwd( path_stack );
@@ -98,7 +98,7 @@ void path_stack_push_cwd( path_stack_type * path_stack ) {
 
 const char * path_stack_pop( path_stack_type * path_stack ) {
   char * path = stringlist_pop( path_stack->stack );
-  if (chdir( path ) == 0)
+  if (util_chdir( path ) == 0)
     return path;
   else {
     // The directory has become inaccesible ...

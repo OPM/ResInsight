@@ -24,56 +24,56 @@ class SiteConfig(BaseCClass):
     def __init__(self):
         raise NotImplementedError("Class can not be instantiated directly!")
 
-    def get_queue_name(self):
+    def getQueueName(self):
         """ @rtype: str """
         return SiteConfig.cNamespace().get_queue_name( self )
 
-    def set_job_queue(self, queue):
+    def setJobQueue(self, queue):
         SiteConfig.cNamespace().set_job_queue( self , queue)
 
-    def get_lsf_queue(self):
+    def getLsfQueue(self):
         """ @rtype: str """
         return SiteConfig.cNamespace().get_lsf_queue( self )
 
-    def set_lsf_queue(self, queue):
+    def setLsfQueue(self, queue):
         SiteConfig.cNamespace().set_lsf_queue( self , queue)
 
-    def get_max_running_lsf(self):
+    def getMaxRunningLsf(self):
         """ @rtype: int """
         return SiteConfig.cNamespace().get_max_running_lsf( self )
 
-    def set_max_running_lsf(self, max_running):
+    def setMaxRunningLsf(self, max_running):
         SiteConfig.cNamespace().set_max_running_lsf( self , max_running)
 
-    def get_lsf_request(self):
+    def getLsfRequest(self):
         """ @rtype: str """
         return SiteConfig.cNamespace().get_lsf_request( self )
 
-    def set_lsf_request(self, lsf_request):
+    def setLsfRequest(self, lsf_request):
         SiteConfig.cNamespace().set_lsf_request( self , lsf_request)
 
-    def clear_rsh_host_list(self):
+    def clearRshHostList(self):
         SiteConfig.cNamespace().clear_rsh_host_list( self )
 
-    def get_rsh_command(self):
+    def getRshCommand(self):
         """ @rtype: str """
         return SiteConfig.cNamespace().get_rsh_command( self )
 
     def set_rsh_command(self, rsh_command):
         SiteConfig.cNamespace().set_rsh_command( self , rsh_command)
 
-    def get_max_running_rsh(self):
+    def getMaxRunningRsh(self):
         """ @rtype: int """
         return SiteConfig.cNamespace().get_max_running_rsh( self )
 
-    def set_max_running_rsh(self, max_running):
+    def setMaxRunningRsh(self, max_running):
         SiteConfig.cNamespace().set_max_running_rsh( self , max_running)
 
-    def get_max_running_local(self):
+    def getMaxRunningLocal(self):
         """ @rtype: int """
         return SiteConfig.cNamespace().get_max_running_local( self )
 
-    def set_max_running_local(self, max_running):
+    def setMaxRunningLocal(self, max_running):
         SiteConfig.cNamespace().set_max_running_local( self , max_running)
 
     def get_job_script(self):
@@ -125,20 +125,20 @@ class SiteConfig(BaseCClass):
     def set_license_root_pathmax_submit(self, path):
         SiteConfig.cNamespace().set_license_root_path( self , path)
 
-    def queue_is_running(self):
+    def isQueueRunning(self):
         """ @rtype: bool """
         return SiteConfig.cNamespace().queue_is_running( self )
 
-    def get_job_queue(self):
+    def getJobQueue(self):
         """ @rtype: JobQueue """
         return  SiteConfig.cNamespace().get_job_queue(self).setParent(self)
 
-    def get_rsh_host_list(self):
+    def getRshHostList(self):
         """ @rtype: IntegerHash """
         host_list = SiteConfig.cNamespace().get_rsh_host_list(self)
         return host_list
 
-    def add_rsh_host(self, host, max_running):
+    def addRshHost(self, host, max_running):
         SiteConfig.cNamespace().add_rsh_host(self, host, max_running)
 
     def free(self):

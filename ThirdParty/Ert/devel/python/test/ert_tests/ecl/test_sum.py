@@ -17,7 +17,12 @@
 
 import os
 import datetime
-from unittest2 import skip, skipUnless, skipIf
+
+try:
+    from unittest2 import skipIf, skipUnless, skipIf
+except ImportError:
+    from unittest import skipIf, skipUnless, skipIf
+
 from ert.ecl import EclSum
 
 from ert.util import StringList, TimeVector, DoubleVector
@@ -138,11 +143,12 @@ class SumTest(ExtendedTestCase):
         self.assertEqual(sum.get_report_time(10), datetime.date(2000, 10, 1))
         self.assertAlmostEqualScaled(sum.get_from_report("FOPT", 10), 6.67447e+06)
 
+
     @skipIf(ExtendedTestCase.slowTestShouldNotRun(), "Slow test skipped")
     def test_fwrite(self):
         # todo: What is tested here?
-        #work_area = TestArea("python/sum-test/fwrite", True)
-        with TestAreaContext("python/sum-test/fwrite", True):
+        # work_area = TestArea("python/sum-test/fwrite", True)
+        with TestAreaContext("python/sum-test/fwrite") as work_area:
             self.ecl_sum.fwrite(ecl_case="CASE")
             self.assertTrue(True)
 

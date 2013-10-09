@@ -26,7 +26,19 @@
   This function is purely a helper function for util_abort().
 */
 
-
+#if !defined(__GLIBC__)         /* note: not same as __GNUC__ */
+#  if defined (__APPLE__)
+#    include <stdlib.h>         /* alloca   */
+#    include <sys/syslimits.h>  /* PATH_MAX */
+#    include <mach-o/dyld.h>    /* _NSGetExecutablePath */
+#  elif defined (__LINUX__)
+#    include <stdlib.h>         /* alloca   */
+#    include <limits.h>         /* PATH_MAX */
+#    include <unistd.h>         /* readlink */
+#  else
+#    error No known program_invocation_name in runtime library
+#  endif
+#endif
 
 #define UNDEFINED_FUNCTION "??"
 
@@ -213,6 +225,16 @@ void util_abort(const char * fmt , ...) {
     const bool include_backtrace = true;
     if (include_backtrace) {
       if (__abort_program_message != NULL) {
+#if !defined(__GLIBC__)
+        /* allocate a temporary buffer to hold the path */
+        char* program_invocation_name = alloca (PATH_MAX);
+#  if defined(__APPLE__)
+        uint32_t buflen = PATH_MAX;
+        _NSGetExecutablePath (program_invocation_name, &buflen);
+#  elif defined(__LINUX__)
+        readlink ("/proc/self/exe", program_invocation_name, PATH_MAX);
+#  endif
+#endif /* !defined(__GLIBC__) */
         fprintf(abort_dump,"--------------------------------------------------------------------------------\n");
         fprintf(abort_dump,"%s",__abort_program_message);
         fprintf(abort_dump, "Current executable ..: %s\n" , program_invocation_name);

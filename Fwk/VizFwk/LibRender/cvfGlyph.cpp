@@ -347,11 +347,10 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
             texture->setWrapMode(Texture2D_FF::CLAMP);
             texture->setMinFilter(Texture2D_FF::NEAREST);
             texture->setMagFilter(Texture2D_FF::NEAREST);
-            texture->setupTexture(oglContext);
-            texture->setupTextureParams(oglContext);
 
             ref<RenderStateTextureMapping_FF> textureMapping = new RenderStateTextureMapping_FF(texture.p());
             textureMapping->setTextureFunction(RenderStateTextureMapping_FF::MODULATE);
+            textureMapping->setupTexture(oglContext);
 
             m_textureBindings = textureMapping;
 #endif
@@ -364,7 +363,6 @@ void Glyph::setupAndBindTexture(OpenGLContext* oglContext, bool software)
             sampler->setMagFilter(Sampler::NEAREST);
 
             ref<Texture> texture = new Texture(m_textureImage.p());
-            texture->setupTexture(oglContext);
 
             RenderStateTextureBindings* textureBindings = new RenderStateTextureBindings(texture.p(), sampler.p(), "dummy");
             textureBindings->setupTextures(oglContext);

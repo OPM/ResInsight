@@ -84,7 +84,7 @@ int main( int argc , char ** argv) {
   test_wrapper( file );
   test_write( "/tmp/path/does/not/exist" , false );  
   {
-    test_work_area_type * work_area = test_work_area_alloc("ecl_fortio.write" , true );
+    test_work_area_type * work_area = test_work_area_alloc("ecl_fortio.write" );
     util_make_path("path");
     test_write( "path/file.x" , true );
     test_work_area_free( work_area );

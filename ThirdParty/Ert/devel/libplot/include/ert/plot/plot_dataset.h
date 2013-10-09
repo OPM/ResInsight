@@ -95,8 +95,8 @@ int plot_dataset_step_next(plot_dataset_type * d);
 void plot_dataset_finished(plot_dataset_type * d, bool flag);
 bool plot_dataset_is_finished(plot_dataset_type * d);
 
-void plot_dataset_update_range(plot_dataset_type * , bool * , plot_range_type * );
-void plot_dataset_update_range_histogram(plot_dataset_type * d, plot_range_type * range);
+void plot_dataset_update_range(const plot_dataset_type * , plot_range_type * );
+void plot_dataset_update_range_histogram(const plot_dataset_type * d, plot_range_type * range);
 
 plot_dataset_type *plot_dataset_alloc( plot_data_type , const char * label , bool logx , bool logy);
 void plot_dataset_free__(void * d); 

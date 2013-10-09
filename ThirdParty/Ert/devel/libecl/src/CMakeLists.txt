@@ -13,21 +13,6 @@ set_target_properties( ecl PROPERTIES VERSION 1.0 SOVERSION 1.0 )
 if (USE_RUNPATH)
    add_runpath( ecl )
 endif()
-
-#-----------------------------------------------------------------
-set( OPENMP OFF )
-option(USE_OPENMP "Include OpenMP support" OFF)
-if (USE_OPENMP)
-   INCLUDE(CheckCCompilerFlag)
-   CHECK_C_COMPILER_FLAG(-fopenmp OPENMP)
-endif()
-
-if (OPENMP)
-   add_definitions( -DHAVE_OPENMP -fopenmp )
-   target_link_libraries( ecl gomp )
-else()
-   add_definitions( -fno-openmp )        
-endif()
 target_link_libraries( ecl ert_geometry ert_util )
 
 #-----------------------------------------------------------------

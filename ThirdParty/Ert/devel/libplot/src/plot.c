@@ -21,6 +21,7 @@
 
 #include <ert/util/hash.h>
 #include <ert/util/vector.h>
+#include <ert/util/type_macros.h>
 
 #include <ert/plot/plplot_driver.h>
 #include <ert/plot/plot.h>
@@ -51,14 +52,16 @@
 
 
 
-
+#define PLOT_TYPE_ID 7000091
 
 
 struct plot_struct {
+  UTIL_TYPE_ID_DECLARATION;
   char               * timefmt;          /* The format string used to convert from time_t -> strtime on the x-axis; NULL if not used. */
   vector_type        * dataset;          /* Vector of datasets to plot. */ 
   hash_type          * dataset_hash;     /* Hash table of the datasets - indexed by label. */
   bool                 is_histogram;     /* If this is true it can only contain histogram datasets. */
+  vector_type        * text_list;
   
   char               * xlabel;           /* Label for the x-axis */
   char               * ylabel;           /* Label for the y-axis */
@@ -78,6 +81,7 @@ struct plot_struct {
   plot_driver_type   * driver;           /* Plot driver - mainly list of function pointers to 'actually do it'. */
 };
 
+UTIL_IS_INSTANCE_FUNCTION( plot , PLOT_TYPE_ID)
 
 
 
@@ -153,6 +157,29 @@ static void plot_set_log( plot_type * plot , bool logx , bool logy) {
   plot->logy            = logy;
 }
 
+plot_driver_type * plot_alloc_driver( const char * __driver_type , const void * init_arg) {
+
+  plot_driver_type * driver = NULL;
+  {
+    char * driver_type = util_alloc_string_copy( __driver_type );
+    util_strupr( driver_type );
+    
+    if (util_string_equal( driver_type , "PLPLOT")) {
+      if (plplot_driver_check_init_arg( init_arg ))
+        driver  = plplot_driver_alloc(init_arg);
+    } else if (util_string_equal( driver_type , "TEXT"))
+      driver  = text_driver_alloc(init_arg);
+    else
+      util_abort("%s: plot driver:%s not implemented ... \n",__func__ , __driver_type);
+    
+    free( driver_type );
+  }
+
+  if (driver)
+    plot_driver_assert( driver );
+  return driver;
+}
+
 
 /**
    This function allocates the plot handle. The first argument is a
@@ -164,48 +191,38 @@ static void plot_set_log( plot_type * plot , bool logx , bool logy) {
 
 plot_type * plot_alloc(const char * __driver_type , const void * init_arg , bool logx , bool logy)
 {
-  plot_type * plot = util_malloc(sizeof *plot );
-  {
-    /*
-      Loading the driver:
-    */
-    char * driver_type = util_alloc_string_copy( __driver_type );
-    util_strupr( driver_type );
-
-    if (util_string_equal( driver_type , "PLPLOT"))
-      plot->driver  = plplot_driver_alloc(init_arg);
-    else if (util_string_equal( driver_type , "TEXT"))
-      plot->driver  = text_driver_alloc(init_arg);
-    else
-      util_abort("%s: plot driver:%s not implemented ... \n",__func__ , __driver_type);
+  plot_driver_type * driver = plot_alloc_driver( __driver_type , init_arg );
+  if (driver) {
+    plot_type * plot = util_malloc(sizeof *plot );
+    UTIL_TYPE_ID_INIT( plot , PLOT_TYPE_ID );
     
-    plot_driver_assert( plot->driver );
-
-    free( driver_type );
-  }
-
-  /* Initializing plot data which is common to all drivers. */
-  plot->is_histogram    = false;
-  plot->dataset         = vector_alloc_new();
-  plot->dataset_hash    = hash_alloc();
-  plot->range           = plot_range_alloc();
-  plot->timefmt         = NULL;
-  plot->xlabel          = NULL;
-  plot->ylabel          = NULL;
-  plot->title           = NULL;
-  
-  /* 
-     These functions only manipulate the internal plot_state
-     variables, and do not call the driver functions.
-  */
-  plot_set_window_size(plot , PLOT_DEFAULT_WIDTH , PLOT_DEFAULT_HEIGHT);
-  plot_set_box_color(plot , PLOT_DEFAULT_BOX_COLOR);
-  plot_set_label_color(plot , PLOT_DEFAULT_LABEL_COLOR);
-  plot_set_label_fontsize(plot , 1.0);
-  plot_set_axis_fontsize(plot , 1.0);
-  plot_set_labels(plot , "" , "" , ""); /* Initializeing with empty labels. */
-  plot_set_log( plot , logx , logy); /* Default - no log on the axis. */
-  return plot;
+    plot->driver = driver;
+    
+    /* Initializing plot data which is common to all drivers. */
+    plot->is_histogram    = false;
+    plot->text_list       = vector_alloc_new();
+    plot->dataset         = vector_alloc_new();
+    plot->dataset_hash    = hash_alloc();
+    plot->range           = plot_range_alloc();
+    plot->timefmt         = NULL;
+    plot->xlabel          = NULL;
+    plot->ylabel          = NULL;
+    plot->title           = NULL;
+    
+    /* 
+       These functions only manipulate the internal plot_state
+       variables, and do not call the driver functions.
+    */
+    plot_set_window_size(plot , PLOT_DEFAULT_WIDTH , PLOT_DEFAULT_HEIGHT);
+    plot_set_box_color(plot , PLOT_DEFAULT_BOX_COLOR);
+    plot_set_label_color(plot , PLOT_DEFAULT_LABEL_COLOR);
+    plot_set_label_fontsize(plot , 1.0);
+    plot_set_axis_fontsize(plot , 1.0);
+    plot_set_labels(plot , "" , "" , ""); /* Initializeing with empty labels. */
+    plot_set_log( plot , logx , logy); /* Default - no log on the axis. */
+    return plot;
+  } else
+    return NULL;
 }
 
 
@@ -260,6 +277,7 @@ static void plot_free_all_datasets(plot_type * plot) {
 void plot_free( plot_type * plot )
 {
   plot_driver_free( plot->driver );
+  vector_free( plot->text_list );
   plot_free_all_datasets(plot);
   plot_range_free(plot->range);
   util_safe_free(plot->timefmt);
@@ -277,7 +295,7 @@ void plot_free( plot_type * plot )
     1. Looping through all the datasets to find the minimum and
        maximum values of x and y, these are set in the plot_range
        struct.
-
+       
     2. The plot_range() methods are used to calculate final range
        xmin,xmax,ymin,ymax values based on the extremal values from
        point 1, padding values and invert_axis flags.
@@ -292,10 +310,6 @@ void plot_free( plot_type * plot )
 
 */
 
-static void plot_set_range__(plot_type * plot) {
-  plot_update_range(plot , plot->range);
-  plot_range_apply( plot->range );
-}
 
 
 
@@ -308,14 +322,21 @@ void plot_data(plot_type * plot)
   int iplot;
   plot_driver_type * driver = plot->driver;
   
-  plot_set_range__(plot);
-  
+  plot_update_range(plot);
   plot_driver_set_window_size( driver , plot->width , plot->height );
   plot_driver_set_labels( driver , plot->title , plot->xlabel  , plot->ylabel , plot->label_color , plot->label_font_size);
   plot_driver_set_axis( driver , plot->range , plot->timefmt , plot->box_color , plot->axis_font_size );
   
   for (iplot = 0; iplot < vector_get_size( plot->dataset ); iplot++) 
     plot_dataset_draw(vector_iget(plot->dataset , iplot) , driver , plot->range);
+  
+  {
+    int itext;
+    for (itext = 0; itext < vector_get_size( plot->text_list ); itext++) {
+      const plot_text_type * plot_text = vector_iget_const( plot->text_list , itext );
+      plot_driver_text( driver , plot_text );
+    }
+  }
 }
 
 
@@ -331,23 +352,26 @@ void plot_data(plot_type * plot)
 
 
 void plot_set_range(plot_type * plot , double xmin , double xmax , double ymin , double ymax) {
-  plot_range_set_range(plot->range , xmin , xmax , ymin , ymax);
+  plot_set_xmin( plot , xmin );
+  plot_set_xmax( plot , xmax );
+  plot_set_ymin( plot , ymin );
+  plot_set_ymax( plot , ymax );
 }
 
 void plot_set_xmin(plot_type * plot , double xmin) {
-  plot_range_set_xmin( plot->range , xmin );
+  plot_range_set_manual_xmin( plot->range , xmin );
 }
 
 void plot_set_xmax(plot_type * plot , double xmax) {
-  plot_range_set_xmax( plot->range , xmax );
+  plot_range_set_manual_xmax( plot->range , xmax );
 }
 
 void plot_set_ymin(plot_type * plot , double ymin) {
-  plot_range_set_ymin( plot->range , ymin );
+  plot_range_set_manual_ymin( plot->range , ymin );
 }
 
 void plot_set_ymax(plot_type * plot , double ymax) {
-  plot_range_set_ymax( plot->range , ymax );
+  plot_range_set_manual_ymax( plot->range , ymax );
 }
 
 
@@ -378,11 +402,11 @@ void plot_set_padding(plot_type * plot , double padding) {
 /*****************************************************************/
 
 void plot_invert_x_axis(plot_type * plot) {
-  plot_range_invert_x_axis(plot->range , true);
+  plot_range_set_invert_x_axis(plot->range , true);
 }
 
 void plot_invert_y_axis(plot_type * plot) {
-  plot_range_invert_y_axis(plot->range , true);
+  plot_range_set_invert_y_axis(plot->range , true);
 }
 
 /*****************************************************************/
@@ -427,26 +451,20 @@ void plot_set_labels(plot_type * plot, const char *xlabel, const char *ylabel, c
 
 
 
-/**
- * @brief Get extrema values
- * @param plot your current plot
- * @param x_max pointer to the new x maximum
- * @param y_max pointer to the new y maximum
- * @param x_min pointer to the new x minimum
- * @param y_min pointer to the new y minimum
- * 
- * Find the extrema values in the plot plot, checks all added datasets.
- */
 
-void plot_update_range(plot_type * plot, plot_range_type * range) {
+void plot_update_range(plot_type * plot) {
   if (plot->is_histogram) 
-    plot_dataset_update_range_histogram( vector_iget(plot->dataset , 0) , range);
+    plot_dataset_update_range_histogram( vector_iget(plot->dataset , 0) , plot->range);
   else {
-    bool first_pass = true;
     int iplot;
     for (iplot = 0; iplot < vector_get_size( plot->dataset  ); iplot++) 
-      plot_dataset_update_range(vector_iget(plot->dataset , iplot) , &first_pass , range);
+      plot_dataset_update_range(vector_iget(plot->dataset , iplot) , plot->range);
   }
 }
 
 
+void plot_add_text( plot_type * plot , double x , double y , double font_scale , const char * text) {
+  plot_text_type * text_node = plot_text_alloc(x , y ,  font_scale , text );
+  vector_append_owned_ref( plot->text_list , text_node , plot_text_free__ );
+  plot_text_update_range( text_node , plot->range );
+}

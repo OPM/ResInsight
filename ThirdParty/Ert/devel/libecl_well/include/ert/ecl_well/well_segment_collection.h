@@ -53,7 +53,7 @@ extern "C" {
                                                                          const well_conn_collection_type * connections);
   void                           well_segment_collection_add_branches( const well_segment_collection_type * segment_collection , 
                                                                        well_branch_collection_type * branches );
-  
+
 #ifdef __cplusplus
 }
 #endif

@@ -761,7 +761,7 @@ void RiuMainWindow::slotOpenInputFiles()
         // Remember the path to next time
         app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
  
-        app->openInputEclipseCase("Eclipse Input Files", fileNames);
+        app->openInputEclipseCaseFromFileNames(fileNames);
     }
 }
 
@@ -1759,4 +1759,12 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
         QString resultInfo = QString("Total time '%1 ms' for %2 number of redraws, frame time '%3 ms'").arg(totalTimeMS).arg(redrawCount).arg(msPerFrame);
         setResultInfo(resultInfo);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setDefaultWindowSize()
+{
+    resize(1000, 810);
 }

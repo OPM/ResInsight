@@ -79,3 +79,4 @@ from .driver import QueueDriverEnum, Driver, LSFDriver, RSHDriver, LocalDriver
 from .ext_job import ExtJob
 from .ext_joblist import ExtJoblist
 from .forward_model import ForwardModel
+from .job_status_type_enum import JobStatusType
