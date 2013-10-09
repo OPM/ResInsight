@@ -215,6 +215,7 @@ set( EXE_FILES
     ${WIN_RESOURCE}
 	${HEADER_FILES}
 	${REFERENCED_CMAKE_FILES}
+    ../ResInsightVersion.cmake
 )
 
 add_executable( ResInsight ${EXE_FILES} )
