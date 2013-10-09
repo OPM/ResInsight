@@ -38,6 +38,8 @@ extern "C" {
 #include <ert/enkf/obs_vector.h>
 #include <ert/enkf/local_obsset.h>
 #include <ert/enkf/enkf_types.h>
+#include <ert/enkf/local_obsdata_node.h>
+#include <ert/enkf/local_obsdata.h>
 
   bool            enkf_obs_have_obs( const enkf_obs_type * enkf_obs );
   const char    * enkf_obs_get_config_file( const enkf_obs_type * enkf_obs);
@@ -71,6 +73,26 @@ extern "C" {
                                     const local_obsset_type * obsset);
   
   
+  void enkf_obs_get_obs_and_measure_node( const enkf_obs_type      * enkf_obs,
+                                          enkf_fs_type             * fs,
+                                          const local_obsdata_node_type * obs_node , 
+                                          state_enum                 state,
+                                          const int_vector_type    * ens_active_list , 
+                                          const enkf_state_type    ** ensemble ,
+                                          meas_data_type           * meas_data,
+                                          obs_data_type            * obs_data);
+
+  
+  void enkf_obs_get_obs_and_measure_data(const enkf_obs_type      * enkf_obs,
+                                         enkf_fs_type             * fs,
+                                         const local_obsdata_type * local_obsdata , 
+                                         state_enum                 state,
+                                         const int_vector_type    * ens_active_list , 
+                                         const enkf_state_type    ** ensemble ,
+                                         meas_data_type           * meas_data,
+                                         obs_data_type            * obs_data);
+
+
   stringlist_type * enkf_obs_alloc_typed_keylist( enkf_obs_type * enkf_obs , obs_impl_type );
   hash_type * enkf_obs_alloc_data_map(enkf_obs_type * enkf_obs);
   
@@ -78,7 +100,8 @@ extern "C" {
   bool              enkf_obs_has_key(const enkf_obs_type * , const char * );
   
   hash_iter_type  * enkf_obs_alloc_iter( const enkf_obs_type * enkf_obs );
-  
+
+  stringlist_type * enkf_obs_alloc_keylist(enkf_obs_type * enkf_obs );
   stringlist_type * enkf_obs_alloc_matching_keylist(const enkf_obs_type * enkf_obs , const char * input_string);
   time_t            enkf_obs_iget_obs_time(enkf_obs_type * enkf_obs , int report_step);
   void              enkf_obs_fprintf_config( const enkf_obs_type * enkf_obs , FILE * stream);

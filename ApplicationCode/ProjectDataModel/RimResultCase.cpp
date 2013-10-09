@@ -296,7 +296,12 @@ void RimResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath
 
     // Update filename and folder paths when opening project from a different file location
     caseFileName = relocateFile(caseFileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths);
-
+    
+#if 0 // Output the search path for debugging
+    for (size_t i = 0; i < searchedPaths.size(); ++i)
+       qDebug() << searchedPaths[i];
+#endif 
+    
 }
 
 //--------------------------------------------------------------------------------------------------

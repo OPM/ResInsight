@@ -55,7 +55,7 @@ int main(int argc , char ** argv) {
   
   test_assert_true( util_sscanf_bool( compatible_str , &check_compatible));
   
-  test_work_area_type * work_area = test_work_area_alloc(config_file , false);
+  test_work_area_type * work_area = test_work_area_alloc(config_file );
   test_work_area_copy_directory_content( work_area , root_path );
   
   bool strict = true;

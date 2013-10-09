@@ -1058,9 +1058,9 @@ static void ecl_smspec_fread_header(ecl_smspec_type * ecl_smspec, const char * h
 
     {
       int * date = ecl_kw_get_int_ptr(startdat);
-      ecl_smspec->sim_start_time = util_make_date(date[STARTDAT_DAY_INDEX]   , 
-                                                  date[STARTDAT_MONTH_INDEX] , 
-                                                  date[STARTDAT_YEAR_INDEX]);
+      ecl_smspec->sim_start_time = ecl_util_make_date(date[STARTDAT_DAY_INDEX]   ,
+          date[STARTDAT_MONTH_INDEX] ,
+          date[STARTDAT_YEAR_INDEX]);
     }
     
     ecl_smspec->grid_dims[0] = ecl_kw_iget_int(dimens , DIMENS_SMSPEC_NX_INDEX );

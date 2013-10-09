@@ -57,7 +57,7 @@ void ecl_test( const char * ecl_case ) {
 
 void simple_test() {
   time_map_type * time_map = time_map_alloc( );
-  test_work_area_type * work_area = test_work_area_alloc("enkf_time_map" , true);
+  test_work_area_type * work_area = test_work_area_alloc("enkf_time_map" );
   const char * mapfile = "map";
   
   test_assert_true( time_map_update( time_map , 0 , 100 )   );

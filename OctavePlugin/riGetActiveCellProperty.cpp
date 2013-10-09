@@ -38,7 +38,7 @@ void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, qu
 
     while (socket.bytesAvailable() < (int)(2*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -168,8 +168,8 @@ DEFUN_DLD (riGetActiveCellProperty, args, nargout,
     }
 
     // Check if we have a Requested TimeSteps
-
-    if (!(nargin > argIndices[2] && args(argIndices[2]).is_matrix_type()))
+    
+    if (!(nargin > argIndices[2] && args(argIndices[2]).is_matrix_type() && !args(argIndices[2]).is_string()))
     {
         argIndices[2] = -1;
         for (size_t aIdx = 3; aIdx < argIndices.size(); ++aIdx)

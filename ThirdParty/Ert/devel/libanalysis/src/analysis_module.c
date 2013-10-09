@@ -25,6 +25,7 @@
 #include <ert/util/matrix.h>
 #include <ert/util/util.h>
 #include <ert/util/rng.h>
+#include <ert/util/type_macros.h>
 
 #include <ert/analysis/analysis_module.h>
 #include <ert/analysis/analysis_table.h>
@@ -81,9 +82,12 @@ static analysis_module_type * analysis_module_alloc_empty( const char * user_nam
   module->get_int         = NULL;
   module->get_double      = NULL;
   module->get_ptr         = NULL;
-  module->user_name     = util_alloc_string_copy( user_name );
-  module->symbol_table  = util_alloc_string_copy( symbol_table );
-  module->lib_name      = util_alloc_string_copy( lib_name );
+  module->alloc           = NULL;
+
+  module->user_name       = util_alloc_string_copy( user_name );
+  module->symbol_table    = util_alloc_string_copy( symbol_table );
+  module->lib_name        = util_alloc_string_copy( lib_name );
+
   return module;
 }
 
@@ -119,7 +123,7 @@ static analysis_module_type * analysis_module_alloc__( rng_type * rng ,
   module->get_double        = table->get_double;
   module->get_ptr           = table->get_ptr;
 
-  if (module->alloc != NULL)
+  if (module->alloc)
     module->module_data = module->alloc( rng );
 
   if (!analysis_module_internal_check( module )) {
@@ -213,6 +217,7 @@ bool analysis_module_internal( const analysis_module_type * module ) {
 /*****************************************************************/
 
 static UTIL_SAFE_CAST_FUNCTION( analysis_module , ANALYSIS_MODULE_TYPE_ID )
+UTIL_IS_INSTANCE_FUNCTION( analysis_module , ANALYSIS_MODULE_TYPE_ID )
 
 
 void analysis_module_free( analysis_module_type * module ) {
@@ -372,13 +377,16 @@ bool analysis_module_set_var( analysis_module_type * module , const char * var_n
 }
 
 
-bool analysis_module_get_option( const analysis_module_type * module , long flag) {
-  return (flag & module->get_options( module->module_data , flag ));
+bool analysis_module_check_option( const analysis_module_type * module , long flag) {
+  if ((flag & module->get_options( module->module_data , flag )) == flag)
+      return true;
+  else
+      return false;
 }
 
 
 bool analysis_module_has_var( const analysis_module_type * module , const char * var) {
-  if (module->has_var != NULL)
+  if (module->has_var)
     return module->has_var( module->module_data , var );
   else
     return false;
@@ -422,3 +430,11 @@ void * analysis_module_get_ptr( const analysis_module_type * module , const char
   
   return NULL;
 }
+
+
+/*****************************************************************/
+
+const char * analysis_module_flag_enum_iget( int index, int * value) {
+  return util_enum_iget( index , ANALYSIS_MODULE_FLAG_ENUM_SIZE , (const util_enum_element_type []) { ANALYSIS_MODULE_FLAG_ENUM_DEFS }, value);
+}
+

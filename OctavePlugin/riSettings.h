@@ -20,9 +20,9 @@
 
 namespace riOctavePlugin
 {
-    const int connectTimeOutMilliSecs   =  5000;
-    const int shortTimeOutMilliSecs     =  5000;
-    const int longTimeOutMilliSecs      = 60000;
+    const int connectTimeOutMilliSecs   =    5000;
+    const int shortTimeOutMilliSecs     =    5000;
+    const int longTimeOutMilliSecs      = 6000000;
 
     // Octave data structure : CaseInfo
     char caseInfo_CaseId[]      = "CaseId";
@@ -40,7 +40,7 @@ namespace riOctavePlugin
 
     // Octave data structure : CaseGroupInfo
     char caseGroupInfo_CaseGroupId[]      = "CaseGroupId";
-    char caseGroupInfo_CaseGroupName[]    = "CaseName";
+    char caseGroupInfo_CaseGroupName[]    = "CaseGroupName";
 
     // Octave data structure : WellCellInfo
     char wellCellInfo_I[]           = "I";   

@@ -93,6 +93,8 @@ public:
 
     void            selectedCases(std::vector<RimCase*>& cases);
 
+    void            setDefaultWindowSize();
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 
@@ -155,6 +157,8 @@ private:
     QAction*		    m_snapshotAllViewsToFile;
 
     QAction*            m_createCommandObject;
+    QAction*            m_showRegressionTestDialog;
+    QAction*            m_executePaintEventPerformanceTest;
 
     // Help actions
     QAction*            m_aboutAction;
@@ -224,6 +228,9 @@ private slots:
     void    slotSnapshotAllViewsToFile();
 
     void    slotCreateCommandObject();
+
+    void    slotShowRegressionTestDialog();
+    void    slotExecutePaintEventPerformanceTest();
 
     // Mock models
     void    slotMockModel();

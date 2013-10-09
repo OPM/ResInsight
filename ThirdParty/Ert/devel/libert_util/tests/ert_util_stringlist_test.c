@@ -95,10 +95,92 @@ void test_empty() {
 }
 
 
+void test_split() {
+  stringlist_type *  s1 = stringlist_alloc_from_split("My Name    is Joakim Hove" , " ");
+  test_assert_int_equal( 5 , stringlist_get_size( s1 ));
+  test_assert_string_equal( "My" , stringlist_iget( s1 , 0 ));
+  test_assert_string_equal( "Name" , stringlist_iget( s1  , 1 ));
+  test_assert_string_equal( "is" , stringlist_iget( s1  , 2 ));
+  test_assert_string_equal( "Joakim" , stringlist_iget( s1  , 3 ));
+  test_assert_string_equal( "Hove" , stringlist_iget( s1  , 4 ));
+  stringlist_free( s1 );
+
+  
+  s1 = stringlist_alloc_from_split("StringWithNoSPlit" , " ");
+  test_assert_int_equal( 1 , stringlist_get_size( s1 ));
+  test_assert_string_equal( "StringWithNoSPlit" , stringlist_iget( s1 , 0 ));
+  stringlist_free( s1 );
+
+  s1 = stringlist_alloc_from_split("A:B::C:D:" , ":");
+  test_assert_int_equal( 4 , stringlist_get_size( s1 ));
+  test_assert_string_equal( "A" , stringlist_iget( s1 , 0 ));
+  test_assert_string_equal( "B" , stringlist_iget( s1 , 1 ));
+  test_assert_string_equal( "C" , stringlist_iget( s1 , 2 ));
+  test_assert_string_equal( "D" , stringlist_iget( s1 , 3 ));
+  stringlist_free( s1 );
+
+  s1 = stringlist_alloc_from_split("A:B::C:D:" , "::");
+  test_assert_int_equal( 4 , stringlist_get_size( s1 ));
+  test_assert_string_equal( "A" , stringlist_iget( s1 , 0 ));
+  test_assert_string_equal( "B" , stringlist_iget( s1 , 1 ));
+  test_assert_string_equal( "C" , stringlist_iget( s1 , 2 ));
+  test_assert_string_equal( "D" , stringlist_iget( s1 , 3 ));
+  stringlist_free( s1 );
+}
+
+
+void test_matching() {
+  stringlist_type * s1 = stringlist_alloc_new();
+  stringlist_type * s2 = stringlist_alloc_new();
+
+  stringlist_append_copy(s1 , "AAA");
+  stringlist_append_copy(s1 , "ABC" );
+  stringlist_append_copy(s1 , "123");
+  stringlist_append_copy(s1 , "ABC:123");
+
+  stringlist_select_matching_elements( s2 , s1 , "*");
+  test_assert_int_equal( 4 , stringlist_get_size( s2 ));
+  test_assert_string_equal( "AAA" , stringlist_iget( s2 , 0 ));
+  test_assert_string_equal( "ABC" , stringlist_iget( s2 , 1 ));
+  test_assert_string_equal( "123" , stringlist_iget( s2 , 2 ));
+  test_assert_string_equal( "ABC:123" , stringlist_iget( s2 , 3 ));
+
+  stringlist_select_matching_elements( s2 , s1 , "*");
+  test_assert_int_equal( 4 , stringlist_get_size( s2 ));
+  test_assert_string_equal( "AAA" , stringlist_iget( s2 , 0 ));
+  test_assert_string_equal( "ABC" , stringlist_iget( s2 , 1 ));
+  test_assert_string_equal( "123" , stringlist_iget( s2 , 2 ));
+  test_assert_string_equal( "ABC:123" , stringlist_iget( s2 , 3 ));
+ 
+
+  stringlist_append_matching_elements( s2 , s1 , "*");
+  test_assert_int_equal( 8 , stringlist_get_size( s2 ));
+  test_assert_string_equal( "AAA" , stringlist_iget( s2 , 0 ));
+  test_assert_string_equal( "ABC" , stringlist_iget( s2 , 1 ));
+  test_assert_string_equal( "123" , stringlist_iget( s2 , 2 ));
+  test_assert_string_equal( "ABC:123" , stringlist_iget( s2 , 3 ));
+
+  test_assert_string_equal( "AAA" , stringlist_iget( s2 , 4 ));
+  test_assert_string_equal( "ABC" , stringlist_iget( s2 , 5 ));
+  test_assert_string_equal( "123" , stringlist_iget( s2 , 6 ));
+  test_assert_string_equal( "ABC:123" , stringlist_iget( s2 , 7 ));
+  
+  stringlist_select_matching_elements( s2 , s1 , "*B*");
+  test_assert_int_equal( 2 , stringlist_get_size( s2 ));
+  test_assert_string_equal( "ABC" , stringlist_iget( s2 , 0 ));
+  test_assert_string_equal( "ABC:123" , stringlist_iget( s2 , 1 ));
+
+  stringlist_free( s2 );
+  stringlist_free( s1 );
+}
+
+
 int main( int argc , char ** argv) {
   test_empty();
   test_char();
   test_reverse();
   test_iget_as_int();
+  test_split();
+  test_matching();
   exit(0);
 }

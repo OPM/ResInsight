@@ -231,3 +231,57 @@ char * util_split_alloc_filename( const char * input_path ) {
 void util_path_split(const char *line , int *_tokens, char ***_token_list) {
   util_split_string( line , UTIL_PATH_SEP_STRING , _tokens , _token_list);
 }
+
+/**
+   Observe that 
+*/
+
+char * util_alloc_parent_path( const char * path) {
+  int     path_ncomp;
+  char ** path_component_list;
+  char *  parent_path = NULL;
+
+  if (path) {
+    bool is_abs = util_is_abs_path( path );
+    char * work_path;
+    
+    if (strstr(path , "..")) {
+      if (is_abs) 
+        work_path = util_alloc_realpath__( path );
+      else {
+        char * abs_path = util_alloc_realpath__( path );
+        char * cwd = util_alloc_cwd();
+        work_path = util_alloc_rel_path( cwd , abs_path );
+        free( abs_path );
+        free( cwd );
+      }
+    } else
+      work_path = util_alloc_string_copy( path );
+    
+    util_path_split( work_path , &path_ncomp , &path_component_list );
+    if (path_ncomp > 0) {
+      int current_length = 4;
+      int ip;
+
+      parent_path = util_realloc( parent_path , current_length * sizeof * parent_path);
+      parent_path[0] = '\0';
+  
+      for (ip=0; ip < path_ncomp - 1; ip++) {
+        const char * ipath = path_component_list[ip];
+        int min_length = strlen(parent_path) + strlen(ipath) + 1;
+    
+        if (min_length >= current_length) {
+          current_length = 2 * min_length;
+          parent_path = util_realloc( parent_path , current_length * sizeof * parent_path);
+        }
+
+        if (is_abs || (ip > 0))
+          strcat( parent_path , UTIL_PATH_SEP_STRING );
+        strcat( parent_path , ipath );
+      }
+    }
+    util_free_stringlist( path_component_list , path_ncomp );
+    free( work_path );
+  }
+  return parent_path;
+}

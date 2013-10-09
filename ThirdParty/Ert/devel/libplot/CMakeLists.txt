@@ -10,3 +10,8 @@ find_path( PLPLOT_HEADER  plplot/plplot.h  ${PLPLOT_INCLUDE_PATH} )
 include_directories( ${PLPLOT_HEADER} )
 
 add_subdirectory( src )
+
+if (BUILD_TESTS)
+   add_subdirectory( tests )
+endif()
+

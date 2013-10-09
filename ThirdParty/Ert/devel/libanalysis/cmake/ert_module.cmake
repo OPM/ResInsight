@@ -1,8 +1,8 @@
-function( ert_module module args source_files )
-    
-    set( build_file ${CMAKE_CURRENT_BINARY_DIR}/${module}.so )
+function( ert_module target args source_files )
+
+    set( build_file ${target}.so )
     set( depends analysis )
-    set( arg_string "${module} ${args}")
+    set( arg_string "${target} ${args}")
     separate_arguments( arg_list UNIX_COMMAND "${arg_string}")
     foreach (src_file ${source_files} )
         list(APPEND arg_list ${CMAKE_CURRENT_SOURCE_DIR}/${src_file} )
@@ -16,6 +16,8 @@ function( ert_module module args source_files )
        DEPENDS ${depends})
 
     install(FILES ${build_file} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+    get_filename_component( module ${target} NAME )
     add_custom_target( ${module} ALL DEPENDS ${build_file} )
 
 endfunction()

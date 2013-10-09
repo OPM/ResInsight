@@ -72,7 +72,13 @@ bool RiaImageFileCompare::runComparison(QString imgFileName, QString refFileName
 
 
     //QString args = QString("-fuzz 2% -lowlight-color white -metric ae \"%1\" \"%2\" \"%3\"").arg(imgFileName).arg(refFileName).arg((diffFileName));
+    // The ImageMagick compare tool on RedHat 5 does not support the lowlight-color options
+    // Use GCC version as a crude mechanism for disabling use of this option on RedHat5
+#if (__GNUC__ == 4 && __GNUC_MINOR__ <= 1)
+    QString args = QString("-metric ae \"%1\" \"%2\" \"%3\"").arg(imgFileName).arg(refFileName).arg((diffFileName));
+#else
     QString args = QString("-lowlight-color white -metric ae \"%1\" \"%2\" \"%3\"").arg(imgFileName).arg(refFileName).arg((diffFileName));
+#endif
     QString completeCommand = QString("\"%1\" %2").arg(m_compareExecutable).arg(args);
 
     // Launch process and wait

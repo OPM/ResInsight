@@ -35,12 +35,15 @@ int main( int argc , char ** argv) {
   const char * ptr2 = "Pointer2";
 
   arg_pack_type * arg_pack = arg_pack_alloc();
+  test_assert_int_equal( 0 , arg_pack_size( arg_pack ));
   arg_pack_append_const_ptr( arg_pack , ptr1 );
   arg_pack_append_const_ptr( arg_pack , ptr2 );
 
-
+  test_assert_int_equal( 2 , arg_pack_size( arg_pack ));
   test_assert_ptr_equal( ptr1 , arg_pack_iget_const_ptr( arg_pack , 0 ));
   test_assert_ptr_equal( ptr2 , arg_pack_iget_const_ptr( arg_pack , 1 ));
+
+  
 
   exit(0);
 }

@@ -5,8 +5,6 @@
 void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16 serverPort,
                         const int& caseId, int gridIdx, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
 {
-    const int Timeout = riOctavePlugin::shortTimeOutMilliSecs;
-
     QTcpSocket socket;
     socket.connectToHost(serverName, serverPort);
 
@@ -40,7 +38,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     while (socket.bytesAvailable() < (int)(4*sizeof(quint64)))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
+        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
             error((("Waiting for header: ") + socket.errorString()).toLatin1().data());
             return;
@@ -170,7 +168,7 @@ DEFUN_DLD (riGetGridProperty, args, nargout,
 
     // Check if we have a Requested TimeSteps
 
-    if (!(nargin > argIndices[3] && args(argIndices[3]).is_matrix_type()))
+    if (!(nargin > argIndices[3] && args(argIndices[3]).is_matrix_type() && !args(argIndices[3]).is_string()))
     {
         argIndices[3] = -1;
         for (size_t aIdx = 3; aIdx < argIndices.size(); ++aIdx)

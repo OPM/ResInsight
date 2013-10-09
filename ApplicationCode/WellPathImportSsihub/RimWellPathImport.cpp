@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellPathImport.h"
+#include "cafPdmUiTreeViewEditor.h"
 
 namespace caf {
 
@@ -185,4 +186,20 @@ void RimWellPathImport::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         updateFieldVisibility();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathImport::defineObjectEditorAttribute(QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
+{
+    caf::PdmUiTreeViewEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTreeViewEditorAttribute*>(attribute);
+    if (myAttr)
+    {
+        QStringList colHeaders;
+        colHeaders << "Region";
+        myAttr->columnHeaders = colHeaders;
+    }
+}
+
+
 

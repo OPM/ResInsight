@@ -72,8 +72,8 @@ struct active_list_struct {
 /*****************************************************************/
 
 
-UTIL_SAFE_CAST_FUNCTION(active_list , ACTIVE_LIST_TYPE_ID)
-
+static UTIL_SAFE_CAST_FUNCTION(active_list , ACTIVE_LIST_TYPE_ID)
+UTIL_IS_INSTANCE_FUNCTION( active_list , ACTIVE_LIST_TYPE_ID)
 
 
 
@@ -81,23 +81,28 @@ UTIL_SAFE_CAST_FUNCTION(active_list , ACTIVE_LIST_TYPE_ID)
 /**
    The newly created active_list default to setting all indices actiove.
 */
-active_list_type * active_list_alloc(active_mode_type mode) {
+active_list_type * active_list_alloc( ) {
   active_list_type * active_list = util_malloc(sizeof * active_list);
   UTIL_TYPE_ID_INIT( active_list , ACTIVE_LIST_TYPE_ID );
   active_list->index_list  = int_vector_alloc(0 , -1);
-  active_list->mode        = mode;
+  active_list->mode        = ALL_ACTIVE;
   return active_list;
 }
 
 
 active_list_type * active_list_alloc_copy( const active_list_type * src) {
-  active_list_type * new = active_list_alloc( ALL_ACTIVE );
+  active_list_type * new = active_list_alloc(  );
   new->mode  = src->mode;
   int_vector_free( new->index_list ) ;
   new->index_list = int_vector_alloc_copy( src->index_list );
   return new;
 }
 
+
+void active_list_copy( active_list_type * target , const active_list_type * src) {
+  target->mode = src->mode;
+  int_vector_memcpy( target->index_list , src->index_list);
+}
 
 
 void active_list_free( active_list_type * active_list ) {
@@ -218,3 +223,19 @@ void active_list_fprintf( const active_list_type * active_list , bool obs , cons
   } /* else: if mode == ALL_ACTIVE nothing is written */
 }
 
+
+
+bool active_list_equal( const active_list_type * active_list1 , const active_list_type * active_list2) {
+  if (active_list1 == active_list2)
+    return true;
+  else {
+    if (active_list1->mode != active_list2->mode)
+      return false;
+    else {
+      if (active_list1->mode == PARTLY_ACTIVE)
+        return int_vector_equal( active_list1->index_list , active_list2->index_list);
+      else
+        return true;
+    }
+  }
+}

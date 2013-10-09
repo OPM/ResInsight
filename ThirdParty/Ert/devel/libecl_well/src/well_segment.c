@@ -72,15 +72,15 @@ well_segment_type * well_segment_alloc(int segment_id , int outlet_segment_id , 
 }
 
 
-well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const ecl_kw_type * rseg_kw , const ecl_rsthead_type * header , int well_nr, int segment_id) {
+well_segment_type * well_segment_alloc_from_kw( const ecl_kw_type * iseg_kw , const ecl_kw_type * rseg_kw , const ecl_rsthead_type * header , int well_nr, int segment_index , int segment_id) {
   if (rseg_kw == NULL) {
     util_abort("%s: fatal internal error - tried to create well_segment instance without RSEG keyword.\n",__func__);
     return NULL;
   } else {
-    const int iseg_offset = header->nisegz * ( header->nsegmx * well_nr + segment_id);
-    const int rseg_offset = header->nrsegz * ( header->nsegmx * well_nr + segment_id);
-    int outlet_segment_id = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_OUTLET_ITEM ) - 1;
-    int branch_id         = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_BRANCH_ITEM ) - 1;  
+    const int iseg_offset = header->nisegz * ( header->nsegmx * well_nr + segment_index);
+    const int rseg_offset = header->nrsegz * ( header->nsegmx * well_nr + segment_index);
+    int outlet_segment_id = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_OUTLET_ITEM ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET ;   // -1
+    int branch_id         = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_BRANCH_ITEM ) - ECLIPSE_WELL_BRANCH_OFFSET  + WELL_BRANCH_OFFSET ;    // -1
     const double * rseg_data = ecl_kw_iget_ptr( rseg_kw , rseg_offset );
     
     well_segment_type * segment = well_segment_alloc( segment_id , outlet_segment_id , branch_id , rseg_data);
@@ -116,7 +116,7 @@ void well_segment_free__(void * arg) {
 
 
 bool well_segment_active( const well_segment_type * segment ) {
-  if (segment->branch_id == ECLIPSE_WELL_SEGMENT_BRANCH_INACTIVE_VALUE)
+  if (segment->branch_id == WELL_SEGMENT_BRANCH_INACTIVE_VALUE)
     return false;
   else
     return true;
@@ -124,7 +124,7 @@ bool well_segment_active( const well_segment_type * segment ) {
 
 
 bool well_segment_main_stem( const well_segment_type * segment ) {
-  if (segment->branch_id == ECLIPSE_WELL_SEGMENT_BRANCH_MAIN_STEM_VALUE)
+  if (segment->branch_id == WELL_SEGMENT_BRANCH_MAIN_STEM_VALUE)
     return true;
   else
     return false;
@@ -132,7 +132,7 @@ bool well_segment_main_stem( const well_segment_type * segment ) {
 
 
 bool well_segment_nearest_wellhead( const well_segment_type * segment ) {
-  if (segment->outlet_segment_id == ECLIPSE_WELL_SEGMENT_OUTLET_END_VALUE)
+  if (segment->outlet_segment_id == WELL_SEGMENT_OUTLET_END_VALUE)
     return true;
   else
     return false;
@@ -195,7 +195,7 @@ bool well_segment_has_global_grid_connections( const well_segment_type * segment
 
 
 bool well_segment_add_connection( well_segment_type * segment , const char * grid_name , well_conn_type * conn) {
-  int conn_segment_id = well_conn_get_segment( conn );
+  int conn_segment_id = well_conn_get_segment_id( conn );
   if (conn_segment_id == segment->segment_id) {
     if (!well_segment_has_grid_connections( segment , grid_name ))
       hash_insert_hash_owned_ref( segment->connections , grid_name , well_conn_collection_alloc() , well_conn_collection_free__ );

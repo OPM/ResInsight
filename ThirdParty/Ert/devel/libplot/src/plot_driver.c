@@ -93,6 +93,7 @@ plot_driver_type * plot_driver_alloc_empty(const char * driver_name) {
   driver->set_window_size   = NULL;
   driver->set_axis          = NULL;
 
+  driver->text              = NULL;
   driver->plot_xy           = NULL;
   driver->plot_xy1y2        = NULL;
   driver->plot_x1x2y        = NULL;
@@ -176,6 +177,12 @@ void plot_driver_plot_x1x2y(plot_driver_type * driver      ,
 }
 
 
+void plot_driver_text( plot_driver_type * driver , const plot_text_type * plot_text) {
+  if (driver->text)
+    driver->text( driver , plot_text);
+  else
+    fprintf(stderr,"** Sorry: this plot driver does not support the text() function\n");
+}
 
 
 

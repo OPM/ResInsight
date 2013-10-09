@@ -1,12 +1,9 @@
-add_subdirectory( data )
-add_subdirectory( util )
-
 set(PYTHON_SOURCES
     __init__.py
     analysis_config.py
+    analysis_iter_config.py
     block_obs.py
     ecl_config.py
-    enkf_enum.py
     enkf_fs.py
     enkf_main.py
     enkf_obs.py
@@ -20,6 +17,9 @@ set(PYTHON_SOURCES
     site_config.py
 )
 
-add_python_package("Python ert.enkf" ${PYTHON_INSTALL_PREFIX}/ert/enkf "${PYTHON_SOURCES}" True)
+add_python_package("Python ert.enkf"  ${PYTHON_INSTALL_PREFIX}/ert/enkf "${PYTHON_SOURCES}" True)
 
-
+add_subdirectory(data)
+add_subdirectory(enums)
+add_subdirectory(observations)
+add_subdirectory(util)

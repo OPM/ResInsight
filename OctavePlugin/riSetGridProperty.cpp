@@ -9,7 +9,7 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     QTcpSocket socket;
     socket.connectToHost(hostName, port);
 
-    if (!socket.waitForConnected(riOctavePlugin::shortTimeOutMilliSecs))
+    if (!socket.waitForConnected(riOctavePlugin::connectTimeOutMilliSecs))
     {
         error((("Connection: ") + socket.errorString()).toLatin1().data());
         return;
@@ -112,6 +112,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
            "\triSetGridProperty( Matrix[numI][numJ][numK][numTimeSteps], [CaseId], GridIndex, PropertyName, [TimeStepIndices], [PorosityModel = \"Matrix\"|\"Fracture\"] ) \n"
            "\n"
            "Interprets the supplied matrix as a property set defined for all cells in one of the grids in a case, and puts the data into ResInsight as a \"Generated\" property with the name \"PropertyName\".\n"
+           "The \"TimeStepIndices\" argument is used to \"label\" all the time steps present in the supplied data matrix, and must thus be complete. The time step data will then be put into ResInsight at the time steps requested."
            "If the CaseId is not defined, ResInsight’s Current Case is used.\n"
            )
 {
@@ -176,7 +177,7 @@ DEFUN_DLD (riSetGridProperty, args, nargout,
 
     // Check if we have a Requested TimeSteps
 
-    if (!(nargin > argIndices[4] && args(argIndices[4]).is_matrix_type()))
+    if (!(nargin > argIndices[4] && args(argIndices[4]).is_matrix_type() && !args(argIndices[4]).is_string()))
     {
         argIndices[4] = -1;
         for (size_t aIdx = 5; aIdx < argIndices.size(); ++aIdx)

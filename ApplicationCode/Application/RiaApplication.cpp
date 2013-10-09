@@ -123,7 +123,7 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     //cvf::Trace::enable(false);
 
     m_preferences = new RiaPreferences;
-    readPreferences();
+    readFieldsFromApplicationStore(m_preferences);
     applyPreferences();
 
     if (useShaders())
@@ -143,12 +143,12 @@ RiaApplication::RiaApplication(int& argc, char** argv)
     m_socketServer = new RiaSocketServer( this);
     m_workerProcess = NULL;
 
-
-    m_startupDefaultDirectory = QDir::homePath();
-
 #ifdef WIN32
-    //m_startupDefaultDirectory += "/My Documents/";
+    m_startupDefaultDirectory = QDir::homePath();
+#else
+    m_startupDefaultDirectory = QDir::currentPath();
 #endif
+
     setDefaultFileDialogDirectory("MULTICASEIMPORT", "/");
 
     // The creation of a font is time consuming, so make sure you really need your own font
@@ -287,7 +287,7 @@ bool RiaApplication::loadProject(const QString& projectFileName)
     // VL check regarding specific order mentioned in comment above...
 
     m_preferences->lastUsedProjectFileName = projectFileName;
-    writePreferences();
+    writeFieldsToApplicationStore(m_preferences);
 
     for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
     {
@@ -444,9 +444,9 @@ bool RiaApplication::saveProjectPromptForFileName()
         startPath = app->defaultFileDialogDirectory("BINARY_GRID");
     }
 
-    startPath += "/ResInsightProject.rip";
+    startPath += "/ResInsightProject.rsp";
 
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Project Files (*.rip *.xml)"));
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"), startPath, tr("Project Files (*.rsp);;All files(*.*)"));
     if (fileName.isEmpty())
     {
         return false;
@@ -472,7 +472,7 @@ bool RiaApplication::saveProjectAs(const QString& fileName)
     m_project->writeFile();
 
     m_preferences->lastUsedProjectFileName = fileName;
-    writePreferences();
+    writeFieldsToApplicationStore(m_preferences);
 
     return true;
 }
@@ -597,13 +597,12 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::openInputEclipseCase(const QString& caseName, const QStringList& caseFileNames)
+bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNames)
 {
     RimInputCase* rimInputReservoir = new RimInputCase();
     m_project->assignCaseIdToCase(rimInputReservoir);
 
-    rimInputReservoir->caseUserDescription = caseName;
-    rimInputReservoir->openDataFileSet(caseFileNames);
+    rimInputReservoir->openDataFileSet(fileNames);
 
     RimAnalysisModels* analysisModels = m_project->activeOilField() ? m_project->activeOilField()->analysisModels() : NULL;
     if (analysisModels == NULL) return false;
@@ -662,7 +661,7 @@ void RiaApplication::createLargeResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    openInputEclipseCase("Input Mock Debug Model Simple", QStringList("Input Mock Debug Model Simple"));
+    openInputEclipseCaseFromFileNames(QStringList("Input Mock Debug Model Simple"));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -695,7 +694,7 @@ void RiaApplication::setActiveReservoirView(RimReservoirView* rv)
 void RiaApplication::setUseShaders(bool enable)
 {
     m_preferences->useShaders = enable;
-    writePreferences();
+    writeFieldsToApplicationStore(m_preferences);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -727,7 +726,7 @@ RiaApplication::RINavigationPolicy RiaApplication::navigationPolicy() const
 void RiaApplication::setShowPerformanceInfo(bool enable)
 {
     m_preferences->showHud = enable;
-    writePreferences();
+    writeFieldsToApplicationStore(m_preferences);
 }
 
 
@@ -870,15 +869,7 @@ bool RiaApplication::parseArguments()
 
     if (isRunRegressionTest)
     {
-        RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        if (mainWnd)
-        {
-            mainWnd->hideAllDockWindows();
-
-            runRegressionTest(regressionTestPath);
-
-            mainWnd->loadWinGeoAndDockToolBarLayout();
-        }
+        executeRegressionTests(regressionTestPath);
 
         return false;
     }
@@ -1028,7 +1019,7 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 
         // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
 
-        QProcessEnvironment penv = m_workerProcess->processEnvironment();
+        QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
         QString ldPath = penv.value("LD_LIBRARY_PATH", "");
 
         if (ldPath == "") ldPath = QApplication::applicationDirPath();
@@ -1080,12 +1071,12 @@ bool RiaApplication::launchProcessForMultipleCases(const QString& program, const
 //--------------------------------------------------------------------------------------------------
 /// Read fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::readPreferences()
+void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object)
 {
     QSettings settings;
     std::vector<caf::PdmFieldHandle*> fields;
 
-    m_preferences->fields(fields);
+    object->fields(fields);
     size_t i;
     for (i = 0; i < fields.size(); i++)
     {
@@ -1102,12 +1093,14 @@ void RiaApplication::readPreferences()
 //--------------------------------------------------------------------------------------------------
 /// Write fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::writePreferences()
+void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object)
 {
+    CVF_ASSERT(object);
+
     QSettings settings;
 
     std::vector<caf::PdmFieldHandle*> fields;
-    m_preferences->fields(fields);
+    object->fields(fields);
 
     size_t i;
     for (i = 0; i < fields.size(); i++)
@@ -1384,7 +1377,11 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
         imageCompareReporter.addImageDirectoryComparisonSet(testFolderName.toStdString(), reportBaseFolderName.toStdString(), reportGeneratedFolderName.toStdString(), reportDiffFolderName.toStdString());
     }
 
-    imageCompareReporter.generateHTMLReport(testDir.filePath(RegTestNames::reportFileName).toStdString());
+    QString htmlReportFileName = testDir.filePath(RegTestNames::reportFileName);
+    imageCompareReporter.generateHTMLReport(htmlReportFileName.toStdString());
+
+    // Open HTML report
+    QDesktopServices::openUrl(htmlReportFileName);
 
     // Generate diff images
     this->preferences()->resetToDefaults();
@@ -1402,6 +1399,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
                  processEvents();
              }
              m_commandQueueLock.unlock();
+
+             regressionTestSetFixedSizeForAllViews();
 
              saveSnapshotForAllViews(generatedFolderName);
 
@@ -1766,6 +1765,55 @@ void RiaApplication::executeCommandObjects()
     {
         // Unlock the command queue lock when the command queue is empty
         m_commandQueueLock.unlock();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
+{
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (mainWnd)
+    {
+        mainWnd->hideAllDockWindows();
+ 
+        mainWnd->setDefaultWindowSize();
+        runRegressionTest(regressionTestPath);
+
+        mainWnd->loadWinGeoAndDockToolBarLayout();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::regressionTestSetFixedSizeForAllViews()
+{
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd) return;
+
+    if (m_project.isNull()) return;
+
+    std::vector<RimCase*> projectCases;
+    m_project->allCases(projectCases);
+
+    for (size_t i = 0; i < projectCases.size(); i++)
+    {
+        RimCase* ri = projectCases[i];
+        if (!ri) continue;
+
+        for (size_t j = 0; j < ri->reservoirViews().size(); j++)
+        {
+            RimReservoirView* riv = ri->reservoirViews()[j];
+
+            if (riv && riv->viewer())
+            {
+                // This size is set to match the regression test reference images
+                riv->viewer()->setFixedSize(1000, 745);
+            }
+        }
     }
 }
 

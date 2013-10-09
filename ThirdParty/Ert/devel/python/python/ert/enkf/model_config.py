@@ -66,13 +66,16 @@ class ModelConfig(BaseCClass):
         """ @rtype: str """
         return ModelConfig.cNamespace().get_case_table_file(self)
 
-    def get_runpath_as_char(self):
+    def getRunpathAsString(self):
         """ @rtype: str """
         return ModelConfig.cNamespace().get_runpath_as_char(self)
 
-    def select_runpath(self, path_key):
+    def selectRunpath(self, path_key):
         """ @rtype: bool """
         return ModelConfig.cNamespace().select_runpath(self, path_key)
+
+    def setRunpath(self, path_format):
+        ModelConfig.cNamespace().set_runpath(self, path_format)
 
     def free(self):
         ModelConfig.cNamespace().free(self)
@@ -85,9 +88,6 @@ cwrapper.registerType("model_config_obj", ModelConfig.createPythonObject)
 cwrapper.registerType("model_config_ref", ModelConfig.createCReference)
 
 
-##################################################################
-##################################################################
-
 ModelConfig.cNamespace().free = cwrapper.prototype("void model_config_free( model_config )")
 ModelConfig.cNamespace().get_enkf_sched_file = cwrapper.prototype("char* model_config_get_enkf_sched_file( model_config )")
 ModelConfig.cNamespace().set_enkf_sched_file = cwrapper.prototype("void model_config_set_enkf_sched_file( model_config, char*)")
@@ -97,6 +97,7 @@ ModelConfig.cNamespace().set_max_internal_submit = cwrapper.prototype("void mode
 ModelConfig.cNamespace().get_case_table_file = cwrapper.prototype("char* model_config_get_case_table_file(model_config)")
 ModelConfig.cNamespace().get_runpath_as_char = cwrapper.prototype("char* model_config_get_runpath_as_char(model_config)")
 ModelConfig.cNamespace().select_runpath = cwrapper.prototype("bool model_config_select_runpath(model_config, char*)")
+ModelConfig.cNamespace().set_runpath = cwrapper.prototype("void model_config_set_runpath(model_config, char*)")
 
 ModelConfig.cNamespace().get_history = cwrapper.prototype("history_ref model_config_get_history(model_config)")
 ModelConfig.cNamespace().get_history_source = cwrapper.prototype("history_source_enum model_config_get_history_source(model_config)")

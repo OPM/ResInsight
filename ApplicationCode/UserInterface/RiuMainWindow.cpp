@@ -50,6 +50,7 @@
 #include "cafAnimationToolBar.h"
 #include "cafPdmUiPropertyView.h"
 #include "cvfqtBasicAboutDialog.h"
+#include "cvfTimer.h"
 
 #include "cafPdmFieldCvfMat4d.h"
 
@@ -60,6 +61,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiuWellImportWizard.h"
 #include "RimCalcScript.h"
+#include "RiaRegressionTest.h"
 
 
 
@@ -202,6 +204,8 @@ void RiuMainWindow::createActions()
     m_snapshotAllViewsToFile    = new QAction(QIcon(":/SnapShotSaveViews.png"), "Snapshot All Views To File", this);
 
     m_createCommandObject       = new QAction("Create Command Object", this);
+    m_showRegressionTestDialog  = new QAction("Regression Test Dialog", this);
+    m_executePaintEventPerformanceTest = new QAction("&Paint Event Performance Test", this);
 
     m_saveProjectAction         = new QAction(QIcon(":/Save.png"), "&Save Project", this);
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
@@ -227,6 +231,8 @@ void RiuMainWindow::createActions()
     connect(m_snapshotAllViewsToFile,   SIGNAL(triggered()), SLOT(slotSnapshotAllViewsToFile()));
 
     connect(m_createCommandObject,      SIGNAL(triggered()), SLOT(slotCreateCommandObject()));
+    connect(m_showRegressionTestDialog, SIGNAL(triggered()), SLOT(slotShowRegressionTestDialog()));
+    connect(m_executePaintEventPerformanceTest, SIGNAL(triggered()), SLOT(slotExecutePaintEventPerformanceTest()));
     
     connect(m_saveProjectAction,	    SIGNAL(triggered()), SLOT(slotSaveProject()));
     connect(m_saveProjectAsAction,	    SIGNAL(triggered()), SLOT(slotSaveProjectAs()));
@@ -364,7 +370,9 @@ void RiuMainWindow::createMenus()
     debugMenu->addAction(m_mockInputModelAction);
     debugMenu->addSeparator();
     debugMenu->addAction(m_createCommandObject);
-
+    debugMenu->addSeparator();
+    debugMenu->addAction(m_showRegressionTestDialog);
+    debugMenu->addAction(m_executePaintEventPerformanceTest);
 
     connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
 
@@ -753,7 +761,7 @@ void RiuMainWindow::slotOpenInputFiles()
         // Remember the path to next time
         app->setDefaultFileDialogDirectory("INPUT_FILES", QFileInfo(fileNames.last()).absolutePath());
  
-        app->openInputEclipseCase("Eclipse Input Files", fileNames);
+        app->openInputEclipseCaseFromFileNames(fileNames);
     }
 }
 
@@ -767,7 +775,7 @@ void RiuMainWindow::slotOpenProject()
     {
         RiaApplication* app = RiaApplication::instance();
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
-        QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rip)");
+        QString fileName = QFileDialog::getOpenFileName(this, "Open ResInsight Project", defaultDir, "ResInsight project (*.rsp *.rip);;All files(*.*)");
 
         if (fileName.isEmpty()) return;
 
@@ -1197,13 +1205,13 @@ void RiuMainWindow::slotEditPreferences()
     if (preferencesDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
-        app->writePreferences();
+        app->writeFieldsToApplicationStore(app->preferences());
         app->applyPreferences();
     }
     else
     {
         // Read back currently stored values using QSettings
-        app->readPreferences();
+        app->readFieldsFromApplicationStore(app->preferences());
     }
 }
 
@@ -1699,4 +1707,64 @@ void RiuMainWindow::slotCreateCommandObject()
 
         app->project()->updateConnectedEditors();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotShowRegressionTestDialog()
+{
+    RiaRegressionTest regTestConfig;
+
+    RiaApplication* app = RiaApplication::instance();
+    app->readFieldsFromApplicationStore(&regTestConfig);
+
+    RiuPreferencesDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
+    if (regressionTestDialog.exec() == QDialog::Accepted)
+    {
+        // Write preferences using QSettings and apply them to the application
+        app->writeFieldsToApplicationStore(&regTestConfig);
+
+        QString currentApplicationPath = QDir::currentPath();
+
+        QDir::setCurrent(regTestConfig.applicationWorkingFolder);
+        app->executeRegressionTests(regTestConfig.regressionTestFolder);
+
+        QDir::setCurrent(currentApplicationPath);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotExecutePaintEventPerformanceTest()
+{
+
+    if (RiaApplication::instance()->activeReservoirView() &&  RiaApplication::instance()->activeReservoirView()->viewer())
+    {
+        size_t redrawCount = 50;
+
+        caf::Viewer* viewer = RiaApplication::instance()->activeReservoirView()->viewer();
+
+        cvf::Timer timer;
+        for (size_t i = 0; i < redrawCount; i++)
+        {
+            viewer->repaint();
+        }
+
+        double totalTimeMS = timer.time() * 1000.0;
+
+        double msPerFrame = totalTimeMS  / redrawCount;
+
+        QString resultInfo = QString("Total time '%1 ms' for %2 number of redraws, frame time '%3 ms'").arg(totalTimeMS).arg(redrawCount).arg(msPerFrame);
+        setResultInfo(resultInfo);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setDefaultWindowSize()
+{
+    resize(1000, 810);
 }

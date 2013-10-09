@@ -104,7 +104,7 @@ void test_close_stream1(const char * src_file , const char * target_file ) {
 
 
 void test_writable(const char * src_file ) {
-  test_work_area_type * work_area = test_work_area_alloc("ecl_file_writable" , true);
+  test_work_area_type * work_area = test_work_area_alloc("ecl_file_writable" );
   char * fname = util_split_alloc_filename( src_file );
 
   test_work_area_copy_file( work_area , src_file );
@@ -131,7 +131,7 @@ int main( int argc , char ** argv) {
   const char * target_file = argv[2];
   
   {
-    test_work_area_type * work_area = test_work_area_alloc("ecl_file" , true);
+    test_work_area_type * work_area = test_work_area_alloc("ecl_file");
     
     test_work_area_install_file( work_area , src_file );
     test_flags( src_file );

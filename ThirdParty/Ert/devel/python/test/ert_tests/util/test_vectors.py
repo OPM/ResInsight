@@ -18,7 +18,11 @@
 
 import copy
 from datetime import datetime
-from unittest2 import TestCase
+
+try:
+    from unittest2 import TestCase
+except ImportError:
+    from unittest import TestCase
 
 from ert.util import DoubleVector, IntVector, BoolVector, TimeVector, ctime
 

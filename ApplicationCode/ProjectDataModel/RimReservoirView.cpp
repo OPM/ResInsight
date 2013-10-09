@@ -1090,7 +1090,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCell(gridIndex, cellIndex);
             if (wellResultCell)
             {
-                resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId +1).arg(wellResultCell->m_ertSegmentId+1));
+                resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
             }
         }
     }
@@ -1431,12 +1431,16 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
             const std::vector< RigWellResultFrame >& wellResFrames = wres->m_wellCellsTimeSteps;
             for (size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx)
             {
-                // Add the wellhead cell
-
+                // Add the wellhead cell if it is active
                 if (wellResFrames[wfIdx].m_wellHead.m_gridIndex == grid->gridIndex())
                 {
                     size_t gridCellIndex = wellResFrames[wfIdx].m_wellHead.m_gridCellIndex;
-                    (*visibleCells)[gridCellIndex] = true;
+                    size_t globalGridCellIndex = grid->globalGridCellIndex(gridCellIndex);
+
+                    if (activeCellInfo->isActive(globalGridCellIndex))
+                    {
+                        (*visibleCells)[gridCellIndex] = true;
+                    }
                 }
 
                 // Add all the cells from the branches

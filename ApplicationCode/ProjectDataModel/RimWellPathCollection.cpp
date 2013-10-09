@@ -20,6 +20,7 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
+#include "cafProgressInfo.h"
 
 #include "RimWellPathCollection.h"
 #include "RimWellPath.h"
@@ -40,6 +41,9 @@
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
 #include <fstream>
+
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 namespace caf
 {
@@ -63,6 +67,9 @@ RimWellPathCollection::RimWellPathCollection()
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
     CAF_PDM_InitField(&showWellPathLabel,               "ShowWellPathLabel",        true,                       "Show well path labels", "", "", "");
+
+    cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+    CAF_PDM_InitField(&wellPathLabelColor,              "WellPathLabelColor",   defWellLabelColor, "Well label color",  "", "", "");
 
     CAF_PDM_InitField(&wellPathVisibility,              "GlobalWellPathVisibility", WellVisibilityEnum(ALL_ON), "Global well path visibility",  "", "", "");
 
@@ -122,9 +129,14 @@ void RimWellPathCollection::setProject( RimProject* project )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::readWellPathFiles()
 {
+    caf::ProgressInfo progress(wellPaths.size(), "Reading well paths from file");
+
     for (size_t wpIdx = 0; wpIdx < wellPaths.size(); wpIdx++)
     {
         wellPaths[wpIdx]->readWellPathFile();
+
+        progress.setProgressDescription(QString("Reading file %1").arg(wellPaths[wpIdx]->name));
+        progress.incrementProgress();
     }
 }
 

@@ -26,7 +26,7 @@
 
 
 static time_t rsthead_date( int day , int month , int year) {
-  return util_make_date( day , month, year );
+  return ecl_util_make_date( day , month, year );
 }
 
 

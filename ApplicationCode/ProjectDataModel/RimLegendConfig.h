@@ -68,7 +68,9 @@ public:
         WHITE_PINK,
         PINK_WHITE,
         WHITE_BLACK,
-        BLACK_WHITE
+        BLACK_WHITE,
+        BLUE_WHITE_RED,
+        RED_WHITE_BLUE
     };
 
     typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
@@ -90,17 +92,20 @@ public:
     void                                        setPosition(cvf::Vec2ui position);
 
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
-    cvf::OverlayScalarMapperLegend*                    legend() { return m_legend.p(); }
-    void                                        updateLegend();
+    cvf::OverlayScalarMapperLegend*             legend() { return m_legend.p(); }
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void                                initAfterRead();
+    virtual void                                defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 private:
+    void                                        updateLegend();
     void                                        updateFieldVisibility();
     cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
-    double                                      adjust(double value, double precision);
-    
+    double                                      roundToNumSignificantDigits(double value, double precision);
+
+ 
+
 private:
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
 
@@ -110,7 +115,7 @@ private:
     cvf::ref<cvf::ScalarMapperContinuousLinear> m_linSmoothScalarMapper;
     cvf::ref<cvf::ScalarMapper>                 m_currentScalarMapper;
 
-    cvf::ref<cvf::OverlayScalarMapperLegend>           m_legend;
+    cvf::ref<cvf::OverlayScalarMapperLegend>    m_legend;
 
     double                                      m_globalAutoMax;
     double                                      m_globalAutoMin;

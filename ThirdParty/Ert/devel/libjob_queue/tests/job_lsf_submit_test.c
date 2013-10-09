@@ -17,14 +17,13 @@
 */
 #include <stdlib.h>
 #include <stdbool.h>
-
-#include <lsf/lsbatch.h>
+#include <unistd.h>
 
 #include <ert/util/util.h>
 #include <ert/util/test_util.h>
 
 #include <ert/job_queue/lsf_driver.h>
-
+#include <ert/job_queue/lsf_job_stat.h>
 
 
 void test_submit(lsf_driver_type * driver , const char * server , const char * bsub_cmd , const char * bjobs_cmd , const char * bkill_cmd , const char * cmd) {

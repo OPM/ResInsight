@@ -832,7 +832,7 @@ int main( int argc , char ** argv ) {
         char * config_path;
         util_alloc_file_components( config_arg , &config_path , NULL , NULL);
         if (config_path != NULL) {
-          chdir( config_path );
+          util_chdir( config_path );
           free( config_path );
         }
       } else {
