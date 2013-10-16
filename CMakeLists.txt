@@ -79,9 +79,9 @@ include_directories(
 ################################################################################
 set (QT_COMPONENTS_REQUIRED QtCore QtGui QtMain QtOpenGl QtNetwork QtScript QtScriptTools)
 find_package (Qt4 COMPONENTS ${QT_COMPONENTS_REQUIRED})
-if ( NOT Qt4_FOUND )
+if ( NOT QT4_FOUND )
     message(FATAL_ERROR "Package Qt4 is required, but not found. Please specify qmake for variable QT_QMAKE_EXECUTABLE")
-endif ( NOT Qt4_FOUND )
+endif ( NOT QT4_FOUND )
 
 if (QT_VERSION_MINOR LESS 6)
     message(FATAL_ERROR "Qt 4.6 is required, please specify qmake for variable QT_QMAKE_EXECUTABLE")
