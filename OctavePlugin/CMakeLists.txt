@@ -38,7 +38,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
     if (CMAKE_CL_64)
         option(RESINSIGHT_OCTAVE_PLUGIN_32_BIT "Use 32-bit environment for compilation on Windows (mkoctfile and Qt used for Octave must match)" OFF)
-        mark_as_advanced(RESINSIGHT_OCTAVE_PLUGIN_32_BIT)
     endif()
 endif()
 
