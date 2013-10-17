@@ -71,7 +71,10 @@ public:
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
+ 
 private:
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
     caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 

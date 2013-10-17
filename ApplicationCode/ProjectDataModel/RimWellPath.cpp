@@ -235,3 +235,27 @@ void RimWellPath::readAsciiWellPathFile()
 
     setWellPathGeometry(wpData.m_wellPathGeometry.p());
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* appGroup =  uiOrdering.addNewGroup("Appearance");
+    appGroup->add(&showWellPathLabel);
+    appGroup->add(&wellPathColor);
+    appGroup->add(&wellPathRadiusScaleFactor); 
+
+    caf::PdmUiGroup* fileInfoGroup =   uiOrdering.addNewGroup("File");
+    fileInfoGroup->add(&filepath);
+    fileInfoGroup->add(&wellPathIndexInFile);
+
+    caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
+    ssihubGroup->add(&id);
+    ssihubGroup->add(&sourceSystem);
+    ssihubGroup->add(&utmZone);
+    ssihubGroup->add(&updateDate);
+    ssihubGroup->add(&updateUser);
+    ssihubGroup->add(&m_surveyType);
+
+}

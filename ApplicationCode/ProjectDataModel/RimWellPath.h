@@ -74,6 +74,8 @@ private:
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
 
     caf::PdmField<QString>              id;
     caf::PdmField<QString>              sourceSystem;

@@ -201,6 +201,24 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* wellHeadGroup = uiOrdering.addNewGroup("Well labels");
+    wellHeadGroup->add(&showWellPathLabel);
+    wellHeadGroup->add(&wellPathLabelColor);
+
+    caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
+    wellPipe->add(&wellPathVisibility);
+    wellPipe->add(&wellPathRadiusScaleFactor);
+
+    caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Clipping");
+    advancedGroup->add(&wellPathClip);
+    advancedGroup->add(&wellPathClipZDistance);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
 {
     std::map<QString, std::vector<WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);
