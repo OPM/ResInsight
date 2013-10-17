@@ -165,7 +165,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  defBackgColor, "Viewer Background", "", "", "");
+    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  defBackgColor, "Background", "", "", "");
 
 
     CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
@@ -1608,5 +1608,25 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
 caf::PdmFieldHandle* RimReservoirView::objectToggleField()
 {
     return &showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
+    viewGroup->add(&name);
+    viewGroup->add(&backgroundColor);
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
+    gridGroup->add(&scaleZ);
+    gridGroup->add(&meshMode);
+    gridGroup->add(&surfaceMode);
+
+    caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
+    cellGroup->add(&showMainGrid);
+    cellGroup->add(&showInactiveCells);
+    cellGroup->add(&showInvalidCells);
 }
 
