@@ -52,7 +52,7 @@ else()
   message(WARNING "Failed to find mkoctfile, no Octave plugins will be compiled. Please specify RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE")
 endif()
 
-find_program(RESINSIGHT_OCTAVE_PLUGIN_QMAKE qmake)
+find_program(RESINSIGHT_OCTAVE_PLUGIN_QMAKE qmake-qt4 qmake)
 if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
     get_filename_component(OCTAVE_QMAKE_DIR ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE} PATH)
 
