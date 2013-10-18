@@ -81,6 +81,8 @@ public:
     PdmObject*       ownerObject()                                  { return m_ownerObject;  }
 
     // Generalized access methods for User interface
+    // The QVariant encapsulates the real value, or an index into the valueOptions
+    // 
 
     virtual QVariant uiValue() const                                { return QVariant(); }
     virtual void     setValueFromUi(const QVariant& )               {  }
