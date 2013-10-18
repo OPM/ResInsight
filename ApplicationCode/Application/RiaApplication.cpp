@@ -1631,7 +1631,7 @@ QString RiaApplication::commandLineParameterHelp() const
         "\n"
         "-project <filename>      Open project file <filename>\n"
         "\n"
-        "-case <casename>         Open Eclipse case <casename>\n"
+        "-case <casename>         Import Eclipse case <casename>\n"
         "                         (do not include .GRID/.EGRID)\n"
         "\n"
         "-startdir                The default directory for open/save commands\n"

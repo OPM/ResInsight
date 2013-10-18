@@ -121,8 +121,8 @@ private:
 
 private:
     // File actions
-    QAction*		    m_openEclipseCaseAction;
-    QAction*		    m_openInputEclipseFileAction;
+    QAction*		    m_importEclipseCaseAction;
+    QAction*		    m_importInputEclipseFileAction;
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
@@ -186,8 +186,8 @@ private:
 private slots:
 
     // File slots
-    void    slotOpenBinaryGridFiles();
-    void    slotOpenInputFiles();
+    void    slotImportEclipseCase();
+    void    slotImportInputEclipseFiles();
     void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();

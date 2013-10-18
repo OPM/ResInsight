@@ -185,13 +185,14 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 void RiuMainWindow::createActions()
 {
     // File actions
-    m_openEclipseCaseAction                = new QAction(QIcon(":/Case48x48.png"), "&Open Eclipse Case", this);
-    m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
-    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
-    
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
-    m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "&Import Well Paths from File", this);
+
+    m_importEclipseCaseAction     = new QAction(QIcon(":/Case48x48.png"), "Import &Eclipse Case", this);
+    m_importInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "Import &Input Eclipse Case", this);
+    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
+    
+    m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "Import &Well Paths from File", this);
     m_importWellPathsFromSSIHubAction     = new QAction(QIcon(":/WellCollection.png"),"Import Well Paths from &SSI-hub", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
@@ -213,13 +214,13 @@ void RiuMainWindow::createActions()
     m_closeProjectAction               = new QAction("&Close Project", this);
     m_exitAction		        = new QAction("E&xit", this);
 
-    connect(m_openEclipseCaseAction,	            SIGNAL(triggered()), SLOT(slotOpenBinaryGridFiles()));
-    connect(m_openInputEclipseFileAction,SIGNAL(triggered()), SLOT(slotOpenInputFiles()));
-    connect(m_openMultipleEclipseCasesAction,SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
-    connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
-    connect(m_openLastUsedProjectAction,SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
-    connect(m_importWellPathsFromFileAction,	    SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
-    connect(m_importWellPathsFromSSIHubAction,    SIGNAL(triggered()), SLOT(slotImportWellPathsFromSSIHub()));
+    connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
+    connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
+    connect(m_importEclipseCaseAction,	        SIGNAL(triggered()), SLOT(slotImportEclipseCase()));
+    connect(m_importInputEclipseFileAction,     SIGNAL(triggered()), SLOT(slotImportInputEclipseFiles()));
+    connect(m_openMultipleEclipseCasesAction,   SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
+    connect(m_importWellPathsFromFileAction,	SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
+    connect(m_importWellPathsFromSSIHubAction,  SIGNAL(triggered()), SLOT(slotImportWellPathsFromSSIHub()));
     
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
@@ -324,8 +325,8 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
-    importMenu->addAction(m_openEclipseCaseAction);
-    importMenu->addAction(m_openInputEclipseFileAction);
+    importMenu->addAction(m_importEclipseCaseAction);
+    importMenu->addAction(m_importInputEclipseFileAction);
     importMenu->addAction(m_openMultipleEclipseCasesAction);
     importMenu->addSeparator();
     importMenu->addAction(m_importWellPathsFromFileAction);
@@ -402,8 +403,8 @@ void RiuMainWindow::createToolBars()
     m_standardToolBar = addToolBar(tr("Standard"));
     m_standardToolBar->setObjectName(m_standardToolBar->windowTitle());
 
-    m_standardToolBar->addAction(m_openEclipseCaseAction);
-    m_standardToolBar->addAction(m_openInputEclipseFileAction);
+    m_standardToolBar->addAction(m_importEclipseCaseAction);
+    m_standardToolBar->addAction(m_importInputEclipseFileAction);
     m_standardToolBar->addAction(m_openProjectAction);
     //m_standardToolBar->addAction(m_openLastUsedProjectAction);
     m_standardToolBar->addAction(m_saveProjectAction);
@@ -727,14 +728,14 @@ void RiuMainWindow::slotAbout()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenBinaryGridFiles()
+void RiuMainWindow::slotImportEclipseCase()
 {
     if (checkForDocumentModifications())
     {
         RiaApplication* app = RiaApplication::instance();
 
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
         if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
         app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
 
@@ -755,13 +756,13 @@ void RiuMainWindow::slotOpenBinaryGridFiles()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenInputFiles()
+void RiuMainWindow::slotImportInputEclipseFiles()
 {
     if (checkForDocumentModifications())
     {
         RiaApplication* app = RiaApplication::instance();
         QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
 
         if (fileNames.isEmpty()) return;
 
