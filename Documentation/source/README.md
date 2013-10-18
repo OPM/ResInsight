@@ -1,4 +1,10 @@
-#Create PDF#
+# Documentation #
+Documentation files uses the GitHub markdown syntax. A common file extension for markdown files is .md.
+
+
+[GitHub Markdown syntax](https://help.github.com/articles/github-flavored-markdown)
+
+## How to produce PDF from markdown files ##
 
 Pandoc can be used to generated PDF from a markdown file like this
 
