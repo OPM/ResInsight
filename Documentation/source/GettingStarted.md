@@ -11,7 +11,7 @@ A new project tree and property editor can be added from **Windows->New Project 
 
 Multiple 3D views can be open at the same time, and to see views next to each other select the **Restore down** icon in the application show here for Windows :
 
-![Show multiple views](/images/RestoreDown.png)
+![Show multiple views](/images/RestoreDown.PNG)
 
 ### Project Tree ###
 Grid Models contains Eclipse cases organized in the following structure
