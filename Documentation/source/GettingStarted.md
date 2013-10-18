@@ -16,15 +16,15 @@ A new project tree and property editor can be added from **Windows->New Project 
 Multiple 3D views can be open at the same time, and to see views next to each other select 
 the **Restore down** icon in the application show here for Windows :
 
-![Show multiple views](/images/RestoreDown.PNG)
+![Show multiple views](images/RestoreDown.PNG)
 
 ### Project Tree ###
 Grid Models contains Eclipse cases organized in the following structure
 
-- ![](/images/Case24x24.png) Binary case created from .EGRID or .GRID file 
-- ![](/images/Case24x24.png) Binary case created from .EGRID or .GRID file 
-- ![](/images/EclipseInput24x24.png) Input cases created from .GRDECL file 
-- ![](/images/CreateGridCaseGroup16x16.png) A Grid Case Group can be created from a 
+- ![](images/Case24x24.png) Binary case created from .EGRID or .GRID file 
+- ![](images/Case24x24.png) Binary case created from .EGRID or .GRID file 
+- ![](images/EclipseInput24x24.png) Input cases created from .GRDECL file 
+- ![](images/CreateGridCaseGroup16x16.png) A Grid Case Group can be created from a 
       selection of binary files, or manually by assigning cases using the user interface of ResInsight.
 
 Toggling a checkbox next to an item will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will toggle visibility for all items in the collection.
@@ -116,15 +116,10 @@ Image export of current 3D view can be launched from **File->Export->Snapshot To
 ## Export of Eclipse Ascii data ##
 Result data can be exported to Eclipse Ascii file by activating the context menu for a **Cell Result**.
 
-'''
--- Exported from ResInsight
-<keyword>
-<data for all cells>
-/
-'''
-
-
-
+    -- Exported from ResInsight
+    <keyword>
+    <data for all cells>
+    /
 
 
 # Script interface to Octave #
