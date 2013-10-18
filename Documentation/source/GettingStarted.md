@@ -1,7 +1,11 @@
+
 # Getting started with ResInsight #
 
 ## Application overview ##
-The main area of the application can contain several docking windows. The different docking windows can be managed from the **Windows** menu or directly using the local menu bar of the docking window.
+
+The main area of the application can contain several docking windows. The different docking 
+windows can be managed from the **Windows** menu or directly using the local menu bar of the docking window.
+
 - **Project Tree** - contains all application objects in a tree structure.
 - **Property Editor** - displays all properties for the selected object in **Project Tree**
 - **Process Monitor** - displays output from Octave when executing Octave scripts
@@ -9,17 +13,19 @@ The main area of the application can contain several docking windows. The differ
 
 A new project tree and property editor can be added from **Windows->New Project and Property View**.
 
-Multiple 3D views can be open at the same time, and to see views next to each other select the **Restore down** icon in the application show here for Windows :
+Multiple 3D views can be open at the same time, and to see views next to each other select 
+the **Restore down** icon in the application show here for Windows :
 
 ![Show multiple views](/images/RestoreDown.PNG)
 
 ### Project Tree ###
 Grid Models contains Eclipse cases organized in the following structure
 
-- ![](/images/Case48x48.png) Binary case created from .EGRID or .GRID file 
-- ![](/images/Case48x48.png) Binary case created from .EGRID or .GRID file 
-- ![](/images/EclipseInput48x48.png) Input cases created from .GRDECL file 
-- ![](/images/CreateGridCaseGroup16x16.png) A Grid Case Group can be created from a selection of binary files, or manually by assigning cases using the user interface of ResInsight.
+- ![](/images/Case24x24.png) Binary case created from .EGRID or .GRID file 
+- ![](/images/Case24x24.png) Binary case created from .EGRID or .GRID file 
+- ![](/images/EclipseInput24x24.png) Input cases created from .GRDECL file 
+- ![](/images/CreateGridCaseGroup16x16.png) A Grid Case Group can be created from a 
+      selection of binary files, or manually by assigning cases using the user interface of ResInsight.
 
 Toggling a checkbox next to an item will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will toggle visibility for all items in the collection.
 
