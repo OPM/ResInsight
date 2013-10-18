@@ -297,10 +297,16 @@ void RiuMainWindow::createActions()
 
 
     connect(m_dsActionGroup, SIGNAL(triggered(QAction*)), SLOT(slotDrawStyleChanged(QAction*)));
+   
 
     m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
     m_drawStyleToggleFaultsAction->setCheckable(true);
     connect(m_drawStyleToggleFaultsAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+
+    m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
+    m_addWellCellsToRangeFilterAction->setCheckable(true);
+    m_addWellCellsToRangeFilterAction->setToolTip("Add Well Cells To Range Filter based on the individual settings");
+    connect(m_addWellCellsToRangeFilterAction,	SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
 
 }
 
@@ -424,6 +430,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
+    m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
     QLabel* scaleLabel = new QLabel(m_viewToolBar);
     scaleLabel->setText("Scale");
@@ -1491,12 +1498,19 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     m_drawStyleToggleFaultsAction->setEnabled(enable);
 
+    m_addWellCellsToRangeFilterAction->setEnabled(enable);
+
     if (enable) 
     {
+        RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
         m_drawStyleToggleFaultsAction->blockSignals(true);
-        m_drawStyleToggleFaultsAction->setChecked(   RiaApplication::instance()->activeReservoirView()->meshMode == RimReservoirView::FAULTS_MESH 
-                                                  || RiaApplication::instance()->activeReservoirView()->surfaceMode == RimReservoirView::FAULTS);
+        m_drawStyleToggleFaultsAction->setChecked(   riv->meshMode == RimReservoirView::FAULTS_MESH 
+                                                  || riv->surfaceMode == RimReservoirView::FAULTS);
         m_drawStyleToggleFaultsAction->blockSignals(false);
+
+        m_addWellCellsToRangeFilterAction->blockSignals(true);
+        m_addWellCellsToRangeFilterAction->setChecked( riv->wellCollection()->wellCellsToRangeFilterMode() != RimWellCollection::RANGE_ADD_NONE);
+        m_addWellCellsToRangeFilterAction->blockSignals(false);
     }
 }
 
@@ -1767,4 +1781,18 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
 void RiuMainWindow::setDefaultWindowSize()
 {
     resize(1000, 810);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
+{
+    RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
+    if (riv)
+    {
+        caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;
+        rangeAddType = doAdd ? RimWellCollection::RANGE_ADD_INDIVIDUAL : RimWellCollection::RANGE_ADD_NONE;
+        riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(rangeAddType.index());
+    }
 }

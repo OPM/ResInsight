@@ -217,6 +217,7 @@ private slots:
 
     void slotDrawStyleChanged(QAction* activatedAction);
     void slotToggleFaultsAction(bool);
+    void slotAddWellCellsToRangeFilterAction(bool doAdd);
 
     // Debug slots
     void    slotRefreshDebugActions();
@@ -269,6 +270,8 @@ private:
     QAction*                    m_drawStyleLinesAction;
     QAction*                    m_drawStyleLinesSolidAction;
     QAction*                    m_drawStyleSurfOnlyAction;
+    QAction*                    m_addWellCellsToRangeFilterAction;
+
     void                        refreshDrawStyleActions();
 
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
