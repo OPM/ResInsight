@@ -6,8 +6,9 @@ ResInsight is a 3D viewer and post processing tool for reservoir models. It has 
 ResInsight uses the Ensambles/ert library to access eclipse result files, and the two projects collaborates closely. The source code of the approved ert library version is embedded in the ResInsight source code tree, making downloading and building simple.
 ResInsight also features an interface to Octave, making it possible to retrieve data from ResInsight, process them using Octave, and write them back into ResInsight for viewing. If you want to build ResInsight with this feature, you need to install Octave.
 
-Octave [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octave/)
-Ensembles/ert [https://github.com/Ensembles/ert](https://github.com/Ensembles/ert)
+Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octave/)
+
+Ensembles/ert : [https://github.com/Ensembles/ert](https://github.com/Ensembles/ert)
 
 ## SUPPORTED PLATFORMS ##
 ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on linux and windows platforms, but the tested platforms are currently 64 bit RHE 5, RHE 6 and Windows 7.
