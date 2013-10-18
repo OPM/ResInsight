@@ -18,9 +18,9 @@ There has been attemts to make ResInsight build and run on OSX as well, but the 
 No efforts to provide documentation has been made yet.
 
 ## SOURCE CODE ##
-'''
+```
 git clone git://github.com/OPM/ResInsight.git
-'''
+```
 
 ## CONTRIBUTION ##
 Contributions are very welcome, although it might take some time for the team to accept pull requests that is not in the main line of the projects focus. Please use the dev branch for contributions and pull requests, as it is the branch dedicated to the day to day development. The master branch is used as a branch for distributing the latest stable release.
@@ -29,13 +29,13 @@ Release branches that might pop up are dedicated bug fix branches for the releas
 ## BUILDING RESINSIGHT ##
 ### Linux ###
 ResInsight uses the cmake build system and requires cmake version 2.8 or higher. Moreover, you need version 4.7.3 of Qt or newer, look below for dependecy list. An out-of-tree build is typically done with
-'''
+```
    mkdir ResInsight/build
    cd ResInsight/build
    cmake ..
    make
    make install
-'''
+```
 You will find the ResInsight binary under the Install directory in your build directory.
 
 ### Windows ###
@@ -47,6 +47,11 @@ Set the build variables and click "Configure" again.
 Click "Generate", and a project file will be created in the build directory <ResInsight-build-folder>
 
 ## DEPENDENCIES FOR DEBIAN BASED DISTRIBUTIONS ##
-'''sudo apt-get install git cmake build-essential octave octave-headers qt4-dev-tools'''
+```
+sudo apt-get install git cmake build-essential octave octave-headers qt4-dev-tools
+```
 
-If you are running Ubuntu 12.10 or newer, you will need to replace octave-headers with liboctave-dev in the line above.
+If you are running Ubuntu 12.10 or newer, you will need to replace octave-headers with liboctave-dev :
+```
+sudo apt-get install git cmake build-essential octave liboctave-dev qt4-dev-tools
+```
