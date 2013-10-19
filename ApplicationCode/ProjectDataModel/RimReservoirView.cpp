@@ -72,6 +72,7 @@
 #include "cvfOverlayScalarMapperLegend.h"
 
 #include <limits.h>
+#include "cafCeetronPlusNavigation.h"
 
 namespace caf {
 
@@ -234,7 +235,7 @@ void RimReservoirView::updateViewerWidget()
 
             if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
             {
-                m_viewer->setNavigationPolicy(new caf::CeetronNavigation);
+                m_viewer->setNavigationPolicy(new caf::CeetronPlusNavigation);
             }
             else
             {

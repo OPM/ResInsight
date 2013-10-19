@@ -72,6 +72,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimWellCollection.h"
+#include "cafCeetronPlusNavigation.h"
 
 namespace caf
 {
@@ -1132,7 +1133,7 @@ void RiaApplication::applyPreferences()
         }
         else
         {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronNavigation);
+            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronPlusNavigation);
         }
 
         m_activeReservoirView->viewer()->enablePerfInfoHud(m_preferences->showHud());
