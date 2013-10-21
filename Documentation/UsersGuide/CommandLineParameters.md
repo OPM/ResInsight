@@ -7,7 +7,6 @@ Parameter|Description
 `-last`                   | Open last used project
 `-project <filename>`     | Open project file <filename>
 `-case <casename>`        | Import Eclipse case <casename> (do not include .GRID/.EGRID)
-`-startdir`               | The default directory for open/save commands
 `-help, -?`               | Displays help text
 
 ## Regression test ##
