@@ -50,10 +50,17 @@ This is a Case based on the results of an Eclipse analysis, read from a grid fil
 This Case type is based on a `*.GRDECL` file, or a part of an Eclipse *Input* file. This Case type supports loading single ascii files defining Eclipse Cell Properies, and also to export miodified property sets to ascii files.
 
 ##### ![](images/EclipseInput24x24.png) Statistics case
-This is a Case type that belongs to a *Grid Case Group* and makes statistical calculations based on a set of source cases available. 
+This is a Case type that belongs to a *Grid Case Group* and makes statistical calculations based on the source cases in the Grid Case Group. 
 
 ##### ![](images/CreateGridCaseGroup24x24.png) Grid Case Group
+
+A **Grid Case Group** is a group of **Result Cases** whith identical grids, but generally different active cells, initial values and results. These cases are called *Source Cases*. 
+
+The purpose of a Grid Case group is to make it easy to calculate statistics across the source cases. If you have done several Eclipse simulations with different input parameters, you can put all the results into a Grid Case Group and easily calculate the cells mean value, range and max/min values at each timestep.
+
 A Grid Case Group can be created from a selection of binary files, or manually by assigning cases using the user interface of ResInsight.
+
+See also [ Multiple realizations and statistics ] (CaseGroupsAndStatistics.md).
 
 ### Importing data
 
@@ -65,10 +72,11 @@ ResInsight supports the follwing type of Eclipse input data:
 
 ### Open an Eclipse case 
 
-1. Select **File->Import->Import Eclipse Case** and select Eclipse file for import
+1. Select **File->Import->Import Eclipse Case** and select an `*.EGRID` or `*.GRID` Eclipse file for import.
 2. The case is imported, and a view of the case is created
 3. Select Cell Result in the Project Tree, and define the displayed result from Property Editor
 4. Interact with the 3D model using the mouse
+
 
 ### Toolbar 
 
