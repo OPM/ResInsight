@@ -6,7 +6,7 @@ Installation instructions for ResInsight can be found here: [Installation and Co
 
 ### User interface overview 
 
-The main area of the application can contain several docking windows. The different docking 
+The application has a main area and several docking windows. The different docking 
 windows can be managed from the **Windows** menu or directly using the local menu bar of the docking window.
 
 - **Project Tree** - contains all application objects in a tree structure.
@@ -16,8 +16,9 @@ windows can be managed from the **Windows** menu or directly using the local men
 
 *TIP:* A new project tree and property editor can be added from **Windows->New Project and Property View**.
 
-Multiple 3D views can be open at the same time, and to see views next to each other select 
-the **Restore down** icon in the application show here for Windows :
+In the main area of the application, several 3D views can be open at the same time.  One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
+
+*TIP:* To see views next to each other select the **Restore down** icon in the application show here for Windows :
 
 ![Restore Down](images/RestoreDown.PNG)
 
@@ -37,6 +38,7 @@ A Grid Case Group can be created from a selection of binary files, or manually b
 
 
 ### Open an Eclipse case 
+
 1. Select **File->Import->Import Eclipse Case** and select Eclipse file for import
 2. The case is imported, and a view of the case is created
 3. Select Cell Result in the Project Tree, and define the displayed result from Property Editor
@@ -48,7 +50,7 @@ A selected subset of actions are presented as controls in the toolbar. The diffe
 
 ### Model navigation 
 
-ResInsight comes with a set of predefined 3D navigation modes. This mode can be set in **Preferences**.
+ResInsight comes with a set of predefined 3D navigation modes. This mode can be set in the **Preferences** dialog (**Edit->Preferences**).
 
 Abbreviation | Meaning
 -------------|-------
