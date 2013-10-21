@@ -98,20 +98,6 @@ Select **Wells** in the **Project Tree**. In the **Property Editor**, select **O
 In addition, all cells along a direction can be added as a fence. Enable this by checking **Use well fence**.
 
 
-# Multiple realizations and statistics #
-
-ResInsight features efficient support for management of large collection of realizations. To import a set of realizations, select **File->Import->Create Grid Case Group from Files**. An import dialog is opened, an a set of cases can be imported from multiple folders.
->NOTE: The search for Eclipse cases will be executed recursively for the specified folders.
-
-Clicking the **Ok** button will import all cases into ResInsight, and they can be inspected one by one. To reduce the number of views, only a view for the first case is automatically created. Select *New view** from the context menu of a case to create a 3D view of the case.
-
-## Statistics ##
-After creating a grid case group, an empty statistics object is created. Select the properties to evaluate statistics for, and push **Compute** to start the computation of statistics. This can take a while for large models.
-When the computation is complete, a view is automatically created containing the resulting generated statistics properties. Interaction with these generated properties are identical to interaction with other properties read from file.
-
-A new statistical calculation can be created by activating the context menu for **Derived Statistic->New Statistics Case**.
-
-
 # Export #
 ## Snapshot images ##
 Image export of current 3D view can be launched from **File->Export->Snapshot To File**. If a project contains multiple views, all views can be exported using **File->Export->Snapshot All Views To File**. A snapshot can also be copied to clipboard using **Edit->Copy Snapshot To Clipboard**. All three commands are also available on the toolbar.
@@ -124,15 +110,3 @@ Result data can be exported to Eclipse Ascii file by activating the context menu
     <data for all cells>
     /
 
-
-# Script interface to Octave #
-ResInsight provides a flexible interface to [Octave](http://www.gnu.org/software/octave/ "Octave") for scripts execution. ResInsight can create an external Octave process, and is able to send and receive data from this external process.
-
-## Script execution - single case ##
-A script can be started by navigating to the script in the **Project Tree**, and selecting **Execute** from the context menu. The currently active case will be manipulated by the Octave script. It is also possible to execute a script from the context menu of a case.
-
-## Script execution - multiple cases ##
-One script can be executed on many cases by first selecting a set of cases, and then activating **Execute script** from the context menu for the case selection.
-
-## Script management ##
-Octave scripts are available in the **Scripts** folder in the **Project Tree**. Multiple script folder locations can be defined in the field _Shared Script Folder(s)_ in **Edit=>Preferences**. These scripts can be edited by a text editor defined in _Script Editor_ in **Edit=>Preferences**.
