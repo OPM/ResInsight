@@ -19,7 +19,7 @@ can also export modified cell property data sets to single Eclipse input files.
 - [ Multiple realizations and statistics ] (CaseGroupsAndStatistics.md)
 - [ Octave Interface]            (OctaveInterface.md)
 - [ Command Line Arguments]      (CommandLineArguments.md)
-- [ Octave Interface Reference]  (OctaveInterfacceReference.md)
+- [ Octave Interface Reference]  (OctaveInterfaceReference.md)
 
 
 ```
