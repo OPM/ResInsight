@@ -86,7 +86,8 @@ If the CaseId is not defined, ResInsight's Current Case is used.
 
 #### Matrix[numGrids][3] riGetGridDimensions([CaseId])
 This function returns a two dimensional matrix: One row for each grid, starting with the main grid. 
->NOTE: This means that the "normal" GridIndices where 0 means Main Grid does not work directly with this matrix. You have to add 1.
+
+*NOTE*: This means that the "normal" GridIndices where 0 means Main Grid does not work directly with this matrix. You have to add 1.
 
 The columns contain the following information:
 [NI, NJ, NK]:  I, J, K dimensions of the grid. 
