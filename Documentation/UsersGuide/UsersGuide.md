@@ -18,7 +18,7 @@ can also export modified cell property data sets to single Eclipse input files.
 - [ Working with reservoir views ] (ReservoirViews.md)
 - [ Multiple realizations and statistics ] (CaseGroupsAndStatistics.md)
 - [ Octave Interface]            (OctaveInterface.md)
-- [ Command Line Arguments]      (CommandLineArguments.md)
+- [ Command Line Arguments]      (CommandLineParameters.md)
 - [ Octave Interface Reference]  (OctaveInterfaceReference.md)
 
 
