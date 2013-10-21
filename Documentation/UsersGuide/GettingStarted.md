@@ -1,4 +1,3 @@
-
 # Getting started with ResInsight #
 
 ## Application overview ##
@@ -18,16 +17,20 @@ the **Restore down** icon in the application show here for Windows :
 
 ![Show multiple views](images/RestoreDown.PNG)
 
-### Project Tree ###
-Grid Models contains Eclipse cases organized in the following structure
+Toggling a checkbox next to an item in the **Project Tree** will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will toggle visibility for all items in the collection.
 
-- ![](images/Case24x24.png) Binary case created from .EGRID or .GRID file 
-- ![](images/Case24x24.png) Binary case created from .EGRID or .GRID file 
-- ![](images/EclipseInput24x24.png) Input cases created from .GRDECL file 
-- ![](images/CreateGridCaseGroup16x16.png) A Grid Case Group can be created from a 
-      selection of binary files, or manually by assigning cases using the user interface of ResInsight.
+### Input data support ###
+ResInsight supports the follwing type of Eclipse input data
 
-Toggling a checkbox next to an item will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will toggle visibility for all items in the collection.
+#### ![](images/Case24x24.png) Binary case
+Read grid from .EGRID or .GRID file and binary data from UNRST files.
+
+#### ![](images/EclipseInput24x24.png) Input case
+Read grid from from .GRDECL file and property data from Ascii files.
+
+#### ![](images/CreateGridCaseGroup16x16.png) Grid Case Group
+A Grid Case Group can be created from a selection of binary files, or manually by assigning cases using the user interface of ResInsight.
+
 
 ## Open an Eclipse case ##
 1. Select **File->Import->Import Eclipse Case** and select Eclipse file for import
@@ -86,11 +89,11 @@ All filters can be controlled from the **Property Editor**.
 
 Using range filters enables the user to define a set of IJK visible regions in the 3D view. A single IJK-slice can be added from the context menu when rightclicking a grid cell. A new range filter can also be added by activating the context menu for the **Range Filters** collection in the **Project Tree**.
 
-## Property filters ##
+### Property filters ###
 
 In addition to range filters, it is possible to filter visible grid cells based on a property value range. Add a new property filter by activating the context menu for **Property Filters**. The new property filter is based on currently selected cell result.
 
-## Well range filter ##
+### Well range filter ###
 Select **Wells** in the **Project Tree**. In the **Property Editor**, select **On** for **Add cells to range filter**. This will hide cells not part of a well.
 In addition, all cells along a direction can be added as a fence. Enable this by checking **Use well fence**.
 
@@ -123,7 +126,7 @@ Result data can be exported to Eclipse Ascii file by activating the context menu
 
 
 # Script interface to Octave #
-ResInsight provides a flexible interface to [Octave](http://www.gnu.org/software/octave/ "Octave") for scripts execution.
+ResInsight provides a flexible interface to [Octave](http://www.gnu.org/software/octave/ "Octave") for scripts execution. ResInsight can create an external Octave process, and is able to send and receive data from this external process.
 
 ## Script execution - single case ##
 A script can be started by navigating to the script in the **Project Tree**, and selecting **Execute** from the context menu. The currently active case will be manipulated by the Octave script. It is also possible to execute a script from the context menu of a case.
