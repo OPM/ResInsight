@@ -1634,8 +1634,6 @@ QString RiaApplication::commandLineParameterHelp() const
         "\n"
         "-case <casename>         Import Eclipse case <casename>\n"
         "                         (do not include .GRID/.EGRID)\n"
-        "\n"
-        "-startdir                The default directory for open/save commands\n"
         "\n"                      
         "-savesnapshots           Save snapshot of all views to 'snapshots' folder in project file folder\n"
         "                         Application closes after snapshots are written to file\n"
