@@ -22,6 +22,10 @@ windows can be managed from the **Windows** menu or directly using the local men
 *TIP:* A new project tree and property editor can be added from **Windows->New Project and Property View**.
 
 
+### Toolbars 
+
+A selected subset of actions are presented as controls in the toolbar. The different sections in the toolbar can be dragged and positioned anywhere as small floating toolbars. Management of the toolbar is done by right-clicking on the toolbar and then manipulating the displayed menu.
+
 #### 3D Views 
 
 In the main area of the application, several 3D views can be open at the same time.  One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
@@ -48,11 +52,12 @@ This is a Case based on the results of an Eclipse analysis, read from a grid fil
 
 ##### ![](images/EclipseInput24x24.png) Input case
 This Case type is based on a `*.GRDECL` file, or a part of an Eclipse *Input* file. This Case type supports loading single ascii files defining Eclipse Cell Properies, and also to export miodified property sets to ascii files.
+Each of the Eclipse properties is listed as separate entities in the **Project Tree**, and can be renamed and exported.
 
-##### ![](images/EclipseInput24x24.png) Statistics case
+##### ![](images/Histogram24x24.png) Statistics case
 This is a Case type that belongs to a *Grid Case Group* and makes statistical calculations based on the source cases in the Grid Case Group. 
 
-##### ![](images/CreateGridCaseGroup24x24.png) Grid Case Group
+#### Grid Case Group ![](images/GridCaseGroup24x24.png) 
 
 A **Grid Case Group** is a group of **Result Cases** whith identical grids, but generally different active cells, initial values and results. These cases are called *Source Cases*. 
 
@@ -70,17 +75,19 @@ ResInsight supports the follwing type of Eclipse input data:
 - `*.GRID` and `*.EGRID` files along with their `*.INIT` and restart files `*.XNNN` and `*.UNRST`. 
 - Grid and Property data from  `*.GRDECL` files.
 
-### Open an Eclipse case 
+#### Importing Eclipse cases 
 
+##### Eclipse Results
 1. Select **File->Import->Import Eclipse Case** and select an `*.EGRID` or `*.GRID` Eclipse file for import.
 2. The case is imported, and a view of the case is created
-3. Select Cell Result in the Project Tree, and define the displayed result from Property Editor
-4. Interact with the 3D model using the mouse
 
+*TIP:* You can select several grid files in one go.
 
-### Toolbar 
+##### Eclipse ascii input data
+1. Select **File->Import->Import Input Eclipse Case** and select a `*.GRDECL` file.
+2. The case is imported, and a view of the case is created
+3. Right click the **Input Properties** in the generated **Input Case** and use the context menu to import additional Eclipse Property data files.
 
-A selected subset of actions are presented as controls in the toolbar. The different sections in the toolbar can be dragged and positioned anywhere as small floating toolbars. Management of the toolbar is done by right-clicking on the toolbar and then manipulating the displayed menu.
 
 ### Model navigation 
 
