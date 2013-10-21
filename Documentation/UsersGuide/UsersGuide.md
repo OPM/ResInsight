@@ -4,7 +4,7 @@
 ## Introduction
 
 ResInsight is a tool for visualizing Eclipse Reservoir simulation related data, and aims to be 
-fast, accessible and flexible and to contain tools and visualization modes requested and designed by 
+fast, accessible, flexible and to present tools and visualization modes requested and designed by 
 Reservoir engineers.
 
 The main input data is
@@ -17,11 +17,34 @@ can also export modified cell property data sets to single Eclipse input files.
 
 
 ## Getting Started
+
 ### Installation
 ### User Interface Overview
 #### Navigation
 #### Toolbars
-### Project files `*.rsp`
+### Project files and related data `*.rsp`
+
+## Importing data
+
+## Working with reservoir views
+### Cell Results
+### Cell Edge Results
+### Cell filters
+#### Range Filters
+#### Property Fulters
+### Wells
+
+## Multiple realizations and statistics
+### Grid case groups
+### Statistics
+
+## Octave Interface
+### Getting Started 
+### Script Exectution
+### Script Management
+### Octave extensions Reference
+
+## Command Line Arguments
 
 
 
