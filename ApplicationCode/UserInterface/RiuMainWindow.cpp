@@ -1794,6 +1794,6 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
     {
         caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;
         rangeAddType = doAdd ? RimWellCollection::RANGE_ADD_INDIVIDUAL : RimWellCollection::RANGE_ADD_NONE;
-        riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(rangeAddType.index());
+        riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
     }
 }
