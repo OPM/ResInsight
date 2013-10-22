@@ -1,4 +1,9 @@
-## Reservoir Views
+## Working with 3D Views
+
+3D Views are the windows displaying the Grid Models. The visualization is controlled by the **Project Tree** item representing the **View** and their subitems. 
+
+![](images/3DViewOverview.png)
+
 
 ### Cell Results
 

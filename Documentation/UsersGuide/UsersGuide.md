@@ -15,7 +15,7 @@ ResInsight also have support for extensive processing of the data sets through a
 can also export modified cell property data sets to single Eclipse input files.
 
 - [ Getting Started ]            (GettingStarted.md)
-- [ Working with reservoir views ] (ReservoirViews.md)
+- [ Working with 3D Views ] (ReservoirViews.md)
 - [ Multiple realizations and statistics ] (CaseGroupsAndStatistics.md)
 - [ Octave Interface]            (OctaveInterface.md)
 - [ Command Line Arguments]      (CommandLineParameters.md)

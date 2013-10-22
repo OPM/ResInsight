@@ -101,6 +101,7 @@ RMB          | Pressing Right mouse button
 
 
 #### Ceetron navigation mode
+
 Mouse interaction | Action
 ------------------|-------
 LMB               | Pan model
@@ -108,18 +109,19 @@ MMB               | Zoom to mouse pointer location
 Scroll wheel      | Zoom to mouse pointer location
 RMB               | Rotate model
                   |                    
-RMB single click    | Context menu 
-LMB single click | Update status bar and **Result Info**
+RMB single click  | Context menu 
+LMB single click  | Update status bar and **Result Info**
 
 #### CAD navigation mode
+
 Mouse interaction | Action
 ------------------|-------
 MMB               | Rotate model
 MMB + Shift       | Pan model
 Scroll wheel      | Zoom to mouse pointer location
                   |
-RMB single click         | Context menu 
-LMB single click         | Update status bar and **Result Info**
+RMB single click  | Context menu 
+LMB single click  | Update status bar and **Result Info**
 
 
 ### Project files and Cache directory
@@ -131,15 +133,26 @@ Statistics calculations, property sets you generate by using Octave and well pat
 
 *TIP:* The `.rsp`-file is an XML file, and can be edited by any text editor.  
 
-### Export
+### Export options
 #### Snapshot images 
-Image export of current 3D view can be launched from **File->Export->Snapshot To File**. If a project contains multiple views, all views can be exported using **File->Export->Snapshot All Views To File**. A snapshot can also be copied to clipboard using **Edit->Copy Snapshot To Clipboard**. All three commands are also available on the toolbar.
+##### Single View ![](images/SnapShot.png) ![](images/SnapShotSave.png)
+Image export of current 3D view can be launched from **File->Export->Snapshot To File**. A snapshot can also be copied to clipboard using **Edit->Copy Snapshot To Clipboard**. 
 
-#### Export of Eclipse Ascii data
-Result data can be exported to Eclipse Ascii file by activating the context menu for a **Cell Result**.
+##### All Views ![](images/SnapShotSaveViews.png)
+If a project contains multiple views, all views can be exported using **File->Export->Snapshot All Views To File**. 
+
+There is also possible to launch snapsotting of all the views from the command line. See  [ Command Line Arguments]      (CommandLineParameters.md)
+
+
+
+
+#### Export of Eclipse Properties as Ascii data
+Eclipse Properties can be exported to Eclipse Ascii files by activating the context menu for a **Cell Result**. ![](images/ExportProperty.png) 
+
+The command will export the property set currently loaded and shown in the 3D View to a file with the following format:
 
     -- Exported from ResInsight
     <keyword>
-    <data for all cells>
+    <One number per cell separated by spaces>
     /
 
