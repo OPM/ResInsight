@@ -910,10 +910,7 @@ void WellSelectionPage::buildWellTreeView()
                     for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
                     {
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
-                        if (wellPathEntry->selected)
-                        {
-                            fieldGroup->objects.push_back(wellPathEntry);
-                        }
+                        fieldGroup->objects.push_back(wellPathEntry);
                     }
                 }
             }

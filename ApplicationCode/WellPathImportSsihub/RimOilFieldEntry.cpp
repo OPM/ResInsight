@@ -41,7 +41,7 @@ RimOilFieldEntry::RimOilFieldEntry()
 
     CAF_PDM_InitFieldNoDefault(&name,       "OilFieldName",      "OilFieldName", "", "", "");
     CAF_PDM_InitFieldNoDefault(&edmId,      "EdmId",             "EdmId", "", "", "");
-    CAF_PDM_InitField(&selected,            "Selected", true,    "Selected", "", "", "");
+    CAF_PDM_InitField(&selected,            "Selected", false,    "Selected", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&wellsFilePath,      "wellsFilePath",             "wellsFilePath", "", "", "");
 
