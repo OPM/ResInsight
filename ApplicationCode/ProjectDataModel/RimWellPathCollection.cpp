@@ -66,6 +66,9 @@ RimWellPathCollection::RimWellPathCollection()
 {
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
+    isActive.setUiHidden(true);
+
     CAF_PDM_InitField(&showWellPathLabel,               "ShowWellPathLabel",        true,                       "Show well path labels", "", "", "");
 
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
@@ -214,6 +217,14 @@ void RimWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
     caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Clipping");
     advancedGroup->add(&wellPathClip);
     advancedGroup->add(&wellPathClipZDistance);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
+{
+    return &isActive;
 }
 
 //--------------------------------------------------------------------------------------------------
