@@ -61,7 +61,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     groupId.setUiReadOnly(true);
 
     CAF_PDM_InitFieldNoDefault(&statisticsCaseCollection, "StatisticsCaseCollection", "Derived Statistics", ":/Histograms16x16.png", "", "");
-    CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Cases", ":/Cases16x16.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&caseCollection, "CaseCollection", "Source Cases", ":/Cases16x16.png", "", "");
  
     caseCollection = new RimCaseCollection;
     statisticsCaseCollection = new RimCaseCollection;
