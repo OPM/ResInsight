@@ -88,11 +88,6 @@ PdmUiTreeViewEditor::PdmUiTreeViewEditor()
 //--------------------------------------------------------------------------------------------------
 PdmUiTreeViewEditor::~PdmUiTreeViewEditor()
 {
-    if (m_proxyEditor)
-    {
-        delete m_proxyEditor;
-        m_proxyEditor = NULL;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
