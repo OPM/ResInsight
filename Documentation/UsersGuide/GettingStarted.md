@@ -61,11 +61,9 @@ This is a Case type that belongs to a *Grid Case Group* and makes statistical ca
 
 A **Grid Case Group** is a group of **Result Cases** whith identical grids, but generally different active cells, initial values and results. These cases are called *Source Cases*. 
 
-The purpose of a Grid Case group is to make it easy to calculate statistics across the source cases. If you have done several Eclipse simulations with different input parameters, you can put all the results into a Grid Case Group and easily calculate the cells mean value, range and max/min values at each timestep.
+The purpose of a Grid Case group is to make it easy to calculate statistics across the source cases both for static and dynamic Eclipse Properties. 
 
-A Grid Case Group can be created from a selection of binary files, or manually by assigning cases using the user interface of ResInsight.
-
-See also [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md).
+See [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md) for more on this.
 
 ### Importing data
 
