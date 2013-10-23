@@ -41,6 +41,14 @@ RimOilRegionEntry::RimOilRegionEntry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimOilRegionEntry::~RimOilRegionEntry()
+{
+    fields.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimOilRegionEntry::userDescriptionField()
 {
     return &name;
@@ -76,6 +84,4 @@ void RimOilRegionEntry::updateState()
         fields[i]->updateEnabledState();
     }
 }
-
-
 

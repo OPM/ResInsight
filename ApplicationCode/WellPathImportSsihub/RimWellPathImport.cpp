@@ -201,5 +201,13 @@ void RimWellPathImport::defineObjectEditorAttribute(QString uiConfigName, caf::P
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimWellPathImport::~RimWellPathImport()
+{
+    regions.deleteAllChildObjects();
+}
+
 
 

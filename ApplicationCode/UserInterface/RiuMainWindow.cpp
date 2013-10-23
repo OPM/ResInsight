@@ -1657,11 +1657,11 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
 
     wellPathsFolderPath += "/" + wellPathFolderName;
 
-
     RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
-
     RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
-    
+
+    RimWellPathImport* wellPathObjectToBeDeleted = NULL;
+
     // Get password/username from application cache
     {
         QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
@@ -1679,11 +1679,18 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
             app->project()->createDisplayModelAndRedrawAllViews();
         }
 
+        wellPathObjectToBeDeleted = app->project()->wellPathImport;
         app->project()->wellPathImport = copyOfWellPathImport;
 
         app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
         app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
     }
+    else
+    {
+        wellPathObjectToBeDeleted = copyOfWellPathImport;
+    }
+
+    delete wellPathObjectToBeDeleted;
 }
 
 //--------------------------------------------------------------------------------------------------

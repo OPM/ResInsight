@@ -51,6 +51,14 @@ RimOilFieldEntry::RimOilFieldEntry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+RimOilFieldEntry::~RimOilFieldEntry()
+{
+    wells.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimOilFieldEntry::userDescriptionField()
 {
     return &name;
@@ -116,4 +124,3 @@ RimWellPathEntry* RimOilFieldEntry::find(const QString& name, RimWellPathEntry::
 
     return NULL;
 }
-
