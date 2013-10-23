@@ -9,7 +9,7 @@ Installation instructions for ResInsight can be found here: [Installation and Co
 The application has a main area and several docking windows. The different docking 
 windows can be managed from the **Windows** menu or directly using the local menu bar of the docking window.
 
-![ResInsight User Interface] (images/ResInsightUIFullSizeWindows.png)
+![ResInsight User Interface](images/ResInsightUIFullSizeWindows.png)
 
 
 #### Docking Windows
@@ -38,7 +38,7 @@ In the main area of the application, several 3D views can be open at the same ti
 
 Most of the settings and features of ResInsight is accesible through the **Project Tree** and the **Property Editor**. Selecting an item in the **Project Tree** activates the corresponding 3D View, and shows the Items properties in the **Property Editor**, available for editing. 
 
-Toggling a checkbox next to an item in the **Project Tree** will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will toggle visibility for all items in the collection.
+Toggling a checkbox next to an item in the **Project Tree** will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will affect the visibility for all items in the collection. ![](images/TreeViewToggle.png)
 
 Context menu commands are also available, to do special operations on a selected set of items.
 
@@ -47,17 +47,17 @@ Context menu commands are also available, to do special operations on a selected
 A *Case* in ResInsight means a Grid model with a particular set of results or property data. There are  
 three different Case types: 
 
-##### ![](images/Case24x24.png) Result case
+##### Result case ![](images/Case24x24.png) 
 This is a Case based on the results of an Eclipse analysis, read from a grid file together with restart data.
 
-##### ![](images/EclipseInput24x24.png) Input case
+##### Input case ![](images/EclipseInput24x24.png) 
 This Case type is based on a `*.GRDECL` file, or a part of an Eclipse *Input* file. This Case type supports loading single ascii files defining Eclipse Cell Properies, and also to export miodified property sets to ascii files.
 Each of the Eclipse properties is listed as separate entities in the **Project Tree**, and can be renamed and exported.
 
-##### ![](images/Histogram24x24.png) Statistics case
+#####  Statistics case ![](images/Histogram24x24.png)
 This is a Case type that belongs to a *Grid Case Group* and makes statistical calculations based on the source cases in the Grid Case Group. 
 
-#### Grid Case Group ![](images/GridCaseGroup24x24.png) 
+#### Grid Case Groups ![](images/GridCaseGroup24x24.png) 
 
 A **Grid Case Group** is a group of **Result Cases** whith identical grids, but generally different active cells, initial values and results. These cases are called *Source Cases*. 
 
@@ -65,7 +65,7 @@ The purpose of a Grid Case group is to make it easy to calculate statistics acro
 
 A Grid Case Group can be created from a selection of binary files, or manually by assigning cases using the user interface of ResInsight.
 
-See also [ Multiple realizations and statistics ] (CaseGroupsAndStatistics.md).
+See also [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md).
 
 ### Importing data
 
