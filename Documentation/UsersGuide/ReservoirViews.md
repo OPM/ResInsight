@@ -21,11 +21,11 @@ ResInsight supports all Properties ending with X, Y, Z or (X-, Y-, Z-) but witho
 
 When selecting a result variable for cell edge, a second legend shows up in the 3D view. Color legend management is available when selecting the **Legend Definition** item belonging to the **Cell Edge Result** item. 
 
-### Overlay Info
+### Info Box
 
-The **Overly Info** controls the visibility of the animation progress, the info box, and the results histogram.
+The **Info Box** controls the visibility of the animation progress, the Case description box, and the results histogram.
 
-The **Results Histogram** shows a histogram of the currently loaded **Cell Result** together with:
+The **Results Histogram** shows a histogram of the complete timeseries of the currently loaded **Cell Result** together with:
 
 - The mean value ( a blue line ) 
 - P10 and P90 ( red lines )
@@ -73,7 +73,7 @@ A new property filter can be made by activating the context menu for **Property 
 
 ### Simulation Wells
 
-This item controls the overall settings for how the wells in the Eclipse simulation is visualized.
+This item controls the overall settings for how wells in the Eclipse simulation are visualized.
 The wells are shown in two ways:
 
 1. A Pipe trough all the cells with well connections
@@ -85,20 +85,51 @@ The Property Editor of the **Simulation Wells** item is shown below:
 
 ![](images/SimulationWellsProperties.png)
 
-- **Well Range filter** 
-	- **Add cells to range filter**  - This option controls how the well cells (cells with connections to wells) are added to the set of range filtered cells. 
-		- *All On* will add the cells from all wells disregarding the individual settings on the well.
-		- *All Off* will prevent any well cells to be added. 
-		- *Individual*   	
-
-Select **Wells** in the **Project Tree**. In the **Property Editor**, select **On** for **Add cells to range filter**. This will hide cells not part of a well.
-In addition, all cells along a direction can be added as a fence. Enable this by checking **Use well fence**.
-
-Todo:
-1. Visible well pipes controlled by visible cells
-2. MSW visualiseringen av dummy segmenter
-3. Well cell picking gives MSW info
-4. MSW is topologically correct, but is a geometrical approximation ...
-5. 
 
 
+- **Add cells to range filter** This option controls how the well cells 
+    (cells with connections to wells) are added to the set of range filtered cells.
+  - *All On* will add the cells from all wells disregarding the individual settings on the well.
+  - *All Off* will prevent any well cells to be added. 
+  - *Individually* Will respect the individual settings for each well, and add the cells from the wells with this option set on. 
+-  **Use Well Fence** and 
+-  **Well Fence direction** Controls whether to add extensions of the well cells in the I, J or K direction to the set of range filtered cells
+- **Well head** These options control the appearance and position of the well labels and and symbols of the top of the well
+- **Global Well Pipe Visibility** Controls when and whether to show the pipe representationof the wells. The options are:
+   - *All On* will show the pipes from all wells disregarding the individual settings on the well.
+   - *All Off* will hide all simulation well pipes. 
+		- *Individual* Will respect the individual settings for each well, and only show the well pipes from the wells with this option set on. See below.
+		- *Visible Cells Filtered* This option will only show the pipes of wells that are connected to visible cells. That means the combined result of **Range Filters**, **Property Filters** and any **Well Range Filters**.
+		*NOTE* : All Wells with **Well Range Filter** turned on will always be visible with this option selected. 
+- **Pipe Radius Scale** Scaling the pipe radius by the average max cell size.
+- **Geometry based Branch detection** Applies only to ordinary wells (not MSW) 
+  and will detect that parts of a well really is a branch. Those well parts will 
+  be visualized as a branch starting at the well head instead of at the previous connected cell.	 
+		  	 
+##### Well pipes of Multi Segment Wells
+
+###### Geometry approximated
+The pipe geometry generated for MSW's are based on the topology of the well (branch/segment structure) and the position of the cells beeing connected. The segement lengths are used as hints to place the branch points at sensible places. Thus the pipe geometry itself is not geometrically correct, but makes the topology of the well esier to see.
+
+###### Dummy branches
+Often MSW's are modelled using a long stem without connections and a multitude of small branches; one for each connection. ResInsight offsets the the pipe within the cell to clearly show how the topology of the well is defined.
+
+![](images/MSWDummyBranchExample.png)
+
+###### Picking reveals Segment/Branch info
+
+Branch and segment info of a MSW-connected-Cell is shown in the **Result Info** window when picking a cell in the 3D View. This can be handy when relating the visualization to the input files.
+
+### Individual Simulation Well options 
+
+Each of the wells can have some individual settings. These options works as specializations of the ones set on the global level (**Simulation Wells** See above) but will *only come into play when they are not ignored by the global settings*.
+
+This is paticularly important to notice for the **Show Well Pipe** and **Range Filter** options. They will not have effect if the corresponding global settings in **Simulation Wells** allows them to.
+ 
+The properties of a single well are shown below.
+
+![](images/WellProperties.png)
+
+There are only one option that needs further explanation:
+
+- **Pipe Radius Scale** This option is a scale that is added to the "global" scale set in the **Simulation Wells** properties.
