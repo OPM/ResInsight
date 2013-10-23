@@ -36,13 +36,11 @@ The **Results Histogram** shows a histogram of the currently loaded **Cell Resul
 ### Cell Filters
 Cell Filters are used to control visibility of the cells in the 3D view. Three types of filters exists:
 
-- **Range filter** : 		Define a IJK subset of the model.
+- **Range filter**    : 		Define a IJK subset of the model.
 - **Property filter** : 	Define a value range for a property to control cell visibility.
-- **Well cell filter** : 	Display grid cells that has connections to a well.
+- **Well cell filter** : 	Display grid cells that has connections to a well. Controlled from the **Simulation Wells** item.
 
 All filters can be turned on or off using the toggle in the **Project Tree** and controlled from their corresponding **Property Editor**.
-
-
 
 #### Range filters
 
@@ -67,16 +65,32 @@ The **Width** labels shows the number of active cells from the start of the acti
 
 **Property filters** apply to the results of the **Range filters**. Below is a snapshot of the **Property Editor** of the **Property Filter**.
   
-
 ![](images/PropertyFilterProperties.png)
 
 This filter filters the cells based on a property value range (Min - Max). Cells whithin the range is either shown or hidden depending the **Filter Type**.( *Include* / *Exclude* ). Exclude-filters removes the selected cells from the View even if some other filter includes them.
 
-A new property filter can be made by activating the context menu for **Property Filters**. The new property filter is based on the currently viewed cell result, by default.
+A new property filter can be made by activating the context menu for **Property Filters**. The new property filter is based on the currently viewed cell result by default.
 
-### Wells
+### Simulation Wells
 
-#### Well range filter 
+This item controls the overall settings for how the wells in the Eclipse simulation is visualized.
+The wells are shown in two ways:
+
+1. A Pipe trough all the cells with well connections
+2. By adding the well cells to the set of visible cells 
+
+The latter is handled internally as a special range filter, and adds cells to the set of range filtered cell.
+
+The Property Editor of the **Simulation Wells** item is shown below: 
+
+![](images/SimulationWellsProperties.png)
+
+- **Well Range filter** 
+	- **Add cells to range filter**  - This option controls how the well cells (cells with connections to wells) are added to the set of range filtered cells. 
+		- *All On* will add the cells from all wells disregarding the individual settings on the well.
+		- *All Off* will prevent any well cells to be added. 
+		- *Individual*   	
+
 Select **Wells** in the **Project Tree**. In the **Property Editor**, select **On** for **Add cells to range filter**. This will hide cells not part of a well.
 In addition, all cells along a direction can be added as a fence. Enable this by checking **Use well fence**.
 
