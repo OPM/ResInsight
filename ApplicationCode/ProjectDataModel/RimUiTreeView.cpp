@@ -1586,7 +1586,16 @@ void RimUiTreeView::slotDeleteAllWellPaths()
     if (myModel)
     {
         myModel->deleteAllWellPaths(currentIndex());
+
+        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+        if (uiItem && uiItem->dataObject())
+        {
+            RimWellPathCollection* wellPathCollection = dynamic_cast<RimWellPathCollection*>(uiItem->dataObject().p());
+            if (wellPathCollection)
+            {
+                wellPathCollection->scheduleGeometryRegenAndRedrawViews();
+            }
+        }
     }
-   
 }
 

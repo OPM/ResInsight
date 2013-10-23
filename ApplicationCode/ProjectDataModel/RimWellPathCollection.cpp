@@ -108,8 +108,7 @@ RimWellPathCollection::~RimWellPathCollection()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    m_wellPathCollectionPartManager->scheduleGeometryRegen();
-    if (m_project) m_project->createDisplayModelAndRedrawAllViews();
+    scheduleGeometryRegenAndRedrawViews();
 }
 
 
@@ -225,6 +224,15 @@ void RimWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrd
 caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 {
     return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
+{
+    m_wellPathCollectionPartManager->scheduleGeometryRegen();
+    if (m_project) m_project->createDisplayModelAndRedrawAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------

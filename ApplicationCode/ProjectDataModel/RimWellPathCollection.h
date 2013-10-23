@@ -73,6 +73,7 @@ public:
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
+    void                                scheduleGeometryRegenAndRedrawViews();
  
 private:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
