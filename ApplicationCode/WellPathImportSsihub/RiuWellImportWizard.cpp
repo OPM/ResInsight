@@ -558,9 +558,12 @@ QStringList RiuWellImportWizard::absoluteFilePathsToWellPaths() const
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
 
                         QString wellStatus;
-                        if (QFile::exists(oilField->wells[wIdx]->wellPathFilePath))
+                        if (wellPathEntry->selected)
                         {
-                            filePaths += oilField->wells[wIdx]->wellPathFilePath;
+                            if (QFile::exists(oilField->wells[wIdx]->wellPathFilePath))
+                            {
+                                filePaths += oilField->wells[wIdx]->wellPathFilePath;
+                            }
                         }
                     }
                 }
