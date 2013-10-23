@@ -79,3 +79,12 @@ A new property filter can be made by activating the context menu for **Property 
 #### Well range filter 
 Select **Wells** in the **Project Tree**. In the **Property Editor**, select **On** for **Add cells to range filter**. This will hide cells not part of a well.
 In addition, all cells along a direction can be added as a fence. Enable this by checking **Use well fence**.
+
+Todo:
+1. Visible well pipes controlled by visible cells
+2. MSW visualiseringen av dummy segmenter
+3. Well cell picking gives MSW info
+4. MSW is topologically correct, but is a geometrical approximation ...
+5. 
+
+
