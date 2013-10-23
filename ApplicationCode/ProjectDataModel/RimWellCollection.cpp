@@ -271,7 +271,7 @@ void RimWellCollection::setReservoirView(RimReservoirView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
     filterGroup->add(&wellCellsToRangeFilterMode);
     filterGroup->add(&showWellCellFences);
     filterGroup->add(&wellCellFenceType);

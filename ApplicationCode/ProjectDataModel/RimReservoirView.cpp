@@ -142,7 +142,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&animationMode, "AnimationMode", false, "Animation Mode","", "", "");
     animationMode.setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection","Wells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimWellCollection;
 
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
