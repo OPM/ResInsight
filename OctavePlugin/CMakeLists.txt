@@ -69,127 +69,130 @@ endif()
 # Clear the list of binary oct files to be produced
 set(OCTAVE_BINARY_OCT_FILES)
 
+if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
+    foreach(srcFileName IN LISTS CPP_SOURCES)
 
-foreach(srcFileName IN LISTS CPP_SOURCES)
+        if(NOT IS_ABSOLUTE "${srcFileName}")
+            set(srcFileName "${CMAKE_CURRENT_SOURCE_DIR}/${srcFileName}")
+        endif()
 
-    if(NOT IS_ABSOLUTE "${srcFileName}")
-        set(srcFileName "${CMAKE_CURRENT_SOURCE_DIR}/${srcFileName}")
-    endif()
+        get_filename_component(baseFilename "${srcFileName}" NAME_WE)
 
-    get_filename_component(baseFilename "${srcFileName}" NAME_WE)
+        set(octFileName "${CMAKE_CURRENT_BINARY_DIR}/${baseFilename}.oct")
 
-    set(octFileName "${CMAKE_CURRENT_BINARY_DIR}/${baseFilename}.oct")
-
-    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-        if (CMAKE_CL_64 AND RESINSIGHT_OCTAVE_PLUGIN_32_BIT)
-            # The following line calls the build configuration for x86 VS2010 compiler
-            # call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
-            add_custom_command(
-                OUTPUT "${octFileName}"
-                COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
-                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                    -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
-                    -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
-                DEPENDS "${srcFileName}"
-                COMMENT "===> 32-bit x86 VS2010 : Generating ${octFileName}"
-            )
+        if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+            if (CMAKE_CL_64 AND RESINSIGHT_OCTAVE_PLUGIN_32_BIT)
+                # The following line calls the build configuration for x86 VS2010 compiler
+                # call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
+                add_custom_command(
+                    OUTPUT "${octFileName}"
+                    COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
+                    COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
+                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                        -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
+                    DEPENDS "${srcFileName}"
+                    COMMENT "===> 32-bit x86 VS2010 : Generating ${octFileName}"
+                )
+            else()
+                add_custom_command(
+                    OUTPUT "${octFileName}"
+                    COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
+                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                        -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
+                    DEPENDS "${srcFileName}"
+                    COMMENT "===> Generating ${octFileName}"
+                )
+            endif()
         else()
             add_custom_command(
                 OUTPUT "${octFileName}"
-                COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                    -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
-                    -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
+                COMMAND OCTAVE_HOME=${OCTAVE_HOME} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE}
+                    -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR} -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                    -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore -lQtNetwork -o "${octFileName}" "${srcFileName}"
                 DEPENDS "${srcFileName}"
                 COMMENT "===> Generating ${octFileName}"
             )
         endif()
-    else()
-        add_custom_command(
-            OUTPUT "${octFileName}"
-            COMMAND OCTAVE_HOME=${OCTAVE_HOME} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE}
-                -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR} -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
-                -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore -lQtNetwork -o "${octFileName}" "${srcFileName}"
-            DEPENDS "${srcFileName}"
-            COMMENT "===> Generating ${octFileName}"
-        )
+
+        list(APPEND OCTAVE_BINARY_OCT_FILES "${octFileName}")
+
+    endforeach()
+  
+    add_custom_target(octave_plugins ALL DEPENDS
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCases.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDates.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDays.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetGridDimensions.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCoarseningInfo.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCenters.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCenters.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCorners.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCorners.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetGridProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riSetGridProperty.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetPropertyNames.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
+      "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
+      SOURCES ${CPP_SOURCES}
+    )
+
+
+    # Copy Octave generated *.oct files to application folder, will make it possible to use Octave functions
+    # directly from the location of the ResInsight binaries
+    if (true)
+        foreach (oct_bin ${OCTAVE_BINARY_OCT_FILES})
+
+            get_filename_component(Filename "${oct_bin}" NAME)
+
+            if(MSVC)
+                add_custom_command(TARGET octave_plugins POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${oct_bin}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>/${Filename}"
+                )
+            else()
+                add_custom_command(TARGET octave_plugins POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${oct_bin}"
+                    "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/${Filename}"
+                )
+            endif()
+        endforeach( oct_bin )
     endif()
 
-    list(APPEND OCTAVE_BINARY_OCT_FILES "${octFileName}")
-
-endforeach()
-  
-add_custom_target(octave_plugins ALL DEPENDS
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellProperty.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riSetActiveCellProperty.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellInfo.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetMainGridDimensions.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetCurrentCase.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetCaseGroups.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetSelectedCases.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetCases.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDates.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetTimeStepDays.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetGridDimensions.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetCoarseningInfo.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCenters.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCenters.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetCellCorners.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetActiveCellCorners.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetGridProperty.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riSetGridProperty.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetPropertyNames.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
-  "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
-  SOURCES ${CPP_SOURCES}
-)
+    # Make ResInsight dependant on Octave, makes it easiser to debug Octave functionality by compiling ResInsight
+    add_dependencies(ResInsight octave_plugins)
 
 
-# Copy Octave generated *.oct files to application folder, will make it possible to use Octave functions
-# directly from the location of the ResInsight binaries
-if (true)
-    foreach (oct_bin ${OCTAVE_BINARY_OCT_FILES})
+    if (RESINSIGHT_PRIVATE_INSTALL)
+        install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME})
+    else (RESINSIGHT_PRIVATE_INSTALL)
+      # probe for site location of .oct files
+      if (NOT OCTAVE_SITE_OCT_DIR)
+	    find_program (OCTAVE_CONFIG_COMMAND
+	      octave-config
+	      DOC "Path to Octave component and library information retrieval"
+	      )
+	    exec_program (${OCTAVE_CONFIG_COMMAND}
+	      ARGS --oct-site-dir
+	      OUTPUT_VARIABLE OCTAVE_SITE_OCT_DIR
+	      )
+	    set (OCTAVE_SITE_OCT_DIR "${OCTAVE_SITE_OCT_DIR}" CACHE LOCATION "Octave plugin directory")
+      endif (NOT OCTAVE_SITE_OCT_DIR)
 
-        get_filename_component(Filename "${oct_bin}" NAME)
+      install (FILES ${OCTAVE_BINARY_OCT_FILES}
+	    DESTINATION ${OCTAVE_SITE_OCT_DIR}
+	    )
+    endif (RESINSIGHT_PRIVATE_INSTALL)
 
-        if(MSVC)
-            add_custom_command(TARGET octave_plugins POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${oct_bin}"
-                "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/$<CONFIGURATION>/${Filename}"
-            )
-        else()
-            add_custom_command(TARGET octave_plugins POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${oct_bin}"
-                "${CMAKE_CURRENT_BINARY_DIR}/../ApplicationCode/${Filename}"
-            )
-        endif()
-    endforeach( oct_bin )
-endif()
-
-# Make ResInsight dependant on Octave, makes it easiser to debug Octave functionality by compiling ResInsight
-add_dependencies(ResInsight octave_plugins)
-
-
-if (RESINSIGHT_PRIVATE_INSTALL)
-    install(FILES ${OCTAVE_BINARY_OCT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME})
-else (RESINSIGHT_PRIVATE_INSTALL)
-  # probe for site location of .oct files
-  if (NOT OCTAVE_SITE_OCT_DIR)
-	find_program (OCTAVE_CONFIG_COMMAND
-	  octave-config
-	  DOC "Path to Octave component and library information retrieval"
-	  )
-	exec_program (${OCTAVE_CONFIG_COMMAND}
-	  ARGS --oct-site-dir
-	  OUTPUT_VARIABLE OCTAVE_SITE_OCT_DIR
-	  )
-	set (OCTAVE_SITE_OCT_DIR "${OCTAVE_SITE_OCT_DIR}" CACHE LOCATION "Octave plugin directory")
-  endif (NOT OCTAVE_SITE_OCT_DIR)
-
-  install (FILES ${OCTAVE_BINARY_OCT_FILES}
-	DESTINATION ${OCTAVE_SITE_OCT_DIR}
-	)
-endif (RESINSIGHT_PRIVATE_INSTALL)
+endif (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
+    
 
