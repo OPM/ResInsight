@@ -224,7 +224,6 @@ private slots:
     void slotAddWellCellsToRangeFilterAction(bool doAdd);
 
     // Debug slots
-    void    slotRefreshDebugActions();
     void    slotUseShaders(bool enable);
     void    slotShowPerformanceInfo(bool enable);
     

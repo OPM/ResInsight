@@ -344,6 +344,9 @@ void RiuMainWindow::createMenus()
     fileMenu->addAction(m_saveProjectAsAction);
 
     fileMenu->addSeparator();
+    QMenu* testMenu = fileMenu->addMenu("&Testing");
+
+    fileMenu->addSeparator();
     fileMenu->addAction(m_closeProjectAction);
     fileMenu->addSeparator();
     fileMenu->addAction(m_exitAction);
@@ -373,18 +376,15 @@ void RiuMainWindow::createMenus()
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
     // Debug menu
-    QMenu* debugMenu = menuBar()->addMenu("&Debug");
-    debugMenu->addAction(m_mockModelAction);
-    debugMenu->addAction(m_mockResultsModelAction);
-    debugMenu->addAction(m_mockLargeResultsModelAction);
-    debugMenu->addAction(m_mockInputModelAction);
-    debugMenu->addSeparator();
-    debugMenu->addAction(m_createCommandObject);
-    debugMenu->addSeparator();
-    debugMenu->addAction(m_showRegressionTestDialog);
-    debugMenu->addAction(m_executePaintEventPerformanceTest);
-
-    connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
+    testMenu->addAction(m_mockModelAction);
+    testMenu->addAction(m_mockResultsModelAction);
+    testMenu->addAction(m_mockLargeResultsModelAction);
+    testMenu->addAction(m_mockInputModelAction);
+    testMenu->addSeparator();
+    testMenu->addAction(m_createCommandObject);
+    testMenu->addSeparator();
+    testMenu->addAction(m_showRegressionTestDialog);
+    testMenu->addAction(m_executePaintEventPerformanceTest);
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");
@@ -393,8 +393,9 @@ void RiuMainWindow::createMenus()
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu("&Help");
     helpMenu->addAction(m_openUsersGuideInBrowserAction);
-    helpMenu->addAction(m_aboutAction);
     helpMenu->addAction(m_commandLineHelpAction);
+    helpMenu->addSeparator();
+    helpMenu->addAction(m_aboutAction);
 }
 
 
@@ -1199,13 +1200,6 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
     RiaApplication::instance()->setShowPerformanceInfo(enable);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotRefreshDebugActions()
-{
-    RiaApplication* app = RiaApplication::instance();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
