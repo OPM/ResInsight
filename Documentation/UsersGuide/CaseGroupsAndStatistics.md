@@ -37,7 +37,10 @@ To reduce the number of views, only a view for the first case is created automat
 *TIP:* To reduce memory usage, project loading time etc. it is vise to delete the 3D Views you do not need. 3D Views use a lot of system resources. 
 
 ### Statistics ##
-After creating a grid case group, an empty **Statistics Case** is created for you in the **Derived Statistics** folder of the **Grid Case Group**. The properties of an uncalculated and a calculated  **Statistics Case** is shown below:
+After creating a grid case group, an empty **Statistics Case** is created for you in the **Derived Statistics** folder of the **Grid Case Group**. 
+
+#### Setting up and Calculate
+The properties of an uncalculated and a calculated  **Statistics Case** is shown below:
 
 ![](images/StatisticsCaseProperties.png)  ![](images/StatisticsCasePropertiesCalculated.png)
 
@@ -48,17 +51,17 @@ After creating a grid case group, an empty **Statistics Case** is created for yo
 - **Percentile Setup**: Selects wether to calculate percentiles, what method and what percentile levels should be used. Turning this off speeds up the calculations.
 - **Well Data Source Case**: This option selects which set of **Simulation Wells** to be shown along with the statistical results. You can select one of the **Source Cases**.
  
-##### Percentile Methods
-
-Three Percentile methods are implemented:
-
-- **Interpolated Observation**
-The values are sorted, and the two observations representing the probabilities closest to the percentile are interpolated to find the value for the percentile. This is the default method.
-- **Nearest Observation**
-The values are sorted, and the first observation representing a probability higher or equal to the percentile probability is selected as the value for the percentile. This method is by some considered to be statistically more puristic.
-- **Histogram based estimate**
-A histogram is created and the percentile is calculated based on the histogram. This method will be faster when having a large number of realisations, because no value sorting is involved. You would however need several hundred realisations before this method should be considered.
-
+>##### Percentile Methods
+>
+>Three Percentile methods are implemented:
+>
+>- **Interpolated Observation**
+>The values are sorted, and the two observations representing the probabilities closest to the percentile are interpolated to find the value for the percentile. This is the default method.
+>- **Nearest Observation**
+>The values are sorted, and the first observation representing a probability higher or equal to the percentile probability is selected as the value for the percentile. This method is by some considered to be statistically more puristic.
+>- **Histogram based estimate**
+>A histogram is created and the percentile is calculated based on the histogram. This method will be faster when having a large number of realisations, because no value sorting is involved. You would however need several hundred realisations before this method should be considered.
+>
 #### Viewing the results
 When the computation is complete, you have to create a 3D View on the **Statistics Case** to view the results. Use the Context menu available by right clicking the **Statistics Case** to create it.
 
