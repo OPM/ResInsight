@@ -12,20 +12,20 @@ The **Cell Result** item defines which Eclipse property the 3D View uses for the
 
 ### Cell Edge Results ![](images/EdgeResult_1.png)
 
-The **Cell Edge Result** visualization mode is one of ResInsights special features. Its main use is to show the MULT(X, Y, Z) properties at the same time. 
-This will show the MULT property values *different from 1.0* along the correct edges og the cells. In effect this highlights the Faults, and makes it easy to verify all the MULT values in one go.
+The **Cell Edge Result** visualization mode is one of ResInsight's special features. Its main use is to show the MULT(X, Y, Z) properties at the same time. 
+This will show the MULT property values *different from 1.0* along the correct edges of the cells. In effect this highlights the faults and makes it easy to verify all the MULT values in one go.
 
 ![](images/CellEdgeExample.png)
 
-ResInsight supports all Properties ending with X, Y, Z or (X-, Y-, Z-) but without the filtering done for the MULT propery.
+ResInsight supports all properties ending with X, Y, Z and X-, Y-, Z-. However, it is only the MULT property that ignores values of 1.0.
 
-When selecting a result variable for cell edge, a second legend shows up in the 3D view. Color legend management is available when selecting the **Legend Definition** item belonging to the **Cell Edge Result** item. 
+When selecting a result variable for cell edge, a second legend shows up in the 3D view showing the variation in values for this second property. Color legend management is available when selecting the **Legend Definition** item belonging to the **Cell Edge Result** item. 
 
 ### Info Box
 
 The **Info Box** controls the visibility of the animation progress, the Case description box, and the results histogram.
 
-The **Results Histogram** shows a histogram of the complete timeseries of the currently loaded **Cell Result** together with:
+The **Results Histogram** shows a histogram of the complete time series of the currently loaded **Cell Result** together with:
 
 - The mean value ( a blue line ) 
 - P10 and P90 ( red lines )
@@ -36,9 +36,9 @@ The **Results Histogram** shows a histogram of the complete timeseries of the cu
 ### Cell Filters
 Cell Filters are used to control visibility of the cells in the 3D view. Three types of filters exists:
 
-- **Range filter**    : 		Define a IJK subset of the model.
-- **Property filter** : 	Define a value range for a property to control cell visibility.
-- **Well cell filter** : 	Display grid cells that has connections to a well. Controlled from the **Simulation Wells** item.
+- **Range filter**     : Define a IJK subset of the model.
+- **Property filter**  : Define a value range for a property to control cell visibility.
+- **Well cell filter** : Display grid cells that has connections to a well. Controlled from the **Simulation Wells** item.
 
 All filters can be turned on or off using the toggle in the **Project Tree** and controlled from their corresponding **Property Editor**.
 
@@ -53,11 +53,11 @@ Below is a snapshot of the **Property Editor** of the **Range Filter** :
 
 ![](images/RangeFilterProperties.png)
 
- - **Filter Type** The filter can either make the specified range visible ( *Include* ), or remove the range from the View ( *Exclude* ).
- - **Grid** This option selects which of the grids the range is addressing.
- - **Apply to Subgrids** This option tells ResInsight to use the visibility of the cells in the current grid to control the visibility of the cells in sub-LGR's. If this option is turned off, Sub LGR-cells is not included in this particular Range Filter.  
+ - **Filter Type** : The filter can either make the specified range visible ( *Include* ), or remove the range from the View ( *Exclude* ).
+ - **Grid** :  This option selects which of the grids the range is addressing.
+ - **Apply to Subgrids** : This option tells ResInsight to use the visibility of the cells in the current grid to control the visibility of the cells in sub-LGR's. If this option is turned off, Sub LGR-cells is not included in this particular Range Filter.  
  
-The **Start** and **Width** labels in front of the sliders features a number in parenthesis.<br>
+The **Start** and **Width** labels in front of the sliders features a number in parenthesis denoting maximum available value.<br>
 The **Start** labels shows the index of the start of the active cells.<br>
 The **Width** labels shows the number of active cells from the start of the active cells.
 
@@ -67,7 +67,7 @@ The **Width** labels shows the number of active cells from the start of the acti
   
 ![](images/PropertyFilterProperties.png)
 
-This filter filters the cells based on a property value range (Min - Max). Cells whithin the range is either shown or hidden depending the **Filter Type**.( *Include* / *Exclude* ). Exclude-filters removes the selected cells from the View even if some other filter includes them.
+This filter filters the cells based on a property value range (Min - Max). Cells in the range are either shown or hidden depending on the **Filter Type** ( *Include* / *Exclude* ). Exclude-filters removes the selected cells from the **View** even if some other filter includes them.
 
 A new property filter can be made by activating the context menu for **Property Filters**. The new property filter is based on the currently viewed cell result by default.
 
@@ -95,7 +95,7 @@ The Property Editor of the **Simulation Wells** item is shown below:
 -  **Use Well Fence** and 
 -  **Well Fence direction** Controls whether to add extensions of the well cells in the I, J or K direction to the set of range filtered cells
 - **Well head** These options control the appearance and position of the well labels and and symbols of the top of the well
-- **Global Well Pipe Visibility** Controls when and whether to show the pipe representationof the wells. The options are:
+- **Global Well Pipe Visibility** Controls if and when to show the pipe representation of the wells. The options are:
    - *All On* will show the pipes from all wells disregarding the individual settings on the well.
    - *All Off* will hide all simulation well pipes. 
 		- *Individual* Will respect the individual settings for each well, and only show the well pipes from the wells with this option set on. See below.
@@ -109,10 +109,10 @@ The Property Editor of the **Simulation Wells** item is shown below:
 ##### Well pipes of Multi Segment Wells
 
 ###### Geometry approximated
-The pipe geometry generated for MSW's are based on the topology of the well (branch/segment structure) and the position of the cells beeing connected. The segement lengths are used as hints to place the branch points at sensible places. Thus the pipe geometry itself is not geometrically correct, but makes the topology of the well esier to see.
+The pipe geometry generated for MSW's are based on the topology of the well (branch/segment structure) and the position of the cells being connected. The segment lengths are used as hints to place the branch points at sensible places. Thus the pipe geometry itself is not geometrically correct, but makes the topology of the well easier to see.
 
 ###### Dummy branches
-Often MSW's are modelled using a long stem without connections and a multitude of small branches; one for each connection. ResInsight offsets the the pipe within the cell to clearly show how the topology of the well is defined.
+Often MSW's are modeled using a long stem without connections and a multitude of small branches; one for each connection. ResInsight offsets the the pipe within the cell to clearly show how the topology of the well is defined.
 
 ![](images/MSWDummyBranchExample.png)
 
@@ -124,12 +124,12 @@ Branch and segment info of a MSW-connected-Cell is shown in the **Result Info** 
 
 Each of the wells can have some individual settings. These options works as specializations of the ones set on the global level (**Simulation Wells** See above) but will *only come into play when they are not ignored by the global settings*.
 
-This is paticularly important to notice for the **Show Well Pipe** and **Range Filter** options. They will not have effect if the corresponding global settings in **Simulation Wells** allows them to.
+This is particularly important to notice for the **Show Well Pipe** and **Range Filter** options. They will not have effect if the corresponding global settings in **Simulation Wells** allows them to.
  
 The properties of a single well are shown below.
 
 ![](images/WellProperties.png)
 
-There are only one option that needs further explanation:
+One option needs further explanation:
 
 - **Pipe Radius Scale** This option is a scale that is added to the "global" scale set in the **Simulation Wells** properties.
