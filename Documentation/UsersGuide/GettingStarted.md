@@ -90,7 +90,7 @@ ResInsight supports the following type of Eclipse input data:
 
 The X and Y grid data can be negated in order to make the Grid model appear correctly in ResInsight. This functionality is accessible in the **Property Editor** for all Case types as the toggle buttons **Flip X Axis** and **Flip Y Axis** as shown in the example below.
  
-![](images/Caseproperties.png)
+![](images/CaseProperties.png)
 
 
 ### Model navigation 
