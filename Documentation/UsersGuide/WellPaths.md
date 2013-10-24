@@ -1,7 +1,7 @@
 ## Well trajectories
 
 ResInsight can import Well trajectories from simple Ascii files. 
-In addition a Statoil specific solution to retrieve Well Trajectories from their internal web service are implemented.
+In addition, a Statoil specific solution to retrieve Well Trajectories from their internal web service is implemented.
 
 ### Ascii Well Trajectories
 
