@@ -123,7 +123,7 @@ void RimProject::close()
     casesObsolete.deleteAllChildObjects();
     caseGroupsObsolete.deleteAllChildObjects();
 
-    wellPathImport = new RimWellPathImport();
+    wellPathImport->regions().deleteAllChildObjects();
 
     commandObjects.deleteAllChildObjects();
 
