@@ -41,7 +41,7 @@ The supported ascii format is quite flexible but the main requirements are:
     5297.4	4938.5	3632.4	1998.387
 
 
-The trajectory data is not copied into the ResInsight project as such. The project file only stores the file patht, and the next time you open the project, ResInsight will try to read the well data from the file again.  
+The trajectory data is not copied into the ResInsight project as such. The project file only stores the file path, and the next time you open the project, ResInsight will try to read the well data from the file again.  
 
 ### Importing from SSI-Hub (Internal Statoil web-service)
 
@@ -49,7 +49,7 @@ The command **File -> Import -> Import Well Paths From SSI-hub** launch a wizard
 
 After completing the wizard, the wells imported are accessible as Items under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**.
 
-The trajectory data is not copied into the  ResInsight project as such.
+The trajectory data is not copied into the  ResInsight project as such, but is stored in files in a directory called <ProjectFileName>_wellpaths in the same directory as your project file.   
 
 ### Well Trajectory visualization
 
