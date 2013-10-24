@@ -1,3 +1,6 @@
+[ Contents ](UsersGuide.md#contents)
+
+------
 ## Command Line Parameters #
 
 Parameter|Description
@@ -11,3 +14,6 @@ Parameter|Description
 `-updateregressiontestbase <folder>` | For all sub-folders starting with `TestCase*`, copy the images in the sub-sub-folder **RegTestGeneratedImages** to the sub-sub-folder **RegTestBaseImages** after deleting **RegTestBaseImages** completely.
 
 See also the [Regression Test System ](RegressionTestSystem.md) for a more in-depth explanation.
+
+------
+[ Contents ](UsersGuide.md#contents)
