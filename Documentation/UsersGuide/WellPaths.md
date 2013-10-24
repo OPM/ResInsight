@@ -7,7 +7,7 @@ In addition, a Statoil specific solution to retrieve Well Trajectories from thei
 
 The command **File -> Import -> Import Well Paths From File** will read the well paths in the selected file, and create one entry for each trajectory under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**. 
 
-The supported ascii format is quite flexible but the main requirements are: 
+The supported Ascii format is quite flexible but the main requirements are: 
 
 1. Each data line must contain four numbers: X Y TVD MD separated with white-space.
 2. A line starting with none-number-characters are ignored, unless :
@@ -45,7 +45,7 @@ The trajectory data is not copied into the ResInsight project as such. The proje
 
 ### Importing from SSI-Hub (Internal Statoil web-service)
 
-The command **File -> Import -> Import Well Paths From SSI-hub** launch a wizard to guide you through the process of selecting the well trajectories you need.
+The command **File -> Import -> Import Well Paths From SSI-hub** launches a wizard to guide you through the process of selecting the well trajectories you need.
 
 After completing the wizard, the wells imported are accessible as Items under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**.
 
@@ -57,7 +57,7 @@ All the imported well trajectories are available below the ![](images/WellCollec
 
 ![](images/WellsInTree.png)
 
-The visible wells are always shown in all the 3D Views in the complete project, so the toggles and settings controls the overall project visibility of the Well Trajectories. The **Property Editor** of the **Wells** item is shown below 
+The visible wells are always shown in all the 3D Views in the complete project, so the toggles and settings control the overall project visibility of the Well Trajectories. The **Property Editor** of the **Wells** item is shown below 
 
 ![](images/WellPathCollectionProperties.png)
 
