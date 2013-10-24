@@ -123,7 +123,7 @@ void RimProject::close()
     casesObsolete.deleteAllChildObjects();
     caseGroupsObsolete.deleteAllChildObjects();
 
-    wellPathImport = new RimWellPathImport();
+    wellPathImport->regions().deleteAllChildObjects();
 
     commandObjects.deleteAllChildObjects();
 
@@ -344,6 +344,16 @@ void RimProject::setProjectFileNameAndUpdateDependencies(const QString& fileName
     {
         cases[i]->updateFilePathsFromProjectPath(newProjectPath, oldProjectPath);
     }
+
+    // Update path to well path file cache
+    for (size_t oilFieldIdx = 0; oilFieldIdx < oilFields().size(); oilFieldIdx++)
+    {
+        RimOilField* oilField = oilFields[oilFieldIdx];
+        if (oilField == NULL || oilField->wellPathCollection == NULL) continue;
+        oilField->wellPathCollection->updateFilePathsFromProjectPath();
+    }
+
+    wellPathImport->updateFilePaths();
 }
 
 //--------------------------------------------------------------------------------------------------

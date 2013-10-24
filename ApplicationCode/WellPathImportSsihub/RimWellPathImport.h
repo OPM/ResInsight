@@ -62,7 +62,7 @@ public:
 
     void updateFieldVisibility();
 
-
+    void updateFilePaths();
 
 };
 
