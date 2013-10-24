@@ -18,9 +18,9 @@ can also export modified cell property data sets to single Eclipse input files.
 
 - [ Getting Started ](GettingStarted.md)
 - [ Working with 3D Views ](ReservoirViews.md)
-- [ *Todo:* Well paths ]()
 - [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md)
 - [ Octave Interface](OctaveInterface.md)
+- [ Well Trajectories ](WellTrajectories.md)
 
 ### Appendix
 

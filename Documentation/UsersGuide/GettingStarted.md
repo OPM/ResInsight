@@ -86,6 +86,12 @@ ResInsight supports the follwing type of Eclipse input data:
 2. The case is imported, and a view of the case is created
 3. Right click the **Input Properties** in the generated **Input Case** and use the context menu to import additional Eclipse Property data files.
 
+##### Handling missing or wrong MAPAXES
+
+The X and Y grid data can be negated in order to make the Grid model appear correctly in ResInsight. This functionality is accessible in the **Property Editor** for all Case types as the toggle buttons **Flip X Axis** and **Flip Y Axis** as shown in the example below.
+ 
+![](images/Caseproperties.png)
+
 
 ### Model navigation 
 
