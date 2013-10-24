@@ -1,3 +1,6 @@
+[ Contents ](UsersGuide.md#contents)
+
+-----
 ## Regression test system
 
 A regression tool for QA is build into ResInsight. This tool will do the following: 
@@ -40,3 +43,6 @@ To create regression tests you need to do the following:
 4. Rename the generated RegTestGeneratedImages/ folder to RegTestBaseImages/
 
 Now you are all set to test new releases of ResInsight towards your own Regression tests.
+
+------
+[ Contents ](UsersGuide.md#contents)

@@ -1,3 +1,6 @@
+[ Contents ](UsersGuide.md#contents)
+
+-----
 ## Well trajectories
 
 ResInsight can import Well trajectories from simple Ascii files. 
@@ -65,5 +68,7 @@ The visible wells are always shown in all the 3D Views in the complete project, 
 - **Clip Well Paths** This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.
 - **Well Path clipping depth distance** This number is the distance from the top of the reservoir to the clipping depth.
 
+------
+[ Contents ](UsersGuide.md#contents)
 
  

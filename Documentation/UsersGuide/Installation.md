@@ -1,3 +1,6 @@
+[ Contents ](UsersGuide.md#contents)
+
+-----
 #Installation and configuration#
 
 ## Windows ##
@@ -16,4 +19,6 @@
 ## Script execution using Octave ##
 ResInsight is able to execute custom made [Octave](http://www.gnu.org/software/octave/ "Octave") scripts. Octave scripts are available in the **Scripts** folder in the **Project Tree**. Multiple script folder locations can be defined in the field **Shared Script Folder(s)** in **Edit -> Preferences**. These scripts can be edited by a text editor defined in **Script Editor** in **Edit -> Preferences**
 
- 
+------
+[ Contents ](UsersGuide.md#contents)
+

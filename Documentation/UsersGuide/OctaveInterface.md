@@ -1,3 +1,6 @@
+[ Contents ](UsersGuide.md#contents)
+
+-----
 ## Octave Interface
 
 ResInsight provides a flexible interface to [Octave](http://www.gnu.org/software/octave/ "Octave").
@@ -33,3 +36,7 @@ A script can be started by navigating to the script in the **Project Tree**, and
 One script can be executed on many cases by first selecting a set of cases, and then activating **Execute script** from the context menu for the case selection. The script is then executed once pr selected case. Each time ResInsight's *Current Case* is updated, making it accessible from the Octave script. 
 
 ![](images/ExecuteOctaveScriptOnSelectedCases.png)
+
+
+------
+[ Contents ](UsersGuide.md#contents)

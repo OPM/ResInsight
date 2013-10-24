@@ -1,3 +1,6 @@
+[ Contents ](UsersGuide.md#contents)
+
+-----
 # Octave Interface Reference
 
 ## Introduction
@@ -214,12 +217,6 @@ This function returns the status information for a specified well for each reque
     
 If the CaseId is not defined, ResInsight's Current Case is used.
 
-### Obsolete Functions
 
-#### Vector(3)[ICount, JCount, KCount] riGetMainGridDimensions([CaseName/CaseIndex])
-Returns a vector of size 3: [ICount, JCount, KCount] 
-Containing the dimensions of the main grid in the requested case.
-If the case is not defined, the active View in ResInsight is used.
-
-#### NumberOfGrids riGetNumLGRs([Casename/CaseIndex])
-Returns an integer telling the number of LGRS in this case 
+------
+[ Contents ](UsersGuide.md#contents)

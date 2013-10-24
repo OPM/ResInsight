@@ -1,5 +1,7 @@
 [ Contents ](UsersGuide.md#contents)
 
+-----
+
 ## Grid Case Groups and Statistics
 
 ![](images/GridCaseGroupTree.png)
@@ -70,6 +72,7 @@ When the computation is complete, you have to create a 3D View on the **Statisti
 #### Adding Statistics Cases
 A new statistical calculation can be created by activating the context menu for **Derived Statistic->New Statistics Case**.
 
+------
 [ Contents ](UsersGuide.md#contents)
 
 
