@@ -14,11 +14,18 @@ information and the corresponding cell property data sets.
 ResInsight also have support for extensive processing of the data sets through an interface to octave, and 
 can also export modified cell property data sets to single Eclipse input files.
 
+### Contents
+
 - [ Getting Started ](GettingStarted.md)
 - [ Working with 3D Views ](ReservoirViews.md)
 - [ *Todo:* Well paths ]()
 - [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md)
 - [ Octave Interface](OctaveInterface.md)
-- [ Command Line Arguments](CommandLineParameters.md)
+
+### Appendix
+
 - [ Octave Interface Reference](OctaveInterfaceReference.md)
+- [ Regression Test System ](RegressionTestSystem.md)
+- [ Command Line Arguments](CommandLineParameters.md)
+
 
