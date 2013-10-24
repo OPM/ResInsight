@@ -231,6 +231,7 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             {
                 RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
                 ruiMainWindow->appendActionsContextMenuForPdmObject(uiItem->dataObject().p(), &menu);
+                menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
             }
 
             // Execute script on selection of cases
