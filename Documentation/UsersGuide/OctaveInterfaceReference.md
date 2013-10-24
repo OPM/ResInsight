@@ -16,12 +16,12 @@ Scripts can access the selection state in ResInsight, and also retrieve lists of
 ### Case Types
 The case type (Labeled "CaseType" in the following specification) of a case is returned as a text string when retrieving lists of cases, and is one of the following:
 
-Case Type      | Description
----------------|-----------
-ResultCase     | A binary Eclipse case
-InputCase      | A case based on ASCII Eclipse input data
-StatisticsCase | A statistics case based on many source cases in Grid Case Group 
-SourceCase     | A binary Eclipse case in a Grid Case Group
+| Case Type      | Description |
+|----------------|-------------|
+|ResultCase     | A binary Eclipse case |
+|InputCase      | A case based on ASCII Eclipse input data |
+|StatisticsCase | A statistics case based on many source cases in Grid Case Group | 
+|SourceCase     | A binary Eclipse case in a Grid Case Group |
 
 ### Unresolved issues
 The issue around having multiple instances of ResInsight is still not addressed, but might affect the function signatures by adding a port number parameter to all of them. We will try to find ways to avoid this, but are still not certain that we will succeed.
