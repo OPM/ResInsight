@@ -76,10 +76,10 @@ A new property filter can be made by activating the context menu for **Property 
 This item controls the overall settings for how wells in the Eclipse simulation are visualized.
 The wells are shown in two ways:
 
-1. A Pipe trough all the cells with well connections
+1. A pipe through all cells with well connections
 2. By adding the well cells to the set of visible cells 
 
-The latter is handled internally as a special range filter, and adds cells to the set of range filtered cell.
+The latter is handled internally as a special range filter, and adds cells to the set of range filtered cells.
 
 The Property Editor of the **Simulation Wells** item is shown below: 
 
@@ -91,7 +91,7 @@ The Property Editor of the **Simulation Wells** item is shown below:
     (cells with connections to wells) are added to the set of range filtered cells.
   - *All On* will add the cells from all wells disregarding the individual settings on the well.
   - *All Off* will prevent any well cells to be added. 
-  - *Individually* Will respect the individual settings for each well, and add the cells from the wells with this option set on. 
+  - *Individually* will respect the individual settings for each well, and add the cells from the wells with this option set on. 
 -  **Use Well Fence** and 
 -  **Well Fence direction** Controls whether to add extensions of the well cells in the I, J or K direction to the set of range filtered cells
 - **Well head** These options control the appearance and position of the well labels and and symbols of the top of the well
@@ -108,7 +108,7 @@ The Property Editor of the **Simulation Wells** item is shown below:
 		  	 
 ##### Well pipes of Multi Segment Wells
 
-###### Geometry approximated
+###### Geometry approximation
 The pipe geometry generated for MSW's are based on the topology of the well (branch/segment structure) and the position of the cells being connected. The segment lengths are used as hints to place the branch points at sensible places. Thus the pipe geometry itself is not geometrically correct, but makes the topology of the well easier to see.
 
 ###### Dummy branches
