@@ -281,6 +281,8 @@ void RiuMainWindow::createActions()
     connect(m_aboutAction, SIGNAL(triggered()), SLOT(slotAbout()));
     m_commandLineHelpAction = new QAction("&Command Line Help", this);    
     connect(m_commandLineHelpAction, SIGNAL(triggered()), SLOT(slotShowCommandLineHelp()));
+    m_openUsersGuideInBrowserAction = new QAction("&Users Guide", this);    
+    connect(m_openUsersGuideInBrowserAction, SIGNAL(triggered()), SLOT(slotOpenUsersGuideInBrowserAction()));
 
     // Draw style actions
     m_dsActionGroup = new QActionGroup(this);
@@ -390,6 +392,7 @@ void RiuMainWindow::createMenus()
 
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu("&Help");
+    helpMenu->addAction(m_openUsersGuideInBrowserAction);
     helpMenu->addAction(m_aboutAction);
     helpMenu->addAction(m_commandLineHelpAction);
 }
@@ -1796,5 +1799,19 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
         caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;
         rangeAddType = doAdd ? RimWellCollection::RANGE_ADD_INDIVIDUAL : RimWellCollection::RANGE_ADD_NONE;
         riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
+{
+    QString usersGuideUrl = "https://github.com/OPM/ResInsight/blob/internal/Documentation/UsersGuide/UsersGuide.md";
+    
+    if (!QDesktopServices::openUrl(usersGuideUrl))
+    {
+        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
+        errorHandler->showMessage("Failed open browser with the following url\n\n" + usersGuideUrl);
     }
 }
