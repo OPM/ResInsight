@@ -8,8 +8,8 @@ The user interface is tailored for efficient interpretation of reservoir simulat
 
 The main input data is
 `*.GRID` and `*.EGRID` files along with their `*.INIT` and restart files `*.XNNN` and `*.UNRST`. 
-ResInsight also supports selected parts of Eclipse input files, often called `.grdecl`, and can read grid 
-information and the corresponding cell property data sets.
+ResInsight also supports selected parts of Eclipse input files and can read grid 
+information and corresponding cell property data sets.
 
 ResInsight has been co-developed by Statoil, Ceetron Solutions AS, and Ceetron AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
 
