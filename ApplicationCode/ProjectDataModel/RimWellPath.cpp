@@ -21,6 +21,8 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
+#include "RiaApplication.h"
+
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimProject.h"
@@ -40,6 +42,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+
 #include <fstream>
 #include <limits>
 
@@ -258,4 +261,60 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
     ssihubGroup->add(&updateUser);
     ssihubGroup->add(&m_surveyType);
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::getCacheDirectoryPath()
+{
+    QString cacheDirPath;
+    QString projectFileName = RiaApplication::instance()->project()->fileName();
+    QFileInfo fileInfo(projectFileName);
+    cacheDirPath = fileInfo.canonicalPath();
+    cacheDirPath += "/" + fileInfo.completeBaseName() + "_wellpaths";
+    return cacheDirPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::getCacheFileName()
+{
+    QString cacheFileName;
+
+    // Make the path correct related to the possibly new project filename
+    QString newCacheDirPath = getCacheDirectoryPath();
+    QFileInfo oldCacheFile(filepath);
+
+    cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
+
+    return cacheFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setupBeforeSave()
+{
+    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
+    if (id().isEmpty())
+    {
+        return;
+    }
+
+    QDir::root().mkpath(getCacheDirectoryPath());
+
+    QString newCacheFileName = getCacheFileName();
+
+    // Use QFileInfo to get same string representation to avoid issues with mix of forward and backward slashes
+    QFileInfo prevFileInfo(filepath);
+    QFileInfo currentFileInfo(newCacheFileName);
+
+    if (prevFileInfo.absoluteFilePath().compare(currentFileInfo.absoluteFilePath()) != 0)
+    {
+        QFile::copy(filepath, newCacheFileName);
+
+        filepath = newCacheFileName;
+    }
 }

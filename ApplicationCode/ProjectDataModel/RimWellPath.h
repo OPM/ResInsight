@@ -76,6 +76,10 @@ private:
 
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
+    QString                             getCacheFileName();
+    QString                             getCacheDirectoryPath();
+
+    virtual void                        setupBeforeSave();
 
     caf::PdmField<QString>              id;
     caf::PdmField<QString>              sourceSystem;
