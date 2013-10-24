@@ -1,4 +1,4 @@
-[ Content ](UsersGuide.md)
+[ Content ](UsersGuide.md#contents)
 ## Getting started with ResInsight 
 
 ### Installation
@@ -161,4 +161,4 @@ The command will export the property set currently loaded and shown in the 3D Vi
     <One number per cell separated by spaces>
     /
 
-[ Content ](UsersGuide.md)
+[ Content ](UsersGuide.md#contents)
