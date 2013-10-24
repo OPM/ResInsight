@@ -1,7 +1,7 @@
 ## Well trajectories
 
 ResInsight can import Well trajectories from simple Ascii files. 
-In addition a Statoil specific solution to retreive Well Trajectories from their internal web service are implemented.
+In addition a Statoil specific solution to retrieve Well Trajectories from their internal web service are implemented.
 
 ### Ascii Well Trajectories
 
@@ -9,11 +9,11 @@ The command **File -> Import -> Import Well Paths From File** will read the well
 
 The supported ascii format is quite flexible but the main requirements are: 
 
-1. Each data line must contain four numbers: X Y TVD MD separated with witespace.
+1. Each data line must contain four numbers: X Y TVD MD separated with white-space.
 2. A line starting with none-number-characters are ignored, unless :
 	1. If the line contains a pair of : ', `, ´, ’ or ‘ the text between the quotation marks is used as a well name.
 	2. If the line contains the case insensitive string "name " the rest of the line is used as a well name. 
-3. If a wellname is found, a new well is created and the following datapoints ends up in it.
+3. If a well name is found, a new well is created and the following data points ends up in it.
 
 ###### Example 1:
 
@@ -61,7 +61,7 @@ The visible wells are always shown in all the 3D Views in the complete project, 
 
 ![](images/WellPathCollectionProperties.png)
 
-- **Global well path visibility** This option forces the wellpaths on or off, ignoring the individual settings unless it is set to Individual.
+- **Global well path visibility** This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.
 - **Clip Well Paths** This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.
 - **Well Path clipping depth distance** This number is the distance from the top of the reservoir to the clipping depth.
 

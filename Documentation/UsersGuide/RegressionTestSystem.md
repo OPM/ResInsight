@@ -17,7 +17,7 @@ From the ResInsight Gui select : **File->Testing->Regression Test Dialog**
 
 ![](images/RegressionTestDialog.png)
 
-Specify location of compare tool in **Folder containing compare**. The current working directory of Resinsight is temporarily changed to this path during execution.
+Specify location of compare tool in **Folder containing compare**. The current working directory of ResInsight is temporarily changed to this path during execution.
 
 ### Creating regression tests
 
@@ -34,8 +34,8 @@ An example of the folder structure is shown below:
 
 To create regression tests you need to do the following:
 
-1. Create a root directory containing one directory for each testcase. 
-2. In each of the **Test Case** folders create a Resinsight project file called **RegressionTest.rip**.
+1. Create a root directory containing one directory for each test case. 
+2. In each of the **Test Case** folders create a ResInsight project file called **RegressionTest.rip**.
 3. Run the regression test for the first time, and thereby creating images that can be used as Base images.
 4. Rename the generated RegTestGeneratedImages/ folder to RegTestBaseImages/
 
