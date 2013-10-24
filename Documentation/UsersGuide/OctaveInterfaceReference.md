@@ -40,7 +40,7 @@ The case information is presented in an octave Structure called CaseInfo, and co
     }
 
 #### CaseInfo riGetCurrentCase()
-This function returns a CaseInfo Structure for the Case considered being the "Current Case" by ResInsight. When ResInsigt loops over a selection of cases and executes an Octave script for each of them, this function returns the CaseInfo for that particular Case. 
+This function returns a CaseInfo Structure for the Case considered being the "Current Case" by ResInsight. When ResInsight loops over a selection of cases and executes an Octave script for each of them, this function returns the CaseInfo for that particular Case. 
 
 #### Vector[CaseInfo] riGetSelectedCases()
 This function returns a CaseInfo Structure for each of the cases selected in ResInsight at the time when the script launched. 
@@ -59,7 +59,7 @@ This function returns a CaseGroupInfo Structure for each of the case groups in t
 This function returns a CaseInfo Structure for all the cases in the current ResInsight project, including the Statistics cases and Source cases in a Grid Case Group. 
 If a CaseGroupId is provided, only the cases in that Case Group will be returned.
  
-### Retreiving Grid Metadata
+### Retrieving Grid Metadata
 
 #### Matrix[numActiveCells][9] riGetActiveCellInfo([CaseId], [PorosityModel = "Matrix"|"Fracture"] )
 This function returns a two dimensional matrix containing grid and IJK information about each of the active cells in the requested case. The columns contain the following information:

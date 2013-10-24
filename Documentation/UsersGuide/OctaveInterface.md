@@ -11,7 +11,7 @@ Octave scripts are available in the **Scripts** folder in the **Project Tree**.
 
 ![](images/OctaveScriptTree.png)
 
-This folder contains an entry for each of the directories you have added as a **Script Folder**. Each of the folder lists available `*.m` files and sub directories. The tree is continously updated to reflect the file structure on disk.
+This folder contains an entry for each of the directories you have added as a **Script Folder**. Each of the folder lists available `*.m` files and sub directories. The tree is continuously updated to reflect the file structure on disk.
 
 #### Adding Script Folders
 You can add directories by right clicking the **Scripts** item to access the context menu.
@@ -24,7 +24,7 @@ To enable script editing from ResInsight you need to set up the path to a text e
 When done, scripts can be edited using the context menu command **Edit** on the script item in the tree.
 
 ### Script execution
-Octave scripts can be executed with or without a selection of cases as context. The [ Octave Interface Reference](OctaveInterfaceReference.md) highlights in more depth how to design your octave scripts to utlize these features.
+Octave scripts can be executed with or without a selection of cases as context. The [ Octave Interface Reference](OctaveInterfaceReference.md) highlights in more depth how to design your octave scripts to utilize these features.
 
 #### Without a case selection 
 A script can be started by navigating to the script in the **Project Tree**, and selecting **Execute** from the context menu. The currently active case (The one with the active 3D View) will then be set as ResInsight's *Current Case*. 
