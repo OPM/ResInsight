@@ -61,6 +61,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiuWellImportWizard.h"
 #include "RimCalcScript.h"
+#include "RimTools.h"
 #include "RiaRegressionTest.h"
 
 
@@ -1646,16 +1647,9 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
     // Update the UTM bounding box from the reservoir
     app->project()->computeUtmAreaOfInterest();
 
-    QString wellPathsFolderPath;
-    QString projectFileName = app->project()->fileName();
-    QFileInfo fileInfo(projectFileName);
-    wellPathsFolderPath = fileInfo.canonicalPath();
-    QString wellPathFolderName = fileInfo.completeBaseName() + "_wellpaths";
-
-    QDir projFolder(wellPathsFolderPath);
-    projFolder.mkdir(wellPathFolderName);
-
-    wellPathsFolderPath += "/" + wellPathFolderName;
+    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
+    wellPathsFolderPath += "_wellpaths";
+    QDir::root().mkpath(wellPathsFolderPath);
 
     RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
     RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);

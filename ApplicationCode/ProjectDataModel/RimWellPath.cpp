@@ -45,6 +45,7 @@
 
 #include <fstream>
 #include <limits>
+#include "RimTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
@@ -268,11 +269,8 @@ void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiO
 //--------------------------------------------------------------------------------------------------
 QString RimWellPath::getCacheDirectoryPath()
 {
-    QString cacheDirPath;
-    QString projectFileName = RiaApplication::instance()->project()->fileName();
-    QFileInfo fileInfo(projectFileName);
-    cacheDirPath = fileInfo.canonicalPath();
-    cacheDirPath += "/" + fileInfo.completeBaseName() + "_wellpaths";
+    QString cacheDirPath = RimTools::getCacheRootDirectoryPathFromProject();
+    cacheDirPath += "_wellpaths";
     return cacheDirPath;
 }
 
@@ -298,7 +296,7 @@ QString RimWellPath::getCacheFileName()
 void RimWellPath::setupBeforeSave()
 {
     // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
-    if (id().isEmpty())
+    if (!isStoredInCache())
     {
         return;
     }
@@ -318,3 +316,26 @@ void RimWellPath::setupBeforeSave()
         filepath = newCacheFileName;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::isStoredInCache()
+{
+    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
+    return !id().isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::updateFilePathsFromProjectPath()
+{
+    QString newCacheFileName = getCacheFileName();
+
+    if (QFile::exists(newCacheFileName))
+    {
+        filepath = newCacheFileName;
+    }
+}
+

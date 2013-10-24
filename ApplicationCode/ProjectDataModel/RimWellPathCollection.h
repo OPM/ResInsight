@@ -74,7 +74,8 @@ public:
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
     void                                scheduleGeometryRegenAndRedrawViews();
- 
+    void                                updateFilePathsFromProjectPath();
+
 private:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     virtual caf::PdmFieldHandle*        objectToggleField();

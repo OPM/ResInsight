@@ -238,6 +238,17 @@ void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::updateFilePathsFromProjectPath()
+{
+    for (size_t wellPathIdx = 0; wellPathIdx < wellPaths.size(); wellPathIdx++)
+    {
+        wellPaths[wellPathIdx]->updateFilePathsFromProjectPath();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RimWellPathAsciiFileReader::readAllWellData(QString filePath)
 {
     std::map<QString, std::vector<WellData> >::iterator it = m_fileNameToWellDataGroupMap.find(filePath);

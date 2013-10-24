@@ -17,7 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellPathImport.h"
+#include "RimTools.h"
+#include "RimWellPath.h"
+#include "RimWellPathCollection.h"
+
 #include "cafPdmUiTreeViewEditor.h"
+
+#include <QFileInfo>
 
 namespace caf {
 
@@ -207,6 +213,38 @@ void RimWellPathImport::defineObjectEditorAttribute(QString uiConfigName, caf::P
 RimWellPathImport::~RimWellPathImport()
 {
     regions.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathImport::updateFilePaths()
+{
+    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
+    wellPathsFolderPath += "_wellpaths";
+
+    for (size_t regionIdx = 0; regionIdx < this->regions.size(); regionIdx++)
+    {
+        for (size_t fIdx = 0; fIdx < this->regions[regionIdx]->fields.size(); fIdx++)
+        {
+            RimOilFieldEntry* oilField = this->regions[regionIdx]->fields[fIdx];
+
+            QFileInfo fi(oilField->wellsFilePath);
+
+            QString newWellsFilePath = wellPathsFolderPath + "/" + fi.fileName();
+            oilField->wellsFilePath = newWellsFilePath;
+
+            for (size_t wIdx = 0; wIdx < oilField->wells.size(); wIdx++)
+            {
+                RimWellPathEntry* rimWellPathEntry = oilField->wells[wIdx];
+
+                QFileInfo fiWell(rimWellPathEntry->wellPathFilePath);
+
+                QString newFilePath = wellPathsFolderPath + "/" + fiWell.fileName();
+                rimWellPathEntry->wellPathFilePath = newFilePath;
+            }
+        }
+    }
 }
 
 
