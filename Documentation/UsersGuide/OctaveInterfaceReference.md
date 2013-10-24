@@ -5,7 +5,7 @@ To identify a ResInsight case uniquely in the Octave script, an integer Id (Case
 
 ### Single case scripts
 Single case scripts do not need to address cases explicitly, but works on what ResInsight considers being the "Current Case". When the user selects several cases and executes a script on them, ResInsight loops over all cases in the selection, sets the current case and executes the script. All references to the "Current Case" from the script will then refer to the case currently being processed by ResInsight. 
-The Current Case can be accessed directly using **riGetCurrentCase()**, but the more direct way is to omit the CaseId parameter in the functions, the Current Case is then automatically used. 
+The Current Case can be accessed directly using **riGetCurrentCase()**, but the more direct way is to *omit the CaseId parameter* in the functions, the Current Case is then automatically used. 
 
 ### Multi case scripts
 Scripts can access the selection state in ResInsight, and also retrieve lists of Case Groups and cases including some meta information. This can be used if the scripts need to get values from some cases, and store the results in others, etc.
@@ -134,7 +134,7 @@ If the case contains coarse-cells, the results are expanded onto the active cell
 If the CaseId is not defined, ResInsight's Current Case is used. 
 The RequestedTimeSteps must contain a list of indices to the requested timesteps. If not defined, all the timesteps are returned.
 
-#### Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"])
+#### Matrix[numI][numJ][numK][numTimestepsRequested] <font style="color:darkblue"> riGetGridProperty</font> ([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"])
 This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested timestep.
 Grids are indexed from 0 (main grid) to max number of LGR's 
 If the CaseId is not defined, ResInsight's Current Case is used.
