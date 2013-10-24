@@ -7,7 +7,7 @@ In addition, a Statoil specific solution to retrieve Well Trajectories from thei
 
 The command **File -> Import -> Import Well Paths From File** will read the well paths in the selected file, and create one entry for each trajectory under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**. 
 
-The supported Ascii format is quite flexible but the main requirements are: 
+The supported ASCII format is quite flexible but the main requirements are: 
 
 1. Each data line must contain four numbers: X Y TVD MD separated with white-space.
 2. A line starting with none-number-characters are ignored, unless :
