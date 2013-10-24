@@ -95,6 +95,9 @@ public:
 
     void            setDefaultWindowSize();
 
+    void            appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu);
+
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 
@@ -275,7 +278,6 @@ private:
     QAction*                    m_addWellCellsToRangeFilterAction;
 
     void                        refreshDrawStyleActions();
-
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
     std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
 };

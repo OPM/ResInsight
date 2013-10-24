@@ -1815,3 +1815,26 @@ void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
         errorHandler->showMessage("Failed open browser with the following url\n\n" + usersGuideUrl);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu)
+{
+    if (!menu)
+    {
+        return;
+    }
+
+    if (dynamic_cast<RimWellPathCollection*>(pdmObject))
+    {
+        menu->addAction(m_importWellPathsFromFileAction);
+        menu->addAction(m_importWellPathsFromSSIHubAction);
+    }
+    else if (dynamic_cast<RimAnalysisModels*>(pdmObject))
+    {
+        menu->addAction(m_importEclipseCaseAction);
+        menu->addAction(m_importInputEclipseFileAction);
+        menu->addAction(m_openMultipleEclipseCasesAction);
+    }
+}
