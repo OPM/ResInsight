@@ -51,6 +51,8 @@ public:
     };
     typedef caf::AppEnum<RimWellPathCollection::WellVisibilityType> WellVisibilityEnum;
 
+    caf::PdmField<bool>                 isActive;
+
     caf::PdmField<bool>                 showWellPathLabel;
     caf::PdmField<cvf::Color3f>         wellPathLabelColor;
 
@@ -61,7 +63,7 @@ public:
     caf::PdmField<int>                  wellPathClipZDistance;
 
     caf::PdmPointersField<RimWellPath*> wellPaths;
-
+    
    
     RivWellPathCollectionPartMgr*       wellPathCollectionPartMgr() { return m_wellPathCollectionPartManager.p(); }
 
@@ -71,7 +73,13 @@ public:
 
     virtual void                        fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
 
+    void                                scheduleGeometryRegenAndRedrawViews();
+    void                                updateFilePathsFromProjectPath();
+
 private:
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    virtual caf::PdmFieldHandle*        objectToggleField();
+
     caf::PdmPointer<RimProject>         m_project;
     cvf::ref<RivWellPathCollectionPartMgr> m_wellPathCollectionPartManager;
 

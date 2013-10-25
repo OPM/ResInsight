@@ -50,7 +50,7 @@ RimWellPathEntry::RimWellPathEntry()
     CAF_PDM_InitObject("WellPathEntry", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&name,       "Name",      "Name", "", "", "");
-    CAF_PDM_InitField(&selected,            "Selected",         true,   "Selected", "", "", "");
+    CAF_PDM_InitField(&selected,            "Selected",         false,   "Selected", "", "", "");
 
     caf::AppEnum< RimWellPathEntry::WellTypeEnum > wellType = WELL_ALL;
     CAF_PDM_InitField(&wellPathType, "WellPathType", wellType, "Well path type",   "", "", "");

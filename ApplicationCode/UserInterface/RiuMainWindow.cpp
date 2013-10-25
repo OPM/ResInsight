@@ -61,6 +61,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RiuWellImportWizard.h"
 #include "RimCalcScript.h"
+#include "RimTools.h"
 #include "RiaRegressionTest.h"
 
 
@@ -185,13 +186,14 @@ void RiuMainWindow::closeEvent(QCloseEvent* event)
 void RiuMainWindow::createActions()
 {
     // File actions
-    m_openEclipseCaseAction                = new QAction(QIcon(":/Case48x48.png"), "&Open Eclipse Case", this);
-    m_openInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "&Open Input Eclipse Case", this);
-    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
-    
     m_openProjectAction         = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), "&Open Project", this);
     m_openLastUsedProjectAction = new QAction("Open &Last Used Project", this);
-    m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "&Import Well Paths from File", this);
+
+    m_importEclipseCaseAction     = new QAction(QIcon(":/Case48x48.png"), "Import &Eclipse Case", this);
+    m_importInputEclipseFileAction= new QAction(QIcon(":/EclipseInput48x48.png"), "Import &Input Eclipse Case", this);
+    m_openMultipleEclipseCasesAction = new QAction(QIcon(":/CreateGridCaseGroup16x16.png"), "&Create Grid Case Group from Files", this);
+    
+    m_importWellPathsFromFileAction       = new QAction(QIcon(":/Well.png"), "Import &Well Paths from File", this);
     m_importWellPathsFromSSIHubAction     = new QAction(QIcon(":/WellCollection.png"),"Import Well Paths from &SSI-hub", this);
 
     m_mockModelAction           = new QAction("&Mock Model", this);
@@ -213,13 +215,13 @@ void RiuMainWindow::createActions()
     m_closeProjectAction               = new QAction("&Close Project", this);
     m_exitAction		        = new QAction("E&xit", this);
 
-    connect(m_openEclipseCaseAction,	            SIGNAL(triggered()), SLOT(slotOpenBinaryGridFiles()));
-    connect(m_openInputEclipseFileAction,SIGNAL(triggered()), SLOT(slotOpenInputFiles()));
-    connect(m_openMultipleEclipseCasesAction,SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
-    connect(m_openProjectAction,	    SIGNAL(triggered()), SLOT(slotOpenProject()));
-    connect(m_openLastUsedProjectAction,SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
-    connect(m_importWellPathsFromFileAction,	    SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
-    connect(m_importWellPathsFromSSIHubAction,    SIGNAL(triggered()), SLOT(slotImportWellPathsFromSSIHub()));
+    connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
+    connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
+    connect(m_importEclipseCaseAction,	        SIGNAL(triggered()), SLOT(slotImportEclipseCase()));
+    connect(m_importInputEclipseFileAction,     SIGNAL(triggered()), SLOT(slotImportInputEclipseFiles()));
+    connect(m_openMultipleEclipseCasesAction,   SIGNAL(triggered()), SLOT(slotOpenMultipleCases()));
+    connect(m_importWellPathsFromFileAction,	SIGNAL(triggered()), SLOT(slotImportWellPathsFromFile()));
+    connect(m_importWellPathsFromSSIHubAction,  SIGNAL(triggered()), SLOT(slotImportWellPathsFromSSIHub()));
     
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
@@ -279,6 +281,8 @@ void RiuMainWindow::createActions()
     connect(m_aboutAction, SIGNAL(triggered()), SLOT(slotAbout()));
     m_commandLineHelpAction = new QAction("&Command Line Help", this);    
     connect(m_commandLineHelpAction, SIGNAL(triggered()), SLOT(slotShowCommandLineHelp()));
+    m_openUsersGuideInBrowserAction = new QAction("&Users Guide", this);    
+    connect(m_openUsersGuideInBrowserAction, SIGNAL(triggered()), SLOT(slotOpenUsersGuideInBrowserAction()));
 
     // Draw style actions
     m_dsActionGroup = new QActionGroup(this);
@@ -297,10 +301,16 @@ void RiuMainWindow::createActions()
 
 
     connect(m_dsActionGroup, SIGNAL(triggered(QAction*)), SLOT(slotDrawStyleChanged(QAction*)));
+   
 
     m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
     m_drawStyleToggleFaultsAction->setCheckable(true);
     connect(m_drawStyleToggleFaultsAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+
+    m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
+    m_addWellCellsToRangeFilterAction->setCheckable(true);
+    m_addWellCellsToRangeFilterAction->setToolTip("Add Well Cells To Range Filter based on the individual settings");
+    connect(m_addWellCellsToRangeFilterAction,	SIGNAL(toggled(bool)), SLOT(slotAddWellCellsToRangeFilterAction(bool)));
 
 }
 
@@ -318,8 +328,8 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
 
     QMenu* importMenu = fileMenu->addMenu("&Import");
-    importMenu->addAction(m_openEclipseCaseAction);
-    importMenu->addAction(m_openInputEclipseFileAction);
+    importMenu->addAction(m_importEclipseCaseAction);
+    importMenu->addAction(m_importInputEclipseFileAction);
     importMenu->addAction(m_openMultipleEclipseCasesAction);
     importMenu->addSeparator();
     importMenu->addAction(m_importWellPathsFromFileAction);
@@ -332,6 +342,9 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(m_saveProjectAction);
     fileMenu->addAction(m_saveProjectAsAction);
+
+    fileMenu->addSeparator();
+    QMenu* testMenu = fileMenu->addMenu("&Testing");
 
     fileMenu->addSeparator();
     fileMenu->addAction(m_closeProjectAction);
@@ -363,18 +376,15 @@ void RiuMainWindow::createMenus()
     connect(viewMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshViewActions()));
 
     // Debug menu
-    QMenu* debugMenu = menuBar()->addMenu("&Debug");
-    debugMenu->addAction(m_mockModelAction);
-    debugMenu->addAction(m_mockResultsModelAction);
-    debugMenu->addAction(m_mockLargeResultsModelAction);
-    debugMenu->addAction(m_mockInputModelAction);
-    debugMenu->addSeparator();
-    debugMenu->addAction(m_createCommandObject);
-    debugMenu->addSeparator();
-    debugMenu->addAction(m_showRegressionTestDialog);
-    debugMenu->addAction(m_executePaintEventPerformanceTest);
-
-    connect(debugMenu, SIGNAL(aboutToShow()), SLOT(slotRefreshDebugActions()));
+    testMenu->addAction(m_mockModelAction);
+    testMenu->addAction(m_mockResultsModelAction);
+    testMenu->addAction(m_mockLargeResultsModelAction);
+    testMenu->addAction(m_mockInputModelAction);
+    testMenu->addSeparator();
+    testMenu->addAction(m_createCommandObject);
+    testMenu->addSeparator();
+    testMenu->addAction(m_showRegressionTestDialog);
+    testMenu->addAction(m_executePaintEventPerformanceTest);
 
     // Windows menu
     m_windowMenu = menuBar()->addMenu("&Windows");
@@ -382,8 +392,10 @@ void RiuMainWindow::createMenus()
 
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu("&Help");
-    helpMenu->addAction(m_aboutAction);
+    helpMenu->addAction(m_openUsersGuideInBrowserAction);
     helpMenu->addAction(m_commandLineHelpAction);
+    helpMenu->addSeparator();
+    helpMenu->addAction(m_aboutAction);
 }
 
 
@@ -396,8 +408,8 @@ void RiuMainWindow::createToolBars()
     m_standardToolBar = addToolBar(tr("Standard"));
     m_standardToolBar->setObjectName(m_standardToolBar->windowTitle());
 
-    m_standardToolBar->addAction(m_openEclipseCaseAction);
-    m_standardToolBar->addAction(m_openInputEclipseFileAction);
+    m_standardToolBar->addAction(m_importEclipseCaseAction);
+    m_standardToolBar->addAction(m_importInputEclipseFileAction);
     m_standardToolBar->addAction(m_openProjectAction);
     //m_standardToolBar->addAction(m_openLastUsedProjectAction);
     m_standardToolBar->addAction(m_saveProjectAction);
@@ -424,6 +436,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
+    m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
     QLabel* scaleLabel = new QLabel(m_viewToolBar);
     scaleLabel->setText("Scale");
@@ -693,7 +706,7 @@ void RiuMainWindow::slotAbout()
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
-    dlg.setCopyright("Copyright 2012 Statoil ASA, Ceetron AS");
+    dlg.setCopyright("Copyright 2011-2013 Statoil ASA, Ceetron AS");
     dlg.showCeeVizVersion(false);
 
 #ifdef _DEBUG
@@ -720,14 +733,14 @@ void RiuMainWindow::slotAbout()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenBinaryGridFiles()
+void RiuMainWindow::slotImportEclipseCase()
 {
     if (checkForDocumentModifications())
     {
         RiaApplication* app = RiaApplication::instance();
 
         QString defaultDir = app->defaultFileDialogDirectory("BINARY_GRID");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse File", defaultDir, "Eclipse Grid Files (*.GRID *.EGRID)");
         if (fileNames.size()) defaultDir = QFileInfo(fileNames.last()).absolutePath();
         app->setDefaultFileDialogDirectory("BINARY_GRID", defaultDir);
 
@@ -748,13 +761,13 @@ void RiuMainWindow::slotOpenBinaryGridFiles()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotOpenInputFiles()
+void RiuMainWindow::slotImportInputEclipseFiles()
 {
     if (checkForDocumentModifications())
     {
         RiaApplication* app = RiaApplication::instance();
         QString defaultDir = app->defaultFileDialogDirectory("INPUT_FILES");
-        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Open Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
+        QStringList fileNames = QFileDialog::getOpenFileNames(this, "Import Eclipse Input Files", defaultDir, "Eclipse Input Files and Input Properties (*.GRDECL *)");
 
         if (fileNames.isEmpty()) return;
 
@@ -1187,13 +1200,6 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
     RiaApplication::instance()->setShowPerformanceInfo(enable);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotRefreshDebugActions()
-{
-    RiaApplication* app = RiaApplication::instance();
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1491,12 +1497,19 @@ void RiuMainWindow::refreshDrawStyleActions()
 
     m_drawStyleToggleFaultsAction->setEnabled(enable);
 
+    m_addWellCellsToRangeFilterAction->setEnabled(enable);
+
     if (enable) 
     {
+        RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
         m_drawStyleToggleFaultsAction->blockSignals(true);
-        m_drawStyleToggleFaultsAction->setChecked(   RiaApplication::instance()->activeReservoirView()->meshMode == RimReservoirView::FAULTS_MESH 
-                                                  || RiaApplication::instance()->activeReservoirView()->surfaceMode == RimReservoirView::FAULTS);
+        m_drawStyleToggleFaultsAction->setChecked(   riv->meshMode == RimReservoirView::FAULTS_MESH 
+                                                  || riv->surfaceMode == RimReservoirView::FAULTS);
         m_drawStyleToggleFaultsAction->blockSignals(false);
+
+        m_addWellCellsToRangeFilterAction->blockSignals(true);
+        m_addWellCellsToRangeFilterAction->setChecked( riv->wellCollection()->wellCellsToRangeFilterMode() != RimWellCollection::RANGE_ADD_NONE);
+        m_addWellCellsToRangeFilterAction->blockSignals(false);
     }
 }
 
@@ -1631,22 +1644,15 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
     // Update the UTM bounding box from the reservoir
     app->project()->computeUtmAreaOfInterest();
 
-    QString wellPathsFolderPath;
-    QString projectFileName = app->project()->fileName();
-    QFileInfo fileInfo(projectFileName);
-    wellPathsFolderPath = fileInfo.canonicalPath();
-    QString wellPathFolderName = fileInfo.completeBaseName() + "_wellpaths";
-
-    QDir projFolder(wellPathsFolderPath);
-    projFolder.mkdir(wellPathFolderName);
-
-    wellPathsFolderPath += "/" + wellPathFolderName;
-
+    QString wellPathsFolderPath = RimTools::getCacheRootDirectoryPathFromProject();
+    wellPathsFolderPath += "_wellpaths";
+    QDir::root().mkpath(wellPathsFolderPath);
 
     RimWellPathImport* copyOfWellPathImport = dynamic_cast<RimWellPathImport*>(app->project()->wellPathImport->deepCopy());
-
     RiuWellImportWizard wellImportwizard(app->preferences()->ssihubAddress, wellPathsFolderPath, copyOfWellPathImport, this);
-    
+
+    RimWellPathImport* wellPathObjectToBeDeleted = NULL;
+
     // Get password/username from application cache
     {
         QString ssihubUsername = app->cacheDataObject("ssihub_username").toString();
@@ -1664,11 +1670,18 @@ void RiuMainWindow::slotImportWellPathsFromSSIHub()
             app->project()->createDisplayModelAndRedrawAllViews();
         }
 
+        wellPathObjectToBeDeleted = app->project()->wellPathImport;
         app->project()->wellPathImport = copyOfWellPathImport;
 
         app->setCacheDataObject("ssihub_username", wellImportwizard.field("username"));
         app->setCacheDataObject("ssihub_password", wellImportwizard.field("password"));
     }
+    else
+    {
+        wellPathObjectToBeDeleted = copyOfWellPathImport;
+    }
+
+    delete wellPathObjectToBeDeleted;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1767,4 +1780,55 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
 void RiuMainWindow::setDefaultWindowSize()
 {
     resize(1000, 810);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
+{
+    RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
+    if (riv)
+    {
+        caf::AppEnum<RimWellCollection::WellCellsRangeFilterType> rangeAddType;
+        rangeAddType = doAdd ? RimWellCollection::RANGE_ADD_INDIVIDUAL : RimWellCollection::RANGE_ADD_NONE;
+        riv->wellCollection()->wellCellsToRangeFilterMode.setValueFromUi(static_cast<unsigned int>(rangeAddType.index()));
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
+{
+    QString usersGuideUrl = "https://github.com/OPM/ResInsight/wiki";
+    
+    if (!QDesktopServices::openUrl(usersGuideUrl))
+    {
+        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
+        errorHandler->showMessage("Failed open browser with the following url\n\n" + usersGuideUrl);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu)
+{
+    if (!menu)
+    {
+        return;
+    }
+
+    if (dynamic_cast<RimWellPathCollection*>(pdmObject))
+    {
+        menu->addAction(m_importWellPathsFromFileAction);
+        menu->addAction(m_importWellPathsFromSSIHubAction);
+    }
+    else if (dynamic_cast<RimAnalysisModels*>(pdmObject))
+    {
+        menu->addAction(m_importEclipseCaseAction);
+        menu->addAction(m_importInputEclipseFileAction);
+        menu->addAction(m_openMultipleEclipseCasesAction);
+    }
 }

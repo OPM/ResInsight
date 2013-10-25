@@ -95,6 +95,9 @@ public:
 
     void            setDefaultWindowSize();
 
+    void            appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu);
+
+
 protected:
     virtual void	closeEvent(QCloseEvent* event);
 
@@ -121,8 +124,8 @@ private:
 
 private:
     // File actions
-    QAction*		    m_openEclipseCaseAction;
-    QAction*		    m_openInputEclipseFileAction;
+    QAction*		    m_importEclipseCaseAction;
+    QAction*		    m_importInputEclipseFileAction;
     QAction*		    m_openMultipleEclipseCasesAction;
     QAction*		    m_openProjectAction;
     QAction*		    m_openLastUsedProjectAction;
@@ -163,6 +166,7 @@ private:
     // Help actions
     QAction*            m_aboutAction;
     QAction*            m_commandLineHelpAction;
+    QAction*            m_openUsersGuideInBrowserAction;
 
     // Animation
     caf::AnimationToolBar* m_animationToolBar;
@@ -186,8 +190,8 @@ private:
 private slots:
 
     // File slots
-    void    slotOpenBinaryGridFiles();
-    void    slotOpenInputFiles();
+    void    slotImportEclipseCase();
+    void    slotImportInputEclipseFiles();
     void    slotOpenMultipleCases();
     void    slotOpenProject();
     void    slotOpenLastUsedProject();
@@ -217,9 +221,9 @@ private slots:
 
     void slotDrawStyleChanged(QAction* activatedAction);
     void slotToggleFaultsAction(bool);
+    void slotAddWellCellsToRangeFilterAction(bool doAdd);
 
     // Debug slots
-    void    slotRefreshDebugActions();
     void    slotUseShaders(bool enable);
     void    slotShowPerformanceInfo(bool enable);
     
@@ -244,6 +248,7 @@ private slots:
     // Help slots
     void    slotAbout();
     void    slotShowCommandLineHelp();
+    void    slotOpenUsersGuideInBrowserAction();
 
     void    slotSubWindowActivated(QMdiSubWindow* subWindow);
     void    slotCurrentChanged(const QModelIndex & current, const QModelIndex & previous);
@@ -269,8 +274,9 @@ private:
     QAction*                    m_drawStyleLinesAction;
     QAction*                    m_drawStyleLinesSolidAction;
     QAction*                    m_drawStyleSurfOnlyAction;
-    void                        refreshDrawStyleActions();
+    QAction*                    m_addWellCellsToRangeFilterAction;
 
+    void                        refreshDrawStyleActions();
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
     std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
 };

@@ -84,6 +84,7 @@ void RivWellPathCollectionPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBa
 {
     setScaleTransform(scaleTransform);
 
+    if (!m_wellPathCollection->isActive()) return;
     if (m_wellPathCollection->wellPathVisibility() == RimWellPathCollection::FORCE_ALL_OFF) return;
     
     for (size_t wIdx = 0; wIdx < m_wellPathCollection->wellPaths.size(); wIdx++)

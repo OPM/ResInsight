@@ -66,6 +66,9 @@ RimWellPathCollection::RimWellPathCollection()
 {
     CAF_PDM_InitObject("Wells", ":/WellCollection.png", "", "");
 
+    CAF_PDM_InitField(&isActive,              "Active",        true,   "Active", "", "", "");
+    isActive.setUiHidden(true);
+
     CAF_PDM_InitField(&showWellPathLabel,               "ShowWellPathLabel",        true,                       "Show well path labels", "", "", "");
 
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
@@ -105,8 +108,7 @@ RimWellPathCollection::~RimWellPathCollection()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    m_wellPathCollectionPartManager->scheduleGeometryRegen();
-    if (m_project) m_project->createDisplayModelAndRedrawAllViews();
+    scheduleGeometryRegenAndRedrawViews();
 }
 
 
@@ -196,6 +198,52 @@ void RimWellPathCollection::addWellPaths( QStringList filePaths )
     }
 
     readWellPathFiles();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* wellHeadGroup = uiOrdering.addNewGroup("Well labels");
+    wellHeadGroup->add(&showWellPathLabel);
+    wellHeadGroup->add(&wellPathLabelColor);
+
+    caf::PdmUiGroup* wellPipe = uiOrdering.addNewGroup("Well pipe");
+    wellPipe->add(&wellPathVisibility);
+    wellPipe->add(&wellPathRadiusScaleFactor);
+
+    caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup("Clipping");
+    advancedGroup->add(&wellPathClip);
+    advancedGroup->add(&wellPathClipZDistance);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
+{
+    return &isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::scheduleGeometryRegenAndRedrawViews()
+{
+    m_wellPathCollectionPartManager->scheduleGeometryRegen();
+    if (m_project) m_project->createDisplayModelAndRedrawAllViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPathCollection::updateFilePathsFromProjectPath()
+{
+    for (size_t wellPathIdx = 0; wellPathIdx < wellPaths.size(); wellPathIdx++)
+    {
+        wellPaths[wellPathIdx]->updateFilePathsFromProjectPath();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

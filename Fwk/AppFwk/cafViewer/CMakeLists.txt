@@ -21,6 +21,8 @@ add_library( ${PROJECT_NAME}
 	cafCadNavigation.h
 	cafCeetronNavigation.cpp
 	cafCeetronNavigation.h
+	cafCeetronPlusNavigation.cpp
+	cafCeetronPlusNavigation.h
 	cafNavigationPolicy.cpp
 	cafNavigationPolicy.h
 	cafOpenGLWidget.cpp

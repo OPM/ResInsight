@@ -223,6 +223,15 @@ void RimUiTreeView::contextMenuEvent(QContextMenuEvent* event)
             else if (dynamic_cast<RimWellPathCollection*>(uiItem->dataObject().p()))
             {
                 menu.addAction(QString("Delete All Well Paths"), this, SLOT(slotDeleteAllWellPaths()));
+                
+                RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+                ruiMainWindow->appendActionsContextMenuForPdmObject(uiItem->dataObject().p(), &menu);
+            }
+            else if (dynamic_cast<RimAnalysisModels*>(uiItem->dataObject().p()))
+            {
+                RiuMainWindow* ruiMainWindow = RiuMainWindow::instance();
+                ruiMainWindow->appendActionsContextMenuForPdmObject(uiItem->dataObject().p(), &menu);
+                menu.addAction(QString("New Grid Case Group"), this, SLOT(slotAddCaseGroup()));
             }
 
             // Execute script on selection of cases
@@ -1586,7 +1595,16 @@ void RimUiTreeView::slotDeleteAllWellPaths()
     if (myModel)
     {
         myModel->deleteAllWellPaths(currentIndex());
+
+        caf::PdmUiTreeItem* uiItem = myModel->getTreeItemFromIndex(currentIndex());
+        if (uiItem && uiItem->dataObject())
+        {
+            RimWellPathCollection* wellPathCollection = dynamic_cast<RimWellPathCollection*>(uiItem->dataObject().p());
+            if (wellPathCollection)
+            {
+                wellPathCollection->scheduleGeometryRegenAndRedrawViews();
+            }
+        }
     }
-   
 }
 

@@ -191,12 +191,14 @@ public:
 protected:
     virtual void                            initAfterRead();
     virtual void                            setupBeforeSave();
+    virtual void                            defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     // Really private
 private:
     void                                    syncronizeWellsWithResults();
     void                                    clampCurrentTimestep();
 
+ 
 private:
     caf::PdmField<int>                      m_currentTimeStep;
     QPointer<RiuViewer>                     m_viewer;

@@ -21,6 +21,8 @@
 
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
+#include "RiaApplication.h"
+
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimProject.h"
@@ -40,8 +42,10 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+
 #include <fstream>
 #include <limits>
+#include "RimTools.h"
 
 
 CAF_PDM_SOURCE_INIT(RimWellPath, "WellPath");
@@ -235,3 +239,103 @@ void RimWellPath::readAsciiWellPathFile()
 
     setWellPathGeometry(wpData.m_wellPathGeometry.p());
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* appGroup =  uiOrdering.addNewGroup("Appearance");
+    appGroup->add(&showWellPathLabel);
+    appGroup->add(&wellPathColor);
+    appGroup->add(&wellPathRadiusScaleFactor); 
+
+    caf::PdmUiGroup* fileInfoGroup =   uiOrdering.addNewGroup("File");
+    fileInfoGroup->add(&filepath);
+    fileInfoGroup->add(&wellPathIndexInFile);
+
+    caf::PdmUiGroup* ssihubGroup =  uiOrdering.addNewGroup("Well Info");
+    ssihubGroup->add(&id);
+    ssihubGroup->add(&sourceSystem);
+    ssihubGroup->add(&utmZone);
+    ssihubGroup->add(&updateDate);
+    ssihubGroup->add(&updateUser);
+    ssihubGroup->add(&m_surveyType);
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::getCacheDirectoryPath()
+{
+    QString cacheDirPath = RimTools::getCacheRootDirectoryPathFromProject();
+    cacheDirPath += "_wellpaths";
+    return cacheDirPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RimWellPath::getCacheFileName()
+{
+    QString cacheFileName;
+
+    // Make the path correct related to the possibly new project filename
+    QString newCacheDirPath = getCacheDirectoryPath();
+    QFileInfo oldCacheFile(filepath);
+
+    cacheFileName = newCacheDirPath + "/" + oldCacheFile.fileName();
+
+    return cacheFileName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::setupBeforeSave()
+{
+    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
+    if (!isStoredInCache())
+    {
+        return;
+    }
+
+    QDir::root().mkpath(getCacheDirectoryPath());
+
+    QString newCacheFileName = getCacheFileName();
+
+    // Use QFileInfo to get same string representation to avoid issues with mix of forward and backward slashes
+    QFileInfo prevFileInfo(filepath);
+    QFileInfo currentFileInfo(newCacheFileName);
+
+    if (prevFileInfo.absoluteFilePath().compare(currentFileInfo.absoluteFilePath()) != 0)
+    {
+        QFile::copy(filepath, newCacheFileName);
+
+        filepath = newCacheFileName;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimWellPath::isStoredInCache()
+{
+    // SSIHUB is the only source for populating Id, use text in this field to decide if the cache file must be copied to new project cache location
+    return !id().isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimWellPath::updateFilePathsFromProjectPath()
+{
+    QString newCacheFileName = getCacheFileName();
+
+    if (QFile::exists(newCacheFileName))
+    {
+        filepath = newCacheFileName;
+    }
+}
+

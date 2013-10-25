@@ -32,6 +32,7 @@ class RimOilRegionEntry : public caf::PdmObject
 
 public:
     RimOilRegionEntry();
+    ~RimOilRegionEntry();
 
     virtual caf::PdmFieldHandle*        userDescriptionField();
     virtual caf::PdmFieldHandle*        objectToggleField();

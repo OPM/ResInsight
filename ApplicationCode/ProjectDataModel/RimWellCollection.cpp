@@ -50,9 +50,9 @@ namespace caf
     template<>
     void RimWellCollection::WellCellsRangeFilterEnum::setUp()
     {
-        addItem(RimWellCollection::RANGE_ADD_NONE,       "FORCE_ALL_OFF",      "Off");
+        addItem(RimWellCollection::RANGE_ADD_NONE,       "FORCE_ALL_OFF",      "All Off");
         addItem(RimWellCollection::RANGE_ADD_INDIVIDUAL, "ALL_ON",             "Individually");
-        addItem(RimWellCollection::RANGE_ADD_ALL,        "FORCE_ALL_ON",       "On");
+        addItem(RimWellCollection::RANGE_ADD_ALL,        "FORCE_ALL_ON",       "All On");
     }
 }
 
@@ -271,7 +271,7 @@ void RimWellCollection::setReservoirView(RimReservoirView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimWellCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Range filter");
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup("Well range filter");
     filterGroup->add(&wellCellsToRangeFilterMode);
     filterGroup->add(&showWellCellFences);
     filterGroup->add(&wellCellFenceType);

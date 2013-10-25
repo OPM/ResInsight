@@ -72,6 +72,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimWellCollection.h"
+#include "cafCeetronPlusNavigation.h"
 
 namespace caf
 {
@@ -1132,7 +1133,7 @@ void RiaApplication::applyPreferences()
         }
         else
         {
-            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronNavigation);
+            m_activeReservoirView->viewer()->setNavigationPolicy(new caf::CeetronPlusNavigation);
         }
 
         m_activeReservoirView->viewer()->enablePerfInfoHud(m_preferences->showHud());
@@ -1631,10 +1632,8 @@ QString RiaApplication::commandLineParameterHelp() const
         "\n"
         "-project <filename>      Open project file <filename>\n"
         "\n"
-        "-case <casename>         Open Eclipse case <casename>\n"
+        "-case <casename>         Import Eclipse case <casename>\n"
         "                         (do not include .GRID/.EGRID)\n"
-        "\n"
-        "-startdir                The default directory for open/save commands\n"
         "\n"                      
         "-savesnapshots           Save snapshot of all views to 'snapshots' folder in project file folder\n"
         "                         Application closes after snapshots are written to file\n"

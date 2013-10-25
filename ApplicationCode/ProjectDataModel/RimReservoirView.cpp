@@ -72,6 +72,7 @@
 #include "cvfOverlayScalarMapperLegend.h"
 
 #include <limits.h>
+#include "cafCeetronPlusNavigation.h"
 
 namespace caf {
 
@@ -122,7 +123,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
 
-    CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Overlay Info", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
     overlayInfoConfig->setReservoirView(this);
 
@@ -141,7 +142,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&animationMode, "AnimationMode", false, "Animation Mode","", "", "");
     animationMode.setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection","Wells", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimWellCollection;
 
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
@@ -165,7 +166,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitField(&showInactiveCells,   "ShowInactiveCells",    false,  "Show Inactive Cells",   "", "", "");
     CAF_PDM_InitField(&showInvalidCells,    "ShowInvalidCells",     false,  "Show Invalid Cells",   "", "", "");
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
-    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  defBackgColor, "Viewer Background", "", "", "");
+    CAF_PDM_InitField(&backgroundColor,     "ViewBackgroundColor",  defBackgColor, "Background", "", "", "");
 
 
     CAF_PDM_InitField(&cameraPosition,      "CameraPosition", cvf::Mat4d::IDENTITY, "", "", "", "");
@@ -234,7 +235,7 @@ void RimReservoirView::updateViewerWidget()
 
             if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
             {
-                m_viewer->setNavigationPolicy(new caf::CeetronNavigation);
+                m_viewer->setNavigationPolicy(new caf::CeetronPlusNavigation);
             }
             else
             {
@@ -1608,5 +1609,25 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
 caf::PdmFieldHandle* RimReservoirView::objectToggleField()
 {
     return &showWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    caf::PdmUiGroup* viewGroup = uiOrdering.addNewGroup("Viewer");
+    viewGroup->add(&name);
+    viewGroup->add(&backgroundColor);
+
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup("Grid Appearance");
+    gridGroup->add(&scaleZ);
+    gridGroup->add(&meshMode);
+    gridGroup->add(&surfaceMode);
+
+    caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup("Cell Visibility");
+    cellGroup->add(&showMainGrid);
+    cellGroup->add(&showInactiveCells);
+    cellGroup->add(&showInvalidCells);
 }
 
