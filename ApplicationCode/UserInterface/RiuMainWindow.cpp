@@ -706,7 +706,7 @@ void RiuMainWindow::slotAbout()
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
-    dlg.setCopyright("Copyright 2012 Statoil ASA, Ceetron AS");
+    dlg.setCopyright("Copyright 2011-2013 Statoil ASA, Ceetron AS");
     dlg.showCeeVizVersion(false);
 
 #ifdef _DEBUG
@@ -1801,7 +1801,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 {
-    QString usersGuideUrl = "https://github.com/OPM/ResInsight/blob/internal/Documentation/UsersGuide/UsersGuide.md";
+    QString usersGuideUrl = "https://github.com/OPM/ResInsight/wiki";
     
     if (!QDesktopServices::openUrl(usersGuideUrl))
     {
