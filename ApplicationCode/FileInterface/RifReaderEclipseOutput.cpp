@@ -1464,6 +1464,9 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 
         if (activeCellInfo->globalActiveCellCount() > 0)
         {
+            size_t timeStepsAllCells     = keywordDataItemCounts[i] / activeCellInfo->globalCellCount();
+            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->globalCellCount();
+
             size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalActiveCellCount();
             size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalActiveCellCount();
         
@@ -1479,10 +1482,19 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
                         keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
                     }
                 }
+                else if (timeStepsAllCellsRest == 0)
+                {
+                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                }
+
             }
             else
             {
                 if (timeStepsMatrixAndFractureRest == 0 && timeStepCount == timeStepsMatrixAndFracture)
+                {
+                    keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
+                }
+                else if (timeStepsAllCellsRest == 0)
                 {
                     keywordsWithCorrectNumberOfDataItems.push_back(keywords[i]);
                 }

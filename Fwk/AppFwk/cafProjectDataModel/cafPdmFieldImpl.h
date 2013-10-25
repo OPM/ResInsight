@@ -252,7 +252,14 @@ public:
 
 //==================================================================================================
 /// Partial specialization for PdmField<  caf::AppEnum<T> >
+///
+/// Note :  Makes the setUiValue() and uiValue() interface index based, and NOT based on real enum values.
+///         The valueOptions() interface is thus also index based (the value in the PdmOptionItemInfo is index NOT enum)    
+///         This is probably going to change, ans it is strange. 
+///         This conversion should really be done in the editors we think (now)
 //==================================================================================================
+
+#define PDMFIELDAPPENUM_USE_INDEX_BASED_INTERFACE 1
 
 template <typename T>
 class PdmFieldTypeSpecialization < caf::AppEnum<T> >
@@ -261,13 +268,22 @@ public:
     /// Convert the field value into a QVariant
     static QVariant convert(const caf::AppEnum<T>& value)
     {
+#if PDMFIELDAPPENUM_USE_INDEX_BASED_INTERFACE
         return QVariant(static_cast<unsigned int>(caf::AppEnum<T>::index(value)));
+#else
+        unsigned int enumVal = value;
+        return QVariant(enumVal);
+#endif
     }
 
     /// Set the field value from a QVariant
     static void setFromVariant(const QVariant& variantValue, caf::AppEnum<T>& value)
     {
+#if PDMFIELDAPPENUM_USE_INDEX_BASED_INTERFACE
         value.setFromIndex(variantValue.toInt());
+#else
+        value = static_cast<T> (variantValue.toInt());
+#endif
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
@@ -280,7 +296,11 @@ public:
         int i;
         for (i = 0; i < optionTexts.size(); ++i)
         {
+#if PDMFIELDAPPENUM_USE_INDEX_BASED_INTERFACE
             optionList.push_back(PdmOptionItemInfo(optionTexts[i], static_cast<unsigned int>(i)));
+#else
+            optionList.push_back(PdmOptionItemInfo(optionTexts[i], caf::AppEnum<T>::fromIndex(i)));
+#endif
         }
 
         return optionList;

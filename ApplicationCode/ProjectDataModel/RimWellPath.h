@@ -64,7 +64,9 @@ public:
     RivWellPathPartMgr*                 partMgr();
 
     void                                readWellPathFile();
- 
+    void                                updateFilePathsFromProjectPath();
+
+
 
 private:
 
@@ -74,7 +76,13 @@ private:
     QString                             surveyType() { return m_surveyType; }
     void                                setSurveyType(QString surveyType);
 
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
+    bool                                isStoredInCache();
+    QString                             getCacheFileName();
+    QString                             getCacheDirectoryPath();
+
+    virtual void                        setupBeforeSave();
     caf::PdmField<QString>              id;
     caf::PdmField<QString>              sourceSystem;
     caf::PdmField<QString>              utmZone;

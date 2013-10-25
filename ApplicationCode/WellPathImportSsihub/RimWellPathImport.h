@@ -41,6 +41,7 @@ public:
 
 public:
     RimWellPathImport();
+    ~RimWellPathImport();
 
     caf::PdmField<bool>                             wellTypeSurvey;
     caf::PdmField<bool>                             wellTypePlans;
@@ -61,7 +62,7 @@ public:
 
     void updateFieldVisibility();
 
-
+    void updateFilePaths();
 
 };
 

@@ -31,6 +31,7 @@ class RimOilFieldEntry : public caf::PdmObject
 
 public:
     RimOilFieldEntry();
+    ~RimOilFieldEntry();
 
 
     caf::PdmField<QString>          name;

@@ -48,6 +48,13 @@ namespace caf
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
+/// This method is supposed to be the interface for the implementation of UI editors to set values into 
+/// the field. The data to set must be encapsulated in a QVariant. 
+/// This method triggers PdmObject::fieldChangedByUi() and PdmObject::updateConnectedEditors(), an thus
+/// makes the application and the UI aware of the change.
+///
+/// Note : If the field has optionValues the interface is _index-based_. The QVariant must contain 
+///        an UInt representing the index to the option selected by the user interface.
 /// 
 //--------------------------------------------------------------------------------------------------
 template<typename DataType >
@@ -131,6 +138,9 @@ void caf::PdmField<DataType>::setValueFromUi(const QVariant& uiValue)
 /// This method calls the virtual PdmObject::calculateValueOptions to get the list provided from the 
 /// application, then possibly adds the current field value(s) to the list, to 
 /// make sure the actual values are shown
+///
+/// Note: This method is missing the uiConfigName concept. This is a Todo. The m_optionEntryCache 
+///         then needs to be stored pr. uiConfigName.
 //--------------------------------------------------------------------------------------------------
 template<typename DataType >
 QList<PdmOptionItemInfo> caf::PdmField<DataType>::valueOptions(bool* useOptionsOnly)
@@ -190,16 +200,24 @@ QList<PdmOptionItemInfo> caf::PdmField<DataType>::valueOptions(bool* useOptionsO
 
     // If we have no options, use the options defined by the type. Normally only caf::AppEnum type
 
+#if 0
+    m_optionEntryCache = PdmFieldTypeSpecialization<DataType>::valueOptions(useOptionsOnly, m_fieldValue);
+    return m_optionEntryCache;
+#else
     return PdmFieldTypeSpecialization<DataType>::valueOptions(useOptionsOnly, m_fieldValue);
+#endif
+
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Extracts a QVariant representation of the data in the field to be used in the UI. 
-/// Note that for fields with a none empty valueOptions list the returned QVariant contains the 
-/// indexes to the selected options rather than the actual values, if they can be found.
-/// If this is a multivalue field, and we cant find all of the field values among the options, 
-/// the method asserts (For now), forcing the valueOptions to always contain the field values.
-/// Single value fields will return -1 if the option is not found, allowing the concept of "nothing selected"
+/// 
+/// Note : For fields with a none-empty valueOptions list, the returned QVariant contains the 
+///        _indexes_ to the selected options rather than the actual values, if they can be found.
+///
+///        If this is a multivalue field, and we cant find all of the field values among the options, 
+///        the method asserts (For now), forcing the valueOptions to always contain the field values.
+///        Single value fields will return -1 if the option is not found, allowing the concept of "nothing selected"
 //--------------------------------------------------------------------------------------------------
 template<typename DataType >
 QVariant caf::PdmField<DataType>::uiValue() const

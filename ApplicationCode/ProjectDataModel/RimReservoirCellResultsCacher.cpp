@@ -47,6 +47,7 @@
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimTools.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
@@ -211,11 +212,8 @@ QString RimReservoirCellResultsStorage::getValidCacheFileName()
 //--------------------------------------------------------------------------------------------------
 QString RimReservoirCellResultsStorage::getCacheDirectoryPath()
 {
-    QString cacheDirPath;
-    QString projectFileName = RiaApplication::instance()->project()->fileName();
-    QFileInfo fileInfo(projectFileName);
-    cacheDirPath = fileInfo.canonicalPath();
-    cacheDirPath += "/" + fileInfo.completeBaseName() + "_cache";
+    QString cacheDirPath = RimTools::getCacheRootDirectoryPathFromProject();
+    cacheDirPath += "_cache";
     return cacheDirPath;
 }
 
