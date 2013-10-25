@@ -17,9 +17,9 @@ Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octav
 Ensembles/ert : [https://github.com/Ensembles/ert](https://github.com/Ensembles/ert)
 
 ### Supported Platforms
-ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on linux and windows platforms, but the tested platforms are currently 64 bit RHE 5, RHE 6 and Windows 7.
+ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms, but the tested platforms are currently 64 bit RHEL5, RHEL6 and Windows 7.
 
-There has been attemts to make ResInsight build and run on OSX as well, but the tweaks needed (submitted by Roland Kaufmann) is not yet incorporated. 
+There has been attempts to make ResInsight build and run on OSX as well, but the tweaks needed (submitted by Roland Kaufmann) is not yet incorporated. 
 
 ### Documentation
 
@@ -39,31 +39,6 @@ The master branch is supposed to be stable, and is updated when we want to publi
 
 Release branches that might pop up are dedicated bug fix branches for the release in question.
 
-### Building Resinsight
-#### Linux ###
-ResInsight uses the CMake build system and requires CMake version 2.8 or higher. Moreover, you need version 4.7.3 of Qt or newer, look below for dependecy list. An out-of-tree build is typically done with
+### Building ResInsight
 
-    mkdir ResInsight/build
-    cd ResInsight/build
-    cmake ..
-    make
-    make install
-
-You will find the ResInsight binary under the Install directory in your build directory.
-
-#### Windows ###
-Open the CMake GUI.
-Set the path to the source code: <ResInsight-sourcecode-folder>
-Set the path to the build directory: <ResInsight-build-folder>
-Click "Configure" and select your preferred compiler, "Visual Studio 10" or "Visual Studio 10 Win64"
-Set the build variables and click "Configure" again.
-Click "Generate", and a project file will be created in the build directory <ResInsight-build-folder>
-
-### Dependencies for Debian based distributions
-
-    sudo apt-get install git cmake build-essential octave octave-headers qt4-dev-tools
-
-If you are running Ubuntu 12.10 or newer, you will need to replace octave-headers with liboctave-dev :
-
-    sudo apt-get install git cmake build-essential octave liboctave-dev qt4-dev-tools
-
+See [ Build Instructions ] (BuildInstructions.md)
