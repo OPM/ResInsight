@@ -699,7 +699,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMockModel()
 {
-    openEclipseCase("Result Mock Debug Model Simple", "Result Mock Debug Model Simple");
+    openEclipseCase(RimDefines::mockModelBasic(), RimDefines::mockModelBasic());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,7 +707,7 @@ void RiaApplication::createMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createResultsMockModel()
 {
-    openEclipseCase("Result Mock Debug Model With Results", "Result Mock Debug Model With Results");
+    openEclipseCase(RimDefines::mockModelBasicWithResults(), RimDefines::mockModelBasicWithResults());
 }
 
 
@@ -716,7 +716,7 @@ void RiaApplication::createResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createLargeResultsMockModel()
 {
-    openEclipseCase("Result Mock Debug Model Large With Results", "Result Mock Debug Model Large With Results");
+    openEclipseCase(RimDefines::mockModelLargeWithResults(), RimDefines::mockModelLargeWithResults());
 }
 
 //--------------------------------------------------------------------------------------------------
