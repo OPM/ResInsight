@@ -17,6 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+
+#include "cafProgressInfo.h"
+#include "cafPdmSettings.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmUiPropertyDialog.h"
+
 #include "RimResultCase.h"
 #include "RigCaseData.h"
 #include "RifReaderEclipseOutput.h"
@@ -24,7 +31,7 @@
 #include "RimReservoirView.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderEclipseInput.h"
-#include "cafProgressInfo.h"
+
 #include "RimProject.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RiaApplication.h"
@@ -34,8 +41,6 @@
 #include "RimReservoirCellResultsCacher.h"
 #include "RimWellPathCollection.h"
 
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
@@ -265,29 +270,42 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
     }
     else if (modelName == RimDefines::mockModelCustomized())
     {
+        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+
         RimMockModelSettings rimMockModelSettings;
+        caf::Settings::readFieldsFromApplicationStore(&rimMockModelSettings);
 
-        //caf::Settings::readFieldsFromApplicationStore(&rimMockModelSettings);
+        caf::PdmUiPropertyDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model");
+        if (propertyDialog.exec() == QDialog::Accepted)
+        {
+            QApplication::restoreOverrideCursor();
 
-        double startX = 0;
-        double startY = 0;
-        double startZ = 0;
+            caf::Settings::writeFieldsToApplicationStore(&rimMockModelSettings);
 
-        double widthX = 6000;
-        double widthY = 12000;
-        double widthZ = 500;
+            double startX = 0;
+            double startY = 0;
+            double startZ = 0;
 
-        // Test code to simulate UTM coordinates
-        double offsetX = 400000;
-        double offsetY = 6000000;
-        double offsetZ = 0;
+            double widthX = 6000;
+            double widthY = 12000;
+            double widthZ = 500;
 
-        mockFileInterface->setWorldCoordinates(cvf::Vec3d(startX + offsetX, startY + offsetY, startZ + offsetZ), cvf::Vec3d(startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ));
-        mockFileInterface->setGridPointDimensions(cvf::Vec3st(rimMockModelSettings.cellCountX, rimMockModelSettings.cellCountX, rimMockModelSettings.cellCountX));
-        mockFileInterface->setResultInfo(rimMockModelSettings.resultCount, rimMockModelSettings.timeStepCount);
-        mockFileInterface->enableWellData(false);
+            // Test code to simulate UTM coordinates
+            double offsetX = 400000;
+            double offsetY = 6000000;
+            double offsetZ = 0;
 
-        mockFileInterface->open("", reservoir.p());
+            mockFileInterface->setWorldCoordinates(cvf::Vec3d(startX + offsetX, startY + offsetY, startZ + offsetZ), cvf::Vec3d(startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ));
+            mockFileInterface->setGridPointDimensions(cvf::Vec3st(rimMockModelSettings.cellCountX + 1, rimMockModelSettings.cellCountY + 1, rimMockModelSettings.cellCountZ + 1));
+            mockFileInterface->setResultInfo(rimMockModelSettings.resultCount, rimMockModelSettings.timeStepCount);
+            mockFileInterface->enableWellData(false);
+
+            mockFileInterface->open("", reservoir.p());
+        }
+        else
+        {
+             QApplication::restoreOverrideCursor();
+        }
     }
 
     this->setReservoirData( reservoir.p() );
