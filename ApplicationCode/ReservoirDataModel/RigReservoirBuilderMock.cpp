@@ -34,6 +34,7 @@ RigReservoirBuilderMock::RigReservoirBuilderMock()
     m_resultCount = 0;
     m_timeStepCount = 0;
     m_gridPointDimensions = cvf::Vec3st::ZERO;
+    m_enableWellData = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,7 +249,10 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 
     eclipseCase->mainGrid()->setGridPointDimensions(m_gridPointDimensions);
 
-    addWellData(eclipseCase, eclipseCase->mainGrid());
+    if (m_enableWellData)
+    {
+        addWellData(eclipseCase, eclipseCase->mainGrid());
+    }
 
     addFaults(eclipseCase);
 
@@ -523,5 +527,10 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
     }
 
     grid->setFaults(faults);
+}
+
+void RigReservoirBuilderMock::enableWellData(bool enableWellData)
+{
+    m_enableWellData = false;
 }
 

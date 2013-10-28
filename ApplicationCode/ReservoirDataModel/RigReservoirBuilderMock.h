@@ -48,6 +48,7 @@ public:
     void setWorldCoordinates(cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate);
     void setGridPointDimensions(const cvf::Vec3st& gridPointDimensions);
     void setResultInfo(size_t resultCount, size_t timeStepCount);
+    void enableWellData(bool enableWellData);
 
     size_t resultCount() const { return m_resultCount; }
     size_t timeStepCount() const { return m_timeStepCount; }
@@ -91,6 +92,7 @@ private:
     cvf::Vec3st m_gridPointDimensions;
     size_t      m_resultCount;
     size_t      m_timeStepCount;
+    bool        m_enableWellData;
 
     std::vector<LocalGridRefinement> m_localGridRefinements;
 };
