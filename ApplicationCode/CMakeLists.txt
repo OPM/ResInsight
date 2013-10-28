@@ -43,7 +43,6 @@ set( APPLICATION_FILES
 set( USER_INTERFACE_FILES
     UserInterface/RiuCursors.cpp
     UserInterface/RiuMainWindow.cpp
-    UserInterface/RiuPreferencesDialog.cpp
     UserInterface/RiuResultInfoPanel.cpp
     UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
@@ -98,7 +97,6 @@ set ( QT_MOC_HEADERS
     ProjectDataModel/RimMimeData.h
     
     UserInterface/RiuMainWindow.h
-    UserInterface/RiuPreferencesDialog.h
     UserInterface/RiuResultInfoPanel.h
     UserInterface/RiuViewer.h
     UserInterface/RiuProcessMonitor.h
