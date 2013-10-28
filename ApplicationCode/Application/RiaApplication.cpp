@@ -719,12 +719,21 @@ void RiaApplication::createLargeResultsMockModel()
     openEclipseCase(RimDefines::mockModelLargeWithResults(), RimDefines::mockModelLargeWithResults());
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::createMockModelCustomized()
+{
+    openEclipseCase(RimDefines::mockModelCustomized(), RimDefines::mockModelCustomized());
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    openInputEclipseCaseFromFileNames(QStringList("Input Mock Debug Model Simple"));
+    openInputEclipseCaseFromFileNames(QStringList(RimDefines::mockModelBasicInputCase()));
 }
 
 //--------------------------------------------------------------------------------------------------

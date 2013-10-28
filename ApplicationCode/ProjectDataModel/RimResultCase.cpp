@@ -45,6 +45,7 @@
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
 #include "RiaPreferences.h"
+#include "RimMockModelSettings.h"
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
@@ -261,6 +262,32 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
 
         mockFileInterface->open("", reservoir.p());
 
+    }
+    else if (modelName == RimDefines::mockModelCustomized())
+    {
+        RimMockModelSettings rimMockModelSettings;
+
+        //caf::Settings::readFieldsFromApplicationStore(&rimMockModelSettings);
+
+        double startX = 0;
+        double startY = 0;
+        double startZ = 0;
+
+        double widthX = 6000;
+        double widthY = 12000;
+        double widthZ = 500;
+
+        // Test code to simulate UTM coordinates
+        double offsetX = 400000;
+        double offsetY = 6000000;
+        double offsetZ = 0;
+
+        mockFileInterface->setWorldCoordinates(cvf::Vec3d(startX + offsetX, startY + offsetY, startZ + offsetZ), cvf::Vec3d(startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ));
+        mockFileInterface->setGridPointDimensions(cvf::Vec3st(rimMockModelSettings.cellCountX, rimMockModelSettings.cellCountX, rimMockModelSettings.cellCountX));
+        mockFileInterface->setResultInfo(rimMockModelSettings.resultCount, rimMockModelSettings.timeStepCount);
+        mockFileInterface->enableWellData(false);
+
+        mockFileInterface->open("", reservoir.p());
     }
 
     this->setReservoirData( reservoir.p() );
