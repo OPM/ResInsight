@@ -199,6 +199,7 @@ void RiuMainWindow::createActions()
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
     m_mockLargeResultsModelAction = new QAction("Large Mock Model", this);
+    m_mockModelCustomizedAction = new QAction("Customized Mock Model", this);
     m_mockInputModelAction      = new QAction("Input Mock Model", this);
 
     m_snapshotToFile            = new QAction(QIcon(":/SnapShotSave.png"), "Snapshot To File", this);
@@ -226,6 +227,7 @@ void RiuMainWindow::createActions()
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
     connect(m_mockLargeResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
+    connect(m_mockModelCustomizedAction,	SIGNAL(triggered()), SLOT(slotMockModelCustomized()));
     connect(m_mockInputModelAction,	    SIGNAL(triggered()), SLOT(slotInputMockModel()));
 
     connect(m_snapshotToFile,	        SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
@@ -379,6 +381,7 @@ void RiuMainWindow::createMenus()
     testMenu->addAction(m_mockModelAction);
     testMenu->addAction(m_mockResultsModelAction);
     testMenu->addAction(m_mockLargeResultsModelAction);
+    testMenu->addAction(m_mockModelCustomizedAction);
     testMenu->addAction(m_mockInputModelAction);
     testMenu->addSeparator();
     testMenu->addAction(m_createCommandObject);
@@ -836,8 +839,6 @@ void RiuMainWindow::slotMockModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createMockModel();
-
-    //m_mainViewer->setDefaultView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -847,8 +848,6 @@ void RiuMainWindow::slotMockResultsModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createResultsMockModel();
-
-    //m_mainViewer->setDefaultView();
 }
 
 
@@ -861,6 +860,14 @@ void RiuMainWindow::slotMockLargeResultsModel()
     app->createLargeResultsMockModel();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotMockModelCustomized()
+{
+    RiaApplication* app = RiaApplication::instance();
+    app->createMockModelCustomized();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

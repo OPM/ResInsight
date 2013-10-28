@@ -80,6 +80,7 @@ public:
     void                createMockModel();
     void                createResultsMockModel();
     void                createLargeResultsMockModel();
+    void                createMockModelCustomized();
     void                createInputMockModel();
 
     QString             defaultFileDialogDirectory(const QString& dialogName);

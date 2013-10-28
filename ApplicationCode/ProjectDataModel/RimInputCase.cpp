@@ -77,7 +77,7 @@ RimInputCase::~RimInputCase()
 //--------------------------------------------------------------------------------------------------
 void RimInputCase::openDataFileSet(const QStringList& fileNames)
 {
-    if (fileNames.contains("Input Mock Debug Model Simple"))
+    if (fileNames.contains(RimDefines::mockModelBasicInputCase()))
     {
         cvf::ref<RifReaderInterface> readerInterface = this->createMockModel(fileNames[0]);
         results(RifReaderInterface::MATRIX_RESULTS)->setReaderInterface(readerInterface.p());
@@ -182,7 +182,7 @@ bool RimInputCase::openEclipseGridFile()
     {
         cvf::ref<RifReaderInterface> readerInterface;
 
-        if (m_gridFileName().contains("Input Mock Debug Model Simple"))
+        if (m_gridFileName().contains(RimDefines::mockModelBasicInputCase()))
         {
             readerInterface = this->createMockModel(this->m_gridFileName());
         }
@@ -370,7 +370,7 @@ cvf::ref<RifReaderInterface> RimInputCase::createMockModel(QString modelName)
     cvf::ref<RigCaseData> reservoir = new RigCaseData;
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
 
-    if (modelName == "Input Mock Debug Model Simple")
+    if (modelName == RimDefines::mockModelBasicInputCase())
     {
         m_gridFileName = modelName;
 
