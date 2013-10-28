@@ -46,6 +46,7 @@ ${CEE_CURRENT_LIST_DIR}RimCommandObject.h
 ${CEE_CURRENT_LIST_DIR}RimTools.h
 ${CEE_CURRENT_LIST_DIR}RimFault.h
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.h
+${CEE_CURRENT_LIST_DIR}RimMockModelSettings.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -90,6 +91,7 @@ ${CEE_CURRENT_LIST_DIR}RimCommandObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimTools.cpp
 ${CEE_CURRENT_LIST_DIR}RimFault.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.cpp
+${CEE_CURRENT_LIST_DIR}RimMockModelSettings.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
