@@ -44,6 +44,7 @@ ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RimMimeData.h
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.h
 ${CEE_CURRENT_LIST_DIR}RimTools.h
+${CEE_CURRENT_LIST_DIR}RimMockModelSettings.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -86,6 +87,7 @@ ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.cpp
 ${CEE_CURRENT_LIST_DIR}RimMimeData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimTools.cpp
+${CEE_CURRENT_LIST_DIR}RimMockModelSettings.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
