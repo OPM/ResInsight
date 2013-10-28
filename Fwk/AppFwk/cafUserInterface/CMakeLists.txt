@@ -11,6 +11,7 @@ set( QOBJECT_HEADERS
     cafUiTreeModelPdm.h
     cafUiProcess.h
     
+    cafPdmSettings.h
     cafPdmUiLineEditor.h
     cafPdmUiCheckBoxEditor.h
     cafPdmUiComboBoxEditor.h
@@ -38,6 +39,7 @@ endif()
 add_library( ${PROJECT_NAME}
 	cafAboutDialog.cpp
 	cafAboutDialog.h
+	cafPdmSettings.cpp
 	cafPdmUiCheckBoxEditor.cpp
 	cafPdmUiCheckBoxEditor.h
 	cafPdmUiColorEditor.cpp
