@@ -19,6 +19,9 @@
 //#include "RiaStdInclude.h"
 
 #include "cafPdmDocument.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmUiPropertyDialog.h"
 
 #include <QAction>
 #include <QMenu>
@@ -37,7 +40,6 @@
 #include "RimInputPropertyCollection.h"
 #include "RimExportInputPropertySettings.h"
 #include "RiaPreferences.h"
-#include "RiuPreferencesDialog.h"
 #include "RifEclipseInputFileTools.h"
 #include "RimInputCase.h"
 #include "RimBinaryExportSettings.h"
@@ -59,9 +61,6 @@
 #include "RimWellPathCollection.h"
 #include "RimReservoirCellResultsCacher.h"
 #include "Rim3dOverlayInfoConfig.h"
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
 #include "RimProject.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
@@ -834,8 +833,8 @@ void RimUiTreeView::slotWriteInputProperty()
         exportSettings.fileName = outputFileName;
     }
 
-    RiuPreferencesDialog preferencesDialog(this, &exportSettings, "Export Eclipse Property to Text File");
-    if (preferencesDialog.exec() == QDialog::Accepted)
+    caf::PdmUiPropertyDialog propertyDialog(this, &exportSettings, "Export Eclipse Property to Text File");
+    if (propertyDialog.exec() == QDialog::Accepted)
     {
         bool isOk = RifEclipseInputFileTools::writePropertyToTextFile(exportSettings.fileName, inputReservoir->reservoirData(), 0, inputProperty->resultName, exportSettings.eclipseKeyword);
         if (isOk)
@@ -887,8 +886,8 @@ void RimUiTreeView::slotWriteBinaryResultAsInputProperty()
         exportSettings.fileName = outputFileName;
     }
 
-    RiuPreferencesDialog preferencesDialog(this, &exportSettings, "Export Binary Eclipse Data to Text File");
-    if (preferencesDialog.exec() == QDialog::Accepted)
+    caf::PdmUiPropertyDialog propertyDialog(this, &exportSettings, "Export Binary Eclipse Data to Text File");
+    if (propertyDialog.exec() == QDialog::Accepted)
     {
         size_t timeStep = resultSlot->reservoirView()->currentTimeStep();
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
