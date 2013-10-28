@@ -26,6 +26,7 @@ set( QOBJECT_HEADERS
     cafPdmUiColorEditor.h
     
     cafPdmUiPropertyView.h
+    cafPdmUiPropertyDialog.h
     cafPdmUiTreeView.h
     cafPdmUiListView.h
     cafPdmUiListViewEditor.h
@@ -59,6 +60,8 @@ add_library( ${PROJECT_NAME}
     cafPdmUiListViewEditor.cpp
     cafPdmUiListViewEditor.h
     cafPdmUiListView.cpp
+	cafPdmUiPropertyDialog.cpp
+	cafPdmUiPropertyDialog.h
 	cafPdmUiPropertyView.cpp
 	cafPdmUiPropertyView.h
 	cafPdmUiPushButtonEditor.cpp
