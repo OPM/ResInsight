@@ -43,7 +43,6 @@
 #include "RiuMultiCaseImportDialog.h"
 
 #include "RiaPreferences.h"
-#include "RiuPreferencesDialog.h"
 
 #include "RigCaseCellResultsData.h"
 
@@ -63,6 +62,7 @@
 #include "RimCalcScript.h"
 #include "RimTools.h"
 #include "RiaRegressionTest.h"
+#include "cafPdmUiPropertyDialog.h"
 
 
 
@@ -1217,8 +1217,8 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 void RiuMainWindow::slotEditPreferences()
 {
     RiaApplication* app = RiaApplication::instance();
-    RiuPreferencesDialog preferencesDialog(this, app->preferences(), "Preferences");
-    if (preferencesDialog.exec() == QDialog::Accepted)
+    caf::PdmUiPropertyDialog propertyDialog(this, app->preferences(), "Preferences");
+    if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
         app->writeFieldsToApplicationStore(app->preferences());
@@ -1766,7 +1766,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     RiaApplication* app = RiaApplication::instance();
     app->readFieldsFromApplicationStore(&regTestConfig);
 
-    RiuPreferencesDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
+    caf::PdmUiPropertyDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application
