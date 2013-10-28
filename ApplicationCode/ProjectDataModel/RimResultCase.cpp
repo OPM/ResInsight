@@ -192,7 +192,7 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
     cvf::ref<RigCaseData> reservoir = new RigCaseData;
 
-     if (modelName == "Result Mock Debug Model Simple")
+     if (modelName == RimDefines::mockModelBasic())
     {
         // Create the mock file interface and and RigSerervoir and set them up.
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(20, 20, 20));
@@ -214,7 +214,7 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
             //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
     }
-    else if (modelName == "Result Mock Debug Model With Results")
+    else if (modelName == RimDefines::mockModelBasicWithResults())
     {
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(-20, -20, -20));
         mockFileInterface->setGridPointDimensions(cvf::Vec3st(5, 10, 20));
@@ -227,7 +227,7 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
         cvf::Vec3d& tmp = reservoir->mainGrid()->nodes()[1];
         tmp += cvf::Vec3d(1, 0, 0);
     }
-    else if (modelName =="Result Mock Debug Model Large With Results")
+    else if (modelName == RimDefines::mockModelLargeWithResults())
     {
         double startX = 0;
         double startY = 0;

@@ -1435,9 +1435,9 @@ void RiuMainWindow::slotOpenMultipleCases()
 
     if (1)
     {
-        gridFileNames += "Result Mock Debug Model With Results";
-        gridFileNames += "Result Mock Debug Model With Results";
-        gridFileNames += "Result Mock Debug Model With Results";
+        gridFileNames += RimDefines::mockModelBasicWithResults();
+        gridFileNames += RimDefines::mockModelBasicWithResults();
+        gridFileNames += RimDefines::mockModelBasicWithResults();
     }
     else
     {
