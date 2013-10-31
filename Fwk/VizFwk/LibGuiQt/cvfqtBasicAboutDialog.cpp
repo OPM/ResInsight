@@ -44,7 +44,6 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
-#include <QtOpenGL/QGLFormat>
 
 namespace cvfqt {
 
@@ -71,7 +70,7 @@ BasicAboutDialog::BasicAboutDialog(QWidget* parent)
     //m_appVersion;
     //m_appCopyright;
 
-    m_showCeeVizVersion = true;
+    m_showLibraryVersion = true;
     m_showQtVersion = true;
 
     m_isDebugBuild = false;
@@ -110,21 +109,12 @@ void BasicAboutDialog::setCopyright(const QString& copyright)
 
 
 //--------------------------------------------------------------------------------------------------
-/// Set application icon to display
+/// 
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::setApplicationIcon(const QIcon& icon)
-{
-    m_appIcon = icon;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Enable display of CeeViz version
-//--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::showCeeVizVersion(bool show)
+void BasicAboutDialog::showLibraryVersion(bool show)
 { 
     CVF_ASSERT(!m_isCreated); 
-    m_showCeeVizVersion = show; 
+    m_showLibraryVersion = show; 
 }		
 
 
@@ -202,15 +192,6 @@ void BasicAboutDialog::create()
         QVBoxLayout* appInfoLayout = new QVBoxLayout; 
         appInfoLayout->setSpacing(3);
 
-        QHBoxLayout* appNameLayout = new QHBoxLayout;
-        if (!m_appIcon.isNull())
-        {
-            QLabel* iconLabel = new QLabel(this);
-            iconLabel->setPixmap(m_appIcon.pixmap(QSize(200, 200)));
-
-            appNameLayout->addWidget(iconLabel);
-        }
-
         // Always do app name
         CVF_ASSERT(!m_appName.isEmpty());
         QLabel* appNameLabel = new QLabel(this);
@@ -220,10 +201,7 @@ void BasicAboutDialog::create()
         appNameFont.setBold(true);
         appNameLabel->setFont(appNameFont); 
         appNameLabel->setText(m_appName);
-
-        appNameLayout->addWidget(appNameLabel);
-
-        appInfoLayout->addLayout(appNameLayout);
+        appInfoLayout->addWidget(appNameLabel);
 
         // Application version if specified
         if (!m_appVersion.isEmpty())
@@ -264,8 +242,8 @@ void BasicAboutDialog::create()
 
 
     // Possibly show extend version info
-    if (m_showCeeVizVersion	||
-        m_showQtVersion	    ||
+    if (m_showLibraryVersion  ||
+        m_showQtVersion	      ||
         m_verLabels.size() > 0)
     {
         QGridLayout* verInfoLayout = new QGridLayout; 
@@ -273,20 +251,20 @@ void BasicAboutDialog::create()
 
         int insertRow = 0;
 
-//         // CeeViz version
-//         if (m_showCeeVizVersion)
-//         {
-//             QString ver;
-//             ver.sprintf("%s.%s%s-%s", CVF_MAJOR_VERSION, CVF_MINOR_VERSION, CVF_SPECIAL_BUILD, CVF_BUILD_NUMBER);
-// 
-//             addStringPairToVerInfoLayout("CeeViz ver.:  ", ver, verInfoLayout, insertRow++);
-//         }
-// 
-//         // Qt version
-//         if (m_showQtVersion)
-//         {
-//             addStringPairToVerInfoLayout("Qt ver.:  ", qVersion(), verInfoLayout, insertRow++);
-//         }
+        // Library version
+        if (m_showLibraryVersion)
+        {
+            QString ver;
+            ver.sprintf("%s.%s%s-%s", CVF_MAJOR_VERSION, CVF_MINOR_VERSION, CVF_SPECIAL_BUILD, CVF_BUILD_NUMBER);
+
+            addStringPairToVerInfoLayout("Library ver.:  ", ver, verInfoLayout, insertRow++);
+        }
+
+        // Qt version
+        if (m_showQtVersion)
+        {
+            addStringPairToVerInfoLayout("Qt ver.:  ", qVersion(), verInfoLayout, insertRow++);
+        }
 
         // Custom specified labels
         if (m_verLabels.size() > 0)
@@ -355,39 +333,6 @@ void BasicAboutDialog::addStringPairToVerInfoLayout(const QString& labelStr, con
     verInfoLayout->addWidget(info, insertRow, 1 );
 
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString BasicAboutDialog::openGLVersionString() const
-{
-    QString versionString("OpenGL ");
-
-    QGLFormat::OpenGLVersionFlags flags = QGLFormat::openGLVersionFlags();
-
-    if      (flags & QGLFormat::OpenGL_Version_4_0              ) versionString += "4.0";
-    else if (flags & QGLFormat::OpenGL_Version_3_3              ) versionString += "3.3";
-    else if (flags & QGLFormat::OpenGL_Version_3_2              ) versionString += "3.2";
-    else if (flags & QGLFormat::OpenGL_Version_3_1              ) versionString += "3.1";
-    else if (flags & QGLFormat::OpenGL_Version_3_0              ) versionString += "3.0";
-    else if (flags & QGLFormat::OpenGL_ES_Version_2_0           ) versionString += "ES_Version 2.0";
-    else if (flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_1) versionString += "ES_CommonLite_Version 1.1";
-    else if (flags & QGLFormat::OpenGL_ES_Common_Version_1_1    ) versionString += "ES_Common_Version 1.1";
-    else if (flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_0) versionString += "ES_CommonLite_Version 1.0";
-    else if (flags & QGLFormat::OpenGL_ES_Common_Version_1_0    ) versionString += "ES_Common_Version 1.0";
-    else if (flags & QGLFormat::OpenGL_Version_2_1              ) versionString += "2.1";
-    else if (flags & QGLFormat::OpenGL_Version_2_0              ) versionString += "2.0";
-    else if (flags & QGLFormat::OpenGL_Version_1_5              ) versionString += "1.5";
-    else if (flags & QGLFormat::OpenGL_Version_1_4              ) versionString += "1.4";
-    else if (flags & QGLFormat::OpenGL_Version_1_3              ) versionString += "1.3";
-    else if (flags & QGLFormat::OpenGL_Version_1_2              ) versionString += "1.2";
-    else if (flags & QGLFormat::OpenGL_Version_1_1              ) versionString += "1.1";
-    else if (flags & QGLFormat::OpenGL_Version_None             ) versionString += "None";
-    else versionString += "Unknown";
-
-    return versionString;
-}
-
 
 
 } // namespace cvfqt

@@ -8,7 +8,6 @@ include_directories(
 
 # These headers need to go through Qt's MOC compiler
 set( QOBJECT_HEADERS    
-    cafBasicAboutDialog.h
     cafUiTreeModelPdm.h
     cafUiProcess.h
     
@@ -36,8 +35,8 @@ endif()
 
 
 add_library( ${PROJECT_NAME}
-	cafBasicAboutDialog.cpp
-	cafBasicAboutDialog.h
+	cafAboutDialog.cpp
+	cafAboutDialog.h
 	cafPdmUiCheckBoxEditor.cpp
 	cafPdmUiCheckBoxEditor.h
 	cafPdmUiColorEditor.cpp

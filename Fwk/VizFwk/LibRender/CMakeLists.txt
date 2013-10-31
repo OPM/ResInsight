@@ -6,6 +6,12 @@ project(LibRender)
 # Use our strict compile flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 
+# For now, disable warning about unknown pragmas locally here (due to usage of OpenMP)
+# Probably need to do this more centralized whenever we use OpenMP more extensively
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -Wno-unknown-pragmas")
+endif()
+
 # For now, remove pedantic flag for OSX since it clashes with glew
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	string(REPLACE "-pedantic" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
@@ -27,7 +33,6 @@ cvfDrawableText.h
 cvfDrawableVectors.h
 cvfFixedAtlasFont.h
 cvfFont.h
-cvfFontManager.h
 cvfFramebufferObject.h
 cvfGeometryBuilderDrawableGeo.h
 cvfGlyph.h
@@ -107,7 +112,6 @@ cvfDrawableText.cpp
 cvfFramebufferObject.cpp
 cvfFixedAtlasFont.cpp
 cvfFont.cpp
-cvfFontManager.cpp
 cvfGeometryBuilderDrawableGeo.cpp
 cvfGlyph.cpp
 cvfHitDetail.cpp

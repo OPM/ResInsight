@@ -77,7 +77,6 @@ add_executable( ${ProjectName}
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set ( LINUX_LINK_LIBRARIES
-        lapack
         pthread
     )
 

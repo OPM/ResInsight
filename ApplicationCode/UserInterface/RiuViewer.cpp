@@ -70,7 +70,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     axisCross->setAxisLabels("E", "N", "Z");
-    m_mainRendering->addOverlayItem(axisCross, cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+    axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+    m_mainRendering->addOverlayItem(axisCross);
 
     this->enableOverlyPainting(true);
     this->setReleaseOGLResourcesEachFrame(true);
@@ -181,12 +182,14 @@ void RiuViewer::updateLegends()
 
     if (m_legend1.notNull())
     {
-        firstRendering->addOverlayItem(m_legend1.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+        m_legend1->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+        firstRendering->addOverlayItem(m_legend1.p());
     }
 
     if (m_legend2.notNull())
     {
-        firstRendering->addOverlayItem(m_legend2.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+        m_legend2->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+        firstRendering->addOverlayItem(m_legend2.p());
     }
 }
 

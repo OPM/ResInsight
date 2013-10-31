@@ -157,6 +157,26 @@ void TextureImage::setFromRgb(const ubyte* rgbData, uint width, uint height)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void TextureImage::clear()
+{
+    m_width = 0;
+    m_height = 0;
+    m_dataRgba.clear();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+ubyte* TextureImage::ptr() 
+{
+    return m_dataRgba.ptr();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 const ubyte* TextureImage::ptr() const
 {
     return m_dataRgba.ptr();
@@ -216,13 +236,11 @@ void TextureImage::setPixel(uint x, uint y, const Color4ub& clr)
     CVF_TIGHT_ASSERT(x < m_width);
     CVF_TIGHT_ASSERT(y < m_height);
 
-    const uint idx = 4*(y*m_width + x);
-    const ubyte* data = clr.ptr();
-
-    m_dataRgba[idx]     = data[0];
-    m_dataRgba[idx + 1] = data[1]; 
-    m_dataRgba[idx + 2] = data[2]; 
-    m_dataRgba[idx + 3] = data[3]; 
+    ubyte* rgbaThisPixel = &m_dataRgba[4*(y*m_width + x)];
+    rgbaThisPixel[0] = clr.r();
+    rgbaThisPixel[1] = clr.g(); 
+    rgbaThisPixel[2] = clr.b(); 
+    rgbaThisPixel[3] = clr.a(); 
 }
 
 

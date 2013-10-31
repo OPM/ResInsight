@@ -63,14 +63,14 @@ public:
     bool            operator==(const Color4f& rhs) const;
     bool            operator!=(const Color4f& rhs) const;
 
-    const float&    r() const;
-    const float&    g() const;
-    const float&    b() const;
-    const float&    a() const;
-    float&          r();
-    float&          g();
-    float&          b();
-    float&          a();
+    const float&    r() const           { return m_rgba[0]; }       ///< Returns the red color component
+    const float&    g() const           { return m_rgba[1]; }       ///< Returns the green color component
+    const float&    b() const           { return m_rgba[2]; }       ///< Returns the blue color component
+    const float&    a() const           { return m_rgba[3]; }       ///< Returns the alpha component
+    float&          r()                 { return m_rgba[0]; }       ///< Get modifiable reference to the red color component, used for setting the component.
+    float&          g()                 { return m_rgba[1]; }       ///< Get modifiable reference to the green color component, used for setting the component
+    float&          b()                 { return m_rgba[2]; }       ///< Get modifiable reference to the blue color component, used for setting the component
+    float&          a()                 { return m_rgba[3]; }       ///< Get modifiable reference to the alpha component, used for setting the component
 
     void            set(float r, float g, float b, float alpha);
     void            set(const Color3f& rgbColor, float alpha);
@@ -106,14 +106,15 @@ public:
     bool            operator==(const Color4ub& rhs) const;
     bool            operator!=(const Color4ub& rhs) const;
 
-    ubyte           r() const;
-    ubyte           g() const;
-    ubyte           b() const;
-    ubyte           a() const;
-    ubyte&          r();
-    ubyte&          g();
-    ubyte&          b();
-    ubyte&          a();
+    ubyte           r() const           { return m_rgba[0]; }       ///< Returns the red color component
+    ubyte           g() const           { return m_rgba[1]; }       ///< Returns the green color component
+    ubyte           b() const           { return m_rgba[2]; }       ///< Returns the blue color component
+    ubyte           a() const           { return m_rgba[3]; }       ///< Returns the alpha component
+    ubyte&          r()                 { return m_rgba[0]; }       ///< Get modifiable reference to the red color component.
+    ubyte&          g()                 { return m_rgba[1]; }       ///< Get modifiable reference to the green color component.
+    ubyte&          b()                 { return m_rgba[2]; }       ///< Get modifiable reference to the blue color component.
+    ubyte&          a()                 { return m_rgba[3]; }       ///< Get modifiable reference to the alpha component.
+
     void            set(ubyte r, ubyte g, ubyte b, ubyte a);
 
     const ubyte*    ptr() const;

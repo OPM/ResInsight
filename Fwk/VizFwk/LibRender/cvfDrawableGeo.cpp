@@ -536,7 +536,7 @@ void DrawableGeo::setFromFaceList(const UIntArray& faceList)
     size_t numFaceListEntries = faceList.size();
 
     ref<UIntArray> triangleConnects = new UIntArray;
-	triangleConnects->reserve(numFaceListEntries*3);		// Usually too much, but temporary and will be squeezed if kept.
+    triangleConnects->reserve(numFaceListEntries*3);        // Usually too much, but temporary and will be squeezed if kept.
 
     size_t i = 0;
     while (i < numFaceListEntries)
@@ -546,12 +546,12 @@ void DrawableGeo::setFromFaceList(const UIntArray& faceList)
 
         if (numConnects == 3)
         {
-			triangleConnects->add(faceList[i++]);
-			triangleConnects->add(faceList[i++]);
-			triangleConnects->add(faceList[i++]);
-		}
-		else 
-		{
+            triangleConnects->add(faceList[i++]);
+            triangleConnects->add(faceList[i++]);
+            triangleConnects->add(faceList[i++]);
+        }
+        else 
+        {
             size_t j;
             for (j = 0; j < numConnects - 2;  j++)
             {
@@ -561,38 +561,38 @@ void DrawableGeo::setFromFaceList(const UIntArray& faceList)
             }
 
             i += numConnects;
-		}
+        }
     }
 
     // Check if the largest index used in the triangle connects exceeds short representation
-	if (triangleConnects->max() < std::numeric_limits<ushort>::max())
-	{
-		// Create an USHORT primitive set
-		size_t arraySize = triangleConnects->size();
+    if (triangleConnects->max() < std::numeric_limits<ushort>::max())
+    {
+        // Create an USHORT primitive set
+        size_t arraySize = triangleConnects->size();
 
-		ref<UShortArray> shortIndices = new UShortArray;
-		shortIndices->resize(arraySize);
+        ref<UShortArray> shortIndices = new UShortArray;
+        shortIndices->resize(arraySize);
 
-		size_t j;
-		for (j = 0; j < arraySize; j++)
-		{
-			shortIndices->set(j, static_cast<ushort>(triangleConnects->get(j)));
-		}
+        size_t j;
+        for (j = 0; j < arraySize; j++)
+        {
+            shortIndices->set(j, static_cast<ushort>(triangleConnects->get(j)));
+        }
 
-		ref<PrimitiveSetIndexedUShort> prim = new PrimitiveSetIndexedUShort(PT_TRIANGLES);
-		prim->setIndices(shortIndices.p());
+        ref<PrimitiveSetIndexedUShort> prim = new PrimitiveSetIndexedUShort(PT_TRIANGLES);
+        prim->setIndices(shortIndices.p());
 
-		m_primitiveSets.push_back(prim.p());
-	}
-	else
-	{
-		// Create a UINT primitive set
-		ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_TRIANGLES);
+        m_primitiveSets.push_back(prim.p());
+    }
+    else
+    {
+        // Create a UINT primitive set
+        ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_TRIANGLES);
 
-		triangleConnects->squeeze();
-		prim->setIndices(triangleConnects.p());
-		m_primitiveSets.push_back(prim.p());
-	}
+        triangleConnects->squeeze();
+        prim->setIndices(triangleConnects.p());
+        m_primitiveSets.push_back(prim.p());
+    }
 }
 
 
@@ -643,24 +643,24 @@ void DrawableGeo::setFromQuadVertexArray(Vec3fArray* vertexArray)
     m_primitiveSets.clear();
 
     size_t numVertices = vertexArray->size();
-	size_t numQuads = numVertices/4;
-	CVF_ASSERT(numVertices%4 == 0);
+    size_t numQuads = numVertices/4;
+    CVF_ASSERT(numVertices%4 == 0);
 
     // Two triangles per quad
     ref<UIntArray> indices = new UIntArray;
-    indices->resize(numQuads*2*3);				
+    indices->resize(numQuads*2*3);              
 
-	size_t index = 0;
+    size_t index = 0;
     uint i;
     for (i = 0; i < numQuads; i++)
     {
         indices->set(index++, i*4);
-		indices->set(index++, i*4 + 1);
-		indices->set(index++, i*4 + 2);
+        indices->set(index++, i*4 + 1);
+        indices->set(index++, i*4 + 2);
 
-		indices->set(index++, i*4);
-		indices->set(index++, i*4 + 2);
-		indices->set(index++, i*4 + 3);
+        indices->set(index++, i*4);
+        indices->set(index++, i*4 + 2);
+        indices->set(index++, i*4 + 3);
     }
 
     ref<PrimitiveSetIndexedUInt> prim = new PrimitiveSetIndexedUInt(PT_TRIANGLES);
@@ -777,8 +777,8 @@ void DrawableGeo::mergeInto(const Collection<DrawableGeo>& drawableGeos)
         size_t j = 0;
         for (j = 0; j < otherDrawable->primitiveSetCount(); j++)
         {
-			const PrimitiveSet* primSet = otherDrawable->primitiveSet(j);
-			CVF_ASSERT(primSet);
+            const PrimitiveSet* primSet = otherDrawable->primitiveSet(j);
+            CVF_ASSERT(primSet);
 
             ref<UIntArray> indices = new UIntArray;
             indices->resize(primSet->indexCount());
@@ -918,7 +918,7 @@ int DrawableGeo::convertFromUIntToUShort()
 
         PrimitiveSetIndexedUInt* primitiveSetUInt = dynamic_cast<PrimitiveSetIndexedUInt*>(primitive);
         PrimitiveSetIndexedUIntScoped* primitiveSetUIntScoped = dynamic_cast<PrimitiveSetIndexedUIntScoped*>(primitive);
-		if (vertexCount() < std::numeric_limits<ushort>::max() && primitiveSetUInt)
+        if (vertexCount() < std::numeric_limits<ushort>::max() && primitiveSetUInt)
         {
             const UIntArray* uiIndices = primitiveSetUInt->indices();
             
@@ -1006,7 +1006,7 @@ void DrawableGeo::transform(const Mat4d& transformation)
 
     m_vertexBundle->setVertexArray(newVertexArr.p());
 
-	recomputeBoundingBox();
+    recomputeBoundingBox();
 }
 
 
@@ -1293,22 +1293,25 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3d* intersectionPoint, uint* f
 {
     bool anyHits = false;
     double minDistSquared = 1.0e300;
+    Vec3d bestIntersectionPoint(0, 0, 0);
+    size_t bestFaceHit = 0;
 
     cref<Vec3fArray> vertexArr = m_vertexBundle->vertexArray();
 
-    size_t numPrimitiveSets = m_primitiveSets.size();
-    size_t iPrimSet;
-    int accumulatedFaceCount = 0;
-
-    for (iPrimSet = 0; iPrimSet < numPrimitiveSets; iPrimSet++)
+    size_t accumulatedFaceCount = 0;
+    const size_t numPrimitiveSets = m_primitiveSets.size();
+    for (size_t iPrimSet = 0; iPrimSet < numPrimitiveSets; iPrimSet++)
     {
         const PrimitiveSet* primSet = m_primitiveSets.at(iPrimSet);
         CVF_TIGHT_ASSERT(primSet);
 
         UIntArray conn;
-        int numPrimFaces = static_cast<int>(primSet->faceCount());
 
-#pragma omp parallel for private (conn)
+        // Need to use signed integer type with OpenMP, so for now cast it
+        CVF_ASSERT(primSet->faceCount() < static_cast<size_t>(std::numeric_limits<int>::max()));
+        const int numPrimFaces = static_cast<int>(primSet->faceCount());
+
+        #pragma omp parallel for private (conn)
         for (int i = 0; i < numPrimFaces; i++)
         {
             bool hitThisFace = false;
@@ -1327,31 +1330,44 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3d* intersectionPoint, uint* f
 
             if (hitThisFace)
             {
-                double distSquared = (ray.origin() - localIntersect).lengthSquared();
+                const double distSquared = (ray.origin() - localIntersect).lengthSquared();
+                
                 #pragma omp critical
-		{
-                if (distSquared < minDistSquared)
                 {
-                    if (intersectionPoint)
+                    if (distSquared < minDistSquared)
                     {
-                    *intersectionPoint = localIntersect;
+                        bestIntersectionPoint = localIntersect;
+                        bestFaceHit = i + accumulatedFaceCount;
+                        minDistSquared = distSquared;
                     }
-                    
-                    minDistSquared = distSquared;
 
-                    if (faceHit)
-                    {
-                            *faceHit = i + accumulatedFaceCount;
-                    }
+                    anyHits = true;
                 }
-                anyHits = true;
             }
-        }
         } // End omp parallel for
+
         accumulatedFaceCount += numPrimFaces;
     }
 
-    return anyHits;
+    if (anyHits)
+    {
+        if (intersectionPoint)
+        {
+            *intersectionPoint = bestIntersectionPoint;
+        }
+
+        if (faceHit)
+        {
+            CVF_ASSERT(bestFaceHit < std::numeric_limits<uint>::max());
+            *faceHit = static_cast<uint>(bestFaceHit);
+        }
+
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 
@@ -1367,18 +1383,21 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3dArray* intersectionPoints, U
     std::vector<uint> faceIndices;
 
     cref<Vec3fArray> vertexArr = m_vertexBundle->vertexArray();
-    int accumulatedFaceCount = 0;
 
-    size_t numPrimitiveSets = m_primitiveSets.size();
-    size_t iPrimSet;
-    for (iPrimSet = 0; iPrimSet < numPrimitiveSets; iPrimSet++)
+    size_t accumulatedFaceCount = 0;
+    const size_t numPrimitiveSets = m_primitiveSets.size();
+    for (size_t iPrimSet = 0; iPrimSet < numPrimitiveSets; iPrimSet++)
     {
         const PrimitiveSet* primSet = m_primitiveSets.at(iPrimSet);
         CVF_TIGHT_ASSERT(primSet);
 
         UIntArray conn;
-        int numPrimFaces = static_cast<int>(primSet->faceCount());
-#pragma omp parallel for private(conn)
+
+        // Need to use signed integer type with OpenMP, so for now cast it
+        CVF_ASSERT(primSet->faceCount() < static_cast<size_t>(std::numeric_limits<int>::max()));
+        const int numPrimFaces = static_cast<int>(primSet->faceCount());
+
+        #pragma omp parallel for private(conn)
         for (int i = 0; i < numPrimFaces; i++)
         {
             bool hitThisFace = false;
@@ -1396,13 +1415,16 @@ bool DrawableGeo::rayIntersect(const Ray& ray, Vec3dArray* intersectionPoints, U
 
             if (hitThisFace)
             {
-              #pragma omp critical
-	      {
-                isectPts.push_back(localIntersect);
-                faceIndices.push_back(i + accumulatedFaceCount);
-	      }
+                #pragma omp critical
+                {
+                    isectPts.push_back(localIntersect);
+
+                    CVF_TIGHT_ASSERT(i + accumulatedFaceCount < std::numeric_limits<uint>::max());
+                    faceIndices.push_back(static_cast<uint>(i + accumulatedFaceCount));
+                }
             }
         }
+
         accumulatedFaceCount += numPrimFaces;
     }
 

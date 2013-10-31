@@ -70,6 +70,11 @@ public:
     virtual bool        updateTexture(TextureImage* image) const;
     bool                updateColorLegend(OverlayColorLegend* legend) const;
 
+    // HACK to compile until we reconcile new and old scheme for scalar mappers
+    virtual void        majorTickValues(std::vector<double>*) const { CVF_FAIL_MSG("Not implemented"); }
+    virtual double      normalizedValue(double) const               { CVF_FAIL_MSG("Not implemented"); return 0; }
+    virtual double      domainValue(double) const                   { CVF_FAIL_MSG("Not implemented"); return 0; }
+
 private:
     void                recomputeMaxTexCoord();
 

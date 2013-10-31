@@ -35,12 +35,13 @@
 //##################################################################################################
 
 
-#include "cafBasicAboutDialog.h"
+#include "cafAboutDialog.h"
 
 #include <QtCore/QVariant>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
+#include <QtOpenGL/QGLFormat>
 #include <assert.h>
 
 namespace caf {
@@ -49,8 +50,7 @@ namespace caf {
 
 //==================================================================================================
 ///
-/// \class cvfqt::BasicAboutDialog
-/// \ingroup GuiQt
+/// \class caf::BasicAboutDialog
 ///
 /// 
 /// 
@@ -59,7 +59,7 @@ namespace caf {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-BasicAboutDialog::BasicAboutDialog(QWidget* parent)
+AboutDialog::AboutDialog(QWidget* parent)
 :   QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
     m_isCreated = false;
@@ -68,7 +68,6 @@ BasicAboutDialog::BasicAboutDialog(QWidget* parent)
     //m_appVersion;
     //m_appCopyright;
 
-    m_showVizLibraryVersion = true;
     m_showQtVersion = true;
 
     m_isDebugBuild = false;
@@ -79,7 +78,7 @@ BasicAboutDialog::BasicAboutDialog(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 /// Set application name to show in the dialog. Must be specified if any other app info is to be displayed
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::setApplicationName(const QString& appName)	
+void AboutDialog::setApplicationName(const QString& appName)	
 { 
     assert(!m_isCreated); 
     m_appName = appName; 
@@ -89,7 +88,7 @@ void BasicAboutDialog::setApplicationName(const QString& appName)
 //--------------------------------------------------------------------------------------------------
 /// Set application version info to display
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::setApplicationVersion(const QString& ver)
+void AboutDialog::setApplicationVersion(const QString& ver)
 {
     assert(!m_isCreated); 
     m_appVersion = ver; 
@@ -99,7 +98,7 @@ void BasicAboutDialog::setApplicationVersion(const QString& ver)
 //--------------------------------------------------------------------------------------------------
 /// Set copyright info to display
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::setCopyright(const QString& copyright)
+void AboutDialog::setCopyright(const QString& copyright)
 { 
     assert(!m_isCreated); 
     m_appCopyright = copyright; 
@@ -107,19 +106,9 @@ void BasicAboutDialog::setCopyright(const QString& copyright)
 
 
 //--------------------------------------------------------------------------------------------------
-/// Enable display of visualization library version
-//--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::showVizLibraryVersion(bool show)
-{ 
-    assert(!m_isCreated); 
-    m_showVizLibraryVersion = show; 
-}		
-
-
-//--------------------------------------------------------------------------------------------------
 /// Enable display of Qt version
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::showQtVersion(bool show)
+void AboutDialog::showQtVersion(bool show)
 { 
     assert(!m_isCreated); 
     m_showQtVersion = show; 
@@ -129,7 +118,7 @@ void BasicAboutDialog::showQtVersion(bool show)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::addVersionEntry(const QString& verLabel, const QString& verText)
+void AboutDialog::addVersionEntry(const QString& verLabel, const QString& verText)
 {
     assert(!m_isCreated); 
 
@@ -143,7 +132,7 @@ void BasicAboutDialog::addVersionEntry(const QString& verLabel, const QString& v
 //--------------------------------------------------------------------------------------------------
 /// Set to true to show text in dialog to indicate that we're running a debug build of our app
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::setIsDebugBuild(bool isDebugBuild)
+void AboutDialog::setIsDebugBuild(bool isDebugBuild)
 { 
     assert(!m_isCreated); 
     m_isDebugBuild = isDebugBuild; 
@@ -153,7 +142,7 @@ void BasicAboutDialog::setIsDebugBuild(bool isDebugBuild)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::create()
+void AboutDialog::create()
 {
     // Only allowed to call once
     assert(!m_isCreated);
@@ -239,22 +228,13 @@ void BasicAboutDialog::create()
 
 
     // Possibly show extend version info
-    if (m_showVizLibraryVersion	||
-        m_showQtVersion	    ||
+    if (m_showQtVersion	    ||
         m_verLabels.size() > 0)
     {
         QGridLayout* verInfoLayout = new QGridLayout; 
         verInfoLayout->setSpacing(0);
 
         int insertRow = 0;
-
-        if (m_showVizLibraryVersion)
-        {
-//             QString ver;
-//             ver.sprintf("%s.%s%s-%s", CVF_MAJOR_VERSION, CVF_MINOR_VERSION, CVF_SPECIAL_BUILD, CVF_BUILD_NUMBER);
-// 
-//             addStringPairToVerInfoLayout("Visualization ver.:  ", ver, verInfoLayout, insertRow++);
-        }
 
         // Qt version
         if (m_showQtVersion)
@@ -317,7 +297,7 @@ void BasicAboutDialog::create()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BasicAboutDialog::addStringPairToVerInfoLayout(const QString& labelStr, const QString& infoStr, QGridLayout* verInfoLayout, int insertRow)
+void AboutDialog::addStringPairToVerInfoLayout(const QString& labelStr, const QString& infoStr, QGridLayout* verInfoLayout, int insertRow)
 {
     QLabel* label = new QLabel(this);
     label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
@@ -331,11 +311,39 @@ void BasicAboutDialog::addStringPairToVerInfoLayout(const QString& labelStr, con
 }
 
 
-} // namespace cvfqt
+//--------------------------------------------------------------------------------------------------
+/// Get an OpenGL version string for the OpenGL context that is current at the moment
+//--------------------------------------------------------------------------------------------------
+QString AboutDialog::versionStringForcurrentOpenGLContext()
+{
+    QString versionString("OpenGL ");
+
+    QGLFormat::OpenGLVersionFlags flags = QGLFormat::openGLVersionFlags();
+
+    if      (flags & QGLFormat::OpenGL_Version_4_0              ) versionString += "4.0";
+    else if (flags & QGLFormat::OpenGL_Version_3_3              ) versionString += "3.3";
+    else if (flags & QGLFormat::OpenGL_Version_3_2              ) versionString += "3.2";
+    else if (flags & QGLFormat::OpenGL_Version_3_1              ) versionString += "3.1";
+    else if (flags & QGLFormat::OpenGL_Version_3_0              ) versionString += "3.0";
+    else if (flags & QGLFormat::OpenGL_ES_Version_2_0           ) versionString += "ES_Version 2.0";
+    else if (flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_1) versionString += "ES_CommonLite_Version 1.1";
+    else if (flags & QGLFormat::OpenGL_ES_Common_Version_1_1    ) versionString += "ES_Common_Version 1.1";
+    else if (flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_0) versionString += "ES_CommonLite_Version 1.0";
+    else if (flags & QGLFormat::OpenGL_ES_Common_Version_1_0    ) versionString += "ES_Common_Version 1.0";
+    else if (flags & QGLFormat::OpenGL_Version_2_1              ) versionString += "2.1";
+    else if (flags & QGLFormat::OpenGL_Version_2_0              ) versionString += "2.0";
+    else if (flags & QGLFormat::OpenGL_Version_1_5              ) versionString += "1.5";
+    else if (flags & QGLFormat::OpenGL_Version_1_4              ) versionString += "1.4";
+    else if (flags & QGLFormat::OpenGL_Version_1_3              ) versionString += "1.3";
+    else if (flags & QGLFormat::OpenGL_Version_1_2              ) versionString += "1.2";
+    else if (flags & QGLFormat::OpenGL_Version_1_1              ) versionString += "1.1";
+    else if (flags & QGLFormat::OpenGL_Version_None             ) versionString += "None";
+    else versionString += "Unknown";
+
+    return versionString;
+}
 
 
+} // namespace caf
 
-//########################################################
-//#include "GeneratedFiles/moc_cvfqtBasicAboutDialog.cpp"
-//########################################################
 

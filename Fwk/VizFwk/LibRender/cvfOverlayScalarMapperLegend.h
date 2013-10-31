@@ -64,8 +64,6 @@ public:
     virtual ~OverlayScalarMapperLegend();
 
     virtual Vec2ui  sizeHint();
-    virtual Vec2ui  maximumSize();
-    virtual Vec2ui  minimumSize();
     void            setScalarMapper(const ScalarMapper* scalarMapper);
 
     virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
