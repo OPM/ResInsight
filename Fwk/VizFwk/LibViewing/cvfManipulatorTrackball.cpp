@@ -40,7 +40,6 @@
 #include "cvfCamera.h"
 #include "cvfViewport.h"
 
-#include <cmath>
 #include <cstdlib>
 
 namespace cvf {
@@ -296,7 +295,7 @@ bool ManipulatorTrackball::zoom(int posX, int posY)
     Camera::ProjectionType projType = m_camera->projection();
     if (projType == Camera::PERSPECTIVE)
     {
-        double fovY = 2*atan((newFrustumHeight/2)/nearPlane);
+        double fovY = 2*Math::atan((newFrustumHeight/2)/nearPlane);
         if (fovY > 0)
         {
             m_camera->setProjectionAsPerspective(Math::toDegrees(fovY), nearPlane, farPlane);
@@ -407,7 +406,7 @@ Quatd ManipulatorTrackball::trackballRotation(double oldPosX, double oldPosY, do
     // Avoid problems with out-of-control values...
     t = Math::clamp(t, -1.0, 1.0);
 
-    double phi = 2.0*asin(t);
+    double phi = 2.0*Math::asin(t);
 
     // Scale by sensitivity factor
     phi *= sensitivityFactor;
@@ -437,12 +436,12 @@ Quatd ManipulatorTrackball::trackballRotation(double oldPosX, double oldPosY, do
 //--------------------------------------------------------------------------------------------------
 Vec3d ManipulatorTrackball::projectToSphere(double radius, double posX, double posY)
 {
-    double d = sqrt(posX*posX + posY*posY);
+    double d = Math::sqrt(posX*posX + posY*posY);
 
     if (d < radius*SQRT1_2_D)  	
     {
         // Inside sphere 
-        double projectedZ = sqrt(radius*radius - d*d);
+        double projectedZ = Math::sqrt(radius*radius - d*d);
 
         return Vec3d(posX, posY, projectedZ);
     }

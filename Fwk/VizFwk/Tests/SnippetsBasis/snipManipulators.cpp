@@ -231,9 +231,20 @@ void Manipulators::onPaintEvent(PostEventAction* postEventAction)
         m_camera->applyOpenGL();
 
         GeometryBuilderDrawableGeo builder;
-        GeometryUtils::createBox(Vec3f(m_activeLocator->position()), 0.2f, 0.2f, 0.2f, &builder);
-
+        GeometryUtils::createBox(Vec3f::ZERO, 0.2f, 0.2f, 0.2f, &builder);
         ref<DrawableGeo> boxGeo = builder.drawableGeo();
+        
+        Mat4d transform;
+
+        if (dynamic_cast<LocatorPanWalkRotate*>(m_activeLocator.p()))
+        {
+            LocatorPanWalkRotate* loc = dynamic_cast<LocatorPanWalkRotate*>(m_activeLocator.p());
+            transform.setFromMatrix3(loc->orientation());
+        }
+
+        transform.translatePreMultiply(m_activeLocator->position());
+
+        boxGeo->transform(transform);
         boxGeo->computeNormals();
 
         RenderStateLighting_FF lighting;
@@ -262,14 +273,18 @@ void Manipulators::onMousePressEvent(MouseButton buttonPressed, MouseEvent* mous
         if (dynamic_cast<LocatorPanWalkRotate*>(m_activeLocator.p()))
         {
             LocatorPanWalkRotate* loc = dynamic_cast<LocatorPanWalkRotate*>(m_activeLocator.p());
-            if (mouseEvent->buttons() == MiddleButton || 
-                mouseEvent->buttons() == (LeftButton | RightButton))
-            {
-                loc->setOperation(LocatorPanWalkRotate::WALK);
-            }
-            else
+            if (mouseEvent->buttons() == LeftButton)
             {
                 loc->setOperation(LocatorPanWalkRotate::PAN);
+            }
+            else if (mouseEvent->buttons() == RightButton)
+            {
+                loc->setOperation(LocatorPanWalkRotate::ROTATE);
+            }
+            else if (mouseEvent->buttons() == MiddleButton || 
+                     mouseEvent->buttons() == (LeftButton | RightButton))
+            {
+                loc->setOperation(LocatorPanWalkRotate::WALK);
             }
         }
 
@@ -293,9 +308,10 @@ void Manipulators::onMouseMoveEvent(MouseEvent* mouseEvent)
     {
         int x = mouseEvent->x();
         int y = mouseEvent->y();
-        m_activeLocator->update(x, y);
-
-        mouseEvent->setRequestedAction(REDRAW);
+        if (m_activeLocator->update(x, y))
+        {
+            mouseEvent->setRequestedAction(REDRAW);
+        }
 
         return;
     }

@@ -38,6 +38,7 @@
 #pragma once
 
 #include "cvfPlane.h"
+#include "cvfQuat.h"
 
 namespace cvf {
 
@@ -97,8 +98,8 @@ public:
     enum Operation
     {
         PAN,
-        WALK
-        //ROTATE    // TODO
+        WALK,
+        ROTATE
     };
 
 public:
@@ -106,20 +107,29 @@ public:
     ~LocatorPanWalkRotate();
 
     void            setOperation(Operation op);
+
     void            setPosition(const Vec3d& position);
     virtual Vec3d   position() const;
+    void            setOrientation(const Mat3d& m);
+    Mat3d           orientation() const;
+
     virtual void    start(int x, int y);
     virtual bool    update(int x, int y);
 
 private:
-    void            updatePan(double tx, double ty);
-    void            updateWalk(double ty);
+    void            updatePan(int oglWinCoordX, int oglWinCoordY);
+    void            updateWalk(int oglWinCoordY);
+    void            updateRotation(int oglWinCoordX, int oglWinCoordY);
+
+    static Quatd    trackballRotation(double oldPosX, double oldPosY, double newPosX, double newPosY, const Mat4d& currViewMatrix, double trackballRadius, double sensitivityFactor);
+    static Vec3d    projectToSphere(double radius, double posX, double posY);
 
 private:
     ref<Camera> m_camera;       
     Operation   m_operation;    // Default operation is PAN
     Vec3d       m_pos;        
-    int         m_lastPosX;   
+    Quatd       m_rotQuat;
+    int         m_lastPosX;     // Last position, window coords, origin lower left (OpenGL style)
     int         m_lastPosY;         
 };
 
