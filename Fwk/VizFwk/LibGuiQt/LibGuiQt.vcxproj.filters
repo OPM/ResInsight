@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="cvfqtBasicAboutDialog.cpp" />
+    <ClCompile Include="cvfqtPerformanceInfoHud.cpp" />
+    <ClCompile Include="cvfqtUtils.cpp" />
+    <ClCompile Include="cvfqtOpenGLWidget.cpp" />
+    <ClCompile Include="cvfqtCvfBoundQGLContext.cpp" />
+    <ClCompile Include="cvfqtOpenGLContext.cpp" />
+    <ClCompile Include="cvfqtMouseState.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cvfqtPerformanceInfoHud.h" />
+    <ClInclude Include="cvfqtUtils.h" />
+    <ClInclude Include="cvfqtCvfBoundQGLContext.h" />
+    <ClInclude Include="cvfqtOpenGLContext.h" />
+    <ClInclude Include="cvfqtMouseState.h" />
+    <ClInclude Include="cvfqtBasicAboutDialog.h" />
+    <ClInclude Include="cvfqtOpenGLWidget.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,42 @@
+
+Documentation guidelines when writing Doxygen doc for CVC.
+-------------------------------------------------------------
+
+Ripped from: http://api.haiku-os.org/apidoc.html
+
+Relevant paragraph commands in decreasing order of importance:
+
+\attention
+* Used when the developer is bound to make a mistake, when the API is ambiguous. 
+  The difference between this and a warning is that warnings warn about things 
+  that are the developers fault, and attention blocks warn about things that 
+  might go wrong because of the way the API is structured.
+* Used to warn for abuse of the API that might be caused by the way the internals 
+  of the system are structured.
+
+\warning
+* Used to warn developers about using the API in a certain way. Warnings apply 
+  especially to new developers that aren't completely familiar with the API and that 
+  might want to abuse it. For example, the thread safety of BString requires a warning.
+
+\note
+* Used to place references to other documentation that might not be directly related 
+  to the text. For example, BLooper will have a direct reference to BHandler in the 
+  class description, but BMessenger will be mentioned in a note because it does not 
+  directly influence the use of the class.
+* Can also be used for useful hints or notes that somehow need to stand out from the 
+  rest of the text.
+
+\remark
+* Remarks are small notes that would interrupt the flow of the text. For example, 
+  if you in a text ignore a certain condition that is so extremely rare and uncommon, 
+  you can put a remark at the end of the text to tell that you have been lying.
+* Remarks interact with the text whereas notes add something unmentioned to it.
+
+
+In newer versions of Doxygen it seems that these gets tagged with a color in the
+final documentation. 
+  RED      \attention 
+  RED      \warning 
+  YELLOW   \note
+  nocolor  \remark

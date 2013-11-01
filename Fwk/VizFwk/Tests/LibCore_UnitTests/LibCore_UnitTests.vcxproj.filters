@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="cvfArray-Test.cpp" />
+    <ClCompile Include="cvfVector4-Test.cpp" />
+    <ClCompile Include="cvfBase-Test.cpp" />
+    <ClCompile Include="cvfCharArray-Test.cpp" />
+    <ClCompile Include="cvfCollection-Test.cpp" />
+    <ClCompile Include="cvfColor3-Test.cpp" />
+    <ClCompile Include="cvfColor4-Test.cpp" />
+    <ClCompile Include="cvfDebugTimer-Test.cpp" />
+    <ClCompile Include="cvfFlags-Test.cpp" />
+    <ClCompile Include="cvfMath-Test.cpp" />
+    <ClCompile Include="cvfMatrix3-Test.cpp" />
+    <ClCompile Include="cvfMatrix4-Test.cpp" />
+    <ClCompile Include="cvfObject-Test.cpp" />
+    <ClCompile Include="cvfPlane-Test.cpp" />
+    <ClCompile Include="cvfQuat-Test.cpp" />
+    <ClCompile Include="cvfRect-Test.cpp" />
+    <ClCompile Include="cvfString-Test.cpp" />
+    <ClCompile Include="cvfSystem-Test.cpp" />
+    <ClCompile Include="cvfTimer-Test.cpp" />
+    <ClCompile Include="cvfTrace-Test.cpp" />
+    <ClCompile Include="cvfVector2-Test.cpp" />
+    <ClCompile Include="cvfVector3-Test.cpp" />
+    <ClCompile Include="LibCore_UnitTests.cpp" />
+    <ClCompile Include="..\..\ThirdParty\gtest\gtest-all.cpp" />
+    <ClCompile Include="cvfBase64-Test.cpp" />
+    <ClCompile Include="cvfVariant-Test.cpp" />
+    <ClCompile Include="cvfPropertySet-Test.cpp" />
+    <ClCompile Include="cvfPropertySetCollection-Test.cpp" />
+    <ClCompile Include="cvfLogger-Test.cpp" />
+    <ClCompile Include="cvfLogEvent-Test.cpp" />
+    <ClCompile Include="cvfCodeLocation-Test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="TriggerTBBCopy.txt" />
+  </ItemGroup>
+</Project>

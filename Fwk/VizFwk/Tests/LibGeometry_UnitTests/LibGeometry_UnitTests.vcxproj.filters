@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\ThirdParty\gtest\gtest-all.cpp" />
+    <ClCompile Include="cvfArrowGenerator-Test.cpp" />
+    <ClCompile Include="cvfBoundingBox-Test.cpp" />
+    <ClCompile Include="cvfBoxGenerator-Test.cpp" />
+    <ClCompile Include="cvfEdgeKey-Test.cpp" />
+    <ClCompile Include="cvfFrustum-Test.cpp" />
+    <ClCompile Include="cvfGeometryBuilderFaceList-Test.cpp" />
+    <ClCompile Include="cvfGeometryBuilder-Test.cpp" />
+    <ClCompile Include="cvfGeometryBuilderTriangles-Test.cpp" />
+    <ClCompile Include="cvfGeometryUtils-Test.cpp" />
+    <ClCompile Include="cvfMeshEdgeExtractor-Test.cpp" />
+    <ClCompile Include="cvfOutlineEdgeExtractor-Test.cpp" />
+    <ClCompile Include="cvfPatchGenerator-Test.cpp" />
+    <ClCompile Include="cvfRay-Test.cpp" />
+    <ClCompile Include="cvfVertexWelder-Test.cpp" />
+    <ClCompile Include="LibGeometry_UnitTests.cpp" />
+    <ClCompile Include="cvfTriangleVertexSplitter-Test.cpp" />
+    <ClCompile Include="cvfVertexCompactor-Test.cpp" />
+    <ClCompile Include="cvfTriangleMeshEdgeExtractor-Test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="TriggerTBBCopy.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="utestGeometryBuilders.h" />
+  </ItemGroup>
+</Project>

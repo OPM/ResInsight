@@ -1,0 +1,465 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Snippets" />
+    <Filter Include="Snippets\Shaders">
+      <UniqueIdentifier>{b4df9da0-f4a6-4f18-ae34-0452bb883956}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\DepthPeeling_BlendFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeeling_FinalFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeeling_InitFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeeling_PeelFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeeling_ShadeFragment.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_BlendFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_BlendVert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_FinalFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_FinalVert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_InitFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_InitVert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_PeelFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\DepthPeelingFront_PeelVert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\TranspWA_FinalFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\TranspWA_InitFrag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\CubeMapping_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\CubeMapping_Vert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\CubeMappingSkyBox_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\CubeMappingSkyBox_Vert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\HemisphereLighting_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\HemisphereLighting_Vert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\CubeMapping_Light.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\Clipping_Vert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\Clipping_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\WideLines_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\WideLines_Vert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\VertexAttributes_Vert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\VertexAttributes_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="CMakeLists.txt" />
+    <None Include="Shaders\ShaderUniforms_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\ShaderUniforms_Vert.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\HighlightBlur_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\HighlightMix_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\HighlightDraw_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\ImageFiltering_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+    <None Include="Shaders\ImageFilteringBlur_Frag.glsl">
+      <Filter>Snippets\Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="snipBenchmarkManyPartsFewGeos.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipBenchmarkManyPartsManyGeos.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipBenchmarkPart1M.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipBenchmarkPart5K.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipBenchmarkPart250K.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipDepthPeeling.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipDepthPeelingFront.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipEnableMasks.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipExtractedEdges.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipGeometryCreation.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipHiddenLines.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipImmediateVbo.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipIncrementalRenderer.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipLargeSphereModel.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipManipulators.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipManySpheres.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipMergeGeo.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipMinimalModel.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipMultiRenderingEffectOverride.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipNavigation.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipPartMerger.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipPicking.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipRenderbufferTest.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipRenderPriority.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipRenderStateExperiments.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipShaderExperiments.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipSingleBox.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipStripsAndFans.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipTexturing.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipTransparentWeightedAverage.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipVectorDrawing.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipVertexColoring.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipWiredShaders.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetFactoryBasis.cpp" />
+    <ClCompile Include="snipScalarMapping.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipRenderToTexture.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipShadows.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipCubeMapping.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipCoreProfileTest.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipBlendTest.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipShaderLighting.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipEnvironmentMapping.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipTextDrawing.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipDrawableAnimation.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipPointSprites.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipTutorial1.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipClipping.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipSingleTexturedQuad.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipLineDrawing.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipVertexAttributes.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipLabels.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipOverlayItems.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipShaderUniforms.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipHighlight.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipVisualPriority.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipStencil.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+    <ClCompile Include="snipImageFiltering.cpp">
+      <Filter>Snippets</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="snipBenchmarkManyPartsFewGeos.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipBenchmarkManyPartsManyGeos.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipBenchmarkPart1M.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipBenchmarkPart5K.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipBenchmarkPart250K.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipDepthPeeling.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipDepthPeelingFront.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipEnableMasks.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipExtractedEdges.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipGeometryCreation.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipHiddenLines.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipImmediateVbo.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipIncrementalRenderer.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipLargeSphereModel.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipManipulators.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipManySpheres.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipMergeGeo.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipMinimalModel.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipMultiRenderingEffectOverride.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipNavigation.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipPartMerger.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipPicking.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipRenderbufferTest.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipRenderPriority.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipRenderStateExperiments.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipShaderExperiments.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipSingleBox.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipStripsAndFans.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipTexturing.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipTransparentWeightedAverage.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipVectorDrawing.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipVertexColoring.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipWiredShaders.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetFactoryBasis.h" />
+    <ClInclude Include="snipScalarMapping.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipRenderToTexture.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipShadows.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipCubeMapping.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipCoreProfileTest.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipBlendTest.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipShaderLighting.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipEnvironmentMapping.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipTextDrawing.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipTextEmbeddedFreeTypeFont.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipTextEmbeddedFixedAtlasFont.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipDrawableAnimation.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipPointSprites.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipTutorial1.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipClipping.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipSingleTexturedQuad.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipLineDrawing.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipVertexAttributes.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipLabels.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipOverlayItems.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipShaderUniforms.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipHighlight.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipVisualPriority.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipStencil.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+    <ClInclude Include="snipImageFiltering.h">
+      <Filter>Snippets</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

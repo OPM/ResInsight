@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cvfLibRegGrid2D.h" />
+    <ClInclude Include="cvfRegGrid2D.h" />
+    <ClInclude Include="cvfRegGrid2DGeometry.h" />
+    <ClInclude Include="cvfRegGrid2DExportXml.h" />
+    <ClInclude Include="cvfRegGrid2DImportXml.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvfRegGrid2D.cpp" />
+    <ClCompile Include="cvfRegGrid2DGeometry.cpp" />
+    <ClCompile Include="cvfRegGrid2DExportXml.cpp" />
+    <ClCompile Include="cvfRegGrid2DImportXml.cpp" />
+  </ItemGroup>
+</Project>

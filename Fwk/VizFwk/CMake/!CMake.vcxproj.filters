@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="..\CMakeLists.txt">
+      <Filter>for CeeViz</Filter>
+    </None>
+    <None Include="..\Tests\CMakeLists.txt">
+      <Filter>for UnitTests</Filter>
+    </None>
+    <None Include="Utils\ceeDetermineCompilerFlags.cmake">
+      <Filter>Utils</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="for CeeViz">
+      <UniqueIdentifier>{3e72b0a1-06b6-459f-9607-d9fa896d7f8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="for UnitTests">
+      <UniqueIdentifier>{51e511a3-e51f-4744-bff6-f658fccf0863}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{8764f605-13cc-4037-9f2b-fcae94e99ae9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

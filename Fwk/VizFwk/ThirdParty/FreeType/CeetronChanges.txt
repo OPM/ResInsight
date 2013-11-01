@@ -1,0 +1,7 @@
+Changes done by Ceetron:
+ - Copy "builds\win32\vc2008" to "builds\win32\vc2010"
+ - Create x64 configurations
+ - Set: 
+   Output Directory          = "$(Platform)_VS2010\$(Configuration)\"
+   Intermediate Directory    = "$(Platform)_VS2010\$(Configuration)\"
+   Disable Specific Warnings = "4001;4244;4267;4306;4324;%(DisableSpecificWarnings)"
