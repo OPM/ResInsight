@@ -304,10 +304,10 @@ public:
         quint64 timestepCount = (quint64)requestedTimesteps.size();
         socketStream << timestepCount;
 
-        size_t doubleValueCount = cellCountI * cellCountJ * cellCountK * timestepCount * sizeof(double);
-        std::vector<double> values(doubleValueCount);
         size_t valueIdx = 0;
         
+        std::vector<double> values(rigGrid->cellCount());
+
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
             cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
@@ -323,11 +323,11 @@ public:
                 {
                     cellValue = 0.0;
                 }
-                values[valueIdx++] = cellValue;
+                values[cellIdx] = cellValue;
             }
-        }
 
-        server->currentClient()->write((const char *)values.data(), doubleValueCount);
+            server->currentClient()->write((const char *)values.data(), rigGrid->cellCount() * sizeof(double));
+        }
 
         return true;
     }
