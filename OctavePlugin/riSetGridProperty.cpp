@@ -64,8 +64,13 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     socketStream << (qint64)singleTimeStepByteCount;
 
     const double* internalData = propertyFrames.fortran_vec();
-    int dataWritten = socket.write((const char *)internalData, singleTimeStepByteCount*timeStepCount);
-
+    qint64 dataWritten = 0;
+    
+    for (size_t tsIdx = 0; tsIdx < timeStepCount; ++tsIdx)
+    {
+        dataWritten += socket.write(((const char *)internalData) + tsIdx*singleTimeStepByteCount, singleTimeStepByteCount);
+    }
+    
     if (dataWritten == singleTimeStepByteCount*timeStepCount)
     {
         QString tmp = QString("riSetGridProperty : Wrote %1").arg(propertyName);
@@ -92,8 +97,8 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
 
     while(socket.bytesToWrite() && socket.state() == QAbstractSocket::ConnectedState)
     {
-        // octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl;
-        socket.waitForBytesWritten(riOctavePlugin::longTimeOutMilliSecs);
+        octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl << std::flush;
+        socket.waitForBytesWritten(2000);
         OCTAVE_QUIT;
     }
 
