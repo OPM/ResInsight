@@ -67,7 +67,7 @@ void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, qu
 
     for (size_t tIdx = 0; tIdx < timestepCount; ++tIdx)
     {
-        while (socket.bytesAvailable() < (int)byteCount)
+        while (socket.bytesAvailable() < (qint64)byteCount)
         {
             if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
             {
@@ -94,7 +94,7 @@ void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, qu
         }
 #endif
 
-        if ((int)byteCount != bytesRead)
+        if ((qint64)byteCount != bytesRead)
         {
             error("Could not read binary double data properly from socket");
             octave_stdout << "Active cells: " << activeCellCount << ", Timesteps: " << timestepCount << std::endl;
