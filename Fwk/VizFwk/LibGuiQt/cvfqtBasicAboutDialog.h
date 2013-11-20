@@ -38,7 +38,6 @@
 #pragma once
 
 #include <QtGui/QDialog>
-#include <QtGui/QIcon>
 
 class QGridLayout;
 
@@ -56,37 +55,35 @@ class BasicAboutDialog : public QDialog
 public:
     BasicAboutDialog(QWidget* parent);
 
-    void	setApplicationName(const QString& appName);
-    void	setApplicationVersion(const QString& ver);
-    void	setCopyright(const QString& copyright);
-    void    setApplicationIcon(const QIcon& icon);
+    void    setApplicationName(const QString& appName);
+    void    setApplicationVersion(const QString& ver);
+    void    setCopyright(const QString& copyright);
 
-    void	showCeeVizVersion(bool show);
-    void	showQtVersion(bool show);
-    void	addVersionEntry(const QString& verLabel, const QString& verText);
-    void	setIsDebugBuild(bool isDebugBuild);
+    void    showLibraryVersion(bool show);
+    void    showQtVersion(bool show);
+    void    addVersionEntry(const QString& verLabel, const QString& verText);
+    void    setIsDebugBuild(bool isDebugBuild);
 
-    void	create();
+    void    create();
 
-    QString openGLVersionString() const;
 
 private:
-    void	addStringPairToVerInfoLayout(const QString& labelStr, const QString& infoStr, QGridLayout* verInfoLayout, int insertRow);
+    void    addStringPairToVerInfoLayout(const QString& labelStr, const QString& infoStr, QGridLayout* verInfoLayout, int insertRow);
 
 private:
-    bool			m_isCreated;		    // Indicates if the create() function has been called
+    bool            m_isCreated;            // Indicates if the create() function has been called
 
-    QString         m_appName;			    // Application name, appears in bold at the top of the dialog. 
-    QString         m_appVersion;		    // Application version info. Can be empty
-    QString			m_appCopyright;	        // Application copyright string. Can be empty
-    QIcon           m_appIcon;
+    QString         m_appName;              // Application name, appears in bold at the top of the dialog. 
+    QString         m_appVersion;           // Application version info. Can be empty
+    QString         m_appCopyright;         // Application copyright string. Can be empty
 
-    bool			m_showCeeVizVersion;	// Flags whether CeeViz version info should be shown
-    bool			m_showQtVersion;	    // Flags whether Qt version info should be shown
-    QStringList     m_verLabels;		    // Labels for user specified version entries
-    QStringList     m_verTexts;		        // The actual version text for user specified version entries
+    bool            m_showLibraryVersion;   // Flags whether version info should be shown for visualization framework
+    bool            m_showQtVersion;        // Flags whether Qt version info should be shown
+    QStringList     m_verLabels;            // Labels for user specified version entries
+    QStringList     m_verTexts;             // The actual version text for user specified version entries
 
-    bool			m_isDebugBuild;	        // If set to true, will show info in dlg to indicate that this is a debug build
+    bool            m_isDebugBuild;         // If set to true, will show info in dlg to indicate that this is a debug build
 };
 
 }
+

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="QMVMain.cpp" />
+    <ClCompile Include="QMVMainWindow.cpp" />
+    <ClCompile Include="QMVWidget.cpp" />
+    <ClCompile Include="QMVFactory.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="QMVWidget.h" />
+    <CustomBuild Include="QMVMainWindow.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="QMVFactory.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+</Project>

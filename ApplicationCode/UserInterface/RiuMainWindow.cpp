@@ -49,7 +49,7 @@
 
 #include "cafAnimationToolBar.h"
 #include "cafPdmUiPropertyView.h"
-#include "cvfqtBasicAboutDialog.h"
+#include "cafAboutDialog.h"
 #include "cvfTimer.h"
 
 #include "cafPdmFieldCvfMat4d.h"
@@ -702,13 +702,12 @@ void RiuMainWindow::refreshAnimationActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotAbout()
 {
-    cvfqt::BasicAboutDialog dlg(this);
+    caf::AboutDialog dlg(this);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
     dlg.setCopyright("Copyright 2011-2013 Statoil ASA, Ceetron AS");
-    dlg.showCeeVizVersion(false);
-
+    dlg.showQtVersion(false);
 #ifdef _DEBUG
     dlg.setIsDebugBuild(true);
 #endif
@@ -719,7 +718,7 @@ void RiuMainWindow::slotAbout()
     dlg.addVersionEntry(" ", " ");
     dlg.addVersionEntry(" ", "Technical Information");
     dlg.addVersionEntry(" ", QString("   Qt ") + qVersion());
-    dlg.addVersionEntry(" ", QString("   ") + dlg.openGLVersionString());
+    dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
     dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
 
     dlg.create();

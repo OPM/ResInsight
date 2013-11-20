@@ -36,21 +36,12 @@
 
 
 #include "cvfBase.h"
-#include "cvfOverlayTextBox.h"
-#include "cvfDrawableText.h"
-#include "cvfMatrixState.h"
-#include "cvfCamera.h"
-#include "cvfShaderProgram.h"
-#include "cvfOpenGL.h"
-#include "cvfViewport.h"
-#include "cvfOpenGLResourceManager.h"
-#include "cvfUniform.h"
-
-#ifndef CVF_OPENGL_ES
-#include "cvfRenderState_FF.h"
-#endif
+#include "cvfOverlayItem.h"
+#include "cvfRect.h"
 
 namespace cvf {
+
+
 
 //==================================================================================================
 ///
@@ -58,23 +49,100 @@ namespace cvf {
 /// \ingroup Render
 ///
 /// A base class for all overlay items
+/// 
+/// The default layout scheme is OverlayItem::HORIZONTAL and the default anchor corner is 
+/// OverlayItem::BOTTOM_LEFT. Note that when the items are laid out by a Rendering, items with
+/// the OverlayItem::HORIZONTAL layout scheme will be placed first.
 ///
 //==================================================================================================
 
 //--------------------------------------------------------------------------------------------------
-/// Do hit test on the overlay item. Base class only does a check 
+/// 
 //--------------------------------------------------------------------------------------------------
-bool OverlayItem::pick(int x, int y, const Vec2i& position, const Vec2ui& size)
+OverlayItem::OverlayItem()
+:   m_layoutScheme(HORIZONTAL),
+    m_anchorCorner(BOTTOM_LEFT),
+    m_fixedPosition(0, 0)
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Specify how this overlay item should be laid out
+/// 
+/// The default value for \a layoutScheme is OverlayItem::HORIZONTAL, and the default value
+/// for \a anchorCorner is OverlayItem::BOTTOM_LEFT.
+//--------------------------------------------------------------------------------------------------
+void OverlayItem::setLayout(LayoutScheme layoutScheme, AnchorCorner anchorCorner)
+{
+    CVF_ASSERT(layoutScheme == HORIZONTAL || layoutScheme == VERTICAL);
+    m_layoutScheme = layoutScheme;
+    m_anchorCorner = anchorCorner;
+    m_fixedPosition.set(0, 0);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void OverlayItem::setLayoutFixedPosition(const Vec2i& fixedPosition)
+{
+    m_layoutScheme = FIXED_POSITION;
+    m_anchorCorner = BOTTOM_LEFT;
+    m_fixedPosition = fixedPosition;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+OverlayItem::LayoutScheme OverlayItem::layoutScheme() const
+{
+    return m_layoutScheme;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+OverlayItem::AnchorCorner OverlayItem::anchorCorner() const
+{
+    return m_anchorCorner;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2i OverlayItem::fixedPosition() const
+{
+    return m_fixedPosition;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// \fn virtual Vec2ui OverlayItem::sizeHint() = 0;
+/// 
+/// Returns the the size hint of this overlay item.
+/// 
+/// The returned size should be in pixels. Derived classes must implement this function.
+/// The size returned by this function is currently the exact same size that will be passed in as
+/// the \a size parameter to the render() or pick() member functions.
+//--------------------------------------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------------------------------------
+/// Do hit test on the overlay item. 
+/// 
+/// Base class only does a check against the bounding box represented by \position and \size.
+//--------------------------------------------------------------------------------------------------
+bool OverlayItem::pick(int x, int y, const Vec2i& position, const Vec2ui& size) 
 {
     Recti oglRect(position, static_cast<int>(size.x()), static_cast<int>(size.y()));
 
-    if ((x > oglRect.min().x()) && (x < oglRect.max().x()) &&
-        (y > oglRect.min().y()) && (y < oglRect.max().y()))
-    {
-        return true;
-    }
-
-    return false;
+    return oglRect.contains(Vec2i(x, y));
 }
+
+
 
 } // namespace cvf

@@ -39,13 +39,11 @@
 
 #include "cvfObject.h"
 #include "cvfVector2.h"
-#include "cvfRect.h"
 
 namespace cvf {
 
-
-
 class OpenGLContext;
+
 
 
 //==================================================================================================
@@ -56,36 +54,39 @@ class OpenGLContext;
 class OverlayItem : public Object
 {
 public:
-    enum LayoutCorner
+    enum LayoutScheme
+    {
+        HORIZONTAL,    
+        VERTICAL,
+        FIXED_POSITION
+    };
+
+    enum AnchorCorner
     {
         TOP_LEFT,       
         TOP_RIGHT,      
         BOTTOM_LEFT,    
-        BOTTOM_RIGHT,
-        UNMANAGED
-    };
-
-    enum LayoutDirection
-    {
-        HORIZONTAL,    
-        VERTICAL       
+        BOTTOM_RIGHT    
     };
 
 public:
-    virtual Vec2ui  sizeHint()  = 0;        // In Pixels
-    virtual Vec2ui  maximumSize() = 0;      // In Pixels
-    virtual Vec2ui  minimumSize() = 0;      // In Pixels
-    
-    cvf::Vec2i      unmanagedPosition() const            { return m_unmanagedPosition; }
-    void            setUnmanagedPosition(cvf::Vec2i val) { m_unmanagedPosition = val;  }
+    OverlayItem();
 
+    void            setLayout(LayoutScheme layoutScheme, AnchorCorner anchorCorner);
+    void            setLayoutFixedPosition(const Vec2i& fixedPosition);
+    LayoutScheme    layoutScheme() const;
+    AnchorCorner    anchorCorner() const;
+    Vec2i           fixedPosition() const;
+
+    virtual Vec2ui  sizeHint()  = 0;
     virtual void    render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) = 0;
     virtual void    renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size) = 0;
     virtual bool    pick(int oglXCoord, int oglYCoord, const Vec2i& position, const Vec2ui& size);
 
 private:
-    Vec2i m_unmanagedPosition;
-
+    LayoutScheme    m_layoutScheme;
+    AnchorCorner    m_anchorCorner;
+    Vec2i           m_fixedPosition;
 };
 
 }

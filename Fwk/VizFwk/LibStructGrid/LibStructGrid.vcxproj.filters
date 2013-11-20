@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cvfLibStructGrid.h" />
+    <ClInclude Include="cvfRectilinearGrid.h" />
+    <ClInclude Include="cvfStructGridCutPlane.h" />
+    <ClInclude Include="cvfStructGridGeometry.h" />
+    <ClInclude Include="cvfStructGridImport.h" />
+    <ClInclude Include="cvfStructGridIsosurface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvfRectilinearGrid.cpp" />
+    <ClCompile Include="cvfStructGridCutPlane.cpp" />
+    <ClCompile Include="cvfStructGridGeometry.cpp" />
+    <ClCompile Include="cvfStructGridImport.cpp" />
+    <ClCompile Include="cvfStructGridIsosurface.cpp" />
+  </ItemGroup>
+</Project>

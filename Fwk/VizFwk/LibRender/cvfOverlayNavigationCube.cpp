@@ -63,6 +63,7 @@
 #include "cvfTexture.h"
 #include "cvfSampler.h"
 #include "cvfRenderStateTextureBindings.h"
+#include "cvfRect.h"
 
 #ifndef CVF_OPENGL_ES
 #include "cvfRenderState_FF.h"
@@ -145,24 +146,6 @@ void OverlayNavigationCube::setAxisLabelsColor(const Color3f& color)
 cvf::Vec2ui OverlayNavigationCube::sizeHint()
 {
     return m_size;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui OverlayNavigationCube::maximumSize()
-{
-    return sizeHint();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui OverlayNavigationCube::minimumSize()
-{
-    return sizeHint();
 }
 
 
@@ -1214,7 +1197,7 @@ bool OverlayNavigationCube::processSelection(int winCoordX, int winCoordY, const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t OverlayNavigationCube::pickItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size)
+size_t OverlayNavigationCube::pickItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size) const
 {
     Camera cam;
     configureLocalCamera(&cam, position, size);
@@ -1247,7 +1230,7 @@ size_t OverlayNavigationCube::pickItem(int winCoordX, int winCoordY, const Vec2i
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-OverlayNavigationCube::NavCubeItem OverlayNavigationCube::pick2dItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size)
+OverlayNavigationCube::NavCubeItem OverlayNavigationCube::pick2dItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size) const
 {
     Vec2f vpOrigin;
     vpOrigin.x() = static_cast<float>(position.x()) + static_cast<float>(size.x())*0.5f;
@@ -1289,7 +1272,7 @@ OverlayNavigationCube::NavCubeItem OverlayNavigationCube::pick2dItem(int winCoor
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void OverlayNavigationCube::configureLocalCamera(Camera* camera, const Vec2i& position, const Vec2ui& size)
+void OverlayNavigationCube::configureLocalCamera(Camera* camera, const Vec2i& position, const Vec2ui& size) const
 {
     // Position the camera far enough away to make the axis and the text fit within the viewport
     Mat4d axisMatrix = m_camera->viewMatrix();

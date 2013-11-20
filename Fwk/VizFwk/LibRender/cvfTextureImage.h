@@ -63,8 +63,10 @@ public:
     void                setData(const ubyte* rgbaData, uint width, uint height);
     void                setFromRgb(const UByteArray& rgbData, uint width, uint height);
     void                setFromRgb(const ubyte* rgbData, uint width, uint height);
+    void                clear();
 
     ref<UByteArray>     toRgb() const;
+    ubyte*              ptr();
     const ubyte*        ptr() const;
 
     void                setPixel(uint x, uint y, const Color4ub& clr);

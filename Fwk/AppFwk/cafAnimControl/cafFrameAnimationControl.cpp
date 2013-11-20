@@ -163,7 +163,11 @@ int FrameAnimationControl::currentFrame() const
 void FrameAnimationControl::setNumFrames(int numFrames)
 {
     m_numFrames = numFrames < 0 ? 0 : numFrames;
+    
     emit frameCountChanged(m_numFrames);
+
+    if (m_currentFrame >= numFrames ) m_currentFrame = 0; // Should we emit frameChanged ?
+
 }
 
 //--------------------------------------------------------------------------------------------------

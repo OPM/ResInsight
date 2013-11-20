@@ -61,7 +61,6 @@ class UniformSet;
 class RayIntersectSpec;
 class HitItemCollection;
 class OpenGLContext;
-struct OverlayItemLayout;
 
 
 
@@ -127,11 +126,10 @@ public:
     void                    clearMaxNumPartsToDraw();
 
     size_t			        overlayItemCount() const;
-    void                    addOverlayItem(OverlayItem* overlayItem, OverlayItem::LayoutCorner corner, OverlayItem::LayoutDirection direction);
-    OverlayItem*            overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction);
-    const OverlayItem*      overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction) const;
+    void                    addOverlayItem(OverlayItem* overlayItem);
+    OverlayItem*            overlayItem(size_t index);
+    const OverlayItem*      overlayItem(size_t index) const;
     OverlayItem*            overlayItemFromWindowCoordinates(int x, int y);
-    Recti                   overlayItemRect(OverlayItem* item);
     void                    removeOverlayItem(const OverlayItem* overlayItem);
     void                    removeAllOverlayItems();
 
@@ -140,10 +138,9 @@ public:
 private:
     void                    renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRendering);
 
-    typedef std::map<cvf::OverlayItem*, cvf::Recti>  OverlayItemRectMap;
+    typedef std::map<const cvf::OverlayItem*, cvf::Recti>  OverlayItemRectMap;
     void                    calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap);
-    void                    calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, OverlayItem::LayoutCorner corner, OverlayItem::LayoutDirection direction);
-
+    void                    calculateOverlayItemLayoutForSchemeAndCorner(OverlayItemRectMap* itemRectMap, OverlayItem::LayoutScheme layoutScheme, OverlayItem::AnchorCorner anchorCorner);
 
     void                    updateDynamicUniformSets();
     void                    updateAndCombineGlobalDynamicUniformSets();
@@ -154,7 +151,7 @@ private:
     ref<Camera>                     m_camera;
     ref<FramebufferObject>          m_targetFramebuffer;        // The target framebuffer for the rendering. NULL means the default window framebuffer.
 
-    std::vector<OverlayItemLayout>  m_overlayItems;
+    Collection<OverlayItem>         m_overlayItems;
 
     ref<PartRenderHintCollection>   m_visibleParts;             // The collection of visible parts for one pass. The collection class is reused between passes
     ref<RenderQueueSorter>          m_renderQueueSorter;        // Render queue sorter, initialized to a basic sorter with minimal sorting strategy

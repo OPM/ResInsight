@@ -149,7 +149,12 @@ void OpenGLContext::saveOpenGLState(cvf::OpenGLContext* oglContext)
 
     CVF_CHECK_OGL(oglContext);
 
-    glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+    glPushClientAttrib(GL_CLIENT_PIXEL_STORE_BIT);
+    CVF_CHECK_OGL(oglContext);
+
+    // For now disable pushing of the vertex array related attributes as it gives a mystical
+    // crash on Redhat5 under VMWare. Not a big issue, but maybe we can do without this push?
+    //glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     CVF_CHECK_OGL(oglContext);
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -209,6 +214,9 @@ void OpenGLContext::restoreOpenGLState(cvf::OpenGLContext* oglContext)
 
     glPopAttrib();
     CVF_CHECK_OGL(oglContext);
+ 
+    // Currently not pushing vertex attribs, so comment out the pop
+    //glPopClientAttrib();
 
     glPopClientAttrib();
     CVF_CHECK_OGL(oglContext);

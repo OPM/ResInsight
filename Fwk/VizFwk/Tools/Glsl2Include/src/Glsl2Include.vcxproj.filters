@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="G2ICodeFile.h" />
+    <ClInclude Include="G2IUtils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="G2IUtils.cpp" />
+    <ClCompile Include="G2IMain.cpp" />
+    <ClCompile Include="G2ICodeFile.cpp" />
+  </ItemGroup>
+</Project>

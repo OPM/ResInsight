@@ -113,7 +113,7 @@ caf::Viewer::Viewer(const QGLFormat& format, QWidget* parent)
     m_overlayTextureImage = new cvf::TextureImage;
     m_overlayImage = new cvf::OverlayImage(m_overlayTextureImage.p());
     m_overlayImage->setBlending(cvf::OverlayImage::TEXTURE_ALPHA);
-    m_overlayImage->setUnmanagedPosition(cvf::Vec2i(0,0));
+    m_overlayImage->setLayoutFixedPosition(cvf::Vec2i(0,0));
 
     setupMainRendering();
     setupRenderingSequence();
@@ -459,7 +459,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
             m_overlayTextureImage->allocate(this->width(), this->height());
         }
 
-        cvfqt::Utils::copyFromQImage(m_overlayTextureImage.p(), m_overlayPaintingQImage);
+        cvfqt::Utils::fromQImage(m_overlayPaintingQImage, m_overlayTextureImage.p());
         
         m_overlayImage->setImage(m_overlayTextureImage.p());
         m_overlayImage->setPixelSize(cvf::Vec2ui(this->width(), this->height()));
@@ -784,7 +784,7 @@ void caf::Viewer::updateOverlayImagePresence()
 {
     if (m_isOverlyPaintingEnabled || m_showPerfInfoHud)
     {
-         m_mainRendering->addOverlayItem(m_overlayImage.p(), cvf::OverlayItem::UNMANAGED, cvf::OverlayItem::VERTICAL);
+         m_mainRendering->addOverlayItem(m_overlayImage.p());
     }
     else
     {

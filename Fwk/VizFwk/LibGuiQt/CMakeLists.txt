@@ -21,6 +21,16 @@ include_directories(../LibRender)
 include_directories(../LibViewing)
 
 
+set(CEE_HEADER_FILES
+cvfqtBasicAboutDialog.h
+cvfqtCvfBoundQGLContext.h
+cvfqtMouseState.h
+cvfqtOpenGLContext.h
+cvfqtOpenGLWidget.h
+cvfqtPerformanceInfoHud.h
+cvfqtUtils.h
+)
+
 set(CEE_SOURCE_FILES
 cvfqtBasicAboutDialog.cpp
 cvfqtCvfBoundQGLContext.cpp
@@ -31,5 +41,5 @@ cvfqtPerformanceInfoHud.cpp
 cvfqtUtils.cpp
 )
 
-add_library(${PROJECT_NAME} ${CEE_SOURCE_FILES})
+add_library(${PROJECT_NAME} ${CEE_HEADER_FILES} ${CEE_SOURCE_FILES})
 

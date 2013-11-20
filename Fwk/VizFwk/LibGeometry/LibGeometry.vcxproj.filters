@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="cvfArrowGenerator.h" />
+    <ClInclude Include="cvfBoundingBox.h" />
+    <ClInclude Include="cvfBoxGenerator.h" />
+    <ClInclude Include="cvfEdgeKey.h" />
+    <ClInclude Include="cvfFrustum.h" />
+    <ClInclude Include="cvfGeometryBuilder.h" />
+    <ClInclude Include="cvfGeometryBuilderFaceList.h" />
+    <ClInclude Include="cvfGeometryBuilderTriangles.h" />
+    <ClInclude Include="cvfGeometryUtils.h" />
+    <ClInclude Include="cvfLibGeometry.h" />
+    <ClInclude Include="cvfMeshEdgeExtractor.h" />
+    <ClInclude Include="cvfOutlineEdgeExtractor.h" />
+    <ClInclude Include="cvfPatchGenerator.h" />
+    <ClInclude Include="cvfRay.h" />
+    <ClInclude Include="cvfVertexWelder.h" />
+    <ClInclude Include="cvfTriangleVertexSplitter.h" />
+    <ClInclude Include="cvfVertexCompactor.h" />
+    <ClInclude Include="cvfTriangleMeshEdgeExtractor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvfArrowGenerator.cpp" />
+    <ClCompile Include="cvfBoundingBox.cpp" />
+    <ClCompile Include="cvfBoxGenerator.cpp" />
+    <ClCompile Include="cvfEdgeKey.cpp" />
+    <ClCompile Include="cvfFrustum.cpp" />
+    <ClCompile Include="cvfGeometryBuilder.cpp" />
+    <ClCompile Include="cvfGeometryBuilderFaceList.cpp" />
+    <ClCompile Include="cvfGeometryBuilderTriangles.cpp" />
+    <ClCompile Include="cvfGeometryUtils.cpp" />
+    <ClCompile Include="cvfMeshEdgeExtractor.cpp" />
+    <ClCompile Include="cvfOutlineEdgeExtractor.cpp" />
+    <ClCompile Include="cvfPatchGenerator.cpp" />
+    <ClCompile Include="cvfRay.cpp" />
+    <ClCompile Include="cvfVertexWelder.cpp" />
+    <ClCompile Include="cvfTriangleVertexSplitter.cpp" />
+    <ClCompile Include="cvfVertexCompactor.cpp" />
+    <ClCompile Include="cvfTriangleMeshEdgeExtractor.cpp" />
+  </ItemGroup>
+</Project>

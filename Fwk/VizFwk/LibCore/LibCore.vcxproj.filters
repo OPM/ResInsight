@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="cvfArray.h" />
+    <ClInclude Include="cvfVersion.h" />
+    <ClInclude Include="cvfAssert.h" />
+    <ClInclude Include="cvfBase.h" />
+    <ClInclude Include="cvfCharArray.h" />
+    <ClInclude Include="cvfCollection.h" />
+    <ClInclude Include="cvfColor3.h" />
+    <ClInclude Include="cvfColor4.h" />
+    <ClInclude Include="cvfConfigCore.h" />
+    <ClInclude Include="cvfDebugTimer.h" />
+    <ClInclude Include="cvfFlags.h" />
+    <ClInclude Include="cvfLibCore.h" />
+    <ClInclude Include="cvfMath.h" />
+    <ClInclude Include="cvfMatrix3.h" />
+    <ClInclude Include="cvfMatrix4.h" />
+    <ClInclude Include="cvfObject.h" />
+    <ClInclude Include="cvfPlane.h" />
+    <ClInclude Include="cvfQuat.h" />
+    <ClInclude Include="cvfRect.h" />
+    <ClInclude Include="cvfString.h" />
+    <ClInclude Include="cvfSystem.h" />
+    <ClInclude Include="cvfTimer.h" />
+    <ClInclude Include="cvfTrace.h" />
+    <ClInclude Include="cvfVector2.h" />
+    <ClInclude Include="cvfVector3.h" />
+    <ClInclude Include="cvfVector4.h" />
+    <ClInclude Include="cvfValueArray.h" />
+    <ClInclude Include="cvfBase64.h" />
+    <ClInclude Include="cvfTBBControl.h" />
+    <ClInclude Include="cvfFunctorRange.h" />
+    <ClInclude Include="cvfLogger.h" />
+    <ClInclude Include="cvfVariant.h" />
+    <ClInclude Include="cvfPropertySet.h" />
+    <ClInclude Include="cvfPropertySetCollection.h" />
+    <ClInclude Include="cvfLogEvent.h" />
+    <ClInclude Include="cvfCodeLocation.h" />
+    <ClInclude Include="cvfMutex.h" />
+    <ClInclude Include="cvfLogManager.h" />
+    <ClInclude Include="cvfLogDestination.h" />
+    <ClInclude Include="cvfLogDestinationConsole.h" />
+    <ClInclude Include="cvfLogDestinationFile.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cvfArray.inl" />
+    <None Include="cvfCollection.inl" />
+    <None Include="cvfFlags.inl" />
+    <None Include="cvfMath.inl" />
+    <None Include="cvfMatrix3.inl" />
+    <None Include="cvfMatrix4.inl" />
+    <None Include="cvfObject.inl" />
+    <None Include="cvfQuat.inl" />
+    <None Include="cvfRect.inl" />
+    <None Include="cvfVector2.inl" />
+    <None Include="cvfVector3.inl" />
+    <None Include="cvfVector4.inl" />
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvfAssert.cpp" />
+    <ClCompile Include="cvfVector4.cpp" />
+    <ClCompile Include="cvfCharArray.cpp" />
+    <ClCompile Include="cvfColor3.cpp" />
+    <ClCompile Include="cvfColor4.cpp" />
+    <ClCompile Include="cvfDebugTimer.cpp" />
+    <ClCompile Include="cvfMath.cpp" />
+    <ClCompile Include="cvfObject.cpp" />
+    <ClCompile Include="cvfPlane.cpp" />
+    <ClCompile Include="cvfString.cpp" />
+    <ClCompile Include="cvfSystem.cpp" />
+    <ClCompile Include="cvfTimer.cpp" />
+    <ClCompile Include="cvfTrace.cpp" />
+    <ClCompile Include="cvfVector2.cpp" />
+    <ClCompile Include="cvfVector3.cpp" />
+    <ClCompile Include="cvfBase64.cpp" />
+    <ClCompile Include="cvfTBBControl.cpp" />
+    <ClCompile Include="cvfLogger.cpp" />
+    <ClCompile Include="cvfVariant.cpp" />
+    <ClCompile Include="cvfPropertySet.cpp" />
+    <ClCompile Include="cvfPropertySetCollection.cpp" />
+    <ClCompile Include="cvfLogEvent.cpp" />
+    <ClCompile Include="cvfCodeLocation.cpp" />
+    <ClCompile Include="cvfMutex.cpp" />
+    <ClCompile Include="cvfLogManager.cpp" />
+    <ClCompile Include="cvfLogDestinationConsole.cpp" />
+    <ClCompile Include="cvfLogDestinationFile.cpp" />
+  </ItemGroup>
+</Project>

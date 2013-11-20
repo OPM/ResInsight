@@ -49,7 +49,6 @@
 #include "cvfDrawableVectors.h"
 #include "cvfFixedAtlasFont.h"
 #include "cvfFont.h"
-#include "cvfFontManager.h"
 #include "cvfFramebufferObject.h"
 #include "cvfGeometryBuilderDrawableGeo.h"
 #include "cvfGlyph.h"

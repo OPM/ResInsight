@@ -117,12 +117,13 @@ public:
     bool            operator==(const Color3f& rhs) const;
     bool            operator!=(const Color3f& rhs) const;
 
-    float           r() const;
-    float           g() const;
-    float           b() const;
-    float&          r();
-    float&          g();
-    float&          b();
+    const float&    r() const           { return m_rgb[0]; }        ///< Returns the red color component
+    const float&    g() const           { return m_rgb[1]; }        ///< Returns the green color component
+    const float&    b() const           { return m_rgb[2]; }        ///< Returns the blue color component
+    float&          r()                 { return m_rgb[0]; }        ///< Get modifiable reference to the red color component, used for setting the component.
+    float&          g()                 { return m_rgb[1]; }        ///< Get modifiable reference to the green color component, used for setting the component
+    float&          b()                 { return m_rgb[2]; }        ///< Get modifiable reference to the blue color component, used for setting the component
+
     void            set(float r, float g, float b);
 
     bool            isValid() const;
@@ -159,12 +160,13 @@ public:
     bool            operator==(const Color3ub& rhs) const;
     bool            operator!=(const Color3ub& rhs) const;
 
-    ubyte           r() const;
-    ubyte           g() const;
-    ubyte           b() const;
-    ubyte&          r();
-    ubyte&          g();
-    ubyte&          b();
+    ubyte           r() const           { return m_rgb[0]; }        ///< Returns the red color component
+    ubyte           g() const           { return m_rgb[1]; }        ///< Returns the green color component
+    ubyte           b() const           { return m_rgb[2]; }        ///< Returns the blue color component
+    ubyte&          r()                 { return m_rgb[0]; }        ///< Get modifiable reference to the red color component.
+    ubyte&          g()                 { return m_rgb[1]; }        ///< Get modifiable reference to the green color component.
+    ubyte&          b()                 { return m_rgb[2]; }        ///< Get modifiable reference to the blue color component.
+
     void            set(ubyte r, ubyte g, ubyte b);
 
     const ubyte*    ptr() const;

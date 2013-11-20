@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\ThirdParty\gtest\gtest-all.cpp" />
+    <ClCompile Include="cvfCamera-Test.cpp" />
+    <ClCompile Include="cvfDrawableGeo-Test.cpp" />
+    <ClCompile Include="cvfGeometryBuilderDrawableGeo-Test.cpp" />
+    <ClCompile Include="cvfOpenGLResourceManager-Test.cpp" />
+    <ClCompile Include="cvfPrimitiveSetIndexedUInt-Test.cpp" />
+    <ClCompile Include="cvfRenderState-Test.cpp" />
+    <ClCompile Include="cvfSampler-Test.cpp" />
+    <ClCompile Include="cvfScalarMapper-Test.cpp" />
+    <ClCompile Include="cvfShaderProgram-Test.cpp" />
+    <ClCompile Include="cvfShader-Test.cpp" />
+    <ClCompile Include="cvfTextureImage-Test.cpp" />
+    <ClCompile Include="cvfTexture-Test.cpp" />
+    <ClCompile Include="cvfUniformSet-Test.cpp" />
+    <ClCompile Include="cvfUniform-Test.cpp" />
+    <ClCompile Include="cvfViewport-Test.cpp" />
+    <ClCompile Include="LibRender_UnitTests.cpp" />
+    <ClCompile Include="cvfShaderSourceRepository-Test.cpp" />
+    <ClCompile Include="cvfScalarMapperUniformLevels-Test.cpp" />
+    <ClCompile Include="cvfMatrixState-Test.cpp" />
+    <ClCompile Include="cvfPrimitiveSetIndexedUIntScoped-Test.cpp" />
+    <ClCompile Include="cvfShaderProgramGenerator-Test.cpp" />
+    <ClCompile Include="cvfPrimitiveSetIndexedUShortScoped-Test.cpp" />
+    <ClCompile Include="cvfVertexAttribute-Test.cpp" />
+    <ClCompile Include="cvfPrimitiveSetDirect-Test.cpp" />
+    <ClCompile Include="cvfOpenGLCapabilities-Test.cpp" />
+    <ClCompile Include="cvfOpenGLContextGroup-Test.cpp" />
+    <ClCompile Include="cvfOverlayTextBox-Test.cpp" />
+    <ClCompile Include="cvfOverlayColorLegend-Test.cpp" />
+    <ClCompile Include="cvfVertexBundle-Test.cpp" />
+    <ClCompile Include="cvfOverlayItem-Test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="TriggerTBBCopy.txt" />
+  </ItemGroup>
+</Project>
