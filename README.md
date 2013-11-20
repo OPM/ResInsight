@@ -10,14 +10,14 @@ ResInsight has been co-developed by Statoil ASA, Ceetron Solutions AS, and Ceetr
 
 ### Dependencies
 ResInsight uses the Ensambles/ert library to access Eclipse result files, and the two projects collaborates closely. The source code of the approved ert library version is embedded in the ResInsight source code tree, making downloading and building simple.
-ResInsight also features an interface to Octave, making it possible to retrieve data from ResInsight, process them using Octave, and write them back into ResInsight for viewing.
+ResInsight also features an interface to Octave for retrieval of data from ResInsight, processing using Octave, and communication of data back into ResInsight for further handling and visualization.
 
 Octave : [http://www.gnu.org/software/octave/](http://www.gnu.org/software/octave/)
 
 Ensembles/ert : [https://github.com/Ensembles/ert](https://github.com/Ensembles/ert)
 
 ### Supported Platforms
-ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms, but the tested platforms are currently 64 bit RHEL5, RHEL6 and Windows 7.
+ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms. Tested platforms are currently 64 bit RHEL5, RHEL6 and Windows 7.
 
 There has been attempts to make ResInsight build and run on OSX as well, but the tweaks needed (submitted by Roland Kaufmann) is not yet incorporated. 
 
