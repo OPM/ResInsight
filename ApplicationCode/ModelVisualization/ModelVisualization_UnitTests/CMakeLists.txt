@@ -19,6 +19,8 @@ include_directories(
 
 set( MODEL_VISUALIZATION_CPP_SOURCES
     ../RivPipeGeometryGenerator.cpp
+	../cvfGeometryTools.cpp
+	../cvfBoundingBoxTree.cpp
 )
 
 
@@ -29,6 +31,8 @@ set( CPP_SOURCES
 set( UNIT_TEST_CPP_SOURCES
     main.cpp
     RivPipeGeometryGenerator-Test.cpp
+	RivCellFaceIntersection-Test.cpp
+	
 )
 
 
