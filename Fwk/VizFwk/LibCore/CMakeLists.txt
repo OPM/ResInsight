@@ -41,6 +41,7 @@ cvfMutex.h
 cvfObject.h
 cvfObject.inl
 cvfPlane.h
+cvfProgramOptions.h
 cvfPropertySet.h
 cvfPropertySetCollection.h
 cvfQuat.h
@@ -80,6 +81,7 @@ cvfMath.cpp
 cvfMutex.cpp
 cvfObject.cpp
 cvfPlane.cpp
+cvfProgramOptions.cpp
 cvfPropertySet.cpp
 cvfPropertySetCollection.cpp
 cvfString.cpp

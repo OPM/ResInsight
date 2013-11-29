@@ -29,6 +29,7 @@ cvfMatrix3-Test.cpp
 cvfMatrix4-Test.cpp
 cvfObject-Test.cpp
 cvfPlane-Test.cpp
+cvfProgramOptions-Test.cpp
 cvfPropertySet-Test.cpp
 cvfPropertySetCollection-Test.cpp
 cvfRect-Test.cpp

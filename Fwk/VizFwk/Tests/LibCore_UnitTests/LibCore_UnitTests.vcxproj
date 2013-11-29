@@ -266,6 +266,7 @@
     <ClCompile Include="cvfMatrix4-Test.cpp" />
     <ClCompile Include="cvfObject-Test.cpp" />
     <ClCompile Include="cvfPlane-Test.cpp" />
+    <ClCompile Include="cvfProgramOptions-Test.cpp" />
     <ClCompile Include="cvfPropertySet-Test.cpp" />
     <ClCompile Include="cvfPropertySetCollection-Test.cpp" />
     <ClCompile Include="cvfQuat-Test.cpp" />

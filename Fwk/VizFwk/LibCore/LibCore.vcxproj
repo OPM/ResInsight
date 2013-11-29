@@ -254,6 +254,7 @@
     <ClInclude Include="cvfMutex.h" />
     <ClInclude Include="cvfObject.h" />
     <ClInclude Include="cvfPlane.h" />
+    <ClInclude Include="cvfProgramOptions.h" />
     <ClInclude Include="cvfPropertySet.h" />
     <ClInclude Include="cvfPropertySetCollection.h" />
     <ClInclude Include="cvfQuat.h" />
@@ -302,6 +303,7 @@
     <ClCompile Include="cvfMutex.cpp" />
     <ClCompile Include="cvfObject.cpp" />
     <ClCompile Include="cvfPlane.cpp" />
+    <ClCompile Include="cvfProgramOptions.cpp" />
     <ClCompile Include="cvfPropertySet.cpp" />
     <ClCompile Include="cvfPropertySetCollection.cpp" />
     <ClCompile Include="cvfString.cpp" />
