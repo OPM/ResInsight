@@ -49,6 +49,8 @@ public:
     void                                                moveEclipseCaseIntoCaseGroup(RimCase* rimReservoir);
     void                                                removeCaseFromAllGroups(RimCase* rimReservoir);
 
+    void                                                recomputeStatisticsForAllCaseGroups();
+
 private:
     RigMainGrid*                                        registerCaseInGridCollection(RigCaseData* rigEclipseCase);
     cvf::ref<RigGridManager>                            m_gridCollection;

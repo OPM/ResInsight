@@ -212,3 +212,27 @@ void RimAnalysisModels::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGro
     caseGroup->addCase(rimReservoir);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisModels::recomputeStatisticsForAllCaseGroups()
+{
+    const size_t numCaseGroups = caseGroups.size();
+    for (size_t caseGrpIdx = 0; caseGrpIdx < numCaseGroups; ++caseGrpIdx)
+    {
+        RimIdenticalGridCaseGroup* caseGroup = caseGroups[caseGrpIdx];
+        RimCaseCollection* statisticsCaseCollection = caseGroup->statisticsCaseCollection;
+        const size_t numStatisticsCases = statisticsCaseCollection->reservoirs.size();
+        for (size_t caseIdx = 0; caseIdx < numStatisticsCases; caseIdx++)
+        {
+            RimStatisticsCase* statisticsCase = dynamic_cast<RimStatisticsCase*>(statisticsCaseCollection->reservoirs[caseIdx]);
+            if (statisticsCase)
+            {
+                statisticsCase->clearComputedStatistics();
+                statisticsCase->computeStatistics();
+            }
+        }
+    }
+}
+
