@@ -262,7 +262,9 @@ void RimInputCase::loadAndSyncronizeInputProperties()
 
         if (isExistingFile)
         {
-            std::vector< RifKeywordAndFilePos > fileKeywords = RifEclipseInputFileTools::findKeywordsOnFile(filenames[i]);
+            std::vector< RifKeywordAndFilePos > fileKeywords;
+            RifEclipseInputFileTools::findKeywordsOnFile(filenames[i], fileKeywords);
+
             for_all(fileKeywords, fkIt) fileKeywordSet.insert(fileKeywords[fkIt].keyword);
         }
 

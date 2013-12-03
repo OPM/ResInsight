@@ -33,6 +33,7 @@ namespace cvf
 
 class RimResultSlot;
 class RimCellEdgeResultSlot;
+class RimFaultCollection;
 
 //==================================================================================================
 ///
@@ -45,7 +46,7 @@ class RimCellEdgeResultSlot;
 class RivGridPartMgr: public cvf::Object
 {
 public:
-    RivGridPartMgr(const RigGridBase* grid, size_t gridIdx);
+    RivGridPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* rimFaultCollection);
     ~RivGridPartMgr();
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities );
@@ -58,13 +59,6 @@ public:
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
-    enum PartRenderMaskEnum
-    {
-        surfaceBit      = 0x00000001,
-        meshSurfaceBit  = 0x00000002,
-        faultBit        = 0x00000004,
-        meshFaultBit    = 0x00000008,
-    };
 
 private:
     void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
@@ -87,13 +81,13 @@ private:
 
     // Fault visualization
     cvf::StructGridGeometryGenerator            m_faultGenerator;
-    RigGridCellFaceVisibilityFilter             m_faultFaceFilter;
+    RigFaultFaceVisibilityFilter                m_faultFaceFilter;
     cvf::ref<cvf::Part>                         m_faultFaces;
     cvf::ref<cvf::Vec2fArray>                   m_faultFacesTextureCoords;
 
     cvf::ref<cvf::Part>                         m_faultGridLines;
 
-    cvf::ref<cvf::UByteArray>                  m_cellVisibility;
+    cvf::ref<cvf::UByteArray>                   m_cellVisibility;
 
-    //cvf::ref<cvf::Part> m_gridOutlines;
+    const RimFaultCollection*                   m_rimFaultCollection;
 };

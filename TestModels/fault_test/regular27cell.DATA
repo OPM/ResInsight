@@ -1,0 +1,31 @@
+
+-- ==========================================================================
+--
+-- *************************** GRID SECTION ******************************
+--
+-- Specification of geometry of computational grid, and of rock
+-- properties in each grid block.
+--
+-- ==========================================================================
+
+GRID 
+
+-- GEOMETRY
+INCLUDE
+'./regular27cell.grdecl' /
+
+ 
+-- FAULTS
+INCLUDE
+'./main_faults.grdecl' /
+
+
+FAULTS
+-- NAME               IX1  IX2    IY1  IY2    IZ1  IZ2   FACE    
+
+'DATA_FILE_MAIN'       2   3      1    1      1    3   'X-'    /
+
+/
+
+
+EDIT

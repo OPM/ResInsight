@@ -21,6 +21,8 @@
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
+#include "RivFaultPartMgr.h"
+
 namespace cvf
 {
     class ModelBasicList;
@@ -31,7 +33,7 @@ class RimResultSlot;
 class RimCellEdgeResultSlot;
 class RivGridPartMgr;
 class RigCaseData;
-
+class RimFaultCollection;
 
 //==================================================================================================
 ///
@@ -43,7 +45,7 @@ class RigCaseData;
 class RivReservoirPartMgr: public cvf::Object
 {
 public:
-    void   clearAndSetReservoir(const RigCaseData* eclipseCase);
+    void   clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
 
@@ -62,4 +64,5 @@ public:
 private:
 
     cvf::Collection<RivGridPartMgr> m_allGrids; // Main grid and all LGR's 
+    cvf::Collection<RivFaultPartMgr> m_faults;
 };

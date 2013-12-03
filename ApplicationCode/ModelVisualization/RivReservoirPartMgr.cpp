@@ -18,25 +18,33 @@
 
 #include "RiaStdInclude.h"
 #include "RivReservoirPartMgr.h"
-#include "RivGridPartMgr.h"
+
 #include "cvfStructGrid.h"
 #include "cvfModelBasicList.h"
+
 #include "RigCaseData.h"
+#include "RivGridPartMgr.h"
+#include "RivFaultPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection)
 {
     m_allGrids.clear();
+    m_faults.clear();
+
     if (eclipseCase)
     {
         std::vector<const RigGridBase*> grids;
         eclipseCase->allGrids(&grids);
         for (size_t i = 0; i < grids.size() ; ++i)
         {
-            m_allGrids.push_back(new RivGridPartMgr(grids[i], i) );
+            m_allGrids.push_back(new RivGridPartMgr(grids[i], i, faultCollection));
         }
+
+        // Faults read from file are present only on main grid
+        m_faults.push_back(new RivFaultPartMgr(eclipseCase->mainGrid(), 0, faultCollection));
     }
 }
 
@@ -49,6 +57,11 @@ void RivReservoirPartMgr::setTransform(cvf::Transform* scaleTransform)
     {
         m_allGrids[i]->setTransform(scaleTransform);
     }
+
+    for (size_t i = 0; i < m_faults.size() ; ++i)
+    {
+        m_faults[i]->setTransform(scaleTransform);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +71,11 @@ void RivReservoirPartMgr::setCellVisibility(size_t gridIndex, cvf::UByteArray* c
 {
     CVF_ASSERT(gridIndex < m_allGrids.size());
     m_allGrids[gridIndex]->setCellVisibility(cellVisibilities);
+
+    if (gridIndex < m_faults.size())
+    {
+        m_faults[gridIndex]->setCellVisibility(cellVisibilities);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,6 +96,11 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
     {
         m_allGrids[i]->updateCellColor(color);
     }
+
+    for (size_t i = 0; i < m_faults.size() ; ++i)
+    {
+        m_faults[i]->updateCellColor(color);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -89,6 +112,12 @@ void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultS
     {
         m_allGrids[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
     }
+
+    for (size_t i = 0; i < m_faults.size() ; ++i)
+    {
+        m_faults[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +129,11 @@ void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimRes
     {
         m_allGrids[i]->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
     }
+
+    for (size_t i = 0; i < m_faults.size() ; ++i)
+    {
+        m_faults[i]->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +144,11 @@ void RivReservoirPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
     for (size_t i = 0; i < m_allGrids.size() ; ++i)
     {
         m_allGrids[i]->appendPartsToModel(model);
+    }
+
+    for (size_t i = 0; i < m_faults.size() ; ++i)
+    {
+        m_faults[i]->appendPartsToModel(model);
     }
 }
 
@@ -123,6 +162,11 @@ void RivReservoirPartMgr::appendPartsToModel(cvf::ModelBasicList* model, const s
         if (gridIndices[i] < m_allGrids.size())
         {
             m_allGrids[gridIndices[i]]->appendPartsToModel(model);
+        }
+
+        if (gridIndices[i] < m_faults.size())
+        {
+            m_faults[gridIndices[i]]->appendPartsToModel(model);
         }
     }
 }

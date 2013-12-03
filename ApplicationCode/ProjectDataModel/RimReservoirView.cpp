@@ -73,6 +73,7 @@
 
 #include <limits.h>
 #include "cafCeetronPlusNavigation.h"
+#include "RimFaultCollection.h"
 
 namespace caf {
 
@@ -98,11 +99,6 @@ void caf::AppEnum< RimReservoirView::SurfaceModeType >::setUp()
 
 
 
-
-const cvf::uint surfaceBit      = 0x00000001;
-const cvf::uint meshSurfaceBit  = 0x00000002;
-const cvf::uint faultBit        = 0x00000004;
-const cvf::uint meshFaultBit    = 0x00000008;
 
 
 CAF_PDM_SOURCE_INIT(RimReservoirView, "ReservoirView");
@@ -144,6 +140,9 @@ RimReservoirView::RimReservoirView()
 
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimWellCollection;
+
+    CAF_PDM_InitFieldNoDefault(&faultCollection, "FaultCollection", "Faults", "", "", "");
+    faultCollection = new RimFaultCollection;
 
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
     rangeFilterCollection = new RimCellRangeFilterCollection();
@@ -198,6 +197,7 @@ RimReservoirView::~RimReservoirView()
     delete rangeFilterCollection();
     delete propertyFilterCollection();
     delete wellCollection();
+    delete faultCollection();
 
     if (m_viewer)
     {
@@ -890,6 +890,8 @@ void RimReservoirView::loadDataAndUpdate()
 
     this->propertyFilterCollection()->loadAndInitializePropertyFilters();
 
+    syncronizeFaults();
+
     m_reservoirGridPartManager->clearGeometryCache();
 
     syncronizeWellsWithResults();
@@ -1104,30 +1106,35 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 void RimReservoirView::updateDisplayModelVisibility()
 {
     if (m_viewer.isNull()) return;
+
+    const cvf::uint uintSurfaceBit      = surfaceBit;
+    const cvf::uint uintMeshSurfaceBit  = meshSurfaceBit;
+    const cvf::uint uintFaultBit        = faultBit;
+    const cvf::uint uintMeshFaultBit    = meshFaultBit;
  
     // Initialize the mask to show everything except the the bits controlled here
-    unsigned int mask = 0xffffffff & ~surfaceBit & ~faultBit & ~meshSurfaceBit & ~meshFaultBit ;
+    unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit ;
 
     // Then turn the appropriate bits on according to the user settings
 
     if (surfaceMode == SURFACE)
     {
-         mask |= surfaceBit;
-         mask |= faultBit;
+         mask |= uintSurfaceBit;
+         mask |= uintFaultBit;
     }
     else if (surfaceMode == FAULTS)
     {
-        mask |= faultBit;
+        mask |= uintFaultBit;
     }
 
     if (meshMode == FULL_MESH)
     {
-        mask |= meshSurfaceBit;
-        mask |= meshFaultBit;
+        mask |= uintMeshSurfaceBit;
+        mask |= uintMeshFaultBit;
     }
     else if (meshMode == FAULTS_MESH)
     {
-        mask |= meshFaultBit;
+        mask |= uintMeshFaultBit;
     }
 
     m_viewer->setEnableMask(mask);
@@ -1398,6 +1405,41 @@ void RimReservoirView::syncronizeWellsWithResults()
         this->wellCollection()->wells()[wIdx]->setReservoirView(this);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::syncronizeFaults()
+{
+    if (!(m_reservoir && m_reservoir->reservoirData()) ) return;
+
+    const cvf::Collection<RigFault> rigFaults = m_reservoir->reservoirData()->mainGrid()->faults();
+
+    std::vector<caf::PdmPointer<RimFault> > newFaults;
+
+    // Find corresponding fault from data model, or create a new
+
+    for (size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx)
+    {
+        RimFault* rimFault = this->faultCollection()->findFaultByName(rigFaults[fIdx]->name());
+
+        if (!rimFault)
+        {
+            rimFault = new RimFault();
+        }
+
+        rimFault->setFaultGeometry(rigFaults[fIdx].p());
+
+        newFaults.push_back(rimFault);
+    }
+
+    this->faultCollection()->faults().clear();
+    this->faultCollection()->faults().insert(0, newFaults);
+
+    // Make sure all the faults have their reservoirView ptr setup correctly
+    this->faultCollection()->setReservoirView(this);
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

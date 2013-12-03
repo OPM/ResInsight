@@ -28,6 +28,8 @@
 #include <iostream>
 
 #include <QFile>
+#include <QFileInfo>
+#include <QDir>
 #include <QTextStream>
 #include <QDebug>
 
@@ -35,9 +37,13 @@
 #include "well_state.h"
 #include "util.h"
 #include <fstream>
-#include "RigGridScalarDataAccess.h"
 
 
+
+QString includeKeyword("INCLUDE");
+QString faultsKeyword("FAULTS");
+QString editKeyword("EDIT");
+QString gridKeyword("GRID");
 
 
 //--------------------------------------------------------------------------------------------------
@@ -65,13 +71,16 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
 {
     CVF_ASSERT(eclipseCase);
 
+    std::vector< RifKeywordAndFilePos > keywordsAndFilePos;
+    findKeywordsOnFile(fileName, keywordsAndFilePos);
+
     qint64 coordPos = -1;
     qint64 zcornPos = -1;
     qint64 specgridPos = -1;
     qint64 actnumPos = -1;
     qint64 mapaxesPos = -1;
 
-    findGridKeywordPositions(fileName, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos);
+    findGridKeywordPositions(keywordsAndFilePos, &coordPos, &zcornPos, &specgridPos, &actnumPos, &mapaxesPos);
 
     if (coordPos < 0 || zcornPos < 0 || specgridPos < 0)
     {
@@ -99,7 +108,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
     ecl_kw_type* mapAxesKw   = NULL;
 
     // Try to read all the needed keywords. Early exit if some are not found
-    caf::ProgressInfo progress(7, "Read Grid from Eclipse Input file");
+    caf::ProgressInfo progress(8, "Read Grid from Eclipse Input file");
 
 
 
@@ -157,6 +166,15 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
     RifReaderEclipseOutput::transferGeometry(inputGrid, eclipseCase);
 
     progress.setProgress(7);
+    progress.setProgressDescription("Read faults ...");
+
+    cvf::Collection<RigFault> faults;
+    RifEclipseInputFileTools::readFaults(fileName, faults, keywordsAndFilePos);
+
+    RigMainGrid* mainGrid = eclipseCase->mainGrid();
+    mainGrid->setFaults(faults);
+    
+    progress.setProgress(8);
     progress.setProgressDescription("Cleaning up ...");
 
     ecl_kw_free(specGridKw);
@@ -189,7 +207,8 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
     caf::ProgressInfo mainProgress(2, "Reading Eclipse Input properties");
     caf::ProgressInfo startProgress(knownKeywordSet.size(), "Scanning for known properties");
 
-    std::vector<RifKeywordAndFilePos> fileKeywords = RifEclipseInputFileTools::findKeywordsOnFile(fileName);
+    std::vector<RifKeywordAndFilePos> fileKeywords;
+    RifEclipseInputFileTools::findKeywordsOnFile(fileName, fileKeywords);
 
     mainProgress.setProgress(1);
     caf::ProgressInfo progress(fileKeywords.size(), "Reading properties");
@@ -242,10 +261,8 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
 // https://bugreports.qt-project.org/browse/QTBUG-9814
 //
 //--------------------------------------------------------------------------------------------------
-std::vector< RifKeywordAndFilePos > RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName)
+void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::vector< RifKeywordAndFilePos >& keywords)
 {
-    std::vector< RifKeywordAndFilePos > keywords;
-
     char buf[1024];
 
     QFile data(fileName);
@@ -274,8 +291,6 @@ std::vector< RifKeywordAndFilePos > RifEclipseInputFileTools::findKeywordsOnFile
         }
     }
     while (lineLength != -1);
-
-    return keywords;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -484,12 +499,10 @@ void RifEclipseInputFileTools::writeDataToTextFile(QFile* file, const QString& e
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::findGridKeywordPositions(const QString& filename, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos)
+void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywordsAndFilePos, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos)
 {
     CVF_ASSERT(coordPos && zcornPos && specgridPos && actnumPos && mapaxesPos);
 
-
-    std::vector< RifKeywordAndFilePos > keywordsAndFilePos = findKeywordsOnFile(filename);
     size_t i;
     for (i = 0; i < keywordsAndFilePos.size(); i++)
     {
@@ -548,4 +561,295 @@ bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileNam
 
     util_fclose(filePointer);
     return isOk;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::readFaults(const QString& fileName, cvf::Collection<RigFault>& faults, const std::vector<RifKeywordAndFilePos>& fileKeywords)
+{
+    QFile data(fileName);
+    if (!data.open(QFile::ReadOnly))
+    {
+        return;
+    }
+
+    for (size_t i = 0; i < fileKeywords.size(); i++)
+    {
+        if (fileKeywords[i].keyword.compare(editKeyword, Qt::CaseInsensitive) == 0)
+        {
+            return;
+        }
+        else if (fileKeywords[i].keyword.compare(faultsKeyword, Qt::CaseInsensitive) != 0)
+        {
+            continue;
+        }
+
+        qint64 filePos = fileKeywords[i].filePos;
+
+        bool isEditKeywordDetected = false;
+        readFaults(data, filePos, faults, &isEditKeywordDetected);
+
+        if (isEditKeywordDetected)
+        {
+            return;
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>& faults)
+{
+    QFile data(fileName);
+    if (!data.open(QFile::ReadOnly))
+    {
+        return;
+    }
+
+    QString gridKeyword("GRID");
+
+    // Search for keyword grid
+
+    qint64 gridPos = findKeyword(gridKeyword, data);
+    if (gridPos < 0)
+    {
+        return;
+    }
+
+    bool isEditKeywordDetected = false;
+
+    readFaultsAndParseIncludeStatementsRecursively(data, gridPos, faults, &isEditKeywordDetected);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t RifEclipseInputFileTools::findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name)
+{
+    for (size_t i = 0; i < faults.size(); i++)
+    {
+        if (faults.at(i)->name() == name)
+        {
+            return i;
+        }
+    }
+
+    return cvf::UNDEFINED_SIZE_T;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file)
+{
+    QString line;
+
+    do 
+    {
+        line = file.readLine();
+        if (line.startsWith("--", Qt::CaseInsensitive))
+        {
+            continue;
+        }
+
+        line = line.trimmed();
+
+        if (line.startsWith(keyword, Qt::CaseInsensitive))
+        {
+            return file.pos();
+        }
+
+    } while (!file.atEnd());
+
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>& faults, bool* isEditKeywordDetected)
+{
+    QString line;
+
+    if (!file.seek(startPos))
+    {
+        return false;
+    }
+
+    bool continueParsing = true;
+
+    do 
+    {
+        line = file.readLine();
+        if (line.startsWith("--", Qt::CaseInsensitive))
+        {
+            continue;
+        }
+        else if (line.startsWith(editKeyword, Qt::CaseInsensitive))
+        {
+            if (isEditKeywordDetected)
+            {
+                *isEditKeywordDetected = true;
+            }
+
+            return false;
+        }
+
+
+        line = line.trimmed();
+        if (line.startsWith(includeKeyword, Qt::CaseInsensitive))
+        {
+            QString nextLine = file.readLine();
+
+            int firstQuote = nextLine.indexOf("'");
+            int lastQuote = nextLine.lastIndexOf("'");
+
+            if (!(firstQuote < 0 || lastQuote < 0 || firstQuote == lastQuote))
+            {
+                QDir currentFileFolder;
+                {
+                    QFileInfo fi(file.fileName());
+                    currentFileFolder = fi.absoluteDir();
+                }
+                
+                // Read include file name, and both relative and absolute path is supported
+                QString includeFilename = nextLine.mid(firstQuote + 1, lastQuote - firstQuote - 1);
+                QFileInfo fi(currentFileFolder, includeFilename);
+                if (fi.exists())
+                {
+                    QString absoluteFilename = fi.canonicalFilePath();
+                    QFile includeFile(absoluteFilename);
+                    if (includeFile.open(QFile::ReadOnly))
+                    {
+                        qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
+
+                        if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, faults, isEditKeywordDetected))
+                        {
+                            qDebug() << "Error when parsing include file : " << absoluteFilename;
+                        }
+                    }
+                }
+            }
+        }
+        else if (line.startsWith(faultsKeyword, Qt::CaseInsensitive))
+        {
+            readFaults(file, file.pos(), faults, isEditKeywordDetected);
+        }
+
+        if (isEditKeywordDetected && *isEditKeywordDetected)
+        {
+            continueParsing = false;
+        }
+
+        if (file.atEnd())
+        {
+            continueParsing = false;
+        }
+
+    } while (continueParsing);
+    
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// The file pointer is pointing at the line following the FAULTS keyword.
+/// Parse content of this keyword until end of file or
+/// end of keyword when a single line with '/' is found
+//--------------------------------------------------------------------------------------------------
+void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Collection<RigFault> &faults, bool* isEditKeywordDetected)
+{
+    if (!data.seek(filePos))
+    {
+        return;
+    }
+
+    qDebug() << "Reading faults from\n  " << data.fileName();
+
+    RigFault* fault = NULL;
+
+    do 
+    {
+        QString line = data.readLine();
+        line = line.trimmed();
+
+        if (line.startsWith("--", Qt::CaseInsensitive))
+        {
+            // Skip comment lines
+            continue;
+        }
+        else if (line.startsWith("/", Qt::CaseInsensitive))
+        {
+            // Detected end of keyword data section
+            return;
+        }
+        else if (line.startsWith(editKeyword, Qt::CaseInsensitive))
+        {
+            // End parsing when edit keyword is detected
+
+            if (isEditKeywordDetected)
+            {
+                *isEditKeywordDetected = true;
+            }
+
+            return;
+        }
+
+        // Replace tab with space to be able to split the string using space as splitter
+        line.replace("\t", " ");
+
+        QStringList entries = line.split(" ", QString::SkipEmptyParts);
+        if (entries.size() < 8)
+        {
+            continue;
+        }
+
+        QString name = entries[0];
+        name.remove("'");
+
+        int i1, i2, j1, j2, k1, k2;
+        i1 = entries[1].toInt();
+        i2 = entries[2].toInt();
+        j1 = entries[3].toInt();
+        j2 = entries[4].toInt();
+        k1 = entries[5].toInt();
+        k2 = entries[6].toInt();
+
+        QString faceString = entries[7];
+        faceString.remove("'");
+
+        cvf::StructGridInterface::FaceEnum cellFaceEnum = cvf::StructGridInterface::FaceEnum::fromText(faceString);
+
+        cvf::CellRange cellrange(i1 - 1, j1 - 1, k1 - 1, i2 - 1, j2 - 1, k2 - 1); // Adjust from 1-based to 0-based cell indices
+
+        if (!(fault && fault->name() == name))
+        {
+            if (findFaultByName(faults, name) == cvf::UNDEFINED_SIZE_T)
+            {
+                RigFault* newFault = new RigFault;
+                newFault->setName(name);
+
+                faults.push_back(newFault);
+            }
+
+            size_t faultIndex = findFaultByName(faults, name);
+            if (faultIndex == cvf::UNDEFINED_SIZE_T)
+            {
+                CVF_ASSERT(faultIndex != cvf::UNDEFINED_SIZE_T);
+                continue;
+            }
+
+            fault = faults.at(faultIndex);
+        }
+
+        CVF_ASSERT(fault);
+
+        fault->addCellRangeForFace(cellFaceEnum, cellrange);
+
+    } while (!data.atEnd());
 }

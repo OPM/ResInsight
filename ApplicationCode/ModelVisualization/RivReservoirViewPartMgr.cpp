@@ -151,7 +151,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geom
             m_propFilteredGeometryFramesNeedsRegen[i] = true;
             if (m_propFilteredGeometryFrames[i].notNull())
             {
-                m_propFilteredGeometryFrames[i]->clearAndSetReservoir(eclipseCase);
+                m_propFilteredGeometryFrames[i]->clearAndSetReservoir(eclipseCase, m_reservoirView->faultCollection());
                 m_propFilteredGeometryFrames[i]->setTransform(m_scaleTransform.p());
             }
         }
@@ -163,7 +163,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geom
             m_propFilteredWellGeometryFramesNeedsRegen[i] = true;
             if (m_propFilteredWellGeometryFrames[i].notNull())
             {
-                m_propFilteredWellGeometryFrames[i]->clearAndSetReservoir(eclipseCase);
+                m_propFilteredWellGeometryFrames[i]->clearAndSetReservoir(eclipseCase, m_reservoirView->faultCollection());
                 m_propFilteredWellGeometryFrames[i]->setTransform(m_scaleTransform.p());
             }
         }
@@ -171,7 +171,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geom
     else
     {
         m_geometriesNeedsRegen[geomType] = true;
-        m_geometries[geomType].clearAndSetReservoir(eclipseCase);
+        m_geometries[geomType].clearAndSetReservoir(eclipseCase, m_reservoirView->faultCollection());
         m_geometries[geomType].setTransform(m_scaleTransform.p());
     }
 }
@@ -238,7 +238,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
 void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometryType)
 {
     RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
-    m_geometries[geometryType].clearAndSetReservoir(res);
+    m_geometries[geometryType].clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_geometries[geometryType].setTransform(m_scaleTransform.p());
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
@@ -393,7 +393,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
 
     if ( m_propFilteredGeometryFrames[frameIndex].isNull())  m_propFilteredGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
-    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(res);
+    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_propFilteredGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
 
     std::vector<RigGridBase*> grids;
@@ -470,7 +470,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 
     if ( m_propFilteredWellGeometryFrames[frameIndex].isNull())  m_propFilteredWellGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
-    m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir(res);
+    m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_propFilteredWellGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
 
     std::vector<RigGridBase*> grids;
