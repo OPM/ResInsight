@@ -32,6 +32,7 @@
     <ClCompile Include="cvfLogger-Test.cpp" />
     <ClCompile Include="cvfLogEvent-Test.cpp" />
     <ClCompile Include="cvfCodeLocation-Test.cpp" />
+    <ClCompile Include="cvfArrayWrapper-Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CMakeLists.txt" />

@@ -251,6 +251,7 @@
     <ClCompile Include="..\..\ThirdParty\gtest\gtest-all.cpp" />
     <ClCompile Include="cvfArrowGenerator-Test.cpp" />
     <ClCompile Include="cvfBoundingBox-Test.cpp" />
+    <ClCompile Include="cvfBoundingBoxTree-Test.cpp" />
     <ClCompile Include="cvfBoxGenerator-Test.cpp" />
     <ClCompile Include="cvfEdgeKey-Test.cpp" />
     <ClCompile Include="cvfFrustum-Test.cpp" />

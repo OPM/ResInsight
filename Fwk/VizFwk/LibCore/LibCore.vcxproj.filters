@@ -42,6 +42,8 @@
     <ClInclude Include="cvfLogDestination.h" />
     <ClInclude Include="cvfLogDestinationConsole.h" />
     <ClInclude Include="cvfLogDestinationFile.h" />
+    <ClInclude Include="cvfArrayWrapperConst.h" />
+    <ClInclude Include="cvfArrayWrapperToEdit.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cvfArray.inl" />

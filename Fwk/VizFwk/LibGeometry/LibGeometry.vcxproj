@@ -241,6 +241,7 @@
   <ItemGroup>
     <ClInclude Include="cvfArrowGenerator.h" />
     <ClInclude Include="cvfBoundingBox.h" />
+    <ClInclude Include="cvfBoundingBoxTree.h" />
     <ClInclude Include="cvfBoxGenerator.h" />
     <ClInclude Include="cvfEdgeKey.h" />
     <ClInclude Include="cvfFrustum.h" />
@@ -261,6 +262,7 @@
   <ItemGroup>
     <ClCompile Include="cvfArrowGenerator.cpp" />
     <ClCompile Include="cvfBoundingBox.cpp" />
+    <ClCompile Include="cvfBoundingBoxTree.cpp" />
     <ClCompile Include="cvfBoxGenerator.cpp" />
     <ClCompile Include="cvfEdgeKey.cpp" />
     <ClCompile Include="cvfFrustum.cpp" />
