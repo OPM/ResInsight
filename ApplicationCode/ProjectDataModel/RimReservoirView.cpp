@@ -890,7 +890,8 @@ void RimReservoirView::loadDataAndUpdate()
 
     this->propertyFilterCollection()->loadAndInitializePropertyFilters();
 
-    syncronizeFaults();
+    this->faultCollection()->setReservoirView(this);
+    this->faultCollection()->syncronizeFaults();
 
     m_reservoirGridPartManager->clearGeometryCache();
 
@@ -1405,41 +1406,6 @@ void RimReservoirView::syncronizeWellsWithResults()
         this->wellCollection()->wells()[wIdx]->setReservoirView(this);
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::syncronizeFaults()
-{
-    if (!(m_reservoir && m_reservoir->reservoirData()) ) return;
-
-    const cvf::Collection<RigFault> rigFaults = m_reservoir->reservoirData()->mainGrid()->faults();
-
-    std::vector<caf::PdmPointer<RimFault> > newFaults;
-
-    // Find corresponding fault from data model, or create a new
-
-    for (size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx)
-    {
-        RimFault* rimFault = this->faultCollection()->findFaultByName(rigFaults[fIdx]->name());
-
-        if (!rimFault)
-        {
-            rimFault = new RimFault();
-        }
-
-        rimFault->setFaultGeometry(rigFaults[fIdx].p());
-
-        newFaults.push_back(rimFault);
-    }
-
-    this->faultCollection()->faults().clear();
-    this->faultCollection()->faults().insert(0, newFaults);
-
-    // Make sure all the faults have their reservoirView ptr setup correctly
-    this->faultCollection()->setReservoirView(this);
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// 

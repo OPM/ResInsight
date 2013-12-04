@@ -33,6 +33,11 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RimCase.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RigCaseData.h"
+#include "RivColorTableArray.h"
+
 
 
 CAF_PDM_SOURCE_INIT(RimFaultCollection, "Faults");
@@ -122,5 +127,39 @@ RimFault* RimFaultCollection::findFaultByName(QString name)
         }
     }
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultCollection::syncronizeFaults()
+{
+    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData()) ) return;
+
+    cvf::ref<cvf::Color3fArray> partColors = RivColorTableArray::colorTableArray();
+
+    const cvf::Collection<RigFault> rigFaults = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->faults();
+
+    std::vector<caf::PdmPointer<RimFault> > newFaults;
+
+    // Find corresponding fault from data model, or create a new
+
+    for (size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx)
+    {
+        RimFault* rimFault = this->findFaultByName(rigFaults[fIdx]->name());
+
+        if (!rimFault)
+        {
+            rimFault = new RimFault();
+            rimFault->faultColor = partColors->get(fIdx % partColors->size());
+        }
+
+        rimFault->setFaultGeometry(rigFaults[fIdx].p());
+
+        newFaults.push_back(rimFault);
+    }
+
+    this->faults().clear();
+    this->faults().insert(0, newFaults);
 }
 

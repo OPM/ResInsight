@@ -22,6 +22,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
+#include "cvfBase.h"
+#include "cvfColor3.h"
+
 class RigFault;
 
 //==================================================================================================
@@ -48,6 +51,10 @@ public:
 
     caf::PdmField<QString>              name;
     caf::PdmField<bool>                 showFaultLabel;
+
+    caf::PdmField<bool>                 showFaultColor;
+    caf::PdmField<cvf::Color3f>         faultColor;
+
 
 private:
     const RigFault*                           m_rigFault;

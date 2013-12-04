@@ -24,7 +24,8 @@
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Color3fArray> RivColorTableArray::colorTableArray()
 {
-    cvf::Color3fArray* partColors = new cvf::Color3fArray();
+    cvf::ref<cvf::Color3fArray> partColors = new cvf::Color3fArray();
+    partColors->reserve(10);
 
     partColors->add(cvf::Color3f(101.0f/255, 132.0f/255,  96.0f/255)); // Dark green 
     partColors->add(cvf::Color3f(255.0f/255, 131.0f/255, 140.0f/255)); // Old pink 

@@ -54,7 +54,6 @@ RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
         m_rimFault(rimFault),
         m_opacityLevel(1.0f),
         m_defaultColor(cvf::Color3::WHITE)
-
 {
     m_faultFacesTextureCoords = new cvf::Vec2fArray;
 }
@@ -74,44 +73,9 @@ void RivFaultPart::setCellVisibility(cvf::UByteArray* cellVisibilities)
 //--------------------------------------------------------------------------------------------------
 void RivFaultPart::updateCellColor(cvf::Color4f color)
 {
-        /*
-    if (m_surfaceFaces.isNull() && m_faultFaces.isNull()) return;
+    m_defaultColor = color;
 
-    // Set default effect
-    caf::SurfaceEffectGenerator geometryEffgen(color, true);
-    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
-
-    if (m_surfaceFaces.notNull()) m_surfaceFaces->setEffect(geometryOnlyEffect.p());
-    if (m_faultFaces.notNull())   m_faultFaces->setEffect(geometryOnlyEffect.p());
-
-    if (color.a() < 1.0f)
-    {
-        // Set priority to make sure this transparent geometry are rendered last
-        if (m_surfaceFaces.notNull()) m_surfaceFaces->setPriority(100);
-        if (m_faultFaces.notNull()) m_faultFaces->setPriority(100);
-    }
-
-    m_opacityLevel = color.a();
-    m_defaultColor = color.toColor3f();
-
-    // Update mesh colors as well, in case of change
-    RiaPreferences* prefs = RiaApplication::instance()->preferences();
-
-    cvf::ref<cvf::Effect> eff;
-    if (m_faultFaces.notNull())
-    {
-        caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
-        eff = faultEffGen.generateEffect();
-        m_faultGridLines->setEffect(eff.p());
-    }
-    if (m_surfaceFaces.notNull())
-    {
-        caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
-        eff = effGen.generateEffect();
-        m_surfaceGridLines->setEffect(eff.p());
-    }
-    */
-
+    updatePartEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,13 +215,8 @@ void RivFaultPart::generatePartGeometry()
             part->setSourceInfo(m_faultGenerator.triangleToSourceGridCellMap().p());
 
             part->updateBoundingBox();
-
-            // Set default effect
-            caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), true);
-            cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
-            part->setEffect(geometryOnlyEffect.p());
-
             part->setEnableMask(faultBit);
+
             m_faultFaces = part;
         }
     }
@@ -278,16 +237,53 @@ void RivFaultPart::generatePartGeometry()
 
             //part->setTransform(m_scaleTransform.p());
             part->updateBoundingBox();
-
-            RiaPreferences* prefs = RiaApplication::instance()->preferences();
-
-            caf::MeshEffectGenerator effGen(prefs->defaultFaultGridLineColors());
-            cvf::ref<cvf::Effect> eff = effGen.generateEffect();
-
             part->setEnableMask(meshFaultBit);
-            part->setEffect(eff.p());
+
             m_faultGridLines = part;
         }
     }
 
+    updatePartEffect();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPart::updatePartEffect()
+{
+    if (m_faultFaces.notNull())
+    {
+        cvf::Color3f partColor = m_defaultColor.toColor3f();
+
+        if (m_rimFault->showFaultColor())
+        {
+            partColor = m_rimFault->faultColor();
+        }
+
+        if (m_defaultColor.a() < 1.0f)
+        {
+            // Set priority to make sure this transparent geometry are rendered last
+            m_faultFaces->setPriority(100);
+        }
+
+        m_opacityLevel = m_defaultColor.a();
+
+        // Set default effect
+        caf::SurfaceEffectGenerator geometryEffgen(partColor, true);
+        cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+
+        m_faultFaces->setEffect(geometryOnlyEffect.p());
+    }
+
+    if (m_faultGridLines.notNull())
+    {
+        // Update mesh colors as well, in case of change
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+        cvf::ref<cvf::Effect> eff;
+        caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
+        eff = faultEffGen.generateEffect();
+        m_faultGridLines->setEffect(eff.p());
+    }
 }
