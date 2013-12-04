@@ -20,7 +20,6 @@ include_directories(
 set( MODEL_VISUALIZATION_CPP_SOURCES
     ../RivPipeGeometryGenerator.cpp
 	../cvfGeometryTools.cpp
-	../cvfBoundingBoxTree.cpp
 )
 
 
