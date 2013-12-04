@@ -48,6 +48,7 @@
 #include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "RiaProjectModifier.h"
 #include "cafProgressInfo.h"
 #include "RigGridManager.h"
 
@@ -72,7 +73,12 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimWellCollection.h"
+#include "RimStatisticsCase.h"
 #include "cafCeetronPlusNavigation.h"
+
+#include "cvfProgramOptions.h"
+#include "cvfqtUtils.h"
+
 
 namespace caf
 {
@@ -96,6 +102,9 @@ namespace RegTestNames
     const QString imageCompareExeName   = "compare";
     const QString reportFileName        = "ResInsightRegressionTestReport.html";
 };
+
+
+
 
 
 //==================================================================================================
@@ -240,10 +249,11 @@ const char* RiaApplication::getVersionStringApp(bool includeCrtInfo)
 }
 
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::loadProject(const QString& projectFileName)
+bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier)
 {
     // First Close the current project
 
@@ -256,6 +266,12 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
     m_project->fileName = projectFileName;
     m_project->readFile();
+
+    // Apply any modifiactions to the loaded project before we go ahead and load actual data
+    if (projectModifier)
+    {
+        projectModifier->applyModificationsToProject(m_project);
+    }
 
     // Propagate possible new location of project
 
@@ -319,6 +335,23 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
     }
 
+
+    // If load action is specified to recalculate statistics, do it now.
+    // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will be clamped
+    if (loadAction & PLA_CALCULATE_STATISTICS)
+    {
+        for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
+        {
+            RimOilField* oilField = m_project->oilFields[oilFieldIdx];
+            RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+            if (analysisModels)
+            {
+                analysisModels->recomputeStatisticsForAllCaseGroups();
+            }
+        }
+    }
+
+
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
     std::vector<RimCase*> casesToLoad;
@@ -351,6 +384,8 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         caseProgress.incrementProgress();
     }
 
+
+
     // NB! This function must be called before executing command objects, 
     // because the tree view state is restored from project file and sets
     // current active view ( see restoreTreeViewState() )
@@ -375,6 +410,15 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::loadProject(const QString& projectFileName)
+{
+    return loadProject(projectFileName, PLA_NONE, NULL);
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
@@ -395,15 +439,6 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
     if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
     RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::loadLastUsedProject()
-{
-    return loadProject(m_preferences->lastUsedProjectFileName);
 }
 
 
@@ -541,6 +576,33 @@ void RiaApplication::onProjectOpenedOrClosed()
 QString RiaApplication::currentProjectFileName() const
 {
     return m_project->fileName();
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Create an absolute path from a path that is specified relative to the project directory
+/// 
+/// If the path specified in \a projectRelativePath is already absolute, no changes will be made
+//--------------------------------------------------------------------------------------------------
+QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projectRelativePath)
+{
+    // Check if path is already absolute
+    if (QDir::isAbsolutePath(projectRelativePath))
+    {
+        return projectRelativePath;
+    }
+
+    if (m_project && !m_project->fileName().isEmpty())
+    {
+        QString absoluteProjectPath = QFileInfo(m_project->fileName()).absolutePath();
+        QDir projectDir(absoluteProjectPath);
+        return projectDir.absoluteFilePath(projectRelativePath);
+    }
+    else
+    {
+        return projectRelativePath;
+    }
 }
 
 
@@ -743,7 +805,7 @@ bool RiaApplication::showPerformanceInfo() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::parseArguments()
+bool RiaApplication::parseArguments_OLD()
 {
     QStringList arguments = QCoreApplication::arguments();
 
@@ -767,7 +829,7 @@ bool RiaApplication::parseArguments()
     bool isSaveSnapshotsForAllViews = false;
     bool isRunRegressionTest = false;
     bool isUpdateRegressionTest = false;
-    
+
     int i;
     for (i = 1; i < arguments.size(); i++)
     {
@@ -825,7 +887,7 @@ bool RiaApplication::parseArguments()
 
             foundKnownOption = true;
         }
-        
+
         if (!foundKnownOption)
         {
             switch (argumentParsingType)
@@ -849,7 +911,7 @@ bool RiaApplication::parseArguments()
                 break;
             case PARSE_REGRESSION_TEST_PATH:
                 {
-                   regressionTestPath = arg; 
+                    regressionTestPath = arg; 
                 }
             }
         }
@@ -884,14 +946,14 @@ bool RiaApplication::parseArguments()
 
     if (openLatestProject)
     {
-        loadLastUsedProject();
+        loadProject(m_preferences->lastUsedProjectFileName);
     }
-    
+
     if (!projectFilename.isEmpty())
     {
         loadProject(projectFilename);
     }
-    
+
     if (!caseNames.isEmpty())
     {
         QString caseName;
@@ -916,6 +978,7 @@ bool RiaApplication::parseArguments()
 
     if (m_project.notNull() && !m_project->fileName().isEmpty() && isSaveSnapshotsForAllViews)
     {
+         // Will be saved relative to current directory
         saveSnapshotForAllViews("snapshots");
 
         // Returning false will exit the application
@@ -925,6 +988,238 @@ bool RiaApplication::parseArguments()
 
     return true;
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::parseArguments()
+{
+    cvf::ProgramOptions progOpt;
+    progOpt.registerOption("help");
+    progOpt.registerOption("?");
+    progOpt.registerOption("last",                      "",                                 "Open last used project");
+    progOpt.registerOption("project",                   "<filename>",                       "Open project file <filename>", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("case",                      "<casename>",                       "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension)", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("savesnapshots",             "",                                 "Save snapshot of all views to 'snapshots' folder");
+    progOpt.registerOption("regressiontest",            "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with grid files listed in <gridListFile>", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in <gridListFile>, replace the first case in the project and save snapshot of all views", cvf::ProgramOptions::SINGLE_VALUE);
+
+    progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
+
+    QStringList arguments = QCoreApplication::arguments();
+
+    bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
+
+    if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
+    {
+        {
+            cvf::String usageText = progOpt.usageText(80, 30);
+            cvf::Trace::show(usageText);
+        }
+
+        QString helpText = commandLineParameterHelp();
+
+#if defined(_MSC_VER) && defined(_WIN32)
+        showFormattedTextInMessageBox(helpText);
+#else
+        fprintf(stdout, "%s\n", helpText.toAscii().data());
+        fflush(stdout);
+#endif
+        return false;
+    }
+
+
+    // Handling of the actual command line options
+    // --------------------------------------------------------
+    if (progOpt.hasOption("regressiontest"))
+    {
+        QString regressionTestPath = cvfqt::Utils::toQString(progOpt.firstValue("regressiontest"));
+        executeRegressionTests(regressionTestPath);
+        return false;
+    }
+
+    if (progOpt.hasOption("updateregressiontestbase"))
+    {
+        QString regressionTestPath = cvfqt::Utils::toQString(progOpt.firstValue("updateregressiontestbase"));
+        updateRegressionTest(regressionTestPath);
+        return false;
+    }
+
+    if (progOpt.hasOption("startdir"))
+    {
+        m_startupDefaultDirectory = cvfqt::Utils::toQString(progOpt.firstValue("startdir"));
+    }
+
+    if (progOpt.hasOption("size"))
+    {
+        std::vector<cvf::String> vals = progOpt.values("size");
+        RiuMainWindow* mainWnd = RiuMainWindow::instance();
+        int width =  (vals.size() > 0) ? vals[0].toInt(-1) : -1;
+        int height = (vals.size() > 1) ? vals[1].toInt(-1) : -1;
+        if (mainWnd && width > 0 && height > 0)
+        {
+            mainWnd->resize(width, height);
+        }
+    }
+
+
+    QString projectFileName;
+
+    if (progOpt.hasOption("last"))
+    {
+        projectFileName = m_preferences->lastUsedProjectFileName;
+    }
+
+    if (progOpt.hasOption("project"))
+    {
+        projectFileName = cvfqt::Utils::toQString(progOpt.firstValue("project"));
+    }
+
+
+    if (progOpt.hasOption("multiCaseSnapshots") && !projectFileName.isEmpty())
+    {
+        QString gridListFile = cvfqt::Utils::toQString(progOpt.firstValue("multiCaseSnapshots"));
+        std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
+        runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
+        return false;
+    }
+
+
+    if (!projectFileName.isEmpty())
+    {
+        cvf::ref<RiaProjectModifier> projectModifier;
+        ProjectLoadAction projectLoadAction = PLA_NONE;
+
+        if (progOpt.hasOption("replaceCase"))
+        {
+            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
+
+            std::vector<cvf::String> vals = progOpt.values("replaceCase");
+            CVF_ASSERT(vals.size() >= 1);
+            if (vals.size() == 1)
+            {
+                QString gridFileName = cvfqt::Utils::toQString(vals[0]);
+                projectModifier->setReplaceCaseFirstOccurence(gridFileName);
+            }
+            else
+            {
+                const int caseId = vals[0].toInt(cvf::UNDEFINED_INT);
+                if (caseId != cvf::UNDEFINED_INT)
+                {
+                    QString gridFileName = cvfqt::Utils::toQString(vals[1]);
+                    projectModifier->setReplaceCase(caseId, gridFileName);
+                }
+            }
+        }
+
+        if (progOpt.hasOption("replaceSourceCases"))
+        {
+            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
+
+            std::vector<cvf::String> vals = progOpt.values("replaceSourceCases");
+            CVF_ASSERT(vals.size() >= 1);
+            if (vals.size() == 1)
+            {
+                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(vals[0]));
+                projectModifier->setReplaceSourceCasesFirstOccurence(gridFileNames);
+            }
+            else
+            {
+                const int caseGroupId = vals[0].toInt(cvf::UNDEFINED_INT);
+                if (caseGroupId != cvf::UNDEFINED_INT)
+                {
+                    std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(vals[1]));
+                    projectModifier->setReplaceSourceCasesById(caseGroupId, gridFileNames);
+                }
+            }
+
+            projectLoadAction = PLA_CALCULATE_STATISTICS;
+        }
+
+
+        loadProject(projectFileName, projectLoadAction, projectModifier.p());
+    }
+
+
+    if (progOpt.hasOption("case"))
+    {
+        QStringList caseNames = cvfqt::Utils::toQStringList(progOpt.values("case"));
+        foreach (QString caseName, caseNames)
+        {
+            QString caseFileNameWithExt = caseName + ".EGRID";
+            if (QFile::exists(caseFileNameWithExt))
+            {
+                openEclipseCaseFromFile(caseFileNameWithExt);
+            }
+            else
+            {
+                caseFileNameWithExt = caseName + ".GRID";
+                if (QFile::exists(caseFileNameWithExt))
+                {
+                    openEclipseCaseFromFile(caseFileNameWithExt);
+                }
+            }
+        }
+    }
+
+
+    if (progOpt.hasOption("savesnapshots"))
+    {
+        RiuMainWindow* mainWnd = RiuMainWindow::instance();
+        if (m_project.notNull() && !m_project->fileName().isEmpty() && mainWnd)
+        {
+            mainWnd->hideAllDockWindows();
+
+            // Will be saved relative to current directory
+            saveSnapshotForAllViews("snapshots");
+
+            mainWnd->loadWinGeoAndDockToolBarLayout();
+        }
+
+        // Returning false will exit the application
+        return false;
+    }
+
+
+    return true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileName)
+{
+    std::vector<QString> fileList;
+
+    QFile file(listFileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        return fileList;
+    }
+
+    QTextStream in(&file);
+    QString line = in.readLine();
+    while (!line.isNull())
+    {
+        line = line.trimmed();
+        if (!line.isEmpty())
+        {
+            fileList.push_back(line);
+        }
+
+        line = in.readLine();
+    }
+
+    return fileList;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1195,6 +1490,7 @@ void RiaApplication::setDefaultFileDialogDirectory(const QString& dialogName, co
     m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1270,18 +1566,14 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
     if (m_project.isNull()) return;
 
-    if (m_project->fileName().isEmpty()) return;
 
-    QFileInfo fi(m_project->fileName());
-    QDir projectDir(fi.absolutePath());
-    
-    if (!projectDir.exists(snapshotFolderName))
+    QDir snapshotPath(snapshotFolderName);
+    if (!snapshotPath.exists())
     {
-        if (!projectDir.mkdir(snapshotFolderName)) return;
+        if (!snapshotPath.mkpath(".")) return;
     }
 
-    QString snapshotPath = projectDir.absolutePath();
-    snapshotPath += "/" + snapshotFolderName;
+    const QString absSnapshotPath = snapshotPath.absolutePath();
 
     std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
@@ -1307,12 +1599,42 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
                 QString fileName = ri->caseUserDescription() + "-" + riv->name();
 
-                QString absoluteFileName = caf::Utils::constructFullFileName(snapshotPath, fileName, ".png");
+                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 saveSnapshotAs(absoluteFileName);
             }
         }
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName)
+{
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd) return;
+
+    mainWnd->hideAllDockWindows();
+
+    const size_t numGridFiles = gridFileNames.size();
+    for (size_t i = 0; i < numGridFiles; i++)
+    {
+        QString gridFn = gridFileNames[i];
+
+        RiaProjectModifier modifier;
+        modifier.setReplaceCaseFirstOccurence(gridFn);
+
+        bool loadOk = loadProject(templateProjectFileName, PLA_NONE, &modifier);
+        if (loadOk)
+        {
+            saveSnapshotForAllViews(snapshotFolderName);
+        }
+    }
+
+    mainWnd->loadWinGeoAndDockToolBarLayout();
+}
+
 
 void removeDirectoryWithContent(QDir dirToDelete )
 {
@@ -1403,7 +1725,8 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
 
              regressionTestSetFixedSizeForAllViews();
 
-             saveSnapshotForAllViews(generatedFolderName);
+             QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
+             saveSnapshotForAllViews(fullPathGeneratedFolder);
 
              QDir baseDir(testCaseFolder.filePath(baseFolderName));
              QDir genDir(testCaseFolder.filePath(generatedFolderName));

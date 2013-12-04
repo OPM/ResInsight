@@ -805,7 +805,8 @@ void RiuMainWindow::slotOpenProject()
 void RiuMainWindow::slotOpenLastUsedProject()
 {
     RiaApplication* app = RiaApplication::instance();
-    app->loadLastUsedProject();
+    QString fileName = app->preferences()->lastUsedProjectFileName;
+    app->loadProject(fileName);
 
 }
 
@@ -1395,7 +1396,9 @@ void RiuMainWindow::slotSnapshotAllViewsToFile()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    app->saveSnapshotForAllViews("snapshots");
+    // Save images in snapshot catalog relative to project directory
+    QString absolutePathToSnapshotDir = app->createAbsolutePathFromProjectRelativePath("snapshots");
+    app->saveSnapshotForAllViews(absolutePathToSnapshotDir);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
     ${CMAKE_CURRENT_SOURCE_DIR}/WellPathImportSsihub
     ${CMAKE_BINARY_DIR}/Generated
-	${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 
@@ -34,9 +34,10 @@ set( APPLICATION_FILES
         
     Application/RiaApplication.cpp
     Application/RiaPreferences.cpp
-	Application/RiaImageFileCompare.cpp
-	Application/RiaImageCompareReporter.cpp
-	Application/RiaRegressionTest.cpp
+    Application/RiaImageFileCompare.cpp
+    Application/RiaImageCompareReporter.cpp
+    Application/RiaProjectModifier.cpp
+    Application/RiaRegressionTest.cpp
 )
 
 set( USER_INTERFACE_FILES
@@ -46,7 +47,7 @@ set( USER_INTERFACE_FILES
     UserInterface/RiuResultInfoPanel.cpp
     UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
-	UserInterface/RiuMultiCaseImportDialog.cpp
+    UserInterface/RiuMultiCaseImportDialog.cpp
     UserInterface/RiuProcessMonitor.cpp
 )
 
@@ -56,7 +57,7 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaCaseInfoCommands.cpp
     SocketInterface/RiaGeometryCommands.cpp
     SocketInterface/RiaPropertyDataCommands.cpp
-	SocketInterface/RiaWellDataCommands.cpp
+    SocketInterface/RiaWellDataCommands.cpp
     SocketInterface/RiaSocketTools.cpp
 )
 
@@ -101,15 +102,15 @@ set ( QT_MOC_HEADERS
     UserInterface/RiuResultInfoPanel.h
     UserInterface/RiuViewer.h
     UserInterface/RiuProcessMonitor.h
-	SocketInterface/RiaSocketServer.h
-	UserInterface/RiuMultiCaseImportDialog.h
+    SocketInterface/RiaSocketServer.h
+    UserInterface/RiuMultiCaseImportDialog.h
 )
 
 qt4_wrap_cpp( MOC_FILES_CPP ${QT_MOC_HEADERS} )
 
 # Define files for the uic compiler
 set ( QT_UI_FILES
-	UserInterface/RiuMultiCaseImportDialog.ui
+    UserInterface/RiuMultiCaseImportDialog.ui
 )
 
 qt4_wrap_ui( FORM_FILES_CPP ${QT_UI_FILES} )
@@ -141,19 +142,19 @@ endif()
 set( RAW_SOURCES ${CPP_SOURCES} )
 
 list( REMOVE_ITEM RAW_SOURCES 
-	RiaStdInclude.cpp
+    RiaStdInclude.cpp
 
-	${CODE_SOURCE_FILES}
+    ${CODE_SOURCE_FILES}
 
-	ModelVisualization/RivCellEdgeEffectGenerator.cpp
-	ModelVisualization/RivPipeGeometryGenerator.cpp
-	ModelVisualization/RivWellPipesPartMgr.cpp
-	ModelVisualization/RivWellHeadPartMgr.cpp
-	
-	Application/RiaImageFileCompare.cpp
-	Application/RiaImageCompareReporter.cpp
-	Application/RiaRegressionTest.cpp
-	    
+    ModelVisualization/RivCellEdgeEffectGenerator.cpp
+    ModelVisualization/RivPipeGeometryGenerator.cpp
+    ModelVisualization/RivWellPipesPartMgr.cpp
+    ModelVisualization/RivWellHeadPartMgr.cpp
+
+    Application/RiaImageFileCompare.cpp
+    Application/RiaImageCompareReporter.cpp
+    Application/RiaRegressionTest.cpp
+
     FileInterface/RifEclipseInputFileTools.cpp
     FileInterface/RifEclipseOutputFileTools.cpp
     FileInterface/RifEclipseRestartFilesetAccess.cpp
@@ -210,11 +211,11 @@ set( EXE_FILES
     ${EXE_FILES}
     ${CPP_SOURCES}
     ${MOC_FILES_CPP}
-	${FORM_FILES_CPP}
+    ${FORM_FILES_CPP}
     ${QRC_FILES_CPP}
     ${WIN_RESOURCE}
-	${HEADER_FILES}
-	${REFERENCED_CMAKE_FILES}
+    ${HEADER_FILES}
+    ${REFERENCED_CMAKE_FILES}
     ../ResInsightVersion.cmake
 )
 
@@ -249,8 +250,8 @@ set( EXTERNAL_LINK_LIBRARIES ${ERT_LIBRARY_LIST} )
 # According to ivarun this is needed on OpenSuse, and Fedora. See: https://github.com/OPM/ResInsight/pull/7
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set ( EXTERNAL_LINK_LIBRARIES
-		${EXTERNAL_LINK_LIBRARIES}
-		rt
+        ${EXTERNAL_LINK_LIBRARIES}
+        rt
     )
 endif()
 
@@ -282,70 +283,70 @@ set (RESINSIGHT_LICENSE_FILES
 # bundle libraries together with private installation
 if (RESINSIGHT_PRIVATE_INSTALL)
 
-	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	  # tell binary to first attempt to load libraries from its own directory
-	  set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+      # tell binary to first attempt to load libraries from its own directory
+      set_target_properties (ResInsight PROPERTIES INSTALL_RPATH "\$ORIGIN")
 
-		# Find Qt libraries and sym links
-		file (GLOB RESINSIGHT_FILES
-				${QT_LIBRARY_DIR}/libQtCore.so*
-				${QT_LIBRARY_DIR}/libQtGui.so*
-				${QT_LIBRARY_DIR}/libQtOpenGL.so*
-				${QT_LIBRARY_DIR}/libQtNetwork.so*
-				${QT_LIBRARY_DIR}/libQtScript.so*
-				${QT_LIBRARY_DIR}/libQtScriptTools.so*
-			)
+        # Find Qt libraries and sym links
+        file (GLOB RESINSIGHT_FILES
+                ${QT_LIBRARY_DIR}/libQtCore.so*
+                ${QT_LIBRARY_DIR}/libQtGui.so*
+                ${QT_LIBRARY_DIR}/libQtOpenGL.so*
+                ${QT_LIBRARY_DIR}/libQtNetwork.so*
+                ${QT_LIBRARY_DIR}/libQtScript.so*
+                ${QT_LIBRARY_DIR}/libQtScriptTools.so*
+            )
 
-	endif()
+    endif()
 
-	if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	  # put a .exe.local file in the target directory to pick up DLLs from there
-	  install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+      # put a .exe.local file in the target directory to pick up DLLs from there
+      install (CODE "exec_program (${CMAKE_COMMAND} ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}${RESINSIGHT_FINAL_NAME}/ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)")
 
-		set (RESINSIGHT_FILES
-				${QT_BINARY_DIR}/QtCore4.dll
-				${QT_BINARY_DIR}/QtGui4.dll
-				${QT_BINARY_DIR}/QtOpenGL4.dll
-				${QT_BINARY_DIR}/QtNetwork4.dll
-				${QT_BINARY_DIR}/QtScript4.dll
-				${QT_BINARY_DIR}/QtScriptTools4.dll
-			)
-	endif()
+        set (RESINSIGHT_FILES
+                ${QT_BINARY_DIR}/QtCore4.dll
+                ${QT_BINARY_DIR}/QtGui4.dll
+                ${QT_BINARY_DIR}/QtOpenGL4.dll
+                ${QT_BINARY_DIR}/QtNetwork4.dll
+                ${QT_BINARY_DIR}/QtScript4.dll
+                ${QT_BINARY_DIR}/QtScriptTools4.dll
+            )
+    endif()
 
-	set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
+    set (RESINSIGHT_FILES ${RESINSIGHT_FILES} ${RESINSIGHT_LICENSE_FILES})
         
 
-	install(TARGETS ResInsight DESTINATION ${RESINSIGHT_FINAL_NAME})
+    install(TARGETS ResInsight DESTINATION ${RESINSIGHT_FINAL_NAME})
 
-	install(FILES ${RESINSIGHT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
+    install(FILES ${RESINSIGHT_FILES} DESTINATION ${RESINSIGHT_FINAL_NAME} )
 
-	if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
-	endif()
+    if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+      install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resinsight DESTINATION ${RESINSIGHT_FINAL_NAME} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+    endif()
 
 else (RESINSIGHT_PRIVATE_INSTALL)
   # binaries go in /usr/bin
   install (TARGETS ResInsight
-	DESTINATION bin
-	)
+    DESTINATION bin
+    )
   # license go in /usr/share/doc
   install (FILES ${RESINSIGHT_LICENSE_FILES}
-	DESTINATION share/doc/ResInsight
-	)
+    DESTINATION share/doc/ResInsight
+    )
   # no bundled libraries for system install
   # application icon
   install (FILES ${CMAKE_CURRENT_SOURCE_DIR}/Resources/AppLogo48x48.png
-	DESTINATION share/icons/hicolor/48x48/apps
-	RENAME ResInsight.png
-	)
+    DESTINATION share/icons/hicolor/48x48/apps
+    RENAME ResInsight.png
+    )
   # desktop environment icon; remember to call `update-desktop-database`
   # in package post-install scripts
   configure_file (
-	${CMAKE_CURRENT_SOURCE_DIR}/resinsight.desktop.in
-	${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
-	@ONLY
-	)
+    ${CMAKE_CURRENT_SOURCE_DIR}/resinsight.desktop.in
+    ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
+    @ONLY
+    )
   install (FILES ${CMAKE_CURRENT_BINARY_DIR}/resinsight.desktop
-	DESTINATION share/applications
-	)
+    DESTINATION share/applications
+    )
 endif (RESINSIGHT_PRIVATE_INSTALL)
