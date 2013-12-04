@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) Statoil ASA, Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
