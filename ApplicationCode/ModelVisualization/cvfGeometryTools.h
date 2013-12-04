@@ -36,17 +36,19 @@ public:
         LINES_OVERLAP
     };
 
+    static bool insertVertexInPolygon(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodeCoords, cvf::uint vertexIndex, double tolerance);
+    static void addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodes, EdgeSplitStorage& edgeSplitStorage, std::vector<cvf::Vec3d>* createdVertexes);
+
     static IntersectionStatus inPlaneLineIntersect3D(const cvf::Vec3d& planeNormal, 
                                                      const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, const cvf::Vec3d& p4, 
                                                      cvf::Vec3d* intersectionPoint, double* fractionAlongLine1, double* fractionAlongLine2, 
                                                      double tolerance = 1e-6);
 
+    //template<typename VerticeArrayType, typename PolygonArrayType, typename IndexType>
     static bool isPointTouchingIndexedPolygon(const cvf::Vec3d& polygonNormal, const cvf::Vec3d* vertices, const size_t* indices, size_t numIndices, 
                                               const cvf::Vec3d& point, int* touchedEdgeIndex,  double tolerance = 1e-6);
 
 
-    static bool insertVertexInPolygon(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodeCoords, cvf::uint vertexIndex, double tolerance);
-    static void addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodes, EdgeSplitStorage& edgeSplitStorage, std::vector<cvf::Vec3d>* createdVertexes);
 
     static bool calculateOverlapPolygonOfTwoQuads(    std::vector<size_t> * polygon, std::vector<cvf::Vec3d>* createdVertexes, 
                                                       EdgeIntersectStorage& edgeIntersectionStorage, 
