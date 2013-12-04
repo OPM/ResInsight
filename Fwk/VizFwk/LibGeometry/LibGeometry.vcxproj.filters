@@ -19,6 +19,7 @@
     <ClInclude Include="cvfTriangleVertexSplitter.h" />
     <ClInclude Include="cvfVertexCompactor.h" />
     <ClInclude Include="cvfTriangleMeshEdgeExtractor.h" />
+    <ClInclude Include="cvfBoundingBoxTree.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CMakeLists.txt" />
@@ -41,5 +42,6 @@
     <ClCompile Include="cvfTriangleVertexSplitter.cpp" />
     <ClCompile Include="cvfVertexCompactor.cpp" />
     <ClCompile Include="cvfTriangleMeshEdgeExtractor.cpp" />
+    <ClCompile Include="cvfBoundingBoxTree.cpp" />
   </ItemGroup>
 </Project>

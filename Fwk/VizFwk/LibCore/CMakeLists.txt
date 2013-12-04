@@ -10,6 +10,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 set(CEE_HEADER_FILES
 cvfArray.h
 cvfArray.inl
+cvfArrayWrapperConst.h
+cvfArrayWrapperToEdit.h
 cvfAssert.h
 cvfBase.h
 cvfBase64.h

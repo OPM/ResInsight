@@ -15,6 +15,7 @@ set(CEE_LIBS LibGeometry LibCore)
 set(CEE_SOURCE_FILES
 cvfArrowGenerator-Test.cpp
 cvfBoundingBox-Test.cpp
+cvfBoundingBoxTree-Test.cpp
 cvfBoxGenerator-Test.cpp
 cvfFrustum-Test.cpp
 cvfEdgeKey-Test.cpp
