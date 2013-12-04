@@ -24,6 +24,7 @@
 
 #include "cvfBase.h"
 #include "cvfColor3.h"
+#include "cafPdmFieldCvfColor.h"
 
 class RigFault;
 
