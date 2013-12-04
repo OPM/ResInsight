@@ -17,12 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RivFaultGeometryGenerator.h"
+
+#include <cmath>
+
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfOutlineEdgeExtractor.h"
 #include "cvfStructGridScalarDataAccess.h"
 #include "cvfScalarMapper.h"
+
 #include "RigFault.h"
+
 
 
 //--------------------------------------------------------------------------------------------------
