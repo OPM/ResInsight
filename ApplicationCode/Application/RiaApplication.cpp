@@ -1019,7 +1019,7 @@ bool RiaApplication::parseArguments()
     if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
     {
         {
-            cvf::String usageText = progOpt.usageText(80, 30);
+            cvf::String usageText = progOpt.usageText(110, 30);
             cvf::Trace::show(usageText);
         }
 
@@ -1037,31 +1037,33 @@ bool RiaApplication::parseArguments()
 
     // Handling of the actual command line options
     // --------------------------------------------------------
-    if (progOpt.hasOption("regressiontest"))
+    if (cvf::Option o = progOpt.option("regressiontest"))
     {
-        QString regressionTestPath = cvfqt::Utils::toQString(progOpt.firstValue("regressiontest"));
+        CVF_ASSERT(o.valueCount() == 1);
+        QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
         executeRegressionTests(regressionTestPath);
         return false;
     }
 
-    if (progOpt.hasOption("updateregressiontestbase"))
+    if (cvf::Option o = progOpt.option("updateregressiontestbase"))
     {
-        QString regressionTestPath = cvfqt::Utils::toQString(progOpt.firstValue("updateregressiontestbase"));
+        CVF_ASSERT(o.valueCount() == 1);
+        QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
         updateRegressionTest(regressionTestPath);
         return false;
     }
 
-    if (progOpt.hasOption("startdir"))
+    if (cvf::Option o = progOpt.option("startdir"))
     {
-        m_startupDefaultDirectory = cvfqt::Utils::toQString(progOpt.firstValue("startdir"));
+        CVF_ASSERT(o.valueCount() == 1);
+        m_startupDefaultDirectory = cvfqt::Utils::toQString(o.value(0));
     }
 
-    if (progOpt.hasOption("size"))
+    if (cvf::Option o = progOpt.option("size"))
     {
-        std::vector<cvf::String> vals = progOpt.values("size");
         RiuMainWindow* mainWnd = RiuMainWindow::instance();
-        int width =  (vals.size() > 0) ? vals[0].toInt(-1) : -1;
-        int height = (vals.size() > 1) ? vals[1].toInt(-1) : -1;
+        int width =  o.safeValue(0).toInt(-1);
+        int height = o.safeValue(1).toInt(-1);
         if (mainWnd && width > 0 && height > 0)
         {
             mainWnd->resize(width, height);
@@ -1076,18 +1078,22 @@ bool RiaApplication::parseArguments()
         projectFileName = m_preferences->lastUsedProjectFileName;
     }
 
-    if (progOpt.hasOption("project"))
+    if (cvf::Option o = progOpt.option("project"))
     {
-        projectFileName = cvfqt::Utils::toQString(progOpt.firstValue("project"));
+        CVF_ASSERT(o.valueCount() == 1);
+        projectFileName = cvfqt::Utils::toQString(o.value(0));
     }
 
 
-    if (progOpt.hasOption("multiCaseSnapshots") && !projectFileName.isEmpty())
+    if (!projectFileName.isEmpty())
     {
-        QString gridListFile = cvfqt::Utils::toQString(progOpt.firstValue("multiCaseSnapshots"));
-        std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
-        runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
-        return false;
+        if (cvf::Option o = progOpt.option("multiCaseSnapshots"))
+        {
+            QString gridListFile = cvfqt::Utils::toQString(o.safeValue(0));
+            std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
+            runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
+            return false;
+        }
     }
 
 
@@ -1096,47 +1102,37 @@ bool RiaApplication::parseArguments()
         cvf::ref<RiaProjectModifier> projectModifier;
         ProjectLoadAction projectLoadAction = PLA_NONE;
 
-        if (progOpt.hasOption("replaceCase"))
+        if (cvf::Option o = progOpt.option("replaceCase"))
         {
             if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
 
-            std::vector<cvf::String> vals = progOpt.values("replaceCase");
-            CVF_ASSERT(vals.size() >= 1);
-            if (vals.size() == 1)
+            const int caseId = o.safeValue(0).toInt(-1);
+            if (caseId != -1 && o.valueCount() > 1)
             {
-                QString gridFileName = cvfqt::Utils::toQString(vals[0]);
-                projectModifier->setReplaceCaseFirstOccurence(gridFileName);
+                QString gridFileName = cvfqt::Utils::toQString(o.value(1));
+                projectModifier->setReplaceCase(caseId, gridFileName);
             }
             else
             {
-                const int caseId = vals[0].toInt(cvf::UNDEFINED_INT);
-                if (caseId != cvf::UNDEFINED_INT)
-                {
-                    QString gridFileName = cvfqt::Utils::toQString(vals[1]);
-                    projectModifier->setReplaceCase(caseId, gridFileName);
-                }
+                QString gridFileName = cvfqt::Utils::toQString(o.safeValue(0));
+                projectModifier->setReplaceCaseFirstOccurence(gridFileName);
             }
         }
 
-        if (progOpt.hasOption("replaceSourceCases"))
+        if (cvf::Option o = progOpt.option("replaceSourceCases"))
         {
             if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
 
-            std::vector<cvf::String> vals = progOpt.values("replaceSourceCases");
-            CVF_ASSERT(vals.size() >= 1);
-            if (vals.size() == 1)
+            const int caseGroupId = o.safeValue(0).toInt(-1);
+            if (caseGroupId != -1 &&  o.valueCount() > 1)
             {
-                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(vals[0]));
-                projectModifier->setReplaceSourceCasesFirstOccurence(gridFileNames);
+                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.value(1)));
+                projectModifier->setReplaceSourceCasesById(caseGroupId, gridFileNames);
             }
             else
             {
-                const int caseGroupId = vals[0].toInt(cvf::UNDEFINED_INT);
-                if (caseGroupId != cvf::UNDEFINED_INT)
-                {
-                    std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(vals[1]));
-                    projectModifier->setReplaceSourceCasesById(caseGroupId, gridFileNames);
-                }
+                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(0)));
+                projectModifier->setReplaceSourceCasesFirstOccurence(gridFileNames);
             }
 
             projectLoadAction = PLA_CALCULATE_STATISTICS;
@@ -1147,9 +1143,9 @@ bool RiaApplication::parseArguments()
     }
 
 
-    if (progOpt.hasOption("case"))
+    if (cvf::Option o = progOpt.option("case"))
     {
-        QStringList caseNames = cvfqt::Utils::toQStringList(progOpt.values("case"));
+        QStringList caseNames = cvfqt::Utils::toQStringList(o.values());
         foreach (QString caseName, caseNames)
         {
             QString caseFileNameWithExt = caseName + ".EGRID";

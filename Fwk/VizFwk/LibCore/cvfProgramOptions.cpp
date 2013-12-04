@@ -125,6 +125,122 @@ public:
 
 
 
+//==================================================================================================
+///
+/// \class cvf::Option
+/// \ingroup Core
+///
+/// 
+///
+//==================================================================================================
+
+//--------------------------------------------------------------------------------------------------
+/// Constructs an invalid/empty option
+//--------------------------------------------------------------------------------------------------
+Option::Option()
+{
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Option::Option(const String& name, const std::vector<String>& values)
+:   m_name(name),
+    m_values(values)
+{
+    CVF_ASSERT(!m_name.isEmpty());
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+String Option::name() const
+{
+    return m_name;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t Option::valueCount() const
+{
+    return m_values.size();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+String Option::value(size_t valueIndex) const
+{
+    CVF_ASSERT(valueIndex < m_values.size());
+    return m_values[valueIndex];
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+String Option::safeValue(size_t valueIndex) const
+{
+    if (valueIndex < m_values.size())
+    {
+        return m_values[valueIndex];
+    }
+    else
+    {
+        return String();
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<String> Option::values() const
+{
+    return m_values;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+String Option::combinedValues() const
+{
+    String combined;
+
+    for (size_t i = 0; i < m_values.size(); i++)
+    {
+        if (i > 0) combined += " ";
+        combined += m_values[i];
+    }
+
+    return combined;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool Option::isValid() const
+{
+    return m_name.isEmpty() ? false : true;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+Option::operator bool_type() const
+{
+    return isValid() ? &Option::this_type_does_not_support_comparisons : 0; 
+}
+
+
 
 //==================================================================================================
 ///
@@ -361,16 +477,33 @@ bool ProgramOptions::hasOption(const String& optionName) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t ProgramOptions::valueCount(const String& optionName) const
+Option ProgramOptions::option(const String& optionName) const
 {
     const ParsedOption* parsedOption = findParsedOption(optionName);
     if (parsedOption)
     {
-        return parsedOption->m_values.size();
+        return Option(parsedOption->m_spec->m_name, parsedOption->m_values);
     }
     else
     {
-        return 0;
+        return Option();
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+String ProgramOptions::firstValue(const String& optionName) const
+{
+    const ParsedOption* parsedOption = findParsedOption(optionName);
+    if (parsedOption && parsedOption->m_values.size() > 0)
+    {
+        return parsedOption->m_values[0];
+    }
+    else
+    {
+        return String();
     }
 }
 
@@ -388,44 +521,6 @@ std::vector<String> ProgramOptions::values(const String& optionName) const
     else
     {
         return std::vector<String>();
-    }
-}
-
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-String ProgramOptions::combinedValues(const String& optionName) const
-{
-    String combined;
-    const ParsedOption* parsedOption = findParsedOption(optionName);
-    if (parsedOption)
-    {
-        for (size_t i = 0; i < parsedOption->m_values.size(); i++)
-        {
-            if (i > 0) combined += " ";
-            combined += parsedOption->m_values[i];
-        }
-    }
-
-    return combined;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::String ProgramOptions::firstValue(const String& optionName) const
-{
-    const ParsedOption* parsedOption = findParsedOption(optionName);
-    if (parsedOption && parsedOption->m_values.size() > 0)
-    {
-        return parsedOption->m_values[0];
-    }
-    else
-    {
-        return String();
     }
 }
 
@@ -553,29 +648,26 @@ String ProgramOptions::usageText(int maxWidth, int maxOptionWidth) const
     for (size_t iopt = 0; iopt < numOpts; iopt++)
     {
         const String optAndVal = optAndValArr[iopt];
-        const String descr = descrArr[iopt];
-        const int optAndValLen = static_cast<int>(optAndVal.size());
-        const int descrLen = static_cast<int>(descr.size());
-        if (optAndValLen + 1 <= firstColWidth && 
-            firstColWidth + descrLen <= maxWidth)
-        {
-            String s = String("%1 %2").arg(optAndValArr[iopt], -(firstColWidth - 1)).arg(descr);
-            retStr += s + String("\n");
-        }
-        else
-        {
-            const int maxDescrWidth = CVF_MAX((maxWidth - firstColWidth), 1);
-            std::vector<String> lines = breakStringIntoLines(descr, static_cast<size_t>(maxDescrWidth));
-            
-            String s = optAndValArr[iopt];
-            for (size_t i = 0; i < lines.size(); i++)
-            {
-                s += String("\n") + firstColBlanks + lines[i];
-            }
-            retStr += s + String("\n");
+
+        const int maxDescrWidth = CVF_MAX((maxWidth - firstColWidth), 1);
+        std::vector<String> descrLines = breakStringIntoLines(descrArr[iopt], static_cast<size_t>(maxDescrWidth));
+
+        String s = String("%1 ").arg(optAndValArr[iopt], -(firstColWidth - 1));
+        if (s.size() > static_cast<size_t>(firstColWidth) && descrLines.size() > 0)
+        {   
+            s += "\n" + firstColBlanks;
         }
 
-        
+        for (size_t i = 0; i < descrLines.size(); i++)
+        {
+            if (i > 0)
+            {
+                s += "\n" + firstColBlanks;
+            }
+            s += descrLines[i];
+        }
+
+        retStr += s + String("\n");
     }
 
     return retStr;
@@ -616,6 +708,7 @@ std::vector<String> ProgramOptions::breakStringIntoLines(const String& str, size
 
     return lines;
 }
+
 
 } // namespace cvf
 

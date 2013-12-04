@@ -44,6 +44,38 @@
 namespace cvf {
 
 
+//==================================================================================================
+//
+// 
+//
+//==================================================================================================
+class Option
+{
+public:
+    Option();
+    Option(const String& name, const std::vector<String>& values);
+
+    String              name() const;
+    size_t              valueCount() const;
+    String              value(size_t valueIndex) const;
+    String              safeValue(size_t valueIndex) const;
+    std::vector<String> values() const;
+    String              combinedValues() const;
+
+    bool                isValid() const;
+
+    // Safe bool idiom, internally calls isValid()
+    typedef void (Option::*bool_type)() const;
+    operator bool_type() const;
+
+private:
+    const String                m_name;
+    const std::vector<String>   m_values;
+
+private:
+    void this_type_does_not_support_comparisons() const {}
+};
+
 
 //==================================================================================================
 //
@@ -85,9 +117,8 @@ public:
     bool                parse(const std::vector<String>& commandLineArguments);
 
     bool                hasOption(const String& optionName) const;
-    size_t              valueCount(const String& optionName) const;
+    Option              option(const String& optionName) const;
     std::vector<String> values(const String& optionName) const;
-    String              combinedValues(const String& optionName) const;
     String              firstValue(const String& optionName) const;
 
     std::vector<String> positionalParameters() const;

@@ -48,13 +48,55 @@ using namespace cvf;
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(OptionTest, DefaultConstructionInvalidObj)
+{
+    Option o;
+    EXPECT_FALSE(o.isValid());
+    EXPECT_FALSE(o);
+    EXPECT_TRUE(o.name() == "");
+    EXPECT_EQ(0, o.valueCount());
+    EXPECT_EQ(0, o.values().size());
+    EXPECT_TRUE(o.combinedValues() == "");
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(OptionTest, Construction)
+{
+    std::vector<String> vals;
+    vals.push_back("v0");
+    vals.push_back("v1");
+    Option o("dummy", vals);
+    EXPECT_TRUE(o.isValid());
+    EXPECT_TRUE(o);
+    EXPECT_TRUE(o.name() == "dummy");
+    EXPECT_EQ(2, o.valueCount());
+    ASSERT_EQ(2, o.values().size());
+    EXPECT_TRUE(o.values()[0] == "v0");
+    EXPECT_TRUE(o.values()[1] == "v1");
+    EXPECT_TRUE(o.combinedValues() == "v0 v1");
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(ProgramOptionsTest, Construction)
 {
     ProgramOptions po;
     ASSERT_FALSE(po.hasOption("dummy"));
-    ASSERT_EQ(0, po.valueCount("dummy"));
+    ASSERT_TRUE(po.firstValue("dummy") == "");
     ASSERT_EQ(0, po.values("dummy").size());
-    ASSERT_TRUE(po.combinedValues("dummy") == "");
+
+    Option o = po.option("dummy");
+    ASSERT_FALSE(o.isValid());
+    ASSERT_EQ(0, o.valueCount());
+    ASSERT_TRUE(o.combinedValues() == "");
+    ASSERT_TRUE(po.option("dummy").combinedValues() == "");
 
     ASSERT_EQ(0, po.positionalParameters().size());
     ASSERT_EQ(0, po.unknownOptions().size());
@@ -119,11 +161,11 @@ TEST(ProgramOptionsTest, SingleValueOptions)
     ASSERT_TRUE(po.parse(cmdLineArgs));
 
     ASSERT_TRUE(po.hasOption("opt1"));
-    ASSERT_EQ(1, po.valueCount("opt1"));
+    ASSERT_EQ(1, po.values("opt1").size());
     EXPECT_TRUE(po.values("opt1")[0] == "AA");
 
     EXPECT_TRUE(po.hasOption("opt2"));
-    ASSERT_EQ(1, po.valueCount("opt2"));
+    ASSERT_EQ(1, po.values("opt2").size());
     EXPECT_TRUE(po.values("opt2")[0] == "BB");
 }
 
@@ -143,16 +185,16 @@ TEST(ProgramOptionsTest, MultiValueOptions)
     ASSERT_TRUE(po.parse(cmdLineArgs));
 
     ASSERT_TRUE(po.hasOption("opt1"));
-    ASSERT_EQ(1, po.valueCount("opt1"));
+    ASSERT_EQ(1, po.values("opt1").size());
     EXPECT_TRUE(po.values("opt1")[0] == "A0");
 
     EXPECT_TRUE(po.hasOption("opt2"));
-    ASSERT_EQ(2, po.valueCount("opt2"));
+    ASSERT_EQ(2, po.values("opt2").size());
     EXPECT_TRUE(po.values("opt2")[0] == "B0");
     EXPECT_TRUE(po.values("opt2")[1] == "B1");
 
     EXPECT_TRUE(po.hasOption("opt3"));
-    ASSERT_EQ(3, po.valueCount("opt3"));
+    ASSERT_EQ(3, po.values("opt3").size());
     EXPECT_TRUE(po.values("opt3")[0] == "C0");
     EXPECT_TRUE(po.values("opt3")[1] == "C1");
     EXPECT_TRUE(po.values("opt3")[2] == "C2");
@@ -174,16 +216,16 @@ TEST(ProgramOptionsTest, SingleValueOptionWithMissingValue)
     ASSERT_FALSE(po.parse(cmdLineArgs));
 
     ASSERT_TRUE(po.hasOption("opt1"));
-    ASSERT_EQ(1, po.valueCount("opt1"));
+    ASSERT_EQ(1, po.values("opt1").size());
     EXPECT_TRUE(po.values("opt1")[0] == "1");
 
     EXPECT_FALSE(po.hasOption("opt2"));
-    ASSERT_EQ(0, po.valueCount("opt2"));
+    ASSERT_EQ(0, po.values("opt2").size());
     ASSERT_EQ(1, po.optionsWithMissingValues().size());
     EXPECT_TRUE(po.optionsWithMissingValues()[0] == "opt2");
 
     EXPECT_TRUE(po.hasOption("opt3"));
-    ASSERT_EQ(1, po.valueCount("opt3"));
+    ASSERT_EQ(1, po.values("opt3").size());
     EXPECT_TRUE(po.values("opt3")[0] == "3");
 }
 
@@ -203,16 +245,16 @@ TEST(ProgramOptionsTest, MultiValueOptionWithMissingValues)
     ASSERT_FALSE(po.parse(cmdLineArgs));
 
     ASSERT_TRUE(po.hasOption("opt1"));
-    ASSERT_EQ(1, po.valueCount("opt1"));
+    ASSERT_EQ(1, po.values("opt1").size());
     EXPECT_TRUE(po.values("opt1")[0] == "1");
 
     EXPECT_FALSE(po.hasOption("opt2"));
-    ASSERT_EQ(0, po.valueCount("opt2"));
+    ASSERT_EQ(0, po.values("opt2").size());
     ASSERT_EQ(1, po.optionsWithMissingValues().size());
     EXPECT_TRUE(po.optionsWithMissingValues()[0] == "opt2");
 
     EXPECT_TRUE(po.hasOption("opt3"));
-    ASSERT_EQ(3, po.valueCount("opt3"));
+    ASSERT_EQ(3, po.values("opt3").size());
     EXPECT_TRUE(po.values("opt3")[0] == "1");
     EXPECT_TRUE(po.values("opt3")[1] == "2");
     EXPECT_TRUE(po.values("opt3")[2] == "3");
@@ -235,11 +277,20 @@ TEST(ProgramOptionsTest, UnknownOptions)
     ASSERT_FALSE(po.parse(cmdLineArgs));
 
     ASSERT_TRUE(po.hasOption("noval"));
-    ASSERT_EQ(0, po.valueCount("noval"));
+    ASSERT_EQ(0, po.values("noval").size());
     ASSERT_TRUE(po.hasOption("single"));
-    ASSERT_EQ(1, po.valueCount("single"));
+    ASSERT_EQ(1, po.values("single").size());
     ASSERT_TRUE(po.hasOption("multi"));
-    ASSERT_EQ(2, po.valueCount("multi"));
+    ASSERT_EQ(2, po.values("multi").size());
+
+    EXPECT_FALSE(po.hasOption("u1"));
+    EXPECT_FALSE(po.hasOption("u2"));
+    EXPECT_FALSE(po.hasOption("u3"));
+    EXPECT_FALSE(po.hasOption("u4"));
+    EXPECT_FALSE(po.option("u1"));
+    EXPECT_FALSE(po.option("u2"));
+    EXPECT_FALSE(po.option("u3"));
+    EXPECT_FALSE(po.option("u4"));
 
     ASSERT_EQ(4, po.unknownOptions().size());
     EXPECT_TRUE(po.unknownOptions()[0] == "u1");
@@ -270,12 +321,12 @@ TEST(ProgramOptionsTest, RepeatOptions)
     ASSERT_TRUE(po.parse(cmdLineArgs));
 
     ASSERT_TRUE(po.hasOption("single"));
-    ASSERT_EQ(1, po.valueCount("single"));
-    ASSERT_TRUE(po.combinedValues("single") == "2");
+    ASSERT_EQ(1, po.values("single").size());
+    ASSERT_TRUE(po.option("single").combinedValues() == "2");
 
     ASSERT_TRUE(po.hasOption("multi"));
-    ASSERT_EQ(2, po.valueCount("multi"));
-    ASSERT_TRUE(po.combinedValues("multi") == "A B");
+    ASSERT_EQ(2, po.values("multi").size());
+    ASSERT_TRUE(po.option("multi").combinedValues() == "A B");
 }
 
 
@@ -294,12 +345,12 @@ TEST(ProgramOptionsTest, RepeatOptionsCombining)
     ASSERT_TRUE(po.parse(cmdLineArgs));
 
     ASSERT_TRUE(po.hasOption("single"));
-    ASSERT_EQ(2, po.valueCount("single"));
-    ASSERT_TRUE(po.combinedValues("single") == "1 2");
+    ASSERT_EQ(2, po.values("single").size());
+    ASSERT_TRUE(po.option("single").combinedValues() == "1 2");
 
     ASSERT_TRUE(po.hasOption("multi"));
-    ASSERT_EQ(3, po.valueCount("multi"));
-    ASSERT_TRUE(po.combinedValues("multi") == "A A B");
+    ASSERT_EQ(3, po.values("multi").size());
+    ASSERT_TRUE(po.option("multi").combinedValues() == "A A B");
 }
 
 
@@ -354,7 +405,7 @@ TEST(ProgramOptionsTest, RealWorld_1)
 
     {
         ASSERT_TRUE(po.hasOption("outFile"));
-        String fileName = po.combinedValues("outFile");
+        String fileName = po.firstValue("outFile");
         EXPECT_TRUE(fileName == "outfile.txt");
     }
 }
@@ -383,7 +434,7 @@ TEST(ProgramOptionsTest, RealWorld_2)
 
     {
         ASSERT_TRUE(po.hasOption("width"));
-        int width = po.combinedValues("width").toInt();
+        int width = po.firstValue("width").toInt();
         EXPECT_EQ(25, width);
     }
 
@@ -412,6 +463,64 @@ TEST(ProgramOptionsTest, UsageText)
 
     String usageText = po.usageText(60);
     cvf::Trace::show(usageText);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(ProgramOptionsTest, RealWorld_3)
+{
+    ProgramOptions po;
+    po.registerOption("myFlag1",   "",                  "", ProgramOptions::NO_VALUE);
+    po.registerOption("myFlag2",   "",                  "", ProgramOptions::NO_VALUE);
+    po.registerOption("size",      "<x> <y>",           "", ProgramOptions::MULTI_VALUE);
+    po.registerOption("outFile",   "<fileName>",        "", ProgramOptions::SINGLE_VALUE);
+
+    String cmdLine("MyExe --size 10 20 --myFlag2  --outfile outfile.txt");
+    std::vector<String> cmdLineArgs = cmdLine.split();
+    ASSERT_TRUE(po.parse(cmdLineArgs));
+
+    if (Option o = po.option("myFlag1"))
+    {
+        FAIL() << "Option should not be present.";
+    }
+
+    if (Option o = po.option("myFlag2"))
+    {
+        EXPECT_TRUE(o.isValid());
+        EXPECT_EQ(0, o.valueCount());
+    }
+    else
+    {
+        FAIL() << "Option missing.";
+    }
+
+    if (Option o = po.option("size"))
+    {
+        EXPECT_TRUE(o.isValid());
+        EXPECT_EQ(2, o.valueCount());
+        int x = o.safeValue(0).toInt(-1);
+        int y = o.safeValue(1).toInt(-1);
+        EXPECT_EQ(10, x);
+        EXPECT_EQ(20, y);
+    }
+    else
+    {
+        FAIL() << "Option missing.";
+    }
+
+    if (Option o = po.option("outFile"))
+    {
+        EXPECT_TRUE(o.isValid());
+        EXPECT_EQ(1, o.valueCount());
+        String fileName = o.combinedValues();
+        EXPECT_TRUE(fileName == "outfile.txt");
+    }
+    else
+    {
+        FAIL() << "Option missing.";
+    }
 }
 
 
