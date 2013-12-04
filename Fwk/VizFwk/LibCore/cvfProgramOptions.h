@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -88,6 +88,7 @@ public:
     size_t              valueCount(const String& optionName) const;
     std::vector<String> values(const String& optionName) const;
     String              combinedValues(const String& optionName) const;
+    String              firstValue(const String& optionName) const;
 
     std::vector<String> positionalParameters() const;
 

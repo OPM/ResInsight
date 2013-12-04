@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -392,6 +392,7 @@ std::vector<String> ProgramOptions::values(const String& optionName) const
 }
 
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -409,6 +410,23 @@ String ProgramOptions::combinedValues(const String& optionName) const
     }
 
     return combined;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::String ProgramOptions::firstValue(const String& optionName) const
+{
+    const ParsedOption* parsedOption = findParsedOption(optionName);
+    if (parsedOption && parsedOption->m_values.size() > 0)
+    {
+        return parsedOption->m_values[0];
+    }
+    else
+    {
+        return String();
+    }
 }
 
 
