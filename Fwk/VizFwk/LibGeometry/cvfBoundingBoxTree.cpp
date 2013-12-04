@@ -41,6 +41,7 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfBoundingBox.h"
+#include <cmath>
 
 
 namespace cvf {
@@ -217,7 +218,7 @@ namespace cvf {
         BoundingBoxTreeImpl() {}
 
     private:
-        friend BoundingBoxTree;
+        friend class BoundingBoxTree;
 
         bool createLeaves();
         void findIntersections(const cvf::BoundingBox& bb, std::vector<size_t>& bbIds) const;
