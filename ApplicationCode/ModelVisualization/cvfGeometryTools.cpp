@@ -661,9 +661,9 @@ void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* poly
         }
 
         if (it2 != polygon->begin())
-            polygon->insert(it2, std::make_pair(midPointIndex, true));
+            polygon->insert(it2, std::make_pair((cvf::uint)midPointIndex, true));
         else 
-            polygon->insert(polygon->end(), std::make_pair(midPointIndex, true));
+            polygon->insert(polygon->end(), std::make_pair((cvf::uint)midPointIndex, true));
 
         ++it;
     }
