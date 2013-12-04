@@ -22,15 +22,17 @@
 
 #include "cvfVector3.h"
 #include "cvfBoundingBox.h"
-
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
+#include "cvfStructGridScalarDataAccess.h"
+
+#include "cafFixedArray.h"
 
 #include <vector>
 #include <string>
-#include "cvfStructGridScalarDataAccess.h"
+
 #include "RifReaderInterface.h"
-#include "cafFixedArray.h"
+#include "RigFault.h"
 
 
 class RigMainGrid;
@@ -75,6 +77,9 @@ public:
     void                        coarseningBox(size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2) const;
 
     cvf::BoundingBox            boundingBox();
+
+    void                                setFaults(const cvf::Collection<RigFault>& faults);
+    const cvf::Collection<RigFault>&    faults() { return m_faults; }
   
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();
@@ -116,6 +121,8 @@ private:
     cvf::BoundingBox            m_boundingBox;
 
     std::vector<caf::SizeTArray6>    m_coarseningBoxInfo;
+
+    cvf::Collection<RigFault>   m_faults;
 };
 
 
@@ -123,17 +130,25 @@ class RigGridCellFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
 {
 public:
     RigGridCellFaceVisibilityFilter(const RigGridBase* grid)
-        :   m_grid(grid),
-            m_showFaultFaces(true),
-            m_showExternalFaces(true)
+        :   m_grid(grid)
     {
     }
 
     virtual bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const;
 
+private:
+    const RigGridBase* m_grid;
+};
+
+class RigFaultFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
+{
 public:
-    bool m_showFaultFaces;
-    bool m_showExternalFaces;
+    RigFaultFaceVisibilityFilter(const RigGridBase* grid)
+        :   m_grid(grid)
+    {
+    }
+
+    virtual bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const;
 
 private:
     const RigGridBase* m_grid;

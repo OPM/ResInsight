@@ -229,6 +229,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cvfArray.h" />
+    <ClInclude Include="cvfArrayWrapperConst.h" />
+    <ClInclude Include="cvfArrayWrapperToEdit.h" />
     <ClInclude Include="cvfAssert.h" />
     <ClInclude Include="cvfBase.h" />
     <ClInclude Include="cvfBase64.h" />

@@ -13,6 +13,7 @@ include_directories(../LibCore)
 set(CEE_HEADER_FILES
 cvfArrowGenerator.h
 cvfBoundingBox.h
+cvfBoundingBoxTree.h
 cvfBoxGenerator.h
 cvfEdgeKey.h
 cvfFrustum.h
@@ -34,6 +35,7 @@ cvfVertexWelder.h
 set(CEE_SOURCE_FILES
 cvfArrowGenerator.cpp
 cvfBoundingBox.cpp
+cvfBoundingBoxTree.cpp
 cvfBoxGenerator.cpp
 cvfFrustum.cpp
 cvfEdgeKey.cpp

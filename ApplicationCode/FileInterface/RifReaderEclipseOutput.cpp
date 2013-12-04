@@ -36,6 +36,7 @@
 
 #include "cafProgressInfo.h"
 #include <map>
+#include "RifEclipseInputFileTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///     ECLIPSE cell numbering layout:
@@ -368,17 +369,37 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.setProgressDescription("Transferring grid geometry");
 
     if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
+
+    progInfo.incrementProgress();
+    progInfo.setProgressDescription("Reading faults");
+    progInfo.setNextProgressIncrement(10);
+
+    foreach (QString fname, fileSet)
+    {
+        if (fname.endsWith(".DATA"))
+        {
+            cvf::Collection<RigFault> faults;
+            RifEclipseInputFileTools::readFaultsInGridSection(fname, faults);
+
+            RigMainGrid* mainGrid = eclipseCase->mainGrid();
+            mainGrid->setFaults(faults);
+        }
+    }
+
+
     progInfo.incrementProgress();
 
     m_eclipseCase = eclipseCase;
 
     progInfo.setProgressDescription("Reading Result index");
-    progInfo.setNextProgressIncrement(60);
+    progInfo.setNextProgressIncrement(50);
     
     // Build results meta data
     buildMetaData();
-    progInfo.incrementProgress();
 
+
+
+    progInfo.incrementProgress();
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
     readWellCells(mainEclGrid);

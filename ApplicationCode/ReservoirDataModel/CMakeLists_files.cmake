@@ -18,6 +18,7 @@ ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.h
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.h
 ${CEE_CURRENT_LIST_DIR}RigStatisticsMath.h
 ${CEE_CURRENT_LIST_DIR}RigWellPath.h
+${CEE_CURRENT_LIST_DIR}RigFault.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -34,6 +35,7 @@ ${CEE_CURRENT_LIST_DIR}RigCaseCellResultsData.cpp
 ${CEE_CURRENT_LIST_DIR}RigSingleWellResultsData.cpp
 ${CEE_CURRENT_LIST_DIR}RigStatisticsMath.cpp
 ${CEE_CURRENT_LIST_DIR}RigWellPath.cpp
+${CEE_CURRENT_LIST_DIR}RigFault.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

@@ -30,6 +30,8 @@
 #include <QPointer>
 #include <QString>
 
+#include "RimFaultCollection.h"
+
 class RimCase;
 class RimResultSlot;
 class RimCellEdgeResultSlot;
@@ -49,6 +51,7 @@ class RiuViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class RimReservoirCellResultsStorage;
+
 namespace cvf
 {
     class Transform;
@@ -56,13 +59,14 @@ namespace cvf
     class ModelBasicList;
 }
 
-enum ViewState
+enum PartRenderMaskEnum
 {
-    GEOMETRY_ONLY,
-    STATIC_RESULT,
-    DYNAMIC_RESULT,
-    CELL_FACE_COMBINED_RESULT
+    surfaceBit      = 0x00000001,
+    meshSurfaceBit  = 0x00000002,
+    faultBit        = 0x00000004,
+    meshFaultBit    = 0x00000008,
 };
+
 
 //==================================================================================================
 ///  
@@ -98,6 +102,8 @@ public:
     caf::PdmField<RimCellPropertyFilterCollection*>     propertyFilterCollection;
 
     caf::PdmField<RimWellCollection*>                   wellCollection;
+
+    caf::PdmField<RimFaultCollection*>                  faultCollection;
 
     caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
 

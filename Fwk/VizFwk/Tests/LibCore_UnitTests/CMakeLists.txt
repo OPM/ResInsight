@@ -13,6 +13,7 @@ set(CEE_LIBS LibCore)
 
 set(CEE_SOURCE_FILES
 cvfArray-Test.cpp
+cvfArrayWrapper-Test.cpp
 cvfBase-Test.cpp
 cvfBase64-Test.cpp
 cvfCharArray-Test.cpp

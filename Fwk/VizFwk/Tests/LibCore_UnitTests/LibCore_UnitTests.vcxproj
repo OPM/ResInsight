@@ -250,6 +250,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\ThirdParty\gtest\gtest-all.cpp" />
     <ClCompile Include="cvfArray-Test.cpp" />
+    <ClCompile Include="cvfArrayWrapper-Test.cpp" />
     <ClCompile Include="cvfBase-Test.cpp" />
     <ClCompile Include="cvfBase64-Test.cpp" />
     <ClCompile Include="cvfCharArray-Test.cpp" />

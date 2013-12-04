@@ -541,53 +541,63 @@ cvf::BoundingBox RigGridBase::boundingBox()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RigGridBase::setFaults(const cvf::Collection<RigFault>& faults)
+{
+    m_faults = faults;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility) const
 {
     CVF_TIGHT_ASSERT(m_grid);
 
-    if (m_showFaultFaces)
+    size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
+    if (m_grid->cell(cellIndex).subGrid())
     {
-        size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
-        if (m_grid->cell(cellIndex).isCellFaceFault(face))
-        {
-            return true;
-        }
+        // Do not show any faces in the place where a LGR is present
+        return false; 
     }
 
-    if (m_showExternalFaces)
+    size_t ni, nj, nk;
+    cvf::StructGridInterface::neighborIJKAtCellFace(i, j, k, face, &ni, &nj, &nk);
+
+    // If the cell is on the edge of the grid, Interpret as having an invisible neighbour
+    if (ni >= m_grid->cellCountI() || nj >= m_grid->cellCountJ() || nk >= m_grid->cellCountK())
     {
-        size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
-        if (m_grid->cell(cellIndex).subGrid())
-        {
-            // Do not show any faces in the place where a LGR is present
-            return false; 
-        }
-
-        size_t ni, nj, nk;
-        cvf::StructGridInterface::neighborIJKAtCellFace(i, j, k, face, &ni, &nj, &nk);
-
-        // If the cell is on the edge of the grid, Interpret as having an invisible neighbour
-        if (ni >= m_grid->cellCountI() || nj >= m_grid->cellCountJ() || nk >= m_grid->cellCountK())
-        {
-            return true;
-        }
+        return true;
+    }
        
-        size_t neighborCellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
+    size_t neighborCellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
 
-        // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
-        // might not be visible.
-        if (m_grid->cell(neighborCellIndex).subGrid())
-        {
-            return true;
-        }
+    // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
+    // might not be visible.
+    if (m_grid->cell(neighborCellIndex).subGrid())
+    {
+        return true;
+    }
 
-        // If the neighbour cell is invisible, we need to draw the face
-        if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
-        {
-            return true;
-        }
+    // If the neighbour cell is invisible, we need to draw the face
+    if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
+    {
+        return true;
     }
 
     return false;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigFaultFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility) const
+{
+    size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
+    if (m_grid->cell(cellIndex).isCellFaceFault(face))
+    {
+        return true;
+    }
+
+    return false;
+}

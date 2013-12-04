@@ -39,6 +39,20 @@
 #include "cvfBase.h"
 #include "cvfStructGrid.h"
 
+namespace caf
+{
+    template<>
+    void cvf::StructGridInterface::FaceEnum::setUp()
+    {
+        addItem(cvf::StructGridInterface::POS_I,   "X",    "");
+        addItem(cvf::StructGridInterface::NEG_I,   "X-",   "");
+        addItem(cvf::StructGridInterface::POS_J,   "Y",    "");
+        addItem(cvf::StructGridInterface::NEG_J,   "Y-",   "");
+        addItem(cvf::StructGridInterface::POS_K,   "Z",    "");
+        addItem(cvf::StructGridInterface::NEG_K,   "Z-",   "");
+    }
+}
+
 
 namespace cvf {
 

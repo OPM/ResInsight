@@ -24,6 +24,8 @@ add_library( ${PROJECT_NAME}
 	cafUtils.h
 	cvfStructGrid.cpp
 	cvfStructGrid.h
+	cvfCellRange.cpp
+	cvfCellRange.h
 	
 	
 	cvfStructGridGeometryGenerator.cpp

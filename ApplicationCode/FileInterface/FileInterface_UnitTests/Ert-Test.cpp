@@ -38,6 +38,9 @@
 
 #include "RigCaseData.h"
 #include "RifReaderEclipseInput.h"
+#include "RifEclipseInputFileTools.h"
+
+#include <QFile>
 
 #if 0
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +103,8 @@ TEST(RigReservoirTest, WellTestErt)
 
     well_info_free( well_info );
 }
+
+
 //--------------------------------------------------------------------------------------------------
 /// This file contains test code taken from the test cases in ERT source code.
 //  There is a typedef issue (center) between ERT and QTextStream, so this file does not include any 
@@ -107,12 +112,88 @@ TEST(RigReservoirTest, WellTestErt)
 //--------------------------------------------------------------------------------------------------
 TEST(RigReservoirTest, ElipseInputGridFile)
 {
-    RigReservoir res;
+    RigCaseData res;
     RifReaderEclipseInput inputReader;
     bool result = inputReader.open("TEST10K_FLT_LGR_NNC.grdecl", &res);
     EXPECT_TRUE(result);
-    EXPECT_EQ(size_t(1), res.mainGrid()->cells().size());
-    EXPECT_EQ(size_t(1), res.mainGrid()->globalMatrixModelActiveCellCount());
+}
+
+
+TEST(RigReservoirTest, ReadFaults)
+{
+//     QString filename("d:/Models/Statoil/testcase_juli_2011/data/grid_local.grdecl");
+// 
+//     std::vector< RifKeywordAndFilePos > fileKeywords;
+//     RifEclipseInputFileTools::findKeywordsOnFile(filename, fileKeywords);
+//    
+//     cvf::Collection<RigFault> faults;
+//     
+//     RifEclipseInputFileTools::readFaults(filename, faults, fileKeywords);
+
+//     for (size_t j = 0; j < faults.size(); j++)
+//     {
+//         printf(faults.at(j)->name().toLatin1());
+//         printf("\n");
+//     }
 
 }
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigReservoirTest, ReadFaultsRecursively)
+{
+    //TODO: Establish a way to define location of test model files
+
+    QString filename("d:/Models/Statoil/TEST_RKMFAULTS/TEST_RKMFAULTS.DATA");
+//    QString filename("d:/gitroot/ResInsight/TestModels/fault_test/regular27cell.DATA");
+
+    QString outFilename = "c:/tmp/TestModels/TEST_RKMFAULTS/msj_faults.txt";
+    QFile outputFile(outFilename);
+    {
+        if (!outputFile.open(QIODevice::WriteOnly))
+        {
+            return;
+        }
+    }
+
+    QTextStream outStream(&outputFile);
+
+    cvf::Collection<RigFault> faults;
+
+    RifEclipseInputFileTools::readFaultsInGridSection(filename, faults);
+
+//    EXPECT_EQ(4, faults.size());
+
+    for (size_t j = 0; j < faults.size(); j++)
+    {
+        const RigFault* rigFault = faults.at(j);
+        
+        printf(rigFault->name().toLatin1());
+
+        for (size_t faceType = 0; faceType < 6; faceType++)
+        {
+            cvf::StructGridInterface::FaceType faceEnum = cvf::StructGridInterface::FaceType(faceType);
+            const std::vector<cvf::CellRange>& cellRanges = rigFault->cellRangeForFace(faceEnum);
+
+            for (size_t i = 0; i < cellRanges.size(); i++)
+            {
+                cvf::Vec3st min, max;
+                cellRanges[i].range(min, max);
+
+                QString tmp;
+                tmp = tmp.sprintf("min i=%3d  j=%3d  k=%3d  -  max  i=%3d  j=%3d  k=%3d  \n", min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
+                
+                outStream << tmp;
+
+//                 printf("min i=%3d  j=%3d  k=%3d  -  max  i=%3d  j=%3d  k=%3d  ", min.x(), min.y(), min.z(), max.x(), max.y(), max.z());
+//                 printf("\n");
+            }
+        }
+    }
+}
+
+
 #endif

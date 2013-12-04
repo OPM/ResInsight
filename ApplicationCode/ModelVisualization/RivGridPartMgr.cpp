@@ -47,7 +47,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx)
+RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* rimFaultCollection)
 :   m_surfaceGenerator(grid), 
     m_faultGenerator(grid), 
     m_gridIdx(gridIdx),
@@ -55,7 +55,8 @@ RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx)
     m_surfaceFaceFilter(grid), 
     m_faultFaceFilter(grid),
     m_opacityLevel(1.0f),
-    m_defaultColor(cvf::Color3::WHITE)
+    m_defaultColor(cvf::Color3::WHITE),
+    m_rimFaultCollection(rimFaultCollection)
 {
     CVF_ASSERT(grid);
     m_cellVisibility = new cvf::UByteArray;
@@ -82,13 +83,9 @@ void RivGridPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
     m_cellVisibility = cellVisibilities;
 
     m_surfaceGenerator.setCellVisibility(cellVisibilities);
-    m_surfaceFaceFilter.m_showExternalFaces = true;
-    m_surfaceFaceFilter.m_showFaultFaces = false;
     m_surfaceGenerator.addFaceVisibilityFilter(&m_surfaceFaceFilter);
 
     m_faultGenerator.setCellVisibility(cellVisibilities);
-    m_faultFaceFilter.m_showExternalFaces = false;
-    m_faultFaceFilter.m_showFaultFaces = true;
     m_faultGenerator.addFaceVisibilityFilter(&m_faultFaceFilter);
 
     generatePartGeometry(m_surfaceGenerator, false);
@@ -192,8 +189,12 @@ void RivGridPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
     if(m_surfaceFaces.notNull()    ) model->addPart(m_surfaceFaces.p()    );
     if(m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());
-    if(m_faultFaces.notNull()      ) model->addPart(m_faultFaces.p()      );
-    if(m_faultGridLines.notNull()  ) model->addPart(m_faultGridLines.p()  );
+
+    if (m_rimFaultCollection && m_rimFaultCollection->showGeometryDetectedFaults())
+    {
+        if(m_faultFaces.notNull()      ) model->addPart(m_faultFaces.p()      );
+        if(m_faultGridLines.notNull()  ) model->addPart(m_faultGridLines.p()  );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
