@@ -345,7 +345,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
             QTextStream in(&data);
 
             QString data = in.readAll();
-            cvf::String cvfString = cvfqt::Utils::fromQString(data);
+            cvf::String cvfString = cvfqt::Utils::toString(data);
 
             shaderGen.addFragmentCode(cvfString);
         }
@@ -358,7 +358,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
             QTextStream in(&data);
 
             QString data = in.readAll();
-            cvf::String cvfString = cvfqt::Utils::fromQString(data);
+            cvf::String cvfString = cvfqt::Utils::toString(data);
 
             shaderGen.addVertexCode(cvfString);
         }

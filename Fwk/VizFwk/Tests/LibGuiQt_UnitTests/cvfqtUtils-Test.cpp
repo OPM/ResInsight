@@ -105,12 +105,12 @@ TEST(UtilsTest, toQImage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(UtilsTest, fromQImage_withEmptyImage)
+TEST(UtilsTest, toTextureImage_withEmptyImage)
 {
     QImage qi;
 
     cvf::TextureImage i;
-    cvfqt::Utils::fromQImage(qi, &i);
+    cvfqt::Utils::toTextureImage(qi, &i);
     EXPECT_EQ(0, i.width());
     EXPECT_EQ(0, i.height());
 }
@@ -119,13 +119,13 @@ TEST(UtilsTest, fromQImage_withEmptyImage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(UtilsTest, fromQImage_withSinglePixelImage)
+TEST(UtilsTest, toTextureImage_withSinglePixelImage)
 {
     QImage qi(1, 1, QImage::Format_ARGB32);
     qi.setPixel(0,0, qRgba(1, 2, 3, 4)); 
 
     cvf::TextureImage i;
-    cvfqt::Utils::fromQImage(qi, &i);
+    cvfqt::Utils::toTextureImage(qi, &i);
     ASSERT_EQ(1, i.width());
     ASSERT_EQ(1, i.height());
     EXPECT_EQ(cvf::Color4ub(1, 2, 3, 4), i.pixel(0,0));  
@@ -135,7 +135,7 @@ TEST(UtilsTest, fromQImage_withSinglePixelImage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(UtilsTest, fromQImage)
+TEST(UtilsTest, toTextureImage)
 {
     QImage qi(4, 3, QImage::Format_ARGB32);
     qi.setPixel(0,0, qRgba( 0,10,50,100));   qi.setPixel(1,0, qRgba( 1,11,51,101));   qi.setPixel(2,0, qRgba( 2,12,52,102));   qi.setPixel(3,0, qRgba( 3,13,53,103));
@@ -143,7 +143,7 @@ TEST(UtilsTest, fromQImage)
     qi.setPixel(0,2, qRgba( 8,18,58,108));   qi.setPixel(1,2, qRgba( 9,19,59,109));   qi.setPixel(2,2, qRgba(10,20,60,110));   qi.setPixel(3,2, qRgba(11,21,61,111));
 
     cvf::TextureImage i;
-    cvfqt::Utils::fromQImage(qi, &i);
+    cvfqt::Utils::toTextureImage(qi, &i);
     ASSERT_EQ(4, i.width());
     ASSERT_EQ(3, i.height());
 
@@ -156,7 +156,7 @@ TEST(UtilsTest, fromQImage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(UtilsTest, fromQImage_premultipliedImageFormat)
+TEST(UtilsTest, toTextureImage_premultipliedImageFormat)
 {
     QImage qi(4, 3, QImage::Format_ARGB32_Premultiplied);
     qi.setPixel(0,0, qRgba( 0,10,50,100));   qi.setPixel(1,0, qRgba( 1,11,51,101));   qi.setPixel(2,0, qRgba( 2,12,52,102));   qi.setPixel(3,0, qRgba( 3,13,53,103));
@@ -164,7 +164,7 @@ TEST(UtilsTest, fromQImage_premultipliedImageFormat)
     qi.setPixel(0,2, qRgba( 8,18,58,108));   qi.setPixel(1,2, qRgba( 9,19,59,109));   qi.setPixel(2,2, qRgba(10,20,60,110));   qi.setPixel(3,2, qRgba(11,21,61,111));
 
     cvf::TextureImage i;
-    cvfqt::Utils::fromQImage(qi, &i);
+    cvfqt::Utils::toTextureImage(qi, &i);
     ASSERT_EQ(4, i.width());
     ASSERT_EQ(3, i.height());
 
@@ -177,25 +177,25 @@ TEST(UtilsTest, fromQImage_premultipliedImageFormat)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(UtilsTest, fromQImageRegion_emptyRegion)
+TEST(UtilsTest, toTextureImageRegion_emptyRegion)
 {
     QImage qi(3, 4, QImage::Format_ARGB32);
 
     {
         cvf::TextureImage i;
-        cvfqt::Utils::fromQImageRegion(qi, cvf::Vec2ui(1, 1), cvf::Vec2ui(0, 0), &i);
+        cvfqt::Utils::toTextureImageRegion(qi, cvf::Vec2ui(1, 1), cvf::Vec2ui(0, 0), &i);
         EXPECT_EQ(0, i.width());
         EXPECT_EQ(0, i.height());
     }
     {
         cvf::TextureImage i;
-        cvfqt::Utils::fromQImageRegion(qi, cvf::Vec2ui(1, 1), cvf::Vec2ui(1, 0), &i);
+        cvfqt::Utils::toTextureImageRegion(qi, cvf::Vec2ui(1, 1), cvf::Vec2ui(1, 0), &i);
         EXPECT_EQ(0, i.width());
         EXPECT_EQ(0, i.height());
     }
     {
         cvf::TextureImage i;
-        cvfqt::Utils::fromQImageRegion(qi, cvf::Vec2ui(1, 1), cvf::Vec2ui(0, 1), &i);
+        cvfqt::Utils::toTextureImageRegion(qi, cvf::Vec2ui(1, 1), cvf::Vec2ui(0, 1), &i);
         EXPECT_EQ(0, i.width());
         EXPECT_EQ(0, i.height());
     }
@@ -205,7 +205,7 @@ TEST(UtilsTest, fromQImageRegion_emptyRegion)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-TEST(UtilsTest, fromQImageRegion)
+TEST(UtilsTest, toTextureImageRegion)
 {
     QImage qi(4, 3, QImage::Format_ARGB32);
     qi.setPixel(0,0, qRgba( 0,10,50,100));   qi.setPixel(1,0, qRgba( 1,11,51,101));   qi.setPixel(2,0, qRgba( 2,12,52,102));   qi.setPixel(3,0, qRgba( 3,13,53,103));
@@ -214,14 +214,14 @@ TEST(UtilsTest, fromQImageRegion)
 
     {
         cvf::TextureImage i;
-        cvfqt::Utils::fromQImageRegion(qi, cvf::Vec2ui(0, 0), cvf::Vec2ui(2, 1), &i);
+        cvfqt::Utils::toTextureImageRegion(qi, cvf::Vec2ui(0, 0), cvf::Vec2ui(2, 1), &i);
         ASSERT_EQ(2, i.width());
         ASSERT_EQ(1, i.height());
         EXPECT_EQ(cvf::Color4ub( 0,10,50,100), i.pixel(0,0));  EXPECT_EQ(cvf::Color4ub( 1,11,51,101), i.pixel(1,0));
     }
     {
         cvf::TextureImage i;
-        cvfqt::Utils::fromQImageRegion(qi, cvf::Vec2ui(2, 1), cvf::Vec2ui(2, 2), &i);
+        cvfqt::Utils::toTextureImageRegion(qi, cvf::Vec2ui(2, 1), cvf::Vec2ui(2, 2), &i);
         ASSERT_EQ(2, i.width());
         ASSERT_EQ(2, i.height());
         EXPECT_EQ(cvf::Color4ub( 6,16,56,106), i.pixel(0,1));  EXPECT_EQ(cvf::Color4ub( 7,17,57,107), i.pixel(1,1));
@@ -229,14 +229,14 @@ TEST(UtilsTest, fromQImageRegion)
     }
     {
         cvf::TextureImage i;
-        cvfqt::Utils::fromQImageRegion(qi, cvf::Vec2ui(0, 2), cvf::Vec2ui(4, 1), &i);
+        cvfqt::Utils::toTextureImageRegion(qi, cvf::Vec2ui(0, 2), cvf::Vec2ui(4, 1), &i);
         ASSERT_EQ(4, i.width());
         ASSERT_EQ(1, i.height());
         EXPECT_EQ(cvf::Color4ub( 8,18,58,108), i.pixel(0,0));  EXPECT_EQ(cvf::Color4ub( 9,19,59,109), i.pixel(1,0));  EXPECT_EQ(cvf::Color4ub(10,20,60,110), i.pixel(2,0));  EXPECT_EQ(cvf::Color4ub(11,21,61,111), i.pixel(3,0));
     }
     {
         cvf::TextureImage i;
-        cvfqt::Utils::fromQImageRegion(qi, cvf::Vec2ui(3, 0), cvf::Vec2ui(1, 3), &i);
+        cvfqt::Utils::toTextureImageRegion(qi, cvf::Vec2ui(3, 0), cvf::Vec2ui(1, 3), &i);
         ASSERT_EQ(1, i.width());
         ASSERT_EQ(3, i.height());
         EXPECT_EQ(cvf::Color4ub( 3,13,53,103), i.pixel(0,2));

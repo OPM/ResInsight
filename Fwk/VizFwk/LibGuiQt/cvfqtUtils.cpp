@@ -176,7 +176,7 @@ QImage Utils::toQImage(const cvf::TextureImage& textureImage)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Utils::fromQImage(const QImage& qImage, cvf::TextureImage* textureImage)
+void Utils::toTextureImage(const QImage& qImage, cvf::TextureImage* textureImage)
 {
     CVF_ASSERT(textureImage);
 
@@ -188,7 +188,7 @@ void Utils::fromQImage(const QImage& qImage, cvf::TextureImage* textureImage)
         return;
     }
 
-    return fromQImageRegion(qImage, cvf::Vec2ui(0, 0), cvf::Vec2ui(static_cast<cvf::uint>(width), static_cast<cvf::uint>(height)), textureImage);
+    return toTextureImageRegion(qImage, cvf::Vec2ui(0, 0), cvf::Vec2ui(static_cast<cvf::uint>(width), static_cast<cvf::uint>(height)), textureImage);
 }
 
 
@@ -198,7 +198,7 @@ void Utils::fromQImage(const QImage& qImage, cvf::TextureImage* textureImage)
 /// \attention The source position \a srcPos is specified in QImage's coordinate system, where 
 ///            the pixel position (0,0) if the upper left corner.
 //--------------------------------------------------------------------------------------------------
-void Utils::fromQImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage)
+void Utils::toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage)
 {
     CVF_ASSERT(qImage.width() >= 0);
     CVF_ASSERT(qImage.height() >= 0);

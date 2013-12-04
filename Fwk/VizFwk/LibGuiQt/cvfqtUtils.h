@@ -61,11 +61,8 @@ public:
     static QStringList              toQStringList(const std::vector<cvf::String>& stringVector);
 
     static QImage                   toQImage(const cvf::TextureImage& textureImage);
-    static void                     fromQImage(const QImage& qImage, cvf::TextureImage* textureImage);
-    static void                     fromQImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage);
-
-    // Deprecated
-    static cvf::String              fromQString(const QString& qtString) { return toString(qtString); }
+    static void                     toTextureImage(const QImage& qImage, cvf::TextureImage* textureImage);
+    static void                     toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage);
 };
 
 }

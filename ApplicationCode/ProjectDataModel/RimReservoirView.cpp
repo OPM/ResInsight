@@ -1289,7 +1289,7 @@ void RimReservoirView::updateLegends()
         this->cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
         m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
-        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
+        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
     }
     else
     {
@@ -1309,7 +1309,7 @@ void RimReservoirView::updateLegends()
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
         m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
-        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
+        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
 
     }
     else

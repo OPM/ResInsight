@@ -436,7 +436,7 @@ void QSRMainWindow::slotRunLastUsedSnippet()
 {
 	QSettings settings("Ceetron", "SnippetRunner");
 
-	cvf::String lastUsedSnippetId = cvfqt::Utils::fromQString(settings.value("LastUsedSnippetID").toString());
+	cvf::String lastUsedSnippetId = cvfqt::Utils::toString(settings.value("LastUsedSnippetID").toString());
 
 	// If no last used ID is found, use first snippet in list
 	if (lastUsedSnippetId.isEmpty() && m_availableSnippets.size() > 0)

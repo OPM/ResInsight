@@ -199,7 +199,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
         drawableText->setTextColor(m_wellPathCollection->wellPathLabelColor());
 
-        cvf::String cvfString = cvfqt::Utils::fromQString(m_rimWellPath->name());
+        cvf::String cvfString = cvfqt::Utils::toString(m_rimWellPath->name());
 
         cvf::Vec3f textCoord(textPosition);
         drawableText->addText(cvfString, textCoord);

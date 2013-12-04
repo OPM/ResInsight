@@ -459,7 +459,7 @@ void caf::Viewer::paintEvent(QPaintEvent* event)
             m_overlayTextureImage->allocate(this->width(), this->height());
         }
 
-        cvfqt::Utils::fromQImage(m_overlayPaintingQImage, m_overlayTextureImage.p());
+        cvfqt::Utils::toTextureImage(m_overlayPaintingQImage, m_overlayTextureImage.p());
         
         m_overlayImage->setImage(m_overlayTextureImage.p());
         m_overlayImage->setPixelSize(cvf::Vec2ui(this->width(), this->height()));

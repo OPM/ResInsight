@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
             return EXIT_SUCCESS;
         }
 
-        if (!cmdLineArgs.m_testDataDir.isEmpty()) testDataDir = cvfqt::Utils::fromQString(cmdLineArgs.m_testDataDir);
-        if (!cmdLineArgs.m_shaderDir.isEmpty())   shaderDir   = cvfqt::Utils::fromQString(cmdLineArgs.m_shaderDir);
+        if (!cmdLineArgs.m_testDataDir.isEmpty()) testDataDir = cvfqt::Utils::toString(cmdLineArgs.m_testDataDir);
+        if (!cmdLineArgs.m_shaderDir.isEmpty())   shaderDir   = cvfqt::Utils::toString(cmdLineArgs.m_shaderDir);
 
         if (cmdLineArgs.m_echoArguments)
         {
