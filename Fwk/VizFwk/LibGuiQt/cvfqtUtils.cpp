@@ -39,6 +39,8 @@
 #include "cvfVector2.h"
 #include "cvfqtUtils.h"
 
+#include <QtCore/QStringList>
+
 namespace cvfqt {
 
 
@@ -55,22 +57,22 @@ namespace cvfqt {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString Utils::toQString(const cvf::String& ceeString)
+QString Utils::toQString(const cvf::String& cvfString)
 {
-    if (ceeString.isEmpty())
+    if (cvfString.isEmpty())
     {
         return QString();
     }
 
     if (sizeof(wchar_t) == 2)
     {
-        const unsigned short* strPtr = reinterpret_cast<const unsigned short*>(ceeString.c_str());
+        const unsigned short* strPtr = reinterpret_cast<const unsigned short*>(cvfString.c_str());
 
         return QString::fromUtf16(strPtr);
     }
     else if (sizeof(wchar_t) == 4)
     {
-        const unsigned int* strPtr = reinterpret_cast<const unsigned int*>(ceeString.c_str());
+        const unsigned int* strPtr = reinterpret_cast<const unsigned int*>(cvfString.c_str());
 
         return QString::fromUcs4(strPtr);
     }
@@ -83,7 +85,7 @@ QString Utils::toQString(const cvf::String& ceeString)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::String Utils::fromQString(const QString& qtString)
+cvf::String Utils::toString(const QString& qtString)
 {
     if (qtString.length() == 0)
     {
@@ -107,6 +109,39 @@ cvf::String Utils::fromQString(const QString& qtString)
 
     CVF_FAIL_MSG("Unexpected sizeof wchar_t");
     return cvf::String();
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::String> Utils::toStringVector(const QStringList& stringList)
+{
+    std::vector<cvf::String> strVec;
+
+    foreach (QString s, stringList)
+    {
+        strVec.push_back(toString(s));
+    }
+
+    return strVec;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList Utils::toQStringList(const std::vector<cvf::String>& stringVector)
+{
+    QStringList strList;
+
+    foreach (cvf::String s, stringVector)
+    {
+        strList.push_back(toQString(s));
+    }
+
+    return strList;
 }
 
 

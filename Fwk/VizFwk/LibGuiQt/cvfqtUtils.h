@@ -54,12 +54,18 @@ namespace cvfqt {
 class Utils
 {
 public:
-    static QString      toQString(const cvf::String& ceeString);
-    static cvf::String  fromQString(const QString& qtString);
+    static QString                  toQString(const cvf::String& cvfString);
+    static cvf::String              toString(const QString& qtString);
 
-    static QImage       toQImage(const cvf::TextureImage& textureImage);
-    static void         fromQImage(const QImage& qImage, cvf::TextureImage* textureImage);
-    static void         fromQImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage);
+    static std::vector<cvf::String> toStringVector(const QStringList& stringList);
+    static QStringList              toQStringList(const std::vector<cvf::String>& stringVector);
+
+    static QImage                   toQImage(const cvf::TextureImage& textureImage);
+    static void                     fromQImage(const QImage& qImage, cvf::TextureImage* textureImage);
+    static void                     fromQImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage);
+
+    // Deprecated
+    static cvf::String              fromQString(const QString& qtString) { return toString(qtString); }
 };
 
 }
