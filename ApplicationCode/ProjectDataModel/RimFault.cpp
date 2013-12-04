@@ -46,6 +46,10 @@ RimFault::RimFault()
 
     CAF_PDM_InitField(&showFaultLabel,         "ShowFaultLabel",      true, "Show fault label", "", "", "");
 
+    CAF_PDM_InitField(&showFaultColor,  "ShowFaultColor",      true, "Show fault color", "", "", "");
+    CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault color", "", "", "");
+
+
     m_rigFault = NULL;
 }
 
@@ -73,6 +77,17 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
     {
         this->updateUiIconFromState(showFault);
 
+        RimReservoirView* reservoirView = NULL;
+        this->firstAncestorOfType(reservoirView);
+
+        if (reservoirView) 
+        {
+            reservoirView->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    if (&faultColor == changedField)
+    {
         RimReservoirView* reservoirView = NULL;
         this->firstAncestorOfType(reservoirView);
 

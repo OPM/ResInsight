@@ -45,6 +45,7 @@ public:
     virtual ~RimFaultCollection();
 
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
+    void                                syncronizeFaults();
 
     caf::PdmField<bool>                 showGeometryDetectedFaults;
 
@@ -55,10 +56,11 @@ public:
 
     caf::PdmPointersField<RimFault*>    faults;
 
-    RimFault*                           findFaultByName(QString name);
-
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*        objectToggleField();
+
+private:
+    RimFault*                           findFaultByName(QString name);
 
 private:
     RimReservoirView* m_reservoirView;

@@ -202,7 +202,6 @@ protected:
     // Really private
 private:
     void                                    syncronizeWellsWithResults();
-    void                                    syncronizeFaults();
     void                                    clampCurrentTimestep();
 
  

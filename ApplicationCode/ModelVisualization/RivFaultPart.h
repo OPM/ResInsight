@@ -23,6 +23,7 @@
 #include "RigGridBase.h"
 #include "RimFault.h"
 #include "RivFaultGeometryGenerator.h"
+#include "cvfColor4.h"
 
 namespace cvf
 {
@@ -46,7 +47,9 @@ class RivFaultPart : public cvf::Object
 public:
     RivFaultPart(const RigGridBase* grid, const RimFault* rimFault);
 
-    void setCellVisibility(cvf::UByteArray* cellVisibilities );
+    void setCellVisibility(cvf::UByteArray* cellVisibilities);
+
+    void updatePartEffect();
 
     void updateCellColor(cvf::Color4f color);
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
@@ -65,7 +68,7 @@ private:
     cvf::ref<cvf::Vec2fArray>   m_faultFacesTextureCoords;
 
     float                       m_opacityLevel;
-    cvf::Color3f                m_defaultColor;
+    cvf::Color4f                m_defaultColor;
 
 
     cvf::ref<cvf::Part>         m_faultGridLines;
