@@ -129,6 +129,8 @@ RimFault* RimFaultCollection::findFaultByName(QString name)
     return NULL;
 }
 
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -138,12 +140,29 @@ void RimFaultCollection::syncronizeFaults()
 
     cvf::ref<cvf::Color3fArray> partColors = RivColorTableArray::colorTableArray();
 
-    const cvf::Collection<RigFault> rigFaults = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->faults();
+    const cvf::Collection<RigFault> constRigFaults = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->faults();
+
+    cvf::Collection<RigFault> rigFaults(constRigFaults);
+
+    // Sort based on name
+    class FaultComparator
+    {
+    public:
+        bool operator()(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b) const
+        {
+            CVF_TIGHT_ASSERT(a.notNull() && b.notNull());
+
+            int compareValue = a->name().compare(b->name(), Qt::CaseInsensitive);
+            
+            return (compareValue < 0);
+        }
+    } myFaultComparator;
+     
+    std::sort(rigFaults.begin(), rigFaults.end(), myFaultComparator);
 
     std::vector<caf::PdmPointer<RimFault> > newFaults;
 
     // Find corresponding fault from data model, or create a new
-
     for (size_t fIdx = 0; fIdx < rigFaults.size(); ++fIdx)
     {
         RimFault* rimFault = this->findFaultByName(rigFaults[fIdx]->name());

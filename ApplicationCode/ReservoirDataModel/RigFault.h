@@ -28,6 +28,7 @@
 #include <QString>
 #include "cvfStructGrid.h"
 #include "cvfCellRange.h"
+#include "cafFixedArray.h"
 
 
 
@@ -46,5 +47,5 @@ public:
 private:
     QString m_name;
 
-    std::vector< std::vector<cvf::CellRange> > m_cellRangesForFaces;
+    caf::FixedArray<std::vector<cvf::CellRange>, 6> m_cellRangesForFaces;
 };

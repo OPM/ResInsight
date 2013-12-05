@@ -49,8 +49,8 @@ class FixedArray
 {
 public:
     T m_array[size];
-    template<typename IndexType> T& operator[](const IndexType& index)       { CVF_TIGHT_ASSERT(static_cast<size_t>(index) < size); return m_array[index]; }
-    template<typename IndexType> T  operator[](const IndexType& index) const { CVF_TIGHT_ASSERT(static_cast<size_t>(index) < size); return m_array[index]; }
+    template<typename IndexType> T& operator[](const IndexType& index)              { CVF_TIGHT_ASSERT(static_cast<size_t>(index) < size); return m_array[index]; }
+    template<typename IndexType> const T&  operator[](const IndexType& index) const { CVF_TIGHT_ASSERT(static_cast<size_t>(index) < size); return m_array[index]; }
 };
 
 typedef FixedArray<int, 3>    IntArray3;

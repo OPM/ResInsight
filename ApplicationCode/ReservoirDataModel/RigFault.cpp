@@ -24,7 +24,6 @@
 //--------------------------------------------------------------------------------------------------
 RigFault::RigFault()
 {
-    m_cellRangesForFaces.resize(6);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -33,7 +32,7 @@ RigFault::RigFault()
 void RigFault::addCellRangeForFace(cvf::StructGridInterface::FaceType face, const cvf::CellRange& cellRange)
 {
     size_t faceIndex = static_cast<size_t>(face);
-    CVF_ASSERT(faceIndex < m_cellRangesForFaces.size());
+    CVF_ASSERT(faceIndex < 6);
 
     m_cellRangesForFaces[faceIndex].push_back(cellRange);
 }
@@ -60,7 +59,7 @@ QString RigFault::name() const
 const std::vector<cvf::CellRange>& RigFault::cellRangeForFace(cvf::StructGridInterface::FaceType face) const
 {
     size_t faceIndex = static_cast<size_t>(face);
-    CVF_ASSERT(faceIndex < m_cellRangesForFaces.size());
+    CVF_ASSERT(faceIndex < 6);
 
-    return m_cellRangesForFaces[faceIndex];
+    return m_cellRangesForFaces[face];
 }
