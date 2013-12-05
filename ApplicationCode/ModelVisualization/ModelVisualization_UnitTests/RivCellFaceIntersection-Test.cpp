@@ -167,6 +167,10 @@ std::vector<cvf::Vec3d> createVertices()
     return vxs;
 }
 
+std::vector<caf::FixedArray<cvf::uint, 4> > getCubeFaces()
+{
+
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
