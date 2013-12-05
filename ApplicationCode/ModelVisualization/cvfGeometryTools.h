@@ -4,13 +4,14 @@
 #include <list>
 #include <map>
 #include <hash_map>
+#include "cvfArrayWrapperConst.h"
 
 namespace cvf
 {
 
 
 class EdgeSplitStorage;
-class EdgeIntersectStorage;
+template <typename IndexType> class EdgeIntersectStorage;
 
 class GeometryTools
 {
@@ -44,56 +45,61 @@ public:
                                                      cvf::Vec3d* intersectionPoint, double* fractionAlongLine1, double* fractionAlongLine2, 
                                                      double tolerance = 1e-6);
 
-    //template<typename VerticeArrayType, typename PolygonArrayType, typename IndexType>
-    static bool isPointTouchingIndexedPolygon(const cvf::Vec3d& polygonNormal, const cvf::Vec3d* vertices, const size_t* indices, size_t numIndices, 
-                                              const cvf::Vec3d& point, int* touchedEdgeIndex,  double tolerance = 1e-6);
+    template<typename VerticeArrayType, typename PolygonArrayType, typename IndexType>
+    static bool isPointTouchingIndexedPolygon(        const cvf::Vec3d& polygonNormal, 
+                                                      ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> vertices, 
+                                                      ArrayWrapperConst<PolygonArrayType, IndexType> indices, 
+                                                      const cvf::Vec3d& point, 
+                                                      int* touchedEdgeIndex,  
+                                                      double tolerance = 1e-6);
 
 
-
-    static bool calculateOverlapPolygonOfTwoQuads(    std::vector<size_t> * polygon, std::vector<cvf::Vec3d>* createdVertexes, 
-                                                      EdgeIntersectStorage& edgeIntersectionStorage, 
-                                                      const cvf::Vec3dArray& nodes, 
-                                                      const size_t cv1CubeFaceIndices[4], 
-                                                      const size_t cv2CubeFaceIndices[4],
+    template<typename VerticeArrayType,  typename IndexType>
+    static bool calculateOverlapPolygonOfTwoQuads(    std::vector<IndexType> * polygon, std::vector<cvf::Vec3d>* createdVertexes, 
+                                                      EdgeIntersectStorage<IndexType>& edgeIntersectionStorage, 
+                                                      ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodes, 
+                                                      const IndexType cv1CubeFaceIndices[4], 
+                                                      const IndexType cv2CubeFaceIndices[4],
                                                       double tolerance);
 
-    static void calculatePartiallyFreeCubeFacePolygon(const cvf::Vec3dArray&       nodeCoords, 
-                                                      const std::vector<size_t>*   completeFacePolygon, 
+    template<typename VerticeArrayType,  typename PolygonArrayType, typename IndexType>
+    static void calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<VerticeArrayType, cvf::Vec3d>  nodeCoords, 
+                                                      ArrayWrapperConst<PolygonArrayType, IndexType>   completeFacePolygon, 
                                                       const cvf::Vec3d&            faceNormal, 
-                                                      const std::vector< std::vector<size_t>* >& faceOverlapPolygons, 
+                                                      const std::vector< std::vector<IndexType>* >& faceOverlapPolygons, 
                                                       const std::vector<bool>      faceOverlapPolygonWindingSameAsCubeFaceFlags,
-                                                      std::vector<size_t>*         partialFacePolygon, 
+                                                      std::vector<IndexType>*         partialFacePolygon, 
                                                       bool*                        m_partiallyFreeCubeFaceHasHoles);
 };
 
-
+template <typename IndexType>
 class EdgeIntersectStorage
 {
 public:
-    void setVertexCount(size_t size);
-    bool findIntersection(  size_t e1P1, size_t e1P2, size_t e2P1, size_t e2P2, 
-                            size_t* vxIndexIntersectionPoint, GeometryTools::IntersectionStatus* intersectionStatus, 
+    void setVertexCount(IndexType size);
+    bool findIntersection(  IndexType e1P1, IndexType e1P2, IndexType e2P1, IndexType e2P2, 
+                            IndexType* vxIndexIntersectionPoint, GeometryTools::IntersectionStatus* intersectionStatus, 
                             double* fractionAlongEdge1, double* fractionAlongEdge2);
-    void addIntersection(   size_t e1P1, size_t e1P2, size_t e2P1, size_t e2P2, 
-                            size_t vxIndexIntersectionPoint, GeometryTools::IntersectionStatus intersectionStatus, 
+    void addIntersection(   IndexType e1P1, IndexType e1P2, IndexType e2P1, IndexType e2P2, 
+                            IndexType vxIndexIntersectionPoint, GeometryTools::IntersectionStatus intersectionStatus, 
                             double fractionAlongEdge1, double fractionAlongEdge2);
 
 private:
     struct IntersectData
     {
-        size_t intersectionPointIndex;
+        IndexType intersectionPointIndex;
         GeometryTools::IntersectionStatus intersectionStatus;
         double fractionAlongEdge1;
         double fractionAlongEdge2;
     };
 
-    void canonizeAddress(size_t& e1P1, size_t& e1P2, size_t& e2P1, size_t& e2P2, bool& flipE1, bool& flipE2, bool& flipE1E2);
+    void canonizeAddress(IndexType& e1P1, IndexType& e1P2, IndexType& e2P1, IndexType& e2P2, bool& flipE1, bool& flipE2, bool& flipE1E2);
 
     // A map containing the intersection data. The addressing is :
     // ( when leastVxIdxEdge1 < leastVxIdxEdge2 )
     // leastVxIdxEdge1, largestVxIdxEdge1, leastVxIdxEdge2, largestVxIdxEdge2, { vxIdxIntersection, fractionAlongEdg1, fractionAlonEdge2 }
 
-    std::vector< std::map<size_t, std::map<size_t, std::map<size_t, IntersectData > > > > m_edgeIntsectMap;
+    std::vector< std::map<IndexType, std::map<IndexType, std::map<IndexType, IntersectData > > > > m_edgeIntsectMap;
 };
 
 class EdgeSplitStorage
@@ -122,7 +128,7 @@ public:
     void setPolygonIndices(const std::list<size_t>& polygon);
     void setPolygonIndices(const std::vector<size_t>& polygon);
 
-    virtual bool calculateTriangles(std::vector<cvf::uint>* triangles);
+    virtual bool calculateTriangles(std::vector<size_t>* triangles);
 
 protected:
     bool    isTriangleValid( std::list<size_t>::const_iterator u, std::list<size_t>::const_iterator v, std::list<size_t>::const_iterator w) const;
@@ -145,10 +151,12 @@ public:
     FanEarClipTesselator();
     void setCenterNode(size_t centerNodeIndex );
 
-    virtual bool calculateTriangles(std::vector<cvf::uint>* triangles);
+    virtual bool calculateTriangles(std::vector<size_t>* triangles);
 private:
     bool isTriangleValid( size_t u, size_t v, size_t w);
     size_t m_centerNodeIndex;
 };
 
 }
+
+#include "cvfGeometryTools.inl"
