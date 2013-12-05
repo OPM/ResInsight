@@ -130,6 +130,18 @@ RimFault* RimFaultCollection::findFaultByName(QString name)
 }
 
 
+//--------------------------------------------------------------------------------------------------
+/// A comparing function used to sort Faults in the RimFaultCollection::syncronizeFaults() method
+//--------------------------------------------------------------------------------------------------
+
+bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
+{
+    CVF_TIGHT_ASSERT(a.notNull() && b.notNull());
+
+    int compareValue = a->name().compare(b->name(), Qt::CaseInsensitive);
+    
+    return (compareValue < 0);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -144,21 +156,7 @@ void RimFaultCollection::syncronizeFaults()
 
     cvf::Collection<RigFault> rigFaults(constRigFaults);
 
-    // Sort based on name
-    class FaultComparator
-    {
-    public:
-        bool operator()(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b) const
-        {
-            CVF_TIGHT_ASSERT(a.notNull() && b.notNull());
-
-            int compareValue = a->name().compare(b->name(), Qt::CaseInsensitive);
-            
-            return (compareValue < 0);
-        }
-    } myFaultComparator;
-     
-    std::sort(rigFaults.begin(), rigFaults.end(), myFaultComparator);
+    std::sort(rigFaults.begin(), rigFaults.end(), faultComparator);
 
     std::vector<caf::PdmPointer<RimFault> > newFaults;
 
