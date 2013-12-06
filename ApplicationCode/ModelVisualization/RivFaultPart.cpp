@@ -40,6 +40,10 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "cvfDrawableText.h"
+#include "cvfqtUtils.h"
+#include "cvfPrimitiveSetIndexedUInt.h"
+#include "cvfPrimitiveSetDirect.h"
 
 
 
@@ -66,6 +70,7 @@ RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
 
     m_showNativeFaces = true;
     m_showOppositeFaces = true;
+    m_showLabel = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,6 +108,25 @@ void RivFaultPart::setShowNativeFaces(bool showNativeFaces)
 void RivFaultPart::setShowOppositeFaces(bool showOppositeFaces)
 {
     m_showOppositeFaces = showOppositeFaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPart::setShowLabel(bool showLabel)
+{
+    m_showLabel = showLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPart::setLimitFaultToVisibleCells(bool limitFaultToVisibleCells)
+{
+    m_nativeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
+    m_oppositeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
+
+    generatePartGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,19 +275,25 @@ void RivFaultPart::appendPartsToModel(cvf::ModelBasicList* model)
 
     if (!m_rimFault->showFault()) return;
 
-    if (m_showNativeFaces)
+    if (m_showNativeFaces && m_nativeFaultFaces.notNull())
     {
-        if(m_nativeFaultFaces.notNull()      ) model->addPart(m_nativeFaultFaces.p()      );
+        model->addPart(m_nativeFaultFaces.p());
     }
 
-    if (m_showOppositeFaces)
+    if (m_showOppositeFaces && m_oppositeFaultFaces.notNull())
     {
-        if(m_oppositeFaultFaces.notNull()      ) model->addPart(m_oppositeFaultFaces.p()      );
+        model->addPart(m_oppositeFaultFaces.p());
     }
     
-    // Always show gridlines for both native and opposite fault faces
-    if(m_nativeFaultGridLines.notNull()  ) model->addPart(m_nativeFaultGridLines.p()  );
-    if(m_oppositeFaultGridLines.notNull()  ) model->addPart(m_oppositeFaultGridLines.p()  );
+    // Always show grid lines for both native and opposite fault faces
+    if (m_nativeFaultGridLines.notNull())   model->addPart(m_nativeFaultGridLines.p());
+    if (m_oppositeFaultGridLines.notNull()) model->addPart(m_oppositeFaultGridLines.p());
+
+    if (m_showLabel)
+    {
+        if (m_faultLabelPart.notNull())         model->addPart(m_faultLabelPart.p());
+        if (m_faultLabelLinePart.notNull())     model->addPart(m_faultLabelLinePart.p());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,7 +318,6 @@ void RivFaultPart::generatePartGeometry()
             part->setName("Grid " + cvf::String(static_cast<int>(m_grid->gridIndex())));
             part->setId(m_grid->gridIndex());       // !! For now, use grid index as part ID (needed for pick info)
             part->setDrawable(geo.p());
-            //part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
             part->setSourceInfo(m_nativeFaultGenerator.triangleToSourceGridCellMap().p());
@@ -314,7 +343,6 @@ void RivFaultPart::generatePartGeometry()
             part->setName("Grid mesh" + cvf::String(static_cast<int>(m_grid->gridIndex())));
             part->setDrawable(geoMesh.p());
 
-            //part->setTransform(m_scaleTransform.p());
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
 
@@ -339,7 +367,6 @@ void RivFaultPart::generatePartGeometry()
             part->setName("Grid " + cvf::String(static_cast<int>(m_grid->gridIndex())));
             part->setId(m_grid->gridIndex());       // !! For now, use grid index as part ID (needed for pick info)
             part->setDrawable(geo.p());
-            //part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
             part->setSourceInfo(m_oppositeFaultGenerator.triangleToSourceGridCellMap().p());
@@ -365,11 +392,29 @@ void RivFaultPart::generatePartGeometry()
             part->setName("Grid mesh" + cvf::String(static_cast<int>(m_grid->gridIndex())));
             part->setDrawable(geoMesh.p());
 
-            //part->setTransform(m_scaleTransform.p());
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
 
             m_oppositeFaultGridLines = part;
+        }
+    }
+
+    m_faultLabelPart = NULL;
+    if (m_rimFault->showFaultLabel())
+    {
+        cvf::ref<cvf::Part> partToAttachLabelTo;
+        if (m_nativeFaultFaces.notNull())
+        {
+            partToAttachLabelTo = m_nativeFaultFaces;
+        }
+        else if(m_oppositeFaultFaces.notNull())
+        {
+            partToAttachLabelTo = m_oppositeFaultFaces;
+        }
+
+        if (partToAttachLabelTo.notNull())
+        {
+            createLabelWithAnchorLine(partToAttachLabelTo.p());
         }
     }
 
@@ -433,3 +478,121 @@ void RivFaultPart::updatePartEffect()
         m_oppositeFaultGridLines->setEffect(eff.p());
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPart::createLabelWithAnchorLine(const cvf::Part* part)
+{
+    CVF_ASSERT(part);
+
+    cvf::BoundingBox bb = part->boundingBox();
+
+    cvf::Vec3d bbTopCenter = bb.center();
+    bbTopCenter.z() = bb.max().z();
+
+    const cvf::DrawableGeo* geo = dynamic_cast<const cvf::DrawableGeo*>(part->drawable());
+
+    // Find closest vertex to top of bounding box.
+    // Will be recomputed when filter changes, to make sure the label is always visible
+    // for any filter combination
+    cvf::Vec3f faultVertexToAttachLabel = findClosestVertex(cvf::Vec3f(bbTopCenter), geo->vertexArray());
+
+    cvf::Vec3f labelPosition = faultVertexToAttachLabel;
+    labelPosition.z() += bb.extent().z() / 2;
+
+    // Fault label
+    {
+        cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+
+        cvf::ref<cvf::DrawableText> drawableText = new cvf::DrawableText;
+        drawableText->setFont(standardFont);
+        drawableText->setCheckPosVisible(false);
+        drawableText->setDrawBorder(false);
+        drawableText->setDrawBackground(false);
+        drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
+        drawableText->setTextColor(m_rimFault->faultColor());
+
+        cvf::String cvfString = cvfqt::Utils::toString(m_rimFault->name());
+
+        cvf::Vec3f textCoord(labelPosition);
+        double characteristicCellSize = bb.extent().z() / 20;
+        textCoord.z() += characteristicCellSize;
+
+        drawableText->addText(cvfString, textCoord);
+
+        cvf::ref<cvf::Part> part = new cvf::Part;
+        part->setName("RivFaultPart : text " + cvfString);
+        part->setDrawable(drawableText.p());
+
+        cvf::ref<cvf::Effect> eff = new cvf::Effect;
+
+        part->setEffect(eff.p());
+        part->setPriority(1000);
+
+        m_faultLabelPart = part;
+    }
+
+
+    // Line from fault geometry to label
+    {
+        cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
+        vertices->reserve(2);
+        vertices->add(faultVertexToAttachLabel);
+        vertices->add(labelPosition);
+
+        cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
+        geo->setVertexArray(vertices.p());
+
+        cvf::ref<cvf::PrimitiveSetDirect> primSet = new cvf::PrimitiveSetDirect(cvf::PT_LINES);
+        primSet->setStartIndex(0);
+        primSet->setIndexCount(vertices->size());
+        geo->addPrimitiveSet(primSet.p());
+
+        m_faultLabelLinePart = new cvf::Part;
+        m_faultLabelLinePart->setName("Anchor line for label" + cvf::String(static_cast<int>(m_grid->gridIndex())));
+        m_faultLabelLinePart->setDrawable(geo.p());
+
+        m_faultLabelLinePart->updateBoundingBox();
+
+        caf::MeshEffectGenerator gen(m_rimFault->faultColor());
+        cvf::ref<cvf::Effect> eff = gen.generateEffect();
+        
+        m_faultLabelLinePart->setEffect(eff.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3f RivFaultPart::findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices)
+{
+    CVF_ASSERT(vertices);
+    
+    if (!vertices) return cvf::Vec3f::UNDEFINED;
+
+    float closestDiff(HUGE_VAL);
+
+    size_t closestIndex = cvf::UNDEFINED_SIZE_T;
+
+    for (size_t i = 0; i < vertices->size(); i++)
+    {
+        float diff = point.pointDistance(vertices->get(i));
+
+        if (diff < closestDiff)
+        {
+            closestDiff = diff;
+            closestIndex = i;
+        }
+    }
+
+    if (closestIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        return vertices->get(closestIndex);
+    }
+    else
+    {
+        return cvf::Vec3f::UNDEFINED;
+    }
+}
+

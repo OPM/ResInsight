@@ -39,6 +39,7 @@ RivFaultGeometryGenerator::RivFaultGeometryGenerator(const cvf::StructGridInterf
 {
     m_showNativeFaultFaces = true;
     m_showOppositeFaultFaces = true;
+    m_limitFaultsToFilters = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,7 +163,11 @@ void RivFaultGeometryGenerator::computeArrays()
         for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
         {
             size_t cellIndex = faultFaces[fIdx].m_globalCellIndex;
-            if (!(*m_cellVisibility)[cellIndex]) continue;
+
+            if (m_limitFaultsToFilters)
+            {
+                if (!(*m_cellVisibility)[cellIndex]) continue;
+            }
 
             cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_face;
 
@@ -202,7 +207,10 @@ void RivFaultGeometryGenerator::computeArrays()
 
             size_t cellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
 
-            if (!(*m_cellVisibility)[cellIndex]) continue;
+            if (m_limitFaultsToFilters)
+            {
+                if (!(*m_cellVisibility)[cellIndex]) continue;
+            }
 
             cvf::Vec3d cornerVerts[8];
             m_grid->cellCornerVertices(cellIndex, cornerVerts);
@@ -318,5 +326,13 @@ void RivFaultGeometryGenerator::setShowNativeFaultFaces(bool showNativeFaultFace
 void RivFaultGeometryGenerator::setShowOppositeFaultFaces(bool showOppositeFaultFaces)
 {
     m_showOppositeFaultFaces = showOppositeFaultFaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultGeometryGenerator::setLimitFaultsToFilter(bool limitFaultsToFilter)
+{
+    m_limitFaultsToFilters = limitFaultsToFilter;
 }
 

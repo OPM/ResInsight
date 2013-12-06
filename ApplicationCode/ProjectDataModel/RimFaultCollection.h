@@ -51,6 +51,7 @@ public:
 
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
+    caf::PdmField<bool>                 limitFaultsToFilter;
 
     caf::PdmField<bool>                 showFaultLabel;
     caf::PdmField<cvf::Color3f>         faultLabelColor;

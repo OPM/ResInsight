@@ -103,9 +103,11 @@ void RivFaultPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
         {
             cvf::ref<RivFaultPart> rivFaultPart = m_faultParts[i];
 
-            // Distribute fault settings from fault collection to fault parts
+            // Propagate settings from RimFaultCollection to RivFaultPart
             rivFaultPart->setShowNativeFaces(m_faultCollection->showFaultFaces());
             rivFaultPart->setShowOppositeFaces(m_faultCollection->showOppositeFaultFaces());
+            rivFaultPart->setShowLabel(m_faultCollection->showFaultLabel());
+            rivFaultPart->setLimitFaultToVisibleCells(m_faultCollection->limitFaultsToFilter());
 
             rivFaultPart->appendPartsToModel(&parts);
         }

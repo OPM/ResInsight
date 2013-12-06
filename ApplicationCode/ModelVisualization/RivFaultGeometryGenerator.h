@@ -49,6 +49,7 @@ public:
     
     void setShowNativeFaultFaces(bool showNativeFaultFaces);
     void setShowOppositeFaultFaces(bool showOppositeFaultFaces);
+    void setLimitFaultsToFilter(bool limitFaultsToFilter);
     
     void textureCoordinates(cvf::Vec2fArray* textureCoords, 
         const cvf::StructGridScalarDataAccess* dataAccessObject, 
@@ -78,6 +79,7 @@ private:
     
     bool                                m_showNativeFaultFaces;
     bool                                m_showOppositeFaultFaces;
+    bool                                m_limitFaultsToFilters;
 
     // Created arrays
     cvf::ref<cvf::Vec3fArray>           m_vertices;

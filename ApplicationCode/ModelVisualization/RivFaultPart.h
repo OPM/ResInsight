@@ -55,12 +55,18 @@ public:
 
     void setShowNativeFaces(bool showNativeFaces);
     void setShowOppositeFaces(bool showOppositeFaces);
+    void setShowLabel(bool showLabel);
+    void setLimitFaultToVisibleCells(bool limitFaultToVisibleCells);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
 private:
     void generatePartGeometry();
     void updatePartEffect();
+    
+    void createLabelWithAnchorLine(const cvf::Part* part);
+   
+    static cvf::Vec3f findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices);
 
 private:
     cvf::cref<RigGridBase>      m_grid;
@@ -71,6 +77,7 @@ private:
 
     bool                        m_showNativeFaces;
     bool                        m_showOppositeFaces;
+    bool                        m_showLabel;
 
     cvf::ref<cvf::UByteArray>   m_cellVisibility;
 
@@ -83,4 +90,7 @@ private:
     cvf::ref<cvf::Part>         m_oppositeFaultFaces;
     cvf::ref<cvf::Part>         m_oppositeFaultGridLines;
     cvf::ref<cvf::Vec2fArray>   m_oppositeFaultFacesTextureCoords;
+
+    cvf::ref<cvf::Part>         m_faultLabelPart;
+    cvf::ref<cvf::Part>         m_faultLabelLinePart;
 };
