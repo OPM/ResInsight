@@ -193,19 +193,19 @@ void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* ce
                     }
                 }
             }
-
-            cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
-            if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
-
-            bool usePolygonOffset = true;
-            caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
-
-            scalarEffgen.setOpacityLevel(m_opacityLevel);
-
-            cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
-
-            m_oppositeFaultFaces->setEffect(scalarEffect.p());
         }
+
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
+        if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
+
+        bool usePolygonOffset = true;
+        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+
+        scalarEffgen.setOpacityLevel(m_opacityLevel);
+
+        cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+
+        m_oppositeFaultFaces->setEffect(scalarEffect.p());
     }
 
 }
@@ -254,14 +254,16 @@ void RivFaultPart::appendPartsToModel(cvf::ModelBasicList* model)
     if (m_showNativeFaces)
     {
         if(m_nativeFaultFaces.notNull()      ) model->addPart(m_nativeFaultFaces.p()      );
-        if(m_nativeFaultGridLines.notNull()  ) model->addPart(m_nativeFaultGridLines.p()  );
     }
 
     if (m_showOppositeFaces)
     {
         if(m_oppositeFaultFaces.notNull()      ) model->addPart(m_oppositeFaultFaces.p()      );
-        if(m_oppositeFaultGridLines.notNull()  ) model->addPart(m_oppositeFaultGridLines.p()  );
     }
+    
+    // Always show gridlines for both native and opposite fault faces
+    if(m_nativeFaultGridLines.notNull()  ) model->addPart(m_nativeFaultGridLines.p()  );
+    if(m_oppositeFaultGridLines.notNull()  ) model->addPart(m_oppositeFaultGridLines.p()  );
 }
 
 //--------------------------------------------------------------------------------------------------
