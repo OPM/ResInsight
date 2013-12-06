@@ -83,16 +83,32 @@ void RivFaultPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != NULL);
 
+    if (!m_faultCollection) return;
+
     // Faults are only present for main grid
     if (!m_grid->isMainGrid()) return;
     
     if (!m_faultCollection->showFaultCollection()) return;
+    
+    // Check match between model fault count and fault parts
+    CVF_ASSERT(m_faultCollection->faults.size() == m_faultParts.size());
 
     cvf::ModelBasicList parts;
 
-    for (size_t i = 0; i < m_faultParts.size(); i++)
+    for (size_t i = 0; i < m_faultCollection->faults.size(); i++)
     {
-        m_faultParts[i]->appendPartsToModel(&parts);
+        const RimFault* rimFault = m_faultCollection->faults[i];
+
+        if (rimFault->showFault())
+        {
+            cvf::ref<RivFaultPart> rivFaultPart = m_faultParts[i];
+
+            // Distribute fault settings from fault collection to fault parts
+            rivFaultPart->setShowNativeFaces(m_faultCollection->showFaultFaces());
+            rivFaultPart->setShowOppositeFaces(m_faultCollection->showOppositeFaultFaces());
+
+            rivFaultPart->appendPartsToModel(&parts);
+        }
     }
 
     for (size_t i = 0; i < parts.partCount(); i++)

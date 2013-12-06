@@ -49,13 +49,23 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
-    :   m_nativeFaultGenerator(grid, rimFault->faultGeometry()),
-        m_grid(grid),
+    :   m_grid(grid),
         m_rimFault(rimFault),
         m_opacityLevel(1.0f),
-        m_defaultColor(cvf::Color3::WHITE)
+        m_defaultColor(cvf::Color3::WHITE),
+        m_nativeFaultGenerator(grid, rimFault->faultGeometry()),
+        m_oppositeFaultGenerator(grid, rimFault->faultGeometry())
 {
     m_nativeFaultFacesTextureCoords = new cvf::Vec2fArray;
+    m_nativeFaultGenerator.setShowNativeFaultFaces(true);
+    m_nativeFaultGenerator.setShowOppositeFaultFaces(false);
+
+    m_oppositeFaultFacesTextureCoords = new cvf::Vec2fArray;
+    m_oppositeFaultGenerator.setShowNativeFaultFaces(false);
+    m_oppositeFaultGenerator.setShowOppositeFaultFaces(true);
+
+    m_showNativeFaces = true;
+    m_showOppositeFaces = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +74,7 @@ RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
 void RivFaultPart::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
     m_nativeFaultGenerator.setCellVisibility(cellVisibilities);
+    m_oppositeFaultGenerator.setCellVisibility(cellVisibilities);
 
     generatePartGeometry();
 }
@@ -76,6 +87,22 @@ void RivFaultPart::updateCellColor(cvf::Color4f color)
     m_defaultColor = color;
 
     updatePartEffect();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPart::setShowNativeFaces(bool showNativeFaces)
+{
+    m_showNativeFaces = showNativeFaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPart::setShowOppositeFaces(bool showOppositeFaces)
+{
+    m_showOppositeFaces = showOppositeFaces;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +125,6 @@ void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* ce
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
 
     if (dataAccessObject.isNull()) return;
-
 
     // Faults
     if (m_nativeFaultFaces.notNull())
@@ -141,6 +167,47 @@ void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* ce
         m_nativeFaultFaces->setEffect(scalarEffect.p());
     }
 
+
+    if (m_oppositeFaultFaces.notNull())
+    {
+        m_oppositeFaultGenerator.textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+
+        if (m_opacityLevel < 1.0f )
+        {
+            const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
+            cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
+            const std::vector<size_t>&  quadsToGridCells = m_oppositeFaultGenerator.quadToGridCellIndices();
+
+            for(size_t i = 0; i < m_oppositeFaultFacesTextureCoords->size(); ++i)
+            {
+                if ((*m_oppositeFaultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
+
+                size_t quadIdx = i/4;
+                size_t cellIndex = quadsToGridCells[quadIdx];
+                cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
+                if (wellIndex != cvf::UNDEFINED_UINT)
+                {
+                    if ( !isWellPipeVisible[wellIndex]) 
+                    {
+                        (*m_oppositeFaultFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
+                    }
+                }
+            }
+
+            cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
+            if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
+
+            bool usePolygonOffset = true;
+            caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+
+            scalarEffgen.setOpacityLevel(m_opacityLevel);
+
+            cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+
+            m_oppositeFaultFaces->setEffect(scalarEffect.p());
+        }
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,10 +247,20 @@ void RivFaultPart::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != NULL);
 
-    if (m_rimFault && m_rimFault->showFault())
+    if (!m_rimFault) return;
+
+    if (!m_rimFault->showFault()) return;
+
+    if (m_showNativeFaces)
     {
         if(m_nativeFaultFaces.notNull()      ) model->addPart(m_nativeFaultFaces.p()      );
         if(m_nativeFaultGridLines.notNull()  ) model->addPart(m_nativeFaultGridLines.p()  );
+    }
+
+    if (m_showOppositeFaces)
+    {
+        if(m_oppositeFaultFaces.notNull()      ) model->addPart(m_oppositeFaultFaces.p()      );
+        if(m_oppositeFaultGridLines.notNull()  ) model->addPart(m_oppositeFaultGridLines.p()  );
     }
 }
 
@@ -243,6 +320,57 @@ void RivFaultPart::generatePartGeometry()
         }
     }
 
+
+    // Surface geometry
+    {
+        cvf::ref<cvf::DrawableGeo> geo = m_oppositeFaultGenerator.generateSurface();
+        if (geo.notNull())
+        {
+            geo->computeNormals();
+
+            if (useBufferObjects)
+            {
+                geo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+            }
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("Grid " + cvf::String(static_cast<int>(m_grid->gridIndex())));
+            part->setId(m_grid->gridIndex());       // !! For now, use grid index as part ID (needed for pick info)
+            part->setDrawable(geo.p());
+            //part->setTransform(m_scaleTransform.p());
+
+            // Set mapping from triangle face index to cell index
+            part->setSourceInfo(m_oppositeFaultGenerator.triangleToSourceGridCellMap().p());
+
+            part->updateBoundingBox();
+            part->setEnableMask(faultBit);
+
+            m_oppositeFaultFaces = part;
+        }
+    }
+
+    // Mesh geometry
+    {
+        cvf::ref<cvf::DrawableGeo> geoMesh = m_oppositeFaultGenerator.createMeshDrawable();
+        if (geoMesh.notNull())
+        {
+            if (useBufferObjects)
+            {
+                geoMesh->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+            }
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("Grid mesh" + cvf::String(static_cast<int>(m_grid->gridIndex())));
+            part->setDrawable(geoMesh.p());
+
+            //part->setTransform(m_scaleTransform.p());
+            part->updateBoundingBox();
+            part->setEnableMask(meshFaultBit);
+
+            m_oppositeFaultGridLines = part;
+        }
+    }
+
     updatePartEffect();
 }
 
@@ -252,38 +380,54 @@ void RivFaultPart::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPart::updatePartEffect()
 {
+    cvf::Color3f partColor = m_defaultColor.toColor3f();
+
+    if (m_rimFault->showFaultColor())
+    {
+        partColor = m_rimFault->faultColor();
+    }
+
+    m_opacityLevel = m_defaultColor.a();
+
+    // Set default effect
+    caf::SurfaceEffectGenerator geometryEffgen(partColor, true);
+    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
+
     if (m_nativeFaultFaces.notNull())
     {
-        cvf::Color3f partColor = m_defaultColor.toColor3f();
-
-        if (m_rimFault->showFaultColor())
-        {
-            partColor = m_rimFault->faultColor();
-        }
-
+        m_nativeFaultFaces->setEffect(geometryOnlyEffect.p());
         if (m_defaultColor.a() < 1.0f)
         {
             // Set priority to make sure this transparent geometry are rendered last
             m_nativeFaultFaces->setPriority(100);
         }
-
-        m_opacityLevel = m_defaultColor.a();
-
-        // Set default effect
-        caf::SurfaceEffectGenerator geometryEffgen(partColor, true);
-        cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
-
-        m_nativeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
+
+    if (m_oppositeFaultFaces.notNull())
+    {
+        m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
+        if (m_defaultColor.a() < 1.0f)
+        {
+            // Set priority to make sure this transparent geometry are rendered last
+            m_oppositeFaultFaces->setPriority(100);
+        }
+    }
+
+
+    // Update mesh colors as well, in case of change
+    RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
+    cvf::ref<cvf::Effect> eff;
+    caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
+    eff = faultEffGen.generateEffect();
 
     if (m_nativeFaultGridLines.notNull())
     {
-        // Update mesh colors as well, in case of change
-        RiaPreferences* prefs = RiaApplication::instance()->preferences();
-
-        cvf::ref<cvf::Effect> eff;
-        caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
-        eff = faultEffGen.generateEffect();
         m_nativeFaultGridLines->setEffect(eff.p());
+    }
+
+    if (m_oppositeFaultGridLines.notNull())
+    {
+        m_oppositeFaultGridLines->setEffect(eff.p());
     }
 }

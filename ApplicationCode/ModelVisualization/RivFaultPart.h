@@ -53,6 +53,9 @@ public:
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
 
+    void setShowNativeFaces(bool showNativeFaces);
+    void setShowOppositeFaces(bool showOppositeFaces);
+
     void appendPartsToModel(cvf::ModelBasicList* model);
 
 private:
@@ -66,6 +69,9 @@ private:
     float                       m_opacityLevel;
     cvf::Color4f                m_defaultColor;
 
+    bool                        m_showNativeFaces;
+    bool                        m_showOppositeFaces;
+
     cvf::ref<cvf::UByteArray>   m_cellVisibility;
 
     RivFaultGeometryGenerator   m_nativeFaultGenerator;
@@ -73,4 +79,8 @@ private:
     cvf::ref<cvf::Part>         m_nativeFaultGridLines;
     cvf::ref<cvf::Vec2fArray>   m_nativeFaultFacesTextureCoords;
 
+    RivFaultGeometryGenerator   m_oppositeFaultGenerator;
+    cvf::ref<cvf::Part>         m_oppositeFaultFaces;
+    cvf::ref<cvf::Part>         m_oppositeFaultGridLines;
+    cvf::ref<cvf::Vec2fArray>   m_oppositeFaultFacesTextureCoords;
 };
