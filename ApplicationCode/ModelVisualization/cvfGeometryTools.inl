@@ -3,6 +3,83 @@
 namespace cvf
 {
 
+//--------------------------------------------------------------------------------------------------
+/// Inserts the vertex into the polygon if it fits along one of the edges within the tolerance.
+/// The method returns true if it was inserted, or if it was already in the polygon, or if it was 
+/// within the tolerance of an existing vertex in the polygon. 
+/// In the latter situation it replaces the previous vertex in the polygon.
+/// 
+/// Todo: If a vertex is replaced, the VxToCv map in TimeStepGeometry should be updated
+//--------------------------------------------------------------------------------------------------
+template<typename VerticeArrayType, typename IndexType>
+bool GeometryTools::insertVertexInPolygon(  std::vector<IndexType> * polygon,  
+                                            ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodeCoords, 
+                                            IndexType vertexIndex, 
+                                            double tolerance)
+{
+    CVF_ASSERT(polygon);
+
+
+    // Check if vertex is directly included already
+
+    for(std::vector<IndexType>::iterator it = polygon->begin(); it != polygon->end(); ++it)
+    {
+        if (*it == vertexIndex) return true;
+    }
+
+#if 1
+    // Check if the new point is within tolerance of one of the polygon vertices 
+
+    bool existsOrInserted = false;
+    for(std::vector<IndexType>::iterator it = polygon->begin(); it != polygon->end(); ++it)
+    {
+        if ( (nodeCoords[*it] - nodeCoords[vertexIndex]).length() < tolerance)
+        {
+            if (vertexIndex < *it) *it = vertexIndex;
+            existsOrInserted = true;
+        }
+    }
+
+    if (existsOrInserted) return true;
+#endif
+
+
+    // Copy the start polygon to a list
+
+    std::list<IndexType> listPolygon; 
+    for (size_t pcIdx = 0; pcIdx < polygon->size(); ++pcIdx)
+    {
+        listPolygon.push_back((*polygon)[pcIdx]);
+    }
+
+    // Insert vertex in polygon if the distance to one of the edges is small enough
+
+    std::list<IndexType >::iterator it2;
+    std::list<IndexType >::iterator insertBefore;
+
+    for (std::list<IndexType >::iterator  it = listPolygon.begin(); it != listPolygon.end(); ++it)
+    {
+        it2 = it;
+        ++it2; insertBefore = it2; if (it2 == listPolygon.end()) it2 = listPolygon.begin();
+
+        double sqDistToLine = GeometryTools::linePointSquareDist(nodeCoords[*it], nodeCoords[*it2], nodeCoords[vertexIndex]);
+        if (fabs(sqDistToLine) < tolerance*tolerance )
+        {
+            it = listPolygon.insert(insertBefore, vertexIndex);
+            existsOrInserted = true;
+        }
+    }
+
+    // Write polygon back into the vector
+
+    polygon->clear();
+    for (std::list<IndexType >::iterator  it = listPolygon.begin(); it != listPolygon.end(); ++it)
+    {
+        polygon->push_back(*it);
+    }
+
+    return existsOrInserted;
+}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +193,8 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
 
 //--------------------------------------------------------------------------------------------------
 /// Returns true if we get an actual polygon
+/// The returned polygon will keep the winding from the first face.
+/// The second face must have opposite winding of the first
 //--------------------------------------------------------------------------------------------------
 template<typename VerticeArrayType, typename IndexType>
 bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * polygon, 
@@ -126,12 +205,12 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * p
                                  const IndexType cv2CubeFaceIndices[4],
                                  double tolerance)
 {
+    CVF_ASSERT(polygon);
+    CVF_ASSERT(createdVertexes);
 
     // Topology analysis
 
-    if (createdVertexes == NULL) return false;
-
-    size_t newVertexIndex = nodes.size() + createdVertexes->size();
+    IndexType newVertexIndex = static_cast<IndexType>(nodes.size() + createdVertexes->size());
 
     bool cv1VxTouchCv2[4] = { false, false, false, false };
     bool cv2VxTouchCv1[4] = { false, false, false, false };
@@ -387,13 +466,13 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * p
         // Insert indices to the new intersection vertices into the polygon of 
         // this connection according to fraction along edge
 
-        std::map<double,size_t> sortingMap;
+        std::map<double,IndexType> sortingMap;
         for (i = 0; i < intersectionFractionsAlongEdge.size(); ++i)
         {
             sortingMap[intersectionFractionsAlongEdge[i]] = intersectionVxIndices[i];
         }
 
-        std::map<double, size_t>::iterator it;
+        std::map<double, IndexType>::iterator it;
         for (it = sortingMap.begin(); it != sortingMap.end(); ++it)
         {
             if (polygon->empty() || polygon->back() != it->second) 
@@ -478,7 +557,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
     bool*                        m_partiallyFreeCubeFaceHasHoles)
 {
     // Vertex Index to position in polygon
-    typedef std::map< size_t, std::vector<size_t >::const_iterator > VxIdxToPolygonPositionMap;
+    typedef std::map< IndexType, std::vector<IndexType>::const_iterator > VxIdxToPolygonPositionMap;
 
     CVF_ASSERT(m_partiallyFreeCubeFaceHasHoles);
     CVF_ASSERT(partialFacePolygon != NULL);
@@ -745,7 +824,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
 /// 
 //--------------------------------------------------------------------------------------------------
 template <typename IndexType>
-void EdgeIntersectStorage<IndexType>::setVertexCount(IndexType size)
+void EdgeIntersectStorage<IndexType>::setVertexCount(size_t size)
 {
     m_edgeIntsectMap.resize(size);
 }
@@ -759,7 +838,7 @@ void EdgeIntersectStorage<IndexType>::canonizeAddress(IndexType& e1P1, IndexType
 
     flipE1E2 = (flipE1 ? e1P2: e1P1) > (flipE2 ? e2P2: e2P1);
 
-    static size_t temp;
+    static IndexType temp;
     if (flipE1)
     {
         temp = e1P1;
@@ -835,15 +914,15 @@ bool EdgeIntersectStorage<IndexType>::findIntersection(IndexType e1P1, IndexType
 
     if (!m_edgeIntsectMap[e1P1].size()) return false;
 
-    std::map<size_t, std::map<size_t, std::map<size_t, IntersectData > > >::iterator it;
+    std::map<IndexType, std::map<IndexType, std::map<IndexType, IntersectData > > >::iterator it;
     it = m_edgeIntsectMap[e1P1].find(e1P2);
     if (it == m_edgeIntsectMap[e1P1].end()) return false;
 
-    std::map<size_t, std::map<size_t, IntersectData > >::iterator it2;
+    std::map<IndexType, std::map<IndexType, IntersectData > >::iterator it2;
     it2 = it->second.find(e2P1);
     if (it2 == it->second.end()) return false;
 
-    std::map<size_t, IntersectData >::iterator it3;
+    std::map<IndexType, IntersectData >::iterator it3;
     it3 = it2->second.find(e2P2);
     if (it3 == it2->second.end()) return false;
 

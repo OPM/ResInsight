@@ -29,6 +29,7 @@
 
 #include "cvfGeometryTools.h"
 #include "cvfBoundingBoxTree.h"
+#include <array>
 
 using namespace cvf;
 
@@ -86,7 +87,7 @@ void ControlVolume::calculateCubeFaceStatus(const cvf::Vec3dArray& nodeCoords, d
 
 
 template <typename NodeArrayType, typename NodeType, typename IndexType>
-NodeType  quadNormal (const ArrayWrapperConst<NodeArrayType, NodeType>& nodeCoords,  
+NodeType  quadNormal (ArrayWrapperConst<NodeArrayType, NodeType> nodeCoords,  
     const IndexType cubeFaceIndices[4] )
 {
     return ( nodeCoords[cubeFaceIndices[2]] - nodeCoords[cubeFaceIndices[0]]) ^  
@@ -143,7 +144,9 @@ public:
 private:
     QuadFaceIntersectorImplHandle * m_implementation;
 };
-
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> createVertices()
 {
     std::vector<cvf::Vec3d> vxs;
@@ -166,15 +169,221 @@ std::vector<cvf::Vec3d> createVertices()
   
     return vxs;
 }
-
-std::vector<caf::FixedArray<cvf::uint, 4> > getCubeFaces()
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::UintArray4> getCubeFaces()
 {
+    std::vector<caf::UintArray4 > cubeFaces;
+
+    cvf::uint faces[4*4] = { 
+        0, 1, 2, 3,
+        4, 5, 6, 7, 
+        5, 8, 9, 6, 
+        10, 11, 12, 13
+    };
+
+    cubeFaces.resize(4);
+    cubeFaces[0] = &faces[0];
+    cubeFaces[1] = &faces[4];
+    cubeFaces[2] = &faces[8];
+    cubeFaces[3] = &faces[12];
+
+    cubeFaces[3] = cubeFaces[2];
+    return cubeFaces;
+}
+
+std::ostream& operator<< (std::ostream& stream, std::vector<uint> v)
+{
+    for (size_t i = 0; i < v.size(); ++i)
+    {
+        stream << v[i] << " ";
+    }
+    return stream;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(CellFaceIntersectionTst, Intersection1)
+{
+    std::vector<cvf::Vec3d> nodes = createVertices();
+
+    std::vector<cvf::Vec3d> additionalVertices;
+
+    std::vector< std::vector<uint> > overlapPolygons;
+    std::vector<caf::UintArray4> faces = getCubeFaces();
+
+    EdgeIntersectStorage<uint> edgeIntersectionStorage;
+    edgeIntersectionStorage.setVertexCount(nodes.size());
+    {
+        std::vector<uint> polygon;
+        bool isOk = false;
+        isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
+            &polygon, 
+            &additionalVertices, 
+            edgeIntersectionStorage, 
+            wrapArrayConst(&nodes), 
+            faces[0].data(), 
+            faces[1].data(), 
+            1e-6);
+
+        EXPECT_EQ( 5, polygon.size());
+        EXPECT_EQ( (size_t)2, additionalVertices.size());
+        EXPECT_TRUE(isOk);
+        overlapPolygons.push_back(polygon);
+        std::cout << polygon << std::endl;
+
+    }
+  
+    {
+        std::vector<uint> polygon;
+        bool isOk = false;
+        isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
+            &polygon, 
+            &additionalVertices, 
+            edgeIntersectionStorage, 
+            wrapArrayConst(&nodes), 
+            faces[0].data(), 
+            faces[2].data(), 
+            1e-6);
+
+        EXPECT_EQ( 5, polygon.size());
+        EXPECT_EQ( (size_t)4, additionalVertices.size());
+        EXPECT_TRUE(isOk);
+        overlapPolygons.push_back(polygon);
+        std::cout << polygon << std::endl;
+
+    }
+
+    {
+        std::vector<uint> polygon;
+        bool isOk = false;
+        isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
+            &polygon, 
+            &additionalVertices, 
+            edgeIntersectionStorage, 
+            wrapArrayConst(&nodes), 
+            faces[0].data(), 
+            faces[3].data(), 
+            1e-6);
+
+        EXPECT_EQ( 3, polygon.size());
+        EXPECT_EQ( (size_t)6, additionalVertices.size());
+        EXPECT_TRUE(isOk);
+        overlapPolygons.push_back(polygon);
+        std::cout << polygon << std::endl;
+    }
+
+   nodes.insert(nodes.end(), additionalVertices.begin(), additionalVertices.end());
+   std::vector<uint> basePolygon;
+   basePolygon.insert(basePolygon.begin(), faces[0].data(), &(faces[0].data()[4]));
+
+   for (uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
+   {
+       bool inserted = GeometryTools::insertVertexInPolygon(
+           &basePolygon,
+           wrapArrayConst(&nodes),
+           vxIdx, 
+           1e-6
+           );
+   }
+   
+   EXPECT_EQ( 8, basePolygon.size());
+   std::cout << "Bp: " << basePolygon << std::endl;
+
+   for (size_t pIdx = 0; pIdx < overlapPolygons.size(); ++pIdx)
+   {
+       for (uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
+       {
+           bool inserted = GeometryTools::insertVertexInPolygon(
+               &overlapPolygons[pIdx],
+               wrapArrayConst(&nodes),
+               vxIdx, 
+               1e-6
+               );
+       }
+
+       if (pIdx == 0)
+       {
+           EXPECT_EQ(5, overlapPolygons[pIdx].size());
+       }
+       if (pIdx == 1)
+       {
+           EXPECT_EQ(5, overlapPolygons[pIdx].size());
+       }
+       if (pIdx == 2)
+       {
+           EXPECT_EQ(4, overlapPolygons[pIdx].size());
+       }
+
+       std::cout << "Op" << pIdx << ":" << overlapPolygons[pIdx] << std::endl;
+   }
+
+
+   Vec3d normal = quadNormal(wrapArrayConst(&nodes), faces[0].data());
+   std::vector<bool>  faceOverlapPolygonWindingSameAsCubeFaceFlags;
+   faceOverlapPolygonWindingSameAsCubeFaceFlags.resize(overlapPolygons.size(), true);
+
+   {
+       std::vector<uint>         freeFacePolygon;
+       bool hasHoles = false;
+
+       std::vector< std::vector<uint>* > overlapPolygonPtrs;
+       for (size_t pIdx = 0; pIdx < overlapPolygons.size(); ++pIdx)
+       {
+           overlapPolygonPtrs.push_back(&(overlapPolygons[pIdx]));
+       }
+
+       GeometryTools::calculatePartiallyFreeCubeFacePolygon(
+           wrapArrayConst(&nodes),
+           wrapArrayConst(&basePolygon),
+           normal, 
+           overlapPolygonPtrs, 
+           faceOverlapPolygonWindingSameAsCubeFaceFlags, 
+           &freeFacePolygon,
+           &hasHoles
+           );
+
+       EXPECT_EQ( 4, freeFacePolygon.size());
+       EXPECT_FALSE(hasHoles);
+       std::cout <<  "FF1: " << freeFacePolygon << std::endl;
+   }
+
+   {
+       std::vector<uint>         freeFacePolygon;
+       bool hasHoles = false;
+
+       std::vector< std::vector<uint>* > overlapPolygonPtrs;
+       for (size_t pIdx = 0; pIdx < 1; ++pIdx)
+       {
+           overlapPolygonPtrs.push_back(&(overlapPolygons[pIdx]));
+       }
+
+       GeometryTools::calculatePartiallyFreeCubeFacePolygon(
+           wrapArrayConst(&nodes),
+           wrapArrayConst(&basePolygon),
+           normal, 
+           overlapPolygonPtrs, 
+           faceOverlapPolygonWindingSameAsCubeFaceFlags, 
+           &freeFacePolygon,
+           &hasHoles
+           );
+
+       EXPECT_EQ( 9, freeFacePolygon.size());
+       EXPECT_FALSE(hasHoles);
+
+       std::cout << "FF2: " << freeFacePolygon << std::endl;
+
+   }
+
 
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+
 TEST(CellFaceIntersectionTst, Intersection)
 {
   

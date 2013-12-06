@@ -475,58 +475,6 @@ cvf::Vec3d GeometryTools::barycentricCoords(const cvf::Vec3d&  t0, const cvf::Ve
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Inserts the vertex into the polygon if it fits along one of the edges within the tolerance.
-/// The method returns true if it was inserted, or if it was already in the polygon, or if it was 
-/// within the tolerance of an existing vertex in the polygon. 
-/// In the latter situation it replaces the previous vertex in the polygon.
-/// 
-/// Todo: If a vertex is replaced, the VxToCv map in TimeStepGeometry should be updated
-//--------------------------------------------------------------------------------------------------
-bool GeometryTools::insertVertexInPolygon(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodeCoords, cvf::uint vertexIndex, double tolerance)
-{
-    std::list<std::pair<cvf::uint, bool> >::iterator it;
-    for(it = polygon->begin(); it != polygon->end(); ++it)
-    {
-        if (it->first == vertexIndex) return true;
-    }
-
-
-#if 1
-    bool existsOrInserted = false;
-    for(it = polygon->begin(); it != polygon->end(); ++it)
-    {
-        if ( (nodeCoords[it->first] - nodeCoords[vertexIndex]).length() < tolerance)
-        {
-            if (vertexIndex < it->first) it->first = vertexIndex;
-            existsOrInserted = true;
-        }
-    }
-
-    if (existsOrInserted) return true;
-#endif
-
-    // Insert vertex in polygon if the distance to one of the edges is small enough
-
-    std::list<std::pair<cvf::uint, bool> >::iterator it2;
-    std::list<std::pair<cvf::uint, bool> >::iterator insertBefore;
-
-    for (it = polygon->begin(); it != polygon->end(); ++it)
-    {
-        it2 = it;
-        ++it2; insertBefore = it2; if (it2 == polygon->end()) it2 = polygon->begin();
-
-        double sqDistToLine = GeometryTools::linePointSquareDist(nodeCoords[it->first], nodeCoords[it2->first], nodeCoords[vertexIndex]);
-        if (fabs(sqDistToLine) < tolerance*tolerance )
-        {
-            it = polygon->insert(insertBefore, std::make_pair(vertexIndex, false));
-            existsOrInserted = true;
-        }
-    }
-
-    return existsOrInserted;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodes, EdgeSplitStorage& edgeSplitStorage, std::vector<cvf::Vec3d>* createdVertexes)

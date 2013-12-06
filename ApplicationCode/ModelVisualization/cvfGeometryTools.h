@@ -37,8 +37,13 @@ public:
         LINES_OVERLAP
     };
 
-    static bool insertVertexInPolygon(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodeCoords, cvf::uint vertexIndex, double tolerance);
     static void addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* polygon, const cvf::Vec3dArray& nodes, EdgeSplitStorage& edgeSplitStorage, std::vector<cvf::Vec3d>* createdVertexes);
+
+     template<typename VerticeArrayType,  typename IndexType>
+    static bool insertVertexInPolygon(               std::vector<IndexType> * polygon, 
+                                                     ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodeCoords, 
+                                                     IndexType vertexIndex, 
+                                                     double tolerance);
 
     static IntersectionStatus inPlaneLineIntersect3D(const cvf::Vec3d& planeNormal, 
                                                      const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, const cvf::Vec3d& p4, 
@@ -55,7 +60,8 @@ public:
 
 
     template<typename VerticeArrayType,  typename IndexType>
-    static bool calculateOverlapPolygonOfTwoQuads(    std::vector<IndexType> * polygon, std::vector<cvf::Vec3d>* createdVertexes, 
+    static bool calculateOverlapPolygonOfTwoQuads(    std::vector<IndexType> * polygon, 
+                                                      std::vector<cvf::Vec3d>* createdVertexes, 
                                                       EdgeIntersectStorage<IndexType>& edgeIntersectionStorage, 
                                                       ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodes, 
                                                       const IndexType cv1CubeFaceIndices[4], 
@@ -76,7 +82,7 @@ template <typename IndexType>
 class EdgeIntersectStorage
 {
 public:
-    void setVertexCount(IndexType size);
+    void setVertexCount(size_t size);
     bool findIntersection(  IndexType e1P1, IndexType e1P2, IndexType e2P1, IndexType e2P2, 
                             IndexType* vxIndexIntersectionPoint, GeometryTools::IntersectionStatus* intersectionStatus, 
                             double* fractionAlongEdge1, double* fractionAlongEdge2);
