@@ -49,8 +49,6 @@ public:
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
-    void updatePartEffect();
-
     void updateCellColor(cvf::Color4f color);
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
@@ -59,6 +57,7 @@ public:
 
 private:
     void generatePartGeometry();
+    void updatePartEffect();
 
 private:
     cvf::cref<RigGridBase>      m_grid;

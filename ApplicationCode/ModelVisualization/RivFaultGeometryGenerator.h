@@ -46,7 +46,10 @@ public:
     ~RivFaultGeometryGenerator();
 
     void setCellVisibility(const cvf::UByteArray* cellVisibilities );
-
+    
+    void setShowNativeFaultFaces(bool showNativeFaultFaces);
+    void setShowOppositeFaultFaces(bool showOppositeFaultFaces);
+    
     void textureCoordinates(cvf::Vec2fArray* textureCoords, 
         const cvf::StructGridScalarDataAccess* dataAccessObject, 
         const cvf::ScalarMapper* mapper) const;
@@ -65,8 +68,6 @@ public:
 private:
     static cvf::ref<cvf::UIntArray> lineIndicesFromQuadVertexArray(const cvf::Vec3fArray* vertexArray);
 
-    void computeGlobalCellIndices(const cvf::CellRange& cellRange, std::vector<size_t>& gridCellIndices) const;
-
     void computeArrays();
 
 private:
@@ -74,6 +75,9 @@ private:
     cvf::cref<cvf::StructGridInterface> m_grid;
     cvf::cref<RigFault>                 m_fault;
     cvf::cref<cvf::UByteArray>          m_cellVisibility;
+    
+    bool                                m_showNativeFaultFaces;
+    bool                                m_showOppositeFaultFaces;
 
     // Created arrays
     cvf::ref<cvf::Vec3fArray>           m_vertices;
