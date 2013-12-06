@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFault.h"
+#include "RigMainGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -56,10 +57,73 @@ QString RigFault::name() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::CellRange>& RigFault::cellRangeForFace(cvf::StructGridInterface::FaceType face) const
+std::vector<RigFault::FaultFace>& RigFault::faultFaces()
 {
-    size_t faceIndex = static_cast<size_t>(face);
-    CVF_ASSERT(faceIndex < 6);
-
-    return m_cellRangesForFaces[face];
+    return m_faultFaces;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<RigFault::FaultFace>& RigFault::faultFaces() const
+{
+    return m_faultFaces;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* grid)
+{
+    if (!grid) return;
+
+    m_faultFaces.clear();
+
+    for (size_t faceType = 0; faceType < 6; faceType++)
+    {
+        cvf::StructGridInterface::FaceType faceEnum = cvf::StructGridInterface::FaceType(faceType);
+
+        const std::vector<cvf::CellRange>& cellRanges = m_cellRangesForFaces[faceType];
+
+        for (size_t i = 0; i < cellRanges.size(); i++)
+        {
+            const cvf::CellRange& cellRange = cellRanges[i];
+
+            cvf::Vec3st min, max;
+            cellRange.range(min, max);
+
+            for (size_t i = min.x(); i <= max.x(); i++)
+            {
+                if (i >= grid->cellCountI())
+                {
+                    continue;
+                }
+
+                for (size_t j = min.y(); j <= max.y(); j++)
+                {
+                    if (j >= grid->cellCountJ())
+                    {
+                        continue;
+                    }
+
+                    for (size_t k = min.z(); k <= max.z(); k++)
+                    {
+                        if (k >= grid->cellCountK())
+                        {
+                            continue;
+                        }
+
+                        size_t localCellIndex = grid->cellIndexFromIJK(i, j, k);
+
+                        // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
+                        //size_t globalCellIndex = grid->globalGridCellIndex(localCellIndex);
+
+                        m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum));
+                    }
+                }
+            }
+        }
+    }
+}
+
+

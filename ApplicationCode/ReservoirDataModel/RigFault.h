@@ -30,10 +30,24 @@
 #include "cvfCellRange.h"
 #include "cafFixedArray.h"
 
+class RigMainGrid;
 
 
 class RigFault : public cvf::Object
 {
+public:
+   
+    struct FaultFace
+    {
+        FaultFace(size_t globalCellIndex, cvf::StructGridInterface::FaceType face) :
+            m_globalCellIndex(globalCellIndex),
+            m_face(face)
+        { }
+
+        size_t                              m_globalCellIndex;
+        cvf::StructGridInterface::FaceType  m_face;
+    };
+
 public:
     RigFault();
 
@@ -41,11 +55,15 @@ public:
     QString name() const;
 
     void addCellRangeForFace(cvf::StructGridInterface::FaceType face, const cvf::CellRange& cellRange);
+    void computeFaultFacesFromCellRanges(const RigMainGrid* grid);
 
-    const std::vector<cvf::CellRange>& cellRangeForFace(cvf::StructGridInterface::FaceType face) const;
+    std::vector<FaultFace>&         faultFaces();
+    const std::vector<FaultFace>&   faultFaces() const;
 
 private:
     QString m_name;
 
     caf::FixedArray<std::vector<cvf::CellRange>, 6> m_cellRangesForFaces;
+    
+    std::vector<FaultFace> m_faultFaces;
 };

@@ -544,6 +544,11 @@ cvf::BoundingBox RigGridBase::boundingBox()
 void RigGridBase::setFaults(const cvf::Collection<RigFault>& faults)
 {
     m_faults = faults;
+
+    for (size_t i = 0; i < m_faults.size(); i++)
+    {
+        m_faults[i]->computeFaultFacesFromCellRanges(this->mainGrid());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
