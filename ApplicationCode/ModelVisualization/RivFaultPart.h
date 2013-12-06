@@ -61,18 +61,16 @@ private:
 
 private:
     cvf::cref<RigGridBase>      m_grid;
-
-    RivFaultGeometryGenerator   m_faultGenerator;
-    cvf::ref<cvf::Part>         m_faultFaces;
-    cvf::ref<cvf::Vec2fArray>   m_faultFacesTextureCoords;
+    const RimFault*             m_rimFault;
 
     float                       m_opacityLevel;
     cvf::Color4f                m_defaultColor;
 
-
-    cvf::ref<cvf::Part>         m_faultGridLines;
-
     cvf::ref<cvf::UByteArray>   m_cellVisibility;
 
-    const RimFault*             m_rimFault;
+    RivFaultGeometryGenerator   m_nativeFaultGenerator;
+    cvf::ref<cvf::Part>         m_nativeFaultFaces;
+    cvf::ref<cvf::Part>         m_nativeFaultGridLines;
+    cvf::ref<cvf::Vec2fArray>   m_nativeFaultFacesTextureCoords;
+
 };

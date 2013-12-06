@@ -49,13 +49,13 @@
 /// 
 //--------------------------------------------------------------------------------------------------
 RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
-    :   m_faultGenerator(grid, rimFault->faultGeometry()),
+    :   m_nativeFaultGenerator(grid, rimFault->faultGeometry()),
         m_grid(grid),
         m_rimFault(rimFault),
         m_opacityLevel(1.0f),
         m_defaultColor(cvf::Color3::WHITE)
 {
-    m_faultFacesTextureCoords = new cvf::Vec2fArray;
+    m_nativeFaultFacesTextureCoords = new cvf::Vec2fArray;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
 //--------------------------------------------------------------------------------------------------
 void RivFaultPart::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
-    m_faultGenerator.setCellVisibility(cellVisibilities);
+    m_nativeFaultGenerator.setCellVisibility(cellVisibilities);
 
     generatePartGeometry();
 }
@@ -101,19 +101,19 @@ void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* ce
 
 
     // Faults
-    if (m_faultFaces.notNull())
+    if (m_nativeFaultFaces.notNull())
     {
-        m_faultGenerator.textureCoordinates(m_faultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        m_nativeFaultGenerator.textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
         if (m_opacityLevel < 1.0f )
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const std::vector<size_t>&  quadsToGridCells = m_faultGenerator.quadToGridCellIndices();
+            const std::vector<size_t>&  quadsToGridCells = m_nativeFaultGenerator.quadToGridCellIndices();
 
-            for(size_t i = 0; i < m_faultFacesTextureCoords->size(); ++i)
+            for(size_t i = 0; i < m_nativeFaultFacesTextureCoords->size(); ++i)
             {
-                if ((*m_faultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
+                if ((*m_nativeFaultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
 
                 size_t quadIdx = i/4;
                 size_t cellIndex = quadsToGridCells[quadIdx];
@@ -122,14 +122,14 @@ void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* ce
                 {
                     if ( !isWellPipeVisible[wellIndex]) 
                     {
-                        (*m_faultFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
+                        (*m_nativeFaultFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
                     }
                 }
             }
         }
 
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
-        if (dg) dg->setTextureCoordArray(m_faultFacesTextureCoords.p());
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
+        if (dg) dg->setTextureCoordArray(m_nativeFaultFacesTextureCoords.p());
 
         bool usePolygonOffset = true;
         caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
@@ -138,7 +138,7 @@ void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* ce
 
         cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
 
-        m_faultFaces->setEffect(scalarEffect.p());
+        m_nativeFaultFaces->setEffect(scalarEffect.p());
     }
 
 }
@@ -182,8 +182,8 @@ void RivFaultPart::appendPartsToModel(cvf::ModelBasicList* model)
 
     if (m_rimFault && m_rimFault->showFault())
     {
-        if(m_faultFaces.notNull()      ) model->addPart(m_faultFaces.p()      );
-        if(m_faultGridLines.notNull()  ) model->addPart(m_faultGridLines.p()  );
+        if(m_nativeFaultFaces.notNull()      ) model->addPart(m_nativeFaultFaces.p()      );
+        if(m_nativeFaultGridLines.notNull()  ) model->addPart(m_nativeFaultGridLines.p()  );
     }
 }
 
@@ -195,7 +195,7 @@ void RivFaultPart::generatePartGeometry()
     bool useBufferObjects = true;
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_faultGenerator.generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = m_nativeFaultGenerator.generateSurface();
         if (geo.notNull())
         {
             geo->computeNormals();
@@ -212,18 +212,18 @@ void RivFaultPart::generatePartGeometry()
             //part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(m_faultGenerator.triangleToSourceGridCellMap().p());
+            part->setSourceInfo(m_nativeFaultGenerator.triangleToSourceGridCellMap().p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
 
-            m_faultFaces = part;
+            m_nativeFaultFaces = part;
         }
     }
 
     // Mesh geometry
     {
-        cvf::ref<cvf::DrawableGeo> geoMesh = m_faultGenerator.createMeshDrawable();
+        cvf::ref<cvf::DrawableGeo> geoMesh = m_nativeFaultGenerator.createMeshDrawable();
         if (geoMesh.notNull())
         {
             if (useBufferObjects)
@@ -239,7 +239,7 @@ void RivFaultPart::generatePartGeometry()
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
 
-            m_faultGridLines = part;
+            m_nativeFaultGridLines = part;
         }
     }
 
@@ -252,7 +252,7 @@ void RivFaultPart::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPart::updatePartEffect()
 {
-    if (m_faultFaces.notNull())
+    if (m_nativeFaultFaces.notNull())
     {
         cvf::Color3f partColor = m_defaultColor.toColor3f();
 
@@ -264,7 +264,7 @@ void RivFaultPart::updatePartEffect()
         if (m_defaultColor.a() < 1.0f)
         {
             // Set priority to make sure this transparent geometry are rendered last
-            m_faultFaces->setPriority(100);
+            m_nativeFaultFaces->setPriority(100);
         }
 
         m_opacityLevel = m_defaultColor.a();
@@ -273,10 +273,10 @@ void RivFaultPart::updatePartEffect()
         caf::SurfaceEffectGenerator geometryEffgen(partColor, true);
         cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
-        m_faultFaces->setEffect(geometryOnlyEffect.p());
+        m_nativeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
 
-    if (m_faultGridLines.notNull())
+    if (m_nativeFaultGridLines.notNull())
     {
         // Update mesh colors as well, in case of change
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
@@ -284,6 +284,6 @@ void RivFaultPart::updatePartEffect()
         cvf::ref<cvf::Effect> eff;
         caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
         eff = faultEffGen.generateEffect();
-        m_faultGridLines->setEffect(eff.p());
+        m_nativeFaultGridLines->setEffect(eff.p());
     }
 }
