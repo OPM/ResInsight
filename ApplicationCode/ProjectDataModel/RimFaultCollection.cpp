@@ -54,6 +54,9 @@ RimFaultCollection::RimFaultCollection()
 
     CAF_PDM_InitField(&showGeometryDetectedFaults,       "ShowGeometryDetectedFaults",    true,   "Show geometry detected faults", "", "", "");
 
+    CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",    true,   "Show faults faces", "", "", "");
+    CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",    true,   "Show opposite fault faces", "", "", "");
+
     CAF_PDM_InitField(&showFaultLabel,       "ShowFaultLabel",    true,   "Show fault labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&faultLabelColor,      "FaultLabelColor",   defWellLabelColor, "Fault label color",  "", "", "");
@@ -87,7 +90,9 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         }
     }
 
-    if (&showGeometryDetectedFaults == changedField)
+    if (&showGeometryDetectedFaults == changedField ||
+        &showFaultFaces == changedField ||
+        &showOppositeFaultFaces == changedField)
     {
         if (m_reservoirView) 
         {

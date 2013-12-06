@@ -49,6 +49,9 @@ public:
 
     caf::PdmField<bool>                 showGeometryDetectedFaults;
 
+    caf::PdmField<bool>                 showFaultFaces;
+    caf::PdmField<bool>                 showOppositeFaultFaces;
+
     caf::PdmField<bool>                 showFaultLabel;
     caf::PdmField<cvf::Color3f>         faultLabelColor;
 
