@@ -44,7 +44,7 @@ RigCell::RigCell() :
     m_cellIndex(cvf::UNDEFINED_SIZE_T),
     m_coarseningBoxIndex(cvf::UNDEFINED_SIZE_T)
 {
-    memcpy(m_cornerIndices.m_array, undefinedCornersArray, 8*sizeof(size_t));
+    memcpy(m_cornerIndices.data(), undefinedCornersArray, 8*sizeof(size_t));
 
     m_cellFaceFaults[0] = false;
     m_cellFaceFaults[1] = false;
