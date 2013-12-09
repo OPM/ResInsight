@@ -44,11 +44,7 @@ RimFault::RimFault()
     CAF_PDM_InitField(&showFault,         "ShowFault",      true, "Show fault", "", "", "");
     showFault.setUiHidden(true);
 
-    CAF_PDM_InitField(&showFaultLabel,         "ShowFaultLabel",      true, "Show fault label", "", "", "");
-
-    CAF_PDM_InitField(&showFaultColor,  "ShowFaultColor",      true, "Show fault color", "", "", "");
     CAF_PDM_InitField(&faultColor,       "Color",        cvf::Color3f(0.588f, 0.588f, 0.804f), "Fault color", "", "", "");
-
 
     m_rigFault = NULL;
 }

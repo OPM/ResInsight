@@ -96,6 +96,11 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
     {
         m_allGrids[i]->updateCellColor(color);
     }
+
+    if (m_faultsPartMgr.notNull())
+    {
+        m_faultsPartMgr->updateCellColor(color);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

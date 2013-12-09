@@ -57,20 +57,11 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFau
         m_rimFault(rimFault),
         m_opacityLevel(1.0f),
         m_defaultColor(cvf::Color3::WHITE),
-        m_nativeFaultGenerator(grid, rimFault->faultGeometry()),
-        m_oppositeFaultGenerator(grid, rimFault->faultGeometry())
+        m_nativeFaultGenerator(grid, rimFault->faultGeometry(), true),
+        m_oppositeFaultGenerator(grid, rimFault->faultGeometry(), false)
 {
     m_nativeFaultFacesTextureCoords = new cvf::Vec2fArray;
-    m_nativeFaultGenerator.setShowNativeFaultFaces(true);
-    m_nativeFaultGenerator.setShowOppositeFaultFaces(false);
-
     m_oppositeFaultFacesTextureCoords = new cvf::Vec2fArray;
-    m_oppositeFaultGenerator.setShowNativeFaultFaces(false);
-    m_oppositeFaultGenerator.setShowOppositeFaultFaces(true);
-
-    m_showNativeFaces = true;
-    m_showOppositeFaces = true;
-    m_showLabel = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,46 +78,23 @@ void RivFaultPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellColor(cvf::Color4f color)
+void RivFaultPartMgr::applySingleColorEffect()
 {
-    m_defaultColor = color;
+    m_defaultColor = m_rimFault->faultColor();
+    
+    // Set default effect
+    caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, true);
+    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
-    updatePartEffect();
-}
+    if (m_nativeFaultFaces.notNull())   m_nativeFaultFaces->setEffect(geometryOnlyEffect.p());
+    if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::setShowNativeFaces(bool showNativeFaces)
-{
-    m_showNativeFaces = showNativeFaces;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::setShowOppositeFaces(bool showOppositeFaces)
-{
-    m_showOppositeFaces = showOppositeFaces;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::setShowLabel(bool showLabel)
-{
-    m_showLabel = showLabel;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::setLimitFaultToVisibleCells(bool limitFaultToVisibleCells)
-{
-    m_nativeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
-    m_oppositeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
-
-//    generatePartGeometry();
+    if (m_opacityLevel < 1.0f)
+    {
+        // Set priority to make sure this transparent geometry are rendered last
+        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100);
+        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,37 +232,6 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultS
     */
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
-{
-    CVF_ASSERT(model != NULL);
-
-    if (!m_rimFault) return;
-
-    if (!m_rimFault->showFault()) return;
-
-    if (m_showNativeFaces && m_nativeFaultFaces.notNull())
-    {
-        model->addPart(m_nativeFaultFaces.p());
-    }
-
-    if (m_showOppositeFaces && m_oppositeFaultFaces.notNull())
-    {
-        model->addPart(m_oppositeFaultFaces.p());
-    }
-    
-    // Always show grid lines for both native and opposite fault faces
-    if (m_nativeFaultGridLines.notNull())   model->addPart(m_nativeFaultGridLines.p());
-    if (m_oppositeFaultGridLines.notNull()) model->addPart(m_oppositeFaultGridLines.p());
-
-    if (m_showLabel)
-    {
-        if (m_faultLabelPart.notNull())         model->addPart(m_faultLabelPart.p());
-        if (m_faultLabelLinePart.notNull())     model->addPart(m_faultLabelLinePart.p());
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -400,7 +337,7 @@ void RivFaultPartMgr::generatePartGeometry()
     }
 
     m_faultLabelPart = NULL;
-    if (m_rimFault->showFaultLabel())
+    
     {
         cvf::ref<cvf::Part> partToAttachLabelTo;
         if (m_nativeFaultFaces.notNull())
@@ -427,14 +364,7 @@ void RivFaultPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updatePartEffect()
 {
-    cvf::Color3f partColor = m_defaultColor.toColor3f();
-
-    if (m_rimFault->showFaultColor())
-    {
-        partColor = m_rimFault->faultColor();
-    }
-
-    m_opacityLevel = m_defaultColor.a();
+    cvf::Color3f partColor = m_defaultColor;
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(partColor, true);
@@ -443,21 +373,11 @@ void RivFaultPartMgr::updatePartEffect()
     if (m_nativeFaultFaces.notNull())
     {
         m_nativeFaultFaces->setEffect(geometryOnlyEffect.p());
-        if (m_defaultColor.a() < 1.0f)
-        {
-            // Set priority to make sure this transparent geometry are rendered last
-            m_nativeFaultFaces->setPriority(100);
-        }
     }
 
     if (m_oppositeFaultFaces.notNull())
     {
         m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
-        if (m_defaultColor.a() < 1.0f)
-        {
-            // Set priority to make sure this transparent geometry are rendered last
-            m_oppositeFaultFaces->setPriority(100);
-        }
     }
 
 
@@ -511,7 +431,10 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         drawableText->setDrawBorder(false);
         drawableText->setDrawBackground(false);
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
-        drawableText->setTextColor(m_rimFault->faultColor());
+        
+        cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+
+        drawableText->setTextColor(defWellLabelColor);
 
         cvf::String cvfString = cvfqt::Utils::toString(m_rimFault->name());
 
@@ -594,5 +517,45 @@ cvf::Vec3f RivFaultPartMgr::findClosestVertex(const cvf::Vec3f& point, const cvf
     {
         return cvf::Vec3f::UNDEFINED;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::appendNativeFaultFacesToModel(cvf::ModelBasicList* model)
+{
+    if (m_nativeFaultFaces.notNull())
+    {
+        model->addPart(m_nativeFaultFaces.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::appendOppositeFaultFacesToModel(cvf::ModelBasicList* model)
+{
+    if (m_oppositeFaultFaces.notNull())
+    {
+        model->addPart(m_oppositeFaultFaces.p());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* model)
+{
+    if (m_faultLabelPart.notNull())         model->addPart(m_faultLabelPart.p());
+    if (m_faultLabelLinePart.notNull())     model->addPart(m_faultLabelLinePart.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model)
+{
+    if (m_nativeFaultGridLines.notNull())   model->addPart(m_nativeFaultGridLines.p());
+    if (m_oppositeFaultGridLines.notNull()) model->addPart(m_oppositeFaultGridLines.p());
 }
 

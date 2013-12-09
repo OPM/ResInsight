@@ -102,14 +102,27 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
         if (rimFault->showFault())
         {
             cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
+            CVF_ASSERT(rivFaultPart.notNull());
 
-            // Propagate settings from RimFaultCollection to RivFaultPart
-            rivFaultPart->setShowNativeFaces(m_faultCollection->showFaultFaces());
-            rivFaultPart->setShowOppositeFaces(m_faultCollection->showOppositeFaultFaces());
-            rivFaultPart->setShowLabel(m_faultCollection->showFaultLabel());
-            rivFaultPart->setLimitFaultToVisibleCells(m_faultCollection->limitFaultsToFilter());
+            if (m_faultCollection->showFaultFaces())
+            {
+                rivFaultPart->appendNativeFaultFacesToModel(&parts);
+            }
 
-            rivFaultPart->appendPartsToModel(&parts);
+            if (m_faultCollection->showOppositeFaultFaces())
+            {
+                rivFaultPart->appendOppositeFaultFacesToModel(&parts);
+            }
+
+            if (m_faultCollection->showFaultLabel())
+            {
+                rivFaultPart->appendLabelPartsToModel(&parts);
+            }
+
+            if (m_faultCollection->showFaultFaces() || m_faultCollection->showOppositeFaultFaces())
+            {
+                rivFaultPart->appendMeshLinePartsToModel(&parts);
+            }
         }
     }
 
@@ -127,9 +140,13 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::updateCellColor(cvf::Color4f color)
 {
+    CVF_UNUSED(color);
+
+    // NB color is not used, as the color is defined per fault
+
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {
-        m_faultParts[i]->updateCellColor(color);
+        m_faultParts[i]->applySingleColorEffect();
     }
 
 }

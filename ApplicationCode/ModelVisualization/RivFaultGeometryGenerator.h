@@ -42,14 +42,10 @@ class RigFault;
 class RivFaultGeometryGenerator : public cvf::Object
 {
 public:
-    RivFaultGeometryGenerator(const cvf::StructGridInterface* grid, const RigFault* fault);
+    RivFaultGeometryGenerator(const cvf::StructGridInterface* grid, const RigFault* fault, bool computeNativeFaultFaces);
     ~RivFaultGeometryGenerator();
 
     void setCellVisibility(const cvf::UByteArray* cellVisibilities );
-    
-    void setShowNativeFaultFaces(bool showNativeFaultFaces);
-    void setShowOppositeFaultFaces(bool showOppositeFaultFaces);
-    void setLimitFaultsToFilter(bool limitFaultsToFilter);
     
     void textureCoordinates(cvf::Vec2fArray* textureCoords, 
         const cvf::StructGridScalarDataAccess* dataAccessObject, 
@@ -77,9 +73,7 @@ private:
     cvf::cref<RigFault>                 m_fault;
     cvf::cref<cvf::UByteArray>          m_cellVisibility;
     
-    bool                                m_showNativeFaultFaces;
-    bool                                m_showOppositeFaultFaces;
-    bool                                m_limitFaultsToFilters;
+    bool                                m_computeNativeFaultFaces;
 
     // Created arrays
     cvf::ref<cvf::Vec3fArray>           m_vertices;

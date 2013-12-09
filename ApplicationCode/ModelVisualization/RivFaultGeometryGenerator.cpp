@@ -33,13 +33,11 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultGeometryGenerator::RivFaultGeometryGenerator(const cvf::StructGridInterface* grid, const RigFault* fault)
+RivFaultGeometryGenerator::RivFaultGeometryGenerator(const cvf::StructGridInterface* grid, const RigFault* fault, bool computeNativeFaultFaces)
    : m_grid(grid),
-   m_fault(fault)
+   m_fault(fault),
+   m_computeNativeFaultFaces(computeNativeFaultFaces)
 {
-    m_showNativeFaultFaces = true;
-    m_showOppositeFaultFaces = true;
-    m_limitFaultsToFilters = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,81 +156,38 @@ void RivFaultGeometryGenerator::computeArrays()
 
     const std::vector<RigFault::FaultFace>& faultFaces = m_fault->faultFaces();
 
-    if (m_showNativeFaultFaces)
-    {
 #pragma omp parallel for
-        for (int fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+    for (int fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+    {
+        size_t cellIndex = faultFaces[fIdx].m_nativeGlobalCellIndex;
+        cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_nativeFace;
+
+        if (!m_computeNativeFaultFaces)
         {
-            size_t cellIndex = faultFaces[fIdx].m_nativeGlobalCellIndex;
-
-            if (m_limitFaultsToFilters)
-            {
-                if (!(*m_cellVisibility)[cellIndex]) continue;
-            }
-
-            cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_nativeFace;
-
-            cvf::Vec3d cornerVerts[8];
-            m_grid->cellCornerVertices(cellIndex, cornerVerts);
-
-            cvf::ubyte faceConn[4];
-            m_grid->cellFaceVertexIndices(face, faceConn);
-
-            // Critical section to avoid two threads accessing the arrays at the same time.
-    #pragma omp critical
-            {
-                int n;
-                for (n = 0; n < 4; n++)
-                {
-                    vertices.push_back(cvf::Vec3f(cornerVerts[faceConn[n]] - offset));
-                }
-
-                // Keep track of the source cell index per quad
-                m_quadsToGridCells.push_back(cellIndex);
-                m_quadsToFace.push_back(face);
-            }
+            cellIndex = faultFaces[fIdx].m_oppositeGlobalCellIndex;
+            face = faultFaces[fIdx].m_oppositeFace;
         }
-    }
 
-    if (m_showOppositeFaultFaces)
-    {
-#pragma omp parallel for
-        for (int fIdx = 0; fIdx < faultFaces.size(); fIdx++)
-        {
-            size_t cellIndex = faultFaces[fIdx].m_oppositeGlobalCellIndex;
-            cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_oppositeFace;
+        if (!(*m_cellVisibility)[cellIndex]) continue;
 
-            /*
-            size_t i, j, k, ni, nj, nk;
-            m_grid->ijkFromCellIndex(currentCellIndex, &i, &j, &k);
-            m_grid->neighborIJKAtCellFace(i, j, k, currentFace, &ni, &nj, &nk);
+        cvf::Vec3d cornerVerts[8];
+        m_grid->cellCornerVertices(cellIndex, cornerVerts);
 
-            size_t cellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
-            */
-            if (m_limitFaultsToFilters)
-            {
-                if (!(*m_cellVisibility)[cellIndex]) continue;
-            }
+        cvf::ubyte faceConn[4];
+        m_grid->cellFaceVertexIndices(face, faceConn);
 
-            cvf::Vec3d cornerVerts[8];
-            m_grid->cellCornerVertices(cellIndex, cornerVerts);
-
-            cvf::ubyte faceConn[4];
-            m_grid->cellFaceVertexIndices(face, faceConn);
-
-            // Critical section to avoid two threads accessing the arrays at the same time.
+        // Critical section to avoid two threads accessing the arrays at the same time.
 #pragma omp critical
+        {
+            int n;
+            for (n = 0; n < 4; n++)
             {
-                int n;
-                for (n = 0; n < 4; n++)
-                {
-                    vertices.push_back(cvf::Vec3f(cornerVerts[faceConn[n]] - offset));
-                }
-
-                // Keep track of the source cell index per quad
-                m_quadsToGridCells.push_back(cellIndex);
-                m_quadsToFace.push_back(face);
+                vertices.push_back(cvf::Vec3f(cornerVerts[faceConn[n]] - offset));
             }
+
+            // Keep track of the source cell index per quad
+            m_quadsToGridCells.push_back(cellIndex);
+            m_quadsToFace.push_back(face);
         }
     }
 
@@ -312,29 +267,5 @@ const std::vector<size_t>& RivFaultGeometryGenerator::quadToGridCellIndices() co
 const std::vector<cvf::StructGridInterface::FaceType>& RivFaultGeometryGenerator::quadToFace() const
 {
     return m_quadsToFace;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultGeometryGenerator::setShowNativeFaultFaces(bool showNativeFaultFaces)
-{
-    m_showNativeFaultFaces = showNativeFaultFaces;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultGeometryGenerator::setShowOppositeFaultFaces(bool showOppositeFaultFaces)
-{
-    m_showOppositeFaultFaces = showOppositeFaultFaces;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivFaultGeometryGenerator::setLimitFaultsToFilter(bool limitFaultsToFilter)
-{
-//    m_limitFaultsToFilters = limitFaultsToFilter;
 }
 

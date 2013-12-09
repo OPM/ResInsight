@@ -49,17 +49,14 @@ public:
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
-    void updateCellColor(cvf::Color4f color);
+    void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
 
-    // TODO: Remove all
-    void setShowNativeFaces(bool showNativeFaces);
-    void setShowOppositeFaces(bool showOppositeFaces);
-    void setShowLabel(bool showLabel);
-    void setLimitFaultToVisibleCells(bool limitFaultToVisibleCells);
-
-    void appendPartsToModel(cvf::ModelBasicList* model);
+    void appendNativeFaultFacesToModel(cvf::ModelBasicList* model);
+    void appendOppositeFaultFacesToModel(cvf::ModelBasicList* model);
+    void appendLabelPartsToModel(cvf::ModelBasicList* model);
+    void appendMeshLinePartsToModel(cvf::ModelBasicList* model);
 
 private:
     void generatePartGeometry();
@@ -74,7 +71,7 @@ private:
     const RimFault*             m_rimFault;
 
     float                       m_opacityLevel;
-    cvf::Color4f                m_defaultColor;
+    cvf::Color3f                m_defaultColor;
 
     bool                        m_showNativeFaces;
     bool                        m_showOppositeFaces;

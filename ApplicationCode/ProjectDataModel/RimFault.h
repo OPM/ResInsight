@@ -51,11 +51,8 @@ public:
     caf::PdmField<bool>                 showFault;
 
     caf::PdmField<QString>              name;
-    caf::PdmField<bool>                 showFaultLabel;
 
-    caf::PdmField<bool>                 showFaultColor;
     caf::PdmField<cvf::Color3f>         faultColor;
-
 
 private:
     const RigFault*                           m_rigFault;
