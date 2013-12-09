@@ -53,6 +53,7 @@ public:
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
 
+    // TODO: Remove all
     void setShowNativeFaces(bool showNativeFaces);
     void setShowOppositeFaces(bool showOppositeFaces);
     void setShowLabel(bool showLabel);

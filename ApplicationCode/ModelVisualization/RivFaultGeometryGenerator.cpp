@@ -335,6 +335,6 @@ void RivFaultGeometryGenerator::setShowOppositeFaultFaces(bool showOppositeFault
 //--------------------------------------------------------------------------------------------------
 void RivFaultGeometryGenerator::setLimitFaultsToFilter(bool limitFaultsToFilter)
 {
-    m_limitFaultsToFilters = limitFaultsToFilter;
+//    m_limitFaultsToFilters = limitFaultsToFilter;
 }
 

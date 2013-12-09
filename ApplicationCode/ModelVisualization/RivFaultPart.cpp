@@ -126,7 +126,7 @@ void RivFaultPartMgr::setLimitFaultToVisibleCells(bool limitFaultToVisibleCells)
     m_nativeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
     m_oppositeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
 
-    generatePartGeometry();
+//    generatePartGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -58,11 +58,14 @@ public:
     void   updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
                                      RimCellEdgeResultSlot* cellEdgeResultSlot);
 
-    void   appendPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
-    void   appendPartsToModel(cvf::ModelBasicList* model);
+    void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
+    void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
+    // Faults
+    void   updateFaultCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
+    void   appendFaultPartsToModel(cvf::ModelBasicList* model);
 private:
 
-    cvf::Collection<RivGridPartMgr> m_allGrids; // Main grid and all LGR's 
-    cvf::Collection<RivReservoirFaultsPartMgr> m_faults;
+    cvf::Collection<RivGridPartMgr>     m_allGrids; // Main grid and all LGR's 
+    cvf::ref<RivReservoirFaultsPartMgr> m_faultsPartMgr;
 };

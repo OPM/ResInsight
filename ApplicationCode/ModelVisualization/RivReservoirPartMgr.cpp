@@ -32,7 +32,6 @@
 void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection)
 {
     m_allGrids.clear();
-    m_faults.clear();
 
     if (eclipseCase)
     {
@@ -44,7 +43,7 @@ void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, c
         }
 
         // Faults read from file are present only on main grid
-        m_faults.push_back(new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), 0, faultCollection));
+        m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), 0, faultCollection);
     }
 }
 
@@ -58,9 +57,9 @@ void RivReservoirPartMgr::setTransform(cvf::Transform* scaleTransform)
         m_allGrids[i]->setTransform(scaleTransform);
     }
 
-    for (size_t i = 0; i < m_faults.size() ; ++i)
+    if (m_faultsPartMgr.notNull())
     {
-        m_faults[i]->setTransform(scaleTransform);
+        m_faultsPartMgr->setTransform(scaleTransform);
     }
 }
 
@@ -72,9 +71,10 @@ void RivReservoirPartMgr::setCellVisibility(size_t gridIndex, cvf::UByteArray* c
     CVF_ASSERT(gridIndex < m_allGrids.size());
     m_allGrids[gridIndex]->setCellVisibility(cellVisibilities);
 
-    if (gridIndex < m_faults.size())
+    if (gridIndex == 0)
     {
-        m_faults[gridIndex]->setCellVisibility(cellVisibilities);
+        CVF_ASSERT(m_faultsPartMgr.notNull());
+        m_faultsPartMgr->setCellVisibility(cellVisibilities);
     }
 }
 
@@ -96,11 +96,6 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
     {
         m_allGrids[i]->updateCellColor(color);
     }
-
-    for (size_t i = 0; i < m_faults.size() ; ++i)
-    {
-        m_faults[i]->updateCellColor(color);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,12 +107,6 @@ void RivReservoirPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultS
     {
         m_allGrids[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
     }
-
-    for (size_t i = 0; i < m_faults.size() ; ++i)
-    {
-        m_faults[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
-    }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,33 +118,23 @@ void RivReservoirPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimRes
     {
         m_allGrids[i]->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
     }
-
-    for (size_t i = 0; i < m_faults.size() ; ++i)
-    {
-        m_faults[i]->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
+void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model)
 {
     for (size_t i = 0; i < m_allGrids.size() ; ++i)
     {
         m_allGrids[i]->appendPartsToModel(model);
     }
-
-    for (size_t i = 0; i < m_faults.size() ; ++i)
-    {
-        m_faults[i]->appendPartsToModel(model);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::appendPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIndices)
+void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIndices)
 {
     for (size_t i = 0; i < gridIndices.size() ; ++i)
     {
@@ -163,10 +142,28 @@ void RivReservoirPartMgr::appendPartsToModel(cvf::ModelBasicList* model, const s
         {
             m_allGrids[gridIndices[i]]->appendPartsToModel(model);
         }
-
-        if (gridIndices[i] < m_faults.size())
-        {
-            m_faults[gridIndices[i]]->appendPartsToModel(model);
-        }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::updateFaultCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+{
+    if (m_faultsPartMgr.notNull())
+    {
+        m_faultsPartMgr->updateCellResultColor(timeStepIndex, cellResultSlot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::appendFaultPartsToModel(cvf::ModelBasicList* model)
+{
+    if (m_faultsPartMgr.notNull())
+    {
+        m_faultsPartMgr->appendPartsToModel(model);
+    }
+}
+

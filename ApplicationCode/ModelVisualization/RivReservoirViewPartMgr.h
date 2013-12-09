@@ -68,6 +68,11 @@ public:
     void                        updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
                                                           RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
 
+    // Faults
+    void                        appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
+    void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
+    void                        updateFaultsCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot);
+
 private:
     void                        createGeometry(ReservoirGeometryCacheType geometryType);
     void                        computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx);

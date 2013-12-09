@@ -205,7 +205,7 @@ void RivReservoirViewPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicLi
     {
         createGeometry( geometryType);
     }
-    m_geometries[geometryType].appendPartsToModel(model, gridIndices);
+    m_geometries[geometryType].appendGridPartsToModel(model, gridIndices);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
         {
             createPropertyFilteredNoneWellCellGeometry(frameIndex);
         }
-        m_propFilteredGeometryFrames[frameIndex]->appendPartsToModel(model, gridIndices);
+        m_propFilteredGeometryFrames[frameIndex]->appendGridPartsToModel(model, gridIndices);
     }
     else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
     {
@@ -228,7 +228,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
         {
             createPropertyFilteredWellGeometry(frameIndex);
         }
-        m_propFilteredWellGeometryFrames[frameIndex]->appendPartsToModel(model, gridIndices);
+        m_propFilteredWellGeometryFrames[frameIndex]->appendGridPartsToModel(model, gridIndices);
     }
 }
 
@@ -816,5 +816,41 @@ RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeo
     else
     {
         return &m_geometries[geometryType];
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::updateFaultsCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
+{
+    RivReservoirPartMgr* pmgr = reservoirPartManager(geometryType, timeStepIndex);
+    pmgr->updateFaultCellResultColor(timeStepIndex, cellResultSlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType)
+{
+    if (m_geometriesNeedsRegen[geometryType])
+    {
+        createGeometry(geometryType);
+    }
+    m_geometries[geometryType].appendFaultPartsToModel(model);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex)
+{
+    if (geometryType == PROPERTY_FILTERED)
+    {
+        m_propFilteredGeometryFrames[frameIndex]->appendFaultPartsToModel(model);
+    }
+    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
+    {
+        m_propFilteredWellGeometryFrames[frameIndex]->appendFaultPartsToModel(model);
     }
 }

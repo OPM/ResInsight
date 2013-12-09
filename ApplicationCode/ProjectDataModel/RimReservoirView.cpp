@@ -607,7 +607,7 @@ void RimReservoirView::createDisplayModel()
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
-      
+
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -621,6 +621,35 @@ void RimReservoirView::createDisplayModel()
         this->updateStaticCellColors();
 
         m_visibleGridParts = geometryTypesToAdd;
+    }
+
+    if (!this->propertyFilterCollection()->hasActiveFilters() ||
+        !faultCollection()->limitFaultsToFilter)
+    {
+        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAdd;
+        if (faultCollection()->limitFaultsToFilter)
+        {
+            faultGeometryTypesToAdd = m_visibleGridParts;
+        }
+        else
+        {
+            faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS); // Should be all well cells
+            faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::ACTIVE);
+
+            if (this->showInactiveCells())
+            {
+                faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
+            }
+        }
+
+        size_t frameIdx;
+        for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
+        {
+            for (size_t gtIdx = 0; gtIdx < faultGeometryTypesToAdd.size(); ++gtIdx)
+            {
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultGeometryTypesToAdd[gtIdx]);
+            }
+        }
     }
     
     // Compute triangle count, Debug only
@@ -683,6 +712,7 @@ void RimReservoirView::createDisplayModel()
 void RimReservoirView::updateCurrentTimeStep()
 {
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometriesToRecolor;
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor;
 
     if (this->propertyFilterCollection()->hasActiveFilters())
     {
@@ -693,9 +723,17 @@ void RimReservoirView::updateCurrentTimeStep()
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
+        if (faultCollection()->limitFaultsToFilter)
+        {
+            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
+        }
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
+        if (faultCollection()->limitFaultsToFilter)
+        {
+            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep);
+        }
 
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
@@ -710,10 +748,20 @@ void RimReservoirView::updateCurrentTimeStep()
             if (this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
+
+                if (faultCollection()->limitFaultsToFilter)
+                {
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE); 
+                }
             }
             else
             {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices); 
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
+
+                if (faultCollection()->limitFaultsToFilter)
+                {
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE);
+                }
             }
         }
 
@@ -752,7 +800,6 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ACTIVE);
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
     }
-    
 
     for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
     {
@@ -769,6 +816,29 @@ void RimReservoirView::updateCurrentTimeStep()
             this->updateStaticCellColors(geometriesToRecolor[i]);
         }
     }
+
+    if (faultCollection()->limitFaultsToFilter)
+    {
+        faultGeometriesToRecolor = geometriesToRecolor;
+    }
+    else
+    {
+        faultGeometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS); // Should be all well cells
+        faultGeometriesToRecolor.push_back(RivReservoirViewPartMgr::ACTIVE);
+    }
+
+    for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
+    {
+        if (this->animationMode() && this->cellResult()->hasResult())
+        {
+            m_reservoirGridPartManager->updateFaultsCellResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
+        }
+        else
+        {
+            this->updateStaticCellColors(faultGeometriesToRecolor[i]);
+        }
+    }
+
 
     // Well pipes and well paths
     if (m_viewer)
