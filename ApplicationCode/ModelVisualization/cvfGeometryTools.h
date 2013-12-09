@@ -3,7 +3,6 @@
 #include "cvfArray.h"
 #include <list>
 #include <map>
-#include <hash_map>
 #include "cvfArrayWrapperConst.h"
 
 namespace cvf

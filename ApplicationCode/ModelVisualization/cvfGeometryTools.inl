@@ -1,3 +1,5 @@
+#include <cmath>
+
 
 #pragma warning (disable : 4503)
 namespace cvf
@@ -22,7 +24,7 @@ bool GeometryTools::insertVertexInPolygon(  std::vector<IndexType> * polygon,
 
     // Check if vertex is directly included already
 
-    for(std::vector<IndexType>::iterator it = polygon->begin(); it != polygon->end(); ++it)
+    for(typename std::vector<IndexType>::iterator it = polygon->begin(); it != polygon->end(); ++it)
     {
         if (*it == vertexIndex) return true;
     }
@@ -31,7 +33,7 @@ bool GeometryTools::insertVertexInPolygon(  std::vector<IndexType> * polygon,
     // Check if the new point is within tolerance of one of the polygon vertices 
 
     bool existsOrInserted = false;
-    for(std::vector<IndexType>::iterator it = polygon->begin(); it != polygon->end(); ++it)
+    for(typename std::vector<IndexType>::iterator it = polygon->begin(); it != polygon->end(); ++it)
     {
         if ( (nodeCoords[*it] - nodeCoords[vertexIndex]).length() < tolerance)
         {
@@ -54,10 +56,10 @@ bool GeometryTools::insertVertexInPolygon(  std::vector<IndexType> * polygon,
 
     // Insert vertex in polygon if the distance to one of the edges is small enough
 
-    std::list<IndexType >::iterator it2;
-    std::list<IndexType >::iterator insertBefore;
+    typename std::list<IndexType >::iterator it2;
+    typename std::list<IndexType >::iterator insertBefore;
 
-    for (std::list<IndexType >::iterator  it = listPolygon.begin(); it != listPolygon.end(); ++it)
+    for (typename std::list<IndexType >::iterator  it = listPolygon.begin(); it != listPolygon.end(); ++it)
     {
         it2 = it;
         ++it2; insertBefore = it2; if (it2 == listPolygon.end()) it2 = listPolygon.begin();
@@ -73,7 +75,7 @@ bool GeometryTools::insertVertexInPolygon(  std::vector<IndexType> * polygon,
     // Write polygon back into the vector
 
     polygon->clear();
-    for (std::list<IndexType >::iterator  it = listPolygon.begin(); it != listPolygon.end(); ++it)
+    for (typename std::list<IndexType >::iterator  it = listPolygon.begin(); it != listPolygon.end(); ++it)
     {
         polygon->push_back(*it);
     }
@@ -472,7 +474,7 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * p
             sortingMap[intersectionFractionsAlongEdge[i]] = intersectionVxIndices[i];
         }
 
-        std::map<double, IndexType>::iterator it;
+        typename std::map<double, IndexType>::iterator it;
         for (it = sortingMap.begin(); it != sortingMap.end(); ++it)
         {
             if (polygon->empty() || polygon->back() != it->second) 
@@ -557,7 +559,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
     bool*                        m_partiallyFreeCubeFaceHasHoles)
 {
     // Vertex Index to position in polygon
-    typedef std::map< IndexType, std::vector<IndexType>::const_iterator > VxIdxToPolygonPositionMap;
+    typedef std::map< IndexType, typename std::vector<IndexType>::const_iterator > VxIdxToPolygonPositionMap;
 
     CVF_ASSERT(m_partiallyFreeCubeFaceHasHoles);
     CVF_ASSERT(partialFacePolygon != NULL);
@@ -584,7 +586,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
         for (size_t i = 0; i < faceOverlapPolygons.size(); ++i)
         {
             count = 0;
-            for (std::vector<IndexType >::const_iterator pcIt = faceOverlapPolygons[i]->begin(); 
+            for (typename std::vector<IndexType >::const_iterator pcIt = faceOverlapPolygons[i]->begin(); 
                 pcIt !=  faceOverlapPolygons[i]->end(); 
                 ++pcIt)
             {
@@ -637,19 +639,19 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
     //          and remove the connection polygon from the merge able connection polygons.
 
 
-    for (std::list<IndexType>::iterator pIt =  resultPolygon.begin(); pIt != resultPolygon.end(); ++pIt)
+    for (typename std::list<IndexType>::iterator pIt =  resultPolygon.begin(); pIt != resultPolygon.end(); ++pIt)
     {
         // Set iterator to previous node in polygon
-        std::list<IndexType>::iterator prevPIt = pIt;
+        typename std::list<IndexType>::iterator prevPIt = pIt;
         if (prevPIt == resultPolygon.begin()) prevPIt = resultPolygon.end();
         --prevPIt;
 
         cvf::Vec3d pToPrev = nodeCoords[*prevPIt] - nodeCoords[*pIt];
 
         // Set iterator to next node in polygon. Used to insert before and as pointer to the next point
-        std::list<IndexType>::iterator nextPIt = pIt;
+        typename std::list<IndexType>::iterator nextPIt = pIt;
         ++nextPIt;
-        std::list<IndexType>::iterator insertBeforePIt = nextPIt;
+        typename std::list<IndexType>::iterator insertBeforePIt = nextPIt;
         if (nextPIt == resultPolygon.end()) nextPIt = resultPolygon.begin();
 
         // Calculate existing edge to edge angle
@@ -664,14 +666,14 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
             if (isConnectionPolygonMerged[opIdx]) continue; // Already merged
 
             // Find position of pIt vertex index in the current connection polygon
-            VxIdxToPolygonPositionMap::iterator vxIndexPositionInPolygonIt = polygonSearchMaps[opIdx].find(*pIt);
+            typename VxIdxToPolygonPositionMap::iterator vxIndexPositionInPolygonIt = polygonSearchMaps[opIdx].find(*pIt);
 
             if (vxIndexPositionInPolygonIt != polygonSearchMaps[opIdx].end())
             {
                 // Merge the connection polygon into the main polygon 
                 // if the angle prevPIt pIt nextPIt is larger than angle prevPIt pIt (startCPIt++)
 
-                std::vector<IndexType>::const_iterator startCPIt;
+                typename std::vector<IndexType>::const_iterator startCPIt;
                 startCPIt = vxIndexPositionInPolygonIt->second;
 
                 // First vx to insert is the one after the match
@@ -696,7 +698,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
                 if (candidatePolygonEdgeAngle < mainPolygonEdgeAngle )
                 {
                     // Merge ok
-                    std::vector<IndexType >::const_iterator pcIt = startCPIt;
+                    typename std::vector<IndexType >::const_iterator pcIt = startCPIt;
                     if (hasSameWinding)
                     {
                         do 
@@ -740,10 +742,10 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
     // Now remove all double edges
 
     bool goneAround = false;
-    for ( std::list<IndexType>::iterator pIt = resultPolygon.begin(); pIt != resultPolygon.end() && !goneAround; ++pIt)
+    for ( typename std::list<IndexType>::iterator pIt = resultPolygon.begin(); pIt != resultPolygon.end() && !goneAround; ++pIt)
     {
         // Set iterator to next node in polygon.
-        std::list<IndexType>::iterator  nextPIt = pIt;
+        typename std::list<IndexType>::iterator  nextPIt = pIt;
         ++nextPIt;
         if (nextPIt == resultPolygon.end()) 
         { 
@@ -753,7 +755,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
 
         // Set iterator to previous node in polygon
 
-        std::list<IndexType>::iterator prevPIt = pIt;
+        typename std::list<IndexType>::iterator prevPIt = pIt;
 
         if (prevPIt == resultPolygon.begin()) prevPIt = resultPolygon.end();
         --prevPIt;
@@ -812,7 +814,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(ArrayWrapperConst<Vert
     // Copy the result polygon to the output variable 
 
     partialFacePolygon->clear();
-    for (std::list<IndexType>::iterator pIt = resultPolygon.begin(); pIt != resultPolygon.end(); ++pIt)
+    for (typename std::list<IndexType>::iterator pIt = resultPolygon.begin(); pIt != resultPolygon.end(); ++pIt)
     {
         partialFacePolygon->push_back(*pIt);
     }
@@ -914,15 +916,15 @@ bool EdgeIntersectStorage<IndexType>::findIntersection(IndexType e1P1, IndexType
 
     if (!m_edgeIntsectMap[e1P1].size()) return false;
 
-    std::map<IndexType, std::map<IndexType, std::map<IndexType, IntersectData > > >::iterator it;
+    typename std::map<IndexType, std::map<IndexType, std::map<IndexType, IntersectData > > >::iterator it;
     it = m_edgeIntsectMap[e1P1].find(e1P2);
     if (it == m_edgeIntsectMap[e1P1].end()) return false;
 
-    std::map<IndexType, std::map<IndexType, IntersectData > >::iterator it2;
+    typename std::map<IndexType, std::map<IndexType, IntersectData > >::iterator it2;
     it2 = it->second.find(e2P1);
     if (it2 == it->second.end()) return false;
 
-    std::map<IndexType, IntersectData >::iterator it3;
+    typename std::map<IndexType, IntersectData >::iterator it3;
     it3 = it2->second.find(e2P2);
     if (it3 == it2->second.end()) return false;
 

@@ -29,7 +29,6 @@
 
 #include "cvfGeometryTools.h"
 #include "cvfBoundingBoxTree.h"
-#include <array>
 
 using namespace cvf;
 
@@ -192,7 +191,7 @@ std::vector<caf::UintArray4> getCubeFaces()
     return cubeFaces;
 }
 
-std::ostream& operator<< (std::ostream& stream, std::vector<uint> v)
+std::ostream& operator<< (std::ostream& stream, std::vector<cvf::uint> v)
 {
     for (size_t i = 0; i < v.size(); ++i)
     {
@@ -210,13 +209,13 @@ TEST(CellFaceIntersectionTst, Intersection1)
 
     std::vector<cvf::Vec3d> additionalVertices;
 
-    std::vector< std::vector<uint> > overlapPolygons;
+    std::vector< std::vector<cvf::uint> > overlapPolygons;
     std::vector<caf::UintArray4> faces = getCubeFaces();
 
-    EdgeIntersectStorage<uint> edgeIntersectionStorage;
+    EdgeIntersectStorage<cvf::uint> edgeIntersectionStorage;
     edgeIntersectionStorage.setVertexCount(nodes.size());
     {
-        std::vector<uint> polygon;
+        std::vector<cvf::uint> polygon;
         bool isOk = false;
         isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
             &polygon, 
@@ -227,7 +226,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
             faces[1].data(), 
             1e-6);
 
-        EXPECT_EQ( 5, polygon.size());
+        EXPECT_EQ( (size_t)5, polygon.size());
         EXPECT_EQ( (size_t)2, additionalVertices.size());
         EXPECT_TRUE(isOk);
         overlapPolygons.push_back(polygon);
@@ -236,7 +235,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
     }
   
     {
-        std::vector<uint> polygon;
+        std::vector<cvf::uint> polygon;
         bool isOk = false;
         isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
             &polygon, 
@@ -247,7 +246,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
             faces[2].data(), 
             1e-6);
 
-        EXPECT_EQ( 5, polygon.size());
+        EXPECT_EQ( (size_t)5, polygon.size());
         EXPECT_EQ( (size_t)4, additionalVertices.size());
         EXPECT_TRUE(isOk);
         overlapPolygons.push_back(polygon);
@@ -256,7 +255,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
     }
 
     {
-        std::vector<uint> polygon;
+        std::vector<cvf::uint> polygon;
         bool isOk = false;
         isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(
             &polygon, 
@@ -267,7 +266,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
             faces[3].data(), 
             1e-6);
 
-        EXPECT_EQ( 3, polygon.size());
+        EXPECT_EQ( (size_t)3, polygon.size());
         EXPECT_EQ( (size_t)6, additionalVertices.size());
         EXPECT_TRUE(isOk);
         overlapPolygons.push_back(polygon);
@@ -275,10 +274,10 @@ TEST(CellFaceIntersectionTst, Intersection1)
     }
 
    nodes.insert(nodes.end(), additionalVertices.begin(), additionalVertices.end());
-   std::vector<uint> basePolygon;
+   std::vector<cvf::uint> basePolygon;
    basePolygon.insert(basePolygon.begin(), faces[0].data(), &(faces[0].data()[4]));
 
-   for (uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
+   for (cvf::uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
    {
        bool inserted = GeometryTools::insertVertexInPolygon(
            &basePolygon,
@@ -288,12 +287,12 @@ TEST(CellFaceIntersectionTst, Intersection1)
            );
    }
    
-   EXPECT_EQ( 8, basePolygon.size());
+   EXPECT_EQ( (size_t)8, basePolygon.size());
    std::cout << "Bp: " << basePolygon << std::endl;
 
    for (size_t pIdx = 0; pIdx < overlapPolygons.size(); ++pIdx)
    {
-       for (uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
+       for (cvf::uint vxIdx = 0; vxIdx < nodes.size(); ++vxIdx)
        {
            bool inserted = GeometryTools::insertVertexInPolygon(
                &overlapPolygons[pIdx],
@@ -305,15 +304,15 @@ TEST(CellFaceIntersectionTst, Intersection1)
 
        if (pIdx == 0)
        {
-           EXPECT_EQ(5, overlapPolygons[pIdx].size());
+           EXPECT_EQ((size_t)5, overlapPolygons[pIdx].size());
        }
        if (pIdx == 1)
        {
-           EXPECT_EQ(5, overlapPolygons[pIdx].size());
+           EXPECT_EQ((size_t)5, overlapPolygons[pIdx].size());
        }
        if (pIdx == 2)
        {
-           EXPECT_EQ(4, overlapPolygons[pIdx].size());
+           EXPECT_EQ((size_t)4, overlapPolygons[pIdx].size());
        }
 
        std::cout << "Op" << pIdx << ":" << overlapPolygons[pIdx] << std::endl;
@@ -325,10 +324,10 @@ TEST(CellFaceIntersectionTst, Intersection1)
    faceOverlapPolygonWindingSameAsCubeFaceFlags.resize(overlapPolygons.size(), true);
 
    {
-       std::vector<uint>         freeFacePolygon;
+       std::vector<cvf::uint>         freeFacePolygon;
        bool hasHoles = false;
 
-       std::vector< std::vector<uint>* > overlapPolygonPtrs;
+       std::vector< std::vector<cvf::uint>* > overlapPolygonPtrs;
        for (size_t pIdx = 0; pIdx < overlapPolygons.size(); ++pIdx)
        {
            overlapPolygonPtrs.push_back(&(overlapPolygons[pIdx]));
@@ -344,16 +343,16 @@ TEST(CellFaceIntersectionTst, Intersection1)
            &hasHoles
            );
 
-       EXPECT_EQ( 4, freeFacePolygon.size());
+       EXPECT_EQ( (size_t)4, freeFacePolygon.size());
        EXPECT_FALSE(hasHoles);
        std::cout <<  "FF1: " << freeFacePolygon << std::endl;
    }
 
    {
-       std::vector<uint>         freeFacePolygon;
+       std::vector<cvf::uint>         freeFacePolygon;
        bool hasHoles = false;
 
-       std::vector< std::vector<uint>* > overlapPolygonPtrs;
+       std::vector< std::vector<cvf::uint>* > overlapPolygonPtrs;
        for (size_t pIdx = 0; pIdx < 1; ++pIdx)
        {
            overlapPolygonPtrs.push_back(&(overlapPolygons[pIdx]));
@@ -369,7 +368,7 @@ TEST(CellFaceIntersectionTst, Intersection1)
            &hasHoles
            );
 
-       EXPECT_EQ( 9, freeFacePolygon.size());
+       EXPECT_EQ( (size_t)9, freeFacePolygon.size());
        EXPECT_FALSE(hasHoles);
 
        std::cout << "FF2: " << freeFacePolygon << std::endl;
@@ -414,7 +413,7 @@ TEST(CellFaceIntersectionTst, Intersection)
  
     bool isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(&polygon, &additionalVertices, edgeIntersectionStorage, 
                                         wrapArrayConst(&nodes), cv1CubeFaceIndices, cv2CubeFaceIndices, 1e-6);
-    EXPECT_EQ( 4, polygon.size());
+    EXPECT_EQ( (size_t)4, polygon.size());
     EXPECT_EQ( (size_t)0, additionalVertices.size());
     EXPECT_TRUE(isOk);
 
@@ -432,7 +431,7 @@ TEST(CellFaceIntersectionTst, Intersection)
 
     isOk =  GeometryTools::calculateOverlapPolygonOfTwoQuads(&polygon, &additionalVertices, edgeIntersectionStorage,
                                             wrapArrayConst(&nodes), cv1CubeFaceIndices, cv2CubeFaceIndices, 1e-6);
-    EXPECT_EQ( 8, polygon.size());
+    EXPECT_EQ( (size_t)8, polygon.size());
     EXPECT_EQ( (size_t)8, additionalVertices.size());
     EXPECT_TRUE(isOk);
 
@@ -475,7 +474,7 @@ TEST(CellFaceIntersectionTst, FreeFacePolygon)
 
     bool isOk = GeometryTools::calculateOverlapPolygonOfTwoQuads(&polygon, &additionalVertices, edgeIntersectionStorage, 
         wrapArrayConst(&nodes), cv1CubeFaceIndices, cv2CubeFaceIndices, 1e-6);
-    EXPECT_EQ( 4, polygon.size());
+    EXPECT_EQ( (size_t)4, polygon.size());
     EXPECT_EQ( (size_t)0, additionalVertices.size());
     EXPECT_TRUE(isOk);
 
@@ -509,7 +508,7 @@ TEST(CellFaceIntersectionTst, FreeFacePolygon)
 
     isOk =  GeometryTools::calculateOverlapPolygonOfTwoQuads(&polygon, &additionalVertices, edgeIntersectionStorage, 
             wrapArrayConst(&nodes), cv1CubeFaceIndices, cv2CubeFaceIndices, 1e-6);
-    EXPECT_EQ( 8, polygon.size());
+    EXPECT_EQ( (size_t)8, polygon.size());
     EXPECT_EQ( (size_t)8, additionalVertices.size());
     EXPECT_TRUE(isOk);
 
