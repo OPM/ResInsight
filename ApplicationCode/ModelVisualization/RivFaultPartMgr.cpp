@@ -32,7 +32,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* faultCollection)
+RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* faultCollection)
 :   m_gridIdx(gridIdx),
     m_grid(grid),
     m_faultCollection(faultCollection)
@@ -43,7 +43,7 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, size_t gridIdx, const 
     {
         for (size_t i = 0; i < faultCollection->faults.size(); i++)
         {
-            m_faultParts.push_back(new RivFaultPart(grid, faultCollection->faults[i]));
+            m_faultParts.push_back(new RivFaultPartMgr(grid, faultCollection->faults[i]));
         }
     }
 }
@@ -51,14 +51,14 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, size_t gridIdx, const 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPartMgr::~RivFaultPartMgr()
+RivReservoirFaultsPartMgr::~RivReservoirFaultsPartMgr()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::setTransform(cvf::Transform* scaleTransform)
+void RivReservoirFaultsPartMgr::setTransform(cvf::Transform* scaleTransform)
 {
     m_scaleTransform = scaleTransform;
 }
@@ -66,7 +66,7 @@ void RivFaultPartMgr::setTransform(cvf::Transform* scaleTransform)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
+void RivReservoirFaultsPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
     CVF_ASSERT(cellVisibilities);
 
@@ -79,7 +79,7 @@ void RivFaultPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
+void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != NULL);
 
@@ -101,7 +101,7 @@ void RivFaultPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
         if (rimFault->showFault())
         {
-            cvf::ref<RivFaultPart> rivFaultPart = m_faultParts[i];
+            cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
 
             // Propagate settings from RimFaultCollection to RivFaultPart
             rivFaultPart->setShowNativeFaces(m_faultCollection->showFaultFaces());
@@ -125,7 +125,7 @@ void RivFaultPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellColor(cvf::Color4f color)
+void RivReservoirFaultsPartMgr::updateCellColor(cvf::Color4f color)
 {
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {
@@ -137,7 +137,7 @@ void RivFaultPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirFaultsPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {
@@ -148,7 +148,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivReservoirFaultsPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {

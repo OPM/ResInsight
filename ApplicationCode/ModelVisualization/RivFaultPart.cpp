@@ -52,7 +52,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
+RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFault)
     :   m_grid(grid),
         m_rimFault(rimFault),
         m_opacityLevel(1.0f),
@@ -76,7 +76,7 @@ RivFaultPart::RivFaultPart(const RigGridBase* grid, const RimFault* rimFault)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::setCellVisibility(cvf::UByteArray* cellVisibilities)
+void RivFaultPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
     m_nativeFaultGenerator.setCellVisibility(cellVisibilities);
     m_oppositeFaultGenerator.setCellVisibility(cellVisibilities);
@@ -87,7 +87,7 @@ void RivFaultPart::setCellVisibility(cvf::UByteArray* cellVisibilities)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::updateCellColor(cvf::Color4f color)
+void RivFaultPartMgr::updateCellColor(cvf::Color4f color)
 {
     m_defaultColor = color;
 
@@ -97,7 +97,7 @@ void RivFaultPart::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::setShowNativeFaces(bool showNativeFaces)
+void RivFaultPartMgr::setShowNativeFaces(bool showNativeFaces)
 {
     m_showNativeFaces = showNativeFaces;
 }
@@ -105,7 +105,7 @@ void RivFaultPart::setShowNativeFaces(bool showNativeFaces)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::setShowOppositeFaces(bool showOppositeFaces)
+void RivFaultPartMgr::setShowOppositeFaces(bool showOppositeFaces)
 {
     m_showOppositeFaces = showOppositeFaces;
 }
@@ -113,7 +113,7 @@ void RivFaultPart::setShowOppositeFaces(bool showOppositeFaces)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::setShowLabel(bool showLabel)
+void RivFaultPartMgr::setShowLabel(bool showLabel)
 {
     m_showLabel = showLabel;
 }
@@ -121,7 +121,7 @@ void RivFaultPart::setShowLabel(bool showLabel)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::setLimitFaultToVisibleCells(bool limitFaultToVisibleCells)
+void RivFaultPartMgr::setLimitFaultToVisibleCells(bool limitFaultToVisibleCells)
 {
     m_nativeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
     m_oppositeFaultGenerator.setLimitFaultsToFilter(limitFaultToVisibleCells);
@@ -132,7 +132,7 @@ void RivFaultPart::setLimitFaultToVisibleCells(bool limitFaultToVisibleCells)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     CVF_ASSERT(cellResultSlot);
 
@@ -237,7 +237,7 @@ void RivFaultPart::updateCellResultColor(size_t timeStepIndex, RimResultSlot* ce
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
 
     /*
@@ -267,7 +267,7 @@ void RivFaultPart::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::appendPartsToModel(cvf::ModelBasicList* model)
+void RivFaultPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 {
     CVF_ASSERT(model != NULL);
 
@@ -299,7 +299,7 @@ void RivFaultPart::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::generatePartGeometry()
+void RivFaultPartMgr::generatePartGeometry()
 {
     bool useBufferObjects = true;
     // Surface geometry
@@ -425,7 +425,7 @@ void RivFaultPart::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::updatePartEffect()
+void RivFaultPartMgr::updatePartEffect()
 {
     cvf::Color3f partColor = m_defaultColor.toColor3f();
 
@@ -482,7 +482,7 @@ void RivFaultPart::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivFaultPart::createLabelWithAnchorLine(const cvf::Part* part)
+void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
 {
     CVF_ASSERT(part);
 
@@ -565,7 +565,7 @@ void RivFaultPart::createLabelWithAnchorLine(const cvf::Part* part)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3f RivFaultPart::findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices)
+cvf::Vec3f RivFaultPartMgr::findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices)
 {
     CVF_ASSERT(vertices);
     

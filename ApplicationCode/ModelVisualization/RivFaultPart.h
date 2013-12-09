@@ -42,10 +42,10 @@ class RimFaultCollection;
 ///
 //==================================================================================================
 
-class RivFaultPart : public cvf::Object
+class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivFaultPart(const RigGridBase* grid, const RimFault* rimFault);
+    RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFault);
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 

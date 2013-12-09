@@ -64,5 +64,5 @@ public:
 private:
 
     cvf::Collection<RivGridPartMgr> m_allGrids; // Main grid and all LGR's 
-    cvf::Collection<RivFaultPartMgr> m_faults;
+    cvf::Collection<RivReservoirFaultsPartMgr> m_faults;
 };

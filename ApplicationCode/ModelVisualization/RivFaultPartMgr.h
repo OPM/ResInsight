@@ -36,11 +36,11 @@ class RimFaultCollection;
 //==================================================================================================
 ///
 //==================================================================================================
-class RivFaultPartMgr : public cvf::Object
+class RivReservoirFaultsPartMgr : public cvf::Object
 {
 public:
-    RivFaultPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* faultCollection);
-    ~RivFaultPartMgr();
+    RivReservoirFaultsPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* faultCollection);
+    ~RivReservoirFaultsPartMgr();
 
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
@@ -58,5 +58,5 @@ private:
     cvf::cref<RigGridBase>          m_grid;
     cvf::ref<cvf::Transform>        m_scaleTransform;
     const RimFaultCollection*       m_faultCollection;
-    cvf::Collection<RivFaultPart>   m_faultParts;
+    cvf::Collection<RivFaultPartMgr>   m_faultParts;
 };
