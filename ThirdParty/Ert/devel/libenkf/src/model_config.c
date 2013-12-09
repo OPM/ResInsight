@@ -534,7 +534,12 @@ history_type * model_config_get_history(const model_config_type * config) {
 }
 
 int model_config_get_last_history_restart(const model_config_type * config) {
-  return history_get_last_restart( config->history );
+  if (config->history)
+    return history_get_last_restart( config->history );
+  else {
+    fprintf(stderr,"** Warning: Trying to get the last restart number - no history object has been registered.\n");
+    return 0;
+  }
 }
 
 

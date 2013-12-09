@@ -220,6 +220,39 @@ void JobQueueRunJobs_ReuseQueue_AllOk(char ** argv) {
 
 }
 
+void JobQueueRunJobs_ReuseQueueWithStopTime_AllOk(char ** argv) {
+  printf("Running JobQueueRunJobs_ReuseQueueWithStopTime_AllOk\n");
+
+  int number_of_jobs = 3;
+  int number_of_slow_jobs = 2;
+  int number_of_queue_reuse = 3;
+
+  test_work_area_type * work_area = test_work_area_alloc("job_queue");
+
+  job_queue_type * queue = job_queue_alloc(number_of_jobs, "OK.status", "ERROR");
+  queue_driver_type * driver = queue_driver_alloc_local();
+  job_queue_set_driver(queue, driver);
+
+  for (int j = 0; j < number_of_queue_reuse; j++) {
+    submit_jobs_to_queue(queue, work_area, argv[1], number_of_jobs, number_of_slow_jobs, "1", "5", false);
+
+    job_queue_run_jobs(queue, number_of_jobs, true);
+    time_t current_time = time(NULL); 
+    job_queue_set_job_stop_time(queue, current_time); 
+
+    test_assert_int_equal(number_of_jobs, job_queue_get_num_complete(queue));
+    test_assert_bool_equal(false, job_queue_get_open(queue));
+    job_queue_reset(queue);
+    test_assert_bool_equal(true, job_queue_get_open(queue));
+    test_assert_int_equal(0, job_queue_get_num_complete(queue));
+  }
+  job_queue_free(queue);
+  queue_driver_free(driver);
+  test_work_area_free(work_area);
+
+}
+
+
 void JobQueueSetStopTime_StopTimeEarly_MinRealisationsAreRun(char ** argv) {
   printf("Running JobQueueSetStopTime_StopTimeEarly_MinRealisationsAreRun\n");
 
@@ -247,21 +280,6 @@ void JobQueueSetStopTime_StopTimeLate_AllRealisationsAreRun(char ** argv) {
   time(&currenttime);
   time_t stoptime = currenttime + 15;
   run_and_monitor_jobs(argv[1], max_duration_time, stoptime, min_realizations, num_expected_completed, interval_between_jobs);
-}
-
-void JobQueueSetStopTime_StopTimeMedium_MoreThanMinRealisationsAreRun(char ** argv) {
-  printf("Running JobQueueSetStopTime_StopTimeMedium_MoreThanMinRealisationsAreRun\n");
-
-  //Use stop_time to to stop jobs after min_realizations are finished
-  int min_realizations = 1;
-  int num_expected_completed = 2;
-  int max_duration_time = 0;
-  int interval_between_jobs = 3;
-  time_t currenttime;
-  time(&currenttime);
-  time_t stoptime = currenttime + 5;
-  run_and_monitor_jobs(argv[1], max_duration_time, stoptime, min_realizations, num_expected_completed, interval_between_jobs);
-
 }
 
 void JobQueueSetStopTimeAndMaxDuration_MaxDurationShort_StopTimeLate_MinRealisationsAreRun(char ** argv) {
@@ -449,7 +467,8 @@ void JobQueueSetAutoStopTime_AllJobsAreFinished_AutoStopDoesNothing(char ** argv
 
 int main(int argc, char ** argv) {
   JobQueueRunJobs_ReuseQueue_AllOk(argv);
-
+  JobQueueRunJobs_ReuseQueueWithStopTime_AllOk(argv);
+  
   JobQueueSetMaxDuration_DurationZero_AllRealisationsAreRun(argv);
   JobQueueSetMaxDuration_Duration5Seconds_KillsAllJobsWithDurationMoreThan5Seconds(argv);
   JobQueueSetMaxDurationRunJobsLoopInThread_Duration5Seconds_KillsAllJobsWithDurationMoreThan5Seconds(argv);
@@ -461,7 +480,6 @@ int main(int argc, char ** argv) {
 
   JobQueueSetStopTime_StopTimeEarly_MinRealisationsAreRun(argv);
   JobQueueSetStopTime_StopTimeLate_AllRealisationsAreRun(argv);
-  JobQueueSetStopTime_StopTimeMedium_MoreThanMinRealisationsAreRun(argv);
 
   JobQueueSetStopTimeAndMaxDuration_MaxDurationShort_StopTimeLate_MinRealisationsAreRun(argv);
   JobQueueSetStopTimeAndMaxDuration_MaxDurationLong_StopTimeEarly_MinRealisationsAreRun(argv);

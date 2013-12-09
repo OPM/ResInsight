@@ -109,21 +109,17 @@ void enkf_tui_run_restart__(void * enkf_main) {
 
 void enkf_tui_run_smoother(void * arg) {
   enkf_main_type * enkf_main  = enkf_main_safe_cast( arg );
-  enkf_main_run_smoother(enkf_main , "AUTO-SMOOTHER" , true );
+  int ens_size = enkf_main_get_ensemble_size( enkf_main );
+  bool_vector_type * iactive = bool_vector_alloc( ens_size , true );
+  enkf_main_run_smoother(enkf_main , "AUTO-SMOOTHER" , iactive , true );
+  bool_vector_free( iactive );
 }
 
 
 
 void enkf_tui_run_iterated_ES(void * arg) {
   enkf_main_type * enkf_main  = enkf_main_safe_cast( arg );
-  const ecl_config_type * ecl_config = enkf_main_get_ecl_config( enkf_main );
-  const int last_report = enkf_main_get_history_length( enkf_main );
-  int step2;
-  if (ecl_config_has_schedule( ecl_config ))
-    step2 = util_scanf_int_with_limits("Last report",PROMPT_LEN , 0 , last_report);  
-  else
-    step2 = last_report;
-  enkf_main_run_iterated_ES(enkf_main, step2);  
+  enkf_main_run_iterated_ES(enkf_main);  
 }
 
 void enkf_tui_run_one_more_iteration(void * arg){
@@ -172,7 +168,7 @@ void enkf_tui_run_exp(void * enkf_main) {
     free( prompt );
   }
   if (bool_vector_count_equal(iactive , true))
-    enkf_main_run_exp(enkf_main , iactive , true , init_step_parameters , start_report , init_state, true);
+    enkf_main_run_exp(enkf_main , iactive , true , init_step_parameters , start_report , init_state);
   
   bool_vector_free(iactive);
 }
@@ -198,7 +194,7 @@ void enkf_tui_run_create_runpath__(void * __enkf_main) {
     util_safe_free( select_string );
     free( prompt );
   }
-  enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state, true);
+  enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state);
   bool_vector_free(iactive);
 }
 
@@ -219,7 +215,7 @@ void enkf_tui_run_manual_load__( void * arg ) {
   bool_vector_type * iactive = bool_vector_alloc( 0 , false );
   run_mode_type run_mode = ENSEMBLE_EXPERIMENT; 
   
-  enkf_main_init_run(enkf_main , run_mode);     /* This is ugly */
+  enkf_main_init_run(enkf_main , iactive , run_mode , INIT_NONE);  /* This is ugly */
   
   step1 = 0;
   step2 = last_report;  /** Observe that for the summary data it will load all the available data anyway. */

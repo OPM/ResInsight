@@ -30,7 +30,7 @@ class RowPanel(QWidget):
         self.__row += 2
         self.__layout.setRowStretch(self.__row, 1)
 
-    def addRow(self, row_widget, configurator=None):
+    def addRow(self, row_widget, configurator=None, configuration_title="Configure"):
         """
         Add a new row on a configuration page. Returns the row widget.
         If the row does not have a getLabel() function the row spans both columns.
@@ -48,7 +48,8 @@ class RowPanel(QWidget):
             self.__layout.addWidget(row_widget, self.__row, 3)
 
         if not configurator is None:
-            button = self.__addConfigurationButton(configurator)
+            self.__layout.setColumnMinimumWidth(4, 20)
+            button = self.__addConfigurationButton(configurator, configuration_title)
             self.__layout.addWidget(button, self.__row, 5)
 
         self.__widgets[row_widget] = self.__row
@@ -135,10 +136,10 @@ class RowPanel(QWidget):
         self.__rowFinished()
 
 
-    def __addConfigurationButton(self, configurator):
+    def __addConfigurationButton(self, configurator, configuration_title):
         popup = PopupDialog(configurator.getName(), configurator, self)
         button = popup.getButton()
-        button.setText("Configure")
+        button.setText(configuration_title)
         self.__popups.append(popup)
         return button
 

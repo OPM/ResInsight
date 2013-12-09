@@ -504,7 +504,7 @@ class BoolVector(TVector):
         super(BoolVector, self).__init__(default_value, initial_size)
 
     @classmethod
-    def active_mask(cls , range_string):
+    def active_mask(cls, range_string):
         """
         Will create a BoolVector instance with the values from @range_string.
 
@@ -520,6 +520,16 @@ class BoolVector(TVector):
         @rtype: BoolVector
         """
         return cls.cNamespace().create_active_mask(range_string)
+
+    @classmethod
+    def updateActiveMask(cls, range_string, bool_vector):
+        """
+        Updates a bool vector based on a range string.
+        @type range_string: str
+        @type bool_vector: BoolVector
+        @rtype: bool
+        """
+        return cls.cNamespace().update_active_mask(range_string, bool_vector)
 
     @classmethod
     def createFromList(cls, size, source_list):
@@ -559,6 +569,7 @@ class IntVector(TVector):
         The empty list will evaluate to false
         """
         return cls.cNamespace().create_active_list(range_string)
+
 
 
 class TimeVector(TVector):
@@ -699,6 +710,7 @@ BoolVector.cNamespace().data_ptr            = cwrapper.prototype("bool*  bool_ve
 BoolVector.cNamespace().element_size        = cwrapper.prototype("int    bool_vector_element_size( bool_vector )")
 
 BoolVector.cNamespace().create_active_mask = cwrapper.prototype("bool_vector_obj string_util_alloc_active_mask( char* )")
+BoolVector.cNamespace().update_active_mask = cwrapper.prototype("bool string_util_update_active_mask(char*, bool_vector)")
 
 
 TimeVector.cNamespace().alloc               = cwrapper.prototype("c_void_p time_t_vector_alloc(int, time_t )")

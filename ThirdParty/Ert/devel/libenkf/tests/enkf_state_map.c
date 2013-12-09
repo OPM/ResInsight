@@ -35,6 +35,7 @@ void create_test() {
   state_map_type * state_map = state_map_alloc();
   test_assert_true( state_map_is_instance( state_map ));
   test_assert_int_equal( 0 , state_map_get_size( state_map ));
+  test_assert_false( state_map_is_readonly( state_map ));
   state_map_free( state_map );
 }
 
@@ -178,7 +179,7 @@ void test_update_matching( ) {
 
 void test_select_matching( ) {
   state_map_type * map = state_map_alloc( );
-  bool_vector_type * mask1 = bool_vector_alloc(0 , false);
+  bool_vector_type * mask1 = bool_vector_alloc(21 , false);
   bool_vector_type * mask2 = bool_vector_alloc(1000 , true);
 
   state_map_iset( map , 10 , STATE_INITIALIZED );
@@ -186,8 +187,6 @@ void test_select_matching( ) {
   state_map_iset( map , 20 , STATE_INITIALIZED );
   state_map_select_matching( map , mask1 , STATE_HAS_DATA | STATE_INITIALIZED );
   state_map_select_matching( map , mask2 , STATE_HAS_DATA | STATE_INITIALIZED );
-  
-  test_assert_int_equal( state_map_get_size( map ) , bool_vector_size( mask1 ));
   
   for (int i=0; i < bool_vector_size( mask1 ); i++) {
     if (i==10)
@@ -200,6 +199,10 @@ void test_select_matching( ) {
     }
   }
     
+  state_map_iset( map , 50 , STATE_INITIALIZED );
+  state_map_select_matching( map , mask1 , STATE_HAS_DATA | STATE_INITIALIZED );
+  test_assert_int_equal(bool_vector_size( mask1 ), 21); 
+  
   bool_vector_free( mask1 );
   bool_vector_free( mask2 );
   state_map_free( map );
@@ -281,6 +284,72 @@ void test_count_matching() {
   state_map_free( map1 );
 }
 
+// Probably means that the target should be explicitly set to
+// undefined before workflows which automatically change case.
+void test_transitions() {
+
+  test_assert_false( state_map_legal_transition(STATE_UNDEFINED , STATE_UNDEFINED ));
+  test_assert_true( state_map_legal_transition(STATE_UNDEFINED  , STATE_INITIALIZED ));
+  test_assert_false( state_map_legal_transition(STATE_UNDEFINED , STATE_HAS_DATA ));
+  test_assert_false( state_map_legal_transition(STATE_UNDEFINED , STATE_LOAD_FAILURE ));
+  test_assert_true( state_map_legal_transition(STATE_UNDEFINED  , STATE_PARENT_FAILURE ));
+  
+  test_assert_false( state_map_legal_transition(STATE_INITIALIZED , STATE_UNDEFINED ));
+  test_assert_true( state_map_legal_transition(STATE_INITIALIZED  , STATE_INITIALIZED ));
+  test_assert_true( state_map_legal_transition(STATE_INITIALIZED  , STATE_HAS_DATA ));
+  test_assert_true( state_map_legal_transition(STATE_INITIALIZED  , STATE_LOAD_FAILURE ));
+  test_assert_true( state_map_legal_transition(STATE_INITIALIZED  , STATE_PARENT_FAILURE ));    // Should maybe false - if the commenta baove is taken into account.
+  
+  test_assert_false( state_map_legal_transition(STATE_HAS_DATA , STATE_UNDEFINED ));
+  test_assert_true( state_map_legal_transition(STATE_HAS_DATA  , STATE_INITIALIZED ));
+  test_assert_true( state_map_legal_transition(STATE_HAS_DATA  , STATE_HAS_DATA ));
+  test_assert_true( state_map_legal_transition(STATE_HAS_DATA  , STATE_LOAD_FAILURE ));
+  test_assert_true( state_map_legal_transition(STATE_HAS_DATA  , STATE_PARENT_FAILURE ));   // Rerun
+
+  test_assert_false( state_map_legal_transition(STATE_LOAD_FAILURE , STATE_UNDEFINED ));
+  test_assert_true( state_map_legal_transition(STATE_LOAD_FAILURE  , STATE_INITIALIZED ));
+  test_assert_true( state_map_legal_transition(STATE_LOAD_FAILURE  , STATE_HAS_DATA ));
+  test_assert_false( state_map_legal_transition(STATE_LOAD_FAILURE  , STATE_LOAD_FAILURE ));
+  test_assert_false( state_map_legal_transition(STATE_LOAD_FAILURE  , STATE_PARENT_FAILURE ));   
+
+  test_assert_false( state_map_legal_transition(STATE_PARENT_FAILURE , STATE_UNDEFINED ));
+  test_assert_true( state_map_legal_transition(STATE_PARENT_FAILURE  , STATE_INITIALIZED ));
+  test_assert_false( state_map_legal_transition(STATE_PARENT_FAILURE  , STATE_HAS_DATA ));
+  test_assert_false( state_map_legal_transition(STATE_PARENT_FAILURE  , STATE_LOAD_FAILURE ));
+  test_assert_true( state_map_legal_transition(STATE_PARENT_FAILURE  , STATE_PARENT_FAILURE ));   
+}
+
+
+
+void test_readonly() {
+  {
+    state_map_type * map1 = state_map_fread_alloc_readonly("FileDoesNotExist");
+    
+    test_assert_true(state_map_is_instance(map1));
+    test_assert_int_equal(0 , state_map_get_size( map1 ));
+    test_assert_true( state_map_is_readonly( map1 ));
+    state_map_free(map1);
+  }
+  {
+    test_work_area_type * work_area = test_work_area_alloc("state-map");
+    state_map_type * map1 = state_map_alloc();
+    
+    state_map_iset(map1 , 5 , STATE_INITIALIZED);
+    state_map_iset(map1 , 9 , STATE_INITIALIZED);
+
+    state_map_fwrite(map1 , "map1");
+    {
+      state_map_type * map2 = state_map_fread_alloc_readonly("map1");
+      
+      test_assert_true(state_map_equal(map1 , map2));
+      state_map_free(map2);
+    }
+    test_work_area_free( work_area );
+    state_map_free(map1);
+  }
+}
+
+
 int main(int argc , char ** argv) {
   create_test();
   get_test();
@@ -292,6 +361,8 @@ int main(int argc , char ** argv) {
   test_update_undefined( );
   test_select_matching();
   test_count_matching();
+  test_transitions();
+  test_readonly();
   exit(0);
 }
 

@@ -22,9 +22,10 @@
 #include <ert/util/util.h>
 #include <ert/util/vector.h>  
 #include <ert/util/type_macros.h>
+#include <ert/util/int_vector.h>
 
 #include <ert/ecl/nnc_vector.h>
-#include <ert/ecl/nnc_index_list.h>
+
 
 
 #define NNC_VECTOR_TYPE_ID 875615078
@@ -32,8 +33,9 @@
 
 struct nnc_vector_struct {
   UTIL_TYPE_ID_DECLARATION;
-  nnc_index_list_type  * index_list;
-  int                    lgr_nr;
+  int                lgr_nr;
+  int_vector_type * grid_index_list;
+  int_vector_type * nnc_index_list;
 }; 
 
 
@@ -45,13 +47,15 @@ static UTIL_SAFE_CAST_FUNCTION(nnc_vector , NNC_VECTOR_TYPE_ID)
 nnc_vector_type * nnc_vector_alloc(int lgr_nr) {
   nnc_vector_type * nnc_vector = util_malloc( sizeof * nnc_vector );
   UTIL_TYPE_ID_INIT(nnc_vector , NNC_VECTOR_TYPE_ID);
-  nnc_vector->index_list = nnc_index_list_alloc();
+  nnc_vector->grid_index_list = int_vector_alloc(0,0);
+  nnc_vector->nnc_index_list  = int_vector_alloc(0,0);
   nnc_vector->lgr_nr = lgr_nr;
   return nnc_vector; 
 }
 
 void nnc_vector_free( nnc_vector_type * nnc_vector ) {
-  nnc_index_list_free( nnc_vector->index_list );
+  int_vector_free( nnc_vector->grid_index_list );
+  int_vector_free( nnc_vector->nnc_index_list );
   free( nnc_vector ); 
 }
 
@@ -62,15 +66,23 @@ void nnc_vector_free__(void * arg) {
 }
 
 
-void nnc_vector_add_nnc(nnc_vector_type * nnc_vector, int global_cell_number) {
-  nnc_index_list_add_index( nnc_vector->index_list , global_cell_number );
+void nnc_vector_add_nnc(nnc_vector_type * nnc_vector, int global_cell_number , int nnc_index) {
+  int_vector_append( nnc_vector->grid_index_list , global_cell_number );
+  int_vector_append( nnc_vector->nnc_index_list , nnc_index);
 }
    
 
-const int_vector_type * nnc_vector_get_index_list(nnc_vector_type * nnc_vector) {
-  return nnc_index_list_get_list(nnc_vector->index_list);
+const int_vector_type * nnc_vector_get_grid_index_list(const nnc_vector_type * nnc_vector) {
+  return nnc_vector->grid_index_list;
 }
 
+const int_vector_type * nnc_vector_get_nnc_index_list(const nnc_vector_type * nnc_vector) {
+  return nnc_vector->nnc_index_list;
+}
+
+int nnc_vector_get_size( const nnc_vector_type * nnc_vector ) {
+  return int_vector_size( nnc_vector->grid_index_list );
+}
 
 int nnc_vector_get_lgr_nr( const nnc_vector_type * nnc_vector ) {
   return nnc_vector->lgr_nr;

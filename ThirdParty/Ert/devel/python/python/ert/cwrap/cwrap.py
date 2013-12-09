@@ -23,10 +23,10 @@ correct restype and argtypes attributes of the function objects.
 import ctypes
 import re
 import sys
+from ert.cwrap import BaseCClass
 
 
 prototype_pattern = "(?P<return>[a-zA-Z][a-zA-Z0-9_*]*) +(?P<function>[a-zA-Z]\w*) *[(](?P<arguments>[a-zA-Z0-9_*, ]*)[)]"
-
 
 class CWrapper:
     # Observe that registered_types is a class attribute, shared
@@ -39,14 +39,16 @@ class CWrapper:
 
     @classmethod
     def registerType(cls, type_name, value):
-        """Register a type against a legal ctypes type"""
+        """Register a type against a legal ctypes type or a callable (or class)"""
+        # if type_name in cls.registered_types:
+        #     print("Type %s already exists!" % type_name)
         cls.registered_types[type_name] = value
 
     @classmethod
     def registerDefaultTypes(cls):
         """Registers the default available types for prototyping."""
         cls.registerType("void", None)
-        cls.registerType("c_ptr", ctypes.c_void_p)
+        cls.registerType("void*", ctypes.c_void_p)
         cls.registerType("int", ctypes.c_int)
         cls.registerType("int*", ctypes.POINTER(ctypes.c_int))
         cls.registerType("size_t", ctypes.c_size_t)
@@ -98,6 +100,9 @@ class CWrapper:
             double* -> POINTER(c_double)
             char* -> c_char_p
             ...
+
+        In addition, user register types are recognized and any type registered as a reference
+        to BaseCClass createCReference and createPythonObject are treated as pointers and converted automatically.
         """
 
         match = re.match(CWrapper.pattern, prototype)
@@ -106,11 +111,24 @@ class CWrapper:
             return None
         else:
             restype = match.groupdict()["return"]
-            functioname = match.groupdict()["function"]
+            function_name = match.groupdict()["function"]
             arguments = match.groupdict()["arguments"].split(",")
 
-            func = getattr(self.lib, functioname)
-            func.restype = self.__parseType(restype)
+            func = getattr(self.lib, function_name)
+
+            return_type = self.__parseType(restype)
+            func.restype = return_type
+
+            if hasattr(return_type, "__call__"):
+                #The return type is a callable check if it is bound and the instance is a BaseCClass
+                if hasattr(return_type, "__self__") and issubclass(return_type.__self__, BaseCClass):
+                    func.restype = ctypes.c_void_p
+
+                    def returnFunction(result, func, arguments):
+                        return return_type(result)
+
+                    func.errcheck = returnFunction
+
 
             if len(arguments) == 1 and arguments[0].strip() == "":
                 func.argtypes = []

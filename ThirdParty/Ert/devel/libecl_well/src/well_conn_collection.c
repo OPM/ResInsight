@@ -100,16 +100,23 @@ well_conn_type * well_conn_collection_iget(const well_conn_collection_type * wel
 }
 
 
-int well_conn_collection_load_from_kw( well_conn_collection_type * wellcc , const ecl_kw_type * iwel_kw , const ecl_kw_type * icon_kw , int iwell , const ecl_rsthead_type * rst_head) {
+int well_conn_collection_load_from_kw( well_conn_collection_type * wellcc , 
+                                       const ecl_kw_type * iwel_kw , 
+                                       const ecl_kw_type * icon_kw , 
+                                       const ecl_kw_type * scon_kw , 
+                                       int iwell , 
+                                       const ecl_rsthead_type * rst_head) {
+  
   const int iwel_offset = rst_head->niwelz * iwell;
   int num_connections   = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_CONNECTIONS_ITEM );
   int iconn;
 
   for (iconn = 0; iconn < num_connections; iconn++) {
-    well_conn_type * conn = well_conn_alloc_from_kw( icon_kw , rst_head , iwell , iconn ); 
+    well_conn_type * conn = well_conn_alloc_from_kw( icon_kw , scon_kw , rst_head , iwell , iconn ); 
     if (conn)
       well_conn_collection_add( wellcc , conn );
   }
   return num_connections;
+  
 }
 

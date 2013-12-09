@@ -261,9 +261,10 @@
   Name of the default case.
 */
 
-#define CASE_LOG     "case-log"
-#define CURRENT_CASE "current"
-#define DEFAULT_CASE "default"
+#define CASE_LOG          "case-log"
+#define CURRENT_CASE      "current"
+#define DEFAULT_CASE      "default"
+#define CURRENT_CASE_FILE "current_case"
 
 #define DEFAULT_PLAIN_NODE_PARAMETER_PATH           "tstep/%04d/mem%03d/Parameter"
 #define DEFAULT_PLAIN_NODE_STATIC_PATH              "tstep/%04d/mem%03d/Static"

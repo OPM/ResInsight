@@ -96,6 +96,8 @@ void * update_time_map( void * arg ) {
   int i;
   for (i=0; i < MAP_SIZE; i++)
     time_map_update( time_map , i , i );
+
+  test_assert_int_equal( MAP_SIZE , time_map_get_size( time_map ));
   return NULL;
 }
 

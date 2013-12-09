@@ -14,20 +14,19 @@
 #  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> 
 #  for more details.
 from PyQt4.QtGui import QLabel, QFont
-from ert_gui.models.mixins import TextModelMixin
+from ert_gui.models.mixins import BasicModelMixin
 from ert_gui.widgets.helped_widget import HelpedWidget
 
 
 class ActiveLabel(HelpedWidget):
     """Label shows a string. The model must be a TextModelMixin"""
 
-    def __init__(self, model, label="", help_link="", default_string=""):
+    def __init__(self, model, label="", help_link=""):
         HelpedWidget.__init__(self, label, help_link)
 
-        assert isinstance(model, TextModelMixin)
+        assert isinstance(model, BasicModelMixin)
         self.model = model
-        self.model.observable().attach(TextModelMixin.INITIALIZED_EVENT, self.modelChanged)
-        self.model.observable().attach(TextModelMixin.TEXT_VALUE_CHANGED_EVENT, self.modelChanged)
+        self.model.observable().attach(BasicModelMixin.VALUE_CHANGED_EVENT, self.modelChanged)
 
         self.active_label = QLabel()
         self.addWidget(self.active_label)
@@ -36,12 +35,12 @@ class ActiveLabel(HelpedWidget):
         font.setWeight(QFont.Bold)
         self.active_label.setFont(font)
 
-        self.active_label.setText(default_string)
+        self.modelChanged()
 
 
     def modelChanged(self):
         """Retrieves data from the model and inserts it into the edit line"""
-        self_get_from_model = self.model.getText()
+        self_get_from_model = self.model.getValue()
         if self_get_from_model is None:
             self_get_from_model = ""
 

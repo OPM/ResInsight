@@ -1,3 +1,3 @@
 #!/bin/sh
-cd $1
+cd "$1"
 git rev-parse HEAD

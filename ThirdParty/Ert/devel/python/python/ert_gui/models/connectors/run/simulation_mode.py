@@ -1,11 +1,10 @@
 from ert_gui.models import ErtConnector
-from ert_gui.models.connectors.run import EnsembleExperiment, EnkfAssimilation, Smoother, IteratedSmoother
+from ert_gui.models.connectors.run import EnsembleExperiment, EnsembleSmoother, IteratedEnsembleSmoother
 from ert_gui.models.mixins import ChoiceModelMixin
 
 
 class SimulationModeModel(ErtConnector, ChoiceModelMixin):
-    # __modes = ["Ensemble experiment", "EnKF assimilation", "Smoother", "Iterated Smoother"]
-    __modes = [EnsembleExperiment(), EnkfAssimilation(), Smoother(), IteratedSmoother()]
+    __modes = [EnsembleExperiment(), EnsembleSmoother(), IteratedEnsembleSmoother()]
 
     def __init__(self):
         self.__value = SimulationModeModel.__modes[0]

@@ -14,9 +14,12 @@ class RowGroup(HelpedWidget):
         widget.setLayout(self.layout)
 
         HelpedWidget.addWidget(self, widget)
-        self.addStretch()
+        self.hideValidationLabel()
 
     def addWidget(self, widget):
         self.layout.addWidget(widget)
+
+    def addGroupStretch(self):
+        self.layout.addStretch(1)
 
 

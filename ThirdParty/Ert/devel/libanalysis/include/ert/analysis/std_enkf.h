@@ -13,6 +13,8 @@ extern "C" {
 #define  DEFAULT_ENKF_TRUNCATION_  0.98
 #define  ENKF_TRUNCATION_KEY_      "ENKF_TRUNCATION"
 #define  ENKF_NCOMP_KEY_           "ENKF_NCOMP" 
+#define  ENKF_LAMBDA0_KEY_         "LAMBDA0"
+#define  ENKF_ITER_KEY_            "ITER"
 
   typedef struct std_enkf_data_struct std_enkf_data_type;
 
@@ -24,6 +26,7 @@ extern "C" {
   int      std_enkf_get_subspace_dimension( std_enkf_data_type * data );
   void     std_enkf_set_truncation( std_enkf_data_type * data , double truncation );
   void     std_enkf_set_subspace_dimension( std_enkf_data_type * data , int subspace_dimension);
+  void     std_enkf_set_lambda0( std_enkf_data_type * data , double lambda0 );
   
   
   double   std_enkf_get_truncation( std_enkf_data_type * data );

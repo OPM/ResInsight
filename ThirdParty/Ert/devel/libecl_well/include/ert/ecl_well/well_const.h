@@ -79,6 +79,7 @@ extern "C" {
 #define ICON_DEFAULT_DIR_VALUE    0
 #define ICON_DEFAULT_DIR_TARGET   ICON_DIRZ
 
+#define SCON_CF_ITEM              0
 
 #define RSEG_LENGTH_INDEX       0
 #define RSEG_DIAMETER_INDEX     2

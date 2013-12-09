@@ -120,24 +120,27 @@ void ert_workflow_list_add_job( ert_workflow_list_type * workflow_list , const c
 
 void ert_workflow_list_add_jobs_in_directory( ert_workflow_list_type * workflow_list , const char * path , log_type * logh) {
   DIR * dirH = opendir( path );
-  while (true) {
-    struct dirent * entry = readdir( dirH );
-    if (entry != NULL) {
-      if ((strcmp(entry->d_name , ".") != 0) && (strcmp(entry->d_name , "..") != 0)) {
-        char * full_path = util_alloc_filename( path , entry->d_name , NULL );
-
-        if (util_is_file( full_path )) {
-          if (log_is_open( logh ))
-            log_add_message( logh , 1 , NULL , util_alloc_sprintf("Adding workflow job:%s " , full_path ), true);
-          ert_workflow_list_add_job( workflow_list , entry->d_name , full_path );
+  if (dirH) {
+    while (true) {
+      struct dirent * entry = readdir( dirH );
+      if (entry != NULL) {
+        if ((strcmp(entry->d_name , ".") != 0) && (strcmp(entry->d_name , "..") != 0)) {
+          char * full_path = util_alloc_filename( path , entry->d_name , NULL );
+          
+          if (util_is_file( full_path )) {
+            if (log_is_open( logh ))
+              log_add_message( logh , 1 , NULL , util_alloc_sprintf("Adding workflow job:%s " , full_path ), true);
+            ert_workflow_list_add_job( workflow_list , entry->d_name , full_path );
+          }
+          
+          free( full_path );
         }
-        
-        free( full_path );
-      }
-    } else 
-      break;
-  }
-  closedir( dirH );
+      } else 
+        break;
+    }
+    closedir( dirH );
+  } else
+    fprintf(stderr, "** Warning: failed to open workflow/jobs directory: %s\n", path);
 }
 
 
@@ -188,7 +191,7 @@ void ert_workflow_list_init( ert_workflow_list_type * workflow_list , config_typ
 void ert_workflow_list_add_config_items( config_type * config ) {
   config_schema_item_type * item = config_add_schema_item( config , WORKFLOW_JOB_DIRECTORY_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , 1 );
-  config_schema_item_iset_type( item , 0 , CONFIG_EXISTING_PATH );
+  config_schema_item_iset_type( item , 0 , CONFIG_PATH );
 
   item = config_add_schema_item( config , LOAD_WORKFLOW_KEY , false  );
   config_schema_item_set_argc_minmax(item , 1 , 2 );

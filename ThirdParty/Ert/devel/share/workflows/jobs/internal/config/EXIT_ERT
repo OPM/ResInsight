@@ -1,0 +1,4 @@
+INTERNAL    True
+FUNCTION    enkf_main_exit_JOB
+MIN_ARG     0
+MAX_ARG     0

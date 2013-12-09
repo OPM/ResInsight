@@ -21,3 +21,4 @@ CONFIG_LIB = clib.ert_load("libconfig.so")
 from .unrecognized_enum import UnrecognizedEnum
 from .content_type_enum import ContentTypeEnum
 from .config_parser import ConfigParser, SchemaItem, ContentItem, ContentNode
+from .config_error import ConfigError

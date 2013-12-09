@@ -27,26 +27,23 @@ class EnKFLibraryTest(ExtendedTestCase):
 
 
     def test_ecl_config_creation(self):
-        with self.assertRaises(NotImplementedError):
-            ecl_config = EclConfig()
-
         with TestAreaContext("enkf_library_test") as work_area:
             work_area.copy_directory(self.case_directory)
 
             main = EnKFMain("simple_config/minimum_config", self.site_config)
 
-            self.assertIsInstance(main.analysis_config(), AnalysisConfig)
-            self.assertIsInstance(main.ecl_config(), EclConfig)
+            self.assertIsInstance(main.analysisConfig(), AnalysisConfig)
+            self.assertIsInstance(main.eclConfig(), EclConfig)
 
-            with self.assertRaises(AttributeError):
-                self.assertIsInstance(main.ecl_config().get_refcase(), EclSum)
+            with self.assertRaises(ValueError): # Null pointer!
+                self.assertIsInstance(main.eclConfig().getRefcase(), EclSum)
 
-            file_system = main.getFileSystem()
+            file_system = main.getEnkfFsManager().getFileSystem()
             self.assertEqual(file_system.getCaseName(), "default")
             time_map = file_system.get_time_map()
             self.assertIsInstance(time_map, TimeMap)
 
-            del main
+            main.free()
 
 
 

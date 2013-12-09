@@ -9,5 +9,5 @@ set(PYTHON_SOURCES
     summary_config.py
 )
 
-add_python_package("Python ert.enkf.data"  ${PYTHON_INSTALL_PREFIX}/ert/enkf/data "${PYTHON_SOURCES}" True)
+add_python_package("python.ert.enkf.data"  ${PYTHON_INSTALL_PREFIX}/ert/enkf/data "${PYTHON_SOURCES}" True)
 

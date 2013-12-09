@@ -49,6 +49,7 @@ struct  well_conn_struct {
   bool               open;         
   int                segment_id;             // -1: Ordinary well
   bool               matrix_connection;   // k >= nz => fracture (and k -= nz )
+  double             connection_factor;
 };
   
 
@@ -58,6 +59,10 @@ bool well_conn_equal( const well_conn_type *conn1  , const well_conn_type * conn
     return true;
   else
     return false;
+}
+
+double well_conn_get_connection_factor( const well_conn_type * conn ) {
+  return conn->connection_factor;
 }
 
 
@@ -80,7 +85,7 @@ UTIL_IS_INSTANCE_FUNCTION( well_conn , WELL_CONN_TYPE_ID)
 UTIL_SAFE_CAST_FUNCTION( well_conn , WELL_CONN_TYPE_ID)
 
 
-static well_conn_type * well_conn_alloc__( int i , int j , int k , well_conn_dir_enum dir , bool open, int segment_id, bool matrix_connection) {
+static well_conn_type * well_conn_alloc__( int i , int j , int k , double connection_factor , well_conn_dir_enum dir , bool open, int segment_id, bool matrix_connection) {
   if (well_conn_assert_direction( dir , matrix_connection)) {
     well_conn_type * conn = util_malloc( sizeof * conn );
     UTIL_TYPE_ID_INIT( conn , WELL_CONN_TYPE_ID );
@@ -89,6 +94,7 @@ static well_conn_type * well_conn_alloc__( int i , int j , int k , well_conn_dir
     conn->k = k;
     conn->open = open;
     conn->dir = dir;
+    conn->connection_factor = connection_factor;
     
     conn->matrix_connection = matrix_connection;
     if (segment_id == CONN_NORMAL_WELL_SEGMENT_VALUE)
@@ -104,26 +110,26 @@ static well_conn_type * well_conn_alloc__( int i , int j , int k , well_conn_dir
 }
 
 
-well_conn_type * well_conn_alloc( int i , int j , int k , well_conn_dir_enum dir , bool open) {
-  return well_conn_alloc__(i , j , k , dir , open , WELL_CONN_NORMAL_WELL_SEGMENT_ID , true );
+well_conn_type * well_conn_alloc( int i , int j , int k , double connection_factor , well_conn_dir_enum dir , bool open) {
+  return well_conn_alloc__(i , j , k , connection_factor , dir , open , WELL_CONN_NORMAL_WELL_SEGMENT_ID , true );
 }
 
 
 
-well_conn_type * well_conn_alloc_MSW( int i , int j , int k , well_conn_dir_enum dir , bool open, int segment_id) {
-  return well_conn_alloc__(i , j , k , dir , open , segment_id , true );
+well_conn_type * well_conn_alloc_MSW( int i , int j , int k , double connection_factor , well_conn_dir_enum dir , bool open, int segment_id) {
+  return well_conn_alloc__(i , j , k , connection_factor , dir , open , segment_id , true );
 }
 
 
 
-well_conn_type * well_conn_alloc_fracture( int i , int j , int k , well_conn_dir_enum dir , bool open) {
-  return well_conn_alloc__(i , j , k , dir , open , WELL_CONN_NORMAL_WELL_SEGMENT_ID , false);
+well_conn_type * well_conn_alloc_fracture( int i , int j , int k , double connection_factor , well_conn_dir_enum dir , bool open) {
+  return well_conn_alloc__(i , j , k , connection_factor , dir , open , WELL_CONN_NORMAL_WELL_SEGMENT_ID , false);
 }
 
 
 
-well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , well_conn_dir_enum dir , bool open, int segment_id) {
-  return well_conn_alloc__(i , j , k , dir , open , segment_id , false);
+well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , double connection_factor , well_conn_dir_enum dir , bool open, int segment_id) {
+  return well_conn_alloc__(i , j , k , connection_factor , dir , open , segment_id , false);
 }
 
 
@@ -134,6 +140,7 @@ well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , well_conn
   aligned with the rest of the ert libraries.  
 */
 well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw , 
+                                          const ecl_kw_type * scon_kw , 
                                           const ecl_rsthead_type * header , 
                                           int well_nr , 
                                           int conn_nr ) {
@@ -145,6 +152,7 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
     int i       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_I_ITEM ) - 1;
     int j       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_J_ITEM ) - 1;
     int k       = ecl_kw_iget_int( icon_kw , icon_offset + ICON_K_ITEM ) - 1;
+    double connection_factor = -1;
     int segment_id = ecl_kw_iget_int( icon_kw , icon_offset + ICON_SEGMENT_ITEM ) - ECLIPSE_WELL_SEGMENT_OFFSET + WELL_SEGMENT_OFFSET;
     bool matrix_connection = true;
     bool open;
@@ -199,29 +207,18 @@ well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw ,
       }
     }
     
-    conn = well_conn_alloc__(i,j,k,dir,open,segment_id,matrix_connection);
+    if (scon_kw) {
+      const int scon_offset = header->nsconz * ( header->ncwmax * well_nr + conn_nr );
+      connection_factor = ecl_kw_iget_as_double(scon_kw , scon_offset + SCON_CF_ITEM);
+    }
+    
+    conn = well_conn_alloc__(i,j,k,connection_factor,dir,open,segment_id,matrix_connection);
     
     /**
        For multisegmented wells ONLY the global part of the restart
        file has segment information, i.e. the ?SEG
        keywords. Consequently iseg_kw will be NULL for the part of a
        MSW + LGR well.
-    */
-    
-    /*
-    if (iseg_kw != NULL) {
-      if (conn->segment != WELL_CONN_NORMAL_WELL_SEGMENT_ID) {
-        const int iseg_offset = header->nisegz * ( header->nsegmx * seg_well_nr + conn->segment );
-        conn->outlet_segment = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_OUTLET_ITEM );  
-        conn->branch         = ecl_kw_iget_int( iseg_kw , iseg_offset + ISEG_BRANCH_ITEM );  
-      } else {
-        conn->branch = 0;
-        conn->outlet_segment = 0;
-      }
-    } else {
-      conn->branch = 0;
-      conn->outlet_segment = 0;
-    }
     */
     
     return conn;
@@ -251,6 +248,7 @@ well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const e
     int conn_k = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_HEADK_ITEM ) - 1;
     bool matrix_connection = true;
     bool open = true;
+    double connection_factor = -1;
 
     if (header->dualp) {
       int geometric_nz = header->nz / 2;
@@ -261,9 +259,9 @@ well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const e
     }
     
     if (matrix_connection)
-      return well_conn_alloc( conn_i , conn_j , conn_k , open , well_conn_dirZ );
+      return well_conn_alloc( conn_i , conn_j , conn_k , connection_factor , open , well_conn_dirZ );
     else
-      return well_conn_alloc_fracture( conn_i , conn_j , conn_k , open , well_conn_dirZ );
+      return well_conn_alloc_fracture( conn_i , conn_j , conn_k , connection_factor , open , well_conn_dirZ );
   } else
     // The well is completed in this LGR - however the wellhead is in another LGR.
     return NULL;

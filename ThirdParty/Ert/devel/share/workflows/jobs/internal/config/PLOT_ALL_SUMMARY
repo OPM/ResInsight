@@ -1,0 +1,5 @@
+INTERNAL    True
+FUNCTION    enkf_tui_plot_all_summary_JOB
+MIN_ARG     0
+
+

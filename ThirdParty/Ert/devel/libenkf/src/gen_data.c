@@ -305,7 +305,6 @@ bool gen_data_fload_with_report_step( gen_data_type * gen_data , const char * fi
   } 
   gen_data_set_data__(gen_data , size , report_step , load_type , buffer );
   util_safe_free(buffer);
-  printf("Returning %s:%d \n",filename , has_file);
   return has_file;
 }
 

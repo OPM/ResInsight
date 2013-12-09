@@ -4,5 +4,5 @@ set(PYTHON_SOURCES
     summary_observation.py
 )
 
-add_python_package("Python ert.enkf.observations"  ${PYTHON_INSTALL_PREFIX}/ert/enkf/observations "${PYTHON_SOURCES}" True)
+add_python_package("python.ert.enkf.observations"  ${PYTHON_INSTALL_PREFIX}/ert/enkf/observations "${PYTHON_SOURCES}" True)
 

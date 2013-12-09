@@ -73,10 +73,10 @@ if LSF_HOME:
 
 JOB_QUEUE_LIB = clib.ert_load("libjob_queue.so")
 
+from .job_status_type_enum import JobStatusType
 from .job import Job
 from .queue import JobList, JobQueue, statusList, exList, runtimeList
 from .driver import QueueDriverEnum, Driver, LSFDriver, RSHDriver, LocalDriver
 from .ext_job import ExtJob
 from .ext_joblist import ExtJoblist
 from .forward_model import ForwardModel
-from .job_status_type_enum import JobStatusType

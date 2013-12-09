@@ -18,5 +18,7 @@
 import ert.cwrap.clib as clib
 ANALYSIS_LIB = clib.ert_load("libanalysis.so")
 
-from .enums import AnalysisModuleOptionsEnum
+from .enums import AnalysisModuleOptionsEnum, AnalysisModuleLoadStatusEnum
+
+from .analysis_module import AnalysisModule
 

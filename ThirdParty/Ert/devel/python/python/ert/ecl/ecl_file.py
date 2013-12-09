@@ -669,6 +669,15 @@ class EclFile(CClass):
         return ctime.datetime()
 
 
+    def iget_restart_sim_days( self , index ):
+        """
+        Will locate restart block nr @index and return the number of days
+        (in METRIC at least ...) since the simulation started.
+        
+        """
+        return cfunc.iget_restart_days( self , index ) 
+    
+
     @property
     def name(self):
         """
@@ -724,6 +733,7 @@ cfunc.get_size                    = cwrapper.prototype("int         ecl_file_get
 cfunc.get_unique_size             = cwrapper.prototype("int         ecl_file_get_num_distinct_kw( ecl_file )")
 cfunc.get_num_named_kw            = cwrapper.prototype("int         ecl_file_get_num_named_kw( ecl_file , char* )")
 cfunc.iget_restart_time           = cwrapper.prototype("time_t      ecl_file_iget_restart_sim_date( ecl_file , int )")
+cfunc.iget_restart_days           = cwrapper.prototype("double      ecl_file_iget_restart_sim_days( ecl_file , int )")
 cfunc.get_restart_index           = cwrapper.prototype("int         ecl_file_get_restart_index( ecl_file , time_t)")
 cfunc.get_src_file                = cwrapper.prototype("char*       ecl_file_get_src_file( ecl_file )")
 cfunc.replace_kw                  = cwrapper.prototype("void        ecl_file_replace_kw( ecl_file , ecl_kw , ecl_kw , bool)")

@@ -64,5 +64,6 @@ class SearchBox(QLineEdit):
     def keyPressEvent(self, key_event):
         if key_event.key() == Qt.Key_Escape:
             self.clear()
+            self.clearFocus()
         else:
             QLineEdit.keyPressEvent(self, key_event)

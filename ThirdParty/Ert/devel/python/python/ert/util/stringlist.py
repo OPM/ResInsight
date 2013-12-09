@@ -211,6 +211,20 @@ class StringList(BaseCClass):
         StringList.cNamespace().free(self)
 
 
+    def front(self):
+        if self.__len__() > 0:
+            return StringList.cNamespace().front(self)
+        else:
+            raise IndexError
+
+    def back(self):
+        if self.__len__() > 0:
+            return StringList.cNamespace().back(self)
+        else:
+            raise IndexError
+
+
+
 CWrapper.registerType("stringlist", StringList)
 CWrapper.registerType("stringlist_obj", StringList.createPythonObject)
 CWrapper.registerType("stringlist_ref", StringList.createCReference)
@@ -220,6 +234,8 @@ StringList.cNamespace().alloc = cwrapper.prototype("c_void_p stringlist_alloc_ne
 StringList.cNamespace().free = cwrapper.prototype("void stringlist_free( stringlist )")
 StringList.cNamespace().append = cwrapper.prototype("void stringlist_append_copy( stringlist , char* )")
 StringList.cNamespace().iget = cwrapper.prototype("char* stringlist_iget( stringlist , int )")
+StringList.cNamespace().front = cwrapper.prototype("char* stringlist_front( stringlist )")
+StringList.cNamespace().back = cwrapper.prototype("char* stringlist_back( stringlist )")
 StringList.cNamespace().iget_copy = cwrapper.prototype("char* stringlist_iget_copy(stringlist, int)")
 StringList.cNamespace().iset = cwrapper.prototype("void  stringlist_iset_copy( stringlist , int , char* )")
 StringList.cNamespace().get_size = cwrapper.prototype("int  stringlist_get_size( stringlist )")

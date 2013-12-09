@@ -490,7 +490,12 @@ void enkf_config_node_update_gen_data( enkf_config_node_type * config_node,
 
     config_node->var_type = var_type;  /* Can be stuck with INVALID_VAR */
   }
-  
+
+  if (enkf_infile_fmt)
+    if (util_int_format_count(enkf_infile_fmt) != 1)
+      util_abort("%s: Fatal error when updating GEN_DATA key:%s the enkf_infile_fmt must contain exactly one %%d format specifier \n" , enkf_config_node_get_key( config_node ));
+
+
   if (config_node->var_type != INVALID_VAR) {
     gen_data_config_update(config_node->data ,           /* Special update */ 
                            config_node->var_type , 

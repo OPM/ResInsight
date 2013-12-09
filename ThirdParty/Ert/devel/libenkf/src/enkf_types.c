@@ -79,6 +79,19 @@ const char * enkf_types_get_impl_name(ert_impl_type impl_type) {
   }
 }
 
+#define if_strcmp(s) if (strcmp(state_enum_string , #s) == 0) state = s
+static state_enum enkf_types_get_state_enum__(const char * state_enum_string) {
+  state_enum state;
+  if_strcmp(UNDEFINED);
+  else if_strcmp(FORECAST);
+  else if_strcmp(ANALYZED);
+  else if_strcmp(BOTH);
+  else state = INVALID;
+  return state;
+}
+#undef if_strcmp
+
+
 
 #define if_strcmp(s) if (strcmp(impl_type_string , #s) == 0) impl_type = s
 static ert_impl_type enkf_types_get_impl_type__(const char * impl_type_string) {
@@ -103,6 +116,17 @@ ert_impl_type enkf_types_get_impl_type(const char * __impl_type_string) {
   
   free(impl_type_string);
   return impl_type;
+}
+
+state_enum enkf_types_get_state_enum(const char * __state_enum_string) {
+  char * state_enum_string = util_alloc_string_copy(__state_enum_string);
+  util_strupr(state_enum_string);  
+  state_enum state = enkf_types_get_state_enum__(state_enum_string);
+  if (state == INVALID) 
+    util_abort("%s: state_enum: %s not recognized - aborting \n",__func__ , __state_enum_string);
+  
+  free(state_enum_string);
+  return state;
 }
 
 

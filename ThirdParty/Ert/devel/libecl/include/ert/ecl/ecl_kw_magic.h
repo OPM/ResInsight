@@ -27,6 +27,9 @@ extern "C" {
 #define PORMOD_KW    "PORV_MOD"  
 
 #define PVTNUM_KW    "PVTNUM"
+#define LGRHEADI_KW  "LGRHEADI"
+#define LGRHEADI_LGR_NR_INDEX 0
+#define LGRJOIN_KW   "LGRJOIN" 
 
 /* 
    Observe that many of the elements in the INTEHEAD keyword is shared
@@ -103,6 +106,7 @@ extern "C" {
 #define IWEL_KW      "IWEL"
 #define ZWEL_KW      "ZWEL"
 #define ICON_KW      "ICON"
+#define SCON_KW      "SCON"
 #define ISEG_KW      "ISEG"
 #define RSEG_KW      "RSEG"
 
@@ -129,7 +133,8 @@ extern "C" {
 #define INTEHEAD_NCWMAX_INDEX  17     // Maximum number of completions per well
 #define INTEHEAD_NWGMAX_INDEX  19     // Maximum number of wells in any group
 #define INTEHEAD_NGMAXZ_INDEX  20     // Maximum number of groups in field
-#define INTEHEAD_NICONZ_INDEX  32     // Number of elements pr completion in the ICON arra.y
+#define INTEHEAD_NICONZ_INDEX  32     // Number of elements pr completion in the ICON array.
+#define INTEHEAD_NSCONZ_INDEX  33     // Number of elements pr completion in the SCON array.
 #define INTEHEAD_NIGRPZ_INDEX  36     // Number of elements pr group in the IGRP array.
 
 #define INTEHEAD_NSWLMX_INDEX  175
@@ -284,6 +289,10 @@ extern "C" {
 #define NNCHEADA_ILOC1_INDEX 0     /*ILOC1: Index of first LGR*/
 #define NNCHEADA_ILOC2_INDEX 1     /*ILOC2: Index of second LGR*/
 #define NNA_NUMNNC_INDEX     0     /*Item 1 in NNA1 or NNA2 is number of NNCs*/  
+
+#define TRANNNC_KW     "TRANNNC"
+#define TRANGL_KW      "TRANGL"
+#define TRANLL_KW      "TRANLL"
 
 /* EGRID keywords */
 #define LGR_PARENT_KW  "LGRPARNT"   /* The name of the parent for an LGR. */

@@ -32,7 +32,7 @@
 int main(int argc , char ** argv) {
   const char * config_file = argv[1];
 
-  ecl_config_type * ecl_config = ecl_config_alloc_empty();
+  ecl_config_type * ecl_config = ecl_config_alloc();
   ecl_refcase_list_type * refcase_list = ecl_config_get_refcase_list( ecl_config );
   {
     config_type * config = config_alloc();

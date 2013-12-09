@@ -56,6 +56,7 @@ extern "C" {
     // Connection properties
     int    niconz;          // Number of elements per completion in ICON array    
     int    ncwmax;          // Maximum number of completions per well
+    int    nsconz;          // Number of elements per completion in SCON array
 
     // Segment properties
     int    nisegz;          // Number of entries pr segment in the ISEG array     

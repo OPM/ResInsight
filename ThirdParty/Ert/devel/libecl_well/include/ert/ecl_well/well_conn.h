@@ -46,14 +46,14 @@ extern "C" {
   void             well_conn_free( well_conn_type * conn);
   void             well_conn_free__( void * arg );
 
-  well_conn_type * well_conn_alloc( int i , int j , int k , well_conn_dir_enum dir, bool open);
-  well_conn_type * well_conn_alloc_MSW( int i , int j , int k , well_conn_dir_enum dir, bool open, int segment);
-  well_conn_type * well_conn_alloc_fracture( int i , int j , int k , well_conn_dir_enum dir, bool open);
-  well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , well_conn_dir_enum dir, bool open, int segment);
+  well_conn_type * well_conn_alloc( int i , int j , int k , double connection_factor , well_conn_dir_enum dir, bool open);
+  well_conn_type * well_conn_alloc_MSW( int i , int j , int k , double connection_factor , well_conn_dir_enum dir, bool open, int segment);
+  well_conn_type * well_conn_alloc_fracture( int i , int j , int k , double connection_factor , well_conn_dir_enum dir, bool open);
+  well_conn_type * well_conn_alloc_fracture_MSW( int i , int j , int k , double connection_factor , well_conn_dir_enum dir, bool open, int segment);
 
   bool             well_conn_MSW(const well_conn_type * conn);
 
-  well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw , const ecl_rsthead_type * header , int well_nr , int conn_nr);
+  well_conn_type * well_conn_alloc_from_kw( const ecl_kw_type * icon_kw , const ecl_kw_type * scon_kw , const ecl_rsthead_type * header , int well_nr , int conn_nr);
   well_conn_type * well_conn_alloc_wellhead( const ecl_kw_type * iwel_kw , const ecl_rsthead_type * header , int well_nr);
 
   int                well_conn_get_i(const well_conn_type * conn);
@@ -65,6 +65,7 @@ extern "C" {
   bool               well_conn_fracture_connection( const well_conn_type * conn);
   bool               well_conn_matrix_connection( const well_conn_type * conn);
   bool               well_conn_equal( const well_conn_type *conn1  , const well_conn_type * conn2);
+  double             well_conn_get_connection_factor( const well_conn_type * conn );
 
   UTIL_IS_INSTANCE_HEADER( well_conn );
   UTIL_SAFE_CAST_HEADER( well_conn );

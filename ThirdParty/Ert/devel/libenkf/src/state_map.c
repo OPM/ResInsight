@@ -36,6 +36,7 @@ struct state_map_struct {
   UTIL_TYPE_ID_DECLARATION;
   int_vector_type  * state;
   pthread_rwlock_t   rw_lock;
+  bool               read_only;
 };
 
 
@@ -47,6 +48,7 @@ state_map_type * state_map_alloc( ) {
   UTIL_TYPE_ID_INIT( map , STATE_MAP_TYPE_ID );
   map->state = int_vector_alloc( 0 , STATE_UNDEFINED );
   pthread_rwlock_init( &map->rw_lock , NULL);
+  map->read_only = false;
   return map;
 }
 
@@ -60,6 +62,13 @@ state_map_type * state_map_fread_alloc( const char * filename ) {
   } 
   return map;
 }
+
+state_map_type * state_map_fread_alloc_readonly( const char * filename ) {
+  state_map_type * map = state_map_fread_alloc(filename);
+  map->read_only = true;
+  return map;
+}
+
 
 state_map_type * state_map_alloc_copy( state_map_type * map ) {
   state_map_type * copy = state_map_alloc();
@@ -114,29 +123,42 @@ realisation_state_enum state_map_iget( state_map_type * map , int index) {
   return state;
 }
 
-static void state_map_iset__( state_map_type * map , int index , realisation_state_enum new_state) {
-  realisation_state_enum current_state = int_vector_safe_iget( map->state , index );
+bool state_map_legal_transition( realisation_state_enum state1 , realisation_state_enum state2) {
   int target_mask = 0;
 
-  if (current_state == STATE_UNDEFINED)
+  if (state1 == STATE_UNDEFINED)
     target_mask = STATE_INITIALIZED | STATE_PARENT_FAILURE;
-  else if (current_state == STATE_INITIALIZED)
+  else if (state1 == STATE_INITIALIZED)
     target_mask = STATE_LOAD_FAILURE | STATE_HAS_DATA | STATE_INITIALIZED | STATE_PARENT_FAILURE;
-  else if (current_state == STATE_HAS_DATA)
-    target_mask = STATE_LOAD_FAILURE | STATE_HAS_DATA | STATE_PARENT_FAILURE;
-  else if (current_state == STATE_LOAD_FAILURE)
+  else if (state1 == STATE_HAS_DATA)
+    target_mask = STATE_INITIALIZED | STATE_LOAD_FAILURE | STATE_HAS_DATA | STATE_PARENT_FAILURE;
+  else if (state1 == STATE_LOAD_FAILURE)
     target_mask = STATE_HAS_DATA | STATE_INITIALIZED;
-  else if (current_state == STATE_PARENT_FAILURE)
-    target_mask = STATE_INITIALIZED;
+  else if (state1 == STATE_PARENT_FAILURE)
+    target_mask = STATE_INITIALIZED | STATE_PARENT_FAILURE;
+  
+  if (state2 & target_mask)
+    return true;
+  else
+    return false;
+}
 
-  if (new_state & target_mask)
+static void state_map_assert_writable( const state_map_type * map) {
+  if (map->read_only)
+    util_abort("%s: tried to modify read_only state_map - aborting \n",__func__);
+}
+
+static void state_map_iset__( state_map_type * map , int index , realisation_state_enum new_state) {
+  realisation_state_enum current_state = int_vector_safe_iget( map->state , index );
+  
+  if (state_map_legal_transition( current_state , new_state ))
     int_vector_iset( map->state , index , new_state);
   else
     util_abort("%s: illegal state transition for realisation:%d %d -> %d \n" , __func__ , index , current_state , new_state );
-  
 }
 
 void state_map_iset( state_map_type * map ,int index , realisation_state_enum state) {
+  state_map_assert_writable(map);
   pthread_rwlock_wrlock( &map->rw_lock );
   {
     state_map_iset__( map , index , state );
@@ -192,12 +214,13 @@ void state_map_fread( state_map_type * map , const char * filename) {
 
 
 static void state_map_select_matching__( state_map_type * map , bool_vector_type * select_target , int select_mask , bool select) {
+  state_map_assert_writable(map);
   pthread_rwlock_rdlock( &map->rw_lock );
   {
     {
       const int * map_ptr = int_vector_get_ptr( map->state );
-
-      for (int i=0; i < int_vector_size( map->state ); i++) {
+      int size = util_int_min(int_vector_size( map->state ), bool_vector_size(select_target)); 
+      for (int i=0; i < size; i++) {
         int state_value = map_ptr[i];
         if (state_value & select_mask) 
           bool_vector_iset( select_target , i , select);
@@ -219,28 +242,32 @@ void state_map_select_matching( state_map_type * map , bool_vector_type * select
 }
 
 
- static void state_map_set_from_mask__( state_map_type * map , const bool_vector_type * mask , realisation_state_enum state, bool invert) {
-     const bool * mask_ptr = bool_vector_get_ptr(mask);
-     for (int i=0; i < bool_vector_size( mask); i++) {
-       if (mask_ptr[i] != invert)
-         state_map_iset(map , i , state);
-     }
- }
-
- void state_map_set_from_inverted_mask( state_map_type * state_map , const bool_vector_type * mask , realisation_state_enum state) {
-   state_map_set_from_mask__(state_map , mask , state , true);
- }
-
- void state_map_set_from_mask( state_map_type * state_map , const bool_vector_type * mask , realisation_state_enum state) {
-    state_map_set_from_mask__(state_map , mask , state , false);
+static void state_map_set_from_mask__( state_map_type * map , const bool_vector_type * mask , realisation_state_enum state, bool invert) {
+  const bool * mask_ptr = bool_vector_get_ptr(mask);
+  for (int i=0; i < bool_vector_size( mask); i++) {
+    if (mask_ptr[i] != invert)
+      state_map_iset(map , i , state);
   }
+}
+
+void state_map_set_from_inverted_mask( state_map_type * state_map , const bool_vector_type * mask , realisation_state_enum state) {
+  state_map_set_from_mask__(state_map , mask , state , true);
+}
+
+void state_map_set_from_mask( state_map_type * state_map , const bool_vector_type * mask , realisation_state_enum state) {
+  state_map_set_from_mask__(state_map , mask , state , false);
+}
+
+bool state_map_is_readonly(const state_map_type * state_map) {
+  return state_map->read_only;
+}
 
 
- int state_map_count_matching( state_map_type * state_map , int mask) {
+int state_map_count_matching( state_map_type * state_map , int mask) {
    int count = 0;
    pthread_rwlock_rdlock( &state_map->rw_lock );
    {
-     const int * map_ptr = int_vector_get_ptr( state_map->state );
+     const int * map_ptr = int_vector_get_ptr(state_map->state);
      for (int i=0; i < int_vector_size( state_map->state ); i++) {
        int state_value = map_ptr[i];
        if (state_value & mask)

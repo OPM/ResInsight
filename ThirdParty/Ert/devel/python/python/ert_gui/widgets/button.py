@@ -46,3 +46,9 @@ class Button(HelpedWidget):
             action = self.models[model]
             action.setText(model.getButtonName())
             action.setEnabled(model.buttonIsEnabled())
+
+    def cleanup(self):
+        for model in self.models:
+            model.observable().detach(ButtonModelMixin.BUTTON_STATE_CHANGED_EVENT, self.modelChanged)
+
+

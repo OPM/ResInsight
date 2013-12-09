@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from os import listdir
-from os.path import isfile, join, isdir
+from os.path import isfile, join, isdir, islink
 import sys
 
 
@@ -12,7 +12,7 @@ def findFilesAndDirectories(directory):
     directories = []
     for f in all_files:
         path = join(directory, f)
-        if isfile(path) and not f == "CMakeLists.txt":
+        if isfile(path) and not f == "CMakeLists.txt" and not islink(path):
             files.append(f)
         if isdir(path):
             directories.append(f)
@@ -52,10 +52,14 @@ def addSubDirectories(directories):
 
 def addPythonPackage(relative_module_path):
     module_name = ".".join(relative_module_path.split("/"))
-    template = "add_python_package(\"Python %s\"  ${PYTHON_INSTALL_PREFIX}/%s \"${PYTHON_SOURCES}\" True)"
+    template = "add_python_package(\"python.%s\"  ${PYTHON_INSTALL_PREFIX}/%s \"${PYTHON_SOURCES}\" True)"
 
     return template % (module_name, relative_module_path)
 
+def addInclude(filename):
+    with open(filename, "r") as include_file:
+        content = include_file.read()
+    return content
 
 files, directories = findFilesAndDirectories(sys.argv[1])
 module_path = findRelativeModulePath(sys.argv[1])
@@ -67,5 +71,11 @@ with open(output_file, "w+") as text_file:
     text_file.write(addPythonPackage(module_path))
     text_file.write("\n\n")
     text_file.write(addSubDirectories(directories))
+
+    if "local.cmake" in files:
+        text_file.write("\n\n")
+        text_file.write(addInclude(join(sys.argv[1], "local.cmake")))
+
+
 
 

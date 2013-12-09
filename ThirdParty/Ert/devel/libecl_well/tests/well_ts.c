@@ -46,7 +46,7 @@ int main(int argc , char ** argv) {
       char * ext;
       char * target_ext = util_alloc_sprintf("X%04d" , i);
       util_alloc_file_components( stringlist_iget( file_list , i ) , NULL , NULL , &ext);
-
+      
       test_assert_string_equal( ext , target_ext);
       free( ext );
       free( target_ext );
@@ -55,8 +55,10 @@ int main(int argc , char ** argv) {
   {
     well_info_type * well_info = well_info_alloc( grid );
     int i;
-    for (i=0; i < stringlist_get_size( file_list ); i++) 
+    for (i=0; i < stringlist_get_size( file_list ); i++) {
+      printf("Loading file:%s \n",stringlist_iget( file_list , i ));
       well_info_load_rstfile( well_info , stringlist_iget(file_list , i));
+    }
     well_info_free( well_info );
   }
   

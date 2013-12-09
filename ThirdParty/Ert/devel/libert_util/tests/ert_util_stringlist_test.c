@@ -94,6 +94,19 @@ void test_empty() {
   stringlist_fprintf( s , "\n" , stdout );
 }
 
+void test_front_back() {
+  stringlist_type * s = stringlist_alloc_new();
+
+  stringlist_append_copy(s , "First");
+  test_assert_string_equal("First" , stringlist_front(s));
+  test_assert_string_equal("First" , stringlist_back(s));
+
+  stringlist_append_copy(s , "Last");
+  test_assert_string_equal("First" , stringlist_front(s));
+  test_assert_string_equal("Last" , stringlist_back(s));
+  stringlist_free( s );
+}
+
 
 void test_split() {
   stringlist_type *  s1 = stringlist_alloc_from_split("My Name    is Joakim Hove" , " ");

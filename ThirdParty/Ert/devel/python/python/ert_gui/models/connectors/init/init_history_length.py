@@ -16,7 +16,7 @@ class HistoryLengthModel(ErtConnector, SpinnerModelMixin):
 
     def getMaxValue(self):
         """ @rtype: int """
-        return self.ert().getHistoryLength()
+        return self.getHistoryLength()
 
     def getSpinnerValue(self):
         return self.__value
@@ -30,6 +30,11 @@ class HistoryLengthModel(ErtConnector, SpinnerModelMixin):
 
     def setToMin(self):
         self.setSpinnerValue(self.getMinValue())
+
+    def getHistoryLength(self):
+        """ @rtype: int """
+        return self.ert().getHistoryLength()
+
 
 
 

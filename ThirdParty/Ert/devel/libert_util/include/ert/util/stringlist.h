@@ -55,6 +55,10 @@ typedef int  ( string_cmp_ftype)  (const void * , const void *);
   char            * stringlist_iget_copy(const stringlist_type * stringlist , int );
   char            * stringlist_alloc_joined_string(const stringlist_type *  , const char * );
   char            * stringlist_alloc_joined_substring( const stringlist_type * s , int start_index , int end_index , const char * sep );
+  const char * stringlist_front(const stringlist_type * stringlist);
+  const char * stringlist_back(const stringlist_type * stringlist);
+
+
   
   void              stringlist_iset_copy(stringlist_type *, int index , const char *);
   void              stringlist_iset_ref(stringlist_type *, int index , const char *);

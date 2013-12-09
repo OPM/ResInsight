@@ -24,27 +24,29 @@
 extern "C" {
 #endif
 #include <stdbool.h>
-#include <time.h>
 
 #include <ert/util/bool_vector.h>
+#include <ert/util/type_macros.h>
   
 #include <ert/enkf/enkf_config_node.h>
 #include <ert/enkf/enkf_fs.h>
 #include <ert/enkf/enkf_types.h>
+#include <ert/enkf/enkf_plot_tvector.h>
 
   typedef struct enkf_plot_data_struct enkf_plot_data_type;
   
-  enkf_plot_data_type * enkf_plot_data_alloc( time_t start_time);
+  enkf_plot_data_type * enkf_plot_data_alloc( const enkf_config_node_type * config_node );
   void                  enkf_plot_data_free( enkf_plot_data_type * plot_data );
   void                  enkf_plot_data_load( enkf_plot_data_type * plot_data , 
-                                             enkf_config_node_type * config_node , 
                                              enkf_fs_type * fs , 
                                              const char * user_key , 
                                              state_enum state , 
-                                             const bool_vector_type * active, 
-                                             bool time_mode,
-                                             int step1 , 
-                                             int step2);
+                                             const bool_vector_type * input_mask);
+  int                   enkf_plot_data_get_size( const enkf_plot_data_type * plot_data );
+  enkf_plot_tvector_type * enkf_plot_data_iget( const enkf_plot_data_type * plot_data , int index);
+
+  UTIL_IS_INSTANCE_HEADER( enkf_plot_data );
+
 #ifdef __cplusplus
 }
 #endif

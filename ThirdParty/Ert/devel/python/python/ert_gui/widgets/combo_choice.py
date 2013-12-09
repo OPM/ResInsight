@@ -37,6 +37,7 @@ class ComboChoice(HelpedWidget):
         model.observable().attach(ChoiceModelMixin.CHOICE_LIST_CHANGED_EVENT, self.updateChoicesFromModel)
 
         self.combo = QComboBox()
+        self.combo.setSizeAdjustPolicy(QComboBox.AdjustToContents)
 
         self.combo.addItem("Fail!")
 
@@ -50,6 +51,7 @@ class ComboChoice(HelpedWidget):
 
         self.updateChoicesFromModel()
         self.getCurrentFromModel()
+
 
 
     def selectionChanged(self, index):
@@ -87,3 +89,9 @@ class ComboChoice(HelpedWidget):
             self.combo.addItem(str(choice))
 
         self.combo.blockSignals(block)
+
+
+    def cleanup(self):
+        self.model.observable().detach(ChoiceModelMixin.CURRENT_CHOICE_CHANGED_EVENT, self.getCurrentFromModel)
+        self.model.observable().detach(ChoiceModelMixin.CHOICE_LIST_CHANGED_EVENT, self.updateChoicesFromModel)
+

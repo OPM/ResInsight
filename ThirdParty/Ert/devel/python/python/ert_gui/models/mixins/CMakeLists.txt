@@ -14,9 +14,8 @@ set(PYTHON_SOURCES
     selectable_list_model.py
     selectable_model.py
     spinner_model.py
-    text_model.py
 )
 
-add_python_package("Python ert_gui.models.mixins"  ${PYTHON_INSTALL_PREFIX}/ert_gui/models/mixins "${PYTHON_SOURCES}" True)
+add_python_package("python.ert_gui.models.mixins"  ${PYTHON_INSTALL_PREFIX}/ert_gui/models/mixins "${PYTHON_SOURCES}" True)
 
 add_subdirectory(connectorless)
