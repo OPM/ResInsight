@@ -189,7 +189,6 @@ std::vector<caf::UintArray4> getCubeFaces()
     cubeFaces[2] = &faces[8];
     cubeFaces[3] = &faces[12];
 
-    cubeFaces[3] = cubeFaces[2];
     return cubeFaces;
 }
 
