@@ -39,13 +39,17 @@ public:
    
     struct FaultFace
     {
-        FaultFace(size_t globalCellIndex, cvf::StructGridInterface::FaceType face) :
-            m_globalCellIndex(globalCellIndex),
-            m_face(face)
-        { }
+        FaultFace(size_t nativeGlobalCellIndex, cvf::StructGridInterface::FaceType nativeFace, size_t oppositeGlobalCellIndex, cvf::StructGridInterface::FaceType oppositeFace) :
+            m_nativeGlobalCellIndex(nativeGlobalCellIndex),
+            m_nativeFace(nativeFace),
+            m_oppositeGlobalCellIndex(oppositeGlobalCellIndex),
+            m_oppositeFace(oppositeFace)
+            { }
 
-        size_t                              m_globalCellIndex;
-        cvf::StructGridInterface::FaceType  m_face;
+        size_t                              m_nativeGlobalCellIndex;
+        cvf::StructGridInterface::FaceType  m_nativeFace;
+        size_t                              m_oppositeGlobalCellIndex;
+        cvf::StructGridInterface::FaceType  m_oppositeFace;
     };
 
 public:

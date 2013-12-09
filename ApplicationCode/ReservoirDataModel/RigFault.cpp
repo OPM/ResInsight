@@ -118,7 +118,15 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* grid)
                         // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
                         //size_t globalCellIndex = grid->globalGridCellIndex(localCellIndex);
 
-                        m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum));
+                        cvf::StructGridInterface::FaceType oppositeFace = grid->oppositeFace(faceEnum);
+
+                        size_t ni, nj, nk;
+                        grid->ijkFromCellIndex(localCellIndex, &i, &j, &k);
+                        grid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
+
+                        size_t oppositeCellIndex = grid->cellIndexFromIJK(ni, nj, nk);
+
+                        m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum, oppositeCellIndex, oppositeFace));
                     }
                 }
             }

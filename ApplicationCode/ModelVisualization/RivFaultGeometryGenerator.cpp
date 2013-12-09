@@ -160,16 +160,17 @@ void RivFaultGeometryGenerator::computeArrays()
 
     if (m_showNativeFaultFaces)
     {
-        for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+#pragma omp parallel for
+        for (int fIdx = 0; fIdx < faultFaces.size(); fIdx++)
         {
-            size_t cellIndex = faultFaces[fIdx].m_globalCellIndex;
+            size_t cellIndex = faultFaces[fIdx].m_nativeGlobalCellIndex;
 
             if (m_limitFaultsToFilters)
             {
                 if (!(*m_cellVisibility)[cellIndex]) continue;
             }
 
-            cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_face;
+            cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_nativeFace;
 
             cvf::Vec3d cornerVerts[8];
             m_grid->cellCornerVertices(cellIndex, cornerVerts);
@@ -195,18 +196,19 @@ void RivFaultGeometryGenerator::computeArrays()
 
     if (m_showOppositeFaultFaces)
     {
-        for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+#pragma omp parallel for
+        for (int fIdx = 0; fIdx < faultFaces.size(); fIdx++)
         {
-            size_t currentCellIndex = faultFaces[fIdx].m_globalCellIndex;
-            cvf::StructGridInterface::FaceType currentFace = faultFaces[fIdx].m_face;
-            cvf::StructGridInterface::FaceType face = m_grid->oppositeFace(currentFace);
-                
+            size_t cellIndex = faultFaces[fIdx].m_oppositeGlobalCellIndex;
+            cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_oppositeFace;
+
+            /*
             size_t i, j, k, ni, nj, nk;
             m_grid->ijkFromCellIndex(currentCellIndex, &i, &j, &k);
             m_grid->neighborIJKAtCellFace(i, j, k, currentFace, &ni, &nj, &nk);
 
             size_t cellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
-
+            */
             if (m_limitFaultsToFilters)
             {
                 if (!(*m_cellVisibility)[cellIndex]) continue;
