@@ -148,9 +148,11 @@ void nnc_info_fprintf(const nnc_info_type * nnc_info , FILE * stream) {
       int lgr_index = int_vector_iget( nnc_info->lgr_index_map , lgr_nr );
       if (lgr_index >= 0) {
         printf("   %02d -> %02d  => ",lgr_nr , lgr_index);
-        const int_vector_type * index_list = nnc_info_iget_grid_index_list( nnc_info , lgr_index );
-        int_vector_fprintf( index_list , stream , " " , "%d");
-        printf("\n");
+        {
+          const int_vector_type * index_list = nnc_info_iget_grid_index_list( nnc_info , lgr_index );
+          int_vector_fprintf( index_list , stream , " " , "%d");
+          printf("\n");
+        }
       }
     }
   }

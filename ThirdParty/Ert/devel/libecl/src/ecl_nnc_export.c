@@ -37,7 +37,7 @@ static void  ecl_nnc_export__( const ecl_grid_type * grid , int lgr_index1 , con
   int nnc_index = *nnc_offset;
   int lgr_nr1 = ecl_grid_get_lgr_nr( grid );
   int global_index1;
-  ecl_grid_type * global_grid = ecl_grid_get_global_grid( grid );
+  const ecl_grid_type * global_grid = ecl_grid_get_global_grid( grid );
 
   if (!global_grid)
     global_grid = grid;
@@ -54,11 +54,12 @@ static void  ecl_nnc_export__( const ecl_grid_type * grid , int lgr_index1 , con
         int lgr_nr2 = nnc_vector_get_lgr_nr( nnc_vector );
         const ecl_kw_type * tran_kw = ecl_nnc_export_get_tranx_kw(global_grid  , init_file , lgr_nr1 , lgr_nr2 );
         int index2;
+        ecl_nnc_type nnc;
 
-        ecl_nnc_type nnc = {.grid_nr1 = lgr_nr1 ,
-                            .grid_nr2 = lgr_nr2 , 
-                            .global_index1 = global_index1 };
-        
+        nnc.grid_nr1 = lgr_nr1;
+        nnc.grid_nr2 = lgr_nr2;
+        nnc.global_index1 = global_index1;
+
         for (index2 = 0; index2 < nnc_vector_get_size( nnc_vector ); index2++) {
           nnc.global_index2 = int_vector_iget( grid2_index_list , index2 );
           nnc.trans = ecl_kw_iget_as_double( tran_kw , int_vector_iget( nnc_index_list , index2));
