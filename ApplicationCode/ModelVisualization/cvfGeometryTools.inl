@@ -201,7 +201,7 @@ bool GeometryTools::isPointTouchingIndexedPolygon(  const cvf::Vec3d& polygonNor
 template<typename VerticeArrayType, typename IndexType>
 bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * polygon, 
                                  std::vector<cvf::Vec3d>* createdVertexes, 
-                                 EdgeIntersectStorage<IndexType>& edgeIntersectionStorage, 
+                                 EdgeIntersectStorage<IndexType>* edgeIntersectionStorage, 
                                  ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodes,
                                  const IndexType cv1CubeFaceIndices[4], 
                                  const IndexType cv2CubeFaceIndices[4],
@@ -377,15 +377,18 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * p
             else
             {
                 double fractionAlongEdge2;
-               
-                 bool found = edgeIntersectionStorage.findIntersection( cv1CubeFaceIndices[cv1Idx],     
-                                                                                cv1CubeFaceIndices[nextCv1Idx], 
-                                                                                cv2CubeFaceIndices[cv2Idx], 
-                                                                                cv2CubeFaceIndices[nextCv2Idx], 
-                                                                                &intersectionVxIndex, &intersectStatus, 
-                                                                                &fractionAlongEdge1, &fractionAlongEdge2);
-                 if (!found)
-                 {
+                bool found = false;
+                if (edgeIntersectionStorage)
+                    found = edgeIntersectionStorage->findIntersection( 
+                                    cv1CubeFaceIndices[cv1Idx],     
+                                    cv1CubeFaceIndices[nextCv1Idx], 
+                                    cv2CubeFaceIndices[cv2Idx], 
+                                    cv2CubeFaceIndices[nextCv2Idx], 
+                                    &intersectionVxIndex, &intersectStatus, 
+                                    &fractionAlongEdge1, &fractionAlongEdge2);
+
+                if (!found)
+                {
 
                      intersectStatus = GeometryTools::inPlaneLineIntersect3D(normal, 
                          nodes[cv1CubeFaceIndices[cv1Idx]], 
@@ -426,12 +429,13 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * p
                          break;
                      }
 
-                    edgeIntersectionStorage.addIntersection( cv1CubeFaceIndices[cv1Idx],     
-                        cv1CubeFaceIndices[nextCv1Idx], 
-                        cv2CubeFaceIndices[cv2Idx], 
-                        cv2CubeFaceIndices[nextCv2Idx], 
-                        intersectionVxIndex, intersectStatus, 
-                        fractionAlongEdge1, fractionAlongEdge2);
+                     if(edgeIntersectionStorage)
+                         edgeIntersectionStorage->addIntersection( cv1CubeFaceIndices[cv1Idx],     
+                         cv1CubeFaceIndices[nextCv1Idx], 
+                         cv2CubeFaceIndices[cv2Idx], 
+                         cv2CubeFaceIndices[nextCv2Idx], 
+                         intersectionVxIndex, intersectStatus, 
+                         fractionAlongEdge1, fractionAlongEdge2);
 
                 }
             }

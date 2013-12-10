@@ -61,7 +61,7 @@ public:
     template<typename VerticeArrayType,  typename IndexType>
     static bool calculateOverlapPolygonOfTwoQuads(    std::vector<IndexType> * polygon, 
                                                       std::vector<cvf::Vec3d>* createdVertexes, 
-                                                      EdgeIntersectStorage<IndexType>& edgeIntersectionStorage, 
+                                                      EdgeIntersectStorage<IndexType>* edgeIntersectionStorage, 
                                                       ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodes, 
                                                       const IndexType cv1CubeFaceIndices[4], 
                                                       const IndexType cv2CubeFaceIndices[4],
