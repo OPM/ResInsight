@@ -436,11 +436,7 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
                     cellIndex = cellIndices->get(faceIndex);
 
                     m_reservoirView->pickInfo(gridIndex, cellIndex, localIntersectionPoint, &pickInfo);
-
-                    if (isAnimationActive())
-                    {
-                        m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
-                    }
+                    m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
 #if 0
                     const RigReservoir* reservoir = m_reservoirView->eclipseCase()->reservoirData();
                     const RigGridBase* grid = reservoir->grid(gridIndex);

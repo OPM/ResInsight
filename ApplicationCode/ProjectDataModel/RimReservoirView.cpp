@@ -1167,6 +1167,32 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
             }
         }
+
+        
+        if (gridIndex == 0)
+        {
+            bool foundFault = false;
+
+            for (size_t i = 0; i < grid->faults().size(); i++)
+            {
+                if (foundFault) continue;
+
+                const RigFault* rigFault = grid->faults().at(i);
+                const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
+
+                for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+                {
+                    if (foundFault) continue;
+
+                    if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex || 
+                        faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
+                    {
+                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
+                        foundFault = true;
+                    }
+                }
+            }
+        }
     }
 }
 
