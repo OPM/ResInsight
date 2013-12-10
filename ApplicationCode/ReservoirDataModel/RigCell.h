@@ -36,6 +36,7 @@ public:
 
     caf::SizeTArray8&       cornerIndices()                                     { return m_cornerIndices;}
     const caf::SizeTArray8& cornerIndices() const                               { return m_cornerIndices;}
+    void                    faceIndices(cvf::StructGridInterface::FaceType face, caf::SizeTArray4 * faceIndices) const ;                              
 
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
@@ -62,6 +63,8 @@ public:
 
     cvf::Vec3d              center() const;
     cvf::Vec3d              faceCenter(cvf::StructGridInterface::FaceType face) const;
+    cvf::Vec3d              faceNormal(cvf::StructGridInterface::FaceType face) const;
+
     int                     firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectionPoint) const;
     bool                    isLongPyramidCell(double maxHeightFactor = 5, double nodeNearTolerance = 1e-3 ) const;
 private:

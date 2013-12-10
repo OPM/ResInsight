@@ -229,15 +229,30 @@ cvf::Vec3d RigCell::faceCenter(cvf::StructGridInterface::FaceType face) const
     cvf::ubyte faceVertexIndices[4];
     cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
 
+    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+
     size_t i;
     for (i = 0; i < 4; i++)
     {
-        avg += m_hostGrid->mainGrid()->nodes()[m_cornerIndices[faceVertexIndices[i]]];
+        avg += nodeCoords[m_cornerIndices[faceVertexIndices[i]]];
     }
 
     avg /= 4.0;
 
     return avg;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigCell::faceNormal(cvf::StructGridInterface::FaceType face) const
+{
+    cvf::ubyte faceVertexIndices[4];
+    cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
+    const std::vector<cvf::Vec3d>& nodeCoords = m_hostGrid->mainGrid()->nodes();
+
+    return ( nodeCoords[m_cornerIndices[faceVertexIndices[2]]] - nodeCoords[m_cornerIndices[faceVertexIndices[0]]]) ^  
+           ( nodeCoords[m_cornerIndices[faceVertexIndices[3]]] - nodeCoords[m_cornerIndices[faceVertexIndices[1]]]); 
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,5 +304,19 @@ int RigCell::firstIntersectionPoint(const cvf::Ray& ray, cvf::Vec3d* intersectio
     }
 
     return intersectionCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCell::faceIndices(cvf::StructGridInterface::FaceType face, caf::SizeTArray4* indices) const
+{
+    cvf::ubyte faceVertexIndices[4];
+    cvf::StructGridInterface::cellFaceVertexIndices(face, faceVertexIndices);
+
+    (*indices)[0] = m_cornerIndices[faceVertexIndices[0]];
+    (*indices)[1] = m_cornerIndices[faceVertexIndices[1]];
+    (*indices)[2] = m_cornerIndices[faceVertexIndices[2]];
+    (*indices)[3] = m_cornerIndices[faceVertexIndices[3]];
 }
 
