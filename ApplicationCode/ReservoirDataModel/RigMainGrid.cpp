@@ -179,3 +179,16 @@ RigGridBase* RigMainGrid::gridById(int localGridId)
     return this->gridByIndex(m_gridIdToIndexMapping[localGridId]);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigNNCData* RigMainGrid::nncData()
+{
+    if (m_nncData.isNull()) 
+    { 
+        m_nncData = new RigNNCData;
+    }  
+    
+    return m_nncData.p();
+}
+

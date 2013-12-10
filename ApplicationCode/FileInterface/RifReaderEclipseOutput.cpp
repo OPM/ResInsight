@@ -33,6 +33,7 @@
 #include "ecl_grid.h"
 #include "well_state.h"
 #include "ecl_kw_magic.h"
+#include "ecl_nnc_export.h"
 
 #include "cafProgressInfo.h"
 #include <map>
@@ -397,7 +398,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     // Build results meta data
     buildMetaData();
 
-
+    transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
 
     progInfo.incrementProgress();
     progInfo.setNextProgressIncrement(8);
@@ -409,6 +410,35 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.incrementProgress();
 
     return true;
+}
+
+void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, RigMainGrid * mainGrid)
+{
+    if (!m_ecl_init_file ) return;
+
+    CVF_ASSERT(mainEclGrid && mainGrid);
+
+    // Get the data from ERT
+
+    int numNNC = ecl_nnc_export_get_size( mainEclGrid );
+    ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
+
+    ecl_nnc_export( mainEclGrid , init_file , eclNNCData);
+
+    // Transform to our own datastructures
+
+    mainGrid->nncData()->connections().resize(numNNC);
+    for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+    {
+        RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
+        mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->globalGridCellIndex(eclNNCData[nIdx].global_index1);
+        RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
+        mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->globalGridCellIndex(eclNNCData[nIdx].global_index2);
+        mainGrid->nncData()->connections()[nIdx].m_transmissibility = eclNNCData[nIdx].trans;
+    }
+
+
+    delete[] eclNNCData;
 }
 
 
