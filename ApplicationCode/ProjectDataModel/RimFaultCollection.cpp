@@ -86,12 +86,19 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         this->updateUiIconFromState(showFaultCollection);
     }
 
+    if (&faultLabelColor == changedField)
+    {
+        m_reservoirView->scheduleReservoirGridGeometryRegen();
+    }
+
+
     if (&showGeometryDetectedFaults == changedField ||
         &showFaultFaces == changedField ||
         &showOppositeFaultFaces == changedField ||
         &showFaultCollection == changedField ||
         &showFaultLabel == changedField ||
-        &limitFaultsToFilter == changedField)
+        &limitFaultsToFilter == changedField ||
+        &faultLabelColor == changedField)
     {
         if (m_reservoirView) 
         {

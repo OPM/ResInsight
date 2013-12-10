@@ -208,28 +208,6 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
 
-    /*
-    if (m_faultFaces.notNull())
-    {
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
-        if (dg) 
-        {
-            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
-                &m_faultGenerator, dg, m_grid->gridIndex(), m_opacityLevel);
-
-            cvf::ScalarMapper* cellScalarMapper = NULL;
-            if (cellResultSlot->hasResult()) cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
-
-            CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper(), cellScalarMapper);
-            cellFaceEffectGen.setOpacityLevel(m_opacityLevel);
-            cellFaceEffectGen.setDefaultCellColor(m_defaultColor);
-
-            cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
-
-            m_faultFaces->setEffect(eff.p());
-        }
-    }
-    */
 }
 
 
@@ -433,6 +411,15 @@ void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
         
         cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
+        {
+            std::vector<RimFaultCollection*> parentObjects;
+            m_rimFault->parentObjectsOfType(parentObjects);
+
+            if (parentObjects.size() > 0)
+            {
+                defWellLabelColor = parentObjects[0]->faultLabelColor();;
+            }
+        }
 
         drawableText->setTextColor(defWellLabelColor);
 
