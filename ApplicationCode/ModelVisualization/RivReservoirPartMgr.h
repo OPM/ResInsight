@@ -21,7 +21,7 @@
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
-#include "RivFaultPartMgr.h"
+#include "RivReservoirFaultsPartMgr.h"
 
 namespace cvf
 {

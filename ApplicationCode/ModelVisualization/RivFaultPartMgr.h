@@ -17,16 +17,20 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-
 #include "cvfBase.h"
 #include "cvfObject.h"
 
 #include "RigGridBase.h"
-#include "RivFaultPart.h"
+#include "RimFault.h"
+#include "RivFaultGeometryGenerator.h"
+#include "cvfColor4.h"
 
 namespace cvf
 {
+    class StructGridInterface;
+    class ModelBasicList;
     class Transform;
+    class Part;
 }
 
 class RimResultSlot;
@@ -35,28 +39,56 @@ class RimFaultCollection;
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RivReservoirFaultsPartMgr : public cvf::Object
+
+class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivReservoirFaultsPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* faultCollection);
-    ~RivReservoirFaultsPartMgr();
+    RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFault);
 
-    void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
-    void updateCellColor(cvf::Color4f color);
+    void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
-        RimCellEdgeResultSlot* cellEdgeResultSlot);
+    void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
 
-    void appendPartsToModel(cvf::ModelBasicList* model);
-
+    void appendNativeFaultFacesToModel(cvf::ModelBasicList* model);
+    void appendOppositeFaultFacesToModel(cvf::ModelBasicList* model);
+    void appendLabelPartsToModel(cvf::ModelBasicList* model);
+    void appendMeshLinePartsToModel(cvf::ModelBasicList* model);
 
 private:
-    size_t                          m_gridIdx;
-    cvf::cref<RigGridBase>          m_grid;
-    cvf::ref<cvf::Transform>        m_scaleTransform;
-    const RimFaultCollection*       m_faultCollection;
-    cvf::Collection<RivFaultPartMgr>   m_faultParts;
+    void generatePartGeometry();
+    void updatePartEffect();
+    
+    void createLabelWithAnchorLine(const cvf::Part* part);
+   
+    static cvf::Vec3f findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices);
+
+private:
+    cvf::cref<RigGridBase>      m_grid;
+    const RimFault*             m_rimFault;
+
+    float                       m_opacityLevel;
+    cvf::Color3f                m_defaultColor;
+
+    bool                        m_showNativeFaces;
+    bool                        m_showOppositeFaces;
+    bool                        m_showLabel;
+
+    cvf::ref<cvf::UByteArray>   m_cellVisibility;
+
+    RivFaultGeometryGenerator   m_nativeFaultGenerator;
+    cvf::ref<cvf::Part>         m_nativeFaultFaces;
+    cvf::ref<cvf::Part>         m_nativeFaultGridLines;
+    cvf::ref<cvf::Vec2fArray>   m_nativeFaultFacesTextureCoords;
+
+    RivFaultGeometryGenerator   m_oppositeFaultGenerator;
+    cvf::ref<cvf::Part>         m_oppositeFaultFaces;
+    cvf::ref<cvf::Part>         m_oppositeFaultGridLines;
+    cvf::ref<cvf::Vec2fArray>   m_oppositeFaultFacesTextureCoords;
+
+    cvf::ref<cvf::Part>         m_faultLabelPart;
+    cvf::ref<cvf::Part>         m_faultLabelLinePart;
 };

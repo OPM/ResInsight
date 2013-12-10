@@ -24,7 +24,6 @@
 
 #include "RigCaseData.h"
 #include "RivGridPartMgr.h"
-#include "RivFaultPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
