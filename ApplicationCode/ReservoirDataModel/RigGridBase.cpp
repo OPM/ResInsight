@@ -370,27 +370,24 @@ void RigGridBase::computeFaults()
 
                     cvf::Vec3d currentCellFaceVertices[4];
                     {
-                        cvf::ubyte faceVertexIndices[4];
-                        cellFaceVertexIndices(face, faceVertexIndices);
-                        const caf::SizeTArray8& cornerIndices = currentCell.cornerIndices();
+                        caf::SizeTArray4 faceVxIndices;
+                        currentCell.faceIndices(face, &faceVxIndices);
         
-                        currentCellFaceVertices[0].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[0]]]);
-                        currentCellFaceVertices[1].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[1]]]);
-                        currentCellFaceVertices[2].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[2]]]);
-                        currentCellFaceVertices[3].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[3]]]);
+                        currentCellFaceVertices[0].set(m_mainGrid->nodes()[faceVxIndices[0]]);
+                        currentCellFaceVertices[1].set(m_mainGrid->nodes()[faceVxIndices[1]]);
+                        currentCellFaceVertices[2].set(m_mainGrid->nodes()[faceVxIndices[2]]);
+                        currentCellFaceVertices[3].set(m_mainGrid->nodes()[faceVxIndices[3]]);
                     }
 
                     cvf::Vec3d neighbourCellFaceVertices[4];
                     {
-                        cvf::ubyte faceVertexIndices[4];
-                        StructGridInterface::FaceType opposite = StructGridInterface::oppositeFace(face);
-                        cellFaceVertexIndices(opposite, faceVertexIndices);
-                        const caf::SizeTArray8& cornerIndices = neighbourCell.cornerIndices();
+                        caf::SizeTArray4 faceVxIndices;
+                        currentCell.faceIndices(StructGridInterface::oppositeFace(face), &faceVxIndices);
 
-                        neighbourCellFaceVertices[0].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[0]]]);
-                        neighbourCellFaceVertices[1].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[3]]]);
-                        neighbourCellFaceVertices[2].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[2]]]);
-                        neighbourCellFaceVertices[3].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[1]]]);
+                        neighbourCellFaceVertices[0].set(m_mainGrid->nodes()[faceVxIndices[0]]);
+                        neighbourCellFaceVertices[1].set(m_mainGrid->nodes()[faceVxIndices[3]]);
+                        neighbourCellFaceVertices[2].set(m_mainGrid->nodes()[faceVxIndices[2]]);
+                        neighbourCellFaceVertices[3].set(m_mainGrid->nodes()[faceVxIndices[1]]);
                     }
 
                     bool sharedFaceVertices = true;
