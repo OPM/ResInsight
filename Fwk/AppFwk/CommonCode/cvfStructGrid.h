@@ -62,7 +62,8 @@ public:
         POS_J,
         NEG_J,
         POS_K,
-        NEG_K
+        NEG_K,
+        NO_FACE
     };
 
     typedef caf::AppEnum<StructGridInterface::FaceType> FaceEnum;
