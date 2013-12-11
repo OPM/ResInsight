@@ -39,6 +39,7 @@ set( UNIT_TEST_CPP_SOURCES
     RigActiveCellInfo-Test.cpp
     RigReservoir-Test.cpp
 	RigStatisticsMath-Test.cpp
+	cvfGeometryTools-Test.cpp
 )
 
 
