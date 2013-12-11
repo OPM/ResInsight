@@ -35,22 +35,19 @@ class RigConnection
 public:
     RigConnection( ) 
         : m_c1GlobIdx(cvf::UNDEFINED_SIZE_T),
-          m_c1Face(cvf::StructGridInterface::POS_I),
+          m_c1Face(cvf::StructGridInterface::NO_FACE),
           m_c2GlobIdx(cvf::UNDEFINED_SIZE_T),
-          m_c2Face(cvf::StructGridInterface::NEG_I),
-          m_hasNoSharedArea(false),
           m_transmissibility(0.0)
     {}
 
-
-
-    bool                                m_hasNoSharedArea;
     size_t                              m_c1GlobIdx;
     cvf::StructGridInterface::FaceType  m_c1Face;
     size_t                              m_c2GlobIdx;
-    cvf::StructGridInterface::FaceType  m_c2Face; //7 Probably Unused. Remove
 
     double                              m_transmissibility;
+
+    std::vector<cvf::Vec3d>             m_polygon;
+
  /*   enum NNCType
     {
         
@@ -64,12 +61,14 @@ class RigNNCData : public cvf::Object
 public:
     RigNNCData();
 
+    const std::vector<size_t>& findConnectionIndices(size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const;
     void processConnections(const RigMainGrid& mainGrid);
   
     std::vector<RigConnection>&         connections()        { return m_connections; }
     const std::vector<RigConnection>&   connections() const  { return m_connections; };
 
 private:
-
+    typedef std::map<size_t, caf::FixedArray<std::vector<size_t>, 7 > > ConnectionSearchMap;
+    ConnectionSearchMap m_cellIdxToFaceToConnectionIdxMap;
     std::vector<RigConnection> m_connections; 
 };

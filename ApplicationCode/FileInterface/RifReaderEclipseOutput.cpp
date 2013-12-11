@@ -392,15 +392,22 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     m_eclipseCase = eclipseCase;
 
-    progInfo.setProgressDescription("Reading Result index");
-    progInfo.setNextProgressIncrement(50);
-    
     // Build results meta data
+    progInfo.setProgressDescription("Reading Result index");
+    progInfo.setNextProgressIncrement(25);
     buildMetaData();
-
-    transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
-
     progInfo.incrementProgress();
+
+    progInfo.setProgressDescription("Reading NNC data");
+    progInfo.setNextProgressIncrement(5);
+    transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+    progInfo.incrementProgress();
+
+    progInfo.setProgressDescription("Processing NNC's");
+    progInfo.setNextProgressIncrement(20);
+    eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
+    progInfo.incrementProgress();
+
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
     readWellCells(mainEclGrid);
