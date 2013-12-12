@@ -60,6 +60,7 @@ public:
 };
 
 typedef FixedArray<int, 3>    IntArray3;
+typedef FixedArray<int, 6>    IntArray6;
 typedef FixedArray<int, 4>    IntArray4;
 typedef FixedArray<int, 8>    IntArray8;
 typedef FixedArray<unsigned int, 4>    UintArray4;
