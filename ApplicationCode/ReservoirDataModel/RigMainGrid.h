@@ -48,6 +48,9 @@ public:
     RigGridBase*                            gridById(int localGridId);
    
     RigNNCData*                             nncData();
+    void                                    setFaults(const cvf::Collection<RigFault>& faults);
+    const cvf::Collection<RigFault>&        faults() { return m_faults; }
+    void                                    calculateFaults();
 
     void                                    computeCachedData();
 
@@ -68,6 +71,8 @@ private:
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
     std::vector<size_t>                     m_gridIdToIndexMapping; ///< Mapping from LGR Id to index.
 
+
+    cvf::Collection<RigFault>               m_faults;
     cvf::ref<RigNNCData>                    m_nncData;
 
     cvf::Vec3d                              m_displayModelOffset;

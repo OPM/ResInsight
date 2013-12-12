@@ -19,6 +19,7 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
+cvf::ref<RigFaultsPrCellAccumulator> RigFault::m_faultsPrCellAcc;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -118,15 +119,13 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* grid)
                         // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
                         //size_t globalCellIndex = grid->globalGridCellIndex(localCellIndex);
 
-                        cvf::StructGridInterface::FaceType oppositeFace = grid->oppositeFace(faceEnum);
-
                         size_t ni, nj, nk;
                         grid->ijkFromCellIndex(localCellIndex, &i, &j, &k);
                         grid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
 
                         size_t oppositeCellIndex = grid->cellIndexFromIJK(ni, nj, nk);
 
-                        m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum, oppositeCellIndex, oppositeFace));
+                        m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum, oppositeCellIndex));
                     }
                 }
             }
@@ -135,3 +134,17 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* grid)
 }
 
 
+void  RigFault::accumulateFaultsPrCell(RigFaultsPrCellAccumulator* faultsPrCellAcc, int faultIdx)
+{
+
+    for (size_t ffIdx = 0; ffIdx < m_faultFaces.size(); ffIdx)
+    {
+        const FaultFace& ff = m_faultFaces[ffIdx];
+
+        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeGlobalCellIndex, ff.m_nativeFace) >= 0)
+
+        faultsPrCellAcc->setFaultIdx(ff.m_nativeGlobalCellIndex, ff.m_nativeFace, faultIdx);
+        faultsPrCellAcc->setFaultIdx(ff.m_oppositeGlobalCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
+
+    }
+}

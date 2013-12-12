@@ -67,7 +67,6 @@ public:
     std::string                 gridName() const;
     void                        setGridName(const std::string& gridName);
 
-    void                        computeFaults();
     bool                        isMainGrid() const;
     RigMainGrid*                mainGrid() const { return m_mainGrid; }
 
@@ -78,8 +77,6 @@ public:
 
     cvf::BoundingBox            boundingBox();
 
-    void                                setFaults(const cvf::Collection<RigFault>& faults);
-    const cvf::Collection<RigFault>&    faults() { return m_faults; }
   
 protected:
     friend class RigMainGrid;//::initAllSubGridsParentGridPointer();
@@ -122,7 +119,6 @@ private:
 
     std::vector<caf::SizeTArray6>    m_coarseningBoxInfo;
 
-    cvf::Collection<RigFault>   m_faults;
 };
 
 

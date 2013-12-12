@@ -182,15 +182,8 @@ RigMainGrid* RimAnalysisModels::registerCaseInGridCollection(RigCaseData* rigEcl
         // This is the first insertion of this grid, compute cached data
         rigEclipseCase->mainGrid()->computeCachedData();
 
-        std::vector<RigGridBase*> grids;
-        rigEclipseCase->allGrids(&grids);
-
-        size_t i;
-        for (i = 0; i < grids.size(); i++)
-        {
-            grids[i]->computeFaults();
-        }
-
+        rigEclipseCase->mainGrid()->calculateFaults();
+  
         equalGrid = rigEclipseCase->mainGrid();
     }
 

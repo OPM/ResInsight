@@ -1096,7 +1096,7 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get the current scalar value for the display face at the given index
+/// Append fault name and result value for the given cell to the string
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) 
 {
@@ -1172,12 +1172,13 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         if (gridIndex == 0)
         {
             bool foundFault = false;
+            RigMainGrid* mainGrid = grid->mainGrid();
 
-            for (size_t i = 0; i < grid->faults().size(); i++)
+            for (size_t i = 0; i < mainGrid->faults().size(); i++)
             {
                 if (foundFault) continue;
 
-                const RigFault* rigFault = grid->faults().at(i);
+                const RigFault* rigFault = mainGrid->faults().at(i);
                 const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
 
                 for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)

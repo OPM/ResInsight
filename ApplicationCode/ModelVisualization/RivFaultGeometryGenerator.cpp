@@ -165,7 +165,7 @@ void RivFaultGeometryGenerator::computeArrays()
         if (!m_computeNativeFaultFaces)
         {
             cellIndex = faultFaces[fIdx].m_oppositeGlobalCellIndex;
-            face = faultFaces[fIdx].m_oppositeFace;
+            face = cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace);
         }
 
         if (!(*m_cellVisibility)[cellIndex]) continue;

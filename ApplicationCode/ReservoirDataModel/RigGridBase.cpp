@@ -307,7 +307,7 @@ bool RigGridBase::isCellValid(size_t i, size_t j, size_t k) const
 
 
 //--------------------------------------------------------------------------------------------------
-/// TODO: Use structgrid::neighborIJKAtCellFace
+/// 
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex) const
 {
@@ -325,91 +325,6 @@ bool RigGridBase::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, s
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::computeFaults()
-{
-  //size_t k;
-#pragma omp parallel for 
-    for (int k = 0; k < static_cast<int>(cellCountK()); k++)
-    {
-        size_t j;
-        for (j = 0; j < cellCountJ(); j++)
-        {
-            size_t i;
-            for (i = 0; i < cellCountI(); i++)
-            {
-                size_t idx = cellIndexFromIJK(i, j, k);
-
-                RigCell& currentCell = cell(idx);
-
-                if (currentCell.isInvalid())
-                {
-                    continue;
-                }
-        
-                size_t faceIdx;
-                for (faceIdx = 0; faceIdx < 6; faceIdx++)
-                {
-                    cvf::StructGridInterface::FaceType face = static_cast<cvf::StructGridInterface::FaceType>(faceIdx);
-
-                    size_t cellNeighbourIdx = 0;
-                    if (!cellIJKNeighbor(i, j, k, face, &cellNeighbourIdx))
-                    {
-                        continue;
-                    }
-
-                    const RigCell& neighbourCell = cell(cellNeighbourIdx);
-                    if (neighbourCell.isInvalid())
-                    {
-                        continue;
-                    }
-
-                    cvf::Vec3d currentCellFaceVertices[4];
-                    {
-                        caf::SizeTArray4 faceVxIndices;
-                        currentCell.faceIndices(face, &faceVxIndices);
-        
-                        currentCellFaceVertices[0].set(m_mainGrid->nodes()[faceVxIndices[0]]);
-                        currentCellFaceVertices[1].set(m_mainGrid->nodes()[faceVxIndices[1]]);
-                        currentCellFaceVertices[2].set(m_mainGrid->nodes()[faceVxIndices[2]]);
-                        currentCellFaceVertices[3].set(m_mainGrid->nodes()[faceVxIndices[3]]);
-                    }
-
-                    cvf::Vec3d neighbourCellFaceVertices[4];
-                    {
-                        caf::SizeTArray4 faceVxIndices;
-                        currentCell.faceIndices(StructGridInterface::oppositeFace(face), &faceVxIndices);
-
-                        neighbourCellFaceVertices[0].set(m_mainGrid->nodes()[faceVxIndices[0]]);
-                        neighbourCellFaceVertices[1].set(m_mainGrid->nodes()[faceVxIndices[3]]);
-                        neighbourCellFaceVertices[2].set(m_mainGrid->nodes()[faceVxIndices[2]]);
-                        neighbourCellFaceVertices[3].set(m_mainGrid->nodes()[faceVxIndices[1]]);
-                    }
-
-                    bool sharedFaceVertices = true;
-
-                    // Check if vertices are matching
-                    double tolerance = 1e-6;
-                    for (size_t cellFaceIdx = 0; cellFaceIdx < 4; cellFaceIdx++)
-                    {
-                        if (currentCellFaceVertices[cellFaceIdx].pointDistance(neighbourCellFaceVertices[cellFaceIdx]) > tolerance )
-                        {
-                            sharedFaceVertices = false;
-                        }
-                    }
-
-                    if (!sharedFaceVertices)
-                    {
-                        currentCell.setCellFaceFault(face);
-                    }
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -533,20 +448,6 @@ cvf::BoundingBox RigGridBase::boundingBox()
     }
     
     return m_boundingBox;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::setFaults(const cvf::Collection<RigFault>& faults)
-{
-    m_faults = faults;
-
-#pragma omp parallel for 
-    for (int i = 0; i < m_faults.size(); i++)
-    {
-        m_faults[i]->computeFaultFacesFromCellRanges(this->mainGrid());
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

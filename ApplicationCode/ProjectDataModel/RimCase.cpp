@@ -315,15 +315,7 @@ void RimCase::computeCachedData()
         rigEclipseCase->computeActiveCellBoundingBoxes();
 
         rigEclipseCase->mainGrid()->computeCachedData();
-
-        std::vector<RigGridBase*> grids;
-        rigEclipseCase->allGrids(&grids);
-
-        size_t i;
-        for (i = 0; i < grids.size(); i++)
-        {
-            grids[i]->computeFaults();
-        }
+        rigEclipseCase->mainGrid()->calculateFaults();
     }
 }
 
