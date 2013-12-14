@@ -137,7 +137,7 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* grid)
 void  RigFault::accumulateFaultsPrCell(RigFaultsPrCellAccumulator* faultsPrCellAcc, int faultIdx)
 {
 
-    for (size_t ffIdx = 0; ffIdx < m_faultFaces.size(); ffIdx)
+    for (size_t ffIdx = 0; ffIdx < m_faultFaces.size(); ++ffIdx)
     {
         const FaultFace& ff = m_faultFaces[ffIdx];
 

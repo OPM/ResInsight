@@ -157,7 +157,7 @@ void RivFaultGeometryGenerator::computeArrays()
     const std::vector<RigFault::FaultFace>& faultFaces = m_fault->faultFaces();
 
 #pragma omp parallel for
-    for (int fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+    for (int fIdx = 0; fIdx < static_cast<int>(faultFaces.size()); fIdx++)
     {
         size_t cellIndex = faultFaces[fIdx].m_nativeGlobalCellIndex;
         cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_nativeFace;

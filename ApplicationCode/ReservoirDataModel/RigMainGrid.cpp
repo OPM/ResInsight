@@ -200,7 +200,7 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
     m_faults = faults;
 
 #pragma omp parallel for 
-    for (int i = 0; i < m_faults.size(); i++)
+    for (int i = 0; i < static_cast<int>(m_faults.size()); i++)
     {
         m_faults[i]->computeFaultFacesFromCellRanges(this->mainGrid());
     }
