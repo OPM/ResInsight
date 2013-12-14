@@ -141,7 +141,7 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
                         m_connections[cnIdx].m_polygon.push_back(intersections[polygon[pIdx] - mainGrid.nodes().size()]);
                 }
 
-                // Add to search map
+                // Add to search map, possibly not needed
                 m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][fIdx].push_back(cnIdx);
                 m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx))].push_back(cnIdx);
 
@@ -152,7 +152,7 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// TODO: Possibly not needed !
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigNNCData::findConnectionIndices( size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const
 {

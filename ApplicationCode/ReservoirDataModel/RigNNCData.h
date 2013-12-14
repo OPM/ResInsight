@@ -48,10 +48,6 @@ public:
 
     std::vector<cvf::Vec3d>             m_polygon;
 
- /*   enum NNCType
-    {
-        
-    };*/
 };
 
 
@@ -61,14 +57,16 @@ class RigNNCData : public cvf::Object
 public:
     RigNNCData();
 
-    const std::vector<size_t>& findConnectionIndices(size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const;
     void processConnections(const RigMainGrid& mainGrid);
   
     std::vector<RigConnection>&         connections()        { return m_connections; }
     const std::vector<RigConnection>&   connections() const  { return m_connections; };
 
-private:
+private: // This section is possibly not needed
+    const std::vector<size_t>& findConnectionIndices(size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const;
     typedef std::map<size_t, caf::FixedArray<std::vector<size_t>, 7 > > ConnectionSearchMap;
     ConnectionSearchMap m_cellIdxToFaceToConnectionIdxMap;
+
+private:
     std::vector<RigConnection> m_connections; 
 };
