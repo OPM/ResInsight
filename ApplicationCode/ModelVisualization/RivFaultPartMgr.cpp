@@ -60,8 +60,14 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFau
         m_nativeFaultGenerator(grid, rimFault->faultGeometry(), true),
         m_oppositeFaultGenerator(grid, rimFault->faultGeometry(), false)
 {
+    cvf::ref< cvf::Array<size_t> > connIdxes = new cvf::Array<size_t>;
+    connIdxes->assign(rimFault->faultGeometry()->connectionIndices());
+
+    m_NNCGenerator = new RivNNCGeometryGenerator(grid->mainGrid()->nncData(), grid->mainGrid()->displayModelOffset(), connIdxes.p());
+
     m_nativeFaultFacesTextureCoords = new cvf::Vec2fArray;
     m_oppositeFaultFacesTextureCoords = new cvf::Vec2fArray;
+    m_NNCTextureCoords = new cvf::Vec2fArray;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,6 +322,32 @@ void RivFaultPartMgr::generatePartGeometry()
         }
     }
 
+    {
+        cvf::ref<cvf::DrawableGeo> geo = m_NNCGenerator->generateSurface();
+        if (geo.notNull())
+        {
+            geo->computeNormals();
+
+            if (useBufferObjects)
+            {
+                geo->setRenderMode(cvf::DrawableGeo::BUFFER_OBJECT);
+            }
+
+            cvf::ref<cvf::Part> part = new cvf::Part;
+            part->setName("NNC in Fault. Grid " + cvf::String(static_cast<int>(m_grid->gridIndex())));
+            part->setId(m_grid->gridIndex());       // !! For now, use grid index as part ID (needed for pick info)
+            part->setDrawable(geo.p());
+
+            // Set mapping from triangle face index to cell index
+            part->setSourceInfo(m_NNCGenerator->triangleToNNCIndex().p());
+
+            part->updateBoundingBox();
+            part->setEnableMask(faultBit);
+
+            m_NNCFaces = part;
+        }
+    }
+
     m_faultLabelPart = NULL;
     
     {
@@ -360,6 +392,20 @@ void RivFaultPartMgr::updatePartEffect()
         m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
 
+    // NNC faces a bit lighter than the fault for now
+
+    cvf::Color3f nncColor = partColor;
+    nncColor.r() +=  (1.0 - nncColor.r()) * 0.2;
+    nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
+    nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
+
+    caf::SurfaceEffectGenerator nncEffgen(nncColor, true);
+    cvf::ref<cvf::Effect> nncEffect = nncEffgen.generateEffect();
+
+    if (m_NNCFaces.notNull())
+    {
+        m_NNCFaces->setEffect(nncEffect.p());
+    }
 
     // Update mesh colors as well, in case of change
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
@@ -546,5 +592,13 @@ void RivFaultPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model)
 {
     if (m_nativeFaultGridLines.notNull())   model->addPart(m_nativeFaultGridLines.p());
     if (m_oppositeFaultGridLines.notNull()) model->addPart(m_oppositeFaultGridLines.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::appendNNCFacesToModel(cvf::ModelBasicList* model)
+{
+    if (m_NNCFaces.notNull())   model->addPart(m_NNCFaces.p());
 }
 

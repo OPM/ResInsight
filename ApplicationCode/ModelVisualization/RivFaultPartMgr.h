@@ -24,6 +24,7 @@
 #include "RimFault.h"
 #include "RivFaultGeometryGenerator.h"
 #include "cvfColor4.h"
+#include "RivNNCGeometryGenerator.h"
 
 namespace cvf
 {
@@ -55,6 +56,7 @@ public:
 
     void appendNativeFaultFacesToModel(cvf::ModelBasicList* model);
     void appendOppositeFaultFacesToModel(cvf::ModelBasicList* model);
+    void appendNNCFacesToModel(cvf::ModelBasicList* model);
     void appendLabelPartsToModel(cvf::ModelBasicList* model);
     void appendMeshLinePartsToModel(cvf::ModelBasicList* model);
 
@@ -89,6 +91,10 @@ private:
     cvf::ref<cvf::Part>         m_oppositeFaultGridLines;
     cvf::ref<cvf::Vec2fArray>   m_oppositeFaultFacesTextureCoords;
 
+    cvf::ref<RivNNCGeometryGenerator>     m_NNCGenerator;
+    cvf::ref<cvf::Part>         m_NNCFaces;
+    cvf::ref<cvf::Vec2fArray>   m_NNCTextureCoords;
+ 
     cvf::ref<cvf::Part>         m_faultLabelPart;
     cvf::ref<cvf::Part>         m_faultLabelLinePart;
 };
