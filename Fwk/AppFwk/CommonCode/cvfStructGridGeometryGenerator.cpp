@@ -341,8 +341,6 @@ void StructGridGeometryGenerator::computeArrays()
 
                 if (visibleFaces.size() > 0)
                 {
-                    size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
-
                     cvf::Vec3d cornerVerts[8];
                     m_grid->cellCornerVertices(cellIndex, cornerVerts);
 

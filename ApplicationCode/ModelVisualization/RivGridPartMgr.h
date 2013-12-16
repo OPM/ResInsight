@@ -43,6 +43,20 @@ class RimFaultCollection;
 ///
 //==================================================================================================
 
+class RivTransmissibilityColorMapper 
+{
+public:
+    static void transmissibilitiesTextureCoordinates(cvf::Vec2fArray* textureCoords, 
+        const cvf::StructGridScalarDataAccess* dataAccessObjectTranX, 
+        const cvf::StructGridScalarDataAccess* dataAccessObjectTranY, 
+        const cvf::StructGridScalarDataAccess* dataAccessObjectTranZ, 
+        const cvf::ScalarMapper* mapper, 
+        const std::vector<cvf::StructGridInterface::FaceType>& m_quadsToFaceTypes,
+        const std::vector<size_t>&            m_quadsToGridCells
+        );
+};
+
+
 class RivGridPartMgr: public cvf::Object
 {
 public:
@@ -59,9 +73,12 @@ public:
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
+    void updateTransmissibilityCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
 
 private:
     void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
+    
+    
 
 private:
     size_t                                      m_gridIdx;
