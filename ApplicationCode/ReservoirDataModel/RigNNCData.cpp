@@ -76,8 +76,8 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
             if (!hasNeighbourInAnyDirection)
             {
                 // Add to search map
-                m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
-                m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
+                //m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
+                //m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
 
                 continue; // to next connection
             }
@@ -142,15 +142,15 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
                 }
 
                 // Add to search map, possibly not needed
-                m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][fIdx].push_back(cnIdx);
-                m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx))].push_back(cnIdx);
+                //m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][fIdx].push_back(cnIdx);
+                //m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx))].push_back(cnIdx);
 
                 break; // The connection face is found. Stop looping over the cell faces. Jump to next connection
             }
         }
     }
 }
-
+/*
 //--------------------------------------------------------------------------------------------------
 /// TODO: Possibly not needed !
 //--------------------------------------------------------------------------------------------------
@@ -167,3 +167,4 @@ const std::vector<size_t>& RigNNCData::findConnectionIndices( size_t globalCellI
 
     return empty;
 }
+*/

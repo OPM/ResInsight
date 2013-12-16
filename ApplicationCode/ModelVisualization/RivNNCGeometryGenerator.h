@@ -58,7 +58,7 @@ private:
 private:
     // Input
     cvf::cref<RigNNCData>               m_nncData;
-    cvf::cref<cvf::Array<size_t>>       m_nncIndexes;
+    cvf::cref<cvf::Array<size_t> >      m_nncIndexes;
     cvf::cref<cvf::UByteArray>          m_cellVisibility;
     cvf::cref<RigGridBase>              m_grid;
     cvf::Vec3d                          m_offset;

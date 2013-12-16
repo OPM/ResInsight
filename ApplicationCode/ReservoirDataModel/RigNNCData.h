@@ -63,9 +63,9 @@ public:
     const std::vector<RigConnection>&   connections() const  { return m_connections; };
 
 private: // This section is possibly not needed
-    const std::vector<size_t>& findConnectionIndices(size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const;
-    typedef std::map<size_t, typename caf::FixedArray<std::vector<size_t>, 7 > > ConnectionSearchMap;
-    ConnectionSearchMap m_cellIdxToFaceToConnectionIdxMap;
+    //const std::vector<size_t>& findConnectionIndices(size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const;
+    //typedef std::map<size_t, caf::FixedArray<std::vector<size_t>, 7 > > ConnectionSearchMap;
+    //ConnectionSearchMap m_cellIdxToFaceToConnectionIdxMap;
 
 private:
     std::vector<RigConnection> m_connections; 
