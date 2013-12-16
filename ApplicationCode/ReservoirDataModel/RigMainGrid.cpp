@@ -299,7 +299,7 @@ void RigMainGrid::calculateFaults()
                 }
                 else
                 {
-                    CVF_ASSERT(false); // Should never occur. because we flag the opposite face in the faultsPrCellAcc
+                    CVF_FAIL_MSG("Found fault with global neighbour index less than the native index. "); // Should never occur. because we flag the opposite face in the faultsPrCellAcc
                 }
             }
         }
@@ -318,8 +318,14 @@ void RigMainGrid::calculateFaults()
     {
         // Find the fault for each side of the nnc
         const RigConnection& conn = nncs[nncIdx];
-        int fIdx1 = faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
-        int fIdx2 = faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
+        int fIdx1 =  RigFaultsPrCellAccumulator::NO_FAULT;
+        int fIdx2 =  RigFaultsPrCellAccumulator::NO_FAULT;
+
+        if (conn.m_c1Face != StructGridInterface::NO_FACE)
+        {
+            fIdx1 = faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
+            fIdx2 = faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
+        }
 
         if (fIdx1 < 0 && fIdx2 < 0)
         {
