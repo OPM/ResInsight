@@ -320,12 +320,17 @@ void RigMainGrid::calculateFaults()
         const RigConnection& conn = nncs[nncIdx];
         int fIdx1 = faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
         int fIdx2 = faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
-        
-        // Add the connection to both, if they are different.
-        m_faults[fIdx1]->connectionIndices().push_back(nncIdx);
-        if (fIdx2 != fIdx1)
+        if (fIdx1 >= 0)
         {
-            m_faults[fIdx2]->connectionIndices().push_back(nncIdx);
+            // Add the connection to both, if they are different.
+            m_faults[fIdx1]->connectionIndices().push_back(nncIdx);
+            if (fIdx2 != fIdx1)
+            {
+                if (fIdx2 >= 0)
+                {
+                    m_faults[fIdx2]->connectionIndices().push_back(nncIdx);
+                }
+            }
         }
     }
 }
