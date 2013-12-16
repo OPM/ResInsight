@@ -433,6 +433,7 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
     ecl_nnc_export( mainEclGrid , init_file , eclNNCData);
 
     // Transform to our own datastructures
+    cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
 
     mainGrid->nncData()->connections().resize(numNNC);
     for (int nIdx = 0; nIdx < numNNC; ++nIdx)

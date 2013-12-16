@@ -236,7 +236,7 @@ void RigMainGrid::calculateFaults()
         size_t neighborGlobalCellIdx;
         size_t neighborGridCellIdx;
         size_t i, j, k;
-        RigGridBase* hostGrid; ;
+        RigGridBase* hostGrid = NULL; 
         bool firstNO_FAULTFaceForCell = true;
 
         for (char faceIdx = 0; faceIdx < 6; ++faceIdx)
@@ -320,16 +320,29 @@ void RigMainGrid::calculateFaults()
         const RigConnection& conn = nncs[nncIdx];
         int fIdx1 = faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
         int fIdx2 = faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
+
+        if (fIdx1 < 0 && fIdx2 < 0)
+        {
+            cvf::String lgrString ("Same Grid");
+            if (m_cells[conn.m_c1GlobIdx].hostGrid() != m_cells[conn.m_c2GlobIdx].hostGrid() )
+            {
+                lgrString = "Different Grid";
+            }
+
+           //cvf::Trace::show("NNC: No Fault for NNC C1: " + cvf::String((int)conn.m_c1GlobIdx) + " C2: " + cvf::String((int)conn.m_c2GlobIdx) + " Grid: " + lgrString);
+        }
+
         if (fIdx1 >= 0)
         {
             // Add the connection to both, if they are different.
             m_faults[fIdx1]->connectionIndices().push_back(nncIdx);
-            if (fIdx2 != fIdx1)
+        }
+
+        if (fIdx2 != fIdx1)
+        {
+            if (fIdx2 >= 0)
             {
-                if (fIdx2 >= 0)
-                {
-                    m_faults[fIdx2]->connectionIndices().push_back(nncIdx);
-                }
+                m_faults[fIdx2]->connectionIndices().push_back(nncIdx);
             }
         }
     }
