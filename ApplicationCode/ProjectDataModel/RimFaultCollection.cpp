@@ -56,6 +56,7 @@ RimFaultCollection::RimFaultCollection()
 
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",    true,   "Show faults faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",    true,   "Show opposite fault faces", "", "", "");
+    CAF_PDM_InitField(&showNNCs,  "ShowNNCs",    false,   "Show NNCs", "", "", "");
     CAF_PDM_InitField(&limitFaultsToFilter,  "LimitFaultsToFilter",    true,   "Hide fault outside filters", "", "", "");
 
     CAF_PDM_InitField(&showFaultLabel,       "ShowFaultLabel",    true,   "Show fault labels", "", "", "");
@@ -95,6 +96,7 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
     if (&showGeometryDetectedFaults == changedField ||
         &showFaultFaces == changedField ||
         &showOppositeFaultFaces == changedField ||
+        &showNNCs == changedField ||
         &showFaultCollection == changedField ||
         &showFaultLabel == changedField ||
         &limitFaultsToFilter == changedField ||

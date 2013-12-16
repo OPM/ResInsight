@@ -119,9 +119,14 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
                 rivFaultPart->appendLabelPartsToModel(&parts);
             }
 
-            if (m_faultCollection->showFaultFaces() || m_faultCollection->showOppositeFaultFaces())
+            if (m_faultCollection->showFaultFaces() || m_faultCollection->showOppositeFaultFaces() || m_faultCollection->showNNCs() )
             {
                 rivFaultPart->appendMeshLinePartsToModel(&parts);
+            }
+
+            if (m_faultCollection->showNNCs())
+            {
+                rivFaultPart->appendNNCFacesToModel(&parts);
             }
         }
     }

@@ -47,11 +47,13 @@ public:
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
     void                                syncronizeFaults();
 
-    caf::PdmField<bool>                 showGeometryDetectedFaults;
+    caf::PdmField<bool>                 showGeometryDetectedFaults; // Obsolete, to be removed
 
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
     caf::PdmField<bool>                 limitFaultsToFilter;
+    caf::PdmField<bool>                 showNNCs;
+
 
     caf::PdmField<bool>                 showFaultLabel;
     caf::PdmField<cvf::Color3f>         faultLabelColor;
