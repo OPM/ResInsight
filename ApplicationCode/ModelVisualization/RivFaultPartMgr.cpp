@@ -56,12 +56,13 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFau
     :   m_grid(grid),
         m_rimFault(rimFault),
         m_opacityLevel(1.0f),
-        m_defaultColor(cvf::Color3::WHITE),
-        m_nativeFaultGenerator(grid, rimFault->faultGeometry(), true),
-        m_oppositeFaultGenerator(grid, rimFault->faultGeometry(), false)
+        m_defaultColor(cvf::Color3::WHITE)
 {
     cvf::ref< cvf::Array<size_t> > connIdxes = new cvf::Array<size_t>;
     connIdxes->assign(rimFault->faultGeometry()->connectionIndices());
+
+    m_nativeFaultGenerator = new RivFaultGeometryGenerator(grid, rimFault->faultGeometry(), true);
+    m_oppositeFaultGenerator = new  RivFaultGeometryGenerator(grid, rimFault->faultGeometry(), false);
 
     m_NNCGenerator = new RivNNCGeometryGenerator(grid->mainGrid()->nncData(), grid->mainGrid()->displayModelOffset(), connIdxes.p());
 
@@ -75,8 +76,8 @@ RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFau
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
-    m_nativeFaultGenerator.setCellVisibility(cellVisibilities);
-    m_oppositeFaultGenerator.setCellVisibility(cellVisibilities);
+    m_nativeFaultGenerator->setCellVisibility(cellVisibilities);
+    m_oppositeFaultGenerator->setCellVisibility(cellVisibilities);
 
     generatePartGeometry();
 }
@@ -87,20 +88,7 @@ void RivFaultPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 void RivFaultPartMgr::applySingleColorEffect()
 {
     m_defaultColor = m_rimFault->faultColor();
-    
-    // Set default effect
-    caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, true);
-    cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
-
-    if (m_nativeFaultFaces.notNull())   m_nativeFaultFaces->setEffect(geometryOnlyEffect.p());
-    if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
-
-    if (m_opacityLevel < 1.0f)
-    {
-        // Set priority to make sure this transparent geometry are rendered last
-        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100);
-        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100);
-    }
+    this->updatePartEffect();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,13 +115,13 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
     // Faults
     if (m_nativeFaultFaces.notNull())
     {
-        m_nativeFaultGenerator.textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
         if (m_opacityLevel < 1.0f )
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const std::vector<size_t>&  quadsToGridCells = m_nativeFaultGenerator.quadToGridCellIndices();
+            const std::vector<size_t>&  quadsToGridCells = m_nativeFaultGenerator->quadToGridCellIndices();
 
             for(size_t i = 0; i < m_nativeFaultFacesTextureCoords->size(); ++i)
             {
@@ -169,13 +157,13 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 
     if (m_oppositeFaultFaces.notNull())
     {
-        m_oppositeFaultGenerator.textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
         if (m_opacityLevel < 1.0f )
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const std::vector<size_t>&  quadsToGridCells = m_oppositeFaultGenerator.quadToGridCellIndices();
+            const std::vector<size_t>&  quadsToGridCells = m_oppositeFaultGenerator->quadToGridCellIndices();
 
             for(size_t i = 0; i < m_oppositeFaultFacesTextureCoords->size(); ++i)
             {
@@ -227,7 +215,7 @@ void RivFaultPartMgr::generatePartGeometry()
     bool useBufferObjects = true;
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_nativeFaultGenerator.generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = m_nativeFaultGenerator->generateSurface();
         if (geo.notNull())
         {
             geo->computeNormals();
@@ -243,7 +231,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(m_nativeFaultGenerator.triangleToSourceGridCellMap().p());
+            part->setSourceInfo(m_nativeFaultGenerator->triangleToSourceGridCellMap().p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
@@ -254,7 +242,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
     // Mesh geometry
     {
-        cvf::ref<cvf::DrawableGeo> geoMesh = m_nativeFaultGenerator.createMeshDrawable();
+        cvf::ref<cvf::DrawableGeo> geoMesh = m_nativeFaultGenerator->createMeshDrawable();
         if (geoMesh.notNull())
         {
             if (useBufferObjects)
@@ -276,7 +264,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
     // Surface geometry
     {
-        cvf::ref<cvf::DrawableGeo> geo = m_oppositeFaultGenerator.generateSurface();
+        cvf::ref<cvf::DrawableGeo> geo = m_oppositeFaultGenerator->generateSurface();
         if (geo.notNull())
         {
             geo->computeNormals();
@@ -292,7 +280,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(m_oppositeFaultGenerator.triangleToSourceGridCellMap().p());
+            part->setSourceInfo(m_oppositeFaultGenerator->triangleToSourceGridCellMap().p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
@@ -303,7 +291,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
     // Mesh geometry
     {
-        cvf::ref<cvf::DrawableGeo> geoMesh = m_oppositeFaultGenerator.createMeshDrawable();
+        cvf::ref<cvf::DrawableGeo> geoMesh = m_oppositeFaultGenerator->createMeshDrawable();
         if (geoMesh.notNull())
         {
             if (useBufferObjects)
@@ -399,7 +387,7 @@ void RivFaultPartMgr::updatePartEffect()
     nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
     nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
 
-    caf::SurfaceEffectGenerator nncEffgen(nncColor, true);
+    caf::SurfaceEffectGenerator nncEffgen(nncColor, false);
     cvf::ref<cvf::Effect> nncEffect = nncEffgen.generateEffect();
 
     if (m_NNCFaces.notNull())
@@ -422,6 +410,14 @@ void RivFaultPartMgr::updatePartEffect()
     if (m_oppositeFaultGridLines.notNull())
     {
         m_oppositeFaultGridLines->setEffect(eff.p());
+    }
+
+    if (m_opacityLevel < 1.0f)
+    {
+        // Set priority to make sure this transparent geometry are rendered last
+        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100);
+        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100);
+        if (m_NNCFaces.notNull())  m_NNCFaces->setPriority(100);
     }
 }
 

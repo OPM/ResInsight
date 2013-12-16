@@ -81,12 +81,12 @@ private:
 
     cvf::ref<cvf::UByteArray>   m_cellVisibility;
 
-    RivFaultGeometryGenerator   m_nativeFaultGenerator;
+    cvf::ref<RivFaultGeometryGenerator>   m_nativeFaultGenerator;
     cvf::ref<cvf::Part>         m_nativeFaultFaces;
     cvf::ref<cvf::Part>         m_nativeFaultGridLines;
     cvf::ref<cvf::Vec2fArray>   m_nativeFaultFacesTextureCoords;
 
-    RivFaultGeometryGenerator   m_oppositeFaultGenerator;
+    cvf::ref<RivFaultGeometryGenerator>   m_oppositeFaultGenerator;
     cvf::ref<cvf::Part>         m_oppositeFaultFaces;
     cvf::ref<cvf::Part>         m_oppositeFaultGridLines;
     cvf::ref<cvf::Vec2fArray>   m_oppositeFaultFacesTextureCoords;
