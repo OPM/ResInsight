@@ -60,6 +60,7 @@
 #include "RimCaseCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 
@@ -312,10 +313,18 @@ void RimCase::computeCachedData()
     RigCaseData* rigEclipseCase = reservoirData();
     if (rigEclipseCase)
     {
+        caf::ProgressInfo pInf(30, "");
+        pInf.setNextProgressIncrement(1);
         rigEclipseCase->computeActiveCellBoundingBoxes();
+        pInf.incrementProgress();
 
+        pInf.setNextProgressIncrement(10);
         rigEclipseCase->mainGrid()->computeCachedData();
+        pInf.incrementProgress();
+
+        pInf.setProgressDescription("Calculating faults");
         rigEclipseCase->mainGrid()->calculateFaults();
+        pInf.incrementProgress();
     }
 }
 
