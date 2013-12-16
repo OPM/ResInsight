@@ -196,7 +196,17 @@ void RimResultDefinition::loadResult()
     RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
+        if (m_resultType() == RimDefines::STATIC_NATIVE &&
+            m_resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        {
+            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANX");
+            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANY");
+            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANZ");
+        }
+        else
+        {
+            gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
+        }
     }
    
 }

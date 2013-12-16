@@ -33,6 +33,8 @@ RigCaseCellResultsData::RigCaseCellResultsData(RigMainGrid* ownerGrid)
 {
     CVF_ASSERT(ownerGrid != NULL);
     m_ownerMainGrid = ownerGrid;
+
+    m_combinedTransmissibilityResultIndex = cvf::UNDEFINED_SIZE_T;
 }
 
 
@@ -115,6 +117,18 @@ void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, si
         return;
     }
 
+    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
+    {
+        size_t tranX, tranY, tranZ;
+        if (!findTransmissibilityResults(tranX, tranY, tranZ)) return;
+
+        minMaxCellScalarValues(tranX, timeStepIndex, min, max);
+        minMaxCellScalarValues(tranY, timeStepIndex, min, max);
+        minMaxCellScalarValues(tranZ, timeStepIndex, min, max);
+
+        return;
+    }
+
     std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
 
     size_t i;
@@ -167,12 +181,28 @@ const std::vector<size_t>& RigCaseCellResultsData::cellScalarValuesHistogram(siz
     this->minMaxCellScalarValues( scalarResultIndex, min, max );
     RigHistogramCalculator histCalc(min, max, nBins, &m_histograms[scalarResultIndex]);
 
-    for (size_t tsIdx = 0; tsIdx < this->timeStepCount(scalarResultIndex); tsIdx++)
+    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
     {
-        std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tsIdx];
+        size_t tranX, tranY, tranZ;
+        if (findTransmissibilityResults(tranX, tranY, tranZ))
+        {
+            for (size_t tsIdx = 0; tsIdx < this->timeStepCount(scalarResultIndex); tsIdx++)
+            {
+                histCalc.addData(m_cellScalarResults[tranX][tsIdx]);
+                histCalc.addData(m_cellScalarResults[tranY][tsIdx]);
+                histCalc.addData(m_cellScalarResults[tranZ][tsIdx]);
+            } 
+        }
+    }
+    else
+    {
+        for (size_t tsIdx = 0; tsIdx < this->timeStepCount(scalarResultIndex); tsIdx++)
+        {
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tsIdx];
 
-        histCalc.addData(values);
-    } 
+            histCalc.addData(values);
+        } 
+    }
 
     m_p10p90[scalarResultIndex].first = histCalc.calculatePercentil(0.1);
     m_p10p90[scalarResultIndex].second = histCalc.calculatePercentil(0.9);
@@ -215,14 +245,52 @@ void RigCaseCellResultsData::meanCellScalarValues(size_t scalarResultIndex, doub
 
     double valueSum = 0.0;
     size_t count = 0;
-    for (size_t tIdx = 0; tIdx < timeStepCount(scalarResultIndex); tIdx++)
+
+    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
     {
-        std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tIdx];
-        for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+        size_t tranX, tranY, tranZ;
+        if (findTransmissibilityResults(tranX, tranY, tranZ))
         {
-            valueSum += values[cIdx];
+            for (size_t tIdx = 0; tIdx < timeStepCount(tranX); tIdx++)
+            {
+                {
+                    std::vector<double>& values = m_cellScalarResults[tranX][tIdx];
+                    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+                    {
+                        valueSum += values[cIdx];
+                    }
+                    count += values.size();
+                }
+                {
+                    std::vector<double>& values = m_cellScalarResults[tranY][tIdx];
+                    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+                    {
+                        valueSum += values[cIdx];
+                    }
+                    count += values.size();
+                }
+                {
+                    std::vector<double>& values = m_cellScalarResults[tranZ][tIdx];
+                    for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+                    {
+                        valueSum += values[cIdx];
+                    }
+                    count += values.size();
+                }
+            }
         }
-        count += values.size();
+    }
+    else
+    {
+        for (size_t tIdx = 0; tIdx < timeStepCount(scalarResultIndex); tIdx++)
+        {
+            std::vector<double>& values = m_cellScalarResults[scalarResultIndex][tIdx];
+            for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
+            {
+                valueSum += values[cIdx];
+            }
+            count += values.size();
+        }
     }
 
     m_meanValues[scalarResultIndex] = valueSum/count;
@@ -665,6 +733,19 @@ void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_
         return;
     }
 
+    if (scalarResultIndex == m_combinedTransmissibilityResultIndex)
+    {
+        size_t tranX, tranY, tranZ;
+        if (findTransmissibilityResults(tranX, tranY, tranZ))
+        {
+            posNegClosestToZero(tranX, timeStepIndex, pos, neg);
+            posNegClosestToZero(tranY, timeStepIndex, pos, neg);
+            posNegClosestToZero(tranZ, timeStepIndex, pos, neg);
+        }
+
+        return;
+    }
+
     std::vector<double>& values = m_cellScalarResults[scalarResultIndex][timeStepIndex];
 
     size_t i;
@@ -688,5 +769,39 @@ void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_
 
     m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].first = pos;
     m_posNegClosestToZeroPrTs[scalarResultIndex][timeStepIndex].second= neg;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::createCombinedTransmissibilityResult()
+{
+    size_t combinedTransmissibilityIndex = findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
+    if (combinedTransmissibilityIndex != cvf::UNDEFINED_SIZE_T) return;
+
+    size_t tranX, tranY, tranZ;
+    if (!findTransmissibilityResults(tranX, tranY, tranZ)) return;
+
+
+    m_combinedTransmissibilityResultIndex = addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName(), false, 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigCaseCellResultsData::findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const
+{
+    tranX = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX");
+    tranY = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY");
+    tranZ = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ");
+
+    if (tranX == cvf::UNDEFINED_SIZE_T ||
+        tranY == cvf::UNDEFINED_SIZE_T ||
+        tranZ == cvf::UNDEFINED_SIZE_T)
+    {
+        return false;
+    }
+
+    return true;
 }
 

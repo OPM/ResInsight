@@ -941,6 +941,7 @@ void RimReservoirView::loadDataAndUpdate()
                 RimReservoirCellResultsStorage* results = currentGridCellResults();
                 CVF_ASSERT(results);
                 results->loadOrComputeSOIL();
+                results->createCombinedTransmissibilityResults();
             }
         }
     }
