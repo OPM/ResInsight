@@ -181,7 +181,7 @@ StructGridInterface::FaceType StructGridInterface::oppositeFace(FaceType face)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Return values are set to cvf::UNDEFINED_SIZE_T if the neighbor is in the negative area
 //--------------------------------------------------------------------------------------------------
 void StructGridInterface::neighborIJKAtCellFace(size_t i, size_t j, size_t k, FaceType face, size_t* ni, size_t* nj, size_t* nk)
 {
