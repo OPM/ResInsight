@@ -290,6 +290,9 @@ void RigMainGrid::calculateFaults()
                 faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
                 faultsPrCellAcc->setFaultIdx(neighborGlobalCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
 
+                m_cells[gcIdx].setCellFaceFault(face);
+                m_cells[neighborGlobalCellIdx].setCellFaceFault(StructGridInterface::oppositeFace(face));
+
                 // Add as fault face only if the grid index is less than the neighbors
 
                 if (gcIdx < neighborGlobalCellIdx)
