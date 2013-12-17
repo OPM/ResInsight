@@ -54,6 +54,18 @@ public:
 
 };
 
+
+// Enumerates different levels of polygon offsetting
+enum PolygonOffset
+{
+    PO_NONE = 0, // No polygon offset
+    PO_1 = 1,    // 'Normal' polygon offset, equal to configurePolygonPositiveOffset(), ie factor=unit=1.0
+    PO_2 = 2,    // More offset
+    PO_3 = 3     // Even more offset
+};
+
+
+
 //==================================================================================================
 //
 // 
@@ -92,6 +104,7 @@ private:
 };
 
 
+
 //==================================================================================================
 //
 // SurfaceEffectGenerator
@@ -100,8 +113,8 @@ private:
 class SurfaceEffectGenerator : public EffectGenerator
 {
 public:
-    SurfaceEffectGenerator(const cvf::Color4f& color, bool polygonOffset);
-    SurfaceEffectGenerator(const cvf::Color3f& color, bool polygonOffset);
+    SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset);
+    SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset);
 
     void                            setCullBackfaces(bool cullBackFaces) { m_cullBackfaces = cullBackFaces; }
 
@@ -117,7 +130,7 @@ private:
 
 private:
     cvf::Color4f    m_color;
-    bool            m_polygonOffset;
+    PolygonOffset   m_polygonOffset;
     bool            m_cullBackfaces;
 
 };
@@ -131,7 +144,7 @@ private:
 class ScalarMapperEffectGenerator : public EffectGenerator
 {
 public:
-    ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, bool polygonOffset);
+    ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, PolygonOffset polygonOffset);
 
     void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
@@ -153,7 +166,7 @@ private:
 private:
     cvf::cref<cvf::ScalarMapper>    m_scalarMapper;
     mutable cvf::ref<cvf::TextureImage>     m_textureImage;
-    bool                            m_polygonOffset;
+    PolygonOffset                   m_polygonOffset;
     float                           m_opacityLevel;
     cvf::Color3f                    m_undefinedColor;
     bool                            m_cullBackfaces;

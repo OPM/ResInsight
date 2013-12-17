@@ -70,7 +70,7 @@ RivWellPipesPartMgr::RivWellPipesPartMgr(RimReservoirView* reservoirView, RimWel
 
     m_scalarMapper = scalarMapper;
 
-    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), true);
+    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
     m_scalarMapperSurfaceEffect = surfEffGen.generateEffect();
 
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
@@ -139,7 +139,7 @@ void RivWellPipesPartMgr::buildWellPipeParts()
             pbd.m_surfacePart = new cvf::Part;
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
 
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWell->wellPipeColor()), true);
+            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWell->wellPipeColor()), caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
 
             pbd.m_surfacePart->setEffect(eff.p());

@@ -433,7 +433,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
 //--------------------------------------------------------------------------------------------------
 void CellEdgeEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect) const
 {
-    caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f::CRIMSON), true);
+    caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(cvf::Color3f::CRIMSON), caf::PO_1);
 
     surfaceGen.updateEffect(effect);
 }

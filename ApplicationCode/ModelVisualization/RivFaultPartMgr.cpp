@@ -155,8 +155,8 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_nativeFaultFacesTextureCoords.p());
 
-        bool usePolygonOffset = true;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+        caf::PolygonOffset polygonOffset = caf::PO_1;
+        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
         scalarEffgen.setCullBackfaces(true);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
@@ -208,8 +208,8 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
 
-        bool usePolygonOffset = true;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+        caf::PolygonOffset polygonOffset = caf::PO_1;
+        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
         scalarEffgen.setCullBackfaces(true);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
@@ -390,7 +390,7 @@ void RivFaultPartMgr::updatePartEffect()
     cvf::Color3f partColor = m_defaultColor;
 
     // Set default effect
-    caf::SurfaceEffectGenerator geometryEffgen(partColor, true);
+    caf::SurfaceEffectGenerator geometryEffgen(partColor, caf::PO_1);
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
     if (m_nativeFaultFaces.notNull())
@@ -410,7 +410,7 @@ void RivFaultPartMgr::updatePartEffect()
     nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
     nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
 
-    caf::SurfaceEffectGenerator nncEffgen(nncColor, false);
+    caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NONE);
     cvf::ref<cvf::Effect> nncEffect = nncEffgen.generateEffect();
 
     if (m_NNCFaces.notNull())

@@ -119,7 +119,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             part->updateBoundingBox();
             
             // Set default effect
-            caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), true);
+            caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), caf::PO_1);
             cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
             part->setEffect(geometryOnlyEffect.p());
 
@@ -205,7 +205,7 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
     if (m_surfaceFaces.isNull() && m_faultFaces.isNull()) return;
 
     // Set default effect
-    caf::SurfaceEffectGenerator geometryEffgen(color, true);
+    caf::SurfaceEffectGenerator geometryEffgen(color, caf::PO_1);
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
     if (m_surfaceFaces.notNull()) m_surfaceFaces->setEffect(geometryOnlyEffect.p());
@@ -307,8 +307,8 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
 
-        bool usePolygonOffset = true;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+        caf::PolygonOffset polygonOffset = caf::PO_1;
+        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
 
@@ -358,8 +358,8 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_faultFacesTextureCoords.p());
 
-        bool usePolygonOffset = true;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+        caf::PolygonOffset polygonOffset = caf::PO_1;
+        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
 

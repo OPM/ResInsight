@@ -104,6 +104,35 @@ cvf::String CommonShaderSources::light_AmbientDiffuse()
 
 
 
+//--------------------------------------------------------------------------------------------------
+/// Static helper to configure polygon offset render state from enum
+//--------------------------------------------------------------------------------------------------
+static cvf::ref<cvf::RenderStatePolygonOffset> CreateAngConfigurePolygonOffsetRenderState(PolygonOffset polygonOffset)
+{
+    cvf::ref<cvf::RenderStatePolygonOffset> rs = new cvf::RenderStatePolygonOffset;
+    if (polygonOffset == PO_NONE)
+    {
+        return rs;
+    }
+
+    rs->enableFillMode(true);
+    rs->setFactor(1.0f);
+
+    switch (polygonOffset)
+    {
+        case PO_1:  rs->setUnits(1.0f); break;
+        case PO_2:  rs->setUnits(2.0f); break;
+        case PO_3:  rs->setUnits(3.0f); break;
+        default:
+            CVF_FAIL_MSG("Unhandled polygon offset enum");
+    }
+
+    return rs;
+}
+
+
+
+
 //==================================================================================================
 //
 // EffectGenerator Base class
@@ -205,7 +234,7 @@ void EffectGenerator::releaseUnreferencedEffects()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, bool polygonOffset)
+SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset)
 {
     m_color = color;
     m_polygonOffset = polygonOffset;
@@ -215,7 +244,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, bool p
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, bool polygonOffset)
+SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset)
 {
     m_color = cvf::Color4f(color, 1.0f);
     m_polygonOffset = polygonOffset;
@@ -269,10 +298,9 @@ void SurfaceEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect
 //--------------------------------------------------------------------------------------------------
 void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 {
-    if (m_polygonOffset)
+    if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-        polyOffset->configurePolygonPositiveOffset();
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 
@@ -337,7 +365,7 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, bool polygonOffset)
+ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, PolygonOffset polygonOffset)
     : m_undefinedColor(cvf::Color3::GRAY)
 {
     m_scalarMapper = scalarMapper;
@@ -426,10 +454,9 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 {
     CVF_ASSERT(effect);
 
-    if (m_polygonOffset)
+    if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-        polyOffset->configurePolygonPositiveOffset();
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 

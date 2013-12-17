@@ -177,7 +177,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             part->setName("RivWellHeadPartMgr: surface " + cvfqt::Utils::toString(well->name()));
             part->setDrawable(pipeSurface.p());
 
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), true);
+            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
 
             part->setEffect(eff.p());
@@ -273,7 +273,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             }
         }
 
-        caf::SurfaceEffectGenerator surfaceGen(headColor, true);
+        caf::SurfaceEffectGenerator surfaceGen(headColor, caf::PO_1);
         cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
 
         part->setEffect(eff.p());
