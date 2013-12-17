@@ -472,6 +472,8 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
 #pragma omp parallel for private(texCoord, cellScalarValue)
     for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
     {
+        cellScalarValue = HUGE_VAL;
+
         if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_I)
         {
             cellScalarValue = dataAccessObjectTranX->cellScalar(quadsToGridCells[idx]);
@@ -513,10 +515,6 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
             {
                 cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
             }
-        }
-        else
-        {
-            cellScalarValue = HUGE_VAL;
         }
 
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
