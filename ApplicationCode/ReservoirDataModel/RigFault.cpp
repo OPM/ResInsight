@@ -74,9 +74,9 @@ const std::vector<RigFault::FaultFace>& RigFault::faultFaces() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* grid)
+void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
 {
-    if (!grid) return;
+    if (!mainGrid) return;
 
     m_faultFaces.clear();
 
@@ -95,37 +95,41 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* grid)
 
             for (size_t i = min.x(); i <= max.x(); i++)
             {
-                if (i >= grid->cellCountI())
+                if (i >= mainGrid->cellCountI())
                 {
                     continue;
                 }
 
                 for (size_t j = min.y(); j <= max.y(); j++)
                 {
-                    if (j >= grid->cellCountJ())
+                    if (j >= mainGrid->cellCountJ())
                     {
                         continue;
                     }
 
                     for (size_t k = min.z(); k <= max.z(); k++)
                     {
-                        if (k >= grid->cellCountK())
+                        if (k >= mainGrid->cellCountK())
                         {
                             continue;
                         }
-
-                        size_t localCellIndex = grid->cellIndexFromIJK(i, j, k);
 
                         // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
                         //size_t globalCellIndex = grid->globalGridCellIndex(localCellIndex);
 
                         size_t ni, nj, nk;
-                        grid->ijkFromCellIndex(localCellIndex, &i, &j, &k);
-                        grid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
+                        mainGrid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
+                        if (ni != cvf::UNDEFINED_SIZE_T && nj != cvf::UNDEFINED_SIZE_T && nk != cvf::UNDEFINED_SIZE_T)
+                        {
+                            size_t localCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
+                            size_t oppositeCellIndex = mainGrid->cellIndexFromIJK(ni, nj, nk);
 
-                        size_t oppositeCellIndex = grid->cellIndexFromIJK(ni, nj, nk);
-
-                        m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum, oppositeCellIndex));
+                            m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum, oppositeCellIndex));
+                        }
+                        else
+                        {
+                            cvf::Trace::show("Warning: Undefined Fault neighbor detected.");
+                        }
                     }
                 }
             }
