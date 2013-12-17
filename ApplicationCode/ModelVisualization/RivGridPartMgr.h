@@ -35,6 +35,25 @@ class RimResultSlot;
 class RimCellEdgeResultSlot;
 class RimFaultCollection;
 
+
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RivTransmissibilityColorMapper 
+{
+public:
+    static void updateCombinedTransmissibilityTextureCoordinates(
+        RimResultSlot* cellResultSlot,
+        const RigGridBase* grid,
+        cvf::Vec2fArray* textureCoords, 
+        const std::vector<cvf::StructGridInterface::FaceType>&  quadsToFaceTypes,
+        const std::vector<size_t>&                              quadsToGridCells);
+};
+
+
+
 //==================================================================================================
 ///
 /// RivGridGeometry: Class to handle visualization structures that embodies a specific grid at a specific time step.
@@ -42,20 +61,6 @@ class RimFaultCollection;
 /// LGR's have their own instance and the parent grid as well
 ///
 //==================================================================================================
-
-class RivTransmissibilityColorMapper 
-{
-public:
-    static void transmissibilitiesTextureCoordinates(cvf::Vec2fArray* textureCoords, 
-        const cvf::StructGridScalarDataAccess* dataAccessObjectTranX, 
-        const cvf::StructGridScalarDataAccess* dataAccessObjectTranY, 
-        const cvf::StructGridScalarDataAccess* dataAccessObjectTranZ, 
-        const cvf::ScalarMapper* mapper, 
-        const std::vector<cvf::StructGridInterface::FaceType>& m_quadsToFaceTypes,
-        const std::vector<size_t>&            m_quadsToGridCells
-        );
-};
-
 
 class RivGridPartMgr: public cvf::Object
 {
@@ -72,8 +77,6 @@ public:
         RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
-
-    void updateTransmissibilityCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
 
 private:
     void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);

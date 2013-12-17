@@ -256,7 +256,15 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     {
         if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
-            updateTransmissibilityCellResultColor(timeStepIndex, cellResultSlot);
+            if (m_surfaceFaces.notNull())
+            {
+                const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
+                const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
+                cvf::Vec2fArray* textureCoords = m_surfaceFacesTextureCoords.p();
+
+
+                RivTransmissibilityColorMapper::transmissibilitiesTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
+            }
         }
         else
         {
@@ -425,16 +433,24 @@ RivGridPartMgr::~RivGridPartMgr()
 #endif
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateTransmissibilityCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivTransmissibilityColorMapper::transmissibilitiesTextureCoordinates(RimResultSlot* cellResultSlot,
+    const RigGridBase* grid,
+    cvf::Vec2fArray* textureCoords, 
+    const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes, 
+    const std::vector<size_t>& quadsToGridCells)
 {
     const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
     if (!mapper) return;
 
     const RimReservoirCellResultsStorage* gridCellResults = cellResultSlot->currentGridCellResults();
     if (!gridCellResults) return;
+
+    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    if (!eclipseCase) return;
 
     size_t tranPosXScalarSetIndex, tranPosYScalarSetIndex, tranPosZScalarSetIndex;
     if (!gridCellResults->cellResults()->findTransmissibilityResults(tranPosXScalarSetIndex, tranPosYScalarSetIndex, tranPosZScalarSetIndex)) return;
@@ -444,90 +460,80 @@ void RivGridPartMgr::updateTransmissibilityCellResultColor(size_t timeStepIndex,
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
 
-    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
-    if (!eclipseCase) return;
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranX = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosXScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranY = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosYScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranZ = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosZScalarSetIndex);
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranX = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, tranPosXScalarSetIndex);
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranY = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, tranPosYScalarSetIndex);
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranZ = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, tranPosZScalarSetIndex);
 
-    // Outer surface
-    if (m_surfaceFaces.notNull())
-    {
-        const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
-        const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
-        cvf::Vec2fArray* textureCoords = m_surfaceFacesTextureCoords.p();
+    size_t numVertices = quadsToGridCells.size()*4;
 
-        size_t numVertices = quadsToGridCells.size()*4;
+    textureCoords->resize(numVertices);
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
 
-        textureCoords->resize(numVertices);
-        cvf::Vec2f* rawPtr = textureCoords->ptr();
-
-        double cellScalarValue;
-        cvf::Vec2f texCoord;
+    double cellScalarValue;
+    cvf::Vec2f texCoord;
 
 #pragma omp parallel for private(texCoord, cellScalarValue)
-        for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
+    for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
+    {
+        if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_I)
         {
-            if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_I)
-            {
-                cellScalarValue = dataAccessObjectTranX->cellScalar(quadsToGridCells[idx]);
-            }
-            else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_I)
-            {
-                size_t i, j, k, neighborGridCellIdx;
-                m_grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+            cellScalarValue = dataAccessObjectTranX->cellScalar(quadsToGridCells[idx]);
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_I)
+        {
+            size_t i, j, k, neighborGridCellIdx;
+            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
-                if(m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_I, &neighborGridCellIdx))
-                {
-                    cellScalarValue = dataAccessObjectTranX->cellScalar(neighborGridCellIdx);
-                }
-            }
-            else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_J)
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_I, &neighborGridCellIdx))
             {
-                cellScalarValue = dataAccessObjectTranY->cellScalar(quadsToGridCells[idx]);
-            }
-            else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_J)
-            {
-                size_t i, j, k, neighborGridCellIdx;
-                m_grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
-
-                if(m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_J, &neighborGridCellIdx))
-                {
-                    cellScalarValue = dataAccessObjectTranY->cellScalar(neighborGridCellIdx);
-                }
-            }
-            else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_K)
-            {
-                cellScalarValue = dataAccessObjectTranZ->cellScalar(quadsToGridCells[idx]);
-            }
-            else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_K)
-            {
-                size_t i, j, k, neighborGridCellIdx;
-                m_grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
-
-                if(m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_K, &neighborGridCellIdx))
-                {
-                    cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
-                }
-            }
-            else
-            {
-                cellScalarValue = HUGE_VAL;
-            }
-
-            texCoord = mapper->mapToTextureCoord(cellScalarValue);
-            if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
-            {
-                texCoord[1] = 1.0f;
-            }
-
-            size_t j;
-            for (j = 0; j < 4; j++)
-            {   
-                rawPtr[idx*4 + j] = texCoord;
+                cellScalarValue = dataAccessObjectTranX->cellScalar(neighborGridCellIdx);
             }
         }
-    }
-}
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_J)
+        {
+            cellScalarValue = dataAccessObjectTranY->cellScalar(quadsToGridCells[idx]);
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_J)
+        {
+            size_t i, j, k, neighborGridCellIdx;
+            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_J, &neighborGridCellIdx))
+            {
+                cellScalarValue = dataAccessObjectTranY->cellScalar(neighborGridCellIdx);
+            }
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_K)
+        {
+            cellScalarValue = dataAccessObjectTranZ->cellScalar(quadsToGridCells[idx]);
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_K)
+        {
+            size_t i, j, k, neighborGridCellIdx;
+            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_K, &neighborGridCellIdx))
+            {
+                cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
+            }
+        }
+        else
+        {
+            cellScalarValue = HUGE_VAL;
+        }
+
+        texCoord = mapper->mapToTextureCoord(cellScalarValue);
+        if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
+        {
+            texCoord[1] = 1.0f;
+        }
+
+        size_t j;
+        for (j = 0; j < 4; j++)
+        {   
+            rawPtr[idx*4 + j] = texCoord;
+        }
+    }
+
+}
