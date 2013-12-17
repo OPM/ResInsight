@@ -108,7 +108,7 @@ public:
                                                                                   const QString& resultName, 
                                                                                   bool needsToBeStored,
                                                                                   size_t resultValueCount);
-private:
+
     bool                                                    findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
 
 private:

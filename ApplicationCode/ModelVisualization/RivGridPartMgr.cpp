@@ -436,15 +436,8 @@ void RivGridPartMgr::updateTransmissibilityCellResultColor(size_t timeStepIndex,
     const RimReservoirCellResultsStorage* gridCellResults = cellResultSlot->currentGridCellResults();
     if (!gridCellResults) return;
 
-    size_t tranPosXScalarSetIndex = gridCellResults->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX");
-    size_t tranPosYScalarSetIndex = gridCellResults->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY");
-    size_t tranPosZScalarSetIndex = gridCellResults->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ");
-    if (tranPosXScalarSetIndex == cvf::UNDEFINED_SIZE_T ||
-        tranPosYScalarSetIndex == cvf::UNDEFINED_SIZE_T ||
-        tranPosZScalarSetIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        return;
-    }
+    size_t tranPosXScalarSetIndex, tranPosYScalarSetIndex, tranPosZScalarSetIndex;
+    if (!gridCellResults->cellResults()->findTransmissibilityResults(tranPosXScalarSetIndex, tranPosYScalarSetIndex, tranPosZScalarSetIndex)) return;
 
     // If the result is static, only read that.
     size_t resTimeStepIdx = 0;
