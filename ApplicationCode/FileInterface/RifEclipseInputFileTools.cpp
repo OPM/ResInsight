@@ -575,6 +575,15 @@ void RifEclipseInputFileTools::readFaults(const QString& fileName, cvf::Collecti
         return;
     }
 
+    // Parse complete file if no keywords are parsed
+    if (fileKeywords.size() == 0)
+    {
+        qint64 filePos = 0;
+        readFaults(data, filePos, faults, NULL);
+        
+        return;
+    }
+
     for (size_t i = 0; i < fileKeywords.size(); i++)
     {
         if (fileKeywords[i].keyword.compare(editKeyword, Qt::CaseInsensitive) == 0)
@@ -602,7 +611,7 @@ void RifEclipseInputFileTools::readFaults(const QString& fileName, cvf::Collecti
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>& faults)
+void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults)
 {
     QFile data(fileName);
     if (!data.open(QFile::ReadOnly))
@@ -622,7 +631,7 @@ void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, 
 
     bool isEditKeywordDetected = false;
 
-    readFaultsAndParseIncludeStatementsRecursively(data, gridPos, faults, &isEditKeywordDetected);
+    readFaultsAndParseIncludeStatementsRecursively(data, gridPos, faults, filenamesWithFaults, &isEditKeywordDetected);
 }
 
 
@@ -673,7 +682,7 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>& faults, bool* isEditKeywordDetected)
+bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults, bool* isEditKeywordDetected)
 {
     QString line;
 
@@ -729,7 +738,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
                     {
                         qDebug() << "Found include statement, and start parsing of\n  " << absoluteFilename;
 
-                        if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, faults, isEditKeywordDetected))
+                        if (!readFaultsAndParseIncludeStatementsRecursively(includeFile, 0, faults, filenamesWithFaults, isEditKeywordDetected))
                         {
                             qDebug() << "Error when parsing include file : " << absoluteFilename;
                         }
@@ -740,6 +749,8 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
         else if (line.startsWith(faultsKeyword, Qt::CaseInsensitive))
         {
             readFaults(file, file.pos(), faults, isEditKeywordDetected);
+
+            filenamesWithFaults.push_back(file.fileName());
         }
 
         if (isEditKeywordDetected && *isEditKeywordDetected)

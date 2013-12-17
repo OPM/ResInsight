@@ -375,18 +375,40 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.setProgressDescription("Reading faults");
     progInfo.setNextProgressIncrement(10);
 
-    foreach (QString fname, fileSet)
+    if (this->filenamesWithFaults().size() > 0)
     {
-        if (fname.endsWith(".DATA"))
+        cvf::Collection<RigFault> faults;
+        std::vector< RifKeywordAndFilePos > fileKeywords;
+        
+        std::vector<QString> filenamesWithFaults;
+
+        for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
         {
-            cvf::Collection<RigFault> faults;
-            RifEclipseInputFileTools::readFaultsInGridSection(fname, faults);
+            QString faultFilename = this->filenamesWithFaults()[i];
+
+            RifEclipseInputFileTools::readFaults(faultFilename, faults, fileKeywords);
 
             RigMainGrid* mainGrid = eclipseCase->mainGrid();
             mainGrid->setFaults(faults);
         }
     }
+    else
+    {
+        foreach (QString fname, fileSet)
+        {
+            if (fname.endsWith(".DATA"))
+            {
+                cvf::Collection<RigFault> faults;
+                std::vector<QString> filenamesWithFaults;
+                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, filenamesWithFaults);
 
+                RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                mainGrid->setFaults(faults);
+
+                this->setFilenamesWithFaults(filenamesWithFaults);
+            }
+        }
+    }
 
     progInfo.incrementProgress();
 

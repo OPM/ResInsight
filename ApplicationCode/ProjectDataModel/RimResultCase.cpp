@@ -99,10 +99,14 @@ bool RimResultCase::openEclipseGridFile()
 
         cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
         readerInterface = new RifReaderEclipseOutput;
+        readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
+
         if (!readerInterface->open(caseFileName(), eclipseCase.p()))
         {
             return false;
         }
+
+        this->filesContainingFaults = readerInterface->filenamesWithFaults();
 
         this->setReservoirData( eclipseCase.p() );
     }
