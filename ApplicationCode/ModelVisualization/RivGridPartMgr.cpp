@@ -256,15 +256,11 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     {
         if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
-            if (m_surfaceFaces.notNull())
-            {
-                const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
-                const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
-                cvf::Vec2fArray* textureCoords = m_surfaceFacesTextureCoords.p();
+            const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
+            const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
+            cvf::Vec2fArray* textureCoords = m_surfaceFacesTextureCoords.p();
 
-
-                RivTransmissibilityColorMapper::transmissibilitiesTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
-            }
+            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
         }
         else
         {
@@ -437,7 +433,7 @@ RivGridPartMgr::~RivGridPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivTransmissibilityColorMapper::transmissibilitiesTextureCoordinates(RimResultSlot* cellResultSlot,
+void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(RimResultSlot* cellResultSlot,
     const RigGridBase* grid,
     cvf::Vec2fArray* textureCoords, 
     const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes, 

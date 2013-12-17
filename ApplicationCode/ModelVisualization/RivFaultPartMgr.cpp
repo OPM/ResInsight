@@ -44,6 +44,7 @@
 #include "cvfqtUtils.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfPrimitiveSetDirect.h"
+#include "RivGridPartMgr.h"
 
 
 
@@ -115,7 +116,18 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
     // Faults
     if (m_nativeFaultFaces.notNull())
     {
-        m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        {
+            const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_nativeFaultGenerator->quadToFace();
+            const std::vector<size_t>& quadsToGridCells = m_nativeFaultGenerator->quadToGridCellIndices();
+            cvf::Vec2fArray* textureCoords = m_nativeFaultFacesTextureCoords.p();
+
+            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
+        }
+        else
+        {
+            m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        }
 
         if (m_opacityLevel < 1.0f )
         {
@@ -157,7 +169,18 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 
     if (m_oppositeFaultFaces.notNull())
     {
-        m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        {
+            const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_oppositeFaultGenerator->quadToFace();
+            const std::vector<size_t>& quadsToGridCells = m_oppositeFaultGenerator->quadToGridCellIndices();
+            cvf::Vec2fArray* textureCoords = m_oppositeFaultFacesTextureCoords.p();
+
+            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
+        }
+        else
+        {
+            m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        }
 
         if (m_opacityLevel < 1.0f )
         {
