@@ -1115,7 +1115,29 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             
             if (cellResult->hasStaticResult())
             {
-                dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
+                if (this->cellResult()->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+                {
+                    size_t tranX, tranY, tranZ;
+                    if (eclipseCase->results(porosityModel)->findTransmissibilityResults(tranX, tranY, tranZ))
+                    {
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranX);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranY);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranZ);
+
+                        double scalarValue = dataAccessObjectX->cellScalar(cellIndex);
+                        resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
+
+                        scalarValue = dataAccessObjectY->cellScalar(cellIndex);
+                        resultInfoText->append(QString("Tran Y : %1\n").arg(scalarValue));
+
+                        scalarValue = dataAccessObjectZ->cellScalar(cellIndex);
+                        resultInfoText->append(QString("Tran Z : %1\n").arg(scalarValue));
+                    }
+                }
+                else
+                {
+                    dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
+                }
             }
             else
             {
