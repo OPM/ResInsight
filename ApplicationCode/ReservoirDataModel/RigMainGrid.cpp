@@ -313,7 +313,7 @@ void RigMainGrid::calculateFaults()
 
     // Distribute nnc's to the faults
 
-    const std::vector<RigConnection>& nncs = m_nncData->connections();
+    const std::vector<RigConnection>& nncs = this->nncData()->connections();
     for (size_t nncIdx = 0; nncIdx  < nncs.size(); ++nncIdx)
     {
         // Find the fault for each side of the nnc
