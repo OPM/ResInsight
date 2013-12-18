@@ -62,21 +62,21 @@ RimFaultCollection::RimFaultCollection()
 {
     CAF_PDM_InitObject("Faults", ":/draw_style_faults_24x24.png", "", "");
 
-    CAF_PDM_InitField(&showFaultCollection,              "Active",        true,   "Active", "", "", "");
+    CAF_PDM_InitField(&showFaultCollection,     "Active",        true,   "Active", "", "", "");
     showFaultCollection.setUiHidden(true);
 
-    CAF_PDM_InitField(&showGeometryDetectedFaults,       "ShowGeometryDetectedFaults",    false,   "Show geometry detected faults", "", "", "");
+    CAF_PDM_InitField(&showGeometryDetectedFaults,  "ShowGeometryDetectedFaults",    false,   "Show geometry detected faults", "", "", "");
 
-    CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",    true,   "Show faults faces", "", "", "");
-    CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",    true,   "Show opposite fault faces", "", "", "");
-    CAF_PDM_InitField(&showNNCs,  "ShowNNCs",    false,   "Show NNCs", "", "", "");
-    CAF_PDM_InitField(&limitFaultsToFilter,  "LimitFaultsToFilter",    true,   "Hide fault outside filters", "", "", "");
+    CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,   "Show faults faces", "", "", "");
+    CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,   "Show opposite fault faces", "", "", "");
+    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
+    CAF_PDM_InitField(&limitFaultsToFilter,     "LimitFaultsToFilter",      true,   "Hide fault outside filters", "", "", "");
 
-    CAF_PDM_InitField(&faultFaceCulling,                "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_NO_FACE_CULLING), "Face culling", "", "", "");
+    CAF_PDM_InitField(&faultFaceCulling,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Face culling", "", "", "");
 
-    CAF_PDM_InitField(&showFaultLabel,       "ShowFaultLabel",    true,   "Show fault labels", "", "", "");
+    CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    true,   "Show fault labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
-    CAF_PDM_InitField(&faultLabelColor,      "FaultLabelColor",   defWellLabelColor, "Fault label color",  "", "", "");
+    CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Fault label color",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults",  "", "", "");
 
