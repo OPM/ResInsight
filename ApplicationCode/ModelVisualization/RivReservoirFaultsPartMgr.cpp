@@ -26,16 +26,14 @@
 #include "cafPdmFieldCvfColor.h"
 
 #include "RimFaultCollection.h"
-
+#include "RigMainGrid.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* faultCollection)
-:   m_gridIdx(gridIdx),
-    m_grid(grid),
-    m_faultCollection(faultCollection)
+RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  const RimFaultCollection* faultCollection)
+:   m_faultCollection(faultCollection)
 {
     CVF_ASSERT(grid);
 
@@ -85,10 +83,8 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
     if (!m_faultCollection) return;
 
-    // Faults are only present for main grid
-    if (!m_grid->isMainGrid()) return;
-    
-    if (!m_faultCollection->showFaultCollection()) return;
+    bool isShowingGrid = m_faultCollection->isGridVisualizationMode();
+    if (!m_faultCollection->showFaultCollection() && !isShowingGrid) return;
     
     // Check match between model fault count and fault parts
     CVF_ASSERT(m_faultCollection->faults.size() == m_faultParts.size());
@@ -99,30 +95,38 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
     {
         const RimFault* rimFault = m_faultCollection->faults[i];
 
-        if (rimFault->showFault())
-        {
-            cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
-            CVF_ASSERT(rivFaultPart.notNull());
+        cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
+        CVF_ASSERT(rivFaultPart.notNull());
 
-            if (m_faultCollection->showFaultFaces())
+        // Parts that is overridden by the grid settings
+
+        if (rimFault->showFault() || isShowingGrid)
+        {
+            if (m_faultCollection->showFaultFaces() || isShowingGrid)
             {
                 rivFaultPart->appendNativeFaultFacesToModel(&parts);
             }
 
-            if (m_faultCollection->showOppositeFaultFaces())
+            if (m_faultCollection->showOppositeFaultFaces() || isShowingGrid)
             {
                 rivFaultPart->appendOppositeFaultFacesToModel(&parts);
             }
 
-            if (m_faultCollection->showFaultLabel())
+            if (m_faultCollection->showFaultFaces() || m_faultCollection->showOppositeFaultFaces() || m_faultCollection->showNNCs() || isShowingGrid)
+            {
+                rivFaultPart->appendMeshLinePartsToModel(&parts);
+            }
+        }
+
+        // Parts that is not overridden by the grid settings
+
+        if (rimFault->showFault() && m_faultCollection->showFaultCollection())
+        {
+            if (m_faultCollection->showFaultLabel() )
             {
                 rivFaultPart->appendLabelPartsToModel(&parts);
             }
 
-            if (m_faultCollection->showFaultFaces() || m_faultCollection->showOppositeFaultFaces() || m_faultCollection->showNNCs() )
-            {
-                rivFaultPart->appendMeshLinePartsToModel(&parts);
-            }
 
             if (m_faultCollection->showNNCs())
             {

@@ -42,7 +42,7 @@ void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, c
         }
 
         // Faults read from file are present only on main grid
-        m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), 0, faultCollection);
+        m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), faultCollection);
     }
 }
 

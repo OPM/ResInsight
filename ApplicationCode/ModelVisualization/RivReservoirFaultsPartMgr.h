@@ -39,7 +39,7 @@ class RimFaultCollection;
 class RivReservoirFaultsPartMgr : public cvf::Object
 {
 public:
-    RivReservoirFaultsPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* faultCollection);
+    RivReservoirFaultsPartMgr(const RigMainGrid* grid, const RimFaultCollection* faultCollection);
     ~RivReservoirFaultsPartMgr();
 
     void setTransform(cvf::Transform* scaleTransform);
@@ -54,8 +54,6 @@ public:
 
 
 private:
-    size_t                          m_gridIdx;
-    cvf::cref<RigGridBase>          m_grid;
     cvf::ref<cvf::Transform>        m_scaleTransform;
     const RimFaultCollection*       m_faultCollection;
     cvf::Collection<RivFaultPartMgr>   m_faultParts;

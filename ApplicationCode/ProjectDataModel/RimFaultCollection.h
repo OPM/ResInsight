@@ -47,6 +47,8 @@ public:
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
     void                                syncronizeFaults();
 
+    bool                                isGridVisualizationMode() const;
+
     caf::PdmField<bool>                 showGeometryDetectedFaults; // Obsolete, to be removed
 
     caf::PdmField<bool>                 showFaultFaces;

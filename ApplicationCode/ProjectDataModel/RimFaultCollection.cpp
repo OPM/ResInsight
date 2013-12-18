@@ -192,3 +192,14 @@ void RimFaultCollection::syncronizeFaults()
     this->faults().insert(0, newFaults);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFaultCollection::isGridVisualizationMode() const
+{
+    CVF_ASSERT(m_reservoirView);
+
+    return (   m_reservoirView->surfaceMode() == RimReservoirView::SURFACE 
+            || m_reservoirView->meshMode()    == RimReservoirView::FULL_MESH);
+}
+
