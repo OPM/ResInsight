@@ -313,7 +313,7 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
         effect->setRenderState(blender.p());
     }
 
-    // Backface culling
+    // Face culling
     if (m_cullBackfaces != FC_NONE)
     {
         cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;

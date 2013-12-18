@@ -155,9 +155,9 @@ class ScalarMapperEffectGenerator : public EffectGenerator
 public:
     ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, PolygonOffset polygonOffset);
 
-    void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
-    void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
-    void                            setCullBackfaces(FaceCulling faceCullMode)  { m_faceCulling = faceCullMode; }
+    void                            setOpacityLevel(float opacity)          { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
+    void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
+    void                            setFaceCulling(FaceCulling faceCulling) { m_faceCulling = faceCulling; }
 public: 
     static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
     static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);

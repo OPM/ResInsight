@@ -632,7 +632,7 @@ cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper*
     caf::PolygonOffset polygonOffset = caf::PO_1;
     caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
     
-    scalarEffgen.setCullBackfaces(faceCullingMode());
+    scalarEffgen.setFaceCulling(faceCullingMode());
 
     scalarEffgen.setOpacityLevel(m_opacityLevel);
 
@@ -641,6 +641,9 @@ cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper*
     return scalarEffect;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
 {
     bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
