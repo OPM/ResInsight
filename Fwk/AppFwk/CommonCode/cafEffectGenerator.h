@@ -157,7 +157,7 @@ public:
 
     void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
-    void                            setCullBackfaces(FaceCulling cullBackFaces)  { m_cullBackfaces = cullBackFaces; }
+    void                            setCullBackfaces(FaceCulling faceCullMode)  { m_faceCulling = faceCullMode; }
 public: 
     static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
     static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
@@ -178,7 +178,7 @@ private:
     PolygonOffset                   m_polygonOffset;
     float                           m_opacityLevel;
     cvf::Color3f                    m_undefinedColor;
-    FaceCulling                     m_cullBackfaces;
+    FaceCulling                     m_faceCulling;
 };
 
 

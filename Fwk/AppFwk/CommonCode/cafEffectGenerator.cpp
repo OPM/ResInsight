@@ -393,7 +393,7 @@ ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper
     m_scalarMapper = scalarMapper;
     m_polygonOffset = polygonOffset;
     m_opacityLevel = 1.0f;
-    m_cullBackfaces = FC_NONE;
+    m_faceCulling = FC_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -491,18 +491,18 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
     }
 
     // Backface culling
-    if (m_cullBackfaces != FC_NONE)
+    if (m_faceCulling != FC_NONE)
     {
         cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
-        if (m_cullBackfaces == FC_BACK)
+        if (m_faceCulling == FC_BACK)
         {
             faceCulling->setMode(cvf::RenderStateCullFace::BACK);
         }
-        else if (m_cullBackfaces == FC_FRONT)
+        else if (m_faceCulling == FC_FRONT)
         {
             faceCulling->setMode(cvf::RenderStateCullFace::FRONT);
         }
-        else if (m_cullBackfaces == FC_FRONT_AND_BACK)
+        else if (m_faceCulling == FC_FRONT_AND_BACK)
         {
             faceCulling->setMode(cvf::RenderStateCullFace::FRONT_AND_BACK);
         }
@@ -525,7 +525,7 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
             && m_polygonOffset == otherTextureResultEffect->m_polygonOffset
             && m_opacityLevel == otherTextureResultEffect->m_opacityLevel
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor
-            && m_cullBackfaces == otherTextureResultEffect->m_cullBackfaces)
+            && m_faceCulling == otherTextureResultEffect->m_faceCulling)
         {
             cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
             otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
@@ -546,7 +546,7 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
     scEffGen->m_textureImage = m_textureImage;
     scEffGen->m_opacityLevel = m_opacityLevel;
     scEffGen->m_undefinedColor = m_undefinedColor;
-    scEffGen->m_cullBackfaces = m_cullBackfaces;
+    scEffGen->m_faceCulling = m_faceCulling;
 
     return scEffGen;
 }
