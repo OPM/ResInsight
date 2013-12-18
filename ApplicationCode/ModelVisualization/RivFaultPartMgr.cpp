@@ -356,25 +356,8 @@ void RivFaultPartMgr::generatePartGeometry()
             m_NNCFaces = part;
         }
     }
-
-    m_faultLabelPart = NULL;
     
-    {
-        cvf::ref<cvf::Part> partToAttachLabelTo;
-        if (m_nativeFaultFaces.notNull())
-        {
-            partToAttachLabelTo = m_nativeFaultFaces;
-        }
-        else if(m_oppositeFaultFaces.notNull())
-        {
-            partToAttachLabelTo = m_oppositeFaultFaces;
-        }
-
-        if (partToAttachLabelTo.notNull())
-        {
-            createLabelWithAnchorLine(partToAttachLabelTo.p());
-        }
-    }
+    createLabelWithAnchorLine(m_nativeFaultFaces.p());
 
     updatePartEffect();
 }
@@ -470,7 +453,10 @@ void RivFaultPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::createLabelWithAnchorLine(const cvf::Part* part)
 {
-    CVF_ASSERT(part);
+    m_faultLabelPart = NULL;
+    m_faultLabelLinePart = NULL;
+
+    if (!part) return;
 
     cvf::BoundingBox bb = part->boundingBox();
 
