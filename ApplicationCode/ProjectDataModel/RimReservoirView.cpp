@@ -1733,7 +1733,9 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
         if (surfaceMode() != NO_SURFACE) surfaceMode = SURFACE;
         if (meshMode() != NO_MESH) meshMode = FULL_MESH;
     }
+     this->createDisplayModel();
     updateDisplayModelVisibility();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
