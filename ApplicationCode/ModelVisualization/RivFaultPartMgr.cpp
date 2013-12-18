@@ -45,6 +45,7 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfPrimitiveSetDirect.h"
 #include "RivGridPartMgr.h"
+#include "cvfRenderStateDepth.h"
 
 
 
@@ -223,6 +224,10 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultS
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::generatePartGeometry()
 {
+    const int priFaultGeo = 1;
+    const int priNncGeo = 2;
+    const int priMesh = 3;
+
     bool useBufferObjects = true;
     // Surface geometry
     {
@@ -246,6 +251,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
+            part->setPriority(priFaultGeo);
 
             m_nativeFaultFaces = part;
         }
@@ -267,6 +273,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
+            part->setPriority(priMesh);
 
             m_nativeFaultGridLines = part;
         }
@@ -295,6 +302,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
+            part->setPriority(priFaultGeo);
 
             m_oppositeFaultFaces = part;
         }
@@ -316,6 +324,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(meshFaultBit);
+            part->setPriority(priMesh);
 
             m_oppositeFaultGridLines = part;
         }
@@ -342,6 +351,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
+            part->setPriority(priNncGeo);
 
             m_NNCFaces = part;
         }
@@ -407,8 +417,19 @@ void RivFaultPartMgr::updatePartEffect()
     nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
     nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
 
-    caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NONE);
-    cvf::ref<cvf::Effect> nncEffect = nncEffgen.generateEffect();
+    cvf::ref<cvf::Effect> nncEffect;
+
+    if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)
+    {
+        caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NEG_LARGE);
+        nncEffgen.enableDepthWrite(false);
+        nncEffect = nncEffgen.generateEffect();
+    }
+    else
+    {
+        caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_1);
+        nncEffect = nncEffgen.generateEffect();
+    }
 
     if (m_NNCFaces.notNull())
     {
@@ -434,6 +455,9 @@ void RivFaultPartMgr::updatePartEffect()
 
     if (m_opacityLevel < 1.0f)
     {
+        // Must be fixed since currently fault drawing relies on internal priorities of the parts
+        CVF_FAIL_MSG("Not implemented");
+
         // Set priority to make sure this transparent geometry are rendered last
         if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100);
         if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100);

@@ -58,10 +58,10 @@ public:
 // Enumerates different levels of polygon offsetting
 enum PolygonOffset
 {
-    PO_NONE = 0, // No polygon offset
-    PO_1 = 1,    // 'Normal' polygon offset, equal to configurePolygonPositiveOffset(), ie factor=unit=1.0
-    PO_2 = 2,    // More offset
-    PO_3 = 3     // Even more offset
+    PO_NONE,        // No polygon offset
+    PO_1,           // 'Normal' positive polygon offset, equal to configurePolygonPositiveOffset(), ie factor=unit=1.0
+    PO_2,           // More positive offset
+    PO_NEG_LARGE    // Currently, a large negative offset
 };
 
 // Enumerates face culling
@@ -125,6 +125,7 @@ public:
     SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset);
 
     void                            setCullBackfaces(FaceCulling cullBackFaces) { m_cullBackfaces = cullBackFaces; }
+    void                            enableDepthWrite(bool enableWrite)          { m_enableDepthWrite = enableWrite; }
 
 protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
@@ -140,7 +141,7 @@ private:
     cvf::Color4f    m_color;
     PolygonOffset   m_polygonOffset;
     FaceCulling     m_cullBackfaces;
-
+    bool            m_enableDepthWrite;
 };
 
 

@@ -116,13 +116,12 @@ static cvf::ref<cvf::RenderStatePolygonOffset> CreateAngConfigurePolygonOffsetRe
     }
 
     rs->enableFillMode(true);
-    rs->setFactor(1.0f);
-
+    
     switch (polygonOffset)
     {
-        case PO_1:  rs->setUnits(1.0f); break;
-        case PO_2:  rs->setUnits(2.0f); break;
-        case PO_3:  rs->setUnits(3.0f); break;
+        case PO_1:          rs->setFactor(1.0f);  rs->setUnits(1.0f); break;
+        case PO_2:          rs->setFactor(2.0f);  rs->setUnits(2.0f); break;
+        case PO_NEG_LARGE:  rs->setFactor(-1.0f); rs->setUnits(-30.0f); break;
         default:
             CVF_FAIL_MSG("Unhandled polygon offset enum");
     }
@@ -239,6 +238,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, Polygo
     m_color = color;
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
+    m_enableDepthWrite = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,6 +249,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, Polygo
     m_color = cvf::Color4f(color, 1.0f);
     m_polygonOffset = polygonOffset;
     m_cullBackfaces = FC_NONE;
+    m_enableDepthWrite = true;
 }
 
 
@@ -331,6 +332,13 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 
         effect->setRenderState(faceCulling.p());
     }
+
+    if (!m_enableDepthWrite)
+    {
+        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+        depth->enableDepthWrite(false);
+        effect->setRenderState(depth.p());
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -344,6 +352,7 @@ bool SurfaceEffectGenerator::isEqual(const EffectGenerator* other) const
     {
         if (m_color == otherSurfaceEffect->m_color 
             && m_polygonOffset == otherSurfaceEffect->m_polygonOffset
+            && m_enableDepthWrite == otherSurfaceEffect->m_enableDepthWrite
             && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces)
         {
             return true;
@@ -360,6 +369,7 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
 {
     SurfaceEffectGenerator* effGen = new SurfaceEffectGenerator(m_color, m_polygonOffset);
     effGen->m_cullBackfaces = m_cullBackfaces;
+    effGen->m_enableDepthWrite = m_enableDepthWrite;
     return effGen;
 }
 
