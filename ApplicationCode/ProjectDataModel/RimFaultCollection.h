@@ -40,7 +40,14 @@ class RimFaultCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
+    enum FaultFaceCullingMode
+    {
+        FAULT_BACK_FACE_CULLING,
+        FAULT_FRONT_FACE_CULLING,
+        FAULT_NO_FACE_CULLING
+    };
 
+public:
     RimFaultCollection();
     virtual ~RimFaultCollection();
 
@@ -55,6 +62,8 @@ public:
     caf::PdmField<bool>                 showOppositeFaultFaces;
     caf::PdmField<bool>                 limitFaultsToFilter;
     caf::PdmField<bool>                 showNNCs;
+    
+    caf::PdmField<caf::AppEnum< FaultFaceCullingMode > > faultFaceCulling;
 
 
     caf::PdmField<bool>                 showFaultLabel;

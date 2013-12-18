@@ -39,6 +39,19 @@
 #include "RivColorTableArray.h"
 
 
+namespace caf
+{
+    template<>
+    void AppEnum< RimFaultCollection::FaultFaceCullingMode >::setUp()
+    {
+        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Back face culling");
+        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Front face culling");
+        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "No face culling");
+        setDefault(RimFaultCollection::FAULT_NO_FACE_CULLING);
+    }
+}
+
+
 
 CAF_PDM_SOURCE_INIT(RimFaultCollection, "Faults");
 
@@ -58,6 +71,8 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",    true,   "Show opposite fault faces", "", "", "");
     CAF_PDM_InitField(&showNNCs,  "ShowNNCs",    false,   "Show NNCs", "", "", "");
     CAF_PDM_InitField(&limitFaultsToFilter,  "LimitFaultsToFilter",    true,   "Hide fault outside filters", "", "", "");
+
+    CAF_PDM_InitField(&faultFaceCulling,                "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_NO_FACE_CULLING), "Face culling", "", "", "");
 
     CAF_PDM_InitField(&showFaultLabel,       "ShowFaultLabel",    true,   "Show fault labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
@@ -92,6 +107,10 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         m_reservoirView->scheduleReservoirGridGeometryRegen();
     }
 
+    if (&faultFaceCulling == changedField)
+    {
+
+    }
 
     if (&showGeometryDetectedFaults == changedField ||
         &showFaultFaces == changedField ||
@@ -100,7 +119,9 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         &showFaultCollection == changedField ||
         &showFaultLabel == changedField ||
         &limitFaultsToFilter == changedField ||
-        &faultLabelColor == changedField)
+        &faultLabelColor == changedField ||
+        &faultFaceCulling == changedField
+        )
     {
         if (m_reservoirView) 
         {
