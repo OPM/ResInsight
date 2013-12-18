@@ -238,7 +238,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, Polygo
 {
     m_color = color;
     m_polygonOffset = polygonOffset;
-    m_cullBackfaces = false;
+    m_cullBackfaces = FC_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,7 +248,7 @@ SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, Polygo
 {
     m_color = cvf::Color4f(color, 1.0f);
     m_polygonOffset = polygonOffset;
-    m_cullBackfaces = false;
+    m_cullBackfaces = FC_NONE;
 }
 
 
@@ -313,10 +313,22 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
     }
 
     // Backface culling
-
-    if (m_cullBackfaces)
+    if (m_cullBackfaces != FC_NONE)
     {
         cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
+        if (m_cullBackfaces == FC_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::BACK);
+        }
+        else if (m_cullBackfaces == FC_FRONT)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT);
+        }
+        else if (m_cullBackfaces == FC_FRONT_AND_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT_AND_BACK);
+        }
+
         effect->setRenderState(faceCulling.p());
     }
 }
@@ -371,7 +383,7 @@ ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper
     m_scalarMapper = scalarMapper;
     m_polygonOffset = polygonOffset;
     m_opacityLevel = 1.0f;
-    m_cullBackfaces = false;
+    m_cullBackfaces = FC_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,10 +481,22 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
     }
 
     // Backface culling
-
-    if (m_cullBackfaces)
+    if (m_cullBackfaces != FC_NONE)
     {
         cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
+        if (m_cullBackfaces == FC_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::BACK);
+        }
+        else if (m_cullBackfaces == FC_FRONT)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT);
+        }
+        else if (m_cullBackfaces == FC_FRONT_AND_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT_AND_BACK);
+        }
+
         effect->setRenderState(faceCulling.p());
     }
 }

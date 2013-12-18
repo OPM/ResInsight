@@ -64,6 +64,14 @@ enum PolygonOffset
     PO_3 = 3     // Even more offset
 };
 
+// Enumerates face culling
+enum FaceCulling
+{
+    FC_BACK,
+    FC_FRONT,
+    FC_FRONT_AND_BACK,
+    FC_NONE
+};
 
 
 //==================================================================================================
@@ -116,7 +124,7 @@ public:
     SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset);
     SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset);
 
-    void                            setCullBackfaces(bool cullBackFaces) { m_cullBackfaces = cullBackFaces; }
+    void                            setCullBackfaces(FaceCulling cullBackFaces) { m_cullBackfaces = cullBackFaces; }
 
 protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
@@ -131,7 +139,7 @@ private:
 private:
     cvf::Color4f    m_color;
     PolygonOffset   m_polygonOffset;
-    bool            m_cullBackfaces;
+    FaceCulling     m_cullBackfaces;
 
 };
 
@@ -148,7 +156,7 @@ public:
 
     void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
-    void                            setCullBackfaces(bool cullBackFaces)  { m_cullBackfaces = cullBackFaces; }
+    void                            setCullBackfaces(FaceCulling cullBackFaces)  { m_cullBackfaces = cullBackFaces; }
 public: 
     static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
     static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
@@ -169,7 +177,7 @@ private:
     PolygonOffset                   m_polygonOffset;
     float                           m_opacityLevel;
     cvf::Color3f                    m_undefinedColor;
-    bool                            m_cullBackfaces;
+    FaceCulling                     m_cullBackfaces;
 };
 
 

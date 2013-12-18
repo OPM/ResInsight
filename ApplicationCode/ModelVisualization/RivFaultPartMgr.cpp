@@ -157,7 +157,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 
         caf::PolygonOffset polygonOffset = caf::PO_1;
         caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-        scalarEffgen.setCullBackfaces(true);
+        scalarEffgen.setCullBackfaces(caf::FC_BACK);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
 
@@ -210,7 +210,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 
         caf::PolygonOffset polygonOffset = caf::PO_1;
         caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-        scalarEffgen.setCullBackfaces(true);
+        scalarEffgen.setCullBackfaces(caf::FC_BACK);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
 
