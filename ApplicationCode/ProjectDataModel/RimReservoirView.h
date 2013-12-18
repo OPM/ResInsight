@@ -150,7 +150,10 @@ public:
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();
     void                                    setSurfOnlyDrawstyle();
+    void                                    setFaultMeshSurfDrawstyle();
+
     void                                    setShowFaultsOnly(bool showFaults);
+    bool                                    isGridVisualizationMode() const;
 
 
     // Picking info
@@ -204,11 +207,12 @@ private:
     void                                    syncronizeWellsWithResults();
     void                                    clampCurrentTimestep();
 
- 
 private:
     caf::PdmField<int>                      m_currentTimeStep;
     QPointer<RiuViewer>                     m_viewer;
     caf::PdmPointer<RimCase>                m_reservoir;
+
+    bool                                    m_previousGridModeMeshLinesWasFaults;
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;
 };

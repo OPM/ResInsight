@@ -295,6 +295,9 @@ void RiuMainWindow::createActions()
     //connect(m_drawStyleLinesSolidAction,	SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
      m_dsActionGroup->addAction(m_drawStyleLinesSolidAction);
 
+     m_drawStyleFaultLinesSolidAction           = new QAction(QIcon(":/draw_style_surface_w_fault_mesh_24x24.png"), "Fault Mesh And Surfaces", this);
+     m_dsActionGroup->addAction(m_drawStyleFaultLinesSolidAction);
+
     m_drawStyleSurfOnlyAction             = new QAction(QIcon(":/draw_style_surface_24x24.png"), "&Surface Only", this);
     //connect(m_drawStyleSurfOnlyAction,	SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
     m_dsActionGroup->addAction(m_drawStyleSurfOnlyAction);
@@ -435,6 +438,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleLinesAction);
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
+    m_viewToolBar->addAction(m_drawStyleFaultLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
@@ -1473,6 +1477,10 @@ void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
     {
         RiaApplication::instance()->activeReservoirView()->setSurfOnlyDrawstyle();
     }
+    else if (activatedAction == m_drawStyleFaultLinesSolidAction)
+    {
+        RiaApplication::instance()->activeReservoirView()->setFaultMeshSurfDrawstyle();
+    }
 
 }
 
@@ -1496,6 +1504,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleLinesAction->setEnabled(enable);
     m_drawStyleLinesSolidAction->setEnabled(enable);
     m_drawStyleSurfOnlyAction->setEnabled(enable);
+    m_drawStyleFaultLinesSolidAction->setEnabled(enable);
 
     m_drawStyleToggleFaultsAction->setEnabled(enable);
 
@@ -1505,8 +1514,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     {
         RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
         m_drawStyleToggleFaultsAction->blockSignals(true);
-        m_drawStyleToggleFaultsAction->setChecked(   riv->meshMode == RimReservoirView::FAULTS_MESH 
-                                                  || riv->surfaceMode == RimReservoirView::FAULTS);
+        m_drawStyleToggleFaultsAction->setChecked(   !riv->isGridVisualizationMode());
         m_drawStyleToggleFaultsAction->blockSignals(false);
 
         m_addWellCellsToRangeFilterAction->blockSignals(true);

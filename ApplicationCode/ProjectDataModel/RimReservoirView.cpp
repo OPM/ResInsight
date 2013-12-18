@@ -183,6 +183,8 @@ RimReservoirView::RimReservoirView()
 
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
     m_reservoir = NULL;
+
+    m_previousGridModeMeshLinesWasFaults = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,11 +471,15 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     } 
     else if (changedField == &meshMode)
     {
+        createDisplayModel();
         updateDisplayModelVisibility();
+        RiuMainWindow::instance()->refreshDrawStyleActions();
     } 
     else if (changedField == &surfaceMode)
     {
+        createDisplayModel();
         updateDisplayModelVisibility();
+        RiuMainWindow::instance()->refreshDrawStyleActions();
     }
     else if (changedField == &name)
     {
@@ -1669,16 +1675,17 @@ void RimReservoirView::updateDisplayModelForWellResults()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::setMeshOnlyDrawstyle()
 {
-    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    if (isGridVisualizationMode())
     {
-        surfaceMode = NO_SURFACE;
-        meshMode = FAULTS_MESH;
+        meshMode = FULL_MESH;
     }
     else
     {
-        surfaceMode = NO_SURFACE;
-        meshMode = FULL_MESH;
+        meshMode = FAULTS_MESH;
     }
+
+    surfaceMode = NO_SURFACE;
+
     updateDisplayModelVisibility();
 }
 
@@ -1687,16 +1694,41 @@ void RimReservoirView::setMeshOnlyDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::setMeshSurfDrawstyle()
 {
-    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
-    {
-        surfaceMode = FAULTS;
-        meshMode = FAULTS_MESH;
-    }
-    else
+    if (isGridVisualizationMode())
     {
         surfaceMode = SURFACE;
         meshMode = FULL_MESH;
     }
+    else
+    {
+        surfaceMode = FAULTS;
+        meshMode = FAULTS_MESH;
+    }
+ 
+    updateDisplayModelVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::setFaultMeshSurfDrawstyle()
+{
+    // Surf: No Fault Surf
+    //  Mesh -------------
+    //    No FF  FF    SF
+    // Fault FF  FF    SF
+    //  Mesh SF  SF    SF
+    if (this->isGridVisualizationMode())
+    {
+         surfaceMode = SURFACE;
+    }
+    else
+    {
+         surfaceMode = FAULTS;
+    }
+
+    meshMode = FAULTS_MESH;
+ 
     updateDisplayModelVisibility();
 }
 
@@ -1705,16 +1737,16 @@ void RimReservoirView::setMeshSurfDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::setSurfOnlyDrawstyle()
 {
-    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    if (isGridVisualizationMode())
     {
-        surfaceMode = FAULTS;
-        meshMode = NO_MESH;
+        surfaceMode = SURFACE;
     }
     else
     {
-        surfaceMode = SURFACE;
-        meshMode = NO_MESH;
+        surfaceMode = FAULTS;
     }
+    meshMode = NO_MESH;
+  
     updateDisplayModelVisibility();
 }
 
@@ -1725,17 +1757,34 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
 {
     if (showFaults)
     {
+        m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
         if (surfaceMode() != NO_SURFACE) surfaceMode = FAULTS;
         if (meshMode() != NO_MESH) meshMode = FAULTS_MESH;
     }
     else
     {
         if (surfaceMode() != NO_SURFACE) surfaceMode = SURFACE;
-        if (meshMode() != NO_MESH) meshMode = FULL_MESH;
+        if (meshMode() != NO_MESH) meshMode = m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH;
     }
-     this->createDisplayModel();
+
+    this->createDisplayModel();
     updateDisplayModelVisibility();
    
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+// Surf: No Fault Surf
+//  Mesh -------------
+//    No F  F     G
+// Fault F  F     G
+//  Mesh G  G     G
+//
+//--------------------------------------------------------------------------------------------------
+bool RimReservoirView::isGridVisualizationMode() const
+{
+    return (   this->surfaceMode() == SURFACE 
+            || this->meshMode()    == FULL_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
