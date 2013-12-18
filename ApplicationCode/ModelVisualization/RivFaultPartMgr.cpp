@@ -372,15 +372,18 @@ void RivFaultPartMgr::updatePartEffect()
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(partColor, caf::PO_1);
-    if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+    bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
+    if (!isShowingGrid )
     {
-        geometryEffgen.setCullBackfaces(caf::FC_BACK);
+        if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+        {
+            geometryEffgen.setCullBackfaces(caf::FC_BACK);
+        }
+        else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+        {
+            geometryEffgen.setCullBackfaces(caf::FC_FRONT);
+        }
     }
-    else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
-    {
-        geometryEffgen.setCullBackfaces(caf::FC_FRONT);
-    }
-
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
     if (m_nativeFaultFaces.notNull())
@@ -637,13 +640,18 @@ cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper*
 
     caf::PolygonOffset polygonOffset = caf::PO_1;
     caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-    if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+
+    bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
+    if (!isShowingGrid )
     {
-        scalarEffgen.setCullBackfaces(caf::FC_BACK);
-    }
-    else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
-    {
-        scalarEffgen.setCullBackfaces(caf::FC_FRONT);
+        if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+        {
+            scalarEffgen.setCullBackfaces(caf::FC_BACK);
+        }
+        else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+        {
+            scalarEffgen.setCullBackfaces(caf::FC_FRONT);
+        }
     }
 
     scalarEffgen.setOpacityLevel(m_opacityLevel);
