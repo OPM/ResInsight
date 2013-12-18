@@ -53,8 +53,9 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFault)
+RivFaultPartMgr::RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFault* rimFault)
     :   m_grid(grid),
+        m_rimFaultCollection(rimFaultCollection),
         m_rimFault(rimFault),
         m_opacityLevel(1.0f),
         m_defaultColor(cvf::Color3::WHITE)
@@ -391,6 +392,15 @@ void RivFaultPartMgr::updatePartEffect()
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(partColor, caf::PO_1);
+    if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+    {
+        geometryEffgen.setCullBackfaces(caf::FC_BACK);
+    }
+    else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+    {
+        geometryEffgen.setCullBackfaces(caf::FC_FRONT);
+    }
+
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
     if (m_nativeFaultFaces.notNull())

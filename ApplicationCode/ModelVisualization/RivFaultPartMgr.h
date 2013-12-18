@@ -46,7 +46,7 @@ class RimFaultCollection;
 class RivFaultPartMgr : public cvf::Object
 {
 public:
-    RivFaultPartMgr(const RigGridBase* grid, const RimFault* rimFault);
+    RivFaultPartMgr(const RigGridBase* grid, const RimFaultCollection* rimFaultCollection, const RimFault* rimFault);
 
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
@@ -71,6 +71,7 @@ private:
 private:
     cvf::cref<RigGridBase>      m_grid;
     const RimFault*             m_rimFault;
+    const RimFaultCollection*   m_rimFaultCollection;
 
     float                       m_opacityLevel;
     cvf::Color3f                m_defaultColor;

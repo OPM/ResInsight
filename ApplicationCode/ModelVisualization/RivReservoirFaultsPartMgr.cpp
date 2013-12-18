@@ -41,7 +41,7 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  c
     {
         for (size_t i = 0; i < faultCollection->faults.size(); i++)
         {
-            m_faultParts.push_back(new RivFaultPartMgr(grid, faultCollection->faults[i]));
+            m_faultParts.push_back(new RivFaultPartMgr(grid, faultCollection, faultCollection->faults[i]));
         }
     }
 }
