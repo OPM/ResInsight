@@ -80,6 +80,7 @@ void RivFaultPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
 {
     m_nativeFaultGenerator->setCellVisibility(cellVisibilities);
     m_oppositeFaultGenerator->setCellVisibility(cellVisibilities);
+    m_NNCGenerator->setCellVisibility(cellVisibilities, m_grid.p());
 
     generatePartGeometry();
 }

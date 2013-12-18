@@ -93,9 +93,23 @@ void RivNNCGeometryGenerator::computeArrays()
             bool isVisible = true;
             if (isVisibilityCalcActive)
             {
-                size_t cell1GridLocalIdx = (*allCells)[conn.m_c1GlobIdx].cellIndex();
-                size_t cell2GridLocalIdx = (*allCells)[conn.m_c1GlobIdx].cellIndex();
-                isVisible = ((*m_cellVisibility)[cell1GridLocalIdx] || (*m_cellVisibility)[cell2GridLocalIdx]);
+                bool cell1Visible = false;
+                bool cell2Visible = false;
+
+                if ((*allCells)[conn.m_c1GlobIdx].hostGrid() == m_grid.p())
+                {
+                    size_t cell1GridLocalIdx = (*allCells)[conn.m_c1GlobIdx].cellIndex();
+                    cell1Visible = (*m_cellVisibility)[cell1GridLocalIdx];
+                }
+
+                if ((*allCells)[conn.m_c2GlobIdx].hostGrid() == m_grid.p())
+                {
+                    size_t cell2GridLocalIdx = (*allCells)[conn.m_c2GlobIdx].cellIndex();
+                    cell2Visible = (*m_cellVisibility)[cell2GridLocalIdx];
+                }
+
+                isVisible = cell1Visible || cell2Visible;
+
             }
 
             if (isVisible)
