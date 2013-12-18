@@ -25,6 +25,7 @@
 #include "RivFaultGeometryGenerator.h"
 #include "cvfColor4.h"
 #include "RivNNCGeometryGenerator.h"
+#include "cvfEffect.h"
 
 namespace cvf
 {
@@ -63,6 +64,8 @@ public:
 private:
     void generatePartGeometry();
     void updatePartEffect();
+
+    cvf::ref<cvf::Effect> cellResultEffect(const cvf::ScalarMapper* mapper) const;
     
     void createLabelWithAnchorLine(const cvf::Part* part);
    

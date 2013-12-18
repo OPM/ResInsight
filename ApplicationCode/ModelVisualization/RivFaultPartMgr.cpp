@@ -156,14 +156,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_nativeFaultFacesTextureCoords.p());
 
-        caf::PolygonOffset polygonOffset = caf::PO_1;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-        scalarEffgen.setCullBackfaces(caf::FC_BACK);
-
-        scalarEffgen.setOpacityLevel(m_opacityLevel);
-
-        cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
-
+        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper);
         m_nativeFaultFaces->setEffect(scalarEffect.p());
     }
 
@@ -209,14 +202,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
 
-        caf::PolygonOffset polygonOffset = caf::PO_1;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-        scalarEffgen.setCullBackfaces(caf::FC_BACK);
-
-        scalarEffgen.setOpacityLevel(m_opacityLevel);
-
-        cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
-
+        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper);
         m_oppositeFaultFaces->setEffect(scalarEffect.p());
     }
 
@@ -629,5 +615,30 @@ void RivFaultPartMgr::appendMeshLinePartsToModel(cvf::ModelBasicList* model)
 void RivFaultPartMgr::appendNNCFacesToModel(cvf::ModelBasicList* model)
 {
     if (m_NNCFaces.notNull())   model->addPart(m_NNCFaces.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper* mapper) const
+{
+    CVF_ASSERT(mapper);
+
+    caf::PolygonOffset polygonOffset = caf::PO_1;
+    caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+    if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+    {
+        scalarEffgen.setCullBackfaces(caf::FC_BACK);
+    }
+    else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+    {
+        scalarEffgen.setCullBackfaces(caf::FC_FRONT);
+    }
+
+    scalarEffgen.setOpacityLevel(m_opacityLevel);
+
+    cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+
+    return scalarEffect;
 }
 
