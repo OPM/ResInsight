@@ -377,11 +377,11 @@ void RivFaultPartMgr::updatePartEffect()
     {
         if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
         {
-            geometryEffgen.setCullBackfaces(caf::FC_BACK);
+            geometryEffgen.setCullBackfaces(caf::FC_FRONT); // Because the cells are inverted
         }
         else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
         {
-            geometryEffgen.setCullBackfaces(caf::FC_FRONT);
+            geometryEffgen.setCullBackfaces(caf::FC_BACK); // Because the cells are inverted
         }
     }
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
@@ -646,11 +646,11 @@ cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper*
     {
         if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
         {
-            scalarEffgen.setCullBackfaces(caf::FC_BACK);
+            scalarEffgen.setCullBackfaces(caf::FC_FRONT);// Because the cells are inverted
         }
         else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
         {
-            scalarEffgen.setCullBackfaces(caf::FC_FRONT);
+            scalarEffgen.setCullBackfaces(caf::FC_BACK);// Because the cells are inverted
         }
     }
 

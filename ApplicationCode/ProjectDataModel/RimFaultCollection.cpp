@@ -44,9 +44,9 @@ namespace caf
     template<>
     void AppEnum< RimFaultCollection::FaultFaceCullingMode >::setUp()
     {
-        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Back face culling");
-        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Front face culling");
-        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "No face culling");
+        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Show outside face only");
+        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Show inside face only");
+        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show Both");
         setDefault(RimFaultCollection::FAULT_NO_FACE_CULLING);
     }
 }
