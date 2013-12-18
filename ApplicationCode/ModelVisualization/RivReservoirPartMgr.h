@@ -64,6 +64,7 @@ public:
     // Faults
     void   updateFaultCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void   appendFaultPartsToModel(cvf::ModelBasicList* model);
+    void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:
 
     cvf::Collection<RivGridPartMgr>     m_allGrids; // Main grid and all LGR's 

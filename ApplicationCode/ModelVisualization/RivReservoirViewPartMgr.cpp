@@ -854,3 +854,51 @@ void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::Model
         m_propFilteredWellGeometryFrames[frameIndex]->appendFaultPartsToModel(model);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivReservoirViewPartMgr::ReservoirGeometryCacheType RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const
+{
+    bool hasInactive = false;
+    for (size_t i = 0; i < geometryTypes.size(); i++)
+    {
+        if (geometryTypes[i] == PROPERTY_FILTERED)
+        {
+            return PROPERTY_FILTERED;
+        }
+
+        if (geometryTypes[i] == RANGE_FILTERED)
+        {
+            return RANGE_FILTERED;
+        }
+
+        if (geometryTypes[i] == INACTIVE)
+        {
+            hasInactive = true;
+        }
+    }
+
+    if (hasInactive)
+    {
+        return INACTIVE;
+    }
+
+    return ACTIVE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType)
+{
+    m_geometries[geometryType].appendFaultLabelPartsToModel(model);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex)
+{
+    m_propFilteredGeometryFrames[frameIndex]->appendFaultLabelPartsToModel(model);
+}

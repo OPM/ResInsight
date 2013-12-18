@@ -122,12 +122,6 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
         if (rimFault->showFault() && m_faultCollection->showFaultCollection())
         {
-            if (m_faultCollection->showFaultLabel() )
-            {
-                rivFaultPart->appendLabelPartsToModel(&parts);
-            }
-
-
             if (m_faultCollection->showNNCs())
             {
                 rivFaultPart->appendNNCFacesToModel(&parts);
@@ -179,6 +173,47 @@ void RivReservoirFaultsPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, 
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {
         m_faultParts[i]->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* model)
+{
+    CVF_ASSERT(model != NULL);
+
+    if (!m_faultCollection) return;
+
+    bool isShowingGrid = m_faultCollection->isGridVisualizationMode();
+    if (!m_faultCollection->showFaultCollection() && !isShowingGrid) return;
+    
+    if (!m_faultCollection->showFaultLabel() ) return;
+
+    // Check match between model fault count and fault parts
+    CVF_ASSERT(m_faultCollection->faults.size() == m_faultParts.size());
+
+    cvf::ModelBasicList parts;
+
+    for (size_t i = 0; i < m_faultCollection->faults.size(); i++)
+    {
+        const RimFault* rimFault = m_faultCollection->faults[i];
+
+        cvf::ref<RivFaultPartMgr> rivFaultPart = m_faultParts[i];
+        CVF_ASSERT(rivFaultPart.notNull());
+
+        if (rimFault->showFault())
+        {
+            rivFaultPart->appendLabelPartsToModel(&parts);
+        }
+    }
+
+    for (size_t i = 0; i < parts.partCount(); i++)
+    {
+        cvf::Part* part = parts.part(i);
+        part->setTransform(m_scaleTransform.p());
+
+        model->addPart(part);
     }
 }
 

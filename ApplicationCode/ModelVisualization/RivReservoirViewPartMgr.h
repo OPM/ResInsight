@@ -73,6 +73,12 @@ public:
     void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
     void                        updateFaultsCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot);
 
+    // Fault labels
+    ReservoirGeometryCacheType  geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const;
+    void                        appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
+    void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
+
+
 private:
     void                        createGeometry(ReservoirGeometryCacheType geometryType);
     void                        computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx);

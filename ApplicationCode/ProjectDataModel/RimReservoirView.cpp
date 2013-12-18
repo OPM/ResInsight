@@ -642,6 +642,8 @@ void RimReservoirView::createDisplayModel()
             }
         }
 
+        RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAdd);
+
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -649,6 +651,8 @@ void RimReservoirView::createDisplayModel()
             {
                 m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultGeometryTypesToAdd[gtIdx]);
             }
+
+            m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
     }
     
@@ -726,6 +730,7 @@ void RimReservoirView::updateCurrentTimeStep()
         if (faultCollection()->limitFaultsToFilter)
         {
             m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
+            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
         }
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);

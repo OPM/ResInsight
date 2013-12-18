@@ -171,3 +171,14 @@ void RivReservoirPartMgr::appendFaultPartsToModel(cvf::ModelBasicList* model)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* model)
+{
+    if (m_faultsPartMgr.notNull())
+    {
+        m_faultsPartMgr->appendLabelPartsToModel(model);
+    }
+}
+

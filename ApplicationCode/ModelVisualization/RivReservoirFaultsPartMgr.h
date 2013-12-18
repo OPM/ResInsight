@@ -52,6 +52,8 @@ public:
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
+    void appendLabelPartsToModel(cvf::ModelBasicList* model);
+
 
 private:
     cvf::ref<cvf::Transform>        m_scaleTransform;
