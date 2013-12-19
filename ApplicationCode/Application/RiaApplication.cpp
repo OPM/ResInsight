@@ -839,7 +839,7 @@ bool RiaApplication::parseArguments()
 #if defined(_MSC_VER) && defined(_WIN32)
         showFormattedTextInMessageBox(m_helpText);
 #else
-        fprintf(stdout, "%s\n", helpText.toAscii().data());
+        fprintf(stdout, "%s\n", m_helpText.toAscii().data());
         fflush(stdout);
 #endif
         return false;
