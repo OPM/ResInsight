@@ -1834,8 +1834,10 @@ void RimReservoirView::appendNNCResultInfo(size_t gridIndex, size_t nncIndex, QS
 
         const RigConnection& conn = nncData->connections()[nncIndex];
         
+        cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
+
         resultInfo->append(QString("NNC Transmissibility  : %1\n").arg(conn.m_transmissibility));
-        resultInfo->append(QString("NNC Cell 1  : %1\n").arg(conn.m_c1GlobIdx));
+        resultInfo->append(QString("NNC Cell 1  : %1, Face: %2\n").arg(conn.m_c1GlobIdx).arg(face.text()));
         resultInfo->append(QString("NNC Cell 2  : %1\n").arg(conn.m_c2GlobIdx));
     }
 }

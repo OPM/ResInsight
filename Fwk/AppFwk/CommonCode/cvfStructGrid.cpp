@@ -50,6 +50,7 @@ namespace caf
         addItem(cvf::StructGridInterface::NEG_J,   "Y-",   "");
         addItem(cvf::StructGridInterface::POS_K,   "Z",    "");
         addItem(cvf::StructGridInterface::NEG_K,   "Z-",   "");
+        addItem(cvf::StructGridInterface::NO_FACE, "UnDef",   "");
     }
 }
 
