@@ -16,6 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirFaultsPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.h
@@ -34,6 +35,7 @@ ${CEE_CURRENT_LIST_DIR}RivReservoirPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.cpp
