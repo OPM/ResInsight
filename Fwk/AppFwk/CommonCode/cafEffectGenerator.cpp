@@ -394,6 +394,7 @@ ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper
     m_polygonOffset = polygonOffset;
     m_opacityLevel = 1.0f;
     m_faceCulling = FC_NONE;
+    m_enableDepthWrite = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -509,6 +510,13 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 
         effect->setRenderState(faceCulling.p());
     }
+
+    if (!m_enableDepthWrite)
+    {
+        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+        depth->enableDepthWrite(false);
+        effect->setRenderState(depth.p());
+    }
 }
 
 
@@ -525,7 +533,8 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
             && m_polygonOffset == otherTextureResultEffect->m_polygonOffset
             && m_opacityLevel == otherTextureResultEffect->m_opacityLevel
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor
-            && m_faceCulling == otherTextureResultEffect->m_faceCulling)
+            && m_faceCulling == otherTextureResultEffect->m_faceCulling
+            && m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite)
         {
             cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
             otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
@@ -547,6 +556,7 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
     scEffGen->m_opacityLevel = m_opacityLevel;
     scEffGen->m_undefinedColor = m_undefinedColor;
     scEffGen->m_faceCulling = m_faceCulling;
+    scEffGen->m_enableDepthWrite = m_enableDepthWrite;
 
     return scEffGen;
 }
