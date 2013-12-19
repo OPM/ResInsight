@@ -51,6 +51,7 @@ public:
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
     const cvf::Collection<RigFault>&        faults() { return m_faults; }
     void                                    calculateFaults();
+    bool                                    faceNormalsIsOutwards() const;
 
     void                                    computeCachedData();
 

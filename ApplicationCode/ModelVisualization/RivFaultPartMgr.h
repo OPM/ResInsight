@@ -26,6 +26,7 @@
 #include "cvfColor4.h"
 #include "RivNNCGeometryGenerator.h"
 #include "cvfEffect.h"
+#include "cafEffectGenerator.h"
 
 namespace cvf
 {
@@ -66,11 +67,11 @@ private:
     void updatePartEffect();
 
     cvf::ref<cvf::Effect> cellResultEffect(const cvf::ScalarMapper* mapper) const;
+    caf::FaceCulling faceCullingMode() const;
     
     void createLabelWithAnchorLine(const cvf::Part* part);
    
     static cvf::Vec3f findClosestVertex(const cvf::Vec3f& point, const cvf::Vec3fArray* vertices);
-
 private:
     cvf::cref<RigGridBase>      m_grid;
     const RimFault*             m_rimFault;

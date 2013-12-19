@@ -372,18 +372,9 @@ void RivFaultPartMgr::updatePartEffect()
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(partColor, caf::PO_1);
-    bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
-    if (!isShowingGrid )
-    {
-        if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
-        {
-            geometryEffgen.setCullBackfaces(caf::FC_FRONT); // Because the cells are inverted
-        }
-        else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
-        {
-            geometryEffgen.setCullBackfaces(caf::FC_BACK); // Because the cells are inverted
-        }
-    }
+
+    geometryEffgen.setCullBackfaces(faceCullingMode());
+  
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
     if (m_nativeFaultFaces.notNull())
@@ -640,19 +631,8 @@ cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper*
 
     caf::PolygonOffset polygonOffset = caf::PO_1;
     caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-
-    bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
-    if (!isShowingGrid )
-    {
-        if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
-        {
-            scalarEffgen.setCullBackfaces(caf::FC_FRONT);// Because the cells are inverted
-        }
-        else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
-        {
-            scalarEffgen.setCullBackfaces(caf::FC_BACK);// Because the cells are inverted
-        }
-    }
+    
+    scalarEffgen.setCullBackfaces(faceCullingMode());
 
     scalarEffgen.setOpacityLevel(m_opacityLevel);
 
@@ -661,3 +641,33 @@ cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper*
     return scalarEffect;
 }
 
+caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
+{
+    bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
+    if (!isShowingGrid )
+    {
+        if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+        {
+            if (m_grid->mainGrid()->faceNormalsIsOutwards())
+            {
+                return caf::FC_BACK;
+            }
+            else
+            {
+                return caf::FC_FRONT;
+            }
+        }
+        else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+        {
+            if (m_grid->mainGrid()->faceNormalsIsOutwards())
+            {
+                return caf::FC_FRONT;
+            }
+            else
+            {
+                return caf::FC_BACK;
+            }
+        }
+    }
+    return caf::FC_NONE;
+}
