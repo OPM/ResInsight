@@ -35,7 +35,7 @@ RigNNCData::RigNNCData()
 //--------------------------------------------------------------------------------------------------
 void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 {
-    cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
+    //cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
 
     for (size_t cnIdx = 0; cnIdx < m_connections.size(); ++cnIdx)
     {
@@ -80,7 +80,7 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
                 //m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c1GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
                 //m_cellIdxToFaceToConnectionIdxMap[m_connections[cnIdx].m_c2GlobIdx][cvf::StructGridInterface::NO_FACE].push_back(cnIdx);
 
-                cvf::Trace::show("NNC: No direct neighbors : C1: " + cvf::String((int)m_connections[cnIdx].m_c1GlobIdx) + " C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
+                //cvf::Trace::show("NNC: No direct neighbors : C1: " + cvf::String((int)m_connections[cnIdx].m_c1GlobIdx) + " C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
                 continue; // to next connection
             }
         }
