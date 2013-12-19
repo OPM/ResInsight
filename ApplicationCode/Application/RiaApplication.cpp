@@ -805,210 +805,22 @@ bool RiaApplication::showPerformanceInfo() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::parseArguments_OLD()
-{
-    QStringList arguments = QCoreApplication::arguments();
-
-    bool openLatestProject = false;
-    QString projectFilename;
-    QStringList caseNames;
-    QString regressionTestPath;
-
-    enum ArgumentParsingType
-    {
-        PARSE_PROJECT_FILE_NAME,
-        PARSE_CASE_NAMES,
-        PARSE_START_DIR,
-        PARSE_REGRESSION_TEST_PATH,
-        PARSING_NONE
-    };
-
-    ArgumentParsingType argumentParsingType = PARSING_NONE;
-
-    bool showHelp = false;
-    bool isSaveSnapshotsForAllViews = false;
-    bool isRunRegressionTest = false;
-    bool isUpdateRegressionTest = false;
-
-    int i;
-    for (i = 1; i < arguments.size(); i++)
-    {
-        QString arg = arguments[i];
-        bool foundKnownOption = false;
-
-        if (arg.toLower() == "-help" || arg.toLower() == "-?")
-        {
-            showHelp = true;
-            foundKnownOption = true;
-        }
-
-        if (arg.toLower() == "-last")
-        {
-            openLatestProject = true;
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-project")
-        {
-            argumentParsingType = PARSE_PROJECT_FILE_NAME;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-case")
-        {
-            argumentParsingType = PARSE_CASE_NAMES;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-startdir")
-        {
-            argumentParsingType = PARSE_START_DIR;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-savesnapshots")
-        {
-            isSaveSnapshotsForAllViews = true;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-regressiontest")
-        {
-            isRunRegressionTest = true; 
-
-            argumentParsingType = PARSE_REGRESSION_TEST_PATH;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-updateregressiontestbase")
-        {
-            isUpdateRegressionTest = true; 
-
-            argumentParsingType = PARSE_REGRESSION_TEST_PATH;
-
-            foundKnownOption = true;
-        }
-
-        if (!foundKnownOption)
-        {
-            switch (argumentParsingType)
-            {
-            case PARSE_PROJECT_FILE_NAME:
-                if (QFile::exists(arg))
-                {
-                    projectFilename = arg;
-                }
-                break;
-            case PARSE_CASE_NAMES:
-                {
-                    caseNames.append(arg);
-                }
-                break;
-
-            case PARSE_START_DIR:
-                {
-                    m_startupDefaultDirectory = arg;
-                }
-                break;
-            case PARSE_REGRESSION_TEST_PATH:
-                {
-                    regressionTestPath = arg; 
-                }
-            }
-        }
-    }
-
-    if (showHelp)
-    {
-        QString helpText = commandLineParameterHelp();
-
-#if defined(_MSC_VER) && defined(_WIN32)
-        showFormattedTextInMessageBox(helpText);
-#else
-        fprintf(stdout, "%s\n", helpText.toAscii().data());
-        fflush(stdout);
-#endif
-        return false;
-    }
-
-    if (isRunRegressionTest)
-    {
-        executeRegressionTests(regressionTestPath);
-
-        return false;
-    }
-
-    if (isUpdateRegressionTest)
-    {
-        updateRegressionTest(regressionTestPath);
-
-        return false;
-    }
-
-    if (openLatestProject)
-    {
-        loadProject(m_preferences->lastUsedProjectFileName);
-    }
-
-    if (!projectFilename.isEmpty())
-    {
-        loadProject(projectFilename);
-    }
-
-    if (!caseNames.isEmpty())
-    {
-        QString caseName;
-        foreach (caseName, caseNames)
-        {
-            QString tmpCaseFileName = caseName + ".EGRID";
-
-            if (QFile::exists(tmpCaseFileName))
-            {
-                openEclipseCaseFromFile(tmpCaseFileName);
-            }
-            else
-            {
-                tmpCaseFileName = caseName + ".GRID";
-                if (QFile::exists(tmpCaseFileName))
-                {
-                    openEclipseCaseFromFile(tmpCaseFileName);
-                }
-            }
-        }
-    }
-
-    if (m_project.notNull() && !m_project->fileName().isEmpty() && isSaveSnapshotsForAllViews)
-    {
-         // Will be saved relative to current directory
-        saveSnapshotForAllViews("snapshots");
-
-        // Returning false will exit the application
-        return false;
-    }
-
-
-    return true;
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 bool RiaApplication::parseArguments()
 {
     cvf::ProgramOptions progOpt;
-    progOpt.registerOption("help");
-    progOpt.registerOption("?");
-    progOpt.registerOption("last",                      "",                                 "Open last used project");
-    progOpt.registerOption("project",                   "<filename>",                       "Open project file <filename>", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("case",                      "<casename>",                       "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension)", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("savesnapshots",             "",                                 "Save snapshot of all views to 'snapshots' folder");
+    progOpt.registerOption("last",                      "",                                 "Open last used project.");
+    progOpt.registerOption("project",                   "<filename>",                       "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("case",                      "<casename>",                       "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension.)", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("savesnapshots",             "",                                 "Save snapshot of all views to 'snapshots' folder. Application closes after snapshots have been written.");
+    progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("help",                      "",                                 "Displays help text.");
+    progOpt.registerOption("?",                         "",                                 "Displays help text.");
     progOpt.registerOption("regressiontest",            "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
     progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
-    progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with grid files listed in <gridListFile>", cvf::ProgramOptions::MULTI_VALUE);
-    progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in <gridListFile>, replace the first case in the project and save snapshot of all views", cvf::ProgramOptions::SINGLE_VALUE);
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
@@ -1018,12 +830,11 @@ bool RiaApplication::parseArguments()
 
     if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
     {
-        {
-            cvf::String usageText = progOpt.usageText(110, 30);
-            cvf::Trace::show(usageText);
-        }
+        QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
+        helpText += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
 
-        QString helpText = commandLineParameterHelp();
+        const cvf::String usageText = progOpt.usageText(110, 30);
+        helpText += cvfqt::Utils::toQString(usageText);
 
 #if defined(_MSC_VER) && defined(_WIN32)
         showFormattedTextInMessageBox(helpText);

@@ -66,7 +66,6 @@ public:
     ~RiaApplication();
     static RiaApplication* instance();
 
-    bool                    parseArguments_OLD();
     bool                    parseArguments();
 
     void                    executeRegressionTests(const QString& regressionTestPath);
