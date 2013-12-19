@@ -41,6 +41,6 @@ public:
 
     static QString undefinedResultName() { return "None"; }
 
-    static QString combinedTransmissibilityResultName() { return "CombTrans"; }
+    static QString combinedTransmissibilityResultName() { return "CombinedTRANS"; }
 };
 
