@@ -185,8 +185,7 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
 
     if (!m_faultCollection) return;
 
-    bool isShowingGrid = m_faultCollection->isGridVisualizationMode();
-    if (!m_faultCollection->showFaultCollection() && !isShowingGrid) return;
+    if (!m_faultCollection->showFaultCollection()) return;
     
     if (!m_faultCollection->showFaultLabel() ) return;
 
