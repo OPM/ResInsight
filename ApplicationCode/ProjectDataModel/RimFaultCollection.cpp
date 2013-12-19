@@ -66,6 +66,7 @@ RimFaultCollection::RimFaultCollection()
     showFaultCollection.setUiHidden(true);
 
     CAF_PDM_InitField(&showGeometryDetectedFaults,  "ShowGeometryDetectedFaults",    false,   "Show geometry detected faults", "", "", "");
+    showGeometryDetectedFaults.setUiHidden(true);
 
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,   "Show faults faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,   "Show opposite fault faces", "", "", "");

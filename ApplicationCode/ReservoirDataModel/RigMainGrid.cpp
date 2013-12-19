@@ -290,8 +290,8 @@ void RigMainGrid::calculateFaults()
                 faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
                 faultsPrCellAcc->setFaultIdx(neighborGlobalCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
 
-                m_cells[gcIdx].setCellFaceFault(face);
-                m_cells[neighborGlobalCellIdx].setCellFaceFault(StructGridInterface::oppositeFace(face));
+                //m_cells[gcIdx].setCellFaceFault(face);
+                //m_cells[neighborGlobalCellIdx].setCellFaceFault(StructGridInterface::oppositeFace(face));
 
                 // Add as fault face only if the grid index is less than the neighbors
 
@@ -302,7 +302,7 @@ void RigMainGrid::calculateFaults()
                 }
                 else
                 {
-                    CVF_FAIL_MSG("Found fault with global neighbour index less than the native index. "); // Should never occur. because we flag the opposite face in the faultsPrCellAcc
+                    CVF_FAIL_MSG("Found fault with global neighbor index less than the native index. "); // Should never occur. because we flag the opposite face in the faultsPrCellAcc
                 }
             }
         }
