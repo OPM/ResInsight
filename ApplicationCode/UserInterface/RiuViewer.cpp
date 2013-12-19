@@ -46,6 +46,7 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "RivSourceInfo.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -270,17 +271,20 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
             {
                 if (firstHitPart->sourceInfo())
                 {
-                    const cvf::Array<size_t>* cellIndices = dynamic_cast<const cvf::Array<size_t>*>(firstHitPart->sourceInfo());
-                    if (cellIndices)
+                    const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
+                    if (rivSourceInfo)
                     {
-                        m_currentGridIdx = firstHitPart->id();
-                        m_currentCellIndex = cellIndices->get(faceIndex);
+                        if (rivSourceInfo->m_cellIndices->size() > 0)
+                        {
+                            m_currentGridIdx = firstHitPart->id();
+                            m_currentCellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
 
-                        QMenu menu;
-                        menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-                        menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-                        menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
-                        menu.exec(event->globalPos());
+                            QMenu menu;
+                            menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
+                            menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
+                            menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+                            menu.exec(event->globalPos());
+                        }
                     }
                 }
             }
@@ -430,27 +434,36 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
             size_t cellIndex = cvf::UNDEFINED_SIZE_T;
             if (firstHitPart->sourceInfo())
             {
-                const cvf::Array<size_t>* cellIndices = dynamic_cast<const cvf::Array<size_t>*>(firstHitPart->sourceInfo());
-                if (cellIndices)
+                const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
+                if (rivSourceInfo)
                 {
-                    cellIndex = cellIndices->get(faceIndex);
-
-                    m_reservoirView->pickInfo(gridIndex, cellIndex, localIntersectionPoint, &pickInfo);
-                    m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
-#if 0
-                    const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
-                    const RigGridBase* grid = reservoir->grid(gridIndex);
-                    const RigCell& cell = grid->cell(cellIndex);
-                    const caf::SizeTArray8& cellNodeIndices = cell.cornerIndices();
-                    const std::vector<cvf::Vec3d>& nodes = reservoir->mainGrid()->nodes();
-                    for (int i = 0; i < 8; ++i)
+                    if (rivSourceInfo->m_cellIndices.notNull())
                     {
-                        resultInfo += QString::number(i) + " : ";
-                        for (int j = 0; j < 3; ++j)
-                            resultInfo += QString::number(nodes[cellNodeIndices[i]][j], 'g', 10) + " ";
-                         resultInfo += "\n";
-                    }
+                        cellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
+
+                        m_reservoirView->pickInfo(gridIndex, cellIndex, localIntersectionPoint, &pickInfo);
+                        m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
+#if 0
+                        const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+                        const RigGridBase* grid = reservoir->grid(gridIndex);
+                        const RigCell& cell = grid->cell(cellIndex);
+                        const caf::SizeTArray8& cellNodeIndices = cell.cornerIndices();
+                        const std::vector<cvf::Vec3d>& nodes = reservoir->mainGrid()->nodes();
+                        for (int i = 0; i < 8; ++i)
+                        {
+                            resultInfo += QString::number(i) + " : ";
+                            for (int j = 0; j < 3; ++j)
+                                resultInfo += QString::number(nodes[cellNodeIndices[i]][j], 'g', 10) + " ";
+                             resultInfo += "\n";
+                        }
 #endif
+                    }
+                    else if (rivSourceInfo->m_NNCIndices.notNull())
+                    {
+                        size_t nncIndex = rivSourceInfo->m_NNCIndices->get(faceIndex);
+
+                        m_reservoirView->appendNNCResultInfo(gridIndex, nncIndex, &resultInfo);
+                    }
                 }
             }
         }

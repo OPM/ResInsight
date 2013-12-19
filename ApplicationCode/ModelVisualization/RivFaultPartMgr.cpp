@@ -46,6 +46,7 @@
 #include "cvfPrimitiveSetDirect.h"
 #include "RivGridPartMgr.h"
 #include "cvfRenderStateDepth.h"
+#include "RivSourceInfo.h"
 
 
 
@@ -101,6 +102,8 @@ void RivFaultPartMgr::applySingleColorEffect()
 void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     CVF_ASSERT(cellResultSlot);
+
+    updateNNCColors(cellResultSlot);
 
     size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
     const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
@@ -247,7 +250,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(m_nativeFaultGenerator->triangleToSourceGridCellMap().p());
+            part->setSourceInfo(RivSourceInfo::fromCellIndices(m_nativeFaultGenerator->triangleToSourceGridCellMap().p()).p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
@@ -298,7 +301,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(m_oppositeFaultGenerator->triangleToSourceGridCellMap().p());
+            part->setSourceInfo(RivSourceInfo::fromCellIndices(m_oppositeFaultGenerator->triangleToSourceGridCellMap().p()).p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
@@ -347,7 +350,7 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(m_NNCGenerator->triangleToNNCIndex().p());
+            part->setSourceInfo(RivSourceInfo::fromNNCIndices(m_NNCGenerator->triangleToNNCIndex().p()).p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
@@ -368,11 +371,8 @@ void RivFaultPartMgr::generatePartGeometry()
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updatePartEffect()
 {
-    cvf::Color3f partColor = m_defaultColor;
-
     // Set default effect
-    caf::SurfaceEffectGenerator geometryEffgen(partColor, caf::PO_1);
-
+    caf::SurfaceEffectGenerator geometryEffgen(m_defaultColor, caf::PO_1);
     geometryEffgen.setCullBackfaces(faceCullingMode());
   
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
@@ -387,31 +387,7 @@ void RivFaultPartMgr::updatePartEffect()
         m_oppositeFaultFaces->setEffect(geometryOnlyEffect.p());
     }
 
-    // NNC faces a bit lighter than the fault for now
-
-    cvf::Color3f nncColor = partColor;
-    nncColor.r() +=  (1.0 - nncColor.r()) * 0.2;
-    nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
-    nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
-
-    cvf::ref<cvf::Effect> nncEffect;
-
-    if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)
-    {
-        caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NEG_LARGE);
-        nncEffgen.enableDepthWrite(false);
-        nncEffect = nncEffgen.generateEffect();
-    }
-    else
-    {
-        caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_1);
-        nncEffect = nncEffgen.generateEffect();
-    }
-
-    if (m_NNCFaces.notNull())
-    {
-        m_NNCFaces->setEffect(nncEffect.p());
-    }
+    updateNNCColors(NULL);
 
     // Update mesh colors as well, in case of change
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
@@ -674,3 +650,62 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
     }
     return caf::FC_NONE;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
+{
+    if (m_NNCFaces.isNull()) return;
+
+    if (cellResultSlot && cellResultSlot->resultVariable() == RimDefines::combinedTransmissibilityResultName())
+    {
+        const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+
+        m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper);
+
+        cvf::ref<cvf::Effect> nncEffect;
+
+        if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)
+        {
+            caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
+            nncEffgen.enableDepthWrite(false);
+            nncEffect = nncEffgen.generateEffect();
+        }
+        else
+        {
+            caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
+            nncEffect = nncEffgen.generateEffect();
+        }
+
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_NNCFaces->drawable());
+        if (dg) dg->setTextureCoordArray(m_NNCTextureCoords.p());
+
+        m_NNCFaces->setEffect(nncEffect.p());
+    }
+    else
+    {
+        // NNC faces a bit lighter than the fault for now
+        cvf::Color3f nncColor = m_defaultColor;
+        nncColor.r() +=  (1.0 - nncColor.r()) * 0.2;
+        nncColor.g() +=  (1.0 - nncColor.g()) * 0.2;
+        nncColor.g() +=  (1.0 - nncColor.b()) * 0.2;
+
+        cvf::ref<cvf::Effect> nncEffect;
+
+        if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)
+        {
+            caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NEG_LARGE);
+            nncEffgen.enableDepthWrite(false);
+            nncEffect = nncEffgen.generateEffect();
+        }
+        else
+        {
+            caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_1);
+            nncEffect = nncEffgen.generateEffect();
+        }
+
+        m_NNCFaces->setEffect(nncEffect.p());
+    }
+}
+

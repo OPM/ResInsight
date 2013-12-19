@@ -66,6 +66,8 @@ private:
     void generatePartGeometry();
     void updatePartEffect();
 
+    void updateNNCColors(RimResultSlot* cellResultSlot);
+
     cvf::ref<cvf::Effect> cellResultEffect(const cvf::ScalarMapper* mapper) const;
     caf::FaceCulling faceCullingMode() const;
     

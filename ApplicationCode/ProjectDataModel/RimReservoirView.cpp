@@ -1815,3 +1815,28 @@ void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     cellGroup->add(&showInvalidCells);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::appendNNCResultInfo(size_t gridIndex, size_t nncIndex, QString* resultInfo)
+{
+    if (gridIndex != 0)
+    {
+        return;
+    }
+
+    if (m_reservoir && m_reservoir->reservoirData())
+    {
+        RigCaseData* eclipseCase = m_reservoir->reservoirData();
+        RigMainGrid* grid = eclipseCase->mainGrid();
+
+        RigNNCData* nncData = grid->nncData();
+
+        const RigConnection& conn = nncData->connections()[nncIndex];
+        
+        resultInfo->append(QString("NNC Transmissibility  : %1\n").arg(conn.m_transmissibility));
+        resultInfo->append(QString("NNC Cell 1  : %1\n").arg(conn.m_c1GlobIdx));
+        resultInfo->append(QString("NNC Cell 2  : %1\n").arg(conn.m_c2GlobIdx));
+    }
+}
+

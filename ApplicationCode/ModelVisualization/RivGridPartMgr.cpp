@@ -40,6 +40,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "RivSourceInfo.h"
 
 
 
@@ -114,7 +115,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(geoBuilder.triangleToSourceGridCellMap().p());
+            part->setSourceInfo(RivSourceInfo::fromCellIndices(geoBuilder.triangleToSourceGridCellMap().p()).p());
 
             part->updateBoundingBox();
             
