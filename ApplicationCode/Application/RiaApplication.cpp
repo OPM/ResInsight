@@ -824,20 +824,20 @@ bool RiaApplication::parseArguments()
 
     progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
 
+    m_helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
+    m_helpText += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
+
+    const cvf::String usageText = progOpt.usageText(110, 30);
+    m_helpText += cvfqt::Utils::toQString(usageText);
+
     QStringList arguments = QCoreApplication::arguments();
 
     bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
 
     if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
     {
-        QString helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
-        helpText += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
-
-        const cvf::String usageText = progOpt.usageText(110, 30);
-        helpText += cvfqt::Utils::toQString(usageText);
-
 #if defined(_MSC_VER) && defined(_WIN32)
-        showFormattedTextInMessageBox(helpText);
+        showFormattedTextInMessageBox(m_helpText);
 #else
         fprintf(stdout, "%s\n", helpText.toAscii().data());
         fflush(stdout);
@@ -1752,6 +1752,9 @@ void RiaApplication::showFormattedTextInMessageBox(const QString& text)
 //--------------------------------------------------------------------------------------------------
 QString RiaApplication::commandLineParameterHelp() const
 {
+    return m_helpText;
+
+    /*
     QString text = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
     text += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
 
@@ -1784,6 +1787,7 @@ QString RiaApplication::commandLineParameterHelp() const
         "-----------------------------------------------------------------";
 
     return text;
+    */
 }
 
 //--------------------------------------------------------------------------------------------------

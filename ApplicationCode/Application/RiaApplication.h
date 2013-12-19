@@ -190,4 +190,6 @@ private:
 
     std::list<RimCommandObject*>       m_commandQueue;
     QMutex                             m_commandQueueLock;
+
+    QString                            m_helpText;
 };
