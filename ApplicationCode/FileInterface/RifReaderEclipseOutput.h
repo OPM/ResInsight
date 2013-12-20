@@ -45,6 +45,7 @@ public:
     RifReaderEclipseOutput();
     virtual ~RifReaderEclipseOutput();
 
+    void                    enableFaultsImport(bool enableFaultsImport);
     bool                    open(const QString& fileName, RigCaseData* eclipseCase);
     virtual bool            openAndReadActiveCellData(const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigCaseData* eclipseCase);
     void                    close();
@@ -88,4 +89,6 @@ private:
 
     ecl_file_type*                          m_ecl_init_file;    // File access to static results
     cvf::ref<RifEclipseRestartDataAccess>   m_dynamicResultsAccess;   // File access to dynamic results
+
+    bool                                    m_enableFaultsImport;
 };

@@ -196,6 +196,8 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 
     m_ecl_init_file = NULL;
     m_dynamicResultsAccess = NULL;
+
+    m_enableFaultsImport = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -377,37 +379,40 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.setProgressDescription("Reading faults");
     progInfo.setNextProgressIncrement(10);
 
-    if (this->filenamesWithFaults().size() > 0)
+    if (m_enableFaultsImport)
     {
-        cvf::Collection<RigFault> faults;
-        std::vector< RifKeywordAndFilePos > fileKeywords;
+        if (this->filenamesWithFaults().size() > 0)
+        {
+            cvf::Collection<RigFault> faults;
+            std::vector< RifKeywordAndFilePos > fileKeywords;
         
-        std::vector<QString> filenamesWithFaults;
+            std::vector<QString> filenamesWithFaults;
 
-        for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
-        {
-            QString faultFilename = this->filenamesWithFaults()[i];
-
-            RifEclipseInputFileTools::readFaults(faultFilename, faults, fileKeywords);
-
-            RigMainGrid* mainGrid = eclipseCase->mainGrid();
-            mainGrid->setFaults(faults);
-        }
-    }
-    else
-    {
-        foreach (QString fname, fileSet)
-        {
-            if (fname.endsWith(".DATA"))
+            for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
             {
-                cvf::Collection<RigFault> faults;
-                std::vector<QString> filenamesWithFaults;
-                RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, filenamesWithFaults);
+                QString faultFilename = this->filenamesWithFaults()[i];
+
+                RifEclipseInputFileTools::readFaults(faultFilename, faults, fileKeywords);
 
                 RigMainGrid* mainGrid = eclipseCase->mainGrid();
                 mainGrid->setFaults(faults);
+            }
+        }
+        else
+        {
+            foreach (QString fname, fileSet)
+            {
+                if (fname.endsWith(".DATA"))
+                {
+                    cvf::Collection<RigFault> faults;
+                    std::vector<QString> filenamesWithFaults;
+                    RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, filenamesWithFaults);
 
-                this->setFilenamesWithFaults(filenamesWithFaults);
+                    RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                    mainGrid->setFaults(faults);
+
+                    this->setFilenamesWithFaults(filenamesWithFaults);
+                }
             }
         }
     }
@@ -1703,5 +1708,13 @@ std::string RifReaderEclipseOutput::ertGridName(size_t gridNr)
     }
 
     return gridName;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderEclipseOutput::enableFaultsImport(bool enableFaultsImport)
+{
+    m_enableFaultsImport = enableFaultsImport;
 }
 

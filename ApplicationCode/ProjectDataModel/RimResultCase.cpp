@@ -44,6 +44,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RiaPreferences.h"
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
@@ -97,10 +98,15 @@ bool RimResultCase::openEclipseGridFile()
             return false;
         }
 
-        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
-        readerInterface = new RifReaderEclipseOutput;
+        cvf::ref<RifReaderEclipseOutput> outputInterface = new RifReaderEclipseOutput;
+
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+        outputInterface->enableFaultsImport(prefs->enableFaultsImport());
+        readerInterface = outputInterface;
+
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
 
+        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
         if (!readerInterface->open(caseFileName(), eclipseCase.p()))
         {
             return false;

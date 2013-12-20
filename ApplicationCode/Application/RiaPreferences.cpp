@@ -48,7 +48,6 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitField(&defaultViewerBackgroundColor,      "defaultViewerBackgroundColor", cvf::Color3f(0.69f, 0.77f, 0.87f), "Viewer background", "", "The viewer background color for new views", "");
 
-
     CAF_PDM_InitField(&defaultScaleFactorZ,             "defaultScaleFactorZ", 5, "Z scale factor", "", "", "");
 
     CAF_PDM_InitField(&useShaders,                      "useShaders", true, "Use Shaders", "", "", "");
@@ -59,6 +58,9 @@ RiaPreferences::RiaPreferences(void)
 
     CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "SOIL", "", "SOIL = 1.0 - SGAS - SWAT", "");
     CAF_PDM_InitField(&autocomputeDepthRelatedProperties,"autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
+
+    CAF_PDM_InitField(&enableFaultsImport,              "enableFaultsImport", true, "Read faults in case import", "", "", "");
+    CAF_PDM_InitField(&defaultShowFaults,               "defaultShowFaults", false, "Show faults by default in view", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,10 +110,15 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
     autoComputeGroup->add(&autocomputeSOIL);
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);
+
+    caf::PdmUiGroup* faultsGroup = uiOrdering.addNewGroup("Faults");
+    faultsGroup->add(&enableFaultsImport);
+    faultsGroup->add(&defaultShowFaults);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// This function is called as part of the regression test system to make sure the configuration
+/// for regression tests is consistent
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::resetToDefaults()
 {
@@ -120,5 +127,7 @@ void RiaPreferences::resetToDefaults()
 
     autocomputeSOIL = true;
     autocomputeDepthRelatedProperties = true;
+
+    enableFaultsImport = true;
 }
 
