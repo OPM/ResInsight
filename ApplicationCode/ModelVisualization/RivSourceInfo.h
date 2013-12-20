@@ -25,8 +25,8 @@
 class RivSourceInfo : public cvf::Object
 {
 public:
-    static cvf::ref<RivSourceInfo> fromCellIndices(cvf::Array<size_t>* cellIndices);
-    static cvf::ref<RivSourceInfo> fromNNCIndices(cvf::Array<size_t>* nncIndices);
+    bool hasCellIndices() const;
+    bool hasNNCIndices() const;
 
 public:
     cvf::ref<cvf::Array<size_t> >    m_cellIndices;

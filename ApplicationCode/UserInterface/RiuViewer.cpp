@@ -274,7 +274,7 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
                     const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
                     if (rivSourceInfo)
                     {
-                        if (rivSourceInfo->m_cellIndices->size() > 0)
+                        if (rivSourceInfo->hasCellIndices())
                         {
                             m_currentGridIdx = firstHitPart->id();
                             m_currentCellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
@@ -437,7 +437,7 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
                 const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
                 if (rivSourceInfo)
                 {
-                    if (rivSourceInfo->m_cellIndices.notNull())
+                    if (rivSourceInfo->hasCellIndices())
                     {
                         cellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
 
@@ -546,18 +546,46 @@ cvf::Part* RiuViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, 
 {
     CVF_ASSERT(faceHit);
 
-    cvf::HitItemCollection pPoints;
-    bool isSomethingHit = rayPick(winPosX, winPosY, &pPoints);
+    cvf::HitItemCollection hitItems;
+    bool isSomethingHit = rayPick(winPosX, winPosY, &hitItems);
 
     if (isSomethingHit)
     {
-        CVF_ASSERT(pPoints.count() > 0);
-        cvf::HitItem* firstItem = pPoints.firstItem();
-        const cvf::Part* pickedPart =  firstItem->part();
+        CVF_ASSERT(hitItems.count() > 0);
+
+        double characteristicCellSize = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+        double pickDepthThresholdSquared = characteristicCellSize / 10.0;
+        pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
+
+        cvf::HitItem* hitItem = hitItems.firstItem();
+        cvf::Vec3d firstItemIntersectionPoint = hitItem->intersectionPoint();
+
+        // Check if we have a close hit item with NNC data
+        for (size_t i = 0; i < hitItems.count(); i++)
+        {
+            cvf::HitItem* hitItemCandidate = hitItems.item(i);
+            cvf::Vec3d diff = firstItemIntersectionPoint - hitItemCandidate->intersectionPoint();
+
+            // Hit items are ordered by distance from eye
+            if (diff.lengthSquared() > pickDepthThresholdSquared) break;
+
+            const cvf::Part* pickedPartCandidate = hitItemCandidate->part();
+            if (pickedPartCandidate && pickedPartCandidate->sourceInfo())
+            {
+                const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickedPartCandidate->sourceInfo());
+                if (rivSourceInfo && rivSourceInfo->hasNNCIndices())
+                {
+                    hitItem = hitItemCandidate;
+                    break;
+                }
+            }
+        }
+
+        const cvf::Part* pickedPart = hitItem->part();
         CVF_ASSERT(pickedPart);
 
         const cvf::Transform* xf = pickedPart->transform();
-        cvf::Vec3d globalPickedPoint = firstItem->intersectionPoint();
+        cvf::Vec3d globalPickedPoint = hitItem->intersectionPoint();
 
         if(localIntersectionPoint) 
         {
@@ -574,7 +602,7 @@ cvf::Part* RiuViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, 
         if (faceHit)
         {
 
-            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(firstItem->detail());
+            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItem->detail());
             if (detail)
             {
                 *faceHit = detail->faceIndex();

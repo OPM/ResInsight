@@ -250,7 +250,9 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(RivSourceInfo::fromCellIndices(m_nativeFaultGenerator->triangleToSourceGridCellMap().p()).p());
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            si->m_cellIndices = m_nativeFaultGenerator->triangleToSourceGridCellMap().p();
+            part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
@@ -301,7 +303,9 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(RivSourceInfo::fromCellIndices(m_oppositeFaultGenerator->triangleToSourceGridCellMap().p()).p());
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            si->m_cellIndices = m_oppositeFaultGenerator->triangleToSourceGridCellMap().p();
+            part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);
@@ -350,7 +354,9 @@ void RivFaultPartMgr::generatePartGeometry()
             part->setDrawable(geo.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(RivSourceInfo::fromNNCIndices(m_NNCGenerator->triangleToNNCIndex().p()).p());
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            si->m_NNCIndices = m_NNCGenerator->triangleToNNCIndex().p();
+            part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
             part->setEnableMask(faultBit);

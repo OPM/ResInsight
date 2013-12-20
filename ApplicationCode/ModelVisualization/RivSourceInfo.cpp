@@ -22,27 +22,15 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivSourceInfo> RivSourceInfo::fromCellIndices(cvf::Array<size_t>* cellIndices)
+bool RivSourceInfo::hasCellIndices() const
 {
-    CVF_ASSERT(cellIndices);
-
-    cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-
-    si->m_cellIndices = cellIndices;
-
-    return si;
+    return m_cellIndices.notNull();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RivSourceInfo> RivSourceInfo::fromNNCIndices(cvf::Array<size_t>* nncIndices)
+bool RivSourceInfo::hasNNCIndices() const
 {
-    CVF_ASSERT(nncIndices);
-
-    cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-
-    si->m_NNCIndices = nncIndices;
-
-    return si;
+    return m_NNCIndices.notNull();
 }
