@@ -964,10 +964,16 @@ void RimUiTreeView::slotComputeStatistics()
 
     statisticsCase->computeStatistics();
 
+    statisticsCase->scheduleACTIVEGeometryRegenOnReservoirViews();
+    statisticsCase->updateConnectedEditorsAndReservoirViews();
+
     if (statisticsCase->reservoirViews.size() == 0)
     {
         slotAddView();
     }
+
+
+
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -271,22 +271,21 @@ void RimStatisticsCase::computeStatistics()
 
     RimStatisticsCaseEvaluator stat(sourceCases, timeStepIndices, statisticsConfig, resultCase);
     stat.evaluateForResults(resultSpecification);
-
-    // Todo: Is this really the time and place to do the following ? JJS
-
+  
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsCase::scheduleACTIVEGeometryRegenOnReservoirViews()
+{
     for (size_t i = 0; i < reservoirViews().size(); i++)
     {
         RimReservoirView* reservoirView = reservoirViews()[i];
         CVF_ASSERT(reservoirView);
 
         reservoirView->scheduleGeometryRegen(RivReservoirViewPartMgr::ACTIVE);
-        reservoirView->createDisplayModelAndRedraw();
     }
-
-  
-    this->updateConnectedEditors();
 }
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -462,6 +461,7 @@ void RimStatisticsCase::fieldChangedByUi(const caf::PdmFieldHandle* changedField
         else
         {
             computeStatistics();
+            scheduleACTIVEGeometryRegenOnReservoirViews();
             updateConnectedEditorsAndReservoirViews();
         }
         m_calculateEditCommand = false;

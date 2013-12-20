@@ -53,6 +53,9 @@ public:
     bool hasComputedStatistics() const;
     void clearComputedStatistics();
 
+    void scheduleACTIVEGeometryRegenOnReservoirViews();
+    void updateConnectedEditorsAndReservoirViews();
+
     virtual bool openEclipseGridFile();
 
     RimCaseCollection* parentStatisticsCaseCollection();
@@ -77,7 +80,6 @@ private:
     void updateSelectionSummaryLabel();
     void updatePercentileUiVisibility();
 
-    void updateConnectedEditorsAndReservoirViews();
 
     void setWellResultsAndUpdateViews(const cvf::Collection<RigSingleWellResultsData>& sourceCaseWellResults);
 
@@ -87,7 +89,6 @@ private:
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
     virtual void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute );
-
     // Fields
 
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultType;
