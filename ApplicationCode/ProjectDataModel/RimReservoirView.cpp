@@ -1818,27 +1818,69 @@ void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendNNCResultInfo(size_t gridIndex, size_t nncIndex, QString* resultInfo)
+void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
 {
-    if (gridIndex != 0)
-    {
-        return;
-    }
+    CVF_ASSERT(resultInfo);
 
     if (m_reservoir && m_reservoir->reservoirData())
     {
         RigCaseData* eclipseCase = m_reservoir->reservoirData();
+
         RigMainGrid* grid = eclipseCase->mainGrid();
-
-        RigNNCData* nncData = grid->nncData();
-
-        const RigConnection& conn = nncData->connections()[nncIndex];
+        CVF_ASSERT(grid);
         
-        cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
+        RigNNCData* nncData = grid->nncData();
+        CVF_ASSERT(nncData);
 
-        resultInfo->append(QString("NNC Transmissibility  : %1\n").arg(conn.m_transmissibility));
-        resultInfo->append(QString("NNC Cell 1  : %1, Face: %2\n").arg(conn.m_c1GlobIdx).arg(face.text()));
-        resultInfo->append(QString("NNC Cell 2  : %1\n").arg(conn.m_c2GlobIdx));
+        if (nncData)
+        {
+            const RigConnection& conn = nncData->connections()[nncIndex];
+        
+            cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
+
+            resultInfo->append(QString("NNC Transmissibility  : %1\n").arg(conn.m_transmissibility));
+            {
+                CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
+                const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
+
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t localCellIndex = cell.cellIndex();
+
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+
+                    QString gridName = QString::fromStdString(hostGrid->gridName());
+                    resultInfo->append(QString("NNC Cell 1 : IJK %1 %2 %3 (%4)\n").arg(i).arg(j).arg(k).arg(gridName));
+                }
+            }
+
+            {
+                CVF_ASSERT(conn.m_c2GlobIdx < grid->cells().size());
+                const RigCell& cell = grid->cells()[conn.m_c2GlobIdx];
+
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t localCellIndex = cell.cellIndex();
+
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+
+                    QString gridName = QString::fromStdString(hostGrid->gridName());
+                    resultInfo->append(QString("NNC Cell 2 : IJK %1 %2 %3 (%4)\n").arg(i).arg(j).arg(k).arg(gridName));
+                }
+            }
+
+            resultInfo->append(QString("Face: %2\n").arg(face.text()));
+        }
     }
 }
 

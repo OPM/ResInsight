@@ -245,6 +245,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
 
     RigMainGrid* mainGrid = eclipseCase->mainGrid();
+    CVF_ASSERT(mainGrid);
     {
         cvf::Vec3st  gridPointDim(0,0,0);
         gridPointDim.x() = ecl_grid_get_nx(mainEclGrid) + 1;
@@ -252,6 +253,10 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         gridPointDim.z() = ecl_grid_get_nz(mainEclGrid) + 1;
         mainGrid->setGridPointDimensions(gridPointDim);
     }
+
+    // std::string mainGridName = ecl_grid_get_name(mainEclGrid);
+    // ERT returns file path to grid file as name for main grid
+    mainGrid->setGridName("Main grid");
 
     // Get and set grid and lgr metadata
 

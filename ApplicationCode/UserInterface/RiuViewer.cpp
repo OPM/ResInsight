@@ -462,7 +462,7 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
                     {
                         size_t nncIndex = rivSourceInfo->m_NNCIndices->get(faceIndex);
 
-                        m_reservoirView->appendNNCResultInfo(gridIndex, nncIndex, &resultInfo);
+                        m_reservoirView->appendNNCResultInfo(nncIndex, &resultInfo);
                     }
                 }
             }
