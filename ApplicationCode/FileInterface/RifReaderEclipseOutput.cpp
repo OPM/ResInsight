@@ -196,8 +196,6 @@ RifReaderEclipseOutput::RifReaderEclipseOutput()
 
     m_ecl_init_file = NULL;
     m_dynamicResultsAccess = NULL;
-
-    m_enableFaultsImport = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,7 +377,7 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.setProgressDescription("Reading faults");
     progInfo.setNextProgressIncrement(10);
 
-    if (m_enableFaultsImport)
+    if (isFaultImportEnabled())
     {
         if (this->filenamesWithFaults().size() > 0)
         {
@@ -1708,13 +1706,5 @@ std::string RifReaderEclipseOutput::ertGridName(size_t gridNr)
     }
 
     return gridName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RifReaderEclipseOutput::enableFaultsImport(bool enableFaultsImport)
-{
-    m_enableFaultsImport = enableFaultsImport;
 }
 

@@ -44,8 +44,11 @@ public:
     };
 
 public:
-    RifReaderInterface() {}
-    virtual ~RifReaderInterface() {}
+    RifReaderInterface()            { m_enableFaultsImport = false; }
+    virtual ~RifReaderInterface()   {}
+
+    void                        enableFaultsImport(bool enableFaultsImport) { m_enableFaultsImport = enableFaultsImport; }
+    bool                        isFaultImportEnabled()                      { return m_enableFaultsImport; }
 
     virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
@@ -58,6 +61,8 @@ public:
     void                        setFilenamesWithFaults(const std::vector<QString>& filenames)   { m_filenamesWithFaults = filenames; }
     std::vector<QString>        filenamesWithFaults()                                           { return m_filenamesWithFaults; }
 
+
 private:
-    std::vector<QString> m_filenamesWithFaults;
+    std::vector<QString>    m_filenamesWithFaults;
+    bool                    m_enableFaultsImport;
 };

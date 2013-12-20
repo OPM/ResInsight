@@ -86,7 +86,7 @@ bool RifReaderEclipseInput::open(const QString& fileName, RigCaseData* eclipseCa
     bool isOk = false;
     if (eclipseCase->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
-        isOk = RifEclipseInputFileTools::openGridFile(fileName,  eclipseCase);
+        isOk = RifEclipseInputFileTools::openGridFile(fileName,  eclipseCase, isFaultImportEnabled());
     }
     
     return isOk;

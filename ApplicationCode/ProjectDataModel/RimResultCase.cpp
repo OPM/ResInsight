@@ -98,12 +98,9 @@ bool RimResultCase::openEclipseGridFile()
             return false;
         }
 
-        cvf::ref<RifReaderEclipseOutput> outputInterface = new RifReaderEclipseOutput;
-
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
-        outputInterface->enableFaultsImport(prefs->enableFaultsImport());
-        readerInterface = outputInterface;
-
+        readerInterface = new RifReaderEclipseOutput;
+        readerInterface->enableFaultsImport(prefs->enableFaultsImport());
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
 
         cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
