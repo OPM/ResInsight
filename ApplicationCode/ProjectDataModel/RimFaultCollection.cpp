@@ -63,7 +63,7 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitObject("Faults", ":/draw_style_faults_24x24.png", "", "");
 
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
-    CAF_PDM_InitField(&showFaultCollection,     "Active",        prefs->defaultShowFaults(),   "Active", "", "", "");
+    CAF_PDM_InitField(&showFaultCollection,     "Active",        true,   "Active", "", "", "");
     showFaultCollection.setUiHidden(true);
 
     CAF_PDM_InitField(&showGeometryDetectedFaults,  "ShowGeometryDetectedFaults",    false,   "Show geometry detected faults", "", "", "");
@@ -76,7 +76,7 @@ RimFaultCollection::RimFaultCollection()
 
     CAF_PDM_InitField(&faultFaceCulling,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Face culling", "", "", "");
 
-    CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    true,   "Show fault labels", "", "", "");
+    CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show fault labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Fault label color",  "", "", "");
 

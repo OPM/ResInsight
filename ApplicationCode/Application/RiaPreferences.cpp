@@ -60,7 +60,6 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&autocomputeDepthRelatedProperties,"autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
 
     CAF_PDM_InitField(&enableFaultsImport,              "enableFaultsImport", true, "Read faults in case import", "", "", "");
-    CAF_PDM_InitField(&defaultShowFaults,               "defaultShowFaults", false, "Show faults by default in view", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +112,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 
     caf::PdmUiGroup* faultsGroup = uiOrdering.addNewGroup("Faults");
     faultsGroup->add(&enableFaultsImport);
-    faultsGroup->add(&defaultShowFaults);
 }
 
 //--------------------------------------------------------------------------------------------------
