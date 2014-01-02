@@ -630,10 +630,10 @@ void RimReservoirView::createDisplayModel()
     }
 
     if (!this->propertyFilterCollection()->hasActiveFilters() ||
-        !faultCollection()->limitFaultsToFilter)
+        faultCollection()->showFaultsOutsideFilters)
     {
         std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAdd;
-        if (faultCollection()->limitFaultsToFilter)
+        if (!faultCollection()->showFaultsOutsideFilters)
         {
             faultGeometryTypesToAdd = m_visibleGridParts;
         }
@@ -733,7 +733,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep, gridIndices);
-        if (faultCollection()->limitFaultsToFilter)
+        if (!faultCollection()->showFaultsOutsideFilters)
         {
             m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
             m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
@@ -741,7 +741,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
-        if (faultCollection()->limitFaultsToFilter)
+        if (!faultCollection()->showFaultsOutsideFilters)
         {
             m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep);
         }
@@ -760,7 +760,7 @@ void RimReservoirView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
 
-                if (faultCollection()->limitFaultsToFilter)
+                if (!faultCollection()->showFaultsOutsideFilters)
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE); 
                 }
@@ -769,7 +769,7 @@ void RimReservoirView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
 
-                if (faultCollection()->limitFaultsToFilter)
+                if (!faultCollection()->showFaultsOutsideFilters)
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE);
                 }
@@ -828,7 +828,7 @@ void RimReservoirView::updateCurrentTimeStep()
         }
     }
 
-    if (faultCollection()->limitFaultsToFilter)
+    if (!faultCollection()->showFaultsOutsideFilters)
     {
         faultGeometriesToRecolor = geometriesToRecolor;
     }

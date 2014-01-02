@@ -60,7 +60,7 @@ public:
 
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
-    caf::PdmField<bool>                 limitFaultsToFilter;
+    caf::PdmField<bool>                 showFaultsOutsideFilters;
     caf::PdmField<bool>                 showNNCs;
     caf::PdmField<bool>                 forceFaultColor;
     
