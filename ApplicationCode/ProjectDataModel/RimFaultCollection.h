@@ -64,7 +64,7 @@ public:
     caf::PdmField<bool>                 showNNCs;
     caf::PdmField<bool>                 showResultsOnFaults;
     
-    caf::PdmField<caf::AppEnum< FaultFaceCullingMode > > faultFaceCulling;
+    caf::PdmField<caf::AppEnum< FaultFaceCullingMode > > faultResult;
 
 
     caf::PdmField<bool>                 showFaultLabel;

@@ -631,7 +631,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
     bool isShowingGrid = m_rimFaultCollection->isGridVisualizationMode();
     if (!isShowingGrid )
     {
-        if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+        if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
         {
             if (m_grid->mainGrid()->faceNormalsIsOutwards())
             {
@@ -642,7 +642,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
                 return caf::FC_FRONT;
             }
         }
-        else if (m_rimFaultCollection->faultFaceCulling() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+        else if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
         {
             if (m_grid->mainGrid()->faceNormalsIsOutwards())
             {

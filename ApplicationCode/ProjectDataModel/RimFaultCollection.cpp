@@ -44,9 +44,9 @@ namespace caf
     template<>
     void AppEnum< RimFaultCollection::FaultFaceCullingMode >::setUp()
     {
-        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Show outside face only");
-        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Show inside face only");
-        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show Both");
+        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Cell in front of fault");
+        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Cell behind fault");
+        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show both face results");
         setDefault(RimFaultCollection::FAULT_NO_FACE_CULLING);
     }
 }
@@ -75,7 +75,7 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,    "Show results on faults", "", "", "");
     CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", false,   "Show faults outside filters", "", "", "");
 
-    CAF_PDM_InitField(&faultFaceCulling,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Face culling", "", "", "");
+    CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Fault result", "", "", "");
 
     CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show fault labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
@@ -118,7 +118,7 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         &showFaultLabel == changedField ||
         &showFaultsOutsideFilters == changedField ||
         &faultLabelColor == changedField ||
-        &faultFaceCulling == changedField ||
+        &faultResult == changedField ||
         &showResultsOnFaults == changedField
         )
     {
