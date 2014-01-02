@@ -154,16 +154,16 @@ void RivReservoirFaultsPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
-    if (m_faultCollection->forceFaultColor())
-    {
-        applySingleColorEffect();
-    }
-    else
+    if (m_faultCollection->showResultsOnFaults())
     {
         for (size_t i = 0; i < m_faultParts.size(); i++)
         {
             m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
         }
+    }
+    else
+    {
+        applySingleColorEffect();
     }
 }
 
