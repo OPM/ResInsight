@@ -1120,15 +1120,29 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 
         m_workerProcess = new caf::UiProcess(this);
 
-        // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
-
         QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
-        QString ldPath = penv.value("LD_LIBRARY_PATH", "");
 
-        if (ldPath == "") ldPath = QApplication::applicationDirPath();
-        else  ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+#ifdef WIN32
+        // Octave plugins compiled by ResInsight are dependent on Qt (currently Qt 32-bit only)
+        // Some Octave installations for Windows have included Qt, and some don't. To make sure these plugins always can be executed, 
+        // the path to octave_plugin_dependencies is added to global path
+        
+        QString pathString = penv.value("PATH", "");
 
-        penv.insert("LD_LIBRARY_PATH", ldPath);
+        if (pathString == "") pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies";
+        else pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
+
+        penv.insert("PATH", pathString);
+#else
+            // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
+            QString ldPath = penv.value("LD_LIBRARY_PATH", "");
+
+            if (ldPath == "") ldPath = QApplication::applicationDirPath();
+            else ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+
+            penv.insert("LD_LIBRARY_PATH", ldPath);
+#endif
+
         m_workerProcess->setProcessEnvironment(penv);
 
         connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
