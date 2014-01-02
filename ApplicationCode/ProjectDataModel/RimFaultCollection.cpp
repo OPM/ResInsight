@@ -72,6 +72,7 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,   "Show faults faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,   "Show opposite fault faces", "", "", "");
     CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
+    CAF_PDM_InitField(&forceFaultColor,         "ForceFaultColor",          false,   "Ignore results on faults", "", "", "");
     CAF_PDM_InitField(&limitFaultsToFilter,     "LimitFaultsToFilter",      true,   "Hide fault outside filters", "", "", "");
 
     CAF_PDM_InitField(&faultFaceCulling,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Face culling", "", "", "");
@@ -109,11 +110,6 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         m_reservoirView->scheduleReservoirGridGeometryRegen();
     }
 
-    if (&faultFaceCulling == changedField)
-    {
-
-    }
-
     if (&showGeometryDetectedFaults == changedField ||
         &showFaultFaces == changedField ||
         &showOppositeFaultFaces == changedField ||
@@ -122,7 +118,8 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         &showFaultLabel == changedField ||
         &limitFaultsToFilter == changedField ||
         &faultLabelColor == changedField ||
-        &faultFaceCulling == changedField
+        &faultFaceCulling == changedField ||
+        &forceFaultColor == changedField
         )
     {
         if (m_reservoirView) 

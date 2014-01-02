@@ -141,17 +141,12 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::updateCellColor(cvf::Color4f color)
+void RivReservoirFaultsPartMgr::applySingleColorEffect()
 {
-    CVF_UNUSED(color);
-
-    // NB color is not used, as the color is defined per fault
-
     for (size_t i = 0; i < m_faultParts.size(); i++)
     {
         m_faultParts[i]->applySingleColorEffect();
     }
-
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,9 +154,16 @@ void RivReservoirFaultsPartMgr::updateCellColor(cvf::Color4f color)
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
-    for (size_t i = 0; i < m_faultParts.size(); i++)
+    if (m_faultCollection->forceFaultColor())
     {
-        m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
+        applySingleColorEffect();
+    }
+    else
+    {
+        for (size_t i = 0; i < m_faultParts.size(); i++)
+        {
+            m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
+        }
     }
 }
 

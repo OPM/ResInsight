@@ -98,7 +98,7 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
 
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->updateCellColor(color);
+        m_faultsPartMgr->applySingleColorEffect();
     }
 }
 

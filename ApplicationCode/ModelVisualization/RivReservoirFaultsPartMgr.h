@@ -45,7 +45,7 @@ public:
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
 
-    void updateCellColor(cvf::Color4f color);
+    void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
         RimCellEdgeResultSlot* cellEdgeResultSlot);
