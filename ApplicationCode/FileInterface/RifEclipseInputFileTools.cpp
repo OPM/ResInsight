@@ -67,7 +67,7 @@ RifEclipseInputFileTools::~RifEclipseInputFileTools()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData* eclipseCase, bool importFaults)
+bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData* eclipseCase, bool readFaultData)
 {
     CVF_ASSERT(eclipseCase);
 
@@ -168,7 +168,7 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
     progress.setProgress(7);
     progress.setProgressDescription("Read faults ...");
 
-    if (importFaults)
+    if (readFaultData)
     {
         cvf::Collection<RigFault> faults;
         RifEclipseInputFileTools::readFaults(fileName, faults, keywordsAndFilePos);

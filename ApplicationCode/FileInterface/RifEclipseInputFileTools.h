@@ -53,7 +53,7 @@ public:
     RifEclipseInputFileTools();
     virtual ~RifEclipseInputFileTools();
 
-    static bool openGridFile(const QString& fileName, RigCaseData* eclipseCase, bool importFaults);
+    static bool openGridFile(const QString& fileName, RigCaseData* eclipseCase, bool readFaultData);
     
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties(const QString& fileName, RigCaseData* eclipseCase);

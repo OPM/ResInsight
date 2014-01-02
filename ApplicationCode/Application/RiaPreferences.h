@@ -58,7 +58,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     autocomputeSOIL;
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
 
-    caf::PdmField<bool>     enableFaultsImport;
+    caf::PdmField<bool>     readFaultData;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

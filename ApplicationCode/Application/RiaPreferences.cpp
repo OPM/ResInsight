@@ -59,7 +59,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "SOIL", "", "SOIL = 1.0 - SGAS - SWAT", "");
     CAF_PDM_InitField(&autocomputeDepthRelatedProperties,"autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
 
-    CAF_PDM_InitField(&enableFaultsImport,              "enableFaultsImport", true, "Read faults in case import", "", "", "");
+    CAF_PDM_InitField(&readFaultData,                   "readFaultData", true, "Read fault data", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);
 
     caf::PdmUiGroup* faultsGroup = uiOrdering.addNewGroup("Faults");
-    faultsGroup->add(&enableFaultsImport);
+    faultsGroup->add(&readFaultData);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,6 +126,6 @@ void RiaPreferences::resetToDefaults()
     autocomputeSOIL = true;
     autocomputeDepthRelatedProperties = true;
 
-    enableFaultsImport = true;
+    readFaultData = true;
 }
 
