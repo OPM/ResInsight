@@ -75,6 +75,13 @@ void CellRange::setRange(const cvf::Vec3st& min, const cvf::Vec3st& max)
     m_min = min;
     m_max = max;
 
+    CVF_ASSERT(m_min.x() != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_min.y() != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_min.z() != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_max.x() != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_max.y() != cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(m_max.z() != cvf::UNDEFINED_SIZE_T);
+
     CVF_ASSERT(normalize());
 }
 

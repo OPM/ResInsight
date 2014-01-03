@@ -581,8 +581,13 @@ void RifEclipseInputFileTools::readFaults(const QString& fileName, cvf::Collecti
     // Parse complete file if no keywords are parsed
     if (fileKeywords.size() == 0)
     {
-        qint64 filePos = 0;
-        readFaults(data, filePos, faults, NULL);
+        qint64 filePos = findKeyword(faultsKeyword, data, 0);
+        
+        while (filePos != -1)
+        {
+            readFaults(data, filePos, faults, NULL);
+            filePos = findKeyword(faultsKeyword, data, filePos);
+        }
         
         return;
     }
@@ -626,7 +631,7 @@ void RifEclipseInputFileTools::readFaultsInGridSection(const QString& fileName, 
 
     // Search for keyword grid
 
-    qint64 gridPos = findKeyword(gridKeyword, data);
+    qint64 gridPos = findKeyword(gridKeyword, data, 0);
     if (gridPos < 0)
     {
         return;
@@ -657,9 +662,11 @@ size_t RifEclipseInputFileTools::findFaultByName(const cvf::Collection<RigFault>
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file)
+qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file, qint64 startPos)
 {
     QString line;
+
+    file.seek(startPos);
 
     do 
     {

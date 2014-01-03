@@ -80,6 +80,6 @@ private:
 
     static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
 
-    static qint64   findKeyword(const QString& keyword, QFile& file);
+    static qint64   findKeyword(const QString& keyword, QFile& file, qint64 startPos);
 
 };

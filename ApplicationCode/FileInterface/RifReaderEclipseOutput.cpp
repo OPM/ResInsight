@@ -396,10 +396,10 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
                 QString faultFilename = this->filenamesWithFaults()[i];
 
                 RifEclipseInputFileTools::readFaults(faultFilename, faults, fileKeywords);
-
-                RigMainGrid* mainGrid = eclipseCase->mainGrid();
-                mainGrid->setFaults(faults);
             }
+            
+            RigMainGrid* mainGrid = eclipseCase->mainGrid();
+            mainGrid->setFaults(faults);
         }
         else
         {
