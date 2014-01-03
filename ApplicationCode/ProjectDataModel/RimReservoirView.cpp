@@ -1837,11 +1837,11 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
         if (nncData)
         {
             const RigConnection& conn = nncData->connections()[nncIndex];
-        
             cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
-
+        
             resultInfo->append(QString("NNC Transmissibility : %1\n").arg(conn.m_transmissibility));
             {
+
                 CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
                 const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
 
@@ -1857,7 +1857,7 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                     k++;
 
                     QString gridName = QString::fromStdString(hostGrid->gridName());
-                    resultInfo->append(QString("NNC 1 : cell [%1, %2, %3] (%4)\n").arg(i).arg(j).arg(k).arg(gridName));
+                    resultInfo->append(QString("NNC 1 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(face.text()).arg(gridName));
                 }
             }
 
@@ -1877,7 +1877,10 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                     k++;
 
                     QString gridName = QString::fromStdString(hostGrid->gridName());
-                    resultInfo->append(QString("NNC 2 : cell [%1, %2, %3] (%4)\n").arg(i).arg(j).arg(k).arg(gridName));
+                    cvf::StructGridInterface::FaceEnum oppositeFaceEnum(cvf::StructGridInterface::oppositeFace(face));
+                    QString faceText = oppositeFaceEnum.text();
+
+                    resultInfo->append(QString("NNC 2 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(faceText).arg(gridName));
                 }
             }
 
