@@ -80,6 +80,8 @@ public:
 private:
     RimFault*                           findFaultByName(QString name);
 
+    virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
 private:
     RimReservoirView* m_reservoirView;
 

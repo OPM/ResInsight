@@ -1271,6 +1271,8 @@ void RimReservoirView::updateDisplayModelVisibility()
 
     m_viewer->setEnableMask(mask);
     m_viewer->update();
+
+    faultCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

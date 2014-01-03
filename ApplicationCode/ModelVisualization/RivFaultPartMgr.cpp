@@ -653,8 +653,23 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
                 return caf::FC_BACK;
             }
         }
+        else
+        {
+             return caf::FC_NONE;
+        }
     }
-    return caf::FC_NONE;
+    else
+    {
+        // Always show cell behind fault if we are in grid visualization mode
+        if (m_grid->mainGrid()->faceNormalsIsOutwards())
+        {
+            return caf::FC_BACK;
+        }
+        else
+        {
+            return caf::FC_FRONT;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

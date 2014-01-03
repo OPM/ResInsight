@@ -221,3 +221,18 @@ bool RimFaultCollection::isGridVisualizationMode() const
 
     return  m_reservoirView->isGridVisualizationMode();
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    bool isGridVizMode = isGridVisualizationMode();
+
+    faultResult.setUiReadOnly(isGridVizMode);
+    if (faultResult() != caf::FC_FRONT)
+    {
+        // Todo: Make the ui show front 
+    }
+}
+
