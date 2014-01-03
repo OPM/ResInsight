@@ -41,7 +41,7 @@ RimCellEdgeResultSlot::RimCellEdgeResultSlot()
 {
     CAF_PDM_InitObject("Cell Edge Result", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result variable", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result property", "", "", "");
     CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
     CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y values", "", "", "");
     CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z values", "", "", "");

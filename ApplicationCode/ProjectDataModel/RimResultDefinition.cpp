@@ -61,7 +61,7 @@ RimResultDefinition::RimResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField,  "MPorosityModelType",    "Type", "", "", "");
     m_porosityModelUiField.setIOReadable(false);
     m_porosityModelUiField.setIOWritable(false);
-    CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
+    CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Result property", "", "", "" );
     m_resultVariableUiField.setIOReadable(false);
     m_resultVariableUiField.setIOWritable(false);
 
