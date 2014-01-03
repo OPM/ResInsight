@@ -44,8 +44,8 @@ namespace caf
     template<>
     void AppEnum< RimFaultCollection::FaultFaceCullingMode >::setUp()
     {
-        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Cell in front of fault");
-        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Cell behind fault");
+        addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Cell behind fault");
+        addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Cell in front of fault");
         addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show both face results");
         setDefault(RimFaultCollection::FAULT_NO_FACE_CULLING);
     }
