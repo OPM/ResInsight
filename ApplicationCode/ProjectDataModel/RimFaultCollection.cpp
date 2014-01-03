@@ -46,7 +46,7 @@ namespace caf
     {
         addItem(RimFaultCollection::FAULT_BACK_FACE_CULLING,  "FAULT_BACK_FACE_CULLING",    "Cell behind fault");
         addItem(RimFaultCollection::FAULT_FRONT_FACE_CULLING, "FAULT_FRONT_FACE_CULLING",   "Cell in front of fault");
-        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show both face results");
+        addItem(RimFaultCollection::FAULT_NO_FACE_CULLING,    "FAULT_NO_FACE_CULLING",      "Show both");
         setDefault(RimFaultCollection::FAULT_NO_FACE_CULLING);
     }
 }
@@ -69,17 +69,17 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showGeometryDetectedFaults,  "ShowGeometryDetectedFaults",    false,   "Show geometry detected faults", "", "", "");
     showGeometryDetectedFaults.setUiHidden(true);
 
-    CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show faults faces", "", "", "");
-    CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite fault faces", "", "", "");
-    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
+    CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
+    CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
+    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNC's", "", "", "");
     CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,    "Show results on faults", "", "", "");
     CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", false,   "Show faults outside filters", "", "", "");
 
-    CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Fault result", "", "", "");
+    CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
-    CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show fault labels", "", "", "");
+    CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
-    CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Fault label color",  "", "", "");
+    CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Label color",  "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults",  "", "", "");
 
@@ -233,9 +233,22 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     bool isGridVizMode = isGridVisualizationMode();
 
     faultResult.setUiReadOnly(isGridVizMode);
-    if (faultResult() != caf::FC_FRONT)
-    {
-        // Todo: Make the ui show front 
-    }
+    showFaultFaces.setUiReadOnly(isGridVizMode);
+    showOppositeFaultFaces.setUiReadOnly(isGridVizMode);
+
+    caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup("Fault Face Visibility");
+    ffviz->add(&showFaultFaces);
+    ffviz->add(&showOppositeFaultFaces);
+    ffviz->add(&showNNCs);
+    ffviz->add(&faultResult);
+
+    caf::PdmUiGroup* labs = uiOrdering.addNewGroup("Fault Labels");
+    labs->add(&showFaultLabel);
+    labs->add(&faultLabelColor);
+
+    caf::PdmUiGroup* adv = uiOrdering.addNewGroup("Advanced");
+    adv->add(&showFaultsOutsideFilters);
+    adv->add(&showResultsOnFaults);
+
 }
 
