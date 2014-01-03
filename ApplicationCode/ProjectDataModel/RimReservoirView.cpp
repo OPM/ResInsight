@@ -1077,7 +1077,7 @@ RiuViewer* RimReservoirView::viewer()
 //--------------------------------------------------------------------------------------------------
 /// Get pick info text for given part ID, face index, and intersection point
 //--------------------------------------------------------------------------------------------------
-bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const
+bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const
 {
     CVF_ASSERT(pickInfoText);
 
@@ -1098,7 +1098,16 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 
                 cvf::Vec3d domainCoord = point + eclipseCase->grid(gridIndex)->displayModelOffset();
 
-                pickInfoText->sprintf("Hit grid %u, cell [%u, %u, %u], intersection point: [E: %.2f, N: %.2f, Depth: %.2f]", static_cast<unsigned int>(gridIndex), static_cast<unsigned int>(i), static_cast<unsigned int>(j), static_cast<unsigned int>(k), domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                cvf::StructGridInterface::FaceEnum faceEnum(face);
+                
+                QString faceText = faceEnum.text();
+
+                *pickInfoText = QString("Hit grid %1, cell [%2, %3, %4] face %5, ").arg(gridIndex).arg(i).arg(j).arg(k).arg(faceText);
+
+                QString formattedText;
+                formattedText.sprintf("intersection point: [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+
+                *pickInfoText += formattedText;
                 return true;
             }
         }

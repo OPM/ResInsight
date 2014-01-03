@@ -252,6 +252,7 @@ void RivFaultPartMgr::generatePartGeometry()
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
             si->m_cellIndices = m_nativeFaultGenerator->triangleToSourceGridCellMap().p();
+            si->m_faceTypes = m_nativeFaultGenerator->triangleToFaceType().p();
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
@@ -305,6 +306,7 @@ void RivFaultPartMgr::generatePartGeometry()
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
             si->m_cellIndices = m_oppositeFaultGenerator->triangleToSourceGridCellMap().p();
+            si->m_faceTypes = m_oppositeFaultGenerator->triangleToFaceType().p();
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();

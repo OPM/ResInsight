@@ -52,10 +52,11 @@ public:
         const cvf::ScalarMapper* mapper) const;
 
     // Mapping between cells and geometry
-    cvf::ref<cvf::Array<size_t> >   triangleToSourceGridCellMap() const;
+    cvf::ref<cvf::Array<size_t> >                               triangleToSourceGridCellMap() const;
+    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> >   triangleToFaceType() const;
 
-    const std::vector<size_t>&      quadToGridCellIndices() const;
-    const std::vector<cvf::StructGridInterface::FaceType>& quadToFace() const;
+    const std::vector<size_t>&                                  quadToGridCellIndices() const;
+    const std::vector<cvf::StructGridInterface::FaceType>&      quadToFace() const;
 
     // Generated geometry
     cvf::ref<cvf::DrawableGeo>    generateSurface();
@@ -82,4 +83,5 @@ private:
     std::vector<size_t>                 m_triangleIndexToGridCellIndex;
     std::vector<size_t>                 m_quadsToGridCells;
     std::vector<cvf::StructGridInterface::FaceType>   m_quadsToFace;
+    std::vector<cvf::StructGridInterface::FaceType>   m_triangleToFace;
 };

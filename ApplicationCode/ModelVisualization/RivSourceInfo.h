@@ -21,6 +21,7 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
+#include "cvfStructGrid.h"
 
 class RivSourceInfo : public cvf::Object
 {
@@ -29,6 +30,8 @@ public:
     bool hasNNCIndices() const;
 
 public:
-    cvf::ref<cvf::Array<size_t> >    m_cellIndices;
-    cvf::ref<cvf::Array<size_t> >    m_NNCIndices;
+    cvf::ref<cvf::Array<size_t> >                               m_cellIndices;
+    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> >   m_faceTypes;
+    
+    cvf::ref<cvf::Array<size_t> >                               m_NNCIndices;
 };

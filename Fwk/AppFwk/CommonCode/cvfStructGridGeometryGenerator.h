@@ -147,6 +147,9 @@ public:
     // Mapping between cells and geometry
     ref<cvf::Array<size_t> >    
                         triangleToSourceGridCellMap() const;
+    
+    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> >
+                        triangleToFaceTypes() const;
 
     const std::vector<size_t>&                       
                         quadToGridCellIndices() const;

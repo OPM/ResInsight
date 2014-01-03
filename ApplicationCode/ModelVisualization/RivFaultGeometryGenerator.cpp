@@ -248,6 +248,22 @@ cvf::ref<cvf::Array<size_t> > RivFaultGeometryGenerator::triangleToSourceGridCel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> > RivFaultGeometryGenerator::triangleToFaceType() const
+{
+    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> > triangles = new cvf::Array<cvf::StructGridInterface::FaceType>(2*m_quadsToFace.size());
+#pragma omp parallel for
+    for (int i = 0; i < static_cast<int>(m_quadsToFace.size()); i++)
+    {
+        triangles->set(i*2,   m_quadsToFace[i]);
+        triangles->set(i*2+1, m_quadsToFace[i]);
+    }
+
+    return triangles;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivFaultGeometryGenerator::setCellVisibility(const cvf::UByteArray* cellVisibility)
 {
     m_cellVisibility = cellVisibility;

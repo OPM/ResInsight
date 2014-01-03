@@ -117,6 +117,7 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
             si->m_cellIndices = geoBuilder.triangleToSourceGridCellMap().p();
+            si->m_faceTypes = geoBuilder.triangleToFaceTypes().p();
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();

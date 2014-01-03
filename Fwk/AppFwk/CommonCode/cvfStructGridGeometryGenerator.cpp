@@ -427,6 +427,21 @@ ref<cvf::Array<size_t> > StructGridGeometryGenerator::triangleToSourceGridCellMa
     return triangles;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> > StructGridGeometryGenerator::triangleToFaceTypes() const
+{
+    ref<Array<cvf::StructGridInterface::FaceType> > triangles = new Array<cvf::StructGridInterface::FaceType>(2*m_quadsToFace.size());
+#pragma omp parallel for
+    for (int i = 0; i < static_cast<int>(m_quadsToFace.size()); i++)
+    {
+        triangles->set(i*2,   m_quadsToFace[i]);
+        triangles->set(i*2+1, m_quadsToFace[i]);
+    }
+
+    return triangles;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

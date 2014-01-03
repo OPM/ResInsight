@@ -431,7 +431,6 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
         {
             size_t gridIndex = firstHitPart->id();
 
-            size_t cellIndex = cvf::UNDEFINED_SIZE_T;
             if (firstHitPart->sourceInfo())
             {
                 const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
@@ -439,9 +438,17 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
                 {
                     if (rivSourceInfo->hasCellIndices())
                     {
+                        size_t cellIndex = cvf::UNDEFINED_SIZE_T;
                         cellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
 
-                        m_reservoirView->pickInfo(gridIndex, cellIndex, localIntersectionPoint, &pickInfo);
+                        CVF_ASSERT(rivSourceInfo->m_faceTypes.notNull());
+                        cvf::StructGridInterface::FaceType face = rivSourceInfo->m_faceTypes->get(faceIndex);
+
+                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &pickInfo);
+
+                        // Build up result from from both pick info and result values
+                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &resultInfo);
+                        resultInfo += "\n";
                         m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
 #if 0
                         const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();

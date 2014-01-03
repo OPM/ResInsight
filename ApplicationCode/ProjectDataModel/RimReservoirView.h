@@ -157,7 +157,7 @@ public:
 
 
     // Picking info
-    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const;
+    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const;
     void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) ;
     void                                    appendNNCResultInfo(size_t nncIndex, QString* resultInfo);
 
