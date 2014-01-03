@@ -210,6 +210,9 @@ void RimFaultCollection::syncronizeFaults()
 
     this->faults().clear();
     this->faults().insert(0, newFaults);
+
+    QString toolTip = QString("Fault count (%1)").arg(newFaults.size());
+    setUiToolTip(toolTip);
 }
 
 //--------------------------------------------------------------------------------------------------
