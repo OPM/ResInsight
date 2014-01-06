@@ -48,7 +48,7 @@ public:
     void   clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
-    void   setFilterPart(bool filterPart);
+    void   setGeneratedByFilter(bool isGeneratedByFilter);
 
     //size_t gridCount() { return m_allGrids.size(); }
     cvf::ref<cvf::UByteArray>  

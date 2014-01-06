@@ -45,7 +45,7 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  c
         }
     }
 
-    m_isFilterPart = false;
+    m_isFilterGenerated = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
         // Parts that is overridden by the grid settings
 
         bool forceDisplayOfFault = false;
-        if (isShowingGrid && m_isFilterPart)
+        if (isShowingGrid && m_isFilterGenerated)
         {
             forceDisplayOfFault = true;
         }
@@ -229,8 +229,8 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::setFilterPart(bool filterPart)
+void RivReservoirFaultsPartMgr::setGeneratedByFilter(bool isFilterGenerated)
 {
-    m_isFilterPart = filterPart;
+    m_isFilterGenerated = isFilterGenerated;
 }
 

@@ -44,7 +44,7 @@ public:
 
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
-    void setFilterPart(bool filterPart);
+    void setGeneratedByFilter(bool isFilterGenerated);
 
     void applySingleColorEffect();
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
@@ -57,9 +57,8 @@ public:
 
 
 private:
-    cvf::ref<cvf::Transform>        m_scaleTransform;
-    const RimFaultCollection*       m_faultCollection;
-    cvf::Collection<RivFaultPartMgr>   m_faultParts;
-
-    bool m_isFilterPart;
+    cvf::ref<cvf::Transform>            m_scaleTransform;
+    const RimFaultCollection*           m_faultCollection;
+    cvf::Collection<RivFaultPartMgr>    m_faultParts;
+    bool                                m_isFilterGenerated;
 };

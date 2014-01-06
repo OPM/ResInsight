@@ -631,26 +631,26 @@ void RimReservoirView::createDisplayModel()
 
     if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters)
     {
-        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAdd;
+        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend;
         if (!faultCollection()->showFaultsOutsideFilters)
         {
             if (this->rangeFilterCollection()->hasActiveFilters())
             {
-                faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-                faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
 
                 if (this->showInactiveCells())
                 {
-                    faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+                    faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
                 }
             }
             else
             {
-                faultGeometryTypesToAdd = RivReservoirViewPartMgr::allDefaultVisibleFaultTypes();
+                faultGeometryTypesToAppend = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
 
                 if (this->showInactiveCells())
                 {
-                    faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
+                    faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::INACTIVE);
                 }
             }
 
@@ -658,22 +658,22 @@ void RimReservoirView::createDisplayModel()
         }
         else
         {
-            faultGeometryTypesToAdd = RivReservoirViewPartMgr::allDefaultVisibleFaultTypes();
+            faultGeometryTypesToAppend = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
 
             if (this->showInactiveCells())
             {
-                faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
+                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
 
-        RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAdd);
+        RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
 
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
-            for (size_t gtIdx = 0; gtIdx < faultGeometryTypesToAdd.size(); ++gtIdx)
+            for (size_t gtIdx = 0; gtIdx < faultGeometryTypesToAppend.size(); ++gtIdx)
             {
-                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultGeometryTypesToAdd[gtIdx]);
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultGeometryTypesToAppend[gtIdx]);
             }
 
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
@@ -756,7 +756,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
         if (faultCollection()->showFaultsOutsideFilters)
         {
-            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAdd = RivReservoirViewPartMgr::allDefaultVisibleFaultTypes();
+            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAdd = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
 
             if (this->showInactiveCells())
             {
@@ -869,7 +869,7 @@ void RimReservoirView::updateCurrentTimeStep()
     }
     else
     {
-        faultGeometriesToRecolor = RivReservoirViewPartMgr::allDefaultVisibleFaultTypes();
+        faultGeometriesToRecolor = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
     }
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)

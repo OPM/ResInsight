@@ -78,7 +78,7 @@ public:
     void                        appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
     void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
 
-    static std::vector<ReservoirGeometryCacheType> allDefaultVisibleFaultTypes();
+    static std::vector<ReservoirGeometryCacheType> defaultVisibleFaultTypes();
 
 private:
     void                        createGeometry(ReservoirGeometryCacheType geometryType);
@@ -97,7 +97,7 @@ private:
 
     RivReservoirPartMgr *       reservoirPartManager(ReservoirGeometryCacheType geometryType, size_t timeStepIndex );
 
-    void                        setFilterPartFromGeometryType(RivReservoirPartMgr* reservoirPartManager, ReservoirGeometryCacheType cacheType);
+    void                        setGeneratedByFilterFromGeometryType(RivReservoirPartMgr* reservoirPartManager, ReservoirGeometryCacheType cacheType);
     
 
 private:

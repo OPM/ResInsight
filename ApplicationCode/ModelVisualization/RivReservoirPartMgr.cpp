@@ -185,11 +185,11 @@ void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* mode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::setFilterPart(bool filterPart)
+void RivReservoirPartMgr::setGeneratedByFilter(bool isGeneratedByFilter)
 {
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->setFilterPart(filterPart);
+        m_faultsPartMgr->setGeneratedByFilter(isGeneratedByFilter);
     }
 }
 
