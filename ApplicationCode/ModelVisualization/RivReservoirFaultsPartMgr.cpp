@@ -44,6 +44,8 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  c
             m_faultParts.push_back(new RivFaultPartMgr(grid, faultCollection, faultCollection->faults[i]));
         }
     }
+
+    m_isFilterPart = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,19 +102,25 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
         // Parts that is overridden by the grid settings
 
-        if (rimFault->showFault() || isShowingGrid)
+        bool forceDisplayOfFault = false;
+        if (isShowingGrid && m_isFilterPart)
         {
-            if (m_faultCollection->showFaultFaces() || isShowingGrid)
+            forceDisplayOfFault = true;
+        }
+
+        if (rimFault->showFault() || forceDisplayOfFault)
+        {
+            if (m_faultCollection->showFaultFaces() || forceDisplayOfFault)
             {
                 rivFaultPart->appendNativeFaultFacesToModel(&parts);
             }
 
-            if (m_faultCollection->showOppositeFaultFaces() || isShowingGrid)
+            if (m_faultCollection->showOppositeFaultFaces() || forceDisplayOfFault)
             {
                 rivFaultPart->appendOppositeFaultFacesToModel(&parts);
             }
 
-            if (m_faultCollection->showFaultFaces() || m_faultCollection->showOppositeFaultFaces() || m_faultCollection->showNNCs() || isShowingGrid)
+            if (m_faultCollection->showFaultFaces() || m_faultCollection->showOppositeFaultFaces() || m_faultCollection->showNNCs() || forceDisplayOfFault)
             {
                 rivFaultPart->appendMeshLinePartsToModel(&parts);
             }
@@ -216,5 +224,13 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
 
         model->addPart(part);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirFaultsPartMgr::setFilterPart(bool filterPart)
+{
+    m_isFilterPart = filterPart;
 }
 
