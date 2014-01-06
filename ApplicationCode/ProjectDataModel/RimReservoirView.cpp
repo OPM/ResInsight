@@ -1814,9 +1814,7 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
         if (meshMode() != NO_MESH) meshMode = m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH;
     }
 
-    this->createDisplayModel();
-    updateDisplayModelVisibility();
-   
+    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------

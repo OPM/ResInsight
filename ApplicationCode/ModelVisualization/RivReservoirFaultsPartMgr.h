@@ -60,5 +60,5 @@ private:
     cvf::ref<cvf::Transform>            m_scaleTransform;
     const RimFaultCollection*           m_faultCollection;
     cvf::Collection<RivFaultPartMgr>    m_faultParts;
-    bool                                m_isFilterGenerated;
+    bool                                m_isFilterGenerated;    // This fault geometry is created based on either range filter or property filter
 };

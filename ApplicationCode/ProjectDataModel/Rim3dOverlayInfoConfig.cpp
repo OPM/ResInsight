@@ -112,6 +112,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         QString zScale;
         QString propName;
         QString cellEdgeName;
+        QString faultCellResultMapping;
 
 
         if (m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())
@@ -155,6 +156,35 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             //infoText += QString("<blockquote><pre>Min: %1   P10: %2   Mean: %3 \n  P90: %4   Max: %5 </pre></blockquote>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
             infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>" 
                                        "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
+
+            if (propName.compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0
+                && m_reservoirView->faultCollection()->showResultsOnFaults())
+            {
+                QString faultMapping;
+                bool isShowingGrid = m_reservoirView->faultCollection()->isGridVisualizationMode();
+                if (!isShowingGrid)
+                {
+                    if (m_reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
+                    {
+                        faultMapping = "Show values from cells behind fault";
+                    }
+                    else if (m_reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
+                    {
+                        faultMapping = "Show values from cells in front of fault";
+                    }
+                    else
+                    {
+                        faultMapping = "Show values from cells in front and behind fault";
+                    }
+                }
+                else
+                {
+                    faultMapping = "Show values from cells behind fault";
+                }
+
+//                infoText += QString("<b>Fault results : </b> %1<br>").arg(propName);
+                infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
+            }
         }
 
 
