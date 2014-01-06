@@ -20,6 +20,7 @@ ResInsight has been co-developed by Statoil ASA, Ceetron Solutions AS, and Ceetr
 - [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md)
 - [ Octave Interface](OctaveInterface.md)
 - [ Well Trajectories ](WellPaths.md)
+- [ Faults ](Faults.md)
 - [ Batch Commands ](BatchCommands.md)
 
 ### Appendix

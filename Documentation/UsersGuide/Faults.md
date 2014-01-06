@@ -3,71 +3,40 @@
 -----
 ## Faults
 
-ResInsight can import faults from `*.DATA` files, and is available in the Faults folder in the project view.
+ResInsight can import faults from `*.DATA` files, and is available in the ![](images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**. The imported faults are ordered in ascending order based on name.
 
-As import of faults can be time consuming, reading of faults can be disabled from **Preferences -> Read fault data** 
+As import of faults can be time consuming, reading of faults can be disabled from **Preferences -> Read fault data**
 
-### Fault imports
+A fault is defined as a set of cell faces. When clicking on a fault, the fault name is displayed in **Result Info**. Results can be mapped onto a fault, and **Dynamic Face Selection** controls the cell result mapping onto faults. Faults are given a color on import, and this color can be controlled by activating the fault and select **Fault color**.
 
-The command **File -> Import -> Import Well Paths From File** will read the well paths in the selected file, and create one entry for each trajectory under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**. 
+When clicking on a NNC,  the relevant data for this NNC is displayed in the **Result Info**. The static result **CombindedTRANS** can be mapped onto NNC geometry.  
 
-The supported ASCII format is quite flexible but the main requirements are: 
+ResInsight will detect all cell faces with no matching neighbor. All detected cell faces are compared to faults imported from disk, and if no fault face is defined for a cell face, the cell face is added to a fault called **Unnamed grid faults**.
 
-1. Each data line must contain four numbers: X Y TVD MD separated with white-space.
-2. A line starting with none-number-characters are ignored, unless :
-	1. If the line contains a pair of : ', `, ´, ’ or ‘ the text between the quotation marks is used as a well name.
-	2. If the line contains the case insensitive string "name " the rest of the line is used as a well name. 
-3. If a well name is found, a new well is created and the following data points ends up in it.
+### Toolbar control
+Visualization mode and mesh lines can be controlled from the toolbar.
 
-###### Example 1:
+- ![](images/draw_style_faults_24x24.png) Toggle button to control faults only visualization mode
+- ![](images/draw_style_surface_24x24.png) Shows surface visualization
+- ![](images/draw_style_surface_w_fault_mesh_24x24.png) Shows mesh lines on faults
+  
 
-	WELLNAME: ‘WELL1’
-    4507.0	5638.5	0.0	0.0
-    4507	5638.5	4628.6	1628.6
-	4297.4	5938.5	4632.4	1998.387
-    -999
-    WELLNAME: ‘WELL2’
-	5507.0	4638.5	0.0	0.0
-    5507	4638.5	3628.6	1628.6
-    5297.4	4938.5	3632.4	1998.387
-	-999
+### Common Fault Options
+By clicking the ![](images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**, the following options are displayed: 
 
-###### Example 2:
-    X Y TVD MD
-    Name Well_1
-  	5507.0	4638.5	0.0	0.0
-    5507	4638.5	3628.6	1628.6
-    5297.4	4938.5	3632.4	1998.387
+ ![](images/FaultProperties.png)
+ 
 
-    Name Well_2
-  	5507.0	4638.5	0.0	0.0
-    5507	4638.5	3628.6	1628.6
-    5297.4	4938.5	3632.4	1998.387
+- **Show defined faces**: Displays the defined fault cell faces
+- **Show opposite faces**: Displays the opposite fault cell faces based on IJK neighbor data
+- **Show NNCs**: Displays non neighborhood connections (see details below)
+- **Dynamic Face Selection**: Controls mapping of cell results onto a fault, either from cell in front of fault, from cell behind fault or both.
 
-
-The trajectory data is not copied into the ResInsight project as such. The project file only stores the file path, and the next time you open the project, ResInsight will try to read the well data from the file again.  
-
-### Importing from SSI-Hub (Internal Statoil web-service)
-
-The command **File -> Import -> Import Well Paths From SSI-hub** launches a wizard to guide you through the process of selecting the well trajectories you need.
-
-After completing the wizard, the wells imported are accessible as Items under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**.
-
-The trajectory data is not copied into the  ResInsight project as such, but is stored in files in a directory called <ProjectFileName>_wellpaths in the same directory as your project file.   
-
-### Well Trajectory visualization
-
-All the imported well trajectories are available below the ![](images/WellCollection.png) **Wells** item in the **Project Tree**. 
-
-![](images/WellsInTree.png)
-
-The visible wells are always shown in all the 3D Views in the complete project, so the toggles and settings control the overall project visibility of the Well Trajectories. The **Property Editor** of the **Wells** item is shown below 
-
-![](images/WellPathCollectionProperties.png)
-
-- **Global well path visibility** This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.
-- **Clip Well Paths** This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.
-- **Well Path clipping depth distance** This number is the distance from the top of the reservoir to the clipping depth.
+- **Show labels**: Displays one label per fault with fault name
+- **Label color**: Defines the label color
+ 
+- **Show faults outside filters**: Default behavior is to hide faults outside filters. Turning this option on, will display faults outside filter region. 
+- **Show results on faults**: Map currently selected result onto fault. **Dynamic Face Selection** controls which cell results to map onto faults.
 
 ------
 [ Contents ](UsersGuide.md#contents)
