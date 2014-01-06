@@ -756,18 +756,20 @@ void RimReservoirView::updateCurrentTimeStep()
 
         if (faultCollection()->showFaultsOutsideFilters)
         {
-            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAdd = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
+            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
 
             if (this->showInactiveCells())
             {
-                faultGeometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
+                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
 
-            for (size_t i = 0; i < faultGeometryTypesToAdd.size(); i++)
+            for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
             {
-                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAdd[i]);
-                m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAdd[i]);
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAppend[i]);
             }
+
+            RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+            m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
         }
         else
         {
