@@ -71,7 +71,7 @@ RimFaultCollection::RimFaultCollection()
 
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
-    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNC's", "", "", "");
+    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
     CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,    "Show results on faults", "", "", "");
     CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", false,   "Show faults outside filters", "", "", "");
 
