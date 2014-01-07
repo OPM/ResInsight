@@ -152,11 +152,11 @@ void RivReservoirPartMgr::appendGridPartsToModel(cvf::ModelBasicList* model, con
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::updateFaultCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirPartMgr::updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->updateCellResultColor(timeStepIndex, cellResultSlot);
+        m_faultsPartMgr->updateColors(timeStepIndex, cellResultSlot);
     }
 }
 
@@ -185,11 +185,11 @@ void RivReservoirPartMgr::appendFaultLabelPartsToModel(cvf::ModelBasicList* mode
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::setGeneratedByFilter(bool isGeneratedByFilter)
+void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
 {
     if (m_faultsPartMgr.notNull())
     {
-        m_faultsPartMgr->setGeneratedByFilter(isGeneratedByFilter);
+        m_faultsPartMgr->setFaultForceVisibility(isGeneratedByFilter);
     }
 }
 

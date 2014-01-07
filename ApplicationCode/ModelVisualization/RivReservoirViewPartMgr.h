@@ -71,7 +71,7 @@ public:
     // Faults
     void                        appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
     void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
-    void                        updateFaultsCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot);
+    void                        updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot);
 
     // Fault labels
     ReservoirGeometryCacheType  geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const;
@@ -79,6 +79,8 @@ public:
     void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
 
     static std::vector<ReservoirGeometryCacheType> defaultVisibleFaultTypes();
+
+    void                        setFaultForceVisibilityForGeometryType(ReservoirGeometryCacheType geometryType, bool forceVisibility);
 
 private:
     void                        createGeometry(ReservoirGeometryCacheType geometryType);
@@ -97,8 +99,6 @@ private:
 
     RivReservoirPartMgr *       reservoirPartManager(ReservoirGeometryCacheType geometryType, size_t timeStepIndex );
 
-    void                        setGeneratedByFilterFromGeometryType(RivReservoirPartMgr* reservoirPartManager, ReservoirGeometryCacheType cacheType);
-    
 
 private:
     caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED> m_geometries;

@@ -240,7 +240,6 @@ void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometry
     RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
     m_geometries[geometryType].clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_geometries[geometryType].setTransform(m_scaleTransform.p());
-    setGeneratedByFilterFromGeometryType(&m_geometries[geometryType], geometryType);
     
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
@@ -397,7 +396,6 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
 
     m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_propFilteredGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
-    setGeneratedByFilterFromGeometryType(m_propFilteredGeometryFrames[frameIndex].p(), PROPERTY_FILTERED);
 
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
@@ -475,7 +473,6 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 
     m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_propFilteredWellGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
-    setGeneratedByFilterFromGeometryType(m_propFilteredWellGeometryFrames[frameIndex].p(), PROPERTY_FILTERED_WELL_CELLS);
 
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
@@ -826,10 +823,10 @@ RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeo
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateFaultsCellResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirViewPartMgr::updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     RivReservoirPartMgr* pmgr = reservoirPartManager(geometryType, timeStepIndex);
-    pmgr->updateFaultCellResultColor(timeStepIndex, cellResultSlot);
+    pmgr->updateFaultColors(timeStepIndex, cellResultSlot);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -907,22 +904,6 @@ void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::
     m_propFilteredGeometryFrames[frameIndex]->appendFaultLabelPartsToModel(model);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::setGeneratedByFilterFromGeometryType(RivReservoirPartMgr* reservoirPartManager, ReservoirGeometryCacheType cacheType)
-{
-    CVF_ASSERT(reservoirPartManager);
-
-    if (cacheType == RANGE_FILTERED ||
-        cacheType == RANGE_FILTERED_INACTIVE ||
-        cacheType == RANGE_FILTERED_WELL_CELLS ||
-        cacheType == PROPERTY_FILTERED ||
-        cacheType == PROPERTY_FILTERED_WELL_CELLS)
-    {
-        reservoirPartManager->setGeneratedByFilter(true);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -941,4 +922,12 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RivReservoirVie
     types.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
 
     return types;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::setFaultForceVisibilityForGeometryType(ReservoirGeometryCacheType geometryType, bool forceVisibility)
+{
+    m_geometries[geometryType].setFaultForceVisibility(forceVisibility);
 }

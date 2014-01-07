@@ -48,7 +48,7 @@ public:
     void   clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
-    void   setGeneratedByFilter(bool isGeneratedByFilter);
+    void   setFaultForceVisibility(bool isGeneratedByFilter);
 
     //size_t gridCount() { return m_allGrids.size(); }
     cvf::ref<cvf::UByteArray>  
@@ -63,7 +63,7 @@ public:
     void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
     // Faults
-    void   updateFaultCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
+    void   updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:

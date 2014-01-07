@@ -631,45 +631,11 @@ void RimReservoirView::createDisplayModel()
 
     if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters)
     {
-        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend;
-        if (!faultCollection()->showFaultsOutsideFilters)
-        {
-            if (this->rangeFilterCollection()->hasActiveFilters())
-            {
-                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
-                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
-
-                if (this->showInactiveCells())
-                {
-                    faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
-                }
-            }
-            else
-            {
-                faultGeometryTypesToAppend = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
-
-                if (this->showInactiveCells())
-                {
-                    faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::INACTIVE);
-                }
-            }
-
-
-        }
-        else
-        {
-            faultGeometryTypesToAppend = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
-
-            if (this->showInactiveCells())
-            {
-                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::INACTIVE);
-            }
-        }
+        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
 
         RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
 
-        size_t frameIdx;
-        for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
+        for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
             for (size_t gtIdx = 0; gtIdx < faultGeometryTypesToAppend.size(); ++gtIdx)
             {
@@ -678,6 +644,8 @@ void RimReservoirView::createDisplayModel()
 
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
+
+        updateFaultForcedVisibility();
     }
     
     // Compute triangle count, Debug only
@@ -756,12 +724,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
         if (faultCollection()->showFaultsOutsideFilters)
         {
-            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
-
-            if (this->showInactiveCells())
-            {
-                faultGeometryTypesToAppend.push_back(RivReservoirViewPartMgr::INACTIVE);
-            }
+            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
 
             for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
             {
@@ -876,14 +839,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-        if (this->animationMode() && this->cellResult()->hasResult())
-        {
-            m_reservoirGridPartManager->updateFaultsCellResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
-        }
-        else
-        {
-            this->updateStaticCellColors(faultGeometriesToRecolor[i]);
-        }
+        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
     }
 
 
@@ -1932,3 +1888,90 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///     
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateFaultForcedVisibility()
+{
+    // Force visibility of faults based on application state
+    // As fault geometry is visible in grid visualization mode, fault geometry must be forced visible
+    // even if the fault item is disabled in project tree view
+
+    caf::FixedArray<bool, RivReservoirViewPartMgr::PROPERTY_FILTERED> forceOn;
+
+    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
+    {
+        forceOn[i] = false;
+    }
+
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts = visibleFaultParts();
+    for (size_t i = 0; i < faultParts.size(); i++)
+    {
+        forceOn[faultParts[i]];
+    }
+
+    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
+    {
+        RivReservoirViewPartMgr::ReservoirGeometryCacheType cacheType = (RivReservoirViewPartMgr::ReservoirGeometryCacheType)i;
+
+        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(cacheType, forceOn[i]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirView::visibleFaultParts() const
+{
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
+
+    if (this->faultCollection()->showFaultsOutsideFilters())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
+        faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
+    }
+    else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
+        faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
+    }
+
+    return faultParts;
+}

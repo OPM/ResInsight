@@ -45,7 +45,7 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  c
         }
     }
 
-    m_isFilterGenerated = false;
+    m_forceVisibility = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,9 +101,8 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
         CVF_ASSERT(rivFaultPart.notNull());
 
         // Parts that is overridden by the grid settings
-
-        bool forceDisplayOfFault = false;
-        if (isShowingGrid && m_isFilterGenerated)
+        bool forceDisplayOfFault = isShowingGrid;
+        if (m_forceVisibility)
         {
             forceDisplayOfFault = true;
         }
@@ -160,7 +159,7 @@ void RivReservoirFaultsPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
+void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
     if (m_faultCollection->showResultsOnFaults())
     {
@@ -229,8 +228,8 @@ void RivReservoirFaultsPartMgr::appendLabelPartsToModel(cvf::ModelBasicList* mod
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirFaultsPartMgr::setGeneratedByFilter(bool isFilterGenerated)
+void RivReservoirFaultsPartMgr::setFaultForceVisibility(bool forceVisibility)
 {
-    m_isFilterGenerated = isFilterGenerated;
+    m_forceVisibility = forceVisibility;
 }
 

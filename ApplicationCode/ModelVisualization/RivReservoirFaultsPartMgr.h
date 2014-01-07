@@ -44,10 +44,10 @@ public:
 
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
-    void setGeneratedByFilter(bool isFilterGenerated);
+    void setFaultForceVisibility(bool isFilterGenerated);
 
     void applySingleColorEffect();
-    void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
+    void updateColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
         RimCellEdgeResultSlot* cellEdgeResultSlot);
 
@@ -60,5 +60,5 @@ private:
     cvf::ref<cvf::Transform>            m_scaleTransform;
     const RimFaultCollection*           m_faultCollection;
     cvf::Collection<RivFaultPartMgr>    m_faultParts;
-    bool                                m_isFilterGenerated;    // This fault geometry is created based on either range filter or property filter
+    bool                                m_forceVisibility;
 };

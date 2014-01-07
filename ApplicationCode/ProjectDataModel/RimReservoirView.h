@@ -190,6 +190,10 @@ private:
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
 
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultParts() const;
+    void                                    updateFaultForcedVisibility();
+
+
     cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
 
