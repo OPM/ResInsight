@@ -1971,6 +1971,12 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirVie
     {
         faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
         faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
     }
 
     return faultParts;
