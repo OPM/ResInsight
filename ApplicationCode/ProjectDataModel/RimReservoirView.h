@@ -192,6 +192,7 @@ private:
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultParts() const;
     void                                    updateFaultForcedVisibility();
+    void                                    updateFaultColors();
 
 
     cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;

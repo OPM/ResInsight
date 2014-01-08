@@ -825,6 +825,16 @@ RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeo
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
+    if (geometryType == PROPERTY_FILTERED && timeStepIndex >= m_propFilteredGeometryFrames.size())
+    {
+        return;
+    }
+
+    if (geometryType == PROPERTY_FILTERED_WELL_CELLS && timeStepIndex >= m_propFilteredWellGeometryFrames.size())
+    {
+        return;
+    }
+
     RivReservoirPartMgr* pmgr = reservoirPartManager(geometryType, timeStepIndex);
     pmgr->updateFaultColors(timeStepIndex, cellResultSlot);
 }
@@ -902,26 +912,6 @@ void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel(cvf::M
 void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex)
 {
     m_propFilteredGeometryFrames[frameIndex]->appendFaultLabelPartsToModel(model);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RivReservoirViewPartMgr::defaultVisibleFaultTypes()
-{
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> types;
-
-    types.push_back(ACTIVE);
-    types.push_back(ALL_WELL_CELLS);
-    types.push_back(VISIBLE_WELL_CELLS);
-    types.push_back(VISIBLE_WELL_FENCE_CELLS);
-    types.push_back(RANGE_FILTERED);
-    types.push_back(RANGE_FILTERED_WELL_CELLS);
-    types.push_back(VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
-    types.push_back(VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
-
-    return types;
 }
 
 //--------------------------------------------------------------------------------------------------

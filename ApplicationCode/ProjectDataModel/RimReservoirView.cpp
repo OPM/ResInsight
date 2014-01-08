@@ -646,7 +646,11 @@ void RimReservoirView::createDisplayModel()
         }
 
         updateFaultForcedVisibility();
+
     }
+    
+    this->updateFaultColors();
+
     
     // Compute triangle count, Debug only
 
@@ -824,24 +828,7 @@ void RimReservoirView::updateCurrentTimeStep()
         }
     }
 
-    // Update all fault geometry
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor;
-
-    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters)
-    {
-        faultGeometriesToRecolor.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED);
-        faultGeometriesToRecolor.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
-    }
-    else
-    {
-        faultGeometriesToRecolor = RivReservoirViewPartMgr::defaultVisibleFaultTypes();
-    }
-
-    for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
-    {
-        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
-    }
-
+    this->updateFaultColors();
 
     // Well pipes and well paths
     if (m_viewer)
@@ -1925,7 +1912,18 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirVie
 {
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
 
-    if (this->faultCollection()->showFaultsOutsideFilters())
+    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters)
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else if (this->faultCollection()->showFaultsOutsideFilters())
     {
         faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
         faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
@@ -1980,4 +1978,18 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirVie
     }
 
     return faultParts;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateFaultColors()
+{
+    // Update all fault geometry
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultParts();
+
+    for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
+    {
+        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
+    }
 }
