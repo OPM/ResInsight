@@ -414,6 +414,8 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
                     RigMainGrid* mainGrid = eclipseCase->mainGrid();
                     mainGrid->setFaults(faults);
 
+                    std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+
                     this->setFilenamesWithFaults(filenamesWithFaults);
                 }
             }
