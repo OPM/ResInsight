@@ -662,15 +662,8 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
     }
     else
     {
-        // Always show cell behind fault if we are in grid visualization mode
-        if (m_grid->mainGrid()->faceNormalsIsOutwards())
-        {
-            return caf::FC_BACK;
-        }
-        else
-        {
-            return caf::FC_FRONT;
-        }
+        // Do not perform face culling in grid mode to make sure the displayed grid is watertight
+        return caf::FC_NONE;
     }
 }
 

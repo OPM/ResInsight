@@ -178,7 +178,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
                 }
                 else
                 {
-                    faultMapping = "Show values from cells behind fault";
+                    faultMapping = "Show values from cells in front and behind fault";
                 }
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
