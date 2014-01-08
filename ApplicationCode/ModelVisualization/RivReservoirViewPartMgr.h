@@ -78,8 +78,6 @@ public:
     void                        appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
     void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
 
-    static std::vector<ReservoirGeometryCacheType> defaultVisibleFaultTypes();
-
     void                        setFaultForceVisibilityForGeometryType(ReservoirGeometryCacheType geometryType, bool forceVisibility);
 
 private:
