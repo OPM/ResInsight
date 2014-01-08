@@ -75,7 +75,7 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,    "Show results on faults", "", "", "");
     CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", false,   "Show faults outside filters", "", "", "");
 
-    CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_FRONT_FACE_CULLING), "Dynamic Face Selection", "", "", "");
+    CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
     CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
