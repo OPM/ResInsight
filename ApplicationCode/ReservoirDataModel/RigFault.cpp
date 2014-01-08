@@ -128,7 +128,7 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
                         }
                         else
                         {
-                            cvf::Trace::show("Warning: Undefined Fault neighbor detected.");
+                            //cvf::Trace::show("Warning: Undefined Fault neighbor detected.");
                         }
                     }
                 }

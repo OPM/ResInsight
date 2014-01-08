@@ -156,7 +156,7 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 
         if (!foundAnyOverlap)
         {
-            cvf::Trace::show("NNC: No overlap found for : C1: " + cvf::String((int)m_connections[cnIdx].m_c1GlobIdx) + "C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
+            //cvf::Trace::show("NNC: No overlap found for : C1: " + cvf::String((int)m_connections[cnIdx].m_c1GlobIdx) + "C2: " + cvf::String((int)m_connections[cnIdx].m_c2GlobIdx));
         }
     }
 }
