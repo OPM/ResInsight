@@ -72,8 +72,8 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
     CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
-    CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,    "Show results on faults", "", "", "");
-    CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", false,   "Show faults outside filters", "", "", "");
+    CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      false,   "Show results on faults", "", "", "");
+    CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
 
     CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
@@ -165,13 +165,12 @@ RimFault* RimFaultCollection::findFaultByName(QString name)
 //--------------------------------------------------------------------------------------------------
 /// A comparing function used to sort Faults in the RimFaultCollection::syncronizeFaults() method
 //--------------------------------------------------------------------------------------------------
-
 bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 {
     CVF_TIGHT_ASSERT(a.notNull() && b.notNull());
 
     int compareValue = a->name().compare(b->name(), Qt::CaseInsensitive);
-    
+
     return (compareValue < 0);
 }
 
@@ -186,9 +185,36 @@ void RimFaultCollection::syncronizeFaults()
 
     const cvf::Collection<RigFault> constRigFaults = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->faults();
 
-    cvf::Collection<RigFault> rigFaults(constRigFaults);
+    cvf::Collection<RigFault> rigFaults;
+    {
+        cvf::Collection<RigFault> sortedFaults(constRigFaults);
 
-    std::sort(rigFaults.begin(), rigFaults.end(), faultComparator);
+        std::sort(sortedFaults.begin(), sortedFaults.end(), faultComparator);
+
+        cvf::ref<RigFault> undefinedFaults;
+        for (size_t i = 0; i < sortedFaults.size(); i++)
+        {
+            if (sortedFaults[i]->name().compare(RimDefines::undefinedGridFaultName(), Qt::CaseInsensitive) == 0)
+            {
+                undefinedFaults = sortedFaults[i];
+            }
+        }
+
+        if (undefinedFaults.notNull())
+        {
+            sortedFaults.erase(undefinedFaults.p());
+
+            rigFaults.push_back(undefinedFaults.p());
+        }
+
+        for (size_t i = 0; i < sortedFaults.size(); i++)
+        {
+            rigFaults.push_back(sortedFaults[i].p());
+        }
+    }
+
+
+    // Find faults with 
 
     std::vector<caf::PdmPointer<RimFault> > newFaults;
 
@@ -236,19 +262,18 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     showFaultFaces.setUiReadOnly(isGridVizMode);
     showOppositeFaultFaces.setUiReadOnly(isGridVizMode);
 
-    caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup("Fault Face Visibility");
-    ffviz->add(&showFaultFaces);
-    ffviz->add(&showOppositeFaultFaces);
-    ffviz->add(&showNNCs);
-    ffviz->add(&faultResult);
-
     caf::PdmUiGroup* labs = uiOrdering.addNewGroup("Fault Labels");
     labs->add(&showFaultLabel);
     labs->add(&faultLabelColor);
 
-    caf::PdmUiGroup* adv = uiOrdering.addNewGroup("Advanced");
+    caf::PdmUiGroup* adv = uiOrdering.addNewGroup("Fault Options");
     adv->add(&showFaultsOutsideFilters);
     adv->add(&showResultsOnFaults);
+    adv->add(&showNNCs);
 
+    caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup("Fault Face Visibility");
+    ffviz->add(&showFaultFaces);
+    ffviz->add(&showOppositeFaultFaces);
+    ffviz->add(&faultResult);
 }
 

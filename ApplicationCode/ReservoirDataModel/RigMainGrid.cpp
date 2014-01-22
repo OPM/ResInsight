@@ -19,6 +19,7 @@
 #include "RigMainGrid.h"
 
 #include "cvfAssert.h"
+#include "RimDefines.h"
 
 RigMainGrid::RigMainGrid(void)
     : RigGridBase(this)
@@ -310,7 +311,7 @@ void RigMainGrid::calculateFaults()
 
     if (unNamedFault->faultFaces().size())
     {
-        unNamedFault->setName("Unnamed grid faults");
+        unNamedFault->setName(RimDefines::undefinedGridFaultName());
         m_faults.push_back(unNamedFault);
     }
 
