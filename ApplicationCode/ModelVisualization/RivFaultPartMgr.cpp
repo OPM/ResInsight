@@ -161,7 +161,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_nativeFaultFacesTextureCoords.p());
 
-        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper);
+        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper, caf::PO_1);
         m_nativeFaultFaces->setEffect(scalarEffect.p());
     }
 
@@ -207,7 +207,9 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
 
-        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper);
+        // Use a different offset than native fault faces to avoid z-fighting
+        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper, caf::PO_2);
+
         m_oppositeFaultFaces->setEffect(scalarEffect.p());
     }
 
@@ -609,15 +611,12 @@ void RivFaultPartMgr::appendNNCFacesToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper* mapper) const
+cvf::ref<cvf::Effect> RivFaultPartMgr::cellResultEffect(const cvf::ScalarMapper* mapper, caf::PolygonOffset polygonOffset) const
 {
     CVF_ASSERT(mapper);
 
-    caf::PolygonOffset polygonOffset = caf::PO_1;
     caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-    
     scalarEffgen.setFaceCulling(faceCullingMode());
-
     scalarEffgen.setOpacityLevel(m_opacityLevel);
 
     cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
@@ -684,13 +683,14 @@ void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
 
         if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)
         {
+            // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
-            nncEffgen.enableDepthWrite(false);
             nncEffect = nncEffgen.generateEffect();
         }
         else
         {
-            caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_NEG_LARGE);
+            // If no grid is present, use same offset as grid geometry to be able to see mesh lines
+            caf::ScalarMapperEffectGenerator nncEffgen(mapper, caf::PO_1);
             nncEffect = nncEffgen.generateEffect();
         }
 
@@ -711,12 +711,13 @@ void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
 
         if (m_rimFaultCollection->showFaultFaces || m_rimFaultCollection->showOppositeFaultFaces)
         {
+            // Move NNC closer to camera to avoid z-fighting with grid surface
             caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_NEG_LARGE);
-            nncEffgen.enableDepthWrite(false);
             nncEffect = nncEffgen.generateEffect();
         }
         else
         {
+            // If no grid is present, use same offset as grid geometry to be able to see mesh lines
             caf::SurfaceEffectGenerator nncEffgen(nncColor, caf::PO_1);
             nncEffect = nncEffgen.generateEffect();
         }
