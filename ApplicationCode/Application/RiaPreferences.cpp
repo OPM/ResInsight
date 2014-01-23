@@ -118,7 +118,7 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
 /// This function is called as part of the regression test system to make sure the configuration
 /// for regression tests is consistent
 //--------------------------------------------------------------------------------------------------
-void RiaPreferences::resetToDefaults()
+void RiaPreferences::configureForRegressionTests()
 {
     useShaders = true;
     showHud = false;
@@ -126,6 +126,6 @@ void RiaPreferences::resetToDefaults()
     autocomputeSOIL = true;
     autocomputeDepthRelatedProperties = true;
 
-    readFaultData = true;
+    readFaultData = false;
 }
 

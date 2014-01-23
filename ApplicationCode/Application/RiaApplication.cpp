@@ -1528,8 +1528,20 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     // Open HTML report
     QDesktopServices::openUrl(htmlReportFileName);
 
-    // Generate diff images
-    this->preferences()->resetToDefaults();
+    // Keep current preferences values to be able to restore when regression tests are completed
+    std::vector<QVariant> preferencesValues;
+    {
+        std::vector<caf::PdmFieldHandle*> fields;
+        this->preferences()->fields(fields);
+        for (size_t i = 0; i < fields.size(); i++)
+        {
+            QVariant v = fields[i]->uiValue();
+            preferencesValues.push_back(v);
+        }
+    }
+    
+    // Set preferences to make sure regression tests behave identical
+    this->preferences()->configureForRegressionTests();
 
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
@@ -1545,7 +1557,7 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              }
              m_commandQueueLock.unlock();
 
-             regressionTestSetFixedSizeForAllViews();
+             regressionTestConfigureProject();
 
              QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
              saveSnapshotForAllViews(fullPathGeneratedFolder);
@@ -1569,6 +1581,18 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              }
 
              closeProject(false);
+        }
+
+        // Restore preferences
+        {
+            std::vector<caf::PdmFieldHandle*> fields;
+            this->preferences()->fields(fields);
+            CVF_ASSERT(fields.size() == preferencesValues.size());
+
+            for (size_t i = 0; i < preferencesValues.size(); i++)
+            {
+                fields[i]->setValueFromUi(preferencesValues[i]);
+            }
         }
     }
 }
@@ -1937,7 +1961,7 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::regressionTestSetFixedSizeForAllViews()
+void RiaApplication::regressionTestConfigureProject()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (!mainWnd) return;
@@ -1961,6 +1985,9 @@ void RiaApplication::regressionTestSetFixedSizeForAllViews()
                 // This size is set to match the regression test reference images
                 riv->viewer()->setFixedSize(1000, 745);
             }
+
+            riv->faultCollection->showFaultsOutsideFilters.setValueFromUi(false);
+            riv->faultCollection->showResultsOnFaults.setValueFromUi(true);
         }
     }
 }

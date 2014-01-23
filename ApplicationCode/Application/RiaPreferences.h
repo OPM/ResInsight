@@ -33,7 +33,7 @@ public:
     RiaPreferences(void);
     virtual ~RiaPreferences(void);
 
-    void resetToDefaults();
+    void configureForRegressionTests();
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;

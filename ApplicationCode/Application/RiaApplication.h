@@ -107,7 +107,7 @@ public:
     void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
     void                updateRegressionTest(const QString& testRootPath );
-    void                regressionTestSetFixedSizeForAllViews();
+    void                regressionTestConfigureProject();
 
     void                processNonGuiEvents();
 
