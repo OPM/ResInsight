@@ -73,6 +73,7 @@
 
 #include <limits.h>
 #include "cafCeetronPlusNavigation.h"
+#include "RimFaultCollection.h"
 
 namespace caf {
 
@@ -98,11 +99,6 @@ void caf::AppEnum< RimReservoirView::SurfaceModeType >::setUp()
 
 
 
-
-const cvf::uint surfaceBit      = 0x00000001;
-const cvf::uint meshSurfaceBit  = 0x00000002;
-const cvf::uint faultBit        = 0x00000004;
-const cvf::uint meshFaultBit    = 0x00000008;
 
 
 CAF_PDM_SOURCE_INIT(RimReservoirView, "ReservoirView");
@@ -145,6 +141,9 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&wellCollection, "WellCollection", "Simulation Wells", "", "", "");
     wellCollection = new RimWellCollection;
 
+    CAF_PDM_InitFieldNoDefault(&faultCollection, "FaultCollection", "Faults", "", "", "");
+    faultCollection = new RimFaultCollection;
+
     CAF_PDM_InitFieldNoDefault(&rangeFilterCollection, "RangeFilters", "Range Filters",         "", "", "");
     rangeFilterCollection = new RimCellRangeFilterCollection();
     rangeFilterCollection->setReservoirView(this);
@@ -184,6 +183,8 @@ RimReservoirView::RimReservoirView()
 
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
     m_reservoir = NULL;
+
+    m_previousGridModeMeshLinesWasFaults = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,6 +199,7 @@ RimReservoirView::~RimReservoirView()
     delete rangeFilterCollection();
     delete propertyFilterCollection();
     delete wellCollection();
+    delete faultCollection();
 
     if (m_viewer)
     {
@@ -469,11 +471,15 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
     } 
     else if (changedField == &meshMode)
     {
+        createDisplayModel();
         updateDisplayModelVisibility();
+        RiuMainWindow::instance()->refreshDrawStyleActions();
     } 
     else if (changedField == &surfaceMode)
     {
+        createDisplayModel();
         updateDisplayModelVisibility();
+        RiuMainWindow::instance()->refreshDrawStyleActions();
     }
     else if (changedField == &name)
     {
@@ -568,7 +574,7 @@ void RimReservoirView::createDisplayModel()
     // For property filtered geometry : just set all the models as empty scenes 
     // updateCurrentTimeStep requests the actual parts
 
-    if (! this->propertyFilterCollection()->hasActiveFilters())
+    if (!this->propertyFilterCollection()->hasActiveFilters())
     {
         std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> geometryTypesToAdd;
 
@@ -607,7 +613,7 @@ void RimReservoirView::createDisplayModel()
                 geometryTypesToAdd.push_back(RivReservoirViewPartMgr::INACTIVE);
             }
         }
-      
+
         size_t frameIdx;
         for (frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
         {
@@ -622,6 +628,29 @@ void RimReservoirView::createDisplayModel()
 
         m_visibleGridParts = geometryTypesToAdd;
     }
+
+    if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters)
+    {
+        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
+
+        RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+
+        for (size_t frameIdx = 0; frameIdx < frameModels.size(); ++frameIdx)
+        {
+            for (size_t gtIdx = 0; gtIdx < faultGeometryTypesToAppend.size(); ++gtIdx)
+            {
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultGeometryTypesToAppend[gtIdx]);
+            }
+
+            m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
+        }
+
+        updateFaultForcedVisibility();
+
+    }
+    
+    this->updateFaultColors();
+
     
     // Compute triangle count, Debug only
 
@@ -697,6 +726,26 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
+        if (faultCollection()->showFaultsOutsideFilters)
+        {
+            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
+
+            for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
+            {
+                m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), faultGeometryTypesToAppend[i]);
+            }
+
+            RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
+            m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameParts.p(), faultLabelType);
+        }
+        else
+        {
+            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
+            m_reservoirGridPartManager->appendFaultLabelsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED, m_currentTimeStep);
+
+            m_reservoirGridPartManager->appendFaultsDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep);
+        }
+
         // Set the transparency on all the Wellcell parts before setting the result color
         float opacity = static_cast< float> (1 - cvf::Math::clamp(this->wellCollection()->wellCellTransparencyLevel(), 0.0, 1.0));
         m_reservoirGridPartManager->updateCellColor(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, cvf::Color4f(cvf::Color3f(cvf::Color3::WHITE), opacity));
@@ -710,10 +759,20 @@ void RimReservoirView::updateCurrentTimeStep()
             if (this->rangeFilterCollection()->hasActiveFilters() ) // Wells not considered, because we do not have a INACTIVE_WELL_CELLS group yet.
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
+
+                if (!faultCollection()->showFaultsOutsideFilters)
+                {
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE); 
+                }
             }
             else
             {
-                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices); 
+                m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
+
+                if (!faultCollection()->showFaultsOutsideFilters)
+                {
+                    m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE);
+                }
             }
         }
 
@@ -752,7 +811,6 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ACTIVE);
         geometriesToRecolor.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
     }
-    
 
     for (size_t i = 0; i < geometriesToRecolor.size(); ++i)
     {
@@ -769,6 +827,8 @@ void RimReservoirView::updateCurrentTimeStep()
             this->updateStaticCellColors(geometriesToRecolor[i]);
         }
     }
+
+    this->updateFaultColors();
 
     // Well pipes and well paths
     if (m_viewer)
@@ -871,6 +931,7 @@ void RimReservoirView::loadDataAndUpdate()
                 RimReservoirCellResultsStorage* results = currentGridCellResults();
                 CVF_ASSERT(results);
                 results->loadOrComputeSOIL();
+                results->createCombinedTransmissibilityResults();
             }
         }
     }
@@ -889,6 +950,9 @@ void RimReservoirView::loadDataAndUpdate()
     updateViewerWidget();
 
     this->propertyFilterCollection()->loadAndInitializePropertyFilters();
+
+    this->faultCollection()->setReservoirView(this);
+    this->faultCollection()->syncronizeFaults();
 
     m_reservoirGridPartManager->clearGeometryCache();
 
@@ -992,7 +1056,7 @@ RiuViewer* RimReservoirView::viewer()
 //--------------------------------------------------------------------------------------------------
 /// Get pick info text for given part ID, face index, and intersection point
 //--------------------------------------------------------------------------------------------------
-bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const
+bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const
 {
     CVF_ASSERT(pickInfoText);
 
@@ -1013,7 +1077,16 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 
                 cvf::Vec3d domainCoord = point + eclipseCase->grid(gridIndex)->displayModelOffset();
 
-                pickInfoText->sprintf("Hit grid %u, cell [%u, %u, %u], intersection point: [E: %.2f, N: %.2f, Depth: %.2f]", static_cast<unsigned int>(gridIndex), static_cast<unsigned int>(i), static_cast<unsigned int>(j), static_cast<unsigned int>(k), domainCoord.x(), domainCoord.y(), -domainCoord.z());
+                cvf::StructGridInterface::FaceEnum faceEnum(face);
+                
+                QString faceText = faceEnum.text();
+
+                *pickInfoText = QString("Hit grid %1, cell [%2, %3, %4] face %5, ").arg(gridIndex).arg(i).arg(j).arg(k).arg(faceText);
+
+                QString formattedText;
+                formattedText.sprintf("intersection point: [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
+
+                *pickInfoText += formattedText;
                 return true;
             }
         }
@@ -1023,9 +1096,9 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, const cvf::V
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get the current scalar value for the display face at the given index
+/// Append fault name and result value for the given cell to the string
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) 
+void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face,  QString* resultInfoText) 
 {
     CVF_ASSERT(resultInfoText);
 
@@ -1041,7 +1114,29 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             
             if (cellResult->hasStaticResult())
             {
-                dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
+                if (this->cellResult()->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+                {
+                    size_t tranX, tranY, tranZ;
+                    if (eclipseCase->results(porosityModel)->findTransmissibilityResults(tranX, tranY, tranZ))
+                    {
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranX);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranY);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranZ);
+
+                        double scalarValue = dataAccessObjectX->cellScalar(cellIndex);
+                        resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
+
+                        scalarValue = dataAccessObjectY->cellScalar(cellIndex);
+                        resultInfoText->append(QString("Tran Y : %1\n").arg(scalarValue));
+
+                        scalarValue = dataAccessObjectZ->cellScalar(cellIndex);
+                        resultInfoText->append(QString("Tran Z : %1\n").arg(scalarValue));
+                    }
+                }
+                else
+                {
+                    dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
+                }
             }
             else
             {
@@ -1094,6 +1189,8 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
             }
         }
+        
+        appendFaultName(grid, cellIndex, face, resultInfoText);
     }
 }
 
@@ -1104,34 +1201,41 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 void RimReservoirView::updateDisplayModelVisibility()
 {
     if (m_viewer.isNull()) return;
+
+    const cvf::uint uintSurfaceBit      = surfaceBit;
+    const cvf::uint uintMeshSurfaceBit  = meshSurfaceBit;
+    const cvf::uint uintFaultBit        = faultBit;
+    const cvf::uint uintMeshFaultBit    = meshFaultBit;
  
     // Initialize the mask to show everything except the the bits controlled here
-    unsigned int mask = 0xffffffff & ~surfaceBit & ~faultBit & ~meshSurfaceBit & ~meshFaultBit ;
+    unsigned int mask = 0xffffffff & ~uintSurfaceBit & ~uintFaultBit & ~uintMeshSurfaceBit & ~uintMeshFaultBit ;
 
     // Then turn the appropriate bits on according to the user settings
 
     if (surfaceMode == SURFACE)
     {
-         mask |= surfaceBit;
-         mask |= faultBit;
+         mask |= uintSurfaceBit;
+         mask |= uintFaultBit;
     }
     else if (surfaceMode == FAULTS)
     {
-        mask |= faultBit;
+        mask |= uintFaultBit;
     }
 
     if (meshMode == FULL_MESH)
     {
-        mask |= meshSurfaceBit;
-        mask |= meshFaultBit;
+        mask |= uintMeshSurfaceBit;
+        mask |= uintMeshFaultBit;
     }
     else if (meshMode == FAULTS_MESH)
     {
-        mask |= meshFaultBit;
+        mask |= uintMeshFaultBit;
     }
 
     m_viewer->setEnableMask(mask);
     m_viewer->update();
+
+    faultCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1281,7 +1385,7 @@ void RimReservoirView::updateLegends()
         this->cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
         m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
-        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
+        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
     }
     else
     {
@@ -1301,7 +1405,7 @@ void RimReservoirView::updateLegends()
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
 
         m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
-        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::fromQString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
+        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
 
     }
     else
@@ -1536,17 +1640,16 @@ void RimReservoirView::updateDisplayModelForWellResults()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::setMeshOnlyDrawstyle()
 {
-    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    if (isGridVisualizationMode())
     {
-        surfaceMode = NO_SURFACE;
-        meshMode = FAULTS_MESH;
+        meshMode.setValueFromUi(FULL_MESH);
     }
     else
     {
-        surfaceMode = NO_SURFACE;
-        meshMode = FULL_MESH;
+        meshMode.setValueFromUi(FAULTS_MESH);
     }
-    updateDisplayModelVisibility();
+
+    surfaceMode.setValueFromUi(NO_SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1554,17 +1657,38 @@ void RimReservoirView::setMeshOnlyDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::setMeshSurfDrawstyle()
 {
-    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    if (isGridVisualizationMode())
     {
-        surfaceMode = FAULTS;
-        meshMode = FAULTS_MESH;
+        surfaceMode.setValueFromUi(SURFACE);
+        meshMode.setValueFromUi(FULL_MESH);
     }
     else
     {
-        surfaceMode = SURFACE;
-        meshMode = FULL_MESH;
+        surfaceMode.setValueFromUi(FAULTS);
+        meshMode.setValueFromUi(FAULTS_MESH);
     }
-    updateDisplayModelVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::setFaultMeshSurfDrawstyle()
+{
+    // Surf: No Fault Surf
+    //  Mesh -------------
+    //    No FF  FF    SF
+    // Fault FF  FF    SF
+    //  Mesh SF  SF    SF
+    if (this->isGridVisualizationMode())
+    {
+         surfaceMode.setValueFromUi(SURFACE);
+    }
+    else
+    {
+         surfaceMode.setValueFromUi(FAULTS);
+    }
+
+    meshMode.setValueFromUi(FAULTS_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1572,17 +1696,15 @@ void RimReservoirView::setMeshSurfDrawstyle()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::setSurfOnlyDrawstyle()
 {
-    if (surfaceMode == FAULTS || meshMode == FAULTS_MESH)
+    if (isGridVisualizationMode())
     {
-        surfaceMode = FAULTS;
-        meshMode = NO_MESH;
+        surfaceMode.setValueFromUi(SURFACE);
     }
     else
     {
-        surfaceMode = SURFACE;
-        meshMode = NO_MESH;
+        surfaceMode.setValueFromUi(FAULTS);
     }
-    updateDisplayModelVisibility();
+    meshMode.setValueFromUi(NO_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1592,15 +1714,30 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
 {
     if (showFaults)
     {
-        if (surfaceMode() != NO_SURFACE) surfaceMode = FAULTS;
-        if (meshMode() != NO_MESH) meshMode = FAULTS_MESH;
+        m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(FAULTS);
+        if (meshMode() != NO_MESH) meshMode.setValueFromUi(FAULTS_MESH);
     }
     else
     {
-        if (surfaceMode() != NO_SURFACE) surfaceMode = SURFACE;
-        if (meshMode() != NO_MESH) meshMode = FULL_MESH;
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
+        if (meshMode() != NO_MESH) meshMode.setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH);
     }
-    updateDisplayModelVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+// Surf: No Fault Surf
+//  Mesh -------------
+//    No F  F     G
+// Fault F  F     G
+//  Mesh G  G     G
+//
+//--------------------------------------------------------------------------------------------------
+bool RimReservoirView::isGridVisualizationMode() const
+{
+    return (   this->surfaceMode() == SURFACE 
+            || this->meshMode()    == FULL_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1631,3 +1768,246 @@ void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
     cellGroup->add(&showInvalidCells);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
+{
+    CVF_ASSERT(resultInfo);
+
+    if (m_reservoir && m_reservoir->reservoirData())
+    {
+        RigCaseData* eclipseCase = m_reservoir->reservoirData();
+
+        RigMainGrid* grid = eclipseCase->mainGrid();
+        CVF_ASSERT(grid);
+        
+        RigNNCData* nncData = grid->nncData();
+        CVF_ASSERT(nncData);
+
+        if (nncData)
+        {
+            const RigConnection& conn = nncData->connections()[nncIndex];
+            cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
+
+            QString faultName;
+        
+            resultInfo->append(QString("NNC Transmissibility : %1\n").arg(conn.m_transmissibility));
+            {
+                CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
+                const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
+
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t localCellIndex = cell.cellIndex();
+
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+
+                    QString gridName = QString::fromStdString(hostGrid->gridName());
+                    resultInfo->append(QString("NNC 1 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(face.text()).arg(gridName));
+
+                    appendFaultName(hostGrid, conn.m_c1GlobIdx, conn.m_c1Face, &faultName);
+                }
+            }
+
+            {
+                CVF_ASSERT(conn.m_c2GlobIdx < grid->cells().size());
+                const RigCell& cell = grid->cells()[conn.m_c2GlobIdx];
+
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t localCellIndex = cell.cellIndex();
+
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+
+                    QString gridName = QString::fromStdString(hostGrid->gridName());
+                    cvf::StructGridInterface::FaceEnum oppositeFaceEnum(cvf::StructGridInterface::oppositeFace(face));
+                    QString faceText = oppositeFaceEnum.text();
+
+                    resultInfo->append(QString("NNC 2 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(faceText).arg(gridName));
+
+                    if (faultName.isEmpty())
+                    {
+                        appendFaultName(hostGrid, conn.m_c2GlobIdx, cvf::StructGridInterface::oppositeFace(conn.m_c1Face), &faultName);
+                    }
+                }
+            }
+
+            resultInfo->append(QString("Face: %2\n").arg(face.text()));
+
+            if (!faultName.isEmpty())
+            {
+                resultInfo->append(faultName);
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///     
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateFaultForcedVisibility()
+{
+    // Force visibility of faults based on application state
+    // As fault geometry is visible in grid visualization mode, fault geometry must be forced visible
+    // even if the fault item is disabled in project tree view
+
+    caf::FixedArray<bool, RivReservoirViewPartMgr::PROPERTY_FILTERED> forceOn;
+
+    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
+    {
+        forceOn[i] = false;
+    }
+
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts = visibleFaultParts();
+    for (size_t i = 0; i < faultParts.size(); i++)
+    {
+        forceOn[faultParts[i]];
+    }
+
+    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
+    {
+        RivReservoirViewPartMgr::ReservoirGeometryCacheType cacheType = (RivReservoirViewPartMgr::ReservoirGeometryCacheType)i;
+
+        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(cacheType, forceOn[i]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirView::visibleFaultParts() const
+{
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
+
+    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters)
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else if (this->faultCollection()->showFaultsOutsideFilters())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
+        faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else if (this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else if (!this->rangeFilterCollection()->hasActiveFilters() && this->wellCollection()->hasVisibleWellCells())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_CELLS);
+        faultParts.push_back(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS);
+    }
+    else if (this->rangeFilterCollection()->hasActiveFilters() && !this->wellCollection()->hasVisibleWellCells())
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED);
+        faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_WELL_CELLS);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+    else
+    {
+        faultParts.push_back(RivReservoirViewPartMgr::ACTIVE);
+        faultParts.push_back(RivReservoirViewPartMgr::ALL_WELL_CELLS);
+
+        if (this->showInactiveCells())
+        {
+            faultParts.push_back(RivReservoirViewPartMgr::INACTIVE);
+            faultParts.push_back(RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE);
+        }
+    }
+
+    return faultParts;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateFaultColors()
+{
+    // Update all fault geometry
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultParts();
+
+    for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
+    {
+        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText)
+{
+    if (grid->isMainGrid())
+    {
+        RigMainGrid* mainGrid = grid->mainGrid();
+
+        for (size_t i = 0; i < mainGrid->faults().size(); i++)
+        {
+            const RigFault* rigFault = mainGrid->faults().at(i);
+            const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
+
+            for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+            {
+                if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex)
+                {
+                    if (face == faultFaces[fIdx].m_nativeFace )
+                    {
+                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
+                    }
+
+                    return;
+                }
+
+                if (faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
+                {
+                    if (face == cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace))
+                    {
+                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
+                    }
+
+                    return;
+                }
+            }
+        }
+    }
+}

@@ -151,7 +151,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geom
             m_propFilteredGeometryFramesNeedsRegen[i] = true;
             if (m_propFilteredGeometryFrames[i].notNull())
             {
-                m_propFilteredGeometryFrames[i]->clearAndSetReservoir(eclipseCase);
+                m_propFilteredGeometryFrames[i]->clearAndSetReservoir(eclipseCase, m_reservoirView->faultCollection());
                 m_propFilteredGeometryFrames[i]->setTransform(m_scaleTransform.p());
             }
         }
@@ -163,7 +163,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geom
             m_propFilteredWellGeometryFramesNeedsRegen[i] = true;
             if (m_propFilteredWellGeometryFrames[i].notNull())
             {
-                m_propFilteredWellGeometryFrames[i]->clearAndSetReservoir(eclipseCase);
+                m_propFilteredWellGeometryFrames[i]->clearAndSetReservoir(eclipseCase, m_reservoirView->faultCollection());
                 m_propFilteredWellGeometryFrames[i]->setTransform(m_scaleTransform.p());
             }
         }
@@ -171,7 +171,7 @@ void RivReservoirViewPartMgr::clearGeometryCache(ReservoirGeometryCacheType geom
     else
     {
         m_geometriesNeedsRegen[geomType] = true;
-        m_geometries[geomType].clearAndSetReservoir(eclipseCase);
+        m_geometries[geomType].clearAndSetReservoir(eclipseCase, m_reservoirView->faultCollection());
         m_geometries[geomType].setTransform(m_scaleTransform.p());
     }
 }
@@ -205,7 +205,7 @@ void RivReservoirViewPartMgr::appendStaticGeometryPartsToModel(cvf::ModelBasicLi
     {
         createGeometry( geometryType);
     }
-    m_geometries[geometryType].appendPartsToModel(model, gridIndices);
+    m_geometries[geometryType].appendGridPartsToModel(model, gridIndices);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,7 +220,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
         {
             createPropertyFilteredNoneWellCellGeometry(frameIndex);
         }
-        m_propFilteredGeometryFrames[frameIndex]->appendPartsToModel(model, gridIndices);
+        m_propFilteredGeometryFrames[frameIndex]->appendGridPartsToModel(model, gridIndices);
     }
     else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
     {
@@ -228,7 +228,7 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
         {
             createPropertyFilteredWellGeometry(frameIndex);
         }
-        m_propFilteredWellGeometryFrames[frameIndex]->appendPartsToModel(model, gridIndices);
+        m_propFilteredWellGeometryFrames[frameIndex]->appendGridPartsToModel(model, gridIndices);
     }
 }
 
@@ -238,8 +238,9 @@ void RivReservoirViewPartMgr::appendDynamicGeometryPartsToModel(cvf::ModelBasicL
 void RivReservoirViewPartMgr::createGeometry(ReservoirGeometryCacheType geometryType)
 {
     RigCaseData* res = m_reservoirView->eclipseCase()->reservoirData();
-    m_geometries[geometryType].clearAndSetReservoir(res);
+    m_geometries[geometryType].clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_geometries[geometryType].setTransform(m_scaleTransform.p());
+    
     std::vector<RigGridBase*> grids;
     res->allGrids(&grids);
 
@@ -393,7 +394,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry(size_t 
 
     if ( m_propFilteredGeometryFrames[frameIndex].isNull())  m_propFilteredGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
-    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(res);
+    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_propFilteredGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
 
     std::vector<RigGridBase*> grids;
@@ -470,7 +471,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry(size_t frameInd
 
     if ( m_propFilteredWellGeometryFrames[frameIndex].isNull())  m_propFilteredWellGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
-    m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir(res);
+    m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir(res, m_reservoirView->faultCollection());
     m_propFilteredWellGeometryFrames[frameIndex]->setTransform(m_scaleTransform.p());
 
     std::vector<RigGridBase*> grids;
@@ -817,4 +818,106 @@ RivReservoirPartMgr * RivReservoirViewPartMgr::reservoirPartManager(ReservoirGeo
     {
         return &m_geometries[geometryType];
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot)
+{
+    if (geometryType == PROPERTY_FILTERED && timeStepIndex >= m_propFilteredGeometryFrames.size())
+    {
+        return;
+    }
+
+    if (geometryType == PROPERTY_FILTERED_WELL_CELLS && timeStepIndex >= m_propFilteredWellGeometryFrames.size())
+    {
+        return;
+    }
+
+    RivReservoirPartMgr* pmgr = reservoirPartManager(geometryType, timeStepIndex);
+    pmgr->updateFaultColors(timeStepIndex, cellResultSlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType)
+{
+    if (m_geometriesNeedsRegen[geometryType])
+    {
+        createGeometry(geometryType);
+    }
+    m_geometries[geometryType].appendFaultPartsToModel(model);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex)
+{
+    if (geometryType == PROPERTY_FILTERED)
+    {
+        m_propFilteredGeometryFrames[frameIndex]->appendFaultPartsToModel(model);
+    }
+    else if (geometryType == PROPERTY_FILTERED_WELL_CELLS)
+    {
+        m_propFilteredWellGeometryFrames[frameIndex]->appendFaultPartsToModel(model);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivReservoirViewPartMgr::ReservoirGeometryCacheType RivReservoirViewPartMgr::geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const
+{
+    bool hasInactive = false;
+    for (size_t i = 0; i < geometryTypes.size(); i++)
+    {
+        if (geometryTypes[i] == PROPERTY_FILTERED)
+        {
+            return PROPERTY_FILTERED;
+        }
+
+        if (geometryTypes[i] == RANGE_FILTERED)
+        {
+            return RANGE_FILTERED;
+        }
+
+        if (geometryTypes[i] == INACTIVE)
+        {
+            hasInactive = true;
+        }
+    }
+
+    if (hasInactive)
+    {
+        return INACTIVE;
+    }
+
+    return ACTIVE;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType)
+{
+    m_geometries[geometryType].appendFaultLabelPartsToModel(model);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex)
+{
+    m_propFilteredGeometryFrames[frameIndex]->appendFaultLabelPartsToModel(model);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::setFaultForceVisibilityForGeometryType(ReservoirGeometryCacheType geometryType, bool forceVisibility)
+{
+    m_geometries[geometryType].setFaultForceVisibility(forceVisibility);
 }

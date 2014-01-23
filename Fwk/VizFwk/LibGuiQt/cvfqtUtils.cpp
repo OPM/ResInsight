@@ -36,11 +36,10 @@
 
 
 #include "cvfBase.h"
-#include "cvfTextureImage.h"
-
+#include "cvfVector2.h"
 #include "cvfqtUtils.h"
 
-#include <QtCore/QVector>
+#include <QtCore/QStringList>
 
 namespace cvfqt {
 
@@ -58,22 +57,22 @@ namespace cvfqt {
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString	Utils::toQString(const cvf::String& ceeString)
+QString Utils::toQString(const cvf::String& cvfString)
 {
-    if (ceeString.isEmpty())
+    if (cvfString.isEmpty())
     {
         return QString();
     }
 
     if (sizeof(wchar_t) == 2)
     {
-        const unsigned short* strPtr = reinterpret_cast<const unsigned short*>(ceeString.c_str());
+        const unsigned short* strPtr = reinterpret_cast<const unsigned short*>(cvfString.c_str());
 
         return QString::fromUtf16(strPtr);
     }
     else if (sizeof(wchar_t) == 4)
     {
-        const unsigned int* strPtr = reinterpret_cast<const unsigned int*>(ceeString.c_str());
+        const unsigned int* strPtr = reinterpret_cast<const unsigned int*>(cvfString.c_str());
 
         return QString::fromUcs4(strPtr);
     }
@@ -86,7 +85,7 @@ QString	Utils::toQString(const cvf::String& ceeString)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::String Utils::fromQString(const QString& qtString)
+cvf::String Utils::toString(const QString& qtString)
 {
     if (qtString.length() == 0)
     {
@@ -112,72 +111,165 @@ cvf::String Utils::fromQString(const QString& qtString)
     return cvf::String();
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Utils::copyFromQImage(cvf::TextureImage* textureImage, const QImage& qtImage)
+std::vector<cvf::String> Utils::toStringVector(const QStringList& stringList)
+{
+    std::vector<cvf::String> strVec;
+
+    foreach (QString s, stringList)
+    {
+        strVec.push_back(toString(s));
+    }
+
+    return strVec;
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QStringList Utils::toQStringList(const std::vector<cvf::String>& stringVector)
+{
+    QStringList strList;
+
+    foreach (cvf::String s, stringVector)
+    {
+        strList.push_back(toQString(s));
+    }
+
+    return strList;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QImage Utils::toQImage(const cvf::TextureImage& textureImage)
+{
+    const int width = static_cast<int>(textureImage.width());
+    const int height = static_cast<int>(textureImage.height());
+    if (width <= 0 || height <= 0)
+    {
+        return QImage();
+    }
+
+    const cvf::ubyte* rgbData = textureImage.ptr();
+    QImage qimg(width, height, QImage::Format_ARGB32);
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            const int srcIdx = 4*y*width + 4*x;
+            qimg.setPixel(x, height - y - 1, qRgba(rgbData[srcIdx], rgbData[srcIdx + 1], rgbData[srcIdx + 2], rgbData[srcIdx + 3]));
+        }
+    }
+
+    return qimg;
+
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void Utils::toTextureImage(const QImage& qImage, cvf::TextureImage* textureImage)
 {
     CVF_ASSERT(textureImage);
 
-    if (qtImage.isNull())
+    const int width = qImage.width();
+    const int height = qImage.height();
+    if (width <= 0 || height <= 0)
     {
+        textureImage->clear();
         return;
     }
 
-    if (((int)textureImage->height()) != qtImage.height() || ((int)textureImage->width() != qtImage.width()))
+    return toTextureImageRegion(qImage, cvf::Vec2ui(0, 0), cvf::Vec2ui(static_cast<cvf::uint>(width), static_cast<cvf::uint>(height)), textureImage);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Convert a region of a QImage to a TextureImage
+/// 
+/// \attention The source position \a srcPos is specified in QImage's coordinate system, where 
+///            the pixel position (0,0) if the upper left corner.
+//--------------------------------------------------------------------------------------------------
+void Utils::toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage)
+{
+    CVF_ASSERT(qImage.width() >= 0);
+    CVF_ASSERT(qImage.height() >= 0);
+    const cvf::uint qImgWidth = static_cast<cvf::uint>(qImage.width());
+    const cvf::uint qImgHeight = static_cast<cvf::uint>(qImage.height());
+
+    CVF_ASSERT(srcPos.x() < qImgWidth);
+    CVF_ASSERT(srcPos.y() < qImgHeight);
+    CVF_ASSERT(srcPos.x() + size.x() <= qImgWidth);
+    CVF_ASSERT(srcPos.y() + size.y() <= qImgHeight);
+    CVF_ASSERT(textureImage);
+
+    if (size.x() < 1 || size.y() < 1)
     {
-        textureImage->allocate(qtImage.width(), qtImage.height());
+        textureImage->clear();
+        return;
     }
 
-    int height = textureImage->height();
-    int width = textureImage->width();
-
-    // Check if QImage has format QImage::Format_ARGB32, and perform a direct memory copy of image data
-    if (qtImage.format() == QImage::Format_ARGB32)
+    if (textureImage->width() != size.x() || textureImage->height() != size.y())
     {
-        cvf::ubyte* dataPtr = const_cast<cvf::ubyte*>(textureImage->ptr());
+        textureImage->allocate(size.x(), size.y());
+    }
 
-        int negy = 0;
-        uint idx = 0;
-        QRgb qtRgbaVal = 0;
 
-        // This loop is a candidate for multi-threading. Testing with OpenMP has so far indicated
-        // quite large variance in performance (Windows Intel i7 with 8 cores).
-        // When this function is called from the paint event,
-        // the user experience is considered better when the paint time is consistent.
-        for (int y = 0 ; y < height; ++y)
+    const cvf::uint sizeX = size.x();
+    const cvf::uint sizeY = size.y();
+    const cvf::uint srcPosX = srcPos.x();
+    const cvf::uint srcPosY = srcPos.y();
+    cvf::ubyte* textureImageDataPtr = textureImage->ptr();
+
+    // Check if QImage has format QImage::Format_ARGB32, and use a more optimized path
+    if (qImage.format() == QImage::Format_ARGB32)
+    {
+        for (cvf::uint y = 0; y < sizeY; ++y)
         {
-            negy = height - 1 - y;
-            const uchar* s = qtImage.scanLine(negy);
+            const cvf::uint scanLineIdx = srcPosY + sizeY - y - 1;
+            const QRgb* qWholeScanLine = reinterpret_cast<const QRgb*>(qImage.scanLine(scanLineIdx));
+            const QRgb* qPixels = &qWholeScanLine[srcPosX];
 
-            for (int x = 0 ; x < width; ++x)
+            const cvf::uint dstStartIdx = 4*(y*sizeX);
+            cvf::ubyte* dstRgba = &textureImageDataPtr[dstStartIdx];
+            for (cvf::uint x = 0; x < sizeX; ++x)
             {
-                qtRgbaVal = ((QRgb*)s)[x]; // Taken from QImage::pixel(int x, int y)
-
-                idx = 4*(y*width + x);
-                dataPtr[idx]     = qRed(qtRgbaVal);
-                dataPtr[idx + 1] = qGreen(qtRgbaVal); 
-                dataPtr[idx + 2] = qBlue(qtRgbaVal); 
-                dataPtr[idx + 3] = qAlpha(qtRgbaVal); 
+                QRgb qRgbaVal = qPixels[x];
+                dstRgba[0] = qRed(qRgbaVal);
+                dstRgba[1] = qGreen(qRgbaVal);
+                dstRgba[2] = qBlue(qRgbaVal);
+                dstRgba[3] = qAlpha(qRgbaVal);
+                dstRgba += 4;
             }
         }
     }
     else
     {
-        for (int y = 0 ; y < height; ++y)
+        cvf::Color4ub cvfRgbVal;
+        for (cvf::uint y = 0; y < sizeY; ++y)
         {
-            int negy =  height - 1 - y;
-            QRgb qtRgbaVal;
-            cvf::Color4ub cvfRgbVal;
-            for (int x = 0 ; x < width; ++x)
+            const cvf::uint qImageYPos = srcPosY + sizeY - y - 1;
+            for (cvf::uint x = 0; x < sizeX; ++x)
             {
-                qtRgbaVal = qtImage.pixel(x, negy);
-                cvfRgbVal.set(qRed(qtRgbaVal), qGreen(qtRgbaVal), qBlue(qtRgbaVal), qAlpha(qtRgbaVal)); 
+                const QRgb qRgbaVal = qImage.pixel(srcPosX + x, qImageYPos);
+                cvfRgbVal.r() = qRed(qRgbaVal);
+                cvfRgbVal.g() = qGreen(qRgbaVal);
+                cvfRgbVal.b() = qBlue(qRgbaVal);
+                cvfRgbVal.a() = qAlpha(qRgbaVal); 
                 textureImage->setPixel(x, y, cvfRgbVal);
             }
         }
     }
 }
+
 
 
 } // namespace cvfqt

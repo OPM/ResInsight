@@ -31,6 +31,15 @@ class FileTest(ExtendedTestCase):
         self.test_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST")
         self.test_fmt_file = self.createTestPath("Statoil/ECLIPSE/Gurbat/ECLIPSE.FUNRST")
 
+    
+    def test_restart_days(self):
+        rst_file = EclFile( self.test_file )
+        self.assertAlmostEqual(  0.0 , rst_file.iget_restart_sim_days(0) )
+        self.assertAlmostEqual( 31.0 , rst_file.iget_restart_sim_days(1) )
+        self.assertAlmostEqual( 274.0 , rst_file.iget_restart_sim_days(10) )
+        print "OK - "
+
+
 
     def test_IOError(self):
         with self.assertRaises(IOError):

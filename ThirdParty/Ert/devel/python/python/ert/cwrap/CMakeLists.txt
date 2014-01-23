@@ -10,4 +10,5 @@ set(PYTHON_SOURCES
     cwrap.py
 )
 
-add_python_package("Python ert.cwrap" ${PYTHON_INSTALL_PREFIX}/ert/cwrap "${PYTHON_SOURCES}" True)
+add_python_package("python.ert.cwrap"  ${PYTHON_INSTALL_PREFIX}/ert/cwrap "${PYTHON_SOURCES}" True)
+

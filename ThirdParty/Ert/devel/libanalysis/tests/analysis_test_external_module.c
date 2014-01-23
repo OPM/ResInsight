@@ -41,6 +41,7 @@ void load_module( rng_type * rng , const char * user_name , const char * lib_nam
     test_assert_true( analysis_module_has_var(analysis_module , var_list[i]));
   }
   test_assert_false( analysis_module_has_var(analysis_module , "DoesNotHaveThisVariable"));
+  
   test_assert_true( analysis_module_check_option( analysis_module , flags));
   flags += 1;
   test_assert_false( analysis_module_check_option( analysis_module , flags));

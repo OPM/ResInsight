@@ -182,15 +182,8 @@ RigMainGrid* RimAnalysisModels::registerCaseInGridCollection(RigCaseData* rigEcl
         // This is the first insertion of this grid, compute cached data
         rigEclipseCase->mainGrid()->computeCachedData();
 
-        std::vector<RigGridBase*> grids;
-        rigEclipseCase->allGrids(&grids);
-
-        size_t i;
-        for (i = 0; i < grids.size(); i++)
-        {
-            grids[i]->computeFaults();
-        }
-
+        rigEclipseCase->mainGrid()->calculateFaults();
+  
         equalGrid = rigEclipseCase->mainGrid();
     }
 
@@ -210,5 +203,29 @@ void RimAnalysisModels::insertCaseInCaseGroup(RimIdenticalGridCaseGroup* caseGro
     registerCaseInGridCollection(rigEclipseCase);
 
     caseGroup->addCase(rimReservoir);
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimAnalysisModels::recomputeStatisticsForAllCaseGroups()
+{
+    const size_t numCaseGroups = caseGroups.size();
+    for (size_t caseGrpIdx = 0; caseGrpIdx < numCaseGroups; ++caseGrpIdx)
+    {
+        RimIdenticalGridCaseGroup* caseGroup = caseGroups[caseGrpIdx];
+        RimCaseCollection* statisticsCaseCollection = caseGroup->statisticsCaseCollection;
+        const size_t numStatisticsCases = statisticsCaseCollection->reservoirs.size();
+        for (size_t caseIdx = 0; caseIdx < numStatisticsCases; caseIdx++)
+        {
+            RimStatisticsCase* statisticsCase = dynamic_cast<RimStatisticsCase*>(statisticsCaseCollection->reservoirs[caseIdx]);
+            if (statisticsCase)
+            {
+                statisticsCase->clearComputedStatistics();
+                statisticsCase->computeStatistics();
+            }
+        }
+    }
 }
 

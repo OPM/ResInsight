@@ -11,5 +11,5 @@ set(PYTHON_SOURCES
     is_case_initialized.py
 )
 
-add_python_package("Python ert_gui.models.connectors.init"  ${PYTHON_INSTALL_PREFIX}/ert_gui/models/connectors/init "${PYTHON_SOURCES}" True)
+add_python_package("python.ert_gui.models.connectors.init"  ${PYTHON_INSTALL_PREFIX}/ert_gui/models/connectors/init "${PYTHON_SOURCES}" True)
 

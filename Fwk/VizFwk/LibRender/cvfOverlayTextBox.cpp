@@ -102,24 +102,6 @@ cvf::Vec2ui OverlayTextBox::sizeHint()
 
 
 //--------------------------------------------------------------------------------------------------
-/// Returns the maximum size of the text box in pixels
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui OverlayTextBox::maximumSize()
-{
-    return sizeHint();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// Returns the minimum size of the text box in pixels
-//--------------------------------------------------------------------------------------------------
-cvf::Vec2ui OverlayTextBox::minimumSize()
-{
-    return sizeHint();
-}
-
-
-//--------------------------------------------------------------------------------------------------
 /// Render using Shaders
 //--------------------------------------------------------------------------------------------------
 void OverlayTextBox::render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size)

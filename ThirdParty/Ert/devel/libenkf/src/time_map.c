@@ -200,9 +200,8 @@ int time_map_get_last_step( time_map_type * map) {
 }
 
 int time_map_get_size( time_map_type * map) {
-  return time_map_get_last_step( map );
+  return time_map_get_last_step( map ) + 1;
 }
-
 
 time_t time_map_get_start_time( time_map_type * map) {
   return time_map_iget( map , 0 );

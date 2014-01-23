@@ -44,6 +44,7 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RiaPreferences.h"
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
@@ -97,12 +98,18 @@ bool RimResultCase::openEclipseGridFile()
             return false;
         }
 
-        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
         readerInterface = new RifReaderEclipseOutput;
+        readerInterface->readFaultData(prefs->readFaultData());
+        readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
+
+        cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
         if (!readerInterface->open(caseFileName(), eclipseCase.p()))
         {
             return false;
         }
+
+        this->filesContainingFaults = readerInterface->filenamesWithFaults();
 
         this->setReservoirData( eclipseCase.p() );
     }
@@ -303,6 +310,16 @@ void RimResultCase::updateFilePathsFromProjectPath(const QString& newProjectPath
 #endif 
     
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultCase::setGridFileName(const QString& caseFileName)
+{
+    this->caseFileName = caseFileName;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

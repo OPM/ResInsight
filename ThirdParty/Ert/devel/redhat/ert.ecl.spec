@@ -2,14 +2,16 @@
 # spec file for package ert.ecl
 #
 
+%define tag final2
+
 Name:           ert.ecl
-Version:        1.0
-Release:        1
+Version:        2013.10
+Release:        0
 Summary:        ERT - Ensemble based Reservoir Tool - ECL library
 License:        GPL-3+
 Group:          Development/Libraries/C and C++
 Url:            http://ert.nr.no
-Source0:        %{name}-%{version}.tar.gz
+Source0:        https://github.com/OPM/%{name}/archive/release/%{version}/%{tag}.tar.gz#/%{name}-%{version}.tar.gz
 BuildRequires:  lapack-devel zlib-devel iputils
 BuildRequires:  gcc
 BuildRequires:  cmake28 
@@ -25,6 +27,7 @@ tool to do assisted history matching with Ensemble Kalman Filter
 %package -n libert.ecl1
 Summary:        ERT - Ensemble based Reservoir Tool - ECL library
 Group:          System/Libraries
+%{?el5:BuildArch: %{_arch}}
 
 %description -n libert.ecl1
 ERT - Ensemble based Reservoir Tool is a tool for managing en ensemble
@@ -38,12 +41,13 @@ Group:          Development/Libraries/C and C++
 Requires:       %{name} = %{version}
 Requires:       lapack-devel
 Requires:       libert.ecl1 = %{version}
+%{?el5:BuildArch: 	%{_arch}}
 
 %description devel
 This package contains the development and header files for ert.ecl
 
 %prep
-%setup -q
+%setup -q -n ert-release-%{version}-%{tag}
 
 %build
 cd devel
@@ -73,7 +77,3 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_libdir}/*.so
 %{_includedir}/*
-
-%changelog
-* Tue Feb 19 2013 Arne Morten Kvarving <arne.morten.kvarving@sintef.no> 1.0-1
-- Mark -devel package as architecture independent

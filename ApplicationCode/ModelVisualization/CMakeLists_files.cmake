@@ -6,11 +6,17 @@ endif()
 
 set (SOURCE_GROUP_HEADER_FILES
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.h
+${CEE_CURRENT_LIST_DIR}RivColorTableArray.h
+${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.h
+${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.h
 ${CEE_CURRENT_LIST_DIR}RivGridPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.h
+${CEE_CURRENT_LIST_DIR}RivReservoirFaultsPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.h
+${CEE_CURRENT_LIST_DIR}RivSourceInfo.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.h
@@ -19,11 +25,17 @@ ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.h
 
 set (SOURCE_GROUP_SOURCE_FILES
 ${CEE_CURRENT_LIST_DIR}RivCellEdgeEffectGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivColorTableArray.cpp
+${CEE_CURRENT_LIST_DIR}RivFaultPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivFaultGeometryGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivNNCGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivGridPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivReservoirFaultsPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirViewPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivPipeGeometryGenerator.cpp
 ${CEE_CURRENT_LIST_DIR}RivReservoirPipesPartMgr.cpp
+${CEE_CURRENT_LIST_DIR}RivSourceInfo.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.cpp

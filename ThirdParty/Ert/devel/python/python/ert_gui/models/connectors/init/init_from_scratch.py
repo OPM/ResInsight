@@ -12,7 +12,7 @@ class InitializeFromScratchModel(ErtConnector, ButtonModelMixin):
 
         for member in members:
             member = int(member.strip())
-            self.ert().initializeFromScratch(selected_parameters, member, member)
+            self.ert().getEnkfFsManager().initializeFromScratch(selected_parameters, member, member)
 
         self.observable().notify(ButtonModelMixin.BUTTON_TRIGGERED_EVENT)
 

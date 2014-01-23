@@ -346,6 +346,7 @@ bool analysis_module_set_var( analysis_module_type * module , const char * var_n
     if (util_sscanf_int( string_value , &int_value )) 
       set_ok = analysis_module_set_int( module , var_name , int_value );
     
+    
     if (set_ok)
       return true;
   }
@@ -354,7 +355,7 @@ bool analysis_module_set_var( analysis_module_type * module , const char * var_n
     double double_value;
     if (util_sscanf_double( string_value , &double_value )) 
       set_ok = analysis_module_set_double( module , var_name , double_value );
-
+    
     if (set_ok)
       return true;
   }

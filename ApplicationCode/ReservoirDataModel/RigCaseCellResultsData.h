@@ -66,6 +66,8 @@ public:
     size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
+    void                                               createCombinedTransmissibilityResult();
+
     void                                               removeResult(const QString& resultName);
     void                                               clearAllResults();
     void                                               freeAllocatedResultsData();
@@ -107,6 +109,8 @@ public:
                                                                                   bool needsToBeStored,
                                                                                   size_t resultValueCount);
 
+    bool                                                    findTransmissibilityResults(size_t& tranX, size_t& tranY, size_t& tranZ) const;
+
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
     std::vector< std::pair<double, double> >                m_maxMinValues;      ///< Max min values for each Result index
@@ -118,7 +122,7 @@ private:
     std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs;  ///< Max min values for each Result index and timestep
     std::vector< std::vector< std::pair<double, double> > > m_posNegClosestToZeroPrTs;
 
-
+    size_t                                                  m_combinedTransmissibilityResultIndex;
 
 private:
     std::vector<ResultInfo>                                 m_resultInfos;

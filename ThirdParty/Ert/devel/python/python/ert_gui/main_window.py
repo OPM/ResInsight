@@ -1,57 +1,70 @@
 from PyQt4.QtCore import QSettings, Qt
-from PyQt4.QtGui import QMainWindow, QTabWidget, qApp
-from ert_gui.widgets.help_dock import HelpDock
+from PyQt4.QtGui import QMainWindow, qApp, QWidget, QVBoxLayout
 
 
 class GertMainWindow(QMainWindow):
-    """An application (window widget) with a list of "tasks" on the left side and a panel on the right side"""
-
     def __init__(self):
-        """Constructor"""
         QMainWindow.__init__(self)
 
-        self.resize(900, 700)
+        self.tools = {}
+
+        self.resize(300, 700)
         self.setWindowTitle('gERT')
 
-        self.tabs = QTabWidget()
-        self.setCentralWidget(self.tabs)
+        self.central_widget = QWidget()
+        self.central_layout = QVBoxLayout()
+        self.central_widget.setLayout(self.central_layout)
 
-        self.help_dock = HelpDock.getInstance()
-        self.addDockWidget(Qt.RightDockWidgetArea, self.help_dock)
+        self.setCentralWidget(self.central_widget)
+
+        self.toolbar = self.addToolBar("Tools")
+        self.toolbar.setObjectName("Toolbar")
+        self.toolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        # configure_action = toolbar.addAction(util.resourceIcon("ide/cog_edit"), "Configure")
+        #
+        # plot_action = toolbar.addAction(util.resourceIcon("ide/chart_curve_add"), "Plot")
+        # save_action.triggered.connect(self.save)
+
+        # reload_action.triggered.connect(self.reload)
+
+        # toolbar.addSeparator()
+        #
+        # stretchy_separator = QWidget()
+        # stretchy_separator.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # toolbar.addWidget(stretchy_separator)
+
+        #
 
 
         self.__createMenu()
-        self.save_function = None
         self.__fetchSettings()
 
 
-    def setSaveFunction(self, save_function):
-        """Set the function to be called when the save menu choice is selected."""
-        self.save_function = save_function
+    def addTool(self, tool):
+        tool.setParent(self)
+        self.tools[tool.getName()] = tool
+        action = self.toolbar.addAction(tool.getIcon(), tool.getName())
+        action.setIconText(tool.getName())
+        action.setEnabled(tool.isEnabled())
+        action.triggered.connect(tool.trigger)
 
-    def addTab(self, name, tab_widget):
-        self.tabs.addTab(tab_widget, name)
-
-    def __save(self):
-        if not self.save_function is None:
-            self.save_function()
 
     def __createMenu(self):
         file_menu = self.menuBar().addMenu("&File")
-        file_menu.addAction("Save Config File", self.__save)
         file_menu.addAction("Close", self.__quit)
 
-        view_menu = self.menuBar().addMenu("&View")
-        view_menu.addAction(self.help_dock.toggleViewAction())
 
     def __quit(self):
         self.__saveSettings()
         qApp.quit()
 
+
     def __saveSettings(self):
         settings = QSettings("Statoil", "ErtGui")
         settings.setValue("geometry", self.saveGeometry())
         settings.setValue("windowState", self.saveState())
+
 
     def closeEvent(self, event):
         #Use QT settings saving mechanism
@@ -59,9 +72,15 @@ class GertMainWindow(QMainWindow):
         self.__saveSettings()
         QMainWindow.closeEvent(self, event)
 
+
     def __fetchSettings(self):
         settings = QSettings("Statoil", "ErtGui")
         self.restoreGeometry(settings.value("geometry").toByteArray())
         self.restoreState(settings.value("windowState").toByteArray())
+
+
+    def setWidget(self, widget):
+        self.central_layout.addWidget(widget)
+
 
 

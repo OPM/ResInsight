@@ -65,6 +65,7 @@ ecl_rsthead_type * ecl_rsthead_ialloc( const ecl_file_type * rst_file , int occu
       rsthead->niwelz    = data[INTEHEAD_NIWELZ_INDEX];
       rsthead->nzwelz    = data[INTEHEAD_NZWELZ_INDEX];
       
+      rsthead->nsconz    = data[INTEHEAD_NSCONZ_INDEX];
       rsthead->niconz    = data[INTEHEAD_NICONZ_INDEX];
       rsthead->ncwmax    = data[INTEHEAD_NCWMAX_INDEX];
       

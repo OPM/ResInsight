@@ -1,14 +1,32 @@
+add_executable( ecl_alloc_grid_dxv_dyv_dzv ecl_alloc_grid_dxv_dyv_dzv.c )
+target_link_libraries( ecl_alloc_grid_dxv_dyv_dzv ecl test_util )
+add_test( ecl_alloc_grid_dxv_dyv_dzv  ${EXECUTABLE_OUTPUT_PATH}/ecl_alloc_grid_dxv_dyv_dzv )
+
 add_executable( ecl_coarse_test ecl_coarse_test.c )
 target_link_libraries( ecl_coarse_test ecl test_util )
 add_test( ecl_coarse_test  ${EXECUTABLE_OUTPUT_PATH}/ecl_coarse_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/LGCcase/LGC_TESTCASE2 )
 
-add_executable( ecl_nnc_amalgamated ecl_nnc_amalgamated.c )
-target_link_libraries( ecl_nnc_amalgamated ecl test_util )
-add_test( ecl_nnc_amalgamated  ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_amalgamated  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/nestedLGRcase/TESTCASE_NESTEDLGR.EGRID )
 
 add_executable( ecl_restart_test ecl_restart_test.c )
 target_link_libraries( ecl_restart_test ecl test_util )
 add_test( ecl_restart_test ${EXECUTABLE_OUTPUT_PATH}/ecl_restart_test ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.UNRST )
+
+add_executable( ecl_nnc_export ecl_nnc_export.c )
+target_link_libraries( ecl_nnc_export ecl test_util )
+add_test (ecl_nnc_export1 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_export  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE )
+add_test (ecl_nnc_export2 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_export  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/10kcase/TEST10K_FLT_LGR_NNC )
+add_test (ecl_nnc_export3 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_export  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3)
+add_test (ecl_nnc_export4 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_export  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/DualPoro/DUAL_DIFF )
+add_test (ecl_nnc_export5 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_export  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/DualPoro/DUALPORO )
+add_test (ecl_nnc_export6 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_export  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/nestedLGRcase/TESTCASE_NESTEDLGR)
+
+add_executable( ecl_nnc_export_get_tran ecl_nnc_export_get_tran.c )
+target_link_libraries( ecl_nnc_export_get_tran ecl test_util )
+add_test (ecl_nnc_export_get_tran ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_export_get_tran  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3)
+
+add_executable( ecl_valid_basename ecl_valid_basename.c )
+target_link_libraries( ecl_valid_basename ecl test_util )
+add_test( ecl_valid_basename ${EXECUTABLE_OUTPUT_PATH}/ecl_valid_basename)
 
 add_executable( ecl_util_make_date_no_shift ecl_util_make_date_no_shift.c )
 target_link_libraries( ecl_util_make_date_no_shift ecl test_util )
@@ -18,10 +36,18 @@ add_executable( ecl_util_make_date_shift ecl_util_make_date_shift.c )
 target_link_libraries( ecl_util_make_date_shift ecl test_util )
 add_test( ecl_util_make_date_shift ${EXECUTABLE_OUTPUT_PATH}/ecl_util_make_date_shift )
 
+add_executable( ecl_sum_case_exists ecl_sum_case_exists.c )
+target_link_libraries( ecl_sum_case_exists ecl test_util )
+add_test( ecl_sum_case_exists ${EXECUTABLE_OUTPUT_PATH}/ecl_sum_case_exists 
+          ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE
+          ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/GurbatSummary/missingHe        ader/ECLIPSE  
+          ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/GurbatSummary/missingData/ECLIPSE )
+          
+
 add_executable( ecl_grid_lgr_name ecl_grid_lgr_name.c )
 target_link_libraries( ecl_grid_lgr_name ecl test_util )
 set_target_properties( ecl_grid_lgr_name PROPERTIES COMPILE_FLAGS "-Werror")                                    
-add_test( ecl_grid_lgr_name ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_lgr_name  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/10kcase/TEST10K_FLT_LGR_NNC.EGRID)
+add_test( ecl_grid_lgr_name ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_lgr_name  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID)
 
 add_executable( ecl_region ecl_region.c )
 target_link_libraries( ecl_region ecl test_util )
@@ -47,6 +73,10 @@ add_executable( ecl_grid_simple ecl_grid_simple.c )
 target_link_libraries( ecl_grid_simple ecl test_util )
 add_test( ecl_grid_simple ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_simple  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID )
 
+add_executable( ecl_grid_volume ecl_grid_volume.c )
+target_link_libraries( ecl_grid_volume ecl test_util )
+add_test( ecl_grid_volume1 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_volume  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE )
+add_test( ecl_grid_volume2 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_volume  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/VolumeTest/TEST1 )
 
 add_executable( ecl_grid_dims ecl_grid_dims.c )
 target_link_libraries( ecl_grid_dims ecl test_util )
@@ -56,16 +86,18 @@ add_test( ecl_grid_dims1 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_dims  ${PROJECT_SOUR
 add_test( ecl_grid_dims2 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_dims  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.GRID  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.INIT)
 add_test( ecl_grid_dims3 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_dims  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID )
 add_test( ecl_grid_dims4 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_dims  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.GRID  ) 
-add_test( ecl_grid_dims5 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_dims  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/AmalgLGRcase/TESTCASE_AMALG_LGR.EGRID 
-                                                                  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/AmalgLGRcase/TESTCASE_AMALG_LGR.INIT )
+add_test( ecl_grid_dims5 ${EXECUTABLE_OUTPUT_PATH}/ecl_grid_dims  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/AmalgLGRcase/TESTCASE_AMALG_LGR.EGRID )
+
 
 
 add_executable( ecl_nnc_test ecl_nnc_test.c )
 target_link_libraries( ecl_nnc_test ecl test_util )
-add_test (ecl_nnc_test ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID 
-                                                               ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/10kcase/TEST10K_FLT_LGR_NNC.EGRID
-                                                               ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID 
-                                                               ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/DualPoro/DUAL_DIFF.EGRID )
+add_test (ecl_nnc_test1 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Gurbat/ECLIPSE.EGRID )
+add_test (ecl_nnc_test2 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/10kcase/TEST10K_FLT_LGR_NNC.EGRID )
+add_test (ecl_nnc_test3 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/Troll/MSW_LGR/2BRANCHES-CCEWELLPATH-NEW-SCH-TUNED-AR3.EGRID)
+add_test (ecl_nnc_test4 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/DualPoro/DUAL_DIFF.EGRID )
+add_test (ecl_nnc_test5 ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_test  ${PROJECT_SOURCE_DIR}/test-data/Statoil/ECLIPSE/nestedLGRcase/TESTCASE_NESTEDLGR.EGRID)
+
 add_executable( ecl_nnc_info_test ecl_nnc_info_test.c )
 target_link_libraries( ecl_nnc_info_test ecl test_util )
 add_test (ecl_nnc_info_test ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_info_test )
@@ -75,9 +107,6 @@ add_executable( ecl_nnc_vector ecl_nnc_vector.c )
 target_link_libraries( ecl_nnc_vector ecl test_util )
 add_test(ecl_nnc_vector ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_vector )
 
-add_executable( ecl_nnc_index_list ecl_nnc_index_list.c )
-target_link_libraries( ecl_nnc_index_list ecl test_util )
-add_test (ecl_nnc_index_list ${EXECUTABLE_OUTPUT_PATH}/ecl_nnc_index_list )
 
 add_executable( ecl_kw_grdecl ecl_kw_grdecl.c )
 target_link_libraries( ecl_kw_grdecl ecl test_util )
@@ -86,6 +115,10 @@ add_test( ecl_kw_grdecl ${EXECUTABLE_OUTPUT_PATH}/ecl_kw_grdecl )
 add_executable( ecl_kw_equal ecl_kw_equal.c )
 target_link_libraries( ecl_kw_equal ecl test_util )
 add_test( ecl_kw_equal ${EXECUTABLE_OUTPUT_PATH}/ecl_kw_equal )
+
+add_executable( ecl_kw_cmp_string ecl_kw_cmp_string.c )
+target_link_libraries( ecl_kw_cmp_string ecl test_util )
+add_test( ecl_kw_cmp_string ${EXECUTABLE_OUTPUT_PATH}/ecl_kw_cmp_string )
 
 
 add_executable( ecl_dualp ecl_dualp.c )
@@ -148,7 +181,7 @@ add_test( ecl_rft_cell ${EXECUTABLE_OUTPUT_PATH}/ecl_rft_cell )
 
 add_executable( ecl_get_num_cpu ecl_get_num_cpu_test.c )
 target_link_libraries( ecl_get_num_cpu ecl test_util )
-add_test( ecl_get_num_cpu ${EXECUTABLE_OUTPUT_PATH}/ecl_get_num_cpu ${PROJECT_SOURCE_DIR}/libecl/tests/data/num_cpu1 ${PROJECT_SOURCE_DIR}/libecl/tests/data/num_cpu2)
+add_test( ecl_get_num_cpu ${EXECUTABLE_OUTPUT_PATH}/ecl_get_num_cpu ${PROJECT_SOURCE_DIR}/libecl/tests/data/num_cpu1 ${PROJECT_SOURCE_DIR}/libecl/tests/data/num_cpu2 ${PROJECT_SOURCE_DIR}/libecl/tests/data/num_cpu3)
 
 
 
@@ -177,13 +210,20 @@ set_property( TEST ecl_sum_report_step_compatible4 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_sum_report_step_compatible5 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_sum_report_step_compatible6 PROPERTY LABELS StatoilData )
 
+
+
 set_property( TEST ecl_fortio PROPERTY LABELS StatoilData)
 set_property( TEST ecl_grid_dims1 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_dims2 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_dims3 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_dims4 PROPERTY LABELS StatoilData )
 set_property( TEST ecl_grid_dims5 PROPERTY LABELS StatoilData )
-set_property( TEST ecl_nnc_test PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_test1 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_test2 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_test3 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_test4 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_test5 PROPERTY LABELS StatoilData )
+
 set_property( TEST ecl_file PROPERTY LABELS StatoilData)
 set_property( TEST ecl_rsthead PROPERTY LABELS StatoilData)
 set_property( TEST ecl_region PROPERTY LABELS StatoilData)
@@ -191,4 +231,15 @@ set_property( TEST ecl_region2region PROPERTY LABELS StatoilData)
 set_property( TEST ecl_grid_case PROPERTY LABELS StatoilData)
 set_property( TEST ecl_rft_rft PROPERTY LABELS StatoilData)
 set_property( TEST ecl_rft_plt PROPERTY LABELS StatoilData)
-set_property( TEST ecl_nnc_amalgamated PROPERTY LABELS StatoilData)
+set_property( TEST ecl_sum_case_exists PROPERTY LABELS StatoilData)
+set_property( TEST ecl_grid_volume1 PROPERTY LABELS StatoilData)
+set_property( TEST ecl_grid_volume2 PROPERTY LABELS StatoilData)
+
+set_property( TEST ecl_nnc_export1 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_export2 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_export3 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_export4 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_export5 PROPERTY LABELS StatoilData )
+set_property( TEST ecl_nnc_export6 PROPERTY LABELS StatoilData )
+
+set_property( TEST ecl_nnc_export_get_tran PROPERTY LABELS StatoilData )

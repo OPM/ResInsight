@@ -40,6 +40,7 @@ public:
     RimResultCase();
     virtual ~RimResultCase();
 
+    void                        setGridFileName(const QString& caseFileName);
     void                        setCaseInfo(const QString& userDescription, const QString& caseFileName);
 
     virtual bool                openEclipseGridFile();

@@ -2,10 +2,10 @@ from ert_gui.models import ErtConnector
 from ert_gui.models.connectors.ensemble_resizer import EnsembleSizeModel
 from ert_gui.models.connectors.init import InitializeFromScratchModel, CaseSelectorModel
 from ert_gui.models.connectors.init.init_from_existing import InitializeFromExistingCaseModel
-from ert_gui.models.mixins import TextModelMixin, BooleanModelMixin
+from ert_gui.models.mixins import BooleanModelMixin, BasicModelMixin
 
 
-class IsCaseInitializedModel(ErtConnector, BooleanModelMixin, TextModelMixin):
+class IsCaseInitializedModel(ErtConnector, BooleanModelMixin, BasicModelMixin):
 
     def __init__(self):
         CaseSelectorModel().observable().attach(CaseSelectorModel.CURRENT_CHOICE_CHANGED_EVENT, self.__caseChanged)
@@ -17,9 +17,9 @@ class IsCaseInitializedModel(ErtConnector, BooleanModelMixin, TextModelMixin):
 
     def __caseChanged(self):
         self.observable().notify(IsCaseInitializedModel.BOOLEAN_VALUE_CHANGED_EVENT)
-        self.observable().notify(IsCaseInitializedModel.TEXT_VALUE_CHANGED_EVENT)
+        self.observable().notify(IsCaseInitializedModel.VALUE_CHANGED_EVENT)
 
-    def getText(self):
+    def getValue(self):
         """
          A message saying if the case is not initialized. Returns an empty string if the case is initialized.
          @rtype: str
@@ -34,5 +34,5 @@ class IsCaseInitializedModel(ErtConnector, BooleanModelMixin, TextModelMixin):
         True if the current case is initialized!
         @rtype: bool
         """
-        return self.ert().isInitialized()
+        return self.ert().getEnkfFsManager().isInitialized()
 

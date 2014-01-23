@@ -53,6 +53,8 @@ public:
     caf::PdmPointersField<RimReservoirView*>    reservoirViews;
     caf::PdmField<bool>                         flipXAxis;
     caf::PdmField<bool>                         flipYAxis;
+    
+    caf::PdmField<std::vector<QString> >        filesContainingFaults;
 
 
     virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.

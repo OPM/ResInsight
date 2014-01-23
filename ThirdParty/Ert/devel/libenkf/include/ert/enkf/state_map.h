@@ -32,7 +32,9 @@ extern "C" {
 
   state_map_type         * state_map_alloc( );
   state_map_type         * state_map_fread_alloc( const char * filename );
+  state_map_type         * state_map_fread_alloc_readonly( const char * filename );
   state_map_type         * state_map_alloc_copy( state_map_type * map );
+  bool                     state_map_is_readonly(const state_map_type * state_map);
   void                     state_map_free( state_map_type * map );
   int                      state_map_get_size( state_map_type * map);
   realisation_state_enum   state_map_iget( state_map_type * map , int index);
@@ -47,6 +49,7 @@ extern "C" {
   void                     state_map_set_from_inverted_mask(state_map_type * map, const bool_vector_type *mask , realisation_state_enum state);
   void                     state_map_set_from_mask(state_map_type * map, const bool_vector_type *mask , realisation_state_enum state);
   int                      state_map_count_matching( state_map_type * state_map , int mask);
+  bool                     state_map_legal_transition( realisation_state_enum state1 , realisation_state_enum state2);
 
   UTIL_IS_INSTANCE_HEADER( state_map );
 

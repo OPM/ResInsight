@@ -21,6 +21,8 @@
 #include "cvfArray.h"
 #include "cvfCollection.h"
 
+#include "RivReservoirFaultsPartMgr.h"
+
 namespace cvf
 {
     class ModelBasicList;
@@ -31,7 +33,7 @@ class RimResultSlot;
 class RimCellEdgeResultSlot;
 class RivGridPartMgr;
 class RigCaseData;
-
+class RimFaultCollection;
 
 //==================================================================================================
 ///
@@ -43,9 +45,10 @@ class RigCaseData;
 class RivReservoirPartMgr: public cvf::Object
 {
 public:
-    void   clearAndSetReservoir(const RigCaseData* eclipseCase);
+    void   clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection);
     void   setTransform(cvf::Transform* scaleTransform);
     void   setCellVisibility(size_t gridIndex, cvf::UByteArray* cellVisibilities );
+    void   setFaultForceVisibility(bool isGeneratedByFilter);
 
     //size_t gridCount() { return m_allGrids.size(); }
     cvf::ref<cvf::UByteArray>  
@@ -56,10 +59,15 @@ public:
     void   updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
                                      RimCellEdgeResultSlot* cellEdgeResultSlot);
 
-    void   appendPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
-    void   appendPartsToModel(cvf::ModelBasicList* model);
+    void   appendGridPartsToModel(cvf::ModelBasicList* model, const std::vector<size_t>& gridIdxes);
+    void   appendGridPartsToModel(cvf::ModelBasicList* model);
 
+    // Faults
+    void   updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
+    void   appendFaultPartsToModel(cvf::ModelBasicList* model);
+    void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:
 
-    cvf::Collection<RivGridPartMgr> m_allGrids; // Main grid and all LGR's 
+    cvf::Collection<RivGridPartMgr>     m_allGrids; // Main grid and all LGR's 
+    cvf::ref<RivReservoirFaultsPartMgr> m_faultsPartMgr;
 };

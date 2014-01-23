@@ -16,5 +16,7 @@
 
 
 import ert.cwrap.clib as clib
+from ert.ecl import ECL_LIB
+
 lib = clib.ert_load("librms.so")
     

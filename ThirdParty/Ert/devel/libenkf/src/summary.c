@@ -96,7 +96,6 @@ void summary_clear(summary_type * summary) {
 }
 
 
-
 summary_type * summary_alloc(const summary_config_type * summary_config) {
   summary_type * summary   = util_malloc(sizeof *summary );
   summary->__type_id       = SUMMARY;
@@ -112,6 +111,16 @@ summary_type * summary_alloc(const summary_config_type * summary_config) {
 }
 
 
+
+bool summary_active_value( double value ) {
+
+  if (value == SUMMARY_UNDEF_FORECAST)
+    return false;
+  if (value == SUMMARY_UNDEF_ANALYZED)
+    return false;
+
+  return true;
+}
 
 
 void summary_copy(const summary_type *src , summary_type * target) {

@@ -39,13 +39,15 @@ the process of interacting with a C library:
      FILE pointer.
 """
 
+from .cnamespace import CNamespace
+from .basecclass import BaseCClass
+
 from .cclass import CClass
 from .cenum import create_enum
 from .cfile import CFILE
 from .clib import load, ert_lib_path, ert_load
 from .cwrap import CWrapper, CWrapperNameSpace
 
-from .cnamespace import CNamespace
-from .basecclass import BaseCClass
+
 from .basecenum import BaseCEnum
 

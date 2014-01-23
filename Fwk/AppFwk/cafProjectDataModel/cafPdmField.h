@@ -161,7 +161,7 @@ protected:
 
 
 //==================================================================================================
-/// Specialization for pointers, but only applicable to PdmObjectBase derived objects.
+/// Specialization for pointers, but only applicable to PdmObject derived objects.
 /// The pointer is guarded, meaning that it will be set to NULL if the object pointed to 
 /// is deleted. The referenced object will be printed in place in the xml-file
 //==================================================================================================

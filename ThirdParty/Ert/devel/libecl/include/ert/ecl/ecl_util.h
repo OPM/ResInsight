@@ -26,6 +26,8 @@ extern "C" {
 
 #include <ert/util/stringlist.h>
 #include <ert/util/time_t_vector.h>
+#include <ert/util/parser.h>
+  
 
 typedef enum { ECL_OTHER_FILE           = 0   , 
                ECL_RESTART_FILE         = 1   , 
@@ -176,6 +178,7 @@ int             ecl_util_fname_report_cmp(const void *f1, const void *f2);
 time_t          ecl_util_make_date(int mday , int month , int year);
 time_t          ecl_util_make_date__(int mday , int month , int year, int * year_offset);
 
+bool            ecl_util_valid_basename_fmt( const char * basename_fmt );
 bool            ecl_util_valid_basename( const char * basename );
 const char *    ecl_util_get_phase_name( ecl_phase_enum phase );
 const char *    ecl_util_file_enum_iget( int index, int * value);

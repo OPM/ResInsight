@@ -174,10 +174,10 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         if (pipeSurface.notNull())
         {
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("RivWellHeadPartMgr: surface " + cvfqt::Utils::fromQString(well->name()));
+            part->setName("RivWellHeadPartMgr: surface " + cvfqt::Utils::toString(well->name()));
             part->setDrawable(pipeSurface.p());
 
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), true);
+            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(well->wellPipeColor()), caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
 
             part->setEffect(eff.p());
@@ -188,7 +188,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         if (centerLineDrawable.notNull())
         {
             cvf::ref<cvf::Part> part = new cvf::Part;
-            part->setName("RivWellHeadPartMgr: centerline " + cvfqt::Utils::fromQString(well->name()));
+            part->setName("RivWellHeadPartMgr: centerline " + cvfqt::Utils::toString(well->name()));
             part->setDrawable(centerLineDrawable.p());
 
             caf::MeshEffectGenerator meshGen(well->wellPipeColor());
@@ -249,7 +249,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
 
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
-        part->setName("RivWellHeadPartMgr: arrow " + cvfqt::Utils::fromQString(well->name()));
+        part->setName("RivWellHeadPartMgr: arrow " + cvfqt::Utils::toString(well->name()));
         part->setDrawable(geo1.p());
 
         cvf::Color4f headColor(cvf::Color3::GRAY);
@@ -273,7 +273,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
             }
         }
 
-        caf::SurfaceEffectGenerator surfaceGen(headColor, true);
+        caf::SurfaceEffectGenerator surfaceGen(headColor, caf::PO_1);
         cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
 
         part->setEffect(eff.p());
@@ -292,7 +292,7 @@ void RivWellHeadPartMgr::buildWellHeadParts(size_t frameIndex)
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
         drawableText->setTextColor(m_rimReservoirView->wellCollection()->wellLabelColor());
 
-        cvf::String cvfString = cvfqt::Utils::fromQString(well->name());
+        cvf::String cvfString = cvfqt::Utils::toString(well->name());
 
         cvf::Vec3f textCoord(textPosition);
         drawableText->addText(cvfString, textCoord);

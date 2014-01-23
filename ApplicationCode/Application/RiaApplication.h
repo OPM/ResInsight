@@ -38,6 +38,7 @@ class RiaPreferences;
 class RimReservoirView;
 class RimProject;
 class RimCommandObject;
+class RiaProjectModifier;
 
 namespace caf
 {
@@ -90,9 +91,9 @@ public:
     bool                addEclipseCases(const QStringList& fileNames);
     bool                openInputEclipseCaseFromFileNames(const QStringList& fileNames);
 
-    bool                loadLastUsedProject();
     QString             currentProjectFileName() const;
-    bool                loadProject(const QString& fileName);
+    QString             createAbsolutePathFromProjectRelativePath(QString projectRelativePath);
+    bool                loadProject(const QString& projectFileName);
     bool                saveProject();
     bool                saveProjectAs(const QString& fileName);
     bool                saveProjectPromptForFileName();
@@ -103,13 +104,14 @@ public:
     void                saveSnapshotPromtpForFilename();
     void                saveSnapshotAs(const QString& fileName);
     void                saveSnapshotForAllViews(const QString& snapshotFolderName);
+    void                runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName);
     void                runRegressionTest(const QString& testRootPath);
     void                updateRegressionTest(const QString& testRootPath );
-    void                regressionTestSetFixedSizeForAllViews();
+    void                regressionTestConfigureProject();
 
     void                processNonGuiEvents();
 
-    static const char*	getVersionStringApp(bool includeCrtInfo);
+    static const char*  getVersionStringApp(bool includeCrtInfo);
 
     void                setUseShaders(bool enable);
     bool                useShaders() const;
@@ -143,10 +145,18 @@ public:
     void                executeCommandObjects();
 
 private:
-    void		        onProjectOpenedOrClosed();
-    void		        setWindowCaptionFromAppState();
+    enum ProjectLoadAction
+    {
+        PLA_NONE = 0,
+        PLA_CALCULATE_STATISTICS = 1
+    };
+
+    bool                    loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier);
+    void                    onProjectOpenedOrClosed();
+    std::vector<QString>    readFileListFromTextFile(QString listFileName);
+    void                    setWindowCaptionFromAppState();
     
-    QImage              grabFrameBufferImage();
+    QImage                  grabFrameBufferImage();
 
 private slots:
     void                slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus);
@@ -180,4 +190,6 @@ private:
 
     std::list<RimCommandObject*>       m_commandQueue;
     QMutex                             m_commandQueueLock;
+
+    QString                            m_helpText;
 };

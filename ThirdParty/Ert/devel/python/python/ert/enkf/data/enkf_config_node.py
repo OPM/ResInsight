@@ -62,7 +62,7 @@ class EnkfConfigNode(BaseCClass):
         return EnkfConfigNode.cNamespace().get_init_file_fmt(self)
 
     def getObservationKeys(self):
-        """ @rtype:  """
+        """ @rtype:  StringList """
         return EnkfConfigNode.cNamespace().get_obs_keys(self).setParent(self)
 
     @classmethod

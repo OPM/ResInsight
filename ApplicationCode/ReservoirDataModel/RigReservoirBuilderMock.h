@@ -62,6 +62,7 @@ public:
     bool dynamicResult(RigCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values );
 
 private:
+    void        addFaults(RigCaseData* eclipseCase);
     void        addWellData(RigCaseData* eclipseCase, RigGridBase* grid);
     static void appendCells(size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells);
 	

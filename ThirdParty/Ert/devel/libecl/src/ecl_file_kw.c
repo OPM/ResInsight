@@ -56,7 +56,7 @@ struct inv_map_struct {
 
 struct ecl_file_kw_struct {
   UTIL_TYPE_ID_DECLARATION;
-  offset_type            file_offset;
+  offset_type      file_offset;
   ecl_type_enum    ecl_type;
   int              kw_size;
   char           * header;

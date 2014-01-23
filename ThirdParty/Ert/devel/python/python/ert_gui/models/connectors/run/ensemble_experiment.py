@@ -1,34 +1,24 @@
-from ert_gui.models import ErtConnector
-from ert_gui.models.connectors.ensemble_resizer import EnsembleSizeModel
-from ert_gui.models.connectors.run import RunMembersModel
-from ert_gui.models.mixins import ButtonModelMixin, RunModelMixin
+from ert_gui.models.connectors.run import ActiveRealizationsModel, BaseRunModel
+from ert_gui.models.mixins.run_model import ErtRunError
 
 
-class EnsembleExperiment(ErtConnector, RunModelMixin, ButtonModelMixin):
+class EnsembleExperiment(BaseRunModel):
 
-    def startSimulations(self):
-        selected_members = [int(member) for member in RunMembersModel().getSelectedItems()]
-        total_member_count = EnsembleSizeModel().getSpinnerValue()
+    def __init__(self):
+        super(EnsembleExperiment, self).__init__("Ensemble Experiment")
 
-        self.ert().runEnsembleExperiment(selected_members, total_member_count)
+    def runSimulations(self):
+        self.setPhase(0, "Running simulations...", indeterminate=False)
+        active_realization_mask = ActiveRealizationsModel().getActiveRealizationsMask()
+        success = self.ert().getEnkfSimulationRunner().runEnsembleExperiment(active_realization_mask)
 
-    def killAllSimulations(self):
-        job_queue = self.ert().siteConfig().getJobQueue()
-        job_queue.killAllJobs()
+        if not success:
+            raise ErtRunError("Simulation failed!")
 
+        self.setPhaseName("Post processing...", indeterminate=True)
+        self.ert().getEnkfSimulationRunner().runPostWorkflow()
 
-    def buttonTriggered(self):
-        self.startSimulations()
-        self.observable().notify(ButtonModelMixin.BUTTON_TRIGGERED_EVENT)
-
-    def getButtonName(self):
-        return "Run"
-
-    def buttonIsEnabled(self):
-        return True
-
-    def __str__(self):
-        return "Ensemble Experiment"
+        self.setPhase(1, "Simulations completed.") # done...
 
 
 

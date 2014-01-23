@@ -61,7 +61,7 @@ RimResultDefinition::RimResultDefinition()
     CAF_PDM_InitFieldNoDefault(&m_porosityModelUiField,  "MPorosityModelType",    "Type", "", "", "");
     m_porosityModelUiField.setIOReadable(false);
     m_porosityModelUiField.setIOWritable(false);
-    CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Variable", "", "", "" );
+    CAF_PDM_InitField(&m_resultVariableUiField, "MResultVariable", RimDefines::undefinedResultName(), "Result property", "", "", "" );
     m_resultVariableUiField.setIOReadable(false);
     m_resultVariableUiField.setIOWritable(false);
 
@@ -158,12 +158,27 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
         if (this->currentGridCellResults())
         {
             QStringList varList = getResultVariableListForCurrentUIFieldSettings();
+
+            bool hasCombinedTransmissibility = false;
             QList<caf::PdmOptionItemInfo> optionList;
-            int i;
-            for (i = 0; i < varList.size(); ++i)
+            for (int i = 0; i < varList.size(); ++i)
             {
-                optionList.push_back(caf::PdmOptionItemInfo( varList[i], varList[i]));
+                
+                if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+                {
+                    hasCombinedTransmissibility = true;
+                    continue;
+                }
+
+                optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
+                
             }
+            
+            if (hasCombinedTransmissibility)
+            {
+                optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedTransmissibilityResultName(), RimDefines::combinedTransmissibilityResultName()));
+            }
+            
             optionList.push_front(caf::PdmOptionItemInfo( RimDefines::undefinedResultName(), RimDefines::undefinedResultName() ));
 
             if (useOptionsOnly) *useOptionsOnly = true;
@@ -196,7 +211,17 @@ void RimResultDefinition::loadResult()
     RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
+        if (m_resultType() == RimDefines::STATIC_NATIVE &&
+            m_resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        {
+            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANX");
+            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANY");
+            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANZ");
+        }
+        else
+        {
+            gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
+        }
     }
    
 }

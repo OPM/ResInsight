@@ -48,6 +48,7 @@
 #include "RimUiTreeModelPdm.h"
 #include "RiaImageCompareReporter.h"
 #include "RiaImageFileCompare.h"
+#include "RiaProjectModifier.h"
 #include "cafProgressInfo.h"
 #include "RigGridManager.h"
 
@@ -72,7 +73,12 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimWellCollection.h"
+#include "RimStatisticsCase.h"
 #include "cafCeetronPlusNavigation.h"
+
+#include "cvfProgramOptions.h"
+#include "cvfqtUtils.h"
+
 
 namespace caf
 {
@@ -96,6 +102,9 @@ namespace RegTestNames
     const QString imageCompareExeName   = "compare";
     const QString reportFileName        = "ResInsightRegressionTestReport.html";
 };
+
+
+
 
 
 //==================================================================================================
@@ -240,10 +249,11 @@ const char* RiaApplication::getVersionStringApp(bool includeCrtInfo)
 }
 
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::loadProject(const QString& projectFileName)
+bool RiaApplication::loadProject(const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier)
 {
     // First Close the current project
 
@@ -256,6 +266,12 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
     m_project->fileName = projectFileName;
     m_project->readFile();
+
+    // Apply any modifiactions to the loaded project before we go ahead and load actual data
+    if (projectModifier)
+    {
+        projectModifier->applyModificationsToProject(m_project);
+    }
 
     // Propagate possible new location of project
 
@@ -319,6 +335,23 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         if (oilField->wellPathCollection) oilField->wellPathCollection->readWellPathFiles();
     }
 
+
+    // If load action is specified to recalculate statistics, do it now.
+    // Apparently this needs to be done before the views are loaded, lest the number of time steps for statistics will be clamped
+    if (loadAction & PLA_CALCULATE_STATISTICS)
+    {
+        for (size_t oilFieldIdx = 0; oilFieldIdx < m_project->oilFields().size(); oilFieldIdx++)
+        {
+            RimOilField* oilField = m_project->oilFields[oilFieldIdx];
+            RimAnalysisModels* analysisModels = oilField ? oilField->analysisModels() : NULL;
+            if (analysisModels)
+            {
+                analysisModels->recomputeStatisticsForAllCaseGroups();
+            }
+        }
+    }
+
+
     // Now load the ReservoirViews for the cases
     // Add all "native" cases in the project
     std::vector<RimCase*> casesToLoad;
@@ -351,6 +384,8 @@ bool RiaApplication::loadProject(const QString& projectFileName)
         caseProgress.incrementProgress();
     }
 
+
+
     // NB! This function must be called before executing command objects, 
     // because the tree view state is restored from project file and sets
     // current active view ( see restoreTreeViewState() )
@@ -375,6 +410,15 @@ bool RiaApplication::loadProject(const QString& projectFileName)
 
 
 //--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaApplication::loadProject(const QString& projectFileName)
+{
+    return loadProject(projectFileName, PLA_NONE, NULL);
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
@@ -395,15 +439,6 @@ void RiaApplication::addWellPathsToModel(QList<QString> wellPathFilePaths)
     if (oilField->wellPathCollection) oilField->wellPathCollection->addWellPaths(wellPathFilePaths);
     
     RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(oilField->wellPathCollection);
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaApplication::loadLastUsedProject()
-{
-    return loadProject(m_preferences->lastUsedProjectFileName);
 }
 
 
@@ -541,6 +576,33 @@ void RiaApplication::onProjectOpenedOrClosed()
 QString RiaApplication::currentProjectFileName() const
 {
     return m_project->fileName();
+}
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Create an absolute path from a path that is specified relative to the project directory
+/// 
+/// If the path specified in \a projectRelativePath is already absolute, no changes will be made
+//--------------------------------------------------------------------------------------------------
+QString RiaApplication::createAbsolutePathFromProjectRelativePath(QString projectRelativePath)
+{
+    // Check if path is already absolute
+    if (QDir::isAbsolutePath(projectRelativePath))
+    {
+        return projectRelativePath;
+    }
+
+    if (m_project && !m_project->fileName().isEmpty())
+    {
+        QString absoluteProjectPath = QFileInfo(m_project->fileName()).absolutePath();
+        QDir projectDir(absoluteProjectPath);
+        return projectDir.absoluteFilePath(projectRelativePath);
+    }
+    else
+    {
+        return projectRelativePath;
+    }
 }
 
 
@@ -745,178 +807,187 @@ bool RiaApplication::showPerformanceInfo() const
 //--------------------------------------------------------------------------------------------------
 bool RiaApplication::parseArguments()
 {
+    cvf::ProgramOptions progOpt;
+    progOpt.registerOption("last",                      "",                                 "Open last used project.");
+    progOpt.registerOption("project",                   "<filename>",                       "Open project file <filename>.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("case",                      "<casename>",                       "Import Eclipse case <casename> (do not include the .GRID/.EGRID extension.)", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("startdir",                  "<folder>",                         "Set startup directory.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("savesnapshots",             "",                                 "Save snapshot of all views to 'snapshots' folder. Application closes after snapshots have been written.");
+    progOpt.registerOption("size",                      "<width> <height>",                 "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceCase",               "[<caseId>] <newGridFile>",         "Replace grid in <caseId> or first case with <newgridFile>.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("replaceSourceCases",        "[<caseGroupId>] <gridListFile>",   "Replace source cases in <caseGroupId> or first grid case group with the grid files listed in the <gridListFile> file.", cvf::ProgramOptions::MULTI_VALUE);
+    progOpt.registerOption("multiCaseSnapshots",        "<gridListFile>",                   "For each grid file listed in the <gridListFile> file, replace the first case in the project and save snapshot of all views.", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("help",                      "",                                 "Displays help text.");
+    progOpt.registerOption("?",                         "",                                 "Displays help text.");
+    progOpt.registerOption("regressiontest",            "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
+    progOpt.registerOption("updateregressiontestbase",  "<folder>",                         "", cvf::ProgramOptions::SINGLE_VALUE);
+
+    progOpt.setOptionPrefix(cvf::ProgramOptions::DOUBLE_DASH);
+
+    m_helpText = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
+    m_helpText += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
+
+    const cvf::String usageText = progOpt.usageText(110, 30);
+    m_helpText += cvfqt::Utils::toQString(usageText);
+
     QStringList arguments = QCoreApplication::arguments();
 
-    bool openLatestProject = false;
-    QString projectFilename;
-    QStringList caseNames;
-    QString regressionTestPath;
+    bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
 
-    enum ArgumentParsingType
+    if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
     {
-        PARSE_PROJECT_FILE_NAME,
-        PARSE_CASE_NAMES,
-        PARSE_START_DIR,
-        PARSE_REGRESSION_TEST_PATH,
-        PARSING_NONE
-    };
-
-    ArgumentParsingType argumentParsingType = PARSING_NONE;
-
-    bool showHelp = false;
-    bool isSaveSnapshotsForAllViews = false;
-    bool isRunRegressionTest = false;
-    bool isUpdateRegressionTest = false;
-    
-    int i;
-    for (i = 1; i < arguments.size(); i++)
-    {
-        QString arg = arguments[i];
-        bool foundKnownOption = false;
-
-        if (arg.toLower() == "-help" || arg.toLower() == "-?")
-        {
-            showHelp = true;
-            foundKnownOption = true;
-        }
-
-        if (arg.toLower() == "-last")
-        {
-            openLatestProject = true;
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-project")
-        {
-            argumentParsingType = PARSE_PROJECT_FILE_NAME;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-case")
-        {
-            argumentParsingType = PARSE_CASE_NAMES;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-startdir")
-        {
-            argumentParsingType = PARSE_START_DIR;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-savesnapshots")
-        {
-            isSaveSnapshotsForAllViews = true;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-regressiontest")
-        {
-            isRunRegressionTest = true; 
-
-            argumentParsingType = PARSE_REGRESSION_TEST_PATH;
-
-            foundKnownOption = true;
-        }
-        else if (arg.toLower() == "-updateregressiontestbase")
-        {
-            isUpdateRegressionTest = true; 
-
-            argumentParsingType = PARSE_REGRESSION_TEST_PATH;
-
-            foundKnownOption = true;
-        }
-        
-        if (!foundKnownOption)
-        {
-            switch (argumentParsingType)
-            {
-            case PARSE_PROJECT_FILE_NAME:
-                if (QFile::exists(arg))
-                {
-                    projectFilename = arg;
-                }
-                break;
-            case PARSE_CASE_NAMES:
-                {
-                    caseNames.append(arg);
-                }
-                break;
-
-            case PARSE_START_DIR:
-                {
-                    m_startupDefaultDirectory = arg;
-                }
-                break;
-            case PARSE_REGRESSION_TEST_PATH:
-                {
-                   regressionTestPath = arg; 
-                }
-            }
-        }
-    }
-
-    if (showHelp)
-    {
-        QString helpText = commandLineParameterHelp();
-
 #if defined(_MSC_VER) && defined(_WIN32)
-        showFormattedTextInMessageBox(helpText);
+        showFormattedTextInMessageBox(m_helpText);
 #else
-        fprintf(stdout, "%s\n", helpText.toAscii().data());
+        fprintf(stdout, "%s\n", m_helpText.toAscii().data());
         fflush(stdout);
 #endif
         return false;
     }
 
-    if (isRunRegressionTest)
+
+    // Handling of the actual command line options
+    // --------------------------------------------------------
+    if (cvf::Option o = progOpt.option("regressiontest"))
     {
+        CVF_ASSERT(o.valueCount() == 1);
+        QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
         executeRegressionTests(regressionTestPath);
-
         return false;
     }
 
-    if (isUpdateRegressionTest)
+    if (cvf::Option o = progOpt.option("updateregressiontestbase"))
     {
+        CVF_ASSERT(o.valueCount() == 1);
+        QString regressionTestPath = cvfqt::Utils::toQString(o.value(0));
         updateRegressionTest(regressionTestPath);
-
         return false;
     }
 
-    if (openLatestProject)
+    if (cvf::Option o = progOpt.option("startdir"))
     {
-        loadLastUsedProject();
+        CVF_ASSERT(o.valueCount() == 1);
+        m_startupDefaultDirectory = cvfqt::Utils::toQString(o.value(0));
     }
-    
-    if (!projectFilename.isEmpty())
-    {
-        loadProject(projectFilename);
-    }
-    
-    if (!caseNames.isEmpty())
-    {
-        QString caseName;
-        foreach (caseName, caseNames)
-        {
-            QString tmpCaseFileName = caseName + ".EGRID";
 
-            if (QFile::exists(tmpCaseFileName))
+    if (cvf::Option o = progOpt.option("size"))
+    {
+        RiuMainWindow* mainWnd = RiuMainWindow::instance();
+        int width =  o.safeValue(0).toInt(-1);
+        int height = o.safeValue(1).toInt(-1);
+        if (mainWnd && width > 0 && height > 0)
+        {
+            mainWnd->resize(width, height);
+        }
+    }
+
+
+    QString projectFileName;
+
+    if (progOpt.hasOption("last"))
+    {
+        projectFileName = m_preferences->lastUsedProjectFileName;
+    }
+
+    if (cvf::Option o = progOpt.option("project"))
+    {
+        CVF_ASSERT(o.valueCount() == 1);
+        projectFileName = cvfqt::Utils::toQString(o.value(0));
+    }
+
+
+    if (!projectFileName.isEmpty())
+    {
+        if (cvf::Option o = progOpt.option("multiCaseSnapshots"))
+        {
+            QString gridListFile = cvfqt::Utils::toQString(o.safeValue(0));
+            std::vector<QString> gridFiles = readFileListFromTextFile(gridListFile);
+            runMultiCaseSnapshots(projectFileName, gridFiles, "multiCaseSnapshots");
+            return false;
+        }
+    }
+
+
+    if (!projectFileName.isEmpty())
+    {
+        cvf::ref<RiaProjectModifier> projectModifier;
+        ProjectLoadAction projectLoadAction = PLA_NONE;
+
+        if (cvf::Option o = progOpt.option("replaceCase"))
+        {
+            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
+
+            const int caseId = o.safeValue(0).toInt(-1);
+            if (caseId != -1 && o.valueCount() > 1)
             {
-                openEclipseCaseFromFile(tmpCaseFileName);
+                QString gridFileName = cvfqt::Utils::toQString(o.value(1));
+                projectModifier->setReplaceCase(caseId, gridFileName);
             }
             else
             {
-                tmpCaseFileName = caseName + ".GRID";
-                if (QFile::exists(tmpCaseFileName))
+                QString gridFileName = cvfqt::Utils::toQString(o.safeValue(0));
+                projectModifier->setReplaceCaseFirstOccurence(gridFileName);
+            }
+        }
+
+        if (cvf::Option o = progOpt.option("replaceSourceCases"))
+        {
+            if (projectModifier.isNull()) projectModifier = new RiaProjectModifier;
+
+            const int caseGroupId = o.safeValue(0).toInt(-1);
+            if (caseGroupId != -1 &&  o.valueCount() > 1)
+            {
+                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.value(1)));
+                projectModifier->setReplaceSourceCasesById(caseGroupId, gridFileNames);
+            }
+            else
+            {
+                std::vector<QString> gridFileNames = readFileListFromTextFile(cvfqt::Utils::toQString(o.safeValue(0)));
+                projectModifier->setReplaceSourceCasesFirstOccurence(gridFileNames);
+            }
+
+            projectLoadAction = PLA_CALCULATE_STATISTICS;
+        }
+
+
+        loadProject(projectFileName, projectLoadAction, projectModifier.p());
+    }
+
+
+    if (cvf::Option o = progOpt.option("case"))
+    {
+        QStringList caseNames = cvfqt::Utils::toQStringList(o.values());
+        foreach (QString caseName, caseNames)
+        {
+            QString caseFileNameWithExt = caseName + ".EGRID";
+            if (QFile::exists(caseFileNameWithExt))
+            {
+                openEclipseCaseFromFile(caseFileNameWithExt);
+            }
+            else
+            {
+                caseFileNameWithExt = caseName + ".GRID";
+                if (QFile::exists(caseFileNameWithExt))
                 {
-                    openEclipseCaseFromFile(tmpCaseFileName);
+                    openEclipseCaseFromFile(caseFileNameWithExt);
                 }
             }
         }
     }
 
-    if (m_project.notNull() && !m_project->fileName().isEmpty() && isSaveSnapshotsForAllViews)
+
+    if (progOpt.hasOption("savesnapshots"))
     {
-        saveSnapshotForAllViews("snapshots");
+        RiuMainWindow* mainWnd = RiuMainWindow::instance();
+        if (m_project.notNull() && !m_project->fileName().isEmpty() && mainWnd)
+        {
+            mainWnd->hideAllDockWindows();
+
+            // Will be saved relative to current directory
+            saveSnapshotForAllViews("snapshots");
+
+            mainWnd->loadWinGeoAndDockToolBarLayout();
+        }
 
         // Returning false will exit the application
         return false;
@@ -925,6 +996,37 @@ bool RiaApplication::parseArguments()
 
     return true;
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaApplication::readFileListFromTextFile(QString listFileName)
+{
+    std::vector<QString> fileList;
+
+    QFile file(listFileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        return fileList;
+    }
+
+    QTextStream in(&file);
+    QString line = in.readLine();
+    while (!line.isNull())
+    {
+        line = line.trimmed();
+        if (!line.isEmpty())
+        {
+            fileList.push_back(line);
+        }
+
+        line = in.readLine();
+    }
+
+    return fileList;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1018,15 +1120,29 @@ bool RiaApplication::launchProcess(const QString& program, const QStringList& ar
 
         m_workerProcess = new caf::UiProcess(this);
 
-        // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
-
         QProcessEnvironment penv = QProcessEnvironment::systemEnvironment();
-        QString ldPath = penv.value("LD_LIBRARY_PATH", "");
 
-        if (ldPath == "") ldPath = QApplication::applicationDirPath();
-        else  ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+#ifdef WIN32
+        // Octave plugins compiled by ResInsight are dependent on Qt (currently Qt 32-bit only)
+        // Some Octave installations for Windows have included Qt, and some don't. To make sure these plugins always can be executed, 
+        // the path to octave_plugin_dependencies is added to global path
+        
+        QString pathString = penv.value("PATH", "");
 
-        penv.insert("LD_LIBRARY_PATH", ldPath);
+        if (pathString == "") pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies";
+        else pathString = QApplication::applicationDirPath() + "\\octave_plugin_dependencies" + ";" + pathString;
+
+        penv.insert("PATH", pathString);
+#else
+            // Set the LD_LIBRARY_PATH to make the octave plugins find the embedded Qt
+            QString ldPath = penv.value("LD_LIBRARY_PATH", "");
+
+            if (ldPath == "") ldPath = QApplication::applicationDirPath();
+            else ldPath = QApplication::applicationDirPath() + ":" + ldPath;
+
+            penv.insert("LD_LIBRARY_PATH", ldPath);
+#endif
+
         m_workerProcess->setProcessEnvironment(penv);
 
         connect(m_workerProcess, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(slotWorkerProcessFinished(int, QProcess::ExitStatus)));
@@ -1195,6 +1311,7 @@ void RiaApplication::setDefaultFileDialogDirectory(const QString& dialogName, co
     m_fileDialogDefaultDirectories[dialogName] = defaultDirectory;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1270,18 +1387,14 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
 
     if (m_project.isNull()) return;
 
-    if (m_project->fileName().isEmpty()) return;
 
-    QFileInfo fi(m_project->fileName());
-    QDir projectDir(fi.absolutePath());
-    
-    if (!projectDir.exists(snapshotFolderName))
+    QDir snapshotPath(snapshotFolderName);
+    if (!snapshotPath.exists())
     {
-        if (!projectDir.mkdir(snapshotFolderName)) return;
+        if (!snapshotPath.mkpath(".")) return;
     }
 
-    QString snapshotPath = projectDir.absolutePath();
-    snapshotPath += "/" + snapshotFolderName;
+    const QString absSnapshotPath = snapshotPath.absolutePath();
 
     std::vector<RimCase*> projectCases;
     m_project->allCases(projectCases);
@@ -1306,13 +1419,44 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 QCoreApplication::processEvents();
 
                 QString fileName = ri->caseUserDescription() + "-" + riv->name();
+                fileName.replace(" ", "_");
 
-                QString absoluteFileName = caf::Utils::constructFullFileName(snapshotPath, fileName, ".png");
+                QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 saveSnapshotAs(absoluteFileName);
             }
         }
     }
 }
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::runMultiCaseSnapshots(const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName)
+{
+    RiuMainWindow* mainWnd = RiuMainWindow::instance();
+    if (!mainWnd) return;
+
+    mainWnd->hideAllDockWindows();
+
+    const size_t numGridFiles = gridFileNames.size();
+    for (size_t i = 0; i < numGridFiles; i++)
+    {
+        QString gridFn = gridFileNames[i];
+
+        RiaProjectModifier modifier;
+        modifier.setReplaceCaseFirstOccurence(gridFn);
+
+        bool loadOk = loadProject(templateProjectFileName, PLA_NONE, &modifier);
+        if (loadOk)
+        {
+            saveSnapshotForAllViews(snapshotFolderName);
+        }
+    }
+
+    mainWnd->loadWinGeoAndDockToolBarLayout();
+}
+
 
 void removeDirectoryWithContent(QDir dirToDelete )
 {
@@ -1384,8 +1528,20 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
     // Open HTML report
     QDesktopServices::openUrl(htmlReportFileName);
 
-    // Generate diff images
-    this->preferences()->resetToDefaults();
+    // Keep current preferences values to be able to restore when regression tests are completed
+    std::vector<QVariant> preferencesValues;
+    {
+        std::vector<caf::PdmFieldHandle*> fields;
+        this->preferences()->fields(fields);
+        for (size_t i = 0; i < fields.size(); i++)
+        {
+            QVariant v = fields[i]->uiValue();
+            preferencesValues.push_back(v);
+        }
+    }
+    
+    // Set preferences to make sure regression tests behave identical
+    this->preferences()->configureForRegressionTests();
 
     for (int dirIdx = 0; dirIdx < folderList.size(); ++dirIdx)
     {
@@ -1401,9 +1557,10 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              }
              m_commandQueueLock.unlock();
 
-             regressionTestSetFixedSizeForAllViews();
+             regressionTestConfigureProject();
 
-             saveSnapshotForAllViews(generatedFolderName);
+             QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath(generatedFolderName);
+             saveSnapshotForAllViews(fullPathGeneratedFolder);
 
              QDir baseDir(testCaseFolder.filePath(baseFolderName));
              QDir genDir(testCaseFolder.filePath(generatedFolderName));
@@ -1424,6 +1581,18 @@ void RiaApplication::runRegressionTest(const QString& testRootPath)
              }
 
              closeProject(false);
+        }
+
+        // Restore preferences
+        {
+            std::vector<caf::PdmFieldHandle*> fields;
+            this->preferences()->fields(fields);
+            CVF_ASSERT(fields.size() == preferencesValues.size());
+
+            for (size_t i = 0; i < preferencesValues.size(); i++)
+            {
+                fields[i]->setValueFromUi(preferencesValues[i]);
+            }
         }
     }
 }
@@ -1622,6 +1791,9 @@ void RiaApplication::showFormattedTextInMessageBox(const QString& text)
 //--------------------------------------------------------------------------------------------------
 QString RiaApplication::commandLineParameterHelp() const
 {
+    return m_helpText;
+
+    /*
     QString text = QString("\n%1 v. %2\n").arg(RI_APPLICATION_NAME).arg(getVersionStringApp(false));
     text += "Copyright Statoil ASA, Ceetron AS 2011, 2012\n\n";
 
@@ -1654,6 +1826,7 @@ QString RiaApplication::commandLineParameterHelp() const
         "-----------------------------------------------------------------";
 
     return text;
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1788,7 +1961,7 @@ void RiaApplication::executeRegressionTests(const QString& regressionTestPath)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::regressionTestSetFixedSizeForAllViews()
+void RiaApplication::regressionTestConfigureProject()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if (!mainWnd) return;
@@ -1812,6 +1985,9 @@ void RiaApplication::regressionTestSetFixedSizeForAllViews()
                 // This size is set to match the regression test reference images
                 riv->viewer()->setFixedSize(1000, 745);
             }
+
+            riv->faultCollection->showFaultsOutsideFilters.setValueFromUi(false);
+            riv->faultCollection->showResultsOnFaults.setValueFromUi(true);
         }
     }
 }

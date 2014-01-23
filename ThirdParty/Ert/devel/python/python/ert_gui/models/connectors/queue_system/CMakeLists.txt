@@ -10,5 +10,5 @@ set(PYTHON_SOURCES
     rsh_max_running.py
 )
 
-add_python_package("Python ert_gui.models.connectors.queue_system"  ${PYTHON_INSTALL_PREFIX}/ert_gui/models/connectors/queue_system "${PYTHON_SOURCES}" True)
+add_python_package("python.ert_gui.models.connectors.queue_system"  ${PYTHON_INSTALL_PREFIX}/ert_gui/models/connectors/queue_system "${PYTHON_SOURCES}" True)
 

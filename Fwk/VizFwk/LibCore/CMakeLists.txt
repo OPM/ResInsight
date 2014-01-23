@@ -10,6 +10,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 set(CEE_HEADER_FILES
 cvfArray.h
 cvfArray.inl
+cvfArrayWrapperConst.h
+cvfArrayWrapperToEdit.h
 cvfAssert.h
 cvfBase.h
 cvfBase64.h
@@ -41,6 +43,7 @@ cvfMutex.h
 cvfObject.h
 cvfObject.inl
 cvfPlane.h
+cvfProgramOptions.h
 cvfPropertySet.h
 cvfPropertySetCollection.h
 cvfQuat.h
@@ -80,6 +83,7 @@ cvfMath.cpp
 cvfMutex.cpp
 cvfObject.cpp
 cvfPlane.cpp
+cvfProgramOptions.cpp
 cvfPropertySet.cpp
 cvfPropertySetCollection.cpp
 cvfString.cpp

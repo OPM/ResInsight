@@ -166,6 +166,20 @@ static time_t file_map_iget_restart_sim_date(const file_map_type * file_map , in
 }
 
 
+static double file_map_iget_restart_sim_days(const file_map_type * file_map , int seqnum_index) {
+  double sim_days = 0;
+  file_map_type * seqnum_map = seqnum_map = file_map_alloc_blockmap( file_map , SEQNUM_KW , seqnum_index);
+
+  if (seqnum_map != NULL) {
+    ecl_kw_type * doubhead_kw = file_map_iget_named_kw( seqnum_map , DOUBHEAD_KW , 0);
+    sim_days = ecl_kw_iget_double( doubhead_kw , DOUBHEAD_DAYS_INDEX);
+    file_map_free( seqnum_map );
+  } 
+  
+  return sim_days;
+}
+
+
 
 
 static int file_map_find_sim_time(const file_map_type * file_map , time_t sim_time) {
@@ -359,6 +373,10 @@ bool ecl_file_has_report_step( const ecl_file_type * ecl_file , int report_step)
 
 time_t ecl_file_iget_restart_sim_date( const ecl_file_type * restart_file , int index ) {
   return file_map_iget_restart_sim_date( restart_file->active_map , index );
+}
+
+double ecl_file_iget_restart_sim_days( const ecl_file_type * restart_file , int index ) {
+  return file_map_iget_restart_sim_days( restart_file->active_map , index );
 }
 
 

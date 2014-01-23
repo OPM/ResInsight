@@ -13,11 +13,12 @@ class weak_callable(object):
             return self.__method(*args, **kws)
 
     def __getattr__(self, attr):
-        if attr == 'im_self':
+        if attr == '__self__':
             return self.__object
-        if attr == 'im_func':
+        if attr == '__func__':
             return self.__method
         raise AttributeError, attr
+
 
 
 class WeakMethod(object):
@@ -27,8 +28,8 @@ class WeakMethod(object):
 
     def __init__(self, func):
         try:
-            self.__object = ref(func.im_self)
-            self.__method = func.im_func
+            self.__object = ref(func.__self__)
+            self.__method = func.__func__
         except AttributeError:
             # It's not a bound method.
             self.__object = None
@@ -42,11 +43,11 @@ class WeakMethod(object):
 
     def __eq__(self, other):
         if isinstance(other, WeakMethod):
-            return super(WeakMethod, self).__eq__(other)
+            return self.__dict__ == other.__dict__
         else:
             try:
-                o = ref(other.im_self)
-                m = other.im_func
+                o = ref(other.__self__)
+                m = other.__func__
                 return self.__object == o and self.__method == m
             except AttributeError:
                 # It's not a bound method.

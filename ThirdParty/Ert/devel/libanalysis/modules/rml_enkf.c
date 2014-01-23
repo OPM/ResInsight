@@ -89,7 +89,8 @@ struct rml_enkf_data_struct {
   long      option_flags;
 
   int       iteration_nr;          // Keep track of the outer iteration loop
-  double    lambda;                 // parameter to control the search direction in Marquardt levenberg optimization
+  double    lambda;                // parameter to control the search direction in Marquardt levenberg optimization
+  double    lambda0;               // Initial lambda value
   double    Sk;                    // Objective function value
   double    Std;                   // Standard Deviation of the Objective function
   matrix_type *state;
@@ -122,6 +123,10 @@ void rml_enkf_set_truncation( rml_enkf_data_type * data , double truncation ) {
     data->subspace_dimension = INVALID_SUBSPACE_DIMENSION;
 }
 
+void rml_enkf_set_lambda0(rml_enkf_data_type * data , double lambda0 ) {
+  data->lambda0 = lambda0; 
+}
+
 void rml_enkf_set_subspace_dimension( rml_enkf_data_type * data , int subspace_dimension) {
   data->subspace_dimension = subspace_dimension;
   if (subspace_dimension > 0)
@@ -139,10 +144,11 @@ void * rml_enkf_data_alloc( rng_type * rng) {
   
   rml_enkf_set_truncation( data , DEFAULT_ENKF_TRUNCATION_ );
   rml_enkf_set_subspace_dimension( data , DEFAULT_SUBSPACE_DIMENSION );
-  data->option_flags = ANALYSIS_NEED_ED + ANALYSIS_UPDATE_A + ANALYSIS_ITERABLE;
+  data->option_flags = ANALYSIS_NEED_ED + ANALYSIS_UPDATE_A + ANALYSIS_ITERABLE + ANALYSIS_SCALE_DATA;
   data->iteration_nr = 0;
   data->Std          = 0; 
   data->state        = NULL;
+  data->lambda0      = -1.0;
   return data;
 }
 
@@ -207,8 +213,13 @@ void rml_enkf_updateA(void * module_data ,
   if (data->iteration_nr == 0) {
     Sk_new = enkf_linalg_data_mismatch(D,Cd,Skm);  //Calculate the intitial data mismatch term
     Std_new = matrix_diag_std(Skm,Sk_new);
-    data->lambda = pow(10,floor(log10(Sk_new/(2*nrobs))));
     data->state = matrix_realloc_copy(data->state , A);
+    
+    if (data->lambda0 < 0) 
+      data->lambda = pow(10,floor(log10(Sk_new/(2*nrobs))));
+    else
+      data->lambda = data->lambda0; 
+    
     rml_enkf_common_initA__(A,S,Cd,E,D,truncation,data->lambda,Ud,Wd,VdT);
     data->Sk  = Sk_new;
     data->Std = Std_new;
@@ -288,6 +299,8 @@ bool rml_enkf_set_double( void * arg , const char * var_name , double value) {
 
     if (strcmp( var_name , ENKF_TRUNCATION_KEY_) == 0)
       rml_enkf_set_truncation( module_data , value );
+    else if (strcmp( var_name , ENKF_LAMBDA0_KEY_) == 0) 
+      rml_enkf_set_lambda0( module_data , value );
     else
       name_recognized = false;
 
@@ -303,7 +316,7 @@ bool rml_enkf_set_int( void * arg , const char * var_name , int value) {
     
     if (strcmp( var_name , ENKF_NCOMP_KEY_) == 0)
       rml_enkf_set_subspace_dimension( module_data , value );
-    else if(strcmp( var_name , "NUM_ITER") == 0)
+    else if(strcmp( var_name , ENKF_ITER_KEY_) == 0)
       rml_enkf_set_iteration_number( module_data , value );
     else
       name_recognized = false;
@@ -323,10 +336,14 @@ long rml_enkf_get_options( void * arg , long flag ) {
 
 
  bool rml_enkf_has_var( const void * arg, const char * var_name) {
-   if (strcmp(var_name , "ITER") == 0)
-     return true;
-   else
-     return false;
+   bool ret = false; 
+   
+   if ((strcmp(var_name , ENKF_ITER_KEY_) == 0)       || 
+       (strcmp(var_name , ENKF_TRUNCATION_KEY_) == 0) ||
+       (strcmp(var_name , ENKF_LAMBDA0_KEY_) == 0)) {
+     ret = true; 
+   }
+   return ret; 
  }
 
 
@@ -335,10 +352,22 @@ long rml_enkf_get_options( void * arg , long flag ) {
  int rml_enkf_get_int( const void * arg, const char * var_name) {
    const rml_enkf_data_type * module_data = rml_enkf_data_safe_cast_const( arg );
    {
-     if (strcmp(var_name , "ITER") == 0)
+     if (strcmp(var_name , ENKF_ITER_KEY_) == 0)
        return module_data->iteration_nr;
      else
        return -1;
+   }
+ }
+ 
+  double rml_enkf_get_double( const void * arg, const char * var_name) {
+   const rml_enkf_data_type * module_data = rml_enkf_data_safe_cast_const( arg );
+   {
+     if (strcmp(var_name , ENKF_TRUNCATION_KEY_) == 0) 
+       return module_data->truncation;
+     else if (strcmp(var_name , ENKF_LAMBDA0_KEY_) == 0)
+      return module_data->lambda0; 
+     else
+       return -1.0;
    }
  }
 
@@ -373,7 +402,7 @@ analysis_table_type SYMBOL_TABLE = {
     .complete_update = NULL,
     .has_var         = rml_enkf_has_var,
     .get_int         = rml_enkf_get_int,
-    .get_double      = NULL,
+    .get_double      = rml_enkf_get_double,
     .get_ptr         = NULL, 
 };
 

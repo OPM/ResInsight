@@ -40,6 +40,8 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include "../cafProjectDataModel/cafAppEnum.h"
+
 
 
 namespace cvf {
@@ -60,8 +62,12 @@ public:
         POS_J,
         NEG_J,
         POS_K,
-        NEG_K
+        NEG_K,
+        NO_FACE
     };
+
+    typedef caf::AppEnum<StructGridInterface::FaceType> FaceEnum;
+
 
 public:
     StructGridInterface();;

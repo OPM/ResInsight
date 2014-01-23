@@ -55,6 +55,8 @@ except ImportError:
 
 UTIL_LIB = clib.ert_load("libert_util.so")
 
+from .enums import RngAlgTypeEnum, RngInitModeEnum
+
 from .tvector import DoubleVector, IntVector, BoolVector, TimeVector, TVector
 from .stringlist import StringList
 from .stat import quantile, quantile_sorted
@@ -66,4 +68,6 @@ from .ctime import ctime
 from .hash import Hash, StringHash, DoubleHash, IntegerHash
 from .latex import LaTeX
 from .substitution_list import SubstitutionList
+from .ui_return import UIReturn
 from .test_area import TestArea , TestAreaContext
+from .rng import RandomNumberGenerator

@@ -67,8 +67,6 @@ public:
     ~OverlayImage();
 
     virtual Vec2ui      sizeHint();
-    virtual Vec2ui      maximumSize();
-    virtual Vec2ui      minimumSize();
 
     virtual void        render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
     virtual void        renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);

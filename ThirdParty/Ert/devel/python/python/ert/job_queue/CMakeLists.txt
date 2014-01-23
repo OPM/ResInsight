@@ -9,5 +9,5 @@ set(PYTHON_SOURCES
     queue.py
 )
 
-add_python_package("Python ert.job_queue"  ${PYTHON_INSTALL_PREFIX}/ert/job_queue "${PYTHON_SOURCES}" True)
+add_python_package("python.ert.job_queue"  ${PYTHON_INSTALL_PREFIX}/ert/job_queue "${PYTHON_SOURCES}" True)
 

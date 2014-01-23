@@ -35,12 +35,13 @@ int main(int argc , char ** argv) {
   test_install_SIGNALS();
   double * rseg_data = util_calloc( 100 , sizeof * rseg_data );
   {
+    double CF = 88;
     int segment_id = 78;
     int outlet_segment_id = 100;
     int branch_nr = WELL_SEGMENT_BRANCH_MAIN_STEM_VALUE;
     well_segment_type * ws = well_segment_alloc(segment_id , outlet_segment_id , branch_nr, rseg_data);
-    well_conn_type * conn1 = well_conn_alloc_MSW(1,1,1,true,well_conn_dirX,segment_id);
-    well_conn_type * conn2 = well_conn_alloc_MSW(1,1,1,true,well_conn_dirX,segment_id + 1);
+    well_conn_type * conn1 = well_conn_alloc_MSW(1,1,1,CF,true,well_conn_dirX,segment_id);
+    well_conn_type * conn2 = well_conn_alloc_MSW(1,1,1,CF,true,well_conn_dirX,segment_id + 1);
     
     test_assert_false( well_segment_has_global_grid_connections( ws ));
 

@@ -44,21 +44,25 @@ class EnkfFs(BaseCClass):
         """ @rtype: str """
         return EnkfFs.cNamespace().get_case_name(self)
 
+    def isReadOnly(self):
+        """ @rtype: bool """
+        return EnkfFs.cNamespace().is_read_only(self)
+
     @classmethod
     def exists(cls, path):
         return cls.cNamespace().exists(path)
 
     def free(self):
-        EnkfFs.cNamespace().free(self)
+        EnkfFs.cNamespace().umount(self)
 
-##################################################################
+
 
 cwrapper = CWrapper(ENKF_LIB)
 cwrapper.registerType("enkf_fs", EnkfFs)
 cwrapper.registerType("enkf_fs_obj", EnkfFs.createPythonObject)
 cwrapper.registerType("enkf_fs_ref", EnkfFs.createCReference)
 
-EnkfFs.cNamespace().close = cwrapper.prototype("void enkf_fs_close(enkf_fs)")
+EnkfFs.cNamespace().umount = cwrapper.prototype("void enkf_fs_umount(enkf_fs)")
 EnkfFs.cNamespace().has_node = cwrapper.prototype("bool enkf_fs_has_node(enkf_fs, char*, c_uint, int, int, c_uint)")
 EnkfFs.cNamespace().has_vector = cwrapper.prototype("bool enkf_fs_has_vector(enkf_fs, char*, c_uint, int, c_uint)")
 EnkfFs.cNamespace().fread_node = cwrapper.prototype("void enkf_fs_fread_node(enkf_fs, buffer, char*, c_uint, int, int, c_uint)")
@@ -66,3 +70,4 @@ EnkfFs.cNamespace().fread_vector = cwrapper.prototype("void enkf_fs_fread_vector
 EnkfFs.cNamespace().get_time_map = cwrapper.prototype("time_map_ref enkf_fs_get_time_map(enkf_fs)")
 EnkfFs.cNamespace().exists = cwrapper.prototype("bool enkf_fs_exists(char*)")
 EnkfFs.cNamespace().get_case_name = cwrapper.prototype("char* enkf_fs_get_case_name(enkf_fs)")
+EnkfFs.cNamespace().is_read_only = cwrapper.prototype("bool enkf_fs_is_read_only(enkf_fs)")

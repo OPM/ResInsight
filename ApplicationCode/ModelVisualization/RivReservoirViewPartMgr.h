@@ -68,6 +68,18 @@ public:
     void                        updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
                                                           RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
 
+    // Faults
+    void                        appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
+    void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
+    void                        updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot);
+
+    // Fault labels
+    ReservoirGeometryCacheType  geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const;
+    void                        appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
+    void                        appendFaultLabelsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
+
+    void                        setFaultForceVisibilityForGeometryType(ReservoirGeometryCacheType geometryType, bool forceVisibility);
+
 private:
     void                        createGeometry(ReservoirGeometryCacheType geometryType);
     void                        computeVisibility(cvf::UByteArray* cellVisibility, ReservoirGeometryCacheType geometryType, RigGridBase* grid, size_t gridIdx);
@@ -84,6 +96,7 @@ private:
     static void                 copyByteArray(cvf::UByteArray* cellVisibilities, const cvf::UByteArray* cellIsWellStatuses );
 
     RivReservoirPartMgr *       reservoirPartManager(ReservoirGeometryCacheType geometryType, size_t timeStepIndex );
+
 
 private:
     caf::FixedArray<RivReservoirPartMgr, PROPERTY_FILTERED> m_geometries;

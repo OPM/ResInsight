@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="cvfConstantFrameRate.h" />
+    <ClInclude Include="cvfCullSettings.h" />
+    <ClInclude Include="cvfEffect.h" />
+    <ClInclude Include="cvfLibViewing.h" />
+    <ClInclude Include="cvfLocators.h" />
+    <ClInclude Include="cvfManipulatorTrackball.h" />
+    <ClInclude Include="cvfModel.h" />
+    <ClInclude Include="cvfModelBasicList.h" />
+    <ClInclude Include="cvfModelBasicTree.h" />
+    <ClInclude Include="cvfPart.h" />
+    <ClInclude Include="cvfPartRenderHintCollection.h" />
+    <ClInclude Include="cvfPerformanceInfo.h" />
+    <ClInclude Include="cvfRenderEngine.h" />
+    <ClInclude Include="cvfRendering.h" />
+    <ClInclude Include="cvfRenderQueue.h" />
+    <ClInclude Include="cvfRenderQueueBuilder.h" />
+    <ClInclude Include="cvfRenderQueueSorter.h" />
+    <ClInclude Include="cvfScene.h" />
+    <ClInclude Include="cvfTransform.h" />
+    <ClInclude Include="cvfSingleQuadRenderingGenerator.h" />
+    <ClInclude Include="cvfDynamicUniformSet.h" />
+    <ClInclude Include="cvfRayIntersectSpec.h" />
+    <ClInclude Include="cvfHitItemCollection.h" />
+    <ClInclude Include="cvfHitItem.h" />
+    <ClInclude Include="cvfRenderSequence.h" />
+    <ClInclude Include="cvfClipPlaneSet.h" />
+    <ClInclude Include="cvfPartHighlighter.h" />
+    <ClInclude Include="cvfGaussianBlur.h" />
+    <ClInclude Include="cvfFixedSizeTransform.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvfConstantFrameRate.cpp" />
+    <ClCompile Include="cvfCullSettings.cpp" />
+    <ClCompile Include="cvfEffect.cpp" />
+    <ClCompile Include="cvfLocators.cpp" />
+    <ClCompile Include="cvfManipulatorTrackball.cpp" />
+    <ClCompile Include="cvfModel.cpp" />
+    <ClCompile Include="cvfModelBasicList.cpp" />
+    <ClCompile Include="cvfModelBasicTree.cpp" />
+    <ClCompile Include="cvfPart.cpp" />
+    <ClCompile Include="cvfPartRenderHintCollection.cpp" />
+    <ClCompile Include="cvfPerformanceInfo.cpp" />
+    <ClCompile Include="cvfRenderEngine.cpp" />
+    <ClCompile Include="cvfRendering.cpp" />
+    <ClCompile Include="cvfRenderQueue.cpp" />
+    <ClCompile Include="cvfRenderQueueBuilder.cpp" />
+    <ClCompile Include="cvfRenderQueueSorter.cpp" />
+    <ClCompile Include="cvfScene.cpp" />
+    <ClCompile Include="cvfTransform.cpp" />
+    <ClCompile Include="cvfSingleQuadRenderingGenerator.cpp" />
+    <ClCompile Include="cvfDynamicUniformSet.cpp" />
+    <ClCompile Include="cvfRayIntersectSpec.cpp" />
+    <ClCompile Include="cvfHitItemCollection.cpp" />
+    <ClCompile Include="cvfHitItem.cpp" />
+    <ClCompile Include="cvfRenderSequence.cpp" />
+    <ClCompile Include="cvfClipPlaneSet.cpp" />
+    <ClCompile Include="cvfPartHighlighter.cpp" />
+    <ClCompile Include="cvfGaussianBlur.cpp" />
+    <ClCompile Include="cvfFixedSizeTransform.cpp" />
+  </ItemGroup>
+</Project>

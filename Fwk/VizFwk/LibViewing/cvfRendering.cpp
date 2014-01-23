@@ -60,13 +60,6 @@
 
 namespace cvf {
 
-// Internal
-struct OverlayItemLayout
-{
-    ref<OverlayItem>                overlayItem;
-    OverlayItem::LayoutCorner       corner;
-    OverlayItem::LayoutDirection    direction;
-};
 
 
 //==================================================================================================
@@ -313,40 +306,45 @@ void Rendering::renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRe
     glScissor(static_cast<GLsizei>(m_camera->viewport()->x()), static_cast<GLsizei>(m_camera->viewport()->y()), static_cast<GLsizei>(m_camera->viewport()->width()), static_cast<GLsizei>(m_camera->viewport()->height()));
     glEnable(GL_SCISSOR_TEST);
 
-    OverlayItemRectMap::iterator it;
-    for (it = itemRectMap.begin(); it != itemRectMap.end(); ++it)
-    {
-        OverlayItem* item = it->first;
-        Recti rect = it->second;
 
-        if (useSoftwareRendering)
+    const size_t numOverlayItems = m_overlayItems.size();
+    for (size_t i = 0; i < numOverlayItems; i++)
+    {
+        OverlayItem* item = m_overlayItems.at(i);
+
+        Vec2i pos(0, 0);
+        Vec2ui size(0, 0);
+
+        if (item->layoutScheme() == OverlayItem::FIXED_POSITION)
         {
-            item->renderSoftware(oglContext, rect.min(), Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height())));
+            pos = item->fixedPosition();
+            size = item->sizeHint();
         }
         else
         {
-            item->render(oglContext, rect.min(),  Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height())));
+            // Item should be laid out already - grab its pos/size from the layout map
+            OverlayItemRectMap::iterator it = itemRectMap.find(item);
+            if (it != itemRectMap.end())
+            {
+                Recti rect = it->second;
+                pos = rect.min();
+                size.set(static_cast<uint>(rect.width()), static_cast<uint>(rect.height()));
+            }
         }
-    }
 
-    for (size_t i = 0; i < m_overlayItems.size(); i++)
-    {
-        OverlayItemLayout item = m_overlayItems.at(i);
-        if ((item.corner == OverlayItem::UNMANAGED) )
+        if (!size.isZero())
         {
-            Vec2ui size = item.overlayItem->sizeHint();
-            Vec2i pos =  item.overlayItem->unmanagedPosition();
-
             if (useSoftwareRendering)
             {
-                item.overlayItem->renderSoftware(oglContext, pos, size);
+                item->renderSoftware(oglContext, pos, size);
             }
             else
             {
-                item.overlayItem->render(oglContext, pos,  size);
+                item->render(oglContext, pos, size);
             }
         }
     }
+
 
     // Restore scissor settings
     if (!scissorWasOn) glDisable(GL_SCISSOR_TEST);
@@ -359,28 +357,32 @@ void Rendering::renderOverlayItems(OpenGLContext* oglContext, bool useSoftwareRe
 //--------------------------------------------------------------------------------------------------
 void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap)
 {
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::TOP_LEFT,     OverlayItem::HORIZONTAL);
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::TOP_LEFT,     OverlayItem::VERTICAL);
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::TOP_RIGHT,    OverlayItem::HORIZONTAL);
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::TOP_RIGHT,    OverlayItem::VERTICAL);
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::BOTTOM_LEFT,  OverlayItem::HORIZONTAL);
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::BOTTOM_LEFT,  OverlayItem::VERTICAL);
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::BOTTOM_RIGHT, OverlayItem::HORIZONTAL);
-    calculateOverlayItemLayout(itemRectMap, OverlayItem::BOTTOM_RIGHT, OverlayItem::VERTICAL);
+    // Must calculate horizontals first since starting position for vertical layout 
+    // will be offset if corner is already populated
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::HORIZONTAL, OverlayItem::TOP_LEFT);
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::VERTICAL,   OverlayItem::TOP_LEFT);
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::HORIZONTAL, OverlayItem::TOP_RIGHT);
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::VERTICAL,   OverlayItem::TOP_RIGHT);
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::HORIZONTAL, OverlayItem::BOTTOM_LEFT);
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::VERTICAL,   OverlayItem::BOTTOM_LEFT);
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::HORIZONTAL, OverlayItem::BOTTOM_RIGHT);
+    calculateOverlayItemLayoutForSchemeAndCorner(itemRectMap, OverlayItem::VERTICAL,   OverlayItem::BOTTOM_RIGHT);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, OverlayItem::LayoutCorner corner, OverlayItem::LayoutDirection direction)
+void Rendering::calculateOverlayItemLayoutForSchemeAndCorner(OverlayItemRectMap* itemRectMap, OverlayItem::LayoutScheme layoutScheme, OverlayItem::AnchorCorner anchorCorner)
 {
+    CVF_ASSERT(layoutScheme == OverlayItem::HORIZONTAL || layoutScheme == OverlayItem::VERTICAL);
+
     const int border = 3;
     const Vec2i vpSize = Vec2i(static_cast<int>(m_camera->viewport()->width()), static_cast<int>(m_camera->viewport()->height()));
     const Vec2i vpPos  = Vec2i(m_camera->viewport()->x(), m_camera->viewport()->y());
 
     Vec2i cursor(0,0);
-    switch (corner)
+    switch (anchorCorner)
     {
         case OverlayItem::TOP_LEFT:     cursor.set(border, vpSize.y() - border); break;
         case OverlayItem::TOP_RIGHT:    cursor.set(vpSize.x() - border, vpSize.y() - border); break;
@@ -391,55 +393,56 @@ void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, Over
 
     cursor += vpPos;
 
-    // Adjust based on other already placed items
-    OverlayItemRectMap::iterator it;
-    for (it = itemRectMap->begin(); it != itemRectMap->end(); ++it)
+    // Adjust starting cursor position based on other already placed items in this anchor corner
+    // The assumption here is that for each corner, the horizontal layout has already been added to the map
+    if (layoutScheme == OverlayItem::VERTICAL)
     {
-        Recti rect = it->second;
-
-        if (rect.contains(cursor) && (direction == OverlayItem::VERTICAL))
+        OverlayItemRectMap::iterator it;
+        for (it = itemRectMap->begin(); it != itemRectMap->end(); ++it)
         {
-            if (corner == OverlayItem::BOTTOM_LEFT || corner == OverlayItem::BOTTOM_RIGHT)
+            const OverlayItem* placedItem = it->first;
+            const Recti placedItemRect = it->second;
+            if (placedItem->anchorCorner() == anchorCorner && placedItemRect.contains(cursor))
             {
-                cursor.y() += rect.height() + border;
-            }
-            else
-            {
-                cursor.y() -= rect.height() + border;
+                if (anchorCorner == OverlayItem::BOTTOM_LEFT || anchorCorner == OverlayItem::BOTTOM_RIGHT)
+                {
+                    cursor.y() += placedItemRect.height() + border;
+                }
+                else
+                {
+                    cursor.y() -= placedItemRect.height() + border;
+                }
             }
         }
     }
 
-    size_t numOverlayItems = m_overlayItems.size();
-    size_t i;
-    for (i = 0; i < numOverlayItems; i++)
+    const size_t numOverlayItems = m_overlayItems.size();
+    for (size_t i = 0; i < numOverlayItems; i++)
     {
-        OverlayItemLayout item = m_overlayItems.at(i);
-        if ((item.corner == corner) && (item.direction == direction))
+        OverlayItem* item = m_overlayItems.at(i);
+        if ((item->anchorCorner() == anchorCorner) && (item->layoutScheme() == layoutScheme))
         {
-            CVF_ASSERT(item.overlayItem.notNull());
-
             // Find this position and size
             Vec2i position = cursor;
-            Vec2ui size = item.overlayItem->sizeHint();
-            if ((corner == OverlayItem::TOP_RIGHT) || (corner == OverlayItem::BOTTOM_RIGHT))
+            Vec2ui size = item->sizeHint();
+            if ((anchorCorner == OverlayItem::TOP_RIGHT) || (anchorCorner == OverlayItem::BOTTOM_RIGHT))
             {
                 position.x() -= size.x();
             }
 
-            if ((corner == OverlayItem::TOP_LEFT) || (corner == OverlayItem::TOP_RIGHT))
+            if ((anchorCorner == OverlayItem::TOP_LEFT) || (anchorCorner == OverlayItem::TOP_RIGHT))
             {
                 position.y() -= size.y();
             }
 
             // Store the position in the map
             Recti rect(position.x(), position.y(), static_cast<int>(size.x()), static_cast<int>(size.y()));
-            (*itemRectMap)[item.overlayItem.p()] = rect;
+            (*itemRectMap)[item] = rect;
 
             // Find next position, moving the cursor
-            if (direction == OverlayItem::HORIZONTAL)
+            if (layoutScheme == OverlayItem::HORIZONTAL)
             {
-                if ((corner == OverlayItem::TOP_LEFT) || (corner == OverlayItem::BOTTOM_LEFT))
+                if ((anchorCorner == OverlayItem::TOP_LEFT) || (anchorCorner == OverlayItem::BOTTOM_LEFT))
                 {
                     cursor.x() += (size.x() + border);
                 }
@@ -448,9 +451,9 @@ void Rendering::calculateOverlayItemLayout(OverlayItemRectMap* itemRectMap, Over
                     cursor.x() -= (size.x() + border);
                 }
             }
-            else if (direction == OverlayItem::VERTICAL)
+            else if (layoutScheme == OverlayItem::VERTICAL)
             {
-                if ((corner == OverlayItem::BOTTOM_LEFT) || (corner == OverlayItem::BOTTOM_RIGHT))
+                if ((anchorCorner == OverlayItem::BOTTOM_LEFT) || (anchorCorner == OverlayItem::BOTTOM_RIGHT))
                 {
                     cursor.y() += (size.y() + border);
                 }
@@ -864,62 +867,30 @@ size_t Rendering::overlayItemCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void Rendering::addOverlayItem(OverlayItem* overlayItem, OverlayItem::LayoutCorner corner, OverlayItem::LayoutDirection direction)
+void Rendering::addOverlayItem(OverlayItem* overlayItem)
 {
     CVF_ASSERT(overlayItem);
-
-    OverlayItemLayout item;
-    item.corner = corner;
-    item.direction = direction;
-    item.overlayItem = overlayItem;
-
-    m_overlayItems.push_back(item);
+    m_overlayItems.push_back(overlayItem);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// Returns the overlay item at the given index.
-/// 
-/// corner and direction are optional parameters to receive the layout attachment of the overlay item
 //--------------------------------------------------------------------------------------------------
-OverlayItem* Rendering::overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction)
+OverlayItem* Rendering::overlayItem(size_t index)
 {
     CVF_ASSERT(index < overlayItemCount());
-
-    if (corner)
-    {
-        *corner = m_overlayItems[index].corner;
-    }
-
-    if (direction)
-    {
-        *direction = m_overlayItems[index].direction;
-    }
-
-    return m_overlayItems[index].overlayItem.p();
+    return m_overlayItems.at(index);
 }
 
 
 //--------------------------------------------------------------------------------------------------
 /// Returns the overlay item at the given index.
-/// 
-/// corner and direction are optional parameters to receive the layout attachment of the overlay item
 //--------------------------------------------------------------------------------------------------
-const OverlayItem* Rendering::overlayItem(size_t index, OverlayItem::LayoutCorner* corner, OverlayItem::LayoutDirection* direction) const
+const OverlayItem* Rendering::overlayItem(size_t index) const
 {
     CVF_ASSERT(index < overlayItemCount());
-
-    if (corner)
-    {
-        *corner = m_overlayItems[index].corner;
-    }
-
-    if (direction)
-    {
-        *direction = m_overlayItems[index].direction;
-    }
-
-    return m_overlayItems[index].overlayItem.p();
+    return m_overlayItems.at(index);
 }
 
 
@@ -931,15 +902,18 @@ OverlayItem* Rendering::overlayItemFromWindowCoordinates(int x, int y)
     OverlayItemRectMap itemRectMap;
     calculateOverlayItemLayout(&itemRectMap);
 
-    OverlayItemRectMap::iterator it;
-    for (it = itemRectMap.begin(); it != itemRectMap.end(); ++it)
+    const size_t numOverlayItems = m_overlayItems.size();
+    for (size_t i = 0; i < numOverlayItems; i++)
     {
-        OverlayItem* item = it->first;
-        Recti rect = it->second;
-
-        if (item->pick(x, y, rect.min(), Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height()))))
+        OverlayItem* item = m_overlayItems.at(i);
+        OverlayItemRectMap::iterator it = itemRectMap.find(item);
+        if (it != itemRectMap.end())
         {
-            return item;
+            Recti rect = it->second;
+            if (item->pick(x, y, rect.min(), Vec2ui(static_cast<cvf::uint>(rect.width()), static_cast<cvf::uint>(rect.height()))))
+            {
+                return item;
+            }
         }
     }
 
@@ -950,37 +924,9 @@ OverlayItem* Rendering::overlayItemFromWindowCoordinates(int x, int y)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Recti Rendering::overlayItemRect(OverlayItem* item)
-{
-    OverlayItemRectMap itemRectMap;
-    calculateOverlayItemLayout(&itemRectMap);
-    
-    OverlayItemRectMap::iterator it = itemRectMap.find(item);
-    if (it != itemRectMap.end())
-    {
-        return it->second;
-    }
-
-    return cvf::Recti();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void Rendering::removeOverlayItem(const OverlayItem* overlayItem)
 {
-    CVF_UNUSED(overlayItem);
-
-    std::vector<OverlayItemLayout>::iterator it;
-    for (it = m_overlayItems.begin(); it != m_overlayItems.end(); it++)
-    {
-        if (it->overlayItem == overlayItem)
-        {
-            m_overlayItems.erase(it);
-            break;
-        }
-    }
+    m_overlayItems.erase(overlayItem);
 }
 
 

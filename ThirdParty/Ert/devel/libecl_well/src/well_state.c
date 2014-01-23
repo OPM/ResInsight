@@ -310,17 +310,19 @@ static void well_state_add_connections__( well_state_type * well_state ,
   const ecl_kw_type * icon_kw  = ecl_file_iget_named_kw( rst_file , ICON_KW   , 0);
   const ecl_kw_type * iwel_kw  = ecl_file_iget_named_kw( rst_file , IWEL_KW   , 0);
 
-  //const int iwel_offset        = header->niwelz * well_nr;
-  //int seg_well_nr              = ecl_kw_iget_int( iwel_kw , iwel_offset + IWEL_SEGMENTED_WELL_NR_ITEM) - 1; // -1: Ordinary well.
-
+  
   well_state_add_wellhead( well_state , header , iwel_kw , well_nr , grid_name , grid_nr );
 
   if (!well_state_has_grid_connections( well_state , grid_name ))
     hash_insert_hash_owned_ref( well_state->connections , grid_name, well_conn_collection_alloc( ) , well_conn_collection_free__ );
 
   {
+    ecl_kw_type * scon_kw = NULL;
     well_conn_collection_type * wellcc = hash_get( well_state->connections , grid_name );
-    well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , well_nr , header );
+    if (ecl_file_has_kw( rst_file , SCON_KW))
+      scon_kw = ecl_file_iget_named_kw( rst_file , SCON_KW , 0);
+    
+    well_conn_collection_load_from_kw( wellcc , iwel_kw , icon_kw , scon_kw , well_nr , header );
   }
   ecl_rsthead_free( header );
 }

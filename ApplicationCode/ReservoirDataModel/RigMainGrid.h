@@ -26,6 +26,7 @@
 #include "RifReaderInterface.h"
 
 #include <QtGlobal>
+#include "RigNNCData.h"
 
 class RigMainGrid : public RigGridBase
 {
@@ -46,6 +47,12 @@ public:
     const RigGridBase*                      gridByIndex(size_t localGridIndex) const;
     RigGridBase*                            gridById(int localGridId);
    
+    RigNNCData*                             nncData();
+    void                                    setFaults(const cvf::Collection<RigFault>& faults);
+    const cvf::Collection<RigFault>&        faults() { return m_faults; }
+    void                                    calculateFaults();
+    bool                                    faceNormalsIsOutwards() const;
+
     void                                    computeCachedData();
 
     // Overrides
@@ -64,6 +71,10 @@ private:
     std::vector<RigCell>                    m_cells;        ///< Global array of all cells in the reservoir (including the ones in LGR's)
     cvf::Collection<RigLocalGrid>           m_localGrids;   ///< List of all the LGR's in this reservoir
     std::vector<size_t>                     m_gridIdToIndexMapping; ///< Mapping from LGR Id to index.
+
+
+    cvf::Collection<RigFault>               m_faults;
+    cvf::ref<RigNNCData>                    m_nncData;
 
     cvf::Vec3d                              m_displayModelOffset;
 

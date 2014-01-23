@@ -30,6 +30,8 @@
 #include <QPointer>
 #include <QString>
 
+#include "RimFaultCollection.h"
+
 class RimCase;
 class RimResultSlot;
 class RimCellEdgeResultSlot;
@@ -49,6 +51,7 @@ class RiuViewer;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class RimReservoirCellResultsStorage;
+
 namespace cvf
 {
     class Transform;
@@ -56,13 +59,14 @@ namespace cvf
     class ModelBasicList;
 }
 
-enum ViewState
+enum PartRenderMaskEnum
 {
-    GEOMETRY_ONLY,
-    STATIC_RESULT,
-    DYNAMIC_RESULT,
-    CELL_FACE_COMBINED_RESULT
+    surfaceBit      = 0x00000001,
+    meshSurfaceBit  = 0x00000002,
+    faultBit        = 0x00000004,
+    meshFaultBit    = 0x00000008,
 };
+
 
 //==================================================================================================
 ///  
@@ -98,6 +102,8 @@ public:
     caf::PdmField<RimCellPropertyFilterCollection*>     propertyFilterCollection;
 
     caf::PdmField<RimWellCollection*>                   wellCollection;
+
+    caf::PdmField<RimFaultCollection*>                  faultCollection;
 
     caf::PdmField<Rim3dOverlayInfoConfig*>              overlayInfoConfig;
 
@@ -144,12 +150,16 @@ public:
     void                                    setMeshOnlyDrawstyle();
     void                                    setMeshSurfDrawstyle();
     void                                    setSurfOnlyDrawstyle();
+    void                                    setFaultMeshSurfDrawstyle();
+
     void                                    setShowFaultsOnly(bool showFaults);
+    bool                                    isGridVisualizationMode() const;
 
 
     // Picking info
-    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, const cvf::Vec3d& point, QString* pickInfoText) const;
-    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) ;
+    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const;
+    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText) ;
+    void                                    appendNNCResultInfo(size_t nncIndex, QString* resultInfo);
 
     // Does this belong here, really ?
     void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
@@ -171,6 +181,8 @@ public:
 
     // Display model generation
 private:
+    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText);
+
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();
     void                                    updateCurrentTimeStep();
@@ -179,6 +191,11 @@ private:
     void                                    updateStaticCellColors();
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
+
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultParts() const;
+    void                                    updateFaultForcedVisibility();
+    void                                    updateFaultColors();
+
 
     cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
@@ -198,11 +215,12 @@ private:
     void                                    syncronizeWellsWithResults();
     void                                    clampCurrentTimestep();
 
- 
 private:
     caf::PdmField<int>                      m_currentTimeStep;
     QPointer<RiuViewer>                     m_viewer;
     caf::PdmPointer<RimCase>                m_reservoir;
+
+    bool                                    m_previousGridModeMeshLinesWasFaults;
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> m_visibleGridParts;
 };

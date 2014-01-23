@@ -114,10 +114,13 @@ Assert::FailAction AssertHandlerConsole::handleAssert(const char* fileName, int 
     reportToConsole(fileName, lineNumber, expr, msg);
 
 #ifdef WIN32
-    __debugbreak();
-#else
-    abort();
+    if (::IsDebuggerPresent())
+    {
+        __debugbreak();
+    }
 #endif
+
+    abort();
 
     // Shouldn't really matter since we always abort
     return Assert::CONTINUE;

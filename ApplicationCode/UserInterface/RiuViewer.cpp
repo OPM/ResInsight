@@ -46,6 +46,7 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "RivSourceInfo.h"
 
 using cvf::ManipulatorTrackball;
 
@@ -70,7 +71,8 @@ RiuViewer::RiuViewer(const QGLFormat& format, QWidget* parent)
     cvf::Font* standardFont = RiaApplication::instance()->standardFont();
     cvf::OverlayAxisCross* axisCross = new cvf::OverlayAxisCross(m_mainCamera.p(), standardFont);
     axisCross->setAxisLabels("E", "N", "Z");
-    m_mainRendering->addOverlayItem(axisCross, cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+    axisCross->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+    m_mainRendering->addOverlayItem(axisCross);
 
     this->enableOverlyPainting(true);
     this->setReleaseOGLResourcesEachFrame(true);
@@ -181,12 +183,14 @@ void RiuViewer::updateLegends()
 
     if (m_legend1.notNull())
     {
-        firstRendering->addOverlayItem(m_legend1.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+        m_legend1->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+        firstRendering->addOverlayItem(m_legend1.p());
     }
 
     if (m_legend2.notNull())
     {
-        firstRendering->addOverlayItem(m_legend2.p(), cvf::OverlayItem::BOTTOM_LEFT, cvf::OverlayItem::VERTICAL);
+        m_legend2->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+        firstRendering->addOverlayItem(m_legend2.p());
     }
 }
 
@@ -267,17 +271,20 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
             {
                 if (firstHitPart->sourceInfo())
                 {
-                    const cvf::Array<size_t>* cellIndices = dynamic_cast<const cvf::Array<size_t>*>(firstHitPart->sourceInfo());
-                    if (cellIndices)
+                    const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
+                    if (rivSourceInfo)
                     {
-                        m_currentGridIdx = firstHitPart->id();
-                        m_currentCellIndex = cellIndices->get(faceIndex);
+                        if (rivSourceInfo->hasCellIndices())
+                        {
+                            m_currentGridIdx = firstHitPart->id();
+                            m_currentCellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
 
-                        QMenu menu;
-                        menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
-                        menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
-                        menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
-                        menu.exec(event->globalPos());
+                            QMenu menu;
+                            menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
+                            menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
+                            menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+                            menu.exec(event->globalPos());
+                        }
                     }
                 }
             }
@@ -424,34 +431,46 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
         {
             size_t gridIndex = firstHitPart->id();
 
-            size_t cellIndex = cvf::UNDEFINED_SIZE_T;
             if (firstHitPart->sourceInfo())
             {
-                const cvf::Array<size_t>* cellIndices = dynamic_cast<const cvf::Array<size_t>*>(firstHitPart->sourceInfo());
-                if (cellIndices)
+                const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
+                if (rivSourceInfo)
                 {
-                    cellIndex = cellIndices->get(faceIndex);
-
-                    m_reservoirView->pickInfo(gridIndex, cellIndex, localIntersectionPoint, &pickInfo);
-
-                    if (isAnimationActive())
+                    if (rivSourceInfo->hasCellIndices())
                     {
-                        m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
-                    }
+                        size_t cellIndex = cvf::UNDEFINED_SIZE_T;
+                        cellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
+
+                        CVF_ASSERT(rivSourceInfo->m_faceTypes.notNull());
+                        cvf::StructGridInterface::FaceType face = rivSourceInfo->m_faceTypes->get(faceIndex);
+
+                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &pickInfo);
+
+                        // Build up result from from both pick info and result values
+                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &resultInfo);
+                        resultInfo += "\n";
+                        m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, face, &resultInfo);
 #if 0
-                    const RigReservoir* reservoir = m_reservoirView->eclipseCase()->reservoirData();
-                    const RigGridBase* grid = reservoir->grid(gridIndex);
-                    const RigCell& cell = grid->cell(cellIndex);
-                    const caf::SizeTArray8& cellNodeIndices = cell.cornerIndices();
-                    const std::vector<cvf::Vec3d>& nodes = reservoir->mainGrid()->nodes();
-                    for (int i = 0; i < 8; ++i)
-                    {
-                        resultInfo += QString::number(i) + " : ";
-                        for (int j = 0; j < 3; ++j)
-                            resultInfo += QString::number(nodes[cellNodeIndices[i]][j], 'g', 10) + " ";
-                         resultInfo += "\n";
-                    }
+                        const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+                        const RigGridBase* grid = reservoir->grid(gridIndex);
+                        const RigCell& cell = grid->cell(cellIndex);
+                        const caf::SizeTArray8& cellNodeIndices = cell.cornerIndices();
+                        const std::vector<cvf::Vec3d>& nodes = reservoir->mainGrid()->nodes();
+                        for (int i = 0; i < 8; ++i)
+                        {
+                            resultInfo += QString::number(i) + " : ";
+                            for (int j = 0; j < 3; ++j)
+                                resultInfo += QString::number(nodes[cellNodeIndices[i]][j], 'g', 10) + " ";
+                             resultInfo += "\n";
+                        }
 #endif
+                    }
+                    else if (rivSourceInfo->m_NNCIndices.notNull())
+                    {
+                        size_t nncIndex = rivSourceInfo->m_NNCIndices->get(faceIndex);
+
+                        m_reservoirView->appendNNCResultInfo(nncIndex, &resultInfo);
+                    }
                 }
             }
         }
@@ -534,18 +553,46 @@ cvf::Part* RiuViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, 
 {
     CVF_ASSERT(faceHit);
 
-    cvf::HitItemCollection pPoints;
-    bool isSomethingHit = rayPick(winPosX, winPosY, &pPoints);
+    cvf::HitItemCollection hitItems;
+    bool isSomethingHit = rayPick(winPosX, winPosY, &hitItems);
 
     if (isSomethingHit)
     {
-        CVF_ASSERT(pPoints.count() > 0);
-        cvf::HitItem* firstItem = pPoints.firstItem();
-        const cvf::Part* pickedPart =  firstItem->part();
+        CVF_ASSERT(hitItems.count() > 0);
+
+        double characteristicCellSize = m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->characteristicIJCellSize();
+        double pickDepthThresholdSquared = characteristicCellSize / 100.0;
+        pickDepthThresholdSquared = pickDepthThresholdSquared * pickDepthThresholdSquared;
+
+        cvf::HitItem* hitItem = hitItems.firstItem();
+        cvf::Vec3d firstItemIntersectionPoint = hitItem->intersectionPoint();
+
+        // Check if we have a close hit item with NNC data
+        for (size_t i = 0; i < hitItems.count(); i++)
+        {
+            cvf::HitItem* hitItemCandidate = hitItems.item(i);
+            cvf::Vec3d diff = firstItemIntersectionPoint - hitItemCandidate->intersectionPoint();
+
+            // Hit items are ordered by distance from eye
+            if (diff.lengthSquared() > pickDepthThresholdSquared) break;
+
+            const cvf::Part* pickedPartCandidate = hitItemCandidate->part();
+            if (pickedPartCandidate && pickedPartCandidate->sourceInfo())
+            {
+                const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(pickedPartCandidate->sourceInfo());
+                if (rivSourceInfo && rivSourceInfo->hasNNCIndices())
+                {
+                    hitItem = hitItemCandidate;
+                    break;
+                }
+            }
+        }
+
+        const cvf::Part* pickedPart = hitItem->part();
         CVF_ASSERT(pickedPart);
 
         const cvf::Transform* xf = pickedPart->transform();
-        cvf::Vec3d globalPickedPoint = firstItem->intersectionPoint();
+        cvf::Vec3d globalPickedPoint = hitItem->intersectionPoint();
 
         if(localIntersectionPoint) 
         {
@@ -562,7 +609,7 @@ cvf::Part* RiuViewer::pickPointAndFace(int winPosX, int winPosY, uint* faceHit, 
         if (faceHit)
         {
 
-            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(firstItem->detail());
+            const cvf::HitDetailDrawableGeo* detail = dynamic_cast<const cvf::HitDetailDrawableGeo*>(hitItem->detail());
             if (detail)
             {
                 *faceHit = detail->faceIndex();

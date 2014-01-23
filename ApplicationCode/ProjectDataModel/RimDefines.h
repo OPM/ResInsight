@@ -40,5 +40,8 @@ public:
     };
 
     static QString undefinedResultName() { return "None"; }
+    static QString undefinedGridFaultName() { return "Undefined grid faults"; }
+
+    static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
 };
 

@@ -22,7 +22,7 @@ from types import StringType, IntType
 import time
 from ert.cwrap import BaseCClass, CWrapper
 
-from ert.job_queue import JOB_QUEUE_LIB, Job
+from ert.job_queue import JOB_QUEUE_LIB, Job, JobStatusType
 
 
 class JobList:
@@ -267,6 +267,13 @@ class JobQueue(BaseCClass):
     def free(self):
         JobQueue.cNamespace().free(self)
 
+    def __len__(self):
+        return self.cNamespace().get_active_size(self)
+
+    def getJobStatus(self, job_number):
+        """ @rtype: JobStatusType """
+        return self.cNamespace().get_job_status(self, job_number)
+
 #################################################################
 
 cwrapper = CWrapper(JOB_QUEUE_LIB)
@@ -298,3 +305,4 @@ JobQueue.cNamespace().get_active_size = cwrapper.prototype("int job_queue_get_ac
 JobQueue.cNamespace().get_pause       = cwrapper.prototype("bool job_queue_get_pause(job_queue)")
 JobQueue.cNamespace().set_pause_on    = cwrapper.prototype("void job_queue_set_pause_on(job_queue)")
 JobQueue.cNamespace().set_pause_off   = cwrapper.prototype("void job_queue_set_pause_off(job_queue)")
+JobQueue.cNamespace().get_job_status  = cwrapper.prototype("job_status_type_enum job_queue_iget_job_status(job_queue, int)")

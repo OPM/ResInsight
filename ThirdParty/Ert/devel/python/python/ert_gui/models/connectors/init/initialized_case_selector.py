@@ -4,8 +4,9 @@ from ert_gui.models.connectors.init import CaseSelectorModel
 from ert_gui.models.connectors.init.case_list import CaseList
 from ert_gui.models.mixins import ChoiceModelMixin
 
-""" Returns all initialized cases except the currently selected one. """
+
 class InitializedCaseSelectorModel(ErtConnector, ChoiceModelMixin):
+    """ Returns all initialized cases except the currently selected one. """
 
     def __init__(self):
         self.__current_case = None
@@ -24,7 +25,7 @@ class InitializedCaseSelectorModel(ErtConnector, ChoiceModelMixin):
         for case in CaseList().getList():
             # print("%s %s %s" % (current_case, case, self.ert().isCaseInitialized(case)))
             # if case != current_case and self.ert().isCaseInitialized(case):
-            if self.ert().isCaseInitialized(case):
+            if self.ert().getEnkfFsManager().isCaseInitialized(case):
                 self.__initialized_cases.append(case)
 
     def __caseListChanged(self):

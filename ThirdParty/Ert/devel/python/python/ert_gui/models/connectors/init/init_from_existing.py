@@ -30,7 +30,7 @@ class InitializeFromExistingCaseModel(ErtConnector, ButtonModelMixin):
 
         # print("%s %d %d %s %s" % (source_case, source_report_step, int(source_state), str(selected_members), str(selected_parameters)))
 
-        self.ert().initializeFromExistingCase(source_case, source_report_step, source_state, member_mask, ranking_key, selected_parameters)
+        self.ert().getEnkfFsManager().initializeFromExistingCase(source_case, source_report_step, source_state, member_mask, ranking_key, selected_parameters)
 
         self.observable().notify(ButtonModelMixin.BUTTON_TRIGGERED_EVENT)
 

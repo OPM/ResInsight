@@ -94,3 +94,20 @@ class StringListTest(TestCase):
         self.assertEqual(s.index("B"), 1)
         self.assertEqual(s.index("C"), 2)
         self.assertEqual(s.index("D"), -1)
+
+
+
+    def test_front_back(self):
+        s = StringList()
+        with self.assertRaises(LookupError):
+            s.front()
+
+        with self.assertRaises(LookupError):
+            s.back()
+
+        s.append("S1")
+        s.append("S2")
+        s.append("S3")
+
+        self.assertEqual( "S1" , s.front() )
+        self.assertEqual( "S3" , s.back() )

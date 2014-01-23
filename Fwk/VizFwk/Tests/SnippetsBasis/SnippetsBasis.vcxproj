@@ -1,0 +1,503 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug MD TBB|Win32">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD TBB|x64">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|Win32">
+      <Configuration>Debug MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|x64">
+      <Configuration>Debug MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MT|Win32">
+      <Configuration>Debug MT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MT|x64">
+      <Configuration>Debug MT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|Win32">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|x64">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|Win32">
+      <Configuration>Release MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|x64">
+      <Configuration>Release MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MT|Win32">
+      <Configuration>Release MT</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MT|x64">
+      <Configuration>Release MT</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+    <None Include="Shaders\Clipping_Frag.glsl" />
+    <None Include="Shaders\Clipping_Vert.glsl" />
+    <None Include="Shaders\CubeMappingSkyBox_Frag.glsl" />
+    <None Include="Shaders\CubeMappingSkyBox_Vert.glsl" />
+    <None Include="Shaders\CubeMapping_Frag.glsl" />
+    <None Include="Shaders\CubeMapping_Light.glsl" />
+    <None Include="Shaders\CubeMapping_Vert.glsl" />
+    <None Include="Shaders\DepthPeelingFront_BlendFrag.glsl" />
+    <None Include="Shaders\DepthPeelingFront_BlendVert.glsl" />
+    <None Include="Shaders\DepthPeelingFront_FinalFrag.glsl" />
+    <None Include="Shaders\DepthPeelingFront_FinalVert.glsl" />
+    <None Include="Shaders\DepthPeelingFront_InitFrag.glsl" />
+    <None Include="Shaders\DepthPeelingFront_InitVert.glsl" />
+    <None Include="Shaders\DepthPeelingFront_PeelFrag.glsl" />
+    <None Include="Shaders\DepthPeelingFront_PeelVert.glsl" />
+    <None Include="Shaders\DepthPeeling_BlendFrag.glsl" />
+    <None Include="Shaders\DepthPeeling_FinalFrag.glsl" />
+    <None Include="Shaders\DepthPeeling_InitFrag.glsl" />
+    <None Include="Shaders\DepthPeeling_PeelFrag.glsl" />
+    <None Include="Shaders\DepthPeeling_ShadeFragment.glsl" />
+    <None Include="Shaders\HemisphereLighting_Frag.glsl" />
+    <None Include="Shaders\HemisphereLighting_Vert.glsl" />
+    <None Include="Shaders\HighlightBlur_Frag.glsl" />
+    <None Include="Shaders\HighlightDraw_Frag.glsl" />
+    <None Include="Shaders\HighlightMix_Frag.glsl" />
+    <None Include="Shaders\ImageFilteringBlur_Frag.glsl" />
+    <None Include="Shaders\ImageFiltering_Frag.glsl" />
+    <None Include="Shaders\ShaderUniforms_Frag.glsl" />
+    <None Include="Shaders\ShaderUniforms_Vert.glsl" />
+    <None Include="Shaders\TranspWA_FinalFrag.glsl" />
+    <None Include="Shaders\TranspWA_InitFrag.glsl" />
+    <None Include="Shaders\VertexAttributes_Frag.glsl" />
+    <None Include="Shaders\VertexAttributes_Vert.glsl" />
+    <None Include="Shaders\WideLines_Frag.glsl" />
+    <None Include="Shaders\WideLines_Vert.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="snipBenchmarkManyPartsFewGeos.cpp" />
+    <ClCompile Include="snipBenchmarkManyPartsManyGeos.cpp" />
+    <ClCompile Include="snipBenchmarkPart1M.cpp" />
+    <ClCompile Include="snipBenchmarkPart250K.cpp" />
+    <ClCompile Include="snipBenchmarkPart5K.cpp" />
+    <ClCompile Include="snipBlendTest.cpp" />
+    <ClCompile Include="snipClipping.cpp" />
+    <ClCompile Include="snipCoreProfileTest.cpp" />
+    <ClCompile Include="snipCubeMapping.cpp" />
+    <ClCompile Include="snipDepthPeeling.cpp" />
+    <ClCompile Include="snipDepthPeelingFront.cpp" />
+    <ClCompile Include="snipDrawableAnimation.cpp" />
+    <ClCompile Include="snipEnableMasks.cpp" />
+    <ClCompile Include="snipEnvironmentMapping.cpp" />
+    <ClCompile Include="snipExtractedEdges.cpp" />
+    <ClCompile Include="snipGeometryCreation.cpp" />
+    <ClCompile Include="snipHiddenLines.cpp" />
+    <ClCompile Include="snipHighlight.cpp" />
+    <ClCompile Include="snipImageFiltering.cpp" />
+    <ClCompile Include="snipImmediateVbo.cpp" />
+    <ClCompile Include="snipIncrementalRenderer.cpp" />
+    <ClCompile Include="snipLabels.cpp" />
+    <ClCompile Include="snipLargeSphereModel.cpp" />
+    <ClCompile Include="snipLineDrawing.cpp" />
+    <ClCompile Include="snipManipulators.cpp" />
+    <ClCompile Include="snipManySpheres.cpp" />
+    <ClCompile Include="snipMergeGeo.cpp" />
+    <ClCompile Include="snipMinimalModel.cpp" />
+    <ClCompile Include="snipMultiRenderingEffectOverride.cpp" />
+    <ClCompile Include="snipNavigation.cpp" />
+    <ClCompile Include="snipOverlayItems.cpp" />
+    <ClCompile Include="snipPartMerger.cpp" />
+    <ClCompile Include="SnippetFactoryBasis.cpp" />
+    <ClCompile Include="snipPicking.cpp" />
+    <ClCompile Include="snipPointSprites.cpp" />
+    <ClCompile Include="snipRenderbufferTest.cpp" />
+    <ClCompile Include="snipRenderPriority.cpp" />
+    <ClCompile Include="snipRenderStateExperiments.cpp" />
+    <ClCompile Include="snipRenderToTexture.cpp" />
+    <ClCompile Include="snipScalarMapping.cpp" />
+    <ClCompile Include="snipShaderExperiments.cpp" />
+    <ClCompile Include="snipShaderLighting.cpp" />
+    <ClCompile Include="snipShaderUniforms.cpp" />
+    <ClCompile Include="snipShadows.cpp" />
+    <ClCompile Include="snipSingleBox.cpp" />
+    <ClCompile Include="snipSingleTexturedQuad.cpp" />
+    <ClCompile Include="snipStencil.cpp" />
+    <ClCompile Include="snipStripsAndFans.cpp" />
+    <ClCompile Include="snipTextDrawing.cpp" />
+    <ClCompile Include="snipTexturing.cpp" />
+    <ClCompile Include="snipTransparentWeightedAverage.cpp" />
+    <ClCompile Include="snipTutorial1.cpp" />
+    <ClCompile Include="snipVectorDrawing.cpp" />
+    <ClCompile Include="snipVertexAttributes.cpp" />
+    <ClCompile Include="snipVertexColoring.cpp" />
+    <ClCompile Include="snipVisualPriority.cpp" />
+    <ClCompile Include="snipWiredShaders.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="snipBenchmarkManyPartsFewGeos.h" />
+    <ClInclude Include="snipBenchmarkManyPartsManyGeos.h" />
+    <ClInclude Include="snipBenchmarkPart1M.h" />
+    <ClInclude Include="snipBenchmarkPart250K.h" />
+    <ClInclude Include="snipBenchmarkPart5K.h" />
+    <ClInclude Include="snipBlendTest.h" />
+    <ClInclude Include="snipClipping.h" />
+    <ClInclude Include="snipCoreProfileTest.h" />
+    <ClInclude Include="snipCubeMapping.h" />
+    <ClInclude Include="snipDepthPeeling.h" />
+    <ClInclude Include="snipDepthPeelingFront.h" />
+    <ClInclude Include="snipDrawableAnimation.h" />
+    <ClInclude Include="snipEnableMasks.h" />
+    <ClInclude Include="snipEnvironmentMapping.h" />
+    <ClInclude Include="snipExtractedEdges.h" />
+    <ClInclude Include="snipGeometryCreation.h" />
+    <ClInclude Include="snipHiddenLines.h" />
+    <ClInclude Include="snipHighlight.h" />
+    <ClInclude Include="snipImageFiltering.h" />
+    <ClInclude Include="snipImmediateVbo.h" />
+    <ClInclude Include="snipIncrementalRenderer.h" />
+    <ClInclude Include="snipLabels.h" />
+    <ClInclude Include="snipLargeSphereModel.h" />
+    <ClInclude Include="snipLineDrawing.h" />
+    <ClInclude Include="snipManipulators.h" />
+    <ClInclude Include="snipManySpheres.h" />
+    <ClInclude Include="snipMergeGeo.h" />
+    <ClInclude Include="snipMinimalModel.h" />
+    <ClInclude Include="snipMultiRenderingEffectOverride.h" />
+    <ClInclude Include="snipNavigation.h" />
+    <ClInclude Include="snipOverlayItems.h" />
+    <ClInclude Include="snipPartMerger.h" />
+    <ClInclude Include="SnippetFactoryBasis.h" />
+    <ClInclude Include="snipPicking.h" />
+    <ClInclude Include="snipPointSprites.h" />
+    <ClInclude Include="snipRenderbufferTest.h" />
+    <ClInclude Include="snipRenderPriority.h" />
+    <ClInclude Include="snipRenderStateExperiments.h" />
+    <ClInclude Include="snipRenderToTexture.h" />
+    <ClInclude Include="snipScalarMapping.h" />
+    <ClInclude Include="snipShaderExperiments.h" />
+    <ClInclude Include="snipShaderLighting.h" />
+    <ClInclude Include="snipShaderUniforms.h" />
+    <ClInclude Include="snipShadows.h" />
+    <ClInclude Include="snipSingleBox.h" />
+    <ClInclude Include="snipSingleTexturedQuad.h" />
+    <ClInclude Include="snipStencil.h" />
+    <ClInclude Include="snipStripsAndFans.h" />
+    <ClInclude Include="snipTextDrawing.h" />
+    <ClInclude Include="snipTextEmbeddedFixedAtlasFont.h" />
+    <ClInclude Include="snipTextEmbeddedFreeTypeFont.h" />
+    <ClInclude Include="snipTexturing.h" />
+    <ClInclude Include="snipTransparentWeightedAverage.h" />
+    <ClInclude Include="snipTutorial1.h" />
+    <ClInclude Include="snipVectorDrawing.h" />
+    <ClInclude Include="snipVertexAttributes.h" />
+    <ClInclude Include="snipVertexColoring.h" />
+    <ClInclude Include="snipVisualPriority.h" />
+    <ClInclude Include="snipWiredShaders.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0D83607B-E0F7-DBA8-2F1F-8400C30B2008}</ProjectGuid>
+    <RootNamespace>SnippetsBasis</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MT|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MT|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalIncludeDirectories>../../LibCore;../../LibGeometry;../../LibIo;../../LibFreeType;../../LibRender;../../LibViewing;../../LibUtilities;../../LibRegGrid2D;../../LibStructGrid</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

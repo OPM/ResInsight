@@ -1,0 +1,5 @@
+ResInsight --project BatchTest.rsp --multiCaseSnapshots CaseList.txt --size 500 500
+
+ResInsight --project BatchTest.rsp --replaceCase "Real10\BRUGGE_0010.EGRID" --savesnapshots
+
+ResInsight --project BatchStatistics.rsp --replaceSourceCases CaseList2.txt --savesnapshots

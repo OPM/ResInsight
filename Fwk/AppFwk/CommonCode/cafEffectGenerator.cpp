@@ -104,6 +104,34 @@ cvf::String CommonShaderSources::light_AmbientDiffuse()
 
 
 
+//--------------------------------------------------------------------------------------------------
+/// Static helper to configure polygon offset render state from enum
+//--------------------------------------------------------------------------------------------------
+static cvf::ref<cvf::RenderStatePolygonOffset> CreateAngConfigurePolygonOffsetRenderState(PolygonOffset polygonOffset)
+{
+    cvf::ref<cvf::RenderStatePolygonOffset> rs = new cvf::RenderStatePolygonOffset;
+    if (polygonOffset == PO_NONE)
+    {
+        return rs;
+    }
+
+    rs->enableFillMode(true);
+    
+    switch (polygonOffset)
+    {
+        case PO_1:          rs->setFactor(1.0f);  rs->setUnits(1.0f); break;
+        case PO_2:          rs->setFactor(2.0f);  rs->setUnits(2.0f); break;
+        case PO_NEG_LARGE:  rs->setFactor(-1.0f); rs->setUnits(-30.0f); break;
+        default:
+            CVF_FAIL_MSG("Unhandled polygon offset enum");
+    }
+
+    return rs;
+}
+
+
+
+
 //==================================================================================================
 //
 // EffectGenerator Base class
@@ -205,21 +233,23 @@ void EffectGenerator::releaseUnreferencedEffects()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, bool polygonOffset)
+SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset)
 {
     m_color = color;
     m_polygonOffset = polygonOffset;
-    m_cullBackfaces = false;
+    m_cullBackfaces = FC_NONE;
+    m_enableDepthWrite = true;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, bool polygonOffset)
+SurfaceEffectGenerator::SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset)
 {
     m_color = cvf::Color4f(color, 1.0f);
     m_polygonOffset = polygonOffset;
-    m_cullBackfaces = false;
+    m_cullBackfaces = FC_NONE;
+    m_enableDepthWrite = true;
 }
 
 
@@ -269,10 +299,9 @@ void SurfaceEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effect
 //--------------------------------------------------------------------------------------------------
 void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 {
-    if (m_polygonOffset)
+    if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-        polyOffset->configurePolygonPositiveOffset();
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 
@@ -284,12 +313,31 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
         effect->setRenderState(blender.p());
     }
 
-    // Backface culling
-
-    if (m_cullBackfaces)
+    // Face culling
+    if (m_cullBackfaces != FC_NONE)
     {
         cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
+        if (m_cullBackfaces == FC_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::BACK);
+        }
+        else if (m_cullBackfaces == FC_FRONT)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT);
+        }
+        else if (m_cullBackfaces == FC_FRONT_AND_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT_AND_BACK);
+        }
+
         effect->setRenderState(faceCulling.p());
+    }
+
+    if (!m_enableDepthWrite)
+    {
+        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+        depth->enableDepthWrite(false);
+        effect->setRenderState(depth.p());
     }
 }
 
@@ -304,6 +352,7 @@ bool SurfaceEffectGenerator::isEqual(const EffectGenerator* other) const
     {
         if (m_color == otherSurfaceEffect->m_color 
             && m_polygonOffset == otherSurfaceEffect->m_polygonOffset
+            && m_enableDepthWrite == otherSurfaceEffect->m_enableDepthWrite
             && m_cullBackfaces == otherSurfaceEffect->m_cullBackfaces)
         {
             return true;
@@ -320,6 +369,7 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
 {
     SurfaceEffectGenerator* effGen = new SurfaceEffectGenerator(m_color, m_polygonOffset);
     effGen->m_cullBackfaces = m_cullBackfaces;
+    effGen->m_enableDepthWrite = m_enableDepthWrite;
     return effGen;
 }
 
@@ -337,13 +387,14 @@ EffectGenerator* SurfaceEffectGenerator::copy() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, bool polygonOffset)
+ScalarMapperEffectGenerator::ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, PolygonOffset polygonOffset)
     : m_undefinedColor(cvf::Color3::GRAY)
 {
     m_scalarMapper = scalarMapper;
     m_polygonOffset = polygonOffset;
     m_opacityLevel = 1.0f;
-    m_cullBackfaces = false;
+    m_faceCulling = FC_NONE;
+    m_enableDepthWrite = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,10 +477,9 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 {
     CVF_ASSERT(effect);
 
-    if (m_polygonOffset)
+    if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = new cvf::RenderStatePolygonOffset;
-        polyOffset->configurePolygonPositiveOffset();
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 
@@ -442,11 +492,30 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
     }
 
     // Backface culling
-
-    if (m_cullBackfaces)
+    if (m_faceCulling != FC_NONE)
     {
         cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
+        if (m_faceCulling == FC_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::BACK);
+        }
+        else if (m_faceCulling == FC_FRONT)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT);
+        }
+        else if (m_faceCulling == FC_FRONT_AND_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT_AND_BACK);
+        }
+
         effect->setRenderState(faceCulling.p());
+    }
+
+    if (!m_enableDepthWrite)
+    {
+        cvf::ref<cvf::RenderStateDepth> depth = new cvf::RenderStateDepth;
+        depth->enableDepthWrite(false);
+        effect->setRenderState(depth.p());
     }
 }
 
@@ -464,7 +533,8 @@ bool ScalarMapperEffectGenerator::isEqual(const EffectGenerator* other) const
             && m_polygonOffset == otherTextureResultEffect->m_polygonOffset
             && m_opacityLevel == otherTextureResultEffect->m_opacityLevel
             && m_undefinedColor == otherTextureResultEffect->m_undefinedColor
-            && m_cullBackfaces == otherTextureResultEffect->m_cullBackfaces)
+            && m_faceCulling == otherTextureResultEffect->m_faceCulling
+            && m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite)
         {
             cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
             otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
@@ -485,7 +555,8 @@ EffectGenerator* ScalarMapperEffectGenerator::copy() const
     scEffGen->m_textureImage = m_textureImage;
     scEffGen->m_opacityLevel = m_opacityLevel;
     scEffGen->m_undefinedColor = m_undefinedColor;
-    scEffGen->m_cullBackfaces = m_cullBackfaces;
+    scEffGen->m_faceCulling = m_faceCulling;
+    scEffGen->m_enableDepthWrite = m_enableDepthWrite;
 
     return scEffGen;
 }

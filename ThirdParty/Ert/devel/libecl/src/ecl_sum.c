@@ -394,6 +394,27 @@ ecl_sum_type * ecl_sum_fread_alloc_case(const char * input_file , const char * k
 }
 
 
+bool ecl_sum_case_exists( const char * input_file ) {
+  char * smspec_file = NULL;
+  stringlist_type * data_files = stringlist_alloc_new();
+  char * path;
+  char * basename;
+  char * extension;
+  bool   case_exists;
+
+  util_alloc_file_components( input_file , &path , &basename , &extension);
+  case_exists = ecl_util_alloc_summary_files( path , basename , extension , &smspec_file , data_files );
+
+  util_safe_free( path );
+  util_safe_free( basename );
+  util_safe_free( extension );
+  util_safe_free( smspec_file );
+  stringlist_free( data_files );
+  
+  return case_exists;
+}
+
+
 /*****************************************************************/
 
 double ecl_sum_get_from_sim_time( const ecl_sum_type * ecl_sum , time_t sim_time , const smspec_node_type * node) {

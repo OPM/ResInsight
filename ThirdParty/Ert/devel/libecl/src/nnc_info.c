@@ -1,4 +1,3 @@
-
 /*
    Copyright (C) 2013  Statoil ASA, Norway. 
     
@@ -25,6 +24,7 @@
 
 #include <ert/ecl/nnc_info.h>
 #include <ert/ecl/nnc_vector.h>
+#include <ert/ecl/ecl_kw_magic.h>
 
 #define NNC_INFO_TYPE_ID 675415078
 
@@ -85,35 +85,36 @@ static void nnc_info_assert_vector( nnc_info_type * nnc_info , int lgr_nr ) {
 
 
 
-
-
-void nnc_info_add_nnc(nnc_info_type * nnc_info, int lgr_nr, int global_cell_number) {
+void nnc_info_add_nnc(nnc_info_type * nnc_info, int lgr_nr, int global_cell_number, int nnc_index) {
   nnc_info_assert_vector( nnc_info , lgr_nr );
   {
     nnc_vector_type * nnc_vector = nnc_info_get_vector( nnc_info , lgr_nr );
-    nnc_vector_add_nnc( nnc_vector , global_cell_number );
+    nnc_vector_add_nnc( nnc_vector , global_cell_number , nnc_index);
   }
 }
    
 
-const int_vector_type * nnc_info_get_index_list(const nnc_info_type * nnc_info, int lgr_nr) { 
+const int_vector_type * nnc_info_get_grid_index_list(const nnc_info_type * nnc_info, int lgr_nr) { 
   nnc_vector_type * nnc_vector = nnc_info_get_vector( nnc_info , lgr_nr );
   if (nnc_vector)
-    return nnc_vector_get_index_list( nnc_vector );
+    return nnc_vector_get_grid_index_list( nnc_vector );
   else
     return NULL;
 }
 
 
-const int_vector_type * nnc_info_iget_index_list(const nnc_info_type * nnc_info, int lgr_index) { 
+const int_vector_type * nnc_info_iget_grid_index_list(const nnc_info_type * nnc_info, int lgr_index) { 
   nnc_vector_type * nnc_vector = nnc_info_iget_vector( nnc_info , lgr_index );
-  return nnc_vector_get_index_list( nnc_vector );
+  if (nnc_vector)
+    return nnc_vector_get_grid_index_list( nnc_vector );
+  else
+    return NULL;
 }
 
 
 
-const int_vector_type * nnc_info_get_self_index_list(const nnc_info_type * nnc_info) { 
-  return nnc_info_get_index_list( nnc_info , nnc_info->lgr_nr );
+const int_vector_type * nnc_info_get_self_grid_index_list(const nnc_info_type * nnc_info) { 
+  return nnc_info_get_grid_index_list( nnc_info , nnc_info->lgr_nr );
 }
 
 
@@ -125,4 +126,35 @@ int nnc_info_get_lgr_nr( const nnc_info_type * nnc_info ) {
 
 int nnc_info_get_size( const nnc_info_type * nnc_info ) {
   return vector_get_size( nnc_info->lgr_list );
+}
+
+
+int nnc_info_get_total_size( const nnc_info_type * nnc_info ) {
+  int num_nnc = 0;
+  int ivec;
+  for (ivec = 0; ivec < vector_get_size( nnc_info->lgr_list ); ivec++) {
+    const nnc_vector_type * nnc_vector = vector_iget( nnc_info->lgr_list , ivec );
+    num_nnc += nnc_vector_get_size( nnc_vector );
+  }
+  return num_nnc;
+}
+
+
+void nnc_info_fprintf(const nnc_info_type * nnc_info , FILE * stream) {
+  fprintf(stream,"LGR_NR:%d \n",nnc_info->lgr_nr);
+  {
+    int lgr_nr;
+    for (lgr_nr=0; lgr_nr < int_vector_size( nnc_info->lgr_index_map ); lgr_nr++) {
+      int lgr_index = int_vector_iget( nnc_info->lgr_index_map , lgr_nr );
+      if (lgr_index >= 0) {
+        printf("   %02d -> %02d  => ",lgr_nr , lgr_index);
+        {
+          const int_vector_type * index_list = nnc_info_iget_grid_index_list( nnc_info , lgr_index );
+          int_vector_fprintf( index_list , stream , " " , "%d");
+          printf("\n");
+        }
+      }
+    }
+  }
+  fprintf(stream , "\n");
 }

@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Doxygen|Win32">
+      <Configuration>Doxygen</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F5FA2496-1AD3-4569-8EA1-5B5F01450B03}</ProjectGuid>
+    <RootNamespace>Doxygen</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Doxygen|Win32'">
+    <ConfigurationType>Utility</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Doxygen|Win32'">
+    <OutDir>$(ProjectDir)\html\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Doxygen|Win32'">
+    <IntDir>$(ProjectDir)\html\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Doxygen|Win32'">
+    <ExtensionsToDeleteOnClean>*.html;*.css;*.map;*.md5;*.dot;*.png;*.gif;*.js;installdox</ExtensionsToDeleteOnClean>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="CeetronDoxygenGuidelines.txt" />
+    <None Include="html\index.html" />
+    <CustomBuild Include="RunDoxygen.bat">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Doxygen|Win32'">RunDoxygen.bat</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Doxygen|Win32'">Running Doxygen...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Doxygen|Win32'">html/ToForceRebuildEveryTime.html</Outputs>
+    </CustomBuild>
+    <None Include="VizDoxygenSetup" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

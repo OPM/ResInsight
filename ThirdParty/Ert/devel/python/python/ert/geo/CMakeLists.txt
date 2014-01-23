@@ -3,4 +3,5 @@ set(PYTHON_SOURCES
     geo_polygon.py
 )
 
-add_python_package("Python ert.geo"  ${PYTHON_INSTALL_PREFIX}/ert/geo "${PYTHON_SOURCES}" True)
+add_python_package("python.ert.geo"  ${PYTHON_INSTALL_PREFIX}/ert/geo "${PYTHON_SOURCES}" True)
+

@@ -33,7 +33,7 @@ public:
     RiaPreferences(void);
     virtual ~RiaPreferences(void);
 
-    void resetToDefaults();
+    void configureForRegressionTests();
 
 public: // Pdm Fields
     caf::PdmField<caf::AppEnum< RiaApplication::RINavigationPolicy > > navigationPolicy;
@@ -58,6 +58,7 @@ public: // Pdm Fields
     caf::PdmField<bool>     autocomputeSOIL;
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
 
+    caf::PdmField<bool>     readFaultData;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);

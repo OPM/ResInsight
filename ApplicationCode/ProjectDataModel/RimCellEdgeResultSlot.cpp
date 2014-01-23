@@ -41,7 +41,7 @@ RimCellEdgeResultSlot::RimCellEdgeResultSlot()
 {
     CAF_PDM_InitObject("Cell Edge Result", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result variable", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&resultVariable, "CellEdgeVariable", "Result property", "", "", "");
     CAF_PDM_InitField(&useXVariable, "UseXVariable", true, "Use X values", "", "", "");
     CAF_PDM_InitField(&useYVariable, "UseYVariable", true, "Use Y values", "", "", "");
     CAF_PDM_InitField(&useZVariable, "UseZVariable", true, "Use Z values", "", "", "");
@@ -154,6 +154,8 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
             int i;
             for (i = 0; i < varList.size(); ++i)
             {
+                if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0) continue;
+
                 size_t cubeFaceIdx;
                 for (cubeFaceIdx = 0; cubeFaceIdx < EdgeFaceEnum::size(); ++cubeFaceIdx)
                 {
@@ -223,6 +225,8 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
         int i;
         for (i = 0; i < varList.size(); ++i)
         {
+            if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0) continue;
+
             if (varList[i].contains(resultVariable))
             {               
                 varNames.append(varList[i]);

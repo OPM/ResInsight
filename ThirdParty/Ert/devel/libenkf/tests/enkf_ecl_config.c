@@ -26,7 +26,7 @@
 #include <ert/enkf/ecl_refcase_list.h>
 
 int main(int argc , char ** argv) {
-  ecl_config_type * ecl_config = ecl_config_alloc_empty();
+  ecl_config_type * ecl_config = ecl_config_alloc();
   
   if (argc == 2) {
     test_assert_true(ecl_config_load_refcase( ecl_config , argv[1]));

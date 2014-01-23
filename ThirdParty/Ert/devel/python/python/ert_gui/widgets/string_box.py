@@ -16,6 +16,8 @@
 
 
 from PyQt4 import QtGui, QtCore
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QPalette
 from ert_gui.models.mixins import BasicModelMixin
 from ert_gui.widgets.helped_widget import HelpedWidget
 
@@ -33,6 +35,7 @@ class StringBox(HelpedWidget):
         self.addWidget(self.box_string)
 
         self.box_string.setText(defaultString)
+        self.__validator = None
 
         assert isinstance(model, BasicModelMixin)
         self.model = model
@@ -41,8 +44,22 @@ class StringBox(HelpedWidget):
 
     def validateString(self):
         """Override this to provide validation of the contained string. NOT SUPPORTED YET!"""
-        stringToValidate = self.box_string.text()
-        #todo implement validation possibility
+        string_to_validate = str(self.box_string.text())
+
+        if self.__validator is not None:
+            status = self.__validator.validate(string_to_validate)
+
+            if not status:
+                self.setValidationMessage(str(status), HelpedWidget.EXCLAMATION)
+                palette = QPalette()
+                palette.setColor(QPalette.Text, Qt.red)
+                self.box_string.setPalette(palette)
+            else:
+                self.setValidationMessage("")
+                palette = QPalette()
+                palette.setColor(QPalette.Text, Qt.black)
+                self.box_string.setPalette(palette)
+                self.stringBoxChanged()
 
 
     def stringBoxChanged(self):
@@ -60,6 +77,9 @@ class StringBox(HelpedWidget):
             text = ""
 
         self.box_string.setText(str(text))
+
+    def setValidator(self, validator):
+        self.__validator = validator
 
 
 

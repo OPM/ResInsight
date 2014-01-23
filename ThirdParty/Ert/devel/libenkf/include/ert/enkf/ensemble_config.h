@@ -58,6 +58,7 @@ typedef struct ensemble_config_struct ensemble_config_type;
   void                     ensemble_config_init(ensemble_config_type * ensemble_config , const config_type * config , ecl_grid_type * grid , const ecl_sum_type * refcase);
   void                     ensemble_config_free(ensemble_config_type * );
   bool                     ensemble_config_has_key(const ensemble_config_type * , const char * );
+  bool                     ensemble_config_has_impl_type(const  ensemble_config_type * config, const ert_impl_type impl_type); 
   bool                     ensemble_config_have_forward_init( const ensemble_config_type * ensemble_config );
   
   void                          ensemble_config_init_internalization( ensemble_config_type * );

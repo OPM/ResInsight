@@ -1,0 +1,491 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug MD TBB|Win32">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD TBB|x64">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|Win32">
+      <Configuration>Debug MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|x64">
+      <Configuration>Debug MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|Win32">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|x64">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|Win32">
+      <Configuration>Release MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|x64">
+      <Configuration>Release MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{A88592D2-824D-4BD4-717F-88B3A5A65E9A}</ProjectGuid>
+    <RootNamespace>QtSnippetRunner</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>qtmaind.lib;QtCored4.lib;QtGuid4.lib;QtOpenGLd4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>qtmaind.lib;QtCored4.lib;QtGuid4.lib;QtOpenGLd4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib;../../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>qtmaind.lib;QtCored4.lib;QtGuid4.lib;QtOpenGLd4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>qtmaind.lib;QtCored4.lib;QtGuid4.lib;QtOpenGLd4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib;../../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>qtmain.lib;QtCore4.lib;QtGui4.lib;QtOpenGL4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>qtmain.lib;QtCore4.lib;QtGui4.lib;QtOpenGL4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib;../../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>qtmain.lib;QtCore4.lib;QtGui4.lib;QtOpenGL4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(QTDIR)/include;$(QTDIR)/include/Qt;../../../LibCore;../../../LibRender;../../../LibGeometry;../../../LibViewing;../../../LibUtilities;../../../LibGuiQt;../../../Tests/SnippetsBasis;.</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>QSRStdInclude.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>qtmain.lib;QtCore4.lib;QtGui4.lib;QtOpenGL4.lib;opengl32.lib;glu32.lib;Winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)/lib;../../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\LibFreeType\LibFreeType.vcxproj">
+      <Project>{2667ac1d-ca80-42f8-8644-ddb58d342ff2}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibIo\LibIo.vcxproj">
+      <Project>{181472ee-4b37-01e8-49d5-6213678fe4f8}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibViewing\LibViewing.vcxproj">
+      <Project>{122d4663-11d6-d12f-8748-629a34e9075e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibCore\LibCore.vcxproj">
+      <Project>{a9c7a239-b761-a892-bf34-5aeca0d9ee88}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibGeometry\LibGeometry.vcxproj">
+      <Project>{efd5c9ac-8988-f190-aa2c-e36ebe361e90}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibGuiQt\LibGuiQt.vcxproj">
+      <Project>{fbfac173-30fe-2c09-3f2e-d54477b433de}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibRender\LibRender.vcxproj">
+      <Project>{c07ade80-5c4f-e6e3-dd1a-5a619403fa9f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibStructGrid\LibStructGrid.vcxproj">
+      <Project>{c22d8a0d-2318-3353-f75a-e83b82a3b29f}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\LibUtilities\LibUtilities.vcxproj">
+      <Project>{ecf1becd-e624-f971-c70a-f84686a36084}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Tests\SnippetsBasis\SnippetsBasis.vcxproj">
+      <Project>{0d83607b-e0f7-dba8-2f1f-8400c30b2008}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\ThirdParty\FreeType\builds\win32\vc2010\freetype.vcxproj">
+      <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="QSRCommandLineArgs.cpp" />
+    <ClCompile Include="QSRMain.cpp" />
+    <ClCompile Include="QSRMainWindow.cpp" />
+    <ClCompile Include="QSRPropertiesPanel.cpp" />
+    <ClCompile Include="QSRRunPanel.cpp" />
+    <ClCompile Include="QSRSnippetWidget.cpp" />
+    <ClCompile Include="QSRStdInclude.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="QSRTranslateEvent.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="QSRMainWindow.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">MOCing %(FullPath)...</Message>
+    </CustomBuild>
+    <CustomBuild Include="QSRSnippetWidget.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">MOCing %(FullPath)...</Message>
+    </CustomBuild>
+    <CustomBuild Include="QSRPropertiesPanel.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">MOCing %(FullPath)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="QSRRunPanel.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">%QTDIR%\bin\moc.exe %(FullPath) -o Qt-Generated\moc_%(Filename).cpp</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">MOCing %(FullPath)...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">MOCing %(FullPath)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">Qt-Generated\moc_%(FileName).cpp</Outputs>
+    </CustomBuild>
+    <ClInclude Include="QSRCommandLineArgs.h" />
+    <ClInclude Include="QSRStdInclude.h" />
+    <ClInclude Include="QSRTranslateEvent.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="TriggerTBBCopy.txt">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">COPY /Y /B "..\..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb.dll" + NUL "$(TargetDir)tbb.dll"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">COPY /Y /B "..\..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb.dll" + NUL "$(TargetDir)tbb.dll"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">$(TargetDir)tbb.dll</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">$(TargetDir)tbb.dll</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">COPY /Y /B "..\..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb_debug.dll" + NUL "$(TargetDir)tbb_debug.dll"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">COPY /Y /B "..\..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb_debug.dll" + NUL "$(TargetDir)tbb_debug.dll"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">$(TargetDir)tbb_debug.dll</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">$(TargetDir)tbb_debug.dll</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

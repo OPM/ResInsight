@@ -22,6 +22,7 @@
 #include <ert/util/latex.h>
 #include <ert/util/test_util.h>
 #include <ert/util/util.h>
+#include <ert/util/test_work_area.h>
 
 void make_file( const char * filename ) {
   FILE * stream = util_fopen( filename , "w");
@@ -31,7 +32,7 @@ void make_file( const char * filename ) {
 
 
 void test_link( const latex_type * latex , const char * link , const char * target) {
-  char * latex_link = util_alloc_filename( latex_get_runpath( latex ) , link , NULL);
+  char * latex_link   = util_alloc_filename( latex_get_runpath( latex ) , link , NULL);
   char * latex_target = util_alloc_link_target( latex_link );
   
   test_assert_true( util_same_file( target , latex_target));
@@ -69,28 +70,32 @@ void test_latex_link( latex_type * latex ) {
 
 int main(int argc , char ** argv) {
   bool ok;
-
+  const char * input_path = argv[1];
+  const char  * tex_file = argv[2];
+  test_work_area_type * work_area = test_work_area_alloc("latex-test");
+  test_work_area_copy_parent_content(work_area , input_path );
   {
     bool in_place = false;
-    latex_type * latex = latex_alloc( argv[1] , in_place);
+    latex_type * latex = latex_alloc( tex_file , in_place);
     ok = latex_compile( latex , true , true , true);
     test_assert_true( in_place == latex_compile_in_place( latex ));
     latex_free( latex );
     test_assert_true( ok );
   }
 
-
   {
-    latex_type * latex = latex_alloc( argv[1] , false );
+    latex_type * latex = latex_alloc( tex_file , false );
     test_latex_link( latex );
     latex_free( latex );
   }
 
   {
     bool in_place = true;
-    latex_type * latex = latex_alloc( argv[1] , in_place);
+    latex_type * latex = latex_alloc( tex_file , in_place);
     test_assert_true( in_place == latex_compile_in_place( latex ));
     test_latex_link( latex );
     latex_free( latex );
   }
+  test_work_area_free(work_area);
+  exit(0);
 }

@@ -296,7 +296,7 @@ Q                                | Quit
 
 #define XMIN_CMD    "XMIN"
 #define XMAX_CMD    "XMAX"
-#define YMIN_CMD    "XMIN"
+#define YMIN_CMD    "YMIN"
 #define YMAX_CMD    "YMAX"
 
 #define STOP_CMD    "_stop_"
@@ -1103,28 +1103,32 @@ double get_rft_depth (hash_type * ens_table, char * well, int i, int j, int k) {
     }
   }
   
-  
   const ecl_rft_file_type * ecl_rft = vector_iget_const( ens->data , 0 );
-  const ecl_rft_node_type * ecl_rft_node = ecl_rft_file_iget_well_rft(ecl_rft, well, 0);
-  const int node_size = ecl_rft_node_get_size(ecl_rft_node);
-  int inode;
-  int ni,nj,nk;
-  for (inode =0;inode < node_size;inode++){
-    ecl_rft_node_iget_ijk( ecl_rft_node , inode , &ni , &nj , &nk);
-    
-    if( i == ni && j==nj && k==nk){
-      //double depth = ecl_rft_node_iget_depth(ecl_rft_node,inode);
-      return ecl_rft_node_iget_depth(ecl_rft_node,inode);
+  if (ecl_rft_file_has_well( ecl_rft , well )) {
+    const ecl_rft_node_type * ecl_rft_node = ecl_rft_file_iget_well_rft(ecl_rft, well, 0);
+    const int node_size = ecl_rft_node_get_size(ecl_rft_node);
+    int inode;
+    int ni,nj,nk;
+    for (inode =0;inode < node_size;inode++){
+      /* 
+         The ecl_rft structure has zero offset values for the
+         coordinates, whereas the (i,j,k) input to this function is
+         assumed offset 1.
+      */
+      ecl_rft_node_iget_ijk( ecl_rft_node , inode , &ni , &nj , &nk);
       
+      if( ( i == (ni + 1)) && 
+          ( j == (nj + 1)) &&
+          ( k == (nk + 1))) {
+        //double depth = ecl_rft_node_iget_depth(ecl_rft_node,inode);
+        return ecl_rft_node_iget_depth(ecl_rft_node,inode);
+      }
     }
   }
   
-
-
-
   return 0;
-  
 }
+
 
 void plot_meas_file(plot_type * plot, time_t start_time){
   bool done = 0;

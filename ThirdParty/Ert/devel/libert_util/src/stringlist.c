@@ -340,6 +340,15 @@ const char * stringlist_iget(const stringlist_type * stringlist , int index) {
   return vector_iget(stringlist->strings ,index);
 }
 
+const char * stringlist_front(const stringlist_type * stringlist) {
+  return vector_iget(stringlist->strings , 0);
+}
+
+const char * stringlist_back(const stringlist_type * stringlist) {
+  return vector_iget(stringlist->strings , vector_get_size( stringlist->strings ) - 1);
+}
+
+
 int stringlist_iget_as_int( const stringlist_type * stringlist , int index , bool * valid) {
   const char * string_value = stringlist_iget( stringlist , index );
   int value = -1;

@@ -60,6 +60,7 @@
 #include "RimCaseCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 
@@ -83,6 +84,8 @@ RimCase::RimCase()
     CAF_PDM_InitField(&flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "");
     CAF_PDM_InitField(&flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "");
 
+    CAF_PDM_InitFieldNoDefault(&filesContainingFaults,    "FilesContainingFaults", "", "", "", "");
+    filesContainingFaults.setUiHidden(true);
 
     // Obsolete field
     CAF_PDM_InitField(&caseName, "CaseName",  QString(), "Obsolete", "", "" ,"");
@@ -312,18 +315,18 @@ void RimCase::computeCachedData()
     RigCaseData* rigEclipseCase = reservoirData();
     if (rigEclipseCase)
     {
+        caf::ProgressInfo pInf(30, "");
+        pInf.setNextProgressIncrement(1);
         rigEclipseCase->computeActiveCellBoundingBoxes();
+        pInf.incrementProgress();
 
+        pInf.setNextProgressIncrement(10);
         rigEclipseCase->mainGrid()->computeCachedData();
+        pInf.incrementProgress();
 
-        std::vector<RigGridBase*> grids;
-        rigEclipseCase->allGrids(&grids);
-
-        size_t i;
-        for (i = 0; i < grids.size(); i++)
-        {
-            grids[i]->computeFaults();
-        }
+        pInf.setProgressDescription("Calculating faults");
+        rigEclipseCase->mainGrid()->calculateFaults();
+        pInf.incrementProgress();
     }
 }
 

@@ -1,6 +1,6 @@
-set(source_files rng.c lookup_table.c statistics.c mzran.c set.c hash_node.c hash_sll.c hash.c node_data.c node_ctype.c util.c thread_pool.c msg.c arg_pack.c path_fmt.c menu.c subst_list.c subst_func.c vector.c parser.c stringlist.c matrix.c buffer.c log.c template.c timer.c time_interval.c string_util.c type_vector_functions.c test_work_area.c)
+set(source_files rng.c lookup_table.c statistics.c mzran.c set.c hash_node.c hash_sll.c hash.c node_data.c node_ctype.c util.c thread_pool.c msg.c arg_pack.c path_fmt.c menu.c subst_list.c subst_func.c vector.c parser.c stringlist.c matrix.c buffer.c log.c template.c timer.c time_interval.c string_util.c type_vector_functions.c ui_return.c)
 
-set(header_files ssize_t.h type_macros.h rng.h lookup_table.h statistics.h mzran.h set.h hash.h hash_node.h hash_sll.h node_data.h node_ctype.h util.h thread_pool.h msg.h arg_pack.h path_fmt.h  stringlist.h menu.h subst_list.h subst_func.h vector.h parser.h matrix.h buffer.h log.h template.h timer.h time_interval.h string_util.h type_vector_functions.h test_work_area.h)
+set(header_files ssize_t.h type_macros.h rng.h lookup_table.h statistics.h mzran.h set.h hash.h hash_node.h hash_sll.h node_data.h node_ctype.h util.h thread_pool.h msg.h arg_pack.h path_fmt.h  stringlist.h menu.h subst_list.h subst_func.h vector.h parser.h matrix.h buffer.h log.h template.h timer.h time_interval.h string_util.h type_vector_functions.h ui_return.h)
 
 set( test_source test_util.c )
 set( test_headers test_util.h )
@@ -11,11 +11,15 @@ endif()
 
 
 if (WITH_LATEX)
-   add_definitions( -DWITH_LATEX )
-   add_definitions( -DLATEX_CMD=\"${LATEX_PATH}\")
+   if (HAVE_FORK)
+      add_definitions( -DWITH_LATEX )
+      add_definitions( -DLATEX_CMD=\"${LATEX_PATH}\")
 
-   list( APPEND source_files latex.c )
-   list( APPEND header_files latex.h )
+      list( APPEND source_files latex.c )
+      list( APPEND header_files latex.h )
+   else()
+      message( STATUS "Disabling latex support due to missing fork() call")
+   endif()
 endif()
 
 if (WITH_LAPACK)
@@ -48,6 +52,12 @@ if (WITH_PTHREAD)
   list( APPEND header_files block_fs.h )
 
   list( APPEND header_files thread_pool_posix.h )
+endif()
+
+# The test_work_area depends on that opendir() is available.
+if (HAVE_GETUID AND HAVE_OPENDIR)
+  list( APPEND source_files test_work_area.c)
+  list( APPEND header_files test_work_area.h )
 endif()
 
 add_library( ert_util   ${LIBRARY_TYPE}  ${source_files} )

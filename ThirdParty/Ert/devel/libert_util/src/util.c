@@ -874,6 +874,7 @@ char * util_alloc_realpath__(const char * input_path) {
     util_free_stringlist( path_list , path_len );
   }
 
+  free(abs_path); 
   return real_path;
 }
 
@@ -3487,6 +3488,46 @@ void util_free_stringlist(char **list , int N) {
 }
 
 
+
+char * util_strstr_int_format(const char * string ) {
+  char * percent_ptr = strchr(string , '%');
+
+  if (percent_ptr) {
+
+    percent_ptr++;
+    if (percent_ptr[0] == 'd')
+      return percent_ptr++;
+    else {
+      if (percent_ptr[0] == '0') {
+
+        while (isdigit(percent_ptr[0])) 
+          percent_ptr++;
+
+        if (percent_ptr[0] == 'd')
+          return percent_ptr++;
+        else
+          return NULL;
+
+      } 
+      return NULL;
+    }
+  }
+  return percent_ptr;
+}
+
+
+int util_int_format_count(const char * string ) {
+  int count = 0;
+  const char * str = util_strstr_int_format(string);
+  while (str) {
+    count++;
+    str = util_strstr_int_format( str );
+  }
+  return count;
+}
+
+
+
 /**
    Will free a list of strings where the last element is NULL. Will
    go completely canacas if the list is not NULL terminated.
@@ -4210,26 +4251,12 @@ void util_update_double_max_min(double value , double * max , double * min) {
   *max = util_double_max(value , *max);
 }
   
-
-void util_apply_double_limits(double * value , double min_value , double max_value) {
-  if (*value < min_value)
-    *value = min_value;
-  else if (*value > max_value)
-    *value = max_value;
-}
-
-void util_apply_float_limits(float * value , float min_value , float max_value) {
-  if (*value < min_value)
-    *value = min_value;
-  else if (*value > max_value)
-    *value = max_value;
-}
-
-void util_apply_int_limits(int * value , int min_value , int max_value) {
-  if (*value < min_value)
-    *value = min_value;
-  else if (*value > max_value)
-    *value = max_value;
+void util_clamp_double(double * value , double limit1 , double limit2) {
+  double min = util_double_min( limit1 , limit2 );
+  double max = util_double_max( limit1 , limit2 );
+  
+  *value = util_double_max( *value , min );
+  *value = util_double_min( *value , max );
 }
 
 

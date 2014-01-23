@@ -137,6 +137,8 @@ typedef enum {left_pad   = 0,
   char       * util_alloc_rel_path( const char * __root_path , const char * path);
   bool         util_fmt_bit8   (const char *);
   bool         util_fmt_bit8_stream(FILE * );
+  char       * util_strstr_int_format(const char * string );
+  int          util_int_format_count(const char * string );
   void         util_make_path  (const char *);
   char       * util_newest_file(const char *, const char *);
   double       util_file_difftime(const char * , const char *);
@@ -310,9 +312,7 @@ typedef enum {left_pad   = 0,
   int      util_proc_mem_free(void);
   
   
-  void     util_apply_int_limits(int * , int , int );
-  void     util_apply_float_limits(float * , float , float );
-  void     util_apply_double_limits(double * , double , double );
+  void     util_clamp_double(double * value , double limit1, double limit2);
   double   util_double_vector_mean(int , const double * );
   double   util_double_vector_stddev(int , const double * );
   void     util_double_vector_max_min(int  , const double *, double * , double *);

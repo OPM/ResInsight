@@ -49,7 +49,7 @@
 
 #include "cafAnimationToolBar.h"
 #include "cafPdmUiPropertyView.h"
-#include "cvfqtBasicAboutDialog.h"
+#include "cafAboutDialog.h"
 #include "cvfTimer.h"
 
 #include "cafPdmFieldCvfMat4d.h"
@@ -295,6 +295,9 @@ void RiuMainWindow::createActions()
     //connect(m_drawStyleLinesSolidAction,	SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
      m_dsActionGroup->addAction(m_drawStyleLinesSolidAction);
 
+     m_drawStyleFaultLinesSolidAction           = new QAction(QIcon(":/draw_style_surface_w_fault_mesh_24x24.png"), "Fault Mesh And Surfaces", this);
+     m_dsActionGroup->addAction(m_drawStyleFaultLinesSolidAction);
+
     m_drawStyleSurfOnlyAction             = new QAction(QIcon(":/draw_style_surface_24x24.png"), "&Surface Only", this);
     //connect(m_drawStyleSurfOnlyAction,	SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
     m_dsActionGroup->addAction(m_drawStyleSurfOnlyAction);
@@ -306,6 +309,10 @@ void RiuMainWindow::createActions()
     m_drawStyleToggleFaultsAction             = new QAction( QIcon(":/draw_style_faults_24x24.png"), "&Show Faults Only", this);
     m_drawStyleToggleFaultsAction->setCheckable(true);
     connect(m_drawStyleToggleFaultsAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
+
+    m_toggleFaultsLabelAction             = new QAction( QIcon(":/draw_style_faults_label_24x24.png"), "&Show Fault Labels", this);
+    m_toggleFaultsLabelAction->setCheckable(true);
+    connect(m_toggleFaultsLabelAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
 
     m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
     m_addWellCellsToRangeFilterAction->setCheckable(true);
@@ -435,7 +442,9 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleLinesAction);
     m_viewToolBar->addAction(m_drawStyleLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
+    m_viewToolBar->addAction(m_drawStyleFaultLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
+    m_viewToolBar->addAction(m_toggleFaultsLabelAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
     QLabel* scaleLabel = new QLabel(m_viewToolBar);
@@ -702,13 +711,12 @@ void RiuMainWindow::refreshAnimationActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotAbout()
 {
-    cvfqt::BasicAboutDialog dlg(this);
+    caf::AboutDialog dlg(this);
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
     dlg.setCopyright("Copyright 2011-2013 Statoil ASA, Ceetron AS");
-    dlg.showCeeVizVersion(false);
-
+    dlg.showQtVersion(false);
 #ifdef _DEBUG
     dlg.setIsDebugBuild(true);
 #endif
@@ -719,7 +727,7 @@ void RiuMainWindow::slotAbout()
     dlg.addVersionEntry(" ", " ");
     dlg.addVersionEntry(" ", "Technical Information");
     dlg.addVersionEntry(" ", QString("   Qt ") + qVersion());
-    dlg.addVersionEntry(" ", QString("   ") + dlg.openGLVersionString());
+    dlg.addVersionEntry(" ", QString("   ") + caf::AboutDialog::versionStringForcurrentOpenGLContext());
     dlg.addVersionEntry(" ", caf::Viewer::isShadersSupported() ? "   Hardware OpenGL" : "   Software OpenGL");
 
     dlg.create();
@@ -806,7 +814,8 @@ void RiuMainWindow::slotOpenProject()
 void RiuMainWindow::slotOpenLastUsedProject()
 {
     RiaApplication* app = RiaApplication::instance();
-    app->loadLastUsedProject();
+    QString fileName = app->preferences()->lastUsedProjectFileName;
+    app->loadProject(fileName);
 
 }
 
@@ -1396,7 +1405,9 @@ void RiuMainWindow::slotSnapshotAllViewsToFile()
 {
     RiaApplication* app = RiaApplication::instance();
 
-    app->saveSnapshotForAllViews("snapshots");
+    // Save images in snapshot catalog relative to project directory
+    QString absolutePathToSnapshotDir = app->createAbsolutePathFromProjectRelativePath("snapshots");
+    app->saveSnapshotForAllViews(absolutePathToSnapshotDir);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1471,6 +1482,10 @@ void RiuMainWindow::slotDrawStyleChanged(QAction* activatedAction)
     {
         RiaApplication::instance()->activeReservoirView()->setSurfOnlyDrawstyle();
     }
+    else if (activatedAction == m_drawStyleFaultLinesSolidAction)
+    {
+        RiaApplication::instance()->activeReservoirView()->setFaultMeshSurfDrawstyle();
+    }
 
 }
 
@@ -1484,6 +1499,19 @@ void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
     RiaApplication::instance()->activeReservoirView()->setShowFaultsOnly(showFaults);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
+{
+    if (!RiaApplication::instance()->activeReservoirView()) return;
+
+    RiaApplication::instance()->activeReservoirView()->faultCollection->showFaultLabel.setValueFromUi(showLabels);
+
+    refreshDrawStyleActions();
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1494,8 +1522,10 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleLinesAction->setEnabled(enable);
     m_drawStyleLinesSolidAction->setEnabled(enable);
     m_drawStyleSurfOnlyAction->setEnabled(enable);
+    m_drawStyleFaultLinesSolidAction->setEnabled(enable);
 
     m_drawStyleToggleFaultsAction->setEnabled(enable);
+    m_toggleFaultsLabelAction->setEnabled(enable);
 
     m_addWellCellsToRangeFilterAction->setEnabled(enable);
 
@@ -1503,9 +1533,12 @@ void RiuMainWindow::refreshDrawStyleActions()
     {
         RimReservoirView* riv = RiaApplication::instance()->activeReservoirView();
         m_drawStyleToggleFaultsAction->blockSignals(true);
-        m_drawStyleToggleFaultsAction->setChecked(   riv->meshMode == RimReservoirView::FAULTS_MESH 
-                                                  || riv->surfaceMode == RimReservoirView::FAULTS);
+        m_drawStyleToggleFaultsAction->setChecked(   !riv->isGridVisualizationMode());
         m_drawStyleToggleFaultsAction->blockSignals(false);
+
+        m_toggleFaultsLabelAction->blockSignals(true);
+        m_toggleFaultsLabelAction->setChecked(riv->faultCollection()->showFaultLabel());
+        m_toggleFaultsLabelAction->blockSignals(false);
 
         m_addWellCellsToRangeFilterAction->blockSignals(true);
         m_addWellCellsToRangeFilterAction->setChecked( riv->wellCollection()->wellCellsToRangeFilterMode() != RimWellCollection::RANGE_ADD_NONE);

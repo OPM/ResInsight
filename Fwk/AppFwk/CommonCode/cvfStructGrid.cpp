@@ -39,6 +39,21 @@
 #include "cvfBase.h"
 #include "cvfStructGrid.h"
 
+namespace caf
+{
+    template<>
+    void cvf::StructGridInterface::FaceEnum::setUp()
+    {
+        addItem(cvf::StructGridInterface::POS_I,   "X",    "");
+        addItem(cvf::StructGridInterface::NEG_I,   "X-",   "");
+        addItem(cvf::StructGridInterface::POS_J,   "Y",    "");
+        addItem(cvf::StructGridInterface::NEG_J,   "Y-",   "");
+        addItem(cvf::StructGridInterface::POS_K,   "Z",    "");
+        addItem(cvf::StructGridInterface::NEG_K,   "Z-",   "");
+        addItem(cvf::StructGridInterface::NO_FACE, "UnDef",   "");
+    }
+}
+
 
 namespace cvf {
 
@@ -167,7 +182,7 @@ StructGridInterface::FaceType StructGridInterface::oppositeFace(FaceType face)
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Return values are set to cvf::UNDEFINED_SIZE_T if the neighbor is in the negative area
 //--------------------------------------------------------------------------------------------------
 void StructGridInterface::neighborIJKAtCellFace(size_t i, size_t j, size_t k, FaceType face, size_t* ni, size_t* nj, size_t* nk)
 {

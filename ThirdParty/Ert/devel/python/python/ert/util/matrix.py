@@ -28,33 +28,48 @@
 
 
 from ert.util import UTIL_LIB
-from ert.cwrap import CClass, CWrapper, CWrapperNameSpace
+from ert.cwrap import CWrapper, BaseCClass
 
 
-class Matrix(CClass):
+class Matrix(BaseCClass):
     def __init__(self, rows, columns):
-        c_ptr = cfunc.matrix_alloc(rows, columns)
-        self.init_cobj(c_ptr, cfunc.free)
+        self.__rows = rows
+        self.__columns = columns
+        c_ptr = Matrix.cNamespace().matrix_alloc(rows, columns)
+        super(Matrix, self).__init__(c_ptr)
 
-    def __getitem__(self, index_tuple ):
-        # print index_tuple
-        (i, j) = index_tuple
-        return cfunc.iget(self, i, j)
+    def __getitem__(self, index_tuple):
+        if not 0 <= index_tuple[0] < self.__rows:
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[0], self.__rows))
+
+        if not 0 <= index_tuple[1] < self.__columns:
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.__columns))
+
+        return Matrix.cNamespace().iget(self, index_tuple[0], index_tuple[1])
 
     def __setitem__(self, index_tuple, value):
-        (i, j) = index_tuple
-        return cfunc.iset(self, i, j, value)
+        if not 0 <= index_tuple[0] < self.__rows:
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[0], self.__rows))
+
+        if not 0 <= index_tuple[1] < self.__columns:
+            raise IndexError("Expected 0 <= %d < %d" % (index_tuple[1], self.__columns))
+
+        return Matrix.cNamespace().iset(self, index_tuple[0], index_tuple[1], value)
+
+    def free(self):
+        Matrix.cNamespace().free(self)
 
 
 #################################################################
 
-CWrapper.registerType("matrix", Matrix)
 cwrapper = CWrapper(UTIL_LIB)
-cfunc = CWrapperNameSpace("matrix")
+CWrapper.registerType("matrix", Matrix)
+CWrapper.registerType("matrix_obj", Matrix.createPythonObject)
+CWrapper.registerType("matrix_ref", Matrix.createCReference)
 
-cfunc.matrix_alloc = cwrapper.prototype("c_void_p   matrix_alloc( int , int )")
-cfunc.free = cwrapper.prototype("void       matrix_free( matrix )")
-cfunc.iget = cwrapper.prototype("double     matrix_iget( matrix , int , int )")
-cfunc.iset = cwrapper.prototype("void       matrix_iset( matrix , int , int , double)")
+Matrix.cNamespace().matrix_alloc = cwrapper.prototype("c_void_p matrix_alloc(int, int )")
+Matrix.cNamespace().free = cwrapper.prototype("void   matrix_free(matrix)")
+Matrix.cNamespace().iget = cwrapper.prototype("double matrix_iget( matrix , int , int )")
+Matrix.cNamespace().iset = cwrapper.prototype("void   matrix_iset( matrix , int , int , double)")
         
     

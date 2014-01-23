@@ -40,6 +40,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "RivSourceInfo.h"
 
 
 
@@ -47,7 +48,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx)
+RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* rimFaultCollection)
 :   m_surfaceGenerator(grid), 
     m_faultGenerator(grid), 
     m_gridIdx(gridIdx),
@@ -55,7 +56,8 @@ RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx)
     m_surfaceFaceFilter(grid), 
     m_faultFaceFilter(grid),
     m_opacityLevel(1.0f),
-    m_defaultColor(cvf::Color3::WHITE)
+    m_defaultColor(cvf::Color3::WHITE),
+    m_rimFaultCollection(rimFaultCollection)
 {
     CVF_ASSERT(grid);
     m_cellVisibility = new cvf::UByteArray;
@@ -82,13 +84,9 @@ void RivGridPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
     m_cellVisibility = cellVisibilities;
 
     m_surfaceGenerator.setCellVisibility(cellVisibilities);
-    m_surfaceFaceFilter.m_showExternalFaces = true;
-    m_surfaceFaceFilter.m_showFaultFaces = false;
     m_surfaceGenerator.addFaceVisibilityFilter(&m_surfaceFaceFilter);
 
     m_faultGenerator.setCellVisibility(cellVisibilities);
-    m_faultFaceFilter.m_showExternalFaces = false;
-    m_faultFaceFilter.m_showFaultFaces = true;
     m_faultGenerator.addFaceVisibilityFilter(&m_faultFaceFilter);
 
     generatePartGeometry(m_surfaceGenerator, false);
@@ -117,12 +115,15 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             part->setTransform(m_scaleTransform.p());
 
             // Set mapping from triangle face index to cell index
-            part->setSourceInfo(geoBuilder.triangleToSourceGridCellMap().p());
+            cvf::ref<RivSourceInfo> si = new RivSourceInfo;
+            si->m_cellIndices = geoBuilder.triangleToSourceGridCellMap().p();
+            si->m_faceTypes = geoBuilder.triangleToFaceTypes().p();
+            part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
             
             // Set default effect
-            caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), true);
+            caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), caf::PO_1);
             cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
             part->setEffect(geometryOnlyEffect.p());
 
@@ -192,8 +193,12 @@ void RivGridPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
     if(m_surfaceFaces.notNull()    ) model->addPart(m_surfaceFaces.p()    );
     if(m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());
-    if(m_faultFaces.notNull()      ) model->addPart(m_faultFaces.p()      );
-    if(m_faultGridLines.notNull()  ) model->addPart(m_faultGridLines.p()  );
+
+    if (m_rimFaultCollection && m_rimFaultCollection->showGeometryDetectedFaults())
+    {
+        if(m_faultFaces.notNull()      ) model->addPart(m_faultFaces.p()      );
+        if(m_faultGridLines.notNull()  ) model->addPart(m_faultGridLines.p()  );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,7 +209,7 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
     if (m_surfaceFaces.isNull() && m_faultFaces.isNull()) return;
 
     // Set default effect
-    caf::SurfaceEffectGenerator geometryEffgen(color, true);
+    caf::SurfaceEffectGenerator geometryEffgen(color, caf::PO_1);
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
     if (m_surfaceFaces.notNull()) m_surfaceFaces->setEffect(geometryOnlyEffect.p());
@@ -245,25 +250,36 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 {
     CVF_ASSERT(cellResultSlot);
 
-    size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
+
     const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-
-    // If the result is static, only read that.
-    size_t resTimeStepIdx = timeStepIndex;
-    if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
-
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-
     RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
-
-    if (dataAccessObject.isNull()) return;
 
  
     // Outer surface
     if (m_surfaceFaces.notNull())
     {
-        m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        {
+            const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
+            const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
+            cvf::Vec2fArray* textureCoords = m_surfaceFacesTextureCoords.p();
+
+            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
+        }
+        else
+        {
+            size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
+
+            // If the result is static, only read that.
+            size_t resTimeStepIdx = timeStepIndex;
+            if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
+
+            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
+            if (dataAccessObject.isNull()) return;
+
+            m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+        }
 
         // if this gridpart manager is set to have some transparency, we
         // interpret it as we are displaying beeing wellcells. The cells are then transparent by default, but
@@ -295,8 +311,8 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
 
-        bool usePolygonOffset = true;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+        caf::PolygonOffset polygonOffset = caf::PO_1;
+        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
 
@@ -308,6 +324,16 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     // Faults
     if (m_faultFaces.notNull())
     {
+        size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
+
+        // If the result is static, only read that.
+        size_t resTimeStepIdx = timeStepIndex;
+        if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
+
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
+        if (dataAccessObject.isNull()) return;
+
         m_faultGenerator.textureCoordinates(m_faultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
 
         if (m_opacityLevel < 1.0f )
@@ -336,8 +362,8 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
         if (dg) dg->setTextureCoordArray(m_faultFacesTextureCoords.p());
 
-        bool usePolygonOffset = true;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, usePolygonOffset);
+        caf::PolygonOffset polygonOffset = caf::PO_1;
+        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
 
         scalarEffgen.setOpacityLevel(m_opacityLevel);
 
@@ -405,4 +431,107 @@ RivGridPartMgr::~RivGridPartMgr()
     if (m_surfaceGridLines.notNull()) m_surfaceGridLines->deleteOrReleaseOpenGLResources();
     if (m_surfaceFaces.notNull()) m_surfaceFaces->deleteOrReleaseOpenGLResources();
 #endif
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(RimResultSlot* cellResultSlot,
+    const RigGridBase* grid,
+    cvf::Vec2fArray* textureCoords, 
+    const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes, 
+    const std::vector<size_t>& quadsToGridCells)
+{
+    const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+    if (!mapper) return;
+
+    const RimReservoirCellResultsStorage* gridCellResults = cellResultSlot->currentGridCellResults();
+    if (!gridCellResults) return;
+
+    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    if (!eclipseCase) return;
+
+    size_t tranPosXScalarSetIndex, tranPosYScalarSetIndex, tranPosZScalarSetIndex;
+    if (!gridCellResults->cellResults()->findTransmissibilityResults(tranPosXScalarSetIndex, tranPosYScalarSetIndex, tranPosZScalarSetIndex)) return;
+
+    // If the result is static, only read that.
+    size_t resTimeStepIdx = 0;
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranX = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosXScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranY = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosYScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranZ = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosZScalarSetIndex);
+
+
+    size_t numVertices = quadsToGridCells.size()*4;
+
+    textureCoords->resize(numVertices);
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
+
+    double cellScalarValue;
+    cvf::Vec2f texCoord;
+
+#pragma omp parallel for private(texCoord, cellScalarValue)
+    for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
+    {
+        cellScalarValue = HUGE_VAL;
+
+        if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_I)
+        {
+            cellScalarValue = dataAccessObjectTranX->cellScalar(quadsToGridCells[idx]);
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_I)
+        {
+            size_t i, j, k, neighborGridCellIdx;
+            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_I, &neighborGridCellIdx))
+            {
+                cellScalarValue = dataAccessObjectTranX->cellScalar(neighborGridCellIdx);
+            }
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_J)
+        {
+            cellScalarValue = dataAccessObjectTranY->cellScalar(quadsToGridCells[idx]);
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_J)
+        {
+            size_t i, j, k, neighborGridCellIdx;
+            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_J, &neighborGridCellIdx))
+            {
+                cellScalarValue = dataAccessObjectTranY->cellScalar(neighborGridCellIdx);
+            }
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_K)
+        {
+            cellScalarValue = dataAccessObjectTranZ->cellScalar(quadsToGridCells[idx]);
+        }
+        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_K)
+        {
+            size_t i, j, k, neighborGridCellIdx;
+            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_K, &neighborGridCellIdx))
+            {
+                cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
+            }
+        }
+
+        texCoord = mapper->mapToTextureCoord(cellScalarValue);
+        if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
+        {
+            texCoord[1] = 1.0f;
+        }
+
+        size_t j;
+        for (j = 0; j < 4; j++)
+        {   
+            rawPtr[idx*4 + j] = texCoord;
+        }
+    }
+
 }

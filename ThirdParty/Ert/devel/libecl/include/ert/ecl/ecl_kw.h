@@ -95,6 +95,7 @@ extern "C" {
   void           ecl_kw_get_data_as_float(const ecl_kw_type * ecl_kw , float * float_data);
   bool           ecl_kw_header_eq(const ecl_kw_type *ecl_kw1 , const ecl_kw_type * ecl_kw2);
   bool           ecl_kw_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2);
+  bool           ecl_kw_icmp_string( const ecl_kw_type * ecl_kw , int index, const char * other_string);
   bool           ecl_kw_numeric_equal(const ecl_kw_type *ecl_kw1, const ecl_kw_type *ecl_kw2 , double rel_diff);
   bool           ecl_kw_block_equal( const ecl_kw_type * ecl_kw1 , const ecl_kw_type * ecl_kw2 , int cmp_elements);
   bool           ecl_kw_data_equal( const ecl_kw_type * ecl_kw , const void * data);

@@ -125,6 +125,23 @@ static double trans_normal(double x , const arg_pack_type * arg) {
 }
 
 
+static double trans_truncated_normal(double x , const arg_pack_type * arg) {
+  double mu , std , min , max;
+  
+  mu  = arg_pack_iget_double(arg , 0 );
+  std = arg_pack_iget_double(arg , 1 );
+  min = arg_pack_iget_double(arg , 2 );
+  max = arg_pack_iget_double(arg , 3 );
+  
+  {
+    double y = x * std + mu;
+    util_clamp_double( &y , min , max );
+    return y;
+  }
+}
+
+
+
 
 static double trans_lognormal(double x, const arg_pack_type * arg) {
   double mu, std;
@@ -261,6 +278,20 @@ trans_func_type * trans_func_alloc( const char * func_name ) {
       arg_pack_append_double( trans_func->params , 0 );
       trans_func->func = trans_lognormal;
     }
+
+    if (util_string_equal( func_name , "TRUNCATED_NORMAL")) {
+      stringlist_append_ref( trans_func->param_names , "MEAN");
+      stringlist_append_ref( trans_func->param_names , "STD" );
+      stringlist_append_ref( trans_func->param_names , "MIN");
+      stringlist_append_ref( trans_func->param_names , "MAX" );
+      
+      arg_pack_append_double( trans_func->params , 0 );
+      arg_pack_append_double( trans_func->params , 0 );
+      arg_pack_append_double( trans_func->params , 0 );
+      arg_pack_append_double( trans_func->params , 0 );
+      trans_func->func = trans_truncated_normal;
+    }
+
     
     if (util_string_equal( func_name , "UNIFORM")) {
       stringlist_append_ref( trans_func->param_names , "MIN");
@@ -332,7 +363,7 @@ trans_func_type * trans_func_alloc( const char * func_name ) {
     if (util_string_equal( func_name , "NONE")) 
       trans_func->func = trans_const;
 
-
+    
     if (trans_func->func == NULL) 
       util_exit("%s: Sorry: function name:%s not recognized \n",__func__ , func_name);
   }

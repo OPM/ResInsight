@@ -1,3 +1,6 @@
+if (NOT PYTHONINTERP_FOUND)
+  find_package (PythonInterp REQUIRED)
+endif ()
 function(add_python_package target package_path source_files install_package)
 
   set(build_files "")                       
@@ -9,8 +12,8 @@ function(add_python_package target package_path source_files install_package)
 
      add_custom_command(
         OUTPUT  ${build_file}
-        COMMAND ${PROJECT_SOURCE_DIR}/cmake/cmake_pyc2     
-        ARGS    ${source_file} ${build_file}
+        COMMAND ${PYTHON_EXECUTABLE}
+        ARGS    ${PROJECT_SOURCE_DIR}/cmake/cmake_pyc2 ${source_file} ${build_file}
         DEPENDS ${source_file} )
     
      list(APPEND build_files ${build_file} )

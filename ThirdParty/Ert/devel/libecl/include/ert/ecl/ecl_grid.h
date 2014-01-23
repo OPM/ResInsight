@@ -79,7 +79,6 @@ extern "C" {
   int             ecl_grid_get_global_index1A(const ecl_grid_type * ecl_grid , int active_index);
   int             ecl_grid_get_global_index1F(const ecl_grid_type * ecl_grid , int active_fracture_index);
 
-  const int_vector_type * ecl_grid_get_nnc_index_list( ecl_grid_type * grid );
   const nnc_info_type * ecl_grid_get_cell_nnc_info3( const ecl_grid_type * grid , int i , int j , int k); 
   const nnc_info_type * ecl_grid_get_cell_nnc_info1( const ecl_grid_type * grid , int global_index); 
   
@@ -90,6 +89,7 @@ extern "C" {
   ecl_grid_type * ecl_grid_load_case( const char * case_input );
   ecl_grid_type * ecl_grid_alloc_rectangular( int nx , int ny , int nz , double dx , double dy , double dz , const int * actnum);
   ecl_grid_type * ecl_grid_alloc_regular( int nx, int ny , int nz , const double * ivec, const double * jvec , const double * kvec , const int * actnum);
+  ecl_grid_type * ecl_grid_alloc_dxv_dyv_dzv( int nx, int ny , int nz , const double * dxv , const double * dyv , const double * dzv , const int * actnum);
     
   bool            ecl_grid_exists( const char * case_input );
   char          * ecl_grid_alloc_case_filename( const char * case_input );
@@ -144,6 +144,7 @@ extern "C" {
   const ecl_grid_type   * ecl_grid_get_cell_lgr1(const ecl_grid_type * grid , int global_index );
   int                     ecl_grid_get_num_lgr(const ecl_grid_type * main_grid );
   int                     ecl_grid_get_lgr_nr( const ecl_grid_type * ecl_grid );
+  int                     ecl_grid_get_lgr_nr_from_name( const ecl_grid_type * grid , const char * name);
   ecl_grid_type         * ecl_grid_iget_lgr(const ecl_grid_type * main_grid , int lgr_index); 
   ecl_grid_type         * ecl_grid_get_lgr_from_lgr_nr(const ecl_grid_type * main_grid, int lgr_nr);
   ecl_grid_type         * ecl_grid_get_lgr(const ecl_grid_type * main_grid, const char * __lgr_name);
@@ -181,6 +182,7 @@ extern "C" {
   void             ecl_grid_cell_ri_export( const ecl_grid_type * ecl_grid , int global_index , double * ri_points);
 
   bool             ecl_grid_dual_grid( const ecl_grid_type * ecl_grid );
+  int              ecl_grid_get_num_nnc( const ecl_grid_type * grid );
 
   UTIL_IS_INSTANCE_HEADER( ecl_grid );
   

@@ -80,8 +80,6 @@ public:
     ~OverlayNavigationCube();
 
     virtual Vec2ui      sizeHint();
-    virtual Vec2ui      maximumSize();
-    virtual Vec2ui      minimumSize();
 
     virtual void        render(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
     virtual void        renderSoftware(OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size);
@@ -172,13 +170,13 @@ private:
 
     NavCubeItem         navCubeItem(NavCubeFace face, NavCubeFaceItem item) const;
 
-    void                configureLocalCamera(Camera* camera, const Vec2i& position, const Vec2ui& size);
+    void                configureLocalCamera(Camera* camera, const Vec2i& position, const Vec2ui& size) const;
 
     void                viewConfigurationFromNavCubeItem(NavCubeItem item, Vec3d* viewDir, Vec3d* up);
     Vec3d               computeNewUpVector(const Vec3d& viewFrom, const Vec3d currentUp) const;
 
-    size_t              pickItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size);
-    NavCubeItem         pick2dItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size);
+    size_t              pickItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size) const;
+    NavCubeItem         pick2dItem(int winCoordX, int winCoordY, const Vec2i& position, const Vec2ui& size) const;
 
     void                updateTextureBindings(OpenGLContext* oglContext, bool software);
     bool                isFaceAlignedViewPoint() const;

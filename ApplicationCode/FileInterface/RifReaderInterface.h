@@ -44,8 +44,11 @@ public:
     };
 
 public:
-    RifReaderInterface() {}
-    virtual ~RifReaderInterface() {}
+    RifReaderInterface()            { m_readFaultData = false; }
+    virtual ~RifReaderInterface()   {}
+
+    void                        readFaultData(bool readFaultData) { m_readFaultData = readFaultData; }
+    bool                        isFaultImportEnabled()            { return m_readFaultData; }
 
     virtual bool                open(const QString& fileName, RigCaseData* eclipseCase) = 0;
     virtual void                close() = 0;
@@ -53,5 +56,13 @@ public:
     virtual bool                staticResult(const QString& result, PorosityModelResultType matrixOrFracture, std::vector<double>* values) = 0;
     virtual bool                dynamicResult(const QString& result, PorosityModelResultType matrixOrFracture, size_t stepIndex, std::vector<double>* values) = 0;
 
-    virtual std::vector<QDateTime>    timeSteps() { std::vector<QDateTime> timeSteps; return timeSteps; }
+    virtual std::vector<QDateTime>  timeSteps() { std::vector<QDateTime> timeSteps; return timeSteps; }
+
+    void                        setFilenamesWithFaults(const std::vector<QString>& filenames)   { m_filenamesWithFaults = filenames; }
+    std::vector<QString>        filenamesWithFaults()                                           { return m_filenamesWithFaults; }
+
+
+private:
+    std::vector<QString>    m_filenamesWithFaults;
+    bool                    m_readFaultData;
 };

@@ -37,4 +37,4 @@ class AnalysisConfigTest(ExtendedTestCase):
     def test_analysis_modules(self):
         ac = AnalysisConfig()
         self.assertIsNone( ac.activeModuleName() )
-       
+        self.assertIsNotNone( ac.getModuleList() )

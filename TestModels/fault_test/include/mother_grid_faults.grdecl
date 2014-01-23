@@ -1,0 +1,14 @@
+
+INCLUDE
+  'grid_faults.grdecl' /
+  
+FAULTS
+-- NAME               IX1  IX2    IY1  IY2    IZ1  IZ2   FACE    
+
+'mother_grid_C202'                 1   1      1    1      1    3   'X-'    /
+'mother_grid_C202'                 1   1      1    1      1    3   'Z-'    /
+'mother_grid_C202'                 1   2      1    1      1    3   'X-'    /
+'mother_grid_C202'                 1   2      1    1      1    2   'Z-'    / 
+
+/
+

@@ -103,9 +103,11 @@ void RimInputCase::openDataFileSet(const QStringList& fileNames)
     // First find and read the grid data 
     if (this->reservoirData()->mainGrid()->gridPointDimensions() == cvf::Vec3st(0,0,0))
     {
+        RiaPreferences* prefs = RiaApplication::instance()->preferences();
+
          for (int i = 0; i < fileNames.size(); i++)
          {
-             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->reservoirData()))
+             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->reservoirData(), prefs->readFaultData()))
              {
                  m_gridFileName = fileNames[i];
 
@@ -188,8 +190,11 @@ bool RimInputCase::openEclipseGridFile()
         }
         else
         {
-            cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
+            RiaPreferences* prefs = RiaApplication::instance()->preferences();
             readerInterface = new RifReaderEclipseInput;
+            readerInterface->readFaultData(prefs->readFaultData());
+
+            cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
             if (!readerInterface->open(m_gridFileName, eclipseCase.p()))
             {
                 return false;
@@ -262,7 +267,9 @@ void RimInputCase::loadAndSyncronizeInputProperties()
 
         if (isExistingFile)
         {
-            std::vector< RifKeywordAndFilePos > fileKeywords = RifEclipseInputFileTools::findKeywordsOnFile(filenames[i]);
+            std::vector< RifKeywordAndFilePos > fileKeywords;
+            RifEclipseInputFileTools::findKeywordsOnFile(filenames[i], fileKeywords);
+
             for_all(fileKeywords, fkIt) fileKeywordSet.insert(fileKeywords[fkIt].keyword);
         }
 

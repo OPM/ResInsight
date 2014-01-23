@@ -33,14 +33,18 @@
 #include "ecl_grid.h"
 #include "well_state.h"
 #include "ecl_kw_magic.h"
+#include "ecl_nnc_export.h"
 
 #include "cafProgressInfo.h"
 #include <map>
+#include "RifEclipseInputFileTools.h"
 
 //--------------------------------------------------------------------------------------------------
 ///     ECLIPSE cell numbering layout:
 ///        Lower layer:   Upper layer
-///
+///        Low Depth      High Depth
+///        Low K          High K
+///        Shallow        Deep
 ///       2---3           6---7
 ///       |   |           |   |
 ///       0---1           4---5
@@ -51,17 +55,17 @@
 
 // The indexing conventions for vertices in ECLIPSE
 //
-//      6-------------7
-//     /|            /|
-//    / |           / |
-//   /  |          /  |
-//  4-------------5   |
-//  |   |         |   |
-//  |   2---------|---3
-//  |  /          |  /
+//      2-------------3              
+//     /|            /|                  
+//    / |           / |               /j   
+//   /  |          /  |              /     
+//  0-------------1   |             *---i  
+//  |   |         |   |             | 
+//  |   6---------|---7             |
+//  |  /          |  /              |k
 //  | /           | /
 //  |/            |/
-//  0-------------1
+//  4-------------5
 //  vertex indices
 //
 // The indexing conventions for vertices in ResInsight
@@ -146,7 +150,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         {
             double * point = mainGrid->nodes()[nodeStartIndex + localCellIdx * 8 + cellMappingECLRi[cIdx]].ptr();
             ecl_grid_get_corner_xyz1(localEclGrid, localCellIdx, cIdx, &(point[0]), &(point[1]), &(point[2]));
-            point[2] = -point[2];
+            point[2] = -point[2]; // Flipping Z making depth become negative z values
             cell.cornerIndices()[cIdx] = nodeStartIndex + localCellIdx*8 + cIdx;
         }
 
@@ -241,6 +245,7 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
     CVF_ASSERT(activeCellInfo && fractureActiveCellInfo);
 
     RigMainGrid* mainGrid = eclipseCase->mainGrid();
+    CVF_ASSERT(mainGrid);
     {
         cvf::Vec3st  gridPointDim(0,0,0);
         gridPointDim.x() = ecl_grid_get_nx(mainEclGrid) + 1;
@@ -248,6 +253,10 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         gridPointDim.z() = ecl_grid_get_nz(mainEclGrid) + 1;
         mainGrid->setGridPointDimensions(gridPointDim);
     }
+
+    // std::string mainGridName = ecl_grid_get_name(mainEclGrid);
+    // ERT returns file path to grid file as name for main grid
+    mainGrid->setGridName("Main grid");
 
     // Get and set grid and lgr metadata
 
@@ -368,15 +377,69 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.setProgressDescription("Transferring grid geometry");
 
     if (!transferGeometry(mainEclGrid, eclipseCase)) return false;
+
+    progInfo.incrementProgress();
+    progInfo.setProgressDescription("Reading faults");
+    progInfo.setNextProgressIncrement(10);
+
+    if (isFaultImportEnabled())
+    {
+        if (this->filenamesWithFaults().size() > 0)
+        {
+            cvf::Collection<RigFault> faults;
+            std::vector< RifKeywordAndFilePos > fileKeywords;
+        
+            std::vector<QString> filenamesWithFaults;
+
+            for (size_t i = 0; i < this->filenamesWithFaults().size(); i++)
+            {
+                QString faultFilename = this->filenamesWithFaults()[i];
+
+                RifEclipseInputFileTools::readFaults(faultFilename, faults, fileKeywords);
+            }
+            
+            RigMainGrid* mainGrid = eclipseCase->mainGrid();
+            mainGrid->setFaults(faults);
+        }
+        else
+        {
+            foreach (QString fname, fileSet)
+            {
+                if (fname.endsWith(".DATA"))
+                {
+                    cvf::Collection<RigFault> faults;
+                    std::vector<QString> filenamesWithFaults;
+                    RifEclipseInputFileTools::readFaultsInGridSection(fname, faults, filenamesWithFaults);
+
+                    RigMainGrid* mainGrid = eclipseCase->mainGrid();
+                    mainGrid->setFaults(faults);
+
+                    std::unique(filenamesWithFaults.begin(), filenamesWithFaults.end());
+
+                    this->setFilenamesWithFaults(filenamesWithFaults);
+                }
+            }
+        }
+    }
+
     progInfo.incrementProgress();
 
     m_eclipseCase = eclipseCase;
 
-    progInfo.setProgressDescription("Reading Result index");
-    progInfo.setNextProgressIncrement(60);
-    
     // Build results meta data
+    progInfo.setProgressDescription("Reading Result index");
+    progInfo.setNextProgressIncrement(25);
     buildMetaData();
+    progInfo.incrementProgress();
+
+    progInfo.setProgressDescription("Reading NNC data");
+    progInfo.setNextProgressIncrement(5);
+    transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+    progInfo.incrementProgress();
+
+    progInfo.setProgressDescription("Processing NNC data");
+    progInfo.setNextProgressIncrement(20);
+    eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
     progInfo.incrementProgress();
 
     progInfo.setNextProgressIncrement(8);
@@ -388,6 +451,36 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
     progInfo.incrementProgress();
 
     return true;
+}
+
+void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid , const ecl_file_type * init_file, RigMainGrid * mainGrid)
+{
+    if (!m_ecl_init_file ) return;
+
+    CVF_ASSERT(mainEclGrid && mainGrid);
+
+    // Get the data from ERT
+
+    int numNNC = ecl_nnc_export_get_size( mainEclGrid );
+    ecl_nnc_type * eclNNCData= new ecl_nnc_type[numNNC];
+
+    ecl_nnc_export( mainEclGrid , init_file , eclNNCData);
+
+    // Transform to our own datastructures
+    //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
+
+    mainGrid->nncData()->connections().resize(numNNC);
+    for (int nIdx = 0; nIdx < numNNC; ++nIdx)
+    {
+        RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
+        mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->globalGridCellIndex(eclNNCData[nIdx].global_index1);
+        RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
+        mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->globalGridCellIndex(eclNNCData[nIdx].global_index2);
+        mainGrid->nncData()->connections()[nIdx].m_transmissibility = eclNNCData[nIdx].trans;
+    }
+
+
+    delete[] eclNNCData;
 }
 
 

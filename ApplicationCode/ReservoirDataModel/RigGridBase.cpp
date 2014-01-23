@@ -307,7 +307,7 @@ bool RigGridBase::isCellValid(size_t i, size_t j, size_t k) const
 
 
 //--------------------------------------------------------------------------------------------------
-/// TODO: Use structgrid::neighborIJKAtCellFace
+/// 
 //--------------------------------------------------------------------------------------------------
 bool RigGridBase::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex) const
 {
@@ -325,94 +325,6 @@ bool RigGridBase::cellIJKNeighbor(size_t i, size_t j, size_t k, FaceType face, s
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigGridBase::computeFaults()
-{
-  //size_t k;
-#pragma omp parallel for 
-    for (int k = 0; k < static_cast<int>(cellCountK()); k++)
-    {
-        size_t j;
-        for (j = 0; j < cellCountJ(); j++)
-        {
-            size_t i;
-            for (i = 0; i < cellCountI(); i++)
-            {
-                size_t idx = cellIndexFromIJK(i, j, k);
-
-                RigCell& currentCell = cell(idx);
-
-                if (currentCell.isInvalid())
-                {
-                    continue;
-                }
-        
-                size_t faceIdx;
-                for (faceIdx = 0; faceIdx < 6; faceIdx++)
-                {
-                    cvf::StructGridInterface::FaceType face = static_cast<cvf::StructGridInterface::FaceType>(faceIdx);
-
-                    size_t cellNeighbourIdx = 0;
-                    if (!cellIJKNeighbor(i, j, k, face, &cellNeighbourIdx))
-                    {
-                        continue;
-                    }
-
-                    const RigCell& neighbourCell = cell(cellNeighbourIdx);
-                    if (neighbourCell.isInvalid())
-                    {
-                        continue;
-                    }
-
-                    cvf::Vec3d currentCellFaceVertices[4];
-                    {
-                        cvf::ubyte faceVertexIndices[4];
-                        cellFaceVertexIndices(face, faceVertexIndices);
-                        const caf::SizeTArray8& cornerIndices = currentCell.cornerIndices();
-        
-                        currentCellFaceVertices[0].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[0]]]);
-                        currentCellFaceVertices[1].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[1]]]);
-                        currentCellFaceVertices[2].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[2]]]);
-                        currentCellFaceVertices[3].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[3]]]);
-                    }
-
-                    cvf::Vec3d neighbourCellFaceVertices[4];
-                    {
-                        cvf::ubyte faceVertexIndices[4];
-                        StructGridInterface::FaceType opposite = StructGridInterface::oppositeFace(face);
-                        cellFaceVertexIndices(opposite, faceVertexIndices);
-                        const caf::SizeTArray8& cornerIndices = neighbourCell.cornerIndices();
-
-                        neighbourCellFaceVertices[0].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[0]]]);
-                        neighbourCellFaceVertices[1].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[3]]]);
-                        neighbourCellFaceVertices[2].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[2]]]);
-                        neighbourCellFaceVertices[3].set(m_mainGrid->nodes()[cornerIndices[faceVertexIndices[1]]]);
-                    }
-
-                    bool sharedFaceVertices = true;
-
-                    // Check if vertices are matching
-                    double tolerance = 1e-6;
-                    for (size_t cellFaceIdx = 0; cellFaceIdx < 4; cellFaceIdx++)
-                    {
-                        if (currentCellFaceVertices[cellFaceIdx].pointDistance(neighbourCellFaceVertices[cellFaceIdx]) > tolerance )
-                        {
-                            sharedFaceVertices = false;
-                        }
-                    }
-
-                    if (!sharedFaceVertices)
-                    {
-                        currentCell.setCellFaceFault(face);
-                    }
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -545,49 +457,51 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k
 {
     CVF_TIGHT_ASSERT(m_grid);
 
-    if (m_showFaultFaces)
+    size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
+    if (m_grid->cell(cellIndex).subGrid())
     {
-        size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
-        if (m_grid->cell(cellIndex).isCellFaceFault(face))
-        {
-            return true;
-        }
+        // Do not show any faces in the place where a LGR is present
+        return false; 
     }
 
-    if (m_showExternalFaces)
+    size_t ni, nj, nk;
+    cvf::StructGridInterface::neighborIJKAtCellFace(i, j, k, face, &ni, &nj, &nk);
+
+    // If the cell is on the edge of the grid, Interpret as having an invisible neighbour
+    if (ni >= m_grid->cellCountI() || nj >= m_grid->cellCountJ() || nk >= m_grid->cellCountK())
     {
-        size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
-        if (m_grid->cell(cellIndex).subGrid())
-        {
-            // Do not show any faces in the place where a LGR is present
-            return false; 
-        }
-
-        size_t ni, nj, nk;
-        cvf::StructGridInterface::neighborIJKAtCellFace(i, j, k, face, &ni, &nj, &nk);
-
-        // If the cell is on the edge of the grid, Interpret as having an invisible neighbour
-        if (ni >= m_grid->cellCountI() || nj >= m_grid->cellCountJ() || nk >= m_grid->cellCountK())
-        {
-            return true;
-        }
+        return true;
+    }
        
-        size_t neighborCellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
+    size_t neighborCellIndex = m_grid->cellIndexFromIJK(ni, nj, nk);
 
-        // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
-        // might not be visible.
-        if (m_grid->cell(neighborCellIndex).subGrid())
-        {
-            return true;
-        }
+    // Do show the faces in the boarder between this grid and a possible LGR. Some of the LGR cells
+    // might not be visible.
+    if (m_grid->cell(neighborCellIndex).subGrid())
+    {
+        return true;
+    }
 
-        // If the neighbour cell is invisible, we need to draw the face
-        if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
-        {
-            return true;
-        }
+    // If the neighbour cell is invisible, we need to draw the face
+    if ((cellVisibility != NULL) && !(*cellVisibility)[neighborCellIndex])
+    {
+        return true;
     }
 
     return false;
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigFaultFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility) const
+{
+    size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
+    if (m_grid->cell(cellIndex).isCellFaceFault(face))
+    {
+        return true;
+    }
+
+    return false;
+}

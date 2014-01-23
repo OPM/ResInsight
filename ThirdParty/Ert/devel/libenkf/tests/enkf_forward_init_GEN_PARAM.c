@@ -37,7 +37,7 @@ void create_runpath(enkf_main_type * enkf_main ) {
   int start_report         = 0;
   int init_step_parameters = 0;
   bool_vector_iset( iactive , ens_size - 1 , true );
-  enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state, true);
+  enkf_main_run_exp(enkf_main , iactive , false , init_step_parameters , start_report , init_state);
   bool_vector_free(iactive);
 }
 
@@ -95,7 +95,7 @@ int main(int argc , char ** argv) {
       
       {
         run_mode_type run_mode = ENSEMBLE_EXPERIMENT; 
-        enkf_main_init_run(enkf_main , run_mode);     /* This is ugly */
+        enkf_main_init_run(enkf_main , NULL , run_mode , INIT_NONE);     /* This is ugly */
         
         
         test_assert_false( enkf_node_has_data( gen_param_node , fs, node_id ));
@@ -116,7 +116,7 @@ int main(int argc , char ** argv) {
 
         {
           run_mode_type run_mode = ENSEMBLE_EXPERIMENT; 
-          enkf_main_init_run(enkf_main , run_mode);     /* This is ugly */
+          enkf_main_init_run(enkf_main , NULL , run_mode , INIT_NONE );     /* This is ugly */
         }
         
         test_assert_true( enkf_node_forward_init( gen_param_node , "simulations/run0" , 0 ));

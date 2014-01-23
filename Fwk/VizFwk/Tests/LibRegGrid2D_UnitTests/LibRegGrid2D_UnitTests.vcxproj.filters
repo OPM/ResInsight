@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\ThirdParty\gtest\gtest-all.cpp" />
+    <ClCompile Include="cvfRegGrid2DGeometry-Test.cpp" />
+    <ClCompile Include="cvfRegGrid2D-Test.cpp" />
+    <ClCompile Include="LibRegGrid2D_UnitTests.cpp" />
+    <ClCompile Include="cvfRegGrid2DExportImport-Test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="TriggerTBBCopy.txt" />
+  </ItemGroup>
+</Project>

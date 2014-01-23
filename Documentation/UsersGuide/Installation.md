@@ -26,4 +26,3 @@ Currently tested and verified version on Windows is Octave 3.6.1. NB! Version 3.
 
 ------
 [ Contents ](UsersGuide.md#contents)
-

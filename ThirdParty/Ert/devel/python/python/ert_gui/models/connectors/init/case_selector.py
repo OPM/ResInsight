@@ -21,12 +21,12 @@ class CaseSelectorModel(ErtConnector, ChoiceModelMixin):
     def getCurrentChoice(self):
         """ @rtype: str """
         case_list = self.getChoices()
-        current_case = self.ert().getFileSystem()
+        current_case = self.ert().getEnkfFsManager().getFileSystem()
         return current_case.getCaseName()
 
     @may_take_a_long_time
     def setCurrentChoice(self, case):
         case = str(case)
         if not case == "":
-            self.ert().userSelectFileSystem(case)
+            self.ert().getEnkfFsManager().userSelectFileSystem(case)
             self.observable().notify(self.CURRENT_CHOICE_CHANGED_EVENT)

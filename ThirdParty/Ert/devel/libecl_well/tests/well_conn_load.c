@@ -48,6 +48,8 @@ int main(int argc , char ** argv) {
     int iwell;
     const ecl_kw_type * iwel_kw = ecl_file_iget_named_kw( rst_file , IWEL_KW , 0 );
     const ecl_kw_type * icon_kw = ecl_file_iget_named_kw( rst_file , ICON_KW , 0 );
+    ecl_kw_type * scon_kw = NULL;
+
     bool caseMSW = false;
 
     for (iwell = 0; iwell < rst_head->nwells; iwell++) {
@@ -58,7 +60,7 @@ int main(int argc , char ** argv) {
       well_conn_collection_type * wellcc_ref = well_conn_collection_alloc();
 
       for (iconn = 0; iconn < num_connections; iconn++) {
-        well_conn_type * conn = well_conn_alloc_from_kw( icon_kw , rst_head , iwell , iconn );
+        well_conn_type * conn = well_conn_alloc_from_kw( icon_kw , scon_kw , rst_head , iwell , iconn );
         
         test_assert_true( well_conn_is_instance( conn ));
         test_assert_not_NULL( conn );
@@ -86,7 +88,7 @@ int main(int argc , char ** argv) {
         int i;
         
         test_assert_int_equal( well_conn_collection_get_size( wellcc ) , 
-                               well_conn_collection_load_from_kw( wellcc2 , iwel_kw , icon_kw , iwell , rst_head));
+                               well_conn_collection_load_from_kw( wellcc2 , iwel_kw , icon_kw , scon_kw , iwell , rst_head));
         
         for (i=0; i < well_conn_collection_get_size( wellcc2 ); i++) {
           test_assert_true( well_conn_is_instance( well_conn_collection_iget_const( wellcc2 , i )));

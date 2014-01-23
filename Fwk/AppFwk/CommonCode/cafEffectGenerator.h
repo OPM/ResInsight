@@ -54,6 +54,26 @@ public:
 
 };
 
+
+// Enumerates different levels of polygon offsetting
+enum PolygonOffset
+{
+    PO_NONE,        // No polygon offset
+    PO_1,           // 'Normal' positive polygon offset, equal to configurePolygonPositiveOffset(), ie factor=unit=1.0
+    PO_2,           // More positive offset
+    PO_NEG_LARGE    // Currently, a large negative offset
+};
+
+// Enumerates face culling
+enum FaceCulling
+{
+    FC_BACK,
+    FC_FRONT,
+    FC_FRONT_AND_BACK,
+    FC_NONE
+};
+
+
 //==================================================================================================
 //
 // 
@@ -92,6 +112,7 @@ private:
 };
 
 
+
 //==================================================================================================
 //
 // SurfaceEffectGenerator
@@ -100,10 +121,11 @@ private:
 class SurfaceEffectGenerator : public EffectGenerator
 {
 public:
-    SurfaceEffectGenerator(const cvf::Color4f& color, bool polygonOffset);
-    SurfaceEffectGenerator(const cvf::Color3f& color, bool polygonOffset);
+    SurfaceEffectGenerator(const cvf::Color4f& color, PolygonOffset polygonOffset);
+    SurfaceEffectGenerator(const cvf::Color3f& color, PolygonOffset polygonOffset);
 
-    void                            setCullBackfaces(bool cullBackFaces) { m_cullBackfaces = cullBackFaces; }
+    void                            setCullBackfaces(FaceCulling cullBackFaces) { m_cullBackfaces = cullBackFaces; }
+    void                            enableDepthWrite(bool enableWrite)          { m_enableDepthWrite = enableWrite; }
 
 protected:
     virtual bool                    isEqual(const EffectGenerator* other) const;
@@ -117,9 +139,9 @@ private:
 
 private:
     cvf::Color4f    m_color;
-    bool            m_polygonOffset;
-    bool            m_cullBackfaces;
-
+    PolygonOffset   m_polygonOffset;
+    FaceCulling     m_cullBackfaces;
+    bool            m_enableDepthWrite;
 };
 
 
@@ -131,11 +153,13 @@ private:
 class ScalarMapperEffectGenerator : public EffectGenerator
 {
 public:
-    ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, bool polygonOffset);
+    ScalarMapperEffectGenerator(const cvf::ScalarMapper* scalarMapper, PolygonOffset polygonOffset);
 
-    void                            setOpacityLevel(float opacity)        { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
-    void                            setUndefinedColor(cvf::Color3f color) { m_undefinedColor = color; }
-    void                            setCullBackfaces(bool cullBackFaces)  { m_cullBackfaces = cullBackFaces; }
+    void                            setOpacityLevel(float opacity)          { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
+    void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
+    void                            setFaceCulling(FaceCulling faceCulling) { m_faceCulling = faceCulling; }
+    void                            enableDepthWrite(bool enableWrite)          { m_enableDepthWrite = enableWrite; }
+
 public: 
     static cvf::ref<cvf::TextureImage> addAlphaAndUndefStripes(const cvf::TextureImage* texImg, const cvf::Color3f& undefScalarColor, float opacityLevel);
     static bool                     isImagesEqual(const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2);
@@ -153,10 +177,11 @@ private:
 private:
     cvf::cref<cvf::ScalarMapper>    m_scalarMapper;
     mutable cvf::ref<cvf::TextureImage>     m_textureImage;
-    bool                            m_polygonOffset;
+    PolygonOffset                   m_polygonOffset;
     float                           m_opacityLevel;
     cvf::Color3f                    m_undefinedColor;
-    bool                            m_cullBackfaces;
+    FaceCulling                     m_faceCulling;
+    bool                            m_enableDepthWrite;
 };
 
 

@@ -1,8 +1,10 @@
 set(PYTHON_SOURCES
     __init__.py
-    content_type_enum.py
+    config_error.py
     config_parser.py
+    content_type_enum.py
     unrecognized_enum.py
 )
 
-add_python_package("Python ert.config" ${PYTHON_INSTALL_PREFIX}/ert/config "${PYTHON_SOURCES}" True)
+add_python_package("python.ert.config"  ${PYTHON_INSTALL_PREFIX}/ert/config "${PYTHON_SOURCES}" True)
+

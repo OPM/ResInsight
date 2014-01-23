@@ -75,7 +75,7 @@ RivWellPathPartMgr::RivWellPathPartMgr(RimWellPathCollection* wellPathCollection
 
     m_scalarMapper = scalarMapper;
 
-    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), true);
+    caf::ScalarMapperEffectGenerator surfEffGen(scalarMapper.p(), caf::PO_1);
     m_scalarMapperSurfaceEffect = surfEffGen.generateEffect();
 
     caf::ScalarMapperMeshEffectGenerator meshEffGen(scalarMapper.p());
@@ -161,7 +161,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
             pbd.m_surfacePart->setDrawable(pbd.m_surfaceDrawable.p());
             //printf("Well Path triangleCount = %i (%i points in well path)\n", pbd.m_surfaceDrawable->triangleCount(), wellPathGeometry->m_wellPathPoints.size());
 
-            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), true);
+            caf::SurfaceEffectGenerator surfaceGen(cvf::Color4f(m_rimWellPath->wellPathColor()), caf::PO_1);
             cvf::ref<cvf::Effect> eff = surfaceGen.generateEffect();
 
             pbd.m_surfacePart->setEffect(eff.p());
@@ -199,7 +199,7 @@ void RivWellPathPartMgr::buildWellPathParts(cvf::Vec3d displayModelOffset, doubl
         drawableText->setVerticalAlignment(cvf::TextDrawer::CENTER);
         drawableText->setTextColor(m_wellPathCollection->wellPathLabelColor());
 
-        cvf::String cvfString = cvfqt::Utils::fromQString(m_rimWellPath->name());
+        cvf::String cvfString = cvfqt::Utils::toString(m_rimWellPath->name());
 
         cvf::Vec3f textCoord(textPosition);
         drawableText->addText(cvfString, textCoord);

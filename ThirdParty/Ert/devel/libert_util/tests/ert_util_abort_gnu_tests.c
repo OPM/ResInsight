@@ -22,7 +22,7 @@
 int main(int argc, char** argv) {
 
   char * filename = util_alloc_dump_filename();
-  
+  unsetenv( "ERT_SHOW_BACKTRACE");
   if (util_file_exists(filename)) {
     remove(filename);
   }

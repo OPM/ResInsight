@@ -38,13 +38,10 @@
 #pragma once
 
 #include "cvfString.h"
+#include "cvfTextureImage.h"
 
 #include <QtCore/QString>
-#include <QImage>
-
-namespace cvf {
-    class TextureImage;
-}
+#include <QtGui/QImage>
 
 namespace cvfqt {
 
@@ -57,10 +54,15 @@ namespace cvfqt {
 class Utils
 {
 public:
-    static QString	    toQString(const cvf::String& ceeString);
-    static cvf::String	fromQString(const QString& qtString);
+    static QString                  toQString(const cvf::String& cvfString);
+    static cvf::String              toString(const QString& qtString);
 
-    static void         copyFromQImage(cvf::TextureImage* textureImage, const QImage& qtImage);
+    static std::vector<cvf::String> toStringVector(const QStringList& stringList);
+    static QStringList              toQStringList(const std::vector<cvf::String>& stringVector);
+
+    static QImage                   toQImage(const cvf::TextureImage& textureImage);
+    static void                     toTextureImage(const QImage& qImage, cvf::TextureImage* textureImage);
+    static void                     toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos, const cvf::Vec2ui& size, cvf::TextureImage* textureImage);
 };
 
 }

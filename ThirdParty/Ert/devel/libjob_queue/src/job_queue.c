@@ -1068,6 +1068,7 @@ void job_queue_reset(job_queue_type * queue) {
   queue->user_exit       = false;
   queue->open            = true; 
   queue->active_size     = 0;
+  queue->stop_time       = 0; 
 }
 
 

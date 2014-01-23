@@ -248,6 +248,8 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 
     addWellData(eclipseCase, eclipseCase->mainGrid());
 
+    addFaults(eclipseCase);
+
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
     activeCellInfo->setGlobalCellCount(eclipseCase->mainGrid()->cells().size());
@@ -477,5 +479,45 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
     }
 
     eclipseCase->setWellResults(wells);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
+{
+    if (!eclipseCase) return;
+
+    RigMainGrid* grid = eclipseCase->mainGrid();
+    if (!grid) return;
+
+    cvf::Collection<RigFault> faults;
+
+    {
+        cvf::ref<RigFault> fault = new RigFault;
+        fault->setName("Fault A");
+        
+        cvf::Vec3st min = cvf::Vec3st::ZERO;
+        cvf::Vec3st max(0, 0, cellDimension().z() - 2);
+        
+        if (cellDimension().x() > 5)
+        {
+            min.x() = cellDimension().x() / 2;
+            max.x() = min.x() + 1;
+        }
+        
+        if (cellDimension().y() > 5)
+        {
+            min.y() = cellDimension().y() / 2;
+            max.y() = cellDimension().y() / 2;
+        }
+
+        cvf::CellRange cellRange(min, max);
+
+        fault->addCellRangeForFace(cvf::StructGridInterface::POS_I, cellRange);
+        faults.push_back(fault.p());
+    }
+
+    grid->setFaults(faults);
 }
 

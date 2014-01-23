@@ -39,6 +39,7 @@ set( UNIT_TEST_CPP_SOURCES
     RigActiveCellInfo-Test.cpp
     RigReservoir-Test.cpp
 	RigStatisticsMath-Test.cpp
+	cvfGeometryTools-Test.cpp
 )
 
 
@@ -77,7 +78,6 @@ add_executable( ${ProjectName}
 
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set ( LINUX_LINK_LIBRARIES
-        lapack
         pthread
     )
 

@@ -22,22 +22,25 @@ class AnalysisIterConfig(BaseCClass):
         raise NotImplementedError("Class can not be instantiated directly!")
 
     def getNumIterations(self):
+        """ @rtype: int """
         return AnalysisIterConfig.cNamespace().get_num_iterations(self)
 
     def setNumIterations(self, num_iterations):
         AnalysisIterConfig.cNamespace().set_num_iterations(self, num_iterations)
 
     def getCaseFormat(self):
-        return AnalysisIterConfig.cNamespace().getCaseFormat(self)
-
-    def setCaseFormat(self, case_fmt):
-        AnalysisIterConfig.cNamespace().setCaseFormat(self, case_fmt)
-
-    def getRunpathFormat(self):
+        """ @rtype: str """
         return AnalysisIterConfig.cNamespace().get_case_fmt(self)
 
-    def setRunpathFormat(self, case_fmt):
+    def setCaseFormat(self, case_fmt):
         AnalysisIterConfig.cNamespace().set_case_fmt(self, case_fmt)
+
+    def getRunpathFormat(self):
+        """ @rtype: str """
+        return AnalysisIterConfig.cNamespace().get_runpath_fmt(self)
+
+    def setRunpathFormat(self, runpath_fmt):
+        AnalysisIterConfig.cNamespace().set_runpath_fmt(self, runpath_fmt)
 
     ##################################################################
 

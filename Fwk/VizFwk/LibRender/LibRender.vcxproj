@@ -1,0 +1,584 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug MD TBB|Win32">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD TBB|x64">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|Win32">
+      <Configuration>Debug MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|x64">
+      <Configuration>Debug MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|Win32">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|x64">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|Win32">
+      <Configuration>Release MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|x64">
+      <Configuration>Release MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C07ADE80-5C4F-E6E3-DD1A-5A619403FA9F}</ProjectGuid>
+    <RootNamespace>LibRender</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+    <CustomBuildAfterTargets>PrepareForBuild</CustomBuildAfterTargets>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>../LibCore;../LibGeometry;../LibIo;../ThirdParty/FreeType/include</AdditionalIncludeDirectories>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <CustomBuildStep>
+      <Command>..\Tools\Glsl2Include\Glsl2Include.exe glsl\ cvfShaderSourceStrings.h</Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>Building shader source strings</Message>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Outputs>cvfShaderSourceStrings.h</Outputs>
+      <Inputs>FileWillNeverExist.txt</Inputs>
+    </CustomBuildStep>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="cvfCameraAnimation.h" />
+    <ClInclude Include="cvfFramebufferObject.h" />
+    <ClInclude Include="cvfHitDetail.h" />
+    <ClInclude Include="cvfOglRc.h" />
+    <ClInclude Include="cvfOpenGLCapabilities.h" />
+    <ClInclude Include="cvfOpenGLContextGroup.h" />
+    <ClInclude Include="cvfOverlayImage.h" />
+    <ClInclude Include="cvfOverlayItem.h" />
+    <ClInclude Include="cvfOverlayNavigationCube.h" />
+    <ClInclude Include="cvfOverlayTextBox.h" />
+    <ClInclude Include="cvfPrimitiveSetDirect.h" />
+    <ClInclude Include="cvfPrimitiveSetIndexedUShortScoped.h" />
+    <ClInclude Include="cvfRenderbufferObject.h" />
+    <ClInclude Include="cvfRenderStateBlending.h" />
+    <ClInclude Include="cvfRenderStateColorMask.h" />
+    <ClInclude Include="cvfRenderStateCullFace.h" />
+    <ClInclude Include="cvfRenderStateDepth.h" />
+    <ClInclude Include="cvfRenderStateFrontFace.h" />
+    <ClInclude Include="cvfRenderStateLine.h" />
+    <ClInclude Include="cvfRenderStatePoint.h" />
+    <ClInclude Include="cvfRenderStatePolygonMode.h" />
+    <ClInclude Include="cvfRenderStatePolygonOffset.h" />
+    <ClInclude Include="cvfRenderStateStencil.h" />
+    <ClInclude Include="cvfRenderStateTextureBindings.h" />
+    <ClInclude Include="cvfVertexAttribute.h" />
+    <ClInclude Include="cvfVertexBundle.h" />
+    <ClInclude Include="glsl\fs_CenterLitSpherePoints.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_FixedColorMagenta.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_Shadow_v33.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_Standard.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_Text.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_Unlit.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_VectorDrawer.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_Void.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\gs_PassThroughTriangle_v33.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\light_Phong.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\light_PhongDual.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\light_SimpleHeadlight.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\src_Color.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\src_Texture.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\src_TextureGlobalAlpha.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\src_TextureFromPointCoord.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\src_TextureRectFromFragCoord_v33.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_DistanceScaledPoints.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_EnvironmentMapping.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_FullScreenQuad.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_Minimal.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_MinimalTexture.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_Standard.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_VectorDrawer.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <None Include="CMakeLists.txt" />
+    <None Include="glsl\!AddingAndModifyingGlslFiles.txt" />
+    <ClInclude Include="glsl\fs_GradientTopBottom.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\calcClipDistances.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\calcShadowCoord.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\checkDiscard_ClipDistances.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_GradientTopMiddleBottom.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_ParticleTraceComets.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\vs_ParticleTraceComets.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\light_Headlight.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_HighlightStencilBlur_v33.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_HighlightStencilDraw.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_HighlightStencilMix_v33.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_GaussianBlur.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\fs_HighlightMix.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <None Include="glsl\src_TwoSidedColor.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cvfBufferObjectManaged.h" />
+    <ClInclude Include="cvfCamera.h" />
+    <ClInclude Include="cvfDrawable.h" />
+    <ClInclude Include="cvfDrawableGeo.h" />
+    <ClInclude Include="cvfDrawableText.h" />
+    <ClInclude Include="cvfDrawableVectors.h" />
+    <ClInclude Include="cvfFixedAtlasFont.h" />
+    <ClInclude Include="cvfFont.h" />
+    <ClInclude Include="cvfGeometryBuilderDrawableGeo.h" />
+    <ClInclude Include="cvfGlyph.h" />
+    <ClInclude Include="cvfLibRender.h" />
+    <ClInclude Include="cvfMatrixState.h" />
+    <ClInclude Include="cvfOpenGL.h" />
+    <ClInclude Include="cvfOpenGLContext.h" />
+    <ClInclude Include="cvfOpenGLResourceManager.h" />
+    <ClInclude Include="cvfOpenGLTypes.h" />
+    <ClInclude Include="cvfOverlayAxisCross.h" />
+    <ClInclude Include="cvfOverlayColorLegend.h" />
+    <ClInclude Include="cvfPrimitiveSet.h" />
+    <ClInclude Include="cvfPrimitiveSetIndexedUInt.h" />
+    <ClInclude Include="cvfPrimitiveSetIndexedUIntScoped.h" />
+    <ClInclude Include="cvfPrimitiveSetIndexedUShort.h" />
+    <ClInclude Include="cvfRenderState.h" />
+    <ClInclude Include="cvfRenderStateSet.h" />
+    <ClInclude Include="cvfRenderStateTracker.h" />
+    <ClInclude Include="cvfRenderState_FF.h" />
+    <ClInclude Include="cvfSampler.h" />
+    <ClInclude Include="cvfScalarMapper.h" />
+    <ClInclude Include="cvfScalarMapperUniformLevels.h" />
+    <ClInclude Include="cvfShader.h" />
+    <ClInclude Include="cvfShaderSourceProvider.h" />
+    <ClInclude Include="cvfShaderProgram.h" />
+    <ClInclude Include="cvfShaderProgramGenerator.h" />
+    <ClInclude Include="cvfShaderSourceRepository.h" />
+    <ClInclude Include="cvfShaderSourceRepositoryFile.h" />
+    <ClInclude Include="cvfShaderSourceStrings.h" />
+    <ClInclude Include="cvfTextDrawer.h" />
+    <ClInclude Include="cvfTexture.h" />
+    <ClInclude Include="cvfTexture2D_FF.h" />
+    <ClInclude Include="cvfTextureImage.h" />
+    <ClInclude Include="cvfUniform.h" />
+    <ClInclude Include="cvfUniformSet.h" />
+    <ClInclude Include="cvfViewport.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvfBufferObjectManaged.cpp" />
+    <ClCompile Include="cvfCamera.cpp" />
+    <ClCompile Include="cvfCameraAnimation.cpp" />
+    <ClCompile Include="cvfDrawable.cpp" />
+    <ClCompile Include="cvfDrawableGeo.cpp" />
+    <ClCompile Include="cvfDrawableText.cpp" />
+    <ClCompile Include="cvfDrawableVectors.cpp" />
+    <ClCompile Include="cvfFixedAtlasFont.cpp" />
+    <ClCompile Include="cvfFont.cpp" />
+    <ClCompile Include="cvfFramebufferObject.cpp" />
+    <ClCompile Include="cvfGeometryBuilderDrawableGeo.cpp" />
+    <ClCompile Include="cvfGlyph.cpp" />
+    <ClCompile Include="cvfHitDetail.cpp" />
+    <ClCompile Include="cvfMatrixState.cpp" />
+    <ClCompile Include="cvfOglRc.cpp" />
+    <ClCompile Include="cvfOpenGL.cpp" />
+    <ClCompile Include="cvfOpenGLCapabilities.cpp" />
+    <ClCompile Include="cvfOpenGLContext.cpp" />
+    <ClCompile Include="cvfOpenGLContextGroup.cpp" />
+    <ClCompile Include="cvfOpenGLResourceManager.cpp" />
+    <ClCompile Include="cvfOverlayAxisCross.cpp" />
+    <ClCompile Include="cvfOverlayColorLegend.cpp" />
+    <ClCompile Include="cvfOverlayImage.cpp" />
+    <ClCompile Include="cvfOverlayItem.cpp" />
+    <ClCompile Include="cvfOverlayNavigationCube.cpp" />
+    <ClCompile Include="cvfOverlayTextBox.cpp" />
+    <ClCompile Include="cvfPrimitiveSet.cpp" />
+    <ClCompile Include="cvfPrimitiveSetDirect.cpp" />
+    <ClCompile Include="cvfPrimitiveSetIndexedUInt.cpp" />
+    <ClCompile Include="cvfPrimitiveSetIndexedUIntScoped.cpp" />
+    <ClCompile Include="cvfPrimitiveSetIndexedUShort.cpp" />
+    <ClCompile Include="cvfPrimitiveSetIndexedUShortScoped.cpp" />
+    <ClCompile Include="cvfRenderbufferObject.cpp" />
+    <ClCompile Include="cvfRenderState.cpp" />
+    <ClCompile Include="cvfRenderStateBlending.cpp" />
+    <ClCompile Include="cvfRenderStateColorMask.cpp" />
+    <ClCompile Include="cvfRenderStateCullFace.cpp" />
+    <ClCompile Include="cvfRenderStateDepth.cpp" />
+    <ClCompile Include="cvfRenderStateFrontFace.cpp" />
+    <ClCompile Include="cvfRenderStateLine.cpp" />
+    <ClCompile Include="cvfRenderStatePoint.cpp" />
+    <ClCompile Include="cvfRenderStatePolygonMode.cpp" />
+    <ClCompile Include="cvfRenderStatePolygonOffset.cpp" />
+    <ClCompile Include="cvfRenderStateSet.cpp" />
+    <ClCompile Include="cvfRenderStateStencil.cpp" />
+    <ClCompile Include="cvfRenderStateTextureBindings.cpp" />
+    <ClCompile Include="cvfRenderStateTracker.cpp" />
+    <ClCompile Include="cvfRenderState_FF.cpp" />
+    <ClCompile Include="cvfSampler.cpp" />
+    <ClCompile Include="cvfScalarMapper.cpp" />
+    <ClCompile Include="cvfScalarMapperUniformLevels.cpp" />
+    <ClCompile Include="cvfShader.cpp" />
+    <ClCompile Include="cvfShaderSourceProvider.cpp" />
+    <ClCompile Include="cvfShaderProgram.cpp" />
+    <ClCompile Include="cvfShaderProgramGenerator.cpp" />
+    <ClCompile Include="cvfShaderSourceRepository.cpp" />
+    <ClCompile Include="cvfShaderSourceRepositoryFile.cpp" />
+    <ClCompile Include="cvfTextDrawer.cpp" />
+    <ClCompile Include="cvfTexture.cpp" />
+    <ClCompile Include="cvfTexture2D_FF.cpp" />
+    <ClCompile Include="cvfTextureImage.cpp" />
+    <ClCompile Include="cvfUniform.cpp" />
+    <ClCompile Include="cvfUniformSet.cpp" />
+    <ClCompile Include="cvfVertexAttribute.cpp" />
+    <ClCompile Include="cvfVertexBundle.cpp" />
+    <ClCompile Include="cvfViewport.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -138,6 +138,38 @@ class UtilTest(TestCase):
         self.assertFalse(active_list)
 
 
+    def test_update_active_mask(self):
+        vec = BoolVector(0, 10)
+
+        self.assertTrue(BoolVector.updateActiveMask("1-2,5", vec))
+        self.assertTrue(vec[1])
+        self.assertTrue(vec[2])
+        self.assertTrue(vec[5])
+        self.assertFalse(vec[4])
+
+
+        vec = BoolVector(0, 10)
+
+        self.assertTrue(BoolVector.updateActiveMask("1-5,2,3", vec))
+        self.assertTrue(vec[1])
+        self.assertTrue(vec[2])
+        self.assertTrue(vec[3])
+        self.assertTrue(vec[4])
+        self.assertTrue(vec[5])
+        self.assertFalse(vec[0])
+        self.assertFalse(vec[6])
+
+
+        vec = BoolVector(0, 10)
+
+        self.assertTrue(BoolVector.updateActiveMask("5,6,7,15", vec))
+        self.assertTrue(vec[5])
+        self.assertTrue(vec[6])
+        self.assertTrue(vec[7])
+        self.assertFalse(vec[4])
+        self.assertFalse(vec[8])
+        self.assertEqual(len(vec), 16)
+
 
 
     def test_int_vector(self):

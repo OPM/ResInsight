@@ -25,6 +25,8 @@ from .enums import EnkfStateType, EnkfVarType, EnkfRunEnum, LoadFailTypeEnum, En
 from .util import TimeMap
 from .enkf_fs import EnkfFs
 
+from .ert_workflow_list import ErtWorkflowList
+
 from .observations import SummaryObservation, ObsVector
 
 from .analysis_iter_config import AnalysisIterConfig
@@ -41,6 +43,10 @@ from .local_config import LocalConfig
 from .model_config import ModelConfig
 from .plot_config import PlotConfig
 from .site_config import SiteConfig
+from .state_map import StateMap
+from .enkf_simulation_runner import EnkfSimulationRunner
+from .enkf_fs_manager import EnkfFsManager
+
 from .enkf_main import EnKFMain
 
 from .data import EnkfConfigNode, EnkfNode, GenDataConfig, GenKwConfig, FieldConfig, Field

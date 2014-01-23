@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cvfLibFreeType.h" />
+    <ClInclude Include="cvfFreeTypeFont.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cvfFreeTypeFont.cpp" />
+  </ItemGroup>
+</Project>

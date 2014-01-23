@@ -96,6 +96,7 @@ public:
     void            setDefaultWindowSize();
 
     void            appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu);
+    void            refreshDrawStyleActions();
 
 
 protected:
@@ -221,6 +222,8 @@ private slots:
 
     void slotDrawStyleChanged(QAction* activatedAction);
     void slotToggleFaultsAction(bool);
+    void slotToggleFaultLabelsAction(bool);
+
     void slotAddWellCellsToRangeFilterAction(bool doAdd);
 
     // Debug slots
@@ -271,12 +274,13 @@ private:
 
     QActionGroup*               m_dsActionGroup;
     QAction*                    m_drawStyleToggleFaultsAction;
+    QAction*                    m_toggleFaultsLabelAction;
     QAction*                    m_drawStyleLinesAction;
     QAction*                    m_drawStyleLinesSolidAction;
+    QAction*                    m_drawStyleFaultLinesSolidAction;
     QAction*                    m_drawStyleSurfOnlyAction;
     QAction*                    m_addWellCellsToRangeFilterAction;
 
-    void                        refreshDrawStyleActions();
     std::vector<QPointer<QDockWidget> > additionalProjectTrees;
     std::vector<QPointer<QDockWidget> > additionalPropertyEditors;
 };

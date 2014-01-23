@@ -26,6 +26,7 @@ img_prefix = ""
 
 def resourceIcon(name):
     """Load an image as an icon"""
+    # print("Icon used: %s" % name)
     return QtGui.QIcon(img_prefix + name)
 
 def resourceStateIcon(on, off):
@@ -40,9 +41,11 @@ def resourceImage(name):
     return QtGui.QPixmap(img_prefix + name)
 
 
-
-
-
+def resourceMovie(name):
+    """ @rtype: QMovie """
+    movie = QtGui.QMovie(img_prefix + name)
+    movie.start()
+    return movie
 
 
 

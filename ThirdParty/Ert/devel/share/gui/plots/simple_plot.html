@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!-- Copyright (C) 2013 Statoil ASA, Norway. -->
+<!--   -->
+<!-- The file 'simple_plot.html' is part of ERT - Ensemble based Reservoir Tool. -->
+<!--   -->
+<!-- ERT is free software: you can redistribute it and/or modify -->
+<!-- it under the terms of the GNU General Public License as published by -->
+<!-- the Free Software Foundation, either version 3 of the License, or -->
+<!-- (at your option) any later version. -->
+<!--    -->
+<!-- ERT is distributed in the hope that it will be useful, but WITHOUT ANY -->
+<!-- WARRANTY; without even the implied warranty of MERCHANTABILITY or -->
+<!-- FITNESS FOR A PARTICULAR PURPOSE.   -->
+<!--    -->
+<!-- See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html> -->
+<!-- for more details. -->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 90%;
+            background-color: #eee;
+        }
+
+    </style>
+
+    <link rel="stylesheet" type="text/css" href="style/plot.css"/>
+</head>
+
+<script src="libs/d3.v3.js"></script>
+<script src="scripts/std_plot.js"></script>
+<script src="scripts/plot.js"></script>
+<script src="scripts/plot_line.js"></script>
+<script src="scripts/plot_area.js"></script>
+<script src="scripts/plot_legend.js"></script>
+<!--<script src="data.js"></script>-->
+
+<script>
+    var plot = null;
+
+    function initialize() {
+        if (!(typeof plot_data_source === 'undefined')) {
+            createPlot();
+            updatePlot();
+            plot_data_source.htmlInitialized();
+        } else {
+//            createPlot();
+//            plot.setData(data);
+            console.log("Unable to load data!");
+            alert("Unable to load data!");
+        }
+    }
+
+    function createPlot() {
+        plot = new Plot(d3.select("body"), {name: "No data", data: []});
+    }
+
+    function updatePlot() {
+        var json = plot_data_source.getPlotData();
+        var data = eval('(' + json + ')');
+        plot.setData(data);
+    }
+
+    function setSize(width, height) {
+        plot.resize(width - 50, height - 100);
+    }
+
+</script>
+
+<body onload="initialize();">
+
+</body>
+
+</html>

@@ -25,6 +25,7 @@
 
 #include <QString>
 #include "RifReaderInterface.h"
+#include "RigFault.h"
 
 
 class RigCaseData;
@@ -52,21 +53,33 @@ public:
     RifEclipseInputFileTools();
     virtual ~RifEclipseInputFileTools();
 
-    static bool openGridFile(const QString& fileName, RigCaseData* eclipseCase);
+    static bool openGridFile(const QString& fileName, RigCaseData* eclipseCase, bool readFaultData);
     
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties(const QString& fileName, RigCaseData* eclipseCase);
     static bool                       readProperty  (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName );
     static bool                       readPropertyAtFilePosition (const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName );
+    
+    
+    static void                       readFaultsInGridSection(const QString& fileName, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults);
+    static void                       readFaults(const QString& fileName, cvf::Collection<RigFault>& faults, const std::vector< RifKeywordAndFilePos >& fileKeywords);
 
-    static std::vector< RifKeywordAndFilePos > findKeywordsOnFile(const QString &fileName);
+    static void                       readFaults(QFile &data, qint64 filePos, cvf::Collection<RigFault> &faults, bool* isEditKeywordDetected);
+    static void                       findKeywordsOnFile(const QString &fileName, std::vector< RifKeywordAndFilePos >& keywords);
 
     static const std::vector<QString>& knownPropertyKeywords(); 
 
     static bool     writePropertyToTextFile(const QString& fileName, RigCaseData* eclipseCase, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord);
     static bool     writeBinaryResultToTextFile(const QString& fileName, RigCaseData* eclipseCase, RifReaderInterface::PorosityModelResultType porosityModel, size_t timeStep, const QString& resultName, const QString& eclipseKeyWord, const double undefinedValue);
 
+    static bool     readFaultsAndParseIncludeStatementsRecursively(QFile& file, qint64 startPos, cvf::Collection<RigFault>& faults, std::vector<QString>& filenamesWithFaults, bool* isEditKeywordDetected);
+
 private:
     static void     writeDataToTextFile(QFile* file, const QString& eclipseKeyWord, const std::vector<double>& resultData);
-    static void     findGridKeywordPositions(const QString& filename, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos);
+    static void     findGridKeywordPositions(const std::vector< RifKeywordAndFilePos >& keywords, qint64* coordPos, qint64* zcornPos, qint64* specgridPos, qint64* actnumPos, qint64* mapaxesPos);
+
+    static size_t   findFaultByName(const cvf::Collection<RigFault>& faults, const QString& name);
+
+    static qint64   findKeyword(const QString& keyword, QFile& file, qint64 startPos);
+
 };

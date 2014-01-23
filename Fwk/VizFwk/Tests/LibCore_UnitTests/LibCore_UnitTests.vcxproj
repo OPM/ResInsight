@@ -1,0 +1,310 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug MD TBB|Win32">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD TBB|x64">
+      <Configuration>Debug MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|Win32">
+      <Configuration>Debug MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug MD|x64">
+      <Configuration>Debug MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|Win32">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD TBB|x64">
+      <Configuration>Release MD TBB</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|Win32">
+      <Configuration>Release MD</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release MD|x64">
+      <Configuration>Release MD</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0E5E5956-5EFD-6D62-0ABE-AF60A0DEABA3}</ProjectGuid>
+    <RootNamespace>LibCore_UnitTests</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <OutDir>$(Platform)_VS2010\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)_VS2010\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <AdditionalIncludeDirectories>../../LibCore;../../ThirdParty</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;CVF_USE_TBB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>../../ThirdParty/TBB/lib/$(Platform)_VS2010</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\ThirdParty\gtest\gtest-all.cpp" />
+    <ClCompile Include="cvfArray-Test.cpp" />
+    <ClCompile Include="cvfArrayWrapper-Test.cpp" />
+    <ClCompile Include="cvfBase-Test.cpp" />
+    <ClCompile Include="cvfBase64-Test.cpp" />
+    <ClCompile Include="cvfCharArray-Test.cpp" />
+    <ClCompile Include="cvfCodeLocation-Test.cpp" />
+    <ClCompile Include="cvfCollection-Test.cpp" />
+    <ClCompile Include="cvfColor3-Test.cpp" />
+    <ClCompile Include="cvfColor4-Test.cpp" />
+    <ClCompile Include="cvfDebugTimer-Test.cpp" />
+    <ClCompile Include="cvfFlags-Test.cpp" />
+    <ClCompile Include="cvfLogEvent-Test.cpp" />
+    <ClCompile Include="cvfLogger-Test.cpp" />
+    <ClCompile Include="cvfMath-Test.cpp" />
+    <ClCompile Include="cvfMatrix3-Test.cpp" />
+    <ClCompile Include="cvfMatrix4-Test.cpp" />
+    <ClCompile Include="cvfObject-Test.cpp" />
+    <ClCompile Include="cvfPlane-Test.cpp" />
+    <ClCompile Include="cvfProgramOptions-Test.cpp" />
+    <ClCompile Include="cvfPropertySet-Test.cpp" />
+    <ClCompile Include="cvfPropertySetCollection-Test.cpp" />
+    <ClCompile Include="cvfQuat-Test.cpp" />
+    <ClCompile Include="cvfRect-Test.cpp" />
+    <ClCompile Include="cvfString-Test.cpp" />
+    <ClCompile Include="cvfSystem-Test.cpp" />
+    <ClCompile Include="cvfTimer-Test.cpp" />
+    <ClCompile Include="cvfTrace-Test.cpp" />
+    <ClCompile Include="cvfVariant-Test.cpp" />
+    <ClCompile Include="cvfVector2-Test.cpp" />
+    <ClCompile Include="cvfVector3-Test.cpp" />
+    <ClCompile Include="cvfVector4-Test.cpp" />
+    <ClCompile Include="LibCore_UnitTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMakeLists.txt" />
+    <CustomBuild Include="TriggerTBBCopy.txt">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">COPY /Y /B "..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb_debug.dll" + NUL "$(TargetDir)tbb_debug.dll"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|Win32'">$(TargetDir)tbb_debug.dll</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">COPY /Y /B "..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb.dll" + NUL "$(TargetDir)tbb.dll"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|Win32'">$(TargetDir)tbb.dll</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">COPY /Y /B "..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb_debug.dll" + NUL "$(TargetDir)tbb_debug.dll"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug MD TBB|x64'">$(TargetDir)tbb_debug.dll</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">COPY /Y /B "..\..\ThirdParty\TBB\bin\$(Platform)_VS2010\tbb.dll" + NUL "$(TargetDir)tbb.dll"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">Copying Intel Threading Building Blocks DLL...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release MD TBB|x64'">$(TargetDir)tbb.dll</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\LibCore\LibCore.vcxproj">
+      <Project>{a9c7a239-b761-a892-bf34-5aeca0d9ee88}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
