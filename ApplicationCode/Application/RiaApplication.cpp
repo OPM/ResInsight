@@ -1419,6 +1419,7 @@ void RiaApplication::saveSnapshotForAllViews(const QString& snapshotFolderName)
                 QCoreApplication::processEvents();
 
                 QString fileName = ri->caseUserDescription() + "-" + riv->name();
+                fileName.replace(" ", "_");
 
                 QString absoluteFileName = caf::Utils::constructFullFileName(absSnapshotPath, fileName, ".png");
                 saveSnapshotAs(absoluteFileName);
