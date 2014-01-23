@@ -1189,33 +1189,8 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
             }
         }
-
         
-        if (gridIndex == 0)
-        {
-            bool foundFault = false;
-            RigMainGrid* mainGrid = grid->mainGrid();
-
-            for (size_t i = 0; i < mainGrid->faults().size(); i++)
-            {
-                if (foundFault) continue;
-
-                const RigFault* rigFault = mainGrid->faults().at(i);
-                const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
-
-                for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
-                {
-                    if (foundFault) continue;
-
-                    if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex || 
-                        faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
-                    {
-                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
-                        foundFault = true;
-                    }
-                }
-            }
-        }
+        appendFaultName(grid, cellIndex, resultInfoText);
     }
 }
 
@@ -1824,10 +1799,11 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
         {
             const RigConnection& conn = nncData->connections()[nncIndex];
             cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
+
+            QString faultName;
         
             resultInfo->append(QString("NNC Transmissibility : %1\n").arg(conn.m_transmissibility));
             {
-
                 CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
                 const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
 
@@ -1844,6 +1820,8 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
 
                     QString gridName = QString::fromStdString(hostGrid->gridName());
                     resultInfo->append(QString("NNC 1 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(face.text()).arg(gridName));
+
+                    appendFaultName(hostGrid, conn.m_c1GlobIdx, &faultName);
                 }
             }
 
@@ -1867,10 +1845,20 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                     QString faceText = oppositeFaceEnum.text();
 
                     resultInfo->append(QString("NNC 2 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(faceText).arg(gridName));
+
+                    if (faultName.isEmpty())
+                    {
+                        appendFaultName(hostGrid, conn.m_c2GlobIdx, &faultName);
+                    }
                 }
             }
 
             resultInfo->append(QString("Face: %2\n").arg(face.text()));
+
+            if (!faultName.isEmpty())
+            {
+                resultInfo->append(faultName);
+            }
         }
     }
 }
@@ -1991,5 +1979,32 @@ void RimReservoirView::updateFaultColors()
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
         m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::appendFaultName(RigGridBase* grid, size_t cellIndex, QString* resultInfoText)
+{
+    if (grid->isMainGrid())
+    {
+        RigMainGrid* mainGrid = grid->mainGrid();
+
+        for (size_t i = 0; i < mainGrid->faults().size(); i++)
+        {
+            const RigFault* rigFault = mainGrid->faults().at(i);
+            const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
+
+            for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+            {
+                if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex || 
+                    faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
+                {
+                    resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
+                    return;
+                }
+            }
+        }
     }
 }

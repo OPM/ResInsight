@@ -181,6 +181,8 @@ public:
 
     // Display model generation
 private:
+    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, QString* resultInfoText);
+
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();
     void                                    updateCurrentTimeStep();
