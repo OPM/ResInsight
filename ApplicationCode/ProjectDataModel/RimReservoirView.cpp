@@ -1098,7 +1098,7 @@ bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructG
 //--------------------------------------------------------------------------------------------------
 /// Append fault name and result value for the given cell to the string
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) 
+void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face,  QString* resultInfoText) 
 {
     CVF_ASSERT(resultInfoText);
 
@@ -1190,7 +1190,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             }
         }
         
-        appendFaultName(grid, cellIndex, resultInfoText);
+        appendFaultName(grid, cellIndex, face, resultInfoText);
     }
 }
 
@@ -1821,7 +1821,7 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                     QString gridName = QString::fromStdString(hostGrid->gridName());
                     resultInfo->append(QString("NNC 1 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(face.text()).arg(gridName));
 
-                    appendFaultName(hostGrid, conn.m_c1GlobIdx, &faultName);
+                    appendFaultName(hostGrid, conn.m_c1GlobIdx, conn.m_c1Face, &faultName);
                 }
             }
 
@@ -1848,7 +1848,7 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
 
                     if (faultName.isEmpty())
                     {
-                        appendFaultName(hostGrid, conn.m_c2GlobIdx, &faultName);
+                        appendFaultName(hostGrid, conn.m_c2GlobIdx, cvf::StructGridInterface::oppositeFace(conn.m_c1Face), &faultName);
                     }
                 }
             }
@@ -1985,7 +1985,7 @@ void RimReservoirView::updateFaultColors()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendFaultName(RigGridBase* grid, size_t cellIndex, QString* resultInfoText)
+void RimReservoirView::appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText)
 {
     if (grid->isMainGrid())
     {
@@ -1998,10 +1998,23 @@ void RimReservoirView::appendFaultName(RigGridBase* grid, size_t cellIndex, QStr
 
             for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
             {
-                if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex || 
-                    faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
+                if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex)
                 {
-                    resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
+                    if (face == faultFaces[fIdx].m_nativeFace )
+                    {
+                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
+                    }
+
+                    return;
+                }
+
+                if (faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
+                {
+                    if (face == cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace))
+                    {
+                        resultInfoText->append(QString("Fault Name: %1\n").arg(rigFault->name()));
+                    }
+
                     return;
                 }
             }

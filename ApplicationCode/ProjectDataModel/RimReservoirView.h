@@ -158,7 +158,7 @@ public:
 
     // Picking info
     bool                                    pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const;
-    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, QString* resultInfoText) ;
+    void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText) ;
     void                                    appendNNCResultInfo(size_t nncIndex, QString* resultInfo);
 
     // Does this belong here, really ?
@@ -181,7 +181,7 @@ public:
 
     // Display model generation
 private:
-    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, QString* resultInfoText);
+    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText);
 
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();

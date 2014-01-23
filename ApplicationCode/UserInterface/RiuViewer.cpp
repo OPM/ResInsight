@@ -449,7 +449,7 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
                         // Build up result from from both pick info and result values
                         m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &resultInfo);
                         resultInfo += "\n";
-                        m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, &resultInfo);
+                        m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, face, &resultInfo);
 #if 0
                         const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
                         const RigGridBase* grid = reservoir->grid(gridIndex);
