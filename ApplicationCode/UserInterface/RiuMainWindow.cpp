@@ -310,6 +310,10 @@ void RiuMainWindow::createActions()
     m_drawStyleToggleFaultsAction->setCheckable(true);
     connect(m_drawStyleToggleFaultsAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultsAction(bool)));
 
+    m_toggleFaultsLabelAction             = new QAction( QIcon(":/draw_style_faults_label_24x24.png"), "&Show Fault Labels", this);
+    m_toggleFaultsLabelAction->setCheckable(true);
+    connect(m_toggleFaultsLabelAction,	SIGNAL(toggled(bool)), SLOT(slotToggleFaultLabelsAction(bool)));
+
     m_addWellCellsToRangeFilterAction = new QAction(QIcon(":/draw_style_WellCellsToRangeFilter_24x24.png"), "&Add Well Cells To Range Filter", this);
     m_addWellCellsToRangeFilterAction->setCheckable(true);
     m_addWellCellsToRangeFilterAction->setToolTip("Add Well Cells To Range Filter based on the individual settings");
@@ -440,6 +444,7 @@ void RiuMainWindow::createToolBars()
     m_viewToolBar->addAction(m_drawStyleSurfOnlyAction);
     m_viewToolBar->addAction(m_drawStyleFaultLinesSolidAction);
     m_viewToolBar->addAction(m_drawStyleToggleFaultsAction);
+    m_viewToolBar->addAction(m_toggleFaultsLabelAction);
     m_viewToolBar->addAction(m_addWellCellsToRangeFilterAction);
 
     QLabel* scaleLabel = new QLabel(m_viewToolBar);
@@ -1494,6 +1499,19 @@ void RiuMainWindow::slotToggleFaultsAction(bool showFaults)
     RiaApplication::instance()->activeReservoirView()->setShowFaultsOnly(showFaults);
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotToggleFaultLabelsAction(bool showLabels)
+{
+    if (!RiaApplication::instance()->activeReservoirView()) return;
+
+    RiaApplication::instance()->activeReservoirView()->faultCollection->showFaultLabel.setValueFromUi(showLabels);
+
+    refreshDrawStyleActions();
+}
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1507,6 +1525,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleFaultLinesSolidAction->setEnabled(enable);
 
     m_drawStyleToggleFaultsAction->setEnabled(enable);
+    m_toggleFaultsLabelAction->setEnabled(enable);
 
     m_addWellCellsToRangeFilterAction->setEnabled(enable);
 
@@ -1516,6 +1535,10 @@ void RiuMainWindow::refreshDrawStyleActions()
         m_drawStyleToggleFaultsAction->blockSignals(true);
         m_drawStyleToggleFaultsAction->setChecked(   !riv->isGridVisualizationMode());
         m_drawStyleToggleFaultsAction->blockSignals(false);
+
+        m_toggleFaultsLabelAction->blockSignals(true);
+        m_toggleFaultsLabelAction->setChecked(riv->faultCollection()->showFaultLabel());
+        m_toggleFaultsLabelAction->blockSignals(false);
 
         m_addWellCellsToRangeFilterAction->blockSignals(true);
         m_addWellCellsToRangeFilterAction->setChecked( riv->wellCollection()->wellCellsToRangeFilterMode() != RimWellCollection::RANGE_ADD_NONE);

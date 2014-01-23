@@ -38,7 +38,8 @@
 		<file>SnapShotSave.png</file>
 		<file>SnapShotSaveViews.png</file>
 		<file>draw_style_faults_24x24.png</file>
-		<file>Case48x48.png</file>
+        <file>draw_style_faults_label_24x24.png</file>
+        <file>Case48x48.png</file>
 		<file>GridModels.png</file>
 		<file>draw_style_WellCellsToRangeFilter_24x24.png</file>
 		<file>draw_style_surface_w_fault_mesh_24x24.png</file>

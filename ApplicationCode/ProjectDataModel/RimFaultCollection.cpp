@@ -37,6 +37,7 @@
 #include "RimReservoirCellResultsCacher.h"
 #include "RigCaseData.h"
 #include "RivColorTableArray.h"
+#include "RiuMainWindow.h"
 
 
 namespace caf
@@ -127,6 +128,13 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
     }
+
+
+    if (&showFaultLabel == changedField)
+    {
+        RiuMainWindow::instance()->refreshDrawStyleActions();
+    }
+
 }
 
 //--------------------------------------------------------------------------------------------------

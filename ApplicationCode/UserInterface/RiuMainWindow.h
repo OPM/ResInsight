@@ -222,6 +222,7 @@ private slots:
 
     void slotDrawStyleChanged(QAction* activatedAction);
     void slotToggleFaultsAction(bool);
+    void slotToggleFaultLabelsAction(bool);
 
     void slotAddWellCellsToRangeFilterAction(bool doAdd);
 
@@ -273,6 +274,7 @@ private:
 
     QActionGroup*               m_dsActionGroup;
     QAction*                    m_drawStyleToggleFaultsAction;
+    QAction*                    m_toggleFaultsLabelAction;
     QAction*                    m_drawStyleLinesAction;
     QAction*                    m_drawStyleLinesSolidAction;
     QAction*                    m_drawStyleFaultLinesSolidAction;
