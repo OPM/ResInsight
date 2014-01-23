@@ -1642,16 +1642,14 @@ void RimReservoirView::setMeshOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        meshMode = FULL_MESH;
+        meshMode.setValueFromUi(FULL_MESH);
     }
     else
     {
-        meshMode = FAULTS_MESH;
+        meshMode.setValueFromUi(FAULTS_MESH);
     }
 
-    surfaceMode = NO_SURFACE;
-
-    updateDisplayModelVisibility();
+    surfaceMode.setValueFromUi(NO_SURFACE);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1661,16 +1659,14 @@ void RimReservoirView::setMeshSurfDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode = SURFACE;
-        meshMode = FULL_MESH;
+        surfaceMode.setValueFromUi(SURFACE);
+        meshMode.setValueFromUi(FULL_MESH);
     }
     else
     {
-        surfaceMode = FAULTS;
-        meshMode = FAULTS_MESH;
+        surfaceMode.setValueFromUi(FAULTS);
+        meshMode.setValueFromUi(FAULTS_MESH);
     }
- 
-    updateDisplayModelVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1685,16 +1681,14 @@ void RimReservoirView::setFaultMeshSurfDrawstyle()
     //  Mesh SF  SF    SF
     if (this->isGridVisualizationMode())
     {
-         surfaceMode = SURFACE;
+         surfaceMode.setValueFromUi(SURFACE);
     }
     else
     {
-         surfaceMode = FAULTS;
+         surfaceMode.setValueFromUi(FAULTS);
     }
 
-    meshMode = FAULTS_MESH;
- 
-    updateDisplayModelVisibility();
+    meshMode.setValueFromUi(FAULTS_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1704,15 +1698,13 @@ void RimReservoirView::setSurfOnlyDrawstyle()
 {
     if (isGridVisualizationMode())
     {
-        surfaceMode = SURFACE;
+        surfaceMode.setValueFromUi(SURFACE);
     }
     else
     {
-        surfaceMode = FAULTS;
+        surfaceMode.setValueFromUi(FAULTS);
     }
-    meshMode = NO_MESH;
-  
-    updateDisplayModelVisibility();
+    meshMode.setValueFromUi(NO_MESH);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1723,16 +1715,14 @@ void RimReservoirView::setShowFaultsOnly(bool showFaults)
     if (showFaults)
     {
         m_previousGridModeMeshLinesWasFaults = meshMode() == FAULTS_MESH;
-        if (surfaceMode() != NO_SURFACE) surfaceMode = FAULTS;
-        if (meshMode() != NO_MESH) meshMode = FAULTS_MESH;
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(FAULTS);
+        if (meshMode() != NO_MESH) meshMode.setValueFromUi(FAULTS_MESH);
     }
     else
     {
-        if (surfaceMode() != NO_SURFACE) surfaceMode = SURFACE;
-        if (meshMode() != NO_MESH) meshMode = m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH;
+        if (surfaceMode() != NO_SURFACE) surfaceMode.setValueFromUi(SURFACE);
+        if (meshMode() != NO_MESH) meshMode.setValueFromUi(m_previousGridModeMeshLinesWasFaults ? FAULTS_MESH: FULL_MESH);
     }
-
-    this->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
