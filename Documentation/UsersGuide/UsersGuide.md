@@ -1,4 +1,4 @@
-# ![](images/AppLogo48x48.png) ResInsight 1.0 Users Guide 
+# ![](images/AppLogo48x48.png) ResInsight 1.1 Users Guide 
 
 ## Introduction
 
