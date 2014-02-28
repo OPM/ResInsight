@@ -834,7 +834,10 @@ bool RiaApplication::parseArguments()
 
     bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
 
-    if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
+    if (!parseOk ||
+        progOpt.hasOption("help") ||
+        progOpt.hasOption("?") ||
+        progOpt.positionalParameters().size() > 0)
     {
 #if defined(_MSC_VER) && defined(_WIN32)
         showFormattedTextInMessageBox(m_helpText);
