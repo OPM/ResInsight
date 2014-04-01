@@ -34,6 +34,8 @@
 #include "RigCaseCellResultsData.h"
 
 #include <QTcpSocket>
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -241,32 +243,66 @@ public:
         //  dv(3) = 8;
         //  dv(4) = 3;
 
-        std::vector<double> cellCornerValues(doubleValueCount);
-        cvf::Vec3d cornerVerts[8];
-        quint64 coordCount = 0;
-        for (int coordIdx = 0; coordIdx < 3; coordIdx++)
+        cvf::Timer timer;
+
+        if (RiaApplication::instance()->preferences()->useStreamTransfer())
         {
-            for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
+            cvf::Vec3d cornerVerts[8];
+            for (int coordIdx = 0; coordIdx < 3; coordIdx++)
             {
-                size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
-
-                for (size_t k = 0; k < cellCountK; k++)
+                for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
                 {
-                    for (size_t j = 0; j < cellCountJ; j++)
-                    {
-                        for (size_t i = 0; i < cellCountI; i++)
-                        {
-                            size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                            rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
+                    size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
 
-                            cellCornerValues[coordCount++] = cornerVerts[cornerIndexMapping][coordIdx];
+                    for (size_t k = 0; k < cellCountK; k++)
+                    {
+                        for (size_t j = 0; j < cellCountJ; j++)
+                        {
+                            for (size_t i = 0; i < cellCountI; i++)
+                            {
+                                size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
+                                rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
+
+                                socketStream << cornerVerts[cornerIndexMapping][coordIdx];
+                            }
                         }
                     }
                 }
             }
         }
+        else
+        {
+            std::vector<double> cellCornerValues(doubleValueCount);
+            cvf::Vec3d cornerVerts[8];
+            quint64 coordCount = 0;
+            for (int coordIdx = 0; coordIdx < 3; coordIdx++)
+            {
+                for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
+                {
+                    size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
 
-        server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
+                    for (size_t k = 0; k < cellCountK; k++)
+                    {
+                        for (size_t j = 0; j < cellCountJ; j++)
+                        {
+                            for (size_t i = 0; i < cellCountI; i++)
+                            {
+                                size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
+                                rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
+
+                                cellCornerValues[coordCount++] = cornerVerts[cornerIndexMapping][coordIdx];
+                            }
+                        }
+                    }
+                }
+            }
+            server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
+        }
+
+        double totalTimeMS = timer.time() * 1000.0;
+        QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
+
+        server->errorMessageDialog()->showMessage(resultInfo);
 
         return true;
     }
