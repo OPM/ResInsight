@@ -113,12 +113,13 @@ bool RiaSocketTools::writeBlockData(RiaSocketServer* server, QTcpSocket* socket,
 
     quint64 maxBlockSize = RiaApplication::instance()->preferences()->blockSize();
 
+
     while (bytesWritten < bytesToWrite)
     {
         quint64 byteCountToWrite = qMin(bytesToWrite - bytesWritten, maxBlockSize);
 
-        quint64 actuallyBytesWritten = socket->write(data + bytesWritten, byteCountToWrite);
-        if (actuallyBytesWritten == -1)
+        qint64 actuallyBytesWritten = socket->write(data + bytesWritten, byteCountToWrite);
+        if (actuallyBytesWritten < 0)
         {
             if (server)
             {
