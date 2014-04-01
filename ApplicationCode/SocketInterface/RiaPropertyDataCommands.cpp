@@ -334,7 +334,6 @@ public:
         else
         {
 
-            std::vector<double> values(rigGrid->cellCount());
             for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
             {
                 cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
@@ -343,6 +342,7 @@ public:
                     continue;
                 }
 
+                std::vector<double> values(rigGrid->cellCount());
                 for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
                 {
                     double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
@@ -352,9 +352,8 @@ public:
                     }
                     values[valueIdx++] = cellValue;
                 }
+                RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), values.size() * sizeof(double));
             }
-
-            server->currentClient()->write((const char *)values.data(), rigGrid->cellCount() * sizeof(double));
         }
 
         double totalTimeMS = timer.time() * 1000.0;
