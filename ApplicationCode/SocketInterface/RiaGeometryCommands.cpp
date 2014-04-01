@@ -38,6 +38,7 @@
 #include "RiaPreferences.h"
 
 
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +109,7 @@ public:
 
         CVF_ASSERT(coordCount == doubleValueCount);
 
-        server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
+        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCenterValues.data(), byteCount);
 
         return true;
     }
@@ -181,7 +182,7 @@ public:
         quint64 byteCount = doubleValueCount * sizeof(double);
         socketStream << byteCount;
 
-        server->currentClient()->write((const char *)cellCenterValues.data(), byteCount);
+        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCenterValues.data(), byteCount);
 
         return true;
     }
@@ -296,7 +297,8 @@ public:
                     }
                 }
             }
-            server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
+
+            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCornerValues.data(), byteCount);
         }
 
         double totalTimeMS = timer.time() * 1000.0;
@@ -381,7 +383,7 @@ public:
         quint64 byteCount = doubleValueCount * sizeof(double);
         socketStream << byteCount;
 
-        server->currentClient()->write((const char *)cellCornerValues.data(), byteCount);
+        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCornerValues.data(), byteCount);
 
         return true;
     }
