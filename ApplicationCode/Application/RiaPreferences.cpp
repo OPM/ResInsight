@@ -61,6 +61,7 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&autocomputeDepthRelatedProperties,"autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
 
     CAF_PDM_InitField(&useStreamTransfer,                "useStreamTransfer", true, "Use stream transfer to Octave", "", "", "");
+    CAF_PDM_InitField(&blockSize,                       "blockSize", 10000, "blockSize", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------

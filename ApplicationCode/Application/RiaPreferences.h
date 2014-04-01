@@ -60,6 +60,7 @@ public: // Pdm Fields
 
 
     caf::PdmField<bool>     useStreamTransfer;
+    caf::PdmField<int>      blockSize;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
