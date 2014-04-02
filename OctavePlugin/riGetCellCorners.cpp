@@ -1,7 +1,10 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
 
 #include "riSettings.h"
+#include "../ApplicationCode/SocketInterface/RiaSocketTools.h"
 
 
 void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex)
@@ -67,7 +70,20 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     dv(4) = 3;
     cellCornerValues.resize(dv);
 
+    double* internalMatrixData = cellCornerValues.fortran_vec();
+    QStringList errorMessages;
+    if (!RiaSocketTools::readBlockData(socket, (char*)(internalMatrixData), byteCount, errorMessages))
+    {
+        for (int i = 0; i < errorMessages.size(); i++)
+        {
+            error(errorMessages[i].toLatin1().data());
+        }
 
+        OCTAVE_QUIT;
+    }
+
+
+    /*
     while (socket.bytesAvailable() < (qint64)(byteCount))
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
@@ -97,6 +113,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
     }
 
 #endif
+    */
 
     return;
 }
