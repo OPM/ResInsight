@@ -28,4 +28,5 @@ public:
     static void getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId);
     
     static bool writeBlockData(RiaSocketServer* server, QTcpSocket* socket, const char* data, quint64 bytesToWrite);
+    static bool readBlockData(QTcpSocket& socket, char* data, quint64 bytesToRead, QStringList& errorMessages);
 };
