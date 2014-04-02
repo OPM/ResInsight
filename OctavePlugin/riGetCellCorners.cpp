@@ -4,7 +4,9 @@
 #include <octave/oct.h>
 
 #include "riSettings.h"
-#include "../ApplicationCode/SocketInterface/RiaSocketTools.h"
+#include "riSocketTools.h"
+
+
 
 
 void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex)
@@ -72,7 +74,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
 
     double* internalMatrixData = cellCornerValues.fortran_vec();
     QStringList errorMessages;
-    if (!RiaSocketTools::readBlockData(socket, (char*)(internalMatrixData), byteCount, errorMessages))
+    if (!readBlockData(socket, (char*)(internalMatrixData), byteCount, errorMessages))
     {
         for (int i = 0; i < errorMessages.size(); i++)
         {
@@ -81,6 +83,8 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
 
         OCTAVE_QUIT;
     }
+
+    octave_stdout << "Bytes count processed : " << byteCount << std::endl;
 
 
     /*
