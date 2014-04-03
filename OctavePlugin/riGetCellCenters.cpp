@@ -1,7 +1,10 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
 
 #include "riSettings.h"
+#include "riSocketTools.h"
 
 
 void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 port, const qint32& caseId, const quint32& gridIndex)
@@ -66,39 +69,19 @@ void getCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 
     dv(3) = 3;
     cellCenterValues.resize(dv);
 
-    while (socket.bytesAvailable() < (qint64)(byteCount))
+
+    double* internalMatrixData = cellCenterValues.fortran_vec();
+    QStringList errorMessages;
+    if (!readBlockData(socket, (char*)(internalMatrixData), byteCount, errorMessages))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
+        for (int i = 0; i < errorMessages.size(); i++)
         {
-            error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
-            return;
+            error(errorMessages[i].toLatin1().data());
         }
+
         OCTAVE_QUIT;
     }
 
-    //octave_stdout << " riGetCellCenters : I = " << cellCountI <<" J = " << cellCountJ << " K = " << cellCountK  << std::endl;
-    //octave_stdout << " riGetCellCenters : numDoubles = " << valueCount << std::endl;
-
-    double* internalMatrixData = cellCenterValues.fortran_vec();
-
-#if 0
-    octave_idx_type valueCount = cellCenterValues.length();
-    double val;
-    for (octave_idx_type i = 0; i < valueCount; i++)
-    {
-        socketStream >> internalMatrixData[i];
-    }
-#else
-    quint64 bytesRead = 0;
-    bytesRead = socket.read((char*)(internalMatrixData), byteCount);
-
-    if (byteCount != bytesRead)
-    {
-        error("Could not read binary double data properly from socket");
-        octave_stdout << "Cell count: " << cellCount << std::endl;
-    }
-
-#endif
 
     return;
 }
