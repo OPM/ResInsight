@@ -306,60 +306,27 @@ public:
         quint64 timestepCount = (quint64)requestedTimesteps.size();
         socketStream << timestepCount;
 
-        size_t valueIdx = 0;
-        cvf::Timer timer;
-
-        if (RiaApplication::instance()->preferences()->useStreamTransfer())
+        for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-            for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
+            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
+            if (cellCenterDataAccessObject.isNull())
             {
-                cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
-                if (cellCenterDataAccessObject.isNull())
-                {
-                    continue;
-                }
-
-                for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
-                {
-                    double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
-                    if (cellValue == HUGE_VAL)
-                    {
-                        cellValue = 0.0;
-                    }
-
-                    socketStream << cellValue;
-                }
+                continue;
             }
-        }
-        else
-        {
 
-            for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
+            std::vector<double> values(rigGrid->cellCount());
+            for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
             {
-                cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
-                if (cellCenterDataAccessObject.isNull())
+                double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
+                if (cellValue == HUGE_VAL)
                 {
-                    continue;
+                    cellValue = 0.0;
                 }
-
-                std::vector<double> values(rigGrid->cellCount());
-                for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
-                {
-                    double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
-                    if (cellValue == HUGE_VAL)
-                    {
-                        cellValue = 0.0;
-                    }
-                    values[valueIdx++] = cellValue;
-                }
-                RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), values.size() * sizeof(double));
+                values[cellIdx] = cellValue;
             }
+
+            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), values.size() * sizeof(double));
         }
-
-        double totalTimeMS = timer.time() * 1000.0;
-        QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
-
-        server->errorMessageDialog()->showMessage(resultInfo);
 
         return true;
     }
