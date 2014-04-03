@@ -87,11 +87,14 @@ public:
         //  dv(2) = cellCountK;
         //  dv(3) = 3;
 
-        std::vector<double> cellCenterValues(doubleValueCount);
         cvf::Vec3d cornerVerts[8];
-        quint64 coordCount = 0;
+        size_t blockByteCount = cellCount * sizeof(double);
+        std::vector<double> doubleValues(blockByteCount);
+
         for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
+            quint64 valueIndex = 0;
+
             for (size_t k = 0; k < cellCountK; k++)
             {
                 for (size_t j = 0; j < cellCountJ; j++)
@@ -101,15 +104,15 @@ public:
                         size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
                         cvf::Vec3d center = rigGrid->cell(localCellIdx).center();
 
-                        cellCenterValues[coordCount++] = center[coordIdx];
+                        doubleValues[valueIndex++] = center[coordIdx];
                     }
                 }
             }
+
+            CVF_ASSERT(valueIndex == cellCount);
+
+            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)doubleValues.data(), blockByteCount);
         }
-
-        CVF_ASSERT(coordCount == doubleValueCount);
-
-        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCenterValues.data(), byteCount);
 
         return true;
     }
@@ -152,6 +155,11 @@ public:
         size_t activeCellCount = actCellInfo->globalActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3;
 
+        socketStream << (quint64)activeCellCount;
+        quint64 byteCount = doubleValueCount * sizeof(double);
+        socketStream << byteCount;
+
+
         // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
         // defined by the ordering of the receiving NDArray
         //
@@ -162,27 +170,25 @@ public:
         //  dv(0) = coordCount;
         //  dv(1) = 3;
 
-        std::vector<double> cellCenterValues(doubleValueCount);
-        quint64 coordCount = 0;
+        size_t blockByteCount = activeCellCount * sizeof(double);
+        std::vector<double> doubleValues(blockByteCount);
+
         for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
+            quint64 valueIndex = 0;
+
             for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
             {
                 if (!actCellInfo->isActive(globalCellIdx)) continue;
 
                 cvf::Vec3d center = mainGrid->cells()[globalCellIdx].center();
 
-                cellCenterValues[coordCount++] = center[coordIdx];
+                doubleValues[valueIndex++] = center[coordIdx];
             }
+
+            CVF_ASSERT(valueIndex == activeCellCount);
+            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)doubleValues.data(), blockByteCount);
         }
-
-        CVF_ASSERT(coordCount == doubleValueCount);
-
-        socketStream << (quint64)activeCellCount;
-        quint64 byteCount = doubleValueCount * sizeof(double);
-        socketStream << byteCount;
-
-        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCenterValues.data(), byteCount);
 
         return true;
     }
@@ -244,67 +250,37 @@ public:
         //  dv(3) = 8;
         //  dv(4) = 3;
 
-        cvf::Timer timer;
+        cvf::Vec3d cornerVerts[8];
+        size_t blockByteCount = cellCount * sizeof(double);
+        std::vector<double> doubleValues(blockByteCount);
 
-        if (RiaApplication::instance()->preferences()->useStreamTransfer())
+        for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
-            cvf::Vec3d cornerVerts[8];
-            for (int coordIdx = 0; coordIdx < 3; coordIdx++)
+            for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
-                for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
+                size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
+
+                quint64 valueIndex = 0;
+
+                for (size_t k = 0; k < cellCountK; k++)
                 {
-                    size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
-
-                    for (size_t k = 0; k < cellCountK; k++)
+                    for (size_t j = 0; j < cellCountJ; j++)
                     {
-                        for (size_t j = 0; j < cellCountJ; j++)
+                        for (size_t i = 0; i < cellCountI; i++)
                         {
-                            for (size_t i = 0; i < cellCountI; i++)
-                            {
-                                size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                                rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
+                            size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
+                            rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
 
-                                socketStream << cornerVerts[cornerIndexMapping][coordIdx];
-                            }
+                            doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
                         }
                     }
                 }
+
+                CVF_ASSERT(valueIndex, cellCount);
+
+                RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)doubleValues.data(), blockByteCount);
             }
         }
-        else
-        {
-            std::vector<double> cellCornerValues(doubleValueCount);
-            cvf::Vec3d cornerVerts[8];
-            quint64 coordCount = 0;
-            for (int coordIdx = 0; coordIdx < 3; coordIdx++)
-            {
-                for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
-                {
-                    size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
-
-                    for (size_t k = 0; k < cellCountK; k++)
-                    {
-                        for (size_t j = 0; j < cellCountJ; j++)
-                        {
-                            for (size_t i = 0; i < cellCountI; i++)
-                            {
-                                size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                                rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
-
-                                cellCornerValues[coordCount++] = cornerVerts[cornerIndexMapping][coordIdx];
-                            }
-                        }
-                    }
-                }
-            }
-
-            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCornerValues.data(), byteCount);
-        }
-
-        double totalTimeMS = timer.time() * 1000.0;
-        QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
-
-        server->errorMessageDialog()->showMessage(resultInfo);
 
         return true;
     }
@@ -348,6 +324,10 @@ public:
         size_t activeCellCount = actCellInfo->globalActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3 * 8;
 
+        socketStream << (quint64)activeCellCount;
+        quint64 byteCount = doubleValueCount * sizeof(double);
+        socketStream << byteCount;
+
         // This structure is supposed to be received by Octave using a NDArray. The ordering of this loop is
         // defined by the ordering of the receiving NDArray
         //
@@ -359,14 +339,17 @@ public:
         //  dv(1) = 8;
         //  dv(2) = 3;
 
-        std::vector<double> cellCornerValues(doubleValueCount);
         cvf::Vec3d cornerVerts[8];
-        quint64 coordCount = 0;
+        size_t blockByteCount = activeCellCount * sizeof(double);
+        std::vector<double> doubleValues(blockByteCount);
+
         for (int coordIdx = 0; coordIdx < 3; coordIdx++)
         {
             for (size_t cornerIdx = 0; cornerIdx < 8; cornerIdx++)
             {
                 size_t cornerIndexMapping = cellCornerMappingEclipse[cornerIdx];
+
+                quint64 valueIndex = 0;
 
                 for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
                 {
@@ -374,16 +357,14 @@ public:
 
                     mainGrid->cellCornerVertices(globalCellIdx, cornerVerts);
 
-                    cellCornerValues[coordCount++] = cornerVerts[cornerIndexMapping][coordIdx];
+                    doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
                 }
+
+                CVF_ASSERT(valueIndex == activeCellCount);
+
+                RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)doubleValues.data(), blockByteCount);
             }
         }
-
-        socketStream << (quint64)activeCellCount;
-        quint64 byteCount = doubleValueCount * sizeof(double);
-        socketStream << byteCount;
-
-        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)cellCornerValues.data(), byteCount);
 
         return true;
     }
