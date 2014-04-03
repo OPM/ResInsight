@@ -84,41 +84,6 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
         OCTAVE_QUIT;
     }
 
-    octave_stdout << "Bytes count processed : " << byteCount << std::endl;
-
-
-    /*
-    while (socket.bytesAvailable() < (qint64)(byteCount))
-    {
-        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
-        {
-            error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
-            return;
-        }
-        OCTAVE_QUIT;
-    }
-
-    double* internalMatrixData = cellCornerValues.fortran_vec();
-
-#if 0
-    double val;
-    for (octave_idx_type i = 0; i < valueCount; i++)
-    {
-        socketStream >> internalMatrixData[i];
-    }
-#else
-    quint64 bytesRead = 0;
-    bytesRead = socket.read((char*)(internalMatrixData), byteCount);
-
-    if (byteCount != bytesRead)
-    {
-        error("Could not read binary double data properly from socket");
-        octave_stdout << "Cell count: " << cellCount << std::endl;
-    }
-
-#endif
-    */
-
     return;
 }
 
