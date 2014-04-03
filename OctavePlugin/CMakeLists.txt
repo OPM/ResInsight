@@ -141,7 +141,10 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
-      SOURCES ${CPP_SOURCES}
+      SOURCES
+      ${CPP_SOURCES}
+      riSocketTools.h
+      riSettings.h 
     )
 
 
