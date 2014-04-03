@@ -1,6 +1,11 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
+
 #include "riSettings.h"
+#include "riSocketTools.h"
+
 
 void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16 serverPort,
                         const int& caseId, int gridIdx, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
@@ -61,8 +66,6 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     totalByteCount = cellCountI*cellCountJ*cellCountK*timestepCount*sizeof(double);
     
-    qint64 timestepByteCount = cellCountI*cellCountJ*cellCountK*sizeof(double);
-    
     if (!(totalByteCount))
     {
         error ("Could not find the requested data in ResInsight");
@@ -78,93 +81,18 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     propertyFrames.resize(dv);
 
-
-#if 1    
-    // Wait for available data for each timestep, then read data for each timestep
-    
-    qint64 totalBytesRead = 0;
-    
-    for (size_t tIdx = 0; tIdx < timestepCount; ++tIdx)
+    double* internalMatrixData = propertyFrames.fortran_vec();
+    QStringList errorMessages;
+    if (!readBlockData(socket, (char*)(internalMatrixData), totalByteCount, errorMessages))
     {
-        qint64 bytesAvailable = socket.bytesAvailable() ;
-        
-        while ( bytesAvailable < (qint64)timestepByteCount)
+        for (int i = 0; i < errorMessages.size(); i++)
         {
-            if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
-            {
-                error((("Waiting for timestep data number: ") + QString::number(tIdx)+  ": " + socket.errorString()).toLatin1().data());
-                octave_stdout << "Cellcount: " << cellCountI*cellCountJ*cellCountK << ", Timesteps: " << timestepCount << std::endl;
-                return ;
-            }
-            
-           bytesAvailable = socket.bytesAvailable();
-           
-           OCTAVE_QUIT;
+            error(errorMessages[i].toLatin1().data());
         }
 
-        qint64 bytesRead = 0;
-        double * internalMatrixData = propertyFrames.fortran_vec();
-
-        // Raw data transfer. Faster. Not possible when dealing with coarsening
-        bytesRead = socket.read(((char*)(internalMatrixData)) + tIdx * timestepByteCount, timestepByteCount);
-
-        if ((qint64)timestepByteCount != bytesRead)
-        {
-            error("Could not read binary double data properly from socket");
-            octave_stdout << "Cellcount: " << cellCountI*cellCountJ*cellCountK  << ", Timesteps count: " << timestepCount << std::endl;
-            octave_stdout << "Timestep : " << tIdx << std::endl;
-        }
-        
-        totalBytesRead += bytesRead;
-        
-        OCTAVE_QUIT;
-    }
-    
-    if ((qint64)totalByteCount != totalBytesRead)
-    {
-        error("Could not read binary double data properly from socket");
-    }
-    
- #else    
-    
-    // Wait for available data
-    qint64 bytesAvailable = socket.bytesAvailable() ;
-   
-    while (bytesAvailable < (qint64)totalByteCount)
-    {
-        octave_stdout << "Waiting for data. Has : " <<  bytesAvailable << " Needs :" << totalByteCount << std::endl;
-        if (!socket.waitForReadyRead(riOctavePlugin::shortTimeOutMilliSecs))
-        {
-            //error(("Waiting for data : " + socket.errorString()).toLatin1().data());
-            //return ;
-        }
-        
-        bytesAvailable = socket.bytesAvailable() ;
         OCTAVE_QUIT;
     }
 
-    qint64 bytesRead = 0;
-    double * internalMatrixData = propertyFrames.fortran_vec();
-
-#if 0
-    
-    char* dataBuffer = new char[totalByteCount];
-    bytesRead = socket.read(dataBuffer, totalByteCount);
-    
-    
-#else
-    
-    // Raw data transfer. Faster.
-    bytesRead = socket.read((char*)(internalMatrixData ), totalByteCount);
-#endif
-
-    
-    if ((qint64)totalByteCount != bytesRead)
-    {
-        error("Could not read binary double data properly from socket");
-    }
-    
-#endif
     QString tmp = QString("riGetGridProperty : Read %1").arg(propertyName);
 
     if (caseId < 0)
