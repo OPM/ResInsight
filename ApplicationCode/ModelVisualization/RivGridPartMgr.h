@@ -50,6 +50,13 @@ public:
         cvf::Vec2fArray* textureCoords, 
         const std::vector<cvf::StructGridInterface::FaceType>&  quadsToFaceTypes,
         const std::vector<size_t>&                              quadsToGridCells);
+
+    static void updateTernarySaturationColorArray(
+        size_t timeStepIndex,
+        RimResultSlot* cellResultSlot,
+        const RigGridBase* grid,
+        cvf::Color3ubArray* colorArray, 
+        const std::vector<size_t>&                              quadsToGridCells);
 };
 
 

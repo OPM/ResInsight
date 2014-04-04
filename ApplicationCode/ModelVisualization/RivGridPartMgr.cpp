@@ -41,6 +41,8 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimReservoirCellResultsCacher.h"
 #include "RivSourceInfo.h"
+#include "cvfRenderState_FF.h"
+#include "cafProgressInfo.h"
 
 
 
@@ -250,15 +252,23 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 {
     CVF_ASSERT(cellResultSlot);
 
-
     const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
     RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
 
- 
+    cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
+
     // Outer surface
     if (m_surfaceFaces.notNull())
     {
-        if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        if (cellResultSlot->isTernarySaturationSelected())
+        {
+            surfaceFacesColorArray = new cvf::Color3ubArray;
+
+            const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
+
+            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), quadsToGridCells);
+        }
+        else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
             const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
             const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
@@ -309,16 +319,41 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-        if (dg) dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
+        if (surfaceFacesColorArray.notNull())
+        {
+            if (dg)
+            {
+                dg->setColorArray(surfaceFacesColorArray.p());
+            }
 
-        caf::PolygonOffset polygonOffset = caf::PO_1;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+            cvf::ref<cvf::Effect> colorArrayEffect = new cvf::Effect;
 
-        scalarEffgen.setOpacityLevel(m_opacityLevel);
+            cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE);
+            mat->enableColorMaterial(true);
+            colorArrayEffect->setRenderState(mat.p());
 
-        cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+            cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
+            lighting->enableTwoSided(true);
+            colorArrayEffect->setRenderState(lighting.p());
 
-        m_surfaceFaces->setEffect(scalarEffect.p());
+            m_surfaceFaces->setEffect(colorArrayEffect.p());
+        }
+        else
+        {
+            if (dg)
+            {
+                dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
+            }
+
+            caf::PolygonOffset polygonOffset = caf::PO_1;
+            caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+
+            scalarEffgen.setOpacityLevel(m_opacityLevel);
+
+            cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+
+            m_surfaceFaces->setEffect(scalarEffect.p());
+        }
     }
 
     // Faults
@@ -534,4 +569,77 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
         }
     }
 
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Helper class used to provide zero for all cells
+/// This way we can avoid to test if a StructGridScalarDataAccess object is valid before reading out the value.
+//--------------------------------------------------------------------------------------------------
+class ScalarDataAccessZeroForAllCells : public cvf::StructGridScalarDataAccess
+{
+public:
+    virtual double cellScalar(size_t cellIndex) const
+    {
+        return 0.0;
+    }
+    virtual void setCellScalar(size_t cellIndex, double value)
+    {
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// Creates and assigns a ternary saturation color for all four vertices of a quad representing a cell face
+///
+/// Loads ternary saturation results SOIL, SWAT and SGAS
+/// If any of these are not present, the values for a missing component is set to 0.0
+//--------------------------------------------------------------------------------------------------
+void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t timeStepIndex, RimResultSlot* cellResultSlot, const RigGridBase* grid, cvf::Color3ubArray* colorArray, const std::vector<size_t>& quadsToGridCells)
+{
+    RimReservoirCellResultsStorage* gridCellResults = cellResultSlot->currentGridCellResults();
+    if (!gridCellResults) return;
+
+    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    if (!eclipseCase) return;
+
+    size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+    size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+    size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSoil = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, soilScalarSetIndex);
+    if (dataAccessObjectSoil.isNull()) dataAccessObjectSoil = new ScalarDataAccessZeroForAllCells;
+
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSgas = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, sgasScalarSetIndex);
+    if (dataAccessObjectSgas.isNull()) dataAccessObjectSgas = new ScalarDataAccessZeroForAllCells;
+    
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSwat = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, swatScalarSetIndex);
+    if (dataAccessObjectSwat.isNull()) dataAccessObjectSwat = new ScalarDataAccessZeroForAllCells;
+
+    size_t numVertices = quadsToGridCells.size()*4;
+
+    colorArray->resize(numVertices);
+
+    cvf::Color3f ternaryColor;
+    cvf::Color3ub ternaryColorByte;
+
+#pragma omp parallel for private(ternaryColor, ternaryColorByte)
+    for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
+    {
+        size_t gridCellIndex = quadsToGridCells[idx];
+
+        ternaryColor.r() = dataAccessObjectSgas->cellScalar(gridCellIndex);
+        ternaryColor.g() = dataAccessObjectSoil->cellScalar(gridCellIndex);
+        ternaryColor.b() = dataAccessObjectSwat->cellScalar(gridCellIndex);
+
+        ternaryColorByte.set(ternaryColor.rByte(), ternaryColor.gByte(), ternaryColor.bByte());
+
+        size_t j;
+        for (j = 0; j < 4; j++)
+        {
+            colorArray->set(idx*4 + j, ternaryColorByte);
+        }
+    }
 }

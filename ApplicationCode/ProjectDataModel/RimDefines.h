@@ -43,5 +43,6 @@ public:
     static QString undefinedGridFaultName() { return "Undefined grid faults"; }
 
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
+    static QString ternarySaturationResultName()        { return "TERNARY"; }
 };
 
