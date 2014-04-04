@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Resinsight by OPM</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/OPM/ResInsight">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/OPM/ResInsight/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/OPM/ResInsight/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>Resinsight</h1>
+          <p>3D viewer and post processing of reservoir models</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/OPM">OPM</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
+
+        <h1>
+<a name="resinsight" class="anchor" href="#resinsight"><span class="octicon octicon-link"></span></a>ResInsight</h1>
+
+<p>ResInsight is an open source, cross-platform 3D visualization and post processing tool for reservoir models and simulations. The system also constitutes a framework for further development and support for new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, geomechanics, and more. </p>
+
+<p>The user interface is tailored for efficient interpretation of reservoir simulation data with specialized visualizations of properties, faults and wells. It enables easy handling of a large number of realizations and calculation of statistics. To be highly responsive, ResInsight exploits multi-core CPUs and GPUs. Integration with GNU Octave enables powerful and flexible result manipulation and computations. Derived results can be returned to ResInsight for further handling and visualization. Eventually, derived and computed properties can be directly exported to Eclipse input formats for further simulation cycles and parameter studies.</p>
+
+<p>The main input data is *.GRID and *.EGRID files along with their *.INIT and restart files *.XNNN and *.UNRST. ResInsight also supports selected parts of Eclipse input files and can read grid information and corresponding cell property data sets.</p>
+
+<p>ResInsight has been co-developed by Statoil ASA, Ceetron Solutions AS, and Ceetron AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models. The software is copyrighted by Ceetron and Statoil and licensed under GPL 3+. See COPYING for details.</p>
+
+<h3>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h3>
+
+<p>ResInsight uses the Ensambles/ert library to access Eclipse result files, and the two projects collaborates closely. The source code of the approved ert library version is embedded in the ResInsight source code tree, making downloading and building simple.
+ResInsight also features an interface to Octave for retrieval of data from ResInsight, processing using Octave, and communication of data back into ResInsight for further handling and visualization.</p>
+
+<p>Octave : <a href="http://www.gnu.org/software/octave/">http://www.gnu.org/software/octave/</a></p>
+
+<p>Ensembles/ert : <a href="https://github.com/Ensembles/ert">https://github.com/Ensembles/ert</a></p>
+
+<h3>
+<a name="supported-platforms" class="anchor" href="#supported-platforms"><span class="octicon octicon-link"></span></a>Supported Platforms</h3>
+
+<p>ResInsight is designed cross-platform from the start. Efforts have been made to ensure that code will compile and run on Linux and Windows platforms. Tested platforms are currently 64 bit RHEL5, RHEL6 and Windows 7.</p>
+
+<p>There has been attempts to make ResInsight build and run on OSX as well, but the tweaks needed (submitted by Roland Kaufmann) is not yet incorporated. </p>
+
+<h3>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h3>
+
+<p>An online <a href="Documentation/UsersGuide/UsersGuide.md"> Users Guide </a> with some reference content is 
+<a href="Documentation/UsersGuide/UsersGuide.md"> here </a></p>
+
+<h3>
+<a name="source-code" class="anchor" href="#source-code"><span class="octicon octicon-link"></span></a>Source Code</h3>
+
+<pre><code>git clone git://github.com/OPM/ResInsight.git
+</code></pre>
+
+<h3>
+<a name="contribution" class="anchor" href="#contribution"><span class="octicon octicon-link"></span></a>Contribution</h3>
+
+<p>Contributions are very welcome, although it might take some time for the team to accept pull requests that is not in the main line of the projects focus. </p>
+
+<p>Please use the dev branch for contributions and pull requests, as it is the branch dedicated to the day to day development. </p>
+
+<p>The master branch is supposed to be stable, and is updated when we want to publish a new stable release.</p>
+
+<p>Release branches that might pop up are dedicated bug fix branches for the release in question.</p>
+
+<h3>
+<a name="building-resinsight" class="anchor" href="#building-resinsight"><span class="octicon octicon-link"></span></a>Building ResInsight</h3>
+
+<p>See <a href="BuildInstructions.md"> Build Instructions </a></p>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
