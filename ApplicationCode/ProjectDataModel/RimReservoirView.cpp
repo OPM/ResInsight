@@ -1107,7 +1107,38 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         RigCaseData* eclipseCase = m_reservoir->reservoirData();
         RigGridBase* grid = eclipseCase->grid(gridIndex);
 
-        if (this->cellResult()->hasResult())
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
+
+        if (this->cellResult()->isTernarySaturationSelected())
+        {
+            RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
+            if (gridCellResults)
+            {
+                size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+                size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+                size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, 0, soilScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, 0, sgasScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, 0, swatScalarSetIndex);
+
+                double scalarValue = 0.0;
+                
+                if (dataAccessObjectX.notNull()) scalarValue = dataAccessObjectX->cellScalar(cellIndex);
+                else scalarValue = 0.0;
+                resultInfoText->append(QString("SOIL : %1\n").arg(scalarValue));
+
+                if (dataAccessObjectY.notNull()) scalarValue = dataAccessObjectY->cellScalar(cellIndex);
+                else scalarValue = 0.0;
+                resultInfoText->append(QString("SGAS : %1\n").arg(scalarValue));
+
+                if (dataAccessObjectZ.notNull()) scalarValue = dataAccessObjectZ->cellScalar(cellIndex);
+                else scalarValue = 0.0;
+                resultInfoText->append(QString("SWAT : %1\n").arg(scalarValue));
+            }
+        }
+        else if (this->cellResult()->hasResult())
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
             cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;

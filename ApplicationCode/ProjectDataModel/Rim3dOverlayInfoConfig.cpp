@@ -140,6 +140,11 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             "<b>Cell count. Total:</b> %2 <b>Active:</b> %3 <br>" 
             "<b>Main Grid I,J,K:</b> %4, %5, %6 <b>Z-Scale:</b> %7<br>").arg(caseName, totCellCount, activeCellCountText, iSize, jSize, kSize, zScale);
 
+        if (m_reservoirView->cellResult()->isTernarySaturationSelected())
+        {
+            infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
+        }
+
         if (m_reservoirView->animationMode() && m_reservoirView->cellResult()->hasResult())
         {
             infoText += QString("<b>Cell Property:</b> %1 ").arg(propName);
@@ -196,7 +201,8 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
         if (   m_reservoirView->cellResult()->hasDynamicResult() 
             || m_reservoirView->propertyFilterCollection()->hasActiveDynamicFilters() 
-            || m_reservoirView->wellCollection()->hasVisibleWellPipes())
+            || m_reservoirView->wellCollection()->hasVisibleWellPipes()
+            || m_reservoirView->cellResult()->isTernarySaturationSelected())
         {
             int currentTimeStep = m_reservoirView->currentTimeStep();
             QDateTime date = m_reservoirView->currentGridCellResults()->cellResults()->timeStepDate(0, currentTimeStep);
