@@ -74,6 +74,7 @@
 #include <limits.h>
 #include "cafCeetronPlusNavigation.h"
 #include "RimFaultCollection.h"
+#include "RivTernarySaturationOverlayItem.h"
 
 namespace caf {
 
@@ -1444,6 +1445,23 @@ void RimReservoirView::updateLegends()
         m_viewer->setColorLegend2(NULL);
         this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+    }
+
+    if (m_ternarySaturationOverlayItem.notNull())
+    {
+        viewer()->removeOverlayItem(m_ternarySaturationOverlayItem.p());
+    }
+
+    if (this->cellResult()->isTernarySaturationSelected())
+    {
+        if (m_ternarySaturationOverlayItem.isNull())
+        {
+            cvf::Font* standardFont = RiaApplication::instance()->standardFont();
+            m_ternarySaturationOverlayItem = new RivTernarySaturationOverlayItem(standardFont);
+            m_ternarySaturationOverlayItem->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+        }
+
+        viewer()->addOverlayItem(m_ternarySaturationOverlayItem.p());
     }
 }
 

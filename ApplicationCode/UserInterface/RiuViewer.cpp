@@ -742,3 +742,19 @@ void RiuViewer::mousePressEvent(QMouseEvent* event)
     m_lastMousePressPosition = event->pos();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::addOverlayItem(cvf::OverlayItem* overlayItem)
+{
+    m_renderingSequence->firstRendering()->addOverlayItem(overlayItem);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::removeOverlayItem(cvf::OverlayItem* overlayItem)
+{
+    m_renderingSequence->firstRendering()->removeOverlayItem(overlayItem);
+}
+

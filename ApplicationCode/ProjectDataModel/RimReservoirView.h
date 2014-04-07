@@ -57,6 +57,7 @@ namespace cvf
     class Transform;
     class ScalarMapperUniformLevels;
     class ModelBasicList;
+    class OverlayItem;
 }
 
 enum PartRenderMaskEnum
@@ -199,6 +200,8 @@ private:
 
     cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
+
+    cvf::ref<cvf::OverlayItem>              m_ternarySaturationOverlayItem;
 
     // Overridden PDM methods:
 public:
