@@ -3,7 +3,7 @@ layout: docs
 prev_section: batchcommands
 next_section: octaveinterfacereference
 title: Build instructions
-permalink: /docs/build/
+permalink: /docs/buildinstructions/
 ---
 
 
