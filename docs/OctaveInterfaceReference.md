@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: buildinstructions
+next_section: regressiontestsystem
+title: Octave Interface Reference
+permalink: /docs/octavereference/
+---
 
------
 # Octave Interface Reference
 
 ## Introduction
@@ -218,5 +223,3 @@ This function returns the status information for a specified well for each reque
 If the CaseId is not defined, ResInsight's Current Case is used.
 
 
-------
-[ Contents ](UsersGuide.md#contents)

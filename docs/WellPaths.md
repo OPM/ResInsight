@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: octaveinterface
+next_section: faults
+title: Well trajectories
+permalink: /docs/wellpaths/
+---
 
------
 ## Well trajectories
 
 ResInsight can import Well trajectories from simple Ascii files. 
@@ -14,18 +19,18 @@ The supported ASCII format is quite flexible but the main requirements are:
 
 1. Each data line must contain four numbers: X Y TVD MD separated with white-space.
 2. A line starting with none-number-characters are ignored, unless :
-	1. If the line contains a pair of : ', `, ´, ’ or ‘ the text between the quotation marks is used as a well name.
+	1. If the line contains a pair of : _, _, _, _ or _ the text between the quotation marks is used as a well name.
 	2. If the line contains the case insensitive string "name " the rest of the line is used as a well name. 
 3. If a well name is found, a new well is created and the following data points ends up in it.
 
 ###### Example 1:
 
-	WELLNAME: ‘WELL1’
+	WELLNAME: WELL1
     4507.0	5638.5	0.0	0.0
     4507	5638.5	4628.6	1628.6
 	4297.4	5938.5	4632.4	1998.387
     -999
-    WELLNAME: ‘WELL2’
+    WELLNAME: WELL2
 	5507.0	4638.5	0.0	0.0
     5507	4638.5	3628.6	1628.6
     5297.4	4938.5	3632.4	1998.387
@@ -52,7 +57,7 @@ The command **File -> Import -> Import Well Paths From SSI-hub** launches a wiza
 
 After completing the wizard, the wells imported are accessible as Items under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**.
 
-The trajectory data is not copied into the  ResInsight project as such, but is stored in files in a directory called <ProjectFileName>_wellpaths in the same directory as your project file.   
+The trajectory data is not copied into the  ResInsight project as such, but is stored in files in a directory called *ProjectFileName_wellpaths* in the same directory as your project file.   
 
 ### Well Trajectory visualization
 
@@ -68,7 +73,4 @@ The visible wells are always shown in all the 3D Views in the complete project, 
 - **Clip Well Paths** This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.
 - **Well Path clipping depth distance** This number is the distance from the top of the reservoir to the clipping depth.
 
-------
-[ Contents ](UsersGuide.md#contents)
 
- 

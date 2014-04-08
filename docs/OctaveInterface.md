@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: casegroupsandstatistics
+next_section: wellpaths
+title: Octave Interface
+permalink: /docs/octaveinterface/
+---
 
------
 ## Octave Interface
 
 ResInsight provides a flexible interface to [Octave](http://www.gnu.org/software/octave/ "Octave").
@@ -38,5 +43,4 @@ One script can be executed on many cases by first selecting a set of cases, and 
 ![](images/ExecuteOctaveScriptOnSelectedCases.png)
 
 
-------
-[ Contents ](UsersGuide.md#contents)
+

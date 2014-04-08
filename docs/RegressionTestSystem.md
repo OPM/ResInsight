@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: octaveinterfacereference
+next_section: commandlineparameters
+title: Regression test system
+permalink: /docs/regressiontestsystem/
+---
 
------
 ## Regression test system
 
 A regression tool for QA is build into ResInsight. This tool will do the following: 
@@ -44,5 +49,3 @@ To create regression tests you need to do the following:
 
 Now you are all set to test new releases of ResInsight towards your own Regression tests.
 
-------
-[ Contents ](UsersGuide.md#contents)

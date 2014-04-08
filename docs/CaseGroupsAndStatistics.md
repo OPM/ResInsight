@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: reservoirviews
+next_section: octaveinterface
+title: Grid Case Groups and Statistics
+permalink: /docs/casegroupsandstatistics/
+---
 
------
 
 ## Grid Case Groups and Statistics
 
@@ -19,8 +24,8 @@ An import dialog is opened:
 ![](images/CreateGridCaseGroupFromFileDialog.png) 
 
 1. Add one or more search folders to the list on the left.
-2. The *.EGRID or *.GRID files found in these directories and sub directories are shown in the list to the right.
-3. If you want to remove some *.EGRID files from the list, select them and press the **Remove** button.
+2. The EGRID or GRID files found in these directories and sub directories are shown in the list to the right.
+3. If you want to remove some EGRID files from the list, select them and press the **Remove** button.
 4. When you are ready, press the **OK** button.
 
 ResInsight then creates a **Grid Case Group** for you, and populates its **Source Cases** with the Cases you selected. Then the first of those Cases are read completely, while the others are just scanned to verify that the Grids match and to detect changes in the Active Cells layout.
@@ -71,12 +76,5 @@ When the computation is complete, you have to create a 3D View on the **Statisti
 
 #### Adding Statistics Cases
 A new statistical calculation can be created by activating the context menu for **Derived Statistic->New Statistics Case**.
-
-------
-[ Contents ](UsersGuide.md#contents)
-
-
-
-
 
 

@@ -1,8 +1,11 @@
 ---
 layout: docs
+prev_section: home
+next_section: installation
 title: Getting Started
 permalink: /docs/gettingstarted/
 ---
+
 
 ## Getting started with ResInsight 
 
@@ -166,5 +169,4 @@ The command will export the property set currently loaded and shown in the 3D Vi
     <One number per cell separated by spaces>
     /
 
-------
-[ Contents ](UsersGuide.md#contents)
+

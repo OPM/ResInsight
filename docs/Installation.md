@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: gettingstarted
+next_section: reservoirviews
+title: Installation and configuration 
+permalink: /docs/installation/
+---
 
------
 ## Installation and configuration 
 
 ### Windows
@@ -24,5 +29,3 @@ Currently tested and verified version on Windows is Octave 3.6.1. NB! Version 3.
  
 
 
-------
-[ Contents ](UsersGuide.md#contents)

@@ -1,9 +1,22 @@
 - title: Getting Started
   docs:
-  - GettingStarted
+  - home
+  - gettingstarted
+  - installation
 
-- title: References
+- title: Application
   docs:
-  - BatchCommands
-  - CommandLineParameters
+  - reservoirviews
+  - casegroupsandstatistics
+  - octaveinterface
+  - wellpaths
+  - faults
+  - batchcommands
+
+- title: Appendix
+  docs:
+  - buildinstructions
+  - octaveinterfacereference
+  - regressiontestsystem
+  - commandlineparameters
 

@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: faults
+next_section: regressiontestsystem
+title: Batch Commands
+permalink: /docs/batchcommands/
+---
 
-------
 ## Batch Commands
 
 ResInsight supports several commands useful in a batch setting. These examples are available from the [test section](https://github.com/OPM/ResInsight/tree/master/TestModels/Case_with_10_timesteps).
@@ -44,5 +49,3 @@ The command line used to run this example is shown here:
 This will instruct ResInsight to read the project file **BatchTest.rsp**. All cases specified will be imported in the case group specified in the project file. Statistics will be computed, and snapshots for all views will be written to file. 
 
 
-------
-[ Contents ](UsersGuide.md#contents)

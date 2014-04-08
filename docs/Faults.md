@@ -1,6 +1,11 @@
-[ Contents ](UsersGuide.md#contents)
+---
+layout: docs
+prev_section: wellpaths
+next_section: batchcommands
+title: Faults
+permalink: /docs/faults/
+---
 
------
 ## Faults
 
 ResInsight can import faults from `*.DATA` files, and is available in the ![](images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**. The imported faults are ordered in ascending order based on name.
@@ -38,7 +43,4 @@ By clicking the ![](images/draw_style_faults_24x24.png) **Faults** item in the *
 - **Show opposite faces**: Displays the opposite fault cell faces based on IJK neighbor data
 - **Dynamic Face Selection**: Controls mapping of cell results onto a fault, either from cell in front of fault, from cell behind fault or both.
 
-------
-[ Contents ](UsersGuide.md#contents)
 
- 
