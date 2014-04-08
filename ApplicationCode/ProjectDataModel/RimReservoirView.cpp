@@ -1120,9 +1120,9 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
                 size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
 
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, 0, soilScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, 0, sgasScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, 0, swatScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, soilScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, sgasScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, swatScalarSetIndex);
 
                 double scalarValue = 0.0;
                 
