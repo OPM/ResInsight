@@ -44,6 +44,7 @@
 #include "cvfTextureImage.h"
 #include "cvfCollection.h"
 #include "cvfString.h"
+#include "cvfRenderStatePolygonOffset.h"
 
 namespace caf {
 
@@ -95,6 +96,8 @@ public:
 
     static void                 clearEffectCache();
     static void                 releaseUnreferencedEffects();
+
+    static cvf::ref<cvf::RenderStatePolygonOffset> createAndConfigurePolygonOffsetRenderState(caf::PolygonOffset polygonOffset);
 
 protected:
 

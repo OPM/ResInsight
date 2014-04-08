@@ -43,6 +43,8 @@
 #include "RivSourceInfo.h"
 #include "cvfRenderState_FF.h"
 #include "cafProgressInfo.h"
+#include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderStateBlending.h"
 
 
 
@@ -329,6 +331,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             cvf::ref<cvf::Effect> colorArrayEffect = new cvf::Effect;
 
             cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE);
+            mat->setAlpha(m_opacityLevel);
             mat->enableColorMaterial(true);
             colorArrayEffect->setRenderState(mat.p());
 
@@ -336,6 +339,20 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             lighting->enableTwoSided(true);
             colorArrayEffect->setRenderState(lighting.p());
 
+            // Simple transparency
+            if (m_opacityLevel < 1.0f)
+            {
+                cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
+                blender->configureTransparencyBlending();
+                colorArrayEffect->setRenderState(blender.p());
+            }
+
+            caf::PolygonOffset polygonOffset = caf::PO_1;
+            cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = caf::EffectGenerator::createAndConfigurePolygonOffsetRenderState(polygonOffset);
+            colorArrayEffect->setRenderState(polyOffset.p());
+
+            m_surfaceFaces->setPriority(100);
+            
             m_surfaceFaces->setEffect(colorArrayEffect.p());
         }
         else

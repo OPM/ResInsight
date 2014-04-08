@@ -107,7 +107,7 @@ cvf::String CommonShaderSources::light_AmbientDiffuse()
 //--------------------------------------------------------------------------------------------------
 /// Static helper to configure polygon offset render state from enum
 //--------------------------------------------------------------------------------------------------
-static cvf::ref<cvf::RenderStatePolygonOffset> CreateAngConfigurePolygonOffsetRenderState(PolygonOffset polygonOffset)
+cvf::ref<cvf::RenderStatePolygonOffset> EffectGenerator::createAndConfigurePolygonOffsetRenderState(PolygonOffset polygonOffset)
 {
     cvf::ref<cvf::RenderStatePolygonOffset> rs = new cvf::RenderStatePolygonOffset;
     if (polygonOffset == PO_NONE)
@@ -301,7 +301,7 @@ void SurfaceEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 {
     if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::createAndConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 
@@ -479,7 +479,7 @@ void ScalarMapperEffectGenerator::updateCommonEffect(cvf::Effect* effect) const
 
     if (m_polygonOffset != PO_NONE)
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = CreateAngConfigurePolygonOffsetRenderState(m_polygonOffset);
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::createAndConfigurePolygonOffsetRenderState(m_polygonOffset);
         effect->setRenderState(polyOffset.p());
     }
 
