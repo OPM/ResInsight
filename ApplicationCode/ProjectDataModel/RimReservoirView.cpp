@@ -530,7 +530,8 @@ void RimReservoirView::createDisplayModel()
 
     if (this->cellResult()->hasDynamicResult() 
         || this->propertyFilterCollection()->hasActiveDynamicFilters() 
-        || this->wellCollection->hasVisibleWellPipes())
+        || this->wellCollection->hasVisibleWellPipes()
+        || this->cellResult()->isTernarySaturationSelected())
     {
         CVF_ASSERT(currentGridCellResults());
 

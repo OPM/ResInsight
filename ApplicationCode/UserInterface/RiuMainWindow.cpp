@@ -660,7 +660,8 @@ void RiuMainWindow::refreshAnimationActions()
         {
             if (app->activeReservoirView()->cellResult()->hasDynamicResult() 
             || app->activeReservoirView()->propertyFilterCollection()->hasActiveDynamicFilters() 
-            || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes())
+            || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes()
+            || app->activeReservoirView()->cellResult()->isTernarySaturationSelected())
             {
                 std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->cellResults()->timeStepDates(0);
                 bool showHoursAndMinutes = false;
