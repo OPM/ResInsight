@@ -29,6 +29,7 @@ namespace cvf
     class ModelBasicList;
     class Transform;
     class Part;
+    class Effect;
 }
 
 class RimResultSlot;
@@ -80,15 +81,15 @@ public:
 
     void updateCellColor(cvf::Color4f color);
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
+
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
         RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
 private:
-    void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
-    
-    
+    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
+    cvf::ref<cvf::Effect>   createPerVertexColoringEffect();
 
 private:
     size_t                                      m_gridIdx;

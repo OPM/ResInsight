@@ -45,6 +45,11 @@
 #include "cafProgressInfo.h"
 #include "cvfRenderStatePolygonOffset.h"
 #include "cvfRenderStateBlending.h"
+#include "cvfShaderProgramGenerator.h"
+#include "cvfShaderSourceRepository.h"
+#include "cvfUniform.h"
+#include "cvfShaderSourceProvider.h"
+#include "cvfShaderProgram.h"
 
 
 
@@ -328,32 +333,10 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
                 dg->setColorArray(surfaceFacesColorArray.p());
             }
 
-            cvf::ref<cvf::Effect> colorArrayEffect = new cvf::Effect;
-
-            cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE);
-            mat->setAlpha(m_opacityLevel);
-            mat->enableColorMaterial(true);
-            colorArrayEffect->setRenderState(mat.p());
-
-            cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
-            lighting->enableTwoSided(true);
-            colorArrayEffect->setRenderState(lighting.p());
-
-            // Simple transparency
-            if (m_opacityLevel < 1.0f)
-            {
-                cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
-                blender->configureTransparencyBlending();
-                colorArrayEffect->setRenderState(blender.p());
-            }
-
-            caf::PolygonOffset polygonOffset = caf::PO_1;
-            cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = caf::EffectGenerator::createAndConfigurePolygonOffsetRenderState(polygonOffset);
-            colorArrayEffect->setRenderState(polyOffset.p());
+            cvf::ref<cvf::Effect> perVertexColorEffect = createPerVertexColoringEffect();
+            m_surfaceFaces->setEffect(perVertexColorEffect.p());
 
             m_surfaceFaces->setPriority(100);
-            
-            m_surfaceFaces->setEffect(colorArrayEffect.p());
         }
         else
         {
@@ -483,6 +466,53 @@ RivGridPartMgr::~RivGridPartMgr()
     if (m_surfaceGridLines.notNull()) m_surfaceGridLines->deleteOrReleaseOpenGLResources();
     if (m_surfaceFaces.notNull()) m_surfaceFaces->deleteOrReleaseOpenGLResources();
 #endif
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect()
+{
+    cvf::ref<cvf::Effect> colorArrayEffect = new cvf::Effect;
+
+    if (RiaApplication::instance()->useShaders())
+    {
+        cvf::ShaderProgramGenerator gen("PerVertexColor", cvf::ShaderSourceProvider::instance());
+        gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
+        gen.addFragmentCode(cvf::ShaderSourceRepository::src_VaryingColorGlobalAlpha);
+        gen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+
+        cvf::ref<cvf::ShaderProgram> m_shaderProg = gen.generate();
+        m_shaderProg->setDefaultUniform(new cvf::UniformFloat("u_alpha", m_opacityLevel));
+
+        colorArrayEffect->setShaderProgram(m_shaderProg.p());
+    }
+    else
+    {
+        cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE);
+        mat->setAlpha(m_opacityLevel);
+        mat->enableColorMaterial(true);
+        colorArrayEffect->setRenderState(mat.p());
+
+        cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
+        lighting->enableTwoSided(true);
+        colorArrayEffect->setRenderState(lighting.p());
+    }
+    
+    // Simple transparency
+    if (m_opacityLevel < 1.0f)
+    {
+        cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
+        blender->configureTransparencyBlending();
+        colorArrayEffect->setRenderState(blender.p());
+    }
+    
+    caf::PolygonOffset polygonOffset = caf::PO_1;
+    cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = caf::EffectGenerator::createAndConfigurePolygonOffsetRenderState(polygonOffset);
+    colorArrayEffect->setRenderState(polyOffset.p());
+
+    return colorArrayEffect;
 }
 
 
