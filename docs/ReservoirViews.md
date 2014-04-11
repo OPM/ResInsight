@@ -10,11 +10,11 @@ permalink: /docs/reservoirviews/
 
 3D Views are the windows displaying the Grid Models. The visualization is controlled by the **Project Tree** item representing the **View** and their subitems. Each item has a set of proerties that can be editied in the **Property View**.
 
-![](images/3DViewOverview.png)
+![]({{ site.baseurl }}/images/3DViewOverview.png)
 
 Below is a description of the most important View settings and their properties.
 
-### Cell Result ![](images/CellResult.png)
+### Cell Result ![]({{ site.baseurl }}/images/CellResult.png)
 
 The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![](images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
 
