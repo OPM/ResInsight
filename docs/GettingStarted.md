@@ -18,7 +18,7 @@ Installation instructions for ResInsight can be found here: [Installation and Co
 The application has a main area and several docking windows. The different docking 
 windows can be managed from the **Windows** menu or directly using the local menu bar of the docking window.
 
-![ResInsight User Interface](images/ResInsightUIFullSizeWindows.png)
+![ResInsight User Interface]({{ site.baseurl }}/images/ResInsightUIFullSizeWindows.png)
 
 
 #### Docking Windows
@@ -41,13 +41,13 @@ In the main area of the application, several 3D views can be open at the same ti
 
 *TIP:* To see views next to each other select the **Restore down** icon in the application show here for Windows :
 
-![Restore Down](images/RestoreDown.PNG)
+![Restore Down]({{ site.baseurl }}/images/RestoreDown.PNG)
 
 #### Editing the views
 
 Most of the settings and features of ResInsight is accessible through the **Project Tree** and the **Property Editor**. Selecting an item in the **Project Tree** activates the corresponding 3D View, and shows the item properties in the **Property Editor** available for editing. 
 
-Toggling a checkbox next to an item in the **Project Tree** will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will affect the visibility for all items in the collection. ![](images/TreeViewToggle.png)
+Toggling a checkbox next to an item in the **Project Tree** will toggle visibility in the 3D view. Toggling a checkbox for a collection of items will affect the visibility for all items in the collection. ![]({{ site.baseurl }}/images/TreeViewToggle.png)
 
 Context menu commands are also available to do special operations on a selected set of items.
 
@@ -56,17 +56,17 @@ Context menu commands are also available to do special operations on a selected 
 A *Case* in ResInsight means a Grid model with a particular set of results or property data. There are  
 three different Case types: 
 
-##### Result case ![](images/Case24x24.png) 
+##### Result case ![]({{ site.baseurl }}/images/Case24x24.png) 
 This is a Case based on the results of an Eclipse analysis, read from a grid file together with restart data.
 
-##### Input case ![](images/EclipseInput24x24.png) 
+##### Input case ![]({{ site.baseurl }}/images/EclipseInput24x24.png) 
 This Case type is based on a `*.GRDECL` file, or a part of an Eclipse *Input* file. This Case type supports loading single ASCII files defining Eclipse Cell Properties, and also to export modified property sets to ASCII files.
 Each of the Eclipse properties is listed as separate entities in the **Project Tree**, and can be renamed and exported.
 
-#####  Statistics case ![](images/Histogram24x24.png)
+#####  Statistics case ![]({{ site.baseurl }}/images/Histogram24x24.png)
 This is a Case type that belongs to a *Grid Case Group* and makes statistical calculations based on the source cases in the Grid Case Group. 
 
-#### Grid Case Groups ![](images/GridCaseGroup24x24.png) 
+#### Grid Case Groups ![]({{ site.baseurl }}/images/GridCaseGroup24x24.png) 
 
 A **Grid Case Group** is a group of **Result Cases** with identical grids, but generally different active cells, initial values and results. These cases are called *Source Cases*. 
 
@@ -99,7 +99,7 @@ ResInsight supports the following type of Eclipse input data:
 
 The X and Y grid data can be negated in order to make the Grid model appear correctly in ResInsight. This functionality is accessible in the **Property Editor** for all Case types as the toggle buttons **Flip X Axis** and **Flip Y Axis** as shown in the example below.
  
-![](images/CaseProperties.png)
+![]({{ site.baseurl }}/images/CaseProperties.png)
 
 
 ### Model navigation 
@@ -148,10 +148,10 @@ Statistics calculations, property sets you generate by using Octave, and well pa
 
 ### Export options
 #### Snapshot images 
-##### Single View ![](images/SnapShot.png) ![](images/SnapShotSave.png)
+##### Single View ![]({{ site.baseurl }}/images/SnapShot.png) ![]({{ site.baseurl }}/images/SnapShotSave.png)
 Image export of current 3D view can be launched from **File -> Export -> Snapshot To File**. A snapshot can also be copied to clipboard using **Edit->Copy Snapshot To Clipboard**. 
 
-##### All Views ![](images/SnapShotSaveViews.png)
+##### All Views ![]({{ site.baseurl }}/images/SnapShotSaveViews.png)
 If a project contains multiple views, all views can be exported using **File -> Export -> Snapshot All Views To File**. 
 
 It is also possible to snapshot all views from the command line. See  [ Command Line Arguments]      (CommandLineParameters.md)
@@ -160,7 +160,7 @@ It is also possible to snapshot all views from the command line. See  [ Command 
 
 
 #### Export of Eclipse Properties as ASCII data
-Eclipse Properties can be exported to Eclipse ASCII files by activating the context menu for a **Cell Result**. ![](images/ExportProperty.png) 
+Eclipse Properties can be exported to Eclipse ASCII files by activating the context menu for a **Cell Result**. ![]({{ site.baseurl }}/images/ExportProperty.png) 
 
 The command will export the property set currently loaded and shown in the 3D View to a file with the following format:
 

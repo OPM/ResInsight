@@ -17,7 +17,7 @@ The Octave functions are documented in [ Octave Interface Reference](OctaveInter
 ### Script management 
 Octave scripts are available in the **Scripts** folder in the **Project Tree**. 
 
-![](images/OctaveScriptTree.png)
+![]({{ site.baseurl }}/images/OctaveScriptTree.png)
 
 This folder contains an entry for each of the directories you have added as a **Script Folder**. Each of the folder lists available `*.m` files and sub directories. The tree is continuously updated to reflect the file structure on disk.
 
@@ -40,7 +40,7 @@ A script can be started by navigating to the script in the **Project Tree**, and
 #### With a case selection
 One script can be executed on many cases by first selecting a set of cases, and then activating **Execute script** from the context menu for the case selection. The script is then executed once pr selected case. Each time ResInsight's *Current Case* is updated, making it accessible from the Octave script. 
 
-![](images/ExecuteOctaveScriptOnSelectedCases.png)
+![]({{ site.baseurl }}/images/ExecuteOctaveScriptOnSelectedCases.png)
 
 
 

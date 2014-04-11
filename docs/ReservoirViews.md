@@ -18,12 +18,12 @@ Below is a description of the most important View settings and their properties.
 
 The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![](images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
 
-### Cell Edge Results ![](images/EdgeResult_1.png)
+### Cell Edge Results ![]({{ site.baseurl }}/images/EdgeResult_1.png)
 
 The **Cell Edge Result** visualization mode is one of ResInsight's special features. Its main use is to show the MULT(X, Y, Z) properties at the same time. 
 This will show the MULT property values *different from 1.0* along the correct edges of the cells. In effect this highlights the faults and makes it easy to verify all the MULT values in one go.
 
-![](images/CellEdgeExample.png)
+![]({{ site.baseurl }}/images/CellEdgeExample.png)
 
 ResInsight supports all properties ending with X, Y, Z and X-, Y-, Z-. However, it is only the MULT property that ignores values of 1.0.
 
@@ -38,7 +38,7 @@ The **Results Histogram** shows a histogram of the complete time series of the c
 - The mean value ( a blue line ) 
 - P10 and P90 ( red lines )
 
-![](images/HistogramExample.png)
+![]({{ site.baseurl }}/images/HistogramExample.png)
 
 
 ### Cell Filters
@@ -59,7 +59,7 @@ A new range filter can be added by activating the context menu for the **Range F
 
 Below is a snapshot of the **Property Editor** of the **Range Filter** :
 
-![](images/RangeFilterProperties.png)
+![]({{ site.baseurl }}/images/RangeFilterProperties.png)
 
  - **Filter Type** : The filter can either make the specified range visible ( *Include* ), or remove the range from the View ( *Exclude* ).
  - **Grid** :  This option selects which of the grids the range is addressing.
@@ -73,7 +73,7 @@ The **Width** labels shows the number of active cells from the start of the acti
 
 **Property filters** apply to the results of the **Range filters**. Below is a snapshot of the **Property Editor** of the **Property Filter**.
   
-![](images/PropertyFilterProperties.png)
+![]({{ site.baseurl }}/images/PropertyFilterProperties.png)
 
 This filter filters the cells based on a property value range (Min - Max). Cells in the range are either shown or hidden depending on the **Filter Type** ( *Include* / *Exclude* ). Exclude-filters removes the selected cells from the **View** even if some other filter includes them.
 
@@ -91,7 +91,7 @@ The latter is handled internally as a special range filter, and adds cells to th
 
 The Property Editor of the **Simulation Wells** item is shown below: 
 
-![](images/SimulationWellsProperties.png)
+![]({{ site.baseurl }}/images/SimulationWellsProperties.png)
 
 
 
@@ -122,7 +122,7 @@ The pipe geometry generated for MSW's are based on the topology of the well (bra
 ###### Dummy branches
 Often MSW's are modeled using a long stem without connections and a multitude of small branches; one for each connection. ResInsight offsets the the pipe within the cell to clearly show how the topology of the well is defined.
 
-![](images/MSWDummyBranchExample.png)
+![]({{ site.baseurl }}/images/MSWDummyBranchExample.png)
 
 ###### Picking reveals Segment/Branch info
 
@@ -136,7 +136,7 @@ This is particularly important to notice for the **Show Well Pipe** and **Range 
  
 The properties of a single well are shown below.
 
-![](images/WellProperties.png)
+![]({{ site.baseurl }}/images/WellProperties.png)
 
 One option needs further explanation:
 

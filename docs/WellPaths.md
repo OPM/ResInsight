@@ -13,7 +13,7 @@ In addition, a Statoil specific solution to retrieve Well Trajectories from thei
 
 ### Ascii Well Trajectories
 
-The command **File -> Import -> Import Well Paths From File** will read the well paths in the selected file, and create one entry for each trajectory under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**. 
+The command **File -> Import -> Import Well Paths From File** will read the well paths in the selected file, and create one entry for each trajectory under the  ![]({{ site.baseurl }}/images/WellCollection.png) **Wells** item in the **Project Tree**. 
 
 The supported ASCII format is quite flexible but the main requirements are: 
 
@@ -55,19 +55,19 @@ The trajectory data is not copied into the ResInsight project as such. The proje
 
 The command **File -> Import -> Import Well Paths From SSI-hub** launches a wizard to guide you through the process of selecting the well trajectories you need.
 
-After completing the wizard, the wells imported are accessible as Items under the  ![](images/WellCollection.png) **Wells** item in the **Project Tree**.
+After completing the wizard, the wells imported are accessible as Items under the  ![]({{ site.baseurl }}/images/WellCollection.png) **Wells** item in the **Project Tree**.
 
 The trajectory data is not copied into the  ResInsight project as such, but is stored in files in a directory called *ProjectFileName_wellpaths* in the same directory as your project file.   
 
 ### Well Trajectory visualization
 
-All the imported well trajectories are available below the ![](images/WellCollection.png) **Wells** item in the **Project Tree**. 
+All the imported well trajectories are available below the ![]({{ site.baseurl }}/images/WellCollection.png) **Wells** item in the **Project Tree**. 
 
-![](images/WellsInTree.png)
+![]({{ site.baseurl }}/images/WellsInTree.png)
 
 The visible wells are always shown in all the 3D Views in the complete project, so the toggles and settings control the overall project visibility of the Well Trajectories. The **Property Editor** of the **Wells** item is shown below 
 
-![](images/WellPathCollectionProperties.png)
+![]({{ site.baseurl }}/images/WellPathCollectionProperties.png)
 
 - **Global well path visibility** This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.
 - **Clip Well Paths** This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.

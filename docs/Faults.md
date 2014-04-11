@@ -8,7 +8,7 @@ permalink: /docs/faults/
 
 ## Faults
 
-ResInsight can import faults from `*.DATA` files, and is available in the ![](images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**. The imported faults are ordered in ascending order based on name.
+ResInsight can import faults from `*.DATA` files, and is available in the ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**. The imported faults are ordered in ascending order based on name.
 
 As import of faults can be time consuming, reading of faults can be disabled from **Preferences -> Read fault data**
 
@@ -21,15 +21,15 @@ ResInsight will detect all cell faces with no matching neighbor. All detected ce
 ### Toolbar control
 Visualization mode and mesh lines can be controlled from the toolbar.
 
-- ![](images/draw_style_faults_24x24.png) Toggle button to control faults only visualization mode
-- ![](images/draw_style_surface_24x24.png) Shows surface visualization
-- ![](images/draw_style_surface_w_fault_mesh_24x24.png) Shows mesh lines on faults
-- ![](images/draw_style_faults_label_24x24.png) Shows labels for faults  
+- ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) Toggle button to control faults only visualization mode
+- ![]({{ site.baseurl }}/images/draw_style_surface_24x24.png) Shows surface visualization
+- ![]({{ site.baseurl }}/images/draw_style_surface_w_fault_mesh_24x24.png) Shows mesh lines on faults
+- ![]({{ site.baseurl }}/images/draw_style_faults_label_24x24.png) Shows labels for faults  
 
 ### Common Fault Options
-By clicking the ![](images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**, the following options are displayed: 
+By clicking the ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**, the following options are displayed: 
 
- ![](images/FaultProperties.png)
+ ![]({{ site.baseurl }}/images/FaultProperties.png)
  
 
 - **Show labels**: Displays one label per fault with fault name

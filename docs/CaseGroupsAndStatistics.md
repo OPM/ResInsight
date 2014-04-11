@@ -9,7 +9,7 @@ permalink: /docs/casegroupsandstatistics/
 
 ## Grid Case Groups and Statistics
 
-![](images/GridCaseGroupTree.png)
+![]({{ site.baseurl }}/images/GridCaseGroupTree.png)
 
 **Grid Case Group**'s are designed to make it easy to calculate statistics per cell and per timestep of a large number of Eclipse simulation Cases with identical Grids (often labeled *realizations*).
  
@@ -21,7 +21,7 @@ The easiest way to create a **Grid Case Group** is to use the Import command:
 **File->Import->Create Grid Case Group from Files**
 
 An import dialog is opened: 
-![](images/CreateGridCaseGroupFromFileDialog.png) 
+![]({{ site.baseurl }}/images/CreateGridCaseGroupFromFileDialog.png) 
 
 1. Add one or more search folders to the list on the left.
 2. The EGRID or GRID files found in these directories and sub directories are shown in the list to the right.
@@ -50,7 +50,7 @@ After creating a grid case group, an empty **Statistics Case** is created for yo
 #### Setting up and Calculate
 The properties of an uncalculated and a calculated  **Statistics Case** is shown below:
 
-![](images/StatisticsCaseProperties.png)  ![](images/StatisticsCasePropertiesCalculated.png)
+![]({{ site.baseurl }}/images/StatisticsCaseProperties.png)  ![]({{ site.baseurl }}/images/StatisticsCasePropertiesCalculated.png)
 
 - **Compute**: Starts to calculate requested statistical Properties.
 - **Edit** : Deletes the calculated results, and makes the controls to edit the setup available.
