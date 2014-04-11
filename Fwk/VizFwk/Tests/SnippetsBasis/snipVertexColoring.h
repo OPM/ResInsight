@@ -55,6 +55,7 @@ class VertexColoring : public TestSnippet
     CVFU_DECLARE_SNIPPET("Vertex Coloring");
 
 public:
+    VertexColoring();
     virtual bool    onInitialize();
     virtual void    onKeyPressEvent(KeyEvent* keyEvent);
 
@@ -64,7 +65,10 @@ private:
     void            addEdgesRendering();
 
 private:
-    ref<Effect> m_effect;
+    bool                m_useShaders;
+    ref<ShaderProgram>  m_shaderProg;
+    ref<Effect>         m_fixedFuncEffect;
+    ref<Effect>         m_shaderEffect;
 };
 
 }

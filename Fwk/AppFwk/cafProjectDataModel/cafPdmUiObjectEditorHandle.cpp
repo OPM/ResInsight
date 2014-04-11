@@ -59,6 +59,8 @@ QWidget* PdmUiObjectEditorHandle::getOrCreateWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 void PdmUiObjectEditorHandle::setPdmObject(PdmObject* object)
 {
+    cleanupBeforeSettingPdmObject();
+
     this->bindToPdmItem(object);
 }
 

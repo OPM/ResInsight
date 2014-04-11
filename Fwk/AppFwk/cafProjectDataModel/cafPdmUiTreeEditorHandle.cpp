@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2011-2013 Ceetron AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -35,24 +35,42 @@
 //##################################################################################################
 
 
-#pragma once
+#include "cafPdmUiTreeEditorHandle.h"
+#include "cafPdmObject.h"
 
-#include "cvfObject.h"
-#include "cvfString.h"
-#include "cvfTextureImage.h"
-
-namespace cvfu {
-
-
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-class ImageTga
+namespace caf
 {
-public:
-    static cvf::ref<cvf::TextureImage>  loadImage(cvf::String fileName);
-};
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QWidget* PdmUiTreeEditorHandle::getOrCreateWidget(QWidget* parent)
+{
+    if (m_widget.isNull()) 
+    {
+        m_widget = this->createWidget(parent);
+    }
+    return m_widget;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeEditorHandle::setPdmItemRoot(PdmUiItem* root)
+{
+    cleanupBeforeSettingPdmObject();
+
+    this->bindToPdmItem(root);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+PdmUiItem* PdmUiTreeEditorHandle::pdmItemRoot()
+{
+    return this->pdmItem();
+}
+
+} //End of namespace caf
+

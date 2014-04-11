@@ -130,3 +130,4 @@ inline ArrayWrapperToEdit< ElmType*, ElmType > wrapArrayToEdit(ElmType* array, s
 }
 
 }
+

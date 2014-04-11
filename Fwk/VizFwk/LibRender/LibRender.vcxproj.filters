@@ -186,15 +186,18 @@
     </ClInclude>
     <ClInclude Include="cvfOverlayImage.h" />
     <ClInclude Include="cvfCameraAnimation.h" />
+    <ClInclude Include="glsl\src_TwoSidedColor.glsl">
+      <Filter>glsl</Filter>
+    </ClInclude>
+    <ClInclude Include="glsl\src_VaryingColorGlobalAlpha.glsl">
+      <Filter>glsl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="glsl\!AddingAndModifyingGlslFiles.txt">
       <Filter>glsl</Filter>
     </None>
     <None Include="CMakeLists.txt" />
-    <None Include="glsl\src_TwoSidedColor.glsl">
-      <Filter>glsl</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cvfCamera.cpp" />

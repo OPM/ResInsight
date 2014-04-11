@@ -37,11 +37,9 @@
 
 #pragma once
 
-#include "cvfObject.h"
-#include "cvfString.h"
-#include "cvfTextureImage.h"
+#include "cvfVector2.h"
 
-namespace cvfu {
+namespace cvf {
 
 
 //==================================================================================================
@@ -49,10 +47,10 @@ namespace cvfu {
 // 
 //
 //==================================================================================================
-class ImageTga
+class PrimitiveTests
 {
 public:
-    static cvf::ref<cvf::TextureImage>  loadImage(cvf::String fileName);
+    static bool     intersectLines(const Vec2d& p1, const Vec2d& p2, const Vec2d& p3, const Vec2d& p4, Vec2d* isect);
 };
 
 }

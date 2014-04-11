@@ -255,7 +255,7 @@ private:
 
 private:
     /// Recursive function to traverse and create a Ui tree representation of the object hierarchy
-    static void expandUiTree( PdmUiTreeOrdering* root, QString uiConfigName = "" );
+    static void addUiTreeChildren( PdmUiTreeOrdering* root, QString uiConfigName = "" );
 
 private:
     std::multiset<PdmFieldHandle*>  m_parentFields;

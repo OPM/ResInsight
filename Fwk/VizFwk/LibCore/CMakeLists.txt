@@ -6,13 +6,13 @@ project(LibCore)
 # Use our strict compile flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  ${CEE_STRICT_CXX_FLAGS}")
 
-
 set(CEE_HEADER_FILES
 cvfArray.h
 cvfArray.inl
 cvfArrayWrapperConst.h
 cvfArrayWrapperToEdit.h
 cvfAssert.h
+cvfAtomicCounter.h
 cvfBase.h
 cvfBase64.h
 cvfCharArray.h
@@ -68,6 +68,7 @@ cvfVersion.h
 
 set(CEE_SOURCE_FILES
 cvfAssert.cpp 
+cvfAtomicCounter.cpp
 cvfBase64.cpp
 cvfCharArray.cpp
 cvfCodeLocation.cpp

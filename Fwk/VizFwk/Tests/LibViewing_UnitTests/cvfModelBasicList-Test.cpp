@@ -128,6 +128,51 @@ TEST(ModelBasicListDeathTest, IllegalIndexing)
 }
 #endif
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(ModelBasicListTest, shrinkPartCount)
+{
+    ref<Part> p1 = new Part;
+    ref<Part> p2 = new Part;
+    ref<Part> p3 = new Part;
+
+    {
+        ref<ModelBasicList> myModel = new ModelBasicList;
+        myModel->addPart(p1.p());
+        myModel->addPart(p2.p());
+        myModel->addPart(p3.p());
+        ASSERT_EQ(3, myModel->partCount());
+        EXPECT_EQ(2, p1->refCount());
+        EXPECT_EQ(2, p2->refCount());
+        EXPECT_EQ(2, p3->refCount());
+
+        myModel->shrinkPartCount(3);
+        ASSERT_EQ(3, myModel->partCount());
+        EXPECT_EQ(2, p1->refCount());
+        EXPECT_EQ(2, p2->refCount());
+        EXPECT_EQ(2, p3->refCount());
+
+        myModel->shrinkPartCount(2);
+        ASSERT_EQ(2, myModel->partCount());
+        EXPECT_EQ(2, p1->refCount());
+        EXPECT_EQ(2, p2->refCount());
+        EXPECT_EQ(1, p3->refCount());
+
+        myModel->shrinkPartCount(0);
+        ASSERT_EQ(0, myModel->partCount());
+        EXPECT_EQ(1, p1->refCount());
+        EXPECT_EQ(1, p2->refCount());
+        EXPECT_EQ(1, p3->refCount());
+    }
+
+    EXPECT_EQ(1, p1->refCount());
+    EXPECT_EQ(1, p2->refCount());
+    EXPECT_EQ(1, p3->refCount());
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------

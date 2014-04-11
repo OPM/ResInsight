@@ -916,6 +916,24 @@ static const char src_TwoSidedColor_inl[] =
 
 //#############################################################################################################################
 //#############################################################################################################################
+static const char src_VaryingColorGlobalAlpha_inl[] =
+"                                                                                                      \n"
+"uniform float  u_alpha;                                                                               \n"
+"                                                                                                      \n"
+"varying vec4   v_color;                                                                               \n"
+"                                                                                                      \n"
+"//--------------------------------------------------------------------------------------------------  \n"
+"/// RGB color from varying, alpha from uniform                                                        \n"
+"//--------------------------------------------------------------------------------------------------  \n"
+"vec4 srcFragment()                                                                                    \n"
+"{                                                                                                     \n"
+"    return vec4(v_color.rgb, u_alpha);                                                                \n"
+"}                                                                                                     \n";
+
+
+
+//#############################################################################################################################
+//#############################################################################################################################
 static const char vs_DistanceScaledPoints_inl[] =
 "                                                                                                      \n"
 "uniform mat4  cvfu_modelViewProjectionMatrix;                                                         \n"
@@ -1147,10 +1165,12 @@ static const char vs_Standard_inl[] =
 "attribute vec4 cvfa_vertex;                                                                           \n"
 "attribute vec3 cvfa_normal;                                                                           \n"
 "attribute vec2 cvfa_texCoord;                                                                         \n"
+"attribute vec4 cvfa_color;                                                                            \n"
 "                                                                                                      \n"
 "varying vec3 v_ecPosition;                                                                            \n"
 "varying vec3 v_ecNormal;                                                                              \n"
 "varying vec2 v_texCoord;                                                                              \n"
+"varying vec4 v_color;                                                                                 \n"
 "                                                                                                      \n"
 "//--------------------------------------------------------------------------------------------------  \n"
 "/// Vertex Shader - Standard                                                                          \n"
@@ -1165,6 +1185,7 @@ static const char vs_Standard_inl[] =
 "    v_ecPosition = (cvfu_modelViewMatrix * cvfa_vertex).xyz;                                          \n"
 "    v_ecNormal = cvfu_normalMatrix * cvfa_normal;                                                     \n"
 "    v_texCoord = cvfa_texCoord;                                                                       \n"
+"    v_color = cvfa_color;                                                                             \n"
 "                                                                                                      \n"
 "#ifdef CVF_CALC_CLIP_DISTANCES_IMPL                                                                   \n"
 "    calcClipDistances(vec4(v_ecPosition, 1));                                                         \n"

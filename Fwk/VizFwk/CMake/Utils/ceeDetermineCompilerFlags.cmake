@@ -69,7 +69,11 @@ if (MSVC)
 
     # Setup the our STRICT compile flags
     # These are the flags we would like to use on all of our own libraries
-	set(CEE_STRICT_CXX_FLAGS  "${CEE_BASE_CXX_FLAGS} /Wall")
+    if (${MSVC_VERSION} LESS 1600)
+        set(CEE_STRICT_CXX_FLAGS  "${CEE_BASE_CXX_FLAGS} /W4")
+    elseif()
+        set(CEE_STRICT_CXX_FLAGS  "${CEE_BASE_CXX_FLAGS} /Wall")
+    endif()
     
     # Must add base warning level after setting up strict
     set(CEE_BASE_CXX_FLAGS   "${CEE_BASE_CXX_FLAGS} /W3")

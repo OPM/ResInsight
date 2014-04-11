@@ -35,24 +35,72 @@
 //##################################################################################################
 
 
-#pragma once
+#include "cvfBase.h"
+#include "cvfPrimitiveTests.h"
 
-#include "cvfObject.h"
-#include "cvfString.h"
-#include "cvfTextureImage.h"
+#include <limits>
 
-namespace cvfu {
+namespace cvf {
+
 
 
 //==================================================================================================
-//
-// 
-//
+///
+/// \class cvf::PrimitiveTests
+/// \ingroup Geometry
+///
+/// 
+///
 //==================================================================================================
-class ImageTga
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Calculate intersection between the lines p1p2 and p3p4
+//--------------------------------------------------------------------------------------------------
+bool PrimitiveTests::intersectLines(const Vec2d& p1, const Vec2d& p2, const Vec2d& p3, const Vec2d& p4, Vec2d* isect)
 {
-public:
-    static cvf::ref<cvf::TextureImage>  loadImage(cvf::String fileName);
-};
+    // See Paul Bourke, Intersection point of two lines in 2 dimensions
+
+    const double epsilon = std::numeric_limits<double>::epsilon();
+
+    const double denom  = (p4.y()-p3.y())*(p2.x()-p1.x()) - (p4.x()-p3.x())*(p2.y()-p1.y());
+    const double numera = (p4.x()-p3.x())*(p1.y()-p3.y()) - (p4.y()-p3.y())*(p1.x()-p3.x());
+    const double numerb = (p2.x()-p1.x())*(p1.y()-p3.y()) - (p2.y()-p1.y())*(p1.x()-p3.x());
+                                                    
+    // Are the lines coincident? 
+    if (cvf::Math::abs(numera) < epsilon && 
+        cvf::Math::abs(numerb) < epsilon && 
+        cvf::Math::abs(denom)  < epsilon) 
+    {
+        isect->x() = (p1.x() + p2.x()) / 2;
+        isect->y() = (p1.y() + p2.y()) / 2;
+        return true;
+    }
+
+    // Are the lines parallel?
+    if (cvf::Math::abs(denom) < epsilon) 
+    {
+        isect->setZero();
+        return false;
+    }
+
+    const double ta = numera/denom;
+//     const double tb = numerb/denom;
+// 
+//     // Is the intersection along the the segments ?
+//     if (ta < 0 || ta > 1 || tb < 0 || tb > 1) 
+//     {
+//         isect->setZero();
+//         return false;
+//     }
+
+    isect->x() = p1.x() + ta * (p2.x() - p1.x());
+    isect->y() = p1.y() + ta * (p2.y() - p1.y());
+
+    return true;
 
 }
+
+
+} // namespace cvf

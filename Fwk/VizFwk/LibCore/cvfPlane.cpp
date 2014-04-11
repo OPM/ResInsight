@@ -205,7 +205,7 @@ bool Plane::setFromPointAndNormal(const Vec3d& point, const Vec3d& normal)
 /// \param     p2   Second point on the plane
 /// \param     p3   Third point on the plane
 ///
-/// \return	true if successfully set. false if points are on the same line.
+/// \return true if successfully set. false if points are on the same line.
 ///
 /// The three points must be different from each other and cannot be on the same line in space
 //--------------------------------------------------------------------------------------------------
@@ -322,7 +322,7 @@ double Plane::distanceToOrigin() const
 /// \param     vector   Vector to be projected
 /// \param     projectedVector   Projected vector to be returned by pointer
 /// 
-/// \return	true if successfully projected.
+/// \return true if successfully projected.
 ///         false if the given \a vector is parallel with the plane's normal
 //--------------------------------------------------------------------------------------------------
 bool Plane::projectVector(const Vec3d& vector, Vec3d* projectedVector) const
@@ -378,7 +378,7 @@ Vec3d Plane::projectPoint(const Vec3d& point) const
 /// \param  point       Point on line
 /// \param  direction   Normalized direction of line
 /// 
-/// \return	true if success. false if direction is zero -> no point of intersection exists 
+/// \return true if success. false if direction is zero -> no point of intersection exists 
 //--------------------------------------------------------------------------------------------------
 bool Plane::intersect(const Plane& other, Vec3d* point, Vec3d* direction) const
 {
@@ -473,6 +473,125 @@ bool Plane::intersect(const Vec3d& a, const Vec3d& b, Vec3d* intersection) const
 
     return false;
 }
+
+
+
+//--------------------------------------------------------------------------------------------------
+/// Clip a triangle against this plane
+///
+/// Clip the triangle given by parameters a, b and c against this plane. The vertices of the 
+/// resulting clipped polygon (triangle or quad) will be returned in \a clippedPolygon. Since the
+/// clipped polygon may be a quad, the \a clippedPolygon array must have room for at least 4 elements.
+///
+/// \return The number of resulting vertices that are populated in \a clippedPolygon. Will be 0, 3 or 4.
+//--------------------------------------------------------------------------------------------------
+size_t Plane::clipTriangle(const Vec3d& a, const Vec3d& b, const Vec3d& c, Vec3d clippedPolygon[4]) const
+{
+    // Except for the trivial cases where all vertices are in front 
+    // or behind plane, these are the permutations
+    //
+    // Single vertex on positive side of plane 
+    // => return a triangle                                
+    //
+    //  +\   /\c               /\c   /+          /\c        .
+    //    \ /  \              /  \  /       +   /  \   +    .
+    //     \    \            /    \/        ---/----\---    .
+    //    / \    \          /     /\          /      \      .
+    //  a/___\____\b      a/_____/__\b      a/________\b    .
+    //       +\                 /+
+    //
+    // Two vertices vertex on positive side of plane 
+    // => return a quad
+    //
+    //       /\c           \+  /\c               /\c  +/    .   
+    //      /  \            \ /  \              /  \  /     .  
+    //  ___/____\___         \    \            /    \/      .
+    //  + /      \ +        / \    \          /     /\      .
+    //  a/________\b      a/___\____\b      a/_____/__\b    .        
+    //                          \+               +/
+
+    bool onPosSide[3];
+    onPosSide[0] = distanceSquared(a) >= 0 ? true : false;
+    onPosSide[1] = distanceSquared(b) >= 0 ? true : false;
+    onPosSide[2] = distanceSquared(c) >= 0 ? true : false;
+    const int numPositiveVertices = (onPosSide[0] ? 1 : 0) + (onPosSide[1] ? 1 : 0) + (onPosSide[2] ? 1 : 0);
+    
+    // The entire triangle is on the negative side
+    // Clip everything
+    if (numPositiveVertices == 0)
+    {
+        return 0;
+    }
+
+    // All triangle vertices are on the positive side
+    // Return the same triangle
+    if (numPositiveVertices == 3) 
+    {
+        clippedPolygon[0] = a;
+        clippedPolygon[1] = b;
+        clippedPolygon[2] = c;
+        return 3;
+    }
+
+    // Handle case where a single vertex is on the positive side
+    // Will result in the return of a single clipped triangle
+    if (numPositiveVertices == 1)
+    {
+        if (onPosSide[0])
+        {
+            clippedPolygon[0] = a;
+            intersect(a, b, &clippedPolygon[1]);
+            intersect(a, c, &clippedPolygon[2]);
+        }
+        else if (onPosSide[1])
+        {
+            clippedPolygon[0] = b;
+            intersect(b, c, &clippedPolygon[1]);
+            intersect(b, a, &clippedPolygon[2]);
+        }
+        else
+        {
+            CVF_ASSERT(onPosSide[2]);
+            clippedPolygon[0] = c;
+            intersect(c, a, &clippedPolygon[1]);
+            intersect(c, b, &clippedPolygon[2]);
+        }
+
+        return 3;
+    }
+    else
+    {
+        CVF_ASSERT(numPositiveVertices == 2);
+        if (onPosSide[0] && onPosSide[1])
+        {
+            // a & b are on positive side
+            clippedPolygon[0] = a;
+            clippedPolygon[1] = b;
+            intersect(b, c, &clippedPolygon[2]);
+            intersect(a, c, &clippedPolygon[3]);
+        }
+        else if (onPosSide[1] && onPosSide[2])
+        {
+            // b & c are on positive side
+            clippedPolygon[0] = b;
+            clippedPolygon[1] = c;
+            intersect(c, a, &clippedPolygon[2]);
+            intersect(b, a, &clippedPolygon[3]);
+        }
+        else
+        {
+            // c && a are on positive side
+            CVF_ASSERT(onPosSide[2] && onPosSide[0]);
+            clippedPolygon[0] = c;
+            clippedPolygon[1] = a;
+            intersect(a, b, &clippedPolygon[2]);
+            intersect(c, b, &clippedPolygon[3]);
+        }
+
+        return 4;
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// Classify where the point is located relative to the plane

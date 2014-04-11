@@ -151,3 +151,4 @@ inline const ArrayWrapperConst< const  ElmType*, ElmType > wrapArrayConst( ElmTy
 }
 
 }
+

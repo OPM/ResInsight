@@ -421,7 +421,7 @@ PdmUiTreeOrdering* PdmObject::uiTreeOrdering(QString uiConfigName /*= ""*/)
         }
     }
 
-    expandUiTree(uiTreeOrdering, uiConfigName);
+    addUiTreeChildren(uiTreeOrdering, uiConfigName);
     return uiTreeOrdering;
 }
 
@@ -429,13 +429,13 @@ PdmUiTreeOrdering* PdmObject::uiTreeOrdering(QString uiConfigName /*= ""*/)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void PdmObject::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName /*= "" */)
+void PdmObject::addUiTreeChildren(PdmUiTreeOrdering* root, QString uiConfigName /*= "" */)
 {
     if (!root) return;
 
-    if ( root->childCount() == 0)
+    if ( root->childCount() == 0) // This means that no one has tried to expand it.
     {
-        if (!root->isSubTreeDefined() && root->dataObject())
+        if (!root->ignoreSubTree() && root->dataObject()) 
         {
 
             if (root->m_field && !root->m_field->isUiChildrenHidden(uiConfigName))
@@ -449,7 +449,7 @@ void PdmObject::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName /*= "
             }
             else
             {
-                root->dataObject()->defineUiTreeOrdering(*root, uiConfigName);
+                root->object()->defineUiTreeOrdering(*root, uiConfigName);
             }
         }
     }
@@ -457,9 +457,9 @@ void PdmObject::expandUiTree(PdmUiTreeOrdering* root, QString uiConfigName /*= "
     for (int cIdx = 0; cIdx < root->childCount(); ++cIdx)
     {
         PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(root->child(cIdx));
-        if (!child->isSubTreeDefined())
+        if (!child->ignoreSubTree())
         {
-            expandUiTree(child);
+            addUiTreeChildren(child);
         }
     }
 }

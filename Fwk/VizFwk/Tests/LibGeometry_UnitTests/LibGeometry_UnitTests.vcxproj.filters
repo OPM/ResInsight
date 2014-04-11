@@ -21,6 +21,7 @@
     <ClCompile Include="cvfVertexCompactor-Test.cpp" />
     <ClCompile Include="cvfTriangleMeshEdgeExtractor-Test.cpp" />
     <ClCompile Include="cvfBoundingBoxTree-Test.cpp" />
+    <ClCompile Include="cvfPrimitiveTests-Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CMakeLists.txt" />

@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2014 Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -37,22 +37,60 @@
 
 #pragma once
 
-#include "cvfObject.h"
-#include "cvfString.h"
-#include "cvfTextureImage.h"
+#include "cvfBase.h"
 
-namespace cvfu {
+#ifdef WIN32
+  #define CVF_ATOMIC_COUNTER_CLASS_EXISTS
+#elif defined(CVF_IOS) || defined(CVF_OSX)
+  #include <libkern/OSAtomic.h>
+  #define CVF_ATOMIC_COUNTER_CLASS_EXISTS
+#elif defined __GNUC__
+  #if (CVF_GCC_VER >= 40200) && (defined(__x86_64__) || defined(__i386__))
+    #define CVF_HAVE_GCC_ATOMICS
+    #define CVF_ATOMIC_COUNTER_CLASS_EXISTS
+  #elif (CVF_GCC_VER >= 40300)
+    #define CVF_HAVE_GCC_ATOMICS
+    #define CVF_ATOMIC_COUNTER_CLASS_EXISTS
+  #endif
+#endif
+
+#if defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS)
+
+namespace cvf {
+
+// Inspired by Poco
 
 
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-class ImageTga
+class AtomicCounter
 {
 public:
-    static cvf::ref<cvf::TextureImage>  loadImage(cvf::String fileName);
+    explicit AtomicCounter(int initialValue);
+    ~AtomicCounter();
+
+    operator int () const;
+
+    int operator ++ ();     // prefix
+    int operator ++ (int);  // postfix
+
+    int operator -- ();     // prefix
+    int operator -- (int);  // postfix
+
+private:
+    
+    CVF_DISABLE_COPY_AND_ASSIGN(AtomicCounter);
+
+#ifdef WIN32
+    typedef volatile long ImplType;
+#elif defined(CVF_IOS) || defined(CVF_OSX)
+    typedef int32_t ImplType;
+#else
+    typedef int ImplType;
+#endif
+
+    ImplType m_counter;
 };
 
-}
+
+} // namespace cvf
+
+#endif

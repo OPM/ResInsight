@@ -25,6 +25,7 @@ set( QOBJECT_HEADERS
     
     cafPdmUiPropertyView.h
     cafPdmUiTreeView.h
+    cafPdmUiTreeViewModel.h
     cafPdmUiListView.h
     cafPdmUiListViewEditor.h
 )
@@ -66,6 +67,8 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiTextEditor.h
     cafPdmUiTreeViewEditor.cpp
     cafPdmUiTreeViewEditor.h
+    cafPdmUiTreeViewModel.cpp
+    cafPdmUiTreeViewModel.h
     cafPdmUiTreeView.cpp
 	cafProgressInfo.cpp
 	cafProgressInfo.h

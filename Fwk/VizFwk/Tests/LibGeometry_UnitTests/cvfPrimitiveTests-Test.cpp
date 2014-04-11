@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2011-2013 Ceetron AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -35,24 +35,56 @@
 //##################################################################################################
 
 
-#pragma once
+#include "cvfBase.h"
+#include "cvfPrimitiveTests.h"
 
-#include "cvfObject.h"
-#include "cvfString.h"
-#include "cvfTextureImage.h"
+#include "gtest/gtest.h"
 
-namespace cvfu {
+using namespace cvf;
 
 
-//==================================================================================================
-//
-// 
-//
-//==================================================================================================
-class ImageTga
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(PrimitiveTestsTest, intersectLines)
 {
-public:
-    static cvf::ref<cvf::TextureImage>  loadImage(cvf::String fileName);
-};
+    {
+        Vec2d p1(0, 0);   Vec2d p2(2, 0);
+        Vec2d p3(1, -1);  Vec2d p4(1, 1);
+        Vec2d isect(0, 0);
+        EXPECT_TRUE(PrimitiveTests::intersectLines(p1, p2, p3, p4, &isect));
+        EXPECT_DOUBLE_EQ(1, isect.x());
+        EXPECT_DOUBLE_EQ(0, isect.y());
+    }
 
+    {
+        Vec2d p1(0, 0);   Vec2d p2(2, 0);
+        Vec2d p3(1, 2);  Vec2d p4(1, 1);
+        Vec2d isect(0, 0);
+        EXPECT_TRUE(PrimitiveTests::intersectLines(p1, p2, p3, p4, &isect));
+        EXPECT_DOUBLE_EQ(1, isect.x());
+        EXPECT_DOUBLE_EQ(0, isect.y());
+    }
+
+    // Incident
+    {
+        Vec2d p1(1, 0);  Vec2d p2(3, 0);
+        Vec2d p3(2, 0);  Vec2d p4(4, 0);
+        Vec2d isect(0, 0);
+        EXPECT_TRUE(PrimitiveTests::intersectLines(p1, p2, p3, p4, &isect));
+        EXPECT_DOUBLE_EQ(2, isect.x());
+        EXPECT_DOUBLE_EQ(0, isect.y());
+    }
+
+    // Parallell
+    {
+        Vec2d p1(0, 0);  Vec2d p2(2, 0);
+        Vec2d p3(0, 2);  Vec2d p4(2, 2);
+        Vec2d isect(0, 0);
+        EXPECT_FALSE(PrimitiveTests::intersectLines(p1, p2, p3, p4, &isect));
+        EXPECT_DOUBLE_EQ(0, isect.x());
+        EXPECT_DOUBLE_EQ(0, isect.y());
+    }
 }
+

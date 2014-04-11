@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) Ceetron Solutions AS
+//   Copyright (C) 2011-2013 Ceetron AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -36,23 +36,43 @@
 
 
 #pragma once
+#include <vector>
+#include <QString>
+#include <QWidget>
+#include <QPointer>
+#include "cafPdmUiEditorHandle.h"
+#include "cafPdmPointer.h"
 
-#include "cvfObject.h"
-#include "cvfString.h"
-#include "cvfTextureImage.h"
+namespace caf 
+{
 
-namespace cvfu {
-
+class PdmObject;
 
 //==================================================================================================
-//
-// 
-//
+/// Abstract class to handle editors for complete PdmObjects
 //==================================================================================================
-class ImageTga
+
+class PdmUiTreeEditorHandle: public PdmUiEditorHandle
 {
 public:
-    static cvf::ref<cvf::TextureImage>  loadImage(cvf::String fileName);
+    PdmUiTreeEditorHandle() {}
+    ~PdmUiTreeEditorHandle() {}
+   
+    QWidget*            getOrCreateWidget(QWidget* parent);
+    QWidget*            widget() { return m_widget; }
+
+    void                setPdmItemRoot(PdmUiItem* root);
+    PdmUiItem*          pdmItemRoot();
+
+protected:
+    virtual QWidget*    createWidget(QWidget* parent) = 0;
+    virtual void        cleanupBeforeSettingPdmObject() {};
+
+protected:
+    QPointer<QWidget>           m_widget;
 };
 
-}
+
+
+} // End of namespace caf
+

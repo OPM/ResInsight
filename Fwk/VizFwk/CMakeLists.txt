@@ -23,6 +23,13 @@ if (CEE_STAND_ALONE)
 endif()
 
 
+# Allow use of non-threadsafe reference counter in cvf::Object on systems with no atomics support
+option(CEE_WORKAROUND_ON_SYSTEMS_WITHOUT_ATOMICS "Allow use of non-threadsafe reference counter on systems with no atomics support" OFF)
+if (CEE_WORKAROUND_ON_SYSTEMS_WITHOUT_ATOMICS)
+    add_definitions(-DCVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
+endif()
+
+
 add_subdirectory(LibCore)
 add_subdirectory(LibIo)
 add_subdirectory(LibGeometry)

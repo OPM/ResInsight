@@ -463,7 +463,12 @@
     <ClInclude Include="glsl\fs_HighlightMix.glsl">
       <FileType>Document</FileType>
     </ClInclude>
-    <None Include="glsl\src_TwoSidedColor.glsl" />
+    <ClInclude Include="glsl\src_TwoSidedColor.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
+    <ClInclude Include="glsl\src_VaryingColorGlobalAlpha.glsl">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cvfBufferObjectManaged.h" />

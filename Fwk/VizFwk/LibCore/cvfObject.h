@@ -41,6 +41,15 @@
 
 #include <set>
 
+#include "cvfAtomicCounter.h"
+
+#if defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS) && defined(CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
+#error Two mutually exclusive defines detected : CVF_ATOMIC_COUNTER_CLASS_EXISTS && CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS
+#endif
+
+#if !defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS) && !defined(CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
+#error No support for atomics. Define CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS to be able to compile
+#endif
 
 namespace cvf {
 
@@ -65,7 +74,13 @@ public:
     static void               dumpActiveObjectInstances();
 
 private:
+
+#if defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS)
+    mutable AtomicCounter m_refCount;
+#elif defined(CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
     mutable int m_refCount;
+#endif
+
 
     CVF_DISABLE_COPY_AND_ASSIGN(Object);
 };

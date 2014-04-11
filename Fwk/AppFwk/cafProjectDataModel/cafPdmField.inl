@@ -292,7 +292,7 @@ void caf::PdmField<DataType*>::readFieldData(QXmlStreamReader& xmlStream)
         }
         else
         {
-            if (dynamic_cast<DataType *>(obj) == NULL)
+           if (obj->classKeyword() != className)
             {
                 assert(false); // Inconsistency in the factory. It creates objects of wrong type from the ClassKeyword
 
@@ -341,7 +341,7 @@ void caf::PdmField<DataType*>::readFieldData(QXmlStreamReader& xmlStream)
 template<typename DataType >
 void caf::PdmField<DataType*>::writeFieldData(QXmlStreamWriter& xmlStream)
 {
-    if (m_fieldValue == NULL) return;
+   if (m_fieldValue.rawPtr() == NULL) return;
 
     QString className = m_fieldValue.rawPtr()->classKeyword(); 
 
@@ -397,7 +397,7 @@ template<typename DataType >
 caf::PdmField<DataType*>::~PdmField()
 {
     if (!m_fieldValue.isNull()) m_fieldValue.rawPtr()->removeParentField(this);
-    m_fieldValue = NULL;
+    m_fieldValue.setRawPtr(NULL);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -553,7 +553,6 @@ size_t PdmPointersField<DataType*>::count(const DataType* pointer) const
 template<typename DataType>
 void PdmPointersField<DataType*>::clear()
 {
-    
     this->removeThisAsParentField();
     m_pointers.clear();
 }
@@ -567,7 +566,7 @@ void PdmPointersField<DataType*>::deleteAllChildObjects()
     size_t index;
     for (index = 0; index < m_pointers.size(); ++index)
     {
-        delete(m_pointers[index]);
+       delete(m_pointers[index].rawPtr());
     }
 
     m_pointers.clear();
@@ -579,7 +578,11 @@ void PdmPointersField<DataType*>::deleteAllChildObjects()
 template<typename DataType>
 void PdmPointersField<DataType*>::erase(size_t index)
 {
-    if (m_pointers[index]) m_pointers[index]->removeParentField(this);
+    if (m_pointers[index])
+    {
+        m_pointers[index]->removeParentField(this);
+    }
+
     m_pointers.erase(m_pointers.begin() + index);
 }
 
@@ -589,21 +592,23 @@ void PdmPointersField<DataType*>::erase(size_t index)
 template<typename DataType>
 void PdmPointersField<DataType*>::removeChildObject(PdmObject* object)
 {
-    DataType* pointer = dynamic_cast<DataType*>(object);
-
-    size_t index;
     std::vector< PdmPointer<DataType> > tempPointers;
+
     tempPointers = m_pointers;
     m_pointers.clear();
-    for (index = 0; index < tempPointers.size(); ++index)
+
+    for (size_t index = 0; index < tempPointers.size(); ++index)
     {
-        if (tempPointers[index] != pointer)
+        if (tempPointers[index].rawPtr() != object)
         {
             m_pointers.push_back(tempPointers[index]);
         }
         else
         {
-            if (tempPointers[index]) tempPointers[index]->removeParentField(this);
+            if (tempPointers[index].rawPtr())
+            {
+                tempPointers[index].rawPtr()->removeParentField(this);
+            }
         }
     }
 }
@@ -618,12 +623,12 @@ template<typename DataType>
     typename std::vector< PdmPointer<DataType> >::iterator it;
     for (it = m_pointers.begin(); it != m_pointers.end(); ++it)
     {
-        if (*it == NULL) continue;
+       if (it->rawPtr() == NULL) continue;
 
-        QString className = (*it)->classKeyword();
+        QString className = it->rawPtr()->classKeyword();
 
         xmlStream.writeStartElement("", className);
-        (*it)->writeFields(xmlStream);
+        it->rawPtr()->writeFields(xmlStream);
         xmlStream.writeEndElement();
     }
 }
@@ -661,9 +666,7 @@ template<typename DataType>
             continue; 
         }
 
-        currentObject = dynamic_cast<DataType *> (obj);
-
-        if (currentObject == NULL)
+        if (obj->classKeyword() != className)
         {
             assert(false); // There is an inconsistency in the factory. It creates objects of type not matching the ClassKeyword
 
@@ -678,8 +681,11 @@ template<typename DataType>
             continue; 
         }
 
-        currentObject->readFields(xmlStream);
-        this->push_back(currentObject);
+        obj->readFields(xmlStream);
+
+        m_pointers.push_back(PdmPointer<DataType>());
+        m_pointers.back().setRawPtr(obj);
+        obj->addParentField(this);
 
         // Jump off the end element, and head for next start element (or the final EndElement of the field)
         // Qt reports a character token between EndElements and StartElements so skip it
@@ -700,7 +706,7 @@ void PdmPointersField<DataType*>::childObjects(std::vector<PdmObject*>* objects)
     size_t i;
     for (i = 0; i < m_pointers.size(); ++i)
     {
-        objects->push_back(m_pointers[i]);
+       objects->push_back(m_pointers[i].rawPtr());
     }
 }
 
@@ -715,7 +721,7 @@ void PdmPointersField<DataType*>::removeThisAsParentField()
     {
         if (!it->isNull()) 
         {
-            (*it)->removeParentField(this);
+            it->rawPtr()->removeParentField(this);
         }
     }
 }

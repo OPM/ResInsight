@@ -66,6 +66,7 @@ public:
 
 protected:
     virtual QWidget*    createWidget(QWidget* parent) = 0;
+    virtual void        cleanupBeforeSettingPdmObject() {};
 
 protected:
     QPointer<QWidget>           m_widget;
