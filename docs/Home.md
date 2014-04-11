@@ -1,6 +1,7 @@
 ---
 layout: docs
-title: ResInsight
+title: Welcome
+next_section: gettingstarted
 permalink: /docs/home/
 ---
 
