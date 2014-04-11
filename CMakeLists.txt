@@ -93,8 +93,15 @@ include (${QT_USE_FILE})
 find_package( OpenGL )
 
 ################################################################################
-# CeeViz
+# Vizualization Framework
 ################################################################################
+
+# Allow use of non-threadsafe reference counter in cvf::Object on systems with no atomics support
+option(RESINSIGHT_WORKAROUND_ON_SYSTEMS_WITHOUT_ATOMICS "Allow use of non-threadsafe reference counter on systems with no atomics support" OFF)
+if (RESINSIGHT_WORKAROUND_ON_SYSTEMS_WITHOUT_ATOMICS)
+    add_definitions(-DCVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
+endif()
+
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
@@ -111,7 +118,7 @@ include_directories(
 
 
 ################################################################################
-# Ceetron Application Framework
+# Application Framework
 ################################################################################
 
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
