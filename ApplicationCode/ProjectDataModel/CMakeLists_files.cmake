@@ -44,11 +44,8 @@ ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RimMimeData.h
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.h
 ${CEE_CURRENT_LIST_DIR}RimTools.h
-<<<<<<< HEAD
 ${CEE_CURRENT_LIST_DIR}RimFault.h
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.h
-=======
->>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.h
 )
 
@@ -92,11 +89,8 @@ ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.cpp
 ${CEE_CURRENT_LIST_DIR}RimMimeData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.cpp
 ${CEE_CURRENT_LIST_DIR}RimTools.cpp
-<<<<<<< HEAD
 ${CEE_CURRENT_LIST_DIR}RimFault.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.cpp
-=======
->>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.cpp
 )
 

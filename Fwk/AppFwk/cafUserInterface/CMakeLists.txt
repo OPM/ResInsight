@@ -38,13 +38,8 @@ endif()
 
 
 add_library( ${PROJECT_NAME}
-<<<<<<< HEAD
 	cafAboutDialog.cpp
 	cafAboutDialog.h
-=======
-	cafBasicAboutDialog.cpp
-	cafBasicAboutDialog.h
->>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 	cafPdmSettings.cpp
 	cafPdmUiCheckBoxEditor.cpp
 	cafPdmUiCheckBoxEditor.h

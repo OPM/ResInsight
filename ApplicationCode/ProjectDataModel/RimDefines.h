@@ -40,11 +40,8 @@ public:
     };
 
     static QString undefinedResultName() { return "None"; }
-<<<<<<< HEAD
     static QString undefinedGridFaultName() { return "Undefined grid faults"; }
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
-=======
->>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 
 
     // Mock model text identifiers
@@ -54,9 +51,5 @@ public:
     static QString mockModelCustomized()            { return "Result Mock Debug Model Customized"; }
     static QString mockModelBasicInputCase()        { return "Input Mock Debug Model Simple"; }
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 };
 
