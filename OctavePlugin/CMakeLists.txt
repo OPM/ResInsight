@@ -88,7 +88,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
                     OUTPUT "${octFileName}"
                     COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
                     COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
                         -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
                     DEPENDS "${srcFileName}"
                     COMMENT "===> 32-bit x86 VS2010 : Generating ${octFileName}"
@@ -97,7 +97,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
                 add_custom_command(
                     OUTPUT "${octFileName}"
                     COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
                         -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
                     DEPENDS "${srcFileName}"
                     COMMENT "===> Generating ${octFileName}"
@@ -107,7 +107,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
             add_custom_command(
                 OUTPUT "${octFileName}"
                 COMMAND OCTAVE_HOME=${OCTAVE_HOME} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE}
-                    -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR} -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                    -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR} -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
                     -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore -lQtNetwork -o "${octFileName}" "${srcFileName}"
                 DEPENDS "${srcFileName}"
                 COMMENT "===> Generating ${octFileName}"

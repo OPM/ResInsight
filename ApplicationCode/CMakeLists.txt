@@ -58,6 +58,7 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaPropertyDataCommands.cpp
     SocketInterface/RiaWellDataCommands.cpp
     SocketInterface/RiaSocketTools.cpp
+    SocketInterface/RiaSocketDataTransfer.cpp
 )
 
 
@@ -152,6 +153,8 @@ list( REMOVE_ITEM RAW_SOURCES
     Application/RiaImageFileCompare.cpp
     Application/RiaImageCompareReporter.cpp
     Application/RiaRegressionTest.cpp
+
+    SocketInterface/RiaSocketDataTransfer.cpp
 
     FileInterface/RifEclipseInputFileTools.cpp
     FileInterface/RifEclipseOutputFileTools.cpp
