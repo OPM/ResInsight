@@ -480,6 +480,18 @@ void RimLegendConfig::updateFieldVisibility()
         m_userDefinedMaxValue.setUiHidden(true);
         m_userDefinedMinValue.setUiHidden(true);
     }
+
+    if (m_reservoirView && m_reservoirView->cellResult() && m_reservoirView->cellResult()->isTernarySaturationSelected())
+    {
+        if (m_mappingMode == LINEAR_DISCRETE)
+        {
+            m_numLevels.setUiHidden(false);
+        }
+        else
+        {
+            m_numLevels.setUiHidden(true);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -635,16 +647,61 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
-    formatGr->add(&m_numLevels);
-    formatGr->add(&m_precision);
-    formatGr->add(&m_tickNumberFormat);
-    formatGr->add(&m_colorRangeMode);
+    if (m_reservoirView && m_reservoirView->cellResult() && m_reservoirView->cellResult()->isTernarySaturationSelected())
+    {
+        //TODO: Add support for discrete legend
+//         caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Ternary format");
+//         formatGr->add(&m_mappingMode);
+//         formatGr->add(&m_numLevels);
 
-    caf::PdmUiOrdering * mappingGr = uiOrdering.addNewGroup("Mapping");
-    mappingGr->add(&m_mappingMode);
-    mappingGr->add(&m_rangeMode);
-    mappingGr->add(&m_userDefinedMaxValue);
-    mappingGr->add(&m_userDefinedMinValue);
+        uiOrdering.setForgetRemainingFields(true);
+    }
+    else
+    {
+        caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
+        formatGr->add(&m_numLevels);
+        formatGr->add(&m_precision);
+        formatGr->add(&m_tickNumberFormat);
+        formatGr->add(&m_colorRangeMode);
+
+        caf::PdmUiOrdering * mappingGr = uiOrdering.addNewGroup("Mapping");
+        mappingGr->add(&m_mappingMode);
+        mappingGr->add(&m_rangeMode);
+        mappingGr->add(&m_userDefinedMaxValue);
+        mappingGr->add(&m_userDefinedMinValue);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Return the number of levels if mapping mode is LINEAR_DISCRETE, else -1
+//--------------------------------------------------------------------------------------------------
+int RimLegendConfig::linearDiscreteLevelCount() const
+{
+    if (m_mappingMode == LINEAR_DISCRETE)
+    {
+        return m_numLevels;
+    }
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    if (m_reservoirView && m_reservoirView->cellResult() && m_reservoirView->cellResult()->isTernarySaturationSelected())
+    {
+        if (fieldNeedingOptions == &m_mappingMode)
+        {
+            QList<caf::PdmOptionItemInfo> optionList;
+            optionList.push_back(caf::PdmOptionItemInfo(MappingEnum(LINEAR_DISCRETE).uiText(), LINEAR_DISCRETE));
+            optionList.push_back(caf::PdmOptionItemInfo(MappingEnum(LINEAR_CONTINUOUS).uiText(), LINEAR_CONTINUOUS));
+
+            return optionList;
+        }
+    }
+
+    return QList<caf::PdmOptionItemInfo>();
 }
 
