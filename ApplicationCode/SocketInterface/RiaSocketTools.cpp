@@ -38,8 +38,9 @@
 
 #include "RimInputPropertyCollection.h"
 
-#include <QTcpSocket>
+#include "RiaSocketDataTransfer.h"
 
+#include <QTcpSocket>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -104,89 +105,28 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 bool RiaSocketTools::writeBlockData(RiaSocketServer* server, QTcpSocket* socket, const char* data, quint64 bytesToWrite)
 {
     cvf::Timer timer;
 
-    quint64 bytesWritten = 0;
-    int blockCount = 0;
-
-    quint64 maxBlockSize = RiaApplication::instance()->preferences()->blockSize();
-
-
-    while (bytesWritten < bytesToWrite)
-    {
-        quint64 byteCountToWrite = qMin(bytesToWrite - bytesWritten, maxBlockSize);
-
-        qint64 actuallyBytesWritten = socket->write(data + bytesWritten, byteCountToWrite);
-        if (actuallyBytesWritten < 0)
-        {
-            if (server)
-            {
-                QString errorMessage = "Error detected when writing data, error string from socket : \n" + socket->errorString();
-
-                server->errorMessageDialog()->showMessage(errorMessage);
-            }
-
-            return false;
-        }
-
-        bytesWritten += actuallyBytesWritten;
-
-        blockCount++;
-    }
+    QStringList errorMessages;
+    bool writeSucceded = RiaSocketDataTransfer::writeBlockDataToSocket(socket, data, bytesToWrite, errorMessages);
 
     if (server)
     {
+        for (int i = 0; i < errorMessages.size(); i++)
+        {
+            server->errorMessageDialog()->showMessage(errorMessages[i]);
+        }
+
         double totalTimeMS = timer.time() * 1000.0;
-        QString resultInfo = QString("Total time '%1 ms'\nTotal bytes written .  %2\nNumber of blocks : %3\nBlock size : %4").arg(totalTimeMS).arg(bytesWritten).arg(blockCount).arg(maxBlockSize);
+        QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
 
         server->errorMessageDialog()->showMessage(resultInfo);
     }
 
-    return true;
+    return writeSucceded;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RiaSocketTools::readBlockData(QTcpSocket& socket, char* data, quint64 bytesToRead, QStringList& errorMessages)
-{
-    quint64 bytesRead = 0;
-    int blockCount = 0;
-
-    quint64 maxBlockSize = RiaApplication::instance()->preferences()->blockSize();
-
-    while (bytesRead < bytesToRead)
-    {
-        if (socket.bytesAvailable())
-        {
-            quint64 byteCountToRead = qMin(bytesToRead - bytesRead, maxBlockSize);
-
-            qint64 actuallyBytesRead = socket.read(data + bytesRead, byteCountToRead);
-            if (actuallyBytesRead < 0)
-            {
-                errorMessages.push_back("Error detected when writing data, error string from socket");
-                errorMessages.push_back(socket.errorString());
-
-                return false;
-            }
-
-            bytesRead += actuallyBytesRead;
-            blockCount++;
-        }
-        else
-        {
-            if (!socket.waitForReadyRead())
-            {
-                errorMessages.push_back("Waited for data for %1 milli seconds.");
-                errorMessages.push_back(socket.errorString());
-
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
