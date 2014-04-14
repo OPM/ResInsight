@@ -253,8 +253,11 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
     {
         addWellData(eclipseCase, eclipseCase->mainGrid());
     }
+<<<<<<< HEAD
 
     addFaults(eclipseCase);
+=======
+>>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
@@ -492,6 +495,7 @@ void RigReservoirBuilderMock::addWellData(RigCaseData* eclipseCase, RigGridBase*
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
 void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
 {
     if (!eclipseCase) return;
@@ -529,6 +533,8 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
     grid->setFaults(faults);
 }
 
+=======
+>>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 void RigReservoirBuilderMock::enableWellData(bool enableWellData)
 {
     m_enableWellData = false;

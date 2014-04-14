@@ -49,7 +49,10 @@
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+<<<<<<< HEAD
 #include "RiaPreferences.h"
+=======
+>>>>>>> 770f70680345d00c4b6c828e1e36f3f12000a390
 #include "RimMockModelSettings.h"
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
