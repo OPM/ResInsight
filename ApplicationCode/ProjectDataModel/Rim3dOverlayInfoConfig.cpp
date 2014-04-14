@@ -189,6 +189,10 @@ void Rim3dOverlayInfoConfig::update3DInfo()
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
             }
         }
+        else
+        {
+            infoText += "<br>";
+        }
 
 
         if (m_reservoirView->animationMode() && m_reservoirView->cellEdgeResult()->hasResult())
