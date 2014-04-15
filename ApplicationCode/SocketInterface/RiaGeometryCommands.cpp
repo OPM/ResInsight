@@ -276,7 +276,7 @@ public:
                     }
                 }
 
-                CVF_ASSERT(valueIndex, cellCount);
+                CVF_ASSERT(valueIndex == cellCount);
 
                 RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)doubleValues.data(), blockByteCount);
             }
