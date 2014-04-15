@@ -132,20 +132,9 @@ public:
         quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(qint32));
         socketStream << timestepByteCount;
 
-        // Then write the data.
 
-        for (size_t tIdx = 0; tIdx < columnCount; ++tIdx)
-        {
-#if 1 // Write data as raw bytes, fast but does not handle byteswapping
-            RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)activeCellInfo[tIdx].data(), timestepByteCount);
-
-#else  // Write data using QDataStream, does byteswapping for us. Must use QDataStream on client as well
-            for (size_t cIdx = 0; cIdx < activeCellInfo[tIdx].size(); ++cIdx)
-            {
-                socketStream << activeCellInfo[tIdx][cIdx];
-            }
-#endif
-        }
+        // Write data as raw bytes, fast but does not handle byteswapping
+        RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)activeCellInfo.data(), columnCount*timestepByteCount);
 
         return true;
     }
