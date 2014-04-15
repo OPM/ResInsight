@@ -2,7 +2,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool readBlockData(QTcpSocket& socket, char* data, quint64 bytesToRead, QStringList& errorMessages)
+bool readBlockData_to_be_deleted(QTcpSocket& socket, char* data, quint64 bytesToRead, QStringList& errorMessages)
 {
     quint64 bytesRead = 0;
     int blockCount = 0;
@@ -51,7 +51,7 @@ bool readBlockData(QTcpSocket& socket, char* data, quint64 bytesToRead, QStringL
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool writeBlockData(QTcpSocket& socket, const char* data, quint64 bytesToWrite, QStringList& errorMessages)
+bool writeBlockData_to_be_deleted(QTcpSocket& socket, const char* data, quint64 bytesToWrite, QStringList& errorMessages)
 {
     quint64 bytesWritten = 0;
     int blockCount = 0;

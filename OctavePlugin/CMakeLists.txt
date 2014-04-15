@@ -6,26 +6,26 @@
 set(CPP_SOURCES
   riGetActiveCellProperty.cpp
   riSetActiveCellProperty.cpp
-  riGetActiveCellInfo.cpp
-  riGetMainGridDimensions.cpp
-  riGetCurrentCase.cpp
-  riGetCaseGroups.cpp
-  riGetSelectedCases.cpp
-  riGetCases.cpp
-  riGetTimeStepDates.cpp
-  riGetTimeStepDays.cpp
-  riGetGridDimensions.cpp
-  riGetCoarseningInfo.cpp
-  riGetCellCenters.cpp
-  riGetActiveCellCenters.cpp
-  riGetCellCorners.cpp
-  riGetActiveCellCorners.cpp
+#  riGetActiveCellInfo.cpp
+#  riGetMainGridDimensions.cpp
+#  riGetCurrentCase.cpp
+#  riGetCaseGroups.cpp
+#  riGetSelectedCases.cpp
+#  riGetCases.cpp
+#  riGetTimeStepDates.cpp
+#  riGetTimeStepDays.cpp
+#  riGetGridDimensions.cpp
+#  riGetCoarseningInfo.cpp
+#  riGetCellCenters.cpp
+#  riGetActiveCellCenters.cpp
+#  riGetCellCorners.cpp
+#  riGetActiveCellCorners.cpp
   riGetGridProperty.cpp
   riSetGridProperty.cpp
-  riGetPropertyNames.cpp
-  riGetWellNames.cpp
-  riGetWellStatus.cpp
-  riGetWellCells.cpp
+#  riGetPropertyNames.cpp
+#  riGetWellNames.cpp
+#  riGetWellStatus.cpp
+#  riGetWellCells.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")

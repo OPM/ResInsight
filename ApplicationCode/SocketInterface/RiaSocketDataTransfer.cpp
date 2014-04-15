@@ -18,6 +18,7 @@
 
 #include "RiaSocketDataTransfer.h"
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -55,15 +56,12 @@ bool RiaSocketDataTransfer::writeBlockDataToSocket(QTcpSocket* socket, const cha
 bool RiaSocketDataTransfer::readBlockDataFromSocket(QTcpSocket* socket, char* data, quint64 bytesToRead, QStringList& errorMessages)
 {
     quint64 bytesRead = 0;
-    int blockCount = 0;
-
-    quint64 maxBlockSize = doubleValueCountInBlock() * sizeof(double);
 
     while (bytesRead < bytesToRead)
     {
         if (socket->bytesAvailable())
         {
-            quint64 byteCountToRead = qMin(bytesToRead - bytesRead, maxBlockSize);
+            quint64 byteCountToRead = bytesToRead - bytesRead;
 
             qint64 actuallyBytesRead = socket->read(data + bytesRead, byteCountToRead);
             if (actuallyBytesRead < 0)
@@ -75,7 +73,6 @@ bool RiaSocketDataTransfer::readBlockDataFromSocket(QTcpSocket* socket, char* da
             }
 
             bytesRead += actuallyBytesRead;
-            blockCount++;
         }
         else
         {
@@ -87,6 +84,12 @@ bool RiaSocketDataTransfer::readBlockDataFromSocket(QTcpSocket* socket, char* da
                 return false;
             }
         }
+
+// Allow Octave process to end a long running Octave function
+#ifdef octave_oct_h
+        OCTAVE_QUIT;
+#endif
+
     }
 
     return true;

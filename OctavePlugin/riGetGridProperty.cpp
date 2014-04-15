@@ -4,7 +4,7 @@
 #include <octave/oct.h>
 
 #include "riSettings.h"
-#include "riSocketTools.h"
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 
 void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16 serverPort,
@@ -83,14 +83,14 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     double* internalMatrixData = propertyFrames.fortran_vec();
     QStringList errorMessages;
-    if (!readBlockData(socket, (char*)(internalMatrixData), totalByteCount, errorMessages))
+    if (!RiaSocketDataTransfer::readBlockDataFromSocket(&socket, (char*)(internalMatrixData), totalByteCount, errorMessages))
     {
         for (int i = 0; i < errorMessages.size(); i++)
         {
             error(errorMessages[i].toLatin1().data());
         }
 
-        OCTAVE_QUIT;
+        return;
     }
 
     QString tmp = QString("riGetGridProperty : Read %1").arg(propertyName);
