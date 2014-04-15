@@ -3,7 +3,6 @@
 #include <octave/oct-map.h>
 
 #include "riSettings.h"
-#include "riSocketTools.h"
 
 void getCurrentCase(qint64& caseId, QString& caseName, QString& caseType, qint64& caseGroupId, const QString &hostName, quint16 port)
 {

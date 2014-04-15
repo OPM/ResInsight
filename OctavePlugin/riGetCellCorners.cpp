@@ -4,7 +4,7 @@
 #include <octave/oct.h>
 
 #include "riSettings.h"
-#include "riSocketTools.h"
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 
 
@@ -74,7 +74,7 @@ void getCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 
 
     double* internalMatrixData = cellCornerValues.fortran_vec();
     QStringList errorMessages;
-    if (!readBlockData(socket, (char*)(internalMatrixData), byteCount, errorMessages))
+    if (!RiaSocketDataTransfer::readBlockDataFromSocket(&socket, (char*)(internalMatrixData), byteCount, errorMessages))
     {
         for (int i = 0; i < errorMessages.size(); i++)
         {
