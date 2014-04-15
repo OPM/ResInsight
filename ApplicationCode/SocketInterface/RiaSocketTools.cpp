@@ -122,10 +122,10 @@ bool RiaSocketTools::writeBlockData(RiaSocketServer* server, QTcpSocket* socket,
             server->errorMessageDialog()->showMessage(errorMessages[i]);
         }
 
-        double totalTimeMS = timer.time() * 1000.0;
-        QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
-
-        server->errorMessageDialog()->showMessage(resultInfo);
+//         double totalTimeMS = timer.time() * 1000.0;
+//         QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
+// 
+//         server->errorMessageDialog()->showMessage(resultInfo);
     }
 
     return writeSucceded;

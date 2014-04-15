@@ -1,6 +1,10 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
+
 #include "riSettings.h"
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 
 void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, quint16 port,
@@ -64,41 +68,41 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     socketStream << (qint64)singleTimeStepByteCount;
 
     const double* internalData = propertyFrames.fortran_vec();
-    qint64 dataWritten = 0;
-    
-    for (size_t tsIdx = 0; tsIdx < timeStepCount; ++tsIdx)
+
+    QStringList errorMessages;
+    if (!RiaSocketDataTransfer::writeBlockDataToSocket(&socket, (const char *)internalData, timeStepCount*singleTimeStepByteCount, errorMessages))
     {
-        dataWritten += socket.write(((const char *)internalData) + tsIdx*singleTimeStepByteCount, singleTimeStepByteCount);
+        for (int i = 0; i < errorMessages.size(); i++)
+        {
+            octave_stdout << errorMessages[i].toStdString();
+        }
+
+        size_t cellCount = cellCountI * cellCountJ * cellCountK;
+        error("riSetGridProperty : Was not able to write the proper amount of data to ResInsight:");
+        octave_stdout << " Cell count : " << cellCount << "Time steps : " << timeStepCount << std::endl;
+
+        return;
     }
     
-    if (dataWritten == singleTimeStepByteCount*timeStepCount)
+    QString tmp = QString("riSetGridProperty : Wrote %1").arg(propertyName);
+
+    if (caseId == -1)
     {
-        QString tmp = QString("riSetGridProperty : Wrote %1").arg(propertyName);
-
-        if (caseId == -1)
-        {
-            tmp += QString(" to current case,");
-        }
-        else
-        {
-            tmp += QString(" to case with Id = %1,").arg(caseId);
-        }
-        
-        tmp += QString(" grid index: %1, ").arg(gridIndex);
-
-        octave_stdout << tmp.toStdString() << " Time steps : " << timeStepCount << std::endl;
+        tmp += QString(" to current case,");
     }
     else
     {
-        size_t cellCount = cellCountI * cellCountJ * cellCountK;
-        error("riSetGridProperty : Was not able to write the proper amount of data to ResInsight:");
-        octave_stdout << " Cell count : " << cellCount << "Time steps : " << timeStepCount << " Data Written: " << dataWritten << " Should have written: " << timeStepCount * cellCount * sizeof(double) << std::endl;
+        tmp += QString(" to case with Id = %1,").arg(caseId);
     }
+        
+    tmp += QString(" grid index: %1, ").arg(gridIndex);
+
+    octave_stdout << tmp.toStdString() << " Time steps : " << timeStepCount << std::endl;
 
     while(socket.bytesToWrite() && socket.state() == QAbstractSocket::ConnectedState)
     {
-        octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl << std::flush;
-        socket.waitForBytesWritten(2000);
+//        octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl << std::flush;
+        socket.waitForBytesWritten(riOctavePlugin::longTimeOutMilliSecs);
         OCTAVE_QUIT;
     }
 
