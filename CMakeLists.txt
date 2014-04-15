@@ -97,9 +97,19 @@ find_package( OpenGL )
 ################################################################################
 
 # Allow use of non-threadsafe reference counter in cvf::Object on systems with no atomics support
-option(RESINSIGHT_WORKAROUND_ON_SYSTEMS_WITHOUT_ATOMICS "Allow use of non-threadsafe reference counter on systems with no atomics support" OFF)
-if (RESINSIGHT_WORKAROUND_ON_SYSTEMS_WITHOUT_ATOMICS)
-    add_definitions(-DCVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
+if (CMAKE_COMPILER_IS_GNUCC)
+ 
+    check_c_source_compiles("int main(int argc, char **argv) {
+        int a;
+        __sync_add_and_fetch(&a, 1);
+        __sync_fetch_and_add(&a, 1);
+        __sync_sub_and_fetch(&a, 1);
+        __sync_fetch_and_sub(&a, 1); }" HAVE_GCC_ATOMICS)
+ 
+    if (NOT HAVE_GCC_ATOMITCS)
+        add_definitions(-DCVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
+    endif()
+ 
 endif()
 
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
