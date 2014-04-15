@@ -4,7 +4,7 @@
 #include <octave/oct.h>
 
 #include "riSettings.h"
-#include "riSocketTools.h"
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 
 void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, quint16 port, const qint32& caseId, const QString& porosityModel)
@@ -66,7 +66,8 @@ void getActiveCellCenters(NDArray& cellCenterValues, const QString &hostName, qu
 
     double* internalMatrixData = cellCenterValues.fortran_vec();
     QStringList errorMessages;
-    if (!readBlockData(socket, (char*)(internalMatrixData), byteCount, errorMessages))
+
+    if (!RiaSocketDataTransfer::readBlockDataFromSocket(&socket, (char*)(internalMatrixData), byteCount, errorMessages))
     {
         for (int i = 0; i < errorMessages.size(); i++)
         {
