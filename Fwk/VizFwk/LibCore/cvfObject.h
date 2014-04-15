@@ -43,12 +43,8 @@
 
 #include "cvfAtomicCounter.h"
 
-#if defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS) && defined(CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
-#error Two mutually exclusive defines detected : CVF_ATOMIC_COUNTER_CLASS_EXISTS && CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS
-#endif
-
-#if !defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS) && !defined(CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
-#error No support for atomics. Define CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS to be able to compile
+#if !defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS) && !defined(CVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
+#error No support for atomics. Define CVF_USE_NON_THREADSAFE_REFERENCE_COUNT to be able to compile
 #endif
 
 namespace cvf {
@@ -75,10 +71,12 @@ public:
 
 private:
 
-#if defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS)
-    mutable AtomicCounter m_refCount;
-#elif defined(CVF_WORKAROUND_TO_COMPILE_ON_SYSTEMS_WITHOUT_ATOMICS)
+#if defined(CVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
     mutable int m_refCount;
+#elif defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS)
+    mutable AtomicCounter m_refCount;
+#else
+    #error No support for atomics. Define CVF_USE_NON_THREADSAFE_REFERENCE_COUNT to be able to compile
 #endif
 
 

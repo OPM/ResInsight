@@ -141,7 +141,7 @@ int AtomicCounter::operator -- (int) // postfix
 }
 
 
-#elif defined(CVF_HAVE_GCC_ATOMICS)
+#elif defined(CVF_GCC_DEFINED)
 
 
 AtomicCounter::AtomicCounter(int initialValue)

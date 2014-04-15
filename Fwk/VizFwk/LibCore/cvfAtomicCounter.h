@@ -45,13 +45,8 @@
   #include <libkern/OSAtomic.h>
   #define CVF_ATOMIC_COUNTER_CLASS_EXISTS
 #elif defined __GNUC__
-  #if (CVF_GCC_VER >= 40200) && (defined(__x86_64__) || defined(__i386__))
-    #define CVF_HAVE_GCC_ATOMICS
+    #define CVF_GCC_DEFINED
     #define CVF_ATOMIC_COUNTER_CLASS_EXISTS
-  #elif (CVF_GCC_VER >= 40300)
-    #define CVF_HAVE_GCC_ATOMICS
-    #define CVF_ATOMIC_COUNTER_CLASS_EXISTS
-  #endif
 #endif
 
 #if defined(CVF_ATOMIC_COUNTER_CLASS_EXISTS)
