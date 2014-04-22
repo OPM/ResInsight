@@ -41,8 +41,16 @@ public:
 
     static QString undefinedResultName() { return "None"; }
     static QString undefinedGridFaultName() { return "Undefined grid faults"; }
-
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
     static QString ternarySaturationResultName()        { return "TERNARY"; }
+
+
+    // Mock model text identifiers
+    static QString mockModelBasic()                 { return "Result Mock Debug Model Simple"; }
+    static QString mockModelBasicWithResults()      { return "Result Mock Debug Model With Results"; }
+    static QString mockModelLargeWithResults()      { return "Result Mock Debug Model Large With Results"; }
+    static QString mockModelCustomized()            { return "Result Mock Debug Model Customized"; }
+    static QString mockModelBasicInputCase()        { return "Input Mock Debug Model Simple"; }
+
 };
 

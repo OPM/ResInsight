@@ -17,6 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+
+#include "cafProgressInfo.h"
+#include "cafPdmSettings.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmUiPropertyDialog.h"
+
 #include "RimResultCase.h"
 #include "RigCaseData.h"
 #include "RifReaderEclipseOutput.h"
@@ -24,7 +31,7 @@
 #include "RimReservoirView.h"
 #include "RifReaderMockModel.h"
 #include "RifReaderEclipseInput.h"
-#include "cafProgressInfo.h"
+
 #include "RimProject.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RiaApplication.h"
@@ -34,8 +41,6 @@
 #include "RimReservoirCellResultsCacher.h"
 #include "RimWellPathCollection.h"
 
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
@@ -45,6 +50,7 @@
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
 #include "RiaPreferences.h"
+#include "RimMockModelSettings.h"
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------
@@ -199,7 +205,7 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
     cvf::ref<RifReaderMockModel> mockFileInterface = new RifReaderMockModel;
     cvf::ref<RigCaseData> reservoir = new RigCaseData;
 
-     if (modelName == "Result Mock Debug Model Simple")
+     if (modelName == RimDefines::mockModelBasic())
     {
         // Create the mock file interface and and RigSerervoir and set them up.
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(20, 20, 20));
@@ -221,7 +227,7 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
             //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
         }
     }
-    else if (modelName == "Result Mock Debug Model With Results")
+    else if (modelName == RimDefines::mockModelBasicWithResults())
     {
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(-20, -20, -20));
         mockFileInterface->setGridPointDimensions(cvf::Vec3st(5, 10, 20));
@@ -234,7 +240,7 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
         cvf::Vec3d& tmp = reservoir->mainGrid()->nodes()[1];
         tmp += cvf::Vec3d(1, 0, 0);
     }
-    else if (modelName =="Result Mock Debug Model Large With Results")
+    else if (modelName == RimDefines::mockModelLargeWithResults())
     {
         double startX = 0;
         double startY = 0;
@@ -261,6 +267,45 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
 
         mockFileInterface->open("", reservoir.p());
 
+    }
+    else if (modelName == RimDefines::mockModelCustomized())
+    {
+        QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+
+        RimMockModelSettings rimMockModelSettings;
+        caf::Settings::readFieldsFromApplicationStore(&rimMockModelSettings);
+
+        caf::PdmUiPropertyDialog propertyDialog(NULL, &rimMockModelSettings, "Customize Mock Model");
+        if (propertyDialog.exec() == QDialog::Accepted)
+        {
+            QApplication::restoreOverrideCursor();
+
+            caf::Settings::writeFieldsToApplicationStore(&rimMockModelSettings);
+
+            double startX = 0;
+            double startY = 0;
+            double startZ = 0;
+
+            double widthX = 6000;
+            double widthY = 12000;
+            double widthZ = 500;
+
+            // Test code to simulate UTM coordinates
+            double offsetX = 400000;
+            double offsetY = 6000000;
+            double offsetZ = 0;
+
+            mockFileInterface->setWorldCoordinates(cvf::Vec3d(startX + offsetX, startY + offsetY, startZ + offsetZ), cvf::Vec3d(startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ));
+            mockFileInterface->setGridPointDimensions(cvf::Vec3st(rimMockModelSettings.cellCountX + 1, rimMockModelSettings.cellCountY + 1, rimMockModelSettings.cellCountZ + 1));
+            mockFileInterface->setResultInfo(rimMockModelSettings.resultCount, rimMockModelSettings.timeStepCount);
+            mockFileInterface->enableWellData(false);
+
+            mockFileInterface->open("", reservoir.p());
+        }
+        else
+        {
+             QApplication::restoreOverrideCursor();
+        }
     }
 
     this->setReservoirData( reservoir.p() );

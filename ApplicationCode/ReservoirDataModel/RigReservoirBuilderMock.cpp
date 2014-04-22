@@ -529,6 +529,9 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
     grid->setFaults(faults);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RigReservoirBuilderMock::enableWellData(bool enableWellData)
 {
     m_enableWellData = false;

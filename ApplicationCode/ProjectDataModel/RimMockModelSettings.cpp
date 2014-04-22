@@ -35,7 +35,7 @@ RimMockModelSettings::RimMockModelSettings()
 
     CAF_PDM_InitField(&cellCountX,    "CellCountX",  quint64(100), "Cell Count X", "", "", "");
     CAF_PDM_InitField(&cellCountY,    "CellCountY",  quint64(100), "Cell Count Y", "", "", "");
-    CAF_PDM_InitField(&cellCountZ,    "CellCountZ",  quint64(100), "Cell Count Z", "", "", "");
+    CAF_PDM_InitField(&cellCountZ,    "CellCountZ",  quint64(10), "Cell Count Z", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&totalCellCount,  "TotalCellCount", "Total Cell Count",   "", "", "");
     totalCellCount.setUiReadOnly(true);
@@ -70,4 +70,8 @@ void RimMockModelSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrde
     gridSizeGroup->add(&cellCountY);
     gridSizeGroup->add(&cellCountZ);
     gridSizeGroup->add(&totalCellCount);
+
+    caf::PdmUiGroup* resultGroup = uiOrdering.addNewGroup("Results");
+    resultGroup->add(&resultCount);
+    resultGroup->add(&timeStepCount);
 }
