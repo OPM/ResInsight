@@ -18,32 +18,35 @@
 
 #pragma once
 
-#include <QDialog>
-
-namespace caf
-{
-    class PdmObject;
-    class PdmUiPropertyView;
-}
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
 
 //==================================================================================================
-//
-// 
-//
+///  
+///  
 //==================================================================================================
-class RiuPreferencesDialog : public QDialog
+class RimMockModelSettings : public caf::PdmObject
 {
-    Q_OBJECT
-
+    CAF_PDM_HEADER_INIT;
 public:
-    RiuPreferencesDialog(QWidget* parent, caf::PdmObject* object, const QString& windowTitle);
 
-private:
-    void setupUi();
+    RimMockModelSettings();
+    virtual ~RimMockModelSettings();
 
-private:
-    QString                     m_windowTitle;
-    caf::PdmObject*             m_pdmObject;
-    caf::PdmUiPropertyView*     m_pdmUiPropertyView;
+    caf::PdmField<quint64>  cellCountX;
+    caf::PdmField<quint64>  cellCountY;
+    caf::PdmField<quint64>  cellCountZ;
+
+    caf::PdmField<quint64>  totalCellCount;
+
+    caf::PdmField<quint64>  resultCount;
+    caf::PdmField<quint64>  timeStepCount;
+
+
+    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+
+    virtual void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
 };

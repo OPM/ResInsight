@@ -30,6 +30,7 @@ public:
     void                    setWorldCoordinates(cvf::Vec3d minWorldCoordinate, cvf::Vec3d maxWorldCoordinate);
     void                    setGridPointDimensions(const cvf::Vec3st& gridPointDimensions);
     void                    setResultInfo(size_t resultCount, size_t timeStepCount);
+    void                    enableWellData(bool enableWellData);
 
     void                    addLocalGridRefinement(const cvf::Vec3st& minCellPosition, const cvf::Vec3st& maxCellPosition, const cvf::Vec3st& singleCellRefinementFactors);
 

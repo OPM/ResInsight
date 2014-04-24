@@ -40,6 +40,9 @@
 #include "Rim3dOverlayInfoConfig.h"
 
 #include <QTcpSocket>
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+#include "RiaSocketDataTransfer.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -143,6 +146,9 @@ public:
             socketStream << timestepByteCount ;
 
             // Then write the data.
+            size_t valueCount = RiaSocketDataTransfer::maximumValueCountInBlock();
+            std::vector<double> values(valueCount);
+            size_t valueIndex = 0;
 
             size_t globalCellCount = activeInfo->globalCellCount();
             for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
@@ -154,37 +160,34 @@ public:
                     {
                         if (resultIdx < scalarResultFrames->at(requestedTimesteps[tIdx]).size())
                         {
-                            socketStream << scalarResultFrames->at(requestedTimesteps[tIdx])[resultIdx];
+                            values[valueIndex] = scalarResultFrames->at(requestedTimesteps[tIdx])[resultIdx];
                         }
                         else
                         {
-                            socketStream << HUGE_VAL;
+                            values[valueIndex] = HUGE_VAL;
+                        }
+
+                        valueIndex++;
+                        if (valueIndex >= valueCount)
+                        {
+                            if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
+                            {
+                                return false;
+                            }
+
+                            valueIndex = 0;
                         }
                     }
                 }
             }
-#if 0
-            // This aproach is faster but does not handle coarsening
-            size_t  timestepResultCount = scalarResultFrames->front().size();
-            quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
-            socketStream << timestepByteCount ;
 
-            // Then write the data.
-
-            for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
+            // Write remaining data
+            if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
             {
-#if 1 // Write data as raw bytes, fast but does not handle byteswapping
-                server->currentClient()->write((const char *)scalarResultFrames->at(requestedTimesteps[tIdx]).data(), timestepByteCount); // Raw print of data. Fast but no platform conversion
-#else  // Write data using QDataStream, does byteswapping for us. Must use QDataStream on client as well
-                for (size_t cIdx = 0; cIdx < scalarResultFrames->at(requestedTimesteps[tIdx]).size(); ++cIdx)
-                {
-                    socketStream << scalarResultFrames->at(tIdx)[cIdx];
-                }
-#endif
+                return false;
             }
-#endif
-        }
 
+        }
         return true;
     }
 };
@@ -304,10 +307,6 @@ public:
         quint64 timestepCount = (quint64)requestedTimesteps.size();
         socketStream << timestepCount;
 
-        size_t doubleValueCount = cellCountI * cellCountJ * cellCountK * timestepCount * sizeof(double);
-        std::vector<double> values(doubleValueCount);
-        size_t valueIdx = 0;
-        
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
             cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
@@ -316,6 +315,9 @@ public:
                 continue;
             }
 
+            size_t valueCount = RiaSocketDataTransfer::maximumValueCountInBlock();
+            std::vector<double> values(valueCount);
+            size_t valueIndex = 0;
             for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
             {
                 double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
@@ -323,11 +325,25 @@ public:
                 {
                     cellValue = 0.0;
                 }
-                values[valueIdx++] = cellValue;
+                values[valueIndex++] = cellValue;
+
+                if (valueIndex >= valueCount)
+                {
+                    if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
+                    {
+                        return false;
+                    }
+
+                    valueIndex = 0;
+                }
+            }
+
+            // Write remaining data
+            if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
+            {
+                return false;
             }
         }
-
-        server->currentClient()->write((const char *)values.data(), doubleValueCount);
 
         return true;
     }
@@ -553,16 +569,18 @@ public:
                 internalMatrixData = m_scalarResultsToAdd->at(m_requestedTimesteps[m_currentTimeStepNumberToRead]).data();
             }
 
-#if 1 // Use raw data transfer. Faster.
-            bytesRead = currentClient->read((char*)(internalMatrixData), m_bytesPerTimeStepToRead);
-#else
-            for (size_t cIdx = 0; cIdx < cellCountFromOctave; ++cIdx)
+            QStringList errorMessages;
+            if (!RiaSocketDataTransfer::readBlockDataFromSocket(currentClient, (char*)(internalMatrixData), m_bytesPerTimeStepToRead, errorMessages))
             {
-                socketStream >> internalMatrixData[cIdx];
+                for (int i = 0; i < errorMessages.size(); i++)
+                {
+                    server->errorMessageDialog()->showMessage(errorMessages[i]);
+                }
 
-                if (socketStream.status() == QDataStream::Ok) bytesRead += sizeof(double);
+                currentClient->abort();
+                return true;
             }
-#endif
+
             // Map data from active  to result index based container ( Coarsening is active)
             if (isCoarseningActive)
             {
@@ -575,12 +593,6 @@ public:
                         ++acIdx;
                     }
                 }
-            }
-
-            if ((int)m_bytesPerTimeStepToRead != bytesRead)
-            {
-                server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
-                                                  RiaSocketServer::tr("Could not read binary double data properly from socket"));
             }
 
             ++m_currentTimeStepNumberToRead;
@@ -897,8 +909,17 @@ public:
 
             std::vector<double> doubleValues(cellCountFromOctave);
 
-            qint64 bytesRead = currentClient->read((char*)(doubleValues.data()), m_bytesPerTimeStepToRead);
-            size_t doubleValueIndex = 0;
+            QStringList errorMessages;
+            if (!RiaSocketDataTransfer::readBlockDataFromSocket(currentClient, (char*)(doubleValues.data()), m_bytesPerTimeStepToRead, errorMessages))
+            {
+                for (int i = 0; i < errorMessages.size(); i++)
+                {
+                    server->errorMessageDialog()->showMessage(errorMessages[i]);
+                }
+
+                currentClient->abort();
+                return true;
+            }
 
             cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = 
                 m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);

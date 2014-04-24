@@ -1,6 +1,11 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
+
 #include "riSettings.h"
+
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, quint16 serverPort,
                         const qint64& caseId, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
@@ -63,44 +68,18 @@ void getActiveCellProperty(Matrix& propertyFrames, const QString &serverName, qu
         return;
     }
 
-    // Wait for available data for each timestep, then read data for each timestep
+    quint64 totalByteCount = byteCount * timestepCount;
 
-    for (size_t tIdx = 0; tIdx < timestepCount; ++tIdx)
+    double* internalMatrixData = propertyFrames.fortran_vec();
+    QStringList errorMessages;
+    if (!RiaSocketDataTransfer::readBlockDataFromSocket(&socket, (char*)(internalMatrixData), totalByteCount, errorMessages))
     {
-        while (socket.bytesAvailable() < (int)byteCount)
+        for (int i = 0; i < errorMessages.size(); i++)
         {
-            if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
-            {
-                error((("Waiting for timestep data number: ") + QString::number(tIdx)+  ": " + socket.errorString()).toLatin1().data());
-                octave_stdout << "Active cells: " << activeCellCount << ", Timesteps: " << timestepCount << std::endl;
-                return ;
-            }
-           OCTAVE_QUIT;
+            error(errorMessages[i].toLatin1().data());
         }
 
-        qint64 bytesRead = 0;
-        double * internalMatrixData = propertyFrames.fortran_vec();
-
-#if 0
-        // Raw data transfer. Faster. Not possible when dealing with coarsening
-        // bytesRead = socket.read((char*)(internalMatrixData + tIdx * activeCellCount), byteCount);
-#else
-        // Compatible transfer. Now the only one working
-        for (size_t cIdx = 0; cIdx < activeCellCount; ++cIdx)
-        {
-            socketStream >> internalMatrixData[tIdx * activeCellCount + cIdx];
-
-            if (socketStream.status() == QDataStream::Ok) bytesRead += sizeof(double);
-        }
-#endif
-
-        if ((int)byteCount != bytesRead)
-        {
-            error("Could not read binary double data properly from socket");
-            octave_stdout << "Active cells: " << activeCellCount << ", Timesteps: " << timestepCount << std::endl;
-        }
-
-        OCTAVE_QUIT;
+        return;
     }
 
     QString tmp = QString("riGetActiveCellProperty : Read %1").arg(propertyName);

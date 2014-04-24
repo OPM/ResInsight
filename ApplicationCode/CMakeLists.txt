@@ -43,7 +43,6 @@ set( APPLICATION_FILES
 set( USER_INTERFACE_FILES
     UserInterface/RiuCursors.cpp
     UserInterface/RiuMainWindow.cpp
-    UserInterface/RiuPreferencesDialog.cpp
     UserInterface/RiuResultInfoPanel.cpp
     UserInterface/RiuViewer.cpp
     UserInterface/RiuSimpleHistogramWidget.cpp
@@ -59,6 +58,7 @@ set( SOCKET_INTERFACE_FILES
     SocketInterface/RiaPropertyDataCommands.cpp
     SocketInterface/RiaWellDataCommands.cpp
     SocketInterface/RiaSocketTools.cpp
+    SocketInterface/RiaSocketDataTransfer.cpp
 )
 
 
@@ -98,7 +98,6 @@ set ( QT_MOC_HEADERS
     ProjectDataModel/RimMimeData.h
     
     UserInterface/RiuMainWindow.h
-    UserInterface/RiuPreferencesDialog.h
     UserInterface/RiuResultInfoPanel.h
     UserInterface/RiuViewer.h
     UserInterface/RiuProcessMonitor.h
@@ -154,6 +153,8 @@ list( REMOVE_ITEM RAW_SOURCES
     Application/RiaImageFileCompare.cpp
     Application/RiaImageCompareReporter.cpp
     Application/RiaRegressionTest.cpp
+
+    SocketInterface/RiaSocketDataTransfer.cpp
 
     FileInterface/RifEclipseInputFileTools.cpp
     FileInterface/RifEclipseOutputFileTools.cpp

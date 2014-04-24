@@ -34,6 +34,7 @@ RigReservoirBuilderMock::RigReservoirBuilderMock()
     m_resultCount = 0;
     m_timeStepCount = 0;
     m_gridPointDimensions = cvf::Vec3st::ZERO;
+    m_enableWellData = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -134,10 +135,14 @@ void RigReservoirBuilderMock::appendCubeNodes(const cvf::Vec3d& min, const cvf::
 void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells)
 {
     size_t activeCellIndex = 0;
-    size_t i;
-    for (i = 0; i < cellCount; i++)
+    long long i;
+
+    cells.resize(cellCount);
+
+#pragma omp parallel for
+    for (i = 0; i < static_cast<long long>(cellCount); i++)
     {
-        RigCell riCell;
+        RigCell& riCell = cells[i];
 
         riCell.setHostGrid(hostGrid);
         riCell.setCellIndex(i);
@@ -164,8 +169,6 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
             riCell.setActiveIndexInMatrixModel(activeCellIndex++);
         }
         */
-
-        cells.push_back(riCell);
     }
 }
 
@@ -246,7 +249,10 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 
     eclipseCase->mainGrid()->setGridPointDimensions(m_gridPointDimensions);
 
-    addWellData(eclipseCase, eclipseCase->mainGrid());
+    if (m_enableWellData)
+    {
+        addWellData(eclipseCase, eclipseCase->mainGrid());
+    }
 
     addFaults(eclipseCase);
 
@@ -346,13 +352,15 @@ bool RigReservoirBuilderMock::dynamicResult(RigCaseData* eclipseCase, const QStr
     double scaleValue = 1.0 + resultIndex * 0.1;
     double offsetValue = 100 * resultIndex;
 
-    size_t k;
-    for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
+    values->resize(eclipseCase->mainGrid()->cells().size());
+
+#pragma omp parallel for
+    for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->cells().size()); k++)
     {
         RigCell& cell = eclipseCase->mainGrid()->cells()[k];
         {
             double val = offsetValue + scaleValue * ( (stepIndex * 1000 + k) % eclipseCase->mainGrid()->cells().size() );
-            values->push_back(val);
+            values->at(k) = val;
         }
     }
 
@@ -519,5 +527,13 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
     }
 
     grid->setFaults(faults);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirBuilderMock::enableWellData(bool enableWellData)
+{
+    m_enableWellData = false;
 }
 

@@ -1,7 +1,10 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
 
 #include "riSettings.h"
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 
 void getActiveCellCorners(NDArray& cellCornerValues, const QString &hostName, quint16 port, const qint32& caseId, const QString& porosityModel)
@@ -61,24 +64,16 @@ void getActiveCellCorners(NDArray& cellCornerValues, const QString &hostName, qu
     dv(2) = 3;
     cellCornerValues.resize(dv);
 
-    while (socket.bytesAvailable() < (qint64)(byteCount))
-    {
-        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
-        {
-            error((("Waiting for data: ") + socket.errorString()).toLatin1().data());
-            return;
-        }
-        OCTAVE_QUIT;
-    }
-
-    quint64 bytesRead = 0;
     double* internalMatrixData = cellCornerValues.fortran_vec();
-    bytesRead = socket.read((char*)(internalMatrixData), byteCount);
-
-    if (byteCount != bytesRead)
+    QStringList errorMessages;
+    if (!RiaSocketDataTransfer::readBlockDataFromSocket(&socket, (char*)(internalMatrixData), byteCount, errorMessages))
     {
-        error("Could not read binary double data properly from socket");
-        octave_stdout << "Active cell count: " << activeCellCount << std::endl;
+        for (int i = 0; i < errorMessages.size(); i++)
+        {
+            error(errorMessages[i].toLatin1().data());
+        }
+
+        OCTAVE_QUIT;
     }
 
     return;

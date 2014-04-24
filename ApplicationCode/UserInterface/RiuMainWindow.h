@@ -154,6 +154,7 @@ private:
     QAction*		    m_mockModelAction;
     QAction*		    m_mockResultsModelAction;
     QAction*		    m_mockLargeResultsModelAction;
+    QAction*		    m_mockModelCustomizedAction;
     QAction*		    m_mockInputModelAction;
 
     QAction*		    m_snapshotToFile;
@@ -243,6 +244,7 @@ private slots:
     void    slotMockModel();
     void    slotMockResultsModel();
     void    slotMockLargeResultsModel();
+    void    slotMockModelCustomized();
     void    slotInputMockModel();
 
     // Windows slots

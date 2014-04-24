@@ -16,6 +16,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
 #include "RiaSocketTools.h"
 #include "RiaSocketServer.h"
 #include "RimCase.h"
@@ -34,6 +38,9 @@
 
 #include "RimInputPropertyCollection.h"
 
+#include "RiaSocketDataTransfer.h"
+
+#include <QTcpSocket>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -98,4 +105,28 @@ void RiaSocketTools::getCaseInfoFromCase(RimCase* rimCase, qint64& caseId, QStri
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RiaSocketTools::writeBlockData(RiaSocketServer* server, QTcpSocket* socket, const char* data, quint64 bytesToWrite)
+{
+    cvf::Timer timer;
 
+    QStringList errorMessages;
+    bool writeSucceded = RiaSocketDataTransfer::writeBlockDataToSocket(socket, data, bytesToWrite, errorMessages);
+
+    if (server)
+    {
+        for (int i = 0; i < errorMessages.size(); i++)
+        {
+            server->errorMessageDialog()->showMessage(errorMessages[i]);
+        }
+
+//         double totalTimeMS = timer.time() * 1000.0;
+//         QString resultInfo = QString("Total time '%1 ms'").arg(totalTimeMS);
+// 
+//         server->errorMessageDialog()->showMessage(resultInfo);
+    }
+
+    return writeSucceded;
+}

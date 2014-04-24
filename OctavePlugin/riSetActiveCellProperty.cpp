@@ -1,6 +1,10 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
+
 #include "riSettings.h"
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 
 void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, quint16 port,
@@ -47,27 +51,29 @@ void setEclipseProperty(const Matrix& propertyFrames, const QString &hostName, q
     socketStream << (qint64)timeStepByteCount;
 
     const double* internalData = propertyFrames.fortran_vec();
-    qint64 dataWritten = socket.write((const char *)internalData, timeStepByteCount*timeStepCount);
 
-    if (dataWritten == timeStepByteCount*timeStepCount)
+    QStringList errorMessages;
+    if (!RiaSocketDataTransfer::writeBlockDataToSocket(&socket, (const char *)internalData, timeStepByteCount*timeStepCount, errorMessages))
     {
-        QString tmp = QString("riSetActiveCellProperty : Wrote %1").arg(propertyName);
+        for (int i = 0; i < errorMessages.size(); i++)
+        {
+            octave_stdout << errorMessages[i].toStdString();
+        }
 
-        if (caseId == -1)
-        {
-            tmp += QString(" to current case.");
-        }
-        else
-        {
-            tmp += QString(" to case with Id = %1.").arg(caseId);
-        }
-        octave_stdout << tmp.toStdString() << " Active Cells : " << cellCount << " Time steps : " << timeStepCount << std::endl;
+        return;
+    }
+
+    QString tmp = QString("riSetActiveCellProperty : Wrote %1").arg(propertyName);
+
+    if (caseId == -1)
+    {
+        tmp += QString(" to current case.");
     }
     else
     {
-        error("riSetActiveCellProperty : Was not able to write the proper amount of data to ResInsight:");
-        octave_stdout << " Active Cells : " << cellCount << "Time steps : " << timeStepCount << " Data Written: " << dataWritten << " Should have written: " << timeStepCount * cellCount * sizeof(double) << std::endl;
+        tmp += QString(" to case with Id = %1.").arg(caseId);
     }
+    octave_stdout << tmp.toStdString() << " Active Cells : " << cellCount << " Time steps : " << timeStepCount << std::endl;
 
     while(socket.bytesToWrite() && socket.state() == QAbstractSocket::ConnectedState)
     {
