@@ -312,13 +312,12 @@ bool RigReservoirBuilderMock::inputProperty(RigCaseData* eclipseCase, const QStr
 //--------------------------------------------------------------------------------------------------
 bool RigReservoirBuilderMock::staticResult(RigCaseData* eclipseCase, const QString& result, std::vector<double>* values)
 {
-    size_t k;
+    values->resize(eclipseCase->mainGrid()->cells().size());
 
-    for (k = 0; k < eclipseCase->mainGrid()->cells().size(); k++)
+#pragma omp parallel for
+    for (long long k = 0; k < static_cast<long long>(eclipseCase->mainGrid()->cells().size()); k++)
     {
-        {
-            values->push_back((k * 2) % eclipseCase->mainGrid()->cells().size());
-        }
+        values->at(k) = (k * 2) % eclipseCase->mainGrid()->cells().size();
     }
 
     return false;
