@@ -146,7 +146,7 @@ public:
             socketStream << timestepByteCount ;
 
             // Then write the data.
-            size_t valueCount = RiaSocketDataTransfer::doubleValueCountInBlock();
+            size_t valueCount = RiaSocketDataTransfer::maximumValueCountInBlock();
             std::vector<double> values(valueCount);
             size_t valueIndex = 0;
 
@@ -315,7 +315,7 @@ public:
                 continue;
             }
 
-            size_t valueCount = RiaSocketDataTransfer::doubleValueCountInBlock();
+            size_t valueCount = RiaSocketDataTransfer::maximumValueCountInBlock();
             std::vector<double> values(valueCount);
             size_t valueIndex = 0;
             for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)

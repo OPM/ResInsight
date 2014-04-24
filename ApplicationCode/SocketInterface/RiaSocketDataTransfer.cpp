@@ -27,7 +27,7 @@ bool RiaSocketDataTransfer::writeBlockDataToSocket(QTcpSocket* socket, const cha
     quint64 bytesWritten = 0;
     int blockCount = 0;
 
-    quint64 maxBlockSize = doubleValueCountInBlock() * sizeof(double);
+    quint64 maxBlockSize = maximumValueCountInBlock() * sizeof(double);
 
     while (bytesWritten < bytesToWrite)
     {
@@ -57,11 +57,14 @@ bool RiaSocketDataTransfer::readBlockDataFromSocket(QTcpSocket* socket, char* da
 {
     quint64 bytesRead = 0;
 
+    quint64 maxBlockSize = maximumValueCountInBlock() * sizeof(double);
+
     while (bytesRead < bytesToRead)
     {
         if (socket->bytesAvailable())
         {
             quint64 byteCountToRead = bytesToRead - bytesRead;
+            byteCountToRead = qMin(byteCountToRead, maxBlockSize);
 
             qint64 actuallyBytesRead = socket->read(data + bytesRead, byteCountToRead);
             if (actuallyBytesRead < 0)
@@ -73,6 +76,10 @@ bool RiaSocketDataTransfer::readBlockDataFromSocket(QTcpSocket* socket, char* da
             }
 
             bytesRead += actuallyBytesRead;
+
+#ifdef octave_oct_h
+            //octave_stdout << "Byte read " << bytesRead << " of a total of "<< bytesToRead << "\n";
+#endif
         }
         else
         {
@@ -85,7 +92,7 @@ bool RiaSocketDataTransfer::readBlockDataFromSocket(QTcpSocket* socket, char* da
             }
         }
 
-// Allow Octave process to end a long running Octave function
+        // Allow Octave process to end a long running Octave function
 #ifdef octave_oct_h
         OCTAVE_QUIT;
 #endif
@@ -98,8 +105,9 @@ bool RiaSocketDataTransfer::readBlockDataFromSocket(QTcpSocket* socket, char* da
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RiaSocketDataTransfer::doubleValueCountInBlock()
+size_t RiaSocketDataTransfer::maximumValueCountInBlock()
 {
-    return 2000;
+    return 20000;
 }
+
 

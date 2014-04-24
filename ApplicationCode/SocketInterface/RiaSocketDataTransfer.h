@@ -28,7 +28,7 @@
 class RiaSocketDataTransfer
 {
 public:
-    static size_t doubleValueCountInBlock();
+    static size_t maximumValueCountInBlock();
 
 public:
     static bool writeBlockDataToSocket(QTcpSocket* socket, const char* data, quint64 bytesToWrite, QStringList& errorMessages);
