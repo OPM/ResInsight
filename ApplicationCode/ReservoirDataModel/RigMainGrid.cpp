@@ -227,7 +227,6 @@ void RigMainGrid::calculateFaults()
     RigFault * unNamedFault = new RigFault;
     int unNamedFaultIdx = static_cast<int>(m_faults.size());
 
-#pragma omp parallel for
     for (int gcIdx = 0 ; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
     {
         if ( m_cells[gcIdx].isInvalid())
@@ -299,7 +298,6 @@ void RigMainGrid::calculateFaults()
 
                 if (gcIdx < neighborGlobalCellIdx)
                 {
-                    #pragma omp critical
                     {
                         RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborGlobalCellIdx);
                         unNamedFault->faultFaces().push_back(ff);
