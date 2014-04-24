@@ -137,12 +137,13 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
     size_t activeCellIndex = 0;
     long long i;
 
-    cells.resize(cellCount);
+    size_t cellIndexStart = cells.size();
+    cells.resize(cells.size() + cellCount);
 
 #pragma omp parallel for
     for (i = 0; i < static_cast<long long>(cellCount); i++)
     {
-        RigCell& riCell = cells[i];
+        RigCell& riCell = cells[cellIndexStart + i];
 
         riCell.setHostGrid(hostGrid);
         riCell.setCellIndex(i);
@@ -157,18 +158,6 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
         riCell.cornerIndices()[7] = nodeStartIndex + i * 8 + 7;
 
         riCell.setParentCellIndex(0);
-
-        //TODO: Rewrite active cell info in mock models
-        /*
-        if (!(i % 5))
-        {
-            riCell.setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
-        }
-        else
-        {
-            riCell.setActiveIndexInMatrixModel(activeCellIndex++);
-        }
-        */
     }
 }
 

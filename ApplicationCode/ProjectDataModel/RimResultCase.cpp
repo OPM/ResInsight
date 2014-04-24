@@ -211,21 +211,9 @@ cvf::ref<RifReaderInterface> RimResultCase::createMockModel(QString modelName)
         mockFileInterface->setWorldCoordinates(cvf::Vec3d(10, 10, 10), cvf::Vec3d(20, 20, 20));
         mockFileInterface->setGridPointDimensions(cvf::Vec3st(4, 5, 6));
         mockFileInterface->addLocalGridRefinement(cvf::Vec3st(0, 2, 2), cvf::Vec3st(0, 2, 2), cvf::Vec3st(3, 3, 3));
+        mockFileInterface->enableWellData(false);
 
         mockFileInterface->open("", reservoir.p());
-        {
-            size_t idx = reservoir->mainGrid()->cellIndexFromIJK(1, 3, 4);
-
-            //TODO: Rewrite active cell info in mock models
-            //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
-        }
-
-        {
-            size_t idx = reservoir->mainGrid()->cellIndexFromIJK(2, 2, 3);
-
-            //TODO: Rewrite active cell info in mock models
-            //reservoir->mainGrid()->cell(idx).setActiveIndexInMatrixModel(cvf::UNDEFINED_SIZE_T);
-        }
     }
     else if (modelName == RimDefines::mockModelBasicWithResults())
     {
