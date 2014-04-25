@@ -50,6 +50,7 @@
 #include "cvfUniform.h"
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderProgram.h"
+#include "cvfMath.h"
 
 
 
@@ -656,32 +657,108 @@ void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t ti
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
 
+    double soilMin = 0.0;
+    double soilMax = 1.0;
+    double sgasMin = 0.0;
+    double sgasMax = 1.0;
+    double swatMin = 0.0;
+    double swatMax = 1.0;
+
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSoil = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, soilScalarSetIndex);
-    if (dataAccessObjectSoil.isNull()) dataAccessObjectSoil = new ScalarDataAccessZeroForAllCells;
+    if (dataAccessObjectSoil.notNull())
+    {
+        if (cellResultSlot->legendConfig()->rangeMode() == RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP)
+        {
+            gridCellResults->cellResults()->minMaxCellScalarValues(soilScalarSetIndex, timeStepIndex, soilMin, soilMax);
+        }
+        else
+        {
+            gridCellResults->cellResults()->minMaxCellScalarValues(soilScalarSetIndex, soilMin, soilMax);
+        }
+    }
+    else
+    {
+        dataAccessObjectSoil = new ScalarDataAccessZeroForAllCells;
+    }
 
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSgas = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, sgasScalarSetIndex);
-    if (dataAccessObjectSgas.isNull()) dataAccessObjectSgas = new ScalarDataAccessZeroForAllCells;
+    if (dataAccessObjectSgas.notNull())
+    {
+        if (cellResultSlot->legendConfig()->rangeMode() == RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP)
+        {
+            gridCellResults->cellResults()->minMaxCellScalarValues(sgasScalarSetIndex, timeStepIndex, sgasMin, sgasMax);
+        }
+        else
+        {
+            gridCellResults->cellResults()->minMaxCellScalarValues(sgasScalarSetIndex, sgasMin, sgasMax);
+        }
+    }
+    else
+    {
+        dataAccessObjectSgas = new ScalarDataAccessZeroForAllCells;
+    }
     
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSwat = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, swatScalarSetIndex);
-    if (dataAccessObjectSwat.isNull()) dataAccessObjectSwat = new ScalarDataAccessZeroForAllCells;
+    if (dataAccessObjectSwat.notNull())
+    {
+        if (cellResultSlot->legendConfig()->rangeMode() == RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP)
+        {
+            gridCellResults->cellResults()->minMaxCellScalarValues(swatScalarSetIndex, timeStepIndex, swatMin, swatMax);
+        }
+        else
+        {
+            gridCellResults->cellResults()->minMaxCellScalarValues(swatScalarSetIndex, swatMin, swatMax);
+        }
+    }
+    else
+    {
+        dataAccessObjectSwat = new ScalarDataAccessZeroForAllCells;
+    }
+
+    double soilRange = soilMax - soilMin;
+    double soilFactor = 255.0 / soilRange;
+
+    double sgasRange = sgasMax - sgasMin;
+    double sgasFactor = 255.0 / sgasRange;
+
+    double swatRange = swatMax - swatMin;
+    double swatFactor = 255.0 / swatRange;
 
     size_t numVertices = quadsToGridCells.size()*4;
 
     colorArray->resize(numVertices);
 
-    cvf::Color3f ternaryColor;
     cvf::Color3ub ternaryColorByte;
+    double v, vNormalized;
 
-#pragma omp parallel for private(ternaryColor, ternaryColorByte)
+#pragma omp parallel for private(ternaryColorByte, v, vNormalized)
     for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
     {
         size_t gridCellIndex = quadsToGridCells[idx];
 
-        ternaryColor.r() = dataAccessObjectSgas->cellScalar(gridCellIndex);
-        ternaryColor.g() = dataAccessObjectSoil->cellScalar(gridCellIndex);
-        ternaryColor.b() = dataAccessObjectSwat->cellScalar(gridCellIndex);
+        {
+            v = dataAccessObjectSgas->cellScalar(gridCellIndex);
+            vNormalized = (v - sgasMin) * sgasFactor;
 
-        ternaryColorByte.set(ternaryColor.rByte(), ternaryColor.gByte(), ternaryColor.bByte());
+            vNormalized = cvf::Math::clamp(vNormalized, 0.0, 255.0);
+            ternaryColorByte.r() = vNormalized;
+        }
+
+        {
+            v = dataAccessObjectSoil->cellScalar(gridCellIndex);
+            vNormalized = (v - soilMin) * soilFactor;
+
+            vNormalized = cvf::Math::clamp(vNormalized, 0.0, 255.0);
+            ternaryColorByte.g() = vNormalized;
+        }
+
+        {
+            v = dataAccessObjectSwat->cellScalar(gridCellIndex);
+            vNormalized = (v - swatMin) * swatFactor;
+
+            vNormalized = cvf::Math::clamp(vNormalized, 0.0, 255.0);
+            ternaryColorByte.b() = vNormalized;
+        }
 
         size_t j;
         for (j = 0; j < 4; j++)
