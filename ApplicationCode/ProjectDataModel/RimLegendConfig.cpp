@@ -112,7 +112,7 @@ RimLegendConfig::RimLegendConfig()
 
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Colors", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
-    CAF_PDM_InitField(&m_rangeMode, "RangeType", caf::AppEnum<RimLegendConfig::RangeModeType>(AUTOMATIC_ALLTIMESTEPS), "Range type", "", "Switches between automatic and user defined range on the legend", "");
+    CAF_PDM_InitField(&m_rangeMode, "RangeType", RangeModeEnum(AUTOMATIC_ALLTIMESTEPS), "Range type", "", "Switches between automatic and user defined range on the legend", "");
     CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
@@ -653,6 +653,8 @@ void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering&
 //         caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Ternary format");
 //         formatGr->add(&m_mappingMode);
 //         formatGr->add(&m_numLevels);
+        caf::PdmUiOrdering * mappingGr = uiOrdering.addNewGroup("Mapping");
+        mappingGr->add(&m_rangeMode);
 
         uiOrdering.setForgetRemainingFields(true);
     }
@@ -700,8 +702,25 @@ QList<caf::PdmOptionItemInfo> RimLegendConfig::calculateValueOptions(const caf::
 
             return optionList;
         }
+
+        if (fieldNeedingOptions == &m_rangeMode)
+        {
+            QList<caf::PdmOptionItemInfo> optionList;
+            optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum(AUTOMATIC_ALLTIMESTEPS).uiText(), AUTOMATIC_ALLTIMESTEPS));
+            optionList.push_back(caf::PdmOptionItemInfo(RangeModeEnum(AUTOMATIC_CURRENT_TIMESTEP).uiText(), AUTOMATIC_CURRENT_TIMESTEP));
+
+            return optionList;
+        }
     }
 
     return QList<caf::PdmOptionItemInfo>();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimLegendConfig::RangeModeType RimLegendConfig::rangeMode() const
+{
+    return m_rangeMode();
 }
 

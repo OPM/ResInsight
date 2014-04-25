@@ -54,12 +54,14 @@ public:
 
     caf::PdmField<QString>                      resultVariableName; // Used internally to describe the variable this legend setup is used for
 
-    enum RangeModeType 
+    enum RangeModeType
     {
         AUTOMATIC_ALLTIMESTEPS,
         AUTOMATIC_CURRENT_TIMESTEP,
         USER_DEFINED
     };
+    
+    typedef caf::AppEnum<RangeModeType> RangeModeEnum;
 
     enum ColorRangesType
     {
@@ -95,6 +97,8 @@ public:
     cvf::OverlayScalarMapperLegend*             legend() { return m_legend.p(); }
 
     int                                         linearDiscreteLevelCount() const;
+    RangeModeType                               rangeMode() const;
+
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -106,7 +110,7 @@ private:
     cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
 
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
  
 
 private:
@@ -136,7 +140,7 @@ private:
     caf::PdmField<int>                          m_numLevels;
     caf::PdmField<int>                          m_precision;
     caf::PdmField<caf::AppEnum<NumberFormatType> > m_tickNumberFormat;
-    caf::PdmField<caf::AppEnum<RangeModeType> > m_rangeMode;
+    caf::PdmField<RangeModeEnum>                m_rangeMode;
     caf::PdmField<double>                       m_userDefinedMaxValue;
     caf::PdmField<double>                       m_userDefinedMinValue;
     caf::PdmField<caf::AppEnum<ColorRangesType> > m_colorRangeMode;
