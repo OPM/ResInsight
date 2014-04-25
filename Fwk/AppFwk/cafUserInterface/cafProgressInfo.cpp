@@ -76,7 +76,10 @@ ProgressInfo::ProgressInfo(size_t maxProgressValue, const QString& title)
 {
     ProgressInfoStatic::start(maxProgressValue, title);
 
-     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    if (qApp)
+    {
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +89,10 @@ ProgressInfo::~ProgressInfo()
 {
     ProgressInfoStatic::finished();
     
-    QApplication::restoreOverrideCursor();
+    if (qApp)
+    {
+        QApplication::restoreOverrideCursor();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
