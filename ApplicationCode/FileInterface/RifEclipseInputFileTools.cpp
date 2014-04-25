@@ -671,12 +671,12 @@ qint64 RifEclipseInputFileTools::findKeyword(const QString& keyword, QFile& file
     do 
     {
         line = file.readLine();
+        line = line.trimmed();
+
         if (line.startsWith("--", Qt::CaseInsensitive))
         {
             continue;
         }
-
-        line = line.trimmed();
 
         if (line.startsWith(keyword, Qt::CaseInsensitive))
         {
@@ -706,6 +706,8 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
     do 
     {
         line = file.readLine();
+        line = line.trimmed();
+
         if (line.startsWith("--", Qt::CaseInsensitive))
         {
             continue;
@@ -720,14 +722,19 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
             return false;
         }
 
-
-        line = line.trimmed();
         if (line.startsWith(includeKeyword, Qt::CaseInsensitive))
         {
-            QString nextLine = file.readLine();
+            line = file.readLine();
+            line = line.trimmed();
 
-            int firstQuote = nextLine.indexOf("'");
-            int lastQuote = nextLine.lastIndexOf("'");
+            while (line.startsWith("--", Qt::CaseInsensitive))
+            {
+                line = file.readLine();
+                line = line.trimmed();
+            }
+
+            int firstQuote = line.indexOf("'");
+            int lastQuote = line.lastIndexOf("'");
 
             if (!(firstQuote < 0 || lastQuote < 0 || firstQuote == lastQuote))
             {
@@ -738,7 +745,7 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
                 }
                 
                 // Read include file name, and both relative and absolute path is supported
-                QString includeFilename = nextLine.mid(firstQuote + 1, lastQuote - firstQuote - 1);
+                QString includeFilename = line.mid(firstQuote + 1, lastQuote - firstQuote - 1);
                 QFileInfo fi(currentFileFolder, includeFilename);
                 if (fi.exists())
                 {
