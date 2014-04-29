@@ -334,7 +334,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
                 dg->setColorArray(surfaceFacesColorArray.p());
             }
 
-            cvf::ref<cvf::Effect> perVertexColorEffect = createPerVertexColoringEffect();
+            cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
             m_surfaceFaces->setEffect(perVertexColorEffect.p());
 
             m_surfaceFaces->setPriority(100);
@@ -472,7 +472,7 @@ RivGridPartMgr::~RivGridPartMgr()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect()
+cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect(float opacity)
 {
     cvf::ref<cvf::Effect> colorArrayEffect = new cvf::Effect;
 
@@ -485,14 +485,14 @@ cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect()
         gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
 
         cvf::ref<cvf::ShaderProgram> m_shaderProg = gen.generate();
-        m_shaderProg->setDefaultUniform(new cvf::UniformFloat("u_alpha", m_opacityLevel));
+        m_shaderProg->setDefaultUniform(new cvf::UniformFloat("u_alpha", opacity));
 
         colorArrayEffect->setShaderProgram(m_shaderProg.p());
     }
     else
     {
         cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE);
-        mat->setAlpha(m_opacityLevel);
+        mat->setAlpha(opacity);
         mat->enableColorMaterial(true);
         colorArrayEffect->setRenderState(mat.p());
 
@@ -502,7 +502,7 @@ cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect()
     }
     
     // Simple transparency
-    if (m_opacityLevel < 1.0f)
+    if (opacity < 1.0f)
     {
         cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
         blender->configureTransparencyBlending();

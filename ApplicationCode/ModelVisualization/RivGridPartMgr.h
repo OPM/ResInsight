@@ -87,9 +87,10 @@ public:
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
+    static cvf::ref<cvf::Effect>   createPerVertexColoringEffect(float opacity);
+
 private:
     void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
-    cvf::ref<cvf::Effect>   createPerVertexColoringEffect();
 
 private:
     size_t                                      m_gridIdx;
