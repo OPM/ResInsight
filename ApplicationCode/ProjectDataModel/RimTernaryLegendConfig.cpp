@@ -26,6 +26,8 @@
 
 #include "RivTernarySaturationOverlayItem.h"
 
+#include <cmath>
+
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
 
