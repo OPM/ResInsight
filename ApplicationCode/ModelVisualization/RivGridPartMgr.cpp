@@ -31,6 +31,7 @@
 #include "RigCaseData.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RimTernaryLegendConfig.h"
 
 #include "RimCase.h"
 #include "RimWellCollection.h"
@@ -664,53 +665,22 @@ void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t ti
     double swatMin = 0.0;
     double swatMax = 1.0;
 
+    cellResultSlot->ternaryLegendConfig()->ternaryRanges(soilMin, soilMax, sgasMin, sgasMax, swatMin, swatMax);
+
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSoil = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, soilScalarSetIndex);
-    if (dataAccessObjectSoil.notNull())
-    {
-        if (cellResultSlot->legendConfig()->rangeMode() == RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP)
-        {
-            gridCellResults->cellResults()->minMaxCellScalarValues(soilScalarSetIndex, timeStepIndex, soilMin, soilMax);
-        }
-        else
-        {
-            gridCellResults->cellResults()->minMaxCellScalarValues(soilScalarSetIndex, soilMin, soilMax);
-        }
-    }
-    else
+    if (dataAccessObjectSoil.isNull())
     {
         dataAccessObjectSoil = new ScalarDataAccessZeroForAllCells;
     }
 
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSgas = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, sgasScalarSetIndex);
-    if (dataAccessObjectSgas.notNull())
-    {
-        if (cellResultSlot->legendConfig()->rangeMode() == RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP)
-        {
-            gridCellResults->cellResults()->minMaxCellScalarValues(sgasScalarSetIndex, timeStepIndex, sgasMin, sgasMax);
-        }
-        else
-        {
-            gridCellResults->cellResults()->minMaxCellScalarValues(sgasScalarSetIndex, sgasMin, sgasMax);
-        }
-    }
-    else
+    if (dataAccessObjectSgas.isNull())
     {
         dataAccessObjectSgas = new ScalarDataAccessZeroForAllCells;
     }
     
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSwat = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, swatScalarSetIndex);
-    if (dataAccessObjectSwat.notNull())
-    {
-        if (cellResultSlot->legendConfig()->rangeMode() == RimLegendConfig::AUTOMATIC_CURRENT_TIMESTEP)
-        {
-            gridCellResults->cellResults()->minMaxCellScalarValues(swatScalarSetIndex, timeStepIndex, swatMin, swatMax);
-        }
-        else
-        {
-            gridCellResults->cellResults()->minMaxCellScalarValues(swatScalarSetIndex, swatMin, swatMax);
-        }
-    }
-    else
+    if (dataAccessObjectSwat.isNull())
     {
         dataAccessObjectSwat = new ScalarDataAccessZeroForAllCells;
     }

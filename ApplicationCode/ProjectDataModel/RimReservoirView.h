@@ -201,8 +201,6 @@ private:
     cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
 
-    cvf::ref<cvf::OverlayItem>              m_ternarySaturationOverlayItem;
-
     // Overridden PDM methods:
 public:
     virtual caf::PdmFieldHandle*            userDescriptionField()  { return &name; }

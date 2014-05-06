@@ -45,6 +45,7 @@
 #include "RimCaseCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimTernaryLegendConfig.h"
 
 #include "RiuMainWindow.h"
 #include "RigGridBase.h"
@@ -232,6 +233,7 @@ void RimReservoirView::updateViewerWidget()
             RiuMainWindow::instance()->addViewer(m_viewer);
             m_viewer->setMinNearPlaneDistance(10);
             this->cellResult()->legendConfig->recreateLegend();
+            this->cellResult()->ternaryLegendConfig->recreateLegend();
             this->cellEdgeResult()->legendConfig->recreateLegend();
             m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
             m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
@@ -1448,21 +1450,55 @@ void RimReservoirView::updateLegends()
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 
-    if (m_ternarySaturationOverlayItem.notNull())
-    {
-        viewer()->removeOverlayItem(m_ternarySaturationOverlayItem.p());
-    }
+    
+    viewer()->removeOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
 
     if (this->cellResult()->isTernarySaturationSelected())
     {
-        if (m_ternarySaturationOverlayItem.isNull())
+        RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
         {
-            cvf::Font* standardFont = RiaApplication::instance()->standardFont();
-            m_ternarySaturationOverlayItem = new RivTernarySaturationOverlayItem(standardFont);
-            m_ternarySaturationOverlayItem->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+            results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+            results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+            this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
         }
 
-        viewer()->addOverlayItem(m_ternarySaturationOverlayItem.p());
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+            results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+            results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+            this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+        }
+
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+            results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+            this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+        }
+
+        if (this->cellResult()->ternaryLegendConfig->legend())
+        {
+            viewer()->addOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
+        }
     }
 }
 

@@ -24,6 +24,8 @@
 #include "RimDefines.h"
 #include "RimResultDefinition.h"
 
+class RimTernaryLegendConfig;
+
 //==================================================================================================
 ///  
 ///  
@@ -37,6 +39,7 @@ public:
 
     virtual void setReservoirView(RimReservoirView* ownerReservoirView);
     caf::PdmField<RimLegendConfig*> legendConfig;
+    caf::PdmField<RimTernaryLegendConfig*> ternaryLegendConfig;
 
     // Overridden methods
     virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
@@ -46,7 +49,6 @@ protected:
 private:
     void changeLegendConfig(QString resultVarNameOfNewLegend);
 
-    caf::PdmField<std::list<caf::PdmPointer<RimLegendConfig> > > m_legendConfigData;
-
+    caf::PdmField<std::list<caf::PdmPointer<RimLegendConfig> > >    m_legendConfigData;
 };
 
