@@ -19,24 +19,11 @@
 #include "RiaStdInclude.h"
 
 #include "RimResultSlot.h"
-#include "RimLegendConfig.h"
+
 #include "RimReservoirView.h"
-#include "RimCase.h"
-#include "RiuMainWindow.h"
-#include "RimUiTreeModelPdm.h"
-
-
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-
-#include "RimReservoirCellResultsCacher.h"
 #include "RimTernaryLegendConfig.h"
+#include "RimUiTreeModelPdm.h"
+#include "RiuMainWindow.h"
 
 CAF_PDM_SOURCE_INIT(RimResultSlot, "ResultSlot");
 

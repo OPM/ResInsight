@@ -18,10 +18,11 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "RimLegendConfig.h"
 #include "cafAppEnum.h"
+#include "cafPdmObject.h"
+
 #include "RimDefines.h"
+#include "RimLegendConfig.h"
 #include "RimResultDefinition.h"
 
 class RimTernaryLegendConfig;
