@@ -96,9 +96,6 @@ public:
     cvf::ScalarMapper*                          scalarMapper() { return m_currentScalarMapper.p(); }
     cvf::OverlayScalarMapperLegend*             legend() { return m_legend.p(); }
 
-    int                                         linearDiscreteLevelCount() const;
-    RangeModeType                               rangeMode() const;
-
 
 protected:
     virtual void                                fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -110,8 +107,6 @@ private:
     cvf::ref<cvf::Color3ubArray>                interpolateColorArray(const cvf::Color3ubArray& colorArray, cvf::uint targetColorCount);
     double                                      roundToNumSignificantDigits(double value, double precision);
 
-    virtual QList<caf::PdmOptionItemInfo>       calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
- 
 
 private:
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
