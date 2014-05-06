@@ -121,9 +121,15 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
     cvf::TextDrawer textDrawer(m_font.p());
     textDrawer.setTextColor(m_textColor);
 
-    textDrawer.addText("SWAT", cvf::Vec2f(0.0, 0.0));
-    textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - 28), 0.0));
+    textDrawer.addText("SWAT", cvf::Vec2f(0.0, 10.0));
+    textDrawer.addText(m_swatRange, cvf::Vec2f(0.0, 0.0));
+
+    textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - 40), 10.0));
+    textDrawer.addText(m_soilRange, cvf::Vec2f(static_cast<float>(size.x() - 40), 0.0));
+
     textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), static_cast<float>(size.y() - 10)));
+    textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), static_cast<float>(size.y() - 20)));
+
     textDrawer.renderSoftware(oglContext, camera);
 
     renderAxisImmediateMode(oglContext);
@@ -195,6 +201,16 @@ void RivTernarySaturationOverlayItem::renderAxisImmediateMode(cvf::OpenGLContext
     CVF_CHECK_OGL(oglContext);
 #endif // CVF_OPENGL_ES
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivTernarySaturationOverlayItem::setRangeText(const cvf::String& soilRange, const cvf::String& sgasRange, const cvf::String& swatRange)
+{
+    m_soilRange = soilRange;
+    m_sgasRange = sgasRange;
+    m_swatRange = swatRange;
 }
 
 

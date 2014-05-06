@@ -27,6 +27,7 @@
 #include "RivTernarySaturationOverlayItem.h"
 
 #include <cmath>
+#include "cvfqtUtils.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
@@ -154,7 +155,39 @@ void RimTernaryLegendConfig::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimTernaryLegendConfig::updateLegend()
 {
-    // TODO: Update text on ternary legend 
+    double soilLower = 0.0;
+    double soilUpper = 1.0;
+    double sgasLower = 0.0;
+    double sgasUpper = 1.0;
+    double swatLower = 0.0;
+    double swatUpper = 1.0;
+
+    ternaryRanges(soilLower, soilUpper, sgasLower, sgasUpper, swatLower, swatUpper);
+
+    cvf::String soilRange;
+    cvf::String sgasRange;
+    cvf::String swatRange;
+
+    int numberPrecision = 1;
+    {
+        QString tmpString = QString::number(soilLower, 'g', numberPrecision) + " - " + QString::number(soilUpper, 'g', numberPrecision);
+        soilRange = cvfqt::Utils::toString(tmpString);
+    }
+
+    {
+        QString tmpString = QString::number(sgasLower, 'g', numberPrecision) + " - " + QString::number(sgasUpper, 'g', numberPrecision);
+        sgasRange = cvfqt::Utils::toString(tmpString);
+    }
+
+    {
+        QString tmpString = QString::number(swatLower, 'g', numberPrecision) + " - " + QString::number(swatUpper, 'g', numberPrecision);
+        swatRange = cvfqt::Utils::toString(tmpString);
+    }
+
+    if (!m_legend.isNull())
+    {
+        m_legend->setRangeText(soilRange, sgasRange, swatRange);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

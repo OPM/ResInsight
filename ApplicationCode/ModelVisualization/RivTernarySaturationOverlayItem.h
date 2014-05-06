@@ -40,6 +40,8 @@ public:
     RivTernarySaturationOverlayItem(cvf::Font* font);
     ~RivTernarySaturationOverlayItem();
 
+    void setRangeText(const cvf::String& soilRange, const cvf::String& sgasRange, const cvf::String& swatRange);
+
     virtual cvf::Vec2ui  sizeHint();
 
     virtual void    render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
@@ -56,6 +58,10 @@ private:
 private:
     cvf::Color3f        m_textColor;    // Text color 
     cvf::ref<cvf::Font> m_font;
+    
+    cvf::String         m_soilRange;
+    cvf::String         m_sgasRange;
+    cvf::String         m_swatRange;
 
     cvf::Vec2ui         m_size;         // Pixel size of draw area
 };
