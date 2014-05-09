@@ -124,8 +124,14 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
     textDrawer.addText("SWAT", cvf::Vec2f(0.0, 10.0));
     textDrawer.addText(m_swatRange, cvf::Vec2f(0.0, 0.0));
 
-    textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - 40), 10.0));
-    textDrawer.addText(m_soilRange, cvf::Vec2f(static_cast<float>(size.x() - 40), 0.0));
+    textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - 25), 10.0));
+    
+    float soilRangePos = static_cast<float>(size.x() - 40);
+    if (m_soilRange.size() < 6)
+    {
+        soilRangePos += 15;
+    }
+    textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, 0.0));
 
     textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), static_cast<float>(size.y() - 10)));
     textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), static_cast<float>(size.y() - 20)));
