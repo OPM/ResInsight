@@ -1453,7 +1453,8 @@ void RimReservoirView::updateLegends()
     
     viewer()->removeOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
 
-    if (this->cellResult()->isTernarySaturationSelected())
+    size_t maxTimeStepCount = results->maxTimeStepCount();
+    if (this->cellResult()->isTernarySaturationSelected() && maxTimeStepCount > 1)
     {
         RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
         {

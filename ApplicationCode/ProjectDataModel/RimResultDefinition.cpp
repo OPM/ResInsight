@@ -178,7 +178,12 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
                 optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedTransmissibilityResultName(), RimDefines::combinedTransmissibilityResultName()));
             }
             
-            if (m_resultTypeUiField == RimDefines::DYNAMIC_NATIVE)
+            bool hasAtLeastOneTernaryComponent = false;
+            if (varList.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
+            else if (varList.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
+            else if (varList.contains("SWAT")) hasAtLeastOneTernaryComponent = true;
+
+            if (m_resultTypeUiField == RimDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
             {
                 optionList.push_front(caf::PdmOptionItemInfo(RimDefines::ternarySaturationResultName(), RimDefines::ternarySaturationResultName()));
             }
