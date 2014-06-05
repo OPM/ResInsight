@@ -843,7 +843,12 @@ bool RiaApplication::parseArguments()
 
     bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
 
-    if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
+    // If positional parameter functionality is to be supported, the test for existence of positionalParameters must be removed
+    // This is based on a pull request by @andlaus https://github.com/OPM/ResInsight/pull/162
+    if (!parseOk ||
+        progOpt.hasOption("help") ||
+        progOpt.hasOption("?") ||
+        progOpt.positionalParameters().size() > 0)
     {
 #if defined(_MSC_VER) && defined(_WIN32)
         showFormattedTextInMessageBox(m_helpText);
