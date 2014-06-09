@@ -65,7 +65,9 @@ if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
     SET(OCTAVE_QT_QTNETWORK_INCLUDE_DIR  ${OCTAVE_QT_ROOT}/include/QtNetwork)
     SET(OCTAVE_QT_LIBRARY_DIR            ${OCTAVE_QT_ROOT}/lib)
 else()
-    message("Compiling Octave plugins using system Qt located at ${QT_ROOT}")
+    set (RESINSIGHT_OCTAVE_PLUGIN_QMAKE ${QT_QMAKE_EXECUTABLE})
+
+    message("Compiling Octave plugins using system Qt - include path located at ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE}")
 
     SET(OCTAVE_QT_INCLUDE_DIR            ${QT_INCLUDE_DIR})
     SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${QT_QTCORE_INCLUDE_DIR})
