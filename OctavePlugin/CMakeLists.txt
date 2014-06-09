@@ -51,18 +51,26 @@ else()
   message(WARNING "Failed to find mkoctfile, no Octave plugins will be compiled. Please specify RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE")
 endif()
 
-find_program(RESINSIGHT_OCTAVE_PLUGIN_QMAKE NAMES qmake-qt4 qmake)
+
+set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Location of custom qmake to be able to use a different Qt when compiling Octave plugins")
 if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
     get_filename_component(OCTAVE_QMAKE_DIR ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE} PATH)
 
     STRING(REPLACE "/bin" "" OCTAVE_QT_ROOT ${OCTAVE_QMAKE_DIR})
+
+    message("Compiling Octave plugins using custom Qt located at ${OCTAVE_QT_ROOT}")
 
     SET(OCTAVE_QT_INCLUDE_DIR            ${OCTAVE_QT_ROOT}/include)
     SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${OCTAVE_QT_ROOT}/include/QtCore)
     SET(OCTAVE_QT_QTNETWORK_INCLUDE_DIR  ${OCTAVE_QT_ROOT}/include/QtNetwork)
     SET(OCTAVE_QT_LIBRARY_DIR            ${OCTAVE_QT_ROOT}/lib)
 else()
-  message(WARNING "Failed to find Qt to be used to compile Octave plugins, no Octave plugins will be compiled. Please specify RESINSIGHT_OCTAVE_PLUGIN_QMAKE")
+    message("Compiling Octave plugins using system Qt located at ${QT_ROOT}")
+
+    SET(OCTAVE_QT_INCLUDE_DIR            ${QT_INCLUDE_DIR})
+    SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${QT_QTCORE_INCLUDE_DIR})
+    SET(OCTAVE_QT_QTNETWORK_INCLUDE_DIR  ${QT_QTNETWORK_INCLUDE_DIR})
+    SET(OCTAVE_QT_LIBRARY_DIR            ${QT_LIBRARY_DIR})
 endif()
 
 
