@@ -62,7 +62,8 @@ size_t findOrCreateResult(const QString& newResultName, RigCaseData* reservoir)
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Read all double values from input file. To reduce memory footprint, the alternative method 
+/// readDoubleValuesForActiveCells() can be used, and will skip all cell values for inactive cells
 //--------------------------------------------------------------------------------------------------
 bool readDoubleValues(RigCaseData* reservoir, size_t resultIndex, ecl_kw_type* eclKeyWordData)
 {
@@ -72,6 +73,43 @@ bool readDoubleValues(RigCaseData* reservoir, size_t resultIndex, ecl_kw_type* e
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
     ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool readDoubleValuesForActiveCells(RigCaseData* reservoir, size_t resultIndex, ecl_kw_type* eclKeyWordData)
+{
+    if (resultIndex == cvf::UNDEFINED_SIZE_T) return false;
+
+    std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+    newPropertyData.push_back(std::vector<double>());
+
+    RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
+    if (activeCellInfo->globalCellCount() > 0 && activeCellInfo->globalCellCount() != activeCellInfo->globalActiveCellCount())
+    {
+        std::vector<double> valuesAllCells;
+        valuesAllCells.resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
+        ecl_kw_get_data_as_double(eclKeyWordData, valuesAllCells.data());
+
+        newPropertyData[0].resize(activeCellInfo->globalActiveCellCount(), HUGE_VAL);
+        std::vector<double>& valuesActiveCells = newPropertyData[0];
+
+        size_t acIdx = 0;
+        for (size_t gcIdx = 0; gcIdx < activeCellInfo->globalCellCount(); gcIdx++)
+        {
+            size_t activeCellResultIndex = activeCellInfo->cellResultIndex(gcIdx);
+            if (activeCellResultIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                valuesActiveCells[activeCellResultIndex] = valuesAllCells[gcIdx];
+            }
+        }
+    }
+    else
+    {
+        newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
+        ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
+    }
 }
 
 

@@ -153,30 +153,42 @@ public:
             size_t globalCellCount = activeInfo->globalCellCount();
             for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
             {
+                std::vector<double>& doubleValues = scalarResultFrames->at(requestedTimesteps[tIdx]);
                 for (size_t gcIdx = 0; gcIdx < globalCellCount; ++gcIdx)
                 {
                     size_t resultIdx = activeInfo->cellResultIndex(gcIdx);
-                    if (resultIdx != cvf::UNDEFINED_SIZE_T)
+                    if (resultIdx == cvf::UNDEFINED_SIZE_T) continue;
+
+                    if (resultIdx < doubleValues.size())
                     {
-                        if (resultIdx < scalarResultFrames->at(requestedTimesteps[tIdx]).size())
+                        if (doubleValues.size() == activeInfo->globalCellCount())
                         {
-                            values[valueIndex] = scalarResultFrames->at(requestedTimesteps[tIdx])[resultIdx];
+                            // When reading data from input text files, result data is read for all grid cells
+                            // Read out values from data vector using global cell index instead of active cell result index
+                            // When data is written back to ResInsight using RiaSetActiveCellProperty, the resulting 
+                            // data vector will have activeCellCount data values, which is potentially smaller
+                            // than total number of cells
+                            values[valueIndex] = doubleValues[gcIdx];
                         }
                         else
                         {
-                            values[valueIndex] = HUGE_VAL;
+                            values[valueIndex] = doubleValues[resultIdx];
                         }
+                    }
+                    else
+                    {
+                        values[valueIndex] = HUGE_VAL;
+                    }
 
-                        valueIndex++;
-                        if (valueIndex >= valueCount)
+                    valueIndex++;
+                    if (valueIndex >= valueCount)
+                    {
+                        if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
                         {
-                            if (!RiaSocketTools::writeBlockData(server, server->currentClient(), (const char *)values.data(), valueIndex * sizeof(double)))
-                            {
-                                return false;
-                            }
-
-                            valueIndex = 0;
+                            return false;
                         }
+
+                        valueIndex = 0;
                     }
                 }
             }
