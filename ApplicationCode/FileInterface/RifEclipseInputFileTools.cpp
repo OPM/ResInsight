@@ -17,15 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifEclipseInputFileTools.h"
+
 #include "RifReaderEclipseOutput.h"
 #include "RigCaseCellResultsData.h"
-
 #include "RigCaseData.h"
+
 #include "cafProgressInfo.h"
 
-#include <vector>
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <vector>
 
 #include <QFile>
 #include <QFileInfo>
@@ -34,16 +36,43 @@
 #include <QDebug>
 
 #include "ecl_grid.h"
-#include "well_state.h"
 #include "util.h"
-#include <fstream>
-
+#include "well_state.h"
 
 
 QString includeKeyword("INCLUDE");
 QString faultsKeyword("FAULTS");
 QString editKeyword("EDIT");
 QString gridKeyword("GRID");
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+size_t findOrCreateResult(const QString& newResultName, RigCaseData* reservoir)
+{
+    size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
+    if (resultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false); 
+    }
+
+    return resultIndex;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool readDoubleValues(RigCaseData* reservoir, size_t resultIndex, ecl_kw_type* eclKeyWordData)
+{
+    if (resultIndex == cvf::UNDEFINED_SIZE_T) return false;
+
+    std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
+    newPropertyData.push_back(std::vector<double>());
+    newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
+    ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
+}
 
 
 //--------------------------------------------------------------------------------------------------
@@ -197,9 +226,9 @@ bool RifEclipseInputFileTools::openGridFile(const QString& fileName, RigCaseData
 //--------------------------------------------------------------------------------------------------
 /// Read known properties from the input file
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QString &fileName, RigCaseData *reservoir)
+std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QString &fileName, RigCaseData* caseData)
 {
-    CVF_ASSERT(reservoir);
+    CVF_ASSERT(caseData);
 
     std::set<QString> knownKeywordSet;
     {
@@ -231,19 +260,18 @@ std::map<QString, QString>  RifEclipseInputFileTools::readProperties(const QStri
         if (knownKeywordSet.count(fileKeywords[i].keyword))
         {
             fseek(gridFilePointer, fileKeywords[i].filePos, SEEK_SET);
-            ecl_kw_type* eclKeyWordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer,  false , ECL_FLOAT_TYPE);
-            if (eclKeyWordData)
+            ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__(gridFilePointer,  false , ECL_FLOAT_TYPE);
+            if (eclipseKeywordData)
             {
-                QString newResultName = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeywords[i].keyword);
+                QString newResultName = caseData->results(RifReaderInterface::MATRIX_RESULTS)->makeResultNameUnique(fileKeywords[i].keyword);
 
-                size_t resultIndex = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false); // Should really merge with inputProperty object information because we need to use PropertyName, and not keyword
+                size_t resultIndex = findOrCreateResult(newResultName, caseData);
+                if (resultIndex != cvf::UNDEFINED_SIZE_T)
+                {
+                    readDoubleValues(caseData, resultIndex, eclipseKeywordData);
+                }
 
-                std::vector< std::vector<double> >& newPropertyData = reservoir->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
-                newPropertyData.push_back(std::vector<double>());
-                newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
-                ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
-
-                ecl_kw_free(eclKeyWordData);
+                ecl_kw_free(eclipseKeywordData);
                 newResults[newResultName] = fileKeywords[i].keyword;
             }
         }
@@ -300,30 +328,24 @@ void RifEclipseInputFileTools::findKeywordsOnFile(const QString &fileName, std::
 /// Reads the property data requested into the \a reservoir, overwriting any previous 
 /// propeties with the same name.
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, const QString& resultName)
+bool RifEclipseInputFileTools::readProperty(const QString& fileName, RigCaseData* caseData, const QString& eclipseKeyWord, const QString& resultName)
 {
-    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(caseData);
 
     FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
     if (!filePointer) return false;
 
-    ecl_kw_type* eclKeyWordData = ecl_kw_fscanf_alloc_grdecl_dynamic__( filePointer , eclipseKeyWord.toLatin1().data() , false , ECL_FLOAT_TYPE);
+    ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_grdecl_dynamic__( filePointer , eclipseKeyWord.toLatin1().data() , false , ECL_FLOAT_TYPE);
     bool isOk = false;
-    if (eclKeyWordData)
+    if (eclipseKeywordData)
     {
-        QString newResultName = resultName;
-        size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
-        if (resultIndex == cvf::UNDEFINED_SIZE_T)
+        size_t resultIndex = findOrCreateResult(resultName, caseData);
+        if (resultIndex != cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false); 
+            isOk = readDoubleValues(caseData, resultIndex, eclipseKeywordData);
         }
 
-        std::vector< std::vector<double> >& newPropertyData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
-        newPropertyData.resize(1);
-        newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
-        ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
-        isOk = true;
-        ecl_kw_free(eclKeyWordData);
+        ecl_kw_free(eclipseKeywordData);
     }
 
     util_fclose(filePointer);
@@ -535,31 +557,25 @@ void RifEclipseInputFileTools::findGridKeywordPositions(const std::vector< RifKe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigCaseData* eclipseCase, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
+bool RifEclipseInputFileTools::readPropertyAtFilePosition(const QString& fileName, RigCaseData* caseData, const QString& eclipseKeyWord, qint64 filePos, const QString& resultName)
 {
-    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(caseData);
 
     FILE* filePointer = util_fopen(fileName.toLatin1().data(), "r");
     if (!filePointer) return false;
 
     fseek(filePointer, filePos, SEEK_SET);
-    ecl_kw_type* eclKeyWordData = ecl_kw_fscanf_alloc_current_grdecl__(filePointer, false , ECL_FLOAT_TYPE);
+    ecl_kw_type* eclipseKeywordData = ecl_kw_fscanf_alloc_current_grdecl__(filePointer, false , ECL_FLOAT_TYPE);
     bool isOk = false;
-    if (eclKeyWordData)
+    if (eclipseKeywordData)
     {
-        QString newResultName = resultName;
-        size_t resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(newResultName);
-        if (resultIndex == cvf::UNDEFINED_SIZE_T)
+        size_t resultIndex = findOrCreateResult(resultName, caseData);
+        if (resultIndex != cvf::UNDEFINED_SIZE_T)
         {
-            resultIndex = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->addEmptyScalarResult(RimDefines::INPUT_PROPERTY, newResultName, false); 
+            isOk = readDoubleValues(caseData, resultIndex, eclipseKeywordData);
         }
 
-        std::vector< std::vector<double> >& newPropertyData = eclipseCase->results(RifReaderInterface::MATRIX_RESULTS)->cellScalarResults(resultIndex);
-        newPropertyData.resize(1);
-        newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
-        ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
-        isOk = true;
-        ecl_kw_free(eclKeyWordData);
+        ecl_kw_free(eclipseKeywordData);
     }
 
     util_fclose(filePointer);
