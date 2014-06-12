@@ -21,12 +21,6 @@
 #include "RigFault.h"
 
 #include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimWellCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimFault, "Fault");
 
@@ -72,17 +66,9 @@ void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const Q
     if (&showFault == changedField)
     {
         this->updateUiIconFromState(showFault);
-
-        RimReservoirView* reservoirView = NULL;
-        this->firstAncestorOfType(reservoirView);
-
-        if (reservoirView) 
-        {
-            reservoirView->scheduleCreateDisplayModelAndRedraw();
-        }
     }
 
-    if (&faultColor == changedField)
+    if (&faultColor == changedField || &showFault == changedField)
     {
         RimReservoirView* reservoirView = NULL;
         this->firstAncestorOfType(reservoirView);

@@ -21,23 +21,14 @@
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirView.h"
 
-#include "RimResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeResultSlot.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-
-#include "RimCase.h"
-#include "RimReservoirCellResultsCacher.h"
 #include "RigCaseData.h"
-#include "RivColorTableArray.h"
+#include "RimCase.h"
+#include "RimReservoirView.h"
 #include "RiuMainWindow.h"
+#include "RivColorTableArray.h"
 
 
 namespace caf
