@@ -27,7 +27,7 @@
 #include "cvfBase.h"
 #include "cvfColor3.h"
 
-#include "RimFault.h"
+class RimFault;
 
 class RimReservoirView;
 
