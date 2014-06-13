@@ -906,6 +906,10 @@ RivReservoirViewPartMgr::ReservoirGeometryCacheType RivReservoirViewPartMgr::geo
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType)
 {
+    if (m_geometriesNeedsRegen[geometryType])
+    {
+        createGeometry(geometryType);
+    }
     m_geometries[geometryType].appendFaultLabelPartsToModel(model);
 }
 
@@ -922,5 +926,9 @@ void RivReservoirViewPartMgr::appendFaultLabelsDynamicGeometryPartsToModel(cvf::
 //--------------------------------------------------------------------------------------------------
 void RivReservoirViewPartMgr::setFaultForceVisibilityForGeometryType(ReservoirGeometryCacheType geometryType, bool forceVisibility)
 {
+    if (m_geometriesNeedsRegen[geometryType])
+    {
+        createGeometry(geometryType);
+    }
     m_geometries[geometryType].setFaultForceVisibility(forceVisibility);
 }
