@@ -615,6 +615,8 @@ void RimReservoirView::createDisplayModel()
 
     if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters)
     {
+        updateFaultForcedVisibility();
+
         std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
         RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
@@ -629,7 +631,6 @@ void RimReservoirView::createDisplayModel()
             m_reservoirGridPartManager->appendFaultLabelsStaticGeometryPartsToModel(frameModels[frameIdx].p(), faultLabelType);
         }
 
-        updateFaultForcedVisibility();
     }
 
     // Compute triangle count, Debug only
