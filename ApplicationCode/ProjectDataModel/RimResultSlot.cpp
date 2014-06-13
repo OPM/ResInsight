@@ -35,14 +35,18 @@ RimResultSlot::RimResultSlot()
     CAF_PDM_InitObject("Result Slot", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&legendConfig, "LegendDefinition", "Legend Definition", "", "", "");
+    this->legendConfig = new RimLegendConfig();
+    this->legendConfig.setUiHidden(true);
+    this->legendConfig.setUiChildrenHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "");
     m_legendConfigData.setUiHidden(true);
     m_legendConfigData.setUiChildrenHidden(true);
 
     CAF_PDM_InitFieldNoDefault(&ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Legend Definition", "", "", "");
-    ternaryLegendConfig = new RimTernaryLegendConfig();
-
-    legendConfig = new RimLegendConfig();
+    this->ternaryLegendConfig = new RimTernaryLegendConfig();
+    this->ternaryLegendConfig.setUiHidden(true);
+    this->ternaryLegendConfig.setUiChildrenHidden(true);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,6 +77,8 @@ void RimResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, co
         {
             if (m_reservoirView) m_reservoirView->animationMode = true;
         }
+
+        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
     }
 
     if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
@@ -128,7 +134,6 @@ void RimResultSlot::changeLegendConfig(QString resultVarNameOfNewLegend)
         this->legendConfig.setUiChildrenHidden(false);
     }
 
-    RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,6 +164,16 @@ void RimResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
         (*it)->setReservoirView(ownerReservoirView);
     }
 
-    if (ternaryLegendConfig) ternaryLegendConfig->setReservoirView(ownerReservoirView);
+    this->ternaryLegendConfig()->setReservoirView(ownerReservoirView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimResultSlot::setResultVariable(const QString& val)
+{
+    RimResultDefinition::setResultVariable(val);
+
+    this->changeLegendConfig(val);
 }
 

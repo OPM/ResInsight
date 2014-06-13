@@ -43,7 +43,9 @@ public:
     caf::PdmField<RimTernaryLegendConfig*> ternaryLegendConfig;
 
     // Overridden methods
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void setResultVariable(const QString& resultName);
+
 protected:
     virtual void initAfterRead();
 

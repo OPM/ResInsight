@@ -174,8 +174,8 @@ RimReservoirView::RimReservoirView()
 
   
     this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
+
     this->cellEdgeResult()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));

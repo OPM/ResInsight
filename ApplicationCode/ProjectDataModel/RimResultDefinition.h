@@ -47,7 +47,7 @@ public:
     RimDefines::PorosityModelType   porosityModel() const { return m_porosityModel(); }
     void                            setPorosityModel(RimDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
-    void                            setResultVariable(const QString& val);
+    virtual void                    setResultVariable(const QString& val);
     void                            setPorosityModelUiFieldHidden(bool hide);
 
     void                            loadResult();
