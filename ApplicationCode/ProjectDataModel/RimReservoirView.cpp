@@ -615,7 +615,7 @@ void RimReservoirView::createDisplayModel()
 
     if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters)
     {
-        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
+        std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
         RivReservoirViewPartMgr::ReservoirGeometryCacheType faultLabelType = m_reservoirGridPartManager->geometryTypeForFaultLabels(faultGeometryTypesToAppend);
 
@@ -630,7 +630,6 @@ void RimReservoirView::createDisplayModel()
         }
 
         updateFaultForcedVisibility();
-
     }
 
     // Compute triangle count, Debug only
@@ -709,7 +708,7 @@ void RimReservoirView::updateCurrentTimeStep()
 
         if (faultCollection()->showFaultsOutsideFilters)
         {
-            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultParts();
+            std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
             for (size_t i = 0; i < faultGeometryTypesToAppend.size(); i++)
             {
@@ -1941,31 +1940,20 @@ void RimReservoirView::updateFaultForcedVisibility()
     // As fault geometry is visible in grid visualization mode, fault geometry must be forced visible
     // even if the fault item is disabled in project tree view
 
-    caf::FixedArray<bool, RivReservoirViewPartMgr::PROPERTY_FILTERED> forceOn;
-
-    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
+    if (!faultCollection->showFaultCollection)
     {
-        forceOn[i] = false;
+        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::ALL_WELL_CELLS, true);
     }
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts = visibleFaultParts();
-    for (size_t i = 0; i < faultParts.size(); i++)
-    {
-        forceOn[faultParts[i]];
-    }
-
-    for (size_t i = 0; i < RivReservoirViewPartMgr::PROPERTY_FILTERED; i++)
-    {
-        RivReservoirViewPartMgr::ReservoirGeometryCacheType cacheType = (RivReservoirViewPartMgr::ReservoirGeometryCacheType)i;
-
-        m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(cacheType, forceOn[i]);
-    }
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::RANGE_FILTERED, true);
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS, true);
+    m_reservoirGridPartManager->setFaultForceVisibilityForGeometryType(RivReservoirViewPartMgr::VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER, true);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirView::visibleFaultParts() const
+std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirView::visibleFaultGeometryTypes() const
 {
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
 
@@ -2043,7 +2031,7 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirVie
 void RimReservoirView::updateFaultColors()
 {
     // Update all fault geometry
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultParts();
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {

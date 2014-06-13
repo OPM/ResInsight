@@ -191,7 +191,7 @@ private:
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
 
-    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultParts() const;
+    std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultGeometryTypes() const;
     void                                    updateFaultForcedVisibility();
     void                                    updateFaultColors();
 
