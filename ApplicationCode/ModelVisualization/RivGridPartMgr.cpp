@@ -567,7 +567,7 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
             size_t i, j, k, neighborGridCellIdx;
             grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_I, &neighborGridCellIdx))
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_I, &neighborGridCellIdx))
             {
                 cellScalarValue = dataAccessObjectTranX->cellScalar(neighborGridCellIdx);
             }
@@ -581,7 +581,7 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
             size_t i, j, k, neighborGridCellIdx;
             grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_J, &neighborGridCellIdx))
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_J, &neighborGridCellIdx))
             {
                 cellScalarValue = dataAccessObjectTranY->cellScalar(neighborGridCellIdx);
             }
@@ -595,7 +595,7 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
             size_t i, j, k, neighborGridCellIdx;
             grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_K, &neighborGridCellIdx))
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_K, &neighborGridCellIdx))
             {
                 cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
             }
