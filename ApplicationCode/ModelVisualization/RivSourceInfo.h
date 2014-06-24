@@ -21,17 +21,15 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
-#include "cvfStructGrid.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 class RivSourceInfo : public cvf::Object
 {
 public:
-    bool hasCellIndices() const;
+    bool hasCellFaceMapping() const;
     bool hasNNCIndices() const;
 
 public:
-    cvf::ref<cvf::Array<size_t> >                               m_cellIndices;
-    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> >   m_faceTypes;
-    
-    cvf::ref<cvf::Array<size_t> >                               m_NNCIndices;
+    cvf::cref<cvf::StuctGridTriangleToCellFaceMapper> m_cellFaceFromTriangleMapper;
+    cvf::ref<cvf::Array<size_t> >                     m_NNCIndices;
 };

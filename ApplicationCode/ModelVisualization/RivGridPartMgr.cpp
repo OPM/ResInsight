@@ -123,8 +123,8 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
 
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-            si->m_cellIndices = geoBuilder.triangleToSourceGridCellMap().p();
-            si->m_faceTypes = geoBuilder.triangleToFaceTypes().p();
+            si->m_cellFaceFromTriangleMapper = geoBuilder.triangleToCellFaceMapper();
+
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
@@ -269,17 +269,12 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         {
             surfaceFacesColorArray = new cvf::Color3ubArray;
 
-            const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
-
-            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), quadsToGridCells);
+            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), m_surfaceGenerator.quadToCellFaceMapper());
         }
         else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
-            const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
-            const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
             cvf::Vec2fArray* textureCoords = m_surfaceFacesTextureCoords.p();
-
-            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
+            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, m_surfaceGenerator.quadToCellFaceMapper());
         }
         else
         {
@@ -304,14 +299,14 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const std::vector<size_t>&  quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
+            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_surfaceGenerator.quadToCellFaceMapper();
 
             for(size_t i = 0; i < m_surfaceFacesTextureCoords->size(); ++i)
             {
                 if ((*m_surfaceFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
 
                 size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells[quadIdx];
+                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
                 cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
                 if (wellIndex != cvf::UNDEFINED_UINT)
                 {
@@ -373,14 +368,15 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const std::vector<size_t>&  quadsToGridCells = m_faultGenerator.quadToGridCellIndices();
+            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_surfaceGenerator.quadToCellFaceMapper();
 
             for(size_t i = 0; i < m_faultFacesTextureCoords->size(); ++i)
             {
                 if ((*m_faultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
 
                 size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells[quadIdx];
+                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
+                
                 cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
                 if (wellIndex != cvf::UNDEFINED_UINT)
                 {
@@ -520,8 +516,7 @@ cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect(float opacit
 void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(RimResultSlot* cellResultSlot,
     const RigGridBase* grid,
     cvf::Vec2fArray* textureCoords, 
-    const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes, 
-    const std::vector<size_t>& quadsToGridCells)
+    const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper)
 {
     const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
     if (!mapper) return;
@@ -545,7 +540,8 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranZ = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosZScalarSetIndex);
 
 
-    size_t numVertices = quadsToGridCells.size()*4;
+    int quadCount = static_cast<int>(quadToCellFaceMapper->quadCount());
+    size_t numVertices = quadCount*4;
 
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
@@ -554,52 +550,67 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
     cvf::Vec2f texCoord;
 
 #pragma omp parallel for private(texCoord, cellScalarValue)
-    for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
+    for (int quadIdx = 0; quadIdx < quadCount; quadIdx++)
     {
         cellScalarValue = HUGE_VAL;
 
-        if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_I)
-        {
-            cellScalarValue = dataAccessObjectTranX->cellScalar(quadsToGridCells[idx]);
-        }
-        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_I)
-        {
-            size_t i, j, k, neighborGridCellIdx;
-            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+        size_t cellIndex = quadToCellFaceMapper->cellIndex(quadIdx);
+        cvf::StructGridInterface::FaceType cellFace = quadToCellFaceMapper->cellFace(quadIdx);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_I, &neighborGridCellIdx))
+        switch (cellFace)
+        {
+        case cvf::StructGridInterface::POS_I:
             {
-                cellScalarValue = dataAccessObjectTranX->cellScalar(neighborGridCellIdx);
+                cellScalarValue = dataAccessObjectTranX->cellScalar(cellIndex);
             }
-        }
-        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_J)
-        {
-            cellScalarValue = dataAccessObjectTranY->cellScalar(quadsToGridCells[idx]);
-        }
-        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_J)
-        {
-            size_t i, j, k, neighborGridCellIdx;
-            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+            break;
+        case cvf::StructGridInterface::NEG_I:
+            {
+                size_t i, j, k, neighborGridCellIdx;
+                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_J, &neighborGridCellIdx))
-            {
-                cellScalarValue = dataAccessObjectTranY->cellScalar(neighborGridCellIdx);
+                if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_I, &neighborGridCellIdx))
+                {
+                    cellScalarValue = dataAccessObjectTranX->cellScalar(neighborGridCellIdx);
+                }
             }
-        }
-        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::POS_K)
-        {
-            cellScalarValue = dataAccessObjectTranZ->cellScalar(quadsToGridCells[idx]);
-        }
-        else if (quadsToFaceTypes[idx] == cvf::StructGridInterface::NEG_K)
-        {
-            size_t i, j, k, neighborGridCellIdx;
-            grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
+            break;
+        case cvf::StructGridInterface::POS_J:
+            {
+                cellScalarValue = dataAccessObjectTranY->cellScalar(cellIndex);
+            }
+            break;
+        case cvf::StructGridInterface::NEG_J:
+            {
+                size_t i, j, k, neighborGridCellIdx;
+                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_K, &neighborGridCellIdx))
-            {
-                cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
+                if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_J, &neighborGridCellIdx))
+                {
+                    cellScalarValue = dataAccessObjectTranY->cellScalar(neighborGridCellIdx);
+                }
             }
+            break;
+        case cvf::StructGridInterface::POS_K:
+            {
+                cellScalarValue = dataAccessObjectTranZ->cellScalar(cellIndex);
+            }
+            break;
+        case cvf::StructGridInterface::NEG_K:
+            {
+                size_t i, j, k, neighborGridCellIdx;
+                grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
+
+                if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_K, &neighborGridCellIdx))
+                {
+                    cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
+                }
+            }
+            break;
+        default:
+            CVF_ASSERT(false);
         }
+
 
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
@@ -610,7 +621,7 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
         size_t j;
         for (j = 0; j < 4; j++)
         {   
-            rawPtr[idx*4 + j] = texCoord;
+            rawPtr[quadIdx*4 + j] = texCoord;
         }
     }
 
@@ -640,7 +651,9 @@ public:
 /// Loads ternary saturation results SOIL, SWAT and SGAS
 /// If any of these are not present, the values for a missing component is set to 0.0
 //--------------------------------------------------------------------------------------------------
-void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t timeStepIndex, RimResultSlot* cellResultSlot, const RigGridBase* grid, cvf::Color3ubArray* colorArray, const std::vector<size_t>& quadsToGridCells)
+void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
+            const RigGridBase* grid, cvf::Color3ubArray* colorArray, 
+            const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper)
 {
     RimReservoirCellResultsStorage* gridCellResults = cellResultSlot->currentGridCellResults();
     if (!gridCellResults) return;
@@ -690,7 +703,7 @@ void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t ti
     double swatRange = swatMax - swatMin;
     double swatFactor = 255.0 / swatRange;
 
-    size_t numVertices = quadsToGridCells.size()*4;
+    size_t numVertices = quadToCellFaceMapper->quadCount()*4;
 
     colorArray->resize(numVertices);
 
@@ -698,9 +711,9 @@ void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t ti
     double v, vNormalized;
 
 #pragma omp parallel for private(ternaryColorByte, v, vNormalized)
-    for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
+    for (int quadIdx = 0; quadIdx < static_cast<int>(quadToCellFaceMapper->quadCount()); quadIdx++)
     {
-        size_t gridCellIndex = quadsToGridCells[idx];
+        size_t gridCellIndex = quadToCellFaceMapper->cellIndex(quadIdx);
 
         {
             v = dataAccessObjectSgas->cellScalar(gridCellIndex);
@@ -729,7 +742,7 @@ void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t ti
         size_t j;
         for (j = 0; j < 4; j++)
         {
-            colorArray->set(idx*4 + j, ternaryColorByte);
+            colorArray->set(quadIdx*4 + j, ternaryColorByte);
         }
     }
 }

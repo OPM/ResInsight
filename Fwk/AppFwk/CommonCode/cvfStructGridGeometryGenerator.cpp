@@ -159,6 +159,8 @@ StructGridGeometryGenerator::StructGridGeometryGenerator(const StructGridInterfa
 :   m_grid(grid)
 {
     CVF_ASSERT(grid);
+    m_quadMapper = new StructGridQuadToCellFaceMapper;
+    m_triangleMapper = new StuctGridTriangleToCellFaceMapper(m_quadMapper.p());
 }
 
 
@@ -309,8 +311,8 @@ bool StructGridGeometryGenerator::isCellFaceVisible(size_t i, size_t j, size_t k
 void StructGridGeometryGenerator::computeArrays()
 {
     std::vector<Vec3f> vertices;
-    m_quadsToGridCells.clear();
-    m_quadsToFace.clear();
+    m_quadMapper->quadToCellIndexMap().clear();
+    m_quadMapper->quadToCellFaceMap().clear();
 
     cvf::Vec3d offset = m_grid->displayModelOffset();
 
@@ -362,8 +364,8 @@ void StructGridGeometryGenerator::computeArrays()
                             }
 
                             // Keep track of the source cell index per quad
-                            m_quadsToGridCells.push_back(cellIndex);
-                            m_quadsToFace.push_back(face);
+                            m_quadMapper->quadToCellIndexMap().push_back(cellIndex);
+                            m_quadMapper->quadToCellFaceMap().push_back(face);
                         }
                     }
                 }
@@ -385,7 +387,7 @@ void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, 
 {
     if (!dataAccessObject) return;
 
-    size_t numVertices = m_quadsToGridCells.size()*4;
+    size_t numVertices = m_quadMapper->quadCount()*4;
 
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
@@ -394,9 +396,9 @@ void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, 
     cvf::Vec2f texCoord;
 
 #pragma omp parallel for private(texCoord, cellScalarValue)
-    for (int i = 0; i < static_cast<int>(m_quadsToGridCells.size()); i++)
+    for (int i = 0; i < static_cast<int>(m_quadMapper->quadCount()); i++)
     {
-        cellScalarValue = dataAccessObject->cellScalar(m_quadsToGridCells[i]);
+        cellScalarValue = dataAccessObject->cellScalar(m_quadMapper->cellIndex(i));
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {
@@ -411,37 +413,43 @@ void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, 
     }
 }
 
+#if 0
 //--------------------------------------------------------------------------------------------------
 /// 
-//--------------------------------------------------------------------------------------------------
-ref<cvf::Array<size_t> > StructGridGeometryGenerator::triangleToSourceGridCellMap() const
-{
-    ref<Array<size_t> > triangles = new Array<size_t>(2*m_quadsToGridCells.size());
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(m_quadsToGridCells.size()); i++)
-    {
-        triangles->set(i*2,   m_quadsToGridCells[i]);
-        triangles->set(i*2+1, m_quadsToGridCells[i]);
-    }
-
-    return triangles;
-}
-
-//--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> > StructGridGeometryGenerator::triangleToFaceTypes() const
+void StructGridGeometryGenerator::textureCoordinatesFromSingleFaceValues(Vec2fArray* textureCoords, const ScalarMapper* mapper, const CellFaceValueCalculator* dataAccessObject) const
 {
-    ref<Array<cvf::StructGridInterface::FaceType> > triangles = new Array<cvf::StructGridInterface::FaceType>(2*m_quadsToFace.size());
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(m_quadsToFace.size()); i++)
-    {
-        triangles->set(i*2,   m_quadsToFace[i]);
-        triangles->set(i*2+1, m_quadsToFace[i]);
-    }
+    if (!dataAccessObject) return;
 
-    return triangles;
+    textureCoords->resize(m_quadMapper->quadCount()*4);
+
+    cvf::Vec2f* rawPtr = textureCoords->ptr();
+
+    double cellFaceValue;
+    cvf::Vec2f texCoord;
+    int quadCount = static_cast<int>(m_quadMapper->quadCount());
+
+#pragma omp parallel for private(texCoord, cellFaceValue)
+    for (int qIdx = 0; qIdx < quadCount; qIdx++)
+    {
+        cellFaceValue = dataAccessObject->cellFaceScalar(m_quadMapper->cellIndex(qIdx), m_quadMapper->faceType(qIdx));
+        
+        texCoord = mapper->mapToTextureCoord(cellFaceValue);
+
+        if (cellFaceValue == HUGE_VAL || cellFaceValue != cellFaceValue) // a != a is true for NAN's
+        {
+            texCoord[1] = 1.0f;
+        }
+
+        size_t j;
+        for (j = 0; j < 4; j++)
+        {   
+            rawPtr[qIdx*4 + j] = texCoord;
+        }
+    }
 }
+#endif
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -449,22 +457,6 @@ cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> > StructGridGeometryGene
 void StructGridGeometryGenerator::setCellVisibility(const UByteArray* cellVisibility)
 {
     m_cellVisibility = cellVisibility;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& StructGridGeometryGenerator::quadToGridCellIndices() const
-{
-    return m_quadsToGridCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<StructGridInterface::FaceType>& StructGridGeometryGenerator::quadToFace() const
-{
-    return m_quadsToFace;
 }
 
 } // namespace cvf

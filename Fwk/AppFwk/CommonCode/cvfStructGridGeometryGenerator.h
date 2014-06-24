@@ -121,6 +121,37 @@ public:
 };
 
 
+class StructGridQuadToCellFaceMapper : public Object
+{
+public:
+    size_t quadCount() const                { return m_quadsToCells.size();}
+
+    size_t cellIndex(size_t quadIdx) const  {return m_quadsToCells[quadIdx]; }
+    StructGridInterface::FaceType cellFace(size_t quadIdx) const {return m_quadsToFace[quadIdx]; }
+
+    // Interface for building the mappings
+    std::vector<size_t>& quadToCellIndexMap()   { return m_quadsToCells; }
+    std::vector<StructGridInterface::FaceType>& quadToCellFaceMap() { return m_quadsToFace; } 
+ 
+private:
+    std::vector<size_t>                          m_quadsToCells;
+    std::vector<StructGridInterface::FaceType>   m_quadsToFace;
+};
+
+
+class StuctGridTriangleToCellFaceMapper : public Object
+{
+public:
+    StuctGridTriangleToCellFaceMapper(const StructGridQuadToCellFaceMapper* quadMapper) { m_quadMapper = quadMapper; }
+    size_t triangleCount() const                            { return 2* m_quadMapper->quadCount();}
+
+    size_t cellIndex(size_t triangleIdx) const              {return m_quadMapper->cellIndex(triangleIdx/2); }
+    StructGridInterface::FaceType cellFace(size_t triangleIdx) const {return m_quadMapper->cellFace(triangleIdx/2); }
+
+private:
+    cref<StructGridQuadToCellFaceMapper> m_quadMapper;
+};
+
 
 //==================================================================================================
 //
@@ -145,16 +176,9 @@ public:
     void                textureCoordinates(Vec2fArray* textureCoords, const StructGridScalarDataAccess* dataAccessObject, const ScalarMapper* mapper) const;
 
     // Mapping between cells and geometry
-    ref<cvf::Array<size_t> >    
-                        triangleToSourceGridCellMap() const;
-    
-    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> >
-                        triangleToFaceTypes() const;
 
-    const std::vector<size_t>&                       
-                        quadToGridCellIndices() const;
-    const std::vector<StructGridInterface::FaceType>&    
-                        quadToFace() const;
+    const StructGridQuadToCellFaceMapper *    quadToCellFaceMapper()     { return m_quadMapper.p(); }
+    const StuctGridTriangleToCellFaceMapper * triangleToCellFaceMapper() { return m_triangleMapper.p(); }
 
     // Generated geometry
     ref<DrawableGeo>    generateSurface();
@@ -176,11 +200,10 @@ private:
 
     // Created arrays
     cvf::ref<cvf::Vec3fArray>                    m_vertices;
+
     // Mappings
-    std::vector<size_t>                          m_triangleIndexToGridCellIndex;
-    std::vector<size_t>                          m_quadsToGridCells;
-    std::vector<StructGridInterface::FaceType>   m_quadsToFace;
-    
+    ref<StructGridQuadToCellFaceMapper>          m_quadMapper;
+    ref<StuctGridTriangleToCellFaceMapper>       m_triangleMapper;
 };
 
 }
