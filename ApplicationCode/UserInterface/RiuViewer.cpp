@@ -274,10 +274,10 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
                     const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
                     if (rivSourceInfo)
                     {
-                        if (rivSourceInfo->hasCellIndices())
+                        if (rivSourceInfo->hasCellFaceMapping())
                         {
                             m_currentGridIdx = firstHitPart->id();
-                            m_currentCellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
+                            m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
 
                             QMenu menu;
                             menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
@@ -436,13 +436,14 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
                 const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>(firstHitPart->sourceInfo());
                 if (rivSourceInfo)
                 {
-                    if (rivSourceInfo->hasCellIndices())
+                    if (rivSourceInfo->hasCellFaceMapping())
                     {
-                        size_t cellIndex = cvf::UNDEFINED_SIZE_T;
-                        cellIndex = rivSourceInfo->m_cellIndices->get(faceIndex);
+                        CVF_ASSERT(rivSourceInfo->m_cellFaceFromTriangleMapper.notNull());
 
-                        CVF_ASSERT(rivSourceInfo->m_faceTypes.notNull());
-                        cvf::StructGridInterface::FaceType face = rivSourceInfo->m_faceTypes->get(faceIndex);
+                        size_t cellIndex = cvf::UNDEFINED_SIZE_T;
+                        cellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
+                       
+                        cvf::StructGridInterface::FaceType face = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
 
                         m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &pickInfo);
 

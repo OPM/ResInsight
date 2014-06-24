@@ -78,8 +78,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     size_t gridIndex, 
     float opacityLevel)
 {
-    const std::vector<size_t>& quadToCell = generator->quadToGridCellIndices();
-    const std::vector<cvf::StructGridInterface::FaceType>& quadToFace = generator->quadToFace();
+    const cvf::StructGridQuadToCellFaceMapper* quadToCellFace = generator->quadToCellFaceMapper();
 
     size_t vertexCount = geo->vertexArray()->size();
     size_t quadCount = vertexCount / 4;
@@ -166,13 +165,13 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         localCoords->set(quadIdx * 4 + 2, cvf::Vec2f(1, 1));
         localCoords->set(quadIdx * 4 + 3, cvf::Vec2f(0, 1));
 
-        faceIndexArray->set(quadIdx * 4 + 0, quadToFace[quadIdx] );
-        faceIndexArray->set(quadIdx * 4 + 1, quadToFace[quadIdx] );
-        faceIndexArray->set(quadIdx * 4 + 2, quadToFace[quadIdx] );
-        faceIndexArray->set(quadIdx * 4 + 3, quadToFace[quadIdx] );
+        faceIndexArray->set(quadIdx * 4 + 0, quadToCellFace->cellFace(quadIdx) );
+        faceIndexArray->set(quadIdx * 4 + 1, quadToCellFace->cellFace(quadIdx) );
+        faceIndexArray->set(quadIdx * 4 + 2, quadToCellFace->cellFace(quadIdx) );
+        faceIndexArray->set(quadIdx * 4 + 3, quadToCellFace->cellFace(quadIdx) );
 
         float cellColorTextureCoord = 0.5f; // If no results exists, the texture will have a special color
-        size_t cellIndex = quadToCell[quadIdx];
+        size_t cellIndex = quadToCellFace->cellIndex(quadIdx);
 
         {
             double scalarValue = HUGE_VAL;

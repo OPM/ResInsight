@@ -126,17 +126,15 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         {
             surfaceFacesColorArray = new cvf::Color3ubArray;
 
-            const std::vector<size_t>& quadsToGridCells = m_nativeFaultGenerator->quadToGridCellIndices();
-
-            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), quadsToGridCells);
+            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), 
+                                                                              surfaceFacesColorArray.p(), m_nativeFaultGenerator->cellFromQuadMapper());
         }
         else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
-            const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_nativeFaultGenerator->quadToFace();
-            const std::vector<size_t>& quadsToGridCells = m_nativeFaultGenerator->quadToGridCellIndices();
             cvf::Vec2fArray* textureCoords = m_nativeFaultFacesTextureCoords.p();
 
-            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
+            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, 
+                                                                                             m_nativeFaultGenerator->cellFromQuadMapper());
         }
         else
         {
@@ -152,14 +150,15 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const std::vector<size_t>&  quadsToGridCells = m_nativeFaultGenerator->quadToGridCellIndices();
+            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_nativeFaultGenerator->cellFromQuadMapper();
 
             for(size_t i = 0; i < m_nativeFaultFacesTextureCoords->size(); ++i)
             {
                 if ((*m_nativeFaultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
 
                 size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells[quadIdx];
+                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
+
                 cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
                 if (wellIndex != cvf::UNDEFINED_UINT)
                 {
@@ -202,17 +201,13 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         {
             surfaceFacesColorArray = new cvf::Color3ubArray;
 
-            const std::vector<size_t>& quadsToGridCells = m_oppositeFaultGenerator->quadToGridCellIndices();
-
-            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), quadsToGridCells);
+            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), m_oppositeFaultGenerator->cellFromQuadMapper());
         }
         else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
-            const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_oppositeFaultGenerator->quadToFace();
-            const std::vector<size_t>& quadsToGridCells = m_oppositeFaultGenerator->quadToGridCellIndices();
             cvf::Vec2fArray* textureCoords = m_oppositeFaultFacesTextureCoords.p();
 
-            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, quadsToFaceTypes, quadsToGridCells);
+            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, m_oppositeFaultGenerator->cellFromQuadMapper());
         }
         else
         {
@@ -228,14 +223,14 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const std::vector<size_t>&  quadsToGridCells = m_oppositeFaultGenerator->quadToGridCellIndices();
+            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_nativeFaultGenerator->cellFromQuadMapper();
 
             for(size_t i = 0; i < m_oppositeFaultFacesTextureCoords->size(); ++i)
             {
                 if ((*m_oppositeFaultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
 
                 size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells[quadIdx];
+                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
                 cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
                 if (wellIndex != cvf::UNDEFINED_UINT)
                 {
@@ -311,8 +306,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-            si->m_cellIndices = m_nativeFaultGenerator->triangleToSourceGridCellMap().p();
-            si->m_faceTypes = m_nativeFaultGenerator->triangleToFaceType().p();
+            si->m_cellFaceFromTriangleMapper = m_nativeFaultGenerator->cellFromTriangleMapper();
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
@@ -365,8 +359,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-            si->m_cellIndices = m_oppositeFaultGenerator->triangleToSourceGridCellMap().p();
-            si->m_faceTypes = m_oppositeFaultGenerator->triangleToFaceType().p();
+            si->m_cellFaceFromTriangleMapper = m_oppositeFaultGenerator->cellFromTriangleMapper();
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();

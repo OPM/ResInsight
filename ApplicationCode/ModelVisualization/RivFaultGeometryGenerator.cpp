@@ -24,6 +24,8 @@
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfOutlineEdgeExtractor.h"
 #include "cvfStructGridScalarDataAccess.h"
+#include "cvfStructGridGeometryGenerator.h"
+
 #include "cvfScalarMapper.h"
 
 #include "RigFault.h"
@@ -38,6 +40,8 @@ RivFaultGeometryGenerator::RivFaultGeometryGenerator(const cvf::StructGridInterf
    m_fault(fault),
    m_computeNativeFaultFaces(computeNativeFaultFaces)
 {
+    m_quadMapper = new cvf::StructGridQuadToCellFaceMapper;
+    m_triangleMapper = new cvf::StuctGridTriangleToCellFaceMapper(m_quadMapper.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,8 +153,8 @@ cvf::ref<cvf::UIntArray> RivFaultGeometryGenerator::lineIndicesFromQuadVertexArr
 void RivFaultGeometryGenerator::computeArrays()
 {
     std::vector<cvf::Vec3f> vertices;
-    m_quadsToGridCells.clear();
-    m_quadsToFace.clear();
+    m_quadMapper->quadToCellIndexMap().clear();
+    m_quadMapper->quadToCellFaceMap().clear();
 
     cvf::Vec3d offset = m_grid->displayModelOffset();
 
@@ -186,8 +190,8 @@ void RivFaultGeometryGenerator::computeArrays()
             }
 
             // Keep track of the source cell index per quad
-            m_quadsToGridCells.push_back(cellIndex);
-            m_quadsToFace.push_back(face);
+            m_quadMapper->quadToCellIndexMap().push_back(cellIndex);
+            m_quadMapper->quadToCellFaceMap().push_back(face);
         }
     }
 
@@ -203,7 +207,7 @@ void RivFaultGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoord
 {
     if (!dataAccessObject) return;
 
-    size_t numVertices = m_quadsToGridCells.size()*4;
+    size_t numVertices = m_quadMapper->quadCount()*4;
 
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
@@ -212,9 +216,9 @@ void RivFaultGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoord
     cvf::Vec2f texCoord;
 
 #pragma omp parallel for private(texCoord, cellScalarValue)
-    for (int i = 0; i < static_cast<int>(m_quadsToGridCells.size()); i++)
+    for (int i = 0; i < static_cast<int>(m_quadMapper->quadCount()); i++)
     {
-        cellScalarValue = dataAccessObject->cellScalar(m_quadsToGridCells[i]);
+        cellScalarValue = dataAccessObject->cellScalar(m_quadMapper->cellIndex(i));
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {
@@ -232,56 +236,7 @@ void RivFaultGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoord
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Array<size_t> > RivFaultGeometryGenerator::triangleToSourceGridCellMap() const
-{
-    cvf::ref<cvf::Array<size_t> > triangles = new cvf::Array<size_t>(2*m_quadsToGridCells.size());
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(m_quadsToGridCells.size()); i++)
-    {
-        triangles->set(i*2,   m_quadsToGridCells[i]);
-        triangles->set(i*2+1, m_quadsToGridCells[i]);
-    }
-
-    return triangles;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> > RivFaultGeometryGenerator::triangleToFaceType() const
-{
-    cvf::ref<cvf::Array<cvf::StructGridInterface::FaceType> > triangles = new cvf::Array<cvf::StructGridInterface::FaceType>(2*m_quadsToFace.size());
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(m_quadsToFace.size()); i++)
-    {
-        triangles->set(i*2,   m_quadsToFace[i]);
-        triangles->set(i*2+1, m_quadsToFace[i]);
-    }
-
-    return triangles;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RivFaultGeometryGenerator::setCellVisibility(const cvf::UByteArray* cellVisibility)
 {
     m_cellVisibility = cellVisibility;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RivFaultGeometryGenerator::quadToGridCellIndices() const
-{
-    return m_quadsToGridCells;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-const std::vector<cvf::StructGridInterface::FaceType>& RivFaultGeometryGenerator::quadToFace() const
-{
-    return m_quadsToFace;
-}
-
