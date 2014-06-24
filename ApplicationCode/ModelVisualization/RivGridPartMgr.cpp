@@ -294,7 +294,13 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         // if this gridpart manager is set to have some transparency, we
         // interpret it as we are displaying beeing wellcells. The cells are then transparent by default, but
         // we turn that off for particular cells, if the well pipe is not shown for that cell
-
+        
+        setResultsTransparentForWellCells(
+            cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
+            eclipseCase->gridCellToWellIndex(m_grid->gridIndex()),
+            m_surfaceGenerator.quadToCellFaceMapper(),
+            m_surfaceFacesTextureCoords.p());
+        /*
         if (m_opacityLevel < 1.0f )
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
@@ -317,10 +323,11 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
                 }
             }
         }
-
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
+        
+        */
         if (surfaceFacesColorArray.notNull())
         {
+            cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
             if (dg)
             {
                 dg->setColorArray(surfaceFacesColorArray.p());
@@ -333,19 +340,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         }
         else
         {
-            if (dg)
-            {
-                dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
-            }
-
-            caf::PolygonOffset polygonOffset = caf::PO_1;
-            caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-
-            scalarEffgen.setOpacityLevel(m_opacityLevel);
-
-            cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
-
-            m_surfaceFaces->setEffect(scalarEffect.p());
+            applyResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper );
         }
     }
 
@@ -363,7 +358,14 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         if (dataAccessObject.isNull()) return;
 
         m_faultGenerator.textureCoordinates(m_faultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
-
+        
+        setResultsTransparentForWellCells(
+            cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
+            eclipseCase->gridCellToWellIndex(m_grid->gridIndex()),
+            m_surfaceGenerator.quadToCellFaceMapper(),
+            m_faultFacesTextureCoords.p());
+           
+        /*
         if (m_opacityLevel < 1.0f )
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
@@ -387,18 +389,54 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
                 }
             }
         }
+        */
+       applyResultsToPart(m_faultFaces.p(), m_faultFacesTextureCoords.p(), mapper);
+    }
+}
 
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
-        if (dg) dg->setTextureCoordArray(m_faultFacesTextureCoords.p());
+cvf::ref<cvf::Effect> RivGridPartMgr::createScalarMapperEffect(const cvf::ScalarMapper* mapper)
+{
+    caf::PolygonOffset polygonOffset = caf::PO_1;
+    caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+    scalarEffgen.setOpacityLevel(m_opacityLevel);
+    cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+    return scalarEffect;
+}
 
-        caf::PolygonOffset polygonOffset = caf::PO_1;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+void RivGridPartMgr::applyResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
+{
+    cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(part->drawable());
+    if (dg) dg->setTextureCoordArray(m_faultFacesTextureCoords.p());
 
-        scalarEffgen.setOpacityLevel(m_opacityLevel);
+    cvf::ref<cvf::Effect> scalarEffect = createScalarMapperEffect(mapper);
+    part->setEffect(scalarEffect.p());
+}
 
-        cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGridPartMgr::setResultsTransparentForWellCells(const std::vector<cvf::ubyte>& isWellPipeVisibleForWellIndex, 
+                                                       const cvf::UIntArray* gridCellToWellIndexMap, 
+                                                       const cvf::StructGridQuadToCellFaceMapper* quadsToCellFaceMapper,
+                                                       cvf::Vec2fArray* resultTextureCoords)
+{
+    if (m_opacityLevel < 1.0f )
+    {
+        for(size_t i = 0; i < resultTextureCoords->size(); ++i)
+        {
+            if ((*resultTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
 
-        m_faultFaces->setEffect(scalarEffect.p());
+            size_t quadIdx = i/4;
+            size_t cellIndex = quadsToCellFaceMapper->cellIndex(quadIdx);
+            cvf::uint wellIndex = gridCellToWellIndexMap->get(cellIndex);
+            if (wellIndex != cvf::UNDEFINED_UINT)
+            {
+                if ( !isWellPipeVisibleForWellIndex[wellIndex]) 
+                {
+                    (*resultTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
+                }
+            }
+        }
     }
 }
 
