@@ -90,7 +90,7 @@ public:
 
 private:
     void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
-    void                    applyResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper);
+    void                    applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper);
     cvf::ref<cvf::Effect>   createScalarMapperEffect(const cvf::ScalarMapper* mapper);
     void                    setResultsTransparentForWellCells(const std::vector<cvf::ubyte>& isWellPipeVisibleForWellIndex, 
                                                               const cvf::UIntArray* gridCellToWellIndexMap, 

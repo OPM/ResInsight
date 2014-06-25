@@ -291,40 +291,13 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), dataAccessObject.p(), mapper);
         }
 
-        // if this gridpart manager is set to have some transparency, we
-        // interpret it as we are displaying beeing wellcells. The cells are then transparent by default, but
-        // we turn that off for particular cells, if the well pipe is not shown for that cell
-        
+         
         setResultsTransparentForWellCells(
             cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
             eclipseCase->gridCellToWellIndex(m_grid->gridIndex()),
             m_surfaceGenerator.quadToCellFaceMapper(),
             m_surfaceFacesTextureCoords.p());
-        /*
-        if (m_opacityLevel < 1.0f )
-        {
-            const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
-            cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_surfaceGenerator.quadToCellFaceMapper();
-
-            for(size_t i = 0; i < m_surfaceFacesTextureCoords->size(); ++i)
-            {
-                if ((*m_surfaceFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
-
-                size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
-                cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
-                if (wellIndex != cvf::UNDEFINED_UINT)
-                {
-                    if ( !isWellPipeVisible[wellIndex]) 
-                    {
-                        (*m_surfaceFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
-                    }
-                }
-            }
-        }
         
-        */
         if (surfaceFacesColorArray.notNull())
         {
             cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
@@ -340,7 +313,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         }
         else
         {
-            applyResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper );
+            applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper );
         }
     }
 
@@ -365,34 +338,14 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             m_surfaceGenerator.quadToCellFaceMapper(),
             m_faultFacesTextureCoords.p());
            
-        /*
-        if (m_opacityLevel < 1.0f )
-        {
-            const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
-            cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_surfaceGenerator.quadToCellFaceMapper();
-
-            for(size_t i = 0; i < m_faultFacesTextureCoords->size(); ++i)
-            {
-                if ((*m_faultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
-
-                size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
-                
-                cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
-                if (wellIndex != cvf::UNDEFINED_UINT)
-                {
-                    if ( !isWellPipeVisible[wellIndex]) 
-                    {
-                        (*m_faultFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
-                    }
-                }
-            }
-        }
-        */
-       applyResultsToPart(m_faultFaces.p(), m_faultFacesTextureCoords.p(), mapper);
+      
+       applyTextureResultsToPart(m_faultFaces.p(), m_faultFacesTextureCoords.p(), mapper);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 
 cvf::ref<cvf::Effect> RivGridPartMgr::createScalarMapperEffect(const cvf::ScalarMapper* mapper)
 {
@@ -403,17 +356,23 @@ cvf::ref<cvf::Effect> RivGridPartMgr::createScalarMapperEffect(const cvf::Scalar
     return scalarEffect;
 }
 
-void RivGridPartMgr::applyResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+void RivGridPartMgr::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
 {
     cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(part->drawable());
-    if (dg) dg->setTextureCoordArray(m_faultFacesTextureCoords.p());
+    if (dg) dg->setTextureCoordArray(textureCoords);
 
     cvf::ref<cvf::Effect> scalarEffect = createScalarMapperEffect(mapper);
     part->setEffect(scalarEffect.p());
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// if this gridpart manager is set to have some transparency, we
+/// interpret it as we are displaying beeing wellcells. The cells are then transparent by default, but
+/// we turn that off for particular cells, if the well pipe is not shown for that cell
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::setResultsTransparentForWellCells(const std::vector<cvf::ubyte>& isWellPipeVisibleForWellIndex, 
                                                        const cvf::UIntArray* gridCellToWellIndexMap, 
