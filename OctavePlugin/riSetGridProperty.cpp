@@ -102,7 +102,7 @@ void setEclipseProperty(const NDArray& propertyFrames, const QString &hostName, 
     while(socket.bytesToWrite() && socket.state() == QAbstractSocket::ConnectedState)
     {
 //        octave_stdout << "Bytes to write: " << socket.bytesToWrite() << std::endl << std::flush;
-        socket.waitForBytesWritten(riOctavePlugin::longTimeOutMilliSecs);
+        socket.waitForBytesWritten(riOctavePlugin::shortTimeOutMilliSecs);
         OCTAVE_QUIT;
     }
 
