@@ -140,10 +140,12 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
-            if (dataAccessObject.notNull())
+            if (dataAccessObject.isNull()) 
             {
-                m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+                return;
             }
+            m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+
         }
 
         if (m_opacityLevel < 1.0f )
@@ -214,10 +216,12 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
-            if (dataAccessObject.notNull())
+            if (dataAccessObject.isNull()) 
             {
-                m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+                return;
             }
+
+            m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
         }
 
         if (m_opacityLevel < 1.0f )
