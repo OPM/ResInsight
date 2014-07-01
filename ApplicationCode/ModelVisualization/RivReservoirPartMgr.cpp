@@ -98,6 +98,7 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
 
     if (m_faultsPartMgr.notNull())
     {
+        m_faultsPartMgr->setOpacityLevel(color.a());
         m_faultsPartMgr->applySingleColorEffect();
     }
 }

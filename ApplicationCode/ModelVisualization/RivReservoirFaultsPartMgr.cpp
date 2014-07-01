@@ -233,3 +233,14 @@ void RivReservoirFaultsPartMgr::setFaultForceVisibility(bool forceVisibility)
     m_forceVisibility = forceVisibility;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirFaultsPartMgr::setOpacityLevel(float opacity)
+{
+    for (size_t i = 0; i < m_faultParts.size(); i++)
+    {
+        m_faultParts[i]->setOpacityLevel(opacity);
+    }
+}
+
