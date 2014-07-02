@@ -1,11 +1,10 @@
 ---
 layout: docs
-title: Welcome
+title: ResInsight 1.2 Users Guide
 next_section: gettingstarted
 permalink: /docs/home/
+published: true
 ---
-
-# ![]({{ site.baseurl }}/images/AppLogo48x48.png) ResInsight 1.2 Users Guide 
 
 ResInsight is an open source, cross-platform 3D visualization and post processing tool for reservoir models and simulations. The system also constitutes a framework for further development and support for new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, geomechanics, and more. 
 
@@ -17,4 +16,3 @@ ResInsight also supports selected parts of Eclipse input files and can read grid
 information and corresponding cell property data sets.
 
 ResInsight has been co-developed by Statoil ASA, Ceetron Solutions AS, and Ceetron AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
-
