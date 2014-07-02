@@ -10,7 +10,7 @@ published: true
 ResInsight provides a flexible interface to [Octave](http://www.gnu.org/software/octave/ "Octave").
 This includes a set of Octave functions that communicates with a running ResInsight session, features in ResInsight that makes it easy to manage and edit Octave scripts, and their execution using Octave.  
 
-The Octave functions are documented in [Octave Interface Reference]({{ site.baseurl }}/docs/octaveinterface).
+The Octave functions are documented in [Octave Interface Reference]({{ site.baseurl }}/docs/octaveinterfacereference).
 
 ## Script management 
 Octave scripts are available in the **Scripts** folder in the **Project Tree**. 
@@ -30,7 +30,7 @@ To enable script editing from ResInsight you need to set up the path to a text e
 When done, scripts can be edited using the context menu command **Edit** on the script item in the tree.
 
 ## Script execution
-Octave scripts can be executed with or without a selection of cases as context. The [Octave Interface Reference]({{ site.baseurl }}/docs/octaveinterface) highlights in more depth how to design your Octave scripts to utilize these features.
+Octave scripts can be executed with or without a selection of cases as context. The [Octave Interface Reference]({{ site.baseurl }}/docs/octaveinterfaceoctaveinterfacereference) highlights in more depth how to design your Octave scripts to utilize these features.
 
 ### Without a case selection 
 A script can be started by navigating to the script in the **Project Tree**, and selecting **Execute** from the context menu. The currently active case (The one with the active 3D View) will then be set as ResInsight's *Current Case*. 
