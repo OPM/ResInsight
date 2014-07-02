@@ -4,13 +4,11 @@ prev_section: home
 next_section: installation
 title: Getting Started
 permalink: /docs/gettingstarted/
+published: true
 ---
 
-
-## Getting started with ResInsight 
-
 ### Installation
-Installation instructions for ResInsight can be found here: [Installation and Configuration](Installation.md) 
+Installation instructions for ResInsight can be found here: [Installation and Configuration]({{ site.baseurl }}/docs/installation) 
 
 
 ### User interface overview 
@@ -72,7 +70,7 @@ A **Grid Case Group** is a group of **Result Cases** with identical grids, but g
 
 The purpose of a Grid Case group is to make it easy to calculate statistics across the source cases both for static and dynamic Eclipse Properties. 
 
-See [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md) for more on this.
+See [ Multiple realizations and statistics ]({{ site.baseurl }}/docs/casegroupsandstatistics) for more on this.
 
 ### Importing data
 
@@ -168,5 +166,3 @@ The command will export the property set currently loaded and shown in the 3D Vi
     <keyword>
     <One number per cell separated by spaces>
     /
-
-
