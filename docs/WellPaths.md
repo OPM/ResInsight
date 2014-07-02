@@ -4,14 +4,13 @@ prev_section: octaveinterface
 next_section: faults
 title: Well trajectories
 permalink: /docs/wellpaths/
+published: true
 ---
-
-## Well trajectories
 
 ResInsight can import Well trajectories from simple Ascii files. 
 In addition, a Statoil specific solution to retrieve Well Trajectories from their internal web service is implemented.
 
-### Ascii Well Trajectories
+## Ascii Well Trajectories
 
 The command **File -> Import -> Import Well Paths From File** will read the well paths in the selected file, and create one entry for each trajectory under the  ![]({{ site.baseurl }}/images/WellCollection.png) **Wells** item in the **Project Tree**. 
 
@@ -72,5 +71,3 @@ The visible wells are always shown in all the 3D Views in the complete project, 
 - **Global well path visibility** This option forces the well paths on or off, ignoring the individual settings unless it is set to Individual.
 - **Clip Well Paths** This option hides the top of the Well Trajectories to avoid displaying the very long lines from the reservoir to the sea surface.
 - **Well Path clipping depth distance** This number is the distance from the top of the reservoir to the clipping depth.
-
-
