@@ -187,7 +187,7 @@ bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::syncronizeFaults()
 {
-    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData()) ) return;
+    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid()) ) return;
 
     cvf::ref<cvf::Color3fArray> partColors = RivColorTableArray::colorTableArray();
 
