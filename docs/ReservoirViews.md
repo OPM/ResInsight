@@ -4,9 +4,8 @@ prev_section: installation
 next_section: casegroupsandstatistics
 title: Working with 3D Views
 permalink: /docs/reservoirviews/
+published: true
 ---
-
-## Working with 3D Views
 
 3D Views are the windows displaying the Grid Models. The visualization is controlled by the **Project Tree** item representing the **View** and their subitems. Each item has a set of proerties that can be editied in the **Property View**.
 
@@ -145,6 +144,3 @@ The properties of a single well are shown below.
 One option needs further explanation:
 
 - **Pipe Radius Scale** This option is a scale that is added to the "global" scale set in the **Simulation Wells** properties.
-
-
-
