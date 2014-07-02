@@ -2,11 +2,10 @@
 layout: docs
 prev_section: gettingstarted
 next_section: reservoirviews
-title: Installation and configuration 
+title: Installation and configuration
 permalink: /docs/installation/
+published: true
 ---
-
-## Installation and configuration 
 
 ### Windows
 
@@ -26,6 +25,3 @@ Currently tested and verified version on Windows is Octave 3.6.1. NB! Version 3.
 1. Download TAR.GZ binary distribution from [https://github.com/OPM/ResInsight/releases](https://github.com/OPM/ResInsight/releases "release section on GitHub")
 2. Extract content from TAR file
 3. (OPTIONAL) Launch ResInsight, open **Edit -> Preferences** and define location of Octave in the field **Octave**, usually 'ResInsightRoot/octave/bin/octave-cli'
- 
-
-
