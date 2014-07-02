@@ -93,8 +93,30 @@ include (${QT_USE_FILE})
 find_package( OpenGL )
 
 ################################################################################
-# CeeViz
+# Vizualization Framework
 ################################################################################
+
+# Allow use of non-threadsafe reference counter in cvf::Object on systems with no atomics support
+if (CMAKE_COMPILER_IS_GNUCC)
+ 
+    if (NOT DEFINED HAVE_GCC_SYNC_FUNCTIONS)
+        check_c_source_compiles("int main(int argc, char **argv) {
+            int a;
+            __sync_add_and_fetch(&a, 1);
+            __sync_fetch_and_add(&a, 1);
+            __sync_sub_and_fetch(&a, 1);
+            __sync_fetch_and_sub(&a, 1); }" HAVE_GCC_SYNC_FUNCTIONS)
+    endif()
+ 
+    if (HAVE_GCC_SYNC_FUNCTIONS)
+        message("GCC synchronization functions detected")
+    else()
+        message("GCC synchronization functions NOT detected, fallback to non threadsafe reference counting")
+        add_definitions(-DCVF_USE_NON_THREADSAFE_REFERENCE_COUNT)
+    endif()
+ 
+endif()
+
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibCore)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibGeometry)
 add_subdirectory(${VIZ_MODULES_FOLDER_NAME}/LibRender)
@@ -111,7 +133,7 @@ include_directories(
 
 
 ################################################################################
-# Ceetron Application Framework
+# Application Framework
 ################################################################################
 
 add_subdirectory(Fwk/AppFwk/cafProjectDataModel)

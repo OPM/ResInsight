@@ -160,10 +160,10 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
             QStringList varList = getResultVariableListForCurrentUIFieldSettings();
 
             bool hasCombinedTransmissibility = false;
+
             QList<caf::PdmOptionItemInfo> optionList;
             for (int i = 0; i < varList.size(); ++i)
             {
-                
                 if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
                 {
                     hasCombinedTransmissibility = true;
@@ -171,7 +171,6 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
                 }
 
                 optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
-                
             }
             
             if (hasCombinedTransmissibility)
@@ -179,6 +178,16 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
                 optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedTransmissibilityResultName(), RimDefines::combinedTransmissibilityResultName()));
             }
             
+            bool hasAtLeastOneTernaryComponent = false;
+            if (varList.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
+            else if (varList.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
+            else if (varList.contains("SWAT")) hasAtLeastOneTernaryComponent = true;
+
+            if (m_resultTypeUiField == RimDefines::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent)
+            {
+                optionList.push_front(caf::PdmOptionItemInfo(RimDefines::ternarySaturationResultName(), RimDefines::ternarySaturationResultName()));
+            }
+
             optionList.push_front(caf::PdmOptionItemInfo( RimDefines::undefinedResultName(), RimDefines::undefinedResultName() ));
 
             if (useOptionsOnly) *useOptionsOnly = true;
@@ -223,7 +232,6 @@ void RimResultDefinition::loadResult()
             gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
         }
     }
-   
 }
 
 
@@ -251,7 +259,6 @@ bool RimResultDefinition::hasStaticResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimResultDefinition::hasResult() const
 {
-
     if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
     {
         const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults()->cellResults();
@@ -340,4 +347,15 @@ void RimResultDefinition::setResultVariable(const QString& val)
 void RimResultDefinition::setPorosityModelUiFieldHidden(bool hide)
 {
     m_porosityModelUiField.setUiHidden(true);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimResultDefinition::isTernarySaturationSelected() const
+{
+    bool isTernary =    (m_resultType() == RimDefines::DYNAMIC_NATIVE) && 
+                        (m_resultVariable().compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0);
+
+    return isTernary;
 }

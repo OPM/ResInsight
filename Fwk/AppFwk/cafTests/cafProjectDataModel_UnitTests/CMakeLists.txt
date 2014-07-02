@@ -14,6 +14,9 @@ include_directories (
 add_executable (${PROJECT_NAME}
 	cafPdmBasicTest.cpp
 	cafProjectDataModel_UnitTests.cpp
+        Child.cpp
+        Parent.cpp
+        TestObj.cpp
 	${CMAKE_SOURCE_DIR}/cafTests/gtest/gtest-all.cpp
 )
 

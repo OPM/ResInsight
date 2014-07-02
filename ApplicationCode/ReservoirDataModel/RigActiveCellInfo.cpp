@@ -196,6 +196,14 @@ void RigActiveCellInfo::clear()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+bool RigActiveCellInfo::isCoarseningActive() const
+{
+    return m_globalCellResultCount != m_globalActiveCellCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 size_t RigActiveCellInfo::GridActiveCellCounts::activeCellCount() const
 {
     return m_activeCellCount;

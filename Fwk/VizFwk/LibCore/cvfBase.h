@@ -44,7 +44,7 @@
 //  Global include file with definitions useful for all library files
 
 // Disable some annoying warnings so we can compile with warning level Wall
-#ifdef WIN32
+#ifdef _MSC_VER
 // 4512  'class' : assignment operator could not be generated : Due to problems with classes with reference member variables (e.g. VertexCompactor)
 // 4514  unreferenced inline/local function has been removed
 // 4625  copy constructor could not be generated because a base class copy constructor is inaccessible
@@ -54,13 +54,26 @@
 // 4711  function 'func_name' selected for automatic inline expansion
 // 4738  storing 32-bit float result in memory, possible loss of performance
 // 4820  'bytes' bytes padding added after construct 'member_name'
+#pragma warning (disable: 4512 4514 4625 4626 4640 4710 4711 4738 4820)
+
+#if (_MSC_VER >= 1600)
+// VS2010 and newer
 // 4986  'operator new[]': exception specification does not match previous declaration
-#pragma warning (disable: 4512 4514 4625 4626 4640 4710 4711 4738 4820 4986)
+#pragma warning (disable: 4986)
 #endif
+
+#endif
+
+
+// Makes it easier to check on the current GCC version
+#ifdef __GNUC__
+// 40302 means version 4.3.2.
+# define CVF_GCC_VER  (__GNUC__*10000 + __GNUC_MINOR__*100 + __GNUC_PATCHLEVEL__)
+#endif  
 
 // Helper macro to disable (ignore) compiler warnings on GCC
 // The needed pragma is only available in GCC for versions 4.2.x and above
-#if defined __GNUC__ && (((__GNUC__ * 100) + __GNUC_MINOR__) >= 402)
+#if defined(__GNUC__) && (CVF_GCC_VER >= 40200)
 #define CVF_DO_PRAGMA(x) _Pragma(#x)
 #define CVF_GCC_DIAGNOSTIC_IGNORE(OPTION_STRING) CVF_DO_PRAGMA(GCC diagnostic ignored OPTION_STRING)
 #else

@@ -47,6 +47,16 @@
 namespace snip {
 
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+VertexColoring::VertexColoring()
+:   m_useShaders(false)
+{
+}
+
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -54,20 +64,37 @@ bool VertexColoring::onInitialize()
 {
     ref<ModelBasicList> myModel = new ModelBasicList;
 
-    // Create the effect
+    // Create the fixed function effect
     {
-        m_effect = new Effect;
+        m_fixedFuncEffect = new Effect;
 
         ref<RenderStateMaterial_FF> mat = new RenderStateMaterial_FF(Color3::BLUE);
         mat->enableColorMaterial(true);
-        m_effect->setRenderState(mat.p());
+        m_fixedFuncEffect->setRenderState(mat.p());
 
         ref<RenderStateLighting_FF> lighting = new RenderStateLighting_FF;
-        m_effect->setRenderState(lighting.p());
+        m_fixedFuncEffect->setRenderState(lighting.p());
+    }
+
+    // Create effect with shader program
+    {
+        m_shaderEffect = new Effect;
+
+        ShaderProgramGenerator gen("PerVertexColor", ShaderSourceProvider::instance());
+        gen.addVertexCode(ShaderSourceRepository::vs_Standard);
+        gen.addFragmentCode(ShaderSourceRepository::src_VaryingColorGlobalAlpha);
+        gen.addFragmentCode(ShaderSourceRepository::light_SimpleHeadlight);
+        gen.addFragmentCode(ShaderSourceRepository::fs_Standard);
+        m_shaderProg = gen.generate();
+        m_shaderProg->setDefaultUniform(new cvf::UniformFloat("u_alpha", 1.0f));
+
+        m_shaderEffect->setShaderProgram(m_shaderProg.p());
     }
 
 
-    // "Normal" geometry
+    ref<Effect> effectToUse = m_useShaders ? m_shaderEffect : m_fixedFuncEffect;
+
+    // Lower left: "Normal" geometry
     {
         GeometryBuilderDrawableGeo builder;
         GeometryUtils::createBox(Vec3f(0,0,0), 2.0, 2.0, 2.0, &builder);
@@ -76,12 +103,13 @@ bool VertexColoring::onInitialize()
 
         ref<Part> part = new Part;
         part->setDrawable(geo.p());
-        part->setEffect(m_effect.p());
+        part->setEffect(effectToUse.p());
 
         myModel->addPart(part.p());
     }
 
-    // Geometry with per vertex colors
+    // Lower right: Geometry with per vertex colors 
+    // Results in one color per face of the cube
     {
         GeometryBuilderDrawableGeo builder;
         GeometryUtils::createBox(Vec3f(3,0,0), 2.0, 2.0, 2.0, &builder);
@@ -114,12 +142,12 @@ bool VertexColoring::onInitialize()
 
         ref<Part> part = new Part;
         part->setDrawable(geo.p());
-        part->setEffect(m_effect.p());
+        part->setEffect(effectToUse.p());
 
         myModel->addPart(part.p());
     }
 
-    // Geometry with per vertex colors (using ScalarToColorMapper)
+    // Upper right: Geometry with per vertex colors (using ScalarToColorMapper)
     {
         BoxGenerator gen;
         gen.setMinMax(Vec3d(2,-1,2), Vec3d(4, 1, 4));
@@ -159,12 +187,12 @@ bool VertexColoring::onInitialize()
 
         ref<Part> part = new Part;
         part->setDrawable(geo.p());
-        part->setEffect(m_effect.p());
+        part->setEffect(effectToUse.p());
 
         myModel->addPart(part.p());
     }
 
-    // Geometry without normals
+    // Upper left: Geometry without normals
     {
         GeometryBuilderDrawableGeo builder;
         GeometryUtils::createBox(Vec3f(0,0,3), 2.0, 2.0, 2.0, &builder);
@@ -173,7 +201,7 @@ bool VertexColoring::onInitialize()
 
         ref<Part> part = new Part;
         part->setDrawable(geo.p());
-        part->setEffect(m_effect.p());
+        part->setEffect(effectToUse.p());
 
         myModel->addPart(part.p());
     }
@@ -233,11 +261,24 @@ void VertexColoring::onKeyPressEvent(KeyEvent* keyEvent)
     Key key = keyEvent->key();
     char character = keyEvent->character();
 
+    if (key == Key_S || key == Key_F)
+    {
+        m_useShaders = (key == Key_S) ? true : false;
+
+        Collection<Part> partCollection;
+        m_renderSequence->firstRendering()->scene()->model(0)->allParts(&partCollection);
+        for (size_t i = 0; i < partCollection.size(); i++)
+        {
+            ref<Part> part = partCollection[i];
+            part->setEffect(m_useShaders ? m_shaderEffect.p() : m_fixedFuncEffect.p());
+        }
+    }
+
     if (key == Key_L)
     {
         bool lightingOn = (character == 'l') ? true : false;
 
-        RenderStateLighting_FF* rsLighting = dynamic_cast<RenderStateLighting_FF*>(m_effect->renderStateOfType(RenderState::LIGHTING_FF));
+        RenderStateLighting_FF* rsLighting = dynamic_cast<RenderStateLighting_FF*>(m_fixedFuncEffect->renderStateOfType(RenderState::LIGHTING_FF));
         rsLighting->enable(lightingOn);
     }
 
@@ -245,7 +286,7 @@ void VertexColoring::onKeyPressEvent(KeyEvent* keyEvent)
     {
         bool colorMaterialOn = (character == 'c') ? true : false;
 
-        RenderStateMaterial_FF* rsMaterial = dynamic_cast<RenderStateMaterial_FF*>(m_effect->renderStateOfType(RenderState::MATERIAL_FF));
+        RenderStateMaterial_FF* rsMaterial = dynamic_cast<RenderStateMaterial_FF*>(m_fixedFuncEffect->renderStateOfType(RenderState::MATERIAL_FF));
         rsMaterial->enableColorMaterial(colorMaterialOn);
     }
 
@@ -259,8 +300,10 @@ void VertexColoring::onKeyPressEvent(KeyEvent* keyEvent)
 std::vector<cvf::String> VertexColoring::helpText() const
 {
     std::vector<String> help;
-    help.push_back(String("l/L - to toggle lighting on/off"));
-    help.push_back(String("c/C - to toggle color material on/off"));
+    help.push_back("s   - to use a shader program for rendering");
+    help.push_back("f   - to use fixed function pipeline for rendering");
+    help.push_back("l/L - to toggle lighting on/off (in fixed function)");
+    help.push_back("c/C - to toggle color material on/off (in fixed function)");
 
     return help;
     

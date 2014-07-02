@@ -26,6 +26,7 @@ cvfGeometryUtils-Test.cpp
 cvfMeshEdgeExtractor-Test.cpp
 cvfOutlineEdgeExtractor-Test.cpp
 cvfPatchGenerator-Test.cpp
+cvfPrimitiveTests-Test.cpp
 cvfRay-Test.cpp
 cvfTriangleMeshEdgeExtractor-Test.cpp
 cvfTriangleVertexSplitter-Test.cpp

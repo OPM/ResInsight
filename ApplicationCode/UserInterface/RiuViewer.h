@@ -34,6 +34,7 @@ class QCDEStyle;
 namespace cvf
 {
     class Part;
+    class OverlayItem;
 }
 
 //==================================================================================================
@@ -64,6 +65,10 @@ public:
     void            setHistogramPercentiles(double pmin, double pmax, double mean);
 
     void            showAnimationProgress(bool enable);
+    
+    void            addOverlayItem(cvf::OverlayItem* overlayItem);
+    void            removeOverlayItem(cvf::OverlayItem* overlayItem);
+
  
 public slots:
     virtual void    slotSetCurrentFrame(int frameIndex);

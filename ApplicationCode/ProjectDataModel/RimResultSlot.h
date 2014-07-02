@@ -18,11 +18,14 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "RimLegendConfig.h"
 #include "cafAppEnum.h"
+#include "cafPdmObject.h"
+
 #include "RimDefines.h"
+#include "RimLegendConfig.h"
 #include "RimResultDefinition.h"
+
+class RimTernaryLegendConfig;
 
 //==================================================================================================
 ///  
@@ -37,16 +40,18 @@ public:
 
     virtual void setReservoirView(RimReservoirView* ownerReservoirView);
     caf::PdmField<RimLegendConfig*> legendConfig;
+    caf::PdmField<RimTernaryLegendConfig*> ternaryLegendConfig;
 
     // Overridden methods
-    virtual void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue );
+    virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void setResultVariable(const QString& resultName);
+
 protected:
     virtual void initAfterRead();
 
 private:
     void changeLegendConfig(QString resultVarNameOfNewLegend);
 
-    caf::PdmField<std::list<caf::PdmPointer<RimLegendConfig> > > m_legendConfigData;
-
+    caf::PdmField<std::list<caf::PdmPointer<RimLegendConfig> > >    m_legendConfigData;
 };
 

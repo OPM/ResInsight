@@ -108,6 +108,8 @@ public:
     inline S        lengthSquared() const;
     bool            setLength(S newLength);
 
+    const Vector2   perpendicularVector() const;
+
 public:
     static const Vector2 X_AXIS;    ///< X axis vector <1, 0>
     static const Vector2 Y_AXIS;    ///< Y axis vector <0, 1>

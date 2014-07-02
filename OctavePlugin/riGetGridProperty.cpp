@@ -1,6 +1,11 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
+
 #include "riSettings.h"
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
+
 
 void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16 serverPort,
                         const int& caseId, int gridIdx, QString propertyName, const int32NDArray& requestedTimeSteps, QString porosityModel)
@@ -22,7 +27,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
     QString command;
     command += "GetGridProperty " + QString::number(caseId) + " " + QString::number(gridIdx) + " " + propertyName + " " + porosityModel;
 
-    for (int i = 0; i < requestedTimeSteps.length(); ++i)
+    for (qint64 i = 0; i < requestedTimeSteps.length(); ++i)
     {
         if (i == 0) command += " ";
         command += QString::number(static_cast<int>(requestedTimeSteps.elem(i)) - 1); // To make the index 0-based
@@ -36,7 +41,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     // Get response. First wait for the header
 
-    while (socket.bytesAvailable() < (int)(4*sizeof(quint64)))
+    while (socket.bytesAvailable() < (qint64)(4*sizeof(quint64)))
     {
         if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
         {
@@ -48,6 +53,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
     // Read sizes
 
     quint64 totalByteCount;
+   
     quint64 cellCountI;
     quint64 cellCountJ;
     quint64 cellCountK;
@@ -59,6 +65,7 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
     socketStream >> timestepCount;
 
     totalByteCount = cellCountI*cellCountJ*cellCountK*timestepCount*sizeof(double);
+    
     if (!(totalByteCount))
     {
         error ("Could not find the requested data in ResInsight");
@@ -74,28 +81,16 @@ void getGridProperty(NDArray& propertyFrames, const QString &serverName, quint16
 
     propertyFrames.resize(dv);
 
-
-    // Wait for available data
-
-    while (socket.bytesAvailable() < (int)totalByteCount)
+    double* internalMatrixData = propertyFrames.fortran_vec();
+    QStringList errorMessages;
+    if (!RiaSocketDataTransfer::readBlockDataFromSocket(&socket, (char*)(internalMatrixData), totalByteCount, errorMessages))
     {
-        if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
+        for (int i = 0; i < errorMessages.size(); i++)
         {
-            error(("Waiting for data : " + socket.errorString()).toLatin1().data());
-            return ;
+            error(errorMessages[i].toLatin1().data());
         }
-        OCTAVE_QUIT;
-    }
 
-    qint64 bytesRead = 0;
-    double * internalMatrixData = propertyFrames.fortran_vec();
-
-    // Raw data transfer. Faster.
-    bytesRead = socket.read((char*)(internalMatrixData ), totalByteCount);
-
-    if ((int)totalByteCount != bytesRead)
-    {
-        error("Could not read binary double data properly from socket");
+        return;
     }
 
     QString tmp = QString("riGetGridProperty : Read %1").arg(propertyName);

@@ -13,6 +13,11 @@ Below is a description of the most important View settings and their properties.
 
 The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![](images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
 
+#### TRANSXYZ
+Normally the Cell Result setting gives one cell color based on the legend and the selected Result Property. This is *not* the case for the special static TRANXYZ property. This property gives each face the correct color based on the TRANS value that is associated with that particular face. 
+
+The Positive I-face of the cell gets the cell TRANX value, while the J-face gets the TRANY-value etc. The negative faces, however, get the value from the neighbor cell in that direction. The negative I-face gets the TRANX value of the IJK-neighbor in negative I direction, and so on for the -J and -K faces.
+
 ### Cell Edge Results ![](images/EdgeResult_1.png)
 
 The **Cell Edge Result** visualization mode is one of ResInsight's special features. Its main use is to show the MULT(X, Y, Z) properties at the same time. 

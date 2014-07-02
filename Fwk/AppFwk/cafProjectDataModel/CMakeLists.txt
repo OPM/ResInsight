@@ -31,5 +31,6 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiOrdering.h
 	cafPdmUiTreeOrdering.cpp
 	cafPdmUiTreeOrdering.h
-
+	cafPdmUiTreeEditorHandle.h
+	cafPdmUiTreeEditorHandle.cpp
 )

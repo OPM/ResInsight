@@ -699,7 +699,7 @@ bool RiaApplication::openInputEclipseCaseFromFileNames(const QStringList& fileNa
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createMockModel()
 {
-    openEclipseCase("Result Mock Debug Model Simple", "Result Mock Debug Model Simple");
+    openEclipseCase(RimDefines::mockModelBasic(), RimDefines::mockModelBasic());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,7 +707,7 @@ void RiaApplication::createMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createResultsMockModel()
 {
-    openEclipseCase("Result Mock Debug Model With Results", "Result Mock Debug Model With Results");
+    openEclipseCase(RimDefines::mockModelBasicWithResults(), RimDefines::mockModelBasicWithResults());
 }
 
 
@@ -716,7 +716,16 @@ void RiaApplication::createResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createLargeResultsMockModel()
 {
-    openEclipseCase("Result Mock Debug Model Large With Results", "Result Mock Debug Model Large With Results");
+    openEclipseCase(RimDefines::mockModelLargeWithResults(), RimDefines::mockModelLargeWithResults());
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiaApplication::createMockModelCustomized()
+{
+    openEclipseCase(RimDefines::mockModelCustomized(), RimDefines::mockModelCustomized());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -724,7 +733,7 @@ void RiaApplication::createLargeResultsMockModel()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::createInputMockModel()
 {
-    openInputEclipseCaseFromFileNames(QStringList("Input Mock Debug Model Simple"));
+    openInputEclipseCaseFromFileNames(QStringList(RimDefines::mockModelBasicInputCase()));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -834,7 +843,12 @@ bool RiaApplication::parseArguments()
 
     bool parseOk = progOpt.parse(cvfqt::Utils::toStringVector(arguments));
 
-    if (!parseOk || progOpt.hasOption("help") || progOpt.hasOption("?"))
+    // If positional parameter functionality is to be supported, the test for existence of positionalParameters must be removed
+    // This is based on a pull request by @andlaus https://github.com/OPM/ResInsight/pull/162
+    if (!parseOk ||
+        progOpt.hasOption("help") ||
+        progOpt.hasOption("?") ||
+        progOpt.positionalParameters().size() > 0)
     {
 #if defined(_MSC_VER) && defined(_WIN32)
         showFormattedTextInMessageBox(m_helpText);

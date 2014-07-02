@@ -43,7 +43,6 @@
 #include "RiuMultiCaseImportDialog.h"
 
 #include "RiaPreferences.h"
-#include "RiuPreferencesDialog.h"
 
 #include "RigCaseCellResultsData.h"
 
@@ -63,6 +62,7 @@
 #include "RimCalcScript.h"
 #include "RimTools.h"
 #include "RiaRegressionTest.h"
+#include "cafPdmUiPropertyDialog.h"
 
 
 
@@ -199,6 +199,7 @@ void RiuMainWindow::createActions()
     m_mockModelAction           = new QAction("&Mock Model", this);
     m_mockResultsModelAction    = new QAction("Mock Model With &Results", this);
     m_mockLargeResultsModelAction = new QAction("Large Mock Model", this);
+    m_mockModelCustomizedAction = new QAction("Customized Mock Model", this);
     m_mockInputModelAction      = new QAction("Input Mock Model", this);
 
     m_snapshotToFile            = new QAction(QIcon(":/SnapShotSave.png"), "Snapshot To File", this);
@@ -226,6 +227,7 @@ void RiuMainWindow::createActions()
     connect(m_mockModelAction,	        SIGNAL(triggered()), SLOT(slotMockModel()));
     connect(m_mockResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockResultsModel()));
     connect(m_mockLargeResultsModelAction,	SIGNAL(triggered()), SLOT(slotMockLargeResultsModel()));
+    connect(m_mockModelCustomizedAction,	SIGNAL(triggered()), SLOT(slotMockModelCustomized()));
     connect(m_mockInputModelAction,	    SIGNAL(triggered()), SLOT(slotInputMockModel()));
 
     connect(m_snapshotToFile,	        SIGNAL(triggered()), SLOT(slotSnapshotToFile()));
@@ -386,6 +388,7 @@ void RiuMainWindow::createMenus()
     testMenu->addAction(m_mockModelAction);
     testMenu->addAction(m_mockResultsModelAction);
     testMenu->addAction(m_mockLargeResultsModelAction);
+    testMenu->addAction(m_mockModelCustomizedAction);
     testMenu->addAction(m_mockInputModelAction);
     testMenu->addSeparator();
     testMenu->addAction(m_createCommandObject);
@@ -660,7 +663,8 @@ void RiuMainWindow::refreshAnimationActions()
         {
             if (app->activeReservoirView()->cellResult()->hasDynamicResult() 
             || app->activeReservoirView()->propertyFilterCollection()->hasActiveDynamicFilters() 
-            || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes())
+            || app->activeReservoirView()->wellCollection()->hasVisibleWellPipes()
+            || app->activeReservoirView()->cellResult()->isTernarySaturationSelected())
             {
                 std::vector<QDateTime> timeStepDates = app->activeReservoirView()->currentGridCellResults()->cellResults()->timeStepDates(0);
                 bool showHoursAndMinutes = false;
@@ -845,8 +849,6 @@ void RiuMainWindow::slotMockModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createMockModel();
-
-    //m_mainViewer->setDefaultView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -856,8 +858,6 @@ void RiuMainWindow::slotMockResultsModel()
 {
     RiaApplication* app = RiaApplication::instance();
     app->createResultsMockModel();
-
-    //m_mainViewer->setDefaultView();
 }
 
 
@@ -870,6 +870,14 @@ void RiuMainWindow::slotMockLargeResultsModel()
     app->createLargeResultsMockModel();
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotMockModelCustomized()
+{
+    RiaApplication* app = RiaApplication::instance();
+    app->createMockModelCustomized();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -1216,8 +1224,8 @@ void RiuMainWindow::slotShowPerformanceInfo(bool enable)
 void RiuMainWindow::slotEditPreferences()
 {
     RiaApplication* app = RiaApplication::instance();
-    RiuPreferencesDialog preferencesDialog(this, app->preferences(), "Preferences");
-    if (preferencesDialog.exec() == QDialog::Accepted)
+    caf::PdmUiPropertyDialog propertyDialog(this, app->preferences(), "Preferences");
+    if (propertyDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings  and apply them to the application
         app->writeFieldsToApplicationStore(app->preferences());
@@ -1446,9 +1454,9 @@ void RiuMainWindow::slotOpenMultipleCases()
 
     if (1)
     {
-        gridFileNames += "Result Mock Debug Model With Results";
-        gridFileNames += "Result Mock Debug Model With Results";
-        gridFileNames += "Result Mock Debug Model With Results";
+        gridFileNames += RimDefines::mockModelBasicWithResults();
+        gridFileNames += RimDefines::mockModelBasicWithResults();
+        gridFileNames += RimDefines::mockModelBasicWithResults();
     }
     else
     {
@@ -1765,7 +1773,7 @@ void RiuMainWindow::slotShowRegressionTestDialog()
     RiaApplication* app = RiaApplication::instance();
     app->readFieldsFromApplicationStore(&regTestConfig);
 
-    RiuPreferencesDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
+    caf::PdmUiPropertyDialog regressionTestDialog(this, &regTestConfig, "Regression Test");
     if (regressionTestDialog.exec() == QDialog::Accepted)
     {
         // Write preferences using QSettings and apply them to the application

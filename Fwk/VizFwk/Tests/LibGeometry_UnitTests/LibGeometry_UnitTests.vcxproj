@@ -262,6 +262,7 @@
     <ClCompile Include="cvfMeshEdgeExtractor-Test.cpp" />
     <ClCompile Include="cvfOutlineEdgeExtractor-Test.cpp" />
     <ClCompile Include="cvfPatchGenerator-Test.cpp" />
+    <ClCompile Include="cvfPrimitiveTests-Test.cpp" />
     <ClCompile Include="cvfRay-Test.cpp" />
     <ClCompile Include="cvfTriangleMeshEdgeExtractor-Test.cpp" />
     <ClCompile Include="cvfTriangleVertexSplitter-Test.cpp" />

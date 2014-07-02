@@ -368,6 +368,38 @@ TEST(Vector2Test, SetLength)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+TEST(Vector2Test, perpendicularVector)
+{
+    {
+        const Vec2d v(0, 1);
+        const Vec2d perp = v.perpendicularVector();
+        EXPECT_DOUBLE_EQ(1, perp.x());
+        EXPECT_DOUBLE_EQ(0, perp.y());
+    }
+    {
+        const Vec2d v(1, 0);
+        const Vec2d perp = v.perpendicularVector();
+        EXPECT_DOUBLE_EQ(0, perp.x());
+        EXPECT_DOUBLE_EQ(-1, perp.y());
+    }
+    {
+        const Vec2d v(0, -2);
+        const Vec2d perp = v.perpendicularVector();
+        EXPECT_DOUBLE_EQ(-1, perp.x());
+        EXPECT_DOUBLE_EQ(0, perp.y());
+    }
+    {
+        const Vec2d v(-3, 0);
+        const Vec2d perp = v.perpendicularVector();
+        EXPECT_DOUBLE_EQ(0, perp.x());
+        EXPECT_DOUBLE_EQ(1, perp.y());
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 TEST(Vector2Test, Addition)
 {
     Vec2f f1(1.0f, 2.6f);

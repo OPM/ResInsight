@@ -91,7 +91,8 @@ public:
 
     bool            intersect(const Plane& other, Vec3d* point, Vec3d* direction = NULL) const;
     bool            intersect(const Vec3d& a, const Vec3d& b, Vec3d* intersection) const;
-
+    size_t          clipTriangle(const Vec3d& ta, const Vec3d& tb, const Vec3d& tc, Vec3d clippedPolygon[4]) const;
+    
     Side            side(const Vec3d& point) const;
     Side            side(const Vec3dArray& points) const;
 

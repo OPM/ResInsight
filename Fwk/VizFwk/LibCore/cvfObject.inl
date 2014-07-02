@@ -91,9 +91,7 @@ inline int Object::release() const
 
     CVF_TIGHT_ASSERT(m_refCount > 0);
 
-    m_refCount--; 
-
-    if (m_refCount == 0)
+    if (--m_refCount == 0)
     {
         delete this;
         return 0;

@@ -395,6 +395,27 @@ bool Vector2<S>::setLength(S newLength)
 
 
 //--------------------------------------------------------------------------------------------------
+/// Return a unit length perpendicular vector
+/// 
+/// Returns the vector (y,-x), normalized. This can be thought of as the 'right' vector.
+//--------------------------------------------------------------------------------------------------
+template<typename S>
+const Vector2<S> Vector2<S>::perpendicularVector() const
+{
+    S len = length();
+    if (len > 0.0)
+    {
+        S oneOverLen = (static_cast<S>(1.0)/len);
+        return Vector2<S>(m_v[1]*oneOverLen, -m_v[0]*oneOverLen);
+    }
+    else
+    {
+        return Vector2<S>::ZERO;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------
 /// Normalize the vector (make sure the length is 1.0).
 /// 
 /// \return  Returns true if normalization was possible. Returns false if length is zero or a NaN vector.

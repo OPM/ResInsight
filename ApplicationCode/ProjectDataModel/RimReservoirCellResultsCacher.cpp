@@ -56,7 +56,7 @@ CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage"
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     : m_cellResults(NULL), 
-      m_ownerMainGrid(NULL)
+    m_ownerMainGrid(NULL)
 {
     CAF_PDM_InitObject("Cacher", "", "", "");
 
@@ -136,7 +136,7 @@ void RimReservoirCellResultsStorage::setupBeforeSave()
             // If there is no data, we do not store anything for the current result variable
             // (Even not the metadata, of cause)
             size_t timestepCount = m_cellResults->cellScalarResults(resInfo[rIdx].m_gridScalarResultIndex).size();
-            
+
             if (timestepCount && resInfo[rIdx].m_needsToBeStored)
             {
                 progInfo.setProgressDescription(resInfo[rIdx].m_resultName);
@@ -251,7 +251,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
         if (soilScalarResultIndex == cvf::UNDEFINED_SIZE_T)
         {
             computeSOILForTimeStep(timeStepIndex);
-            
+
             soilScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
             return soilScalarResultIndex;
         }
@@ -419,32 +419,22 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
     size_t soilResultValueCount = 0;
     size_t soilTimeStepCount = 0;
 
-    std::vector<double>* swatForTimeStep = NULL;
-    std::vector<double>* sgasForTimeStep = NULL;
     if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
     {
-        swatForTimeStep = &(m_cellResults->cellScalarResults(scalarIndexSWAT, timeStepIndex));
-        if (swatForTimeStep->size() == 0)
+        std::vector<double>& swatForTimeStep = m_cellResults->cellScalarResults(scalarIndexSWAT, timeStepIndex);
+        if (swatForTimeStep.size() > 0)
         {
-            swatForTimeStep = NULL;
-        }
-        else
-        {
-            soilResultValueCount = swatForTimeStep->size();
+            soilResultValueCount = swatForTimeStep.size();
             soilTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSWAT].m_timeStepDates.size();
         }
     }
 
     if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
     {
-        sgasForTimeStep = &(m_cellResults->cellScalarResults(scalarIndexSGAS, timeStepIndex));
-        if (sgasForTimeStep->size() == 0)
+        std::vector<double>& sgasForTimeStep = m_cellResults->cellScalarResults(scalarIndexSGAS, timeStepIndex);
+        if (sgasForTimeStep.size() > 0)
         {
-            sgasForTimeStep = NULL;
-        }
-        else
-        {
-            soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep->size());
+            soilResultValueCount = qMax(soilResultValueCount, sgasForTimeStep.size());
 
             size_t sgasTimeStepCount = m_cellResults->infoForEachResultIndex()[scalarIndexSGAS].m_timeStepDates.size();
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
@@ -465,6 +455,28 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         for (size_t timeStepIdx = 0; timeStepIdx < soilTimeStepCount; timeStepIdx++)
         {
             m_cellResults->cellScalarResults(soilResultGridIndex, timeStepIdx).resize(soilResultValueCount);
+        }
+    }
+
+
+    std::vector<double>* swatForTimeStep = NULL;
+    std::vector<double>* sgasForTimeStep = NULL;
+
+    if (scalarIndexSWAT != cvf::UNDEFINED_SIZE_T)
+    {
+        swatForTimeStep = &(m_cellResults->cellScalarResults(scalarIndexSWAT, timeStepIndex));
+        if (swatForTimeStep->size() == 0)
+        {
+            swatForTimeStep = NULL;
+        }
+    }
+
+    if (scalarIndexSGAS != cvf::UNDEFINED_SIZE_T)
+    {
+        sgasForTimeStep = &(m_cellResults->cellScalarResults(scalarIndexSGAS, timeStepIndex));
+        if (sgasForTimeStep->size() == 0)
+        {
+            sgasForTimeStep = NULL;
         }
     }
 
@@ -514,7 +526,7 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 
     if (depthResultGridIndex == cvf::UNDEFINED_SIZE_T)
     {
-         depthResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DEPTH", false, resultValueCount);
+        depthResultGridIndex = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, "DEPTH", false, resultValueCount);
         computeDepth = true;
     }
 
@@ -694,7 +706,7 @@ void RimReservoirCellResultsStorage::setCellResults(RigCaseCellResultsData* cell
         for (size_t tsIdx = 0; tsIdx < resInfo->m_timeStepDates().size(); ++tsIdx)
         {
             std::vector<double>* data = NULL;
-           
+
             data = &(m_cellResults->cellScalarResults(rIdx, tsIdx));
 
             quint64 cellCount = 0;

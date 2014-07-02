@@ -18,27 +18,23 @@
 
 #include "RimLegendConfig.h"
 
-#include "RimReservoirView.h"
 #include "cafFactory.h"
-#include "cafPdmUiLineEditor.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiLineEditor.h"
 
-#include "cvfScalarMapperDiscreteLog.h"
-#include "cvfScalarMapperContinuousLog.h"
-#include "cvfScalarMapperContinuousLinear.h"
 #include "cvfOverlayScalarMapperLegend.h"
+#include "cvfScalarMapperContinuousLinear.h"
+#include "cvfScalarMapperContinuousLog.h"
 #include "cvfScalarMapperDiscreteLinear.h"
+#include "cvfScalarMapperDiscreteLog.h"
+
 #include <cmath>
 
 #include "RiaApplication.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RimReservoirView.h"
+
 
 CAF_PDM_SOURCE_INIT(RimLegendConfig, "Legend");
 
@@ -112,7 +108,7 @@ RimLegendConfig::RimLegendConfig()
 
     CAF_PDM_InitField(&m_colorRangeMode, "ColorRangeMode", ColorRangeEnum(NORMAL) , "Colors", "", "", "");
     CAF_PDM_InitField(&m_mappingMode, "MappingMode", MappingEnum(LINEAR_CONTINUOUS) , "Mapping", "", "", "");
-    CAF_PDM_InitField(&m_rangeMode, "RangeType", caf::AppEnum<RimLegendConfig::RangeModeType>(AUTOMATIC_ALLTIMESTEPS), "Range type", "", "Switches between automatic and user defined range on the legend", "");
+    CAF_PDM_InitField(&m_rangeMode, "RangeType", RangeModeEnum(AUTOMATIC_ALLTIMESTEPS), "Range type", "", "Switches between automatic and user defined range on the legend", "");
     CAF_PDM_InitField(&m_userDefinedMaxValue, "UserDefinedMax", 1.0, "Max", "", "Min value of the legend", "");
     CAF_PDM_InitField(&m_userDefinedMinValue, "UserDefinedMin", 0.0, "Min", "", "Max value of the legend", "");
     CAF_PDM_InitField(&resultVariableName, "ResultVariableUsage", QString(""), "", "", "", "");
@@ -635,16 +631,18 @@ void RimLegendConfig::setClosestToZeroValues(double globalPosClosestToZero, doub
 //--------------------------------------------------------------------------------------------------
 void RimLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
-    formatGr->add(&m_numLevels);
-    formatGr->add(&m_precision);
-    formatGr->add(&m_tickNumberFormat);
-    formatGr->add(&m_colorRangeMode);
+    {
+        caf::PdmUiOrdering * formatGr = uiOrdering.addNewGroup("Format");
+        formatGr->add(&m_numLevels);
+        formatGr->add(&m_precision);
+        formatGr->add(&m_tickNumberFormat);
+        formatGr->add(&m_colorRangeMode);
 
-    caf::PdmUiOrdering * mappingGr = uiOrdering.addNewGroup("Mapping");
-    mappingGr->add(&m_mappingMode);
-    mappingGr->add(&m_rangeMode);
-    mappingGr->add(&m_userDefinedMaxValue);
-    mappingGr->add(&m_userDefinedMinValue);
+        caf::PdmUiOrdering * mappingGr = uiOrdering.addNewGroup("Mapping");
+        mappingGr->add(&m_mappingMode);
+        mappingGr->add(&m_rangeMode);
+        mappingGr->add(&m_userDefinedMaxValue);
+        mappingGr->add(&m_userDefinedMinValue);
+    }
 }
 

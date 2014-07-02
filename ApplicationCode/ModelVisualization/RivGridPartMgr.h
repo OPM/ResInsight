@@ -29,6 +29,7 @@ namespace cvf
     class ModelBasicList;
     class Transform;
     class Part;
+    class Effect;
 }
 
 class RimResultSlot;
@@ -49,6 +50,13 @@ public:
         const RigGridBase* grid,
         cvf::Vec2fArray* textureCoords, 
         const std::vector<cvf::StructGridInterface::FaceType>&  quadsToFaceTypes,
+        const std::vector<size_t>&                              quadsToGridCells);
+
+    static void updateTernarySaturationColorArray(
+        size_t timeStepIndex,
+        RimResultSlot* cellResultSlot,
+        const RigGridBase* grid,
+        cvf::Color3ubArray* colorArray, 
         const std::vector<size_t>&                              quadsToGridCells);
 };
 
@@ -73,15 +81,16 @@ public:
 
     void updateCellColor(cvf::Color4f color);
     void updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot);
+
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 
         RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
+    static cvf::ref<cvf::Effect>   createPerVertexColoringEffect(float opacity);
+
 private:
-    void generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
-    
-    
+    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
 
 private:
     size_t                                      m_gridIdx;

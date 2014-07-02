@@ -11,6 +11,7 @@ set( QOBJECT_HEADERS
     cafUiTreeModelPdm.h
     cafUiProcess.h
     
+    cafPdmSettings.h
     cafPdmUiLineEditor.h
     cafPdmUiCheckBoxEditor.h
     cafPdmUiComboBoxEditor.h
@@ -24,7 +25,9 @@ set( QOBJECT_HEADERS
     cafPdmUiColorEditor.h
     
     cafPdmUiPropertyView.h
+    cafPdmUiPropertyDialog.h
     cafPdmUiTreeView.h
+    cafPdmUiTreeViewModel.h
     cafPdmUiListView.h
     cafPdmUiListViewEditor.h
 )
@@ -37,6 +40,7 @@ endif()
 add_library( ${PROJECT_NAME}
 	cafAboutDialog.cpp
 	cafAboutDialog.h
+	cafPdmSettings.cpp
 	cafPdmUiCheckBoxEditor.cpp
 	cafPdmUiCheckBoxEditor.h
 	cafPdmUiColorEditor.cpp
@@ -56,6 +60,8 @@ add_library( ${PROJECT_NAME}
     cafPdmUiListViewEditor.cpp
     cafPdmUiListViewEditor.h
     cafPdmUiListView.cpp
+	cafPdmUiPropertyDialog.cpp
+	cafPdmUiPropertyDialog.h
 	cafPdmUiPropertyView.cpp
 	cafPdmUiPropertyView.h
 	cafPdmUiPushButtonEditor.cpp
@@ -66,6 +72,8 @@ add_library( ${PROJECT_NAME}
 	cafPdmUiTextEditor.h
     cafPdmUiTreeViewEditor.cpp
     cafPdmUiTreeViewEditor.h
+    cafPdmUiTreeViewModel.cpp
+    cafPdmUiTreeViewModel.h
     cafPdmUiTreeView.cpp
 	cafProgressInfo.cpp
 	cafProgressInfo.h

@@ -122,9 +122,20 @@ void RigCaseCellResultsData::minMaxCellScalarValues(size_t scalarResultIndex, si
         size_t tranX, tranY, tranZ;
         if (!findTransmissibilityResults(tranX, tranY, tranZ)) return;
 
-        minMaxCellScalarValues(tranX, timeStepIndex, min, max);
-        minMaxCellScalarValues(tranY, timeStepIndex, min, max);
-        minMaxCellScalarValues(tranZ, timeStepIndex, min, max);
+        double tranMin; 
+        double tranMax; 
+
+        minMaxCellScalarValues(tranX, timeStepIndex, tranMin, tranMax);
+        min = CVF_MIN(tranMin, min);
+        max = CVF_MAX(tranMax, max);
+
+        minMaxCellScalarValues(tranY, timeStepIndex, tranMin, tranMax);
+        min = CVF_MIN(tranMin, min);
+        max = CVF_MAX(tranMax, max);
+
+        minMaxCellScalarValues(tranZ, timeStepIndex, tranMin, tranMax);
+        min = CVF_MIN(tranMin, min);
+        max = CVF_MAX(tranMax, max);
 
         return;
     }
@@ -738,9 +749,16 @@ void RigCaseCellResultsData::posNegClosestToZero(size_t scalarResultIndex, size_
         size_t tranX, tranY, tranZ;
         if (findTransmissibilityResults(tranX, tranY, tranZ))
         {
-            posNegClosestToZero(tranX, timeStepIndex, pos, neg);
-            posNegClosestToZero(tranY, timeStepIndex, pos, neg);
-            posNegClosestToZero(tranZ, timeStepIndex, pos, neg);
+            double traPos, traNeg;
+            posNegClosestToZero(tranX, timeStepIndex, traPos, traNeg);
+            if ( 0   < traPos && traPos < pos ) pos = traPos;
+            if ( neg < traNeg && traNeg < 0   ) neg = traNeg;
+            posNegClosestToZero(tranY, timeStepIndex, traPos, traNeg);
+            if ( 0   < traPos && traPos < pos ) pos = traPos;
+            if ( neg < traNeg && traNeg < 0   ) neg = traNeg;
+            posNegClosestToZero(tranZ, timeStepIndex, traPos, traNeg);
+            if ( 0   < traPos && traPos < pos ) pos = traPos;
+            if ( neg < traNeg && traNeg < 0   ) neg = traNeg;
         }
 
         return;

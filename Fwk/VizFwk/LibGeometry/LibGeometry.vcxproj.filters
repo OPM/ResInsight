@@ -20,6 +20,7 @@
     <ClInclude Include="cvfVertexCompactor.h" />
     <ClInclude Include="cvfTriangleMeshEdgeExtractor.h" />
     <ClInclude Include="cvfBoundingBoxTree.h" />
+    <ClInclude Include="cvfPrimitiveTests.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CMakeLists.txt" />
@@ -43,5 +44,6 @@
     <ClCompile Include="cvfVertexCompactor.cpp" />
     <ClCompile Include="cvfTriangleMeshEdgeExtractor.cpp" />
     <ClCompile Include="cvfBoundingBoxTree.cpp" />
+    <ClCompile Include="cvfPrimitiveTests.cpp" />
   </ItemGroup>
 </Project>

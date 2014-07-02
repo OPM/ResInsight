@@ -18,31 +18,38 @@
 
 #include "RivGridPartMgr.h"
 
-#include "cvfPart.h"
+
 #include "cafEffectGenerator.h"
-#include "cvfStructGrid.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafProgressInfo.h"
 #include "cvfDrawableGeo.h"
+#include "cvfMath.h"
 #include "cvfModelBasicList.h"
-#include "RivCellEdgeEffectGenerator.h"
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
+#include "cvfPart.h"
+#include "cvfRenderStateBlending.h"
+#include "cvfRenderStatePolygonOffset.h"
+#include "cvfRenderState_FF.h"
+#include "cvfShaderProgram.h"
+#include "cvfShaderProgramGenerator.h"
+#include "cvfShaderSourceProvider.h"
+#include "cvfShaderSourceRepository.h"
+#include "cvfStructGrid.h"
+#include "cvfUniform.h"
+
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 #include "RimCase.h"
-#include "RimWellCollection.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RimCellEdgeResultSlot.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimTernaryLegendConfig.h"
+#include "RimWellCollection.h"
+#include "RivCellEdgeEffectGenerator.h"
 #include "RivSourceInfo.h"
-
-
 
 
 //--------------------------------------------------------------------------------------------------
@@ -250,15 +257,23 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 {
     CVF_ASSERT(cellResultSlot);
 
-
     const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
     RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
 
- 
+    cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
+
     // Outer surface
     if (m_surfaceFaces.notNull())
     {
-        if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        if (cellResultSlot->isTernarySaturationSelected())
+        {
+            surfaceFacesColorArray = new cvf::Color3ubArray;
+
+            const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
+
+            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), quadsToGridCells);
+        }
+        else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
             const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_surfaceGenerator.quadToFace();
             const std::vector<size_t>& quadsToGridCells = m_surfaceGenerator.quadToGridCellIndices();
@@ -309,16 +324,34 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-        if (dg) dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
+        if (surfaceFacesColorArray.notNull())
+        {
+            if (dg)
+            {
+                dg->setColorArray(surfaceFacesColorArray.p());
+            }
 
-        caf::PolygonOffset polygonOffset = caf::PO_1;
-        caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
+            cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
+            m_surfaceFaces->setEffect(perVertexColorEffect.p());
 
-        scalarEffgen.setOpacityLevel(m_opacityLevel);
+            m_surfaceFaces->setPriority(100);
+        }
+        else
+        {
+            if (dg)
+            {
+                dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
+            }
 
-        cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+            caf::PolygonOffset polygonOffset = caf::PO_1;
+            caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
 
-        m_surfaceFaces->setEffect(scalarEffect.p());
+            scalarEffgen.setOpacityLevel(m_opacityLevel);
+
+            cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+
+            m_surfaceFaces->setEffect(scalarEffect.p());
+        }
     }
 
     // Faults
@@ -433,6 +466,53 @@ RivGridPartMgr::~RivGridPartMgr()
 #endif
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect(float opacity)
+{
+    cvf::ref<cvf::Effect> colorArrayEffect = new cvf::Effect;
+
+    if (RiaApplication::instance()->useShaders())
+    {
+        cvf::ShaderProgramGenerator gen("PerVertexColor", cvf::ShaderSourceProvider::instance());
+        gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
+        gen.addFragmentCode(cvf::ShaderSourceRepository::src_VaryingColorGlobalAlpha);
+        gen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
+        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
+
+        cvf::ref<cvf::ShaderProgram> m_shaderProg = gen.generate();
+        m_shaderProg->setDefaultUniform(new cvf::UniformFloat("u_alpha", opacity));
+
+        colorArrayEffect->setShaderProgram(m_shaderProg.p());
+    }
+    else
+    {
+        cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE);
+        mat->setAlpha(opacity);
+        mat->enableColorMaterial(true);
+        colorArrayEffect->setRenderState(mat.p());
+
+        cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
+        lighting->enableTwoSided(true);
+        colorArrayEffect->setRenderState(lighting.p());
+    }
+    
+    // Simple transparency
+    if (opacity < 1.0f)
+    {
+        cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
+        blender->configureTransparencyBlending();
+        colorArrayEffect->setRenderState(blender.p());
+    }
+    
+    caf::PolygonOffset polygonOffset = caf::PO_1;
+    cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = caf::EffectGenerator::createAndConfigurePolygonOffsetRenderState(polygonOffset);
+    colorArrayEffect->setRenderState(polyOffset.p());
+
+    return colorArrayEffect;
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -487,7 +567,7 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
             size_t i, j, k, neighborGridCellIdx;
             grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_I, &neighborGridCellIdx))
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_I, &neighborGridCellIdx))
             {
                 cellScalarValue = dataAccessObjectTranX->cellScalar(neighborGridCellIdx);
             }
@@ -501,7 +581,7 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
             size_t i, j, k, neighborGridCellIdx;
             grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_J, &neighborGridCellIdx))
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_J, &neighborGridCellIdx))
             {
                 cellScalarValue = dataAccessObjectTranY->cellScalar(neighborGridCellIdx);
             }
@@ -515,7 +595,7 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
             size_t i, j, k, neighborGridCellIdx;
             grid->ijkFromCellIndex(quadsToGridCells[idx], &i, &j, &k);
 
-            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::POS_K, &neighborGridCellIdx))
+            if(grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_K, &neighborGridCellIdx))
             {
                 cellScalarValue = dataAccessObjectTranZ->cellScalar(neighborGridCellIdx);
             }
@@ -534,4 +614,122 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
         }
     }
 
+}
+
+
+//--------------------------------------------------------------------------------------------------
+/// Helper class used to provide zero for all cells
+/// This way we can avoid to test if a StructGridScalarDataAccess object is valid before reading out the value.
+//--------------------------------------------------------------------------------------------------
+class ScalarDataAccessZeroForAllCells : public cvf::StructGridScalarDataAccess
+{
+public:
+    virtual double cellScalar(size_t cellIndex) const
+    {
+        return 0.0;
+    }
+    virtual void setCellScalar(size_t cellIndex, double value)
+    {
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// Creates and assigns a ternary saturation color for all four vertices of a quad representing a cell face
+///
+/// Loads ternary saturation results SOIL, SWAT and SGAS
+/// If any of these are not present, the values for a missing component is set to 0.0
+//--------------------------------------------------------------------------------------------------
+void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t timeStepIndex, RimResultSlot* cellResultSlot, const RigGridBase* grid, cvf::Color3ubArray* colorArray, const std::vector<size_t>& quadsToGridCells)
+{
+    RimReservoirCellResultsStorage* gridCellResults = cellResultSlot->currentGridCellResults();
+    if (!gridCellResults) return;
+
+    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+    if (!eclipseCase) return;
+
+    size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+    size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+    size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+
+    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+
+    double soilMin = 0.0;
+    double soilMax = 1.0;
+    double sgasMin = 0.0;
+    double sgasMax = 1.0;
+    double swatMin = 0.0;
+    double swatMax = 1.0;
+
+    cellResultSlot->ternaryLegendConfig()->ternaryRanges(soilMin, soilMax, sgasMin, sgasMax, swatMin, swatMax);
+
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSoil = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, soilScalarSetIndex);
+    if (dataAccessObjectSoil.isNull())
+    {
+        dataAccessObjectSoil = new ScalarDataAccessZeroForAllCells;
+    }
+
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSgas = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, sgasScalarSetIndex);
+    if (dataAccessObjectSgas.isNull())
+    {
+        dataAccessObjectSgas = new ScalarDataAccessZeroForAllCells;
+    }
+    
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSwat = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, swatScalarSetIndex);
+    if (dataAccessObjectSwat.isNull())
+    {
+        dataAccessObjectSwat = new ScalarDataAccessZeroForAllCells;
+    }
+
+    double soilRange = soilMax - soilMin;
+    double soilFactor = 255.0 / soilRange;
+
+    double sgasRange = sgasMax - sgasMin;
+    double sgasFactor = 255.0 / sgasRange;
+
+    double swatRange = swatMax - swatMin;
+    double swatFactor = 255.0 / swatRange;
+
+    size_t numVertices = quadsToGridCells.size()*4;
+
+    colorArray->resize(numVertices);
+
+    cvf::Color3ub ternaryColorByte;
+    double v, vNormalized;
+
+#pragma omp parallel for private(ternaryColorByte, v, vNormalized)
+    for (int idx = 0; idx < static_cast<int>(quadsToGridCells.size()); idx++)
+    {
+        size_t gridCellIndex = quadsToGridCells[idx];
+
+        {
+            v = dataAccessObjectSgas->cellScalar(gridCellIndex);
+            vNormalized = (v - sgasMin) * sgasFactor;
+
+            vNormalized = cvf::Math::clamp(vNormalized, 0.0, 255.0);
+            ternaryColorByte.r() = vNormalized;
+        }
+
+        {
+            v = dataAccessObjectSoil->cellScalar(gridCellIndex);
+            vNormalized = (v - soilMin) * soilFactor;
+
+            vNormalized = cvf::Math::clamp(vNormalized, 0.0, 255.0);
+            ternaryColorByte.g() = vNormalized;
+        }
+
+        {
+            v = dataAccessObjectSwat->cellScalar(gridCellIndex);
+            vNormalized = (v - swatMin) * swatFactor;
+
+            vNormalized = cvf::Math::clamp(vNormalized, 0.0, 255.0);
+            ternaryColorByte.b() = vNormalized;
+        }
+
+        size_t j;
+        for (j = 0; j < 4; j++)
+        {
+            colorArray->set(idx*4 + j, ternaryColorByte);
+        }
+    }
 }

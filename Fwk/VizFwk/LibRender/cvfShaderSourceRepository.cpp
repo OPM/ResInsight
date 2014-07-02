@@ -119,6 +119,7 @@ const char* ShaderSourceRepository::shaderIdentString(ShaderIdent shaderIdent)
         CVF_IDENT_HANDLE_CASE(src_TextureGlobalAlpha);
         CVF_IDENT_HANDLE_CASE(src_TextureFromPointCoord);
         CVF_IDENT_HANDLE_CASE(src_TextureRectFromFragCoord_v33);
+        CVF_IDENT_HANDLE_CASE(src_VaryingColorGlobalAlpha);
         
         CVF_IDENT_HANDLE_CASE(light_Phong);
         CVF_IDENT_HANDLE_CASE(light_PhongDual);
@@ -179,6 +180,7 @@ bool ShaderSourceRepository::rawShaderSource(ShaderIdent shaderIdent, CharArray*
         CVF_SOURCE_HANDLE_CASE(src_TextureGlobalAlpha);
         CVF_SOURCE_HANDLE_CASE(src_TextureFromPointCoord);
         CVF_SOURCE_HANDLE_CASE(src_TextureRectFromFragCoord_v33);
+        CVF_SOURCE_HANDLE_CASE(src_VaryingColorGlobalAlpha);
 
         CVF_SOURCE_HANDLE_CASE(light_Phong);
         CVF_SOURCE_HANDLE_CASE(light_PhongDual);

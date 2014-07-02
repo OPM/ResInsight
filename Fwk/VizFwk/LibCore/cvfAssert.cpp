@@ -113,9 +113,11 @@ Assert::FailAction AssertHandlerConsole::handleAssert(const char* fileName, int 
     // Does the job on both Windows and Linux (creates a console on Windows if one doesn't exist)
     reportToConsole(fileName, lineNumber, expr, msg);
 
-#ifdef WIN32
-    if (::IsDebuggerPresent())
-    {
+#ifdef _MSC_VER
+#if (_MSC_VER >= 1600)
+    if (::IsDebuggerPresent()) 
+#endif
+	{
         __debugbreak();
     }
 #endif

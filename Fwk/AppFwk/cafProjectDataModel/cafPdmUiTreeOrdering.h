@@ -49,16 +49,19 @@ namespace caf
 class PdmObject;
 class PdmFieldHandle;
 
-//typedef UiTreeItem<PdmPointer<PdmObject> > PdmUiTreeItem;
+class PdmUiTreeOrdering;
+
+typedef UiTreeItem<PdmUiTreeOrdering* > PdmUiTreeItem;
 
 //==================================================================================================
 /// Class storing a tree structure representation of some PdmObject hierarchy to be used for tree views in the Gui
 //==================================================================================================
 
-class PdmUiTreeOrdering : public UiTreeItem< PdmPointer<PdmObject> >
+class PdmUiTreeOrdering : public UiTreeItem< PdmUiTreeOrdering* >
 {
 public:
     PdmUiTreeOrdering(PdmUiTreeOrdering* parent = NULL, int position = -1, PdmObject* dataObject = NULL);
+    ~PdmUiTreeOrdering();
 
     void                add(PdmFieldHandle * field);
     void                add(PdmObject* object);
@@ -67,23 +70,26 @@ public:
     /// If the rest of the fields containing children is supposed to be omitted, setForgetRemainingFileds to true.
     void                setForgetRemainingFields(bool val)          { m_forgetRemainingFields = val; }
     /// To stop the tree generation at this level, setSubTreeDefined to true
-    void                setSubTreeDefined(bool isSubTreeDefined )   { m_isSubTreeDefined = isSubTreeDefined; }
+    void                setIgnoreSubTree(bool doIgnoreSubTree )     { m_isToIgnoreSubTree = doIgnoreSubTree; }
 
+    PdmObject*          object() const                              { return m_object; }
     PdmFieldHandle*     field() const                               { return m_field; }
+    PdmUiItem*          uiItem() const                              { return m_uiItem; }
 
 private:
     friend class PdmObject;
     bool                forgetRemainingFields() const       { return m_forgetRemainingFields; }
-    bool                isSubTreeDefined() const            { return m_isSubTreeDefined; }
+    bool                ignoreSubTree() const            { return m_isToIgnoreSubTree; }
     bool                containsField(const PdmFieldHandle* field);
     bool                containsObject(const PdmObject* object);
 
 private:
+    PdmPointer<PdmObject> m_object;
     PdmFieldHandle*     m_field;
-    PdmUiItemInfo*      m_uiInfo;
+    PdmUiItem*          m_uiItem;
 
     bool                m_forgetRemainingFields;
-    bool                m_isSubTreeDefined;
+    bool                m_isToIgnoreSubTree;
 };
 
 

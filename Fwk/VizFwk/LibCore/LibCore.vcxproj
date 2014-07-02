@@ -232,6 +232,7 @@
     <ClInclude Include="cvfArrayWrapperConst.h" />
     <ClInclude Include="cvfArrayWrapperToEdit.h" />
     <ClInclude Include="cvfAssert.h" />
+    <ClInclude Include="cvfAtomicCounter.h" />
     <ClInclude Include="cvfBase.h" />
     <ClInclude Include="cvfBase64.h" />
     <ClInclude Include="cvfCharArray.h" />
@@ -290,6 +291,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cvfAssert.cpp" />
+    <ClCompile Include="cvfAtomicCounter.cpp" />
     <ClCompile Include="cvfBase64.cpp" />
     <ClCompile Include="cvfCharArray.cpp" />
     <ClCompile Include="cvfCodeLocation.cpp" />

@@ -253,6 +253,7 @@
     <ClInclude Include="cvfMeshEdgeExtractor.h" />
     <ClInclude Include="cvfOutlineEdgeExtractor.h" />
     <ClInclude Include="cvfPatchGenerator.h" />
+    <ClInclude Include="cvfPrimitiveTests.h" />
     <ClInclude Include="cvfRay.h" />
     <ClInclude Include="cvfTriangleMeshEdgeExtractor.h" />
     <ClInclude Include="cvfTriangleVertexSplitter.h" />
@@ -273,6 +274,7 @@
     <ClCompile Include="cvfMeshEdgeExtractor.cpp" />
     <ClCompile Include="cvfOutlineEdgeExtractor.cpp" />
     <ClCompile Include="cvfPatchGenerator.cpp" />
+    <ClCompile Include="cvfPrimitiveTests.cpp" />
     <ClCompile Include="cvfRay.cpp" />
     <ClCompile Include="cvfTriangleMeshEdgeExtractor.cpp" />
     <ClCompile Include="cvfTriangleVertexSplitter.cpp" />

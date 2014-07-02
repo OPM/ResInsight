@@ -45,6 +45,7 @@
 #include "RimCaseCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimTernaryLegendConfig.h"
 
 #include "RiuMainWindow.h"
 #include "RigGridBase.h"
@@ -74,6 +75,7 @@
 #include <limits.h>
 #include "cafCeetronPlusNavigation.h"
 #include "RimFaultCollection.h"
+#include "RivTernarySaturationOverlayItem.h"
 
 namespace caf {
 
@@ -172,8 +174,8 @@ RimReservoirView::RimReservoirView()
 
   
     this->cellResult()->setReservoirView(this);
-    this->cellResult()->legendConfig()->setReservoirView(this);
     this->cellResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 120));
+
     this->cellEdgeResult()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setReservoirView(this);
     this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
@@ -231,6 +233,7 @@ void RimReservoirView::updateViewerWidget()
             RiuMainWindow::instance()->addViewer(m_viewer);
             m_viewer->setMinNearPlaneDistance(10);
             this->cellResult()->legendConfig->recreateLegend();
+            this->cellResult()->ternaryLegendConfig->recreateLegend();
             this->cellEdgeResult()->legendConfig->recreateLegend();
             m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
             m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
@@ -529,7 +532,8 @@ void RimReservoirView::createDisplayModel()
 
     if (this->cellResult()->hasDynamicResult() 
         || this->propertyFilterCollection()->hasActiveDynamicFilters() 
-        || this->wellCollection->hasVisibleWellPipes())
+        || this->wellCollection->hasVisibleWellPipes()
+        || this->cellResult()->isTernarySaturationSelected())
     {
         CVF_ASSERT(currentGridCellResults());
 
@@ -648,10 +652,7 @@ void RimReservoirView::createDisplayModel()
         updateFaultForcedVisibility();
 
     }
-    
-    this->updateFaultColors();
 
-    
     // Compute triangle count, Debug only
 
     if (false)
@@ -818,7 +819,7 @@ void RimReservoirView::updateCurrentTimeStep()
         {
             m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
         } 
-        else if (this->animationMode() && this->cellResult()->hasResult())
+        else if ((this->animationMode() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
         {
             m_reservoirGridPartManager->updateCellResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult());
         }
@@ -928,10 +929,16 @@ void RimReservoirView::loadDataAndUpdate()
             RiaApplication* app = RiaApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
-                RimReservoirCellResultsStorage* results = currentGridCellResults();
-                CVF_ASSERT(results);
-                results->loadOrComputeSOIL();
-                results->createCombinedTransmissibilityResults();
+                {
+                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
+                    results->loadOrComputeSOIL();
+                    results->createCombinedTransmissibilityResults();
+                }
+                {
+                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
+                    results->loadOrComputeSOIL();
+                    results->createCombinedTransmissibilityResults();
+                }
             }
         }
     }
@@ -1107,7 +1114,38 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         RigCaseData* eclipseCase = m_reservoir->reservoirData();
         RigGridBase* grid = eclipseCase->grid(gridIndex);
 
-        if (this->cellResult()->hasResult())
+        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
+        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
+
+        if (this->cellResult()->isTernarySaturationSelected())
+        {
+            RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
+            if (gridCellResults)
+            {
+                size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+                size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+                size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, soilScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, sgasScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, swatScalarSetIndex);
+
+                double scalarValue = 0.0;
+                
+                if (dataAccessObjectX.notNull()) scalarValue = dataAccessObjectX->cellScalar(cellIndex);
+                else scalarValue = 0.0;
+                resultInfoText->append(QString("SOIL : %1\n").arg(scalarValue));
+
+                if (dataAccessObjectY.notNull()) scalarValue = dataAccessObjectY->cellScalar(cellIndex);
+                else scalarValue = 0.0;
+                resultInfoText->append(QString("SGAS : %1\n").arg(scalarValue));
+
+                if (dataAccessObjectZ.notNull()) scalarValue = dataAccessObjectZ->cellScalar(cellIndex);
+                else scalarValue = 0.0;
+                resultInfoText->append(QString("SWAT : %1\n").arg(scalarValue));
+            }
+        }
+        else if (this->cellResult()->hasResult())
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
             cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
@@ -1413,6 +1451,67 @@ void RimReservoirView::updateLegends()
         m_viewer->setColorLegend2(NULL);
         this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+    }
+
+    
+    viewer()->removeOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
+
+    size_t maxTimeStepCount = results->maxTimeStepCount();
+    if (this->cellResult()->isTernarySaturationSelected() && maxTimeStepCount > 1)
+    {
+        RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+            }
+        }
+
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+            }
+        }
+
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+            }
+        }
+
+        if (this->cellResult()->ternaryLegendConfig->legend())
+        {
+            viewer()->addOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
+        }
     }
 }
 

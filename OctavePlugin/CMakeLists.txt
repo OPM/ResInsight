@@ -4,28 +4,28 @@
 # See http://www.cmake.org/Wiki/CMakeUserFindOctave
 
 set(CPP_SOURCES
-  riGetActiveCellProperty.cpp
-  riSetActiveCellProperty.cpp
-  riGetActiveCellInfo.cpp
-  riGetMainGridDimensions.cpp
-  riGetCurrentCase.cpp
-  riGetCaseGroups.cpp
-  riGetSelectedCases.cpp
-  riGetCases.cpp
-  riGetTimeStepDates.cpp
-  riGetTimeStepDays.cpp
-  riGetGridDimensions.cpp
-  riGetCoarseningInfo.cpp
-  riGetCellCenters.cpp
-  riGetActiveCellCenters.cpp
-  riGetCellCorners.cpp
-  riGetActiveCellCorners.cpp
-  riGetGridProperty.cpp
-  riSetGridProperty.cpp
-  riGetPropertyNames.cpp
-  riGetWellNames.cpp
-  riGetWellStatus.cpp
-  riGetWellCells.cpp
+    riGetActiveCellProperty.cpp
+    riSetActiveCellProperty.cpp
+    riGetActiveCellInfo.cpp
+    riGetMainGridDimensions.cpp
+    riGetCurrentCase.cpp
+    riGetCaseGroups.cpp
+    riGetSelectedCases.cpp
+    riGetCases.cpp
+    riGetTimeStepDates.cpp
+    riGetTimeStepDays.cpp
+    riGetGridDimensions.cpp
+    riGetCoarseningInfo.cpp
+    riGetCellCenters.cpp
+    riGetActiveCellCenters.cpp
+    riGetCellCorners.cpp
+    riGetActiveCellCorners.cpp
+    riGetGridProperty.cpp
+    riSetGridProperty.cpp
+    riGetPropertyNames.cpp
+    riGetWellNames.cpp
+    riGetWellStatus.cpp
+    riGetWellCells.cpp
 )
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -51,18 +51,28 @@ else()
   message(WARNING "Failed to find mkoctfile, no Octave plugins will be compiled. Please specify RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE")
 endif()
 
-find_program(RESINSIGHT_OCTAVE_PLUGIN_QMAKE NAMES qmake-qt4 qmake)
+
+set(RESINSIGHT_OCTAVE_PLUGIN_QMAKE "" CACHE FILEPATH "Location of custom qmake to be able to use a different Qt when compiling Octave plugins")
 if(RESINSIGHT_OCTAVE_PLUGIN_QMAKE)
     get_filename_component(OCTAVE_QMAKE_DIR ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE} PATH)
 
     STRING(REPLACE "/bin" "" OCTAVE_QT_ROOT ${OCTAVE_QMAKE_DIR})
+
+    message("Compiling Octave plugins using custom Qt located at ${OCTAVE_QT_ROOT}")
 
     SET(OCTAVE_QT_INCLUDE_DIR            ${OCTAVE_QT_ROOT}/include)
     SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${OCTAVE_QT_ROOT}/include/QtCore)
     SET(OCTAVE_QT_QTNETWORK_INCLUDE_DIR  ${OCTAVE_QT_ROOT}/include/QtNetwork)
     SET(OCTAVE_QT_LIBRARY_DIR            ${OCTAVE_QT_ROOT}/lib)
 else()
-  message(WARNING "Failed to find Qt to be used to compile Octave plugins, no Octave plugins will be compiled. Please specify RESINSIGHT_OCTAVE_PLUGIN_QMAKE")
+    set (RESINSIGHT_OCTAVE_PLUGIN_QMAKE ${QT_QMAKE_EXECUTABLE})
+
+    message("Compiling Octave plugins using system Qt - include path located at ${RESINSIGHT_OCTAVE_PLUGIN_QMAKE}")
+
+    SET(OCTAVE_QT_INCLUDE_DIR            ${QT_INCLUDE_DIR})
+    SET(OCTAVE_QT_QTCORE_INCLUDE_DIR     ${QT_QTCORE_INCLUDE_DIR})
+    SET(OCTAVE_QT_QTNETWORK_INCLUDE_DIR  ${QT_QTNETWORK_INCLUDE_DIR})
+    SET(OCTAVE_QT_LIBRARY_DIR            ${QT_LIBRARY_DIR})
 endif()
 
 
@@ -88,7 +98,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
                     OUTPUT "${octFileName}"
                     COMMAND call "\"%VS100COMNTOOLS%../../VC/vcvarsall.bat\"" x86
                     COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
                         -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
                     DEPENDS "${srcFileName}"
                     COMMENT "===> 32-bit x86 VS2010 : Generating ${octFileName}"
@@ -97,7 +107,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
                 add_custom_command(
                     OUTPUT "${octFileName}"
                     COMMAND ${CMAKE_COMMAND} ARGS -E chdir ${RESINSIGHT_OCTAVE_BIN_DIR} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE} -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR}
-                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                        -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
                         -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore${QT_LIBRARY_POSTFIX} -lQtNetwork${QT_LIBRARY_POSTFIX} -o "${octFileName}" "${srcFileName}"
                     DEPENDS "${srcFileName}"
                     COMMENT "===> Generating ${octFileName}"
@@ -107,7 +117,7 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
             add_custom_command(
                 OUTPUT "${octFileName}"
                 COMMAND OCTAVE_HOME=${OCTAVE_HOME} ${RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE}
-                    -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR} -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} ${RPATH_COMMAND}
+                    -I${OCTAVE_QT_QTNETWORK_INCLUDE_DIR} -I${OCTAVE_QT_QTCORE_INCLUDE_DIR} -I${OCTAVE_QT_INCLUDE_DIR} -I${ResInsight_SOURCE_DIR}/ApplicationCode/SocketInterface ${RPATH_COMMAND}
                     -L${OCTAVE_QT_LIBRARY_DIR} -lQtCore -lQtNetwork -o "${octFileName}" "${srcFileName}"
                 DEPENDS "${srcFileName}"
                 COMMENT "===> Generating ${octFileName}"
@@ -141,7 +151,9 @@ if (RESINSIGHT_OCTAVE_PLUGIN_QMAKE AND RESINSIGHT_OCTAVE_PLUGIN_MKOCTFILE)
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellNames.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellStatus.oct"
       "${CMAKE_CURRENT_BINARY_DIR}/riGetWellCells.oct"
-      SOURCES ${CPP_SOURCES}
+      SOURCES
+      ${CPP_SOURCES}
+      riSettings.h 
     )
 
 

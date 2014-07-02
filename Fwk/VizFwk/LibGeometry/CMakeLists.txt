@@ -25,6 +25,7 @@ cvfLibGeometry.h
 cvfMeshEdgeExtractor.h
 cvfOutlineEdgeExtractor.h
 cvfPatchGenerator.h
+cvfPrimitiveTests.h
 cvfRay.h
 cvfTriangleMeshEdgeExtractor.h
 cvfTriangleVertexSplitter.h
@@ -46,6 +47,7 @@ cvfGeometryUtils.cpp
 cvfMeshEdgeExtractor.cpp
 cvfOutlineEdgeExtractor.cpp
 cvfPatchGenerator.cpp
+cvfPrimitiveTests.cpp
 cvfRay.cpp
 cvfTriangleMeshEdgeExtractor.cpp
 cvfTriangleVertexSplitter.cpp

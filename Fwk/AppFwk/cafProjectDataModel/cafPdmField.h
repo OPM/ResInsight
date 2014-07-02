@@ -171,7 +171,7 @@ class PdmField <DataType*> : public PdmFieldHandle
 {
     typedef DataType* DataTypePtr;
 public:
-    PdmField()  : PdmFieldHandle()                                          { m_fieldValue = NULL; }
+    PdmField()  : PdmFieldHandle()                                          { }
     PdmField(const PdmField& other);
     PdmField(const DataTypePtr& fieldValue);
     virtual ~PdmField();

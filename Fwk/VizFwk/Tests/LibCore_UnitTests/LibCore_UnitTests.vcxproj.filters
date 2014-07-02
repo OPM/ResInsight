@@ -34,6 +34,7 @@
     <ClCompile Include="cvfCodeLocation-Test.cpp" />
     <ClCompile Include="cvfArrayWrapper-Test.cpp" />
     <ClCompile Include="cvfProgramOptions-Test.cpp" />
+    <ClCompile Include="cvfAtomicCounter-Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CMakeLists.txt" />

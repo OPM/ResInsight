@@ -227,7 +227,7 @@ void RigMainGrid::calculateFaults()
     RigFault * unNamedFault = new RigFault;
     int unNamedFaultIdx = static_cast<int>(m_faults.size());
 
-    for (size_t gcIdx = 0 ; gcIdx < m_cells.size(); ++gcIdx)
+    for (int gcIdx = 0 ; gcIdx < static_cast<int>(m_cells.size()); ++gcIdx)
     {
         if ( m_cells[gcIdx].isInvalid())
         {
@@ -298,8 +298,11 @@ void RigMainGrid::calculateFaults()
 
                 if (gcIdx < neighborGlobalCellIdx)
                 {
-                    RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborGlobalCellIdx);
-                    unNamedFault->faultFaces().push_back(ff);
+                    {
+                        RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborGlobalCellIdx);
+                        unNamedFault->faultFaces().push_back(ff);
+                    }
+
                 }
                 else
                 {

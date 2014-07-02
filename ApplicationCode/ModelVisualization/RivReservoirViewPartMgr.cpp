@@ -714,10 +714,12 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
 
                 size_t scalarResultIndex = (*pfIt)->resultDefinition->gridScalarIndex();
 
+                size_t adjustedTimeStepIndex = timeStepIndex;
+
                 // Set time step to zero for static results
                 if ((*pfIt)->resultDefinition()->hasStaticResult())
                 {
-                    timeStepIndex = 0;
+                    adjustedTimeStepIndex = 0;
                 }
 
                 const RimCellFilter::FilterModeType filterType = (*pfIt)->filterMode();
@@ -725,7 +727,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
                 RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, scalarResultIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, adjustedTimeStepIndex, scalarResultIndex);
                 CVF_ASSERT(dataAccessObject.notNull());
 
                 //#pragma omp parallel for schedule(dynamic)

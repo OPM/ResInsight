@@ -45,6 +45,7 @@
     <ClInclude Include="cvfArrayWrapperConst.h" />
     <ClInclude Include="cvfArrayWrapperToEdit.h" />
     <ClInclude Include="cvfProgramOptions.h" />
+    <ClInclude Include="cvfAtomicCounter.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cvfArray.inl" />
@@ -90,5 +91,6 @@
     <ClCompile Include="cvfLogDestinationConsole.cpp" />
     <ClCompile Include="cvfLogDestinationFile.cpp" />
     <ClCompile Include="cvfProgramOptions.cpp" />
+    <ClCompile Include="cvfAtomicCounter.cpp" />
   </ItemGroup>
 </Project>

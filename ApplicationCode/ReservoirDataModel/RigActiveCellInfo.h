@@ -36,6 +36,7 @@ public:
     size_t              globalCellCount() const;
     size_t              globalActiveCellCount() const;
     size_t              globalCellResultCount() const;
+    bool                isCoarseningActive() const;
 
     bool                isActive(size_t globalCellIndex) const;
     size_t              cellResultIndex(size_t globalCellIndex) const;

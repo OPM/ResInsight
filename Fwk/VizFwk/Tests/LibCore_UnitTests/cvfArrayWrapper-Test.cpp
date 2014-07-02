@@ -123,10 +123,10 @@ TEST(ArrayWrapperTest, AllSpecializations)
     siztCvfArray[0] = 0;
     siztCvfArray[1] = 1;
 
-    cvf::Array<uint> uintCvfArray(2);
+    cvf::Array<cvf::uint> uintCvfArray(2);
     uintCvfArray[0] = 0;
     uintCvfArray[1] = 1;
-    const cvf::Array<uint>& cuintCvfArray = uintCvfArray;
+    const cvf::Array<cvf::uint>& cuintCvfArray = uintCvfArray;
 
     size_t siztBarePtrArray[2] = {0, 1};
 
@@ -187,3 +187,4 @@ TEST(ArrayWrapperTest, AllSpecializations)
     EXPECT_EQ(0.0, doubleBarePtr[1]);
     EXPECT_EQ(1.0, doubleBarePtr[0]);
 }
+

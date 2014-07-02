@@ -57,6 +57,7 @@ namespace cvf
     class Transform;
     class ScalarMapperUniformLevels;
     class ModelBasicList;
+    class OverlayItem;
 }
 
 enum PartRenderMaskEnum

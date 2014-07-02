@@ -64,6 +64,7 @@ public:
         src_TextureGlobalAlpha,
         src_TextureFromPointCoord,
         src_TextureRectFromFragCoord_v33,
+        src_VaryingColorGlobalAlpha,
 
         light_Phong,
         light_PhongDual,

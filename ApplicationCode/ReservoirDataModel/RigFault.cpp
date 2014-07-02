@@ -119,7 +119,7 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
 
                         size_t ni, nj, nk;
                         mainGrid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
-                        if (ni != cvf::UNDEFINED_SIZE_T && nj != cvf::UNDEFINED_SIZE_T && nk != cvf::UNDEFINED_SIZE_T)
+                        if (ni < mainGrid->cellCountI() && nj < mainGrid->cellCountJ() && nk < mainGrid->cellCountK())
                         {
                             size_t localCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
                             size_t oppositeCellIndex = mainGrid->cellIndexFromIJK(ni, nj, nk);

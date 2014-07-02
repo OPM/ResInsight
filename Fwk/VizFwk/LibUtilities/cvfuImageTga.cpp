@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -44,11 +44,12 @@
 #include <vector>
 #include <string.h>
 
-#ifdef CVF_LINUX
 CVF_GCC_DIAGNOSTIC_IGNORE("-Wconversion")
+
+// Apparently, this warning doesn't exist until GCC 4.5
+#if defined(__GNUC__) && (CVF_GCC_VER >= 40500)
 CVF_GCC_DIAGNOSTIC_IGNORE("-Wunused-result")
 #endif
-
 
 namespace cvfu {
 

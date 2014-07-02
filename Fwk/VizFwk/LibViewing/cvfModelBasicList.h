@@ -60,6 +60,7 @@ public:
     size_t                  partCount() const;
     void                    removePart(Part* part);
     void                    removeAllParts();
+    void                    shrinkPartCount(size_t newPartCount);
 
     virtual void            findVisibleParts(PartRenderHintCollection* visibleParts, const Camera& camera, const CullSettings& cullSettings, uint enableMask);
     virtual void            allParts(Collection<Part>* partCollection);

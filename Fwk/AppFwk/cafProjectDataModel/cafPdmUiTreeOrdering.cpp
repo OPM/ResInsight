@@ -65,7 +65,11 @@ namespace caf
     PdmUiTreeOrdering* PdmUiTreeOrdering::add(const QString & title, const QString& iconResourceName)
     {
         PdmUiTreeOrdering* to = new PdmUiTreeOrdering(this, -1, NULL);
-        to->m_uiInfo = new PdmUiItemInfo(title, QIcon(iconResourceName));
+        
+        to->m_uiItem = new PdmUiItem();
+        to->m_uiItem->setUiName(title);
+        to->m_uiItem->setUiIcon(QIcon(iconResourceName));
+
         return to;
     }
 
@@ -98,7 +102,7 @@ namespace caf
         {
             PdmUiTreeOrdering* child = dynamic_cast<PdmUiTreeOrdering*>(this->child(cIdx));
 
-            if (child->dataObject() == object)
+            if (child->object() == object)
             {
                 return true;
             }
@@ -112,13 +116,25 @@ namespace caf
     ///  Creates an new PdmUiTreeOrdering item, and adds it to parent. If position is -1, it is added 
     ///  at the end of parents existing child list.
     //--------------------------------------------------------------------------------------------------
-    PdmUiTreeOrdering::PdmUiTreeOrdering(PdmUiTreeOrdering* parent /*= NULL*/, int position /*= -1*/, PdmObject* dataObject /*= NULL*/) : UiTreeItem< PdmPointer<PdmObject> >(parent, position, dataObject),
+    PdmUiTreeOrdering::PdmUiTreeOrdering(PdmUiTreeOrdering* parent /*= NULL*/, int position /*= -1*/, PdmObject* dataObject /*= NULL*/) : PdmUiTreeItem(parent, position, this),
         m_field(NULL),
-        m_uiInfo(NULL),
         m_forgetRemainingFields(false),
-        m_isSubTreeDefined(false)
+        m_isToIgnoreSubTree(false),
+        m_uiItem(NULL),
+        m_object(dataObject)
     {
 
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    PdmUiTreeOrdering::~PdmUiTreeOrdering()
+    {
+        if (m_uiItem)
+        {
+            delete m_uiItem;
+        }
     }
 
 

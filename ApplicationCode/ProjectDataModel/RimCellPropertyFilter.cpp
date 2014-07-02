@@ -124,7 +124,26 @@ void RimCellPropertyFilter::fieldChangedByUi(const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimCellPropertyFilter::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    return resultDefinition->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    QList<caf::PdmOptionItemInfo> optionItems = resultDefinition->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+
+    // Remove ternary from list, as it is not supported to perform filtering on a ternary result
+    int ternaryIndex = -1;
+    for (int i = 0; i < optionItems.size(); i++)
+    {
+        QString text = optionItems[i].optionUiText;
+
+        if (text.compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0)
+        {
+            ternaryIndex = i;
+        }
+    }
+
+    if (ternaryIndex != -1)
+    {
+        optionItems.takeAt(ternaryIndex);
+    }
+
+    return optionItems;
 }
 
 //--------------------------------------------------------------------------------------------------

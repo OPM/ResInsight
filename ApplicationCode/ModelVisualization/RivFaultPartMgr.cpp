@@ -105,6 +105,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 
     updateNNCColors(cellResultSlot);
 
+
     size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
     const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
 
@@ -117,12 +118,19 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
     RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
     cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
 
-    if (dataAccessObject.isNull()) return;
-
     // Faults
     if (m_nativeFaultFaces.notNull())
     {
-        if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
+        if (cellResultSlot->isTernarySaturationSelected())
+        {
+            surfaceFacesColorArray = new cvf::Color3ubArray;
+
+            const std::vector<size_t>& quadsToGridCells = m_nativeFaultGenerator->quadToGridCellIndices();
+
+            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), quadsToGridCells);
+        }
+        else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
             const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_nativeFaultGenerator->quadToFace();
             const std::vector<size_t>& quadsToGridCells = m_nativeFaultGenerator->quadToGridCellIndices();
@@ -132,7 +140,12 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
+            if (dataAccessObject.isNull()) 
+            {
+                return;
+            }
             m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+
         }
 
         if (m_opacityLevel < 1.0f )
@@ -159,16 +172,41 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
-        if (dg) dg->setTextureCoordArray(m_nativeFaultFacesTextureCoords.p());
+        if (surfaceFacesColorArray.notNull())
+        {
+            if (dg)
+            {
+                dg->setColorArray(surfaceFacesColorArray.p());
+            }
 
-        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper, caf::PO_1);
-        m_nativeFaultFaces->setEffect(scalarEffect.p());
+            cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
+            m_nativeFaultFaces->setEffect(perVertexColorEffect.p());
+
+            m_nativeFaultFaces->setPriority(100);
+        }
+        else
+        {
+            if (dg) dg->setTextureCoordArray(m_nativeFaultFacesTextureCoords.p());
+
+            cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper, caf::PO_1);
+            m_nativeFaultFaces->setEffect(scalarEffect.p());
+        }
     }
 
 
     if (m_oppositeFaultFaces.notNull())
     {
-        if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
+
+        if (cellResultSlot->isTernarySaturationSelected())
+        {
+            surfaceFacesColorArray = new cvf::Color3ubArray;
+
+            const std::vector<size_t>& quadsToGridCells = m_oppositeFaultGenerator->quadToGridCellIndices();
+
+            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), quadsToGridCells);
+        }
+        else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
         {
             const std::vector<cvf::StructGridInterface::FaceType>& quadsToFaceTypes = m_oppositeFaultGenerator->quadToFace();
             const std::vector<size_t>& quadsToGridCells = m_oppositeFaultGenerator->quadToGridCellIndices();
@@ -178,6 +216,11 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
+            if (dataAccessObject.isNull()) 
+            {
+                return;
+            }
+
             m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
         }
 
@@ -205,12 +248,27 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
-        if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
+        if (surfaceFacesColorArray.notNull())
+        {
+            if (dg)
+            {
+                dg->setColorArray(surfaceFacesColorArray.p());
+            }
 
-        // Use a different offset than native fault faces to avoid z-fighting
-        cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper, caf::PO_2);
+            cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
+            m_oppositeFaultFaces->setEffect(perVertexColorEffect.p());
 
-        m_oppositeFaultFaces->setEffect(scalarEffect.p());
+            m_oppositeFaultFaces->setPriority(100);
+        }
+        else
+        {
+            if (dg) dg->setTextureCoordArray(m_oppositeFaultFacesTextureCoords.p());
+
+            // Use a different offset than native fault faces to avoid z-fighting
+            cvf::ref<cvf::Effect> scalarEffect = cellResultEffect(mapper, caf::PO_2);
+
+            m_oppositeFaultFaces->setEffect(scalarEffect.p());
+        }
     }
 
 }
@@ -223,15 +281,15 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultS
 
 }
 
+const int priFaultGeo = 1;
+const int priNncGeo = 2;
+const int priMesh = 3;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::generatePartGeometry()
 {
-    const int priFaultGeo = 1;
-    const int priNncGeo = 2;
-    const int priMesh = 3;
 
     bool useBufferObjects = true;
     // Surface geometry
@@ -418,13 +476,20 @@ void RivFaultPartMgr::updatePartEffect()
 
     if (m_opacityLevel < 1.0f)
     {
-        // Must be fixed since currently fault drawing relies on internal priorities of the parts
-        CVF_FAIL_MSG("Not implemented");
-
         // Set priority to make sure this transparent geometry are rendered last
-        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100);
-        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100);
-        if (m_NNCFaces.notNull())  m_NNCFaces->setPriority(100);
+        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100 + priFaultGeo);
+        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100 + priFaultGeo);
+        if (m_NNCFaces.notNull())  m_NNCFaces->setPriority(100 + priNncGeo);
+
+        if (m_nativeFaultGridLines.notNull())
+        {
+            m_nativeFaultGridLines->setPriority(100 + priMesh);
+        }
+
+        if (m_oppositeFaultGridLines.notNull())
+        {
+            m_oppositeFaultGridLines->setPriority(100 + priMesh);
+        }
     }
 }
 

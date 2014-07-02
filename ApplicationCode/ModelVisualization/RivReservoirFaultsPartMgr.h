@@ -46,6 +46,7 @@ public:
     void setCellVisibility(cvf::UByteArray* cellVisibilities);
     void setFaultForceVisibility(bool isFilterGenerated);
 
+    void setOpacityLevel(float opacity);
     void applySingleColorEffect();
     void updateColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
     void updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, 

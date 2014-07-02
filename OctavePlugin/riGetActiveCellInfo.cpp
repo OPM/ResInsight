@@ -1,8 +1,9 @@
 #include <QtNetwork>
+#include <QStringList>
+
 #include <octave/oct.h>
-
 #include "riSettings.h"
-
+#include "RiaSocketDataTransfer.cpp"  // NB! Include cpp-file to avoid linking of additional file in oct-compile configuration
 
 void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, quint16 port, const qint64& caseId, const QString& porosityModel)
 {
@@ -43,59 +44,32 @@ void getActiveCellInfo(int32NDArray& activeCellInfo, const QString &hostName, qu
     // Read timestep count and blocksize
 
     quint64 columnCount;
-    quint64 byteCount;
+    quint64 byteCountForOneTimestep;
     size_t  activeCellCount;
 
     socketStream >> columnCount;
-    socketStream >> byteCount;
+    socketStream >> byteCountForOneTimestep;
 
-    activeCellCount = byteCount / sizeof(qint32);
+    activeCellCount = byteCountForOneTimestep / sizeof(qint32);
 
     dim_vector dv (2, 1);
     dv(0) = activeCellCount;
     dv(1) = columnCount;
     activeCellInfo.resize(dv);
 
-    if (!(byteCount && columnCount))
+    if (!(byteCountForOneTimestep && columnCount))
     {
         error ("Could not find the requested data in ResInsight");
         return;
     }
 
-    // Wait for available data for each column, then read data for each column
-    for (size_t tIdx = 0; tIdx < columnCount; ++tIdx)
+    qint32* internalMatrixData = (qint32*)activeCellInfo.fortran_vec()->mex_get_data();
+    QStringList errorMessages;
+    if (!RiaSocketDataTransfer::readBlockDataFromSocket(&socket, (char*)(internalMatrixData), columnCount * byteCountForOneTimestep, errorMessages))
     {
-        while (socket.bytesAvailable() < (int)byteCount)
+        for (int i = 0; i < errorMessages.size(); i++)
         {
-            if (!socket.waitForReadyRead(riOctavePlugin::longTimeOutMilliSecs))
-            {
-                QString errorMsg = QString("Waiting for column number: %1 of %2: %3").arg(tIdx).arg(columnCount).arg(socket.errorString());
-
-                error(errorMsg.toLatin1().data());
-                octave_stdout << "Active cells: " << activeCellCount << ", Columns: " << columnCount << std::endl;
-                return ;
-            }
-           OCTAVE_QUIT;
-        }
-
-        qint64 bytesRead = 0;
-        qint32* internalMatrixData = (qint32*)activeCellInfo.fortran_vec()->mex_get_data();
-
-#if 1 // Use raw data transfer. Faster.
-        bytesRead = socket.read((char*)(internalMatrixData + tIdx * activeCellCount), byteCount);
-#else
-        for (size_t cIdx = 0; cIdx < activeCellCount; ++cIdx)
-        {
-            socketStream >> internalMatrixData[tIdx * activeCellCount + cIdx];
-
-            if (socketStream.status() == QDataStream::Ok) bytesRead += sizeof(int);
-        }
-#endif
-
-        if ((int)byteCount != bytesRead)
-        {
-            error("Could not read binary double data properly from socket");
-            octave_stdout << "Active cells: " << activeCellCount << ", Columns: " << columnCount << std::endl;
+            error(errorMessages[i].toLatin1().data());
         }
 
         OCTAVE_QUIT;

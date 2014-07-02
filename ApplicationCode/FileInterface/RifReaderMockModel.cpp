@@ -175,3 +175,11 @@ void RifReaderMockModel::populateReservoir(RigCaseData* eclipseCase)
     m_reservoirBuilder.populateReservoir(eclipseCase);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RifReaderMockModel::enableWellData(bool enableWellData)
+{
+    m_reservoirBuilder.enableWellData(enableWellData);
+}
+
