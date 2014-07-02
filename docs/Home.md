@@ -5,7 +5,7 @@ next_section: gettingstarted
 permalink: /docs/home/
 ---
 
-# ![]({{ site.baseurl }}/images/AppLogo48x48.png) ResInsight 1.1 Users Guide 
+# ![]({{ site.baseurl }}/images/AppLogo48x48.png) ResInsight 1.2 Users Guide 
 
 ResInsight is an open source, cross-platform 3D visualization and post processing tool for reservoir models and simulations. The system also constitutes a framework for further development and support for new data sources and visualization methods, e.g. additional solvers, seismic data, CSEM, geomechanics, and more. 
 
