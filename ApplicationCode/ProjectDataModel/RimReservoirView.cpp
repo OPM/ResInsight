@@ -652,10 +652,7 @@ void RimReservoirView::createDisplayModel()
         updateFaultForcedVisibility();
 
     }
-    
-    this->updateFaultColors();
 
-    
     // Compute triangle count, Debug only
 
     if (false)
