@@ -51,11 +51,11 @@ Currently tested and verified version on Windows is Octave 3.6.1. NB! Version 3.
 An out-of-tree build is typically done with
 
 {% highlight text %}
-	mkdir ResInsight/build
-    cd ResInsight/build
-    cmake ..
-    make
-    make install
+mkdir ResInsight/build
+cd ResInsight/build
+cmake ..
+make
+make install
 {% endhighlight %}
 
 You will find the ResInsight binary under the Install directory in your build directory.
