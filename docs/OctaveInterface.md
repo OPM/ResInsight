@@ -30,7 +30,7 @@ To enable script editing from ResInsight you need to set up the path to a text e
 When done, scripts can be edited using the context menu command **Edit** on the script item in the tree.
 
 ## Script execution
-Octave scripts can be executed with or without a selection of cases as context. The [Octave Interface Reference]({{ site.baseurl }}/docs/octaveinterfaceoctaveinterfacereference) highlights in more depth how to design your Octave scripts to utilize these features.
+Octave scripts can be executed with or without a selection of cases as context. The [Octave Interface Reference]({{ site.baseurl }}/docs/octaveinterfacereference) highlights in more depth how to design your Octave scripts to utilize these features.
 
 ### Without a case selection 
 A script can be started by navigating to the script in the **Project Tree**, and selecting **Execute** from the context menu. The currently active case (The one with the active 3D View) will then be set as ResInsight's *Current Case*. 
