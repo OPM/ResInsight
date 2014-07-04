@@ -223,7 +223,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         {
             const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
             cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_nativeFaultGenerator->cellFromQuadMapper();
+            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_oppositeFaultGenerator->cellFromQuadMapper();
 
             for(size_t i = 0; i < m_oppositeFaultFacesTextureCoords->size(); ++i)
             {
