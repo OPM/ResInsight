@@ -43,7 +43,64 @@ public:
         float opacityLevel);
 };
 
+/*
+    Thoughts on organizing the texture coords generation a bit.
 
+    Conceptually several mappings takes place:
+
+    1. ResultValues to ResultPointValues <-- Eg. Cell Center values to CellFace Values
+    2. ResultPointValues to GeometryPointValues <-- Eg. CellCenter Values to Triangle Vertex
+    3. GeometryPointValues to TextureCoordinates/Colors <-- Handled by ScalarMapper
+
+    When evaluating, we normally use the geometry as starting point, as that often is
+    a subset of the total results/geometry domain.
+
+    To make this efficient, a minimum of internal storage should be used, so we want 
+    to make the mappings as a set of functions called for each (or a few) texture 
+    coordinate positions
+
+    The mapping is then actually accessed in the opposite way of the above, while calculated in the 1-3 order
+
+    Accessing correct values:
+    GeometryPointIdx->ResultPointIdx->ResultValueIdx
+    Calculating color:
+    ResultValue->ResultPointValue->GeometryPointValue->Texture/ColorValue
+
+    In ResInsight (for now)
+    the ResultPointValue will be the same for all the corresponding GeometryPoints, 
+    which means each quadvertex has the same texcoord for all corners.
+  
+    Proposal:
+    ----------
+    Let the FaceValue to Face vertex texture coordinate mapping be the same for all.
+    Extract that from the code floating around.
+
+    Create a PrimitiveFaceIdx to CellIdx with Face mapper class that handles the lookup, 
+    created by the geometry generation
+
+    Create separate calculators/mappers/Strategies to create FaceValues from results.
+
+    Test Code
+    -----------
+    // Example code 
+    // 1. CellCenterToCellFace
+    // 2. CellFace to Quad Corners
+    // 3. Quad Corner Values to tex coords
+
+    texCoords.resize(m_quadsToGridCells.size()*4);
+    for (i = 0; i < m_quadsToGridCells.size(); ++i)
+    {
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(dataAccessObject->cellScalar(m_quadsToGridCells[i]));
+                                                               ResValue                     ResPoint To ResValue
+        texCoords[i*4 + 0] = texCoord;
+        texCoords[i*4 + 1] = texCoord;
+        texCoords[i*4 + 2] = texCoord;
+        texCoords[i*4 + 3] = texCoord;
+    }
+    
+
+
+*/
 
 //==================================================================================================
 //

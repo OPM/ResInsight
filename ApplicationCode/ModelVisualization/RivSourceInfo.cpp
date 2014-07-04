@@ -17,14 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RivSourceInfo.h"
+#include "cvfStructGridGeometryGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RivSourceInfo::hasCellIndices() const
+bool RivSourceInfo::hasCellFaceMapping() const
 {
-    return m_cellIndices.notNull();
+    return m_cellFaceFromTriangleMapper.notNull();
 }
 
 //--------------------------------------------------------------------------------------------------

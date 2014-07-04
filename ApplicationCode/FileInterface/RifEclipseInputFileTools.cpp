@@ -73,6 +73,8 @@ bool readDoubleValues(RigCaseData* reservoir, size_t resultIndex, ecl_kw_type* e
     newPropertyData.push_back(std::vector<double>());
     newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
     ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +112,8 @@ bool readDoubleValuesForActiveCells(RigCaseData* reservoir, size_t resultIndex, 
         newPropertyData[0].resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, newPropertyData[0].data());
     }
+
+    return true;
 }
 
 
