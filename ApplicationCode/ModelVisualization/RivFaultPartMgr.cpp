@@ -138,10 +138,12 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
-            if (dataAccessObject.notNull())
+            if (dataAccessObject.isNull()) 
             {
-                m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+                return;
             }
+            m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+
         }
 
         if (m_opacityLevel < 1.0f )
@@ -209,10 +211,12 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
-            if (dataAccessObject.notNull())
+            if (dataAccessObject.isNull()) 
             {
-                m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+                return;
             }
+
+            m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
         }
 
         if (m_opacityLevel < 1.0f )
@@ -272,15 +276,15 @@ void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultS
 
 }
 
+const int priFaultGeo = 1;
+const int priNncGeo = 2;
+const int priMesh = 3;
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::generatePartGeometry()
 {
-    const int priFaultGeo = 1;
-    const int priNncGeo = 2;
-    const int priMesh = 3;
 
     bool useBufferObjects = true;
     // Surface geometry
@@ -465,13 +469,20 @@ void RivFaultPartMgr::updatePartEffect()
 
     if (m_opacityLevel < 1.0f)
     {
-        // Must be fixed since currently fault drawing relies on internal priorities of the parts
-        CVF_FAIL_MSG("Not implemented");
-
         // Set priority to make sure this transparent geometry are rendered last
-        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100);
-        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100);
-        if (m_NNCFaces.notNull())  m_NNCFaces->setPriority(100);
+        if (m_nativeFaultFaces.notNull()) m_nativeFaultFaces->setPriority(100 + priFaultGeo);
+        if (m_oppositeFaultFaces.notNull()) m_oppositeFaultFaces->setPriority(100 + priFaultGeo);
+        if (m_NNCFaces.notNull())  m_NNCFaces->setPriority(100 + priNncGeo);
+
+        if (m_nativeFaultGridLines.notNull())
+        {
+            m_nativeFaultGridLines->setPriority(100 + priMesh);
+        }
+
+        if (m_oppositeFaultGridLines.notNull())
+        {
+            m_oppositeFaultGridLines->setPriority(100 + priMesh);
+        }
     }
 }
 

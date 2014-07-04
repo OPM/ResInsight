@@ -73,7 +73,7 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
     CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
-    CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      false,   "Show results on faults", "", "", "");
+    CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,   "Show results on faults", "", "", "");
     CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
 
     CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
@@ -187,7 +187,7 @@ bool faultComparator(const cvf::ref<RigFault>& a, const cvf::ref<RigFault>& b)
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::syncronizeFaults()
 {
-    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData()) ) return;
+    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid()) ) return;
 
     cvf::ref<cvf::Color3fArray> partColors = RivColorTableArray::colorTableArray();
 

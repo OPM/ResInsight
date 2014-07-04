@@ -41,8 +41,11 @@ void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, c
             m_allGrids.push_back(new RivGridPartMgr(grids[i], i, faultCollection));
         }
 
-        // Faults read from file are present only on main grid
-        m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), faultCollection);
+        if (eclipseCase->mainGrid())
+        {
+            // Faults read from file are present only on main grid
+            m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), faultCollection);
+        }
     }
 }
 
@@ -98,6 +101,7 @@ void RivReservoirPartMgr::updateCellColor(cvf::Color4f color)
 
     if (m_faultsPartMgr.notNull())
     {
+        m_faultsPartMgr->setOpacityLevel(color.a());
         m_faultsPartMgr->applySingleColorEffect();
     }
 }

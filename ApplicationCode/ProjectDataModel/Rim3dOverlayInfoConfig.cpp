@@ -170,20 +170,20 @@ void Rim3dOverlayInfoConfig::update3DInfo()
                 {
                     if (m_reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
                     {
-                        faultMapping = "Show values from cells behind fault";
+                        faultMapping = "Cells behind fault";
                     }
                     else if (m_reservoirView->faultCollection()->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
                     {
-                        faultMapping = "Show values from cells in front of fault";
+                        faultMapping = "Cells in front of fault";
                     }
                     else
                     {
-                        faultMapping = "Show values from cells in front and behind fault";
+                        faultMapping = "Cells in front and behind fault";
                     }
                 }
                 else
                 {
-                    faultMapping = "Show values from cells in front and behind fault";
+                    faultMapping = "Cells in front and behind fault";
                 }
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);

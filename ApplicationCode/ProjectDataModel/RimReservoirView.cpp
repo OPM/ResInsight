@@ -652,10 +652,7 @@ void RimReservoirView::createDisplayModel()
         updateFaultForcedVisibility();
 
     }
-    
-    this->updateFaultColors();
 
-    
     // Compute triangle count, Debug only
 
     if (false)
@@ -932,10 +929,16 @@ void RimReservoirView::loadDataAndUpdate()
             RiaApplication* app = RiaApplication::instance();
             if (app->preferences()->autocomputeSOIL)
             {
-                RimReservoirCellResultsStorage* results = currentGridCellResults();
-                CVF_ASSERT(results);
-                results->loadOrComputeSOIL();
-                results->createCombinedTransmissibilityResults();
+                {
+                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
+                    results->loadOrComputeSOIL();
+                    results->createCombinedTransmissibilityResults();
+                }
+                {
+                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
+                    results->loadOrComputeSOIL();
+                    results->createCombinedTransmissibilityResults();
+                }
             }
         }
     }
@@ -1464,10 +1467,13 @@ void RimReservoirView::updateLegends()
             double localMax = 1.0;
 
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-            results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-            results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-            this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+            }
         }
 
         {
@@ -1477,10 +1483,13 @@ void RimReservoirView::updateLegends()
             double localMax = 1.0;
 
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-            results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-            results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-            this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+            }
         }
 
         {
@@ -1490,10 +1499,13 @@ void RimReservoirView::updateLegends()
             double localMax = 1.0;
 
             size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-            results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-            results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
 
-            this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+            }
         }
 
         if (this->cellResult()->ternaryLegendConfig->legend())
