@@ -96,6 +96,11 @@ private:
                                                               const cvf::UIntArray* gridCellToWellIndexMap, 
                                                               const cvf::StructGridQuadToCellFaceMapper* quadsToCellFaceMapper, 
                                                               cvf::Vec2fArray* resultTextureCoords);
+    void                    updateCellEdgeResultColorOnPart(cvf::Part* facePart, 
+                                                            cvf::StructGridGeometryGenerator* surfaceGenerator, 
+                                                            size_t timeStepIndex, 
+                                                            RimResultSlot* cellResultSlot, 
+                                                            RimCellEdgeResultSlot* cellEdgeResultSlot);
 private:
     size_t                                      m_gridIdx;
     cvf::cref<RigGridBase>                      m_grid;
@@ -112,7 +117,7 @@ private:
 
     cvf::ref<cvf::Part>                         m_surfaceGridLines;
 
-    // Fault visualization
+    // Fault visualization:  Dead ?? JJS
     cvf::StructGridGeometryGenerator            m_faultGenerator;
     RigFaultFaceVisibilityFilter                m_faultFaceFilter;
     cvf::ref<cvf::Part>                         m_faultFaces;

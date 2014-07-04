@@ -404,6 +404,7 @@ void RivGridPartMgr::setResultsTransparentForWellCells(const std::vector<cvf::ub
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
+    /*
     if (m_surfaceFaces.notNull())
     {
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
@@ -424,6 +425,20 @@ void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSl
             m_surfaceFaces->setEffect(eff.p());
         }
     }
+    */
+    updateCellEdgeResultColorOnPart(
+        m_surfaceFaces.p(),
+        &m_surfaceGenerator,
+        timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+
+    if (m_faultFaces.notNull())
+    {
+        updateCellEdgeResultColorOnPart(
+            m_faultFaces.p(),
+            &m_faultGenerator,
+            timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+    }
+    /*
     if (m_faultFaces.notNull())
     {
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
@@ -442,6 +457,37 @@ void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSl
             cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
 
             m_faultFaces->setEffect(eff.p());
+        }
+    }
+    */
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivGridPartMgr::updateCellEdgeResultColorOnPart(   cvf::Part* facePart, 
+                                                        cvf::StructGridGeometryGenerator* surfaceGenerator, 
+                                                        size_t timeStepIndex, 
+                                                        RimResultSlot* cellResultSlot, 
+                                                        RimCellEdgeResultSlot* cellEdgeResultSlot)
+{
+    if (facePart)
+    {
+        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(facePart->drawable());
+        if (dg) 
+        {
+            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot, 
+                surfaceGenerator, dg, m_grid->gridIndex(), m_opacityLevel );
+
+            cvf::ScalarMapper* cellScalarMapper = NULL;
+            if (cellResultSlot->hasResult()) cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
+
+            CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper(), cellScalarMapper);
+            cellFaceEffectGen.setOpacityLevel(m_opacityLevel);
+            cellFaceEffectGen.setDefaultCellColor(m_defaultColor);
+
+            cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
+
+            facePart->setEffect(eff.p());
         }
     }
 }
