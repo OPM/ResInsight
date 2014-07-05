@@ -23,7 +23,7 @@ All the detected cell faces are compared to the faults imported from the `*.DATA
 
 ### Fault color
 Each named Fault is given a color on import. This color can be controlled by selecting the fault and edit its  **Fault color** in the **Property Editor.**
-#
+
 ### NNC visualization
 ResInsight will read Non Neighbor Connections from the Eclipse output file (`*.INIT`), and create explicit visualizations of those witch have a common surface area. These NNC's are then sorted onto the Fault's and their visibility is controlled from the **Property Editor** of the **Faults** Item in the **Project Tree**.
 
