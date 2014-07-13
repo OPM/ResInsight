@@ -11,7 +11,7 @@ published: true
 
 | Parameter | Description |
 |-----------|-------------|
-| ---last                   | Open last used project. |
+| &#45;&#45;last                   | Open last used project. |
 | --project &lt;filename&gt;     | Open project file &lt;filename&gt;. |
 | --case &lt;casename&gt;        | Import Eclipse case &lt;casename&gt; (do not include .GRID/.EGRID) |
 | --startdir &lt;folder&gt;      | Set startup directory. |
