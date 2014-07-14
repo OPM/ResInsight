@@ -8,11 +8,10 @@ categories:
   - release
 ---
 
-## ResInsight 1.2
-
-### Main features
+## Main features
 - Support for large datasets in Octave
 - Custom display of ternary visualization
 
-### Download
-https://github.com/OPM/ResInsight/releases/tag/v1.2.0
+## Download
+[Release Binaries on GitHub](https://github.com/OPM/ResInsight/releases/tag/v1.2.0)
+
