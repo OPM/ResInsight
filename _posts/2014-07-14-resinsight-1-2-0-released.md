@@ -1,7 +1,18 @@
 ---
-published: false
+published: true
+layout: news_item
+date: "2014-07-14 02:12:52 +0200"
+author: magnesj
+version: 1.0.0
+categories: 
+  - release
 ---
 
-## A New Post
+## ResInsight 1.2
 
+### Main features
+- Support for large datasets in Octave
+- Custom display of ternary visualization
 
+### Download
+https://github.com/OPM/ResInsight/releases/tag/v1.2.0
