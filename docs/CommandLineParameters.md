@@ -8,7 +8,11 @@ published: true
 ---
 
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms.
+
 See GNU Standards for [Command Line Interfaces](http://www.gnu.org/prep/standards/html_node/Command_002dLine-Interfaces.html#Command_002dLine-Interfaces).
+
+Examples on how command line options are used are given in 
+[Batch Commands]({{ site.baseurl }}/docs/batchcommands)
 
 | Parameter | Description |
 |-----------|-------------|
