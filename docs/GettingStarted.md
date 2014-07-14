@@ -145,7 +145,9 @@ Statistics calculations, property sets you generate by using Octave, and well pa
 *TIP:* The `.rsp`-file is an XML file, and can be edited by any text editor.  
 
 ### Export options
+
 #### Snapshot images 
+
 ##### Single View ![]({{ site.baseurl }}/images/SnapShot.png) ![]({{ site.baseurl }}/images/SnapShotSave.png)
 Image export of current 3D view can be launched from **File -> Export -> Snapshot To File**. A snapshot can also be copied to clipboard using **Edit->Copy Snapshot To Clipboard**. 
 
@@ -153,9 +155,6 @@ Image export of current 3D view can be launched from **File -> Export -> Snapsho
 If a project contains multiple views, all views can be exported using **File -> Export -> Snapshot All Views To File**. 
 
 It is also possible to snapshot all views from the command line. See  [ Command Line Arguments]      (CommandLineParameters.md)
-
-
-
 
 #### Export of Eclipse Properties as ASCII data
 Eclipse Properties can be exported to Eclipse ASCII files by activating the context menu for a **Cell Result**. ![]({{ site.baseurl }}/images/ExportProperty.png) 
