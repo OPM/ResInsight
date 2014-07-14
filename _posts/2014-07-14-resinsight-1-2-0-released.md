@@ -3,7 +3,7 @@ published: true
 layout: news_item
 date: "2014-07-14 02:12:52 +0200"
 author: magnesj
-version: 1.0.0
+version: 1.2.0
 categories: 
   - release
 ---
