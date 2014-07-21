@@ -15,4 +15,4 @@ The main input data is
 ResInsight also supports selected parts of Eclipse input files and can read grid 
 information and corresponding cell property data sets.
 
-ResInsight has been co-developed by Statoil ASA, Ceetron Solutions AS, and Ceetron AS with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
+ResInsight has been co-developed by [Statoil ASA](http://www.statoil.com/), [Ceetron Solutions AS](www.ceetronsolutions.com), and [Ceetron AS](http://ceetron.com/) with the aim to provide a versatile tool for professionals who need to visualize and process reservoir models.
