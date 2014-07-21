@@ -1,5 +1,6 @@
 ---
 layout: news_item
+title: "ResInsight 1.2.0 Released"
 date: "2014-07-14 02:12:52 +0200"
 author: magnesj
 version: 1.2.0
