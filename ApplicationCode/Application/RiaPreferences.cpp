@@ -21,6 +21,7 @@
 
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmFieldCvfColor.h"
+#include "cafPdmUiCheckBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------
@@ -36,8 +37,12 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitField(&scriptEditorExecutable,          "scriptEditorExecutable", QString("kate"), "Script Editor", "", "", "");
     scriptEditorExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
     
-    CAF_PDM_InitField(&octaveExecutable,                "octaveExecutable", QString("octave"), "Octave", "", "", "");
+    CAF_PDM_InitField(&octaveExecutable,                "octaveExecutable", QString("octave"), "Octave executable location", "", "", "");
     octaveExecutable.setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
+    octaveExecutable.setUiLabelPosition(caf::PdmUiItemInfo::TOP);
+
+    CAF_PDM_InitField(&octaveShowHeaderInfoWhenExecutingScripts, "octaveShowHeaderInfoWhenExecutingScripts", true, "Show text header when executing scripts", "", "", "");
+    octaveShowHeaderInfoWhenExecutingScripts.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     CAF_PDM_InitField(&ssihubAddress,                   "ssihubAddress", QString("http://"), "ssihub Address", "", "", "");
 
@@ -84,6 +89,14 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             myAttr->m_appendUiSelectedFolderToText = true;
         }
     }
+    else if (field == &octaveShowHeaderInfoWhenExecutingScripts)
+    {
+        caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_useNativeCheckBoxLabel = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +109,10 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup("Script configuration");
     scriptGroup->add(&scriptDirectories);
     scriptGroup->add(&scriptEditorExecutable);
-    scriptGroup->add(&octaveExecutable);
+
+    caf::PdmUiGroup* octaveGroup = uiOrdering.addNewGroup("Octave");
+    octaveGroup->add(&octaveExecutable);
+    octaveGroup->add(&octaveShowHeaderInfoWhenExecutingScripts);
 
     caf::PdmUiGroup* defaultSettingsGroup = uiOrdering.addNewGroup("Default settings");
     defaultSettingsGroup->add(&defaultScaleFactorZ);
