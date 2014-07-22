@@ -63,14 +63,24 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
     assert(!m_checkBox.isNull());
     assert(!m_label.isNull());
 
-    QIcon ic = field()->uiIcon(uiConfigName);
-    if (!ic.isNull())
+    PdmUiCheckBoxEditorAttribute attributes;
+    field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
+
+    if (attributes.m_useNativeCheckBoxLabel)
     {
-        m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
+        m_checkBox->setText(field()->uiName(uiConfigName));
     }
     else
     {
-        m_label->setText(field()->uiName(uiConfigName));
+        QIcon ic = field()->uiIcon(uiConfigName);
+        if (!ic.isNull())
+        {
+            m_label->setPixmap(ic.pixmap(ic.actualSize(QSize(64, 64))));
+        }
+        else
+        {
+            m_label->setText(field()->uiName(uiConfigName));
+        }
     }
 
     m_label->setEnabled(!field()->isUiReadOnly(uiConfigName));
@@ -78,9 +88,6 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi(const QString& uiConfigName)
 
     m_checkBox->setEnabled(!field()->isUiReadOnly(uiConfigName));
     m_checkBox->setToolTip(field()->uiToolTip(uiConfigName));
-
-    PdmUiCheckBoxEditorAttribute attributes;
-    field()->ownerObject()->editorAttribute(field(), uiConfigName, &attributes);
 
     m_checkBox->setChecked(field()->uiValue().toBool());
 }
