@@ -106,13 +106,7 @@ void RimCommandExecuteScript::redo()
     QString octavePath = app->octavePath();
     if (!octavePath.isEmpty())
     {
-        // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
-
-        QStringList arguments;
-        arguments.append("--path");
-        arguments << QApplication::applicationDirPath();
-
-        arguments.append("-q");
+        QStringList arguments = app->octaveArguments();
         
         arguments.append("--eval");
         arguments << this->scriptText();

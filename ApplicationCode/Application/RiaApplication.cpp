@@ -1069,6 +1069,34 @@ QString RiaApplication::octavePath() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+QStringList RiaApplication::octaveArguments() const
+{
+    // http://www.gnu.org/software/octave/doc/interpreter/Command-Line-Options.html#Command-Line-Options
+
+    // -p path
+    // Add path to the head of the search path for function files. The value of path specified on the command line
+    // will override any value of OCTAVE_PATH found in the environment, but not any commands in the system or
+    // user startup files that set the internal load path through one of the path functions.
+
+
+    QStringList arguments;
+    arguments.append("--path");
+    arguments << QApplication::applicationDirPath();
+
+    if (!m_preferences->octaveShowHeaderInfoWhenExecutingScripts)
+    {
+        // -q
+        // Don't print the usual greeting and version message at startup.
+
+        arguments.append("-q");
+    }
+
+    return arguments;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiaApplication::slotWorkerProcessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     RiuMainWindow::instance()->processMonitor()->stopMonitorWorkProcess();

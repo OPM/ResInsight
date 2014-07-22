@@ -123,7 +123,9 @@ public:
     RINavigationPolicy  navigationPolicy() const;
     QString             scriptDirectories() const;
     QString             scriptEditorPath() const;
+    
     QString             octavePath() const;
+    QStringList         octaveArguments() const;
 
     bool                launchProcess(const QString& program, const QStringList& arguments);
     bool                launchProcessForMultipleCases(const QString& program, const QStringList& arguments, const std::vector<int>& caseIds);
