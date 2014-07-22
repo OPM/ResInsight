@@ -1,0 +1,17 @@
+Build configuration MinGW
+==================================
+
+http://wiki.octave.org/Windows_Installer
+
+To be able to build with 64-bit indexing, run the following
+
+./configure --enable-64
+
+
+
+// To get changes from server
+hg pull
+hg update
+
+http://hgbook.red-bean.com/read/a-tour-of-mercurial-the-basics.html
+
