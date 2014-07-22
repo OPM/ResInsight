@@ -52,7 +52,14 @@ namespace caf
 
 class PdmUiCheckBoxEditorAttribute : public PdmUiEditorAttribute
 {
+public:
+    PdmUiCheckBoxEditorAttribute()
+    {
+        m_useNativeCheckBoxLabel = false;
+    }
 
+public:
+    bool m_useNativeCheckBoxLabel;
 };
 
 
