@@ -111,7 +111,8 @@ private:
 
     bool            checkForDocumentModifications();
 
-    void            updateMRUList(const QString &fileName, bool remove = false);
+    void            updateRecentFileActions();
+    void            addRecentFiles(const QString& file);
     
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
 
@@ -136,6 +137,13 @@ private:
     QAction*		    m_saveProjectAsAction;
     QAction*            m_closeProjectAction;
     QAction*		    m_exitAction;
+
+    // Recent files
+    enum { MaxRecentFiles = 5 };
+    QAction*            m_recentFilesSeparatorAction;
+    QMenu*              m_recentFilesMenu;
+    QAction*            m_recentFileActions[MaxRecentFiles];
+
 
     // Edit actions
     QAction*		    m_editPreferences;
@@ -202,6 +210,8 @@ private slots:
     void    slotSaveProject();
     void    slotSaveProjectAs();
     void    slotCloseProject();
+
+    void    slotOpenRecentFile();
 
     void    slotRefreshFileActions();
 

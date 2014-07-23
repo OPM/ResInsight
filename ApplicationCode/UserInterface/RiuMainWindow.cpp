@@ -214,7 +214,15 @@ void RiuMainWindow::createActions()
     m_saveProjectAsAction       = new QAction(QIcon(":/Save.png"), "Save Project &As", this);
 
     m_closeProjectAction               = new QAction("&Close Project", this);
-    m_exitAction		        = new QAction("E&xit", this);
+
+    for (int i = 0; i < MaxRecentFiles; ++i)
+    {
+        m_recentFileActions[i] = new QAction(this);
+        m_recentFileActions[i]->setVisible(false);
+        connect(m_recentFileActions[i], SIGNAL(triggered()), this, SLOT(slotOpenRecentFile()));
+    }
+
+    m_exitAction = new QAction("E&xit", this);
 
     connect(m_openProjectAction,	            SIGNAL(triggered()), SLOT(slotOpenProject()));
     connect(m_openLastUsedProjectAction,        SIGNAL(triggered()), SLOT(slotOpenLastUsedProject()));
@@ -351,6 +359,12 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(m_saveProjectAction);
     fileMenu->addAction(m_saveProjectAsAction);
+
+    m_recentFilesSeparatorAction = fileMenu->addSeparator();
+    for (int i = 0; i < MaxRecentFiles; ++i)
+        fileMenu->addAction(m_recentFileActions[i]);
+    
+    updateRecentFileActions();
 
     fileMenu->addSeparator();
     QMenu* testMenu = fileMenu->addMenu("&Testing");
@@ -763,7 +777,10 @@ void RiuMainWindow::slotImportEclipseCase()
 
             if (!fileNames.isEmpty())
             {
-                app->openEclipseCaseFromFile(fileName);
+                if (app->openEclipseCaseFromFile(fileName))
+                {
+                    addRecentFiles(fileName);
+                }
             }
         }
     }
@@ -807,7 +824,10 @@ void RiuMainWindow::slotOpenProject()
         // Remember the path to next time
         app->setDefaultFileDialogDirectory("BINARY_GRID", QFileInfo(fileName).absolutePath());
 
-        app->loadProject(fileName);
+        if (app->loadProject(fileName))
+        {
+            addRecentFiles(fileName);
+        }
     }
 
 }
@@ -819,8 +839,11 @@ void RiuMainWindow::slotOpenLastUsedProject()
 {
     RiaApplication* app = RiaApplication::instance();
     QString fileName = app->preferences()->lastUsedProjectFileName;
-    app->loadProject(fileName);
-
+    
+    if (app->loadProject(fileName))
+    {
+        addRecentFiles(fileName);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -936,6 +959,67 @@ void RiuMainWindow::slotCloseProject()
     RiaApplication* app = RiaApplication::instance();
     bool ret = app->closeProject(true);
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotOpenRecentFile()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action)
+    {
+        QString filename = action->data().toString();
+
+        if (filename.contains(".rsp", Qt::CaseInsensitive) || filename.contains(".rip", Qt::CaseInsensitive) )
+        {
+            RiaApplication::instance()->loadProject(action->data().toString());
+        }
+        else if ( filename.contains(".egrid", Qt::CaseInsensitive) || filename.contains(".grid", Qt::CaseInsensitive) )
+        {
+            RiaApplication::instance()->openEclipseCaseFromFile(filename);
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::updateRecentFileActions()
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+
+    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+
+    for (int i = 0; i < numRecentFiles; ++i) {
+        QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
+        m_recentFileActions[i]->setText(text);
+        m_recentFileActions[i]->setData(files[i]);
+        m_recentFileActions[i]->setVisible(true);
+    }
+    for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
+        m_recentFileActions[j]->setVisible(false);
+
+    m_recentFilesSeparatorAction->setVisible(numRecentFiles > 0);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::addRecentFiles(const QString& file)
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.removeAll(file);
+    files.prepend(file);
+    while (files.size() > MaxRecentFiles)
+        files.removeLast();
+
+    settings.setValue("recentFileList", files);
+
+    updateRecentFileActions();
+}
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
