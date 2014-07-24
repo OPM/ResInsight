@@ -39,7 +39,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "cvfDrawableText.h"
 #include "cvfqtUtils.h"
 #include "cvfPrimitiveSetIndexedUInt.h"

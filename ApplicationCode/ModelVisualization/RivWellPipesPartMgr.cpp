@@ -38,7 +38,7 @@
 #include "RimReservoirView.h"
 #include "RimWell.h"
 #include "RimWellCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"

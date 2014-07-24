@@ -23,7 +23,7 @@
 #include "RimCase.h"
 #include "RimProject.h"
 #include "RimWellPathCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"

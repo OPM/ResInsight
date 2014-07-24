@@ -43,7 +43,7 @@
 #include "RigCaseData.h"
 #include "RimCase.h"
 #include "RimCellEdgeResultSlot.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 #include "RimTernaryLegendConfig.h"

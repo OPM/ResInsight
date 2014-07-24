@@ -27,7 +27,7 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include <QString>
 

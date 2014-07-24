@@ -41,7 +41,7 @@
 #include "RimCellRangeFilterCollection.h"
 #include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimResultSlot.h"
 #include "RimLegendConfig.h"
 

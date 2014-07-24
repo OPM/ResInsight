@@ -35,7 +35,7 @@
 
 #include "RimUiTreeModelPdm.h"
 
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "RigCaseData.h"
 

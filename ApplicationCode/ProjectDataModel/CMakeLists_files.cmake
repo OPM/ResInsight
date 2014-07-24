@@ -39,7 +39,7 @@ ${CEE_CURRENT_LIST_DIR}RimBinaryExportSettings.h
 ${CEE_CURRENT_LIST_DIR}Rim3dOverlayInfoConfig.h
 ${CEE_CURRENT_LIST_DIR}RimUiTreeModelPdm.h
 ${CEE_CURRENT_LIST_DIR}RimUiTreeView.h
-${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsCacher.h
+${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsStorage.h
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RimMimeData.h
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.h
@@ -85,7 +85,7 @@ ${CEE_CURRENT_LIST_DIR}RimBinaryExportSettings.cpp
 ${CEE_CURRENT_LIST_DIR}Rim3dOverlayInfoConfig.cpp
 ${CEE_CURRENT_LIST_DIR}RimUiTreeModelPdm.cpp
 ${CEE_CURRENT_LIST_DIR}RimUiTreeView.cpp
-${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsCacher.cpp
+${CEE_CURRENT_LIST_DIR}RimReservoirCellResultsStorage.cpp
 ${CEE_CURRENT_LIST_DIR}RimStatisticsCaseEvaluator.cpp
 ${CEE_CURRENT_LIST_DIR}RimMimeData.cpp
 ${CEE_CURRENT_LIST_DIR}RimCommandObject.cpp

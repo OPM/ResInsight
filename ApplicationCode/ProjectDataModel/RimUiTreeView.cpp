@@ -59,7 +59,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimWellCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "Rim3dOverlayInfoConfig.h"
 #include "RimProject.h"
 #include "RimOilField.h"

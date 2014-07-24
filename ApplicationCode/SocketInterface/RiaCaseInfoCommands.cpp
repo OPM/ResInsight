@@ -30,7 +30,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimCase.h"
 
 #include "RigCaseData.h"

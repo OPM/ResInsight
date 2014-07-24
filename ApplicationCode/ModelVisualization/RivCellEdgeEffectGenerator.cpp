@@ -55,7 +55,7 @@
 #include "RigCaseData.h"
 #include "RigActiveCellInfo.h"
 
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafPdmFieldCvfColor.h"

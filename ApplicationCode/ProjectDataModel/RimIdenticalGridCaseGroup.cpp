@@ -26,7 +26,7 @@
 #include "RimCase.h"
 #include "RimCaseCollection.h"
 #include "RimCellEdgeResultSlot.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 #include "RimResultCase.h"
 #include "RimResultSlot.h"

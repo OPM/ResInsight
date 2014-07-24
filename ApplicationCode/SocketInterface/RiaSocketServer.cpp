@@ -41,7 +41,7 @@
 #include "RimScriptCollection.h"
 #include "RimCaseCollection.h"
 #include "RimWellPathCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"

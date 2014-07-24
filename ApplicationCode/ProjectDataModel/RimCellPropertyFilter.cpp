@@ -20,7 +20,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RimCellPropertyFilterCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimResultDefinition.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"

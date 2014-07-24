@@ -20,7 +20,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RimLegendConfig.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 
 #include "cafPdmUiListEditor.h"
