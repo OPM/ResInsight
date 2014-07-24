@@ -26,7 +26,7 @@
 #include "RigCaseData.h"
 #include "RimMockModelSettings.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "cafPdmSettings.h"
 #include "cafPdmUiPropertyDialog.h"

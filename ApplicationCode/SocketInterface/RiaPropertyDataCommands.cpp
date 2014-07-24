@@ -26,7 +26,7 @@
 #include "RigCaseData.h"
 #include "RigCaseCellResultsData.h"
 
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimCase.h"
 #include "RimInputCase.h"
 #include "RimInputPropertyCollection.h"

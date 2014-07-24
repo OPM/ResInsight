@@ -68,7 +68,7 @@
 
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimCellPropertyFilterCollection.h"

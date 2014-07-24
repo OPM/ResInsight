@@ -33,7 +33,7 @@
 #include "RimFaultCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 #include "RimTools.h"

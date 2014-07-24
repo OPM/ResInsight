@@ -36,7 +36,7 @@
 #include "RimResultSlot.h"
 #include "RimCellEdgeResultSlot.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimFaultCollection.h"
 
 //--------------------------------------------------------------------------------------------------

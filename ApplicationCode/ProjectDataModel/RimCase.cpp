@@ -24,7 +24,7 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellPropertyFilter.h"
 #include "RimCellPropertyFilterCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 

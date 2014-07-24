@@ -21,7 +21,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigStatisticsMath.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "cafProgressInfo.h"
 

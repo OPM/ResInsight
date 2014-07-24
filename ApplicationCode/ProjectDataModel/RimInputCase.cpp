@@ -28,7 +28,7 @@
 #include "RimDefines.h"
 #include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"
-#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirCellResultsStorage.h"
 
 #include "cafProgressInfo.h"
 
