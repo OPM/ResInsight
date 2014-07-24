@@ -18,9 +18,6 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-#include "cafPdmObject.h"
-
 #include "RimDefines.h"
 #include "RimLegendConfig.h"
 #include "RimResultDefinition.h"

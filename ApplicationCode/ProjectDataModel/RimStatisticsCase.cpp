@@ -16,35 +16,23 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimStatisticsCase.h"
-#include "RimReservoirView.h"
-#include "cafPdmUiOrdering.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RigCaseData.h"
+
 #include "RigCaseCellResultsData.h"
-#include "RimStatisticsCaseEvaluator.h"
-#include "RigMainGrid.h"
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmUiLineEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
-#include "RiuMainWindow.h"
-#include "RimUiTreeModelPdm.h"
-#include "cafProgressInfo.h"
+#include "RigCaseData.h"
 #include "RimCaseCollection.h"
-
-
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-
+#include "RimIdenticalGridCaseGroup.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimStatisticsCaseEvaluator.h"
+#include "RimUiTreeModelPdm.h"
+#include "RimWellCollection.h"
+#include "RiuMainWindow.h"
+
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
+#include "cafProgressInfo.h"
 
 namespace caf {
     template<>

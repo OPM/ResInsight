@@ -16,26 +16,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
 
 #include "RimCellRangeFilter.h"
+
+#include "RigActiveCellInfo.h"
+#include "RigCaseData.h"
+#include "RigGridBase.h"
+#include "RigMainGrid.h"
+#include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimReservoirView.h"
-#include "RigCaseData.h"
-#include "RimCase.h"
-
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
 
 #include "cafPdmUiSliderEditor.h"
-
+#include "cvfAssert.h"
 
 CAF_PDM_SOURCE_INIT(RimCellRangeFilter, "CellRangeFilter");
 

@@ -18,10 +18,6 @@
 
 #include "RimFaultCollection.h"
 
-#include "cafAppEnum.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RigCaseData.h"
@@ -30,6 +26,9 @@
 #include "RiuMainWindow.h"
 #include "RivColorTableArray.h"
 
+#include "cafAppEnum.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfMat4d.h"
 
 namespace caf
 {

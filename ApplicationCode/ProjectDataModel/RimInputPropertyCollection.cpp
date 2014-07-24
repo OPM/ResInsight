@@ -16,10 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimInputPropertyCollection.h"
 
+#include "RimInputProperty.h"
+
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimInputPropertyCollection, "RimInputPropertyCollection");
 

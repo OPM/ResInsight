@@ -18,19 +18,21 @@
 
 #pragma once
 
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
-#include "cafAppEnum.h"
+#include "cvfBase.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
+#include "RimReservoirCellResultsCacher.h"
+
 #include <QString>
 
-#include "cvfBase.h"
-#include "cvfColor3.h"
-
 class RimFault;
-
 class RimReservoirView;
-
 
 //==================================================================================================
 ///  

@@ -16,41 +16,25 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-#include "cafProgressInfo.h"
-#include "cafPdmSettings.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmUiPropertyDialog.h"
-
 #include "RimResultCase.h"
-#include "RigCaseData.h"
-#include "RifReaderEclipseOutput.h"
-#include "RigCaseCellResultsData.h"
-#include "RimReservoirView.h"
-#include "RifReaderMockModel.h"
-#include "RifReaderEclipseInput.h"
 
-#include "RimProject.h"
-#include "RifEclipseOutputFileTools.h"
-#include "RiaApplication.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCaseCollection.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimWellPathCollection.h"
-
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimOilField.h"
-#include "RimAnalysisModels.h"
 #include "RiaPreferences.h"
+#include "RifEclipseOutputFileTools.h"
+#include "RifReaderEclipseOutput.h"
+#include "RifReaderMockModel.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 #include "RimMockModelSettings.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsCacher.h"
+
+#include "cafPdmSettings.h"
+#include "cafPdmUiPropertyDialog.h"
+#include "cafProgressInfo.h"
+
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 
 CAF_PDM_SOURCE_INIT(RimResultCase, "EclipseCase");
 //--------------------------------------------------------------------------------------------------

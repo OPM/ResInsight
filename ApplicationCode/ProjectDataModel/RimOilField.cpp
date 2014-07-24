@@ -16,33 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimOilField.h"
-#include "cafAppEnum.h"
-#include "RimReservoirView.h"
 
-#include "RimIdenticalGridCaseGroup.h"
-
-#include "RiaApplication.h"
-
-#include "RigGridManager.h"
-#include "RigCaseData.h"
-#include "RimResultCase.h"
-#include "RimWellPathCollection.h"
 #include "RimAnalysisModels.h"
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
-#include "RimCaseCollection.h"
-#include "RimResultSlot.h"
-#include "RimStatisticsCase.h"
+#include "RimWellPathCollection.h"
 
 CAF_PDM_SOURCE_INIT(RimOilField, "ResInsightOilField");
 //--------------------------------------------------------------------------------------------------

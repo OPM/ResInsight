@@ -23,8 +23,9 @@
 #include "cafPdmPointer.h"
 
 #include "cvfBase.h"
-#include "cvfColor3.h"
-#include "cafPdmFieldCvfColor.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
 
 class RigFault;
 

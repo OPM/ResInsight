@@ -18,13 +18,10 @@
 
 #pragma once
 
-#include "cafPdmDocument.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
 
-class RimCase;
-class RigGridManager;
-class RimIdenticalGridCaseGroup;
-class RigMainGrid;
-class RigCaseData;
 class RimWellPathCollection;
 class RimAnalysisModels;
 
@@ -40,7 +37,6 @@ public:
     RimOilField(void);
     virtual ~RimOilField(void);
 
-    caf::PdmField<RimAnalysisModels*>                   analysisModels;
-	caf::PdmField<RimWellPathCollection*>               wellPathCollection;
-
+    caf::PdmField<RimAnalysisModels*>       analysisModels;
+	caf::PdmField<RimWellPathCollection*>   wellPathCollection;
 };

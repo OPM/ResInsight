@@ -16,13 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimInputProperty.h"
 
-#include "cvfAssert.h"
-
 #include "cafPdmUiLineEditor.h"
+#include "cvfAssert.h"
 
 #include <QString>
 

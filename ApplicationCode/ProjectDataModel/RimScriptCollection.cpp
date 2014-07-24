@@ -16,15 +16,16 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
-
 #include "RimScriptCollection.h"
-#include "cafPdmField.h"
-#include "cafUtils.h"
-#include "RiuMainWindow.h"
+
+#include "RimCalcScript.h"
 #include "RimUiTreeModelPdm.h"
+#include "RiuMainWindow.h"
+
 #include "cafPdmUiFilePathEditor.h"
+#include "cafUtils.h"
+
+#include <QDir>
 
 CAF_PDM_SOURCE_INIT(RimScriptCollection, "ScriptLocation");
 

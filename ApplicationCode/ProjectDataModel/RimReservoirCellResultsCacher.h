@@ -18,14 +18,16 @@
 
 #pragma once
 
-#include <QDateTime>
 
-#include "cvfBase.h"
-#include "cvfObject.h"
+#include "cafAppEnum.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafAppEnum.h"
+#include "cvfBase.h"
+#include "cvfObject.h"
+
 #include "RimDefines.h"
+
+#include <QDateTime>
 
 class RimReservoirCellResultsStorageEntryInfo;
 class RigCaseCellResultsData;

@@ -18,10 +18,6 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
 #include "RimCase.h"
 
 class RifReaderInterface;

@@ -18,33 +18,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimIdenticalGridCaseGroup.h"
-#include "RimCaseCollection.h"
 
-#include "RimCase.h"
-#include "RimReservoirView.h"
-#include "RigCaseData.h"
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
-
-#include "RimResultSlot.h"
+#include "RigCaseData.h"
+#include "RigGridManager.h"
+#include "RimCase.h"
+#include "RimCaseCollection.h"
 #include "RimCellEdgeResultSlot.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirView.h"
+#include "RimResultCase.h"
+#include "RimResultSlot.h"
 #include "RimStatisticsCase.h"
 
-#include "RimResultCase.h"
 #include "cafProgressInfo.h"
-#include "RigActiveCellInfo.h"
-#include "RigActiveCellInfo.h"
-
-#include "RigGridManager.h"
-#include "RimReservoirCellResultsCacher.h"
-
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
-
 
 CAF_PDM_SOURCE_INIT(RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup");
 

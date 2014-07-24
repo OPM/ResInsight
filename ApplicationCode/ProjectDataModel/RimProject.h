@@ -19,8 +19,6 @@
 #pragma once
 
 #include "cafPdmDocument.h"
-#include "RimWellPathImport.h"
-#include "RimCommandObject.h"
 
 class RimOilField;
 class RimCase;
@@ -29,6 +27,8 @@ class RimScriptCollection;
 class RimIdenticalGridCaseGroup;
 class RigMainGrid;
 class RigCaseData;
+class RimWellPathImport;
+class RimCommandObject;
 
 //==================================================================================================
 ///  

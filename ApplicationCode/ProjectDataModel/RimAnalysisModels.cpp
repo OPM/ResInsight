@@ -16,37 +16,17 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimAnalysisModels.h"
-#include "RiaApplication.h"
-#include "RimProject.h"
-#include "cafAppEnum.h"
-#include "RimReservoirView.h"
-
-#include "RimIdenticalGridCaseGroup.h"
 
 #include "RiaApplication.h"
-
-#include "RigGridManager.h"
 #include "RigCaseData.h"
-#include "RimResultCase.h"
-#include "RimWellPathCollection.h"
-
-
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
+#include "RigGridManager.h"
+#include "RimCase.h"
 #include "RimCaseCollection.h"
-#include "RimResultSlot.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimProject.h"
 #include "RimStatisticsCase.h"
-#include "RimOilField.h"
-#include "RimScriptCollection.h"
+
 
 CAF_PDM_SOURCE_INIT(RimAnalysisModels, "ResInsightAnalysisModels");
 //--------------------------------------------------------------------------------------------------

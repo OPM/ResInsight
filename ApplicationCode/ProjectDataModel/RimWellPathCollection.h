@@ -22,12 +22,20 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
-#include <QString>
 
-#include "RimWellPath.h"
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
+#include "cvfObject.h"
+
+#include <QString>
 
 class RivWellPathCollectionPartMgr;
 class RimWellPathAsciiFileReader;
+class RimWellPath;
+class RimProject;
+class RigWellPath;
+
 
 //==================================================================================================
 ///  

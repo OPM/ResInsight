@@ -25,7 +25,6 @@
 
 #include "RifReaderInterface.h"
 
-//#include "RimStatisticsCaseCollection.h"
 class RimCaseCollection;
 class RimStatisticsCase;
 

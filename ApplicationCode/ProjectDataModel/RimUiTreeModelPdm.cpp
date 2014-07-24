@@ -16,47 +16,34 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaStdInclude.h"
-
 #include "RimUiTreeModelPdm.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
 
-#include "cafPdmObject.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
-
-#include "RimReservoirView.h"
-#include "RiuViewer.h"
-#include "RimCalcScript.h"
 #include "RiaApplication.h"
-#include "RiuMainWindow.h"
+#include "RigGridManager.h"
+#include "RimAnalysisModels.h"
+#include "RimCase.h"
+#include "RimCaseCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimIdenticalGridCaseGroup.h"
+#include "RimInputCase.h"
 #include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"
-#include "cafPdmField.h"
-#include "RimInputCase.h"
-#include "RimStatisticsCase.h"
-#include "RimResultCase.h"
-#include "RigGridManager.h"
-#include "RimCase.h"
-#include "RigCaseData.h"
 #include "RimMimeData.h"
-#include "RimCaseCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimProject.h"
-#include "RimScriptCollection.h"
-#include "RimWellCollection.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimWellPathCollection.h"
 #include "RimOilField.h"
-#include "RimAnalysisModels.h"
+#include "RimProject.h"
+#include "RimReservoirView.h"
+#include "RimResultCase.h"
+#include "RimScriptCollection.h"
+#include "RimStatisticsCase.h"
 #include "RimUiTreeView.h"
+#include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
 
+#include "cvfAssert.h"
+
+#include <QClipboard>
+#include <QFileSystemWatcher>
 
 
 //--------------------------------------------------------------------------------------------------

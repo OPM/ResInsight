@@ -22,11 +22,15 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
-#include "cafPdmFieldCvfColor.h"
 
-#include "RigSingleWellResultsData.h"
+#include "cvfObject.h"
 
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
+class RigSingleWellResultsData;
 class RimReservoirView;
+
 //==================================================================================================
 ///  
 ///  

@@ -43,6 +43,7 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 #include "RiaSocketDataTransfer.h"
+#include "RimInputProperty.h"
 
 
 //--------------------------------------------------------------------------------------------------
