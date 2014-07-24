@@ -30,6 +30,7 @@
 #include <QFileInfo>
 
 #include <fstream>
+#include <cmath>
 
 namespace caf
 {

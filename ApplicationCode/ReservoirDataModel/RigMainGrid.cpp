@@ -296,7 +296,7 @@ void RigMainGrid::calculateFaults()
 
                 // Add as fault face only if the grid index is less than the neighbors
 
-                if (gcIdx < neighborGlobalCellIdx)
+                if (static_cast<size_t>(gcIdx) < neighborGlobalCellIdx)
                 {
                     {
                         RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborGlobalCellIdx);

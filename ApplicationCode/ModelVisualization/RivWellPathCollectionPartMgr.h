@@ -18,12 +18,14 @@
 
 #pragma once
 
-
+#include "cvfBase.h"
 #include "cvfCollection.h"
 #include "cafPdmPointer.h"
 #include "cvfVector3.h"
 #include "cvfBoundingBox.h"
 #include "cvfTransform.h"
+
+#include "cafPdmPointer.h"
 
 class RimWellPathCollection;
 class RimProject;
