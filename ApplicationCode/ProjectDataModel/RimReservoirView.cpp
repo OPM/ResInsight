@@ -54,6 +54,8 @@
 
 #include <QMessageBox>
 
+#include <limits.h>
+
 
 namespace caf {
 
