@@ -23,7 +23,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include "RimInputProperty.h"
+class RimInputProperty;
 
 
 //==================================================================================================

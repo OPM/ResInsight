@@ -28,6 +28,8 @@ namespace cvf
     class ModelBasicList;
     class Transform;
     class Effect;
+    class DrawableGeo;
+    class ScalarMapper;
 }
 
 class RivPipeGeometryGenerator;

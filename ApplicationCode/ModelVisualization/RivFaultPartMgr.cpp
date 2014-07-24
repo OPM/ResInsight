@@ -47,6 +47,7 @@
 #include "RivGridPartMgr.h"
 #include "cvfRenderStateDepth.h"
 #include "RivSourceInfo.h"
+#include "RimFaultCollection.h"
 
 
 

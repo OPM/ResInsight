@@ -19,51 +19,42 @@
 #include "RiaStdInclude.h"
 
 #include "RiuMainWindow.h"
+
 #include "RiaApplication.h"
-
-#include "RimProject.h"
-#include "RimAnalysisModels.h"
-#include "RimOilField.h"
-#include "RimReservoirView.h"
-#include "RimUiTreeView.h"
-#include "RimCase.h"
-#include "RimResultSlot.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimCaseCollection.h"
-#include "RimWellPathCollection.h"
-
-#include "RimUiTreeModelPdm.h"
-
 #include "RiaBaseDefs.h"
-#include "RiuViewer.h"
-#include "RiuResultInfoPanel.h"
-#include "RiuProcessMonitor.h"
-#include "RiuMultiCaseImportDialog.h"
-
 #include "RiaPreferences.h"
-
-#include "RigCaseCellResultsData.h"
-
-#include "cafAnimationToolBar.h"
-#include "cafPdmUiPropertyView.h"
-#include "cafAboutDialog.h"
-#include "cvfTimer.h"
-
-#include "cafPdmFieldCvfMat4d.h"
-
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RiuWellImportWizard.h"
-#include "RimCalcScript.h"
-#include "RimTools.h"
 #include "RiaRegressionTest.h"
-#include "cafPdmUiPropertyDialog.h"
+#include "RigCaseCellResultsData.h"
+#include "RimAnalysisModels.h"
+#include "RimCase.h"
+#include "RimCaseCollection.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCommandObject.h"
+#include "RimFaultCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimTools.h"
+#include "RimUiTreeModelPdm.h"
+#include "RimUiTreeView.h"
+#include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathImport.h"
+#include "RiuMultiCaseImportDialog.h"
+#include "RiuProcessMonitor.h"
+#include "RiuResultInfoPanel.h"
+#include "RiuViewer.h"
+#include "RiuWellImportWizard.h"
 
+#include "cafAboutDialog.h"
+#include "cafAnimationToolBar.h"
+#include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmUiPropertyDialog.h"
+#include "cafPdmUiPropertyView.h"
+
+#include "cvfTimer.h"
 
 
 //==================================================================================================

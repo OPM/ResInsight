@@ -21,10 +21,19 @@
 
 #include "cvfCollection.h"
 #include "cafPdmPointer.h"
+#include "cvfVector3.h"
+#include "cvfBoundingBox.h"
+#include "cvfTransform.h"
 
 class RimWellPathCollection;
 class RimProject;
 class RivWellPathPartMgr;
+
+namespace cvf
+{
+    class ModelBasicList;
+}
+
 
 class RivWellPathCollectionPartMgr : public cvf::Object
 {

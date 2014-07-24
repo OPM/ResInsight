@@ -22,11 +22,14 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
 #include <QString>
 
-#include "RimWell.h"
-
 class RimReservoirView;
+class RimWell;
 
 //==================================================================================================
 ///  

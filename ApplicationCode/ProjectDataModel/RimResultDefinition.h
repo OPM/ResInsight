@@ -18,10 +18,11 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
+#include "RimDefines.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmField.h"
-#include "RimDefines.h"
+#include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
 

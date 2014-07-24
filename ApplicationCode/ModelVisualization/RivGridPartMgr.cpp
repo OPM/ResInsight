@@ -50,6 +50,7 @@
 #include "RimWellCollection.h"
 #include "RivCellEdgeEffectGenerator.h"
 #include "RivSourceInfo.h"
+#include "RimFaultCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------

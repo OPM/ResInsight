@@ -18,15 +18,13 @@
 
 #pragma once
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfCollection.h"
+#include "RimDefines.h"
+#include "RimStatisticsCase.h"
+
 #include <vector>
 #include <math.h>
 
 #include <QPair>
-#include "RimDefines.h"
-#include "RimStatisticsCase.h"
 
 class RimCase;
 class RigCaseData;

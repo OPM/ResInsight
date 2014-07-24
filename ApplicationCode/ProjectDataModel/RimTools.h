@@ -18,7 +18,7 @@
 
 #pragma once
 
-class RimProject;
+#include <QString>
 
 class RimTools
 {

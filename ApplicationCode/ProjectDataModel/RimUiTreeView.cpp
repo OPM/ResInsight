@@ -64,6 +64,8 @@
 #include "RimProject.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimInputProperty.h"
+#include "RigSingleWellResultsData.h"
 
 
 //--------------------------------------------------------------------------------------------------

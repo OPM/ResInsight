@@ -20,7 +20,8 @@
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "RimCalcScript.h"
+
+class RimCalcScript;
 
 namespace caf
 {

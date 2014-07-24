@@ -22,13 +22,6 @@
 #include "RimResultDefinition.h"
 #include "RimResultSlot.h"
 
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimCellRangeFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellCollection.h"
-#include "RimCellEdgeResultSlot.h"
-
 
 CAF_PDM_SOURCE_INIT(RimCellPropertyFilterCollection, "CellPropertyFilters");
 

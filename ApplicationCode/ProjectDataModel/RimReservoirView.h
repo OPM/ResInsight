@@ -17,40 +17,38 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #pragma once
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafAppEnum.h"
 
+#include "cafAppEnum.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+
+#include "cvfArray.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
 
+// Includes to make Pdm work for cvf::Color and cvf:Mat
+#include "cafPdmFieldCvfColor.h"    
 #include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-
-#include <QPointer>
-#include <QString>
-
-#include "RimFaultCollection.h"
-
-class RimCase;
-class RimResultSlot;
-class RimCellEdgeResultSlot;
-class RimCellRangeFilter;
-class RimCellRangeFilterCollection;
-class RimCellPropertyFilter;
-class RimCellPropertyFilterCollection;
-class Rim3dOverlayInfoConfig;
-class RimReservoirCellResultsStorage;
-class RimWellCollection;
-class RigActiveCellInfo;
 
 #include "RivReservoirViewPartMgr.h"
-class RivReservoirPipesPartMgr;
 
-class RiuViewer;
+class RigActiveCellInfo;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
+class Rim3dOverlayInfoConfig;
+class RimCase;
+class RimCellEdgeResultSlot;
+class RimCellPropertyFilter;
+class RimCellPropertyFilterCollection;
+class RimCellRangeFilter;
+class RimCellRangeFilterCollection;
+class RimFaultCollection;
 class RimReservoirCellResultsStorage;
+class RimReservoirCellResultsStorage;
+class RimResultSlot;
+class RimWellCollection;
+class RiuViewer;
+class RivReservoirPipesPartMgr;
 
 namespace cvf
 {

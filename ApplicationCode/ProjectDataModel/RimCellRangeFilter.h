@@ -18,21 +18,17 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPointer.h"
 #include "RimCellFilter.h"
 
+class RigGridBase;
+class RigMainGrid;
+class RimCellRangeFilterCollection;
 class RimReservoirView;
 
 namespace cvf
 {
     class CellRangeFilter;
 }
-
-class RimCellRangeFilterCollection;
-class RigMainGrid;
-class RigGridBase;
 
 //==================================================================================================
 ///  

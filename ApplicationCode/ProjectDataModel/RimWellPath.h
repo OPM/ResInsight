@@ -22,7 +22,10 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafAppEnum.h"
-#include "cafPdmFieldCvfColor.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
 #include "RigWellPath.h"
 
 class RimProject;

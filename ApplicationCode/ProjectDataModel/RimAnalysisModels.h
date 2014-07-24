@@ -18,7 +18,11 @@
 
 #pragma once
 
-#include "cafPdmDocument.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPointer.h"
+
+#include "cvfObject.h"
 
 class RimCase;
 class RigGridManager;

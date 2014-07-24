@@ -39,6 +39,7 @@
 #include "RimWellPathCollection.h"
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
+#include "RimFaultCollection.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
@@ -78,6 +79,7 @@
 
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
+#include "RimCommandObject.h"
 
 
 namespace caf

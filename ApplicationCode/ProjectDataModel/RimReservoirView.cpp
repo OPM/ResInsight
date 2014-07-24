@@ -16,66 +16,44 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
 #include "RimReservoirView.h"
-#include "RiuViewer.h"
-#include "cvfViewport.h" 
-#include "cvfModelBasicList.h"
-#include "cvfPart.h"
-#include "cvfDrawable.h"
-#include "cvfScene.h"
 
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include <QMessageBox>
-
-
-#include "RimProject.h"
-#include "RimCase.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimWellPathCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimScriptCollection.h"
-#include "RimCaseCollection.h"
-#include "RimOilField.h"
-#include "RimAnalysisModels.h"
-#include "RimTernaryLegendConfig.h"
-
-#include "RiuMainWindow.h"
-#include "RigGridBase.h"
-#include "RigCaseData.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
-
-#include "cafEffectGenerator.h"
-#include "cafFrameAnimationControl.h"
-
-#include "cvfStructGridGeometryGenerator.h"
 #include "RigCaseCellResultsData.h"
-#include "RivCellEdgeEffectGenerator.h"
-#include "cvfqtUtils.h"
-#include "RivReservoirViewPartMgr.h"
+#include "RigCaseData.h"
+#include "Rim3dOverlayInfoConfig.h"
+#include "RimCase.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimFaultCollection.h"
+#include "RimOilField.h"
+#include "RimProject.h"
+#include "RimResultSlot.h"
+#include "RimTernaryLegendConfig.h"
+#include "RimWell.h"
+#include "RimWellCollection.h"
+#include "RimWellPathCollection.h"
+#include "RiuMainWindow.h"
+#include "RiuViewer.h"
 #include "RivReservoirPipesPartMgr.h"
+#include "RivWellPathCollectionPartMgr.h"
 
 #include "cafCadNavigation.h"
-#include "cafCeetronNavigation.h"
-#include "RimCase.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RigGridScalarDataAccess.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RivWellPathCollectionPartMgr.h"
-#include "cvfOverlayScalarMapperLegend.h"
-
-#include <limits.h>
 #include "cafCeetronPlusNavigation.h"
-#include "RimFaultCollection.h"
-#include "RivTernarySaturationOverlayItem.h"
+#include "cafFrameAnimationControl.h"
+
+#include "cvfDrawable.h"
+#include "cvfModelBasicList.h"
+#include "cvfOverlayScalarMapperLegend.h"
+#include "cvfPart.h"
+#include "cvfScene.h"
+#include "cvfViewport.h" 
+#include "cvfqtUtils.h"
+
+#include <QMessageBox>
+
 
 namespace caf {
 

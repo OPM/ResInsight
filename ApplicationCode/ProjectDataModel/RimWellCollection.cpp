@@ -18,19 +18,13 @@
 
 #include "RimWellCollection.h"
 
-#include "cafAppEnum.h"
-#include "cafPdmFieldCvfColor.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "RimReservoirView.h"
-
-#include "RimResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimCellEdgeResultSlot.h"
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RigSingleWellResultsData.h"
+#include "RimReservoirView.h"
+#include "RimWell.h"
+#include "RivReservoirViewPartMgr.h"
+
 
 namespace caf
 {

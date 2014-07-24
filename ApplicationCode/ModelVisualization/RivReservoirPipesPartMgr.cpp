@@ -20,6 +20,7 @@
 
 #include "RivReservoirPipesPartMgr.h"
 #include "RimReservoirView.h"
+#include "RimWell.h"
 #include "RimWellCollection.h"
 #include "RivWellPipesPartMgr.h"
 #include "RivWellHeadPartMgr.h"

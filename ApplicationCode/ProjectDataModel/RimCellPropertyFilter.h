@@ -18,14 +18,7 @@
 
 #pragma once
 
-#include "cafPdmObject.h"
-#include "cafPdmField.h"
-#include "cafPdmDocument.h"
-#include "cafAppEnum.h"
-
-#include "RimDefines.h"
 #include "RimCellFilter.h"
-//#include "cvfStructGridGeometryGenerator.h"
 
 class RimReservoirView;
 class RimCellPropertyFilterCollection;
@@ -34,10 +27,6 @@ class RimResultDefinition;
 class RigGridBase;
 class RigCaseCellResultsData;
 
-namespace cvf
-{
-    //enum CellRangeFilter::CellStateType;
-}
 
 //==================================================================================================
 ///  
@@ -80,6 +69,4 @@ private:
     RimCellPropertyFilterCollection* m_parentContainer;
     double m_minimumResultValue, m_maximumResultValue;
 };
-
-
 

@@ -16,51 +16,25 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-//#include "RiaStdInclude.h"
 #include "RimCase.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RimCaseCollection.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellPropertyFilter.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimReservoirCellResultsCacher.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+
+#include "cafProgressInfo.h"
 
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
 #include <QDebug>
 
-#include "RifReaderEclipseOutput.h"
-#include "RifReaderMockModel.h"
-
-#include "RimReservoirView.h"
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimCellRangeFilter.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilter.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimWellCollection.h"
-#include "RimWellPathCollection.h"
-
-#include "RimScriptCollection.h"
-
-#include "RigCaseData.h"
-#include "RigMainGrid.h"
-#include "RigCaseCellResultsData.h"
-
-#include "cvfAssert.h"
-
-#include "cafPdmFieldCvfColor.h"
-
-#include "cafPdmUiPushButtonEditor.h"
-
-#include <QString>
-#include "RimProject.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimResultSlot.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCaseCollection.h"
-#include "RimOilField.h"
-#include "RimAnalysisModels.h"
-#include "cafProgressInfo.h"
 
 CAF_PDM_SOURCE_INIT(RimCase, "RimReservoir");
 

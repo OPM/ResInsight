@@ -24,6 +24,9 @@
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
 
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"    
+
 
 class RiaPreferences : public caf::PdmObject
 {

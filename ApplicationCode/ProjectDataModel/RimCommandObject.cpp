@@ -17,34 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimCommandObject.h"
+
 #include "RiaApplication.h"
 #include "RimCalcScript.h"
 #include "RimProject.h"
-
-#include "cafPdmUiTextEditor.h"
-#include "cafPdmUiPushButtonEditor.h"
-#include "cafPdmDocument.h"
-
-#include <QFile>
 #include "RimStatisticsCase.h"
 
-// Included due to template use in pdm fields
-#include "RimReservoirView.h"
-#include "RimReservoirCellResultsCacher.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "RimOilField.h"
-#include "RimScriptCollection.h"
-#include "RimIdenticalGridCaseGroup.h"
-#include "RimAnalysisModels.h"
-#include "RimWellPathCollection.h"
-#include "RimCaseCollection.h"
+#include "cafPdmDocument.h"
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
 
-
+#include <QFile>
 
 
 CAF_PDM_SOURCE_INIT(RimCommandObject, "RimCommandObject");

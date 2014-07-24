@@ -36,6 +36,7 @@
 
 #include "RimCase.h"
 #include "RimReservoirView.h"
+#include "RimWell.h"
 #include "RimWellCollection.h"
 #include "RimReservoirCellResultsCacher.h"
 

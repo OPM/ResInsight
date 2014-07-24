@@ -17,13 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimCellPropertyFilter.h"
-#include "RimResultDefinition.h"
-#include "cvfMath.h"
 
-#include "RimCellPropertyFilterCollection.h"
 #include "RigCaseCellResultsData.h"
-#include "cafPdmUiDoubleSliderEditor.h"
+#include "RimCellPropertyFilterCollection.h"
 #include "RimReservoirCellResultsCacher.h"
+#include "RimResultDefinition.h"
+
+#include "cafPdmUiDoubleSliderEditor.h"
+#include "cvfAssert.h"
+#include "cvfMath.h"
 
 
 namespace caf
