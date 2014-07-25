@@ -107,7 +107,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
             forceDisplayOfFault = isShowingGrid;
         }
 
-        if (m_forceVisibility)
+        if (m_forceVisibility && isShowingGrid)
         {
             forceDisplayOfFault = true;
         }
@@ -166,17 +166,26 @@ void RivReservoirFaultsPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimResultSlot* cellResultSlot)
 {
+    bool isShowingGrid = m_faultCollection->isGridVisualizationMode();
+
     for (size_t i = 0; i < m_faultCollection->faults.size(); i++)
     {
         RimFault* rimFault = m_faultCollection->faults[i];
 
-        if (m_faultCollection->showFaultCollection && rimFault->showFault && !m_faultCollection->showResultsOnFaults())
+        if (isShowingGrid)
         {
-            m_faultParts[i]->applySingleColorEffect();
+            m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
         }
         else
         {
-             m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
+            if (m_faultCollection->showResultsOnFaults())
+            {
+                m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
+            }
+            else
+            {
+                m_faultParts[i]->applySingleColorEffect();
+            }
         }
     }
 }
