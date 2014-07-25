@@ -27,7 +27,7 @@
 #include "ecl_file.h"
 #include "RifEclipseOutputFileTools.h"
 #include "RigCaseCellResultsData.h"
-
+#include "RifEclipseUnifiedRestartFileAccess.h"
 
 
 
@@ -35,15 +35,14 @@
 #if 0
 
 
+
 TEST(RigReservoirTest, FileOutputToolsTest)
 {
-    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
-    cvf::ref<RigReservoir> reservoir = new RigReservoir;
-
 //    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
-    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+//    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.UNRST");
 
-    ecl_file_type* ertFile = ecl_file_open(filename.toAscii().data());
+    ecl_file_type* ertFile = ecl_file_open(filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     EXPECT_TRUE(ertFile);
 
 
@@ -52,7 +51,6 @@ TEST(RigReservoirTest, FileOutputToolsTest)
     RifEclipseOutputFileTools::findKeywordsAndDataItemCounts(ertFile, &keywords, &keywordDataItemCounts);
 
     EXPECT_TRUE(keywords.size() == keywordDataItemCounts.size());
-
 
     qDebug() << "Keyword - Number of data items";
     for (int i = 0; i < keywords.size(); i++)
@@ -64,6 +62,58 @@ TEST(RigReservoirTest, FileOutputToolsTest)
     ecl_file_close(ertFile);
     ertFile = NULL;
 }
+
+
+TEST(RigReservoirTest, UnifiedTestFile)
+{
+
+    // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
+#ifdef WIN32
+    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+#else
+    QString filename("/mnt/hgfs/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+#endif
+
+    {
+        cvf::ref<RifEclipseUnifiedRestartFileAccess> restartFile = new RifEclipseUnifiedRestartFileAccess();
+
+        QStringList fileNameList;
+        fileNameList << filename;
+        restartFile->setRestartFiles(fileNameList);
+        restartFile->open();
+
+        QStringList resultNames;
+        std::vector<size_t> resultDataItemCounts;
+        restartFile->resultNames(&resultNames, &resultDataItemCounts);
+
+        for (int i = 0; i < resultNames.size(); i++)
+        {
+            qDebug() << "Result names\n" << resultNames[i] << " - " << resultDataItemCounts[i];
+        }
+
+        std::vector<QDateTime> tsteps = restartFile->timeSteps();
+
+        qDebug() << "Time step texts\n";
+        for (int i = 0; i < tsteps.size(); i++)
+        {
+            qDebug() << tsteps[i].toString();
+        }
+
+        /*
+        std::vector<double> resultValues;
+        size_t timeStep = 0;
+        restartFile->results(resultNames[0], timeStep, &resultValues);
+
+        size_t i;
+        for (i = 0; i < 500; i++)
+        {
+            qDebug() <<  resultValues[i];
+        }
+        */
+    }
+
+}
+
 
 
 void buildResultInfoString(RigReservoir* reservoir, RifReaderInterface::PorosityModelResultType porosityModel, RimDefines::ResultCatType resultType)
