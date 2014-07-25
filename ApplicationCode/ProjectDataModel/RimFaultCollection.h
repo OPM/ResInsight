@@ -75,13 +75,12 @@ public:
     caf::PdmField<bool>                 showFaultCollection;
 
     caf::PdmPointersField<RimFault*>    faults;
+    RimFault*                           findFaultByName(QString name);
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*        objectToggleField();
 
 private:
-    RimFault*                           findFaultByName(QString name);
-
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:

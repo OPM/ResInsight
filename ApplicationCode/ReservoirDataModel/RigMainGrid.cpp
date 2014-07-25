@@ -369,3 +369,36 @@ bool RigMainGrid::faceNormalsIsOutwards() const
 {
     return  m_flipXAxis ^ m_flipYAxis;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t cellIndex, cvf::StructGridInterface::FaceType face) const
+{
+    for (size_t i = 0; i < m_faults.size(); i++)
+    {
+        const RigFault* rigFault = m_faults.at(i);
+        const std::vector<RigFault::FaultFace>& faultFaces = rigFault->faultFaces();
+
+        for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
+        {
+            if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex)
+            {
+                if (face == faultFaces[fIdx].m_nativeFace )
+                {
+                    return rigFault;
+                }
+            }
+
+            if (faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
+            {
+                if (face == cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace))
+                {
+                    return rigFault;
+                }
+            }
+        }
+    }
+
+    return NULL;
+}

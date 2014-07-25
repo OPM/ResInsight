@@ -180,7 +180,7 @@ public:
 
     // Display model generation
 private:
-    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText);
+    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* textString);
 
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();

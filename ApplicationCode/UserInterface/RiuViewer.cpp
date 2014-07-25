@@ -25,12 +25,13 @@
 
 #include "RimReservoirView.h"
 
-#include "RimCase.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "RimCase.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
+#include "RimFaultCollection.h"
+#include "RimResultSlot.h"
 #include "RimWellCollection.h"
 
 #include "RimUiTreeModelPdm.h"
@@ -278,11 +279,24 @@ void RiuViewer::mouseReleaseEvent(QMouseEvent* event)
                         {
                             m_currentGridIdx = firstHitPart->id();
                             m_currentCellIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellIndex(faceIndex);
+                            m_currentFaceIndex = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
 
                             QMenu menu;
+
                             menu.addAction(QString("I-slice range filter"), this, SLOT(slotRangeFilterI()));
                             menu.addAction(QString("J-slice range filter"), this, SLOT(slotRangeFilterJ()));
                             menu.addAction(QString("K-slice range filter"), this, SLOT(slotRangeFilterK()));
+
+                            const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+                            const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
+                            if (fault)
+                            {
+                                menu.addSeparator();
+
+                                QString faultName = fault->name();
+                                menu.addAction(QString("Hide ") + faultName, this, SLOT(slotHideFault()));
+                            }
+
                             menu.exec(event->globalPos());
                         }
                     }
@@ -757,5 +771,24 @@ void RiuViewer::addOverlayItem(cvf::OverlayItem* overlayItem)
 void RiuViewer::removeOverlayItem(cvf::OverlayItem* overlayItem)
 {
     m_renderingSequence->firstRendering()->removeOverlayItem(overlayItem);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::slotHideFault()
+{
+    const RigCaseData* reservoir = m_reservoirView->eclipseCase()->reservoirData();
+    const RigFault* fault = reservoir->mainGrid()->findFaultFromCellIndexAndCellFace(m_currentCellIndex, m_currentFaceIndex);
+    if (fault)
+    {
+        QString faultName = fault->name();
+
+        RimFault* rimFault = m_reservoirView->faultCollection()->findFaultByName(faultName);
+        if (rimFault)
+        {
+            rimFault->showFault.setValueFromUi(!rimFault->showFault);
+        }
+    }
 }
 
