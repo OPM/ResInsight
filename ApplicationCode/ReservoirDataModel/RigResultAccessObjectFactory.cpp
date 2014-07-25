@@ -125,7 +125,8 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccess
         cvf::ref<RigCombTransResultAccessObject> cellFaceAccessObject = new RigCombTransResultAccessObject(grid, uiResultName);
 
         {
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANX"));
+            QString resultName = "TRANX";
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
             if (nativeAccessObject.notNull())
             {
                 cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_I, nativeAccessObject.p());
@@ -133,7 +134,8 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccess
         }
 
         {
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANY"));
+            QString resultName = "TRANY";
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
             if (nativeAccessObject.notNull())
             {
                 cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_J, nativeAccessObject.p());
@@ -141,7 +143,8 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccess
         }
 
         {
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANZ"));
+            QString resultName = "TRANZ";
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
             if (nativeAccessObject.notNull())
             {
                 cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_K, nativeAccessObject.p());
