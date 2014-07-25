@@ -24,6 +24,7 @@
 #include "cafPdmPointer.h"
 
 #include "cafMouseState.h"
+#include "cvfStructGrid.h"
 
 class RimReservoirView;
 class QLabel;
@@ -87,6 +88,7 @@ private slots:
     void            slotRangeFilterI();
     void            slotRangeFilterJ();
     void            slotRangeFilterK();
+    void            slotHideFault();
 
 private:
     void            updateLegends();
@@ -114,6 +116,7 @@ private:
 
     size_t m_currentGridIdx;
     size_t m_currentCellIndex;
+    cvf::StructGridInterface::FaceType m_currentFaceIndex;
 
     QPoint m_lastMousePressPosition;
 };

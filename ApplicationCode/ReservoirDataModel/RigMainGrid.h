@@ -51,6 +51,7 @@ public:
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
     const cvf::Collection<RigFault>&        faults() { return m_faults; }
     void                                    calculateFaults();
+    const RigFault*                         findFaultFromCellIndexAndCellFace(size_t cellIndex, cvf::StructGridInterface::FaceType face) const;
     bool                                    faceNormalsIsOutwards() const;
 
     void                                    computeCachedData();
