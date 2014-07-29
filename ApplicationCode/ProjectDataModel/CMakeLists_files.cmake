@@ -48,6 +48,7 @@ ${CEE_CURRENT_LIST_DIR}RimFault.h
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.h
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.h
 ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.h
+${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -94,6 +95,7 @@ ${CEE_CURRENT_LIST_DIR}RimFault.cpp
 ${CEE_CURRENT_LIST_DIR}RimFaultCollection.cpp
 ${CEE_CURRENT_LIST_DIR}RimMockModelSettings.cpp
 ${CEE_CURRENT_LIST_DIR}RimTernaryLegendConfig.cpp
+${CEE_CURRENT_LIST_DIR}RimFaultResultSlot.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

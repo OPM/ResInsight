@@ -28,6 +28,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
+#include "RimFaultResultSlot.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimResultSlot.h"
@@ -100,6 +101,11 @@ RimReservoirView::RimReservoirView()
 
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
+
+    CAF_PDM_InitFieldNoDefault(&cellFaultResult,  "GridCellFaultResult", "Fault Cell Result", ":/CellResult.png", "", "");
+    cellFaultResult = new RimFaultResultSlot();
+    cellFaultResult.setUiHidden(true);
+
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
