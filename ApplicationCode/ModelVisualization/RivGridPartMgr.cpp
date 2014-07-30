@@ -50,27 +50,22 @@
 #include "RimWellCollection.h"
 #include "RivCellEdgeEffectGenerator.h"
 #include "RivSourceInfo.h"
-#include "RimFaultCollection.h"
 
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* rimFaultCollection)
+RivGridPartMgr::RivGridPartMgr(const RigGridBase* grid, size_t gridIdx)
 :   m_surfaceGenerator(grid), 
-    m_faultGenerator(grid), 
     m_gridIdx(gridIdx),
     m_grid(grid),
     m_surfaceFaceFilter(grid), 
-    m_faultFaceFilter(grid),
     m_opacityLevel(1.0f),
-    m_defaultColor(cvf::Color3::WHITE),
-    m_rimFaultCollection(rimFaultCollection)
+    m_defaultColor(cvf::Color3::WHITE)
 {
     CVF_ASSERT(grid);
     m_cellVisibility = new cvf::UByteArray;
     m_surfaceFacesTextureCoords = new cvf::Vec2fArray;
-    m_faultFacesTextureCoords = new cvf::Vec2fArray;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,14 +89,10 @@ void RivGridPartMgr::setCellVisibility(cvf::UByteArray* cellVisibilities)
     m_surfaceGenerator.setCellVisibility(cellVisibilities);
     m_surfaceGenerator.addFaceVisibilityFilter(&m_surfaceFaceFilter);
 
-    m_faultGenerator.setCellVisibility(cellVisibilities);
-    m_faultGenerator.addFaceVisibilityFilter(&m_faultFaceFilter);
-
-    generatePartGeometry(m_surfaceGenerator, false);
-    generatePartGeometry(m_faultGenerator, true);
+    generatePartGeometry(m_surfaceGenerator);
 }
 
-void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry)
+void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder)
 {
     bool useBufferObjects = true;
     // Surface geometry
@@ -134,17 +125,8 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             caf::SurfaceEffectGenerator geometryEffgen(cvf::Color4f(cvf::Color3f::WHITE), caf::PO_1);
             cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
             part->setEffect(geometryOnlyEffect.p());
-
-            if (faultGeometry)
-            {
-                part->setEnableMask(faultBit);
-                m_faultFaces = part;
-            }
-            else
-            {
-                part->setEnableMask(surfaceBit);
-                m_surfaceFaces = part;
-            }
+            part->setEnableMask(surfaceBit);
+            m_surfaceFaces = part;
         }
     }
 
@@ -168,30 +150,19 @@ void RivGridPartMgr::generatePartGeometry(cvf::StructGridGeometryGenerator& geoB
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
             cvf::ref<cvf::Effect> eff;
-            if (faultGeometry)
-            {
-                caf::MeshEffectGenerator effGen(prefs->defaultFaultGridLineColors());
-                eff = effGen.generateEffect();
+            caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
+            eff = effGen.generateEffect();
 
-                part->setEnableMask(meshFaultBit);
-                part->setEffect(eff.p());
-                m_faultGridLines = part;
-            }
-            else
-            {
-                caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
-                eff = effGen.generateEffect();
+            // Set priority to make sure fault lines are rendered first
+            part->setPriority(10);
 
-                // Set priority to make sure fault lines are rendered first
-                part->setPriority(10);
-
-                part->setEnableMask(meshSurfaceBit);
-                part->setEffect(eff.p());
-                m_surfaceGridLines = part;
-            }
+            part->setEnableMask(meshSurfaceBit);
+            part->setEffect(eff.p());
+            m_surfaceGridLines = part;
         }
     }
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -201,12 +172,6 @@ void RivGridPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
     if(m_surfaceFaces.notNull()    ) model->addPart(m_surfaceFaces.p()    );
     if(m_surfaceGridLines.notNull()) model->addPart(m_surfaceGridLines.p());
-
-    if (m_rimFaultCollection && m_rimFaultCollection->showGeometryDetectedFaults())
-    {
-        if(m_faultFaces.notNull()      ) model->addPart(m_faultFaces.p()      );
-        if(m_faultGridLines.notNull()  ) model->addPart(m_faultGridLines.p()  );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,20 +179,18 @@ void RivGridPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::updateCellColor(cvf::Color4f color)
 {
-    if (m_surfaceFaces.isNull() && m_faultFaces.isNull()) return;
+    if (m_surfaceFaces.isNull()) return;
 
     // Set default effect
     caf::SurfaceEffectGenerator geometryEffgen(color, caf::PO_1);
     cvf::ref<cvf::Effect> geometryOnlyEffect = geometryEffgen.generateEffect();
 
     if (m_surfaceFaces.notNull()) m_surfaceFaces->setEffect(geometryOnlyEffect.p());
-    if (m_faultFaces.notNull())   m_faultFaces->setEffect(geometryOnlyEffect.p());
 
     if (color.a() < 1.0f)
     {
         // Set priority to make sure this transparent geometry are rendered last
         if (m_surfaceFaces.notNull()) m_surfaceFaces->setPriority(100);
-        if (m_faultFaces.notNull()) m_faultFaces->setPriority(100);
     }
 
     m_opacityLevel = color.a();
@@ -237,12 +200,6 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
     RiaPreferences* prefs = RiaApplication::instance()->preferences();
 
     cvf::ref<cvf::Effect> eff;
-    if (m_faultFaces.notNull())
-    {
-        caf::MeshEffectGenerator faultEffGen(prefs->defaultFaultGridLineColors());
-        eff = faultEffGen.generateEffect();
-        m_faultGridLines->setEffect(eff.p());
-    }
     if (m_surfaceFaces.notNull())
     {
         caf::MeshEffectGenerator effGen(prefs->defaultGridLineColors());
@@ -317,31 +274,6 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper );
         }
     }
-
-    // Faults
-    if (m_faultFaces.notNull())
-    {
-        size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
-
-        // If the result is static, only read that.
-        size_t resTimeStepIdx = timeStepIndex;
-        if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
-
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
-        if (dataAccessObject.isNull()) return;
-
-        m_faultGenerator.textureCoordinates(m_faultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
-        
-        setResultsTransparentForWellCells(
-            cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
-            eclipseCase->gridCellToWellIndex(m_grid->gridIndex()),
-            m_surfaceGenerator.quadToCellFaceMapper(),
-            m_faultFacesTextureCoords.p());
-           
-      
-       applyTextureResultsToPart(m_faultFaces.p(), m_faultFacesTextureCoords.p(), mapper);
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,62 +337,11 @@ void RivGridPartMgr::setResultsTransparentForWellCells(const std::vector<cvf::ub
 //--------------------------------------------------------------------------------------------------
 void RivGridPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
-    /*
-    if (m_surfaceFaces.notNull())
-    {
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-        if (dg) 
-        {
-            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot, 
-                                                                          &m_surfaceGenerator, dg, m_grid->gridIndex(), m_opacityLevel );
-
-            cvf::ScalarMapper* cellScalarMapper = NULL;
-            if (cellResultSlot->hasResult()) cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
-
-            CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper(), cellScalarMapper);
-            cellFaceEffectGen.setOpacityLevel(m_opacityLevel);
-            cellFaceEffectGen.setDefaultCellColor(m_defaultColor);
-
-            cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
-
-            m_surfaceFaces->setEffect(eff.p());
-        }
-    }
-    */
     updateCellEdgeResultColorOnPart(
         m_surfaceFaces.p(),
         &m_surfaceGenerator,
         timeStepIndex, cellResultSlot, cellEdgeResultSlot);
 
-    if (m_faultFaces.notNull())
-    {
-        updateCellEdgeResultColorOnPart(
-            m_faultFaces.p(),
-            &m_faultGenerator,
-            timeStepIndex, cellResultSlot, cellEdgeResultSlot);
-    }
-    /*
-    if (m_faultFaces.notNull())
-    {
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_faultFaces->drawable());
-        if (dg) 
-        {
-            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
-                                                                            &m_faultGenerator, dg, m_grid->gridIndex(), m_opacityLevel);
-
-            cvf::ScalarMapper* cellScalarMapper = NULL;
-            if (cellResultSlot->hasResult()) cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
-
-            CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper(), cellScalarMapper);
-            cellFaceEffectGen.setOpacityLevel(m_opacityLevel);
-            cellFaceEffectGen.setDefaultCellColor(m_defaultColor);
-
-            cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
-
-            m_faultFaces->setEffect(eff.p());
-        }
-    }
-    */
 }
 //--------------------------------------------------------------------------------------------------
 /// 

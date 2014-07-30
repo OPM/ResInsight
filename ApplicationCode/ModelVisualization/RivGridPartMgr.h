@@ -34,7 +34,6 @@ namespace cvf
 
 class RimResultSlot;
 class RimCellEdgeResultSlot;
-class RimFaultCollection;
 
 
 
@@ -72,7 +71,7 @@ public:
 class RivGridPartMgr: public cvf::Object
 {
 public:
-    RivGridPartMgr(const RigGridBase* grid, size_t gridIdx, const RimFaultCollection* rimFaultCollection);
+    RivGridPartMgr(const RigGridBase* grid, size_t gridIdx);
     ~RivGridPartMgr();
     void setTransform(cvf::Transform* scaleTransform);
     void setCellVisibility(cvf::UByteArray* cellVisibilities );
@@ -89,7 +88,7 @@ public:
     static cvf::ref<cvf::Effect>   createPerVertexColoringEffect(float opacity);
 
 private:
-    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder, bool faultGeometry);
+    void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
     void                    applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper);
     cvf::ref<cvf::Effect>   createScalarMapperEffect(const cvf::ScalarMapper* mapper);
     void                    setResultsTransparentForWellCells(const std::vector<cvf::ubyte>& isWellPipeVisibleForWellIndex, 
@@ -117,15 +116,5 @@ private:
 
     cvf::ref<cvf::Part>                         m_surfaceGridLines;
 
-    // Fault visualization:  Dead ?? JJS
-    cvf::StructGridGeometryGenerator            m_faultGenerator;
-    RigFaultFaceVisibilityFilter                m_faultFaceFilter;
-    cvf::ref<cvf::Part>                         m_faultFaces;
-    cvf::ref<cvf::Vec2fArray>                   m_faultFacesTextureCoords;
-
-    cvf::ref<cvf::Part>                         m_faultGridLines;
-
     cvf::ref<cvf::UByteArray>                   m_cellVisibility;
-
-    const RimFaultCollection*                   m_rimFaultCollection;
 };
