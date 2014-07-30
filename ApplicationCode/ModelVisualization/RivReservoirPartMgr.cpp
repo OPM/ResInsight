@@ -38,7 +38,7 @@ void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, c
         eclipseCase->allGrids(&grids);
         for (size_t i = 0; i < grids.size() ; ++i)
         {
-            m_allGrids.push_back(new RivGridPartMgr(grids[i], i, faultCollection));
+            m_allGrids.push_back(new RivGridPartMgr(grids[i], i));
         }
 
         if (eclipseCase->mainGrid())
