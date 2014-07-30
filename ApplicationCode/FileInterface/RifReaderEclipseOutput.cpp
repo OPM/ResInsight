@@ -434,17 +434,26 @@ bool RifReaderEclipseOutput::open(const QString& fileName, RigCaseData* eclipseC
 
     progInfo.setProgressDescription("Reading NNC data");
     progInfo.setNextProgressIncrement(5);
-    transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+    if (isNNCsEnabled())
+    {
+        transferNNCData(mainEclGrid, m_ecl_init_file, eclipseCase->mainGrid());
+    }
     progInfo.incrementProgress();
 
     progInfo.setProgressDescription("Processing NNC data");
     progInfo.setNextProgressIncrement(20);
-    eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
+    if (isNNCsEnabled())
+    {
+        eclipseCase->mainGrid()->nncData()->processConnections( *(eclipseCase->mainGrid()));
+    }
     progInfo.incrementProgress();
 
     progInfo.setNextProgressIncrement(8);
     progInfo.setProgressDescription("Reading Well information");
-    readWellCells(mainEclGrid);
+    if (isSimulationWellDataEnabled())
+    {
+        readWellCells(mainEclGrid);
+    }
 
     progInfo.setProgressDescription("Releasing reader memory");
     ecl_grid_free( mainEclGrid );

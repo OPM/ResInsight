@@ -22,6 +22,7 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmUiCheckBoxEditor.h"
+#include "RifReaderSettings.h"
 
 CAF_PDM_SOURCE_INIT(RiaPreferences, "RiaPreferences");
 //--------------------------------------------------------------------------------------------------
@@ -61,10 +62,16 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.setUiHidden(true);
 
-    CAF_PDM_InitField(&autocomputeSOIL,                 "autocomputeSOIL", true, "SOIL", "", "SOIL = 1.0 - SGAS - SWAT", "");
-    CAF_PDM_InitField(&autocomputeDepthRelatedProperties,"autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
+    CAF_PDM_InitField(&autocomputeSOIL,                     "autocomputeSOIL", true, "SOIL", "", "SOIL = 1.0 - SGAS - SWAT", "");
+    CAF_PDM_InitField(&autocomputeDepthRelatedProperties,   "autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
+    CAF_PDM_InitField(&autocomputeGridFaults,               "autocomputeGridFaults", true, "Grid faults", "", "Detect all fault faces geometrically", "");
 
-    CAF_PDM_InitField(&readFaultData,                   "readFaultData", true, "Read fault data", "", "", "");
+    autocomputeDepthRelatedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    autocomputeSOIL.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+    autocomputeGridFaults.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
+
+    readerSettings = new RifReaderSettings;
+    CAF_PDM_InitFieldNoDefault(&readerSettings,        "readerSettings", "Reader settings", "", "", "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +87,8 @@ RiaPreferences::~RiaPreferences(void)
 //--------------------------------------------------------------------------------------------------
 void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute * attribute)
 {
+    readerSettings->defineEditorAttribute(field, uiConfigName, attribute);
+
     if (field == &scriptDirectories)
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = static_cast<caf::PdmUiFilePathEditorAttribute*>(attribute);
@@ -89,7 +98,10 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
             myAttr->m_appendUiSelectedFolderToText = true;
         }
     }
-    else if (field == &octaveShowHeaderInfoWhenExecutingScripts)
+    else if (field == &octaveShowHeaderInfoWhenExecutingScripts ||
+             field == &autocomputeSOIL ||
+             field == &autocomputeDepthRelatedProperties ||
+             field == &autocomputeGridFaults)
     {
         caf::PdmUiCheckBoxEditorAttribute* myAttr = static_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
         if (myAttr)
@@ -125,9 +137,16 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
     autoComputeGroup->add(&autocomputeSOIL);
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);
+    autoComputeGroup->add(&autocomputeGridFaults);
 
-    caf::PdmUiGroup* faultsGroup = uiOrdering.addNewGroup("Faults");
-    faultsGroup->add(&readFaultData);
+    
+    caf::PdmUiGroup* readerSettingsGroup = uiOrdering.addNewGroup("Reader settings");
+    std::vector<caf::PdmFieldHandle*> readerSettingsFields;
+    readerSettings->fields(readerSettingsFields);
+    for (size_t i = 0; i < readerSettingsFields.size(); i++)
+    {
+        readerSettingsGroup->add(readerSettingsFields[i]);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,6 +161,7 @@ void RiaPreferences::configureForRegressionTests()
     autocomputeSOIL = true;
     autocomputeDepthRelatedProperties = true;
 
-    readFaultData = false;
+    CVF_ASSERT(readerSettings);
+    readerSettings->importFaults = false;
 }
 

@@ -27,6 +27,7 @@
 // Include to make Pdm work for cvf::Color
 #include "cafPdmFieldCvfColor.h"    
 
+class RifReaderSettings;
 
 class RiaPreferences : public caf::PdmObject
 {
@@ -63,8 +64,9 @@ public: // Pdm Fields
 
     caf::PdmField<bool>     autocomputeSOIL;
     caf::PdmField<bool>     autocomputeDepthRelatedProperties;
+    caf::PdmField<bool>     autocomputeGridFaults;
 
-    caf::PdmField<bool>     readFaultData;
+    caf::PdmField<RifReaderSettings*> readerSettings;
 
 protected:
     virtual void defineEditorAttribute(const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute);
