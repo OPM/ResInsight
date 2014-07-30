@@ -28,19 +28,78 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RigCaseCellResultsData.h"
 #include "RifEclipseUnifiedRestartFileAccess.h"
-
-
+#include "RifReaderSettings.h"
 
 
 #if 0
 
 
 
-TEST(RigReservoirTest, FileOutputToolsTest)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(RigReservoirTest, DISABLED_BasicTest)
 {
+
+    cvf::ref<RifReaderEclipseOutput> readerInterfaceEcl = new RifReaderEclipseOutput;
+    cvf::ref<RigCaseData> reservoir = new RigCaseData;
+
+    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.EGRID");
+
+    RifReaderSettings readerSettings;
+    readerInterfaceEcl->setReaderSetting(&readerSettings);
+
+    bool result = readerInterfaceEcl->open(filename, reservoir.p());
+    EXPECT_TRUE(result);
+
+    {
+//         QStringList staticResults = readerInterfaceEcl->staticResults();
+//         EXPECT_EQ(42, staticResults.size());
+//         qDebug() << "Static results\n" << staticResults;
+// 
+//         QStringList dynamicResults = readerInterfaceEcl->dynamicResults();
+//         EXPECT_EQ(23, dynamicResults.size());
+//         qDebug() << "Dynamic results\n" << dynamicResults;
+// 
+//         int numTimeSteps = static_cast<int>(readerInterfaceEcl->numTimeSteps());
+//         EXPECT_EQ(9, numTimeSteps);
+// 
+//         QStringList timeStepText = readerInterfaceEcl->timeStepText();
+//         EXPECT_EQ(numTimeSteps, timeStepText.size());
+//         qDebug() << "Time step texts\n" << timeStepText;
+    }
+
+
+    readerInterfaceEcl->close();
+
+    {
+//         QStringList staticResults = readerInterfaceEcl->staticResults();
+//         EXPECT_EQ(0, staticResults.size());
+// 
+//         QStringList dynamicResults = readerInterfaceEcl->dynamicResults();
+//         EXPECT_EQ(0, dynamicResults.size());
+// 
+//         int numTimeSteps = static_cast<int>(readerInterfaceEcl->numTimeSteps());
+//         EXPECT_EQ(0, numTimeSteps);
+// 
+//         QStringList timeStepText = readerInterfaceEcl->timeStepText();
+//         EXPECT_EQ(numTimeSteps, timeStepText.size());
+    }
+
+}
+
+
+
+TEST(RigReservoirTest, DISABLED_FileOutputToolsTest)
+{
+    cvf::DebugTimer timer("test");
+
+
 //    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.EGRID");
 //    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
-    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.UNRST");
+//    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.UNRST");
+    QString filename("c:/tmp/troll_MSW/T07-4A-W2012-16-F3.UNRST");
+    
 
     ecl_file_type* ertFile = ecl_file_open(filename.toAscii().data(), ECL_FILE_CLOSE_STREAM);
     EXPECT_TRUE(ertFile);
@@ -61,18 +120,16 @@ TEST(RigReservoirTest, FileOutputToolsTest)
 
     ecl_file_close(ertFile);
     ertFile = NULL;
+
+    timer.reportTime();
+    //qDebug() << timer.lapt;
 }
 
 
 TEST(RigReservoirTest, UnifiedTestFile)
 {
-
-    // Location of test dataset received from Håkon Høgstøl in July 2011 with 10k active cells
-#ifdef WIN32
-    QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
-#else
-    QString filename("/mnt/hgfs/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
-#endif
+    //QString filename("d:/Models/Statoil/testcase_juli_2011/data/TEST10K_FLT_LGR_NNC.UNRST");
+    QString filename("d:/Models/Statoil/troll_MSW/T07-4A-W2012-16-F3.UNRST");
 
     {
         cvf::ref<RifEclipseUnifiedRestartFileAccess> restartFile = new RifEclipseUnifiedRestartFileAccess();
@@ -86,9 +143,10 @@ TEST(RigReservoirTest, UnifiedTestFile)
         std::vector<size_t> resultDataItemCounts;
         restartFile->resultNames(&resultNames, &resultDataItemCounts);
 
+        qDebug() << "Result names\n";
         for (int i = 0; i < resultNames.size(); i++)
         {
-            qDebug() << "Result names\n" << resultNames[i] << " - " << resultDataItemCounts[i];
+            qDebug() << resultNames[i] << "\t" << resultDataItemCounts[i];
         }
 
         std::vector<QDateTime> tsteps = restartFile->timeSteps();
