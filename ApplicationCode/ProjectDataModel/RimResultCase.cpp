@@ -22,6 +22,7 @@
 #include "RifEclipseOutputFileTools.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderMockModel.h"
+#include "RifReaderSettings.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RimMockModelSettings.h"
@@ -90,7 +91,7 @@ bool RimResultCase::openEclipseGridFile()
 
         RiaPreferences* prefs = RiaApplication::instance()->preferences();
         readerInterface = new RifReaderEclipseOutput;
-        readerInterface->readFaultData(prefs->readFaultData());
+        readerInterface->setReaderSetting(prefs->readerSettings());
         readerInterface->setFilenamesWithFaults(this->filesContainingFaults());
 
         cvf::ref<RigCaseData> eclipseCase = new RigCaseData;

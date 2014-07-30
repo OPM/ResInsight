@@ -23,6 +23,7 @@
 #include "RifReaderEclipseInput.h"
 #include "RifReaderInterface.h"
 #include "RifReaderMockModel.h"
+#include "RifReaderSettings.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RimDefines.h"
@@ -96,7 +97,7 @@ void RimInputCase::openDataFileSet(const QStringList& fileNames)
 
          for (int i = 0; i < fileNames.size(); i++)
          {
-             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->reservoirData(), prefs->readFaultData()))
+             if (RifEclipseInputFileTools::openGridFile(fileNames[i], this->reservoirData(), prefs->readerSettings->importFaults()))
              {
                  m_gridFileName = fileNames[i];
 
@@ -181,7 +182,7 @@ bool RimInputCase::openEclipseGridFile()
         {
             RiaPreferences* prefs = RiaApplication::instance()->preferences();
             readerInterface = new RifReaderEclipseInput;
-            readerInterface->readFaultData(prefs->readFaultData());
+            readerInterface->setReaderSetting(prefs->readerSettings());
 
             cvf::ref<RigCaseData> eclipseCase = new RigCaseData;
             if (!readerInterface->open(m_gridFileName, eclipseCase.p()))
