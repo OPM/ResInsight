@@ -149,55 +149,6 @@ RiuViewer::~RiuViewer()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RiuViewer::setColorLegend1(cvf::OverlayScalarMapperLegend* legend)
-{
-    m_mainRendering->removeOverlayItem(m_legend1.p());
-
-    m_legend1 = legend;
-
-    this->updateLegends();
-}
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::setColorLegend2(cvf::OverlayScalarMapperLegend* legend)
-{
-    m_mainRendering->removeOverlayItem(m_legend2.p());
-
-    m_legend2 = legend;
-
-    this->updateLegends();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::updateLegends()
-{
-    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
-    CVF_ASSERT(firstRendering);
-
-    firstRendering->removeOverlayItem(m_legend1.p());
-    firstRendering->removeOverlayItem(m_legend2.p());
-
-    if (m_legend1.notNull())
-    {
-        m_legend1->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
-        firstRendering->addOverlayItem(m_legend1.p());
-    }
-
-    if (m_legend2.notNull())
-    {
-        m_legend2->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
-        firstRendering->addOverlayItem(m_legend2.p());
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
 void RiuViewer::setDefaultView()
 {
     cvf::BoundingBox bb;
@@ -510,9 +461,6 @@ void RiuViewer::slotEndAnimation()
     cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
     CVF_ASSERT(firstRendering);
 
-    firstRendering->removeOverlayItem(m_legend1.p());
-    firstRendering->removeOverlayItem(m_legend2.p());
-
     if (m_reservoirView) m_reservoirView->endAnimation();
     
     caf::Viewer::slotEndAnimation();
@@ -529,8 +477,6 @@ void RiuViewer::slotSetCurrentFrame(int frameIndex)
     CVF_ASSERT(firstRendering);
 
     if (m_reservoirView) m_reservoirView->setCurrentTimeStep(frameIndex);
-
-    this->updateLegends();
 
     caf::Viewer::slotSetCurrentFrame(frameIndex);
 }
@@ -763,21 +709,6 @@ void RiuViewer::mousePressEvent(QMouseEvent* event)
     m_lastMousePressPosition = event->pos();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::addOverlayItem(cvf::OverlayItem* overlayItem)
-{
-    m_renderingSequence->firstRendering()->addOverlayItem(overlayItem);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RiuViewer::removeOverlayItem(cvf::OverlayItem* overlayItem)
-{
-    m_renderingSequence->firstRendering()->removeOverlayItem(overlayItem);
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -795,6 +726,36 @@ void RiuViewer::slotHideFault()
         {
             rimFault->showFault.setValueFromUi(!rimFault->showFault);
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::removeAllColorLegends()
+{
+    for (size_t i = 0; i < m_visibleLegends.size(); i++)
+    {
+        m_mainRendering->removeOverlayItem(m_visibleLegends[i].p());
+    }
+
+    m_visibleLegends.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuViewer::addColorLegendToBottomLeftCorner(cvf::OverlayItem* legend)
+{
+    cvf::Rendering* firstRendering = m_renderingSequence->firstRendering();
+    CVF_ASSERT(firstRendering);
+
+    if (legend)
+    {
+        legend->setLayout(cvf::OverlayItem::VERTICAL, cvf::OverlayItem::BOTTOM_LEFT);
+        firstRendering->addOverlayItem(legend);
+
+        m_visibleLegends.push_back(legend);
     }
 }
 

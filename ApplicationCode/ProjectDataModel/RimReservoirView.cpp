@@ -221,8 +221,10 @@ void RimReservoirView::updateViewerWidget()
             this->cellResult()->legendConfig->recreateLegend();
             this->cellResult()->ternaryLegendConfig->recreateLegend();
             this->cellEdgeResult()->legendConfig->recreateLegend();
-            m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
-            m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
+
+            m_viewer->removeAllColorLegends();
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
 
             if (RiaApplication::instance()->navigationPolicy() == RiaApplication::NAVIGATION_POLICY_CEETRON)
             {
@@ -1370,6 +1372,11 @@ void RimReservoirView::indicesToVisibleGrids(std::vector<size_t>* gridIndices)
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateLegends()
 {
+    if (m_viewer)
+    {
+        m_viewer->removeAllColorLegends();
+    }
+
     if (!m_reservoir || !m_viewer || !m_reservoir->reservoirData() )
     {
         return;
@@ -1408,39 +1415,14 @@ void RimReservoirView::updateLegends()
         this->cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
         this->cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
 
-        m_viewer->setColorLegend1(this->cellResult()->legendConfig->legend());
+        m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
         this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
     }
     else
     {
         this->cellResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
         this->cellResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
-        m_viewer->setColorLegend1(NULL);
     }
-
-    if (this->cellEdgeResult()->hasResult())
-    {
-        double globalMin, globalMax;
-        double globalPosClosestToZero, globalNegClosestToZero;
-        this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
-        this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
-
-        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
-        this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
-
-        m_viewer->setColorLegend2(this->cellEdgeResult()->legendConfig->legend());
-        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
-
-    }
-    else
-    {
-        m_viewer->setColorLegend2(NULL);
-        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
-    }
-
-    
-    viewer()->removeOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
 
     size_t maxTimeStepCount = results->maxTimeStepCount();
     if (this->cellResult()->isTernarySaturationSelected() && maxTimeStepCount > 1)
@@ -1496,8 +1478,27 @@ void RimReservoirView::updateLegends()
 
         if (this->cellResult()->ternaryLegendConfig->legend())
         {
-            viewer()->addOverlayItem(this->cellResult()->ternaryLegendConfig->legend());
+            m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->ternaryLegendConfig->legend());
         }
+    }
+
+    if (this->cellEdgeResult()->hasResult())
+    {
+        double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
+        this->cellEdgeResult()->minMaxCellEdgeValues(globalMin, globalMax);
+        this->cellEdgeResult()->posNegClosestToZero(globalPosClosestToZero, globalNegClosestToZero);
+
+        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero);
+        this->cellEdgeResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, globalMin, globalMax);
+
+        m_viewer->addColorLegendToBottomLeftCorner(this->cellEdgeResult()->legendConfig->legend());
+        this->cellEdgeResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Edge Results: \n") + this->cellEdgeResult()->resultVariable));
+    }
+    else
+    {
+        this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
+        this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
     }
 }
 
