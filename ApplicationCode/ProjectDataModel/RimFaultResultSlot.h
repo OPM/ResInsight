@@ -22,6 +22,9 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+class RimResultSlot;
+class RimReservoirView;
+
 //==================================================================================================
 ///  
 ///  
@@ -40,6 +43,17 @@ public:
 public:
     RimFaultResultSlot();
     virtual ~RimFaultResultSlot();
+
+    void setReservoirView(RimReservoirView* ownerReservoirView);
+    
+    caf::PdmField<RimResultSlot*> customResultSlot;
+
+protected:
+    virtual void    initAfterRead();
+    virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+
+private:
+    void updateVisibility();
 
 private:
     caf::PdmField< caf::AppEnum< FaultVisualizationMode > > visualizationMode;

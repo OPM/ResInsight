@@ -167,6 +167,8 @@ RimReservoirView::RimReservoirView()
     this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
+    this->cellFaultResult()->setReservoirView(this);
+
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
 
     m_pipesPartManager = new RivReservoirPipesPartMgr(this);
@@ -180,6 +182,7 @@ RimReservoirView::RimReservoirView()
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::~RimReservoirView()
 {
+    delete this->cellFaultResult();
     delete this->cellResult();
     delete this->cellEdgeResult();
     delete this->overlayInfoConfig();
@@ -969,11 +972,11 @@ void RimReservoirView::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::initAfterRead()
 {
+    this->cellFaultResult()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);
     this->rangeFilterCollection()->setReservoirView(this);
     this->propertyFilterCollection()->setReservoirView(this);
-
 }
 
 //--------------------------------------------------------------------------------------------------
