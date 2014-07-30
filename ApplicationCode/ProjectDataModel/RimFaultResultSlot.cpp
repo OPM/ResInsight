@@ -18,6 +18,11 @@
 
 #include "RimFaultResultSlot.h"
 
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RiuMainWindow.h"
+#include "RimUiTreeModelPdm.h"
+
 
 namespace caf
 {
@@ -42,6 +47,10 @@ RimFaultResultSlot::RimFaultResultSlot()
 
     CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSlot::FaultVisualizationMode>(RimFaultResultSlot::CELL_RESULT_MAPPING), "Fault Color Mapping", "", "", "");
 
+     CAF_PDM_InitFieldNoDefault(&customResultSlot, "CustomResultSlot", "Custom Cell Result", ":/CellResult.png", "", "");
+     customResultSlot = new RimResultSlot();
+
+     updateVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,5 +58,51 @@ RimFaultResultSlot::RimFaultResultSlot()
 //--------------------------------------------------------------------------------------------------
 RimFaultResultSlot::~RimFaultResultSlot()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
+{
+    customResultSlot->setReservoirView(ownerReservoirView);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+{
+    if (changedField == &visualizationMode)
+    {
+        updateVisibility();
+
+        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultResultSlot::initAfterRead()
+{
+    updateVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultResultSlot::updateVisibility()
+{
+    if (this->visualizationMode() == FAULT_COLOR || this->visualizationMode() == CELL_RESULT_MAPPING)
+    {
+        this->customResultSlot.setUiHidden(true);
+        this->customResultSlot.setUiChildrenHidden(true);
+    }
+    else
+    {
+        this->customResultSlot.setUiHidden(false);
+        this->customResultSlot.setUiChildrenHidden(false);
+    }
 }
 
