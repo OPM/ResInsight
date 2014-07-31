@@ -45,10 +45,10 @@ RimFaultResultSlot::RimFaultResultSlot()
 {
     CAF_PDM_InitObject("Fault Result Slot", "", "", "");
 
-    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSlot::FaultVisualizationMode>(RimFaultResultSlot::CELL_RESULT_MAPPING), "Fault Color Mapping", "", "", "");
+    CAF_PDM_InitField(&m_visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSlot::FaultVisualizationMode>(RimFaultResultSlot::CELL_RESULT_MAPPING), "Fault Color Mapping", "", "", "");
 
-     CAF_PDM_InitFieldNoDefault(&customResultSlot, "CustomResultSlot", "Custom Cell Result", ":/CellResult.png", "", "");
-     customResultSlot = new RimResultSlot();
+     CAF_PDM_InitFieldNoDefault(&m_customResultSlot, "CustomResultSlot", "Custom Fault Cell Result", ":/CellResult.png", "", "");
+     m_customResultSlot = new RimResultSlot();
 
      updateVisibility();
 }
@@ -65,7 +65,8 @@ RimFaultResultSlot::~RimFaultResultSlot()
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
 {
-    customResultSlot->setReservoirView(ownerReservoirView);
+    m_reservoirView = ownerReservoirView;
+    m_customResultSlot->setReservoirView(ownerReservoirView);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,12 +74,14 @@ void RimFaultResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (changedField == &visualizationMode)
+    if (changedField == &m_visualizationMode)
     {
         updateVisibility();
 
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
     }
+
+    if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,15 +97,28 @@ void RimFaultResultSlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSlot::updateVisibility()
 {
-    if (this->visualizationMode() == FAULT_COLOR || this->visualizationMode() == CELL_RESULT_MAPPING)
+    if (this->m_visualizationMode() == FAULT_COLOR || this->m_visualizationMode() == CELL_RESULT_MAPPING)
     {
-        this->customResultSlot.setUiHidden(true);
-        this->customResultSlot.setUiChildrenHidden(true);
+        this->m_customResultSlot.setUiHidden(true);
+        this->m_customResultSlot.setUiChildrenHidden(true);
     }
     else
     {
-        this->customResultSlot.setUiHidden(false);
-        this->customResultSlot.setUiChildrenHidden(false);
+        this->m_customResultSlot.setUiHidden(false);
+        this->m_customResultSlot.setUiChildrenHidden(false);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RimResultSlot* RimFaultResultSlot::customResultSlot()
+{
+    if (this->m_visualizationMode() == CUSTOM_RESULT_MAPPING)
+    {
+        return this->m_customResultSlot();
+    }
+
+    return NULL;
 }
 

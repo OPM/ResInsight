@@ -102,10 +102,8 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
 
-    CAF_PDM_InitFieldNoDefault(&cellFaultResult,  "GridCellFaultResult", "Fault Cell Result", ":/CellResult.png", "", "");
-    cellFaultResult = new RimFaultResultSlot();
-    cellFaultResult.setUiHidden(true);
-
+    CAF_PDM_InitFieldNoDefault(&faultResult,  "GridCellFaultResult", "Fault Result", ":/CellResult.png", "", "");
+    faultResult = new RimFaultResultSlot();
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
@@ -167,7 +165,7 @@ RimReservoirView::RimReservoirView()
     this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
-    this->cellFaultResult()->setReservoirView(this);
+    this->faultResult()->setReservoirView(this);
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
 
@@ -182,7 +180,7 @@ RimReservoirView::RimReservoirView()
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::~RimReservoirView()
 {
-    delete this->cellFaultResult();
+    delete this->faultResult();
     delete this->cellResult();
     delete this->cellEdgeResult();
     delete this->overlayInfoConfig();
@@ -521,10 +519,7 @@ void RimReservoirView::createDisplayModel()
 
     // Find the number of time frames the animation needs to show the requested data.
 
-    if (this->cellResult()->hasDynamicResult() 
-        || this->propertyFilterCollection()->hasActiveDynamicFilters() 
-        || this->wellCollection->hasVisibleWellPipes()
-        || this->cellResult()->isTernarySaturationSelected())
+    if (isTimeStepDependentDataVisible())
     {
         CVF_ASSERT(currentGridCellResults());
 
@@ -972,7 +967,7 @@ void RimReservoirView::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::initAfterRead()
 {
-    this->cellFaultResult()->setReservoirView(this);
+    this->faultResult()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);
     this->rangeFilterCollection()->setReservoirView(this);
@@ -1392,97 +1387,10 @@ void RimReservoirView::updateLegends()
     RigCaseCellResultsData* results = eclipseCase->results(porosityModel);
     CVF_ASSERT(results);
 
-    if (this->cellResult()->hasResult())
+    updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
+    if (this->faultResult()->customResultSlot())
     {
-        double globalMin, globalMax;
-        double globalPosClosestToZero, globalNegClosestToZero;
-        results->minMaxCellScalarValues(this->cellResult()->gridScalarIndex(), globalMin, globalMax);
-        results->posNegClosestToZero(this->cellResult()->gridScalarIndex(), globalPosClosestToZero, globalNegClosestToZero);
-
-        double localMin, localMax;
-        double localPosClosestToZero, localNegClosestToZero;
-        if (this->cellResult()->hasDynamicResult())
-        {
-            results->minMaxCellScalarValues(this->cellResult()->gridScalarIndex(), m_currentTimeStep, localMin, localMax);
-            results->posNegClosestToZero(this->cellResult()->gridScalarIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
-        }
-        else
-        {
-             localMin = globalMin;
-             localMax = globalMax;
-
-             localPosClosestToZero = globalPosClosestToZero;
-             localNegClosestToZero = globalNegClosestToZero;
-        }
-
-        this->cellResult()->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
-        this->cellResult()->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
-
-        m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->legendConfig->legend());
-        this->cellResult()->legendConfig->legend()->setTitle(cvfqt::Utils::toString(QString("Cell Results: \n") + this->cellResult()->resultVariable()));
-    }
-    else
-    {
-        this->cellResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
-        this->cellResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
-    }
-
-    size_t maxTimeStepCount = results->maxTimeStepCount();
-    if (this->cellResult()->isTernarySaturationSelected() && maxTimeStepCount > 1)
-    {
-        RimReservoirCellResultsStorage* gridCellResults = this->cellResult()->currentGridCellResults();
-        {
-            double globalMin = 0.0;
-            double globalMax = 1.0;
-            double localMin = 0.0;
-            double localMax = 1.0;
-
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
-
-                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
-            }
-        }
-
-        {
-            double globalMin = 0.0;
-            double globalMax = 1.0;
-            double localMin = 0.0;
-            double localMax = 1.0;
-
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
-
-                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
-            }
-        }
-
-        {
-            double globalMin = 0.0;
-            double globalMax = 1.0;
-            double localMin = 0.0;
-            double localMax = 1.0;
-
-            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                results->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
-                results->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
-
-                this->cellResult()->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
-            }
-        }
-
-        if (this->cellResult()->ternaryLegendConfig->legend())
-        {
-            m_viewer->addColorLegendToBottomLeftCorner(this->cellResult()->ternaryLegendConfig->legend());
-        }
+        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->faultResult()->customResultSlot(), results);
     }
 
     if (this->cellEdgeResult()->hasResult())
@@ -1502,6 +1410,105 @@ void RimReservoirView::updateLegends()
     {
         this->cellEdgeResult()->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
         this->cellEdgeResult()->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirView::updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData)
+{
+    if (resultSlot->hasResult())
+    {
+        double globalMin, globalMax;
+        double globalPosClosestToZero, globalNegClosestToZero;
+        cellResultsData->minMaxCellScalarValues(resultSlot->gridScalarIndex(), globalMin, globalMax);
+        cellResultsData->posNegClosestToZero(resultSlot->gridScalarIndex(), globalPosClosestToZero, globalNegClosestToZero);
+
+        double localMin, localMax;
+        double localPosClosestToZero, localNegClosestToZero;
+        if (resultSlot->hasDynamicResult())
+        {
+            cellResultsData->minMaxCellScalarValues(resultSlot->gridScalarIndex(), m_currentTimeStep, localMin, localMax);
+            cellResultsData->posNegClosestToZero(resultSlot->gridScalarIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+        }
+        else
+        {
+            localMin = globalMin;
+            localMax = globalMax;
+
+            localPosClosestToZero = globalPosClosestToZero;
+            localNegClosestToZero = globalNegClosestToZero;
+        }
+
+        resultSlot->legendConfig->setClosestToZeroValues(globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero);
+        resultSlot->legendConfig->setAutomaticRanges(globalMin, globalMax, localMin, localMax);
+
+        m_viewer->addColorLegendToBottomLeftCorner(resultSlot->legendConfig->legend());
+        resultSlot->legendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel + resultSlot->resultVariable()));
+    }
+    else
+    {
+        resultSlot->legendConfig->setClosestToZeroValues(0, 0, 0, 0);
+        resultSlot->legendConfig->setAutomaticRanges(cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE, cvf::UNDEFINED_DOUBLE);
+    }
+
+    size_t maxTimeStepCount = cellResultsData->maxTimeStepCount();
+    if (resultSlot->isTernarySaturationSelected() && maxTimeStepCount > 1)
+    {
+        RimReservoirCellResultsStorage* gridCellResults = resultSlot->currentGridCellResults();
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SOIL_IDX, globalMin, globalMax, localMin, localMax);
+            }
+        }
+
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SGAS_IDX, globalMin, globalMax, localMin, localMax);
+            }
+        }
+
+        {
+            double globalMin = 0.0;
+            double globalMax = 1.0;
+            double localMin = 0.0;
+            double localMax = 1.0;
+
+            size_t scalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            if (scalarSetIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, globalMin, globalMax);
+                cellResultsData->minMaxCellScalarValues(scalarSetIndex, m_currentTimeStep, localMin, localMax);
+
+                resultSlot->ternaryLegendConfig()->setAutomaticRanges(RimTernaryLegendConfig::TERNARY_SWAT_IDX, globalMin, globalMax, localMin, localMax);
+            }
+        }
+
+        if (resultSlot->ternaryLegendConfig->legend())
+        {
+            m_viewer->addColorLegendToBottomLeftCorner(resultSlot->ternaryLegendConfig->legend());
+        }
     }
 }
 
@@ -2044,9 +2051,15 @@ void RimReservoirView::updateFaultColors()
     // Update all fault geometry
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
+    RimResultSlot* resultSlot = this->faultResult()->customResultSlot();
+    if (!resultSlot)
+    {
+        resultSlot = this->cellResult();
+    }
+
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, this->cellResult());
+        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, resultSlot);
     }
 }
 
@@ -2066,3 +2079,27 @@ void RimReservoirView::appendFaultName(RigGridBase* grid, size_t cellIndex, cvf:
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimReservoirView::isTimeStepDependentDataVisible() const
+{
+    if (this->cellResult()->hasDynamicResult()) return true;
+
+    if (this->propertyFilterCollection()->hasActiveDynamicFilters()) return true;
+        
+    if (this->wellCollection->hasVisibleWellPipes()) return true;
+
+    if (this->cellResult()->isTernarySaturationSelected()) return true;
+    
+    if (this->faultResult->customResultSlot())
+    {
+        if (this->faultResult->customResultSlot()->hasDynamicResult()) return true;
+
+        if (this->faultResult->customResultSlot()->isTernarySaturationSelected()) return true;
+    }
+
+    return false;
+}
+
