@@ -131,7 +131,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
                 rivFaultPart->appendOppositeFaultFacesToModel(&parts);
             }
 
-            if (faultCollection->showFaultFaces() || faultCollection->showOppositeFaultFaces() || faultCollection->showNNCs() || forceDisplayOfFault)
+            if (faultCollection->showFaultFaces() || faultCollection->showOppositeFaultFaces() || m_reservoirView->faultResultSettings()->showNNCs() || forceDisplayOfFault)
             {
                 rivFaultPart->appendMeshLinePartsToModel(&parts);
             }
@@ -141,7 +141,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
 
         if (rimFault->showFault() && faultCollection->showFaultCollection())
         {
-            if (faultCollection->showNNCs())
+            if (m_reservoirView->faultResultSettings()->showNNCs())
             {
                 rivFaultPart->appendNNCFacesToModel(&parts);
             }

@@ -2066,7 +2066,7 @@ void RiaApplication::regressionTestConfigureProject()
             }
 
             riv->faultCollection->showFaultsOutsideFilters.setValueFromUi(false);
-            riv->faultCollection->showResultsOnFaults.setValueFromUi(true);
+            riv->faultResultSettings->visualizationMode.setValueFromUi(RimFaultResultSettings::CELL_RESULT_MAPPING);
         }
     }
 }
