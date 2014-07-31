@@ -29,7 +29,7 @@ class RimReservoirView;
 ///  
 ///  
 //==================================================================================================
-class RimFaultResultSlot : public caf::PdmObject
+class RimFaultResultSettings : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -41,23 +41,22 @@ public:
     };
 
 public:
-    RimFaultResultSlot();
-    virtual ~RimFaultResultSlot();
+    RimFaultResultSettings();
+    virtual ~RimFaultResultSettings();
     
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
     caf::PdmField< caf::AppEnum< FaultVisualizationMode > >     visualizationMode;
 
-    RimResultSlot* customResultSlot();
-    void updateVisibility();
+    RimResultSlot*  customFaultResult();
+    void            updateVisibility();
 
 protected:
     virtual void    initAfterRead();
     virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
-    caf::PdmField<RimResultSlot*>                               m_customResultSlot;
-
-    caf::PdmPointer<RimReservoirView>                           m_reservoirView;
+    caf::PdmField<RimResultSlot*>       m_customFaultResult;
+    caf::PdmPointer<RimReservoirView>   m_reservoirView;
 };
 

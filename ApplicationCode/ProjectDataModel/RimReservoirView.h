@@ -44,7 +44,7 @@ class RimCellPropertyFilterCollection;
 class RimCellRangeFilter;
 class RimCellRangeFilterCollection;
 class RimFaultCollection;
-class RimFaultResultSlot;
+class RimFaultResultSettings;
 class RimReservoirCellResultsStorage;
 class RimReservoirCellResultsStorage;
 class RimResultSlot;
@@ -98,7 +98,7 @@ public:
 
     caf::PdmField<RimResultSlot*>                       cellResult;
     caf::PdmField<RimCellEdgeResultSlot*>               cellEdgeResult;
-    caf::PdmField<RimFaultResultSlot*>                  faultResult;
+    caf::PdmField<RimFaultResultSettings*>                  faultResultSettings;
 
     caf::PdmField<RimCellRangeFilterCollection*>        rangeFilterCollection;
     caf::PdmField<RimCellPropertyFilterCollection*>     propertyFilterCollection;
