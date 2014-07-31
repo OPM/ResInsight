@@ -43,10 +43,12 @@ public:
 public:
     RimFaultResultSlot();
     virtual ~RimFaultResultSlot();
-
+    
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
-    RimResultSlot*  customResultSlot();
+    caf::PdmField< caf::AppEnum< FaultVisualizationMode > >     visualizationMode;
+
+    RimResultSlot* customResultSlot();
     void updateVisibility();
 
 protected:
@@ -54,7 +56,6 @@ protected:
     virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
-    caf::PdmField< caf::AppEnum< FaultVisualizationMode > >     m_visualizationMode;
     caf::PdmField<RimResultSlot*>                               m_customResultSlot;
 
     caf::PdmPointer<RimReservoirView>                           m_reservoirView;
