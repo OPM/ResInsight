@@ -33,6 +33,7 @@
 #include "RivReservoirViewPartMgr.h"
 
 class RigActiveCellInfo;
+class RigCaseCellResultsData;
 class RigGridBase;
 class RigGridCellFaceVisibilityFilter;
 class Rim3dOverlayInfoConfig;
@@ -170,6 +171,7 @@ public:
     void                                    loadDataAndUpdate();
     void                                    createDisplayModelAndRedraw();
     void                                    scheduleCreateDisplayModelAndRedraw();
+    bool                                    isTimeStepDependentDataVisible() const;
 
     void                                    scheduleGeometryRegen(unsigned short geometryType);
     void                                    scheduleReservoirGridGeometryRegen();
@@ -192,11 +194,11 @@ private:
     void                                    updateStaticCellColors();
     void                                    updateStaticCellColors(unsigned short geometryType);
     void                                    updateLegends();
+    void                                    updateMinMaxValuesAndAddLegendToView(QString legendLabel, RimResultSlot* resultSlot, RigCaseCellResultsData* cellResultsData);
 
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> visibleFaultGeometryTypes() const;
     void                                    updateFaultForcedVisibility();
     void                                    updateFaultColors();
-
 
     cvf::ref<RivReservoirViewPartMgr>       m_reservoirGridPartManager;
     cvf::ref<RivReservoirPipesPartMgr>      m_pipesPartManager;
