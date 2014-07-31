@@ -40,7 +40,7 @@
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSlot.h"
+#include "RimFaultResultSettings.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"
@@ -650,7 +650,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    riv->faultResult()->updateVisibility();
+    riv->faultResultSettings()->updateVisibility();
 
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();

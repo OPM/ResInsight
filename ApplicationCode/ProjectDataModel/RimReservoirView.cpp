@@ -28,7 +28,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSlot.h"
+#include "RimFaultResultSettings.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimResultSlot.h"
@@ -102,8 +102,8 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
 
-    CAF_PDM_InitFieldNoDefault(&faultResult,  "GridCellFaultResult", "Fault Result", ":/CellResult.png", "", "");
-    faultResult = new RimFaultResultSlot();
+    CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Fault Result Settings", ":/CellResult.png", "", "");
+    faultResultSettings = new RimFaultResultSettings();
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
@@ -165,7 +165,7 @@ RimReservoirView::RimReservoirView()
     this->cellEdgeResult()->legendConfig()->setPosition(cvf::Vec2ui(10, 320));
     this->cellEdgeResult()->legendConfig()->setColorRangeMode(RimLegendConfig::PINK_WHITE);
 
-    this->faultResult()->setReservoirView(this);
+    this->faultResultSettings()->setReservoirView(this);
 
     m_reservoirGridPartManager = new RivReservoirViewPartMgr(this);
 
@@ -180,7 +180,7 @@ RimReservoirView::RimReservoirView()
 //--------------------------------------------------------------------------------------------------
 RimReservoirView::~RimReservoirView()
 {
-    delete this->faultResult();
+    delete this->faultResultSettings();
     delete this->cellResult();
     delete this->cellEdgeResult();
     delete this->overlayInfoConfig();
@@ -967,7 +967,7 @@ void RimReservoirView::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::initAfterRead()
 {
-    this->faultResult()->setReservoirView(this);
+    this->faultResultSettings()->setReservoirView(this);
     this->cellResult()->setReservoirView(this);
     this->cellEdgeResult()->setReservoirView(this);
     this->rangeFilterCollection()->setReservoirView(this);
@@ -1388,9 +1388,10 @@ void RimReservoirView::updateLegends()
     CVF_ASSERT(results);
 
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
-    if (this->faultResult()->customResultSlot())
+    if (this->faultResultSettings()->visualizationMode() == RimFaultResultSettings::CUSTOM_RESULT_MAPPING)
     {
-        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->faultResult()->customResultSlot(), results);
+        CVF_ASSERT(this->faultResultSettings()->customFaultResult());
+        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->faultResultSettings()->customFaultResult(), results);
     }
 
     if (this->cellEdgeResult()->hasResult())
@@ -2051,8 +2052,12 @@ void RimReservoirView::updateFaultColors()
     // Update all fault geometry
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
-    RimResultSlot* resultSlot = this->faultResult()->customResultSlot();
-    if (!resultSlot)
+    RimResultSlot* resultSlot = NULL;
+    if (this->faultResultSettings()->visualizationMode() == RimFaultResultSettings::CUSTOM_RESULT_MAPPING)
+    {
+        resultSlot = this->faultResultSettings()->customFaultResult();
+    }
+    else
     {
         resultSlot = this->cellResult();
     }
@@ -2093,11 +2098,11 @@ bool RimReservoirView::isTimeStepDependentDataVisible() const
 
     if (this->cellResult()->isTernarySaturationSelected()) return true;
     
-    if (this->faultResult->customResultSlot())
+    if (this->faultResultSettings->customFaultResult())
     {
-        if (this->faultResult->customResultSlot()->hasDynamicResult()) return true;
+        if (this->faultResultSettings->customFaultResult()->hasDynamicResult()) return true;
 
-        if (this->faultResult->customResultSlot()->isTernarySaturationSelected()) return true;
+        if (this->faultResultSettings->customFaultResult()->isTernarySaturationSelected()) return true;
     }
 
     return false;

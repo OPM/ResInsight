@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaultResultSlot.h"
+#include "RimFaultResultSettings.h"
 
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
@@ -27,28 +27,28 @@
 namespace caf
 {
     template<>
-    void AppEnum< RimFaultResultSlot::FaultVisualizationMode >::setUp()
+    void AppEnum< RimFaultResultSettings::FaultVisualizationMode >::setUp()
     {
-        addItem(RimFaultResultSlot::FAULT_COLOR,            "FAULT_COLOR",              "Fault Colors");
-        addItem(RimFaultResultSlot::CELL_RESULT_MAPPING,    "CELL_RESULT_MAPPING",      "Grid Cell Results");
-        addItem(RimFaultResultSlot::CUSTOM_RESULT_MAPPING,  "CUSTOM_RESULT_MAPPING",    "Custom Cell Results");
-        setDefault(RimFaultResultSlot::CELL_RESULT_MAPPING);
+        addItem(RimFaultResultSettings::FAULT_COLOR,            "FAULT_COLOR",              "Fault Colors");
+        addItem(RimFaultResultSettings::CELL_RESULT_MAPPING,    "CELL_RESULT_MAPPING",      "Grid Cell Results");
+        addItem(RimFaultResultSettings::CUSTOM_RESULT_MAPPING,  "CUSTOM_RESULT_MAPPING",    "Custom Cell Results");
+        setDefault(RimFaultResultSettings::CELL_RESULT_MAPPING);
     }
 }
 
-CAF_PDM_SOURCE_INIT(RimFaultResultSlot, "RimFaultResultSlot");
+CAF_PDM_SOURCE_INIT(RimFaultResultSettings, "RimFaultResultSlot");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultResultSlot::RimFaultResultSlot()
+RimFaultResultSettings::RimFaultResultSettings()
 {
     CAF_PDM_InitObject("Fault Result Slot", "", "", "");
 
-    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSlot::FaultVisualizationMode>(RimFaultResultSlot::CELL_RESULT_MAPPING), "Fault Color Mapping", "", "", "");
+    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSettings::FaultVisualizationMode>(RimFaultResultSettings::CELL_RESULT_MAPPING), "Fault Color Mapping", "", "", "");
 
-     CAF_PDM_InitFieldNoDefault(&m_customResultSlot, "CustomResultSlot", "Custom Fault Cell Result", ":/CellResult.png", "", "");
-     m_customResultSlot = new RimResultSlot();
+     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
+     m_customFaultResult = new RimResultSlot();
 
      updateVisibility();
 }
@@ -56,23 +56,23 @@ RimFaultResultSlot::RimFaultResultSlot()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultResultSlot::~RimFaultResultSlot()
+RimFaultResultSettings::~RimFaultResultSettings()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimFaultResultSettings::setReservoirView(RimReservoirView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
-    m_customResultSlot->setReservoirView(ownerReservoirView);
+    m_customFaultResult->setReservoirView(ownerReservoirView);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     if (changedField == &visualizationMode)
     {
@@ -87,7 +87,7 @@ void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::initAfterRead()
+void RimFaultResultSettings::initAfterRead()
 {
     updateVisibility();
 }
@@ -95,28 +95,28 @@ void RimFaultResultSlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSlot::updateVisibility()
+void RimFaultResultSettings::updateVisibility()
 {
     if (this->visualizationMode() == FAULT_COLOR || this->visualizationMode() == CELL_RESULT_MAPPING)
     {
-        this->m_customResultSlot.setUiHidden(true);
-        this->m_customResultSlot.setUiChildrenHidden(true);
+        this->m_customFaultResult.setUiHidden(true);
+        this->m_customFaultResult.setUiChildrenHidden(true);
     }
     else
     {
-        this->m_customResultSlot.setUiHidden(false);
-        this->m_customResultSlot.setUiChildrenHidden(false);
+        this->m_customFaultResult.setUiHidden(false);
+        this->m_customFaultResult.setUiChildrenHidden(false);
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultSlot* RimFaultResultSlot::customResultSlot()
+RimResultSlot* RimFaultResultSettings::customFaultResult()
 {
     if (this->visualizationMode() == CUSTOM_RESULT_MAPPING)
     {
-        return this->m_customResultSlot();
+        return this->m_customFaultResult();
     }
 
     return NULL;
