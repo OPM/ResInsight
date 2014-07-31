@@ -326,10 +326,50 @@ void RiuMainWindow::createActions()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+class ToolTipableMenu : public QMenu
+{
+public:
+    ToolTipableMenu( QWidget * parent ) : QMenu( parent ) {};
+    
+    bool event(QEvent* e)
+    {
+        if (e->type() == QEvent::ToolTip)
+        {
+            QHelpEvent* he = dynamic_cast<QHelpEvent*>(e);
+            QAction* act = actionAt(he->pos());
+            if (act)
+            {
+                // Remove ampersand as this is used to define shortcut key
+                QString actionTextWithoutAmpersand = act->text().remove("&");
+
+                if (actionTextWithoutAmpersand != act->toolTip())
+                {
+                    QToolTip::showText(he->globalPos(), act->toolTip(), this);
+                }
+                
+                return true;
+            }
+        }
+        else if (e->type() == QEvent::Paint && QToolTip::isVisible())
+        {
+            QToolTip::hideText();
+        }
+
+        return QMenu::event(e);
+    }
+};
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createMenus()
 {
     // File menu
-    QMenu* fileMenu = menuBar()->addMenu("&File");
+    QMenu* fileMenu = new ToolTipableMenu(menuBar());
+    fileMenu->setTitle("&File");
+
+    menuBar()->addMenu(fileMenu);
   
     fileMenu->addAction(m_openProjectAction);
     fileMenu->addAction(m_openLastUsedProjectAction);
@@ -993,6 +1033,7 @@ void RiuMainWindow::updateRecentFileActions()
         QString text = tr("&%1 %2").arg(i + 1).arg(QFileInfo(files[i]).fileName());
         m_recentFileActions[i]->setText(text);
         m_recentFileActions[i]->setData(files[i]);
+        m_recentFileActions[i]->setToolTip(files[i]);
         m_recentFileActions[i]->setVisible(true);
     }
     for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
