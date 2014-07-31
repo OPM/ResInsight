@@ -98,7 +98,7 @@ public:
 
     caf::PdmField<RimResultSlot*>                       cellResult;
     caf::PdmField<RimCellEdgeResultSlot*>               cellEdgeResult;
-    caf::PdmField<RimFaultResultSlot*>                  cellFaultResult;
+    caf::PdmField<RimFaultResultSlot*>                  faultResult;
 
     caf::PdmField<RimCellRangeFilterCollection*>        rangeFilterCollection;
     caf::PdmField<RimCellPropertyFilterCollection*>     propertyFilterCollection;

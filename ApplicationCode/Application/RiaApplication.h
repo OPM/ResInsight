@@ -132,8 +132,8 @@ public:
     void                terminateProcess();
     
     RiaPreferences*     preferences();
-    void                readFieldsFromApplicationStore(caf::PdmObject* object);
-    void                writeFieldsToApplicationStore(const caf::PdmObject* object);
+    void                readFieldsFromApplicationStore(caf::PdmObject* object, const QString context = "");
+    void                writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context = "");
     void                applyPreferences();
 
     cvf::Font*          standardFont();

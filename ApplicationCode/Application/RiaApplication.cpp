@@ -650,7 +650,7 @@ bool RiaApplication::openEclipseCase(const QString& caseName, const QString& cas
         riv->cellResult()->setResultVariable(RimDefines::undefinedResultName());
     }
 
-    riv->cellFaultResult()->updateVisibility();
+    riv->faultResult()->updateVisibility();
 
 
     RimUiTreeModelPdm* uiModel = RiuMainWindow::instance()->uiPdmModel();
@@ -1236,7 +1236,7 @@ bool RiaApplication::launchProcessForMultipleCases(const QString& program, const
 //--------------------------------------------------------------------------------------------------
 /// Read fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object)
+void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object, const QString context)
 {
     QSettings settings;
     std::vector<caf::PdmFieldHandle*> fields;
@@ -1247,10 +1247,24 @@ void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object)
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        if (settings.contains(fieldHandle->keyword()))
+        std::vector<caf::PdmObject*> children;
+        fieldHandle->childObjects(&children);
+        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
         {
-            QVariant val = settings.value(fieldHandle->keyword());
-            fieldHandle->setValueFromUi(val);
+            caf::PdmObject* child = children[childIdx];
+            QString subContext = context + child->classKeyword() + "/";
+            readFieldsFromApplicationStore(child, subContext);
+        }
+        
+        
+        if (children.size() == 0)
+        {
+            QString key = context + fieldHandle->keyword();
+            if (settings.contains(key))
+            {
+                QVariant val = settings.value(key);
+                fieldHandle->setValueFromUi(val);
+            }
         }
     }
 }
@@ -1258,7 +1272,7 @@ void RiaApplication::readFieldsFromApplicationStore(caf::PdmObject* object)
 //--------------------------------------------------------------------------------------------------
 /// Write fields of a Pdm object using QSettings
 //--------------------------------------------------------------------------------------------------
-void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object)
+void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object, const QString context)
 {
     CVF_ASSERT(object);
 
@@ -1272,7 +1286,24 @@ void RiaApplication::writeFieldsToApplicationStore(const caf::PdmObject* object)
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        settings.setValue(fieldHandle->keyword(), fieldHandle->uiValue());
+        std::vector<caf::PdmObject*> children;
+        fieldHandle->childObjects(&children);
+        for (size_t childIdx = 0; childIdx < children.size(); childIdx++)
+        {
+            caf::PdmObject* child = children[childIdx];
+            QString subContext;
+            if (context.isEmpty())
+            {
+                subContext = context + child->classKeyword() + "/";
+            }
+
+            writeFieldsToApplicationStore(child, subContext);
+        }
+
+        if (children.size() == 0)
+        {
+            settings.setValue(context + fieldHandle->keyword(), fieldHandle->uiValue());
+        }
     }
 }
 
