@@ -2010,3 +2010,15 @@ void RiuMainWindow::appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObje
         menu->addAction(m_openMultipleEclipseCasesAction);
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::setExpanded(const caf::PdmObject* pdmObject, bool expanded)
+{
+    QModelIndex mi = m_treeModelPdm->getModelIndexFromPdmObject(pdmObject);
+    if (m_treeView && mi.isValid())
+    {
+        m_treeView->setExpanded(mi, expanded);
+    }
+}
