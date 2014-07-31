@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, const RimFaultCollection* faultCollection)
+void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, RimReservoirView* reservoirView)
 {
     m_allGrids.clear();
 
@@ -44,7 +44,7 @@ void RivReservoirPartMgr::clearAndSetReservoir(const RigCaseData* eclipseCase, c
         if (eclipseCase->mainGrid())
         {
             // Faults read from file are present only on main grid
-            m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), faultCollection);
+            m_faultsPartMgr = new RivReservoirFaultsPartMgr(eclipseCase->mainGrid(), reservoirView);
         }
     }
 }
