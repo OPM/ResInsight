@@ -42,9 +42,12 @@ RivReservoirFaultsPartMgr::RivReservoirFaultsPartMgr(const RigMainGrid* grid,  R
     if (reservoirView)
     {
         RimFaultCollection* faultCollection = reservoirView->faultCollection();
-        for (size_t i = 0; i < faultCollection->faults.size(); i++)
+        if (faultCollection)
         {
-            m_faultParts.push_back(new RivFaultPartMgr(grid, faultCollection, faultCollection->faults[i]));
+            for (size_t i = 0; i < faultCollection->faults.size(); i++)
+            {
+                m_faultParts.push_back(new RivFaultPartMgr(grid, faultCollection, faultCollection->faults[i]));
+            }
         }
     }
 
