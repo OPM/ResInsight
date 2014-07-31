@@ -957,14 +957,24 @@ void RiuMainWindow::slotOpenRecentFile()
     if (action)
     {
         QString filename = action->data().toString();
+        bool loadingSucceded = false;
 
         if (filename.contains(".rsp", Qt::CaseInsensitive) || filename.contains(".rip", Qt::CaseInsensitive) )
         {
-            RiaApplication::instance()->loadProject(action->data().toString());
+            loadingSucceded = RiaApplication::instance()->loadProject(action->data().toString());
         }
         else if ( filename.contains(".egrid", Qt::CaseInsensitive) || filename.contains(".grid", Qt::CaseInsensitive) )
         {
-            RiaApplication::instance()->openEclipseCaseFromFile(filename);
+            loadingSucceded = RiaApplication::instance()->openEclipseCaseFromFile(filename);
+        }
+
+        if (loadingSucceded)
+        {
+            addRecentFiles(filename);
+        }
+        else
+        {
+            removeRecentFiles(filename);
         }
     }
 }
@@ -1008,6 +1018,20 @@ void RiuMainWindow::addRecentFiles(const QString& file)
     updateRecentFileActions();
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::removeRecentFiles(const QString& file)
+{
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.removeAll(file);
+
+    settings.setValue("recentFileList", files);
+
+    updateRecentFileActions();
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
