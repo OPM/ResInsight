@@ -113,6 +113,7 @@ private:
 
     void            updateRecentFileActions();
     void            addRecentFiles(const QString& file);
+    void            removeRecentFiles(const QString& file);
     
     QMdiSubWindow*  findMdiSubWindow(RiuViewer* viewer);
 
