@@ -97,7 +97,8 @@ public:
 
     void            appendActionsContextMenuForPdmObject(caf::PdmObject* pdmObject, QMenu* menu);
     void            refreshDrawStyleActions();
-
+    
+    void            setExpanded(const caf::PdmObject* pdmObject, bool expanded);
 
 protected:
     virtual void	closeEvent(QCloseEvent* event);
