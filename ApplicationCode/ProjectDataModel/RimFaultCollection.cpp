@@ -57,13 +57,8 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showFaultCollection,     "Active",        true,   "Active", "", "", "");
     showFaultCollection.setUiHidden(true);
 
-    CAF_PDM_InitField(&showGeometryDetectedFaults,  "ShowGeometryDetectedFaults",    false,   "Show geometry detected faults", "", "", "");
-    showGeometryDetectedFaults.setUiHidden(true);
-
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
-    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
-    CAF_PDM_InitField(&showResultsOnFaults,     "ShowResultsOnFaults",      true,   "Show results on faults", "", "", "");
     CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
 
     CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
@@ -101,16 +96,13 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         m_reservoirView->scheduleReservoirGridGeometryRegen();
     }
 
-    if (&showGeometryDetectedFaults == changedField ||
-        &showFaultFaces == changedField ||
+    if (&showFaultFaces == changedField ||
         &showOppositeFaultFaces == changedField ||
-        &showNNCs == changedField ||
         &showFaultCollection == changedField ||
         &showFaultLabel == changedField ||
         &showFaultsOutsideFilters == changedField ||
         &faultLabelColor == changedField ||
-        &faultResult == changedField ||
-        &showResultsOnFaults == changedField
+        &faultResult == changedField
         )
     {
         if (m_reservoirView) 
@@ -266,8 +258,6 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 
     caf::PdmUiGroup* adv = uiOrdering.addNewGroup("Fault Options");
     adv->add(&showFaultsOutsideFilters);
-    adv->add(&showResultsOnFaults);
-    adv->add(&showNNCs);
 
     caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup("Fault Face Visibility");
     ffviz->add(&showFaultFaces);

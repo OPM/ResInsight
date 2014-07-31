@@ -58,13 +58,9 @@ public:
 
     bool                                isGridVisualizationMode() const;
 
-    caf::PdmField<bool>                 showGeometryDetectedFaults; // Obsolete, to be removed
-
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
     caf::PdmField<bool>                 showFaultsOutsideFilters;
-    caf::PdmField<bool>                 showNNCs;
-    caf::PdmField<bool>                 showResultsOnFaults;
     
     caf::PdmField<caf::AppEnum< FaultFaceCullingMode > > faultResult;
 

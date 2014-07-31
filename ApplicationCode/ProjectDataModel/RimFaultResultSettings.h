@@ -47,6 +47,8 @@ public:
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
     caf::PdmField< caf::AppEnum< FaultVisualizationMode > >     visualizationMode;
+    caf::PdmField<bool> showNNCs;
+
 
     RimResultSlot*  customFaultResult();
     void            updateVisibility();

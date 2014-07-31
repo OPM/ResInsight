@@ -46,11 +46,12 @@ RimFaultResultSettings::RimFaultResultSettings()
     CAF_PDM_InitObject("Fault Result Slot", "", "", "");
 
     CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSettings::FaultVisualizationMode>(RimFaultResultSettings::CELL_RESULT_MAPPING), "Fault Color Mapping", "", "", "");
+    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
 
-     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
-     m_customFaultResult = new RimResultSlot();
+    CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
+    m_customFaultResult = new RimResultSlot();
 
-     updateVisibility();
+    updateVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,9 +80,11 @@ void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changed
         updateVisibility();
 
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
+
+        RiuMainWindow::instance()->setExpanded(this, true);
     }
 
-    if (m_reservoirView) m_reservoirView->createDisplayModelAndRedraw();
+    if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
