@@ -102,7 +102,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
 
-    CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Fault Result Settings", ":/CellResult.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Fault Result Settings", ":/draw_style_faults_24x24.png", "", "");
     faultResultSettings = new RimFaultResultSettings();
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
