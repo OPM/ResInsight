@@ -36,7 +36,6 @@ public:
     enum FaultVisualizationMode
     {
         FAULT_COLOR,
-        CELL_RESULT_MAPPING,
         CUSTOM_RESULT_MAPPING
     };
 
@@ -47,15 +46,17 @@ public:
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
     caf::PdmField< caf::AppEnum< FaultVisualizationMode > >     visualizationMode;
-    caf::PdmField<bool> showNNCs;
+    caf::PdmField<bool>     showNNCs;
+    caf::PdmField<bool>     showCustomFaultResult;
 
 
     RimResultSlot*  customFaultResult();
     void            updateVisibility();
 
 protected:
-    virtual void    initAfterRead();
-    virtual void    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                    initAfterRead();
+    virtual caf::PdmFieldHandle*    objectToggleField();
+    virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
 
 private:
     caf::PdmField<RimResultSlot*>       m_customFaultResult;
