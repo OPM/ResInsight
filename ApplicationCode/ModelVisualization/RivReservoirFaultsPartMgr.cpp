@@ -119,7 +119,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
             forceDisplayOfFault = true;
         }
 
-        if (rimFault->showFault() || forceDisplayOfFault)
+        if ( (faultCollection->showFaultCollection() && rimFault->showFault()) || forceDisplayOfFault)
         {
             if (faultCollection->showFaultFaces() || forceDisplayOfFault)
             {

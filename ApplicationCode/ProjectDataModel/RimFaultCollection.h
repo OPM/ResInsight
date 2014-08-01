@@ -57,10 +57,12 @@ public:
     void                                syncronizeFaults();
 
     bool                                isGridVisualizationMode() const;
+    
+    bool                                showFaultsOutsideFilters() const;
+    void                                setShowFaultsOutsideFilters(bool enableState);
 
     caf::PdmField<bool>                 showFaultFaces;
     caf::PdmField<bool>                 showOppositeFaultFaces;
-    caf::PdmField<bool>                 showFaultsOutsideFilters;
     
     caf::PdmField<caf::AppEnum< FaultFaceCullingMode > > faultResult;
 
@@ -80,6 +82,7 @@ private:
     virtual void                        defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
 private:
-    RimReservoirView* m_reservoirView;
+    caf::PdmField<bool>     m_showFaultsOutsideFilters;
+    RimReservoirView*       m_reservoirView;
 
 };

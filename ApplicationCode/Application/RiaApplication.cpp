@@ -2062,7 +2062,7 @@ void RiaApplication::regressionTestConfigureProject()
                 riv->viewer()->setFixedSize(1000, 745);
             }
 
-            riv->faultCollection->showFaultsOutsideFilters.setValueFromUi(false);
+            riv->faultCollection->setShowFaultsOutsideFilters(false);
             riv->faultResultSettings->showCustomFaultResult.setValueFromUi(false);
         }
     }

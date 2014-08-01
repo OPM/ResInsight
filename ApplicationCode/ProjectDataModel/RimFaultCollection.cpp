@@ -59,7 +59,7 @@ RimFaultCollection::RimFaultCollection()
 
     CAF_PDM_InitField(&showFaultFaces,          "ShowFaultFaces",           true,    "Show defined faces", "", "", "");
     CAF_PDM_InitField(&showOppositeFaultFaces,  "ShowOppositeFaultFaces",   true,    "Show opposite faces", "", "", "");
-    CAF_PDM_InitField(&showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
+    CAF_PDM_InitField(&m_showFaultsOutsideFilters,"ShowFaultsOutsideFilters", true,    "Show faults outside filters", "", "", "");
 
     CAF_PDM_InitField(&faultResult,        "FaultFaceCulling", caf::AppEnum<RimFaultCollection::FaultFaceCullingMode>(RimFaultCollection::FAULT_BACK_FACE_CULLING), "Dynamic Face Selection", "", "", "");
 
@@ -97,7 +97,7 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         &showOppositeFaultFaces == changedField ||
         &showFaultCollection == changedField ||
         &showFaultLabel == changedField ||
-        &showFaultsOutsideFilters == changedField ||
+        &m_showFaultsOutsideFilters == changedField ||
         &faultLabelColor == changedField ||
         &faultResult == changedField
         )
@@ -254,11 +254,29 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     labs->add(&faultLabelColor);
 
     caf::PdmUiGroup* adv = uiOrdering.addNewGroup("Fault Options");
-    adv->add(&showFaultsOutsideFilters);
+    adv->add(&m_showFaultsOutsideFilters);
 
     caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup("Fault Face Visibility");
     ffviz->add(&showFaultFaces);
     ffviz->add(&showOppositeFaultFaces);
     ffviz->add(&faultResult);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFaultCollection::showFaultsOutsideFilters() const
+{
+    if (!showFaultCollection) return false;
+
+    return m_showFaultsOutsideFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultCollection::setShowFaultsOutsideFilters(bool enableState)
+{
+    m_showFaultsOutsideFilters = enableState;
 }
 
