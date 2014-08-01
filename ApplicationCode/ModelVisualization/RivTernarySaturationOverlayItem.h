@@ -48,12 +48,13 @@ public:
     virtual void    renderSoftware(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size);
 
     void            setSize(const cvf::Vec2ui& size);
-
     void            setAxisLabelsColor(const cvf::Color3f& color);
+    void            setTitle(const cvf::String& title);
+
 
 private:
     void render(cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software);
-    void renderAxisImmediateMode(cvf::OpenGLContext* oglContext);
+    void renderAxisImmediateMode(float upperY, cvf::OpenGLContext* oglContext);
 
 private:
     cvf::Color3f        m_textColor;    // Text color 
@@ -64,5 +65,7 @@ private:
     cvf::String         m_swatRange;
 
     cvf::Vec2ui         m_size;         // Pixel size of draw area
+
+    std::vector<cvf::String> m_titleStrings;
 };
 
