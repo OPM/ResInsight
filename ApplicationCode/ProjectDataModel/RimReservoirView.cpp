@@ -620,7 +620,7 @@ void RimReservoirView::createDisplayModel()
         m_visibleGridParts = geometryTypesToAdd;
     }
 
-    if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters)
+    if (!this->propertyFilterCollection()->hasActiveFilters() || faultCollection()->showFaultsOutsideFilters())
     {
         updateFaultForcedVisibility();
 
@@ -714,7 +714,7 @@ void RimReservoirView::updateCurrentTimeStep()
         geometriesToRecolor.push_back( RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
         m_reservoirGridPartManager->appendDynamicGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS, m_currentTimeStep, gridIndices);
 
-        if (faultCollection()->showFaultsOutsideFilters)
+        if (faultCollection()->showFaultsOutsideFilters())
         {
             std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometryTypesToAppend = visibleFaultGeometryTypes();
 
@@ -748,7 +748,7 @@ void RimReservoirView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE, gridIndices); 
 
-                if (!faultCollection()->showFaultsOutsideFilters)
+                if (!faultCollection()->showFaultsOutsideFilters())
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::RANGE_FILTERED_INACTIVE); 
                 }
@@ -757,7 +757,7 @@ void RimReservoirView::updateCurrentTimeStep()
             {
                 m_reservoirGridPartManager->appendStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE, gridIndices);
 
-                if (!faultCollection()->showFaultsOutsideFilters)
+                if (!faultCollection()->showFaultsOutsideFilters())
                 {
                     m_reservoirGridPartManager->appendFaultsStaticGeometryPartsToModel(frameParts.p(), RivReservoirViewPartMgr::INACTIVE);
                 }
@@ -1980,7 +1980,7 @@ std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> RimReservoirVie
 {
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultParts;
 
-    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters)
+    if (this->propertyFilterCollection()->hasActiveFilters() && !faultCollection()->showFaultsOutsideFilters())
     {
         faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED);
         faultParts.push_back(RivReservoirViewPartMgr::PROPERTY_FILTERED_WELL_CELLS);
