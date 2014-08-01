@@ -30,13 +30,13 @@ RifReaderSettings::RifReaderSettings()
 {
     CAF_PDM_InitObject("RifReaderSettings", "", "", "");
 
-    CAF_PDM_InitField(&importFaults, "importFaults", false, "Import faults", "", "", "");
+    CAF_PDM_InitField(&importFaults, "importFaults", true, "Import faults", "", "", "");
     importFaults.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&importSimulationWellData, "importSimulationWellData", false, "Import simulation wells", "", "", "");
+    CAF_PDM_InitField(&importSimulationWellData, "importSimulationWellData", true, "Import simulation wells", "", "", "");
     importSimulationWellData.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
-    CAF_PDM_InitField(&importNNCs, "importSimulationNNCs", false, "Import NNCs", "", "", "");
+    CAF_PDM_InitField(&importNNCs, "importSimulationNNCs", true, "Import NNCs", "", "", "");
     importNNCs.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 }
 
