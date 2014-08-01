@@ -138,7 +138,7 @@ RigActiveCellInfo* RimCellRangeFilterCollection::activeCellInfo() const
 //--------------------------------------------------------------------------------------------------
 void RimCellRangeFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    updateUiIconFromState(isActive);
+    this->updateUiIconFromToggleField();
 
     CVF_ASSERT(m_reservoirView);
 
@@ -184,8 +184,9 @@ void RimCellRangeFilterCollection::initAfterRead()
         RimCellRangeFilter* rangeFilter = *it;
         rangeFilter->setParentContainer(this);
         rangeFilter->updateIconState();
-
     }
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

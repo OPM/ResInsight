@@ -190,7 +190,7 @@ void RimWellCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField
 {
     if (&showWellLabel == changedField || &isActive == changedField)
     {
-        this->updateUiIconFromState(isActive);
+        this->updateUiIconFromToggleField();
 
         if (m_reservoirView) 
         {

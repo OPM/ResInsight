@@ -76,7 +76,7 @@ RimReservoirView* RimCellPropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 void RimCellPropertyFilterCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->updateUiIconFromState(active);
+    this->updateUiIconFromToggleField();
 
     m_reservoirView->fieldChangedByUi(&(m_reservoirView->propertyFilterCollection), oldValue, newValue);
 }
@@ -131,6 +131,8 @@ void RimCellPropertyFilterCollection::loadAndInitializePropertyFilters()
 void RimCellPropertyFilterCollection::initAfterRead()
 {
     loadAndInitializePropertyFilters();
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -293,6 +293,8 @@ void RimResultDefinition::initAfterRead()
     m_porosityModelUiField = m_porosityModel;
     m_resultTypeUiField = m_resultType;
     m_resultVariableUiField = m_resultVariable;
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

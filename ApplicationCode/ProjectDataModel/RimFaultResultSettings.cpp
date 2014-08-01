@@ -84,7 +84,7 @@ void RimFaultResultSettings::setReservoirView(RimReservoirView* ownerReservoirVi
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    this->updateUiIconFromState(showCustomFaultResult);
+    this->updateUiIconFromToggleField();
 
     m_customFaultResult->fieldChangedByUi(changedField, oldValue, newValue);
 
@@ -111,7 +111,7 @@ void RimFaultResultSettings::initAfterRead()
     m_customFaultResult->initAfterRead();
     updateFieldVisibility();
 
-    this->updateUiIconFromState(showCustomFaultResult);
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------
