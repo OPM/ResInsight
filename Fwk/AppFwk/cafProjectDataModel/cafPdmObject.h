@@ -174,6 +174,8 @@ public:
     /// Return object editor specific parameters used to customize the editor behavior.
     void                    objectEditorAttribute(QString uiConfigName, PdmUiEditorAttribute* attribute);
 
+    void                    updateUiIconFromToggleField();
+
     // Virtual interface to override in subclasses to support special behaviour if needed
 public: // Virtual 
     virtual PdmFieldHandle* userDescriptionField() { return NULL; }
@@ -196,7 +198,8 @@ public:
 protected: // Virtual 
     /// Method gets called from PdmDocument after all objects are read. 
     /// Re-implement to set up internal pointers etc. in your data structure
-    virtual void            initAfterRead() {};
+    virtual void            initAfterRead() { updateUiIconFromToggleField(); };
+
     /// Method gets called from PdmDocument before saving document. 
     /// Re-implement to make sure your fields have correct data before saving
     virtual void            setupBeforeSave() {};

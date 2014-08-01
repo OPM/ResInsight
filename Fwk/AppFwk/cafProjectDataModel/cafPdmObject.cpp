@@ -464,5 +464,17 @@ void PdmObject::addUiTreeChildren(PdmUiTreeOrdering* root, QString uiConfigName 
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObject::updateUiIconFromToggleField()
+{
+    if (objectToggleField())
+    {
+        bool active = objectToggleField()->uiValue().toBool();
+        updateUiIconFromState(active);
+    }
+}
+
 
 } //End of namespace caf
