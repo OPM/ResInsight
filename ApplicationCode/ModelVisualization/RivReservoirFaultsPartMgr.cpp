@@ -182,7 +182,8 @@ void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimResultSlot
     {
         RimFault* rimFault = faultCollection->faults[i];
 
-        if (m_reservoirView->faultResultSettings()->visualizationMode() == RimFaultResultSettings::FAULT_COLOR)
+        if (m_reservoirView->faultResultSettings()->showCustomFaultResult() &&
+            m_reservoirView->faultResultSettings()->visualizationMode() == RimFaultResultSettings::FAULT_COLOR)
         {
             m_faultParts[i]->applySingleColorEffect();
         }

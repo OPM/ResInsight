@@ -30,9 +30,8 @@ namespace caf
     void AppEnum< RimFaultResultSettings::FaultVisualizationMode >::setUp()
     {
         addItem(RimFaultResultSettings::FAULT_COLOR,            "FAULT_COLOR",              "Fault Colors");
-        addItem(RimFaultResultSettings::CELL_RESULT_MAPPING,    "CELL_RESULT_MAPPING",      "Grid Cell Results");
         addItem(RimFaultResultSettings::CUSTOM_RESULT_MAPPING,  "CUSTOM_RESULT_MAPPING",    "Custom Cell Results");
-        setDefault(RimFaultResultSettings::CELL_RESULT_MAPPING);
+        setDefault(RimFaultResultSettings::FAULT_COLOR);
     }
 }
 
@@ -45,7 +44,10 @@ RimFaultResultSettings::RimFaultResultSettings()
 {
     CAF_PDM_InitObject("Fault Result Slot", "", "", "");
 
-    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSettings::FaultVisualizationMode>(RimFaultResultSettings::CELL_RESULT_MAPPING), "Fault Color Mapping", "", "", "");
+    CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
+    showCustomFaultResult.setUiHidden(true);
+
+    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSettings::FaultVisualizationMode>(RimFaultResultSettings::FAULT_COLOR), "Fault Color Mapping", "", "", "");
     CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
@@ -75,6 +77,11 @@ void RimFaultResultSettings::setReservoirView(RimReservoirView* ownerReservoirVi
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
+    if (&showCustomFaultResult == changedField)
+    {
+        this->updateUiIconFromState(showCustomFaultResult);
+    }
+
     if (changedField == &visualizationMode)
     {
         updateVisibility();
@@ -100,7 +107,7 @@ void RimFaultResultSettings::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSettings::updateVisibility()
 {
-    if (this->visualizationMode() == FAULT_COLOR || this->visualizationMode() == CELL_RESULT_MAPPING)
+    if (this->visualizationMode() == FAULT_COLOR)
     {
         this->m_customFaultResult.setUiHidden(true);
         this->m_customFaultResult.setUiChildrenHidden(true);
@@ -117,11 +124,19 @@ void RimFaultResultSettings::updateVisibility()
 //--------------------------------------------------------------------------------------------------
 RimResultSlot* RimFaultResultSettings::customFaultResult()
 {
-    if (this->visualizationMode() == CUSTOM_RESULT_MAPPING)
+    if (showCustomFaultResult() && this->visualizationMode() == CUSTOM_RESULT_MAPPING)
     {
         return this->m_customFaultResult();
     }
 
     return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimFaultResultSettings::objectToggleField()
+{
+    return &showCustomFaultResult;
 }
 

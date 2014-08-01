@@ -1389,9 +1389,8 @@ void RimReservoirView::updateLegends()
     CVF_ASSERT(results);
 
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
-    if (this->faultResultSettings()->visualizationMode() == RimFaultResultSettings::CUSTOM_RESULT_MAPPING)
+    if (this->faultResultSettings()->customFaultResult())
     {
-        CVF_ASSERT(this->faultResultSettings()->customFaultResult());
         updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->faultResultSettings()->customFaultResult(), results);
     }
 
@@ -2054,14 +2053,10 @@ void RimReservoirView::updateFaultColors()
     // Update all fault geometry
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
-    RimResultSlot* resultSlot = NULL;
-    if (this->faultResultSettings()->visualizationMode() == RimFaultResultSettings::CUSTOM_RESULT_MAPPING)
+    RimResultSlot* resultSlot = this->cellResult();
+    if (this->faultResultSettings()->customFaultResult())
     {
         resultSlot = this->faultResultSettings()->customFaultResult();
-    }
-    else
-    {
-        resultSlot = this->cellResult();
     }
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
