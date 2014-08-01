@@ -40,6 +40,7 @@
 #include "RiuViewer.h"
 #include "RivReservoirPipesPartMgr.h"
 #include "RivWellPathCollectionPartMgr.h"
+#include "RivTernarySaturationOverlayItem.h"
 
 #include "cafCadNavigation.h"
 #include "cafCeetronPlusNavigation.h"
@@ -1508,6 +1509,7 @@ void RimReservoirView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
 
         if (resultSlot->ternaryLegendConfig->legend())
         {
+            resultSlot->ternaryLegendConfig->legend()->setTitle(cvfqt::Utils::toString(legendLabel));
             m_viewer->addColorLegendToBottomLeftCorner(resultSlot->ternaryLegendConfig->legend());
         }
     }

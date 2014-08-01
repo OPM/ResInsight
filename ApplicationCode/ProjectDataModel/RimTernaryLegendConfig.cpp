@@ -298,7 +298,7 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::OverlayItem* RimTernaryLegendConfig::legend()
+RivTernarySaturationOverlayItem* RimTernaryLegendConfig::legend()
 {
     return m_legend.p();
 }

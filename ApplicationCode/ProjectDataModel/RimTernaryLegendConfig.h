@@ -69,7 +69,8 @@ public:
     void                ternaryRanges(double& soilLower, double& soilUpper, double& sgasLower, double& sgasUpper, double& swatLower, double& swatUpper) const;
 
     void                recreateLegend();
-    cvf::OverlayItem*   legend();
+    
+    RivTernarySaturationOverlayItem*   legend();
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
