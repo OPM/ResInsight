@@ -103,7 +103,7 @@ RimReservoirView::RimReservoirView()
     CAF_PDM_InitFieldNoDefault(&cellEdgeResult,  "GridCellEdgeResult", "Cell Edge Result", ":/EdgeResult_1.png", "", "");
     cellEdgeResult = new RimCellEdgeResultSlot();
 
-    CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Fault Result Settings", ":/draw_style_faults_24x24.png", "", "");
+    CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Fault Result Settings", "", "", "");
     faultResultSettings = new RimFaultResultSettings();
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
@@ -933,13 +933,14 @@ void RimReservoirView::loadDataAndUpdate()
     CVF_ASSERT(this->cellResult() != NULL);
     this->cellResult()->loadResult();
 
-    if (m_reservoir->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
-    {
-        this->cellResult->setPorosityModelUiFieldHidden(true);
-    }
-
     CVF_ASSERT(this->cellEdgeResult() != NULL);
     this->cellEdgeResult()->loadResult();
+
+    if (this->faultResultSettings()->customFaultResult())
+    {
+        this->faultResultSettings()->customFaultResult()->loadResult();
+    }
+    this->faultResultSettings()->updateFieldVisibility();
 
     updateViewerWidget();
 

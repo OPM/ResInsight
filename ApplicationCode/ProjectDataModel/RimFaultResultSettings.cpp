@@ -42,7 +42,7 @@ CAF_PDM_SOURCE_INIT(RimFaultResultSettings, "RimFaultResultSlot");
 //--------------------------------------------------------------------------------------------------
 RimFaultResultSettings::RimFaultResultSettings()
 {
-    CAF_PDM_InitObject("Fault Result Slot", "", "", "");
+    CAF_PDM_InitObject("Fault Result Slot", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
     showCustomFaultResult.setUiHidden(true);
@@ -52,8 +52,15 @@ RimFaultResultSettings::RimFaultResultSettings()
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
     m_customFaultResult = new RimResultSlot();
+    m_customFaultResult.setOwnerObject(this);
+    m_customFaultResult.setUiHidden(true);
 
-    updateVisibility();
+    // Take ownership of the fields in RimResultDefinition to be able to trap fieldChangedByUi in this class
+    m_customFaultResult->m_resultTypeUiField.setOwnerObject(this);
+    m_customFaultResult->m_porosityModelUiField.setOwnerObject(this);
+    m_customFaultResult->m_resultVariableUiField.setOwnerObject(this);
+
+    updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,18 +84,20 @@ void RimFaultResultSettings::setReservoirView(RimReservoirView* ownerReservoirVi
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showCustomFaultResult == changedField)
-    {
-        this->updateUiIconFromState(showCustomFaultResult);
-    }
+    this->updateUiIconFromState(showCustomFaultResult);
+
+    m_customFaultResult->fieldChangedByUi(changedField, oldValue, newValue);
 
     if (changedField == &visualizationMode)
     {
-        updateVisibility();
+        updateFieldVisibility();
 
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
+    }
 
-        RiuMainWindow::instance()->setExpanded(this, true);
+    if (changedField == &m_customFaultResult->m_resultVariableUiField)
+    {
+        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
     }
 
     if (m_reservoirView) m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -99,24 +108,18 @@ void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSettings::initAfterRead()
 {
-    updateVisibility();
+    m_customFaultResult->initAfterRead();
+    updateFieldVisibility();
+
+    this->updateUiIconFromState(showCustomFaultResult);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSettings::updateVisibility()
+void RimFaultResultSettings::updateFieldVisibility()
 {
-    if (this->visualizationMode() == FAULT_COLOR)
-    {
-        this->m_customFaultResult.setUiHidden(true);
-        this->m_customFaultResult.setUiChildrenHidden(true);
-    }
-    else
-    {
-        this->m_customFaultResult.setUiHidden(false);
-        this->m_customFaultResult.setUiChildrenHidden(false);
-    }
+    m_customFaultResult->updateFieldVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -138,5 +141,30 @@ RimResultSlot* RimFaultResultSettings::customFaultResult()
 caf::PdmFieldHandle* RimFaultResultSettings::objectToggleField()
 {
     return &showCustomFaultResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultResultSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+{
+    uiOrdering.add(&visualizationMode);
+    uiOrdering.add(&showNNCs);
+
+    if (visualizationMode == CUSTOM_RESULT_MAPPING)
+    {
+        caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
+        group1->add(&(m_customFaultResult->m_resultTypeUiField));
+        group1->add(&(m_customFaultResult->m_porosityModelUiField));
+        group1->add(&(m_customFaultResult->m_resultVariableUiField));
+    }
+}   
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFaultResultSettings::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+{
+    return m_customFaultResult->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 }
 

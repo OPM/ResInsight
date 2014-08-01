@@ -51,12 +51,15 @@ public:
 
 
     RimResultSlot*  customFaultResult();
-    void            updateVisibility();
+    void            updateFieldVisibility();
+
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
 
 protected:
     virtual void                    initAfterRead();
     virtual caf::PdmFieldHandle*    objectToggleField();
     virtual void                    fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
+    virtual void                    defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) ;
 
 private:
     caf::PdmField<RimResultSlot*>       m_customFaultResult;
