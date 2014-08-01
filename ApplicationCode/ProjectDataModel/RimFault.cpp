@@ -63,10 +63,7 @@ caf::PdmFieldHandle* RimFault::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimFault::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showFault == changedField)
-    {
-        this->updateUiIconFromState(showFault);
-    }
+    this->updateUiIconFromToggleField();
 
     if (&faultColor == changedField || &showFault == changedField)
     {

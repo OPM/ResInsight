@@ -89,6 +89,8 @@ void RimOilFieldEntry::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
 void RimOilFieldEntry::initAfterRead()
 {
     updateEnabledState();
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

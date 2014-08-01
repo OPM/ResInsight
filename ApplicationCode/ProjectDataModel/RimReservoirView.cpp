@@ -415,7 +415,7 @@ void RimReservoirView::fieldChangedByUi(const caf::PdmFieldHandle* changedField,
             }
         }
 
-        this->updateUiIconFromState(showWindow);
+        this->updateUiIconFromToggleField();
     }
     else if (changedField == &backgroundColor ) 
     {
@@ -974,6 +974,8 @@ void RimReservoirView::initAfterRead()
     this->cellEdgeResult()->setReservoirView(this);
     this->rangeFilterCollection()->setReservoirView(this);
     this->propertyFilterCollection()->setReservoirView(this);
+
+    this->updateUiIconFromToggleField();
 }
 
 //--------------------------------------------------------------------------------------------------

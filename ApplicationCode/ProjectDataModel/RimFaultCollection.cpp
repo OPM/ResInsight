@@ -86,11 +86,8 @@ RimFaultCollection::~RimFaultCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
-    if (&showFaultCollection == changedField)
-    {
-        this->updateUiIconFromState(showFaultCollection);
-    }
-
+    this->updateUiIconFromToggleField();
+    
     if (&faultLabelColor == changedField)
     {
         m_reservoirView->scheduleReservoirGridGeometryRegen();

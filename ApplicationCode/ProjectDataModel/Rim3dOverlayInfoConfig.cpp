@@ -82,7 +82,7 @@ void Rim3dOverlayInfoConfig::setPosition(cvf::Vec2ui position)
 //--------------------------------------------------------------------------------------------------
 void Rim3dOverlayInfoConfig::update3DInfo()
 {
-    this->updateUiIconFromState(active);
+    this->updateUiIconFromToggleField();
 
     if (!m_reservoirView) return;
     if (!m_reservoirView->viewer()) return;
