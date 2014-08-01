@@ -154,6 +154,8 @@ void RimResultSlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
 {
+    RimResultDefinition::setReservoirView(ownerReservoirView);
+
     m_reservoirView = ownerReservoirView;
     this->legendConfig()->setReservoirView(ownerReservoirView);
     std::list<caf::PdmPointer<RimLegendConfig> >::iterator it;

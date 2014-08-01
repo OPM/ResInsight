@@ -49,7 +49,6 @@ public:
     void                            setPorosityModel(RimDefines::PorosityModelType val);
     QString                         resultVariable() const { return m_resultVariable(); }
     virtual void                    setResultVariable(const QString& val);
-    void                            setPorosityModelUiFieldHidden(bool hide);
 
     void                            loadResult();
     size_t                          gridScalarIndex() const;
@@ -71,6 +70,7 @@ protected:
     caf::PdmField<QString>                                          m_resultVariable;
 
     friend class RimCellPropertyFilter;
+    friend class RimFaultResultSettings;
     // User interface only fields, to support "filtering"-like behaviour etc.
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
@@ -80,6 +80,9 @@ protected:
     //mutable size_t                                                  m_gridScalarResultIndex;
 
     caf::PdmPointer<RimReservoirView>                               m_reservoirView;
+
+protected:
+    void updateFieldVisibility();
 
 private:
     QStringList getResultVariableListForCurrentUIFieldSettings();
