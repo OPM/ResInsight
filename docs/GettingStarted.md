@@ -38,9 +38,9 @@ A selected subset of actions are presented as controls in the toolbar. The diffe
 In the main area of the application, several 3D views can be open at the same time.  One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
 
 <div class="note">
-<h5>To see views next to each other select the **Restore down** icon in the application (shown below for Windows).
-![Restore Down]({{ site.baseurl }}/images/RestoreDown.PNG)
+<h5>To see views next to each other select the <b>Restore down</b> icon in the application (shown below for Windows).
 </div>
+![Restore Down]({{ site.baseurl }}/images/RestoreDown.PNG)
 
 #### Editing the views
 
