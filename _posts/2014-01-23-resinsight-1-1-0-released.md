@@ -12,4 +12,5 @@ categories: [release]
 - efficient handlig of multiple cases
 
 ### Faults
+
 ### Vizualisation of NNCS
