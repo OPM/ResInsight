@@ -19,7 +19,7 @@ If enabled, ResInsight will also import fault information from the `*.DATA` file
 
 <div class="note warning">
 <h5>Reduce case loading time</h5>
-As import of faults can be time consuming, reading of faults can be disabled from **Preferences -> Read fault data**
+As import of faults can be time consuming, reading of faults can be disabled from <b>Preferences -> Read fault data</b>
 </div>
 
 ### Undefined grid faults
