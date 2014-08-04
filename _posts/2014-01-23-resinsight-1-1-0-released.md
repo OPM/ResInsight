@@ -10,5 +10,6 @@ categories: [release]
 ### Batch functionality
 - statistics computations
 - efficient handlig of multiple cases
+
 ### Faults
 ### Vizualisation of NNCS
