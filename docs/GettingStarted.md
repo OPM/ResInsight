@@ -7,9 +7,6 @@ permalink: /docs/gettingstarted/
 published: true
 ---
 
-### Installation
-Installation instructions for ResInsight can be found here: [Installation and Configuration]({{ site.baseurl }}/docs/installation) 
-
 
 ### User interface overview 
 
@@ -26,7 +23,10 @@ windows can be managed from the **Windows** menu or directly using the local men
 - **Process Monitor** - displays output from Octave when executing Octave scripts
 - **Result Info** - displays info for the object being hit in the 3D scene when clicking with left mouse button
 
-*TIP:* A new project tree and property editor can be added from **Windows->New Project and Property View**.
+<div class="note">
+<h5>Add additional docking windows</h5>
+A new project tree and property editor can be added from **Windows->New Project and Property View**.
+</div>
 
 
 ### Toolbars 
@@ -37,9 +37,10 @@ A selected subset of actions are presented as controls in the toolbar. The diffe
 
 In the main area of the application, several 3D views can be open at the same time.  One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
 
-*TIP:* To see views next to each other select the **Restore down** icon in the application show here for Windows :
-
+<div class="note">
+<h5>To see views next to each other select the **Restore down** icon in the application (shown below for Windows).
 ![Restore Down]({{ site.baseurl }}/images/RestoreDown.PNG)
+</div>
 
 #### Editing the views
 

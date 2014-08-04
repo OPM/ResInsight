@@ -40,7 +40,10 @@ This is useful if you want to create statistics based only on a subset of the so
 ## Viewing special Source Cases
 To reduce the number of views, only a view for the first case is created automatically. If you want to inspect the results of a particular source case, right click the case and select **New view** from the context menu. A new 3D View will the be created on that particular case.
 
-*TIP:* To reduce memory usage, project loading time etc. it is vise to delete the 3D Views you do not need. 3D Views use a lot of system resources. 
+<div class="note">
+<h5>How to limit system resource allocation</h5>
+To reduce memory usage, project loading time etc. remember to delete the 3D Views you do not need. 3D Views uses a lot of system resources. 
+</div>
 
 ## Statistics
 After creating a grid case group, an empty **Statistics Case** is created for you in the **Derived Statistics** folder of the **Grid Case Group**. 

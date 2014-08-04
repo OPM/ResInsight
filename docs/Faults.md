@@ -16,7 +16,11 @@ This means that the are drawn in special ways, and that their visual appearance 
 If enabled, ResInsight will also import fault information from the `*.DATA` files and use this information to group the detected faces into named items which is available in the ![]({{ site.baseurl }}/images/draw_style_faults_24x24.png) **Faults** item in the **Project Tree**. The imported faults are ordered in ascending order based on their name.
 
 >
-***Note:*** As import of faults can be time consuming, reading of faults can be disabled from **Preferences -> Read fault data**
+
+<div class="note warning">
+<h5>Reduce case loading time</h5>
+As import of faults can be time consuming, reading of faults can be disabled from **Preferences -> Read fault data**
+</div>
 
 ### Undefined grid faults
 All the detected cell faces are compared to the faults imported from the `*.DATA` file in order to group them. If a particular face is *not* found among the fault faces defined in the `*.DATA` file or it's opposite face, the cell face is added to a fault called **Undefined grid faults**. This particular Fault will always be present, even if reading of the `*.DATA` file is disabled.
