@@ -7,8 +7,8 @@ version: 1.1.0
 categories: [release]
 ---
 
-Batch functionality
- - statistics computations
- - efficient handlig of multiple cases
-Faults
-Vizualisation of NNCS
+### Batch functionality
+- statistics computations
+- efficient handlig of multiple cases
+### Faults
+### Vizualisation of NNCS

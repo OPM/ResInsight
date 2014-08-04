@@ -7,8 +7,8 @@ version: 1.0.0
 categories: [release]
 ---
 
-Grid visualization
-Range and property filters
-Basic Fault visualization
-Octave interface
+- Grid visualization
+- Range and property filters
+- Basic Fault visualization
+- Octave interface
 
