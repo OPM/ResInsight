@@ -14,6 +14,7 @@ ${CEE_CURRENT_LIST_DIR}RigResultAccessObject.h
 ${CEE_CURRENT_LIST_DIR}RigResultAccessObjectFactory.h
 ${CEE_CURRENT_LIST_DIR}RigAllGridCellsResultAccessObject.h
 ${CEE_CURRENT_LIST_DIR}RigActiveCellsResultAccessObject.h
+${CEE_CURRENT_LIST_DIR}RigCellFaceResultAccessObject.h
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.h
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.h
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
@@ -37,6 +38,7 @@ ${CEE_CURRENT_LIST_DIR}RigResultAccessObject.cpp
 ${CEE_CURRENT_LIST_DIR}RigResultAccessObjectFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigAllGridCellsResultAccessObject.cpp
 ${CEE_CURRENT_LIST_DIR}RigActiveCellsResultAccessObject.cpp
+${CEE_CURRENT_LIST_DIR}RigCellFaceResultAccessObject.cpp
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.cpp

@@ -146,7 +146,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigResultAccessObjectFactory::createNativeDataAccessObject(RigCaseData* eclipseCase,
+cvf::ref<cvf::StructGridScalarDataAccess> RigResultAccessObjectFactory::TO_BE_DELETED_createNativeDataAccessObject(RigCaseData* eclipseCase,
                                                                                                         size_t gridIndex,
                                                                                                         RifReaderInterface::PorosityModelResultType porosityModel,
                                                                                                         size_t timeStepIndex,
