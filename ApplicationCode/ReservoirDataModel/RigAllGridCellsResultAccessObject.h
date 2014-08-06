@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) Statoil ASA, Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,25 +18,28 @@
 
 #pragma once
 
-#pragma once
+#include "RigActiveCellsResultAccessObject.h"
 
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfStructGrid.h"
+class RigGridBase;
 
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigResultAccessObject : public cvf::Object
+class RigAllGridCellsResultAccessObject : public RigResultAccessObject
 {
 public:
-    virtual double cellScalar(size_t localCellIndex) const = 0;
-    virtual double cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
+    RigAllGridCellsResultAccessObject(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const QString& resultName);
 
-    virtual QString resultName() const = 0;
+    virtual double  cellScalar(size_t localCellIndex) const;
+    virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual QString resultName() const;
+    virtual void    setCellScalar(size_t localCellIndex, double scalarValue);
 
-    virtual void   setCellScalar(size_t localCellIndex, double scalarValue) = 0;
+private:
+    const RigGridBase*      m_grid;
+    std::vector<double>*    m_reservoirResultValues;
+    QString                 m_resultName;
 };
 
 
