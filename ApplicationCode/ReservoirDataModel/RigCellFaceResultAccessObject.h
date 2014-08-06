@@ -18,18 +18,20 @@
 
 #pragma once
 
-#include "RigActiveCellsResultAccessObject.h"
+#include "RigResultAccessObject.h"
 
-class RigGridBase;
+#include "cvfCollection.h"
 
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigAllGridCellsResultAccessObject : public RigResultAccessObject
+class RigCellFaceResultAccessObject : public RigResultAccessObject
 {
 public:
-    RigAllGridCellsResultAccessObject(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const QString& resultName);
+    RigCellFaceResultAccessObject(const QString& resultName);
+
+    void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessObject* resultAccessObject);
 
     virtual double  cellScalar(size_t localCellIndex) const;
     virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
@@ -37,9 +39,7 @@ public:
     virtual void    setCellScalar(size_t localCellIndex, double scalarValue);
 
 private:
-    const RigGridBase*      m_grid;
-    std::vector<double>*    m_reservoirResultValues;
-    QString                 m_resultName;
+    cvf::Collection<RigResultAccessObject> m_resultAccessObjects;
+    
+    QString m_resultName;
 };
-
-

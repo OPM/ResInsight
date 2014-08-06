@@ -28,8 +28,16 @@ class RigGridBase;
 class RigResultAccessObjectFactory
 {
 public:
+
+
+
+
+
+
+
+    // TO BE DELETED
     static cvf::ref<cvf::StructGridScalarDataAccess> 
-        createNativeDataAccessObject(RigCaseData* eclipseCase,
+        TO_BE_DELETED_createNativeDataAccessObject(RigCaseData* eclipseCase,
                                       size_t gridIndex,
                                       RifReaderInterface::PorosityModelResultType porosityModel,
                                       size_t timeStepIndex,
