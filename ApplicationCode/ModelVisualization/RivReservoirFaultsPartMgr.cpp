@@ -28,7 +28,7 @@
 #include "RimFaultCollection.h"
 #include "RigMainGrid.h"
 #include "RimReservoirView.h"
-#include "RimFaultResultSettings.h"
+#include "RimFaultResultSlot.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimResultSlot
         RimFault* rimFault = faultCollection->faults[i];
 
         if (m_reservoirView->faultResultSettings()->showCustomFaultResult() &&
-            m_reservoirView->faultResultSettings()->visualizationMode() == RimFaultResultSettings::FAULT_COLOR)
+            m_reservoirView->faultResultSettings()->visualizationMode() == RimFaultResultSlot::FAULT_COLOR)
         {
             m_faultParts[i]->applySingleColorEffect();
         }

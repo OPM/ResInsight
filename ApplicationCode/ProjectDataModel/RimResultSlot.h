@@ -44,7 +44,7 @@ public:
     virtual void setResultVariable(const QString& resultName);
 
 protected:
-    friend class RimFaultResultSettings;
+    friend class RimFaultResultSlot;
     virtual void initAfterRead();
 
 private:

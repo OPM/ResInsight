@@ -29,7 +29,7 @@ class RimReservoirView;
 ///  
 ///  
 //==================================================================================================
-class RimFaultResultSettings : public caf::PdmObject
+class RimFaultResultSlot : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 public:
@@ -40,8 +40,8 @@ public:
     };
 
 public:
-    RimFaultResultSettings();
-    virtual ~RimFaultResultSettings();
+    RimFaultResultSlot();
+    virtual ~RimFaultResultSlot();
     
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
