@@ -265,12 +265,6 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
     {
         caf::PdmUiOrdering* ternaryGroupContainer = uiOrdering.addNewGroup("Ternary ");
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SOIL");
-            ternaryGroup->add(&userDefinedMinValueSoil);
-            ternaryGroup->add(&userDefinedMaxValueSoil);
-        }
-
-        {
             caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SGAS");
             ternaryGroup->add(&userDefinedMinValueSgas);
             ternaryGroup->add(&userDefinedMaxValueSgas);
@@ -280,6 +274,12 @@ void RimTernaryLegendConfig::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
             caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SWAT");
             ternaryGroup->add(&userDefinedMinValueSwat);
             ternaryGroup->add(&userDefinedMaxValueSwat);
+        }
+
+        {
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup("SOIL");
+            ternaryGroup->add(&userDefinedMinValueSoil);
+            ternaryGroup->add(&userDefinedMaxValueSoil);
         }
 
         ternaryGroupContainer->add(&applyLocalMinMax);
