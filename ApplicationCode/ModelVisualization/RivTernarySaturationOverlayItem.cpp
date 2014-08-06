@@ -41,7 +41,7 @@
 RivTernarySaturationOverlayItem::RivTernarySaturationOverlayItem(cvf::Font* font)
     :    m_textColor(cvf::Color3::BLACK),
     m_font(font),
-    m_size(100, 120)
+    m_size(100, 140)
 {
 }
 
@@ -132,20 +132,31 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
         textPosY -= lineHeightInPixels;
     }
 
-    textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), textPosY));
-    textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - 17 ), textPosY - lineHeightInPixels));
+    cvf::Vec2f pos(5, textPosY);
+    textDrawer.addText("TERNARY", pos);
+    textPosY -= lineHeightInPixels;
+    textPosY -= 2;
+
+    {
+        cvf::uint sgasTextWidth = m_font->textExtent("SGAS").x();
+        textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasTextWidth / 2 ), textPosY));
+
+        cvf::uint sgasRangeTextWidth = m_font->textExtent(m_sgasRange).x();
+        textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasRangeTextWidth / 2 ), textPosY - lineHeightInPixels));
+    }
 
     textDrawer.addText("SWAT", cvf::Vec2f(0.0, 10.0));
     textDrawer.addText(m_swatRange, cvf::Vec2f(0.0, 0.0));
 
-    textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - 25), 10.0));
-
-    float soilRangePos = static_cast<float>(size.x() - 40);
-    if (m_soilRange.size() < 6)
     {
-        soilRangePos += 15;
+        cvf::uint soilTextWidth = m_font->textExtent("SOIL").x();
+        textDrawer.addText("SOIL", cvf::Vec2f(static_cast<float>(size.x() - soilTextWidth), 10.0));
+
+        cvf::uint soilRangeTextWidth = m_font->textExtent(m_soilRange).x();
+        float soilRangePos = static_cast<float>(size.x()) - soilRangeTextWidth;
+
+        textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, 0.0));
     }
-    textDrawer.addText(m_soilRange, cvf::Vec2f(soilRangePos, 0.0));
 
     textDrawer.renderSoftware(oglContext, camera);
 
