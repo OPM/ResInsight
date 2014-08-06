@@ -34,10 +34,13 @@ RigCombTransResultAccessObject::RigCombTransResultAccessObject(const RigGridBase
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// Only sensible to provide the positive values, as the negative ones will never be used.
+/// The negative faces gets their value from the neighbor cell in that direction
 //--------------------------------------------------------------------------------------------------
 void RigCombTransResultAccessObject::setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessObject* resultAccessObject)
 {
+    CVF_ASSERT(faceId == cvf::StructGridInterface::POS_I || faceId == cvf::StructGridInterface::POS_J || faceId == cvf::StructGridInterface::POS_K );
+
     m_resultAccessObjects[faceId] = resultAccessObject;
 }
 
