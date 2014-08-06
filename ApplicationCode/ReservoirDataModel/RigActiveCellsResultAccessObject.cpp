@@ -21,6 +21,9 @@
 #include "RigGridBase.h"
 #include "RigActiveCellInfo.h"
 
+#include <cmath>
+
+
 RigActiveCellsResultAccessObject::RigActiveCellsResultAccessObject(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo, const QString& resultName)
     : m_grid(grid),
     m_reservoirResultValues(reservoirResultValues),
