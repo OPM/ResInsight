@@ -10,7 +10,7 @@ ${CEE_CURRENT_LIST_DIR}RigCell.h
 ${CEE_CURRENT_LIST_DIR}RigCaseData.h
 ${CEE_CURRENT_LIST_DIR}RigGridBase.h
 ${CEE_CURRENT_LIST_DIR}RigGridManager.h
-${CEE_CURRENT_LIST_DIR}RigGridScalarDataAccess.h
+${CEE_CURRENT_LIST_DIR}RigResultAccessObjectFactory.h
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.h
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.h
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
@@ -30,7 +30,7 @@ ${CEE_CURRENT_LIST_DIR}RigCell.cpp
 ${CEE_CURRENT_LIST_DIR}RigCaseData.cpp
 ${CEE_CURRENT_LIST_DIR}RigGridBase.cpp
 ${CEE_CURRENT_LIST_DIR}RigGridManager.cpp
-${CEE_CURRENT_LIST_DIR}RigGridScalarDataAccess.cpp
+${CEE_CURRENT_LIST_DIR}RigResultAccessObjectFactory.cpp
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.cpp
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.cpp
