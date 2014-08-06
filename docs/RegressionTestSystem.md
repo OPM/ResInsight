@@ -4,9 +4,8 @@ prev_section: octaveinterfacereference
 next_section: commandlineparameters
 title: Regression test system
 permalink: /docs/regressiontestsystem/
+published: true
 ---
-
-## Regression test system
 
 A regression tool for QA is build into ResInsight. This tool will do the following: 
 
@@ -15,10 +14,9 @@ A regression tool for QA is build into ResInsight. This tool will do the followi
 3. When snapshot images from all projects are completed, difference images based on generated and QA-approved images are computed. 
 4. Based on these three sets of images, an HTML report is created and automatically displayed.
 
-### Starting regression tests
+## Starting regression tests
 
 To be able to run regression tests you need the **compare** tool from the [ImageMagic suite](http://www.imagemagick.org/script/compare.php).
-
 
 You can start the tests either from the command line or from the ResInsight Gui.
 From the ResInsight Gui select : **File->Testing->Regression Test Dialog**
@@ -27,7 +25,7 @@ From the ResInsight Gui select : **File->Testing->Regression Test Dialog**
 
 Specify location of compare tool in **Folder containing compare**. The current working directory of ResInsight is temporarily changed to this path during execution.
 
-### Creating regression tests
+## Creating regression tests
 
 An example of the folder structure is shown below:
 
@@ -48,4 +46,3 @@ To create regression tests you need to do the following:
 4. Rename the generated RegTestGeneratedImages/ folder to RegTestBaseImages/
 
 Now you are all set to test new releases of ResInsight towards your own Regression tests.
-

@@ -1,12 +1,11 @@
 ---
 layout: docs
-prev_section: installation
+prev_section: contact
 next_section: casegroupsandstatistics
 title: Working with 3D Views
 permalink: /docs/reservoirviews/
+published: true
 ---
-
-## Working with 3D Views
 
 3D Views are the windows displaying the Grid Models. The visualization is controlled by the **Project Tree** item representing the **View** and their subitems. Each item has a set of proerties that can be editied in the **Property View**.
 
@@ -16,7 +15,11 @@ Below is a description of the most important View settings and their properties.
 
 ### Cell Result ![]({{ site.baseurl }}/images/CellResult.png)
 
-The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![](images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
+The **Cell Result** item defines which Eclipse property the 3D View uses for the main cell color. The property can be chosen in the property panel of the **Cell Result** item. The mapping between cell values and color is defined by the **Legend Definition**  ![]({{ site.baseurl }}/images/Legend.png) along with some appearance settings on the Legend itself. (Number format etc.)
+
+### TRANSXYZ
+Normally the Cell Result setting gives one cell color based on the legend and the selected Result Property. This is *not* the case for the special static TRANXYZ property. This property gives each face the correct color based on the TRANS value that is associated with that particular face. 
+The Positive I-face of the cell gets the cell TRANX value, while the J-face gets the TRANY-value etc. The negative faces, however, get the value from the neighbor cell in that direction. The negative I-face gets the TRANX value of the IJK-neighbor in negative I direction, and so on for the J- and K-faces.
 
 ### Cell Edge Results ![]({{ site.baseurl }}/images/EdgeResult_1.png)
 
@@ -141,6 +144,3 @@ The properties of a single well are shown below.
 One option needs further explanation:
 
 - **Pipe Radius Scale** This option is a scale that is added to the "global" scale set in the **Simulation Wells** properties.
-
-
-

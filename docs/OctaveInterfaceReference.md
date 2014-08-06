@@ -4,9 +4,8 @@ prev_section: buildinstructions
 next_section: regressiontestsystem
 title: Octave Interface Reference
 permalink: /docs/octaveinterfacereference/
+published: true
 ---
-
-# Octave Interface Reference
 
 ## Introduction
 To identify a ResInsight case uniquely in the Octave script, an integer Id (CaseId) is used. This Id can be retrieved in several ways, but there are two main modes of operation regarding this for a particular octave script: Either the script is designed to work on a single case (the "Current Case"), or the script is designed to access the selection and traverse the cases by itself.
@@ -32,6 +31,7 @@ The case type (Labeled "CaseType" in the following specification) of a case is r
 The issue around having multiple instances of ResInsight is still not addressed, but might affect the function signatures by adding a port number parameter to all of them. We will try to find ways to avoid this, but are still not certain that we will succeed.
 
 ## Specification
+
 ### Project Information
 The case information is presented in an octave Structure called CaseInfo, and contains the following fields:
 
@@ -142,7 +142,7 @@ If the case contains coarse-cells, the results are expanded onto the active cell
 If the CaseId is not defined, ResInsight's Current Case is used. 
 The RequestedTimeSteps must contain a list of indices to the requested timesteps. If not defined, all the timesteps are returned.
 
-#### Matrix[numI][numJ][numK][numTimestepsRequested] <font style="color:darkblue"> riGetGridProperty</font> ([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"])
+#### Matrix[numI][numJ][numK][numTimestepsRequested] riGetGridProperty([CaseId], GridIndex , PropertyName, [RequestedTimeSteps], [PorosityModel = "Matrix"|"Fracture"])
 This function returns a matrix of the requested property data for all the grid cells in the requested grid for each requested timestep.
 Grids are indexed from 0 (main grid) to max number of LGR's 
 If the CaseId is not defined, ResInsight's Current Case is used.
@@ -221,5 +221,3 @@ This function returns the status information for a specified well for each reque
     }
     
 If the CaseId is not defined, ResInsight's Current Case is used.
-
-

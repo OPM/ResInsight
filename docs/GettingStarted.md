@@ -4,13 +4,8 @@ prev_section: home
 next_section: installation
 title: Getting Started
 permalink: /docs/gettingstarted/
+published: true
 ---
-
-
-## Getting started with ResInsight 
-
-### Installation
-Installation instructions for ResInsight can be found here: [Installation and Configuration](Installation.md) 
 
 
 ### User interface overview 
@@ -28,7 +23,10 @@ windows can be managed from the **Windows** menu or directly using the local men
 - **Process Monitor** - displays output from Octave when executing Octave scripts
 - **Result Info** - displays info for the object being hit in the 3D scene when clicking with left mouse button
 
-*TIP:* A new project tree and property editor can be added from **Windows->New Project and Property View**.
+<div class="note">
+<h5>Add additional docking windows</h5>
+A new project tree and property editor can be added from **Windows->New Project and Property View**.
+</div>
 
 
 ### Toolbars 
@@ -39,8 +37,10 @@ A selected subset of actions are presented as controls in the toolbar. The diffe
 
 In the main area of the application, several 3D views can be open at the same time.  One of them will be active and the active view can be either maximized to use the whole main area, or normalized so that you can see all the open 3D views.
 
-*TIP:* To see views next to each other select the **Restore down** icon in the application show here for Windows :
-
+<div class="note">
+<h5>Docking window management</h5>
+To see views next to each other select the <b>Restore down</b> icon in the application (shown below for Windows).
+</div>
 ![Restore Down]({{ site.baseurl }}/images/RestoreDown.PNG)
 
 #### Editing the views
@@ -72,7 +72,7 @@ A **Grid Case Group** is a group of **Result Cases** with identical grids, but g
 
 The purpose of a Grid Case group is to make it easy to calculate statistics across the source cases both for static and dynamic Eclipse Properties. 
 
-See [ Multiple realizations and statistics ](CaseGroupsAndStatistics.md) for more on this.
+See [ Multiple realizations and statistics ]({{ site.baseurl }}/docs/casegroupsandstatistics) for more on this.
 
 ### Importing data
 
@@ -147,7 +147,9 @@ Statistics calculations, property sets you generate by using Octave, and well pa
 *TIP:* The `.rsp`-file is an XML file, and can be edited by any text editor.  
 
 ### Export options
+
 #### Snapshot images 
+
 ##### Single View ![]({{ site.baseurl }}/images/SnapShot.png) ![]({{ site.baseurl }}/images/SnapShotSave.png)
 Image export of current 3D view can be launched from **File -> Export -> Snapshot To File**. A snapshot can also be copied to clipboard using **Edit->Copy Snapshot To Clipboard**. 
 
@@ -155,9 +157,6 @@ Image export of current 3D view can be launched from **File -> Export -> Snapsho
 If a project contains multiple views, all views can be exported using **File -> Export -> Snapshot All Views To File**. 
 
 It is also possible to snapshot all views from the command line. See  [ Command Line Arguments]      (CommandLineParameters.md)
-
-
-
 
 #### Export of Eclipse Properties as ASCII data
 Eclipse Properties can be exported to Eclipse ASCII files by activating the context menu for a **Cell Result**. ![]({{ site.baseurl }}/images/ExportProperty.png) 
@@ -168,5 +167,3 @@ The command will export the property set currently loaded and shown in the 3D Vi
     <keyword>
     <One number per cell separated by spaces>
     /
-
-
