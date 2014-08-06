@@ -84,10 +84,10 @@ void RigGridAllCellsScalarDataAccess::setCellScalar(size_t gridLocalCellIndex, d
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-class RigGridMatrixActiveCellsScalarDataAccess : public cvf::StructGridScalarDataAccess
+class RigGridActiveCellsScalarDataAccess : public cvf::StructGridScalarDataAccess
 {
 public:
-    RigGridMatrixActiveCellsScalarDataAccess(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo)
+    RigGridActiveCellsScalarDataAccess(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo)
       : m_grid(grid),
         m_reservoirResultValues(reservoirResultValues),
         m_activeCellInfo(activeCellInfo)
@@ -186,7 +186,7 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigGridScalarDataAccessFactory::create
     bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
-        cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridMatrixActiveCellsScalarDataAccess(grid, resultValues, eclipseCase->activeCellInfo(porosityModel));
+        cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridActiveCellsScalarDataAccess(grid, resultValues, eclipseCase->activeCellInfo(porosityModel));
         return object;
     }
     else
