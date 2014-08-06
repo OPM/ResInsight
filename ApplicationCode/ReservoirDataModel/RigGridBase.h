@@ -37,7 +37,6 @@
 
 class RigMainGrid;
 class RigCell;
-class RigGridScalarDataAccess;
 class RigActiveCellInfo;
 
 class RigGridBase : public cvf::StructGridInterface
