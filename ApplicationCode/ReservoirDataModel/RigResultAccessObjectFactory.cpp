@@ -18,6 +18,10 @@
 
 #include "RigResultAccessObjectFactory.h"
 
+#include "RigResultAccessObject.h"
+#include "RigActiveCellsResultAccessObject.h"
+#include "RigAllGridCellsResultAccessObject.h"
+
 #include "cvfLibCore.h"
 #include "cvfBase.h"
 #include "cvfObject.h"
@@ -29,6 +33,84 @@
 #include "RigGridBase.h"
 #include "RigCaseData.h"
 #include <math.h>
+#include "RigCombTransResultAccessObject.h"
+
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createNativeDataAccessObject(RigCaseData* eclipseCase,
+    size_t gridIndex,
+    RifReaderInterface::PorosityModelResultType porosityModel,
+    size_t timeStepIndex,
+    QString& uiResultName)
+{
+    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
+    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(eclipseCase->results(porosityModel));
+    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
+
+    RigGridBase *grid = eclipseCase->grid(gridIndex);
+
+    if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
+    {
+        return NULL;
+    }
+
+    size_t scalarSetIndex = eclipseCase->results(porosityModel)->findScalarResultIndex(uiResultName);
+    if (scalarSetIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        return NULL;
+    }
+
+    std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(scalarSetIndex);
+
+    // A generated result with a generated results for a subset of time steps, will end up with a result container with less entries than time steps
+    // See RiaSetGridProperty command in RiaPropertyDataCommands
+    //
+    // Some functions requires a valid data access object to be present, these might be rewritten to avoid this dummy object always returning HUGE_VAL
+    if (timeStepIndex >= scalarSetResults.size())
+    {
+        return NULL;
+    }
+
+    std::vector<double>* resultValues = NULL;
+    if (timeStepIndex < scalarSetResults.size())
+    {
+        resultValues = &(scalarSetResults[timeStepIndex]);
+    }
+
+    bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
+    if (useGlobalActiveIndex)
+    {
+        cvf::ref<RigResultAccessObject> object = new RigActiveCellsResultAccessObject(grid, resultValues, eclipseCase->activeCellInfo(porosityModel), uiResultName);
+        return object;
+    }
+    else
+    {
+        cvf::ref<RigResultAccessObject> object = new RigAllGridCellsResultAccessObject(grid, resultValues, uiResultName);
+        return object;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+// Rest of this file is to be deleted
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -194,5 +276,65 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigResultAccessObjectFactory::TO_BE_DE
         cvf::ref<cvf::StructGridScalarDataAccess> object = new RigGridAllCellsScalarDataAccess(grid, resultValues);
         return object;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccessObject(RigCaseData* eclipseCase,
+    size_t gridIndex, 
+    RifReaderInterface::PorosityModelResultType porosityModel, 
+    size_t timeStepIndex, 
+    QString& uiResultName)
+{
+    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
+    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(eclipseCase->results(porosityModel));
+    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
+
+    RigGridBase* grid = eclipseCase->grid(gridIndex);
+
+    // Ternary
+    if (uiResultName == RimDefines::ternarySaturationResultName())
+    {
+        return NULL;
+    }
+    else if (uiResultName == RimDefines::combinedTransmissibilityResultName())
+    {
+        // TODO
+        // Taken from RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates
+        // 
+
+        cvf::ref<RigCombTransResultAccessObject> cellFaceAccessObject = new RigCombTransResultAccessObject(grid, uiResultName);
+
+        {
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANX"));
+            if (nativeAccessObject.notNull())
+            {
+                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_I, nativeAccessObject.p());
+            }
+        }
+
+        {
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANY"));
+            if (nativeAccessObject.notNull())
+            {
+                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_J, nativeAccessObject.p());
+            }
+        }
+
+        {
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANZ"));
+            if (nativeAccessObject.notNull())
+            {
+                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_K, nativeAccessObject.p());
+            }
+        }
+
+        return cellFaceAccessObject;
+    }
+
+
+    return NULL;
 }
 

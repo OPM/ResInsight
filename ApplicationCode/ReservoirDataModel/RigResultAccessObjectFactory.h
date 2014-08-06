@@ -24,24 +24,37 @@
 
 class RigActiveCellInfo;
 class RigGridBase;
+class RigResultAccessObject;
 
 class RigResultAccessObjectFactory
 {
 public:
-
-
-
-
-
+    static cvf::ref<RigResultAccessObject> 
+        createResultAccessObject(RigCaseData* eclipseCase,
+        size_t gridIndex,
+        RifReaderInterface::PorosityModelResultType porosityModel,
+        size_t timeStepIndex,
+        QString& uiResultName);
 
 
     // TO BE DELETED
     static cvf::ref<cvf::StructGridScalarDataAccess> 
         TO_BE_DELETED_createNativeDataAccessObject(RigCaseData* eclipseCase,
-                                      size_t gridIndex,
-                                      RifReaderInterface::PorosityModelResultType porosityModel,
-                                      size_t timeStepIndex,
-                                      size_t scalarSetIndex);
+        size_t gridIndex,
+        RifReaderInterface::PorosityModelResultType porosityModel,
+        size_t timeStepIndex,
+        size_t scalarSetIndex);
+
+
+private:
+    static cvf::ref<RigResultAccessObject> 
+        createNativeDataAccessObject(RigCaseData* eclipseCase,
+                                        size_t gridIndex,
+                                        RifReaderInterface::PorosityModelResultType porosityModel,
+                                        size_t timeStepIndex,
+                                        QString& resultName);
+
+
 };
 
 
