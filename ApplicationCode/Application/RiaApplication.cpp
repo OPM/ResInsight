@@ -40,7 +40,7 @@
 #include "RimOilField.h"
 #include "RimAnalysisModels.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSettings.h"
+#include "RimFaultResultSlot.h"
 
 #include "cafCeetronNavigation.h"
 #include "cafCadNavigation.h"

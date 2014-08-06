@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimFaultResultSettings.h"
+#include "RimFaultResultSlot.h"
 
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
@@ -27,27 +27,27 @@
 namespace caf
 {
     template<>
-    void AppEnum< RimFaultResultSettings::FaultVisualizationMode >::setUp()
+    void AppEnum< RimFaultResultSlot::FaultVisualizationMode >::setUp()
     {
-        addItem(RimFaultResultSettings::FAULT_COLOR,            "FAULT_COLOR",              "Fault Colors");
-        addItem(RimFaultResultSettings::CUSTOM_RESULT_MAPPING,  "CUSTOM_RESULT_MAPPING",    "Custom Cell Results");
-        setDefault(RimFaultResultSettings::FAULT_COLOR);
+        addItem(RimFaultResultSlot::FAULT_COLOR,            "FAULT_COLOR",              "Fault Colors");
+        addItem(RimFaultResultSlot::CUSTOM_RESULT_MAPPING,  "CUSTOM_RESULT_MAPPING",    "Custom Cell Results");
+        setDefault(RimFaultResultSlot::FAULT_COLOR);
     }
 }
 
-CAF_PDM_SOURCE_INIT(RimFaultResultSettings, "RimFaultResultSlot");
+CAF_PDM_SOURCE_INIT(RimFaultResultSlot, "RimFaultResultSlot");
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultResultSettings::RimFaultResultSettings()
+RimFaultResultSlot::RimFaultResultSlot()
 {
     CAF_PDM_InitObject("Fault Result Slot", ":/draw_style_faults_24x24.png", "", "");
 
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
     showCustomFaultResult.setUiHidden(true);
 
-    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSettings::FaultVisualizationMode>(RimFaultResultSettings::FAULT_COLOR), "Fault Color Mapping", "", "", "");
+    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSlot::FaultVisualizationMode>(RimFaultResultSlot::FAULT_COLOR), "Fault Color Mapping", "", "", "");
     CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
@@ -66,14 +66,14 @@ RimFaultResultSettings::RimFaultResultSettings()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimFaultResultSettings::~RimFaultResultSettings()
+RimFaultResultSlot::~RimFaultResultSlot()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSettings::setReservoirView(RimReservoirView* ownerReservoirView)
+void RimFaultResultSlot::setReservoirView(RimReservoirView* ownerReservoirView)
 {
     m_reservoirView = ownerReservoirView;
     m_customFaultResult->setReservoirView(ownerReservoirView);
@@ -82,7 +82,7 @@ void RimFaultResultSettings::setReservoirView(RimReservoirView* ownerReservoirVi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
+void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue)
 {
     this->updateUiIconFromToggleField();
 
@@ -106,7 +106,7 @@ void RimFaultResultSettings::fieldChangedByUi(const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSettings::initAfterRead()
+void RimFaultResultSlot::initAfterRead()
 {
     m_customFaultResult->initAfterRead();
     updateFieldVisibility();
@@ -117,7 +117,7 @@ void RimFaultResultSettings::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSettings::updateFieldVisibility()
+void RimFaultResultSlot::updateFieldVisibility()
 {
     m_customFaultResult->updateFieldVisibility();
 }
@@ -125,7 +125,7 @@ void RimFaultResultSettings::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RimResultSlot* RimFaultResultSettings::customFaultResult()
+RimResultSlot* RimFaultResultSlot::customFaultResult()
 {
     if (showCustomFaultResult() && this->visualizationMode() == CUSTOM_RESULT_MAPPING)
     {
@@ -138,7 +138,7 @@ RimResultSlot* RimFaultResultSettings::customFaultResult()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimFaultResultSettings::objectToggleField()
+caf::PdmFieldHandle* RimFaultResultSlot::objectToggleField()
 {
     return &showCustomFaultResult;
 }
@@ -146,7 +146,7 @@ caf::PdmFieldHandle* RimFaultResultSettings::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimFaultResultSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
+void RimFaultResultSlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
     uiOrdering.add(&visualizationMode);
     uiOrdering.add(&showNNCs);
@@ -163,7 +163,7 @@ void RimFaultResultSettings::defineUiOrdering(QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFaultResultSettings::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimFaultResultSlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     return m_customFaultResult->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 }

@@ -28,7 +28,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
-#include "RimFaultResultSettings.h"
+#include "RimFaultResultSlot.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimResultSlot.h"
@@ -104,7 +104,7 @@ RimReservoirView::RimReservoirView()
     cellEdgeResult = new RimCellEdgeResultSlot();
 
     CAF_PDM_InitFieldNoDefault(&faultResultSettings,  "FaultResultSettings", "Fault Result", "", "", "");
-    faultResultSettings = new RimFaultResultSettings();
+    faultResultSettings = new RimFaultResultSlot();
 
     CAF_PDM_InitFieldNoDefault(&overlayInfoConfig,  "OverlayInfoConfig", "Info Box", "", "", "");
     overlayInfoConfig = new Rim3dOverlayInfoConfig();
