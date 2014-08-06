@@ -20,7 +20,7 @@
 #include "RigMainGrid.h"
 #include "RigCell.h"
 #include "RigCaseCellResultsData.h"
-#include "RigGridScalarDataAccess.h"
+#include "RigResultAccessObjectFactory.h"
 
 #include "cvfAssert.h"
 

@@ -19,7 +19,7 @@
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 #include "RigCaseCellResultsData.h"
-#include "RigGridScalarDataAccess.h"
+#include "RigResultAccessObjectFactory.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -496,7 +496,7 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigCaseData::dataAccessObject(const Ri
     if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
         scalarSetIndex != cvf::UNDEFINED_SIZE_T)
     {
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigGridScalarDataAccessFactory::createPerGridDataAccessObject( this, grid->gridIndex(), porosityModel, timeStepIndex, scalarSetIndex);
+        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigResultAccessObjectFactory::createNativeDataAccessObject(this, grid->gridIndex(), porosityModel, timeStepIndex, scalarSetIndex);
         return dataAccess;
     }
 
