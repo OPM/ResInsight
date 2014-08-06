@@ -98,6 +98,14 @@ public:
         texCoords[i*4 + 3] = texCoord;
     }
     
+    Texturing needs in ResInsight:
+    * ScalarMapper
+    * Handle HugeVal/nan
+    * PipeCellTransparency 
+        - includes geometry point to cell mapping
+    * Modify the Scalarmapper Texture
+    * The domain values to convert pr geometry point
+
 
 
 */

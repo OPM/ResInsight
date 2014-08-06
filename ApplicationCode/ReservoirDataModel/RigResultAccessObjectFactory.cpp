@@ -95,9 +95,65 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createNativeDataAc
 
 
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccessObject(RigCaseData* eclipseCase,
+    size_t gridIndex, 
+    RifReaderInterface::PorosityModelResultType porosityModel, 
+    size_t timeStepIndex, 
+    QString& uiResultName)
+{
+    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
+    CVF_ASSERT(eclipseCase);
+    CVF_ASSERT(eclipseCase->results(porosityModel));
+    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
+
+    RigGridBase* grid = eclipseCase->grid(gridIndex);
+
+    // Ternary
+    if (uiResultName == RimDefines::ternarySaturationResultName())
+    {
+        return NULL;
+    }
+    else if (uiResultName == RimDefines::combinedTransmissibilityResultName())
+    {
+        // TODO
+        // Taken from RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates
+        // 
+
+        cvf::ref<RigCombTransResultAccessObject> cellFaceAccessObject = new RigCombTransResultAccessObject(grid, uiResultName);
+
+        {
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANX"));
+            if (nativeAccessObject.notNull())
+            {
+                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_I, nativeAccessObject.p());
+            }
+        }
+
+        {
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANY"));
+            if (nativeAccessObject.notNull())
+            {
+                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_J, nativeAccessObject.p());
+            }
+        }
+
+        {
+            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANZ"));
+            if (nativeAccessObject.notNull())
+            {
+                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_K, nativeAccessObject.p());
+            }
+        }
+
+        return cellFaceAccessObject;
+    }
 
 
-
+    return NULL;
+}
 
 
 
@@ -277,64 +333,3 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigResultAccessObjectFactory::TO_BE_DE
         return object;
     }
 }
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccessObject(RigCaseData* eclipseCase,
-    size_t gridIndex, 
-    RifReaderInterface::PorosityModelResultType porosityModel, 
-    size_t timeStepIndex, 
-    QString& uiResultName)
-{
-    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
-    CVF_ASSERT(eclipseCase);
-    CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
-
-    RigGridBase* grid = eclipseCase->grid(gridIndex);
-
-    // Ternary
-    if (uiResultName == RimDefines::ternarySaturationResultName())
-    {
-        return NULL;
-    }
-    else if (uiResultName == RimDefines::combinedTransmissibilityResultName())
-    {
-        // TODO
-        // Taken from RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates
-        // 
-
-        cvf::ref<RigCombTransResultAccessObject> cellFaceAccessObject = new RigCombTransResultAccessObject(grid, uiResultName);
-
-        {
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANX"));
-            if (nativeAccessObject.notNull())
-            {
-                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_I, nativeAccessObject.p());
-            }
-        }
-
-        {
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANY"));
-            if (nativeAccessObject.notNull())
-            {
-                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_J, nativeAccessObject.p());
-            }
-        }
-
-        {
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, QString("TRANZ"));
-            if (nativeAccessObject.notNull())
-            {
-                cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_K, nativeAccessObject.p());
-            }
-        }
-
-        return cellFaceAccessObject;
-    }
-
-
-    return NULL;
-}
-
