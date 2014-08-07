@@ -24,8 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCellEdgeResultAccessor::RigCellEdgeResultAccessor(const QString& resultName)
-    : m_resultName(resultName)
+RigCellEdgeResultAccessor::RigCellEdgeResultAccessor()
 {
     m_resultAccessObjects.resize(6);
 }
@@ -62,23 +61,5 @@ double RigCellEdgeResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::Str
     }
 
     return HUGE_VAL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RigCellEdgeResultAccessor::resultName() const
-{
-    return m_resultName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigCellEdgeResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
-{
-    // TODO: How to handle when we get here?
-    CVF_ASSERT(false);
-
 }
 

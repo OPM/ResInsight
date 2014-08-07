@@ -83,12 +83,12 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeResultAccessor
     bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
-        cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(porosityModel), uiResultName);
+        cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessor(grid, resultValues, eclipseCase->activeCellInfo(porosityModel));
         return object;
     }
     else
     {
-        cvf::ref<RigResultAccessor> object = new RigAllGridCellsResultAccessor(grid, resultValues, uiResultName);
+        cvf::ref<RigResultAccessor> object = new RigAllGridCellsResultAccessor(grid, resultValues);
         return object;
     }
 }
@@ -122,7 +122,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
         // Taken from RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates
         // 
 
-        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid, uiResultName);
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
         {
             QString resultName = "TRANX";

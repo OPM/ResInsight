@@ -24,11 +24,10 @@
 #include <cmath>
 
 
-RigActiveCellsResultAccessor::RigActiveCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo, const QString& resultName)
+RigActiveCellsResultAccessor::RigActiveCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo)
     : m_grid(grid),
     m_reservoirResultValues(reservoirResultValues),
-    m_activeCellInfo(activeCellInfo),
-    m_resultName(resultName)
+    m_activeCellInfo(activeCellInfo)
 {
 }
 
@@ -57,23 +56,3 @@ double RigActiveCellsResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::
     return cellScalar(localCellIndex);
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RigActiveCellsResultAccessor::resultName() const
-{
-    return m_resultName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigActiveCellsResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
-{
-    size_t globalGridCellIndex = m_grid->globalGridCellIndex(localCellIndex);
-    size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
-
-    CVF_TIGHT_ASSERT(m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size());
-
-    (*m_reservoirResultValues)[resultValueIndex] = scalarValue;
-}

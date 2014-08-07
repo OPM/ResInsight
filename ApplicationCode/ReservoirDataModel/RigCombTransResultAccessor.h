@@ -31,18 +31,15 @@ class RigGridBase;
 class RigCombTransResultAccessor : public RigResultAccessor
 {
 public:
-    RigCombTransResultAccessor(const RigGridBase* grid, const QString& resultName);
+    RigCombTransResultAccessor(const RigGridBase* grid);
 
     void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject);
 
     virtual double  cellScalar(size_t localCellIndex) const;
     virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
-    virtual QString resultName() const;
-    virtual void    setCellScalar(size_t localCellIndex, double scalarValue);
 
 private:
     cvf::Collection<RigResultAccessor> m_resultAccessObjects;
     
     const RigGridBase* m_grid;
-    QString m_resultName;
 };
