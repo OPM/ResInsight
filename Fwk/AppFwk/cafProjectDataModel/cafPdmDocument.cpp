@@ -113,6 +113,7 @@ void PdmObjectGroup::initAfterReadTraversal(PdmObject* object)
     }
 
     object->initAfterRead();
+    object->updateUiIconFromToggleField();
 }
 
 
