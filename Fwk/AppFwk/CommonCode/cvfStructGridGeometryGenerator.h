@@ -173,7 +173,7 @@ public:
 
     const StructGridInterface* activeGrid() { return m_grid.p(); }
 
-    void                textureCoordinates(Vec2fArray* textureCoords, const StructGridScalarDataAccess* dataAccessObject, const ScalarMapper* mapper) const;
+    void                textureCoordinates(Vec2fArray* textureCoords, const StructGridScalarDataAccess* resultAccessor, const ScalarMapper* mapper) const;
 
     // Mapping between cells and geometry
 

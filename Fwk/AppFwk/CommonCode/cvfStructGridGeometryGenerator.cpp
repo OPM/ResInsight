@@ -383,9 +383,9 @@ void StructGridGeometryGenerator::computeArrays()
 /// Calculates the texture coordinates in a "nearly" one dimentional texture. 
 /// Undefined values are coded with a y-texturecoordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
-void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, const StructGridScalarDataAccess* dataAccessObject, const ScalarMapper* mapper) const
+void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, const StructGridScalarDataAccess* resultAccessor, const ScalarMapper* mapper) const
 {
-    if (!dataAccessObject) return;
+    if (!resultAccessor) return;
 
     size_t numVertices = m_quadMapper->quadCount()*4;
 
@@ -398,7 +398,7 @@ void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, 
 #pragma omp parallel for private(texCoord, cellScalarValue)
     for (int i = 0; i < static_cast<int>(m_quadMapper->quadCount()); i++)
     {
-        cellScalarValue = dataAccessObject->cellScalar(m_quadMapper->cellIndex(i));
+        cellScalarValue = resultAccessor->cellScalar(m_quadMapper->cellIndex(i));
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {
@@ -418,9 +418,9 @@ void StructGridGeometryGenerator::textureCoordinates(Vec2fArray* textureCoords, 
 /// 
 /// 
 //--------------------------------------------------------------------------------------------------
-void StructGridGeometryGenerator::textureCoordinatesFromSingleFaceValues(Vec2fArray* textureCoords, const ScalarMapper* mapper, const CellFaceValueCalculator* dataAccessObject) const
+void StructGridGeometryGenerator::textureCoordinatesFromSingleFaceValues(Vec2fArray* textureCoords, const ScalarMapper* mapper, const CellFaceValueCalculator* resultAccessor) const
 {
-    if (!dataAccessObject) return;
+    if (!resultAccessor) return;
 
     textureCoords->resize(m_quadMapper->quadCount()*4);
 
@@ -433,7 +433,7 @@ void StructGridGeometryGenerator::textureCoordinatesFromSingleFaceValues(Vec2fAr
 #pragma omp parallel for private(texCoord, cellFaceValue)
     for (int qIdx = 0; qIdx < quadCount; qIdx++)
     {
-        cellFaceValue = dataAccessObject->cellFaceScalar(m_quadMapper->cellIndex(qIdx), m_quadMapper->faceType(qIdx));
+        cellFaceValue = resultAccessor->cellFaceScalar(m_quadMapper->cellIndex(qIdx), m_quadMapper->faceType(qIdx));
         
         texCoord = mapper->mapToTextureCoord(cellFaceValue);
 

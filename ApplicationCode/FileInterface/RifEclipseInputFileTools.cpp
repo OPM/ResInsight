@@ -500,8 +500,8 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         return false;
     }
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(eclipseCase->mainGrid(), porosityModel, timeStep, resultIndex);
-    if (dataAccessObject.isNull())
+    cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->resultAccessor(eclipseCase->mainGrid(), porosityModel, timeStep, resultIndex);
+    if (resultAccessor.isNull())
     {
         return false;
     }
@@ -514,7 +514,7 @@ bool RifEclipseInputFileTools::writeBinaryResultToTextFile(const QString& fileNa
         {
             for (i = 0; i < eclipseCase->mainGrid()->cellCountI(); i++)
             {
-                double resultValue = dataAccessObject->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
+                double resultValue = resultAccessor->cellScalar(eclipseCase->mainGrid()->cellIndexFromIJK(i, j, k));
                 if (resultValue == HUGE_VAL)
                 {
                     resultValue = undefinedValue;

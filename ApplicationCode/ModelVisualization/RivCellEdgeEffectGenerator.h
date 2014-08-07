@@ -90,7 +90,7 @@ public:
     texCoords.resize(m_quadsToGridCells.size()*4);
     for (i = 0; i < m_quadsToGridCells.size(); ++i)
     {
-        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(dataAccessObject->cellScalar(m_quadsToGridCells[i]));
+        cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(resultAccessor->cellScalar(m_quadsToGridCells[i]));
                                                                ResValue                     ResPoint To ResValue
         texCoords[i*4 + 0] = texCoord;
         texCoords[i*4 + 1] = texCoord;
