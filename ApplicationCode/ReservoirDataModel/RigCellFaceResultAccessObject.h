@@ -26,12 +26,12 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigCellFaceResultAccessObject : public RigResultAccessObject
+class RigCellFaceResultAccessor : public RigResultAccessor
 {
 public:
-    RigCellFaceResultAccessObject(const QString& resultName);
+    RigCellFaceResultAccessor(const QString& resultName);
 
-    void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessObject* resultAccessObject);
+    void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject);
 
     virtual double  cellScalar(size_t localCellIndex) const;
     virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
@@ -39,7 +39,7 @@ public:
     virtual void    setCellScalar(size_t localCellIndex, double scalarValue);
 
 private:
-    cvf::Collection<RigResultAccessObject> m_resultAccessObjects;
+    cvf::Collection<RigResultAccessor> m_resultAccessObjects;
     
     QString m_resultName;
 };

@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCombTransResultAccessObject::RigCombTransResultAccessObject(const RigGridBase* grid, const QString& resultName)
+RigCombTransResultAccessor::RigCombTransResultAccessor(const RigGridBase* grid, const QString& resultName)
     : m_grid(grid),
     m_resultName(resultName)
 {
@@ -37,7 +37,7 @@ RigCombTransResultAccessObject::RigCombTransResultAccessObject(const RigGridBase
 /// Only sensible to provide the positive values, as the negative ones will never be used.
 /// The negative faces gets their value from the neighbor cell in that direction
 //--------------------------------------------------------------------------------------------------
-void RigCombTransResultAccessObject::setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessObject* resultAccessObject)
+void RigCombTransResultAccessor::setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject)
 {
     CVF_ASSERT(faceId == cvf::StructGridInterface::POS_I || faceId == cvf::StructGridInterface::POS_J || faceId == cvf::StructGridInterface::POS_K );
 
@@ -47,7 +47,7 @@ void RigCombTransResultAccessObject::setDataAccessObjectForFace(cvf::StructGridI
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCombTransResultAccessObject::cellScalar(size_t localCellIndex) const
+double RigCombTransResultAccessor::cellScalar(size_t localCellIndex) const
 {
 
     // TODO: How to handle when we get here?
@@ -59,13 +59,13 @@ double RigCombTransResultAccessObject::cellScalar(size_t localCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCombTransResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
+double RigCombTransResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     switch (faceId)
     {
     case cvf::StructGridInterface::POS_I:
         {
-            const RigResultAccessObject* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_I);
+            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_I);
             if (resultAccessObj)
             {
                 return resultAccessObj->cellScalar(localCellIndex);
@@ -74,7 +74,7 @@ double RigCombTransResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf
         break;
     case cvf::StructGridInterface::NEG_I:
         {
-            const RigResultAccessObject* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_I);
+            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_I);
             if (resultAccessObj)
             {
                 size_t i, j, k, neighborGridCellIdx;
@@ -89,7 +89,7 @@ double RigCombTransResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf
         break;
     case cvf::StructGridInterface::POS_J:
         {
-            const RigResultAccessObject* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_J);
+            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_J);
             if (resultAccessObj)
             {
                 return resultAccessObj->cellScalar(localCellIndex);
@@ -98,7 +98,7 @@ double RigCombTransResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf
         break;
     case cvf::StructGridInterface::NEG_J:
         {
-            const RigResultAccessObject* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_J);
+            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_J);
             if (resultAccessObj)
             {
                 size_t i, j, k, neighborGridCellIdx;
@@ -113,7 +113,7 @@ double RigCombTransResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf
         break;
     case cvf::StructGridInterface::POS_K:
         {
-            const RigResultAccessObject* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_K);
+            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_K);
             if (resultAccessObj)
             {
                 return resultAccessObj->cellScalar(localCellIndex);
@@ -122,7 +122,7 @@ double RigCombTransResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf
         break;
     case cvf::StructGridInterface::NEG_K:
         {
-            const RigResultAccessObject* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_K);
+            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_K);
             if (resultAccessObj)
             {
                 size_t i, j, k, neighborGridCellIdx;
@@ -143,7 +143,7 @@ double RigCombTransResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigCombTransResultAccessObject::resultName() const
+QString RigCombTransResultAccessor::resultName() const
 {
     return m_resultName;
 }
@@ -151,7 +151,7 @@ QString RigCombTransResultAccessObject::resultName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCombTransResultAccessObject::setCellScalar(size_t localCellIndex, double scalarValue)
+void RigCombTransResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
 {
     // TODO: How to handle when we get here?
     CVF_ASSERT(false);

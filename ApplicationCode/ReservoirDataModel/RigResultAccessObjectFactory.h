@@ -24,13 +24,13 @@
 
 class RigActiveCellInfo;
 class RigGridBase;
-class RigResultAccessObject;
+class RigResultAccessor;
 
-class RigResultAccessObjectFactory
+class RigResultAccessorFactory
 {
 public:
-    static cvf::ref<RigResultAccessObject> 
-        createResultAccessObject(RigCaseData* eclipseCase,
+    static cvf::ref<RigResultAccessor> 
+        createResultAccessor(RigCaseData* eclipseCase,
         size_t gridIndex,
         RifReaderInterface::PorosityModelResultType porosityModel,
         size_t timeStepIndex,
@@ -47,8 +47,8 @@ public:
 
 
 private:
-    static cvf::ref<RigResultAccessObject> 
-        createNativeDataAccessObject(RigCaseData* eclipseCase,
+    static cvf::ref<RigResultAccessor> 
+        createNativeResultAccessor(RigCaseData* eclipseCase,
                                         size_t gridIndex,
                                         RifReaderInterface::PorosityModelResultType porosityModel,
                                         size_t timeStepIndex,

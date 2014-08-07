@@ -39,7 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createNativeDataAccessObject(RigCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeResultAccessor(RigCaseData* eclipseCase,
     size_t gridIndex,
     RifReaderInterface::PorosityModelResultType porosityModel,
     size_t timeStepIndex,
@@ -83,12 +83,12 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createNativeDataAc
     bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(scalarSetIndex);
     if (useGlobalActiveIndex)
     {
-        cvf::ref<RigResultAccessObject> object = new RigActiveCellsResultAccessObject(grid, resultValues, eclipseCase->activeCellInfo(porosityModel), uiResultName);
+        cvf::ref<RigResultAccessor> object = new RigActiveCellsResultAccessObject(grid, resultValues, eclipseCase->activeCellInfo(porosityModel), uiResultName);
         return object;
     }
     else
     {
-        cvf::ref<RigResultAccessObject> object = new RigAllGridCellsResultAccessObject(grid, resultValues, uiResultName);
+        cvf::ref<RigResultAccessor> object = new RigAllGridCellsResultAccessor(grid, resultValues, uiResultName);
         return object;
     }
 }
@@ -98,7 +98,7 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createNativeDataAc
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccessObject(RigCaseData* eclipseCase,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCaseData* eclipseCase,
     size_t gridIndex, 
     RifReaderInterface::PorosityModelResultType porosityModel, 
     size_t timeStepIndex, 
@@ -122,11 +122,11 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccess
         // Taken from RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates
         // 
 
-        cvf::ref<RigCombTransResultAccessObject> cellFaceAccessObject = new RigCombTransResultAccessObject(grid, uiResultName);
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid, uiResultName);
 
         {
             QString resultName = "TRANX";
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
+            cvf::ref<RigResultAccessor> nativeAccessObject = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
             if (nativeAccessObject.notNull())
             {
                 cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_I, nativeAccessObject.p());
@@ -135,7 +135,7 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccess
 
         {
             QString resultName = "TRANY";
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
+            cvf::ref<RigResultAccessor> nativeAccessObject = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
             if (nativeAccessObject.notNull())
             {
                 cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_J, nativeAccessObject.p());
@@ -144,7 +144,7 @@ cvf::ref<RigResultAccessObject> RigResultAccessObjectFactory::createResultAccess
 
         {
             QString resultName = "TRANZ";
-            cvf::ref<RigResultAccessObject> nativeAccessObject = RigResultAccessObjectFactory::createNativeDataAccessObject(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
+            cvf::ref<RigResultAccessor> nativeAccessObject = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultName);
             if (nativeAccessObject.notNull())
             {
                 cellFaceAccessObject->setDataAccessObjectForFace(cvf::StructGridInterface::POS_K, nativeAccessObject.p());
@@ -287,7 +287,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigResultAccessObjectFactory::TO_BE_DELETED_createNativeDataAccessObject(RigCaseData* eclipseCase,
+cvf::ref<cvf::StructGridScalarDataAccess> RigResultAccessorFactory::TO_BE_DELETED_createNativeDataAccessObject(RigCaseData* eclipseCase,
                                                                                                         size_t gridIndex,
                                                                                                         RifReaderInterface::PorosityModelResultType porosityModel,
                                                                                                         size_t timeStepIndex,

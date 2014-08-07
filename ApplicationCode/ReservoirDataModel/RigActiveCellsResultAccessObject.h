@@ -27,7 +27,7 @@ class RigActiveCellInfo;
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigActiveCellsResultAccessObject : public RigResultAccessObject
+class RigActiveCellsResultAccessObject : public RigResultAccessor
 {
 public:
     RigActiveCellsResultAccessObject(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo, const QString& resultName);
