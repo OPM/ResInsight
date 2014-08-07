@@ -16,6 +16,7 @@ ${CEE_CURRENT_LIST_DIR}RigAllGridCellsResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigActiveCellsResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCellEdgeResultAccessor.h
 ${CEE_CURRENT_LIST_DIR}RigCombTransResultAccessor.h
+${CEE_CURRENT_LIST_DIR}RigResultModifier.h
 ${CEE_CURRENT_LIST_DIR}RigLocalGrid.h
 ${CEE_CURRENT_LIST_DIR}RigMainGrid.h
 ${CEE_CURRENT_LIST_DIR}RigReservoirBuilderMock.h
