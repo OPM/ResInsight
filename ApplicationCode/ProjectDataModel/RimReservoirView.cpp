@@ -1105,7 +1105,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         RigGridBase* grid = eclipseCase->grid(gridIndex);
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
+        cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor;
 
         if (this->cellResult()->isTernarySaturationSelected())
         {
@@ -1116,9 +1116,9 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
                 size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
 
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, soilScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, sgasScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, swatScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, soilScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, sgasScalarSetIndex);
+                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, swatScalarSetIndex);
 
                 double scalarValue = 0.0;
                 
@@ -1138,7 +1138,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
         else if (this->cellResult()->hasResult())
         {
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject;
+            cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor;
             
             if (cellResult->hasStaticResult())
             {
@@ -1147,9 +1147,9 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                     size_t tranX, tranY, tranZ;
                     if (eclipseCase->results(porosityModel)->findTransmissibilityResults(tranX, tranY, tranZ))
                     {
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranX);
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranY);
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->dataAccessObject(grid, porosityModel, 0, tranZ);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->resultAccessor(grid, porosityModel, 0, tranX);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->resultAccessor(grid, porosityModel, 0, tranY);
+                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->resultAccessor(grid, porosityModel, 0, tranZ);
 
                         double scalarValue = dataAccessObjectX->cellScalar(cellIndex);
                         resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
@@ -1163,17 +1163,17 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 }
                 else
                 {
-                    dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
+                    resultAccessor = eclipseCase->resultAccessor(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
                 }
             }
             else
             {
-                dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+                resultAccessor = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
             }
 
-            if (dataAccessObject.notNull())
+            if (resultAccessor.notNull())
             {
-                double scalarValue = dataAccessObject->cellScalar(cellIndex);
+                double scalarValue = resultAccessor->cellScalar(cellIndex);
                 resultInfoText->append(QString("Cell result : %1\n").arg(scalarValue));
             }
         }
@@ -1191,10 +1191,10 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 
                 // Cell edge results are static, results are loaded for first time step only
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, 0, resultIndices[idx]);
-                if (dataAccessObject.notNull())
+                cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->resultAccessor(grid, porosityModel, 0, resultIndices[idx]);
+                if (resultAccessor.notNull())
                 {
-                    double scalarValue = dataAccessObject->cellScalar(cellIndex);
+                    double scalarValue = resultAccessor->cellScalar(cellIndex);
                     resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
                 }
             }

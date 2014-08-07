@@ -203,9 +203,9 @@ void RivFaultGeometryGenerator::computeArrays()
 /// Calculates the texture coordinates in a "nearly" one dimensional texture. 
 /// Undefined values are coded with a y-texture coordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
-void RivFaultGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::StructGridScalarDataAccess* dataAccessObject, const cvf::ScalarMapper* mapper) const
+void RivFaultGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::StructGridScalarDataAccess* resultAccessor, const cvf::ScalarMapper* mapper) const
 {
-    if (!dataAccessObject) return;
+    if (!resultAccessor) return;
 
     size_t numVertices = m_quadMapper->quadCount()*4;
 
@@ -218,7 +218,7 @@ void RivFaultGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoord
 #pragma omp parallel for private(texCoord, cellScalarValue)
     for (int i = 0; i < static_cast<int>(m_quadMapper->quadCount()); i++)
     {
-        cellScalarValue = dataAccessObject->cellScalar(m_quadMapper->cellIndex(i));
+        cellScalarValue = resultAccessor->cellScalar(m_quadMapper->cellIndex(i));
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {

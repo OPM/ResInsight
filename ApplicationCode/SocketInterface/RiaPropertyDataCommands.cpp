@@ -322,7 +322,7 @@ public:
 
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->dataAccessObject(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
+            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->resultAccessor(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
             if (cellCenterDataAccessObject.isNull())
             {
                 continue;
@@ -935,7 +935,7 @@ public:
             }
 
             cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = 
-                m_currentReservoir->reservoirData()->dataAccessObject(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
+                m_currentReservoir->reservoirData()->resultAccessor(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
 
             if (!cellCenterDataAccessObject.isNull())
             {

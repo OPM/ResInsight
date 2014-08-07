@@ -243,10 +243,10 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
 
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-            cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
-            if (dataAccessObject.isNull()) return;
+            cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->resultAccessor(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
+            if (resultAccessor.isNull()) return;
 
-            m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+            m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), resultAccessor.p(), mapper);
         }
 
          
@@ -460,9 +460,9 @@ void RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordi
 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranX = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosXScalarSetIndex);
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranY = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosYScalarSetIndex);
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranZ = eclipseCase->dataAccessObject(grid, porosityModel, resTimeStepIdx, tranPosZScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranX = eclipseCase->resultAccessor(grid, porosityModel, resTimeStepIdx, tranPosXScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranY = eclipseCase->resultAccessor(grid, porosityModel, resTimeStepIdx, tranPosYScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectTranZ = eclipseCase->resultAccessor(grid, porosityModel, resTimeStepIdx, tranPosZScalarSetIndex);
 
 
     int quadCount = static_cast<int>(quadToCellFaceMapper->quadCount());
@@ -601,19 +601,19 @@ void RivTransmissibilityColorMapper::updateTernarySaturationColorArray(size_t ti
 
     cellResultSlot->ternaryLegendConfig()->ternaryRanges(soilMin, soilMax, sgasMin, sgasMax, swatMin, swatMax);
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSoil = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, soilScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSoil = eclipseCase->resultAccessor(grid, porosityModel, timeStepIndex, soilScalarSetIndex);
     if (dataAccessObjectSoil.isNull())
     {
         dataAccessObjectSoil = new ScalarDataAccessZeroForAllCells;
     }
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSgas = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, sgasScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSgas = eclipseCase->resultAccessor(grid, porosityModel, timeStepIndex, sgasScalarSetIndex);
     if (dataAccessObjectSgas.isNull())
     {
         dataAccessObjectSgas = new ScalarDataAccessZeroForAllCells;
     }
     
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSwat = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, swatScalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectSwat = eclipseCase->resultAccessor(grid, porosityModel, timeStepIndex, swatScalarSetIndex);
     if (dataAccessObjectSwat.isNull())
     {
         dataAccessObjectSwat = new ScalarDataAccessZeroForAllCells;

@@ -117,7 +117,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
 
     RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = eclipseCase->dataAccessObject(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
+    cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->resultAccessor(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
 
     // Faults
     if (m_nativeFaultFaces.notNull())
@@ -139,11 +139,11 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
-            if (dataAccessObject.isNull()) 
+            if (resultAccessor.isNull()) 
             {
                 return;
             }
-            m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+            m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), resultAccessor.p(), mapper);
 
         }
 
@@ -212,12 +212,12 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
         }
         else
         {
-            if (dataAccessObject.isNull()) 
+            if (resultAccessor.isNull()) 
             {
                 return;
             }
 
-            m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), dataAccessObject.p(), mapper);
+            m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), resultAccessor.p(), mapper);
         }
 
         if (m_opacityLevel < 1.0f )

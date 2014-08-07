@@ -188,9 +188,9 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
 
             RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-            cvf::ref<RigResultAccessObject> dataAccessObject = RigResultAccessObjectFactory::createResultAccessObject(eclipseCase, m_grid->gridIdx(), porosityModel, resTimeStepIdx, cellResultSlot->resultVariable());
+            cvf::ref<RigResultAccessObject> resultAccessor = RigResultAccessObjectFactory::createResultAccessObject(eclipseCase, m_grid->gridIdx(), porosityModel, resTimeStepIdx, cellResultSlot->resultVariable());
 
-            if (dataAccessObject.isNull()) return;
+            if (resultAccessor.isNull()) return;
 
             RivResultToTextureMapper texMapper(mapper, 
                 RigPipeInCellEvaluator(cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
@@ -210,7 +210,7 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
             {
                 StructGridInterface::FaceType faceId = m_quadMapper->cellFace(i);
 
-                cellScalarValue = dataAccessObject->cellFaceScalar(m_quadMapper->cellIndex(i), faceId);
+                cellScalarValue = resultAccessor->cellFaceScalar(m_quadMapper->cellIndex(i), faceId);
 
                 texCoord = texMapper->mapToTextureCoord(cellScalarValue);
 

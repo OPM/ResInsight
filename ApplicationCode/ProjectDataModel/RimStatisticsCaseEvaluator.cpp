@@ -194,15 +194,15 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 
                     size_t scalarResultIndex = sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = sourceCase->reservoirData()->dataAccessObject(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
-                    if (dataAccessObject.notNull())
+                    cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = sourceCase->reservoirData()->resultAccessor(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
+                    if (resultAccessor.notNull())
                     {
-                        sourceDataAccessList.push_back(dataAccessObject.p());
+                        sourceDataAccessList.push_back(resultAccessor.p());
                     }
                 }
 
                 // Build data access objects for destination scalar results
-                // Find the created result container, if any, and put its dataAccessObject into the enum indexed destination collection
+                // Find the created result container, if any, and put its resultAccessor into the enum indexed destination collection
 
                 cvf::Collection<cvf::StructGridScalarDataAccess> destinationDataAccessList;
                 std::vector<QString> statisticalResultNames(STAT_PARAM_COUNT);
@@ -221,7 +221,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                     size_t scalarResultIndex = destCellResultsData->findScalarResultIndex(resultType, statisticalResultNames[stIdx]);
                     if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
                     {
-                        destinationDataAccessList.push_back(m_destinationCase->dataAccessObject(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex).p());
+                        destinationDataAccessList.push_back(m_destinationCase->resultAccessor(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex).p());
                     }
                     else
                     {
@@ -351,12 +351,12 @@ void RimStatisticsCaseEvaluator::debugOutput(RimDefines::ResultCatType resultTyp
 
     size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, resultName);
 
-    cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObject = m_destinationCase->dataAccessObject(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
-    if (dataAccessObject.isNull()) return;
+    cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = m_destinationCase->resultAccessor(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+    if (resultAccessor.isNull()) return;
 
     for (size_t cellIdx = 0; cellIdx < m_globalCellCount; cellIdx++)
     {
-        qDebug() << dataAccessObject->cellScalar(cellIdx);
+        qDebug() << resultAccessor->cellScalar(cellIdx);
     }
 }
 

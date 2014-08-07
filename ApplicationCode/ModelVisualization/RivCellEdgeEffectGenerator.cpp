@@ -121,7 +121,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         }
 
         RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-        cellCenterDataAccessObject = eclipseCase->dataAccessObject(grid, porosityModel, timeStepIndex, cellResultSlot->gridScalarIndex());
+        cellCenterDataAccessObject = eclipseCase->resultAccessor(grid, porosityModel, timeStepIndex, cellResultSlot->gridScalarIndex());
     }
 
     CVF_ASSERT(cellEdgeResultSlot->hasResult());
@@ -140,7 +140,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         {
             // Assuming static values to be mapped onto cell edge, always using time step zero
             // TODO: Now hardcoded matrix results, should it be possible to use fracture results?
-            daObj = eclipseCase->dataAccessObject(grid, RifReaderInterface::MATRIX_RESULTS, 0, resultIndices[cubeFaceIdx]);
+            daObj = eclipseCase->resultAccessor(grid, RifReaderInterface::MATRIX_RESULTS, 0, resultIndices[cubeFaceIdx]);
         }
 
         cellEdgeDataAccessObjects.push_back(daObj.p());
