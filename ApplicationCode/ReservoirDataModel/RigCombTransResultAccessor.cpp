@@ -29,18 +29,21 @@
 RigCombTransResultAccessor::RigCombTransResultAccessor(const RigGridBase* grid)
     : m_grid(grid)
 {
-    m_resultAccessObjects.resize(6);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Only sensible to provide the positive values, as the negative ones will never be used.
 /// The negative faces gets their value from the neighbor cell in that direction
 //--------------------------------------------------------------------------------------------------
-void RigCombTransResultAccessor::setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject)
-{
-    CVF_ASSERT(faceId == cvf::StructGridInterface::POS_I || faceId == cvf::StructGridInterface::POS_J || faceId == cvf::StructGridInterface::POS_K );
+void RigCombTransResultAccessor::setTransResultAccessors(RigResultAccessor* xTransAccessor,
+                                                         RigResultAccessor* yTransAccessor,
+                                                         RigResultAccessor* zTransAccessor)
 
-    m_resultAccessObjects[faceId] = resultAccessObject;
+{
+    m_xTransAccessor = xTransAccessor;
+    m_yTransAccessor = yTransAccessor;
+    m_zTransAccessor = zTransAccessor;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -48,11 +51,9 @@ void RigCombTransResultAccessor::setDataAccessObjectForFace(cvf::StructGridInter
 //--------------------------------------------------------------------------------------------------
 double RigCombTransResultAccessor::cellScalar(size_t localCellIndex) const
 {
+    CVF_TIGHT_ASSERT(false);
 
-    // TODO: How to handle when we get here?
-    CVF_ASSERT(false);
-
-    return cvf::UNDEFINED_DOUBLE;
+    return HUGE_VAL;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,72 +65,66 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::St
     {
     case cvf::StructGridInterface::POS_I:
         {
-            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_I);
-            if (resultAccessObj)
+            if (m_xTransAccessor.notNull())
             {
-                return resultAccessObj->cellScalar(localCellIndex);
+                return m_xTransAccessor->cellScalar(localCellIndex);
             }
         }
         break;
     case cvf::StructGridInterface::NEG_I:
         {
-            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_I);
-            if (resultAccessObj)
+            if (m_xTransAccessor.notNull())
             {
                 size_t i, j, k, neighborGridCellIdx;
                 m_grid->ijkFromCellIndex(localCellIndex, &i, &j, &k);
 
                 if (m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_I, &neighborGridCellIdx))
                 {
-                    return resultAccessObj->cellScalar(neighborGridCellIdx);
+                    return m_xTransAccessor->cellScalar(neighborGridCellIdx);
                 }
             }
         }
         break;
     case cvf::StructGridInterface::POS_J:
         {
-            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_J);
-            if (resultAccessObj)
+            if (m_yTransAccessor.notNull())
             {
-                return resultAccessObj->cellScalar(localCellIndex);
+                return m_yTransAccessor->cellScalar(localCellIndex);
             }
         }
         break;
     case cvf::StructGridInterface::NEG_J:
         {
-            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_J);
-            if (resultAccessObj)
+            if (m_yTransAccessor.notNull())
             {
                 size_t i, j, k, neighborGridCellIdx;
                 m_grid->ijkFromCellIndex(localCellIndex, &i, &j, &k);
 
                 if (m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_J, &neighborGridCellIdx))
                 {
-                    return resultAccessObj->cellScalar(neighborGridCellIdx);
+                    return m_yTransAccessor->cellScalar(neighborGridCellIdx);
                 }
             }
         }
         break;
     case cvf::StructGridInterface::POS_K:
         {
-            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_K);
-            if (resultAccessObj)
+            if (m_zTransAccessor.notNull())
             {
-                return resultAccessObj->cellScalar(localCellIndex);
+                return m_zTransAccessor->cellScalar(localCellIndex);
             }
         }
         break;
     case cvf::StructGridInterface::NEG_K:
         {
-            const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(cvf::StructGridInterface::POS_K);
-            if (resultAccessObj)
+            if (m_zTransAccessor.notNull())
             {
                 size_t i, j, k, neighborGridCellIdx;
                 m_grid->ijkFromCellIndex(localCellIndex, &i, &j, &k);
 
                 if (m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_K, &neighborGridCellIdx))
                 {
-                    return resultAccessObj->cellScalar(neighborGridCellIdx);
+                    return m_zTransAccessor->cellScalar(neighborGridCellIdx);
                 }
             }
         }
