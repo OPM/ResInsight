@@ -22,23 +22,12 @@
 #include "cafPdmField.h"
 #include "cafAppEnum.h"
 #include "RimDefines.h"
+#include "cafFixedArray.h"
 
 class RigCaseCellResultsData;
 class RimLegendConfig;
 class RimReservoirView;
 
-namespace caf
-{
-template <typename T, size_t vectorSize>
-class fvector
-{
-public:
-    T v[vectorSize];
-    T& operator[] (size_t idx) { return v[idx]; }
-const T& operator[] (size_t idx) const { return v[idx]; }
-
-};
-}
 
 //==================================================================================================
 ///  
@@ -86,7 +75,7 @@ private:
     void                                  resetResultIndices();
     void                                  updateIgnoredScalarValue();
 protected:
-    caf::fvector<std::pair<QString, size_t>, 6 >     m_resultNameToIndexPairs;
+    caf::FixedArray<std::pair<QString, size_t>, 6 >  m_resultNameToIndexPairs;
     caf::PdmPointer<RimReservoirView>                m_reservoirView;
     double                                           m_ignoredResultScalar;
 };
