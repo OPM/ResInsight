@@ -144,7 +144,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
 
             QList<caf::PdmOptionItemInfo> optionList;
 
-            std::map<QString, caf::fvector<QString, 6> > varBaseNameToVarsMap;
+            std::map<QString, caf::FixedArray<QString, 6> > varBaseNameToVarsMap;
 
             int i;
             for (i = 0; i < varList.size(); ++i)
@@ -164,7 +164,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
                 }
             }
 
-            std::map<QString, caf::fvector<QString, 6> >::iterator it;
+            std::map<QString, caf::FixedArray<QString, 6> >::iterator it;
 
             for (it = varBaseNameToVarsMap.begin(); it != varBaseNameToVarsMap.end(); ++it)
             {
@@ -174,16 +174,16 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
                 bool firstText = true;
                 for (cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx)
                 {
-                    if (!it->second.v[cubeFaceIdx].isEmpty())
+                    if (!it->second[cubeFaceIdx].isEmpty())
                     {
                         if (firstText)
                         {
-                            optionUiName += it->second.v[cubeFaceIdx];
+                            optionUiName += it->second[cubeFaceIdx];
                             firstText = false;
                         }
                         else
                         {
-                            optionUiName += QString(", ") + it->second.v[cubeFaceIdx];
+                            optionUiName += QString(", ") + it->second[cubeFaceIdx];
                         }
                     }
                 }
