@@ -34,7 +34,7 @@ public:
         size_t gridIndex,
         RifReaderInterface::PorosityModelResultType porosityModel,
         size_t timeStepIndex,
-        QString& uiResultName);
+        const QString& uiResultName);
 
 
     // TO BE DELETED
@@ -52,7 +52,7 @@ private:
                                         size_t gridIndex,
                                         RifReaderInterface::PorosityModelResultType porosityModel,
                                         size_t timeStepIndex,
-                                        QString& resultName);
+                                        const QString& resultName);
 
 
 };
