@@ -18,20 +18,18 @@
 
 #pragma once
 
-#include "RigResultAccessObject.h"
+#include "RigResultAccessor.h"
 
 #include "cvfCollection.h"
-
-class RigGridBase;
 
 
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigCombTransResultAccessor : public RigResultAccessor
+class RigCellEdgeResultAccessor : public RigResultAccessor
 {
 public:
-    RigCombTransResultAccessor(const RigGridBase* grid, const QString& resultName);
+    RigCellEdgeResultAccessor(const QString& resultName);
 
     void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject);
 
@@ -43,6 +41,5 @@ public:
 private:
     cvf::Collection<RigResultAccessor> m_resultAccessObjects;
     
-    const RigGridBase* m_grid;
     QString m_resultName;
 };

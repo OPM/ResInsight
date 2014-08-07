@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigCombTransResultAccessObject.h"
+#include "RigCombTransResultAccessor.h"
 
 #include "RigGridBase.h"
 

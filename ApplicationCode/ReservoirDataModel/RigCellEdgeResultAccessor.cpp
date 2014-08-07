@@ -16,9 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigAllGridCellsResultAccessObject.h"
-
-#include "RigGridBase.h"
+#include "RigCellEdgeResultAccessor.h"
 
 #include <cmath>
 
@@ -26,38 +24,50 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigAllGridCellsResultAccessor::RigAllGridCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const QString& resultName)
-    : m_grid(grid),
-    m_reservoirResultValues(reservoirResultValues),
-    m_resultName(resultName)
+RigCellEdgeResultAccessor::RigCellEdgeResultAccessor(const QString& resultName)
+    : m_resultName(resultName)
 {
+    m_resultAccessObjects.resize(6);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigAllGridCellsResultAccessor::cellScalar(size_t localCellIndex) const
+void RigCellEdgeResultAccessor::setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject)
 {
-    if (m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
-
-    size_t globalGridCellIndex = m_grid->globalGridCellIndex(localCellIndex);
-    CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
-
-    return m_reservoirResultValues->at(globalGridCellIndex);
+    m_resultAccessObjects[faceId] = resultAccessObject;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigAllGridCellsResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
+double RigCellEdgeResultAccessor::cellScalar(size_t localCellIndex) const
 {
-    return cellScalar(localCellIndex);
+
+    // TODO: How to handle when we get here?
+    CVF_ASSERT(false);
+
+    return cvf::UNDEFINED_DOUBLE;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigAllGridCellsResultAccessor::resultName() const
+double RigCellEdgeResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
+{
+    const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(faceId);
+    if (resultAccessObj != NULL)
+    {
+        return resultAccessObj->cellFaceScalar(localCellIndex, faceId);
+    }
+
+    return HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QString RigCellEdgeResultAccessor::resultName() const
 {
     return m_resultName;
 }
@@ -65,10 +75,10 @@ QString RigAllGridCellsResultAccessor::resultName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigAllGridCellsResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
+void RigCellEdgeResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
 {
-    size_t globalGridCellIndex = m_grid->globalGridCellIndex(localCellIndex);
-    CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
+    // TODO: How to handle when we get here?
+    CVF_ASSERT(false);
 
-    (*m_reservoirResultValues)[globalGridCellIndex] = scalarValue;
 }
+
