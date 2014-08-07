@@ -33,10 +33,6 @@ class RigResultAccessor : public cvf::Object
 public:
     virtual double cellScalar(size_t localCellIndex) const = 0;
     virtual double cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
-
-    virtual QString resultName() const = 0;
-
-    virtual void   setCellScalar(size_t localCellIndex, double scalarValue) = 0;
 };
 
 #if 0

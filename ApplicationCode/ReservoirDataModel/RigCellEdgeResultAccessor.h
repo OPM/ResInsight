@@ -29,17 +29,13 @@
 class RigCellEdgeResultAccessor : public RigResultAccessor
 {
 public:
-    RigCellEdgeResultAccessor(const QString& resultName);
+    RigCellEdgeResultAccessor();
 
     void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject);
 
     virtual double  cellScalar(size_t localCellIndex) const;
     virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
-    virtual QString resultName() const;
-    virtual void    setCellScalar(size_t localCellIndex, double scalarValue);
 
 private:
     cvf::Collection<RigResultAccessor> m_resultAccessObjects;
-    
-    QString m_resultName;
 };

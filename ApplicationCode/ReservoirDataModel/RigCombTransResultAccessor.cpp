@@ -26,9 +26,8 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCombTransResultAccessor::RigCombTransResultAccessor(const RigGridBase* grid, const QString& resultName)
-    : m_grid(grid),
-    m_resultName(resultName)
+RigCombTransResultAccessor::RigCombTransResultAccessor(const RigGridBase* grid)
+    : m_grid(grid)
 {
     m_resultAccessObjects.resize(6);
 }
@@ -138,23 +137,5 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::St
     }
 
     return HUGE_VAL;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-QString RigCombTransResultAccessor::resultName() const
-{
-    return m_resultName;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RigCombTransResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
-{
-    // TODO: How to handle when we get here?
-    CVF_ASSERT(false);
-
 }
 

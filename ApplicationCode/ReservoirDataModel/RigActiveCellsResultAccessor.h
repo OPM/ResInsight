@@ -30,17 +30,14 @@ class RigActiveCellInfo;
 class RigActiveCellsResultAccessor : public RigResultAccessor
 {
 public:
-    RigActiveCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo, const QString& resultName);
+    RigActiveCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo);
 
     virtual double  cellScalar(size_t localCellIndex) const;
     virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
-    virtual QString resultName() const;
-    virtual void    setCellScalar(size_t localCellIndex, double scalarValue);
 
 private:
     const RigActiveCellInfo*    m_activeCellInfo;
     const RigGridBase*          m_grid;
     std::vector<double>*        m_reservoirResultValues;
-    QString                     m_resultName;
 };
 
