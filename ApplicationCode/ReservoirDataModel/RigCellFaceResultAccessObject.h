@@ -26,10 +26,10 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigCellFaceResultAccessor : public RigResultAccessor
+class RigCellEdgeResultAccessor : public RigResultAccessor
 {
 public:
-    RigCellFaceResultAccessor(const QString& resultName);
+    RigCellEdgeResultAccessor(const QString& resultName);
 
     void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject);
 

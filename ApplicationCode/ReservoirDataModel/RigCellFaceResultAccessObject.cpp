@@ -24,7 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RigCellFaceResultAccessor::RigCellFaceResultAccessor(const QString& resultName)
+RigCellEdgeResultAccessor::RigCellEdgeResultAccessor(const QString& resultName)
     : m_resultName(resultName)
 {
     m_resultAccessObjects.resize(6);
@@ -33,7 +33,7 @@ RigCellFaceResultAccessor::RigCellFaceResultAccessor(const QString& resultName)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCellFaceResultAccessor::setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject)
+void RigCellEdgeResultAccessor::setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject)
 {
     m_resultAccessObjects[faceId] = resultAccessObject;
 }
@@ -41,7 +41,7 @@ void RigCellFaceResultAccessor::setDataAccessObjectForFace(cvf::StructGridInterf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCellFaceResultAccessor::cellScalar(size_t localCellIndex) const
+double RigCellEdgeResultAccessor::cellScalar(size_t localCellIndex) const
 {
 
     // TODO: How to handle when we get here?
@@ -53,7 +53,7 @@ double RigCellFaceResultAccessor::cellScalar(size_t localCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCellFaceResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
+double RigCellEdgeResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(faceId);
     if (resultAccessObj != NULL)
@@ -67,7 +67,7 @@ double RigCellFaceResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::Str
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigCellFaceResultAccessor::resultName() const
+QString RigCellEdgeResultAccessor::resultName() const
 {
     return m_resultName;
 }
@@ -75,7 +75,7 @@ QString RigCellFaceResultAccessor::resultName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCellFaceResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
+void RigCellEdgeResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
 {
     // TODO: How to handle when we get here?
     CVF_ASSERT(false);
