@@ -16,11 +16,11 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigResultAccessObjectFactory.h"
+#include "RigResultAccessorFactory.h"
 
-#include "RigResultAccessObject.h"
-#include "RigActiveCellsResultAccessObject.h"
-#include "RigAllGridCellsResultAccessObject.h"
+#include "RigResultAccessor.h"
+#include "RigActiveCellsResultAccessor.h"
+#include "RigAllGridCellsResultAccessor.h"
 
 #include "cvfLibCore.h"
 #include "cvfBase.h"
@@ -33,7 +33,7 @@
 #include "RigGridBase.h"
 #include "RigCaseData.h"
 #include <math.h>
-#include "RigCombTransResultAccessObject.h"
+#include "RigCombTransResultAccessor.h"
 
 
 //--------------------------------------------------------------------------------------------------

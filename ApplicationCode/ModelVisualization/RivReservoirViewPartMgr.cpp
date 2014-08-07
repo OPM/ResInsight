@@ -23,7 +23,7 @@
 #include "RigCaseData.h"
 #include "RigGridBase.h"
 #include "RigCaseCellResultsData.h"
-#include "RigResultAccessObjectFactory.h"
+#include "RigResultAccessorFactory.h"
 #include "RimCase.h"
 #include "RimCellRangeFilterCollection.h"
 #include "RimWellCollection.h"

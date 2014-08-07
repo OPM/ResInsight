@@ -16,43 +16,40 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigActiveCellsResultAccessObject.h"
+#include "RigAllGridCellsResultAccessor.h"
 
 #include "RigGridBase.h"
-#include "RigActiveCellInfo.h"
 
 #include <cmath>
 
 
-RigActiveCellsResultAccessor::RigActiveCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo, const QString& resultName)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RigAllGridCellsResultAccessor::RigAllGridCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const QString& resultName)
     : m_grid(grid),
     m_reservoirResultValues(reservoirResultValues),
-    m_activeCellInfo(activeCellInfo),
     m_resultName(resultName)
 {
 }
 
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigActiveCellsResultAccessor::cellScalar(size_t localCellIndex) const
+double RigAllGridCellsResultAccessor::cellScalar(size_t localCellIndex) const
 {
-    if (m_reservoirResultValues == NULL || m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
+    if (m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
     size_t globalGridCellIndex = m_grid->globalGridCellIndex(localCellIndex);
-    size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
-    if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
+    CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
 
-    CVF_TIGHT_ASSERT(resultValueIndex < m_reservoirResultValues->size());
-
-    return m_reservoirResultValues->at(resultValueIndex);
+    return m_reservoirResultValues->at(globalGridCellIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigActiveCellsResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
+double RigAllGridCellsResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     return cellScalar(localCellIndex);
 }
@@ -60,7 +57,7 @@ double RigActiveCellsResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigActiveCellsResultAccessor::resultName() const
+QString RigAllGridCellsResultAccessor::resultName() const
 {
     return m_resultName;
 }
@@ -68,12 +65,10 @@ QString RigActiveCellsResultAccessor::resultName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellsResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
+void RigAllGridCellsResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
 {
     size_t globalGridCellIndex = m_grid->globalGridCellIndex(localCellIndex);
-    size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
+    CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
 
-    CVF_TIGHT_ASSERT(m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size());
-
-    (*m_reservoirResultValues)[resultValueIndex] = scalarValue;
+    (*m_reservoirResultValues)[globalGridCellIndex] = scalarValue;
 }

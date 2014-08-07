@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RigResultAccessObject.h"
+#include "RigResultAccessor.h"
 
 class RigGridBase;
 class RigActiveCellInfo;

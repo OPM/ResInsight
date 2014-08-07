@@ -19,7 +19,7 @@
 #include "RigCaseData.h"
 #include "RigMainGrid.h"
 #include "RigCaseCellResultsData.h"
-#include "RigResultAccessObjectFactory.h"
+#include "RigResultAccessorFactory.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
