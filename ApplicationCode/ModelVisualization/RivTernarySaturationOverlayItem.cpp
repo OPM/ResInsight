@@ -142,7 +142,8 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
         textDrawer.addText("SGAS", cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasTextWidth / 2 ), textPosY));
 
         cvf::uint sgasRangeTextWidth = m_font->textExtent(m_sgasRange).x();
-        textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasRangeTextWidth / 2 ), textPosY - lineHeightInPixels));
+        textPosY -= lineHeightInPixels;
+        textDrawer.addText(m_sgasRange, cvf::Vec2f(static_cast<float>( (size.x() / 2) - sgasRangeTextWidth / 2 ), textPosY));
     }
 
     textDrawer.addText("SWAT", cvf::Vec2f(0.0, 10.0));
@@ -160,7 +161,8 @@ void RivTernarySaturationOverlayItem::render(cvf::OpenGLContext* oglContext, con
 
     textDrawer.renderSoftware(oglContext, camera);
 
-    renderAxisImmediateMode(textPosY - lineHeightInPixels, oglContext);
+    textPosY -= 3;
+    renderAxisImmediateMode(textPosY, oglContext);
 
     CVF_CHECK_OGL(oglContext);
 }
