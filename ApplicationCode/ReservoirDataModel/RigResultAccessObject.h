@@ -28,7 +28,7 @@
 //==================================================================================================
 /// 
 //==================================================================================================
-class RigResultAccessObject : public cvf::Object
+class RigResultAccessor : public cvf::Object
 {
 public:
     virtual double cellScalar(size_t localCellIndex) const = 0;

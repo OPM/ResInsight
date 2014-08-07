@@ -496,7 +496,7 @@ cvf::ref<cvf::StructGridScalarDataAccess> RigCaseData::dataAccessObject(const Ri
     if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
         scalarSetIndex != cvf::UNDEFINED_SIZE_T)
     {
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigResultAccessObjectFactory::TO_BE_DELETED_createNativeDataAccessObject(this, grid->gridIndex(), porosityModel, timeStepIndex, scalarSetIndex);
+        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigResultAccessorFactory::TO_BE_DELETED_createNativeDataAccessObject(this, grid->gridIndex(), porosityModel, timeStepIndex, scalarSetIndex);
         return dataAccess;
     }
 
