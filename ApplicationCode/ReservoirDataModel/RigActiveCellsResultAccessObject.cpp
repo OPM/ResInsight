@@ -24,7 +24,7 @@
 #include <cmath>
 
 
-RigActiveCellsResultAccessObject::RigActiveCellsResultAccessObject(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo, const QString& resultName)
+RigActiveCellsResultAccessor::RigActiveCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo, const QString& resultName)
     : m_grid(grid),
     m_reservoirResultValues(reservoirResultValues),
     m_activeCellInfo(activeCellInfo),
@@ -36,7 +36,7 @@ RigActiveCellsResultAccessObject::RigActiveCellsResultAccessObject(const RigGrid
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigActiveCellsResultAccessObject::cellScalar(size_t localCellIndex) const
+double RigActiveCellsResultAccessor::cellScalar(size_t localCellIndex) const
 {
     if (m_reservoirResultValues == NULL || m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
@@ -52,7 +52,7 @@ double RigActiveCellsResultAccessObject::cellScalar(size_t localCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigActiveCellsResultAccessObject::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
+double RigActiveCellsResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     return cellScalar(localCellIndex);
 }
@@ -60,7 +60,7 @@ double RigActiveCellsResultAccessObject::cellFaceScalar(size_t localCellIndex, c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QString RigActiveCellsResultAccessObject::resultName() const
+QString RigActiveCellsResultAccessor::resultName() const
 {
     return m_resultName;
 }
@@ -68,7 +68,7 @@ QString RigActiveCellsResultAccessObject::resultName() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellsResultAccessObject::setCellScalar(size_t localCellIndex, double scalarValue)
+void RigActiveCellsResultAccessor::setCellScalar(size_t localCellIndex, double scalarValue)
 {
     size_t globalGridCellIndex = m_grid->globalGridCellIndex(localCellIndex);
     size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
