@@ -32,7 +32,7 @@ class RigActiveCellInfo : public cvf::Object
 public:
     RigActiveCellInfo();
 
-    void                setReservoirCellCount(size_t globalCellCount);
+    void                setReservoirCellCount(size_t reservoirCellCount);
     size_t              reservoirCellCount() const;
     size_t              reservoirActiveCellCount() const;
     size_t              reservoirCellResultCount() const;
@@ -72,8 +72,8 @@ private:
 
     std::vector<size_t>                 m_cellIndexToResultIndex;
 
-    size_t                              m_globalActiveCellCount;
-    size_t                              m_globalCellResultCount;
+    size_t                              m_reservoirActiveCellCount;
+    size_t                              m_reservoirCellResultCount;
 
     cvf::Vec3st                         m_activeCellPositionMin;
     cvf::Vec3st                         m_activeCellPositionMax;

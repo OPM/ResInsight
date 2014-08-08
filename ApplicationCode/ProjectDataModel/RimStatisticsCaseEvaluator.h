@@ -85,7 +85,7 @@ private:
     std::vector<RimCase*>  m_sourceCases;
     std::vector<size_t>    m_timeStepIndices;
 
-    size_t                 m_globalCellCount;
+    size_t                 m_reservoirCellCount;
     RimStatisticsConfig    m_statisticsConfig;
     RigCaseData*           m_destinationCase;
 };
