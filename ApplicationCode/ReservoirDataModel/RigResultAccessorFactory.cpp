@@ -107,12 +107,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
     RigGridBase* grid = eclipseCase->grid(gridIndex);
 
-    // Ternary
-    if (uiResultName == RimDefines::ternarySaturationResultName())
-    {
-        return NULL;
-    }
-    else if (uiResultName == RimDefines::combinedTransmissibilityResultName())
+    if (uiResultName == RimDefines::combinedTransmissibilityResultName())
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
 
@@ -125,8 +120,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
         return cellFaceAccessObject;
     }
 
-
-    return NULL;
+    return RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
 }
 
 
