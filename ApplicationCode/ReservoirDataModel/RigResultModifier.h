@@ -47,10 +47,10 @@ public:
 
     virtual void setCellScalar(size_t gridLocalCellIndex, double scalarValue)
     {
-        size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-        CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
+        size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+        CVF_TIGHT_ASSERT(reservoirCellIndex < m_reservoirResultValues->size());
 
-        (*m_reservoirResultValues)[globalGridCellIndex] = scalarValue;
+        (*m_reservoirResultValues)[reservoirCellIndex] = scalarValue;
     }
 
 private:
@@ -74,8 +74,8 @@ public:
 
     virtual void setCellScalar(size_t gridLocalCellIndex, double scalarValue)
     {
-        size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-        size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
+        size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+        size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
 
         CVF_TIGHT_ASSERT(m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size());
 

@@ -166,9 +166,9 @@ void RigCaseData::computeWellCellsPrGrid()
 
             if (gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size())
             {
-                size_t globalGridCellIndex = grids[gridIndex]->globalGridCellIndex(gridCellIndex);
-                if (m_activeCellInfo->isActive(globalGridCellIndex) 
-                    || m_fractureActiveCellInfo->isActive(globalGridCellIndex))
+                size_t reservoirCellIndex = grids[gridIndex]->reservoirCellIndex(gridCellIndex);
+                if (m_activeCellInfo->isActive(reservoirCellIndex) 
+                    || m_fractureActiveCellInfo->isActive(reservoirCellIndex))
                 {
                     m_wellCellsInGrid[gridIndex]->set(gridCellIndex, true);
                     m_gridCellToWellIndex[gridIndex]->set(gridCellIndex, static_cast<cvf::uint>(wIdx));

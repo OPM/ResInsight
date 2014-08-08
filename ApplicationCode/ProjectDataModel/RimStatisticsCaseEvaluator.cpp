@@ -234,8 +234,8 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 for (int cellIdx = 0; static_cast<size_t>(cellIdx) < grid->cellCount(); cellIdx++)
                 {
 
-                    size_t globalGridCellIdx = grid->globalGridCellIndex(cellIdx);
-                    if (m_destinationCase->activeCellInfo(poroModel)->isActive(globalGridCellIdx))
+                    size_t reservoirCellIndex = grid->reservoirCellIndex(cellIdx);
+                    if (m_destinationCase->activeCellInfo(poroModel)->isActive(reservoirCellIndex))
                     {
                         // Extract the cell values from each of the cases and assemble them into one vector
 

@@ -39,10 +39,10 @@ double RigAllGridCellsResultAccessor::cellScalar(size_t gridLocalCellIndex) cons
 {
     if (m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
-    size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-    CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
+    size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+    CVF_TIGHT_ASSERT(reservoirCellIndex < m_reservoirResultValues->size());
 
-    return m_reservoirResultValues->at(globalGridCellIndex);
+    return m_reservoirResultValues->at(reservoirCellIndex);
 }
 
 //--------------------------------------------------------------------------------------------------

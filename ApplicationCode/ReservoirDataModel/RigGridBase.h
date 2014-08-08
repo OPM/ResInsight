@@ -52,7 +52,7 @@ public:
     RigCell&                    cell(size_t gridCellIndex);
     const RigCell&              cell(size_t gridCellIndex) const;
     
-    size_t                      globalGridCellIndex(size_t gridLocalCellIndex) const;
+    size_t                      reservoirCellIndex(size_t gridLocalCellIndex) const;
     void                        setIndexToStartOfCells(size_t indexToStartOfCells) { m_indexToStartOfCells = indexToStartOfCells; }
     
     void                        setGridIndex(size_t index) { m_gridIndex = index; }

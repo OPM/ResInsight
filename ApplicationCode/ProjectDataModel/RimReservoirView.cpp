@@ -1641,9 +1641,9 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                 if (wellResFrames[wfIdx].m_wellHead.m_gridIndex == grid->gridIndex())
                 {
                     size_t gridCellIndex = wellResFrames[wfIdx].m_wellHead.m_gridCellIndex;
-                    size_t globalGridCellIndex = grid->globalGridCellIndex(gridCellIndex);
+                    size_t reservoirCellIndex = grid->reservoirCellIndex(gridCellIndex);
 
-                    if (activeCellInfo->isActive(globalGridCellIndex))
+                    if (activeCellInfo->isActive(reservoirCellIndex))
                     {
                         (*visibleCells)[gridCellIndex] = true;
                     }
@@ -1698,9 +1698,9 @@ void RimReservoirView::calculateVisibleWellCellsIncFence(cvf::UByteArray* visibl
                                 for ( fIdx = 0; fIdx < cellCountFenceDirection; ++fIdx)
                                 {
                                     size_t fenceCellIndex = grid->cellIndexFromIJK(*pI,*pJ,*pK);
-                                    size_t globalGridCellIndex = grid->globalGridCellIndex(fenceCellIndex);
+                                    size_t reservoirCellIndex = grid->reservoirCellIndex(fenceCellIndex);
 
-                                    if (activeCellInfo && activeCellInfo->isActive(globalGridCellIndex))
+                                    if (activeCellInfo && activeCellInfo->isActive(reservoirCellIndex))
                                     {
                                         (*visibleCells)[fenceCellIndex] = true;
                                     }
