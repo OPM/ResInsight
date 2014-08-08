@@ -250,25 +250,25 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         std::vector<char> activeM(grid->cellCount(), 0);
         std::vector<char> activeF(grid->cellCount(), 0);
 
-        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
+        for (size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++)
         {
             for (size_t caseIdx = 0; caseIdx < caseCollection->reservoirs.size(); caseIdx++)
             {
-                size_t reservoirCellIndex = grid->globalGridCellIndex(localGridCellIdx);
+                size_t reservoirCellIndex = grid->globalGridCellIndex(gridLocalCellIndex);
 
-                if (activeM[localGridCellIdx] == 0)
+                if (activeM[gridLocalCellIndex] == 0)
                 {
                     if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->isActive(reservoirCellIndex))
                     {
-                        activeM[localGridCellIdx] = 1;
+                        activeM[gridLocalCellIndex] = 1;
                     }
                 }
 
-                if (activeF[localGridCellIdx] == 0)
+                if (activeF[gridLocalCellIndex] == 0)
                 {
                     if (caseCollection->reservoirs[caseIdx]->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->isActive(reservoirCellIndex))
                     {
-                        activeF[localGridCellIdx] = 1;
+                        activeF[gridLocalCellIndex] = 1;
                     }
                 }
             }
@@ -277,17 +277,17 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         size_t activeMatrixIndex = 0;
         size_t activeFractureIndex = 0;
 
-        for (size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++)
+        for (size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++)
         {
-            size_t reservoirCellIndex = grid->globalGridCellIndex(localGridCellIdx);
+            size_t reservoirCellIndex = grid->globalGridCellIndex(gridLocalCellIndex);
 
-            if (activeM[localGridCellIdx] != 0)
+            if (activeM[gridLocalCellIndex] != 0)
             {
                 m_unionOfMatrixActiveCells->setCellResultIndex(reservoirCellIndex, globalActiveMatrixIndex++);
                 activeMatrixIndex++;
             }
 
-            if (activeF[localGridCellIdx] != 0)
+            if (activeF[gridLocalCellIndex] != 0)
             {
                 m_unionOfFractureActiveCells->setCellResultIndex(reservoirCellIndex, globalActiveFractureIndex++);
                 activeFractureIndex++;
