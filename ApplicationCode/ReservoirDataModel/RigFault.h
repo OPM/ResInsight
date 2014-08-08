@@ -66,15 +66,15 @@ public:
    
     struct FaultFace
     {
-        FaultFace(size_t nativeGlobalCellIndex, cvf::StructGridInterface::FaceType nativeFace, size_t oppositeGlobalCellIndex) :
-            m_nativeGlobalCellIndex(nativeGlobalCellIndex),
+        FaultFace(size_t nativeReservoirCellIndex, cvf::StructGridInterface::FaceType nativeFace, size_t oppositeReservoirCellIndex) :
+            m_nativeReservoirCellIndex(nativeReservoirCellIndex),
             m_nativeFace(nativeFace),
-            m_oppositeGlobalCellIndex(oppositeGlobalCellIndex)
+            m_oppositeReservoirCellIndex(oppositeReservoirCellIndex)
             { }
 
-        size_t                              m_nativeGlobalCellIndex;
+        size_t                              m_nativeReservoirCellIndex;
         cvf::StructGridInterface::FaceType  m_nativeFace;
-        size_t                              m_oppositeGlobalCellIndex;
+        size_t                              m_oppositeReservoirCellIndex;
     };
 
 public:

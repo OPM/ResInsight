@@ -145,10 +145,10 @@ void  RigFault::accumulateFaultsPrCell(RigFaultsPrCellAccumulator* faultsPrCellA
     {
         const FaultFace& ff = m_faultFaces[ffIdx];
 
-        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeGlobalCellIndex, ff.m_nativeFace) >= 0)
+        // Could detect overlapping faults here .... if (faultsPrCellAcc->faultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace) >= 0)
 
-        faultsPrCellAcc->setFaultIdx(ff.m_nativeGlobalCellIndex, ff.m_nativeFace, faultIdx);
-        faultsPrCellAcc->setFaultIdx(ff.m_oppositeGlobalCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
+        faultsPrCellAcc->setFaultIdx(ff.m_nativeReservoirCellIndex, ff.m_nativeFace, faultIdx);
+        faultsPrCellAcc->setFaultIdx(ff.m_oppositeReservoirCellIndex, cvf::StructGridInterface::oppositeFace(ff.m_nativeFace), faultIdx);
 
     }
 }
