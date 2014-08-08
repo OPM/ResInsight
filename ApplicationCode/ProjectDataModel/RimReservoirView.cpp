@@ -1899,10 +1899,10 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                 const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
 
                 RigGridBase* hostGrid = cell.hostGrid();
-                size_t localCellIndex = cell.cellIndex();
+                size_t gridLocalCellIndex = cell.cellIndex();
 
                 size_t i, j, k;
-                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
+                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
                 {
                     // Adjust to 1-based Eclipse indexing
                     i++;
@@ -1921,10 +1921,10 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                 const RigCell& cell = grid->cells()[conn.m_c2GlobIdx];
 
                 RigGridBase* hostGrid = cell.hostGrid();
-                size_t localCellIndex = cell.cellIndex();
+                size_t gridLocalCellIndex = cell.cellIndex();
 
                 size_t i, j, k;
-                if (hostGrid->ijkFromCellIndex(localCellIndex, &i, &j, &k))
+                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
                 {
                     // Adjust to 1-based Eclipse indexing
                     i++;

@@ -32,8 +32,8 @@ class RigActiveCellsResultAccessor : public RigResultAccessor
 public:
     RigActiveCellsResultAccessor(const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo);
 
-    virtual double  cellScalar(size_t localCellIndex) const;
-    virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual double  cellScalar(size_t gridLocalCellIndex) const;
+    virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
     const RigActiveCellInfo*    m_activeCellInfo;

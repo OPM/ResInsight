@@ -31,8 +31,8 @@
 class RigResultAccessor : public cvf::Object
 {
 public:
-    virtual double cellScalar(size_t localCellIndex) const = 0;
-    virtual double cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
+    virtual double cellScalar(size_t gridLocalCellIndex) const = 0;
+    virtual double cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
 };
 
 #if 0
@@ -43,8 +43,8 @@ public:
 class RigResultAccessor2d : public cvf::Object
 {
 public:
-    virtual cvf::Vec2d cellScalar(size_t localCellIndex) const = 0;
-    virtual cvf::Vec2d cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
+    virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const = 0;
+    virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
 
     virtual QString resultName() const = 0;
     
@@ -61,8 +61,8 @@ public:
 
     /// Returns [SOil, SWat] regardless of which one of the three is missing. if Soil or SWat is missing, it is calculated 
     /// based on the two others
-    virtual cvf::Vec2d cellScalar(size_t localCellIndex) { };
-    virtual cvf::Vec2d cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) { return cellScalar(size_t localCellIndex); };
+    virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) { };
+    virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) { return cellScalar(size_t gridLocalCellIndex); };
 
     virtual QString resultName() const = 0;
 

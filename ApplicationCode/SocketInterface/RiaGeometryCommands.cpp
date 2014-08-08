@@ -101,8 +101,8 @@ public:
                 {
                     for (size_t i = 0; i < cellCountI; i++)
                     {
-                        size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                        cvf::Vec3d center = rigGrid->cell(localCellIdx).center();
+                        size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
+                        cvf::Vec3d center = rigGrid->cell(gridLocalCellIndex).center();
 
                         doubleValues[valueIndex++] = center[coordIdx];
                     }
@@ -268,8 +268,8 @@ public:
                     {
                         for (size_t i = 0; i < cellCountI; i++)
                         {
-                            size_t localCellIdx = rigGrid->cellIndexFromIJK(i, j, k);
-                            rigGrid->cellCornerVertices(localCellIdx, cornerVerts);
+                            size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK(i, j, k);
+                            rigGrid->cellCornerVertices(gridLocalCellIndex, cornerVerts);
 
                             doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
                         }
