@@ -46,14 +46,14 @@ public:
         m_faultIdxForCellFace.resize(globalCellCount, initVal);
     }
 
-    inline int faultIdx(size_t globalCellIdx, cvf::StructGridInterface::FaceType face) 
+    inline int faultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) 
     {
-        return m_faultIdxForCellFace[globalCellIdx][face];
+        return m_faultIdxForCellFace[reservoirCellIndex][face];
     }
 
-    inline void setFaultIdx(size_t globalCellIdx, cvf::StructGridInterface::FaceType face, int faultIdx)
+    inline void setFaultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face, int faultIdx)
     {
-        m_faultIdxForCellFace[globalCellIdx][face] = faultIdx;
+        m_faultIdxForCellFace[reservoirCellIndex][face] = faultIdx;
     }
 
 private:
