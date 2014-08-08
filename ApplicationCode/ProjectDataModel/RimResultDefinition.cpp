@@ -345,7 +345,7 @@ void RimResultDefinition::updateFieldVisibility()
         m_reservoirView->eclipseCase()->reservoirData() &&
         m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS) )
     {
-        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount() == 0)
+        if (m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount() == 0)
         {
             m_porosityModelUiField.setUiHidden(true);
         }

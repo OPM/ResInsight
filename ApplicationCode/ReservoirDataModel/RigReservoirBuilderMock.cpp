@@ -247,7 +247,7 @@ void RigReservoirBuilderMock::populateReservoir(RigCaseData* eclipseCase)
 
     // Set all cells active
     RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-    activeCellInfo->setGlobalCellCount(eclipseCase->mainGrid()->cells().size());
+    activeCellInfo->setReservoirCellCount(eclipseCase->mainGrid()->cells().size());
     for (size_t i = 0; i < eclipseCase->mainGrid()->cells().size(); i++)
     {
         activeCellInfo->setCellResultIndex(i, i);

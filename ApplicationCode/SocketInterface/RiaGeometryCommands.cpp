@@ -152,7 +152,7 @@ public:
         RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
         RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
 
-        size_t activeCellCount = actCellInfo->globalActiveCellCount();
+        size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3;
 
         socketStream << (quint64)activeCellCount;
@@ -321,7 +321,7 @@ public:
         RigActiveCellInfo* actCellInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
         RigMainGrid* mainGrid = rimCase->reservoirData()->mainGrid();
 
-        size_t activeCellCount = actCellInfo->globalActiveCellCount();
+        size_t activeCellCount = actCellInfo->reservoirActiveCellCount();
         size_t doubleValueCount = activeCellCount * 3 * 8;
 
         socketStream << (quint64)activeCellCount;

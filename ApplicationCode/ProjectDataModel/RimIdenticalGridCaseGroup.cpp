@@ -223,7 +223,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 {
-    if (m_unionOfMatrixActiveCells->globalActiveCellCount() > 0)
+    if (m_unionOfMatrixActiveCells->reservoirActiveCellCount() > 0)
     {
         return;
     }
@@ -235,8 +235,8 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         return;
     }
 
-    m_unionOfMatrixActiveCells->setGlobalCellCount(m_mainGrid->cells().size());
-    m_unionOfFractureActiveCells->setGlobalCellCount(m_mainGrid->cells().size());
+    m_unionOfMatrixActiveCells->setReservoirCellCount(m_mainGrid->cells().size());
+    m_unionOfFractureActiveCells->setReservoirCellCount(m_mainGrid->cells().size());
     m_unionOfMatrixActiveCells->setGridCount(m_mainGrid->gridCount());
     m_unionOfFractureActiveCells->setGridCount(m_mainGrid->gridCount());
 

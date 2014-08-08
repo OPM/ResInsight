@@ -34,7 +34,7 @@ RigActiveCellInfo::RigActiveCellInfo()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
+void RigActiveCellInfo::setReservoirCellCount(size_t globalCellCount)
 {
     m_cellIndexToResultIndex.resize(globalCellCount, cvf::UNDEFINED_SIZE_T);
 }
@@ -42,7 +42,7 @@ void RigActiveCellInfo::setGlobalCellCount(size_t globalCellCount)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalCellCount() const
+size_t RigActiveCellInfo::reservoirCellCount() const
 {
     return m_cellIndexToResultIndex.size();
 }
@@ -50,7 +50,7 @@ size_t RigActiveCellInfo::globalCellCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalCellResultCount() const
+size_t RigActiveCellInfo::reservoirCellResultCount() const
 {
     return m_globalCellResultCount;
 }
@@ -134,7 +134,7 @@ void RigActiveCellInfo::computeDerivedData()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::globalActiveCellCount() const
+size_t RigActiveCellInfo::reservoirActiveCellCount() const
 {
     return m_globalActiveCellCount;
 }

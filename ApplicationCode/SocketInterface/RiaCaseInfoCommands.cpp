@@ -158,7 +158,7 @@ public:
         }
 
         RigActiveCellInfo* actCellInfo = reservoirCase->reservoirData()->activeCellInfo(porosityModel);
-        size_t numMatrixModelActiveCells = actCellInfo->globalActiveCellCount();
+        size_t numMatrixModelActiveCells = actCellInfo->reservoirActiveCellCount();
 
         gridNumber.reserve(numMatrixModelActiveCells);
         cellI.reserve(numMatrixModelActiveCells);
