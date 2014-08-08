@@ -352,7 +352,7 @@ void RimStatisticsCaseEvaluator::debugOutput(RimDefines::ResultCatType resultTyp
     cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = m_destinationCase->resultAccessor(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
     if (resultAccessor.isNull()) return;
 
-    for (size_t cellIdx = 0; cellIdx < m_globalCellCount; cellIdx++)
+    for (size_t cellIdx = 0; cellIdx < m_reservoirCellCount; cellIdx++)
     {
         qDebug() << resultAccessor->cellScalar(cellIdx);
     }
@@ -365,12 +365,12 @@ RimStatisticsCaseEvaluator::RimStatisticsCaseEvaluator(const std::vector<RimCase
     :   m_sourceCases(sourceCases),
     m_statisticsConfig(statisticsConfig),
     m_destinationCase(destinationCase),
-    m_globalCellCount(0),
+    m_reservoirCellCount(0),
     m_timeStepIndices(timeStepIndices)
 {
     if (sourceCases.size() > 0)
     {
-        m_globalCellCount = sourceCases[0]->reservoirData()->mainGrid()->cells().size();
+        m_reservoirCellCount = sourceCases[0]->reservoirData()->mainGrid()->cells().size();
     }
 
     CVF_ASSERT(m_destinationCase);

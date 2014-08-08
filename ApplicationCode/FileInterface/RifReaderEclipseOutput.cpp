@@ -553,16 +553,16 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             std::vector<std::vector<int> > actnumValuesPerGrid;
             actnumValuesPerGrid.resize(actnumKeywordCount);
 
-            size_t globalCellCount = 0;
+            size_t reservoirCellCount = 0;
             for (size_t gridIdx = 0; gridIdx < static_cast<size_t>(actnumKeywordCount); gridIdx++)
             {
                 RifEclipseOutputFileTools::keywordData(ecl_file, ACTNUM_KW, gridIdx, &actnumValuesPerGrid[gridIdx]);
 
-                globalCellCount += actnumValuesPerGrid[gridIdx].size();
+                reservoirCellCount += actnumValuesPerGrid[gridIdx].size();
             }
 
             // Check if number of cells is matching
-            if (m_eclipseCase->mainGrid()->cells().size() != globalCellCount)
+            if (m_eclipseCase->mainGrid()->cells().size() != reservoirCellCount)
             {
                 return false;
             }
@@ -570,8 +570,8 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
             RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS);
 
-            activeCellInfo->setReservoirCellCount(globalCellCount);
-            fractureActiveCellInfo->setReservoirCellCount(globalCellCount);
+            activeCellInfo->setReservoirCellCount(reservoirCellCount);
+            fractureActiveCellInfo->setReservoirCellCount(reservoirCellCount);
             activeCellInfo->setGridCount(actnumKeywordCount);
             fractureActiveCellInfo->setGridCount(actnumKeywordCount);
 

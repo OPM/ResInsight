@@ -38,12 +38,12 @@ public:
     enum { NO_FAULT = -1, UNKNOWN_FAULT = -2 };
 
 public:
-    RigFaultsPrCellAccumulator(size_t globalCellCount) 
+    RigFaultsPrCellAccumulator(size_t reservoirCellCount) 
     { 
         const int  initVals[6] = { NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT}; 
         caf::IntArray6 initVal;
         initVal = initVals; 
-        m_faultIdxForCellFace.resize(globalCellCount, initVal);
+        m_faultIdxForCellFace.resize(reservoirCellCount, initVal);
     }
 
     inline int faultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) 
@@ -95,7 +95,7 @@ public:
     const std::vector<size_t>&   connectionIndices() const { return m_connectionIndices; }
 
     static RigFaultsPrCellAccumulator* faultsPrCellAccumulator()    { CVF_ASSERT(m_faultsPrCellAcc.notNull()); return m_faultsPrCellAcc.p();}
-    static void initFaultsPrCellAccumulator(size_t globalCellCount) { m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(globalCellCount); }
+    static void initFaultsPrCellAccumulator(size_t reservoirCellCount) { m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(reservoirCellCount); }
 
 private:
     QString m_name;

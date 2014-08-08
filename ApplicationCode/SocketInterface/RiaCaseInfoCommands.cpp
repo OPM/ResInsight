@@ -170,7 +170,7 @@ public:
         hostCellK.reserve(numMatrixModelActiveCells);
         globalCoarseningBoxIdx.reserve(numMatrixModelActiveCells);
 
-        const std::vector<RigCell>& globalCells = reservoirCase->reservoirData()->mainGrid()->cells();
+        const std::vector<RigCell>& reservoirCells = reservoirCase->reservoirData()->mainGrid()->cells();
 
 
         std::vector<size_t> globalCoarseningBoxIndexStart;
@@ -190,13 +190,13 @@ public:
         }
 
 
-        for (size_t cIdx = 0; cIdx < globalCells.size(); ++cIdx)
+        for (size_t cIdx = 0; cIdx < reservoirCells.size(); ++cIdx)
         {
             if (actCellInfo->isActive(cIdx))
             {
-                RigGridBase* grid = globalCells[cIdx].hostGrid();
+                RigGridBase* grid = reservoirCells[cIdx].hostGrid();
                 CVF_ASSERT(grid != NULL);
-                size_t cellIndex = globalCells[cIdx].cellIndex();
+                size_t cellIndex = reservoirCells[cIdx].cellIndex();
 
                 size_t i, j, k;
                 grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
@@ -213,7 +213,7 @@ public:
                 }
                 else
                 {
-                    size_t parentCellIdx = globalCells[cIdx].parentCellIndex();
+                    size_t parentCellIdx = reservoirCells[cIdx].parentCellIndex();
                     parentGrid = (static_cast<RigLocalGrid*>(grid))->parentGrid();
                     CVF_ASSERT(parentGrid != NULL);
                     parentGrid->ijkFromCellIndex(parentCellIdx, &pi, &pj, &pk);
@@ -229,7 +229,7 @@ public:
                 hostCellJ.push_back(static_cast<qint32>(pj + 1));   // NB: 1-based index in Octave
                 hostCellK.push_back(static_cast<qint32>(pk + 1));   // NB: 1-based index in Octave
 
-                size_t coarseningIdx = globalCells[cIdx].coarseningBoxIndex();
+                size_t coarseningIdx = reservoirCells[cIdx].coarseningBoxIndex();
                 if (coarseningIdx != cvf::UNDEFINED_SIZE_T)
                 {
                     size_t globalCoarseningIdx = globalCoarseningBoxIndexStart[grid->gridIndex()] + coarseningIdx;

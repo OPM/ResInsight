@@ -148,11 +148,11 @@ public:
             std::vector<double> values(valueCount);
             size_t valueIndex = 0;
 
-            size_t globalCellCount = activeInfo->reservoirCellCount();
+            size_t reservoirCellCount = activeInfo->reservoirCellCount();
             for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
             {
                 std::vector<double>& doubleValues = scalarResultFrames->at(requestedTimesteps[tIdx]);
-                for (size_t gcIdx = 0; gcIdx < globalCellCount; ++gcIdx)
+                for (size_t gcIdx = 0; gcIdx < reservoirCellCount; ++gcIdx)
                 {
                     size_t resultIdx = activeInfo->cellResultIndex(gcIdx);
                     if (resultIdx == cvf::UNDEFINED_SIZE_T) continue;
@@ -528,18 +528,18 @@ public:
 
         RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
 
-        size_t globalActiveCellCount    = activeCellInfo->reservoirActiveCellCount();
+        size_t activeCellCountReservoir    = activeCellInfo->reservoirActiveCellCount();
         size_t totalCellCount           = activeCellInfo->reservoirCellCount();
-        size_t globalCellResultCount    = activeCellInfo->reservoirCellResultCount();
+        size_t reservoirCellResultCount    = activeCellInfo->reservoirCellResultCount();
 
-        bool isCoarseningActive = globalCellResultCount != globalActiveCellCount;
+        bool isCoarseningActive = reservoirCellResultCount != activeCellCountReservoir;
 
-        if (cellCountFromOctave != globalActiveCellCount )
+        if (cellCountFromOctave != activeCellCountReservoir )
         {
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") +
                                               RiaSocketServer::tr("The number of cells in the data coming from octave does not match the case") + ":\""  + m_currentReservoir->caseUserDescription() + "\"\n"
                                               "   Octave: " + QString::number(cellCountFromOctave) + "\n"
-                                              "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(globalActiveCellCount) + " Total cell count: " +  QString::number(totalCellCount)) ;
+                                              "  " + m_currentReservoir->caseUserDescription() + ": Active cell count: " + QString::number(activeCellCountReservoir) + " Total cell count: " +  QString::number(totalCellCount)) ;
 
             cellCountFromOctave = 0;
             m_invalidActiveCellCountDetected = true;
@@ -554,7 +554,7 @@ public:
         for (size_t tIdx = 0; tIdx < m_timeStepCountToRead; ++tIdx)
         {
             size_t tsId = m_requestedTimesteps[tIdx];
-            m_scalarResultsToAdd->at(tsId).resize(globalCellResultCount, HUGE_VAL);
+            m_scalarResultsToAdd->at(tsId).resize(reservoirCellResultCount, HUGE_VAL);
         }
 
         std::vector<double> readBuffer;
