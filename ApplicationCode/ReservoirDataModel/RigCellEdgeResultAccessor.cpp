@@ -40,7 +40,7 @@ void RigCellEdgeResultAccessor::setDataAccessObjectForFace(cvf::StructGridInterf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCellEdgeResultAccessor::cellScalar(size_t localCellIndex) const
+double RigCellEdgeResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
 
     // TODO: How to handle when we get here?
@@ -52,12 +52,12 @@ double RigCellEdgeResultAccessor::cellScalar(size_t localCellIndex) const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCellEdgeResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
+double RigCellEdgeResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     const RigResultAccessor* resultAccessObj = m_resultAccessObjects[faceId].p();
     if (resultAccessObj != NULL)
     {
-        return resultAccessObj->cellFaceScalar(localCellIndex, faceId);
+        return resultAccessObj->cellFaceScalar(gridLocalCellIndex, faceId);
     }
 
     return HUGE_VAL;

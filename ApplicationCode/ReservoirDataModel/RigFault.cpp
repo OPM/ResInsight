@@ -115,16 +115,16 @@ void RigFault::computeFaultFacesFromCellRanges(const RigMainGrid* mainGrid)
                         }
 
                         // Do not need to compute global grid cell index as for a maingrid localIndex == globalIndex
-                        //size_t globalCellIndex = grid->globalGridCellIndex(localCellIndex);
+                        //size_t globalCellIndex = grid->globalGridCellIndex(gridLocalCellIndex);
 
                         size_t ni, nj, nk;
                         mainGrid->neighborIJKAtCellFace(i, j, k, faceEnum, &ni, &nj, &nk);
                         if (ni < mainGrid->cellCountI() && nj < mainGrid->cellCountJ() && nk < mainGrid->cellCountK())
                         {
-                            size_t localCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
+                            size_t gridLocalCellIndex = mainGrid->cellIndexFromIJK(i, j, k);
                             size_t oppositeCellIndex = mainGrid->cellIndexFromIJK(ni, nj, nk);
 
-                            m_faultFaces.push_back(FaultFace(localCellIndex, faceEnum, oppositeCellIndex));
+                            m_faultFaces.push_back(FaultFace(gridLocalCellIndex, faceEnum, oppositeCellIndex));
                         }
                         else
                         {

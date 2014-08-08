@@ -33,8 +33,8 @@ public:
 
     void setDataAccessObjectForFace(cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject);
 
-    virtual double  cellScalar(size_t localCellIndex) const;
-    virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual double  cellScalar(size_t gridLocalCellIndex) const;
+    virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
     caf::FixedArray<cvf::ref<RigResultAccessor>, 6> m_resultAccessObjects;

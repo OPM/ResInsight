@@ -112,29 +112,29 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     // Loop over cells and fill them with data
 
 #pragma omp parallel for
-    for (int localCellIdx = 0; localCellIdx < cellCount; ++localCellIdx)
+    for (int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex)
     {
-        RigCell& cell = mainGrid->cells()[cellStartIndex + localCellIdx];
+        RigCell& cell = mainGrid->cells()[cellStartIndex + gridLocalCellIndex];
 
-        cell.setCellIndex(localCellIdx);
+        cell.setCellIndex(gridLocalCellIndex);
 
         // Active cell index
 
-        int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, localCellIdx);
+        int matrixActiveIndex = ecl_grid_get_active_index1(localEclGrid, gridLocalCellIndex);
         if (matrixActiveIndex != -1)
         {
-            activeCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, matrixActiveStartIndex + matrixActiveIndex);
+            activeCellInfo->setCellResultIndex(cellStartIndex + gridLocalCellIndex, matrixActiveStartIndex + matrixActiveIndex);
         }
 
-        int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, localCellIdx);
+        int fractureActiveIndex = ecl_grid_get_active_fracture_index1(localEclGrid, gridLocalCellIndex);
         if (fractureActiveIndex != -1)
         {
-            fractureActiveCellInfo->setCellResultIndex(cellStartIndex + localCellIdx, fractureActiveStartIndex + fractureActiveIndex);
+            fractureActiveCellInfo->setCellResultIndex(cellStartIndex + gridLocalCellIndex, fractureActiveStartIndex + fractureActiveIndex);
         }
 
         // Parent cell index
 
-        int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, localCellIdx);
+        int parentCellIndex = ecl_grid_get_parent_cell1(localEclGrid, gridLocalCellIndex);
         if (parentCellIndex == -1)
         {
             cell.setParentCellIndex(cvf::UNDEFINED_SIZE_T);
@@ -148,14 +148,14 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
         int cIdx;
         for (cIdx = 0; cIdx < 8; ++cIdx)
         {
-            double * point = mainGrid->nodes()[nodeStartIndex + localCellIdx * 8 + cellMappingECLRi[cIdx]].ptr();
-            ecl_grid_get_corner_xyz1(localEclGrid, localCellIdx, cIdx, &(point[0]), &(point[1]), &(point[2]));
+            double * point = mainGrid->nodes()[nodeStartIndex + gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            ecl_grid_get_corner_xyz1(localEclGrid, gridLocalCellIndex, cIdx, &(point[0]), &(point[1]), &(point[2]));
             point[2] = -point[2]; // Flipping Z making depth become negative z values
-            cell.cornerIndices()[cIdx] = nodeStartIndex + localCellIdx*8 + cIdx;
+            cell.cornerIndices()[cIdx] = nodeStartIndex + gridLocalCellIndex*8 + cIdx;
         }
 
         // Sub grid in cell
-        const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, localCellIdx);
+        const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1(localEclGrid, gridLocalCellIndex);
         if (subGrid != NULL)
         {
             int subGridId = ecl_grid_get_lgr_nr(subGrid);

@@ -37,8 +37,8 @@ public:
                                  RigResultAccessor* yTransAccessor,
                                  RigResultAccessor* zTransAccessor);
 
-    virtual double  cellScalar(size_t localCellIndex) const;
-    virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    virtual double  cellScalar(size_t gridLocalCellIndex) const;
+    virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
 
