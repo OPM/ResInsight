@@ -39,8 +39,8 @@ double RigActiveCellsResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
     if (m_reservoirResultValues == NULL || m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
-    size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-    size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
+    size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+    size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
     if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
 
     CVF_TIGHT_ASSERT(resultValueIndex < m_reservoirResultValues->size());

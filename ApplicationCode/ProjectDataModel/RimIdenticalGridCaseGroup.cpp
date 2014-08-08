@@ -254,7 +254,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
         {
             for (size_t caseIdx = 0; caseIdx < caseCollection->reservoirs.size(); caseIdx++)
             {
-                size_t reservoirCellIndex = grid->globalGridCellIndex(gridLocalCellIndex);
+                size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
 
                 if (activeM[gridLocalCellIndex] == 0)
                 {
@@ -279,7 +279,7 @@ void RimIdenticalGridCaseGroup::computeUnionOfActiveCells()
 
         for (size_t gridLocalCellIndex = 0; gridLocalCellIndex < grid->cellCount(); gridLocalCellIndex++)
         {
-            size_t reservoirCellIndex = grid->globalGridCellIndex(gridLocalCellIndex);
+            size_t reservoirCellIndex = grid->reservoirCellIndex(gridLocalCellIndex);
 
             if (activeM[gridLocalCellIndex] != 0)
             {

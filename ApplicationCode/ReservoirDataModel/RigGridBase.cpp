@@ -368,7 +368,7 @@ double RigGridBase::characteristicIJCellSize()
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigGridBase::globalGridCellIndex(size_t gridLocalCellIndex) const
+size_t RigGridBase::reservoirCellIndex(size_t gridLocalCellIndex) const
 {
     return m_indexToStartOfCells + gridLocalCellIndex;
 }

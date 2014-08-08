@@ -176,10 +176,10 @@ double RigGridAllCellsScalarDataAccess::cellScalar(size_t gridLocalCellIndex) co
 {
     if (m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
-    size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-    CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
+    size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+    CVF_TIGHT_ASSERT(reservoirCellIndex < m_reservoirResultValues->size());
 
-    return m_reservoirResultValues->at(globalGridCellIndex);
+    return m_reservoirResultValues->at(reservoirCellIndex);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,10 +187,10 @@ double RigGridAllCellsScalarDataAccess::cellScalar(size_t gridLocalCellIndex) co
 //--------------------------------------------------------------------------------------------------
 void RigGridAllCellsScalarDataAccess::setCellScalar(size_t gridLocalCellIndex, double scalarValue)
 {
-    size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-    CVF_TIGHT_ASSERT(globalGridCellIndex < m_reservoirResultValues->size());
+    size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+    CVF_TIGHT_ASSERT(reservoirCellIndex < m_reservoirResultValues->size());
 
-    (*m_reservoirResultValues)[globalGridCellIndex] = scalarValue;
+    (*m_reservoirResultValues)[reservoirCellIndex] = scalarValue;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,8 +212,8 @@ public:
       {
           if (m_reservoirResultValues == NULL || m_reservoirResultValues->size() == 0 ) return HUGE_VAL;
 
-          size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-          size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
+          size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+          size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
           if (resultValueIndex == cvf::UNDEFINED_SIZE_T) return HUGE_VAL;
 
           CVF_TIGHT_ASSERT(resultValueIndex < m_reservoirResultValues->size());
@@ -226,8 +226,8 @@ public:
       //--------------------------------------------------------------------------------------------------
       virtual void setCellScalar(size_t gridLocalCellIndex, double scalarValue)
       {
-          size_t globalGridCellIndex = m_grid->globalGridCellIndex(gridLocalCellIndex);
-          size_t resultValueIndex = m_activeCellInfo->cellResultIndex(globalGridCellIndex);
+          size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+          size_t resultValueIndex = m_activeCellInfo->cellResultIndex(reservoirCellIndex);
 
           CVF_TIGHT_ASSERT(m_reservoirResultValues != NULL && resultValueIndex < m_reservoirResultValues->size());
 

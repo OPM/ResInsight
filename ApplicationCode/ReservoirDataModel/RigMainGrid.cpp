@@ -259,7 +259,7 @@ void RigMainGrid::calculateFaults()
                     continue;
                 }
 
-                neighborGlobalCellIdx = hostGrid->globalGridCellIndex(neighborGridCellIdx);
+                neighborGlobalCellIdx = hostGrid->reservoirCellIndex(neighborGridCellIdx);
                 if (m_cells[neighborGlobalCellIdx].isInvalid())
                 {
                     continue;
