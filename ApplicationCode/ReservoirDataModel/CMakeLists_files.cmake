@@ -29,6 +29,7 @@ ${CEE_CURRENT_LIST_DIR}RigFault.h
 ${CEE_CURRENT_LIST_DIR}RigNNCData.h
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.h
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.inl
+${CEE_CURRENT_LIST_DIR}RigPipeInCellEvaluator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
