@@ -32,6 +32,8 @@
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "RigResultAccessor.h"
+
 #include "RimCase.h"
 #include "RimWellCollection.h"
 #include "cafPdmFieldCvfMat4d.h"
@@ -48,8 +50,9 @@
 #include "cvfRenderStateDepth.h"
 #include "RivSourceInfo.h"
 #include "RimFaultCollection.h"
+#include "RivTextureCoordsCreator.h"
 
-
+#include "RivResultToTextureMapper.h"
 
 
 
@@ -130,45 +133,14 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
             RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), 
                                                                               surfaceFacesColorArray.p(), m_nativeFaultGenerator->cellFromQuadMapper());
         }
-        else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
-        {
-            cvf::Vec2fArray* textureCoords = m_nativeFaultFacesTextureCoords.p();
-
-            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, 
-                                                                                             m_nativeFaultGenerator->cellFromQuadMapper());
-        }
         else
         {
-            if (resultAccessor.isNull()) 
-            {
-                return;
-            }
-            m_nativeFaultGenerator->textureCoordinates(m_nativeFaultFacesTextureCoords.p(), resultAccessor.p(), mapper);
+            RivTextureCoordsCreator texturer(cellResultSlot, 
+                timeStepIndex, 
+                m_grid->gridIndex(),  
+                m_nativeFaultGenerator->cellFromQuadMapper());
 
-        }
-
-        if (m_opacityLevel < 1.0f )
-        {
-            const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
-            cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_nativeFaultGenerator->cellFromQuadMapper();
-
-            for(size_t i = 0; i < m_nativeFaultFacesTextureCoords->size(); ++i)
-            {
-                if ((*m_nativeFaultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
-
-                size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
-
-                cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
-                if (wellIndex != cvf::UNDEFINED_UINT)
-                {
-                    if ( !isWellPipeVisible[wellIndex]) 
-                    {
-                        (*m_nativeFaultFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
-                    }
-                }
-            }
+            texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
@@ -204,43 +176,14 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 
             RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), m_oppositeFaultGenerator->cellFromQuadMapper());
         }
-        else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
-        {
-            cvf::Vec2fArray* textureCoords = m_oppositeFaultFacesTextureCoords.p();
-
-            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, m_oppositeFaultGenerator->cellFromQuadMapper());
-        }
         else
         {
-            if (resultAccessor.isNull()) 
-            {
-                return;
-            }
+            RivTextureCoordsCreator texturer(cellResultSlot, 
+                timeStepIndex, 
+                m_grid->gridIndex(),  
+                m_oppositeFaultGenerator->cellFromQuadMapper());
 
-            m_oppositeFaultGenerator->textureCoordinates(m_oppositeFaultFacesTextureCoords.p(), resultAccessor.p(), mapper);
-        }
-
-        if (m_opacityLevel < 1.0f )
-        {
-            const std::vector<cvf::ubyte>& isWellPipeVisible      = cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex);
-            cvf::ref<cvf::UIntArray>       gridCellToWellindexMap = eclipseCase->gridCellToWellIndex(m_grid->gridIndex());
-            const cvf::StructGridQuadToCellFaceMapper*  quadsToGridCells = m_oppositeFaultGenerator->cellFromQuadMapper();
-
-            for(size_t i = 0; i < m_oppositeFaultFacesTextureCoords->size(); ++i)
-            {
-                if ((*m_oppositeFaultFacesTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
-
-                size_t quadIdx = i/4;
-                size_t cellIndex = quadsToGridCells->cellIndex(quadIdx);
-                cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
-                if (wellIndex != cvf::UNDEFINED_UINT)
-                {
-                    if ( !isWellPipeVisible[wellIndex]) 
-                    {
-                        (*m_oppositeFaultFacesTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
-                    }
-                }
-            }
+            texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
         }
 
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());

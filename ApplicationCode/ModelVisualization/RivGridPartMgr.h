@@ -91,10 +91,6 @@ private:
     void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
     void                    applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper);
     cvf::ref<cvf::Effect>   createScalarMapperEffect(const cvf::ScalarMapper* mapper);
-    void                    setResultsTransparentForWellCells(const std::vector<cvf::ubyte>& isWellPipeVisibleForWellIndex, 
-                                                              const cvf::UIntArray* gridCellToWellIndexMap, 
-                                                              const cvf::StructGridQuadToCellFaceMapper* quadsToCellFaceMapper, 
-                                                              cvf::Vec2fArray* resultTextureCoords);
     void                    updateCellEdgeResultColorOnPart(cvf::Part* facePart, 
                                                             cvf::StructGridGeometryGenerator* surfaceGenerator, 
                                                             size_t timeStepIndex, 
