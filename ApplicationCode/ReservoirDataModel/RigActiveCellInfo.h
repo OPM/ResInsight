@@ -38,9 +38,9 @@ public:
     size_t              globalCellResultCount() const;
     bool                isCoarseningActive() const;
 
-    bool                isActive(size_t globalCellIndex) const;
-    size_t              cellResultIndex(size_t globalCellIndex) const;
-    void                setCellResultIndex(size_t globalCellIndex, size_t globalResultCellIndex);
+    bool                isActive(size_t reservoirCellIndex) const;
+    size_t              cellResultIndex(size_t reservoirCellIndex) const;
+    void                setCellResultIndex(size_t reservoirCellIndex, size_t globalResultCellIndex);
 
     void                setGridCount(size_t gridCount);
     void                setGridActiveCellCounts(size_t gridIndex, size_t activeCellCount);

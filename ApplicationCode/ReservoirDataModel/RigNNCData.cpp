@@ -164,12 +164,12 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
 //--------------------------------------------------------------------------------------------------
 /// TODO: Possibly not needed !
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigNNCData::findConnectionIndices( size_t globalCellIndex, cvf::StructGridInterface::FaceType face) const
+const std::vector<size_t>& RigNNCData::findConnectionIndices( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
 {
     ConnectionSearchMap::const_iterator it;
     static std::vector<size_t> empty;
 
-    it = m_cellIdxToFaceToConnectionIdxMap.find(globalCellIndex);
+    it = m_cellIdxToFaceToConnectionIdxMap.find(reservoirCellIndex);
     if (it != m_cellIdxToFaceToConnectionIdxMap.end())
     {
         return it->second[face];

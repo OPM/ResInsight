@@ -177,11 +177,11 @@ public:
         {
             quint64 valueIndex = 0;
 
-            for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
+            for (size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->cells().size(); reservoirCellIndex++)
             {
-                if (!actCellInfo->isActive(globalCellIdx)) continue;
+                if (!actCellInfo->isActive(reservoirCellIndex)) continue;
 
-                cvf::Vec3d center = mainGrid->cells()[globalCellIdx].center();
+                cvf::Vec3d center = mainGrid->cells()[reservoirCellIndex].center();
 
                 doubleValues[valueIndex++] = center[coordIdx];
             }
@@ -351,11 +351,11 @@ public:
 
                 quint64 valueIndex = 0;
 
-                for (size_t globalCellIdx = 0; globalCellIdx < mainGrid->cells().size(); globalCellIdx++)
+                for (size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->cells().size(); reservoirCellIndex++)
                 {
-                    if (!actCellInfo->isActive(globalCellIdx)) continue;
+                    if (!actCellInfo->isActive(reservoirCellIndex)) continue;
 
-                    mainGrid->cellCornerVertices(globalCellIdx, cornerVerts);
+                    mainGrid->cellCornerVertices(reservoirCellIndex, cornerVerts);
 
                     doubleValues[valueIndex++] = cornerVerts[cornerIndexMapping][coordIdx];
                 }

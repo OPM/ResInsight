@@ -58,41 +58,41 @@ size_t RigActiveCellInfo::globalCellResultCount() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-bool RigActiveCellInfo::isActive(size_t globalCellIndex) const
+bool RigActiveCellInfo::isActive(size_t reservoirCellIndex) const
 {
     if (m_cellIndexToResultIndex.size() == 0)
     {
         return true;
     }
 
-    CVF_TIGHT_ASSERT(globalCellIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT(reservoirCellIndex < m_cellIndexToResultIndex.size());
 
-    return m_cellIndexToResultIndex[globalCellIndex] != cvf::UNDEFINED_SIZE_T;
+    return m_cellIndexToResultIndex[reservoirCellIndex] != cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RigActiveCellInfo::cellResultIndex(size_t globalCellIndex) const
+size_t RigActiveCellInfo::cellResultIndex(size_t reservoirCellIndex) const
 {
     if (m_cellIndexToResultIndex.size() == 0)
     {
-        return globalCellIndex;
+        return reservoirCellIndex;
     }
 
-    CVF_TIGHT_ASSERT(globalCellIndex < m_cellIndexToResultIndex.size());
+    CVF_TIGHT_ASSERT(reservoirCellIndex < m_cellIndexToResultIndex.size());
 
-    return m_cellIndexToResultIndex[globalCellIndex];
+    return m_cellIndexToResultIndex[reservoirCellIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::setCellResultIndex(size_t globalCellIndex, size_t globalCellResultIndex)
+void RigActiveCellInfo::setCellResultIndex(size_t reservoirCellIndex, size_t globalCellResultIndex)
 {
     CVF_TIGHT_ASSERT(globalCellResultIndex < m_cellIndexToResultIndex.size());
 
-    m_cellIndexToResultIndex[globalCellIndex] = globalCellResultIndex;
+    m_cellIndexToResultIndex[reservoirCellIndex] = globalCellResultIndex;
 
     if (globalCellResultIndex >= m_globalCellResultCount)
     {
