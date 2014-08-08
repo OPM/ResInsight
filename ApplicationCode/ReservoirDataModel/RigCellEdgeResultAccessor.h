@@ -20,7 +20,7 @@
 
 #include "RigResultAccessor.h"
 
-#include "cvfCollection.h"
+#include "cafFixedArray.h"
 
 
 //==================================================================================================
@@ -37,5 +37,5 @@ public:
     virtual double  cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
-    cvf::Collection<RigResultAccessor> m_resultAccessObjects;
+    caf::FixedArray<cvf::ref<RigResultAccessor>, 6> m_resultAccessObjects;
 };
