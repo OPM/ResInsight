@@ -117,8 +117,8 @@ void Rim3dOverlayInfoConfig::update3DInfo()
         {
             caseName = m_reservoirView->eclipseCase()->caseUserDescription();
             totCellCount = QString::number(m_reservoirView->eclipseCase()->reservoirData()->mainGrid()->cells().size());
-            size_t mxActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->globalActiveCellCount();
-            size_t frActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->globalActiveCellCount();
+            size_t mxActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::MATRIX_RESULTS)->reservoirActiveCellCount();
+            size_t frActCellCount = m_reservoirView->eclipseCase()->reservoirData()->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS)->reservoirActiveCellCount();
             if (frActCellCount > 0)  activeCellCountText += "Matrix : ";
             activeCellCountText += QString::number(mxActCellCount);
             if (frActCellCount > 0)  activeCellCountText += " Fracture : " + QString::number(frActCellCount);

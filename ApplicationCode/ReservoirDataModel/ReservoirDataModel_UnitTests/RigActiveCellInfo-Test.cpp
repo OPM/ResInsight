@@ -32,7 +32,7 @@ TEST(RigActiveCellInfo, BasicTest)
     RigActiveCellInfo rigActiveCellInfo;
 
     size_t globalActiveCellCount = 10;
-    rigActiveCellInfo.setGlobalCellCount(globalActiveCellCount);
+    rigActiveCellInfo.setReservoirCellCount(globalActiveCellCount);
 
     for (size_t i = 0; i < globalActiveCellCount; i++)
     {
@@ -57,7 +57,7 @@ TEST(RigActiveCellInfo, GridCellCounts)
         rigActiveCellInfo.setGridActiveCellCounts(2, 2);
         rigActiveCellInfo.computeDerivedData();
 
-        EXPECT_TRUE(rigActiveCellInfo.globalActiveCellCount() == 3);
+        EXPECT_TRUE(rigActiveCellInfo.reservoirActiveCellCount() == 3);
     }
 
     {
@@ -68,6 +68,6 @@ TEST(RigActiveCellInfo, GridCellCounts)
         rigActiveCellInfo.setGridActiveCellCounts(2, 5 );
         rigActiveCellInfo.computeDerivedData();
 
-        EXPECT_TRUE(rigActiveCellInfo.globalActiveCellCount() == 12);
+        EXPECT_TRUE(rigActiveCellInfo.reservoirActiveCellCount() == 12);
     }
 }

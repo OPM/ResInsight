@@ -32,10 +32,10 @@ class RigActiveCellInfo : public cvf::Object
 public:
     RigActiveCellInfo();
 
-    void                setGlobalCellCount(size_t globalCellCount);
-    size_t              globalCellCount() const;
-    size_t              globalActiveCellCount() const;
-    size_t              globalCellResultCount() const;
+    void                setReservoirCellCount(size_t globalCellCount);
+    size_t              reservoirCellCount() const;
+    size_t              reservoirActiveCellCount() const;
+    size_t              reservoirCellResultCount() const;
     bool                isCoarseningActive() const;
 
     bool                isActive(size_t reservoirCellIndex) const;

@@ -103,7 +103,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
         RimDefines::ResultCatType resultType = resultSpecification[i].m_resType;
         QString resultName = resultSpecification[i].m_resVarName;
 
-        size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->globalActiveCellCount();
+        size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->reservoirActiveCellCount();
         RigCaseCellResultsData* destCellResultsData = m_destinationCase->results(poroModel);
 
         // Special handling if SOIL is asked for
@@ -172,7 +172,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 RimDefines::ResultCatType resultType = resultSpecification[resSpecIdx].m_resType;
                 QString resultName = resultSpecification[resSpecIdx].m_resVarName;
 
-                size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->globalActiveCellCount();
+                size_t activeCellCount = m_destinationCase->activeCellInfo(poroModel)->reservoirActiveCellCount();
 
                 if (activeCellCount == 0) continue;
 

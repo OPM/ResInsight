@@ -287,8 +287,8 @@ bool RifReaderEclipseOutput::transferGeometry(const ecl_grid_type* mainEclGrid, 
         totalCellCount += ecl_grid_get_global_size(localEclGrid);
     }
     
-    activeCellInfo->setGlobalCellCount(totalCellCount);
-    fractureActiveCellInfo->setGlobalCellCount(totalCellCount);
+    activeCellInfo->setReservoirCellCount(totalCellCount);
+    fractureActiveCellInfo->setReservoirCellCount(totalCellCount);
 
     // Reserve room for the cells and nodes and fill them with data
 
@@ -570,8 +570,8 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
             RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
             RigActiveCellInfo* fractureActiveCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS);
 
-            activeCellInfo->setGlobalCellCount(globalCellCount);
-            fractureActiveCellInfo->setGlobalCellCount(globalCellCount);
+            activeCellInfo->setReservoirCellCount(globalCellCount);
+            fractureActiveCellInfo->setReservoirCellCount(globalCellCount);
             activeCellInfo->setGridCount(actnumKeywordCount);
             fractureActiveCellInfo->setGridCount(actnumKeywordCount);
 
@@ -773,7 +773,7 @@ bool RifReaderEclipseOutput::staticResult(const QString& result, PorosityModelRe
     if (result.compare("ACTNUM", Qt::CaseInsensitive) == 0)
     {
         RigActiveCellInfo* activeCellInfo = m_eclipseCase->activeCellInfo(matrixOrFracture);
-        values->resize(activeCellInfo->globalActiveCellCount(), 1.0);
+        values->resize(activeCellInfo->reservoirActiveCellCount(), 1.0);
 
         return true;
     }
@@ -1551,7 +1551,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
 
     if (matrixOrFracture == RifReaderInterface::FRACTURE_RESULTS)
     {
-        if (fractureActiveCellInfo->globalActiveCellCount() == 0)
+        if (fractureActiveCellInfo->reservoirActiveCellCount() == 0)
         {
             return QStringList();
         }
@@ -1564,16 +1564,16 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel(const QStringL
         QString keyword = keywords[i];
         size_t keywordDataCount = keywordDataItemCounts[i];
 
-        if (activeCellInfo->globalActiveCellCount() > 0)
+        if (activeCellInfo->reservoirActiveCellCount() > 0)
         {
-            size_t timeStepsAllCells     = keywordDataItemCounts[i] / activeCellInfo->globalCellCount();
-            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->globalCellCount();
+            size_t timeStepsAllCells     = keywordDataItemCounts[i] / activeCellInfo->reservoirCellCount();
+            size_t timeStepsAllCellsRest = keywordDataItemCounts[i] % activeCellInfo->reservoirCellCount();
 
-            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->globalActiveCellCount();
-            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->globalActiveCellCount();
+            size_t timeStepsMatrix = keywordDataItemCounts[i] / activeCellInfo->reservoirActiveCellCount();
+            size_t timeStepsMatrixRest = keywordDataItemCounts[i] % activeCellInfo->reservoirActiveCellCount();
         
-            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
-            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->globalActiveCellCount() + fractureActiveCellInfo->globalActiveCellCount());
+            size_t timeStepsMatrixAndFracture = keywordDataItemCounts[i] / (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
+            size_t timeStepsMatrixAndFractureRest = keywordDataItemCounts[i] % (activeCellInfo->reservoirActiveCellCount() + fractureActiveCellInfo->reservoirActiveCellCount());
 
             if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS)
             {
@@ -1620,7 +1620,7 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel(PorosityMod
     RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo(RifReaderInterface::FRACTURE_RESULTS); 
 
 
-    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->globalActiveCellCount() == 0)
+    if (matrixOrFracture == RifReaderInterface::MATRIX_RESULTS && fracActCellInfo->reservoirActiveCellCount() == 0)
     {
         destinationResultValues->insert(destinationResultValues->end(), sourceResultValues.begin(), sourceResultValues.end());
     }

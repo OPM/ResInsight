@@ -88,17 +88,17 @@ bool readDoubleValuesForActiveCells(RigCaseData* reservoir, size_t resultIndex, 
     newPropertyData.push_back(std::vector<double>());
 
     RigActiveCellInfo* activeCellInfo = reservoir->activeCellInfo(RifReaderInterface::MATRIX_RESULTS);
-    if (activeCellInfo->globalCellCount() > 0 && activeCellInfo->globalCellCount() != activeCellInfo->globalActiveCellCount())
+    if (activeCellInfo->reservoirCellCount() > 0 && activeCellInfo->reservoirCellCount() != activeCellInfo->reservoirActiveCellCount())
     {
         std::vector<double> valuesAllCells;
         valuesAllCells.resize(ecl_kw_get_size(eclKeyWordData), HUGE_VAL);
         ecl_kw_get_data_as_double(eclKeyWordData, valuesAllCells.data());
 
-        newPropertyData[0].resize(activeCellInfo->globalActiveCellCount(), HUGE_VAL);
+        newPropertyData[0].resize(activeCellInfo->reservoirActiveCellCount(), HUGE_VAL);
         std::vector<double>& valuesActiveCells = newPropertyData[0];
 
         size_t acIdx = 0;
-        for (size_t gcIdx = 0; gcIdx < activeCellInfo->globalCellCount(); gcIdx++)
+        for (size_t gcIdx = 0; gcIdx < activeCellInfo->reservoirCellCount(); gcIdx++)
         {
             size_t activeCellResultIndex = activeCellInfo->cellResultIndex(gcIdx);
             if (activeCellResultIndex != cvf::UNDEFINED_SIZE_T)

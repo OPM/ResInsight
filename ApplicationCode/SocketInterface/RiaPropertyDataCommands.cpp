@@ -138,7 +138,7 @@ public:
             // then the byte-size of the result values in one timestep
 
             const RigActiveCellInfo* activeInfo = rimCase->reservoirData()->activeCellInfo(porosityModelEnum);
-            size_t  timestepResultCount = activeInfo->globalActiveCellCount();
+            size_t  timestepResultCount = activeInfo->reservoirActiveCellCount();
 
             quint64 timestepByteCount = (quint64)(timestepResultCount*sizeof(double));
             socketStream << timestepByteCount ;
@@ -148,7 +148,7 @@ public:
             std::vector<double> values(valueCount);
             size_t valueIndex = 0;
 
-            size_t globalCellCount = activeInfo->globalCellCount();
+            size_t globalCellCount = activeInfo->reservoirCellCount();
             for (size_t tIdx = 0; tIdx < requestedTimesteps.size(); ++tIdx)
             {
                 std::vector<double>& doubleValues = scalarResultFrames->at(requestedTimesteps[tIdx]);
@@ -159,7 +159,7 @@ public:
 
                     if (resultIdx < doubleValues.size())
                     {
-                        if (doubleValues.size() == activeInfo->globalCellCount())
+                        if (doubleValues.size() == activeInfo->reservoirCellCount())
                         {
                             // When reading data from input text files, result data is read for all grid cells
                             // Read out values from data vector using global cell index instead of active cell result index
@@ -528,9 +528,9 @@ public:
 
         RigActiveCellInfo* activeCellInfo = m_currentReservoir->reservoirData()->activeCellInfo(m_porosityModelEnum);
 
-        size_t globalActiveCellCount    = activeCellInfo->globalActiveCellCount();
-        size_t totalCellCount           = activeCellInfo->globalCellCount();
-        size_t globalCellResultCount    = activeCellInfo->globalCellResultCount();
+        size_t globalActiveCellCount    = activeCellInfo->reservoirActiveCellCount();
+        size_t totalCellCount           = activeCellInfo->reservoirCellCount();
+        size_t globalCellResultCount    = activeCellInfo->reservoirCellResultCount();
 
         bool isCoarseningActive = globalCellResultCount != globalActiveCellCount;
 
