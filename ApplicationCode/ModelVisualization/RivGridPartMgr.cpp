@@ -212,75 +212,7 @@ void RivGridPartMgr::updateCellColor(cvf::Color4f color)
         m_surfaceGridLines->setEffect(eff.p());
     }
 }
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot)
-{
-    CVF_ASSERT(cellResultSlot);
 
-    const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
-    RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
-
-    cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
-
-    // Outer surface
-    if (m_surfaceFaces.notNull())
-    {
-        if (cellResultSlot->isTernarySaturationSelected())
-        {
-            surfaceFacesColorArray = new cvf::Color3ubArray;
-
-            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), m_surfaceGenerator.quadToCellFaceMapper());
-        }
-        else if (cellResultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
-        {
-            cvf::Vec2fArray* textureCoords = m_surfaceFacesTextureCoords.p();
-            RivTransmissibilityColorMapper::updateCombinedTransmissibilityTextureCoordinates(cellResultSlot, m_grid.p(), textureCoords, m_surfaceGenerator.quadToCellFaceMapper());
-        }
-        else
-        {
-            size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
-
-            // If the result is static, only read that.
-            size_t resTimeStepIdx = timeStepIndex;
-            if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
-
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-            cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->resultAccessor(m_grid.p(), porosityModel, resTimeStepIdx, scalarSetIndex);
-            if (resultAccessor.isNull()) return;
-
-            m_surfaceGenerator.textureCoordinates(m_surfaceFacesTextureCoords.p(), resultAccessor.p(), mapper);
-        }
-
-         
-        setResultsTransparentForWellCells(
-            cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
-            eclipseCase->gridCellToWellIndex(m_grid->gridIndex()),
-            m_surfaceGenerator.quadToCellFaceMapper(),
-            m_surfaceFacesTextureCoords.p());
-        
-        if (surfaceFacesColorArray.notNull())
-        {
-            cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-            if (dg)
-            {
-                dg->setColorArray(surfaceFacesColorArray.p());
-            }
-
-            cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
-            m_surfaceFaces->setEffect(perVertexColorEffect.p());
-
-            m_surfaceFaces->setPriority(100);
-        }
-        else
-        {
-            applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper );
-        }
-    }
-}
-#endif
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -304,50 +236,12 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
         }
         else
         {
-            RivTextureCoordsCreator texturer(cellResultSlot, timeStepIndex, m_grid->gridIndex(),  m_surfaceGenerator.quadToCellFaceMapper());
+            RivTextureCoordsCreator texturer(cellResultSlot, 
+                                             timeStepIndex, 
+                                             m_grid->gridIndex(),  
+                                             m_surfaceGenerator.quadToCellFaceMapper());
+
             texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
-            /*
-            // If the result is static, only read that.
-            size_t resTimeStepIdx = timeStepIndex;
-            const cvf::StructGridQuadToCellFaceMapper* quadMapper = m_surfaceGenerator.quadToCellFaceMapper();
-
-            if (cellResultSlot->hasStaticResult()) resTimeStepIdx = 0;
-
-            RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-            cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, m_grid->gridIndex(), porosityModel, resTimeStepIdx, cellResultSlot->resultVariable());
-
-            if (resultAccessor.isNull()) return;
-
-            cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator( cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
-                                                                                          eclipseCase->gridCellToWellIndex(m_grid->gridIndex()));
-
-            cvf::ref<RivResultToTextureMapper> texMapper = new RivResultToTextureMapper(mapper, pipeInCellEval.p());
-            
-            
-
-            size_t numVertices = quadMapper->quadCount()*4;
-            m_surfaceFacesTextureCoords->resize(numVertices);
-            cvf::Vec2f* rawPtr = m_surfaceFacesTextureCoords->ptr();
-
-            double cellScalarValue;
-            cvf::Vec2f texCoord;
-
-#pragma omp parallel for private(texCoord, cellScalarValue)
-            for (int i = 0; i < static_cast<int>(quadMapper->quadCount()); i++)
-            {
-                cvf::StructGridInterface::FaceType faceId = quadMapper->cellFace(i);
-                size_t cellIdx = quadMapper->cellIndex(i);
-
-                cellScalarValue = resultAccessor->cellFaceScalar(cellIdx, faceId);
-                texCoord = texMapper->getTexCoord(cellScalarValue, cellIdx);
-
-                size_t j;
-                for (j = 0; j < 4; j++)
-                {   
-                    rawPtr[i*4 + j] = texCoord;
-                }
-            }
-            */
         }
 
 
@@ -395,36 +289,6 @@ void RivGridPartMgr::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray*
 
     cvf::ref<cvf::Effect> scalarEffect = createScalarMapperEffect(mapper);
     part->setEffect(scalarEffect.p());
-}
-
-//--------------------------------------------------------------------------------------------------
-/// if this gridpart manager is set to have some transparency, we
-/// interpret it as we are displaying beeing wellcells. The cells are then transparent by default, but
-/// we turn that off for particular cells, if the well pipe is not shown for that cell
-//--------------------------------------------------------------------------------------------------
-void RivGridPartMgr::setResultsTransparentForWellCells(const std::vector<cvf::ubyte>& isWellPipeVisibleForWellIndex, 
-                                                       const cvf::UIntArray* gridCellToWellIndexMap, 
-                                                       const cvf::StructGridQuadToCellFaceMapper* quadsToCellFaceMapper,
-                                                       cvf::Vec2fArray* resultTextureCoords)
-{
-    if (m_opacityLevel < 1.0f )
-    {
-        for(size_t i = 0; i < resultTextureCoords->size(); ++i)
-        {
-            if ((*resultTextureCoords)[i].y() == 1.0f) continue; // Do not touch undefined values
-
-            size_t quadIdx = i/4;
-            size_t cellIndex = quadsToCellFaceMapper->cellIndex(quadIdx);
-            cvf::uint wellIndex = gridCellToWellIndexMap->get(cellIndex);
-            if (wellIndex != cvf::UNDEFINED_UINT)
-            {
-                if ( !isWellPipeVisibleForWellIndex[wellIndex]) 
-                {
-                    (*resultTextureCoords)[i].y() = 0; // Set the Y texture coordinate to the opaque line in the texture
-                }
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
