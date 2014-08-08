@@ -234,7 +234,7 @@ void RigMainGrid::calculateFaults()
             continue;
         }
 
-        size_t neighborGlobalCellIdx;
+        size_t neighborReservoirCellIdx;
         size_t neighborGridCellIdx;
         size_t i, j, k;
         RigGridBase* hostGrid = NULL; 
@@ -259,8 +259,8 @@ void RigMainGrid::calculateFaults()
                     continue;
                 }
 
-                neighborGlobalCellIdx = hostGrid->reservoirCellIndex(neighborGridCellIdx);
-                if (m_cells[neighborGlobalCellIdx].isInvalid())
+                neighborReservoirCellIdx = hostGrid->reservoirCellIndex(neighborGridCellIdx);
+                if (m_cells[neighborReservoirCellIdx].isInvalid())
                 {
                     continue;
                 }
@@ -271,7 +271,7 @@ void RigMainGrid::calculateFaults()
                 caf::SizeTArray4 faceIdxs;
                 m_cells[gcIdx].faceIndices(face, &faceIdxs);
                 caf::SizeTArray4 nbFaceIdxs;
-                m_cells[neighborGlobalCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
+                m_cells[neighborReservoirCellIdx].faceIndices(StructGridInterface::oppositeFace(face), &nbFaceIdxs);
 
                 const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
@@ -289,17 +289,17 @@ void RigMainGrid::calculateFaults()
                 // To avoid doing this calculation for the opposite face
 
                 faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
-                faultsPrCellAcc->setFaultIdx(neighborGlobalCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
+                faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
 
                 //m_cells[gcIdx].setCellFaceFault(face);
-                //m_cells[neighborGlobalCellIdx].setCellFaceFault(StructGridInterface::oppositeFace(face));
+                //m_cells[neighborReservoirCellIdx].setCellFaceFault(StructGridInterface::oppositeFace(face));
 
                 // Add as fault face only if the grid index is less than the neighbors
 
-                if (static_cast<size_t>(gcIdx) < neighborGlobalCellIdx)
+                if (static_cast<size_t>(gcIdx) < neighborReservoirCellIdx)
                 {
                     {
-                        RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborGlobalCellIdx);
+                        RigFault::FaultFace ff(gcIdx, cvf::StructGridInterface::FaceType(faceIdx), neighborReservoirCellIdx);
                         unNamedFault->faultFaces().push_back(ff);
                     }
 
@@ -382,7 +382,7 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t cellIndex,
 
         for (size_t fIdx = 0; fIdx < faultFaces.size(); fIdx++)
         {
-            if (faultFaces[fIdx].m_nativeGlobalCellIndex == cellIndex)
+            if (faultFaces[fIdx].m_nativeReservoirCellIndex == cellIndex)
             {
                 if (face == faultFaces[fIdx].m_nativeFace )
                 {
@@ -390,7 +390,7 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t cellIndex,
                 }
             }
 
-            if (faultFaces[fIdx].m_oppositeGlobalCellIndex == cellIndex)
+            if (faultFaces[fIdx].m_oppositeReservoirCellIndex == cellIndex)
             {
                 if (face == cvf::StructGridInterface::oppositeFace(faultFaces[fIdx].m_nativeFace))
                 {
