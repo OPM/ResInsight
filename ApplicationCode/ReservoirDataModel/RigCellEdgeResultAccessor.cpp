@@ -26,7 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 RigCellEdgeResultAccessor::RigCellEdgeResultAccessor()
 {
-    m_resultAccessObjects.resize(6);
+    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ double RigCellEdgeResultAccessor::cellScalar(size_t localCellIndex) const
 //--------------------------------------------------------------------------------------------------
 double RigCellEdgeResultAccessor::cellFaceScalar(size_t localCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
-    const RigResultAccessor* resultAccessObj = m_resultAccessObjects.at(faceId);
+    const RigResultAccessor* resultAccessObj = m_resultAccessObjects[faceId].p();
     if (resultAccessObj != NULL)
     {
         return resultAccessObj->cellFaceScalar(localCellIndex, faceId);
