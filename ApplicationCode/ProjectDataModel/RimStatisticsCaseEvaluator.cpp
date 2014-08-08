@@ -20,7 +20,10 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigResultModifier.h"
+#include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
+
 #include "RimReservoirCellResultsStorage.h"
 
 #include "cafProgressInfo.h"
@@ -204,7 +207,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 // Build data access objects for destination scalar results
                 // Find the created result container, if any, and put its resultAccessor into the enum indexed destination collection
 
-                cvf::Collection<cvf::StructGridScalarDataAccess> destinationDataAccessList;
+                cvf::Collection<RigResultModifier> destinationDataAccessList;
                 std::vector<QString> statisticalResultNames(STAT_PARAM_COUNT);
 
                 statisticalResultNames[MIN] = createResultNameMin(resultName);
@@ -219,14 +222,9 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 for (size_t stIdx = 0; stIdx < statisticalResultNames.size(); ++stIdx)
                 {
                     size_t scalarResultIndex = destCellResultsData->findScalarResultIndex(resultType, statisticalResultNames[stIdx]);
-                    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
-                    {
-                        destinationDataAccessList.push_back(m_destinationCase->resultAccessor(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex).p());
-                    }
-                    else
-                    {
-                        destinationDataAccessList.push_back(NULL);
-                    }
+
+                    cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_destinationCase, grid->gridIndex(), poroModel, dataAccessTimeStepIndex, scalarResultIndex);
+                    destinationDataAccessList.push_back(resultModifier.p());
                 }
 
                  std::vector<double> statParams(STAT_PARAM_COUNT, HUGE_VAL);
