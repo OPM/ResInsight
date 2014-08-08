@@ -37,7 +37,7 @@
 
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// This function must be harmonized with RigResultModifierFactory::createResultModifier()
 //--------------------------------------------------------------------------------------------------
 cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeResultAccessor(RigCaseData* eclipseCase,
     size_t gridIndex,

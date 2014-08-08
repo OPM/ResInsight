@@ -24,7 +24,6 @@
 #include <vector>
 #include <math.h>
 
-#include <QPair>
 
 class RimCase;
 class RigCaseData;

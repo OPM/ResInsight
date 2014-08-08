@@ -16,34 +16,31 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+
 #include "RiaSocketCommand.h"
+#include "RiaSocketDataTransfer.h"
 #include "RiaSocketServer.h"
 #include "RiaSocketTools.h"
 
-#include "RiuMainWindow.h"
-#include "RiuProcessMonitor.h"
+#include "RifReaderInterface.h"
 
-#include "RigCaseData.h"
+#include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigResultModifier.h"
+#include "RigResultModifierFactory.h"
 
-#include "RimReservoirCellResultsStorage.h"
 #include "RimCase.h"
 #include "RimInputCase.h"
+#include "RimInputProperty.h"
 #include "RimInputPropertyCollection.h"
-#include "RimUiTreeModelPdm.h"
+#include "RimReservoirCellResultsStorage.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
+#include "RimUiTreeModelPdm.h"
 
-#include <QTcpSocket>
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-#include "RiaSocketDataTransfer.h"
-#include "RimInputProperty.h"
+#include "RiuMainWindow.h"
+#include "RiuProcessMonitor.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -934,14 +931,12 @@ public:
                 return true;
             }
 
-            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = 
-                m_currentReservoir->reservoirData()->resultAccessor(grid, m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
-
-            if (!cellCenterDataAccessObject.isNull())
+            cvf::ref<RigResultModifier> resultModifier = RigResultModifierFactory::createResultModifier(m_currentReservoir->reservoirData(), grid->gridIndex(), m_porosityModelEnum, m_requestedTimesteps[m_currentTimeStepNumberToRead], m_currentScalarIndex);
+            if (!resultModifier.isNull())
             {
                 for (size_t cellIdx = 0; static_cast<size_t>(cellIdx) < cellCountFromOctave; cellIdx++)
                 {
-                    cellCenterDataAccessObject->setCellScalar(cellIdx, doubleValues[cellIdx]);
+                    resultModifier->setCellScalar(cellIdx, doubleValues[cellIdx]);
                 }
             }
 
