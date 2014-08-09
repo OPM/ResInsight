@@ -488,7 +488,7 @@ const RigCaseCellResultsData* RigCaseData::results(RifReaderInterface::PorosityM
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigCaseData::resultAccessor(const RigGridBase* grid, 
+cvf::ref<cvf::StructGridScalarDataAccess> RigCaseData::TO_BE_DELETED_resultAccessor(const RigGridBase* grid, 
                                                                            RifReaderInterface::PorosityModelResultType porosityModel, 
                                                                            size_t timeStepIndex, 
                                                                            size_t scalarSetIndex)
