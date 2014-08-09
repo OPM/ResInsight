@@ -24,7 +24,6 @@
 #include "cvfBoundingBox.h"
 #include "cvfStructGrid.h"
 #include "cvfStructGridGeometryGenerator.h"
-#include "cvfStructGridScalarDataAccess.h"
 
 #include "cafFixedArray.h"
 
