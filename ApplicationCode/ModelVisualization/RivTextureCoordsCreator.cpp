@@ -27,7 +27,6 @@
 #include "RigPipeInCellEvaluator.h"
 #include "RivResultToTextureMapper.h"
 #include "RimWellCollection.h"
-#include "RigResultAccessor.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

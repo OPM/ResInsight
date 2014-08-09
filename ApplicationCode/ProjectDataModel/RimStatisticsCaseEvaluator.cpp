@@ -20,7 +20,6 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"

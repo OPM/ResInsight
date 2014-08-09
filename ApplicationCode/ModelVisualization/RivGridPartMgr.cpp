@@ -51,7 +51,6 @@
 #include "RivCellEdgeEffectGenerator.h"
 #include "RivSourceInfo.h"
 #include "cvfStructGridGeometryGenerator.h"
-#include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 #include "RivResultToTextureMapper.h"
 #include "RivTextureCoordsCreator.h"
