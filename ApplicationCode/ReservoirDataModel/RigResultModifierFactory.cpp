@@ -34,12 +34,9 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigCa
     size_t timeStepIndex,
     QString& uiResultName)
 {
-    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
-    CVF_ASSERT(eclipseCase);
-    CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
+	if (!eclipseCase) return NULL;
 
-    if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
+    if (!eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
     {
         return NULL;
     }
@@ -58,22 +55,23 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier(RigCa
     RifReaderInterface::PorosityModelResultType porosityModel,
     size_t timeStepIndex, size_t scalarResultIndex)
 {
-    CVF_ASSERT(gridIndex < eclipseCase->gridCount());
-    CVF_ASSERT(eclipseCase);
-    CVF_ASSERT(eclipseCase->results(porosityModel));
-    CVF_ASSERT(eclipseCase->activeCellInfo(porosityModel));
+	if (!eclipseCase) return NULL;
 
-    RigGridBase* grid = eclipseCase->grid(gridIndex);
-
-    if (!eclipseCase || !eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
-    {
-        return NULL;
-    }
+	if (!eclipseCase->results(porosityModel) || !eclipseCase->activeCellInfo(porosityModel))
+	{
+		return NULL;
+	}
 
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
         return NULL;
     }
+
+    RigGridBase* grid = eclipseCase->grid(gridIndex);
+	if (!grid)
+	{
+		return NULL;
+	}
 
     std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(scalarResultIndex);
 
