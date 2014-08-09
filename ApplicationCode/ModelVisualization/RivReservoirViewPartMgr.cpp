@@ -728,7 +728,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
                 RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
-                cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->resultAccessor(grid, porosityModel, adjustedTimeStepIndex, scalarResultIndex);
+				cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, adjustedTimeStepIndex, scalarResultIndex);
                 CVF_ASSERT(resultAccessor.notNull());
 
                 //#pragma omp parallel for schedule(dynamic)

@@ -197,7 +197,7 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 
                     size_t scalarResultIndex = sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
 
-                    cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = sourceCase->reservoirData()->resultAccessor(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
+					cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = sourceCase->reservoirData()->TO_BE_DELETED_resultAccessor(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
                     if (resultAccessor.notNull())
                     {
                         sourceDataAccessList.push_back(resultAccessor.p());
@@ -349,7 +349,7 @@ void RimStatisticsCaseEvaluator::debugOutput(RimDefines::ResultCatType resultTyp
 
     size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, resultName);
 
-    cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = m_destinationCase->resultAccessor(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
+	cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = m_destinationCase->TO_BE_DELETED_resultAccessor(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
     if (resultAccessor.isNull()) return;
 
     for (size_t cellIdx = 0; cellIdx < m_reservoirCellCount; cellIdx++)

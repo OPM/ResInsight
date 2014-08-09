@@ -1116,9 +1116,9 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
                 size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
 
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, soilScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, sgasScalarSetIndex);
-                cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, swatScalarSetIndex);
+				cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, m_currentTimeStep, soilScalarSetIndex);
+				cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, m_currentTimeStep, sgasScalarSetIndex);
+				cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, m_currentTimeStep, swatScalarSetIndex);
 
                 double scalarValue = 0.0;
                 
@@ -1147,9 +1147,9 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                     size_t tranX, tranY, tranZ;
                     if (eclipseCase->results(porosityModel)->findTransmissibilityResults(tranX, tranY, tranZ))
                     {
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->resultAccessor(grid, porosityModel, 0, tranX);
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->resultAccessor(grid, porosityModel, 0, tranY);
-                        cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->resultAccessor(grid, porosityModel, 0, tranZ);
+						cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectX = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, 0, tranX);
+						cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectY = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, 0, tranY);
+						cvf::ref<cvf::StructGridScalarDataAccess> dataAccessObjectZ = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, 0, tranZ);
 
                         double scalarValue = dataAccessObjectX->cellScalar(cellIndex);
                         resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
@@ -1163,12 +1163,12 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
                 }
                 else
                 {
-                    resultAccessor = eclipseCase->resultAccessor(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
+					resultAccessor = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, 0, this->cellResult()->gridScalarIndex());
                 }
             }
             else
             {
-                resultAccessor = eclipseCase->resultAccessor(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
+				resultAccessor = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, m_currentTimeStep, this->cellResult()->gridScalarIndex());
             }
 
             if (resultAccessor.notNull())
@@ -1191,7 +1191,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
 
                 // Cell edge results are static, results are loaded for first time step only
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->resultAccessor(grid, porosityModel, 0, resultIndices[idx]);
+				cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, 0, resultIndices[idx]);
                 if (resultAccessor.notNull())
                 {
                     double scalarValue = resultAccessor->cellScalar(cellIndex);

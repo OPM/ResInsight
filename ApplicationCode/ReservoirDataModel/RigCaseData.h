@@ -54,7 +54,7 @@ public:
     void                                        setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo);
     
 
-    cvf::ref<cvf::StructGridScalarDataAccess>   resultAccessor(const RigGridBase* grid, 
+    cvf::ref<cvf::StructGridScalarDataAccess>   TO_BE_DELETED_resultAccessor(const RigGridBase* grid, 
                                                                RifReaderInterface::PorosityModelResultType porosityModel, 
                                                                size_t timeStepIndex, 
                                                                size_t scalarSetIndex);
