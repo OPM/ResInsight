@@ -20,6 +20,8 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 #include "RigResultModifier.h"
 #include "RigResultModifierFactory.h"
 #include "RigStatisticsMath.h"
@@ -190,14 +192,12 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
 
                 // Build data access objects for source scalar results
 
-                cvf::Collection<cvf::StructGridScalarDataAccess> sourceDataAccessList;
+				cvf::Collection<RigResultAccessor> sourceDataAccessList;
                 for (size_t caseIdx = 0; caseIdx < m_sourceCases.size(); caseIdx++)
                 {
                     RimCase* sourceCase = m_sourceCases.at(caseIdx);
 
-                    size_t scalarResultIndex = sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
-
-					cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = sourceCase->reservoirData()->TO_BE_DELETED_resultAccessor(grid, poroModel, dataAccessTimeStepIndex, scalarResultIndex);
+					cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(sourceCase->reservoirData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
                     if (resultAccessor.notNull())
                     {
                         sourceDataAccessList.push_back(resultAccessor.p());
