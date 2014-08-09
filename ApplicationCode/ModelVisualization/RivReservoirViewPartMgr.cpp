@@ -17,27 +17,27 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaStdInclude.h"
+
 #include "RivReservoirViewPartMgr.h"
-#include "RivGridPartMgr.h"
-#include "RimReservoirView.h"
+
+#include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigGridBase.h"
-#include "RigCaseCellResultsData.h"
 #include "RigResultAccessorFactory.h"
-#include "RimCase.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimWellCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimResultDefinition.h"
 
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
 #include "Rim3dOverlayInfoConfig.h"
-#include "RimReservoirCellResultsStorage.h"
+#include "RimCase.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimCellPropertyFilterCollection.h"
+#include "RimCellRangeFilterCollection.h"
 #include "RimFaultCollection.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirView.h"
+#include "RimResultDefinition.h"
+#include "RimResultSlot.h"
+#include "RimWellCollection.h"
+
+#include "RivGridPartMgr.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -728,7 +728,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel((*pfIt)->resultDefinition()->porosityModel());
                 RigCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->reservoirData();
 
-				cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = eclipseCase->TO_BE_DELETED_resultAccessor(grid, porosityModel, adjustedTimeStepIndex, scalarResultIndex);
+				cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, adjustedTimeStepIndex, (*pfIt)->resultDefinition->resultVariable(), (*pfIt)->resultDefinition->resultType());
                 CVF_ASSERT(resultAccessor.notNull());
 
                 //#pragma omp parallel for schedule(dynamic)
