@@ -65,6 +65,7 @@
 #include "RimCellPropertyFilterCollection.h"
 #include "RimWellCollection.h"
 #include "Rim3dOverlayInfoConfig.h"
+#include "cvfStructGridScalarDataAccess.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 

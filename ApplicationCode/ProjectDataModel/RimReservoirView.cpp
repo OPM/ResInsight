@@ -51,6 +51,7 @@
 #include "cvfOverlayScalarMapperLegend.h"
 #include "cvfPart.h"
 #include "cvfScene.h"
+#include "cvfStructGridScalarDataAccess.h"
 #include "cvfViewport.h" 
 #include "cvfqtUtils.h"
 
