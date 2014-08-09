@@ -41,6 +41,8 @@
 
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
+#include "RigResultAccessorFactory.h"
+#include "RigResultAccessor.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -319,8 +321,9 @@ public:
 
         for (size_t tsIdx = 0; tsIdx < timestepCount; tsIdx++)
         {
-            cvf::ref<cvf::StructGridScalarDataAccess> cellCenterDataAccessObject = rimCase->reservoirData()->resultAccessor(rigGrid, porosityModelEnum, requestedTimesteps[tsIdx], scalarResultIndex);
-            if (cellCenterDataAccessObject.isNull())
+			cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(rimCase->reservoirData(), gridIdx, porosityModelEnum, requestedTimesteps[tsIdx], propertyName);
+
+            if (resultAccessor.isNull())
             {
                 continue;
             }
@@ -330,7 +333,7 @@ public:
             size_t valueIndex = 0;
             for (size_t cellIdx = 0; cellIdx < rigGrid->cellCount(); cellIdx++)
             {
-                double cellValue = cellCenterDataAccessObject->cellScalar(cellIdx);
+                double cellValue = resultAccessor->cellScalar(cellIdx);
                 if (cellValue == HUGE_VAL)
                 {
                     cellValue = 0.0;
