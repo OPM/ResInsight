@@ -42,7 +42,6 @@
 #include "RiuMainWindow.h"
 #include "RiuProcessMonitor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigResultAccessor.h"
 
 
 //--------------------------------------------------------------------------------------------------

@@ -19,13 +19,13 @@
 #pragma once
 
 #include "RifReaderInterface.h"
+#include "RigResultAccessor.h"
 #include "RimDefines.h"
 
 #include "cvfStructGridScalarDataAccess.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
-class RigResultAccessor;
 
 class RigResultAccessorFactory
 {
