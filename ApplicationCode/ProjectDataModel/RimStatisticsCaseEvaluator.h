@@ -73,8 +73,6 @@ public:
 
     void evaluateForResults(const QList<ResSpec >& resultSpecification);
 
-    void debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx);
-
 private:
     void addNamedResult(RigCaseCellResultsData* cellResults, RimDefines::ResultCatType resultType, const QString& resultName, size_t activeCellCount);
     void buildSourceMetaData(RifReaderInterface::PorosityModelResultType poroModel, RimDefines::ResultCatType resultType, const QString& resultName);

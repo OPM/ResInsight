@@ -338,25 +338,6 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimStatisticsCaseEvaluator::debugOutput(RimDefines::ResultCatType resultType, const QString& resultName, size_t timeStepIdx)
-{
-    CVF_ASSERT(m_destinationCase);
-
-    qDebug() << resultName << "timeIdx : " << timeStepIdx;
-
-    size_t scalarResultIndex = m_destinationCase->results(RifReaderInterface::MATRIX_RESULTS)->findScalarResultIndex(resultType, resultName);
-
-	cvf::ref<cvf::StructGridScalarDataAccess> resultAccessor = m_destinationCase->TO_BE_DELETED_resultAccessor(m_destinationCase->mainGrid(), RifReaderInterface::MATRIX_RESULTS, timeStepIdx, scalarResultIndex);
-    if (resultAccessor.isNull()) return;
-
-    for (size_t cellIdx = 0; cellIdx < m_reservoirCellCount; cellIdx++)
-    {
-        qDebug() << resultAccessor->cellScalar(cellIdx);
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
