@@ -18,9 +18,10 @@
 
 #pragma once
 
-#include "cvfStructGridScalarDataAccess.h"
 #include "RifReaderInterface.h"
+#include "RimDefines.h"
 
+#include "cvfStructGridScalarDataAccess.h"
 
 class RigActiveCellInfo;
 class RigGridBase;
@@ -35,6 +36,14 @@ public:
         RifReaderInterface::PorosityModelResultType porosityModel,
         size_t timeStepIndex,
         const QString& uiResultName);
+
+	static cvf::ref<RigResultAccessor>
+		createResultAccessor(RigCaseData* eclipseCase,
+		size_t gridIndex,
+		RifReaderInterface::PorosityModelResultType porosityModel,
+		size_t timeStepIndex,
+		const QString& uiResultName,
+		RimDefines::ResultCatType resultType);
 
 
     // TO BE DELETED
@@ -54,6 +63,12 @@ private:
                                         size_t timeStepIndex,
                                         const QString& resultName);
 
+	static cvf::ref<RigResultAccessor>
+		createResultAccessor(RigCaseData* eclipseCase,
+		size_t gridIndex,
+		RifReaderInterface::PorosityModelResultType porosityModel,
+		size_t timeStepIndex,
+		size_t resultIndex);
 
 };
 
