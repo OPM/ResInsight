@@ -3,7 +3,6 @@
   - home
   - gettingstarted
   - installation
-  - contact
 
 - title: Application
   docs:
@@ -20,4 +19,9 @@
   - octaveinterfacereference
   - regressiontestsystem
   - commandlineparameters
+
+- title: Other
+  docs:
+  - contact
+  - about
 

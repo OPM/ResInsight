@@ -1,7 +1,7 @@
 ---
 layout: docs
 prev_section: gettingstarted
-next_section: contact
+next_section: reservoirviews
 title: Installation and configuration
 permalink: /docs/installation/
 published: true

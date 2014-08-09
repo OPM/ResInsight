@@ -1,7 +1,7 @@
 ---
 layout: docs
 prev_section: regressiontestsystem
-next_section: home
+next_section: contact
 title: Command Line Parameters
 permalink: /docs/commandlineparameters/
 published: true
