@@ -44,11 +44,6 @@ class RimCellEdgeResultSlot;
 class RivTransmissibilityColorMapper 
 {
 public:
-    static void updateCombinedTransmissibilityTextureCoordinates(
-        RimResultSlot* cellResultSlot,
-        const RigGridBase* grid,
-        cvf::Vec2fArray* textureCoords, 
-        const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper);
 
     static void updateTernarySaturationColorArray(
         size_t timeStepIndex,
