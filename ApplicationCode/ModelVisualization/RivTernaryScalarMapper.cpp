@@ -29,6 +29,7 @@ RivTernaryScalarMapper::RivTernaryScalarMapper(const cvf::Color3f& undefScalarCo
 	m_opacityLevel(opacityLevel),
 	m_textureSize(128, 256)
 {
+	setTernaryRanges(0.0, 1.0, 0.0, 1.0);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,8 +37,19 @@ RivTernaryScalarMapper::RivTernaryScalarMapper(const cvf::Color3f& undefScalarCo
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord(double soil, double swat, bool isTransparent)
 {
-	cvf::Vec2f texCoord;
+	double soilNormalized = (soil - m_rangeMinSoil) * m_soilFactor;
+	soilNormalized = cvf::Math::clamp(soilNormalized, 0.0, 1.0);
 
+	double swatNormalized = (swat - m_rangeMinSwat) * m_swatFactor;
+	swatNormalized = cvf::Math::clamp(swatNormalized, 0.0, 1.0 - soilNormalized);
+	swatNormalized /= 2.0;
+
+	if (isTransparent)
+	{
+		swatNormalized += 0.5;
+	}
+
+	cvf::Vec2f texCoord(static_cast<float>(soilNormalized), static_cast<float>(swatNormalized));
 	return texCoord;
 }
 
@@ -73,10 +85,10 @@ bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image)
 	float yStride = static_cast<float>(1.0f / halfTextureHeight);
 
 	float sgas_red = 0.0f;
-	for (int yPos = 0; yPos < halfTextureHeight; yPos++)
+	for (cvf::uint yPos = 0; yPos < halfTextureHeight; yPos++)
 	{
 		float soil_green = 0.0f;
-		for (int xPos = 0; xPos < m_textureSize.x() - yPos; xPos++)
+		for (cvf::uint xPos = 0; xPos < m_textureSize.x() - yPos; xPos++)
 		{
 			float swat_blue = 1.0f - sgas_red - soil_green;
 
@@ -90,7 +102,7 @@ bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image)
 			image->setPixel(xPos, yPos, clr);
 
 			// Set opacity
-			const cvf::Color4ub clrOpacity(rByteCol, gByteCol, bByteCol, 255 * m_opacityLevel);
+			const cvf::Color4ub clrOpacity(rByteCol, gByteCol, bByteCol, static_cast<cvf::ubyte>(255 * m_opacityLevel));
 			image->setPixel(xPos, yPos + halfTextureHeight, clrOpacity);
 
 			soil_green += xStride;
@@ -99,4 +111,18 @@ bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image)
 	}
 
 	return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivTernaryScalarMapper::setTernaryRanges(double soilLower, double soilUpper, double swatLower, double swatUpper)
+{
+	m_rangeMinSoil = soilLower;
+	m_rangeMaxSoil = soilUpper;
+	m_soilFactor = 1.0 / (soilUpper - soilLower);
+
+	m_rangeMinSwat = swatLower;
+	m_rangeMaxSwat = swatUpper;
+	m_swatFactor = 1.0 / (swatUpper - swatLower);
 }

@@ -18,18 +18,12 @@
 
 #include "gtest/gtest.h"
 
-// #include "cvfLibCore.h"
-// #include "cvfLibViewing.h"
-// #include "cvfLibRender.h"
-// #include "cvfLibGeometry.h"
-// 
-// #include "RivPipeGeometryGenerator.h"
-
 #include "RivTernaryScalarMapper.h"
+
 #include "cvfTextureImage.h"
+#include "cvfqtUtils.h"
 
 #include <QImage>
-#include "cvfqtUtils.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -43,7 +37,66 @@ TEST(TernaryScalarMapperTest, BasicFunctions)
 
 	QImage img = cvfqt::Utils::toQImage(*(texImage.p()));
 
-	img.save("c:/tmp/test.bmp");
-
+	img.save("c:/tmp/test.png");
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(TernaryScalarMapperTest, TextureMapping)
+{
+	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY, 0.8f);
+
+	// Without opacity
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, false);
+		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+	}
+
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(1.0, 0.0, false);
+		EXPECT_DOUBLE_EQ(1.0, texCoord.x());
+		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+	}
+
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, false);
+		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+		EXPECT_DOUBLE_EQ(0.5, texCoord.y());
+	}
+
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(3.0, 3.0, false);
+		EXPECT_DOUBLE_EQ(1.0, texCoord.x());
+		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+	}
+
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(-1.0, -1.0, false);
+		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+		EXPECT_DOUBLE_EQ(0.0, texCoord.y());
+	}
+
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.5, 3.0, false);
+		EXPECT_DOUBLE_EQ(0.5, texCoord.x());
+		EXPECT_DOUBLE_EQ(0.25, texCoord.y());
+	}
+
+
+	
+	
+	// Opacity
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 0.0, true);
+		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+		EXPECT_DOUBLE_EQ(0.5, texCoord.y());
+	}
+
+	{
+		cvf::Vec2f texCoord = scalarMapper->mapToTextureCoord(0.0, 1.0, true);
+		EXPECT_DOUBLE_EQ(0.0, texCoord.x());
+		EXPECT_DOUBLE_EQ(1.0, texCoord.y());
+	}
+}
