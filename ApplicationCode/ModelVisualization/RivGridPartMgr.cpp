@@ -54,6 +54,8 @@
 #include "RigResultAccessorFactory.h"
 #include "RivResultToTextureMapper.h"
 #include "RivTextureCoordsCreator.h"
+#include "RivTernaryTextureCoordsCreator.h"
+#include "RivTernaryScalarMapperEffectGenerator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -229,9 +231,28 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
     {
         if (cellResultSlot->isTernarySaturationSelected())
         {
-            surfaceFacesColorArray = new cvf::Color3ubArray;
+			RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
+				timeStepIndex,
+				m_grid->gridIndex(),
+				m_surfaceGenerator.quadToCellFaceMapper());
 
-            RivTransmissibilityColorMapper::updateTernarySaturationColorArray(timeStepIndex, cellResultSlot, m_grid.p(), surfaceFacesColorArray.p(), m_surfaceGenerator.quadToCellFaceMapper());
+			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+
+			//void RivGridPartMgr::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
+			{
+				cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces.p()->drawable());
+				if (dg) dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
+			}
+
+			// void RivGridPartMgr::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
+			{
+				caf::PolygonOffset polygonOffset = caf::PO_1;
+				RivTernaryScalarMapperEffectGenerator scalarEffgen(cellResultSlot->ternaryLegendConfig()->scalarMapper(), polygonOffset);
+				scalarEffgen.setOpacityLevel(m_opacityLevel);
+				cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
+
+				m_surfaceFaces->setEffect(scalarEffect.p());
+			}
         }
         else
         {
@@ -241,26 +262,28 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
                                              m_surfaceGenerator.quadToCellFaceMapper());
 
             texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+
+			applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper);
         }
 
 
-        if (surfaceFacesColorArray.notNull()) // Ternary result
-        {
-            cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-            if (dg)
-            {
-                dg->setColorArray(surfaceFacesColorArray.p());
-            }
-
-            cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
-            m_surfaceFaces->setEffect(perVertexColorEffect.p());
-
-            m_surfaceFaces->setPriority(100);
-        }
-        else
-        {
-            applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper );
-        }
+//         if (surfaceFacesColorArray.notNull()) // Ternary result
+//         {
+//             cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
+//             if (dg)
+//             {
+//                 dg->setColorArray(surfaceFacesColorArray.p());
+//             }
+// 
+//             cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
+//             m_surfaceFaces->setEffect(perVertexColorEffect.p());
+// 
+//             m_surfaceFaces->setPriority(100);
+//         }
+//         else
+//         {
+//             applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper);
+//         }
     }
 }
 

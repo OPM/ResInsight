@@ -32,7 +32,7 @@ public:
 	/// Requires two of the arguments to be present
 	void setTernaryResultAccessors(RigResultAccessor* soil, RigResultAccessor* sgas, RigResultAccessor* swat);
 
-	/// Returns [SOil, SWat] regardless of which one of the three is missing. if Soil or SWat is missing, it is calculated 
+	/// Returns [SOIL, SGAS] regardless of which one of the three is missing. if Soil or SWat is missing, it is calculated 
 	/// based on the two others
 	virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const;
 	virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
