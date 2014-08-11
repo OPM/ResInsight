@@ -77,7 +77,7 @@ cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord(double soil, double sgas, b
 /// A *********** B
 /// SWAT          SOIL
 //--------------------------------------------------------------------------------------------------
-bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image)
+bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image) const
 {
 	CVF_ASSERT(image);
 	image->allocate(m_textureSize.x(), m_textureSize.y());
