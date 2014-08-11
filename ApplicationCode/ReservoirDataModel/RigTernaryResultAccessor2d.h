@@ -19,8 +19,7 @@
 #pragma once
 
 #include "RigResultAccessor2d.h"
-
-class RigResultAccessor;
+#include "RigResultAccessor.h"
 
 //==================================================================================================
 /// 
@@ -35,8 +34,8 @@ public:
 
 	/// Returns [SOil, SWat] regardless of which one of the three is missing. if Soil or SWat is missing, it is calculated 
 	/// based on the two others
-	virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex);
-	virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId);;
+	virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const;
+	virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
 	cvf::ref<RigResultAccessor> m_soilAccessor;

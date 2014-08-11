@@ -33,7 +33,4 @@ class RigResultAccessor2d : public cvf::Object
 public:
     virtual cvf::Vec2d cellScalar(size_t gridLocalCellIndex) const = 0;
     virtual cvf::Vec2d cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
-
-    virtual QString resultName() const = 0;
-    
 };
