@@ -260,6 +260,10 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
                                              timeStepIndex, 
                                              m_grid->gridIndex(),  
                                              m_surfaceGenerator.quadToCellFaceMapper());
+			if (!texturer.isValid())
+			{
+				return;
+			}
 
             texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 

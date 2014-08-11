@@ -45,7 +45,6 @@ RivTextureCoordsCreator::RivTextureCoordsCreator(RimResultSlot* cellResultSlot, 
     RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
 
     m_resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, resTimeStepIdx, cellResultSlot->resultVariable());
-    CVF_ASSERT(m_resultAccessor.notNull());
 
     cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = new RigPipeInCellEvaluator(cellResultSlot->reservoirView()->wellCollection()->isWellPipesVisible(timeStepIndex),
         eclipseCase->gridCellToWellIndex(gridIndex));
@@ -54,6 +53,27 @@ RivTextureCoordsCreator::RivTextureCoordsCreator(RimResultSlot* cellResultSlot, 
 
     m_texMapper = new RivResultToTextureMapper(mapper, pipeInCellEval.p());
     CVF_ASSERT(m_texMapper.notNull());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RivTextureCoordsCreator::isValid()
+{
+	if (m_quadMapper.isNull() || m_resultAccessor.isNull() || m_texMapper.isNull())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
+{
+	createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,3 +110,4 @@ void RivTextureCoordsCreator::createTextureCoords(
         }
     }
 }
+

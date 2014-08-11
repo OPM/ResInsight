@@ -139,6 +139,11 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
                 m_grid->gridIndex(),  
                 m_nativeFaultGenerator->cellFromQuadMapper());
 
+			if (!texturer.isValid())
+			{
+				return;
+			}
+
             texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
         }
 
@@ -181,6 +186,11 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
                 timeStepIndex, 
                 m_grid->gridIndex(),  
                 m_oppositeFaultGenerator->cellFromQuadMapper());
+
+			if (!texturer.isValid())
+			{
+				return;
+			}
 
             texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
         }
