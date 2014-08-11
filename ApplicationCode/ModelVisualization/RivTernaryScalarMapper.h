@@ -34,11 +34,13 @@ namespace cvf
 class RivTernaryScalarMapper : public cvf::Object
 {
 public:
-	RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor, float opacityLevel);
+	RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor);
 
-	void setTernaryRanges(double soilLower, double soilUpper, double swatLower, double swatUpper);
+	void setOpacityLevel(float opacityLevel);
 
-	cvf::Vec2f	mapToTextureCoord(double soil, double swat, bool isTransparent);
+	void setTernaryRanges(double soilLower, double soilUpper, double sgasLower, double sgasUpper);
+
+	cvf::Vec2f	mapToTextureCoord(double soil, double sgas, bool isTransparent) const;
 	bool		updateTexture(cvf::TextureImage* image);
 
 private:
@@ -50,8 +52,8 @@ private:
 	double m_rangeMinSoil;
 	double m_soilFactor;
 
-	double m_rangeMaxSwat;
-	double m_rangeMinSwat;
-	double m_swatFactor;
+	double m_rangeMaxSgas;
+	double m_rangeMinSgas;
+	double m_sgasFactor;
 };
 

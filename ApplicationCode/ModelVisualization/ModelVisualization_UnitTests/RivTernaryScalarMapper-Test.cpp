@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 TEST(TernaryScalarMapperTest, BasicFunctions)
 {
-	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY, 0.8f);
+	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
 	cvf::ref<cvf::TextureImage> texImage = new cvf::TextureImage;
 	scalarMapper->updateTexture(texImage.p());
@@ -45,7 +45,7 @@ TEST(TernaryScalarMapperTest, BasicFunctions)
 //--------------------------------------------------------------------------------------------------
 TEST(TernaryScalarMapperTest, TextureMapping)
 {
-	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY, 0.8f);
+	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
 	// Without opacity
 	{
