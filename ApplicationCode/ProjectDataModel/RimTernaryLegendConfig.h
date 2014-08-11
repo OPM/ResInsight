@@ -27,6 +27,7 @@
 
 class RimReservoirView;
 class RivTernarySaturationOverlayItem;
+class RivTernaryScalarMapper;
 
 namespace cvf
 {
@@ -70,7 +71,8 @@ public:
 
     void                recreateLegend();
     
-    RivTernarySaturationOverlayItem*   legend();
+    RivTernarySaturationOverlayItem*	legend();
+	RivTernaryScalarMapper*				scalarMapper();
 
 protected:
     virtual void        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
@@ -106,4 +108,5 @@ private:
 
     caf::PdmPointer<RimReservoirView>           m_reservoirView;
     cvf::ref<RivTernarySaturationOverlayItem>   m_legend;
+	cvf::ref<RivTernaryScalarMapper>			m_scalarMapper;
 };
