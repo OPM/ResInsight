@@ -69,7 +69,6 @@ private:
 
     void updateNNCColors(RimResultSlot* cellResultSlot);
 
-    cvf::ref<cvf::Effect> cellResultEffect(const cvf::ScalarMapper* mapper, caf::PolygonOffset polygonOffset) const;
     caf::FaceCulling faceCullingMode() const;
     
     void createLabelWithAnchorLine(const cvf::Part* part);
