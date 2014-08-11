@@ -74,7 +74,7 @@ void RivTernaryScalarMapperEffectGenerator::updateForShaderBasedRendering(cvf::E
 	// Result mapping texture
 
 	m_textureImage = new cvf::TextureImage();
-	m_scalarMapper->updateTexture(m_textureImage.p());
+	m_scalarMapper->updateTexture(m_textureImage.p(), m_opacityLevel);
 
 	cvf::ref<cvf::Texture> texture = new cvf::Texture(m_textureImage.p());
 	cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
@@ -108,7 +108,7 @@ void RivTernaryScalarMapperEffectGenerator::updateForFixedFunctionRendering(cvf:
 	// Result mapping texture
 
 	m_textureImage = new cvf::TextureImage;
-	m_scalarMapper->updateTexture(m_textureImage.p());
+	m_scalarMapper->updateTexture(m_textureImage.p(), m_opacityLevel);
 
 	cvf::ref<cvf::Texture2D_FF> texture = new cvf::Texture2D_FF(m_textureImage.p());
 	texture->setWrapMode(cvf::Texture2D_FF::CLAMP);
@@ -191,7 +191,7 @@ bool RivTernaryScalarMapperEffectGenerator::isEqual(const EffectGenerator* other
 			&& m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite)
 		{
 			cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
-			otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p());
+			otherTextureResultEffect->m_scalarMapper->updateTexture(texImg2.p(), m_opacityLevel);
 
 			return RivTernaryScalarMapperEffectGenerator::isImagesEqual(m_textureImage.p(), texImg2.p());
 		}

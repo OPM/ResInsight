@@ -28,17 +28,7 @@ RivTernaryScalarMapper::RivTernaryScalarMapper(const cvf::Color3f& undefScalarCo
 :	m_undefScalarColor(undefScalarColor),
 	m_textureSize(128, 256)
 {
-	m_opacityLevel = 1.0;
-
 	setTernaryRanges(0.0, 1.0, 0.0, 1.0);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivTernaryScalarMapper::setOpacityLevel(float opacityLevel)
-{
-	m_opacityLevel = opacityLevel;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +67,7 @@ cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord(double soil, double sgas, b
 /// A *********** B
 /// SWAT          SOIL
 //--------------------------------------------------------------------------------------------------
-bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image) const
+bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image, float opacityLevel) const
 {
 	CVF_ASSERT(image);
 	image->allocate(m_textureSize.x(), m_textureSize.y());
@@ -112,7 +102,7 @@ bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image) const
 			image->setPixel(xPos, yPos, clr);
 
 			// Set opacity
-			const cvf::Color4ub clrOpacity(rByteCol, gByteCol, bByteCol, static_cast<cvf::ubyte>(255 * m_opacityLevel));
+			const cvf::Color4ub clrOpacity(rByteCol, gByteCol, bByteCol, static_cast<cvf::ubyte>(255 * opacityLevel));
 			image->setPixel(xPos, yPos + halfTextureHeight, clrOpacity);
 
 			soil_green += xStride;
