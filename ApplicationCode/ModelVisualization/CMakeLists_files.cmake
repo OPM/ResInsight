@@ -28,6 +28,7 @@ ${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.h
+${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -52,6 +53,7 @@ ${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapperEffectGenerator.cpp
+${CEE_CURRENT_LIST_DIR}RivScalarMapperUtils.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
