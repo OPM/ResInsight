@@ -40,10 +40,9 @@ public:
                             size_t gridIndex, 
                             const cvf::StructGridQuadToCellFaceMapper* quadMapper);
 
-    void createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
-    {
-        createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
-    }
+	bool isValid();
+
+    void createTextureCoords(cvf::Vec2fArray* quadTextureCoords);
 
 private:
 
@@ -51,7 +50,6 @@ private:
                                     const cvf::StructGridQuadToCellFaceMapper* quadMapper,  
                                     const RigResultAccessor* resultAccessor,
                                     const RivResultToTextureMapper* texMapper);
-
     cvf::cref<cvf::StructGridQuadToCellFaceMapper>	m_quadMapper; 
     cvf::ref<RigResultAccessor>						m_resultAccessor; 
     cvf::ref<RivResultToTextureMapper>				m_texMapper;
