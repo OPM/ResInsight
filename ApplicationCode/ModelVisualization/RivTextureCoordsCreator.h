@@ -26,9 +26,9 @@ class RimResultSlot;
 class RigResultAccessor;
 class RivResultToTextureMapper;
 
-namespace cvf{
-class StructGridQuadToCellFaceMapper;
-
+namespace cvf
+{
+	class StructGridQuadToCellFaceMapper;
 }
 
 
@@ -38,7 +38,7 @@ public:
     RivTextureCoordsCreator(RimResultSlot* cellResultSlot, 
                             size_t timeStepIndex,  
                             size_t gridIndex, 
-                            const cvf::StructGridQuadToCellFaceMapper*  quadMapper);
+                            const cvf::StructGridQuadToCellFaceMapper* quadMapper);
 
     void createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
     {
@@ -52,11 +52,8 @@ private:
                                     const RigResultAccessor* resultAccessor,
                                     const RivResultToTextureMapper* texMapper);
 
-    cvf::cref<cvf::StructGridQuadToCellFaceMapper>  m_quadMapper; 
-    cvf::ref<RigResultAccessor>                    m_resultAccessor; 
-    cvf::ref<RivResultToTextureMapper>             m_texMapper;
+    cvf::cref<cvf::StructGridQuadToCellFaceMapper>	m_quadMapper; 
+    cvf::ref<RigResultAccessor>						m_resultAccessor; 
+    cvf::ref<RivResultToTextureMapper>				m_texMapper;
 };
-
-
-
 
