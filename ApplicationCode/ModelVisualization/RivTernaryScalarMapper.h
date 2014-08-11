@@ -41,7 +41,7 @@ public:
 	void setTernaryRanges(double soilLower, double soilUpper, double sgasLower, double sgasUpper);
 
 	cvf::Vec2f	mapToTextureCoord(double soil, double sgas, bool isTransparent) const;
-	bool		updateTexture(cvf::TextureImage* image);
+	bool		updateTexture(cvf::TextureImage* image) const;
 
 private:
 	cvf::Color3f	m_undefScalarColor;
