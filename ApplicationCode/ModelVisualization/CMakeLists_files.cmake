@@ -23,8 +23,10 @@ ${CEE_CURRENT_LIST_DIR}RivWellPathCollectionPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.h
 ${CEE_CURRENT_LIST_DIR}RivResultToTextureMapper.h
+${CEE_CURRENT_LIST_DIR}RivTernaryResultToTextureMapper.h
 ${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.h
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.h
+${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -47,6 +49,7 @@ ${CEE_CURRENT_LIST_DIR}RivWellPipesPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivWellHeadPartMgr.cpp
 ${CEE_CURRENT_LIST_DIR}RivTextureCoordsCreator.cpp
 ${CEE_CURRENT_LIST_DIR}RivTernaryScalarMapper.cpp
+${CEE_CURRENT_LIST_DIR}RivTernaryTextureCoordsCreator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES

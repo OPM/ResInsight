@@ -25,9 +25,11 @@
 #include "RimReservoirView.h"
 
 #include "RivTernarySaturationOverlayItem.h"
+#include "RivTernaryScalarMapper.h"
+
+#include "cvfqtUtils.h"
 
 #include <cmath>
-#include "cvfqtUtils.h"
 
 
 CAF_PDM_SOURCE_INIT(RimTernaryLegendConfig, "RimTernaryLegendConfig");
@@ -92,6 +94,8 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     m_globalAutoMax.resize(3, 1.0);
     m_localAutoMin.resize(3, 0.0);
     m_localAutoMax.resize(3, 1.0);
+
+	m_scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
     recreateLegend();
     updateLegend();
@@ -163,6 +167,7 @@ void RimTernaryLegendConfig::updateLegend()
     double swatUpper = 1.0;
 
     ternaryRanges(soilLower, soilUpper, sgasLower, sgasUpper, swatLower, swatUpper);
+	m_scalarMapper->setTernaryRanges(soilLower, soilUpper, sgasLower, sgasUpper);
 
     cvf::String soilRange;
     cvf::String sgasRange;
@@ -436,5 +441,13 @@ void RimTernaryLegendConfig::updateLabelText()
 
         ternaryRangeSummary = tmpString;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+RivTernaryScalarMapper* RimTernaryLegendConfig::scalarMapper()
+{
+	return m_scalarMapper.p();
 }
 
