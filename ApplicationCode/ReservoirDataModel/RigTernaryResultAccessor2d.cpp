@@ -49,7 +49,7 @@ void RigTernaryResultAccessor::setTernaryResultAccessors(RigResultAccessor* soil
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex)
+cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
 	double soil = 0.0;
 	double swat = 0.0;
@@ -80,7 +80,7 @@ cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RigTernaryResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId)
+cvf::Vec2d RigTernaryResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
 	return cellScalar(gridLocalCellIndex);
 }
