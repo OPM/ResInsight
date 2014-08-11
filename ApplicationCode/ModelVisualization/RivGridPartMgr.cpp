@@ -18,11 +18,34 @@
 
 #include "RivGridPartMgr.h"
 
+#include "RiaApplication.h"
+#include "RiaPreferences.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigResultAccessorFactory.h"
+
+#include "RimCase.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimReservoirCellResultsStorage.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimTernaryLegendConfig.h"
+#include "RimWellCollection.h"
+
+#include "RivCellEdgeEffectGenerator.h"
+#include "RivResultToTextureMapper.h"
+#include "RivScalarMapperUtils.h"
+#include "RivSourceInfo.h"
+#include "RivTernaryScalarMapperEffectGenerator.h"
+#include "RivTernaryTextureCoordsCreator.h"
+#include "RivTextureCoordsCreator.h"
 
 #include "cafEffectGenerator.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
 #include "cafProgressInfo.h"
+
 #include "cvfDrawableGeo.h"
 #include "cvfMath.h"
 #include "cvfModelBasicList.h"
@@ -35,27 +58,8 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderSourceRepository.h"
 #include "cvfStructGrid.h"
-#include "cvfUniform.h"
-
-#include "RiaApplication.h"
-#include "RiaPreferences.h"
-#include "RigCaseCellResultsData.h"
-#include "RigCaseData.h"
-#include "RimCase.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimReservoirCellResultsStorage.h"
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
-#include "RimTernaryLegendConfig.h"
-#include "RimWellCollection.h"
-#include "RivCellEdgeEffectGenerator.h"
-#include "RivSourceInfo.h"
 #include "cvfStructGridGeometryGenerator.h"
-#include "RigResultAccessorFactory.h"
-#include "RivResultToTextureMapper.h"
-#include "RivTextureCoordsCreator.h"
-#include "RivTernaryTextureCoordsCreator.h"
-#include "RivTernaryScalarMapperEffectGenerator.h"
+#include "cvfUniform.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -221,16 +225,15 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 {
     CVF_ASSERT(cellResultSlot);
 
-    const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
     RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
 
     cvf::ref<cvf::Color3ubArray> surfaceFacesColorArray;
 
     // Outer surface
-    if (m_surfaceFaces.notNull())
-    {
-        if (cellResultSlot->isTernarySaturationSelected())
-        {
+	if (m_surfaceFaces.notNull())
+	{
+		if (cellResultSlot->isTernarySaturationSelected())
+		{
 			RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
 				timeStepIndex,
 				m_grid->gridIndex(),
@@ -238,83 +241,26 @@ void RivGridPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot* 
 
 			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
-			//void RivGridPartMgr::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
-			{
-				cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces.p()->drawable());
-				if (dg) dg->setTextureCoordArray(m_surfaceFacesTextureCoords.p());
-			}
-
-			// void RivGridPartMgr::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
-			{
-				caf::PolygonOffset polygonOffset = caf::PO_1;
-				RivTernaryScalarMapperEffectGenerator scalarEffgen(cellResultSlot->ternaryLegendConfig()->scalarMapper(), polygonOffset);
-				scalarEffgen.setOpacityLevel(m_opacityLevel);
-				cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
-
-				m_surfaceFaces->setEffect(scalarEffect.p());
-			}
-        }
-        else
-        {
-            RivTextureCoordsCreator texturer(cellResultSlot, 
-                                             timeStepIndex, 
-                                             m_grid->gridIndex(),  
-                                             m_surfaceGenerator.quadToCellFaceMapper());
+			const RivTernaryScalarMapper* mapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
+			RivScalarMapperUtils::applyTernaryTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel);
+		}
+		else
+		{
+			RivTextureCoordsCreator texturer(cellResultSlot,
+				timeStepIndex,
+				m_grid->gridIndex(),
+				m_surfaceGenerator.quadToCellFaceMapper());
 			if (!texturer.isValid())
 			{
 				return;
 			}
 
-            texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
+			texturer.createTextureCoords(m_surfaceFacesTextureCoords.p());
 
-			applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper);
-        }
-
-
-//         if (surfaceFacesColorArray.notNull()) // Ternary result
-//         {
-//             cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_surfaceFaces->drawable());
-//             if (dg)
-//             {
-//                 dg->setColorArray(surfaceFacesColorArray.p());
-//             }
-// 
-//             cvf::ref<cvf::Effect> perVertexColorEffect = RivGridPartMgr::createPerVertexColoringEffect(m_opacityLevel);
-//             m_surfaceFaces->setEffect(perVertexColorEffect.p());
-// 
-//             m_surfaceFaces->setPriority(100);
-//         }
-//         else
-//         {
-//             applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper);
-//         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-
-cvf::ref<cvf::Effect> RivGridPartMgr::createScalarMapperEffect(const cvf::ScalarMapper* mapper)
-{
-    caf::PolygonOffset polygonOffset = caf::PO_1;
-    caf::ScalarMapperEffectGenerator scalarEffgen(mapper, polygonOffset);
-    scalarEffgen.setOpacityLevel(m_opacityLevel);
-    cvf::ref<cvf::Effect> scalarEffect = scalarEffgen.generateEffect();
-    return scalarEffect;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-
-void RivGridPartMgr::applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper)
-{
-    cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(part->drawable());
-    if (dg) dg->setTextureCoordArray(textureCoords);
-
-    cvf::ref<cvf::Effect> scalarEffect = createScalarMapperEffect(mapper);
-    part->setEffect(scalarEffect.p());
+			const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
+			RivScalarMapperUtils::applyTextureResultsToPart(m_surfaceFaces.p(), m_surfaceFacesTextureCoords.p(), mapper, m_opacityLevel);
+		}
+	}
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -84,8 +84,6 @@ public:
 
 private:
     void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
-    void                    applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper);
-    cvf::ref<cvf::Effect>   createScalarMapperEffect(const cvf::ScalarMapper* mapper);
     void                    updateCellEdgeResultColorOnPart(cvf::Part* facePart, 
                                                             cvf::StructGridGeometryGenerator* surfaceGenerator, 
                                                             size_t timeStepIndex, 
