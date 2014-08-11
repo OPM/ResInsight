@@ -117,7 +117,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 			RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
 				timeStepIndex,
 				m_grid->gridIndex(),
-				m_nativeFaultGenerator->cellFromQuadMapper());
+				m_nativeFaultGenerator->quadToCellFaceMapper());
 
 			texturer.createTextureCoords(m_nativeFaultFacesTextureCoords.p());
 
@@ -129,7 +129,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
             RivTextureCoordsCreator texturer(cellResultSlot, 
                 timeStepIndex, 
                 m_grid->gridIndex(),  
-                m_nativeFaultGenerator->cellFromQuadMapper());
+                m_nativeFaultGenerator->quadToCellFaceMapper());
 
 			if (!texturer.isValid())
 			{
@@ -150,7 +150,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 			RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
 				timeStepIndex,
 				m_grid->gridIndex(),
-				m_oppositeFaultGenerator->cellFromQuadMapper());
+				m_oppositeFaultGenerator->quadToCellFaceMapper());
 
 			texturer.createTextureCoords(m_oppositeFaultFacesTextureCoords.p());
 
@@ -162,7 +162,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 			RivTextureCoordsCreator texturer(cellResultSlot,
 				timeStepIndex,
 				m_grid->gridIndex(),
-				m_oppositeFaultGenerator->cellFromQuadMapper());
+				m_oppositeFaultGenerator->quadToCellFaceMapper());
 
 			if (!texturer.isValid())
 			{
@@ -215,7 +215,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-            si->m_cellFaceFromTriangleMapper = m_nativeFaultGenerator->cellFromTriangleMapper();
+            si->m_cellFaceFromTriangleMapper = m_nativeFaultGenerator->triangleToCellFaceMapper();
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
@@ -268,7 +268,7 @@ void RivFaultPartMgr::generatePartGeometry()
 
             // Set mapping from triangle face index to cell index
             cvf::ref<RivSourceInfo> si = new RivSourceInfo;
-            si->m_cellFaceFromTriangleMapper = m_oppositeFaultGenerator->cellFromTriangleMapper();
+            si->m_cellFaceFromTriangleMapper = m_oppositeFaultGenerator->triangleToCellFaceMapper();
             part->setSourceInfo(si.p());
 
             part->updateBoundingBox();
