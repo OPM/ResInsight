@@ -33,7 +33,7 @@ TEST(TernaryScalarMapperTest, BasicFunctions)
 	cvf::ref<RivTernaryScalarMapper> scalarMapper = new RivTernaryScalarMapper(cvf::Color3f::GRAY);
 
 	cvf::ref<cvf::TextureImage> texImage = new cvf::TextureImage;
-	scalarMapper->updateTexture(texImage.p());
+	scalarMapper->updateTexture(texImage.p(), 1.0);
 
 	QImage img = cvfqt::Utils::toQImage(*(texImage.p()));
 

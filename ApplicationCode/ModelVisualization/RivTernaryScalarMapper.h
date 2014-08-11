@@ -36,16 +36,13 @@ class RivTernaryScalarMapper : public cvf::Object
 public:
 	RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor);
 
-	void setOpacityLevel(float opacityLevel);
-
 	void setTernaryRanges(double soilLower, double soilUpper, double sgasLower, double sgasUpper);
 
 	cvf::Vec2f	mapToTextureCoord(double soil, double sgas, bool isTransparent) const;
-	bool		updateTexture(cvf::TextureImage* image) const;
+	bool		updateTexture(cvf::TextureImage* image, float opacityLevel) const;
 
 private:
 	cvf::Color3f	m_undefScalarColor;
-	float			m_opacityLevel;
 	cvf::Vec2ui		m_textureSize;
 
 	double m_rangeMaxSoil;
