@@ -39,24 +39,6 @@ class RimCellEdgeResultSlot;
 
 //==================================================================================================
 ///
-///
-//==================================================================================================
-class RivTransmissibilityColorMapper 
-{
-public:
-
-    static void updateTernarySaturationColorArray(
-        size_t timeStepIndex,
-        RimResultSlot* cellResultSlot,
-        const RigGridBase* grid,
-        cvf::Color3ubArray* colorArray, 
-        const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper);
-};
-
-
-
-//==================================================================================================
-///
 /// RivGridGeometry: Class to handle visualization structures that embodies a specific grid at a specific time step.
 /// frame on a certain level
 /// LGR's have their own instance and the parent grid as well
