@@ -24,32 +24,41 @@
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-RivTernaryScalarMapper::RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor, float opacityLevel)
+RivTernaryScalarMapper::RivTernaryScalarMapper(const cvf::Color3f& undefScalarColor)
 :	m_undefScalarColor(undefScalarColor),
-	m_opacityLevel(opacityLevel),
 	m_textureSize(128, 256)
 {
+	m_opacityLevel = 1.0;
+
 	setTernaryRanges(0.0, 1.0, 0.0, 1.0);
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord(double soil, double swat, bool isTransparent)
+void RivTernaryScalarMapper::setOpacityLevel(float opacityLevel)
+{
+	m_opacityLevel = opacityLevel;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord(double soil, double sgas, bool isTransparent) const
 {
 	double soilNormalized = (soil - m_rangeMinSoil) * m_soilFactor;
 	soilNormalized = cvf::Math::clamp(soilNormalized, 0.0, 1.0);
 
-	double swatNormalized = (swat - m_rangeMinSwat) * m_swatFactor;
-	swatNormalized = cvf::Math::clamp(swatNormalized, 0.0, 1.0 - soilNormalized);
-	swatNormalized /= 2.0;
+	double sgasNormalized = (sgas - m_rangeMinSgas) * m_sgasFactor;
+	sgasNormalized = cvf::Math::clamp(sgasNormalized, 0.0, 1.0 - soilNormalized);
+	sgasNormalized /= 2.0;
 
 	if (isTransparent)
 	{
-		swatNormalized += 0.5;
+		sgasNormalized += 0.5;
 	}
 
-	cvf::Vec2f texCoord(static_cast<float>(soilNormalized), static_cast<float>(swatNormalized));
+	cvf::Vec2f texCoord(static_cast<float>(soilNormalized), static_cast<float>(sgasNormalized));
 	return texCoord;
 }
 
@@ -60,12 +69,13 @@ cvf::Vec2f RivTernaryScalarMapper::mapToTextureCoord(double soil, double swat, b
 ///   *     *				Texture in this region is assigned the given opacity level
 ///   *       *  
 /// D ***********  E    
-/// C * 
+/// C * SGAS
 ///   * *
 ///   *   *					Texture in this region is opaque
 ///   *     *  
 ///   *       *  
-/// A ***********  B
+/// A *********** B
+/// SWAT          SOIL
 //--------------------------------------------------------------------------------------------------
 bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image)
 {
@@ -116,13 +126,14 @@ bool RivTernaryScalarMapper::updateTexture(cvf::TextureImage* image)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RivTernaryScalarMapper::setTernaryRanges(double soilLower, double soilUpper, double swatLower, double swatUpper)
+void RivTernaryScalarMapper::setTernaryRanges(double soilLower, double soilUpper, double sgasLower, double sgasUpper)
 {
 	m_rangeMinSoil = soilLower;
 	m_rangeMaxSoil = soilUpper;
 	m_soilFactor = 1.0 / (soilUpper - soilLower);
 
-	m_rangeMinSwat = swatLower;
-	m_rangeMaxSwat = swatUpper;
-	m_swatFactor = 1.0 / (swatUpper - swatLower);
+	m_rangeMinSgas = sgasLower;
+	m_rangeMaxSgas = sgasUpper;
+	m_sgasFactor = 1.0 / (sgasUpper - sgasLower);
 }
+
