@@ -52,29 +52,29 @@ void RigTernaryResultAccessor::setTernaryResultAccessors(RigResultAccessor* soil
 cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
 	double soil = 0.0;
-	double swat = 0.0;
+	double sgas = 0.0;
 
 	if (m_soilAccessor.notNull())
 	{ 
 		soil = m_soilAccessor->cellScalar(gridLocalCellIndex);
 
-		if (m_swatAccessor.notNull())
+		if (m_sgasAccessor.notNull())
 		{
-			swat = m_swatAccessor->cellScalar(gridLocalCellIndex);
+			sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
 		}
 		else
 		{
-			swat = 1.0 - soil - m_sgasAccessor->cellScalar(gridLocalCellIndex);
+			sgas = 1.0 - soil - m_swatAccessor->cellScalar(gridLocalCellIndex);
 		}
 	}
 	else
 	{
-		swat = m_swatAccessor->cellScalar(gridLocalCellIndex);
+		sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
 
-		soil = 1.0 - swat - m_sgasAccessor->cellScalar(gridLocalCellIndex);
+		soil = 1.0 - sgas - m_swatAccessor->cellScalar(gridLocalCellIndex);
 	}
 
-	return cvf::Vec2d(soil, swat);
+	return cvf::Vec2d(soil, sgas);
 }
 
 //--------------------------------------------------------------------------------------------------

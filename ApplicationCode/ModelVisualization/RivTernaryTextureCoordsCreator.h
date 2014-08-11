@@ -18,13 +18,14 @@
 
 #pragma once
 
+#include "RigTernaryResultAccessor2d.h"
+#include "RivTernaryResultToTextureMapper.h"
+
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfArray.h"
 
 class RimResultSlot;
-class RigTernaryResultAccessor;
-class RivTernaryResultToTextureMapper;
 class RimTernaryLegendConfig;
 
 namespace cvf
@@ -33,6 +34,9 @@ namespace cvf
 }
 
 
+//==================================================================================================
+/// 
+//==================================================================================================
 class RivTernaryTextureCoordsCreator
 {
 public:
@@ -42,10 +46,7 @@ public:
 									size_t gridIndex, 
 									const cvf::StructGridQuadToCellFaceMapper* quadMapper);
 
-    void createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
-    {
-        createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
-    }
+    void createTextureCoords(cvf::Vec2fArray* quadTextureCoords);
 
 private:
     static void createTextureCoords(cvf::Vec2fArray* quadTextureCoords,
@@ -53,6 +54,7 @@ private:
 									const RigTernaryResultAccessor* resultAccessor,
                                     const RivTernaryResultToTextureMapper* texMapper);
 
+private:
     cvf::cref<cvf::StructGridQuadToCellFaceMapper>  m_quadMapper; 
 	cvf::ref<RigTernaryResultAccessor>              m_resultAccessor;
     cvf::ref<RivTernaryResultToTextureMapper>       m_texMapper;

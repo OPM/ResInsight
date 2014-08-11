@@ -73,6 +73,14 @@ RivTernaryTextureCoordsCreator::RivTernaryTextureCoordsCreator(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+void RivTernaryTextureCoordsCreator::createTextureCoords(cvf::Vec2fArray* quadTextureCoords)
+{
+	createTextureCoords(quadTextureCoords, m_quadMapper.p(), m_resultAccessor.p(), m_texMapper.p());
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 void RivTernaryTextureCoordsCreator::createTextureCoords(
 	cvf::Vec2fArray* quadTextureCoords,
 	const cvf::StructGridQuadToCellFaceMapper* quadMapper,
