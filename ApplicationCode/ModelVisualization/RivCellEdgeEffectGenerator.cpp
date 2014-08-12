@@ -18,57 +18,24 @@
 
 #include "RiaStdInclude.h"
 
-#include "RivCellEdgeEffectGenerator.h"
-
-#include "cvfBase.h"
-#include "cvfAssert.h"
-#include "cvfDrawableGeo.h"
-#include "cvfVertexAttribute.h"
-#include "cvfStructGridGeometryGenerator.h"
-#include "cvfScalarMapperUniformLevels.h"
-
-#include "cvfShaderProgramGenerator.h"
-#include "cvfShaderSourceProvider.h"
-#include "cvfqtUtils.h"
-#include "cvfShaderProgram.h"
-#include "cvfRenderStateCullFace.h"
-
-#include "cvfTextureImage.h"
-#include "cvfTexture.h"
-#include "cvfSampler.h"
-#include "cvfScalarMapper.h"
-#include "cafEffectGenerator.h"
-
-#include <vector>
-
-#include <QFile>
-#include <QTextStream>
-
-#include "RimCase.h"
-
-#include "RimReservoirView.h"
-#include "RimResultSlot.h"
-
-#include "RigGridBase.h"
-#include "RigMainGrid.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
-#include "RigActiveCellInfo.h"
-
-#include "RimReservoirCellResultsStorage.h"
-
-#include "cafPdmFieldCvfMat4d.h"
-#include "cafPdmFieldCvfColor.h"
-#include "RimResultSlot.h"
-#include "RimCellEdgeResultSlot.h"
-#include "RimCellRangeFilterCollection.h"
-#include "RimCellPropertyFilterCollection.h"
-#include "RimWellCollection.h"
-#include "Rim3dOverlayInfoConfig.h"
-#include "cvfStructGridScalarDataAccess.h"
+#include "RigCellEdgeResultAccessor.h"
+#include "RigGridBase.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
-#include "RigCellEdgeResultAccessor.h"
+
+#include "RimCase.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimWellCollection.h"
+
+#include "RivCellEdgeEffectGenerator.h"
+
+#include "cvfStructGridGeometryGenerator.h"
+#include "cvfqtUtils.h"
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
