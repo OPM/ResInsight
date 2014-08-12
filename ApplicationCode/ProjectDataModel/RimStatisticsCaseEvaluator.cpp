@@ -196,6 +196,9 @@ void RimStatisticsCaseEvaluator::evaluateForResults(const QList<ResSpec>& result
                 {
                     RimCase* sourceCase = m_sourceCases.at(caseIdx);
 
+					// Trigger loading of dataset
+					sourceCase->results(poroModel)->findOrLoadScalarResultForTimeStep(resultType, resultName, dataAccessTimeStepIndex);
+
 					cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(sourceCase->reservoirData(), gridIdx, poroModel, dataAccessTimeStepIndex, resultName, resultType);
                     if (resultAccessor.notNull())
                     {
