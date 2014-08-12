@@ -17,3 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigResultAccessor.h"
+
+#include <cmath> // Needed for HUGE_VAL on Linux
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigHugeValResultAccessor::cellScalar(size_t gridLocalCellIndex) const
+{
+	return HUGE_VAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigHugeValResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
+{
+	return cellScalar(gridLocalCellIndex);
+}

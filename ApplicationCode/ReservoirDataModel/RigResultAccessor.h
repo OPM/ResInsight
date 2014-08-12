@@ -35,3 +35,12 @@ public:
     virtual double cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const = 0;
 };
 
+//==================================================================================================
+/// 
+//==================================================================================================
+class RigHugeValResultAccessor : public RigResultAccessor
+{
+public:
+	virtual double cellScalar(size_t gridLocalCellIndex) const;
+	virtual double cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+};
