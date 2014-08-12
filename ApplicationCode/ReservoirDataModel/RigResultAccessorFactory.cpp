@@ -144,15 +144,21 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 	if (!grid) return NULL;
 
 	std::vector< std::vector<double> >& scalarSetResults = eclipseCase->results(porosityModel)->cellScalarResults(resultIndex);
+
 	if (timeStepIndex >= scalarSetResults.size())
 	{
-		return NULL;
+		return new RigHugeValResultAccessor;
 	}
 
 	std::vector<double>* resultValues = NULL;
 	if (timeStepIndex < scalarSetResults.size())
 	{
 		resultValues = &(scalarSetResults[timeStepIndex]);
+	}
+
+	if (!resultValues || resultValues->size() == 0)
+	{
+		return new RigHugeValResultAccessor;
 	}
 
 	bool useGlobalActiveIndex = eclipseCase->results(porosityModel)->isUsingGlobalActiveIndex(resultIndex);
