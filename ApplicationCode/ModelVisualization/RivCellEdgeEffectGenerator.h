@@ -29,6 +29,8 @@ namespace cvf
 class RimCellEdgeResultSlot;
 class RimResultSlot;
 class RigGridBase;
+class RigResultAccessor;
+class RigCaseData;
 
 
 class RivCellEdgeGeometryGenerator 
@@ -41,6 +43,20 @@ public:
         cvf::DrawableGeo* geo, 
         size_t gridIndex, 
         float opacityLevel);
+
+private:
+	static cvf::ref<RigResultAccessor> createCellCenterResultAccessor(
+		RimResultSlot* cellResultSlot,
+		size_t timeStepIndex,
+		RigCaseData* eclipseCase,
+		const RigGridBase* grid);
+
+	static cvf::ref<RigResultAccessor> createCellEdgeCenterResultAccessor(
+		RimResultSlot* cellResultSlot,
+		RimCellEdgeResultSlot* cellEdgeResultSlot,
+		size_t timeStepIndex,
+		RigCaseData* eclipseCase,
+		const RigGridBase* grid);
 };
 
 /*

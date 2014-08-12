@@ -45,6 +45,13 @@ public:
 		const QString& uiResultName,
 		RimDefines::ResultCatType resultType);
 
+	static cvf::ref<RigResultAccessor>
+		createResultAccessor(RigCaseData* eclipseCase,
+		size_t gridIndex,
+		RifReaderInterface::PorosityModelResultType porosityModel,
+		size_t timeStepIndex,
+		size_t resultIndex);
+
 
     // TO BE DELETED
     static cvf::ref<cvf::StructGridScalarDataAccess> 
@@ -63,12 +70,6 @@ private:
                                         size_t timeStepIndex,
                                         const QString& resultName);
 
-	static cvf::ref<RigResultAccessor>
-		createResultAccessor(RigCaseData* eclipseCase,
-		size_t gridIndex,
-		RifReaderInterface::PorosityModelResultType porosityModel,
-		size_t timeStepIndex,
-		size_t resultIndex);
 
 };
 
