@@ -138,6 +138,11 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 	size_t timeStepIndex, 
 	size_t resultIndex)
 {
+	if (resultIndex == cvf::UNDEFINED_SIZE_T)
+	{
+		return new RigHugeValResultAccessor;
+	}
+
 	if (!eclipseCase) return NULL;
 
 	RigGridBase* grid = eclipseCase->grid(gridIndex);
