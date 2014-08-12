@@ -318,53 +318,6 @@ RivGridPartMgr::~RivGridPartMgr()
 #endif
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect> RivGridPartMgr::createPerVertexColoringEffect(float opacity)
-{
-    cvf::ref<cvf::Effect> colorArrayEffect = new cvf::Effect;
-
-    if (RiaApplication::instance()->useShaders())
-    {
-        cvf::ShaderProgramGenerator gen("PerVertexColor", cvf::ShaderSourceProvider::instance());
-        gen.addVertexCode(cvf::ShaderSourceRepository::vs_Standard);
-        gen.addFragmentCode(cvf::ShaderSourceRepository::src_VaryingColorGlobalAlpha);
-        gen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
-        gen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
-
-        cvf::ref<cvf::ShaderProgram> m_shaderProg = gen.generate();
-        m_shaderProg->setDefaultUniform(new cvf::UniformFloat("u_alpha", opacity));
-
-        colorArrayEffect->setShaderProgram(m_shaderProg.p());
-    }
-    else
-    {
-        cvf::ref<cvf::RenderStateMaterial_FF> mat = new cvf::RenderStateMaterial_FF(cvf::Color3::BLUE);
-        mat->setAlpha(opacity);
-        mat->enableColorMaterial(true);
-        colorArrayEffect->setRenderState(mat.p());
-
-        cvf::ref<cvf::RenderStateLighting_FF> lighting = new cvf::RenderStateLighting_FF;
-        lighting->enableTwoSided(true);
-        colorArrayEffect->setRenderState(lighting.p());
-    }
-    
-    // Simple transparency
-    if (opacity < 1.0f)
-    {
-        cvf::ref<cvf::RenderStateBlending> blender = new cvf::RenderStateBlending;
-        blender->configureTransparencyBlending();
-        colorArrayEffect->setRenderState(blender.p());
-    }
-    
-    caf::PolygonOffset polygonOffset = caf::PO_1;
-    cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = caf::EffectGenerator::createAndConfigurePolygonOffsetRenderState(polygonOffset);
-    colorArrayEffect->setRenderState(polyOffset.p());
-
-    return colorArrayEffect;
-}
-
 
 //--------------------------------------------------------------------------------------------------
 /// Helper class used to provide zero for all cells
