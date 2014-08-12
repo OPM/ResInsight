@@ -62,8 +62,6 @@ public:
 
     void appendPartsToModel(cvf::ModelBasicList* model);
 
-    static cvf::ref<cvf::Effect>   createPerVertexColoringEffect(float opacity);
-
 private:
     void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
     void                    updateCellEdgeResultColorOnPart(cvf::Part* facePart, 
