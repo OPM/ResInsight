@@ -795,7 +795,16 @@ void RivReservoirViewPartMgr::updateCellResultColor(ReservoirGeometryCacheType g
 void RivReservoirViewPartMgr::updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
     RivReservoirPartMgr * pmgr = reservoirPartManager( geometryType,  timeStepIndex );
-    pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot );
+	pmgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+{
+	RivReservoirPartMgr * pmgr = reservoirPartManager(geometryType, timeStepIndex);
+	pmgr->updateFaultCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
 }
 
 //--------------------------------------------------------------------------------------------------

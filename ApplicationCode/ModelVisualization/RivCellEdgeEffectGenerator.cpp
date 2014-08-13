@@ -20,6 +20,7 @@
 
 #include "RivCellEdgeEffectGenerator.h"
 
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigCellEdgeResultAccessor.h"
@@ -31,14 +32,14 @@
 #include "RimCellEdgeResultSlot.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
+#include "RimTernaryLegendConfig.h"
 #include "RimWellCollection.h"
 
 #include "RivTernaryScalarMapper.h"
-#include "RimTernaryLegendConfig.h"
+#include "RivTernaryTextureCoordsCreator.h"
 
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfqtUtils.h"
-#include "RivTernaryTextureCoordsCreator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -48,26 +49,20 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     size_t timeStepIndex, 
     RimResultSlot* cellResultSlot, 
     RimCellEdgeResultSlot* cellEdgeResultSlot, 
-    cvf::StructGridGeometryGenerator* generator, 
-    cvf::DrawableGeo* geo, 
+	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+	cvf::DrawableGeo* geo,
     size_t gridIndex, 
     float opacityLevel)
 {
 	RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
 	CVF_ASSERT(eclipseCase != NULL);
 
-	const RigGridBase* grid = dynamic_cast<const RigGridBase*>(generator->activeGrid());
-	CVF_ASSERT(grid != NULL);
-	
 	// Create result access objects
 	
-	cvf::ref<RigResultAccessor> cellCenterDataAccessObject = createCellCenterResultAccessor(cellResultSlot, timeStepIndex, eclipseCase, grid);
-	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultSlot, cellEdgeResultSlot, timeStepIndex, eclipseCase, grid);
+	cvf::ref<RigResultAccessor> cellCenterDataAccessObject = createCellCenterResultAccessor(cellResultSlot, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
+	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultSlot, cellEdgeResultSlot, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 	
-	
-	const cvf::StructGridQuadToCellFaceMapper* quadToCellFace = generator->quadToCellFaceMapper();
-
-    size_t vertexCount = geo->vertexArray()->size();
+	size_t vertexCount = geo->vertexArray()->size();
     size_t quadCount = vertexCount / 4;
 
     cvf::ref<cvf::Vec2fArray> localCoords = new cvf::Vec2fArray;
@@ -111,14 +106,14 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         localCoords->set(quadIdx * 4 + 2, cvf::Vec2f(1, 1));
         localCoords->set(quadIdx * 4 + 3, cvf::Vec2f(0, 1));
 
-        faceIndexArray->set(quadIdx * 4 + 0, quadToCellFace->cellFace(quadIdx) );
-        faceIndexArray->set(quadIdx * 4 + 1, quadToCellFace->cellFace(quadIdx) );
-        faceIndexArray->set(quadIdx * 4 + 2, quadToCellFace->cellFace(quadIdx) );
-        faceIndexArray->set(quadIdx * 4 + 3, quadToCellFace->cellFace(quadIdx) );
+        faceIndexArray->set(quadIdx * 4 + 0, quadToCellFaceMapper->cellFace(quadIdx) );
+        faceIndexArray->set(quadIdx * 4 + 1, quadToCellFaceMapper->cellFace(quadIdx) );
+        faceIndexArray->set(quadIdx * 4 + 2, quadToCellFaceMapper->cellFace(quadIdx) );
+        faceIndexArray->set(quadIdx * 4 + 3, quadToCellFaceMapper->cellFace(quadIdx) );
 
-		size_t cellIndex = quadToCellFace->cellIndex(quadIdx);
+		size_t cellIndex = quadToCellFaceMapper->cellIndex(quadIdx);
 		{
-			cvf::StructGridInterface::FaceType cellFace = quadToCellFace->cellFace(quadIdx);
+			cvf::StructGridInterface::FaceType cellFace = quadToCellFaceMapper->cellFace(quadIdx);
 			double scalarValue = cellCenterDataAccessObject->cellFaceScalar(cellIndex, cellFace);
 
 			{
@@ -192,45 +187,14 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RivCellEdgeGeometryGenerator::createCellEdgeCenterResultAccessor(
-	RimResultSlot* cellResultSlot,
-	RimCellEdgeResultSlot* cellEdgeResultSlot,
-	size_t timeStepIndex,
-	RigCaseData* eclipseCase,
-	const RigGridBase* grid)
-{
-	cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
-	{
-		size_t resultIndices[6];
-		cellEdgeResultSlot->gridScalarIndices(resultIndices);
-		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-
-		size_t cubeFaceIdx;
-		for (cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
-		{
-			// Assuming static values to be mapped onto cell edge, always using time step zero
-			cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, 0, resultIndices[cubeFaceIdx]);
-			cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
-		}
-	}
-
-	return cellEdgeResultAccessor;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot, cvf::StructGridGeometryGenerator* generator, cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
+void RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot, 
+	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+	cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
 {
 	RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
 	CVF_ASSERT(eclipseCase != NULL);
 
-	const RigGridBase* grid = dynamic_cast<const RigGridBase*>(generator->activeGrid());
-	CVF_ASSERT(grid != NULL);
-
-	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultSlot, cellEdgeResultSlot, timeStepIndex, eclipseCase, grid);
-
-	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper = generator->quadToCellFaceMapper();
+	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultSlot, cellEdgeResultSlot, timeStepIndex, eclipseCase, eclipseCase->grid(gridIndex));
 
 	size_t vertexCount = geo->vertexArray()->size();
 	size_t quadCount = vertexCount / 4;
@@ -261,7 +225,7 @@ void RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(size_t
 
 	RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
 		timeStepIndex,
-		grid->gridIndex(),
+		gridIndex,
 		quadToCellFaceMapper);
 
 	texturer.createTextureCoords(vCellColorTextureCoordArray.p());
@@ -315,6 +279,34 @@ void RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(size_t
 	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorPosK", cellEdgeColorTextureCoordsArrays.at(4)));
 	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorNegK", cellEdgeColorTextureCoordsArrays.at(5)));
 
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor> RivCellEdgeGeometryGenerator::createCellEdgeCenterResultAccessor(
+	RimResultSlot* cellResultSlot,
+	RimCellEdgeResultSlot* cellEdgeResultSlot,
+	size_t timeStepIndex,
+	RigCaseData* eclipseCase,
+	const RigGridBase* grid)
+{
+	cvf::ref<RigCellEdgeResultAccessor> cellEdgeResultAccessor = new RigCellEdgeResultAccessor();
+	{
+		size_t resultIndices[6];
+		cellEdgeResultSlot->gridScalarIndices(resultIndices);
+		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+
+		size_t cubeFaceIdx;
+		for (cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
+		{
+			// Assuming static values to be mapped onto cell edge, always using time step zero
+			cvf::ref<RigResultAccessor> daObj = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, 0, resultIndices[cubeFaceIdx]);
+			cellEdgeResultAccessor->setDataAccessObjectForFace(static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx), daObj.p());
+		}
+	}
+
+	return cellEdgeResultAccessor;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -805,7 +805,7 @@ void RimReservoirView::updateCurrentTimeStep()
     {
         if (this->animationMode() && this->cellEdgeResult()->hasResult())
         {
-            m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
+			m_reservoirGridPartManager->updateCellEdgeResultColor(geometriesToRecolor[i], m_currentTimeStep, this->cellResult(), this->cellEdgeResult());
         } 
         else if ((this->animationMode() && this->cellResult()->hasResult()) || this->cellResult()->isTernarySaturationSelected())
         {
@@ -2057,15 +2057,23 @@ void RimReservoirView::updateFaultColors()
     // Update all fault geometry
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
-    RimResultSlot* resultSlot = this->cellResult();
+    RimResultSlot* faultResultSlot = this->cellResult();
     if (this->faultResultSettings()->customFaultResult())
     {
-        resultSlot = this->faultResultSettings()->customFaultResult();
+        faultResultSlot = this->faultResultSettings()->customFaultResult();
     }
+
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-        m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, resultSlot);
+		if (this->animationMode() && this->cellEdgeResult()->hasResult())
+		{
+			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot, this->cellEdgeResult());
+		}
+		else
+		{
+			m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot);
+		}
     }
 }
 

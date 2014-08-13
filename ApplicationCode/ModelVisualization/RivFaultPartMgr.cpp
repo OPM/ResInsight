@@ -182,7 +182,30 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 //--------------------------------------------------------------------------------------------------
 void RivFaultPartMgr::updateCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
 {
+	if (m_nativeFaultFaces.notNull())
+	{
+		cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_nativeFaultFaces->drawable());
+		if (dg)
+		{
+			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_nativeFaultGenerator->quadToCellFaceMapper(),
+				m_grid->gridIndex(),
+				timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor);
 
+			m_nativeFaultFaces->setEffect(eff.p());
+		}
+	}
+
+	if (m_oppositeFaultFaces.notNull())
+	{
+		cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(m_oppositeFaultFaces->drawable());
+		if (dg)
+		{
+			cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect(dg, m_oppositeFaultGenerator->quadToCellFaceMapper(), m_grid->gridIndex(),
+				timeStepIndex, cellResultSlot, cellEdgeResultSlot, m_opacityLevel, m_defaultColor);
+
+			m_oppositeFaultFaces->setEffect(eff.p());
+		}
+	}
 }
 
 const int priFaultGeo = 1;

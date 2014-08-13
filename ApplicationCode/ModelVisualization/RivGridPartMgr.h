@@ -64,11 +64,7 @@ public:
 
 private:
     void                    generatePartGeometry(cvf::StructGridGeometryGenerator& geoBuilder);
-    void                    updateCellEdgeResultColorOnPart(cvf::Part* facePart, 
-                                                            cvf::StructGridGeometryGenerator* surfaceGenerator, 
-                                                            size_t timeStepIndex, 
-                                                            RimResultSlot* cellResultSlot, 
-                                                            RimCellEdgeResultSlot* cellEdgeResultSlot);
+
 private:
     size_t                                      m_gridIdx;
     cvf::cref<RigGridBase>                      m_grid;

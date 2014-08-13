@@ -22,8 +22,8 @@
 
 namespace cvf
 {
-    class StructGridGeometryGenerator;
     class DrawableGeo;
+	class StructGridQuadToCellFaceMapper;
 }
 
 class RimCellEdgeResultSlot;
@@ -33,21 +33,22 @@ class RigResultAccessor;
 class RigCaseData;
 class RivTernaryScalarMapper;
 
+
 class RivCellEdgeGeometryGenerator 
 {
 public:
     static void addCellEdgeResultsToDrawableGeo(size_t timeStepIndex, 
         RimResultSlot* cellResultSlot,
         RimCellEdgeResultSlot* cellEdgeResultSlot,
-        cvf::StructGridGeometryGenerator* generator,
-        cvf::DrawableGeo* geo, 
+		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+		cvf::DrawableGeo* geo,
         size_t gridIndex, 
         float opacityLevel);
 
 	static void addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
 		RimResultSlot* cellResultSlot,
 		RimCellEdgeResultSlot* cellEdgeResultSlot,
-		cvf::StructGridGeometryGenerator* generator,
+		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
 		cvf::DrawableGeo* geo,
 		size_t gridIndex,
 		float opacityLevel);
