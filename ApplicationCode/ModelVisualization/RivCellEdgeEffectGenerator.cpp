@@ -18,6 +18,8 @@
 
 #include "RiaStdInclude.h"
 
+#include "RivCellEdgeEffectGenerator.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
 #include "RigCellEdgeResultAccessor.h"
@@ -31,10 +33,12 @@
 #include "RimResultSlot.h"
 #include "RimWellCollection.h"
 
-#include "RivCellEdgeEffectGenerator.h"
+#include "RivTernaryScalarMapper.h"
+#include "RimTernaryLegendConfig.h"
 
 #include "cvfStructGridGeometryGenerator.h"
 #include "cvfqtUtils.h"
+#include "RivTernaryTextureCoordsCreator.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +89,7 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         cellEdgeColorTextureCoordsArrays.push_back(colorArray.p());
     }
 
-    cvf::ScalarMapper* cellResultScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
+	cvf::ScalarMapper* cellResultScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
     cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultSlot->legendConfig()->scalarMapper();
 	
     double ignoredScalarValue = cellEdgeResultSlot->ignoredScalarValue();
@@ -112,39 +116,42 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
         faceIndexArray->set(quadIdx * 4 + 2, quadToCellFace->cellFace(quadIdx) );
         faceIndexArray->set(quadIdx * 4 + 3, quadToCellFace->cellFace(quadIdx) );
 
-        float cellColorTextureCoord = 0.5f; // If no results exists, the texture will have a special color
-        size_t cellIndex = quadToCellFace->cellIndex(quadIdx);
-        {
+		size_t cellIndex = quadToCellFace->cellIndex(quadIdx);
+		{
 			cvf::StructGridInterface::FaceType cellFace = quadToCellFace->cellFace(quadIdx);
-            double scalarValue = cellCenterDataAccessObject->cellFaceScalar(cellIndex, cellFace);
+			double scalarValue = cellCenterDataAccessObject->cellFaceScalar(cellIndex, cellFace);
 
-            if (scalarValue != HUGE_VAL)
-            {
-                cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
-                // If we are dealing with wellcells, the default is transparent.
-                // we need to make cells opaque if there are no wellpipe through them.
-                if (opacityLevel < 1.0f)
-                {
-                    cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
-                    if (wellIndex != cvf::UNDEFINED_UINT)
-                    {
-                        if ( !(*isWellPipeVisible)[wellIndex]) 
-                        {
-                            cellColorTextureCoord += 2.0f; // The shader must interpret values in the range 2-3 as "opaque"
-                        }
-                    }
-                }
-            }
-            else
-            {
-                cellColorTextureCoord = -1.0f; // Undefined texture coord. Shader handles this.
-            }
-        }
+			{
+				float cellColorTextureCoord = 0.5f; // If no results exists, the texture will have a special color
+				if (scalarValue != HUGE_VAL)
+				{
+					cellColorTextureCoord = cellResultScalarMapper->mapToTextureCoord(scalarValue)[0];
+					// If we are dealing with wellcells, the default is transparent.
+					// we need to make cells opaque if there are no wellpipe through them.
+					if (opacityLevel < 1.0f)
+					{
+						cvf::uint wellIndex = gridCellToWellindexMap->get(cellIndex);
+						if (wellIndex != cvf::UNDEFINED_UINT)
+						{
+							if (!(*isWellPipeVisible)[wellIndex])
+							{
+								cellColorTextureCoord += 2.0f; // The shader must interpret values in the range 2-3 as "opaque"
+							}
+						}
+					}
+				}
+				else
+				{
+					cellColorTextureCoord = -1.0f; // Undefined texture coord. Shader handles this.
+				}
 
-        cellColorTextureCoordArray->set(quadIdx * 4 + 0, cellColorTextureCoord);
-        cellColorTextureCoordArray->set(quadIdx * 4 + 1, cellColorTextureCoord);
-        cellColorTextureCoordArray->set(quadIdx * 4 + 2, cellColorTextureCoord);
-        cellColorTextureCoordArray->set(quadIdx * 4 + 3, cellColorTextureCoord);
+				cellColorTextureCoordArray->set(quadIdx * 4 + 0, cellColorTextureCoord);
+				cellColorTextureCoordArray->set(quadIdx * 4 + 1, cellColorTextureCoord);
+				cellColorTextureCoordArray->set(quadIdx * 4 + 2, cellColorTextureCoord);
+				cellColorTextureCoordArray->set(quadIdx * 4 + 3, cellColorTextureCoord);
+			}
+		}
+
 
         float edgeColor;
 		for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
@@ -181,32 +188,6 @@ void RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(
     geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorNegK", cellEdgeColorTextureCoordsArrays.at(5)));
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RivCellEdgeGeometryGenerator::createCellCenterResultAccessor(RimResultSlot* cellResultSlot, size_t timeStepIndex, RigCaseData* eclipseCase, const RigGridBase* grid)
-{
-	cvf::ref<RigResultAccessor> resultAccessor = NULL;
-
-	if (cellResultSlot->hasResult())
-	{
-		if (!cellResultSlot->hasDynamicResult())
-		{
-			// Static result values are located at time step 0
-			timeStepIndex = 0;
-		}
-
-		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
-		resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, timeStepIndex, cellResultSlot->resultVariable());
-	}
-
-	if (resultAccessor.isNull())
-	{
-		resultAccessor = new RigHugeValResultAccessor;
-	}
-
-	return resultAccessor;
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -236,6 +217,134 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryGenerator::createCellEdgeCenterRe
 	return cellEdgeResultAccessor;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot, cvf::StructGridGeometryGenerator* generator, cvf::DrawableGeo* geo, size_t gridIndex, float opacityLevel)
+{
+	RigCaseData* eclipseCase = cellResultSlot->reservoirView()->eclipseCase()->reservoirData();
+	CVF_ASSERT(eclipseCase != NULL);
+
+	const RigGridBase* grid = dynamic_cast<const RigGridBase*>(generator->activeGrid());
+	CVF_ASSERT(grid != NULL);
+
+	cvf::ref<RigResultAccessor> cellEdgeResultAccessor = createCellEdgeCenterResultAccessor(cellResultSlot, cellEdgeResultSlot, timeStepIndex, eclipseCase, grid);
+
+	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper = generator->quadToCellFaceMapper();
+
+	size_t vertexCount = geo->vertexArray()->size();
+	size_t quadCount = vertexCount / 4;
+
+	cvf::ref<cvf::Vec2fArray> localCoords = new cvf::Vec2fArray;
+	localCoords->resize(vertexCount);
+
+	cvf::ref<cvf::IntArray> faceIndexArray = new cvf::IntArray;
+	faceIndexArray->resize(vertexCount);
+
+	cvf::ref<cvf::Vec2fArray> vCellColorTextureCoordArray = new cvf::Vec2fArray;
+	vCellColorTextureCoordArray->resize(vertexCount);
+
+	// Build six cell face color arrays
+	cvf::Collection<cvf::FloatArray> cellEdgeColorTextureCoordsArrays;
+	size_t idx;
+	for (idx = 0; idx < 6; idx++)
+	{
+		cvf::ref<cvf::FloatArray> colorArray = new cvf::FloatArray;
+		colorArray->resize(vertexCount);
+		cellEdgeColorTextureCoordsArrays.push_back(colorArray.p());
+	}
+
+	RivTernaryScalarMapper* ternaryCellResultScalarMapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
+	cvf::ScalarMapper* edgeResultScalarMapper = cellEdgeResultSlot->legendConfig()->scalarMapper();
+
+	double ignoredScalarValue = cellEdgeResultSlot->ignoredScalarValue();
+
+	RivTernaryTextureCoordsCreator texturer(cellResultSlot, cellResultSlot->ternaryLegendConfig(),
+		timeStepIndex,
+		grid->gridIndex(),
+		quadToCellFaceMapper);
+
+	texturer.createTextureCoords(vCellColorTextureCoordArray.p());
+
+#pragma omp parallel for
+	for (int quadIdx = 0; quadIdx < static_cast<int>(quadCount); quadIdx++)
+	{
+		localCoords->set(quadIdx * 4 + 0, cvf::Vec2f(0, 0));
+		localCoords->set(quadIdx * 4 + 1, cvf::Vec2f(1, 0));
+		localCoords->set(quadIdx * 4 + 2, cvf::Vec2f(1, 1));
+		localCoords->set(quadIdx * 4 + 3, cvf::Vec2f(0, 1));
+
+		faceIndexArray->set(quadIdx * 4 + 0, quadToCellFaceMapper->cellFace(quadIdx));
+		faceIndexArray->set(quadIdx * 4 + 1, quadToCellFaceMapper->cellFace(quadIdx));
+		faceIndexArray->set(quadIdx * 4 + 2, quadToCellFaceMapper->cellFace(quadIdx));
+		faceIndexArray->set(quadIdx * 4 + 3, quadToCellFaceMapper->cellFace(quadIdx));
+
+		size_t cellIndex = quadToCellFaceMapper->cellIndex(quadIdx);
+
+		float edgeColor;
+		for (size_t cubeFaceIdx = 0; cubeFaceIdx < 6; cubeFaceIdx++)
+		{
+			edgeColor = -1.0f; // Undefined texture coord. Shader handles this.
+
+			double scalarValue = cellEdgeResultAccessor->cellFaceScalar(cellIndex, static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx));
+
+			if (scalarValue != HUGE_VAL && scalarValue != ignoredScalarValue)
+			{
+				edgeColor = edgeResultScalarMapper->mapToTextureCoord(scalarValue)[0];
+			}
+
+			cvf::FloatArray* colArr = cellEdgeColorTextureCoordsArrays.at(cubeFaceIdx);
+
+			colArr->set(quadIdx * 4 + 0, edgeColor);
+			colArr->set(quadIdx * 4 + 1, edgeColor);
+			colArr->set(quadIdx * 4 + 2, edgeColor);
+			colArr->set(quadIdx * 4 + 3, edgeColor);
+		}
+	}
+
+	geo->setVertexAttribute(new cvf::Vec2fVertexAttribute("a_localCoord", localCoords.p()));
+	geo->setVertexAttribute(new cvf::Vec2fVertexAttribute("a_cellTextureCoord", vCellColorTextureCoordArray.p()));
+
+	cvf::ref<cvf::IntVertexAttributeDirect> faceIntAttribute = new cvf::IntVertexAttributeDirect("a_face", faceIndexArray.p());
+	geo->setVertexAttribute(faceIntAttribute.p());
+
+	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorPosI", cellEdgeColorTextureCoordsArrays.at(0)));
+	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorNegI", cellEdgeColorTextureCoordsArrays.at(1)));
+	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorPosJ", cellEdgeColorTextureCoordsArrays.at(2)));
+	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorNegJ", cellEdgeColorTextureCoordsArrays.at(3)));
+	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorPosK", cellEdgeColorTextureCoordsArrays.at(4)));
+	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorNegK", cellEdgeColorTextureCoordsArrays.at(5)));
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigResultAccessor> RivCellEdgeGeometryGenerator::createCellCenterResultAccessor(RimResultSlot* cellResultSlot, size_t timeStepIndex, RigCaseData* eclipseCase, const RigGridBase* grid)
+{
+	cvf::ref<RigResultAccessor> resultAccessor = NULL;
+
+	if (cellResultSlot->hasResult())
+	{
+		if (!cellResultSlot->hasDynamicResult())
+		{
+			// Static result values are located at time step 0
+			timeStepIndex = 0;
+		}
+
+		RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResultSlot->porosityModel());
+		resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, grid->gridIndex(), porosityModel, timeStepIndex, cellResultSlot->resultVariable());
+	}
+
+	if (resultAccessor.isNull())
+	{
+		resultAccessor = new RigHugeValResultAccessor;
+	}
+
+	return resultAccessor;
+}
+
+
 
 
 
@@ -244,11 +353,10 @@ cvf::ref<RigResultAccessor> RivCellEdgeGeometryGenerator::createCellEdgeCenterRe
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper, const cvf::ScalarMapper* cellScalarMapper)
+CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeScalarMapper)
 {
     CVF_ASSERT(edgeScalarMapper != NULL);
 
-    m_cellScalarMapper = cellScalarMapper;
     m_edgeScalarMapper = edgeScalarMapper;
 
     m_cullBackfaces = false;
@@ -256,6 +364,21 @@ CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeSc
     m_defaultCellColor = cvf::Color3f(cvf::Color3::WHITE);
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CellEdgeEffectGenerator::setScalarMapper(const cvf::ScalarMapper* cellScalarMapper)
+{
+	m_cellScalarMapper = cellScalarMapper;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void CellEdgeEffectGenerator::setTernaryScalarMapper(const RivTernaryScalarMapper* ternaryScalarMapper)
+{
+	m_ternaryCellScalarMapper = ternaryScalarMapper;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -267,7 +390,8 @@ bool CellEdgeEffectGenerator::isEqual(const EffectGenerator* other) const
     if (otherCellFaceEffectGenerator 
         && m_cellScalarMapper.p() == otherCellFaceEffectGenerator->m_cellScalarMapper.p() 
         && m_edgeScalarMapper.p() == otherCellFaceEffectGenerator->m_edgeScalarMapper.p()
-        && m_cullBackfaces        == otherCellFaceEffectGenerator->m_cullBackfaces
+		&& m_ternaryCellScalarMapper.p() == otherCellFaceEffectGenerator->m_ternaryCellScalarMapper.p()
+		&& m_cullBackfaces == otherCellFaceEffectGenerator->m_cullBackfaces
         && m_opacityLevel         == otherCellFaceEffectGenerator->m_opacityLevel
         && m_undefinedColor       == otherCellFaceEffectGenerator->m_undefinedColor
         && m_defaultCellColor     == otherCellFaceEffectGenerator->m_defaultCellColor
@@ -300,7 +424,9 @@ bool CellEdgeEffectGenerator::isEqual(const EffectGenerator* other) const
 //--------------------------------------------------------------------------------------------------
 caf::EffectGenerator* CellEdgeEffectGenerator::copy() const
 {
-    CellEdgeEffectGenerator * newEffect = new CellEdgeEffectGenerator(m_edgeScalarMapper.p(), m_cellScalarMapper.p());
+    CellEdgeEffectGenerator * newEffect = new CellEdgeEffectGenerator(m_edgeScalarMapper.p());
+	newEffect->setScalarMapper(m_cellScalarMapper.p());
+	newEffect->setTernaryScalarMapper(m_ternaryCellScalarMapper.p());
     newEffect->m_edgeTextureImage = m_edgeTextureImage;
     newEffect->m_cellTextureImage = m_cellTextureImage;
 
@@ -317,36 +443,54 @@ caf::EffectGenerator* CellEdgeEffectGenerator::copy() const
 //--------------------------------------------------------------------------------------------------
 void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect) const
 {
-   cvf::ref<cvf::Effect> eff = effect;
+	cvf::ref<cvf::Effect> eff = effect;
 
-   // Set up shader program
+	// Set up shader program
 
-   cvf::ShaderProgramGenerator shaderGen("CellEdgeFaceShaderProgramGenerator", cvf::ShaderSourceProvider::instance());
-    {
-        QFile data(":/Shader/fs_CellFace.glsl");
-        if (data.open(QFile::ReadOnly))
-        {
-            QTextStream in(&data);
+	cvf::ShaderProgramGenerator shaderGen("CellEdgeFaceShaderProgramGenerator", cvf::ShaderSourceProvider::instance());
+	{
+		QFile data(":/Shader/fs_CellFace.glsl");
+		if (data.open(QFile::ReadOnly))
+		{
+			QTextStream in(&data);
 
-            QString data = in.readAll();
-            cvf::String cvfString = cvfqt::Utils::toString(data);
+			QString data = in.readAll();
+			cvf::String cvfString = cvfqt::Utils::toString(data);
 
-            shaderGen.addFragmentCode(cvfString);
-        }
-    }
+			shaderGen.addFragmentCode(cvfString);
+		}
+	}
 
-    {
-        QFile data(":/Shader/vs_CellFace.glsl");
-        if (data.open(QFile::ReadOnly))
-        {
-            QTextStream in(&data);
+	if (m_ternaryCellScalarMapper.notNull())
+	{
+		{
+			QFile data(":/Shader/vs_2dTextureCellFace.glsl");
+			if (data.open(QFile::ReadOnly))
+			{
+				QTextStream in(&data);
 
-            QString data = in.readAll();
-            cvf::String cvfString = cvfqt::Utils::toString(data);
+				QString data = in.readAll();
+				cvf::String cvfString = cvfqt::Utils::toString(data);
 
-            shaderGen.addVertexCode(cvfString);
-        }
-    }
+				shaderGen.addVertexCode(cvfString);
+			}
+		}
+	}
+	else
+	{
+		{
+			QFile data(":/Shader/vs_CellFace.glsl");
+			if (data.open(QFile::ReadOnly))
+			{
+				QTextStream in(&data);
+
+				QString data = in.readAll();
+				cvf::String cvfString = cvfqt::Utils::toString(data);
+
+				shaderGen.addVertexCode(cvfString);
+			}
+		}
+	}
 
     shaderGen.addFragmentCode(caf::CommonShaderSources::light_AmbientDiffuse());
     shaderGen.addFragmentCode(cvf::ShaderSourceRepository::fs_Standard);
@@ -361,7 +505,12 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
 
     cvf::ref<cvf::TextureImage> modifiedCellTextImage;
     m_edgeScalarMapper->updateTexture(m_edgeTextureImage.p());
-    if (m_cellScalarMapper.notNull()) 
+	if (m_ternaryCellScalarMapper.notNull())
+	{
+		m_ternaryCellScalarMapper->updateTexture(m_cellTextureImage.p(), m_opacityLevel);
+		modifiedCellTextImage = m_cellTextureImage;
+	}
+    else if (m_cellScalarMapper.notNull()) 
     {
         m_cellScalarMapper->updateTexture(m_cellTextureImage.p());
         modifiedCellTextImage = caf::ScalarMapperEffectGenerator::addAlphaAndUndefStripes(m_cellTextureImage.p(), m_undefinedColor, m_opacityLevel);
@@ -421,4 +570,5 @@ void CellEdgeEffectGenerator::updateForFixedFunctionRendering(cvf::Effect* effec
 
     surfaceGen.updateEffect(effect);
 }
+
 

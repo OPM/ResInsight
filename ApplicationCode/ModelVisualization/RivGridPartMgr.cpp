@@ -285,16 +285,31 @@ void RivGridPartMgr::updateCellEdgeResultColorOnPart(   cvf::Part* facePart,
 {
     if (facePart)
     {
-        cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(facePart->drawable());
+		CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper());
+
+		cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>(facePart->drawable());
         if (dg) 
         {
-            RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot, 
-                surfaceGenerator, dg, m_grid->gridIndex(), m_opacityLevel );
+			if (cellResultSlot->isTernarySaturationSelected())
+			{
+				RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+					surfaceGenerator, dg, m_grid->gridIndex(), m_opacityLevel);
 
-            cvf::ScalarMapper* cellScalarMapper = NULL;
-            if (cellResultSlot->hasResult()) cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
+				RivTernaryScalarMapper* ternaryCellScalarMapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
+				cellFaceEffectGen.setTernaryScalarMapper(ternaryCellScalarMapper);
+			}
+			else
+			{
+				if (cellResultSlot->hasResult())
+				{
+					RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+						surfaceGenerator, dg, m_grid->gridIndex(), m_opacityLevel);
 
-            CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper(), cellScalarMapper);
+					cvf::ScalarMapper* cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
+					cellFaceEffectGen.setScalarMapper(cellScalarMapper);
+				}
+			}
+
             cellFaceEffectGen.setOpacityLevel(m_opacityLevel);
             cellFaceEffectGen.setDefaultCellColor(m_defaultColor);
 
