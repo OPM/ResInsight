@@ -64,7 +64,9 @@ public:
 
     // Faults
     void   updateFaultColors(size_t timeStepIndex, RimResultSlot* cellResultSlot);
-    void   appendFaultPartsToModel(cvf::ModelBasicList* model);
+	void   updateFaultCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot,
+		RimCellEdgeResultSlot* cellEdgeResultSlot);
+	void   appendFaultPartsToModel(cvf::ModelBasicList* model);
     void   appendFaultLabelPartsToModel(cvf::ModelBasicList* model);
 private:
 

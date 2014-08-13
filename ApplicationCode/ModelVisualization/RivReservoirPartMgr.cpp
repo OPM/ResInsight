@@ -197,3 +197,15 @@ void RivReservoirPartMgr::setFaultForceVisibility(bool isGeneratedByFilter)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RivReservoirPartMgr::updateFaultCellEdgeResultColor(size_t timeStepIndex, RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot)
+{
+	if (m_faultsPartMgr.notNull())
+	{
+		m_faultsPartMgr->updateCellEdgeResultColor(timeStepIndex, cellResultSlot, cellEdgeResultSlot);
+	}
+
+}
+

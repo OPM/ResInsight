@@ -66,12 +66,16 @@ public:
     void                        updateCellResultColor    (ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
                                                           RimResultSlot* cellResultSlot);
     void                        updateCellEdgeResultColor(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, 
-                                                          RimResultSlot* cellResultSlot, RimCellEdgeResultSlot* cellEdgeResultSlot);
+														  RimResultSlot* cellResultSlot,
+														  RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     // Faults
     void                        appendFaultsStaticGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType);
     void                        appendFaultsDynamicGeometryPartsToModel(cvf::ModelBasicList* model, ReservoirGeometryCacheType geometryType, size_t frameIndex);
     void                        updateFaultColors(ReservoirGeometryCacheType geometryType, size_t timeStepIndex, RimResultSlot* cellResultSlot);
+	void                        updateFaultCellEdgeResultColor(	ReservoirGeometryCacheType geometryType, size_t timeStepIndex,
+															RimResultSlot* cellResultSlot,
+															RimCellEdgeResultSlot* cellEdgeResultSlot);
 
     // Fault labels
     ReservoirGeometryCacheType  geometryTypeForFaultLabels(const std::vector<ReservoirGeometryCacheType>& geometryTypes) const;

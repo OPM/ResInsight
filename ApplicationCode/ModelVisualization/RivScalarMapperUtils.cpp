@@ -18,8 +18,15 @@
 
 #include "RivScalarMapperUtils.h"
 
-#include "RivTernaryScalarMapperEffectGenerator.h"
+#include "RimCellEdgeResultSlot.h"
+#include "RimLegendConfig.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
+#include "RimTernaryLegendConfig.h"
+
+#include "RivCellEdgeEffectGenerator.h"
 #include "RivTernaryScalarMapper.h"
+#include "RivTernaryScalarMapperEffectGenerator.h"
 
 #include "cafEffectGenerator.h"
 
@@ -58,6 +65,47 @@ void RivScalarMapperUtils::applyTernaryTextureResultsToPart(cvf::Part* part, cvf
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGeo* dg,
+	const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+	size_t gridIndex,
+	size_t timeStepIndex,
+	RimResultSlot* cellResultSlot,
+	RimCellEdgeResultSlot* cellEdgeResultSlot,
+	float opacityLevel,
+	cvf::Color3f defaultColor)
+{
+	CellEdgeEffectGenerator cellFaceEffectGen(cellEdgeResultSlot->legendConfig()->scalarMapper());
+
+	if (cellResultSlot->isTernarySaturationSelected())
+	{
+		RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+			quadToCellFaceMapper, dg, gridIndex, opacityLevel);
+
+		RivTernaryScalarMapper* ternaryCellScalarMapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
+		cellFaceEffectGen.setTernaryScalarMapper(ternaryCellScalarMapper);
+	}
+	else
+	{
+		if (cellResultSlot->hasResult())
+		{
+			RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+				quadToCellFaceMapper, dg, gridIndex, opacityLevel);
+
+			cvf::ScalarMapper* cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
+			cellFaceEffectGen.setScalarMapper(cellScalarMapper);
+		}
+	}
+
+	cellFaceEffectGen.setOpacityLevel(opacityLevel);
+	cellFaceEffectGen.setDefaultCellColor(defaultColor);
+
+	cvf::ref<cvf::Effect> eff = cellFaceEffectGen.generateEffect();
+	return eff;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Effect> RivScalarMapperUtils::createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel)
 {
 	CVF_ASSERT(mapper);
@@ -84,3 +132,4 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createTernaryScalarMapperEffect(cons
 
 	return scalarEffect;
 }
+

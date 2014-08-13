@@ -26,9 +26,13 @@ namespace cvf
 	class ScalarMapper;
 	class Part;
 	class Effect;
+	class StructGridQuadToCellFaceMapper;
+	class DrawableGeo;
 }
 
 class RivTernaryScalarMapper;
+class RimResultSlot;
+class RimCellEdgeResultSlot;
 
 //==================================================================================================
 ///
@@ -38,6 +42,15 @@ class RivScalarMapperUtils
 public:
 	static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel);
 	static void applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel);
+
+	static cvf::ref<cvf::Effect> createCellEdgeEffect(cvf::DrawableGeo* dg,
+		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+		size_t gridIndex,
+		size_t timeStepIndex,
+		RimResultSlot* cellResultSlot,
+		RimCellEdgeResultSlot* cellEdgeResultSlot,
+		float opacityLevel,
+		cvf::Color3f defaultColor);
 
 private:
 	static cvf::ref<cvf::Effect> createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel);
