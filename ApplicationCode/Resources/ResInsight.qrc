@@ -48,5 +48,6 @@
     <qresource prefix="/Shader/">
         <file>fs_CellFace.glsl</file>
         <file>vs_CellFace.glsl</file>
+        <file>vs_2dTextureCellFace.glsl</file>
     </qresource>
 </RCC>
