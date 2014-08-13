@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) Statoil ASA, Ceetron Solutions AS
 // 
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,54 +20,9 @@
 
 #include "cafEffectGenerator.h"
 
-namespace cvf
-{
-    class DrawableGeo;
-	class StructGridQuadToCellFaceMapper;
-}
-
-class RimCellEdgeResultSlot;
-class RimResultSlot;
-class RigGridBase;
-class RigResultAccessor;
-class RigCaseData;
 class RivTernaryScalarMapper;
 
 
-class RivCellEdgeGeometryGenerator 
-{
-public:
-    static void addCellEdgeResultsToDrawableGeo(size_t timeStepIndex, 
-        RimResultSlot* cellResultSlot,
-        RimCellEdgeResultSlot* cellEdgeResultSlot,
-		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-		cvf::DrawableGeo* geo,
-        size_t gridIndex, 
-        float opacityLevel);
-
-	static void addTernaryCellEdgeResultsToDrawableGeo(size_t timeStepIndex,
-		RimResultSlot* cellResultSlot,
-		RimCellEdgeResultSlot* cellEdgeResultSlot,
-		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-		cvf::DrawableGeo* geo,
-		size_t gridIndex,
-		float opacityLevel);
-
-
-private:
-	static cvf::ref<RigResultAccessor> createCellCenterResultAccessor(
-		RimResultSlot* cellResultSlot,
-		size_t timeStepIndex,
-		RigCaseData* eclipseCase,
-		const RigGridBase* grid);
-
-	static cvf::ref<RigResultAccessor> createCellEdgeCenterResultAccessor(
-		RimResultSlot* cellResultSlot,
-		RimCellEdgeResultSlot* cellEdgeResultSlot,
-		size_t timeStepIndex,
-		RigCaseData* eclipseCase,
-		const RigGridBase* grid);
-};
 
 /*
     Thoughts on organizing the texture coords generation a bit.

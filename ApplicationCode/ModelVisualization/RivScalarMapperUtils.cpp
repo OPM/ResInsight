@@ -25,6 +25,7 @@
 #include "RimTernaryLegendConfig.h"
 
 #include "RivCellEdgeEffectGenerator.h"
+#include "RivCellEdgeGeometryUtils.h"
 #include "RivTernaryScalarMapper.h"
 #include "RivTernaryScalarMapperEffectGenerator.h"
 
@@ -78,7 +79,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
 
 	if (cellResultSlot->isTernarySaturationSelected())
 	{
-		RivCellEdgeGeometryGenerator::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+		RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
 			quadToCellFaceMapper, dg, gridIndex, opacityLevel);
 
 		RivTernaryScalarMapper* ternaryCellScalarMapper = cellResultSlot->ternaryLegendConfig()->scalarMapper();
@@ -88,7 +89,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
 	{
 		if (cellResultSlot->hasResult())
 		{
-			RivCellEdgeGeometryGenerator::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+			RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
 				quadToCellFaceMapper, dg, gridIndex, opacityLevel);
 
 			cvf::ScalarMapper* cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
