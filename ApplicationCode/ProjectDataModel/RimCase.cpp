@@ -20,8 +20,10 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigCaseData.h"
+
 #include "RimCaseCollection.h"
 #include "RimCellEdgeResultSlot.h"
 #include "RimCellPropertyFilter.h"
@@ -30,6 +32,7 @@
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
 
+#include "cafPdmDocument.h"
 #include "cafProgressInfo.h"
 
 #include <QFile>
@@ -134,6 +137,8 @@ RimReservoirView* RimCase::createAndAddReservoirView()
 {
     RimReservoirView* riv = new RimReservoirView();
     riv->setEclipseCase(this);
+
+	caf::PdmDocument::initAfterReadTraversal(riv);
 
     size_t i = reservoirViews().size();
     riv->name = QString("View %1").arg(i + 1);
