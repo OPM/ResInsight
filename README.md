@@ -23,8 +23,7 @@ There has been attempts to make ResInsight build and run on OSX as well, but the
 
 ### Documentation
 
-An online [ Users Guide ](Documentation/UsersGuide/UsersGuide.md) with some reference content is 
-[ here ](Documentation/UsersGuide/UsersGuide.md)
+See the [ ResInsight ](http://resinsight.org/) website and the [ Users Guide ](http://resinsight.org/docs/home/) for project documentation.
 
 ### Source Code
 
@@ -41,4 +40,4 @@ Release branches that might pop up are dedicated bug fix branches for the releas
 
 ### Building ResInsight
 
-See [ Build Instructions ] (BuildInstructions.md)
+See [ Build Instructions ] (http://resinsight.org/docs/buildinstructions/)
