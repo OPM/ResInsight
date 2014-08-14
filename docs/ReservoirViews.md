@@ -1,6 +1,6 @@
 ---
 layout: docs
-prev_section: contact
+prev_section: installation
 next_section: casegroupsandstatistics
 title: Working with 3D Views
 permalink: /docs/reservoirviews/
