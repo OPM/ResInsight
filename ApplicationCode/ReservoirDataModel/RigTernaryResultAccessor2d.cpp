@@ -37,17 +37,10 @@ void RigTernaryResultAccessor::setTernaryResultAccessors(RigResultAccessor* soil
 	m_soilAccessor = soil;
 	m_sgasAccessor = sgas;
 	m_swatAccessor = swat;
-
-	int nullPointerCount = 0;
-	if (!soil) nullPointerCount++;
-	if (!sgas) nullPointerCount++;
-	if (!swat) nullPointerCount++;
-
-	CVF_ASSERT(nullPointerCount <= 1);
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// If only swat is present, soil is set to (1.0 - swat) and sgas to 0
 //--------------------------------------------------------------------------------------------------
 cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 {
@@ -62,16 +55,34 @@ cvf::Vec2d RigTernaryResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 		{
 			sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
 		}
-		else
+		else if (m_swatAccessor.notNull())
 		{
 			sgas = 1.0 - soil - m_swatAccessor->cellScalar(gridLocalCellIndex);
+		}
+		else
+		{
+			sgas = 1.0 - soil;
 		}
 	}
 	else
 	{
-		sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
+		if (m_sgasAccessor.notNull())
+		{
+			sgas = m_sgasAccessor->cellScalar(gridLocalCellIndex);
 
-		soil = 1.0 - sgas - m_swatAccessor->cellScalar(gridLocalCellIndex);
+			if (m_swatAccessor.notNull())
+			{
+				soil = 1.0 - sgas - m_swatAccessor->cellScalar(gridLocalCellIndex);
+			}
+			else
+			{
+				soil = 1.0 - sgas;
+			}
+		}
+		else if (m_swatAccessor.notNull())
+		{
+			soil = 1.0 - m_swatAccessor->cellScalar(gridLocalCellIndex);
+		}
 	}
 
 	return cvf::Vec2d(soil, sgas);
