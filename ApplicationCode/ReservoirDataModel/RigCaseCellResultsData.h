@@ -18,14 +18,18 @@
 
 #pragma once
 
+#include "RifReaderInterface.h"
+
 #include "RimDefines.h"
+
 #include <QDateTime>
+
 #include <vector>
 #include <cmath>
-#include "RifReaderInterface.h"
 
 class RifReaderInterface;
 class RigMainGrid;
+class RigStatisticsDataCache;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -38,7 +42,7 @@ public:
     void                                               setMainGrid(RigMainGrid* ownerGrid);
 
     // Max and min values of the results
-    void                                               recalculateMinMax(size_t scalarResultIndex);
+    void                                               recalculateStatistics(size_t scalarResultIndex);
     void                                               minMaxCellScalarValues(size_t scalarResultIndex, double& min, double& max);
     void                                               minMaxCellScalarValues(size_t scalarResultIndex, size_t timeStepIndex, double& min, double& max);
     void                                               posNegClosestToZero(size_t scalarResultIndex, double& pos, double& neg);
@@ -113,16 +117,7 @@ public:
 
 private:
     std::vector< std::vector< std::vector<double> > >       m_cellScalarResults; ///< Scalar results on the complete reservoir for each Result index (ResultVariable) and timestep 
-    std::vector< std::pair<double, double> >                m_maxMinValues;      ///< Max min values for each Result index
-    std::vector< std::pair<double, double> >                m_posNegClosestToZero;
-    std::vector< std::vector<size_t> >                      m_histograms;        ///< Histogram for each Result Index
-    std::vector< std::pair<double, double> >                m_p10p90;            ///< P10 and p90 values for each Result Index
-    std::vector< double >                                   m_meanValues;        ///< Mean value for each Result Index
-
-    std::vector< std::vector< std::pair<double, double> > > m_maxMinValuesPrTs;  ///< Max min values for each Result index and timestep
-    std::vector< std::vector< std::pair<double, double> > > m_posNegClosestToZeroPrTs;
-
-    size_t                                                  m_combinedTransmissibilityResultIndex;
+    cvf::Collection<RigStatisticsDataCache>                 m_statisticsDataCache;
 
 private:
     std::vector<ResultInfo>                                 m_resultInfos;

@@ -640,7 +640,7 @@ public:
                         m_currentReservoir->reservoirData() &&
                         m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
                 {
-                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateMinMax(m_currentScalarIndex);
+                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)
@@ -974,7 +974,7 @@ public:
                     m_currentReservoir->reservoirData() &&
                     m_currentReservoir->reservoirData()->results(m_porosityModelEnum) )
                 {
-                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateMinMax(m_currentScalarIndex);
+                    m_currentReservoir->reservoirData()->results(m_porosityModelEnum)->recalculateStatistics(m_currentScalarIndex);
                 }
 
                 for (size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i)

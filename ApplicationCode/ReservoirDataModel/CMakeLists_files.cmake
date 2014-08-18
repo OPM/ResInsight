@@ -32,6 +32,8 @@ ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.inl
 ${CEE_CURRENT_LIST_DIR}RigPipeInCellEvaluator.h
 ${CEE_CURRENT_LIST_DIR}RigResultAccessor2d.h
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.h
+${CEE_CURRENT_LIST_DIR}RigStatisticsDataCache.h
+${CEE_CURRENT_LIST_DIR}RigStatisticsCalculator.h
 )
 
 set (SOURCE_GROUP_SOURCE_FILES
@@ -58,6 +60,8 @@ ${CEE_CURRENT_LIST_DIR}RigFault.cpp
 ${CEE_CURRENT_LIST_DIR}RigNNCData.cpp
 ${CEE_CURRENT_LIST_DIR}cvfGeometryTools.cpp
 ${CEE_CURRENT_LIST_DIR}RigTernaryResultAccessor2d.cpp
+${CEE_CURRENT_LIST_DIR}RigStatisticsDataCache.cpp
+${CEE_CURRENT_LIST_DIR}RigStatisticsCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES
