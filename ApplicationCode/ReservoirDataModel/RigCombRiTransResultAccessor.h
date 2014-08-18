@@ -38,7 +38,7 @@ public:
                                 RigResultAccessor* zPermAccessor);
     void setNTGResultAccessor(  RigResultAccessor* ntgAccessor);
 
-    /// CDARCY Darcy’s constant 
+    /// CDARCY Darcy's constant 
     /// = 0.00852702 (E300); 0.008527 (ECLIPSE 100) (METRIC)
     /// = 0.00112712 (E300); 0.001127 (ECLIPSE 100) (FIELD)
     /// = 3.6 (LAB)
