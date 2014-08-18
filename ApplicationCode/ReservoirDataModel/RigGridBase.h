@@ -133,17 +133,3 @@ public:
 private:
     const RigGridBase* m_grid;
 };
-
-class RigFaultFaceVisibilityFilter : public cvf::CellFaceVisibilityFilter
-{
-public:
-    RigFaultFaceVisibilityFilter(const RigGridBase* grid)
-        :   m_grid(grid)
-    {
-    }
-
-    virtual bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const;
-
-private:
-    const RigGridBase* m_grid;
-};

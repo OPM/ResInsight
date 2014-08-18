@@ -599,7 +599,7 @@ bool EarClipTesselator::calculateTriangles( std::vector<size_t>* triangleIndices
 
     // We want m_polygonIndices to be a counter-clockwise polygon to make the validation test work
 
-	if (calculatePolygonArea() < 0 )
+	if (calculateProjectedPolygonArea() < 0 )
 	{
 		m_polygonIndices.reverse();
 	}
@@ -732,7 +732,7 @@ bool EarClipTesselator::isPointInsideTriangle(const cvf::Vec3d& A, const cvf::Ve
 /// Computes area of the currently stored 2D polygon/contour
 //--------------------------------------------------------------------------------------------------
 
-double EarClipTesselator::calculatePolygonArea() const
+double EarClipTesselator::calculateProjectedPolygonArea() const
 {
     CVF_ASSERT(m_X > -1 && m_Y > -1);
 
@@ -834,7 +834,7 @@ bool FanEarClipTesselator::calculateTriangles(std::vector<size_t>* triangles)
 
     // We want m_polygonIndices to be a counter-clockwise polygon to make the validation test work
 
-    if (calculatePolygonArea() < 0 )
+    if (calculateProjectedPolygonArea() < 0 )
     {
         m_polygonIndices.reverse();
     }

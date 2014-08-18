@@ -95,7 +95,7 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
                 cvf::Vec3d fc1 = c1.faceCenter((cvf::StructGridInterface::FaceType)(fIdx));
                 cvf::Vec3d fc2 = c2.faceCenter(cvf::StructGridInterface::oppositeFace((cvf::StructGridInterface::FaceType)(fIdx)));
                 cvf::Vec3d fc1ToFc2 = fc2 - fc1;
-                normal = c1.faceNormal((cvf::StructGridInterface::FaceType)(fIdx));
+                normal = c1.faceNormalWithAreaLenght((cvf::StructGridInterface::FaceType)(fIdx));
                 normal.normalize();
                 // Check that face centers are approx in the face plane
                 if (normal.dot(fc1ToFc2) < 0.01*fc1ToFc2.length()) 

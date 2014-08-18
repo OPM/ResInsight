@@ -20,6 +20,8 @@
 
 #include "cvfAssert.h"
 #include "RimDefines.h"
+#include "RigFault.h"
+
 
 RigMainGrid::RigMainGrid(void)
     : RigGridBase(this)
@@ -213,13 +215,12 @@ void RigMainGrid::setFaults(const cvf::Collection<RigFault>& faults)
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::calculateFaults()
 {
-    //RigFault::initFaultsPrCellAccumulator(m_cells.size());
-    cvf::ref<RigFaultsPrCellAccumulator> faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
+    m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(m_cells.size());
 
     // Spread fault idx'es on the cells from the faults
     for (size_t fIdx = 0 ; fIdx < m_faults.size(); ++fIdx)
     {
-        m_faults[fIdx]->accumulateFaultsPrCell(faultsPrCellAcc.p(), static_cast<int>(fIdx));
+        m_faults[fIdx]->accumulateFaultsPrCell(m_faultsPrCellAcc.p(), static_cast<int>(fIdx));
     }
 
     // Find the geometrical faults that is in addition
@@ -244,7 +245,7 @@ void RigMainGrid::calculateFaults()
         {
             cvf::StructGridInterface::FaceType face = cvf::StructGridInterface::FaceType(faceIdx);
 
-            if (faultsPrCellAcc->faultIdx(gcIdx, face) == RigFaultsPrCellAccumulator::NO_FAULT)
+            if (m_faultsPrCellAcc->faultIdx(gcIdx, face) == RigFaultsPrCellAccumulator::NO_FAULT)
             {
                 // Find neighbor cell
                 if (firstNO_FAULTFaceForCell) // To avoid doing this for every face, and only when detecting a NO_FAULT
@@ -288,11 +289,8 @@ void RigMainGrid::calculateFaults()
 
                 // To avoid doing this calculation for the opposite face
 
-                faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
-                faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
-
-                //m_cells[gcIdx].setCellFaceFault(face);
-                //m_cells[neighborReservoirCellIdx].setCellFaceFault(StructGridInterface::oppositeFace(face));
+                m_faultsPrCellAcc->setFaultIdx(gcIdx, face, unNamedFaultIdx);
+                m_faultsPrCellAcc->setFaultIdx(neighborReservoirCellIdx, StructGridInterface::oppositeFace(face), unNamedFaultIdx);
 
                 // Add as fault face only if the grid index is less than the neighbors
 
@@ -330,8 +328,8 @@ void RigMainGrid::calculateFaults()
 
         if (conn.m_c1Face != StructGridInterface::NO_FACE)
         {
-            fIdx1 = faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
-            fIdx2 = faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
+            fIdx1 = m_faultsPrCellAcc->faultIdx(conn.m_c1GlobIdx, conn.m_c1Face);
+            fIdx2 = m_faultsPrCellAcc->faultIdx(conn.m_c2GlobIdx, StructGridInterface::oppositeFace(conn.m_c1Face));
         }
 
         if (fIdx1 < 0 && fIdx2 < 0)
@@ -373,8 +371,15 @@ bool RigMainGrid::faceNormalsIsOutwards() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t cellIndex, cvf::StructGridInterface::FaceType face) const
+const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
 {
+    int faultIdx = m_faultsPrCellAcc->faultIdx(reservoirCellIndex, face);
+    if (faultIdx !=  RigFaultsPrCellAccumulator::NO_FAULT )
+    {
+        return m_faults.at(faultIdx);
+    }
+
+#if 0
     for (size_t i = 0; i < m_faults.size(); i++)
     {
         const RigFault* rigFault = m_faults.at(i);
@@ -399,6 +404,6 @@ const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace(size_t cellIndex,
             }
         }
     }
-
+#endif
     return NULL;
 }

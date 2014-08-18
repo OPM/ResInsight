@@ -138,7 +138,7 @@ public:
 protected:
     bool    isTriangleValid( std::list<size_t>::const_iterator u, std::list<size_t>::const_iterator v, std::list<size_t>::const_iterator w) const;
     bool    isPointInsideTriangle(const cvf::Vec3d& A, const cvf::Vec3d& B, const cvf::Vec3d& C, const cvf::Vec3d& P) const;
-    double  calculatePolygonArea() const;
+    double  calculateProjectedPolygonArea() const;
 
 protected:
     std::list<size_t>       m_polygonIndices;

@@ -51,7 +51,7 @@ public:
     void                                    setFaults(const cvf::Collection<RigFault>& faults);
     const cvf::Collection<RigFault>&        faults() { return m_faults; }
     void                                    calculateFaults();
-    const RigFault*                         findFaultFromCellIndexAndCellFace(size_t cellIndex, cvf::StructGridInterface::FaceType face) const;
+    const RigFault*                         findFaultFromCellIndexAndCellFace(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const;
     bool                                    faceNormalsIsOutwards() const;
 
     void                                    computeCachedData();
@@ -76,6 +76,7 @@ private:
 
     cvf::Collection<RigFault>               m_faults;
     cvf::ref<RigNNCData>                    m_nncData;
+    cvf::ref<RigFaultsPrCellAccumulator>    m_faultsPrCellAcc;
 
     cvf::Vec3d                              m_displayModelOffset;
 

@@ -46,7 +46,7 @@ public:
         m_faultIdxForCellFace.resize(reservoirCellCount, initVal);
     }
 
-    inline int faultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) 
+    inline int faultIdx(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const
     {
         return m_faultIdxForCellFace[reservoirCellIndex][face];
     }
@@ -93,9 +93,6 @@ public:
 
     std::vector<size_t>&         connectionIndices()       { return m_connectionIndices; }
     const std::vector<size_t>&   connectionIndices() const { return m_connectionIndices; }
-
-    static RigFaultsPrCellAccumulator* faultsPrCellAccumulator()    { CVF_ASSERT(m_faultsPrCellAcc.notNull()); return m_faultsPrCellAcc.p();}
-    static void initFaultsPrCellAccumulator(size_t reservoirCellCount) { m_faultsPrCellAcc = new RigFaultsPrCellAccumulator(reservoirCellCount); }
 
 private:
     QString m_name;

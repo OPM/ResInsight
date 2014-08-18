@@ -490,18 +490,3 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k
 
     return false;
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RigFaultFaceVisibilityFilter::isFaceVisible(size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility) const
-{
-    size_t cellIndex = m_grid->cellIndexFromIJK(i, j, k);
-    if (m_grid->cell(cellIndex).isCellFaceFault(face))
-    {
-        return true;
-    }
-
-    return false;
-}
