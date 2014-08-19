@@ -128,21 +128,31 @@ QList<caf::PdmOptionItemInfo> RimCellPropertyFilter::calculateValueOptions(const
 {
     QList<caf::PdmOptionItemInfo> optionItems = resultDefinition->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
 
-    // Remove ternary from list, as it is not supported to perform filtering on a ternary result
-    int ternaryIndex = -1;
+    std::vector<int> indicesToRemove;
     for (int i = 0; i < optionItems.size(); i++)
     {
         QString text = optionItems[i].optionUiText;
 
         if (text.compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0)
         {
-            ternaryIndex = i;
+            indicesToRemove.push_back(i);
+        }
+        else if (text.compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
+        {
+            indicesToRemove.push_back(i);
+        }
+        else if (text.compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        {
+            indicesToRemove.push_back(i);
         }
     }
 
-    if (ternaryIndex != -1)
+    std::sort(indicesToRemove.begin(), indicesToRemove.end());
+    
+    std::vector<int>::reverse_iterator rit;
+    for (rit = indicesToRemove.rbegin(); rit != indicesToRemove.rend(); ++rit)
     {
-        optionItems.takeAt(ternaryIndex);
+        optionItems.takeAt(*rit);
     }
 
     return optionItems;
