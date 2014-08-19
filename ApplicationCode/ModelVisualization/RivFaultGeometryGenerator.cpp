@@ -166,6 +166,8 @@ void RivFaultGeometryGenerator::computeArrays()
         size_t cellIndex = faultFaces[fIdx].m_nativeReservoirCellIndex;
         cvf::StructGridInterface::FaceType face = faultFaces[fIdx].m_nativeFace;
 
+        if (cellIndex >= m_cellVisibility->size()) continue;
+
         if (!m_computeNativeFaultFaces)
         {
             cellIndex = faultFaces[fIdx].m_oppositeReservoirCellIndex;
