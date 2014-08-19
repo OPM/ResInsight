@@ -18,23 +18,23 @@
 
 #include "RigResultAccessorFactory.h"
 
-#include "RigResultAccessor.h"
+#include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
 #include "RigAllGridCellsResultAccessor.h"
-
-#include "cvfLibCore.h"
-#include "cvfBase.h"
-#include "cvfObject.h"
-#include "cvfAssert.h"
-
-#include "RigMainGrid.h"
 #include "RigCaseCellResultsData.h"
-#include "RigActiveCellInfo.h"
-#include "RigGridBase.h"
 #include "RigCaseData.h"
-#include <math.h>
+#include "RigCombMultResultAccessor.h"
 #include "RigCombTransResultAccessor.h"
+#include "RigGridBase.h"
+#include "RigMainGrid.h"
+#include "RigResultAccessor.h"
 
+#include "cvfAssert.h"
+#include "cvfBase.h"
+#include "cvfLibCore.h"
+#include "cvfObject.h"
+
+#include <math.h>
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -64,6 +64,21 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
 		return cellFaceAccessObject;
 	}
+    else if (uiResultName == RimDefines::combinedMultResultName())
+    {
+        cvf::ref<RigCombMultResultAccessor> cellFaceAccessObject = new RigCombMultResultAccessor(grid);
+
+        cvf::ref<RigResultAccessor> multXPos = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTX");
+        cvf::ref<RigResultAccessor> multXNeg = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTX-");
+        cvf::ref<RigResultAccessor> multYPos = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTY");
+        cvf::ref<RigResultAccessor> multYNeg = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTY-");
+        cvf::ref<RigResultAccessor> multZPos = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTZ");
+        cvf::ref<RigResultAccessor> multZNeg = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "MULTZ-");
+
+        cellFaceAccessObject->setMultResultAccessors(multXPos.p(), multXNeg.p(), multYPos.p(), multYNeg.p(), multZPos.p(), multZNeg.p());
+
+        return cellFaceAccessObject;
+    }
 
 	return RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
 }
