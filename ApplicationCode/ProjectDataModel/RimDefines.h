@@ -39,6 +39,8 @@ public:
         FRACTURE_MODEL
     };
 
+    static bool isPerCellFaceResult(const QString& resultName);
+
     static QString undefinedResultName()                { return "None"; }
     static QString undefinedGridFaultName()             { return "Undefined grid faults"; }
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }

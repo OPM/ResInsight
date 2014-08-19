@@ -149,7 +149,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeResultSlot::calculateValueOptions(const
             int i;
             for (i = 0; i < varList.size(); ++i)
             {
-                if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0) continue;
+                if (RimDefines::isPerCellFaceResult(varList[i])) continue;
 
                 size_t cubeFaceIdx;
                 for (cubeFaceIdx = 0; cubeFaceIdx < EdgeFaceEnum::size(); ++cubeFaceIdx)
@@ -220,7 +220,7 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
         int i;
         for (i = 0; i < varList.size(); ++i)
         {
-            if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0) continue;
+            if (RimDefines::isPerCellFaceResult(varList[i])) continue;
 
             if (varList[i].contains(resultVariable))
             {               

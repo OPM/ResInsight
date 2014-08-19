@@ -143,13 +143,10 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
             QList<caf::PdmOptionItemInfo> optionList;
             for (int i = 0; i < varList.size(); ++i)
             {
-                if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+                if (RimDefines::isPerCellFaceResult(varList[i]))
                 {
-                    optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedTransmissibilityResultName(), RimDefines::combinedTransmissibilityResultName()));
-                }
-                else if (varList[i].compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
-                {
-                    optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedMultResultName(), RimDefines::combinedMultResultName()));
+                    // Move combined per cell face results to top of list
+                    optionList.push_front(caf::PdmOptionItemInfo(varList[i], varList[i]));
                 }
                 else
                 {

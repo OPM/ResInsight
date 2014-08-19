@@ -46,3 +46,24 @@ namespace caf
 
 }
 
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimDefines::isPerCellFaceResult(const QString& resultName)
+{
+    if (resultName.compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+    else if (resultName.compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0)
+    {
+        return true;
+    }
+
+    return false;
+}

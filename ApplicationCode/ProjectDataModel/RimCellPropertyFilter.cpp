@@ -133,15 +133,7 @@ QList<caf::PdmOptionItemInfo> RimCellPropertyFilter::calculateValueOptions(const
     {
         QString text = optionItems[i].optionUiText;
 
-        if (text.compare(RimDefines::ternarySaturationResultName(), Qt::CaseInsensitive) == 0)
-        {
-            indicesToRemove.push_back(i);
-        }
-        else if (text.compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
-        {
-            indicesToRemove.push_back(i);
-        }
-        else if (text.compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        if (RimDefines::isPerCellFaceResult(text))
         {
             indicesToRemove.push_back(i);
         }
