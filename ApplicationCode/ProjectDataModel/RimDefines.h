@@ -45,7 +45,7 @@ public:
     static QString undefinedGridFaultName()             { return "Undefined grid faults"; }
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
     static QString ternarySaturationResultName()        { return "TERNARY"; }
-    static QString combinedMultResultName()             { return "riMULTXYZ"; }
+    static QString combinedMultResultName()             { return "MULTXYZ"; }
 
 
     // Mock model text identifiers
