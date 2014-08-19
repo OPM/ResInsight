@@ -62,9 +62,6 @@ public:
     void                         removeNullPtrs();
     void                         addObject(PdmObject * obj);
 
-    static void                  initAfterReadTraversal(PdmObject * root);
-    static void                  updateUiIconStateRecursively(PdmObject * root);
-
     template <typename T>
     void objectsByType(std::vector<PdmPointer<T> >* typedObjects ) const
     {
@@ -129,8 +126,11 @@ class PdmDocument: public PdmObjectGroup
     void                readFile(QIODevice* device);
     void                writeFile(QIODevice* device);
 
+    static void         updateUiIconStateRecursively(PdmObject * root);
+
 private:
     static void         setupBeforeSaveTraversal(PdmObject * root);
+    static void         initAfterReadTraversal(PdmObject * root);
 };
 
 
