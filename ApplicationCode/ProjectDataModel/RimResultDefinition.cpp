@@ -145,16 +145,16 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
             {
                 if (varList[i].compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
                 {
-                    hasCombinedTransmissibility = true;
-                    continue;
+                    optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedTransmissibilityResultName(), RimDefines::combinedTransmissibilityResultName()));
                 }
-
-                optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
-            }
-            
-            if (hasCombinedTransmissibility)
-            {
-                optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedTransmissibilityResultName(), RimDefines::combinedTransmissibilityResultName()));
+                else if (varList[i].compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
+                {
+                    optionList.push_front(caf::PdmOptionItemInfo(RimDefines::combinedMultResultName(), RimDefines::combinedMultResultName()));
+                }
+                else
+                {
+                    optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
+                }
             }
             
             bool hasAtLeastOneTernaryComponent = false;
@@ -199,12 +199,27 @@ void RimResultDefinition::loadResult()
     RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        if (m_resultType() == RimDefines::STATIC_NATIVE &&
-            m_resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+        if (m_resultType() == RimDefines::STATIC_NATIVE)
         {
-            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANX");
-            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANY");
-            gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANZ");
+            if (m_resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
+            {
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANX");
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANY");
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANZ");
+            }
+            else if (m_resultVariable().compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
+            {
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTX");
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTX-");
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTY");
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTY-");
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTZ");
+                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTZ-");
+            }
+            else
+            {
+                gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
+            }
         }
         else
         {

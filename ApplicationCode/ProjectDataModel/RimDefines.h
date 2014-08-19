@@ -39,10 +39,11 @@ public:
         FRACTURE_MODEL
     };
 
-    static QString undefinedResultName() { return "None"; }
-    static QString undefinedGridFaultName() { return "Undefined grid faults"; }
+    static QString undefinedResultName()                { return "None"; }
+    static QString undefinedGridFaultName()             { return "Undefined grid faults"; }
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
     static QString ternarySaturationResultName()        { return "TERNARY"; }
+    static QString combinedMultResultName()             { return "riMULTXYZ"; }
 
 
     // Mock model text identifiers
