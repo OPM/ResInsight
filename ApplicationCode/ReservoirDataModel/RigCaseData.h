@@ -53,12 +53,6 @@ public:
     const RigActiveCellInfo*                    activeCellInfo(RifReaderInterface::PorosityModelResultType porosityModel) const;
     void                                        setActiveCellInfo(RifReaderInterface::PorosityModelResultType porosityModel, RigActiveCellInfo* activeCellInfo);
     
-
-    cvf::ref<cvf::StructGridScalarDataAccess>   TO_BE_DELETED_resultAccessor(const RigGridBase* grid, 
-                                                               RifReaderInterface::PorosityModelResultType porosityModel, 
-                                                               size_t timeStepIndex, 
-                                                               size_t scalarSetIndex);
-
     void                                        setWellResults(const cvf::Collection<RigSingleWellResultsData>& data);
     const cvf::Collection<RigSingleWellResultsData>&      wellResults() { return m_wellResults; }
 

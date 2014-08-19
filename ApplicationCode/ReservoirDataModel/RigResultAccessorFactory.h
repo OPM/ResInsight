@@ -22,8 +22,6 @@
 #include "RigResultAccessor.h"
 #include "RimDefines.h"
 
-#include "cvfStructGridScalarDataAccess.h"
-
 class RigActiveCellInfo;
 class RigGridBase;
 
@@ -52,14 +50,6 @@ public:
 		size_t timeStepIndex,
 		size_t resultIndex);
 
-
-    // TO BE DELETED
-    static cvf::ref<cvf::StructGridScalarDataAccess> 
-        TO_BE_DELETED_createNativeDataAccessObject(RigCaseData* eclipseCase,
-        size_t gridIndex,
-        RifReaderInterface::PorosityModelResultType porosityModel,
-        size_t timeStepIndex,
-        size_t scalarSetIndex);
 
 
 private:

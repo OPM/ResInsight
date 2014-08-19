@@ -485,26 +485,6 @@ const RigCaseCellResultsData* RigCaseData::results(RifReaderInterface::PorosityM
     return m_fractureModelResults.p();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::StructGridScalarDataAccess> RigCaseData::TO_BE_DELETED_resultAccessor(const RigGridBase* grid, 
-                                                                           RifReaderInterface::PorosityModelResultType porosityModel, 
-                                                                           size_t timeStepIndex, 
-                                                                           size_t scalarSetIndex)
-{
-    if (timeStepIndex != cvf::UNDEFINED_SIZE_T && 
-        scalarSetIndex != cvf::UNDEFINED_SIZE_T)
-    {
-        cvf::ref<cvf::StructGridScalarDataAccess> dataAccess = RigResultAccessorFactory::TO_BE_DELETED_createNativeDataAccessObject(this, grid->gridIndex(), porosityModel, timeStepIndex, scalarSetIndex);
-        return dataAccess;
-    }
-
-    return NULL;
-
-}
-
-
 /*
 //--------------------------------------------------------------------------------------------------
 /// 

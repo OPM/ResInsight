@@ -58,7 +58,6 @@
 #include "cvfShaderSourceProvider.h"
 #include "cvfShaderSourceRepository.h"
 #include "cvfStructGrid.h"
-#include "cvfStructGridGeometryGenerator.h"
 #include "cvfUniform.h"
 
 
@@ -293,22 +292,5 @@ RivGridPartMgr::~RivGridPartMgr()
     if (m_surfaceFaces.notNull()) m_surfaceFaces->deleteOrReleaseOpenGLResources();
 #endif
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// Helper class used to provide zero for all cells
-/// This way we can avoid to test if a StructGridScalarDataAccess object is valid before reading out the value.
-//--------------------------------------------------------------------------------------------------
-class ScalarDataAccessZeroForAllCells : public cvf::StructGridScalarDataAccess
-{
-public:
-    virtual double cellScalar(size_t cellIndex) const
-    {
-        return 0.0;
-    }
-    virtual void setCellScalar(size_t cellIndex, double value)
-    {
-    }
-};
 
 

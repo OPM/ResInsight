@@ -47,10 +47,6 @@ public:
 
     void setCellVisibility(const cvf::UByteArray* cellVisibilities );
     
-    void textureCoordinates(cvf::Vec2fArray* textureCoords, 
-        const cvf::StructGridScalarDataAccess* resultAccessor, 
-        const cvf::ScalarMapper* mapper) const;
-
     // Mapping between cells and geometry
 
     const cvf::StructGridQuadToCellFaceMapper*		quadToCellFaceMapper()     { return m_quadMapper.p(); }

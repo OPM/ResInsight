@@ -23,7 +23,6 @@
 #include "cvfDrawableGeo.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfOutlineEdgeExtractor.h"
-#include "cvfStructGridScalarDataAccess.h"
 #include "cvfStructGridGeometryGenerator.h"
 
 #include "cvfScalarMapper.h"
@@ -199,40 +198,6 @@ void RivFaultGeometryGenerator::computeArrays()
 
     m_vertices = new cvf::Vec3fArray;
     m_vertices->assign(vertices);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Calculates the texture coordinates in a "nearly" one dimensional texture. 
-/// Undefined values are coded with a y-texture coordinate value of 1.0 instead of the normal 0.5
-//--------------------------------------------------------------------------------------------------
-void RivFaultGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::StructGridScalarDataAccess* resultAccessor, const cvf::ScalarMapper* mapper) const
-{
-    if (!resultAccessor) return;
-
-    size_t numVertices = m_quadMapper->quadCount()*4;
-
-    textureCoords->resize(numVertices);
-    cvf::Vec2f* rawPtr = textureCoords->ptr();
-
-    double cellScalarValue;
-    cvf::Vec2f texCoord;
-
-#pragma omp parallel for private(texCoord, cellScalarValue)
-    for (int i = 0; i < static_cast<int>(m_quadMapper->quadCount()); i++)
-    {
-        cellScalarValue = resultAccessor->cellScalar(m_quadMapper->cellIndex(i));
-        texCoord = mapper->mapToTextureCoord(cellScalarValue);
-        if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
-        {
-            texCoord[1] = 1.0f;
-        }
-
-        size_t j;
-        for (j = 0; j < 4; j++)
-        {   
-            rawPtr[i*4 + j] = texCoord;
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
