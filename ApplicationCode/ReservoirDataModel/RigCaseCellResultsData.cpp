@@ -506,7 +506,7 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::createCombinedTransmissibilityResult()
+void RigCaseCellResultsData::createPerFaceCombinedResults()
 {
     {
         size_t combinedTransmissibilityIndex = findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());

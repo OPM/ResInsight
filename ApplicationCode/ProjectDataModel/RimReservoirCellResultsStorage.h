@@ -53,7 +53,6 @@ public:
     RifReaderInterface*             readerInterface();
 
     void                            loadOrComputeSOIL();
-    void                            createCombinedTransmissibilityResults();
     void                            computeDepthRelatedResults();
 
     size_t                          findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);

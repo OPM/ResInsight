@@ -920,12 +920,12 @@ void RimReservoirView::loadDataAndUpdate()
                 {
                     RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
                     results->loadOrComputeSOIL();
-                    results->createCombinedTransmissibilityResults();
+                    if (results->cellResults()) results->cellResults()->createPerFaceCombinedResults();
                 }
                 {
                     RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
                     results->loadOrComputeSOIL();
-                    results->createCombinedTransmissibilityResults();
+                    if (results->cellResults()) results->cellResults()->createPerFaceCombinedResults();
                 }
             }
         }

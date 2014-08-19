@@ -720,15 +720,6 @@ size_t RimReservoirCellResultsStorage::storedResultsCount()
     return m_resultCacheMetaData.size();
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::createCombinedTransmissibilityResults()
-{
-    if (!m_cellResults) return;
-
-    m_cellResults->createCombinedTransmissibilityResult();
-}
 
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorageEntryInfo, "ResultStorageEntryInfo");
