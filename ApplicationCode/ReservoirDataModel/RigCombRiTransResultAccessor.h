@@ -49,6 +49,12 @@ public:
     virtual double  cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
 
 private:
+    double getPermValue(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const;
+    double calculateHalfCellTrans( size_t gridLocalCellIndex, size_t neighborGridCellIdx, cvf::StructGridInterface::FaceType faceId, bool isFaultFace) const;
+
+    double getNtgValue( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const;
+    void   calculateConnectionGeometry( size_t gridLocalCellIndex, size_t neighborGridCellIdx, cvf::StructGridInterface::FaceType faceId, cvf::Vec3d* centerToFace, cvf::Vec3d* faceAreaVec) const;
+
 
     cvf::ref<RigResultAccessor> m_xPermAccessor;
     cvf::ref<RigResultAccessor> m_yPermAccessor;

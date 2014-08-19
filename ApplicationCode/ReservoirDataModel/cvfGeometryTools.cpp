@@ -517,6 +517,60 @@ void GeometryTools::addMidEdgeNodes(std::list<std::pair<cvf::uint, bool> >* poly
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// Based on http://geomalgorithms.com/a01-_area.html
+/// This method returns the polygon normal with length equal to the polygon area.
+/// The components of the normal is thus the size of projected area into each of the main axis planes
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d GeometryTools::polygonAreaNormal3D(const std::vector<cvf::Vec3d>& polygon)
+{
+    size_t pSize = polygon.size();
+    switch (pSize)
+    {
+    case 0:
+    case 1:
+    case 2:
+        {
+            return cvf::Vec3d::ZERO;
+        }
+        break;
+    case 3:
+        {
+            return 0.5 * ((polygon[1]-polygon[0]) ^ (polygon[2] - polygon[0]));
+        }
+        break;
+    case 4:
+        {
+            // Cross product of diagonal = 2*A
+            return 0.5* ((polygon[2]-polygon[0]) ^ (polygon[3] - polygon[1]));
+        }
+        break;
+    default:
+        {
+            /// JJS:
+            // This is possibly not the fastest approach with large polygons, where a scaled projections approach would be better, 
+            // but I suspect this (simpler) approach is faster for small polygons, as long as we do not have the polygon normal up front.
+            //
+            cvf::Vec3d areaNormal(cvf::Vec3d::ZERO);
+            size_t h = (pSize - 1)/2;
+            size_t k = (pSize % 2) ? 0 : pSize - 1;
+
+            // First quads
+            for (size_t i = 1; i < h; ++i)
+            {
+                areaNormal += ( (polygon[2*i] - polygon[0]) ^ (polygon[2*i + 1] - polygon[2*i-1] ) );
+            }
+
+            // Last triangle or quad
+            areaNormal += ( (polygon[2*h] - polygon[0]) ^ (polygon[k] - polygon[2*h-1] ) );
+
+            areaNormal *= 0.5;
+
+            return areaNormal;
+        }
+    }
+}
+
 
 
 

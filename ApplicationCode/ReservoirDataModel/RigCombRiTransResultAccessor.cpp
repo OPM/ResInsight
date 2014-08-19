@@ -18,10 +18,12 @@
 
 #include "RigCombRiTransResultAccessor.h"
 
+#include "RigMainGrid.h"
 #include "RigGridBase.h"
+#include "RigCell.h"
 
 #include <cmath>
-
+#include "cvfGeometryTools.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -65,7 +67,7 @@ double RigCombRiTransResultAccessor::cellScalar(size_t gridLocalCellIndex) const
     return HUGE_VAL;
 }
 
-double RigCombRiTransResultAccessor::getPermValue(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId)
+double RigCombRiTransResultAccessor::getPermValue(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
 {
     switch (faceId)
     {
@@ -84,60 +86,161 @@ double RigCombRiTransResultAccessor::getPermValue(size_t gridLocalCellIndex, cvf
     case cvf::StructGridInterface::POS_K:
     case cvf::StructGridInterface::NEG_K:
         {
-            return zPermAccessor->cellScalar(gridLocalCellIndex);
+            return m_zPermAccessor->cellScalar(gridLocalCellIndex);
         }
         break;
     }
     return HUGE_VAL;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCombRiTransResultAccessor::calculateHalfCellTrans( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId)
+double RigCombRiTransResultAccessor::getNtgValue(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
-    double perm = getPermValue(gridLocalCellIndex, faceId);
     double ntg = 1.0;
-    
-    if (faceId != cvf::StructGridInterface::POS_K && faceId != cvf::StructGridInterface::NEG_K) 
+
+    if (faceId != cvf::StructGridInterface::POS_K && faceId != cvf::StructGridInterface::NEG_K)
     {
         m_ntgAccessor->cellScalar(gridLocalCellIndex);
     }
 
-    RigCell& cell = m_grid->cell(gridLocalCellIndex);
-    
-    cvf::Vec3d centerToFace = cell.faceCenter(faceId) - cell.center();
-    cvf::Vec3d faceAreaVec = cell.faceNormalWithAreaLenght(faceId);
-
-    double halfCellTrans = perm*ntg*(faceAreaVec*centerToFace) / (centerToFace*centerToFace);
-
-    return halfCellTrans;
+    return ntg;
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double RigCombRiTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
+double halfCellTransmissibility( double perm , double ntg, const cvf::Vec3d& centerToFace, const cvf::Vec3d& faceAreaVec) 
 {
-    size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
-    RigFault* fault = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace(reservoirCellIndex, faceId);
+    return perm*ntg*(faceAreaVec*centerToFace) / (centerToFace*centerToFace);
+}
 
-    if (fault)
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans)
+{
+    return cdarchy * mult / ( ( 1 / halfCellTrans) + (1 / neighborHalfCellTrans) );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RigCombRiTransResultAccessor::calculateHalfCellTrans(size_t gridLocalCellIndex, size_t neighborGridCellIdx, cvf::StructGridInterface::FaceType faceId, bool isFaultFace) const
+{
+    const RigCell& cell = m_grid->cell(gridLocalCellIndex);
+
+  
+    cvf::Vec3d faceAreaVec;
+    cvf::Vec3d faceCenter;
+
+    if (isFaultFace)
     {
-
+        
+        calculateConnectionGeometry( gridLocalCellIndex, neighborGridCellIdx, faceId, &faceCenter, &faceAreaVec);
     }
     else
     {
-        size_t i, j, k, neighborGridCellIdx;
-        m_grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+        const RigCell& cell = m_grid->cell(gridLocalCellIndex);
+        faceCenter = cell.faceCenter(faceId);
+        
+        faceAreaVec = cell.faceNormalWithAreaLenght(faceId);
+    }
 
-        if (m_grid->cellIJKNeighbor(i, j, k, faceId, &neighborGridCellIdx))
+    cvf::Vec3d centerToFace = faceCenter - cell.center();
+
+    double perm = getPermValue(gridLocalCellIndex, faceId);
+    double ntg = getNtgValue(gridLocalCellIndex, faceId );
+
+    return halfCellTransmissibility(perm, ntg, centerToFace, faceAreaVec);
+}
+
+void RigCombRiTransResultAccessor::calculateConnectionGeometry( size_t gridLocalCellIndex, size_t neighborGridCellIdx, 
+                                                                cvf::StructGridInterface::FaceType faceId,
+                                                                cvf::Vec3d* faceCenter, cvf::Vec3d* faceAreaVec) const
+{
+    CVF_TIGHT_ASSERT(faceCenter && faceAreaVec);
+
+    *faceCenter = cvf::Vec3d::ZERO;
+    *faceAreaVec = cvf::Vec3d::ZERO; 
+    const RigMainGrid* mainGrid = m_grid->mainGrid();
+
+    const RigCell& c1 = m_grid->cell(gridLocalCellIndex);
+    const RigCell& c2 = m_grid->cell(neighborGridCellIdx);
+
+    std::vector<size_t> polygon;
+    std::vector<cvf::Vec3d> intersections;
+    caf::SizeTArray4 face1;
+    caf::SizeTArray4 face2;
+    c1.faceIndices(faceId, &face1);
+    c2.faceIndices(cvf::StructGridInterface::oppositeFace(faceId), &face2);
+
+    bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads(
+        &polygon, 
+        &intersections, 
+        (cvf::EdgeIntersectStorage<size_t>*)NULL, 
+        cvf::wrapArrayConst(&(mainGrid->nodes())), 
+        face1.data(), 
+        face2.data(), 
+        1e-6);
+
+
+    if (foundOverlap)
+    {
+        std::vector<cvf::Vec3d> realPolygon;
+
+        for (size_t pIdx = 0; pIdx < polygon.size(); ++pIdx)
         {
-            double halfCellTrans = calculateHalfCellTrans(gridLocalCellIndex, faceId);
-            double neighborHalfCellTrans = calculateHalfCellTrans(neighborGridCellIdx, cvf::StructGridInterface::oppositeFace(faceId));
-
-            return m_cdarchy/ ( ( 1 / halfCellTrans) + (1 / neighborHalfCellTrans) );
+            if (polygon[pIdx] < m_grid->mainGrid()->nodes().size())
+                realPolygon.push_back(m_grid->mainGrid()->nodes()[polygon[pIdx]]);
+            else
+                realPolygon.push_back(intersections[polygon[pIdx] - m_grid->mainGrid()->nodes().size()]);
         }
+
+        // Polygon center
+        for (size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx)
+        {
+            *faceCenter += realPolygon[pIdx];
+        }
+
+        *faceCenter *= 1.0/realPolygon.size();
+
+        // Polygon area vector
+
+        *faceAreaVec = cvf::GeometryTools::polygonAreaNormal3D(realPolygon);
+
+    }
+
+}
+//--------------------------------------------------------------------------------------------------
+/// 
+/// Neighbour cell transmisibilities only is calculated here
+/// Not NNC transmisibilities. Thart has to be done separatly elsewhere 
+///
+/// Todo: What about Grid to Grid connections ?
+/// Todo: needs optimization. Things are done several times. Caching of the results should be considered. etc.
+///
+//--------------------------------------------------------------------------------------------------
+double RigCombRiTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId) const
+{
+    size_t i, j, k, neighborGridCellIdx;
+    m_grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+
+    if (m_grid->cellIJKNeighbor(i, j, k, faceId, &neighborGridCellIdx))
+    {
+        size_t reservoirCellIndex = m_grid->reservoirCellIndex(gridLocalCellIndex);
+        const RigFault* fault = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace(reservoirCellIndex, faceId);
+        bool isOnFault = fault;
+
+        double halfCellTrans = 0;
+        double neighborHalfCellTrans = 0;
+
+        halfCellTrans = calculateHalfCellTrans(gridLocalCellIndex, neighborGridCellIdx, faceId, isOnFault);
+        neighborHalfCellTrans = calculateHalfCellTrans(neighborGridCellIdx, gridLocalCellIndex, cvf::StructGridInterface::oppositeFace(faceId), isOnFault);
+
+        return newtran(m_cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans);
     }
 
     return HUGE_VAL;

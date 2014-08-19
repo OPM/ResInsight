@@ -27,6 +27,8 @@ public:
     static double     getAngle(const cvf::Vec3d& positiveNormalAxis, const cvf::Vec3d& v1, const cvf::Vec3d& v2);
     static double     getAngle(const cvf::Vec3d& v1, const cvf::Vec3d& v2);
 
+    static cvf::Vec3d polygonAreaNormal3D(const std::vector<cvf::Vec3d>& polygon);
+
     enum IntersectionStatus
     {
         NO_INTERSECTION,
