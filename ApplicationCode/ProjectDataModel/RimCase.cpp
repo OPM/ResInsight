@@ -138,7 +138,7 @@ RimReservoirView* RimCase::createAndAddReservoirView()
     RimReservoirView* riv = new RimReservoirView();
     riv->setEclipseCase(this);
 
-	caf::PdmDocument::initAfterReadTraversal(riv);
+    caf::PdmDocument::updateUiIconStateRecursively(riv);
 
     size_t i = reservoirViews().size();
     riv->name = QString("View %1").arg(i + 1);

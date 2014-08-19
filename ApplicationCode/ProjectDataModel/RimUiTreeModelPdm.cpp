@@ -678,7 +678,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             RimAnalysisModels* analysisModels = (activeOilField) ? activeOilField->analysisModels() : NULL;
             if (analysisModels) analysisModels->insertCaseInCaseGroup(gridCaseGroup, rimResultReservoir);
 
-            caf::PdmObjectGroup::initAfterReadTraversal(rimResultReservoir);
+            caf::PdmDocument::updateUiIconStateRecursively(rimResultReservoir);
 
             {
                 QModelIndex rootIndex = getModelIndexFromPdmObject(gridCaseGroup->caseCollection());
@@ -723,7 +723,7 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
             rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
 
-            caf::PdmObjectGroup::initAfterReadTraversal(rimReservoirView);
+            caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
             rimReservoirView->loadDataAndUpdate(); 
             rimCase->reservoirViews().push_back(rimReservoirView);
