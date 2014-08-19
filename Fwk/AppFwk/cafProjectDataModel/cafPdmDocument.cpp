@@ -113,6 +113,31 @@ void PdmObjectGroup::initAfterReadTraversal(PdmObject* object)
     }
 
     object->initAfterRead();
+}
+ 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void PdmObjectGroup::updateUiIconStateRecursively(PdmObject* object)
+{
+    if (object == NULL) return;
+
+    std::vector<PdmFieldHandle*> fields;
+    object->fields(fields);
+
+    std::vector<PdmObject*> children;
+    size_t fIdx;
+    for (fIdx = 0; fIdx < fields.size(); ++fIdx)
+    {
+        if (fields[fIdx]) fields[fIdx]->childObjects(&children);
+    }
+
+    size_t cIdx;
+    for (cIdx = 0; cIdx < children.size(); ++cIdx)
+    {
+        PdmObjectGroup::updateUiIconStateRecursively(children[cIdx]);
+    }
+
     object->updateUiIconFromToggleField();
 }
 
@@ -167,6 +192,7 @@ void PdmDocument::readFile(QIODevice* xmlFile)
     // after everything is read from file
 
     PdmDocument::initAfterReadTraversal(this);
+    PdmDocument::updateUiIconStateRecursively(this);
 }
 
 //--------------------------------------------------------------------------------------------------

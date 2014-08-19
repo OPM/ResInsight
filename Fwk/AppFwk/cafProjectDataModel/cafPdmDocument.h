@@ -63,6 +63,7 @@ public:
     void                         addObject(PdmObject * obj);
 
     static void                  initAfterReadTraversal(PdmObject * root);
+    static void                  updateUiIconStateRecursively(PdmObject * root);
 
     template <typename T>
     void objectsByType(std::vector<PdmPointer<T> >* typedObjects ) const
