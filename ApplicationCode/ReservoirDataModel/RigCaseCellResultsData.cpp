@@ -228,6 +228,8 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
         ResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
         m_resultInfos.push_back(resInfo);
 
+        cvf::ref<RigStatisticsCalculator> statisticsCalculator;
+
         // Create statistics calculator and add cache object
         if (resultName == RimDefines::combinedTransmissibilityResultName())
         {
@@ -240,8 +242,7 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
             calc->addStatisticsCalculator(new RigNativeStatCalc(this, tranY));
             calc->addStatisticsCalculator(new RigNativeStatCalc(this, tranZ));
 
-            cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(calc.p());
-            m_statisticsDataCache.push_back(dataCache.p());
+            statisticsCalculator = calc;
         }
         else if (resultName == RimDefines::combinedMultResultName())
         {
@@ -272,16 +273,19 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
                 if (scalarIdx != cvf::UNDEFINED_SIZE_T) calc->addStatisticsCalculator(new RigNativeStatCalc(this, scalarIdx));
             }
 
-            cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(calc.p());
-            m_statisticsDataCache.push_back(dataCache.p());
+            statisticsCalculator = calc;
+        }
+        else if (resultName == RimDefines::combinedRiTransResultName())
+        {
+
         }
         else
         {
-            cvf::ref<RigNativeStatCalc> calc = new RigNativeStatCalc(this, scalarResultIndex);
-
-            cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(calc.p());
-            m_statisticsDataCache.push_back(dataCache.p());
+            statisticsCalculator = new RigNativeStatCalc(this, scalarResultIndex);
         }
+
+        cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
+        m_statisticsDataCache.push_back(dataCache.p());
     }
 
     return scalarResultIndex;

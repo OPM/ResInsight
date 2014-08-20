@@ -46,7 +46,7 @@ public:
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
     static QString ternarySaturationResultName()        { return "TERNARY"; }
     static QString combinedMultResultName()             { return "MULTXYZ"; }
-
+    static QString combinedRiTransResultName()          { return "riTRANSXYZ"; }
 
     // Mock model text identifiers
     static QString mockModelBasic()                 { return "Result Mock Debug Model Simple"; }
