@@ -302,16 +302,16 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
 {
     if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
-    size_t resultGridIndex = m_cellResults->findScalarResultIndex(type, resultName);
-    if (resultGridIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
+    size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
     // If we have any results on any timestep, assume we have loaded results already
 
-    for (size_t tsIdx = 0; tsIdx < m_cellResults->timeStepCount(resultGridIndex); ++tsIdx)
+    for (size_t tsIdx = 0; tsIdx < m_cellResults->timeStepCount(scalarResultIndex); ++tsIdx)
     {
-        if (m_cellResults->cellScalarResults(resultGridIndex, tsIdx).size())
+        if (m_cellResults->cellScalarResults(scalarResultIndex, tsIdx).size())
         {
-            return resultGridIndex;
+            return scalarResultIndex;
         }
     }
 
@@ -323,18 +323,18 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
     if (m_readerInterface.notNull())
     {
         // Add one more result to result container
-        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[resultGridIndex].m_timeStepDates.size();
+        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
 
         bool resultLoadingSucess = true;
 
         if (type == RimDefines::DYNAMIC_NATIVE && timeStepCount > 0)
         {
-            m_cellResults->cellScalarResults(resultGridIndex).resize(timeStepCount);
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(timeStepCount);
 
             size_t i;
             for (i = 0; i < timeStepCount; i++)
             {
-                std::vector<double>& values = m_cellResults->cellScalarResults(resultGridIndex)[i];
+                std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[i];
                 if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, i, &values))
                 {
                     resultLoadingSucess = false;
@@ -343,9 +343,9 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         }
         else if (type == RimDefines::STATIC_NATIVE)
         {
-            m_cellResults->cellScalarResults(resultGridIndex).resize(1);
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(1);
 
-            std::vector<double>& values = m_cellResults->cellScalarResults(resultGridIndex)[0];
+            std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[0];
             if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
             {
                 resultLoadingSucess = false;
@@ -355,11 +355,11 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         if (!resultLoadingSucess)
         {
             // Remove last scalar result because loading of result failed
-            m_cellResults->cellScalarResults(resultGridIndex).clear();
+            m_cellResults->cellScalarResults(scalarResultIndex).clear();
         }
     }
 
-    return resultGridIndex;
+    return scalarResultIndex;
 }
 
 
@@ -422,20 +422,20 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         }
     }
 
-    size_t soilResultGridIndex = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-    if (soilResultGridIndex == cvf::UNDEFINED_SIZE_T)
+    size_t soilResultScalarIndex = findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
+    if (soilResultScalarIndex == cvf::UNDEFINED_SIZE_T)
     {
-        soilResultGridIndex = m_cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
-        CVF_ASSERT(soilResultGridIndex != cvf::UNDEFINED_SIZE_T);
+        soilResultScalarIndex = m_cellResults->addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
+        CVF_ASSERT(soilResultScalarIndex != cvf::UNDEFINED_SIZE_T);
 
         // Set this result to be calculated
-        m_cellResults->setMustBeCalculated(soilResultGridIndex);
+        m_cellResults->setMustBeCalculated(soilResultScalarIndex);
 
-        m_cellResults->cellScalarResults(soilResultGridIndex).resize(soilTimeStepCount);
+        m_cellResults->cellScalarResults(soilResultScalarIndex).resize(soilTimeStepCount);
 
         for (size_t timeStepIdx = 0; timeStepIdx < soilTimeStepCount; timeStepIdx++)
         {
-            m_cellResults->cellScalarResults(soilResultGridIndex, timeStepIdx).resize(soilResultValueCount);
+            m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIdx).resize(soilResultValueCount);
         }
     }
 
@@ -461,7 +461,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         }
     }
 
-    std::vector<double>& soilForTimeStep = m_cellResults->cellScalarResults(soilResultGridIndex, timeStepIndex);
+    std::vector<double>& soilForTimeStep = m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIndex);
 
 #pragma omp parallel for
     for (int idx = 0; idx < static_cast<int>(soilResultValueCount); idx++)
