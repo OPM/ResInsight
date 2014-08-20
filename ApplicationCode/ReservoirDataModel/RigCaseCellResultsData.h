@@ -70,7 +70,7 @@ public:
     size_t                                             addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored);
     QString                                            makeResultNameUnique(const QString& resultNameProposal) const;
 
-    void                                               createPerFaceCombinedResults();
+    void                                               createPlaceholderResultEntries();
 
     void                                               removeResult(const QString& resultName);
     void                                               clearAllResults();

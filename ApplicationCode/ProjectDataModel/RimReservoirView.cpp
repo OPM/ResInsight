@@ -916,19 +916,26 @@ void RimReservoirView::loadDataAndUpdate()
         else
         {
             RiaApplication* app = RiaApplication::instance();
-            if (app->preferences()->autocomputeSOIL)
+
             {
+                RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
+                if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
+
+                if (app->preferences()->autocomputeSOIL)
                 {
-                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
                     results->loadOrComputeSOIL();
-                    if (results->cellResults()) results->cellResults()->createPerFaceCombinedResults();
-                }
-                {
-                    RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
-                    results->loadOrComputeSOIL();
-                    if (results->cellResults()) results->cellResults()->createPerFaceCombinedResults();
                 }
             }
+            {
+                RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
+                if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
+
+                if (app->preferences()->autocomputeSOIL)
+                {
+                    results->loadOrComputeSOIL();
+                }
+            }
+
         }
     }
 
