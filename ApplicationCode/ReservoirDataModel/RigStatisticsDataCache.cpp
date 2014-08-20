@@ -40,8 +40,8 @@ void RigStatisticsDataCache::clearAllStatistics()
 {
     m_minValue = HUGE_VAL;
     m_maxValue = -HUGE_VAL;
-    m_posClosestToZero = -HUGE_VAL;
-    m_negClosestToZero = HUGE_VAL;
+    m_posClosestToZero = HUGE_VAL;
+    m_negClosestToZero = -HUGE_VAL;
     m_p10 = HUGE_VAL;
     m_p90 = HUGE_VAL;
     m_meanValue = HUGE_VAL;
