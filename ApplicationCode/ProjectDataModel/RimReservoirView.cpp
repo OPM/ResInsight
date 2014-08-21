@@ -1994,7 +1994,11 @@ void RimReservoirView::updateFaultColors()
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-		if (this->animationMode() && this->cellEdgeResult()->hasResult())
+        if (this->faultResultSettings()->visualizationMode() == RimFaultResultSlot::FAULT_COLOR)
+        {
+            m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot);
+        }
+		else if (this->animationMode() && this->cellEdgeResult()->hasResult())
 		{
 			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot, this->cellEdgeResult());
 		}
