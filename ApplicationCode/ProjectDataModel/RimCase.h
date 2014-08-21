@@ -57,7 +57,8 @@ public:
     caf::PdmField<std::vector<QString> >        filesContainingFaults;
 
 
-    virtual bool                                openEclipseGridFile() { return false;}; // Should be pure virtual but PDM does not allow that.
+    bool                                        openReserviorCase();
+    virtual bool                                openEclipseGridFile() { return false; }; // Should be pure virtual but PDM does not allow that.
                                                       
     RigCaseData*                                reservoirData();
     const RigCaseData*                          reservoirData() const;

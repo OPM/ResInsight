@@ -905,37 +905,13 @@ void RimReservoirView::loadDataAndUpdate()
 
     if (m_reservoir)
     {
-        if (!m_reservoir->openEclipseGridFile())
+        if (!m_reservoir->openReserviorCase())
         {
             QMessageBox::warning(RiuMainWindow::instance(), 
                                 "Error when opening project file", 
                                 "Could not open the Eclipse Grid file: \n"+ m_reservoir->gridFileName());
             m_reservoir = NULL;
             return;
-        }
-        else
-        {
-            RiaApplication* app = RiaApplication::instance();
-
-            {
-                RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::MATRIX_RESULTS);
-                if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
-
-                if (app->preferences()->autocomputeSOIL)
-                {
-                    results->loadOrComputeSOIL();
-                }
-            }
-            {
-                RimReservoirCellResultsStorage* results = m_reservoir->results(RifReaderInterface::FRACTURE_RESULTS);
-                if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
-
-                if (app->preferences()->autocomputeSOIL)
-                {
-                    results->loadOrComputeSOIL();
-                }
-            }
-
         }
     }
 

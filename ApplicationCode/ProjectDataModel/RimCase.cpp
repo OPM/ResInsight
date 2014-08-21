@@ -539,3 +539,26 @@ QString RimCase::relocateFile(const QString& orgFileName,  const QString& orgNew
 
     return fileName;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimCase::openReserviorCase()
+{
+    if (!openEclipseGridFile())
+    {
+        return false;
+    }
+
+    {
+        RimReservoirCellResultsStorage* results = this->results(RifReaderInterface::MATRIX_RESULTS);
+        if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
+
+    }
+    {
+        RimReservoirCellResultsStorage* results = this->results(RifReaderInterface::FRACTURE_RESULTS);
+        if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
+    }
+
+    return true;
+}

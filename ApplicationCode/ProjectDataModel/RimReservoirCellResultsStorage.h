@@ -52,8 +52,8 @@ public:
     void                            setReaderInterface(RifReaderInterface* readerInterface);
     RifReaderInterface*             readerInterface();
 
-    void                            loadOrComputeSOIL();
     void                            computeDepthRelatedResults();
+    bool                            isDataPresent(size_t scalarResultIndex) const;
 
     size_t                          findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex);
     size_t                          findOrLoadScalarResult(RimDefines::ResultCatType type, const QString& resultName);
@@ -65,6 +65,7 @@ protected:
 
 private:
     void                            computeSOILForTimeStep(size_t timeStepIndex);
+    void                            computeSOILForAllTimeStep();
 
     QString                         getValidCacheFileName();
     QString                         getCacheDirectoryPath();
