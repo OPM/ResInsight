@@ -162,6 +162,7 @@ public:
     bool                                    pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const;
     void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText) ;
     void                                    appendNNCResultInfo(size_t nncIndex, QString* resultInfo);
+    static void                             appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimResultSlot* resultSlot, QString* resultInfoText);
 
     // Does this belong here, really ?
     void                                    calculateVisibleWellCellsIncFence(cvf::UByteArray* visibleCells, RigGridBase * grid);
@@ -184,7 +185,7 @@ public:
 
     // Display model generation
 private:
-    void                                    appendFaultName(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* textString);
+    void                                    appendTextFromFault(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* textString);
 
     void                                    createDisplayModel();
     void                                    updateDisplayModelVisibility();
