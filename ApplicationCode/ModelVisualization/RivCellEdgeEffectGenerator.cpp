@@ -44,7 +44,7 @@ CellEdgeEffectGenerator::CellEdgeEffectGenerator(const cvf::ScalarMapper* edgeSc
 
     m_edgeScalarMapper = edgeScalarMapper;
 
-    m_cullBackfaces = false;
+    m_cullBackfaces = caf::FC_NONE;
     m_opacityLevel = 1.0f;
     m_defaultCellColor = cvf::Color3f(cvf::Color3::WHITE);
 }
@@ -116,7 +116,7 @@ caf::EffectGenerator* CellEdgeEffectGenerator::copy() const
     newEffect->m_cellTextureImage = m_cellTextureImage;
 
     newEffect->setOpacityLevel(m_opacityLevel);
-    newEffect->setCullBackfaces(m_cullBackfaces);
+    newEffect->setFaceCulling(m_cullBackfaces);
     newEffect->setUndefinedColor(m_undefinedColor);
     newEffect->setDefaultCellColor(m_defaultCellColor);
 
@@ -237,14 +237,27 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering(cvf::Effect* effect)
         eff->setRenderState(blender.p());
     }
 
-    // Backface culling
-
-    if (m_cullBackfaces)
+    // Face culling
+    if (m_cullBackfaces != caf::FC_NONE)
     {
         cvf::ref<cvf::RenderStateCullFace> faceCulling = new cvf::RenderStateCullFace;
-        eff->setRenderState(faceCulling.p());
+        if (m_cullBackfaces == caf::FC_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::BACK);
+        }
+        else if (m_cullBackfaces == caf::FC_FRONT)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT);
+        }
+        else if (m_cullBackfaces == caf::FC_FRONT_AND_BACK)
+        {
+            faceCulling->setMode(cvf::RenderStateCullFace::FRONT_AND_BACK);
+        }
+
+        effect->setRenderState(faceCulling.p());
     }
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 

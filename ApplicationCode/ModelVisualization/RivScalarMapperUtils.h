@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cafEffectGenerator.h"
+
 #include "cvfBase.h"
 #include "cvfArray.h"
 
@@ -40,8 +42,8 @@ class RimCellEdgeResultSlot;
 class RivScalarMapperUtils
 {
 public:
-	static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel);
-	static void applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel);
+    static void applyTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
+    static void applyTernaryTextureResultsToPart(cvf::Part* part, cvf::Vec2fArray* textureCoords, const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
 
 	static cvf::ref<cvf::Effect> createCellEdgeEffect(cvf::DrawableGeo* dg,
 		const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
@@ -50,10 +52,11 @@ public:
 		RimResultSlot* cellResultSlot,
 		RimCellEdgeResultSlot* cellEdgeResultSlot,
 		float opacityLevel,
-		cvf::Color3f defaultColor);
+        cvf::Color3f defaultColor, 
+        caf::FaceCulling faceCulling);
 
 private:
-	static cvf::ref<cvf::Effect> createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel);
-	static cvf::ref<cvf::Effect> createTernaryScalarMapperEffect(const RivTernaryScalarMapper* mapper, float opacityLevel);
+    static cvf::ref<cvf::Effect> createScalarMapperEffect(const cvf::ScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
+    static cvf::ref<cvf::Effect> createTernaryScalarMapperEffect(const RivTernaryScalarMapper* mapper, float opacityLevel, caf::FaceCulling faceCulling);
 };
 

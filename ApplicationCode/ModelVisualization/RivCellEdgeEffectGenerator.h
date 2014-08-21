@@ -106,7 +106,7 @@ public:
 
     void                            setOpacityLevel(float opacity)          { m_opacityLevel = cvf::Math::clamp(opacity, 0.0f , 1.0f ); }
     void                            setUndefinedColor(cvf::Color3f color)   { m_undefinedColor = color; }
-    void                            setCullBackfaces(bool cullBackFaces)    { m_cullBackfaces = cullBackFaces; }
+    void                            setFaceCulling(caf::FaceCulling faceCulling) { m_cullBackfaces = faceCulling; }
     void                            setDefaultCellColor(cvf::Color3f color) { m_defaultCellColor = color; }
 
 protected:
@@ -125,7 +125,7 @@ private:
 	cvf::cref<RivTernaryScalarMapper>	m_ternaryCellScalarMapper;
 
 	float                           m_opacityLevel;
-    bool                            m_cullBackfaces;
+    caf::FaceCulling                m_cullBackfaces;
     cvf::Color3f                    m_undefinedColor;
     cvf::Color3f                    m_defaultCellColor;
 };
