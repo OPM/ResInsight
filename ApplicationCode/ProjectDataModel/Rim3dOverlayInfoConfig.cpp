@@ -186,6 +186,11 @@ void Rim3dOverlayInfoConfig::update3DInfo()
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
             }
+
+            if (m_reservoirView->faultResultSettings()->customFaultResult())
+            {
+                infoText += QString("<b>Fault Property:</b> %1 <br>").arg(m_reservoirView->faultResultSettings()->customFaultResult()->resultVariable());
+            }
         }
         else
         {
