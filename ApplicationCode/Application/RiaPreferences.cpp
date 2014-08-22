@@ -62,12 +62,10 @@ RiaPreferences::RiaPreferences(void)
     CAF_PDM_InitFieldNoDefault(&lastUsedProjectFileName,"lastUsedProjectFileName", "Last Used Project File", "", "", "");
     lastUsedProjectFileName.setUiHidden(true);
 
-    CAF_PDM_InitField(&autocomputeSOIL,                     "autocomputeSOIL", true, "SOIL", "", "SOIL = 1.0 - SGAS - SWAT", "");
     CAF_PDM_InitField(&autocomputeDepthRelatedProperties,   "autocomputeDepth", true, "DEPTH related properties", "", "DEPTH, DX, DY, DZ, TOP, BOTTOM", "");
     CAF_PDM_InitField(&autocomputeGridFaults,               "autocomputeGridFaults", true, "Grid faults", "", "Detect all fault faces geometrically", "");
 
     autocomputeDepthRelatedProperties.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
-    autocomputeSOIL.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
     autocomputeGridFaults.setUiLabelPosition(caf::PdmUiItemInfo::HIDDEN);
 
     readerSettings = new RifReaderSettings;
@@ -99,7 +97,6 @@ void RiaPreferences::defineEditorAttribute(const caf::PdmFieldHandle* field, QSt
         }
     }
     else if (field == &octaveShowHeaderInfoWhenExecutingScripts ||
-             field == &autocomputeSOIL ||
              field == &autocomputeDepthRelatedProperties ||
              field == &autocomputeGridFaults)
     {
@@ -135,7 +132,6 @@ void RiaPreferences::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& 
     defaultSettingsGroup->add(&defaultWellLabelColor);
 
     caf::PdmUiGroup* autoComputeGroup = uiOrdering.addNewGroup("Compute when loading new case");
-    autoComputeGroup->add(&autocomputeSOIL);
     autoComputeGroup->add(&autocomputeDepthRelatedProperties);
     autoComputeGroup->add(&autocomputeGridFaults);
 
@@ -158,7 +154,6 @@ void RiaPreferences::configureForRegressionTests()
     useShaders = true;
     showHud = false;
 
-    autocomputeSOIL = true;
     autocomputeDepthRelatedProperties = true;
 
     CVF_ASSERT(readerSettings);
