@@ -112,7 +112,7 @@ double RigCombRiTransResultAccessor::getNtgValue(size_t gridLocalCellIndex, cvf:
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double halfCellTransmissibility( double perm , double ntg, const cvf::Vec3d& centerToFace, const cvf::Vec3d& faceAreaVec) 
+double RigCombRiTransResultAccessor::halfCellTransmissibility(double perm, double ntg, const cvf::Vec3d& centerToFace, const cvf::Vec3d& faceAreaVec)
 {
     return perm*ntg*(faceAreaVec*centerToFace) / (centerToFace*centerToFace);
 }
@@ -120,10 +120,11 @@ double halfCellTransmissibility( double perm , double ntg, const cvf::Vec3d& cen
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-double newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans)
+double RigCombRiTransResultAccessor::newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans)
 {
     return cdarchy * mult / ( ( 1 / halfCellTrans) + (1 / neighborHalfCellTrans) );
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -139,7 +140,7 @@ double RigCombRiTransResultAccessor::calculateHalfCellTrans(size_t gridLocalCell
     if (isFaultFace)
     {
         
-        calculateConnectionGeometry( gridLocalCellIndex, neighborGridCellIdx, faceId, &faceCenter, &faceAreaVec);
+        calculateConnectionGeometry( m_grid, gridLocalCellIndex, neighborGridCellIdx, faceId, &faceCenter, &faceAreaVec);
     }
     else
     {
@@ -157,18 +158,18 @@ double RigCombRiTransResultAccessor::calculateHalfCellTrans(size_t gridLocalCell
     return halfCellTransmissibility(perm, ntg, centerToFace, faceAreaVec);
 }
 
-void RigCombRiTransResultAccessor::calculateConnectionGeometry( size_t gridLocalCellIndex, size_t neighborGridCellIdx, 
+void RigCombRiTransResultAccessor::calculateConnectionGeometry(  const RigGridBase* grid, size_t gridLocalCellIndex, size_t neighborGridCellIdx, 
                                                                 cvf::StructGridInterface::FaceType faceId,
-                                                                cvf::Vec3d* faceCenter, cvf::Vec3d* faceAreaVec) const
+                                                                cvf::Vec3d* faceCenter, cvf::Vec3d* faceAreaVec)
 {
     CVF_TIGHT_ASSERT(faceCenter && faceAreaVec);
 
     *faceCenter = cvf::Vec3d::ZERO;
     *faceAreaVec = cvf::Vec3d::ZERO; 
-    const RigMainGrid* mainGrid = m_grid->mainGrid();
+    const RigMainGrid* mainGrid = grid->mainGrid();
 
-    const RigCell& c1 = m_grid->cell(gridLocalCellIndex);
-    const RigCell& c2 = m_grid->cell(neighborGridCellIdx);
+    const RigCell& c1 = grid->cell(gridLocalCellIndex);
+    const RigCell& c2 = grid->cell(neighborGridCellIdx);
 
     std::vector<size_t> polygon;
     std::vector<cvf::Vec3d> intersections;
@@ -193,10 +194,10 @@ void RigCombRiTransResultAccessor::calculateConnectionGeometry( size_t gridLocal
 
         for (size_t pIdx = 0; pIdx < polygon.size(); ++pIdx)
         {
-            if (polygon[pIdx] < m_grid->mainGrid()->nodes().size())
-                realPolygon.push_back(m_grid->mainGrid()->nodes()[polygon[pIdx]]);
+            if (polygon[pIdx] < grid->mainGrid()->nodes().size())
+                realPolygon.push_back(grid->mainGrid()->nodes()[polygon[pIdx]]);
             else
-                realPolygon.push_back(intersections[polygon[pIdx] - m_grid->mainGrid()->nodes().size()]);
+                realPolygon.push_back(intersections[polygon[pIdx] - grid->mainGrid()->nodes().size()]);
         }
 
         // Polygon center
@@ -216,8 +217,8 @@ void RigCombRiTransResultAccessor::calculateConnectionGeometry( size_t gridLocal
 }
 //--------------------------------------------------------------------------------------------------
 /// 
-/// Neighbour cell transmisibilities only is calculated here
-/// Not NNC transmisibilities. Thart has to be done separatly elsewhere 
+/// Neighbor cell transmisibilities only is calculated here
+/// Not NNC transmisibilities. That has to be done separately elsewhere 
 ///
 /// Todo: What about Grid to Grid connections ?
 /// Todo: needs optimization. Things are done several times. Caching of the results should be considered. etc.

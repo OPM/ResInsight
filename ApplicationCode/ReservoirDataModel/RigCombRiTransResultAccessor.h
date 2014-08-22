@@ -53,8 +53,10 @@ private:
     double calculateHalfCellTrans( size_t gridLocalCellIndex, size_t neighborGridCellIdx, cvf::StructGridInterface::FaceType faceId, bool isFaultFace) const;
 
     double getNtgValue( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const;
-    void   calculateConnectionGeometry( size_t gridLocalCellIndex, size_t neighborGridCellIdx, cvf::StructGridInterface::FaceType faceId, cvf::Vec3d* centerToFace, cvf::Vec3d* faceAreaVec) const;
+    static void   calculateConnectionGeometry( const RigGridBase* grid, size_t gridLocalCellIndex, size_t neighborGridCellIdx, cvf::StructGridInterface::FaceType faceId, cvf::Vec3d* centerToFace, cvf::Vec3d* faceAreaVec);
 
+    static double halfCellTransmissibility(double perm, double ntg, const cvf::Vec3d& centerToFace, const cvf::Vec3d& faceAreaVec);
+    static double newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans);
 
     cvf::ref<RigResultAccessor> m_xPermAccessor;
     cvf::ref<RigResultAccessor> m_yPermAccessor;

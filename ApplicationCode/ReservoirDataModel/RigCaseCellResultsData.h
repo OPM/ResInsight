@@ -30,6 +30,7 @@
 class RifReaderInterface;
 class RigMainGrid;
 class RigStatisticsDataCache;
+class RigActiveCellInfo;
 
 //==================================================================================================
 /// Class containing the results for the complete number of active cells. Both main grid and LGR's
@@ -40,6 +41,9 @@ public:
     RigCaseCellResultsData(RigMainGrid* ownerGrid);
 
     void                                               setMainGrid(RigMainGrid* ownerGrid);
+    void                                               setActiveCellInfo(RigActiveCellInfo* activeCellInfo) { m_activeCellInfo = activeCellInfo;}
+    RigActiveCellInfo*                                 activeCellInfo() { return m_activeCellInfo;}
+    const RigActiveCellInfo*                           activeCellInfo() const { return m_activeCellInfo;}
 
     // Max and min values of the results
     void                                               recalculateStatistics(size_t scalarResultIndex);
@@ -123,5 +127,6 @@ private:
     std::vector<ResultInfo>                                 m_resultInfos;
 
     RigMainGrid*                                            m_ownerMainGrid;
+    RigActiveCellInfo*                                      m_activeCellInfo;
 
 };

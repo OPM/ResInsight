@@ -33,6 +33,9 @@ RigCaseData::RigCaseData()
 
     m_activeCellInfo = new RigActiveCellInfo;
     m_fractureActiveCellInfo = new RigActiveCellInfo;
+
+    m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
+    m_fractureModelResults->setActiveCellInfo(m_fractureActiveCellInfo.p());
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -397,10 +400,12 @@ void RigCaseData::setActiveCellInfo(RifReaderInterface::PorosityModelResultType 
     if (porosityModel == RifReaderInterface::MATRIX_RESULTS)
     {
         m_activeCellInfo = activeCellInfo;
+        m_matrixModelResults->setActiveCellInfo(m_activeCellInfo.p());
     }
     else
     {
         m_fractureActiveCellInfo = activeCellInfo;
+        m_fractureModelResults->setActiveCellInfo(m_fractureActiveCellInfo.p());
     }
 }
 

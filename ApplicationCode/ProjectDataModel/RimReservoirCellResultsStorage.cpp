@@ -19,7 +19,9 @@
 #include "RimReservoirCellResultsStorage.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigActiveCellInfo.h"
 #include "RigMainGrid.h"
+#include "RigCell.h"
 #include "RimTools.h"
 
 #include "cafProgressInfo.h"
@@ -29,6 +31,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QUuid>
+#include "cvfGeometryTools.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
@@ -564,6 +567,242 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
     }
 }
 
+#if 1
+
+void calculateConnectionGeometry(const RigCell& c1, const RigCell& c2 , const std::vector<cvf::Vec3d>& nodes,  
+                                 cvf::StructGridInterface::FaceType faceId,
+                                 cvf::Vec3d* faceCenter, cvf::Vec3d* faceAreaVec)
+{
+    CVF_TIGHT_ASSERT(faceCenter && faceAreaVec);
+
+    *faceCenter = cvf::Vec3d::ZERO;
+    *faceAreaVec = cvf::Vec3d::ZERO;
+
+    std::vector<size_t> polygon;
+    std::vector<cvf::Vec3d> intersections;
+    caf::SizeTArray4 face1;
+    caf::SizeTArray4 face2;
+    c1.faceIndices(faceId, &face1);
+    c2.faceIndices(cvf::StructGridInterface::oppositeFace(faceId), &face2);
+
+    bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads(
+        &polygon,
+        &intersections,
+        (cvf::EdgeIntersectStorage<size_t>*)NULL,
+        cvf::wrapArrayConst(&nodes),
+        face1.data(),
+        face2.data(),
+        1e-6);
+
+
+    if (foundOverlap)
+    {
+        std::vector<cvf::Vec3d> realPolygon;
+
+        for (size_t pIdx = 0; pIdx < polygon.size(); ++pIdx)
+        {
+            if (polygon[pIdx] < nodes.size())
+                realPolygon.push_back(nodes[polygon[pIdx]]);
+            else
+                realPolygon.push_back(intersections[polygon[pIdx] - nodes.size()]);
+        }
+
+        // Polygon center
+        for (size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx)
+        {
+            *faceCenter += realPolygon[pIdx];
+        }
+
+        *faceCenter *= 1.0 / realPolygon.size();
+
+        // Polygon area vector
+
+        *faceAreaVec = cvf::GeometryTools::polygonAreaNormal3D(realPolygon);
+
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double halfCellTransmissibility(double perm, double ntg, const cvf::Vec3d& centerToFace, const cvf::Vec3d& faceAreaVec)
+{
+    return perm*ntg*(faceAreaVec*centerToFace) / (centerToFace*centerToFace);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans)
+{
+    return cdarchy * mult / ((1 / halfCellTrans) + (1 / neighborHalfCellTrans));
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+typedef size_t (*ResultIndexFunction)(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex);
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+size_t directReservoirCellIndex(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex)
+{
+    return reservoirCellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+
+size_t reservoirActiveCellIndex(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex)
+{
+    return activeCellinfo->cellResultIndex(reservoirCellIndex);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirCellResultsStorage::computeRiTransX()
+{
+    if (!m_cellResults) return;
+    
+    cvf::StructGridInterface::FaceType faceId = cvf::StructGridInterface::POS_I;
+    QString riTRANName = "riTRANX";
+    QString permName = "PERMX";
+
+    double cdarchy = 0.008527; // (ECLIPSE 100) (METRIC)
+
+    // Get the needed result indices we depend on
+
+    size_t permResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    size_t ntgResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+
+
+    // Get the result count, to handle that one of them might be globally defined
+
+    size_t permxResultValueCount = m_cellResults->cellScalarResults(permResultIdx)[0].size();
+    size_t ntgResultValueCount = m_cellResults->cellScalarResults(ntgResultIdx)[0].size();
+
+    size_t resultValueCount = CVF_MIN(permxResultValueCount, ntgResultValueCount);
+
+    // Check if we need to create a placeholder result, or if it exists already
+
+    size_t riTransResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, riTRANName);
+
+    if (riTransResultIdx == cvf::UNDEFINED_SIZE_T)
+    {
+        riTransResultIdx = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, riTRANName, false, resultValueCount);
+    }
+
+    // Prepare how to index the result values:
+
+    bool isPermUsingResIdx  = m_cellResults->isUsingGlobalActiveIndex(permResultIdx);
+    bool isNtgUsingResIdx   = m_cellResults->isUsingGlobalActiveIndex(ntgResultIdx);
+    bool isTransUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(riTransResultIdx);
+    
+    // Set up result index function pointers
+
+    ResultIndexFunction riTranIdxFunc   = isTransUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction permIdxFunc     = isPermUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction ntgIdxFunc      = isNtgUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+
+    // Get all the actual result values
+
+    std::vector<double> & riTransResults = m_cellResults->cellScalarResults(riTransResultIdx)[0];
+    std::vector<double> & permResults    = m_cellResults->cellScalarResults(permResultIdx)[0];
+    std::vector<double> & ntgResults     = m_cellResults->cellScalarResults(ntgResultIdx)[0];
+
+    const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
+    const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
+
+    for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->cells().size(); nativeResvCellIndex++)
+    {
+        // Do nothing if we are only dealing with active cells, and this cell is not active:
+        if ((*riTranIdxFunc)(activeCellInfo, nativeResvCellIndex) == cvf::UNDEFINED_SIZE_T) continue;
+
+        const RigCell& nativeCell = m_ownerMainGrid->cells()[nativeResvCellIndex];
+        RigGridBase* grid = nativeCell.hostGrid();
+
+        size_t gridLocalNativeCellIndex = nativeCell.gridLocalCellIndex();
+
+        size_t i, j, k, gridLocalNeighborCellIdx;
+
+        grid->ijkFromCellIndex(gridLocalNativeCellIndex, &i, &j, &k);
+
+        if (grid->cellIJKNeighbor(i, j, k, faceId, &gridLocalNeighborCellIdx))
+        {
+            size_t neighborResvCellIdx = grid->reservoirCellIndex(gridLocalNeighborCellIdx);
+            const RigCell& neighborCell = m_ownerMainGrid->cells()[neighborResvCellIdx];
+
+            // Connection geometry
+
+            const RigFault* fault = grid->mainGrid()->findFaultFromCellIndexAndCellFace(nativeResvCellIndex, faceId);
+            bool isOnFault = fault;
+
+ 
+            cvf::Vec3d faceAreaVec;
+            cvf::Vec3d faceCenter;
+
+            if (isOnFault)
+            {
+                calculateConnectionGeometry( nativeCell, neighborCell, nodes,faceId, 
+                                             &faceCenter, &faceAreaVec);
+            }
+            else
+            {
+                faceCenter = nativeCell.faceCenter(faceId);
+                faceAreaVec = nativeCell.faceNormalWithAreaLenght(faceId);
+            }
+
+            double halfCellTrans = 0;
+            double neighborHalfCellTrans = 0;
+
+            // Native cell half cell transm
+            {
+                cvf::Vec3d centerToFace = faceCenter - nativeCell.center();
+
+                size_t permResIdx = (*permIdxFunc)(activeCellInfo, nativeResvCellIndex);
+                double perm = permResults[permResIdx];
+
+                double ntg = 1.0;
+                if (faceId != cvf::StructGridInterface::POS_K)
+                {
+                    size_t ntgResIdx = (*ntgIdxFunc)(activeCellInfo, nativeResvCellIndex);
+                    ntg = ntgResults[ntgResIdx];
+                }
+
+                halfCellTrans = halfCellTransmissibility(perm, ntg, centerToFace, faceAreaVec);
+            }
+
+            // Neighbor cell half cell transm
+            {
+                cvf::Vec3d centerToFace = faceCenter - neighborCell.center();
+
+                size_t permResIdx = (*permIdxFunc)(activeCellInfo, neighborResvCellIdx);
+                double perm = permResults[permResIdx];
+
+                double ntg = 1.0;
+                if (faceId != cvf::StructGridInterface::POS_K)
+                {
+                    size_t ntgResIdx = (*ntgIdxFunc)(activeCellInfo, neighborResvCellIdx);
+                    ntg = ntgResults[ntgResIdx];
+                }
+
+                neighborHalfCellTrans = halfCellTransmissibility(perm, ntg, centerToFace, -faceAreaVec);
+            }
+
+            size_t tranResIdx = (*riTranIdxFunc)(activeCellInfo, nativeResvCellIndex);
+            riTransResults[tranResIdx] = newtran(cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans);;
+        }
+
+    }
+   
+}
+
+#endif
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -593,6 +832,8 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& res
 
     return scalarResultIndex;
 }
+
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
