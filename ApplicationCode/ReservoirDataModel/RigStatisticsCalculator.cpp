@@ -238,3 +238,14 @@ size_t RigMultipleDatasetStatCalc::timeStepCount()
     return 0;
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigMultipleDatasetStatCalc::addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndex)
+{
+    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
+    {
+        this->addStatisticsCalculator(new RigNativeStatCalc(cellResultsData, scalarResultIndex));
+    }
+}
+

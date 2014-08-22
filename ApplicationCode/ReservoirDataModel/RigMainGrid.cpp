@@ -361,7 +361,7 @@ void RigMainGrid::calculateFaults()
 
 //--------------------------------------------------------------------------------------------------
 /// The cell is normally inverted due to Depth becoming -Z at import, 
-/// but if (only) one of the flipX/Y is done, the cell is back to nomal
+/// but if (only) one of the flipX/Y is done, the cell is back to normal
 //--------------------------------------------------------------------------------------------------
 bool RigMainGrid::faceNormalsIsOutwards() const
 {

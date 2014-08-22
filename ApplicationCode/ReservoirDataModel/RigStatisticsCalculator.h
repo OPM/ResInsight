@@ -73,6 +73,7 @@ class RigMultipleDatasetStatCalc : public RigStatisticsCalculator
 public:
     RigMultipleDatasetStatCalc();
     void addStatisticsCalculator(RigStatisticsCalculator* statisticsCalculator);
+    void addNativeStatisticsCalculator(RigCaseCellResultsData* cellResultsData, size_t scalarResultIndices);
 
     virtual void minMaxCellScalarValues(size_t timeStepIndex, double& min, double& max);
     virtual void posNegClosestToZero(size_t timeStepIndex, double& pos, double& neg);

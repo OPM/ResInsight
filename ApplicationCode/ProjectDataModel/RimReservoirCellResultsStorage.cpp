@@ -219,7 +219,8 @@ RifReaderInterface* RimReservoirCellResultsStorage::readerInterface()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+/// This method is intended to be used for multicase cross statistical calculations, when 
+/// we need process one timestep at a time, freeing memory as we go.
 //--------------------------------------------------------------------------------------------------
 size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
 {
@@ -296,7 +297,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
     size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
-    // If we have any results on any time step, assume we have loaded results already
+   
     if (isDataPresent(scalarResultIndex))
     {
         return scalarResultIndex;
@@ -314,6 +315,20 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         }
 
         return scalarResultIndex;
+    }
+
+    if (resultName == RimDefines::combinedRiTransResultName())
+    {
+        computeRiTransComponent(RimDefines::riTransXResultName());
+        computeRiTransComponent(RimDefines::riTransYResultName());
+        computeRiTransComponent(RimDefines::riTransZResultName());
+    }
+    
+    if (   resultName == RimDefines::riTransXResultName()
+        || resultName == RimDefines::riTransYResultName()
+        || resultName == RimDefines::riTransZResultName())
+    {
+        computeRiTransComponent(resultName);
     }
 
     if (type == RimDefines::GENERATED)
@@ -665,21 +680,47 @@ size_t reservoirActiveCellIndex(const RigActiveCellInfo* activeCellinfo, size_t 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirCellResultsStorage::computeRiTransX()
+void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTransComponentResultName)
 {
     if (!m_cellResults) return;
-    
-    cvf::StructGridInterface::FaceType faceId = cvf::StructGridInterface::POS_I;
-    QString riTRANName = "riTRANX";
-    QString permName = "PERMX";
 
+    // Set up which component to compute
+
+    cvf::StructGridInterface::FaceType faceId;
+    QString permCompName;
+
+    if (riTransComponentResultName == RimDefines::riTransXResultName())
+    {
+        permCompName = "PERMX";
+        faceId = cvf::StructGridInterface::POS_I;
+    }
+    else if (riTransComponentResultName == RimDefines::riTransYResultName())
+    {
+        permCompName = "PERMY";
+        faceId = cvf::StructGridInterface::POS_J;
+    }
+    else if (riTransComponentResultName == RimDefines::riTransZResultName())
+    {
+        permCompName = "PERMZ";
+        faceId = cvf::StructGridInterface::POS_K;
+    }
+    else
+    {
+        CVF_ASSERT(false);
+    }
+
+    // Todo: Get the correct one from Unit set read by ERT
     double cdarchy = 0.008527; // (ECLIPSE 100) (METRIC)
 
     // Get the needed result indices we depend on
 
-    size_t permResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
-    size_t ntgResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+    size_t permResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, permCompName);
+    size_t ntgResultIdx  = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+ 
+    // Get the result index of the output
 
+    size_t riTransResultIdx = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, riTransComponentResultName);
+    CVF_ASSERT(riTransResultIdx != cvf::UNDEFINED_SIZE_T);
 
     // Get the result count, to handle that one of them might be globally defined
 
@@ -688,14 +729,15 @@ void RimReservoirCellResultsStorage::computeRiTransX()
 
     size_t resultValueCount = CVF_MIN(permxResultValueCount, ntgResultValueCount);
 
-    // Check if we need to create a placeholder result, or if it exists already
+    // Get all the actual result values
 
-    size_t riTransResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, riTRANName);
+    std::vector<double> & permResults    = m_cellResults->cellScalarResults(permResultIdx)[0];
+    std::vector<double> & ntgResults     = m_cellResults->cellScalarResults(ntgResultIdx)[0];
+    std::vector<double> & riTransResults = m_cellResults->cellScalarResults(riTransResultIdx)[0];
 
-    if (riTransResultIdx == cvf::UNDEFINED_SIZE_T)
-    {
-        riTransResultIdx = m_cellResults->addStaticScalarResult(RimDefines::STATIC_NATIVE, riTRANName, false, resultValueCount);
-    }
+    // Set up output container to correct number of results
+
+    riTransResults.resize(resultValueCount);
 
     // Prepare how to index the result values:
 
@@ -709,19 +751,17 @@ void RimReservoirCellResultsStorage::computeRiTransX()
     ResultIndexFunction permIdxFunc     = isPermUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
     ResultIndexFunction ntgIdxFunc      = isNtgUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
 
-    // Get all the actual result values
-
-    std::vector<double> & riTransResults = m_cellResults->cellScalarResults(riTransResultIdx)[0];
-    std::vector<double> & permResults    = m_cellResults->cellScalarResults(permResultIdx)[0];
-    std::vector<double> & ntgResults     = m_cellResults->cellScalarResults(ntgResultIdx)[0];
 
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
     const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
+    bool isFaceNormalsOutwards = m_ownerMainGrid->faceNormalsIsOutwards();
 
     for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->cells().size(); nativeResvCellIndex++)
     {
         // Do nothing if we are only dealing with active cells, and this cell is not active:
-        if ((*riTranIdxFunc)(activeCellInfo, nativeResvCellIndex) == cvf::UNDEFINED_SIZE_T) continue;
+        size_t tranResIdx = (*riTranIdxFunc)(activeCellInfo, nativeResvCellIndex);
+
+        if (tranResIdx == cvf::UNDEFINED_SIZE_T) continue;
 
         const RigCell& nativeCell = m_ownerMainGrid->cells()[nativeResvCellIndex];
         RigGridBase* grid = nativeCell.hostGrid();
@@ -737,6 +777,10 @@ void RimReservoirCellResultsStorage::computeRiTransX()
             size_t neighborResvCellIdx = grid->reservoirCellIndex(gridLocalNeighborCellIdx);
             const RigCell& neighborCell = m_ownerMainGrid->cells()[neighborResvCellIdx];
 
+            // Do nothing if neighbor cell has no results
+            size_t neighborCellPermResIdx = (*permIdxFunc)(activeCellInfo, neighborResvCellIdx);
+            if (neighborCellPermResIdx == cvf::UNDEFINED_SIZE_T) continue;
+            
             // Connection geometry
 
             const RigFault* fault = grid->mainGrid()->findFaultFromCellIndexAndCellFace(nativeResvCellIndex, faceId);
@@ -756,6 +800,8 @@ void RimReservoirCellResultsStorage::computeRiTransX()
                 faceCenter = nativeCell.faceCenter(faceId);
                 faceAreaVec = nativeCell.faceNormalWithAreaLenght(faceId);
             }
+
+            if (!isFaceNormalsOutwards) faceAreaVec = -faceAreaVec;
 
             double halfCellTrans = 0;
             double neighborHalfCellTrans = 0;
@@ -781,8 +827,7 @@ void RimReservoirCellResultsStorage::computeRiTransX()
             {
                 cvf::Vec3d centerToFace = faceCenter - neighborCell.center();
 
-                size_t permResIdx = (*permIdxFunc)(activeCellInfo, neighborResvCellIdx);
-                double perm = permResults[permResIdx];
+                double perm = permResults[neighborCellPermResIdx];
 
                 double ntg = 1.0;
                 if (faceId != cvf::StructGridInterface::POS_K)
@@ -794,7 +839,6 @@ void RimReservoirCellResultsStorage::computeRiTransX()
                 neighborHalfCellTrans = halfCellTransmissibility(perm, ntg, centerToFace, -faceAreaVec);
             }
 
-            size_t tranResIdx = (*riTranIdxFunc)(activeCellInfo, nativeResvCellIndex);
             riTransResults[tranResIdx] = newtran(cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans);;
         }
 
@@ -938,7 +982,7 @@ size_t RimReservoirCellResultsStorage::storedResultsCount()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
+///  If we have any results on any time step, assume we have loaded results
 //--------------------------------------------------------------------------------------------------
 bool RimReservoirCellResultsStorage::isDataPresent(size_t scalarResultIndex) const
 {

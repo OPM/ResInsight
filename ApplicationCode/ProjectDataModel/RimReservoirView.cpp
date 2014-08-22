@@ -2131,6 +2131,20 @@ void RimReservoirView::appendTextFromResultSlot(RigCaseData* eclipseCase, size_t
                     resultInfoText->append(QString("MULTZ- : %1\n").arg(scalarValue));
                 }
             }
+            else if (resultSlot->resultVariable().compare(RimDefines::combinedRiTransResultName(), Qt::CaseInsensitive) == 0)
+            {
+                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiTransResultName());
+                {
+                    double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
+                    resultInfoText->append(QString("riTran X : %1\n").arg(scalarValue));
+
+                    scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_J);
+                    resultInfoText->append(QString("riTran Y : %1\n").arg(scalarValue));
+
+                    scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
+                    resultInfoText->append(QString("riTran Z : %1\n").arg(scalarValue));
+                }
+            }
             else
             {
                 resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, resultSlot->gridScalarIndex());

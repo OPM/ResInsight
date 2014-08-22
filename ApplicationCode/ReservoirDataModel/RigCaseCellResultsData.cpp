@@ -214,79 +214,70 @@ size_t RigCaseCellResultsData::findScalarResultIndex(const QString& resultName) 
 
 //--------------------------------------------------------------------------------------------------
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
-/// if resultName already exists, it returns the scalarResultIndex to the existing result.
+/// if resultName already exists, it just returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored)
 {
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+    size_t scalarResultIndex = this->findScalarResultIndex(type, resultName);
 
-    scalarResultIndex = this->findScalarResultIndex(type, resultName);
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    // If the result exists, do nothing
+
+    if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
     {
-        scalarResultIndex = this->resultCount();
-        m_cellScalarResults.push_back(std::vector<std::vector<double> >());
-        ResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
-        m_resultInfos.push_back(resInfo);
-
-        cvf::ref<RigStatisticsCalculator> statisticsCalculator;
-
-        // Create statistics calculator and add cache object
-        if (resultName == RimDefines::combinedTransmissibilityResultName())
-        {
-            size_t tranX = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX");
-            size_t tranY = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY");
-            size_t tranZ = findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ");
-
-            cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
-            calc->addStatisticsCalculator(new RigNativeStatCalc(this, tranX));
-            calc->addStatisticsCalculator(new RigNativeStatCalc(this, tranY));
-            calc->addStatisticsCalculator(new RigNativeStatCalc(this, tranZ));
-
-            statisticsCalculator = calc;
-        }
-        else if (resultName == RimDefines::combinedMultResultName())
-        {
-            cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
-
-            {
-                size_t scalarIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX");
-                if (scalarIdx != cvf::UNDEFINED_SIZE_T) calc->addStatisticsCalculator(new RigNativeStatCalc(this, scalarIdx));
-            }
-            {
-                size_t scalarIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX-");
-                if (scalarIdx != cvf::UNDEFINED_SIZE_T) calc->addStatisticsCalculator(new RigNativeStatCalc(this, scalarIdx));
-            }
-            {
-                size_t scalarIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY");
-                if (scalarIdx != cvf::UNDEFINED_SIZE_T) calc->addStatisticsCalculator(new RigNativeStatCalc(this, scalarIdx));
-            }
-            {
-                size_t scalarIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY-");
-                if (scalarIdx != cvf::UNDEFINED_SIZE_T) calc->addStatisticsCalculator(new RigNativeStatCalc(this, scalarIdx));
-            }
-            {
-                size_t scalarIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ");
-                if (scalarIdx != cvf::UNDEFINED_SIZE_T) calc->addStatisticsCalculator(new RigNativeStatCalc(this, scalarIdx));
-            }
-            {
-                size_t scalarIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ-");
-                if (scalarIdx != cvf::UNDEFINED_SIZE_T) calc->addStatisticsCalculator(new RigNativeStatCalc(this, scalarIdx));
-            }
-
-            statisticsCalculator = calc;
-        }
-        else if (resultName == RimDefines::combinedRiTransResultName())
-        {
-
-        }
-        else
-        {
-            statisticsCalculator = new RigNativeStatCalc(this, scalarResultIndex);
-        }
-
-        cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
-        m_statisticsDataCache.push_back(dataCache.p());
+        return scalarResultIndex;
     }
+
+    // Create the new empty result with metadata
+
+    scalarResultIndex = this->resultCount();
+    m_cellScalarResults.push_back(std::vector<std::vector<double> >());
+    ResultInfo resInfo(type, needsToBeStored, false, resultName, scalarResultIndex);
+    m_resultInfos.push_back(resInfo);
+
+    // Create statistics calculator and add statistics cache object
+    // Todo: Move to a "factory" method
+
+    cvf::ref<RigStatisticsCalculator> statisticsCalculator;
+
+    if (resultName == RimDefines::combinedTransmissibilityResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANX"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANY"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "TRANZ"));
+
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedMultResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTX-"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTY-"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ"));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, "MULTZ-"));
+
+        statisticsCalculator = calc;
+    }
+    else if (resultName == RimDefines::combinedRiTransResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTransXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTransYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTransZResultName()));
+        statisticsCalculator = calc;
+    }
+    else
+    {
+        statisticsCalculator = new RigNativeStatCalc(this, scalarResultIndex);
+    }
+
+    cvf::ref<RigStatisticsDataCache> dataCache = new RigStatisticsDataCache(statisticsCalculator.p());
+    m_statisticsDataCache.push_back(dataCache.p());
+
 
     return scalarResultIndex;
 }
@@ -453,13 +444,14 @@ void RigCaseCellResultsData::freeAllocatedResultsData()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Add a result with given type and name, and allocate one result vector for the static result values
+/// Make sure we have a result with given type and name, and make sure one "timestep" result vector 
+// for the static result values are allocated
 //--------------------------------------------------------------------------------------------------
 size_t RigCaseCellResultsData::addStaticScalarResult(RimDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount)
 {
     size_t resultIdx = addEmptyScalarResult(type, resultName, needsToBeStored);
     
-    m_cellScalarResults[resultIdx].push_back(std::vector<double>());
+    m_cellScalarResults[resultIdx].resize(1, std::vector<double>());
     m_cellScalarResults[resultIdx][0].resize(resultValueCount, HUGE_VAL);
 
     return resultIdx;
@@ -512,37 +504,42 @@ void RigCaseCellResultsData::setMustBeCalculated(size_t scalarResultIndex)
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
+    // SOIL
     {
-        size_t soilIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
-        if (soilIndex == cvf::UNDEFINED_SIZE_T)
-        {
-            size_t swatIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SWAT");
-            size_t sgasIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SGAS");
+        size_t swatIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SWAT");
+        size_t sgasIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SGAS");
 
-            if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
-            {
-                addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
-            }
+        if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
+        {
+            addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
         }
     }
 
+    // TRANSXYZ
     {
-        size_t combinedTransmissibilityIndex = findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
-        if (combinedTransmissibilityIndex == cvf::UNDEFINED_SIZE_T)
+        size_t tranX, tranY, tranZ;
+        if (findTransmissibilityResults(tranX, tranY, tranZ))
         {
-            size_t tranX, tranY, tranZ;
-            if (findTransmissibilityResults(tranX, tranY, tranZ))
-            {
-                addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName(), false, 0);
-            }
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName(), false, 0);
         }
     }
-
+    // MULTXYZ
     {
-        size_t combinedMultIndex = findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedMultResultName());
-        if (combinedMultIndex == cvf::UNDEFINED_SIZE_T)
+        addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedMultResultName(), false, 0);
+    }
+
+    // riTRANSXYZ and X,Y,Z
+    {
+        size_t ntgResIdx = findScalarResultIndex(RimDefines::STATIC_NATIVE, "NTG");
+        if (   findScalarResultIndex(RimDefines::STATIC_NATIVE, "NTG") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMX") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMY") != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, "PERMZ") != cvf::UNDEFINED_SIZE_T)
         {
-            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedMultResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTransXResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTransYResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTransZResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTransResultName(), false, 0);
         }
     }
 }

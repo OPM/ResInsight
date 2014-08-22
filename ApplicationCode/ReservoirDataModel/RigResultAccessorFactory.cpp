@@ -82,6 +82,16 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
     }
     else if (uiResultName == RimDefines::combinedRiTransResultName())
     {
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
+
+        cvf::ref<RigResultAccessor> xTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTransXResultName());
+        cvf::ref<RigResultAccessor> yTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTransYResultName());
+        cvf::ref<RigResultAccessor> zTransAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riTransZResultName());
+
+        cellFaceAccessObject->setTransResultAccessors(xTransAccessor.p(), yTransAccessor.p(), zTransAccessor.p());
+
+        return cellFaceAccessObject;
+#if 0
         cvf::ref<RigCombRiTransResultAccessor> cellFaceAccessObject = new RigCombRiTransResultAccessor(grid);
 
         cvf::ref<RigResultAccessor> permX = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "PERMX");
@@ -94,6 +104,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
         // todo : cellFaceAccessObject->setCDARCHY();
 
         return cellFaceAccessObject;
+#endif
     }
 
 	return RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
