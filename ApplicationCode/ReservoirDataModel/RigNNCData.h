@@ -40,6 +40,11 @@ public:
           m_transmissibility(0.0)
     {}
 
+    bool hasCommonArea() const
+    {
+        return m_polygon.size() > 0;
+    }
+
     size_t                              m_c1GlobIdx;
     cvf::StructGridInterface::FaceType  m_c1Face;
     size_t                              m_c2GlobIdx;
@@ -47,7 +52,6 @@ public:
     double                              m_transmissibility;
 
     std::vector<cvf::Vec3d>             m_polygon;
-
 };
 
 

@@ -22,6 +22,8 @@
 #include "RiaPreferences.h"
 #include "RigCaseData.h"
 #include "RimCase.h"
+#include "RimNoCommonAreaNNC.h"
+#include "RimNoCommonAreaNncCollection.h"
 #include "RimReservoirView.h"
 #include "RiuMainWindow.h"
 #include "RivColorTableArray.h"
@@ -67,7 +69,10 @@ RimFaultCollection::RimFaultCollection()
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Label color",  "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults",  "", "", "");
+    CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&noCommonAreaNnncCollection, "NoCommonAreaNnncCollection", "NNCs With No Common Area", "", "", "");
+    noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
 
     m_reservoirView = NULL;
 }
@@ -78,6 +83,8 @@ RimFaultCollection::RimFaultCollection()
 RimFaultCollection::~RimFaultCollection()
 {
    faults.deleteAllChildObjects();
+
+   delete noCommonAreaNnncCollection();
 }
 
 
@@ -226,6 +233,30 @@ void RimFaultCollection::syncronizeFaults()
 
     QString toolTip = QString("Fault count (%1)").arg(newFaults.size());
     setUiToolTip(toolTip);
+
+    // NNCs
+    this->noCommonAreaNnncCollection()->noCommonAreaNncs().deleteAllChildObjects();
+
+    RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+    std::vector<RigConnection>& nncConnections = mainGrid->nncData()->connections();
+    for (size_t i = 0; i < nncConnections.size(); i++)
+    {
+        if (!nncConnections[i].hasCommonArea())
+        {
+            RimNoCommonAreaNNC* noCommonAreaNnc = new RimNoCommonAreaNNC();
+
+            size_t i1, j1, k1;
+            mainGrid->ijkFromCellIndex(nncConnections[i].m_c1GlobIdx, &i1, &j1, &k1);
+
+            size_t i2, j2, k2;
+            mainGrid->ijkFromCellIndex(nncConnections[i].m_c2GlobIdx, &i2, &j2, &k2);
+
+            QString txt = QString("[%1 %2 %3] - [%4 %5 %6]").arg(i1).arg(j1).arg(k1).arg(i2).arg(j2).arg(k2);
+
+            noCommonAreaNnc->name = txt;
+            this->noCommonAreaNnncCollection()->noCommonAreaNncs().push_back(noCommonAreaNnc);
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,5 +309,14 @@ bool RimFaultCollection::showFaultsOutsideFilters() const
 void RimFaultCollection::setShowFaultsOutsideFilters(bool enableState)
 {
     m_showFaultsOutsideFilters = enableState;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimFaultCollection::addMockData()
+{
+    if (!(m_reservoirView && m_reservoirView->eclipseCase() && m_reservoirView->eclipseCase()->reservoirData() && m_reservoirView->eclipseCase()->reservoirData()->mainGrid())) return;
+
 }
 

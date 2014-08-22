@@ -33,6 +33,7 @@
 
 class RimFault;
 class RimReservoirView;
+class RimNoCommonAreaNncCollection;
 
 //==================================================================================================
 ///  
@@ -56,6 +57,8 @@ public:
     void                                setReservoirView(RimReservoirView* ownerReservoirView);
     void                                syncronizeFaults();
 
+    void                                addMockData();
+
     bool                                isGridVisualizationMode() const;
     
     bool                                showFaultsOutsideFilters() const;
@@ -74,6 +77,8 @@ public:
 
     caf::PdmPointersField<RimFault*>    faults;
     RimFault*                           findFaultByName(QString name);
+
+    caf::PdmField<RimNoCommonAreaNncCollection*> noCommonAreaNnncCollection;
 
     virtual void                        fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual caf::PdmFieldHandle*        objectToggleField();

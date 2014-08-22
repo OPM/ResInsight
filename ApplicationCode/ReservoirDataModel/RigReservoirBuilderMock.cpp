@@ -499,7 +499,7 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
         if (cellDimension().x() > 5)
         {
             min.x() = cellDimension().x() / 2;
-            max.x() = min.x() + 1;
+            max.x() = min.x() + 2;
         }
         
         if (cellDimension().y() > 5)
@@ -515,6 +515,32 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
     }
 
     grid->setFaults(faults);
+
+    // NNCs
+    std::vector<RigConnection>& nncConnections = grid->nncData()->connections();
+    {
+        size_t i1 = 2;
+        size_t j1 = 2;
+        size_t k1 = 3;
+        
+        size_t i2 = 2;
+        size_t j2 = 3;
+        size_t k2 = 4;
+
+        addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);
+    }
+
+    {
+        size_t i1 = 2;
+        size_t j1 = 2;
+        size_t k1 = 3;
+
+        size_t i2 = 2;
+        size_t j2 = 5;
+        size_t k2 = 4;
+
+        addNnc(grid, i1, j1, k1, i2, j2, k2, nncConnections);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -523,5 +549,21 @@ void RigReservoirBuilderMock::addFaults(RigCaseData* eclipseCase)
 void RigReservoirBuilderMock::enableWellData(bool enableWellData)
 {
     m_enableWellData = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigReservoirBuilderMock::addNnc(RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, std::vector<RigConnection> &nncConnections)
+{
+    size_t c1GlobalIndex = grid->cellIndexFromIJK(i1, j1, k1);
+    size_t c2GlobalIndex = grid->cellIndexFromIJK(i2, j2, k2);
+
+    RigConnection conn;
+    conn.m_c1GlobIdx = c1GlobalIndex;
+    conn.m_c2GlobIdx = c2GlobalIndex;
+    conn.m_transmissibility = 0.2;
+
+    nncConnections.push_back(conn);
 }
 
