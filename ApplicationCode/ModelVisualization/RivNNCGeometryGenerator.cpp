@@ -98,13 +98,13 @@ void RivNNCGeometryGenerator::computeArrays()
 
                 if ((*allCells)[conn.m_c1GlobIdx].hostGrid() == m_grid.p())
                 {
-                    size_t cell1GridLocalIdx = (*allCells)[conn.m_c1GlobIdx].cellIndex();
+                    size_t cell1GridLocalIdx = (*allCells)[conn.m_c1GlobIdx].gridLocalCellIndex();
                     cell1Visible = (*m_cellVisibility)[cell1GridLocalIdx];
                 }
 
                 if ((*allCells)[conn.m_c2GlobIdx].hostGrid() == m_grid.p())
                 {
-                    size_t cell2GridLocalIdx = (*allCells)[conn.m_c2GlobIdx].cellIndex();
+                    size_t cell2GridLocalIdx = (*allCells)[conn.m_c2GlobIdx].gridLocalCellIndex();
                     cell2Visible = (*m_cellVisibility)[cell2GridLocalIdx];
                 }
 

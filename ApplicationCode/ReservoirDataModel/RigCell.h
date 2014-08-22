@@ -41,8 +41,8 @@ public:
     bool                    isInvalid() const                                   { return m_isInvalid; }
     void                    setInvalid( bool val )                              { m_isInvalid = val; }
 
-    size_t                  cellIndex() const                                   { return m_cellIndex; }
-    void                    setCellIndex(size_t val)                            { m_cellIndex = val; }
+    size_t                  gridLocalCellIndex() const                                   { return m_gridLocalCellIndex; }
+    void                    setGridLocalCellIndex(size_t val)                            { m_gridLocalCellIndex = val; }
 
     RigLocalGrid*           subGrid() const                                     { return m_subGrid; }
     void                    setSubGrid(RigLocalGrid* subGrid)                   { m_subGrid = subGrid; }
@@ -70,7 +70,7 @@ public:
 private:
     caf::SizeTArray8        m_cornerIndices;
 
-    size_t                  m_cellIndex;                ///< This cells index in the grid it belongs to.
+    size_t                  m_gridLocalCellIndex;                ///< This cells index in the grid it belongs to.
     RigGridBase*            m_hostGrid;
     RigLocalGrid*           m_subGrid;
 

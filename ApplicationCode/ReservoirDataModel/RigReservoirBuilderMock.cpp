@@ -146,7 +146,7 @@ void RigReservoirBuilderMock::appendCells(size_t nodeStartIndex, size_t cellCoun
         RigCell& riCell = cells[cellIndexStart + i];
 
         riCell.setHostGrid(hostGrid);
-        riCell.setCellIndex(i);
+        riCell.setGridLocalCellIndex(i);
 
         riCell.cornerIndices()[0] = nodeStartIndex + i * 8 + 0;
         riCell.cornerIndices()[1] = nodeStartIndex + i * 8 + 1;

@@ -50,9 +50,9 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
         if (c1.hostGrid() == c2.hostGrid())
         {
             size_t i1, j1, k1;
-            c1.hostGrid()->ijkFromCellIndex(c1.cellIndex(), &i1, &j1, &k1);
+            c1.hostGrid()->ijkFromCellIndex(c1.gridLocalCellIndex(), &i1, &j1, &k1);
             size_t i2, j2, k2;
-            c2.hostGrid()->ijkFromCellIndex(c2.cellIndex(), &i2, &j2, &k2);
+            c2.hostGrid()->ijkFromCellIndex(c2.gridLocalCellIndex(), &i2, &j2, &k2);
 
           
             isPossibleNeighborInDirection[cvf::StructGridInterface::POS_I] = ((i1 + 1) == i2);

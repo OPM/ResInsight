@@ -116,7 +116,7 @@ bool transferGridCellData(RigMainGrid* mainGrid, RigActiveCellInfo* activeCellIn
     {
         RigCell& cell = mainGrid->cells()[cellStartIndex + gridLocalCellIndex];
 
-        cell.setCellIndex(gridLocalCellIndex);
+        cell.setGridLocalCellIndex(gridLocalCellIndex);
 
         // Active cell index
 

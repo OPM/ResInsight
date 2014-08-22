@@ -1828,7 +1828,7 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                 const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
 
                 RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.cellIndex();
+                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
@@ -1850,7 +1850,7 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
                 const RigCell& cell = grid->cells()[conn.m_c2GlobIdx];
 
                 RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.cellIndex();
+                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
 
                 size_t i, j, k;
                 if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))

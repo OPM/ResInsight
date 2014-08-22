@@ -251,7 +251,7 @@ void RigMainGrid::calculateFaults()
                 if (firstNO_FAULTFaceForCell) // To avoid doing this for every face, and only when detecting a NO_FAULT
                 {
                     hostGrid = m_cells[gcIdx].hostGrid();
-                    hostGrid->ijkFromCellIndex(m_cells[gcIdx].cellIndex(), &i,&j, &k);
+                    hostGrid->ijkFromCellIndex(m_cells[gcIdx].gridLocalCellIndex(), &i,&j, &k);
                     firstNO_FAULTFaceForCell = false;
                 }
 

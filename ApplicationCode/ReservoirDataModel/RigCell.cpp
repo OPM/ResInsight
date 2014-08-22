@@ -41,7 +41,7 @@ RigCell::RigCell() :
     m_subGrid(NULL),
     m_hostGrid(NULL),
     m_isInvalid(false),
-    m_cellIndex(cvf::UNDEFINED_SIZE_T),
+    m_gridLocalCellIndex(cvf::UNDEFINED_SIZE_T),
     m_coarseningBoxIndex(cvf::UNDEFINED_SIZE_T)
 {
     memcpy(m_cornerIndices.data(), undefinedCornersArray, 8*sizeof(size_t));
