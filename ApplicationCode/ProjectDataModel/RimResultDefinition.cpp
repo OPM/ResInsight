@@ -196,32 +196,7 @@ void RimResultDefinition::loadResult()
     RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
     if (gridCellResults)
     {
-        if (m_resultType() == RimDefines::STATIC_NATIVE)
-        {
-            if (m_resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
-            {
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANX");
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANY");
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "TRANZ");
-            }
-            else if (m_resultVariable().compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
-            {
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTX");
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTX-");
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTY");
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTY-");
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTZ");
-                gridCellResults->findOrLoadScalarResult(m_resultType(), "MULTZ-");
-            }
-            else
-            {
-                gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
-            }
-        }
-        else
-        {
-            gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
-        }
+        gridCellResults->findOrLoadScalarResult(m_resultType(), m_resultVariable);
     }
 
     updateFieldVisibility();

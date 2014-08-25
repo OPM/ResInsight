@@ -230,7 +230,6 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
     if (type == RimDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
     {
         size_t soilScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
-        if (!isDataPresent(soilScalarResultIndex))
         {
             computeSOILForTimeStep(timeStepIndex);
         }
@@ -297,7 +296,28 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
     size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
     if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
 
-   
+    // Load dependency data sets
+
+    if (type == RimDefines::STATIC_NATIVE)
+    {
+        if (resultName == RimDefines::combinedTransmissibilityResultName())
+        {
+            this->findOrLoadScalarResult(type, "TRANX");
+            this->findOrLoadScalarResult(type, "TRANY");
+            this->findOrLoadScalarResult(type, "TRANZ");
+        }
+        else if (resultName == RimDefines::combinedMultResultName())
+        {
+            this->findOrLoadScalarResult(type, "MULTX");
+            this->findOrLoadScalarResult(type, "MULTX-");
+            this->findOrLoadScalarResult(type, "MULTY");
+            this->findOrLoadScalarResult(type, "MULTY-");
+            this->findOrLoadScalarResult(type, "MULTZ");
+            this->findOrLoadScalarResult(type, "MULTZ-");
+        }
+    }
+
+
     if (isDataPresent(scalarResultIndex))
     {
         return scalarResultIndex;
@@ -424,6 +444,13 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
 
     size_t soilResultScalarIndex = m_cellResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
     m_cellResults->cellScalarResults(soilResultScalarIndex).resize(soilTimeStepCount);
+
+    if (m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIndex).size() > 0)
+    {
+        // Data is computed and allocated, nothing more to do
+        return;
+    }
+
     m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
 
 
