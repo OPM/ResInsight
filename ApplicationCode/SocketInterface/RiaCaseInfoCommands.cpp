@@ -196,7 +196,7 @@ public:
             {
                 RigGridBase* grid = reservoirCells[cIdx].hostGrid();
                 CVF_ASSERT(grid != NULL);
-                size_t cellIndex = reservoirCells[cIdx].cellIndex();
+                size_t cellIndex = reservoirCells[cIdx].gridLocalCellIndex();
 
                 size_t i, j, k;
                 grid->ijkFromCellIndex(cellIndex, &i, &j, &k);
