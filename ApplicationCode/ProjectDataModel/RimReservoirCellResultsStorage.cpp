@@ -419,19 +419,12 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
         }
     }
 
-    size_t soilResultScalarIndex = m_cellResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
-    if (m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIndex).size() == 0)
-    {
-//         // Set this result to be calculated
-//         m_cellResults->setMustBeCalculated(soilResultScalarIndex);
-// 
-//         m_cellResults->cellScalarResults(soilResultScalarIndex).resize(soilTimeStepCount);
 
-//         for (size_t timeStepIdx = 0; timeStepIdx < soilTimeStepCount; timeStepIdx++)
-//         {
-        m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
-//        }
-    }
+    // Make sure memory is allocated for the new SOIL results
+
+    size_t soilResultScalarIndex = m_cellResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
+    m_cellResults->cellScalarResults(soilResultScalarIndex).resize(soilTimeStepCount);
+    m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
 
 
     std::vector<double>* swatForTimeStep = NULL;
