@@ -222,7 +222,7 @@ QStringList RimCellEdgeResultSlot::findResultVariableNames()
         {
             if (RimDefines::isPerCellFaceResult(varList[i])) continue;
 
-            if (varList[i].contains(resultVariable))
+            if (varList[i].startsWith(resultVariable))
             {               
                 varNames.append(varList[i]);
             }
@@ -292,7 +292,7 @@ bool RimCellEdgeResultSlot::hasResult() const
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeResultSlot::updateIgnoredScalarValue()
 {
-    if (resultVariable == "MULT")
+    if (resultVariable == "MULT" || resultVariable == "riMULT")
     {
         m_ignoredResultScalar = 1.0;
     }

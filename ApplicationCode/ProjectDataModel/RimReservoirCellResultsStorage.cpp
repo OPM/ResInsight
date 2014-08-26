@@ -296,6 +296,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
             computeRiMULTComponent(RimDefines::riMultXResultName());
             computeRiMULTComponent(RimDefines::riMultYResultName());
             computeRiMULTComponent(RimDefines::riMultZResultName());
+            computeNncCombRiTrans();
             computeNncCombRiMULT();
         }
         else if (resultName == RimDefines::riMultXResultName()
