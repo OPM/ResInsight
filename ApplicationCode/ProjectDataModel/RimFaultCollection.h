@@ -74,6 +74,7 @@ public:
     caf::PdmField<cvf::Color3f>         faultLabelColor;
 
     caf::PdmField<bool>                 showFaultCollection;
+    caf::PdmField<bool>                 showNNCs;
 
     caf::PdmPointersField<RimFault*>    faults;
     RimFault*                           findFaultByName(QString name);

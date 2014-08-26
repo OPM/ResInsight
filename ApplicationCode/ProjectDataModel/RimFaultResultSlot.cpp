@@ -37,8 +37,6 @@ RimFaultResultSlot::RimFaultResultSlot()
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
     showCustomFaultResult.setUiHidden(true);
 
-    CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
     m_customFaultResult = new RimResultSlot();
     m_customFaultResult.setOwnerObject(this);
@@ -125,8 +123,6 @@ caf::PdmFieldHandle* RimFaultResultSlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&showNNCs);
-
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
     group1->add(&(m_customFaultResult->m_resultTypeUiField));
     group1->add(&(m_customFaultResult->m_porosityModelUiField));

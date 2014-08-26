@@ -39,7 +39,6 @@ public:
     
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
-    caf::PdmField<bool>     showNNCs;
     caf::PdmField<bool>     showCustomFaultResult;
 
     bool                    hasValidCustomResult();

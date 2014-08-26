@@ -68,6 +68,8 @@ RimFaultCollection::RimFaultCollection()
     CAF_PDM_InitField(&showFaultLabel,          "ShowFaultLabel",    false,   "Show labels", "", "", "");
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Label color",  "", "", "");
+    
+    CAF_PDM_InitField(&showNNCs, "ShowNNCs", false, "Show NNCs", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
 
@@ -106,7 +108,8 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         &showFaultLabel == changedField ||
         &m_showFaultsOutsideFilters == changedField ||
         &faultLabelColor == changedField ||
-        &faultResult == changedField
+        &faultResult == changedField ||
+        &showNNCs == changedField
         )
     {
         if (m_reservoirView) 
