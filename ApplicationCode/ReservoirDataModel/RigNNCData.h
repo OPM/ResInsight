@@ -21,15 +21,16 @@
 #include "cvfBase.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-
-#include <vector>
-#include <map>
-
 #include "cvfStructGrid.h"
+
 #include "cafFixedArray.h"
 
-class RigMainGrid;
+#include <cmath> // Needed for HUGE_VAL on Linux
+#include <map>
+#include <vector>
 
+
+class RigMainGrid;
 
 class RigConnection
 {
