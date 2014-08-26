@@ -601,100 +601,103 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
     }
 }
 
-#if 1
-
-void calculateConnectionGeometry(const RigCell& c1, const RigCell& c2 , const std::vector<cvf::Vec3d>& nodes,  
-                                 cvf::StructGridInterface::FaceType faceId,
-                                 cvf::Vec3d* faceCenter, cvf::Vec3d* faceAreaVec)
+namespace RigTransmissibilityCalcTools
 {
-    CVF_TIGHT_ASSERT(faceCenter && faceAreaVec);
-
-    *faceCenter = cvf::Vec3d::ZERO;
-    *faceAreaVec = cvf::Vec3d::ZERO;
-
-    std::vector<size_t> polygon;
-    std::vector<cvf::Vec3d> intersections;
-    caf::SizeTArray4 face1;
-    caf::SizeTArray4 face2;
-    c1.faceIndices(faceId, &face1);
-    c2.faceIndices(cvf::StructGridInterface::oppositeFace(faceId), &face2);
-
-    bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads(
-        &polygon,
-        &intersections,
-        (cvf::EdgeIntersectStorage<size_t>*)NULL,
-        cvf::wrapArrayConst(&nodes),
-        face1.data(),
-        face2.data(),
-        1e-6);
-
-
-    if (foundOverlap)
+    void calculateConnectionGeometry(const RigCell& c1, const RigCell& c2, const std::vector<cvf::Vec3d>& nodes,
+        cvf::StructGridInterface::FaceType faceId,
+        cvf::Vec3d* faceCenter, cvf::Vec3d* faceAreaVec)
     {
-        std::vector<cvf::Vec3d> realPolygon;
+        CVF_TIGHT_ASSERT(faceCenter && faceAreaVec);
 
-        for (size_t pIdx = 0; pIdx < polygon.size(); ++pIdx)
+        *faceCenter = cvf::Vec3d::ZERO;
+        *faceAreaVec = cvf::Vec3d::ZERO;
+
+        std::vector<size_t> polygon;
+        std::vector<cvf::Vec3d> intersections;
+        caf::SizeTArray4 face1;
+        caf::SizeTArray4 face2;
+        c1.faceIndices(faceId, &face1);
+        c2.faceIndices(cvf::StructGridInterface::oppositeFace(faceId), &face2);
+
+        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads(
+            &polygon,
+            &intersections,
+            (cvf::EdgeIntersectStorage<size_t>*)NULL,
+            cvf::wrapArrayConst(&nodes),
+            face1.data(),
+            face2.data(),
+            1e-6);
+
+
+        if (foundOverlap)
         {
-            if (polygon[pIdx] < nodes.size())
-                realPolygon.push_back(nodes[polygon[pIdx]]);
-            else
-                realPolygon.push_back(intersections[polygon[pIdx] - nodes.size()]);
+            std::vector<cvf::Vec3d> realPolygon;
+
+            for (size_t pIdx = 0; pIdx < polygon.size(); ++pIdx)
+            {
+                if (polygon[pIdx] < nodes.size())
+                    realPolygon.push_back(nodes[polygon[pIdx]]);
+                else
+                    realPolygon.push_back(intersections[polygon[pIdx] - nodes.size()]);
+            }
+
+            // Polygon center
+            for (size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx)
+            {
+                *faceCenter += realPolygon[pIdx];
+            }
+
+            *faceCenter *= 1.0 / realPolygon.size();
+
+            // Polygon area vector
+
+            *faceAreaVec = cvf::GeometryTools::polygonAreaNormal3D(realPolygon);
+
         }
-
-        // Polygon center
-        for (size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx)
-        {
-            *faceCenter += realPolygon[pIdx];
-        }
-
-        *faceCenter *= 1.0 / realPolygon.size();
-
-        // Polygon area vector
-
-        *faceAreaVec = cvf::GeometryTools::polygonAreaNormal3D(realPolygon);
 
     }
 
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    double halfCellTransmissibility(double perm, double ntg, const cvf::Vec3d& centerToFace, const cvf::Vec3d& faceAreaVec)
+    {
+        return perm*ntg*(faceAreaVec*centerToFace) / (centerToFace*centerToFace);
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    double newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans)
+    {
+        return cdarchy * mult / ((1 / halfCellTrans) + (1 / neighborHalfCellTrans));
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+    typedef size_t(*ResultIndexFunction)(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex);
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+
+    size_t directReservoirCellIndex(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex)
+    {
+        return reservoirCellIndex;
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    /// 
+    //--------------------------------------------------------------------------------------------------
+
+    size_t reservoirActiveCellIndex(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex)
+    {
+        return activeCellinfo->cellResultIndex(reservoirCellIndex);
+    }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double halfCellTransmissibility(double perm, double ntg, const cvf::Vec3d& centerToFace, const cvf::Vec3d& faceAreaVec)
-{
-    return perm*ntg*(faceAreaVec*centerToFace) / (centerToFace*centerToFace);
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-double newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans)
-{
-    return cdarchy * mult / ((1 / halfCellTrans) + (1 / neighborHalfCellTrans));
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-typedef size_t (*ResultIndexFunction)(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex);
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-
-size_t directReservoirCellIndex(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex)
-{
-    return reservoirCellIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-
-size_t reservoirActiveCellIndex(const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex)
-{
-    return activeCellinfo->cellResultIndex(reservoirCellIndex);
-}
+using namespace RigTransmissibilityCalcTools;
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -864,7 +867,6 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
     }
 }
 
-#if 1
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1023,11 +1025,9 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
         double newtranTemp = newtran(cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans);
         riCombTransResults[connIdx] = newtranTemp;
     }
-#endif
 
 }
 
-#endif
 
 //--------------------------------------------------------------------------------------------------
 /// 

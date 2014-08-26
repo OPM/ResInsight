@@ -35,7 +35,6 @@
 #include "cvfObject.h"
 
 #include <math.h>
-#include "RigCombRiTransResultAccessor.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -91,20 +90,6 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
         cellFaceAccessObject->setTransResultAccessors(xTransAccessor.p(), yTransAccessor.p(), zTransAccessor.p());
 
         return cellFaceAccessObject;
-#if 0
-        cvf::ref<RigCombRiTransResultAccessor> cellFaceAccessObject = new RigCombRiTransResultAccessor(grid);
-
-        cvf::ref<RigResultAccessor> permX = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "PERMX");
-        cvf::ref<RigResultAccessor> permY = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "PERMY");
-        cvf::ref<RigResultAccessor> permZ = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "PERMZ");
-        cvf::ref<RigResultAccessor> ntg =   RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, "NTG");
- 
-        cellFaceAccessObject->setPermResultAccessors(permX.p(), permY.p(), permZ.p());
-        cellFaceAccessObject->setNTGResultAccessor(ntg.p());
-        // todo : cellFaceAccessObject->setCDARCHY();
-
-        return cellFaceAccessObject;
-#endif
     }
 
 	return RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
