@@ -479,13 +479,14 @@ void RifReaderEclipseOutput::transferNNCData( const ecl_grid_type * mainEclGrid 
     //cvf::Trace::show("Reading NNC. Count: " + cvf::String(numNNC));
 
     mainGrid->nncData()->connections().resize(numNNC);
+    std::vector<double>& transmissibilityValues = mainGrid->nncData()->makeConnectionScalarResult(cvf::UNDEFINED_SIZE_T);
     for (int nIdx = 0; nIdx < numNNC; ++nIdx)
     {
         RigGridBase* grid1 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr1);
         mainGrid->nncData()->connections()[nIdx].m_c1GlobIdx = grid1->reservoirCellIndex(eclNNCData[nIdx].global_index1);
         RigGridBase* grid2 =  mainGrid->gridByIndex(eclNNCData[nIdx].grid_nr2);
         mainGrid->nncData()->connections()[nIdx].m_c2GlobIdx = grid2->reservoirCellIndex(eclNNCData[nIdx].global_index2);
-        mainGrid->nncData()->connections()[nIdx].m_transmissibility = eclNNCData[nIdx].trans;
+        transmissibilityValues[nIdx] = eclNNCData[nIdx].trans;
     }
 
 

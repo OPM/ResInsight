@@ -545,6 +545,10 @@ QString RimCase::relocateFile(const QString& orgFileName,  const QString& orgNew
 //--------------------------------------------------------------------------------------------------
 bool RimCase::openReserviorCase()
 {
+    // If read already, return
+
+    if (this->reservoirData() != NULL) return true;
+    
     if (!openEclipseGridFile())
     {
         return false;
@@ -552,7 +556,14 @@ bool RimCase::openReserviorCase()
 
     {
         RimReservoirCellResultsStorage* results = this->results(RifReaderInterface::MATRIX_RESULTS);
-        if (results->cellResults()) results->cellResults()->createPlaceholderResultEntries();
+        if (results->cellResults())
+        {
+            results->cellResults()->createPlaceholderResultEntries();
+            // After the placeholder result for combined transmissibility is created, 
+            // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
+            size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
+            reservoirData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+        }
 
     }
     {

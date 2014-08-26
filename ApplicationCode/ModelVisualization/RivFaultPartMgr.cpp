@@ -647,11 +647,15 @@ void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
 {
     if (m_NNCFaces.isNull()) return;
 
-    if (cellResultSlot && cellResultSlot->resultVariable() == RimDefines::combinedTransmissibilityResultName())
+    if (cellResultSlot 
+        && ( cellResultSlot->resultVariable() == RimDefines::combinedTransmissibilityResultName() 
+             || cellResultSlot->resultVariable() == RimDefines::combinedRiTransResultName()))
     {
+        size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
+
         const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
 
-        m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper);
+        m_NNCGenerator->textureCoordinates(m_NNCTextureCoords.p(), mapper, scalarSetIndex);
 
         cvf::ref<cvf::Effect> nncEffect;
 

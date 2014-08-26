@@ -144,12 +144,19 @@ void RivNNCGeometryGenerator::computeArrays()
 /// Calculates the texture coordinates in a "nearly" one dimensional texture. 
 /// Undefined values are coded with a y-texture coordinate value of 1.0 instead of the normal 0.5
 //--------------------------------------------------------------------------------------------------
-void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper) const
+void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords, const cvf::ScalarMapper* mapper, size_t scalarResultIndex) const
 {
     size_t numVertices = m_vertices->size();
 
     textureCoords->resize(numVertices);
     cvf::Vec2f* rawPtr = textureCoords->ptr();
+   
+    const std::vector<double>* nncResultVals = m_nncData->connectionScalarResult(scalarResultIndex);
+    if (!nncResultVals)
+    {
+        textureCoords->setAll(cvf::Vec2f(0.0f, 1.0f));
+        return;
+    }
 
     double cellScalarValue;
     cvf::Vec2f texCoord;
@@ -157,7 +164,7 @@ void RivNNCGeometryGenerator::textureCoordinates(cvf::Vec2fArray* textureCoords,
 #pragma omp parallel for private(texCoord, cellScalarValue)
     for (int tIdx = 0; tIdx < static_cast<int>(m_triangleIndexToNNCIndex->size()); tIdx++)
     {
-        cellScalarValue = m_nncData->connections()[(*m_triangleIndexToNNCIndex)[tIdx]].m_transmissibility;
+        cellScalarValue = (*nncResultVals)[(*m_triangleIndexToNNCIndex)[tIdx]];
         texCoord = mapper->mapToTextureCoord(cellScalarValue);
         if (cellScalarValue == HUGE_VAL || cellScalarValue != cellScalarValue) // a != a is true for NAN's
         {

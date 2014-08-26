@@ -342,6 +342,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         computeRiTransComponent(RimDefines::riTransXResultName());
         computeRiTransComponent(RimDefines::riTransYResultName());
         computeRiTransComponent(RimDefines::riTransZResultName());
+        computeNncCombRiTrans();
     }
     
     if (   resultName == RimDefines::riTransXResultName()
@@ -438,8 +439,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
             soilTimeStepCount = qMax(soilTimeStepCount, sgasTimeStepCount);
         }
     }
-
-
+    
     // Make sure memory is allocated for the new SOIL results
 
     size_t soilResultScalarIndex = m_cellResults->findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
@@ -452,7 +452,6 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
     }
 
     m_cellResults->cellScalarResults(soilResultScalarIndex, timeStepIndex).resize(soilResultValueCount);
-
 
     std::vector<double>* swatForTimeStep = NULL;
     std::vector<double>* sgasForTimeStep = NULL;
@@ -735,8 +734,8 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
     // Get the needed result indices we depend on
 
     size_t permResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, permCompName);
-    size_t ntgResultIdx  = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
- 
+    size_t ntgResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+
     // Get the result index of the output
 
     size_t riTransResultIdx = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, riTransComponentResultName);
@@ -751,8 +750,8 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
 
     // Get all the actual result values
 
-    std::vector<double> & permResults    = m_cellResults->cellScalarResults(permResultIdx)[0];
-    std::vector<double> & ntgResults     = m_cellResults->cellScalarResults(ntgResultIdx)[0];
+    std::vector<double> & permResults = m_cellResults->cellScalarResults(permResultIdx)[0];
+    std::vector<double> & ntgResults = m_cellResults->cellScalarResults(ntgResultIdx)[0];
     std::vector<double> & riTransResults = m_cellResults->cellScalarResults(riTransResultIdx)[0];
 
     // Set up output container to correct number of results
@@ -761,15 +760,15 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
 
     // Prepare how to index the result values:
 
-    bool isPermUsingResIdx  = m_cellResults->isUsingGlobalActiveIndex(permResultIdx);
-    bool isNtgUsingResIdx   = m_cellResults->isUsingGlobalActiveIndex(ntgResultIdx);
+    bool isPermUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(permResultIdx);
+    bool isNtgUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(ntgResultIdx);
     bool isTransUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(riTransResultIdx);
-    
+
     // Set up result index function pointers
 
-    ResultIndexFunction riTranIdxFunc   = isTransUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
-    ResultIndexFunction permIdxFunc     = isPermUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
-    ResultIndexFunction ntgIdxFunc      = isNtgUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction riTranIdxFunc = isTransUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction permIdxFunc = isPermUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction ntgIdxFunc = isNtgUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
 
 
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
@@ -800,20 +799,20 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
             // Do nothing if neighbor cell has no results
             size_t neighborCellPermResIdx = (*permIdxFunc)(activeCellInfo, neighborResvCellIdx);
             if (neighborCellPermResIdx == cvf::UNDEFINED_SIZE_T) continue;
-            
+
             // Connection geometry
 
             const RigFault* fault = grid->mainGrid()->findFaultFromCellIndexAndCellFace(nativeResvCellIndex, faceId);
             bool isOnFault = fault;
 
- 
+
             cvf::Vec3d faceAreaVec;
             cvf::Vec3d faceCenter;
 
             if (isOnFault)
             {
-                calculateConnectionGeometry( nativeCell, neighborCell, nodes,faceId, 
-                                             &faceCenter, &faceAreaVec);
+                calculateConnectionGeometry(nativeCell, neighborCell, nodes, faceId,
+                    &faceCenter, &faceAreaVec);
             }
             else
             {
@@ -863,7 +862,169 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
         }
 
     }
-   
+}
+
+#if 1
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirCellResultsStorage::computeNncCombRiTrans()
+{
+    if (!m_cellResults) return;
+
+    size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTransResultName());
+    if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransScalarResultIndex)) return;
+
+    // Todo: Get the correct one from Unit set read by ERT
+    double cdarchy = 0.008527; // (ECLIPSE 100) (METRIC)
+
+    // Get the needed result indices we depend on
+
+    size_t permXResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMX");
+    size_t permYResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMY");
+    size_t permZResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "PERMZ");
+
+    size_t ntgResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, "NTG");
+
+    // Get the result count, to handle that one of them might be globally defined
+
+    size_t permxResultValueCount = m_cellResults->cellScalarResults(permXResultIdx)[0].size();
+    size_t ntgResultValueCount = m_cellResults->cellScalarResults(ntgResultIdx)[0].size();
+
+    size_t resultValueCount = CVF_MIN(permxResultValueCount, ntgResultValueCount);
+
+    // Get all the actual result values
+
+    std::vector<double> & permXResults = m_cellResults->cellScalarResults(permXResultIdx)[0];
+    std::vector<double> & permYResults = m_cellResults->cellScalarResults(permYResultIdx)[0];
+    std::vector<double> & permZResults = m_cellResults->cellScalarResults(permZResultIdx)[0];
+    std::vector<double> & ntgResults = m_cellResults->cellScalarResults(ntgResultIdx)[0];
+    std::vector<double> & riCombTransResults = m_ownerMainGrid->nncData()->makeConnectionScalarResult(riCombTransScalarResultIndex);
+
+
+    // Prepare how to index the result values:
+
+    bool isPermXUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(permXResultIdx);
+    bool isPermYUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(permYResultIdx);
+    bool isPermZUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(permZResultIdx);
+    bool isNtgUsingResIdx = m_cellResults->isUsingGlobalActiveIndex(ntgResultIdx);
+ 
+
+    // Set up result index function pointers
+
+    ResultIndexFunction permXIdxFunc = isPermXUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction permYIdxFunc = isPermYUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction permZIdxFunc = isPermZUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+    ResultIndexFunction ntgIdxFunc = isNtgUsingResIdx ? &reservoirActiveCellIndex : &directReservoirCellIndex;
+
+
+    const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
+    const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
+    bool isFaceNormalsOutwards = m_ownerMainGrid->faceNormalsIsOutwards();
+
+    // NNC calculation
+    std::vector<RigConnection>& nncConnections = m_ownerMainGrid->nncData()->connections();
+    for (size_t connIdx = 0; connIdx < nncConnections.size(); connIdx++)
+    {
+        size_t nativeResvCellIndex = nncConnections[connIdx].m_c1GlobIdx;
+        size_t neighborResvCellIdx = nncConnections[connIdx].m_c2GlobIdx;
+        cvf::StructGridInterface::FaceType faceId = nncConnections[connIdx].m_c1Face;
+
+        ResultIndexFunction permIdxFunc = NULL;
+        std::vector<double> * permResults;
+
+        switch (faceId)
+        {
+        case cvf::StructGridInterface::POS_I:
+        case cvf::StructGridInterface::NEG_I:
+            permIdxFunc = permXIdxFunc;
+            permResults = &permXResults;
+            break;
+        case cvf::StructGridInterface::POS_J:
+        case cvf::StructGridInterface::NEG_J:
+            permIdxFunc = permYIdxFunc;
+            permResults = &permYResults;
+            break;
+        case cvf::StructGridInterface::POS_K:
+        case cvf::StructGridInterface::NEG_K:
+            permIdxFunc = permZIdxFunc;
+            permResults = &permZResults;
+            break;
+        }
+
+        // Do nothing if we are only dealing with active cells, and this cell is not active:
+        size_t nativeCellPermResIdx = (*permIdxFunc)(activeCellInfo, nativeResvCellIndex);
+        if (nativeCellPermResIdx == cvf::UNDEFINED_SIZE_T) continue;
+
+        // Do nothing if neighbor cell has no results
+        size_t neighborCellPermResIdx = (*permIdxFunc)(activeCellInfo, neighborResvCellIdx);
+        if (neighborCellPermResIdx == cvf::UNDEFINED_SIZE_T) continue;
+
+
+        const RigCell& nativeCell = m_ownerMainGrid->cells()[nativeResvCellIndex];
+        const RigCell& neighborCell = m_ownerMainGrid->cells()[neighborResvCellIdx];
+
+
+        // Connection geometry
+
+        cvf::Vec3d faceAreaVec = cvf::Vec3d::ZERO;;
+        cvf::Vec3d faceCenter = cvf::Vec3d::ZERO;;
+
+        // Polygon center
+        const std::vector<cvf::Vec3d>& realPolygon = nncConnections[connIdx].m_polygon;
+        for (size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx)
+        {
+            faceCenter += realPolygon[pIdx];
+        }
+
+        faceCenter *= 1.0 / realPolygon.size();
+
+        // Polygon area vector
+
+        faceAreaVec = cvf::GeometryTools::polygonAreaNormal3D(realPolygon);
+
+        if (!isFaceNormalsOutwards) faceAreaVec = -faceAreaVec;
+
+        double halfCellTrans = 0;
+        double neighborHalfCellTrans = 0;
+
+        // Native cell half cell transm
+        {
+            cvf::Vec3d centerToFace = faceCenter - nativeCell.center();
+
+            double perm = (*permResults)[nativeCellPermResIdx];
+
+            double ntg = 1.0;
+            if (faceId != cvf::StructGridInterface::POS_K)
+            {
+                size_t ntgResIdx = (*ntgIdxFunc)(activeCellInfo, nativeResvCellIndex);
+                ntg = ntgResults[ntgResIdx];
+            }
+
+            halfCellTrans = halfCellTransmissibility(perm, ntg, centerToFace, faceAreaVec);
+        }
+
+        // Neighbor cell half cell transm
+        {
+            cvf::Vec3d centerToFace = faceCenter - neighborCell.center();
+
+            double perm = (*permResults)[neighborCellPermResIdx];
+
+            double ntg = 1.0;
+            if (faceId != cvf::StructGridInterface::POS_K)
+            {
+                size_t ntgResIdx = (*ntgIdxFunc)(activeCellInfo, neighborResvCellIdx);
+                ntg = ntgResults[ntgResIdx];
+            }
+
+            neighborHalfCellTrans = halfCellTransmissibility(perm, ntg, centerToFace, -faceAreaVec);
+        }
+
+        double newtranTemp = newtran(cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans);
+        riCombTransResults[connIdx] = newtranTemp;
+    }
+#endif
+
 }
 
 #endif

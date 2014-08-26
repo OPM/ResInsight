@@ -1817,9 +1817,16 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
             const RigConnection& conn = nncData->connections()[nncIndex];
             cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
 
+            // Print result value for the NNC
+            size_t scalarResultIdx = this->cellResult()->gridScalarIndex();
+            const std::vector<double>* nncValues = nncData->connectionScalarResult(scalarResultIdx);
+            if (nncValues)
+            {
+                resultInfo->append(QString("NNC Value : %1\n").arg((*nncValues)[nncIndex]));
+            }
+
             QString faultName;
-        
-            resultInfo->append(QString("NNC Transmissibility : %1\n").arg(conn.m_transmissibility));
+
             {
                 CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
                 const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];

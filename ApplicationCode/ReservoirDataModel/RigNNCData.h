@@ -36,8 +36,7 @@ public:
     RigConnection( ) 
         : m_c1GlobIdx(cvf::UNDEFINED_SIZE_T),
           m_c1Face(cvf::StructGridInterface::NO_FACE),
-          m_c2GlobIdx(cvf::UNDEFINED_SIZE_T),
-          m_transmissibility(0.0)
+          m_c2GlobIdx(cvf::UNDEFINED_SIZE_T)
     {}
 
     bool hasCommonArea() const
@@ -48,8 +47,6 @@ public:
     size_t                              m_c1GlobIdx;
     cvf::StructGridInterface::FaceType  m_c1Face;
     size_t                              m_c2GlobIdx;
-
-    double                              m_transmissibility;
 
     std::vector<cvf::Vec3d>             m_polygon;
 };
@@ -66,6 +63,33 @@ public:
     std::vector<RigConnection>&         connections()        { return m_connections; }
     const std::vector<RigConnection>&   connections() const  { return m_connections; };
 
+    std::vector<double>& makeConnectionScalarResult(size_t scalarResultIndex) 
+    { 
+        std::vector<double>& results = m_connectionResults[scalarResultIndex]; 
+        results.resize(m_connections.size(), HUGE_VAL); 
+        return results; 
+    }
+
+    const std::vector<double>* connectionScalarResult(size_t scalarResultIndex) const
+    {
+        std::map<size_t, std::vector<double> >::const_iterator it = m_connectionResults.find(scalarResultIndex);
+        if (it != m_connectionResults.end())
+            return &(it->second);
+        else
+            return NULL;
+    }
+
+    void setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex)
+    {
+        std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(cvf::UNDEFINED_SIZE_T);
+        CVF_ASSERT(it != m_connectionResults.end());
+
+        std::vector<double>& emptyData = m_connectionResults[scalarResultIndex];
+        std::vector<double>& realData = m_connectionResults[cvf::UNDEFINED_SIZE_T];
+        emptyData.swap(realData);
+        m_connectionResults.erase(cvf::UNDEFINED_SIZE_T);
+    }
+
 private: // This section is possibly not needed
     //const std::vector<size_t>& findConnectionIndices(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const;
     //typedef std::map<size_t, caf::FixedArray<std::vector<size_t>, 7 > > ConnectionSearchMap;
@@ -73,4 +97,5 @@ private: // This section is possibly not needed
 
 private:
     std::vector<RigConnection> m_connections; 
+    std::map<size_t, std::vector<double> > m_connectionResults; ///< scalarResultIndex to value array map
 };

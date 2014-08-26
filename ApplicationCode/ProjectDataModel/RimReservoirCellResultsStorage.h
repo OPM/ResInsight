@@ -66,10 +66,10 @@ protected:
 private:
     void                            computeSOILForTimeStep(size_t timeStepIndex);
     void                            computeRiTransComponent(const QString& riTransComponentResultName);
+    void                            computeNncCombRiTrans();
 
     QString                         getValidCacheFileName();
     QString                         getCacheDirectoryPath();
-
     // Fields
     caf::PdmField<QString>          m_resultCacheFileName;
     caf::PdmPointersField<RimReservoirCellResultsStorageEntryInfo*> 
