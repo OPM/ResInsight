@@ -278,6 +278,32 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
             this->findOrLoadScalarResult(type, "MULTZ");
             this->findOrLoadScalarResult(type, "MULTZ-");
         }
+        else if (resultName == RimDefines::combinedRiTransResultName())
+        {
+            computeRiTransComponent(RimDefines::riTransXResultName());
+            computeRiTransComponent(RimDefines::riTransYResultName());
+            computeRiTransComponent(RimDefines::riTransZResultName());
+            computeNncCombRiTrans();
+        }
+        else if (resultName == RimDefines::riTransXResultName()
+            || resultName == RimDefines::riTransYResultName()
+            || resultName == RimDefines::riTransZResultName())
+        {
+            computeRiTransComponent(resultName);
+        }
+        else if (resultName == RimDefines::combinedRiMultResultName())
+        {
+            computeRiMULTComponent(RimDefines::riMultXResultName());
+            computeRiMULTComponent(RimDefines::riMultYResultName());
+            computeRiMULTComponent(RimDefines::riMultZResultName());
+            computeNncCombRiMULT();
+        }
+        else if (resultName == RimDefines::riMultXResultName()
+              || resultName == RimDefines::riMultYResultName()
+              || resultName == RimDefines::riMultZResultName())
+        {
+            computeRiMULTComponent(resultName);
+        }
     }
 
 
@@ -300,20 +326,7 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         return scalarResultIndex;
     }
 
-    if (resultName == RimDefines::combinedRiTransResultName())
-    {
-        computeRiTransComponent(RimDefines::riTransXResultName());
-        computeRiTransComponent(RimDefines::riTransYResultName());
-        computeRiTransComponent(RimDefines::riTransZResultName());
-        computeNncCombRiTrans();
-    }
-    
-    if (   resultName == RimDefines::riTransXResultName()
-        || resultName == RimDefines::riTransYResultName()
-        || resultName == RimDefines::riTransZResultName())
-    {
-        computeRiTransComponent(resultName);
-    }
+ 
 
     if (type == RimDefines::GENERATED)
     {
@@ -1059,6 +1072,111 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 
 }
 
+
+double riMult(double transResults, double riTransResults)
+{
+    // To make 0.0 values give 1.0 in mult value
+    // We might want a tolerance here.
+    if (transResults == riTransResults)
+    {
+        return 1.0;
+    }
+    else
+    {
+        return transResults / riTransResults;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirCellResultsStorage::computeRiMULTComponent(const QString& riMultCompName)
+{
+    if (!m_cellResults) return;
+
+    // Set up which component to compute
+
+    cvf::StructGridInterface::FaceType faceId;
+    QString riTransCompName;
+    QString transCompName;
+
+    if (riMultCompName == RimDefines::riMultXResultName())
+    {
+        riTransCompName = RimDefines::riTransXResultName();
+        transCompName = "TRANX";
+    }
+    else if (riMultCompName == RimDefines::riMultYResultName())
+    {
+        riTransCompName = RimDefines::riTransYResultName();
+        transCompName = "TRANY";
+    }
+    else if (riMultCompName == RimDefines::riMultZResultName())
+    {
+        riTransCompName = RimDefines::riTransZResultName();
+        transCompName = "TRANZ";
+    }
+    else
+    {
+        CVF_ASSERT(false);
+    }
+
+    // Get the needed result indices we depend on
+
+    size_t transResultIdx   = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, transCompName);
+    size_t riTransResultIdx = findOrLoadScalarResult(RimDefines::STATIC_NATIVE, riTransCompName);
+
+    // Get the result index of the output
+
+    size_t riMultResultIdx = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, riMultCompName);
+    CVF_ASSERT(riMultResultIdx != cvf::UNDEFINED_SIZE_T);
+
+    // Get the result count, to handle that one of them might be globally defined
+
+    CVF_ASSERT(m_cellResults->cellScalarResults(riTransResultIdx)[0].size() == m_cellResults->cellScalarResults(transResultIdx)[0].size());
+
+    size_t resultValueCount = m_cellResults->cellScalarResults(transResultIdx)[0].size();
+
+    // Get all the actual result values
+
+    std::vector<double> & riTransResults = m_cellResults->cellScalarResults(riTransResultIdx)[0];
+    std::vector<double> & transResults = m_cellResults->cellScalarResults(transResultIdx)[0];
+
+    std::vector<double> & riMultResults = m_cellResults->cellScalarResults(riMultResultIdx)[0];
+
+    // Set up output container to correct number of results
+
+    riMultResults.resize(resultValueCount);
+
+    const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
+        
+    for (size_t vIdx = 0; vIdx < transResults.size(); ++vIdx)
+    {
+        riMultResults[vIdx] = riMult(transResults[vIdx], riTransResults[vIdx]);
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimReservoirCellResultsStorage::computeNncCombRiMULT()
+{
+    if (!m_cellResults) return;
+
+    size_t riCombMultScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiMultResultName());
+    size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTransResultName());
+    size_t combTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
+
+    if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombMultScalarResultIndex)) return;
+
+    std::vector<double> & riMultResults = m_ownerMainGrid->nncData()->makeConnectionScalarResult(riCombMultScalarResultIndex);
+    const std::vector<double> * riTransResults = m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransScalarResultIndex);
+    const std::vector<double> * transResults = m_ownerMainGrid->nncData()->connectionScalarResult(combTransScalarResultIndex);
+
+    for (size_t nncConIdx = 0; nncConIdx < riMultResults.size(); ++nncConIdx)
+    {
+        riMultResults[nncConIdx] = riMult((*transResults)[nncConIdx], (*riTransResults)[nncConIdx]);
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 

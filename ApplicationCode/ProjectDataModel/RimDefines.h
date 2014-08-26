@@ -50,7 +50,10 @@ public:
     static QString riTransXResultName()                 { return "riTRANSX"; }
     static QString riTransYResultName()                 { return "riTRANSY"; }
     static QString riTransZResultName()                 { return "riTRANSZ"; }
-
+    static QString riMultXResultName()                  { return "riMULTX"; }
+    static QString riMultYResultName()                  { return "riMULTY"; }
+    static QString riMultZResultName()                  { return "riMULTZ"; }
+    static QString combinedRiMultResultName()           { return "riMULTXYZ"; }
 
     // Mock model text identifiers
     static QString mockModelBasic()                 { return "Result Mock Debug Model Simple"; }

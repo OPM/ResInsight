@@ -91,6 +91,18 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createResultAccessor(RigCa
 
         return cellFaceAccessObject;
     }
+    else if (uiResultName == RimDefines::combinedRiMultResultName())
+    {
+        cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor(grid);
+
+        cvf::ref<RigResultAccessor> xRiMultAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultXResultName());
+        cvf::ref<RigResultAccessor> yRiMultAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultYResultName());
+        cvf::ref<RigResultAccessor> zRiMultAccessor = RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, RimDefines::riMultZResultName());
+
+        cellFaceAccessObject->setTransResultAccessors(xRiMultAccessor.p(), yRiMultAccessor.p(), zRiMultAccessor.p());
+
+        return cellFaceAccessObject;
+    }
 
 	return RigResultAccessorFactory::createNativeResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, uiResultName);
 }

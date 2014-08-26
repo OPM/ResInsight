@@ -67,6 +67,8 @@ private:
     void                            computeSOILForTimeStep(size_t timeStepIndex);
     void                            computeRiTransComponent(const QString& riTransComponentResultName);
     void                            computeNncCombRiTrans();
+    void                            computeRiMULTComponent(const QString& riMultCompName);
+    void                            computeNncCombRiMULT();
 
     QString                         getValidCacheFileName();
     QString                         getCacheDirectoryPath();

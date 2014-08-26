@@ -649,7 +649,8 @@ void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
 
     if (cellResultSlot 
         && ( cellResultSlot->resultVariable() == RimDefines::combinedTransmissibilityResultName() 
-             || cellResultSlot->resultVariable() == RimDefines::combinedRiTransResultName()))
+             || cellResultSlot->resultVariable() == RimDefines::combinedRiTransResultName()
+             || cellResultSlot->resultVariable() == RimDefines::combinedRiMultResultName()) )
     {
         size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
 

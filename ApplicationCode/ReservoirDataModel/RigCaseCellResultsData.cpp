@@ -270,6 +270,14 @@ size_t RigCaseCellResultsData::addEmptyScalarResult(RimDefines::ResultCatType ty
         calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTransZResultName()));
         statisticsCalculator = calc;
     }
+    else if (resultName == RimDefines::combinedRiMultResultName())
+    {
+        cvf::ref<RigMultipleDatasetStatCalc> calc = new RigMultipleDatasetStatCalc();
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName()));
+        calc->addNativeStatisticsCalculator(this, findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName()));
+        statisticsCalculator = calc;
+    }
     else
     {
         statisticsCalculator = new RigNativeStatCalc(this, scalarResultIndex);
@@ -540,6 +548,21 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
             addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTransYResultName(), false, 0);
             addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riTransZResultName(), false, 0);
             addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTransResultName(), false, 0);
+        }
+    }
+
+    // riMULTXYZ and X, Y, Z
+    {
+        size_t tranX, tranY, tranZ;
+        if (findTransmissibilityResults(tranX, tranY, tranZ)
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTransXResultName()) != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTransYResultName()) != cvf::UNDEFINED_SIZE_T
+            && findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::riTransZResultName()) != cvf::UNDEFINED_SIZE_T)
+        {
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultXResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultYResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::riMultZResultName(), false, 0);
+            addStaticScalarResult(RimDefines::STATIC_NATIVE, RimDefines::combinedRiMultResultName(), false, 0);
         }
     }
 }
