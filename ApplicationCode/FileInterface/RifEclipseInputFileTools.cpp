@@ -912,7 +912,9 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
 
         cvf::StructGridInterface::FaceEnum cellFaceEnum = cvf::StructGridInterface::FaceEnum::fromText(faceString);
 
-        cvf::CellRange cellrange(i1 - 1, j1 - 1, k1 - 1, i2 - 1, j2 - 1, k2 - 1); // Adjust from 1-based to 0-based cell indices
+        // Adjust from 1-based to 0-based cell indices
+        // Guard against invalid cell ranges by limiting lowest possible range value to zero
+        cvf::CellRange cellrange(CVF_MAX(i1 - 1, 0), CVF_MAX(j1 - 1, 0), CVF_MAX(k1 - 1, 0), CVF_MAX(i2 - 1, 0), CVF_MAX(j2 - 1, 0), CVF_MAX(k2 - 1, 0));
 
         if (!(fault && fault->name() == name))
         {
