@@ -82,4 +82,5 @@ private:
 
     static qint64   findKeyword(const QString& keyword, QFile& file, qint64 startPos);
 
+    static cvf::StructGridInterface::FaceEnum faceEnumFromText(const QString& faceString);
 };

@@ -844,6 +844,18 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
     return true;
 }
 
+cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText(const QString& faceString)
+{
+    if (faceString == "X" ) return cvf::StructGridInterface::POS_I;
+    if (faceString == "X-") return cvf::StructGridInterface::NEG_I;
+    if (faceString == "Y" ) return cvf::StructGridInterface::POS_J;
+    if (faceString == "Y-") return cvf::StructGridInterface::NEG_J;
+    if (faceString == "Z" ) return cvf::StructGridInterface::POS_K;
+    if (faceString == "Z-") return cvf::StructGridInterface::NEG_K;
+
+    return cvf::StructGridInterface::NO_FACE;
+}
+
 //--------------------------------------------------------------------------------------------------
 /// The file pointer is pointing at the line following the FAULTS keyword.
 /// Parse content of this keyword until end of file or
@@ -910,7 +922,7 @@ void RifEclipseInputFileTools::readFaults(QFile &data, qint64 filePos, cvf::Coll
         QString faceString = entries[7];
         faceString.remove("'");
 
-        cvf::StructGridInterface::FaceEnum cellFaceEnum = cvf::StructGridInterface::FaceEnum::fromText(faceString);
+        cvf::StructGridInterface::FaceEnum cellFaceEnum = RifEclipseInputFileTools::faceEnumFromText(faceString);
 
         // Adjust from 1-based to 0-based cell indices
         // Guard against invalid cell ranges by limiting lowest possible range value to zero
