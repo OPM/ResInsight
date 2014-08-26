@@ -88,14 +88,11 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect(cvf::DrawableGe
 	}
 	else
 	{
-		if (cellResultSlot->hasResult())
-		{
-			RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
-				quadToCellFaceMapper, dg, gridIndex, opacityLevel);
+		RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(timeStepIndex, cellResultSlot, cellEdgeResultSlot,
+			quadToCellFaceMapper, dg, gridIndex, opacityLevel);
 
-			cvf::ScalarMapper* cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
-			cellFaceEffectGen.setScalarMapper(cellScalarMapper);
-		}
+		cvf::ScalarMapper* cellScalarMapper = cellResultSlot->legendConfig()->scalarMapper();
+		cellFaceEffectGen.setScalarMapper(cellScalarMapper);
 	}
 
 	cellFaceEffectGen.setOpacityLevel(opacityLevel);
