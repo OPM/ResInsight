@@ -218,73 +218,36 @@ RifReaderInterface* RimReservoirCellResultsStorage::readerInterface()
     return m_readerInterface.p();
 }
 
+
 //--------------------------------------------------------------------------------------------------
-/// This method is intended to be used for multicase cross statistical calculations, when 
-/// we need process one timestep at a time, freeing memory as we go.
+/// 
 //--------------------------------------------------------------------------------------------------
-size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
+size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
 {
     if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
 
-    // Special handling for SOIL
-    if (type == RimDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
-    {
-        size_t soilScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
-        {
-            computeSOILForTimeStep(timeStepIndex);
-        }
+    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
-        return soilScalarResultIndex;
+    scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
+
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
+    {
+        scalarResultIndex = this->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, resultName);
     }
 
-    size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
-
-    if (type == RimDefines::GENERATED)
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        return cvf::UNDEFINED_SIZE_T;
+        scalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::GENERATED, resultName);
     }
 
-    if (m_readerInterface.notNull())
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
     {
-        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
-
-        bool resultLoadingSucess = true;
-
-        if (type == RimDefines::DYNAMIC_NATIVE && timeStepCount > 0)
-        {
-            m_cellResults->cellScalarResults(scalarResultIndex).resize(timeStepCount);
-
-            std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[timeStepIndex];
-            if (values.size() == 0)
-            {
-                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, timeStepIndex, &values))
-                {
-                    resultLoadingSucess = false;
-                }
-            }
-        }
-        else if (type == RimDefines::STATIC_NATIVE)
-        {
-            m_cellResults->cellScalarResults(scalarResultIndex).resize(1);
-
-            std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[0];
-            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
-            {
-                resultLoadingSucess = false;
-            }
-        }
-
-        if (!resultLoadingSucess)
-        {
-            // Error logging
-            CVF_ASSERT(false);
-        }
+        scalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::INPUT_PROPERTY, resultName);
     }
 
     return scalarResultIndex;
-
 }
+
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -397,6 +360,74 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
     }
 
     return scalarResultIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// This method is intended to be used for multicase cross statistical calculations, when 
+/// we need process one timestep at a time, freeing memory as we go.
+//--------------------------------------------------------------------------------------------------
+size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefines::ResultCatType type, const QString& resultName, size_t timeStepIndex)
+{
+    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
+
+    // Special handling for SOIL
+    if (type == RimDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
+    {
+        size_t soilScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+        {
+            computeSOILForTimeStep(timeStepIndex);
+        }
+
+        return soilScalarResultIndex;
+    }
+
+    size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
+    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T) return cvf::UNDEFINED_SIZE_T;
+
+    if (type == RimDefines::GENERATED)
+    {
+        return cvf::UNDEFINED_SIZE_T;
+    }
+
+    if (m_readerInterface.notNull())
+    {
+        size_t timeStepCount = m_cellResults->infoForEachResultIndex()[scalarResultIndex].m_timeStepDates.size();
+
+        bool resultLoadingSucess = true;
+
+        if (type == RimDefines::DYNAMIC_NATIVE && timeStepCount > 0)
+        {
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(timeStepCount);
+
+            std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[timeStepIndex];
+            if (values.size() == 0)
+            {
+                if (!m_readerInterface->dynamicResult(resultName, RifReaderInterface::MATRIX_RESULTS, timeStepIndex, &values))
+                {
+                    resultLoadingSucess = false;
+                }
+            }
+        }
+        else if (type == RimDefines::STATIC_NATIVE)
+        {
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(1);
+
+            std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[0];
+            if (!m_readerInterface->staticResult(resultName, RifReaderInterface::MATRIX_RESULTS, &values))
+            {
+                resultLoadingSucess = false;
+            }
+        }
+
+        if (!resultLoadingSucess)
+        {
+            // Error logging
+            CVF_ASSERT(false);
+        }
+    }
+
+    return scalarResultIndex;
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1027,37 +1058,6 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
     }
 
 }
-
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(const QString& resultName)
-{
-    if (!m_cellResults) return cvf::UNDEFINED_SIZE_T;
-
-    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
-
-    scalarResultIndex = this->findOrLoadScalarResult(RimDefines::STATIC_NATIVE, resultName);
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = this->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, resultName);
-    }
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::GENERATED, resultName);
-    }
-
-    if (scalarResultIndex == cvf::UNDEFINED_SIZE_T)
-    {
-        scalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::INPUT_PROPERTY, resultName);
-    }
-
-    return scalarResultIndex;
-}
-
 
 
 //--------------------------------------------------------------------------------------------------
