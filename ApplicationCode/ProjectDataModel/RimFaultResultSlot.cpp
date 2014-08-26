@@ -24,16 +24,6 @@
 #include "RimUiTreeModelPdm.h"
 
 
-namespace caf
-{
-    template<>
-    void AppEnum< RimFaultResultSlot::FaultVisualizationMode >::setUp()
-    {
-        addItem(RimFaultResultSlot::FAULT_COLOR,            "FAULT_COLOR",              "Fault Colors");
-        addItem(RimFaultResultSlot::CUSTOM_RESULT_MAPPING,  "CUSTOM_RESULT_MAPPING",    "Custom Cell Results");
-        setDefault(RimFaultResultSlot::FAULT_COLOR);
-    }
-}
 
 CAF_PDM_SOURCE_INIT(RimFaultResultSlot, "RimFaultResultSlot");
 
@@ -47,7 +37,6 @@ RimFaultResultSlot::RimFaultResultSlot()
     CAF_PDM_InitField(&showCustomFaultResult,                "ShowCustomFaultResult",                 false,   "Show Custom Fault Result", "", "", "");
     showCustomFaultResult.setUiHidden(true);
 
-    CAF_PDM_InitField(&visualizationMode, "VisualizationMode", caf::AppEnum<RimFaultResultSlot::FaultVisualizationMode>(RimFaultResultSlot::FAULT_COLOR), "Fault Color Mapping", "", "", "");
     CAF_PDM_InitField(&showNNCs,                "ShowNNCs",                 false,   "Show NNCs", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_customFaultResult, "CustomResultSlot", "Custom Fault Result", ":/CellResult.png", "", "");
@@ -88,13 +77,6 @@ void RimFaultResultSlot::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
 
     m_customFaultResult->fieldChangedByUi(changedField, oldValue, newValue);
 
-    if (changedField == &visualizationMode)
-    {
-        updateFieldVisibility();
-
-        RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
-    }
-
     if (changedField == &m_customFaultResult->m_resultVariableUiField)
     {
         RiuMainWindow::instance()->uiPdmModel()->updateUiSubTree(this);
@@ -127,12 +109,7 @@ void RimFaultResultSlot::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 RimResultSlot* RimFaultResultSlot::customFaultResult()
 {
-    if (showCustomFaultResult() && this->visualizationMode() == CUSTOM_RESULT_MAPPING)
-    {
-        return this->m_customFaultResult();
-    }
-
-    return NULL;
+    return this->m_customFaultResult();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,16 +125,12 @@ caf::PdmFieldHandle* RimFaultResultSlot::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimFaultResultSlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering)
 {
-    uiOrdering.add(&visualizationMode);
     uiOrdering.add(&showNNCs);
 
-    if (visualizationMode == CUSTOM_RESULT_MAPPING)
-    {
-        caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
-        group1->add(&(m_customFaultResult->m_resultTypeUiField));
-        group1->add(&(m_customFaultResult->m_porosityModelUiField));
-        group1->add(&(m_customFaultResult->m_resultVariableUiField));
-    }
+    caf::PdmUiGroup* group1 = uiOrdering.addNewGroup("Result");
+    group1->add(&(m_customFaultResult->m_resultTypeUiField));
+    group1->add(&(m_customFaultResult->m_porosityModelUiField));
+    group1->add(&(m_customFaultResult->m_resultVariableUiField));
 }   
 
 //--------------------------------------------------------------------------------------------------
@@ -166,5 +139,18 @@ void RimFaultResultSlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 QList<caf::PdmOptionItemInfo> RimFaultResultSlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     return m_customFaultResult->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFaultResultSlot::hasValidCustomResult()
+{
+    if (m_customFaultResult->hasResult() || m_customFaultResult->isTernarySaturationSelected())
+    {
+        return true;
+    }
+
+    return false;
 }
 

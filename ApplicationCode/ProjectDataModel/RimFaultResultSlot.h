@@ -32,12 +32,6 @@ class RimReservoirView;
 class RimFaultResultSlot : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
-public:
-    enum FaultVisualizationMode
-    {
-        FAULT_COLOR,
-        CUSTOM_RESULT_MAPPING
-    };
 
 public:
     RimFaultResultSlot();
@@ -45,13 +39,13 @@ public:
     
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
-    caf::PdmField< caf::AppEnum< FaultVisualizationMode > >     visualizationMode;
     caf::PdmField<bool>     showNNCs;
     caf::PdmField<bool>     showCustomFaultResult;
 
+    bool                    hasValidCustomResult();
+    RimResultSlot*          customFaultResult();
 
-    RimResultSlot*  customFaultResult();
-    void            updateFieldVisibility();
+    void                    updateFieldVisibility();
 
     virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
 

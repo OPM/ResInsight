@@ -25,10 +25,11 @@
 
 #include "cafPdmFieldCvfColor.h"
 
-#include "RimFaultCollection.h"
 #include "RigMainGrid.h"
-#include "RimReservoirView.h"
+#include "RimFaultCollection.h"
 #include "RimFaultResultSlot.h"
+#include "RimReservoirView.h"
+#include "RimResultSlot.h"
 
 
 //--------------------------------------------------------------------------------------------------
@@ -182,14 +183,13 @@ void RivReservoirFaultsPartMgr::updateColors(size_t timeStepIndex, RimResultSlot
     {
         RimFault* rimFault = faultCollection->faults[i];
 
-        if (m_reservoirView->faultResultSettings()->showCustomFaultResult() &&
-            m_reservoirView->faultResultSettings()->visualizationMode() == RimFaultResultSlot::FAULT_COLOR)
+        if (cellResultSlot && (cellResultSlot->hasResult() || cellResultSlot->isTernarySaturationSelected()) )
         {
-            m_faultParts[i]->applySingleColorEffect();
+            m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
         }
         else
         {
-            m_faultParts[i]->updateCellResultColor(timeStepIndex, cellResultSlot);
+            m_faultParts[i]->applySingleColorEffect();
         }
     }
 }

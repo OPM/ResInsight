@@ -160,7 +160,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             infoText += QString("<table border=0 cellspacing=5 ><tr><td>Min</td><td>P10</td> <td>Mean</td> <td>P90</td> <td>Max</td> </tr>" 
                                        "<tr><td>%1</td><td> %2</td><td> %3</td><td> %4</td><td> %5 </td></tr></table>").arg(min).arg(p10).arg(mean).arg(p90).arg(max);
 
-            if (m_reservoirView->faultResultSettings()->visualizationMode() != RimFaultResultSlot::FAULT_COLOR)
+            if (m_reservoirView->faultResultSettings()->hasValidCustomResult())
             {
                 QString faultMapping;
                 bool isShowingGrid = m_reservoirView->faultCollection()->isGridVisualizationMode();
@@ -185,10 +185,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
                 }
 
                 infoText += QString("<b>Fault results: </b> %1<br>").arg(faultMapping);
-            }
 
-            if (m_reservoirView->faultResultSettings()->customFaultResult())
-            {
                 infoText += QString("<b>Fault Property:</b> %1 <br>").arg(m_reservoirView->faultResultSettings()->customFaultResult()->resultVariable());
             }
         }

@@ -921,10 +921,7 @@ void RimReservoirView::loadDataAndUpdate()
     CVF_ASSERT(this->cellEdgeResult() != NULL);
     this->cellEdgeResult()->loadResult();
 
-    if (this->faultResultSettings()->customFaultResult())
-    {
-        this->faultResultSettings()->customFaultResult()->loadResult();
-    }
+    this->faultResultSettings()->customFaultResult()->loadResult();
     this->faultResultSettings()->updateFieldVisibility();
 
     updateViewerWidget();
@@ -1100,7 +1097,7 @@ void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, 
             if (fault)
             {
                 resultInfoText->append(QString("\nFault Name: %1\n").arg(fault->name()));
-                if (this->faultResultSettings()->customFaultResult())
+                if (this->faultResultSettings()->hasValidCustomResult())
                 {
                     resultInfoText->push_back("Fault result data:\n");
                     appendTextFromResultSlot(eclipseCase, gridIndex, cellIndex, this->m_currentTimeStep, this->faultResultSettings()->customFaultResult(), resultInfoText);
@@ -1321,7 +1318,7 @@ void RimReservoirView::updateLegends()
     CVF_ASSERT(results);
 
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
-    if (this->faultResultSettings()->customFaultResult())
+    if (this->faultResultSettings()->hasValidCustomResult())
     {
         updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->faultResultSettings()->customFaultResult(), results);
     }
@@ -1986,19 +1983,14 @@ void RimReservoirView::updateFaultColors()
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
     RimResultSlot* faultResultSlot = this->cellResult();
-    if (this->faultResultSettings()->customFaultResult())
+    if (this->faultResultSettings()->showCustomFaultResult())
     {
         faultResultSlot = this->faultResultSettings()->customFaultResult();
     }
 
-
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
-        if (this->faultResultSettings()->visualizationMode() == RimFaultResultSlot::FAULT_COLOR)
-        {
-            m_reservoirGridPartManager->updateFaultColors(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot);
-        }
-		else if (this->animationMode() && this->cellEdgeResult()->hasResult())
+		if (this->animationMode() && this->cellEdgeResult()->hasResult())
 		{
 			m_reservoirGridPartManager->updateFaultCellEdgeResultColor(faultGeometriesToRecolor[i], m_currentTimeStep, faultResultSlot, this->cellEdgeResult());
 		}
@@ -2039,7 +2031,7 @@ bool RimReservoirView::isTimeStepDependentDataVisible() const
 
     if (this->cellResult()->isTernarySaturationSelected()) return true;
     
-    if (this->faultResultSettings->customFaultResult())
+    if (this->faultResultSettings->showCustomFaultResult())
     {
         if (this->faultResultSettings->customFaultResult()->hasDynamicResult()) return true;
 
