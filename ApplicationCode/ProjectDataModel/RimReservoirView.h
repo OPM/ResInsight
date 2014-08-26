@@ -159,7 +159,7 @@ public:
 
 
     // Picking info
-    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString* pickInfoText) const;
+    bool                                    pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString itemSeparator, QString* pickInfoText) const;
     void                                    appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* resultInfoText) ;
     void                                    appendNNCResultInfo(size_t nncIndex, QString* resultInfo);
     static void                             appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimResultSlot* resultSlot, QString* resultInfoText);

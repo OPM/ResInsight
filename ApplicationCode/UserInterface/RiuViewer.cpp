@@ -416,10 +416,10 @@ void RiuViewer::handlePickAction(int winPosX, int winPosY)
                        
                         cvf::StructGridInterface::FaceType face = rivSourceInfo->m_cellFaceFromTriangleMapper->cellFace(faceIndex);
 
-                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &pickInfo);
+                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, ", ", &pickInfo);
 
                         // Build up result from from both pick info and result values
-                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, &resultInfo);
+                        m_reservoirView->pickInfo(gridIndex, cellIndex, face, localIntersectionPoint, "\n", &resultInfo);
                         resultInfo += "\n";
                         m_reservoirView->appendCellResultInfo(gridIndex, cellIndex, face, &resultInfo);
 #if 0
