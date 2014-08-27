@@ -46,14 +46,21 @@ public:
     static QString combinedTransmissibilityResultName() { return "TRANSXYZ"; }
     static QString ternarySaturationResultName()        { return "TERNARY"; }
     static QString combinedMultResultName()             { return "MULTXYZ"; }
-    static QString combinedRiTransResultName()          { return "riTRANSXYZ"; }
+
     static QString riTransXResultName()                 { return "riTRANSX"; }
     static QString riTransYResultName()                 { return "riTRANSY"; }
     static QString riTransZResultName()                 { return "riTRANSZ"; }
+    static QString combinedRiTransResultName()          { return "riTRANSXYZ"; }
+
     static QString riMultXResultName()                  { return "riMULTX"; }
     static QString riMultYResultName()                  { return "riMULTY"; }
     static QString riMultZResultName()                  { return "riMULTZ"; }
     static QString combinedRiMultResultName()           { return "riMULTXYZ"; }
+
+    static QString riAreaNormTransXResultName()         { return "riTRANSXbyArea"; }
+    static QString riAreaNormTransYResultName()         { return "riTRANSYbyArea"; }
+    static QString riAreaNormTransZResultName()         { return "riTRANSZbyArea"; }
+    static QString combinedRiAreaNormTransResultName()  { return "riTRANSXYZbyArea"; }
 
     // Mock model text identifiers
     static QString mockModelBasic()                 { return "Result Mock Debug Model Simple"; }

@@ -69,6 +69,8 @@ private:
     void                            computeNncCombRiTrans();
     void                            computeRiMULTComponent(const QString& riMultCompName);
     void                            computeNncCombRiMULT();
+    void                            computeRiTRANSbyAreaComponent(const QString& riTransByAreaCompResultName);
+    void                            computeNncCombRiTRANSbyArea();
 
     QString                         getValidCacheFileName();
     QString                         getCacheDirectoryPath();
