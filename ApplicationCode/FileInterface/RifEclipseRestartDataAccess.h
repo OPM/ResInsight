@@ -54,4 +54,5 @@ public:
     virtual bool                results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values) = 0;
 
     virtual void                readWellData(well_info_type * well_info) = 0;
+    virtual int                 readUnitsType() = 0;
 };

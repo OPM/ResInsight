@@ -56,4 +56,6 @@ public:
     static QStringList  filterFileNamesOfType(const QStringList& fileSet, ecl_file_enum fileType);
 
     static void         readGridDimensions(const QString& gridFileName, std::vector< std::vector<int> >& gridDimensions);
+
+    static int          readUnitsType(ecl_file_type* ecl_file);
 };

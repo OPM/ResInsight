@@ -16,28 +16,29 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "cvfBase.h"
-
-#include "RigMainGrid.h"
-#include "RigCaseData.h"
-#include "RigCaseCellResultsData.h"
-
 #include "RifReaderEclipseOutput.h"
+
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+
+#include "RifEclipseInputFileTools.h"
 #include "RifEclipseOutputFileTools.h"
-#include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifEclipseRestartFilesetAccess.h"
+#include "RifEclipseUnifiedRestartFileAccess.h"
 #include "RifReaderInterface.h"
 
-#include <iostream>
+#include "cafProgressInfo.h"
 
 #include "ecl_grid.h"
 #include "well_state.h"
 #include "ecl_kw_magic.h"
 #include "ecl_nnc_export.h"
 
-#include "cafProgressInfo.h"
+#include <iostream>
 #include <map>
-#include "RifEclipseInputFileTools.h"
+#include <cmath> // Needed for HUGE_VAL on Linux
+
 
 //--------------------------------------------------------------------------------------------------
 ///     ECLIPSE cell numbering layout:
@@ -676,6 +677,22 @@ void RifReaderEclipseOutput::buildMetaData()
                 fractureModelResults->setTimeStepDates(resIndex, m_timeSteps);
             }
         }
+
+        // Default units type is METRIC
+        RigCaseData::UnitsType unitsType = RigCaseData::UNITS_METRIC;
+        {
+            int unitsTypeValue = m_dynamicResultsAccess->readUnitsType();
+            if (unitsTypeValue == 2)
+            {
+                unitsType = RigCaseData::UNITS_FIELD;
+            }
+            else if (unitsTypeValue == 3)
+            {
+                unitsType = RigCaseData::UNITS_LAB;
+            }
+        }
+
+        m_eclipseCase->setUnitsType(unitsType);
     }
 
     progInfo.incrementProgress();

@@ -240,3 +240,19 @@ void RifEclipseRestartFilesetAccess::openTimeStep(size_t timeStep)
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RifEclipseRestartFilesetAccess::readUnitsType()
+{
+    ecl_file_type* ecl_file = NULL;
+
+    if (m_ecl_files.size() > 0)
+    {
+        openTimeStep(0);
+        ecl_file = m_ecl_files[0];
+    }
+
+    return RifEclipseOutputFileTools::readUnitsType(ecl_file);
+}
+

@@ -47,6 +47,7 @@ public:
     bool                        results(const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values);
 
     virtual void                readWellData(well_info_type* well_info);
+    virtual int                 readUnitsType();
 
 private:
     void                        openTimeStep(size_t timeStep);

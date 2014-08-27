@@ -329,3 +329,26 @@ void RifEclipseOutputFileTools::readGridDimensions(const QString& gridFileName, 
     stringlist_free( lgr_names );
 
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Returns the following integer values from the first INTEHEAD keyword found
+///  1  : METRIC
+///  2  : FIELD
+///  3  : LAB
+///  -1 : No INTEHEAD keyword found
+//--------------------------------------------------------------------------------------------------
+int RifEclipseOutputFileTools::readUnitsType(ecl_file_type* ecl_file)
+{
+    int unitsType = -1;
+
+    if (ecl_file)
+    {
+        ecl_kw_type* kwINTEHEAD = ecl_file_iget_named_kw(ecl_file, INTEHEAD_KW, 0);
+        if (kwINTEHEAD)
+        {
+            unitsType = ecl_kw_iget_int(kwINTEHEAD, INTEHEAD_UNIT_INDEX);
+        }
+    }
+
+    return unitsType;
+}

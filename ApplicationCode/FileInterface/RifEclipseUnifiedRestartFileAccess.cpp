@@ -163,3 +163,13 @@ void RifEclipseUnifiedRestartFileAccess::setRestartFiles(const QStringList& file
    
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+int RifEclipseUnifiedRestartFileAccess::readUnitsType()
+{
+    openFile();
+
+    return RifEclipseOutputFileTools::readUnitsType(m_ecl_file);
+}
+

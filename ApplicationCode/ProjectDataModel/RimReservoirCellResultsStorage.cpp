@@ -18,20 +18,24 @@
 
 #include "RimReservoirCellResultsStorage.h"
 
-#include "RigCaseCellResultsData.h"
 #include "RigActiveCellInfo.h"
-#include "RigMainGrid.h"
+#include "RigCaseCellResultsData.h"
+#include "RigCaseData.h"
 #include "RigCell.h"
+#include "RigMainGrid.h"
+
+#include "RimCase.h"
 #include "RimTools.h"
 
 #include "cafProgressInfo.h"
+
+#include "cvfGeometryTools.h"
 
 #include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QUuid>
-#include "cvfGeometryTools.h"
 
 CAF_PDM_SOURCE_INIT(RimReservoirCellResultsStorage, "ReservoirCellResultStorage");
 
@@ -789,8 +793,7 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
         CVF_ASSERT(false);
     }
 
-    // Todo: Get the correct one from Unit set read by ERT
-    double cdarchy = 0.008527; // (ECLIPSE 100) (METRIC)
+    double cdarchy = darchysValue();
 
     // Get the needed result indices we depend on
 
@@ -935,8 +938,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
     size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTransResultName());
     if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransScalarResultIndex)) return;
 
-    // Todo: Get the correct one from Unit set read by ERT
-    double cdarchy = 0.008527; // (ECLIPSE 100) (METRIC)
+    double cdarchy = darchysValue();
 
     // Get the needed result indices we depend on
 
@@ -1110,7 +1112,6 @@ void RimReservoirCellResultsStorage::computeRiMULTComponent(const QString& riMul
 
     // Set up which component to compute
 
-    cvf::StructGridInterface::FaceType faceId;
     QString riTransCompName;
     QString transCompName;
 
@@ -1457,6 +1458,40 @@ bool RimReservoirCellResultsStorage::isDataPresent(size_t scalarResultIndex) con
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+double RimReservoirCellResultsStorage::darchysValue()
+{
+    // See "Cartesian transmissibility calculations" in the "Eclipse Technical Description"
+    //     CDARCY Darcys constant
+    //         = 0.00852702 (E300); 0.008527 (ECLIPSE 100) (METRIC)
+    //         = 0.00112712 (E300); 0.001127 (ECLIPSE 100) (FIELD)
+    //         = 3.6 (LAB)
+    //         = 0.00864 (PVT - M)
+
+    double darchy = 0.008527; // (ECLIPSE 100) (METRIC)
+
+    RimCase* rimCase = NULL;
+    this->firstAncestorOfType(rimCase);
+
+    if (rimCase && rimCase->reservoirData())
+    {
+        RigCaseData::UnitsType unitsType = rimCase->reservoirData()->unitsType();
+
+        if (unitsType == RigCaseData::UNITS_FIELD)
+        {
+            darchy = 0.001127;
+        }
+        else if (unitsType == RigCaseData::UNITS_LAB)
+        {
+            darchy = 3.6;
+        }
+    }
+
+    return darchy;
 }
 
 

@@ -30,8 +30,16 @@
 class RigCaseCellResultsData;
 
 
-class RigCaseData: public cvf::Object
+class RigCaseData : public cvf::Object
 {
+public:
+    enum UnitsType
+    {
+        UNITS_METRIC,
+        UNITS_FIELD,
+        UNITS_LAB
+    };
+
 public:
     RigCaseData();
     ~RigCaseData();
@@ -64,6 +72,9 @@ public:
 
     void                                        computeActiveCellBoundingBoxes();
 
+    UnitsType                                   unitsType() const                   { return m_unitsType; }
+    void                                        setUnitsType(UnitsType unitsType)   { m_unitsType = unitsType; }
+
 private:
     void                                        computeActiveCellIJKBBox();
     void                                        computeWellCellsPrGrid();
@@ -80,4 +91,6 @@ private:
     cvf::Collection<RigSingleWellResultsData>   m_wellResults;     //< A WellResults object for each well in the reservoir
     cvf::Collection<cvf::UByteArray>            m_wellCellsInGrid; //< A bool array pr grid with one bool pr cell telling wether the cell is a well cell or not
     cvf::Collection<cvf::UIntArray>             m_gridCellToWellIndex; //< Array pr grid with index to well pr cell telling which well a cell is in
+
+    UnitsType                                   m_unitsType;
 };
