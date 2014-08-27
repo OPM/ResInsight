@@ -824,9 +824,11 @@ bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively(QF
         }
         else if (line.startsWith(faultsKeyword, Qt::CaseInsensitive))
         {
-            readFaults(file, file.pos(), faults, isEditKeywordDetected);
-
-            filenamesWithFaults.push_back(file.fileName());
+            if (!line.contains("/"))
+            {
+                readFaults(file, file.pos(), faults, isEditKeywordDetected);
+                filenamesWithFaults.push_back(file.fileName());
+            }
         }
 
         if (isEditKeywordDetected && *isEditKeywordDetected)
