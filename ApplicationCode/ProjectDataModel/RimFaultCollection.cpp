@@ -254,7 +254,8 @@ void RimFaultCollection::syncronizeFaults()
             size_t i2, j2, k2;
             mainGrid->ijkFromCellIndex(nncConnections[i].m_c2GlobIdx, &i2, &j2, &k2);
 
-            QString txt = QString("[%1 %2 %3] - [%4 %5 %6]").arg(i1).arg(j1).arg(k1).arg(i2).arg(j2).arg(k2);
+            // Convert to 1-based for IJK values to be displayed to the user
+            QString txt = QString("[%1 %2 %3] - [%4 %5 %6]").arg(i1 + 1).arg(j1 + 1).arg(k1 + 1).arg(i2 + 1).arg(j2 + 1).arg(k2 + 1);
 
             noCommonAreaNnc->name = txt;
             this->noCommonAreaNnncCollection()->noCommonAreaNncs().push_back(noCommonAreaNnc);
