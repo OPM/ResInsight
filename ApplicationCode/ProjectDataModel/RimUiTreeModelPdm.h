@@ -65,7 +65,7 @@ public:
     void                        addToParentAndBuildUiItems(caf::PdmUiTreeItem* parentTreeItem, int position, caf::PdmObject* pdmObject);
     
     void                        populateObjectGroupFromModelIndexList(const QModelIndexList& modelIndexList, caf::PdmObjectGroup* objectGroup);
-    void                        addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
+    void                        addObjects(const QModelIndex& itemIndex, const caf::PdmObjectGroup& pdmObjects);
     void                        moveObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects);
     
     RimStatisticsCase*          addStatisticalCalculation(const QModelIndex& itemIndex, QModelIndex& insertedModelIndex);

@@ -610,7 +610,7 @@ RimIdenticalGridCaseGroup* RimUiTreeModelPdm::addCaseGroup(QModelIndex& inserted
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectGroup& pdmObjects)
+void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, const caf::PdmObjectGroup& pdmObjects)
 {
     RimProject* proj = RiaApplication::instance()->project();
     CVF_ASSERT(proj);
@@ -638,6 +638,8 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             mainResultCase->readGridDimensions(mainCaseGridDimensions);
         }
 
+        std::vector<RimResultCase*> insertedCases;
+
         // Add cases to case group
         for (size_t i = 0; i < typedObjects.size(); i++)
         {
@@ -650,6 +652,22 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 continue;
             }
 
+            insertedCases.push_back(rimResultReservoir);
+        }
+
+        // Initialize the new objects
+        for (size_t i = 0; i < insertedCases.size(); i++)
+        {
+            RimResultCase* rimResultReservoir = insertedCases[i];
+            caf::PdmDocument::initAfterReadTraversal(rimResultReservoir);
+        }
+
+        // Load stuff 
+        for (size_t i = 0; i < insertedCases.size(); i++)
+        {
+            RimResultCase* rimResultReservoir = insertedCases[i];
+
+ 
             if (!mainResultCase)
             {
                 rimResultReservoir->openEclipseGridFile();
@@ -690,9 +708,9 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
                 endInsertRows();
             }
 
-            for (size_t i = 0; i < rimResultReservoir->reservoirViews.size(); i++)
+            for (size_t rvIdx = 0; rvIdx < rimResultReservoir->reservoirViews.size(); rvIdx++)
             {
-                RimReservoirView* riv = rimResultReservoir->reservoirViews()[i];
+                RimReservoirView* riv = rimResultReservoir->reservoirViews()[rvIdx];
                 riv->loadDataAndUpdate();
             }
         }
@@ -717,16 +735,17 @@ void RimUiTreeModelPdm::addObjects(const QModelIndex& itemIndex, caf::PdmObjectG
             RimReservoirView* rimReservoirView = typedObjects[i];
             QString nameOfCopy = QString("Copy of ") + rimReservoirView->name;
             rimReservoirView->name = nameOfCopy;
-
-            rimReservoirView->setEclipseCase(rimCase);
-
+            rimCase->reservoirViews().push_back(rimReservoirView);
+ 
             // Delete all wells to be able to copy/paste between cases, as the wells differ between cases
             rimReservoirView->wellCollection()->wells().deleteAllChildObjects();
+
+            caf::PdmDocument::initAfterReadTraversal(rimReservoirView);
+            rimReservoirView->setEclipseCase(rimCase);
 
             caf::PdmDocument::updateUiIconStateRecursively(rimReservoirView);
 
             rimReservoirView->loadDataAndUpdate(); 
-            rimCase->reservoirViews().push_back(rimReservoirView);
 
             int position = static_cast<int>(rimCase->reservoirViews().size());
             beginInsertRows(collectionIndex, position, position);

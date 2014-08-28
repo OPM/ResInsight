@@ -127,10 +127,11 @@ class PdmDocument: public PdmObjectGroup
     void                writeFile(QIODevice* device);
 
     static void         updateUiIconStateRecursively(PdmObject * root);
+    static void         initAfterReadTraversal(PdmObject * root);
 
 private:
     static void         setupBeforeSaveTraversal(PdmObject * root);
-    static void         initAfterReadTraversal(PdmObject * root);
+
 };
 
 
