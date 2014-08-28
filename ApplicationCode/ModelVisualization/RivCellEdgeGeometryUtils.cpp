@@ -150,7 +150,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 
 			double scalarValue = cellEdgeResultAccessor->cellFaceScalar(cellIndex, static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx));
 
-			if (scalarValue != HUGE_VAL && scalarValue != ignoredScalarValue)
+            if (!hideScalarValue(scalarValue, ignoredScalarValue, 1e-2))
 			{
 				edgeColor = edgeResultScalarMapper->mapToTextureCoord(scalarValue)[0];
 			}
@@ -178,6 +178,10 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 	geo->setVertexAttribute(new cvf::FloatVertexAttribute("a_colorNegK", cellEdgeColorTextureCoordsArrays.at(5)));
 }
 
+bool RivCellEdgeGeometryUtils::hideScalarValue(double scalarValue, double scalarValueToHide, double tolerance)
+{
+    return (scalarValue == HUGE_VAL || abs(scalarValue - scalarValueToHide) <= scalarValueToHide*tolerance);
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -247,7 +251,7 @@ void RivCellEdgeGeometryUtils::addTernaryCellEdgeResultsToDrawableGeo(size_t tim
 
 			double scalarValue = cellEdgeResultAccessor->cellFaceScalar(cellIndex, static_cast<cvf::StructGridInterface::FaceType>(cubeFaceIdx));
 
-			if (scalarValue != HUGE_VAL && scalarValue != ignoredScalarValue)
+            if (!hideScalarValue(scalarValue, ignoredScalarValue, 1e-2))
 			{
 				edgeColor = edgeResultScalarMapper->mapToTextureCoord(scalarValue)[0];
 			}

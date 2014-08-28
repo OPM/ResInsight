@@ -1104,15 +1104,16 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 double riMult(double transResults, double riTransResults)
 {
     // To make 0.0 values give 1.0 in mult value
-    // We might want a tolerance here.
-    if (transResults == riTransResults)
+
+    if (riTransResults == 0.0)
     {
-        return 1.0;
+        if (abs (transResults)  < 1e-12)
+        {
+            return 1.0;
+        }
     }
-    else
-    {
-        return transResults / riTransResults;
-    }
+
+    return transResults / riTransResults;
 }
 
 //--------------------------------------------------------------------------------------------------

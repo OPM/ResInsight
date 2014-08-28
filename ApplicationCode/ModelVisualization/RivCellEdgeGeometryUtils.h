@@ -67,4 +67,6 @@ private:
 		size_t timeStepIndex,
 		RigCaseData* eclipseCase,
 		const RigGridBase* grid);
+
+    static bool hideScalarValue(double scalarValue, double scalarValueToHide, double tolerance);
 };
