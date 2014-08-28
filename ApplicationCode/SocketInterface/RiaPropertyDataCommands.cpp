@@ -416,6 +416,9 @@ public:
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
                 scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                size_t timeStepCount = rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
+                scalarResultFrames->resize(timeStepCount);
+
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -482,17 +485,6 @@ public:
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
 
             return true;
-        }
-
-        // Resize the result container to be able to receive timesteps at the specified timestep idices
-
-        std::vector<size_t>::iterator maxTimeStepIt = std::max_element(m_requestedTimesteps.begin(), m_requestedTimesteps.end());
-        CVF_ASSERT(maxTimeStepIt != m_requestedTimesteps.end());
-
-        size_t maxTimeStepIdx = (*maxTimeStepIt);
-        if (scalarResultFrames->size() <= maxTimeStepIdx)
-        {
-            scalarResultFrames->resize(maxTimeStepIdx+1);
         }
 
         m_currentReservoir = rimCase;
@@ -778,6 +770,9 @@ public:
             if (scalarResultIndex != cvf::UNDEFINED_SIZE_T)
             {
                 scalarResultFrames = &(rimCase->results(m_porosityModelEnum)->cellResults()->cellScalarResults(scalarResultIndex));
+                size_t timeStepCount = rimCase->results(m_porosityModelEnum)->cellResults()->maxTimeStepCount();
+                scalarResultFrames->resize(timeStepCount);
+
                 m_currentScalarIndex = scalarResultIndex;
                 m_currentPropertyName = propertyName;
             }
@@ -832,17 +827,6 @@ public:
             server->errorMessageDialog()->showMessage(RiaSocketServer::tr("ResInsight SocketServer: \n") + RiaSocketServer::tr("No time steps specified").arg(porosityModelName).arg(propertyName));
 
             return true;
-        }
-
-        // Resize the result container to be able to receive time steps at the specified time step indices
-
-        std::vector<size_t>::iterator maxTimeStepIt = std::max_element(m_requestedTimesteps.begin(), m_requestedTimesteps.end());
-        CVF_ASSERT(maxTimeStepIt != m_requestedTimesteps.end());
-
-        size_t maxTimeStepIdx = (*maxTimeStepIt);
-        if (scalarResultFrames->size() <= maxTimeStepIdx)
-        {
-            scalarResultFrames->resize(maxTimeStepIdx+1);
         }
 
         m_currentReservoir = rimCase;
