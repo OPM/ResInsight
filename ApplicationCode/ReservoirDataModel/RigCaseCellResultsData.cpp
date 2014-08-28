@@ -522,12 +522,17 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
     // SOIL
     {
-        size_t swatIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SWAT");
-        size_t sgasIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SGAS");
-
-        if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
+        size_t soilIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SOIL");
+        if (soilIndex == cvf::UNDEFINED_SIZE_T)
         {
-            addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
+            size_t swatIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            size_t sgasIndex = findScalarResultIndex(RimDefines::DYNAMIC_NATIVE, "SGAS");
+
+            if (swatIndex != cvf::UNDEFINED_SIZE_T || sgasIndex != cvf::UNDEFINED_SIZE_T)
+            {
+                soilIndex = addEmptyScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL", false);
+                this->setMustBeCalculated(soilIndex);
+            }
         }
     }
 

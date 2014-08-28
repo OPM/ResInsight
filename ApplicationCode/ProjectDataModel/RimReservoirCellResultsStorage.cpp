@@ -332,19 +332,25 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
 
     if (resultName == "SOIL")
     {
-        // Trigger loading of SWAT, SGAS to establish time step count if no data has been loaded from file at this point
-        findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-        findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-
-        for (size_t timeStepIdx = 0; timeStepIdx < m_cellResults->maxTimeStepCount(); timeStepIdx++)
+        if (m_cellResults->mustBeCalculated(scalarResultIndex))
         {
-            computeSOILForTimeStep(timeStepIdx);
+            // Trigger loading of SWAT, SGAS to establish time step count if no data has been loaded from file at this point
+            findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
+            findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
+
+            m_cellResults->cellScalarResults(scalarResultIndex).resize(m_cellResults->maxTimeStepCount());
+            for (size_t timeStepIdx = 0; timeStepIdx < m_cellResults->maxTimeStepCount(); timeStepIdx++)
+            {
+                std::vector<double>& values = m_cellResults->cellScalarResults(scalarResultIndex)[timeStepIdx];
+                if (values.size() == 0)
+                {
+                    computeSOILForTimeStep(timeStepIdx);
+                }
+            }
+
+            return scalarResultIndex;
         }
-
-        return scalarResultIndex;
     }
-
- 
 
     if (type == RimDefines::GENERATED)
     {
@@ -405,11 +411,17 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResultForTimeStep(RimDefi
     if (type == RimDefines::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL")
     {
         size_t soilScalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
-        {
-            computeSOILForTimeStep(timeStepIndex);
-        }
 
-        return soilScalarResultIndex;
+        if (m_cellResults->mustBeCalculated(soilScalarResultIndex))
+        {
+            std::vector<double>& values = m_cellResults->cellScalarResults(soilScalarResultIndex)[timeStepIndex];
+            if (values.size() == 0)
+            {
+                computeSOILForTimeStep(timeStepIndex);
+            }
+
+            return soilScalarResultIndex;
+        }
     }
 
     size_t scalarResultIndex = m_cellResults->findScalarResultIndex(type, resultName);
@@ -552,7 +564,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
             soilValue -= swatForTimeStep->at(idx);
         }
 
-        soilForTimeStep[idx] = soilValue;
+        soilForTimeStep[idx] = cvf::Math::clamp(soilValue, 0.0, 1.0);
     }
 }
 
