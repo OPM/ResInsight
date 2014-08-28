@@ -299,7 +299,7 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads(std::vector<IndexType> * p
     {
   
         int k;
-        for (k = 0; k < 4; ++k)
+        for (k = 3; k >= 0; --k) // Return opposite winding, to match winding of face 1
         {
             polygon->push_back(cv2CubeFaceIndices[k]);
         }
