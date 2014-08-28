@@ -1498,9 +1498,18 @@ double RimReservoirCellResultsStorage::darchysValue()
         {
             darchy = 0.001127;
         }
+        else if (unitsType == RigCaseData::UNITS_METRIC)
+        {
+            darchy = 0.008527;
+        }
         else if (unitsType == RigCaseData::UNITS_LAB)
         {
             darchy = 3.6;
+        }
+        else
+        {
+            darchy = 0.00864; // Assuming (PVT - M)
+            CVF_TIGHT_ASSERT(false); // The enum and doc does not state that the PVT-M actually exists, so to trap this in debug
         }
     }
 
