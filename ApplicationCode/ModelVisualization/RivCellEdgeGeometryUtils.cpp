@@ -180,7 +180,7 @@ void RivCellEdgeGeometryUtils::addCellEdgeResultsToDrawableGeo(
 
 bool RivCellEdgeGeometryUtils::hideScalarValue(double scalarValue, double scalarValueToHide, double tolerance)
 {
-    return (scalarValue == HUGE_VAL || abs(scalarValue - scalarValueToHide) <= scalarValueToHide*tolerance);
+    return (scalarValue == HUGE_VAL || cvf::Math::abs(scalarValue - scalarValueToHide) <= scalarValueToHide*tolerance);
 }
 
 //--------------------------------------------------------------------------------------------------

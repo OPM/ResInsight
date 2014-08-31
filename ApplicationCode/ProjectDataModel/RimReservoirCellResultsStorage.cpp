@@ -1107,7 +1107,7 @@ double riMult(double transResults, double riTransResults)
 
     if (riTransResults == 0.0)
     {
-        if (abs (transResults)  < 1e-12)
+        if (cvf::Math::abs (transResults)  < 1e-12)
         {
             return 1.0;
         }
