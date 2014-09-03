@@ -1979,7 +1979,7 @@ void RiuMainWindow::slotAddWellCellsToRangeFilterAction(bool doAdd)
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotOpenUsersGuideInBrowserAction()
 {
-    QString usersGuideUrl = "https://github.com/OPM/ResInsight/wiki";
+    QString usersGuideUrl = "http://resinsight.org/";
     
     if (!QDesktopServices::openUrl(usersGuideUrl))
     {
