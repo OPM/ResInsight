@@ -1026,6 +1026,8 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
             break;
         }
 
+        if (!permIdxFunc) continue;
+
         // Do nothing if we are only dealing with active cells, and this cell is not active:
         size_t nativeCellPermResIdx = (*permIdxFunc)(activeCellInfo, nativeResvCellIndex);
         if (nativeCellPermResIdx == cvf::UNDEFINED_SIZE_T) continue;
