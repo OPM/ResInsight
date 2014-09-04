@@ -71,10 +71,10 @@ RimFaultCollection::RimFaultCollection()
     
     CAF_PDM_InitField(&showNNCs, "ShowNNCs", false, "Show NNCs", "", "", "");
 
-    CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
-
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNnncCollection, "NoCommonAreaNnncCollection", "NNCs With No Common Area", "", "", "");
     noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
+
+    CAF_PDM_InitFieldNoDefault(&faults, "Faults", "Faults", "", "", "");
 
     m_reservoirView = NULL;
 }
@@ -260,6 +260,8 @@ void RimFaultCollection::syncronizeFaults()
             noCommonAreaNnc->name = txt;
             this->noCommonAreaNnncCollection()->noCommonAreaNncs().push_back(noCommonAreaNnc);
         }
+
+        this->noCommonAreaNnncCollection()->updateName();
     }
 }
 

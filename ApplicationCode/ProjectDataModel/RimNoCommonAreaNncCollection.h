@@ -35,5 +35,10 @@ public:
     RimNoCommonAreaNncCollection();
     virtual ~RimNoCommonAreaNncCollection();
 
-    caf::PdmPointersField<RimNoCommonAreaNNC*>    noCommonAreaNncs;
+    void                        updateName();
+
+    virtual caf::PdmFieldHandle* userDescriptionField();
+    
+    caf::PdmField<QString>                      name;
+    caf::PdmPointersField<RimNoCommonAreaNNC*>  noCommonAreaNncs;
 };

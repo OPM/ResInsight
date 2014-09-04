@@ -27,6 +27,9 @@ RimNoCommonAreaNncCollection::RimNoCommonAreaNncCollection()
 {
     CAF_PDM_InitObject("RimNoCommonAreaNncCollection", "", "", "");
 
+    CAF_PDM_InitField(&name, "UserDescription", QString("No Common Area Nncs"), "Name", "", "", "");
+    name.setUiHidden(true);
+
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNncs, "NoCommonAreaNncs", "NoCommonAreaNncs", "", "", "");
 }
 
@@ -36,5 +39,21 @@ RimNoCommonAreaNncCollection::RimNoCommonAreaNncCollection()
 RimNoCommonAreaNncCollection::~RimNoCommonAreaNncCollection()
 {
     noCommonAreaNncs.deleteAllChildObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimNoCommonAreaNncCollection::userDescriptionField()
+{
+    return &name;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RimNoCommonAreaNncCollection::updateName()
+{
+    name = QString("NNCs With No Common Area (%1)").arg(noCommonAreaNncs().size());
 }
 
