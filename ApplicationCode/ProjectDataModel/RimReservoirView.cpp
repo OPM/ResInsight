@@ -1320,7 +1320,7 @@ void RimReservoirView::updateLegends()
     CVF_ASSERT(results);
 
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
-    if (this->faultResultSettings()->hasValidCustomResult())
+    if (this->faultResultSettings()->showCustomFaultResult() && this->faultResultSettings()->hasValidCustomResult())
     {
         updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->faultResultSettings()->customFaultResult(), results);
     }
