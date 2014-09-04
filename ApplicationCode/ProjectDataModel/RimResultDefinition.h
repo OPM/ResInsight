@@ -51,7 +51,7 @@ public:
     virtual void                    setResultVariable(const QString& val);
 
     void                            loadResult();
-    size_t                          gridScalarIndex() const;
+    size_t                          scalarResultIndex() const;
     bool                            hasStaticResult() const;
     bool                            hasDynamicResult() const;
     bool                            hasResult() const;

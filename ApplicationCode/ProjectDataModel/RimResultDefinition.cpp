@@ -178,7 +178,7 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t RimResultDefinition::gridScalarIndex() const
+size_t RimResultDefinition::scalarResultIndex() const
 {
     size_t gridScalarResultIndex = cvf::UNDEFINED_SIZE_T;
 
@@ -210,7 +210,7 @@ void RimResultDefinition::loadResult()
 bool RimResultDefinition::hasStaticResult() const
 {
     const RimReservoirCellResultsStorage* gridCellResults = this->currentGridCellResults();
-    size_t gridScalarResultIndex = this->gridScalarIndex();
+    size_t gridScalarResultIndex = this->scalarResultIndex();
 
     if (hasResult() && gridCellResults->cellResults()->timeStepCount(gridScalarResultIndex) == 1 )
     {
@@ -253,7 +253,7 @@ bool RimResultDefinition::hasDynamicResult() const
         if (this->currentGridCellResults() && this->currentGridCellResults()->cellResults())
         {
             const RigCaseCellResultsData* gridCellResults = this->currentGridCellResults()->cellResults();
-            size_t gridScalarResultIndex = this->gridScalarIndex();
+            size_t gridScalarResultIndex = this->scalarResultIndex();
             if (gridCellResults->timeStepCount(gridScalarResultIndex) > 1 )
             {
                 return true;

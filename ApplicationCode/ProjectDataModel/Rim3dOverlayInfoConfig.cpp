@@ -150,7 +150,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double min, max;
             double p10, p90;
             double mean;
-            size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
+            size_t scalarIndex = m_reservoirView->cellResult()->scalarResultIndex();
             m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
             m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
             m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);
@@ -224,7 +224,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
             double p10, p90;
             double mean;
 
-            size_t scalarIndex = m_reservoirView->cellResult()->gridScalarIndex();
+            size_t scalarIndex = m_reservoirView->cellResult()->scalarResultIndex();
             m_reservoirView->currentGridCellResults()->cellResults()->minMaxCellScalarValues(scalarIndex, min, max);
             m_reservoirView->currentGridCellResults()->cellResults()->p10p90CellScalarValues(scalarIndex, p10, p90);
             m_reservoirView->currentGridCellResults()->cellResults()->meanCellScalarValues(scalarIndex, mean);

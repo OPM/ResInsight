@@ -1354,15 +1354,15 @@ void RimReservoirView::updateMinMaxValuesAndAddLegendToView(QString legendLabel,
     {
         double globalMin, globalMax;
         double globalPosClosestToZero, globalNegClosestToZero;
-        cellResultsData->minMaxCellScalarValues(resultSlot->gridScalarIndex(), globalMin, globalMax);
-        cellResultsData->posNegClosestToZero(resultSlot->gridScalarIndex(), globalPosClosestToZero, globalNegClosestToZero);
+        cellResultsData->minMaxCellScalarValues(resultSlot->scalarResultIndex(), globalMin, globalMax);
+        cellResultsData->posNegClosestToZero(resultSlot->scalarResultIndex(), globalPosClosestToZero, globalNegClosestToZero);
 
         double localMin, localMax;
         double localPosClosestToZero, localNegClosestToZero;
         if (resultSlot->hasDynamicResult())
         {
-            cellResultsData->minMaxCellScalarValues(resultSlot->gridScalarIndex(), m_currentTimeStep, localMin, localMax);
-            cellResultsData->posNegClosestToZero(resultSlot->gridScalarIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
+            cellResultsData->minMaxCellScalarValues(resultSlot->scalarResultIndex(), m_currentTimeStep, localMin, localMax);
+            cellResultsData->posNegClosestToZero(resultSlot->scalarResultIndex(), m_currentTimeStep, localPosClosestToZero, localNegClosestToZero);
         }
         else
         {
@@ -1820,7 +1820,7 @@ void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
             cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
 
             // Print result value for the NNC
-            size_t scalarResultIdx = this->cellResult()->gridScalarIndex();
+            size_t scalarResultIdx = this->cellResult()->scalarResultIndex();
             const std::vector<double>* nncValues = nncData->connectionScalarResult(scalarResultIdx);
             if (nncValues)
             {
@@ -2176,12 +2176,12 @@ void RimReservoirView::appendTextFromResultSlot(RigCaseData* eclipseCase, size_t
             }
             else
             {
-                resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, resultSlot->gridScalarIndex());
+                resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, resultSlot->scalarResultIndex());
             }
         }
         else
         {
-            resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultSlot->gridScalarIndex());
+            resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultSlot->scalarResultIndex());
         }
 
         if (resultAccessor.notNull())

@@ -99,7 +99,7 @@ void RivFaultPartMgr::updateCellResultColor(size_t timeStepIndex, RimResultSlot*
 
     updateNNCColors(cellResultSlot);
 
-    size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
+    size_t scalarSetIndex = cellResultSlot->scalarResultIndex();
 
     // If the result is static, only read that.
     size_t resTimeStepIdx = timeStepIndex;
@@ -656,7 +656,7 @@ void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
              || cellResultSlot->resultVariable() == RimDefines::combinedRiAreaNormTransResultName()
              ))
     {
-        size_t scalarSetIndex = cellResultSlot->gridScalarIndex();
+        size_t scalarSetIndex = cellResultSlot->scalarResultIndex();
 
         const cvf::ScalarMapper* mapper = cellResultSlot->legendConfig()->scalarMapper();
 
