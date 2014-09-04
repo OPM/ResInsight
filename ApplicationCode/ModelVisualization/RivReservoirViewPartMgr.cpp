@@ -713,7 +713,7 @@ void RivReservoirViewPartMgr::computePropertyVisibility(cvf::UByteArray* cellVis
                 const double lowerBound = (*pfIt)->lowerBound();
                 const double upperBound = (*pfIt)->upperBound();
 
-                size_t scalarResultIndex = (*pfIt)->resultDefinition->gridScalarIndex();
+                size_t scalarResultIndex = (*pfIt)->resultDefinition->scalarResultIndex();
 
                 size_t adjustedTimeStepIndex = timeStepIndex;
 

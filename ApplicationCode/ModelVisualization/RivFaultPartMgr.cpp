@@ -649,12 +649,19 @@ void RivFaultPartMgr::updateNNCColors(RimResultSlot* cellResultSlot)
 {
     if (m_NNCFaces.isNull()) return;
 
-    if (cellResultSlot 
-        && ( cellResultSlot->resultVariable() == RimDefines::combinedTransmissibilityResultName() 
-             || cellResultSlot->resultVariable() == RimDefines::combinedRiTransResultName()
-             || cellResultSlot->resultVariable() == RimDefines::combinedRiMultResultName() 
-             || cellResultSlot->resultVariable() == RimDefines::combinedRiAreaNormTransResultName()
-             ))
+    bool showNncsWithScalarMappedColor = false;
+
+    if (cellResultSlot)
+    {
+        size_t scalarSetIndex = cellResultSlot->scalarResultIndex();
+
+        if (m_grid->mainGrid()->nncData()->hasScalarValues(scalarSetIndex))
+        {
+            showNncsWithScalarMappedColor = true;
+        }
+    }
+
+    if (showNncsWithScalarMappedColor)
     {
         size_t scalarSetIndex = cellResultSlot->scalarResultIndex();
 

@@ -93,6 +93,8 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
     RimFaultCollection* faultCollection = m_reservoirView->faultCollection();
     if (!faultCollection) return;
 
+    RimFaultResultSlot* faultResultSlot = m_reservoirView->faultResultSettings();
+
     bool isShowingGrid = faultCollection->isGridVisualizationMode();
     if (!faultCollection->showFaultCollection() && !isShowingGrid) return;
     
@@ -144,7 +146,16 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
         {
             if (faultCollection->showNNCs())
             {
-                rivFaultPart->appendNNCFacesToModel(&parts);
+                bool showNncs = true;
+                if (faultResultSlot->hideNncsWhenNoResultIsAvailable())
+                {
+                    showNncs = faultResultSlot->isNncResultAvailable();
+                }
+
+                if (showNncs)
+                {
+                    rivFaultPart->appendNNCFacesToModel(&parts);
+                }
             }
         }
     }

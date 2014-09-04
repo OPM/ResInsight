@@ -40,8 +40,10 @@ public:
     void setReservoirView(RimReservoirView* ownerReservoirView);
 
     caf::PdmField<bool>     showCustomFaultResult;
+    caf::PdmField<bool>     hideNncsWhenNoResultIsAvailable;
 
     bool                    hasValidCustomResult();
+    bool                    isNncResultAvailable();
     RimResultSlot*          customFaultResult();
 
     void                    updateFieldVisibility();

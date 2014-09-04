@@ -236,7 +236,7 @@ void RimCellPropertyFilter::computeResultValueRange()
     double min = 0.0;
     double max = 0.0;
 
-    size_t scalarIndex = resultDefinition->gridScalarIndex();
+    size_t scalarIndex = resultDefinition->scalarResultIndex();
     if (scalarIndex != cvf::UNDEFINED_SIZE_T)
     {
         RimReservoirCellResultsStorage* results = resultDefinition->currentGridCellResults();

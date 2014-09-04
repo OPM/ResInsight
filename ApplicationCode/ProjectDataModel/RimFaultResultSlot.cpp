@@ -18,10 +18,14 @@
 
 #include "RimFaultResultSlot.h"
 
+#include "RigCaseData.h"
+#include "RigMainGrid.h"
+
+#include "RimCase.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
-#include "RiuMainWindow.h"
 #include "RimUiTreeModelPdm.h"
+#include "RiuMainWindow.h"
 
 
 
@@ -46,6 +50,8 @@ RimFaultResultSlot::RimFaultResultSlot()
     m_customFaultResult->m_resultTypeUiField.setOwnerObject(this);
     m_customFaultResult->m_porosityModelUiField.setOwnerObject(this);
     m_customFaultResult->m_resultVariableUiField.setOwnerObject(this);
+
+    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC geometry if no NNC result is available", "", "", "");
 
     updateFieldVisibility();
 }
@@ -145,6 +151,25 @@ bool RimFaultResultSlot::hasValidCustomResult()
     if (m_customFaultResult->hasResult() || m_customFaultResult->isTernarySaturationSelected())
     {
         return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RimFaultResultSlot::isNncResultAvailable()
+{
+    if (this->hasValidCustomResult())
+    {
+        size_t scalarSetIndex = this->customFaultResult()->scalarResultIndex();
+
+        RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+        if (mainGrid && mainGrid->nncData()->hasScalarValues(scalarSetIndex))
+        {
+            return true;
+        }
     }
 
     return false;
