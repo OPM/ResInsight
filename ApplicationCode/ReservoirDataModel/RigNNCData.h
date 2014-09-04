@@ -65,32 +65,12 @@ public:
     std::vector<RigConnection>&         connections()        { return m_connections; }
     const std::vector<RigConnection>&   connections() const  { return m_connections; };
 
-    std::vector<double>& makeConnectionScalarResult(size_t scalarResultIndex) 
-    { 
-        std::vector<double>& results = m_connectionResults[scalarResultIndex]; 
-        results.resize(m_connections.size(), HUGE_VAL); 
-        return results; 
-    }
+    std::vector<double>&        makeConnectionScalarResult(size_t scalarResultIndex);
+    const std::vector<double>*  connectionScalarResult(size_t scalarResultIndex) const;
 
-    const std::vector<double>* connectionScalarResult(size_t scalarResultIndex) const
-    {
-        std::map<size_t, std::vector<double> >::const_iterator it = m_connectionResults.find(scalarResultIndex);
-        if (it != m_connectionResults.end())
-            return &(it->second);
-        else
-            return NULL;
-    }
+    void setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex);
 
-    void setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex)
-    {
-        std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(cvf::UNDEFINED_SIZE_T);
-        CVF_ASSERT(it != m_connectionResults.end());
-
-        std::vector<double>& emptyData = m_connectionResults[scalarResultIndex];
-        std::vector<double>& realData = m_connectionResults[cvf::UNDEFINED_SIZE_T];
-        emptyData.swap(realData);
-        m_connectionResults.erase(cvf::UNDEFINED_SIZE_T);
-    }
+    bool hasScalarValues(size_t scalarResultIndex);
 
 private: // This section is possibly not needed
     //const std::vector<size_t>& findConnectionIndices(size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face) const;

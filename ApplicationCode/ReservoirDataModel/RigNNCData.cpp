@@ -160,6 +160,52 @@ void RigNNCData::processConnections(const RigMainGrid& mainGrid)
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+std::vector<double>& RigNNCData::makeConnectionScalarResult(size_t scalarResultIndex)
+{
+    std::vector<double>& results = m_connectionResults[scalarResultIndex];
+    results.resize(m_connections.size(), HUGE_VAL);
+    return results;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+const std::vector<double>* RigNNCData::connectionScalarResult(size_t scalarResultIndex) const
+{
+    std::map<size_t, std::vector<double> >::const_iterator it = m_connectionResults.find(scalarResultIndex);
+    if (it != m_connectionResults.end())
+        return &(it->second);
+    else
+        return NULL;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+void RigNNCData::setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex)
+{
+    std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(cvf::UNDEFINED_SIZE_T);
+    CVF_ASSERT(it != m_connectionResults.end());
+
+    std::vector<double>& emptyData = m_connectionResults[scalarResultIndex];
+    std::vector<double>& realData = m_connectionResults[cvf::UNDEFINED_SIZE_T];
+    emptyData.swap(realData);
+    m_connectionResults.erase(cvf::UNDEFINED_SIZE_T);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+bool RigNNCData::hasScalarValues(size_t scalarResultIndex)
+{
+    std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(scalarResultIndex);
+    return (it != m_connectionResults.end());
+}
+
 /*
 //--------------------------------------------------------------------------------------------------
 /// TODO: Possibly not needed !
