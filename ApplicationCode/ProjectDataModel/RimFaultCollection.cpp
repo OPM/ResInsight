@@ -248,16 +248,56 @@ void RimFaultCollection::syncronizeFaults()
         {
             RimNoCommonAreaNNC* noCommonAreaNnc = new RimNoCommonAreaNNC();
 
-            size_t i1, j1, k1;
-            mainGrid->ijkFromCellIndex(nncConnections[i].m_c1GlobIdx, &i1, &j1, &k1);
+            QString firstConnectionText;
+            QString secondConnectionText;
+            
+            {
+                const RigCell& cell = mainGrid->cells()[nncConnections[i].m_c1GlobIdx];
 
-            size_t i2, j2, k2;
-            mainGrid->ijkFromCellIndex(nncConnections[i].m_c2GlobIdx, &i2, &j2, &k2);
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
 
-            // Convert to 1-based for IJK values to be displayed to the user
-            QString txt = QString("[%1 %2 %3] - [%4 %5 %6]").arg(i1 + 1).arg(j1 + 1).arg(k1 + 1).arg(i2 + 1).arg(j2 + 1).arg(k2 + 1);
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+                     
+                    if (!hostGrid->isMainGrid())
+                    {
+                        QString gridName = QString::fromStdString(hostGrid->gridName());
+                        firstConnectionText = gridName + " ";
+                    }
+                    firstConnectionText += QString("[%1 %2 %3] - ").arg(i).arg(j).arg(k);
+                }
+            }
 
-            noCommonAreaNnc->name = txt;
+            {
+                const RigCell& cell = mainGrid->cells()[nncConnections[i].m_c2GlobIdx];
+
+                RigGridBase* hostGrid = cell.hostGrid();
+                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
+
+                size_t i, j, k;
+                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
+                {
+                    // Adjust to 1-based Eclipse indexing
+                    i++;
+                    j++;
+                    k++;
+
+                    if (!hostGrid->isMainGrid())
+                    {
+                        QString gridName = QString::fromStdString(hostGrid->gridName());
+                        secondConnectionText = gridName + " ";
+                    }
+                    secondConnectionText += QString("[%1 %2 %3]").arg(i).arg(j).arg(k);
+                }
+            }
+
+            noCommonAreaNnc->name = firstConnectionText + secondConnectionText;
             this->noCommonAreaNnncCollection()->noCommonAreaNncs().push_back(noCommonAreaNnc);
         }
 
