@@ -42,6 +42,7 @@ set( APPLICATION_FILES
 
 set( USER_INTERFACE_FILES
     UserInterface/RiuCursors.cpp
+    UserInterface/RiuResultTextBuilder.cpp
     UserInterface/RiuMainWindow.cpp
     UserInterface/RiuResultInfoPanel.cpp
     UserInterface/RiuViewer.cpp
@@ -166,6 +167,7 @@ list( REMOVE_ITEM RAW_SOURCES
 
     UserInterface/RiuSimpleHistogramWidget.cpp
     UserInterface/RiuMultiCaseImportDialog.cpp
+    UserInterface/RiuResultTextBuilder.cpp
 )
 
 include( CustomPCH.cmake )
