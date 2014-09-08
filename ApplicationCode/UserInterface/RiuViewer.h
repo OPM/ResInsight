@@ -80,7 +80,7 @@ protected:
     void            mousePressEvent(QMouseEvent* event);
 
     void            handlePickAction(int winPosX, int winPosY);
-    cvf::Part*      pickPointAndFace(int winPosX, int winPosY, uint* faceHit, cvf::Vec3d* localIntersectionPoint);
+    void            pickPointAndFace(int winPosX, int winPosY, cvf::Vec3d* localIntersectionPoint, cvf::Part** firstPart, uint* firstPartFaceHit, cvf::Part** nncPart, uint* nncPartFaceHit);
 
 private slots:
     void            slotRangeFilterI();

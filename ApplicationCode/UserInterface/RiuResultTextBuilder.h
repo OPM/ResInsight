@@ -40,17 +40,28 @@ class RiuResultTextBuilder
 {
 public:
 	RiuResultTextBuilder(RimReservoirView* reservoirView, size_t gridIndex, size_t cellIndex, size_t timeStepIndex);
-	void setPickInfo(cvf::Part* part, cvf::uint partFaceHit, cvf::Part* nncPart, cvf::uint nncFaceHit, cvf::Vec3d intersectionPoint);
+    void setFace(cvf::StructGridInterface::FaceType face);
+    void setNncIndex(size_t nncIndex);
+    void setIntersectionPoint(cvf::Vec3d intersectionPoint);
 
     QString mainResultText();
 
-	QString gridResultDetails();
-	QString faultResultDetails();
-	QString cellEdgeResultDetails();
-
+	QString topologyText(QString itemSeparator);
+	
 private:
-	QString gridResultText();
-	QString nncResultText();
+    void appendDetails(QString& text, const QString& details);
+
+    QString gridResultDetails();
+    QString faultResultDetails();
+    QString cellEdgeResultDetails();
+    QString nncDetails();
+
+    QString gridResultText();
+    QString faultResultText();
+    QString nncResultText();
+    QString wellResultText();
+
+    QString cellResultText(RimResultSlot* resultSlot);
 
 	void appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimResultSlot* resultSlot, QString* resultInfoText);
 
@@ -63,11 +74,7 @@ private:
 
 	cvf::StructGridInterface::FaceType m_face;
 
-	cvf::Part* m_part;
-	uint	   m_partFaceIndex;
-
-	cvf::Part* m_nncPart;
-	uint	   m_nncPartFaceIndex;
+    size_t      m_nncIndex;
 
 	cvf::Vec3d m_intersectionPoint;
 };

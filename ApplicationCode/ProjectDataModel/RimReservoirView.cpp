@@ -1031,126 +1031,6 @@ RiuViewer* RimReservoirView::viewer()
     return m_viewer;
 }
 
-
-//--------------------------------------------------------------------------------------------------
-/// Get pick info text for given part ID, face index, and intersection point
-//--------------------------------------------------------------------------------------------------
-bool RimReservoirView::pickInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face, const cvf::Vec3d& point, QString itemSeparator, QString* pickInfoText) const
-{
-    CVF_ASSERT(pickInfoText);
-
-    if (m_reservoir)
-    {
-        const RigCaseData* eclipseCase = m_reservoir->reservoirData();
-        if (eclipseCase)
-        {
-            size_t i = 0;
-            size_t j = 0;
-            size_t k = 0;
-            if (eclipseCase->grid(gridIndex)->ijkFromCellIndex(cellIndex, &i, &j, &k))
-            {
-                // Adjust to 1-based Eclipse indexing
-                i++;
-                j++;
-                k++;
-
-                cvf::Vec3d domainCoord = point + eclipseCase->grid(gridIndex)->displayModelOffset();
-
-                cvf::StructGridInterface::FaceEnum faceEnum(face);
-                
-                QString faceText = faceEnum.text();
-
-                *pickInfoText += QString("Hit grid %1").arg(gridIndex) + itemSeparator;
-                *pickInfoText += QString("Cell : [%1, %2, %3]").arg(i).arg(j).arg(k) + itemSeparator;
-                *pickInfoText += QString("Face : %1").arg(faceText) + itemSeparator;
-
-                QString formattedText;
-                formattedText.sprintf("Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]", domainCoord.x(), domainCoord.y(), -domainCoord.z());
-
-                *pickInfoText += formattedText;
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Append fault name and result value for the given cell to the string
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendCellResultInfo(size_t gridIndex, size_t cellIndex, cvf::StructGridInterface::FaceType face,  QString* resultInfoText) 
-{
-    CVF_ASSERT(resultInfoText);
-
-    if (m_reservoir && m_reservoir->reservoirData())
-    {
-        RigCaseData* eclipseCase = m_reservoir->reservoirData();
-        RigGridBase* grid = eclipseCase->grid(gridIndex);
-
-        appendTextFromResultSlot(eclipseCase, gridIndex, cellIndex, this->m_currentTimeStep, this->cellResult(), resultInfoText);
-
-        // Fault text data
-        if (grid->isMainGrid())
-        {
-            RigMainGrid* mainGrid = grid->mainGrid();
-
-            const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace(cellIndex, face);
-            if (fault)
-            {
-                resultInfoText->append(QString("\nFault Name: %1\n").arg(fault->name()));
-                if (this->faultResultSettings()->hasValidCustomResult())
-                {
-                    resultInfoText->push_back("Fault result data:\n");
-                    appendTextFromResultSlot(eclipseCase, gridIndex, cellIndex, this->m_currentTimeStep, this->faultResultSettings()->customFaultResult(), resultInfoText);
-                }
-            }
-        }
-
-        if (this->cellEdgeResult()->hasResult())
-        {
-            size_t resultIndices[6];
-            QStringList resultNames;
-            this->cellEdgeResult()->gridScalarIndices(resultIndices);
-            this->cellEdgeResult()->gridScalarResultNames(&resultNames);
-
-            resultInfoText->push_back("\nCell edge result data:\n");
-            for (int idx = 0; idx < 6; idx++)
-            {
-                if (resultIndices[idx] == cvf::UNDEFINED_SIZE_T) continue;
-
-                // Cell edge results are static, results are loaded for first time step only
-                RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(cellResult()->porosityModel());
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, resultIndices[idx]);
-                if (resultAccessor.notNull())
-                {
-                    double scalarValue = resultAccessor->cellScalar(cellIndex);
-                    resultInfoText->append(QString("%1 : %2\n").arg(resultNames[idx]).arg(scalarValue));
-                }
-            }
-        }
-
-        cvf::Collection<RigSingleWellResultsData> wellResults = m_reservoir->reservoirData()->wellResults();
-        for (size_t i = 0; i < wellResults.size(); i++)
-        {
-            RigSingleWellResultsData* singleWellResultData = wellResults.at(i);
-
-            if (m_currentTimeStep < static_cast<int>(singleWellResultData->firstResultTimeStep()))
-            {
-                continue;
-            }
-
-            const RigWellResultFrame& wellResultFrame = singleWellResultData->wellResultFrame(m_currentTimeStep);
-            const RigWellResultPoint* wellResultCell = wellResultFrame.findResultCell(gridIndex, cellIndex);
-            if (wellResultCell)
-            {
-                resultInfoText->append(QString("Well-cell connection info: Well Name: %1 Branch Id: %2 Segment Id: %3\n").arg(singleWellResultData->m_wellName).arg(wellResultCell->m_ertBranchId).arg(wellResultCell->m_ertSegmentId));
-            }
-        }
-    }
-}
-
-
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -1322,7 +1202,7 @@ void RimReservoirView::updateLegends()
     updateMinMaxValuesAndAddLegendToView(QString("Cell Results: \n"), this->cellResult(), results);
     if (this->faultResultSettings()->showCustomFaultResult() && this->faultResultSettings()->hasValidCustomResult())
     {
-        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->faultResultSettings()->customFaultResult(), results);
+        updateMinMaxValuesAndAddLegendToView(QString("Fault Results: \n"), this->currentFaultResultSlot(), results);
     }
 
     if (this->cellEdgeResult()->hasResult())
@@ -1798,98 +1678,6 @@ void RimReservoirView::defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering
 }
 
 //--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendNNCResultInfo(size_t nncIndex, QString* resultInfo)
-{
-    CVF_ASSERT(resultInfo);
-
-    if (m_reservoir && m_reservoir->reservoirData())
-    {
-        RigCaseData* eclipseCase = m_reservoir->reservoirData();
-
-        RigMainGrid* grid = eclipseCase->mainGrid();
-        CVF_ASSERT(grid);
-        
-        RigNNCData* nncData = grid->nncData();
-        CVF_ASSERT(nncData);
-
-        if (nncData)
-        {
-            const RigConnection& conn = nncData->connections()[nncIndex];
-            cvf::StructGridInterface::FaceEnum face(conn.m_c1Face);
-
-            // Print result value for the NNC
-            size_t scalarResultIdx = this->cellResult()->scalarResultIndex();
-            const std::vector<double>* nncValues = nncData->connectionScalarResult(scalarResultIdx);
-            if (nncValues)
-            {
-                resultInfo->append(QString("NNC Value : %1\n").arg((*nncValues)[nncIndex]));
-            }
-
-            QString faultName;
-
-            {
-                CVF_ASSERT(conn.m_c1GlobIdx < grid->cells().size());
-                const RigCell& cell = grid->cells()[conn.m_c1GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
-
-                size_t i, j, k;
-                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
-                {
-                    // Adjust to 1-based Eclipse indexing
-                    i++;
-                    j++;
-                    k++;
-
-                    QString gridName = QString::fromStdString(hostGrid->gridName());
-                    resultInfo->append(QString("NNC 1 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(face.text()).arg(gridName));
-
-                    appendTextFromFault(hostGrid, conn.m_c1GlobIdx, conn.m_c1Face, &faultName);
-                }
-            }
-
-            {
-                CVF_ASSERT(conn.m_c2GlobIdx < grid->cells().size());
-                const RigCell& cell = grid->cells()[conn.m_c2GlobIdx];
-
-                RigGridBase* hostGrid = cell.hostGrid();
-                size_t gridLocalCellIndex = cell.gridLocalCellIndex();
-
-                size_t i, j, k;
-                if (hostGrid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k))
-                {
-                    // Adjust to 1-based Eclipse indexing
-                    i++;
-                    j++;
-                    k++;
-
-                    QString gridName = QString::fromStdString(hostGrid->gridName());
-                    cvf::StructGridInterface::FaceEnum oppositeFaceEnum(cvf::StructGridInterface::oppositeFace(face));
-                    QString faceText = oppositeFaceEnum.text();
-
-                    resultInfo->append(QString("NNC 2 : cell [%1, %2, %3] face %4 (%5)\n").arg(i).arg(j).arg(k).arg(faceText).arg(gridName));
-
-                    if (faultName.isEmpty())
-                    {
-                        appendTextFromFault(hostGrid, conn.m_c2GlobIdx, cvf::StructGridInterface::oppositeFace(conn.m_c1Face), &faultName);
-                    }
-                }
-            }
-
-            resultInfo->append(QString("Face: %2\n").arg(face.text()));
-
-            if (!faultName.isEmpty())
-            {
-                resultInfo->append(faultName);
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
 ///     
 //--------------------------------------------------------------------------------------------------
 void RimReservoirView::updateFaultForcedVisibility()
@@ -1991,11 +1779,7 @@ void RimReservoirView::updateFaultColors()
     // Update all fault geometry
     std::vector<RivReservoirViewPartMgr::ReservoirGeometryCacheType> faultGeometriesToRecolor = visibleFaultGeometryTypes();
 
-    RimResultSlot* faultResultSlot = this->cellResult();
-    if (this->faultResultSettings()->showCustomFaultResult())
-    {
-        faultResultSlot = this->faultResultSettings()->customFaultResult();
-    }
+    RimResultSlot* faultResultSlot = currentFaultResultSlot();
 
     for (size_t i = 0; i < faultGeometriesToRecolor.size(); ++i)
     {
@@ -2010,22 +1794,6 @@ void RimReservoirView::updateFaultColors()
     }
 }
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendTextFromFault(RigGridBase* grid, size_t cellIndex, cvf::StructGridInterface::FaceType face, QString* textString)
-{
-    if (grid->isMainGrid())
-    {
-        RigMainGrid* mainGrid = grid->mainGrid();
-
-        const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace(cellIndex, face);
-        if (fault)
-        {
-             textString->append(QString("Fault Name: %1\n").arg(fault->name()));
-        }
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -2050,146 +1818,19 @@ bool RimReservoirView::isTimeStepDependentDataVisible() const
     return false;
 }
 
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void RimReservoirView::appendTextFromResultSlot(RigCaseData* eclipseCase, size_t gridIndex, size_t cellIndex, size_t timeStepIndex, RimResultSlot* resultSlot, QString* resultInfoText)
+RimResultSlot* RimReservoirView::currentFaultResultSlot()
 {
-    if (!resultSlot)
+    RimResultSlot* faultResultSlot = this->cellResult();
+
+    if (this->faultResultSettings()->showCustomFaultResult())
     {
-        return;
+        faultResultSlot = this->faultResultSettings()->customFaultResult();
     }
 
-    RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
-    if (resultSlot->isTernarySaturationSelected())
-    {
-        RimReservoirCellResultsStorage* gridCellResults = resultSlot->currentGridCellResults();
-        if (gridCellResults)
-        {
-            size_t soilScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SOIL");
-            size_t sgasScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SGAS");
-            size_t swatScalarSetIndex = gridCellResults->findOrLoadScalarResult(RimDefines::DYNAMIC_NATIVE, "SWAT");
-
-            cvf::ref<RigResultAccessor> dataAccessObjectX = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, soilScalarSetIndex);
-            cvf::ref<RigResultAccessor> dataAccessObjectY = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, sgasScalarSetIndex);
-            cvf::ref<RigResultAccessor> dataAccessObjectZ = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, swatScalarSetIndex);
-
-            double scalarValue = 0.0;
-
-            if (dataAccessObjectX.notNull()) scalarValue = dataAccessObjectX->cellScalar(cellIndex);
-            else scalarValue = 0.0;
-            resultInfoText->append(QString("SOIL : %1\n").arg(scalarValue));
-
-            if (dataAccessObjectY.notNull()) scalarValue = dataAccessObjectY->cellScalar(cellIndex);
-            else scalarValue = 0.0;
-            resultInfoText->append(QString("SGAS : %1\n").arg(scalarValue));
-
-            if (dataAccessObjectZ.notNull()) scalarValue = dataAccessObjectZ->cellScalar(cellIndex);
-            else scalarValue = 0.0;
-            resultInfoText->append(QString("SWAT : %1\n").arg(scalarValue));
-        }
-    }
-    else if (resultSlot->hasResult())
-    {
-        RifReaderInterface::PorosityModelResultType porosityModel = RigCaseCellResultsData::convertFromProjectModelPorosityModel(resultSlot->porosityModel());
-        cvf::ref<RigResultAccessor> resultAccessor;
-
-        if (resultSlot->hasStaticResult())
-        {
-            if (resultSlot->resultVariable().compare(RimDefines::combinedTransmissibilityResultName(), Qt::CaseInsensitive) == 0)
-            {
-                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedTransmissibilityResultName());
-                {
-                    double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
-                    resultInfoText->append(QString("Tran X : %1\n").arg(scalarValue));
-
-                    scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_J);
-                    resultInfoText->append(QString("Tran Y : %1\n").arg(scalarValue));
-
-                    scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
-                    resultInfoText->append(QString("Tran Z : %1\n").arg(scalarValue));
-                }
-            }
-            else if (resultSlot->resultVariable().compare(RimDefines::combinedMultResultName(), Qt::CaseInsensitive) == 0)
-            {
-                cvf::ref<RigResultAccessor> multResultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedMultResultName());
-                {
-                    double scalarValue = 0.0;
-
-                    scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
-                    resultInfoText->append(QString("MULTX : %1\n").arg(scalarValue));
-                    scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::NEG_I);
-                    resultInfoText->append(QString("MULTX- : %1\n").arg(scalarValue));
-
-                    scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_J);
-                    resultInfoText->append(QString("MULTY : %1\n").arg(scalarValue));
-                    scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::NEG_J);
-                    resultInfoText->append(QString("MULTY- : %1\n").arg(scalarValue));
-
-                    scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
-                    resultInfoText->append(QString("MULTZ : %1\n").arg(scalarValue));
-                    scalarValue = multResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::NEG_K);
-                    resultInfoText->append(QString("MULTZ- : %1\n").arg(scalarValue));
-                }
-            }
-            else if (resultSlot->resultVariable().compare(RimDefines::combinedRiTransResultName(), Qt::CaseInsensitive) == 0)
-            {
-                cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiTransResultName());
-                {
-                    double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
-                    resultInfoText->append(QString("riTran X : %1\n").arg(scalarValue));
-
-                    scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_J);
-                    resultInfoText->append(QString("riTran Y : %1\n").arg(scalarValue));
-
-                    scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
-                    resultInfoText->append(QString("riTran Z : %1\n").arg(scalarValue));
-                }
-            }
-            else if (resultSlot->resultVariable().compare(RimDefines::combinedRiMultResultName(), Qt::CaseInsensitive) == 0)
-            {
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiMultResultName());
-                {
-                    double scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
-                    resultInfoText->append(QString("riMult X : %1\n").arg(scalarValue));
-
-                    scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_J);
-                    resultInfoText->append(QString("riMult Y : %1\n").arg(scalarValue));
-
-                    scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
-                    resultInfoText->append(QString("riMult Z : %1\n").arg(scalarValue));
-                }
-            }
-            else if (resultSlot->resultVariable().compare(RimDefines::combinedRiAreaNormTransResultName(), Qt::CaseInsensitive) == 0)
-            {
-                cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiAreaNormTransResultName());
-                {
-                    double scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
-                    resultInfoText->append(QString("riTransByArea X : %1\n").arg(scalarValue));
-
-                    scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_J);
-                    resultInfoText->append(QString("riTransByArea Y : %1\n").arg(scalarValue));
-
-                    scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_K);
-                    resultInfoText->append(QString("riTransByArea Z : %1\n").arg(scalarValue));
-                }
-            }
-            else
-            {
-                resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, resultSlot->scalarResultIndex());
-            }
-        }
-        else
-        {
-            resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, timeStepIndex, resultSlot->scalarResultIndex());
-        }
-
-        if (resultAccessor.notNull())
-        {
-            double scalarValue = resultAccessor->cellScalar(cellIndex);
-            resultInfoText->append(resultSlot->resultVariable());
-            resultInfoText->append(QString(" : %1\n").arg(scalarValue));
-        }
-    }
+    return faultResultSlot;
 }
 
