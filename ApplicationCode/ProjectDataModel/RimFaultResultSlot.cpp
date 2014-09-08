@@ -140,7 +140,7 @@ void RimFaultResultSlot::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFaultResultSlot::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
-    return m_customFaultResult->calculateValueOptions(fieldNeedingOptions, useOptionsOnly);
+    return m_customFaultResult->calculateValueOptionsForSpecifiedDerivedListPosition(true, fieldNeedingOptions, useOptionsOnly);
 }
 
 //--------------------------------------------------------------------------------------------------

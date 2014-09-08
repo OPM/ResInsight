@@ -59,8 +59,7 @@ public:
 
     RimReservoirCellResultsStorage* currentGridCellResults() const;
 
-
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly );
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly);
     virtual void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue);
     virtual void initAfterRead();
 
@@ -71,18 +70,18 @@ protected:
 
     friend class RimCellPropertyFilter;
     friend class RimFaultResultSlot;
+
     // User interface only fields, to support "filtering"-like behaviour etc.
     caf::PdmField< caf::AppEnum< RimDefines::ResultCatType > >      m_resultTypeUiField;
     caf::PdmField< caf::AppEnum< RimDefines::PorosityModelType > >  m_porosityModelUiField;
     caf::PdmField<QString>                                          m_resultVariableUiField;
 
-
-    //mutable size_t                                                  m_gridScalarResultIndex;
-
     caf::PdmPointer<RimReservoirView>                               m_reservoirView;
 
 protected:
     void updateFieldVisibility();
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly);
 
 private:
     QStringList getResultVariableListForCurrentUIFieldSettings();

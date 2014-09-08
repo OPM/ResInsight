@@ -130,7 +130,15 @@ void RimResultDefinition::fieldChangedByUi(const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
+QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly)
+{
+    return calculateValueOptionsForSpecifiedDerivedListPosition(false, fieldNeedingOptions, useOptionsOnly);
+}
+
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptionsForSpecifiedDerivedListPosition(bool showDerivedResultsFirstInList, const caf::PdmFieldHandle* fieldNeedingOptions, bool * useOptionsOnly)
 {
     if (fieldNeedingOptions == &m_resultVariableUiField)
     {
@@ -141,19 +149,20 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
             bool hasCombinedTransmissibility = false;
 
             QList<caf::PdmOptionItemInfo> optionList;
+            QList<caf::PdmOptionItemInfo> perCellFaceOptionList;
             for (int i = 0; i < varList.size(); ++i)
             {
                 if (RimDefines::isPerCellFaceResult(varList[i]))
                 {
                     // Move combined per cell face results to top of list
-                    optionList.push_front(caf::PdmOptionItemInfo(varList[i], varList[i]));
+                    perCellFaceOptionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
                 }
                 else
                 {
                     optionList.push_back(caf::PdmOptionItemInfo(varList[i], varList[i]));
                 }
             }
-            
+
             bool hasAtLeastOneTernaryComponent = false;
             if (varList.contains("SOIL")) hasAtLeastOneTernaryComponent = true;
             else if (varList.contains("SGAS")) hasAtLeastOneTernaryComponent = true;
@@ -164,7 +173,19 @@ QList<caf::PdmOptionItemInfo> RimResultDefinition::calculateValueOptions(const c
                 optionList.push_front(caf::PdmOptionItemInfo(RimDefines::ternarySaturationResultName(), RimDefines::ternarySaturationResultName()));
             }
 
-            optionList.push_front(caf::PdmOptionItemInfo( RimDefines::undefinedResultName(), RimDefines::undefinedResultName() ));
+            for (int i = 0; i < perCellFaceOptionList.size(); i++)
+            {
+                if (showDerivedResultsFirstInList)
+                {
+                    optionList.push_front(perCellFaceOptionList[i]);
+                }
+                else
+                {
+                    optionList.push_back(perCellFaceOptionList[i]);
+                }
+            }
+
+            optionList.push_front(caf::PdmOptionItemInfo(RimDefines::undefinedResultName(), RimDefines::undefinedResultName()));
 
             if (useOptionsOnly) *useOptionsOnly = true;
 
@@ -342,3 +363,4 @@ void RimResultDefinition::updateFieldVisibility()
         }
     }
 }
+
