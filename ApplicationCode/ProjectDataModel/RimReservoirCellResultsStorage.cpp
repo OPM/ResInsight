@@ -564,7 +564,7 @@ void RimReservoirCellResultsStorage::computeSOILForTimeStep(size_t timeStepIndex
             soilValue -= swatForTimeStep->at(idx);
         }
 
-        soilForTimeStep[idx] = cvf::Math::clamp(soilValue, 0.0, 1.0);
+        soilForTimeStep[idx] = soilValue;
     }
 }
 
