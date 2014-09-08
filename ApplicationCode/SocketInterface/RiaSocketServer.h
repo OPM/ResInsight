@@ -60,9 +60,9 @@ private slots:
     void                slotNewClientConnection();
     void                slotCurrentClientDisconnected();
     void                slotReadyRead();
-    void                handleNextPendingConnection();
 
 private:
+    void                handleNextPendingConnection();
     void                terminateCurrentConnection();
     bool                readCommandFromOctave();
 

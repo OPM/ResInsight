@@ -86,7 +86,7 @@ RiaSocketServer::RiaSocketServer(QObject* parent)
         return;
     }
 
-    connect(m_nextPendingConnectionTimer, SIGNAL(timeout()), this, SLOT(handleNextPendingConnection()));
+    connect(m_nextPendingConnectionTimer, SIGNAL(timeout()), this, SLOT(slotNewClientConnection()));
     connect(m_tcpServer, SIGNAL(newConnection()), this, SLOT(slotNewClientConnection()));
 }
 
@@ -114,7 +114,7 @@ void RiaSocketServer::slotNewClientConnection()
 {
     // If we are currently handling a connection, just ignore the new one until the current one is disconnected. 
 
-    if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
+    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState) )
     {
         //PMonLog("Starting Timer");
         m_nextPendingConnectionTimer->start(); // Reset and start again
@@ -318,7 +318,7 @@ void RiaSocketServer::terminateCurrentConnection()
 //--------------------------------------------------------------------------------------------------
 void RiaSocketServer::handleNextPendingConnection()
 {
-    if (m_currentClient && (m_currentClient->state() == QAbstractSocket::ConnectedState) )
+    if (m_currentClient && (m_currentClient->state() != QAbstractSocket::UnconnectedState) )
     {
         //PMonLog("Starting Timer");
         m_nextPendingConnectionTimer->start(); // Reset and start again
