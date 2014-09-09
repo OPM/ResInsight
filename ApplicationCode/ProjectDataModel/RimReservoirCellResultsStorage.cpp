@@ -282,16 +282,16 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
             this->findOrLoadScalarResult(type, "MULTZ");
             this->findOrLoadScalarResult(type, "MULTZ-");
         }
-        else if (resultName == RimDefines::combinedRiTransResultName())
+        else if (resultName == RimDefines::combinedRiTranResultName())
         {
-            computeRiTransComponent(RimDefines::riTransXResultName());
-            computeRiTransComponent(RimDefines::riTransYResultName());
-            computeRiTransComponent(RimDefines::riTransZResultName());
+            computeRiTransComponent(RimDefines::riTranXResultName());
+            computeRiTransComponent(RimDefines::riTranYResultName());
+            computeRiTransComponent(RimDefines::riTranZResultName());
             computeNncCombRiTrans();
         }
-        else if (resultName == RimDefines::riTransXResultName()
-            || resultName == RimDefines::riTransYResultName()
-            || resultName == RimDefines::riTransZResultName())
+        else if (resultName == RimDefines::riTranXResultName()
+            || resultName == RimDefines::riTranYResultName()
+            || resultName == RimDefines::riTranZResultName())
         {
             computeRiTransComponent(resultName);
         }
@@ -309,16 +309,16 @@ size_t RimReservoirCellResultsStorage::findOrLoadScalarResult(RimDefines::Result
         {
             computeRiMULTComponent(resultName);
         }
-        else if (resultName == RimDefines::combinedRiAreaNormTransResultName())
+        else if (resultName == RimDefines::combinedRiAreaNormTranResultName())
         {
-            computeRiTRANSbyAreaComponent(RimDefines::riAreaNormTransXResultName());
-            computeRiTRANSbyAreaComponent(RimDefines::riAreaNormTransYResultName());
-            computeRiTRANSbyAreaComponent(RimDefines::riAreaNormTransZResultName());
+            computeRiTRANSbyAreaComponent(RimDefines::riAreaNormTranXResultName());
+            computeRiTRANSbyAreaComponent(RimDefines::riAreaNormTranYResultName());
+            computeRiTRANSbyAreaComponent(RimDefines::riAreaNormTranZResultName());
             computeNncCombRiTRANSbyArea();
         }
-        else if (resultName == RimDefines::riAreaNormTransXResultName()
-              || resultName == RimDefines::riAreaNormTransYResultName()
-              || resultName == RimDefines::riAreaNormTransZResultName())
+        else if (resultName == RimDefines::riAreaNormTranXResultName()
+              || resultName == RimDefines::riAreaNormTranYResultName()
+              || resultName == RimDefines::riAreaNormTranZResultName())
         {
             computeRiTRANSbyAreaComponent(resultName);
         }
@@ -785,17 +785,17 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
     cvf::StructGridInterface::FaceType faceId;
     QString permCompName;
 
-    if (riTransComponentResultName == RimDefines::riTransXResultName())
+    if (riTransComponentResultName == RimDefines::riTranXResultName())
     {
         permCompName = "PERMX";
         faceId = cvf::StructGridInterface::POS_I;
     }
-    else if (riTransComponentResultName == RimDefines::riTransYResultName())
+    else if (riTransComponentResultName == RimDefines::riTranYResultName())
     {
         permCompName = "PERMY";
         faceId = cvf::StructGridInterface::POS_J;
     }
-    else if (riTransComponentResultName == RimDefines::riTransZResultName())
+    else if (riTransComponentResultName == RimDefines::riTranZResultName())
     {
         permCompName = "PERMZ";
         faceId = cvf::StructGridInterface::POS_K;
@@ -947,7 +947,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 {
     if (!m_cellResults) return;
 
-    size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTransResultName());
+    size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTranResultName());
     if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransScalarResultIndex)) return;
 
     double cdarchy = darchysValue();
@@ -1132,17 +1132,17 @@ void RimReservoirCellResultsStorage::computeRiMULTComponent(const QString& riMul
 
     if (riMultCompName == RimDefines::riMultXResultName())
     {
-        riTransCompName = RimDefines::riTransXResultName();
+        riTransCompName = RimDefines::riTranXResultName();
         transCompName = "TRANX";
     }
     else if (riMultCompName == RimDefines::riMultYResultName())
     {
-        riTransCompName = RimDefines::riTransYResultName();
+        riTransCompName = RimDefines::riTranYResultName();
         transCompName = "TRANY";
     }
     else if (riMultCompName == RimDefines::riMultZResultName())
     {
-        riTransCompName = RimDefines::riTransZResultName();
+        riTransCompName = RimDefines::riTranZResultName();
         transCompName = "TRANZ";
     }
     else
@@ -1193,7 +1193,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiMULT()
     if (!m_cellResults) return;
 
     size_t riCombMultScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiMultResultName());
-    size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTransResultName());
+    size_t riCombTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiTranResultName());
     size_t combTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
 
     if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombMultScalarResultIndex)) return;
@@ -1220,17 +1220,17 @@ void RimReservoirCellResultsStorage::computeRiTRANSbyAreaComponent(const QString
     cvf::StructGridInterface::FaceType faceId;
     QString transCompName;
 
-    if (riTransByAreaCompResultName == RimDefines::riAreaNormTransXResultName())
+    if (riTransByAreaCompResultName == RimDefines::riAreaNormTranXResultName())
     {
         transCompName = "TRANX";
         faceId = cvf::StructGridInterface::POS_I;
     }
-    else if (riTransByAreaCompResultName == RimDefines::riAreaNormTransYResultName())
+    else if (riTransByAreaCompResultName == RimDefines::riAreaNormTranYResultName())
     {
         transCompName = "TRANY";
         faceId = cvf::StructGridInterface::POS_J;
     }
-    else if (riTransByAreaCompResultName == RimDefines::riAreaNormTransZResultName())
+    else if (riTransByAreaCompResultName == RimDefines::riAreaNormTranZResultName())
     {
         transCompName = "TRANZ";
         faceId = cvf::StructGridInterface::POS_K;
@@ -1330,7 +1330,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiTRANSbyArea()
 {
     if (!m_cellResults) return;
 
-    size_t riCombTransByAreaScResIdx = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiAreaNormTransResultName());
+    size_t riCombTransByAreaScResIdx = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedRiAreaNormTranResultName());
     size_t combTransScalarResultIndex = m_cellResults->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
 
     if (m_ownerMainGrid->nncData()->connectionScalarResult(riCombTransByAreaScResIdx)) return;

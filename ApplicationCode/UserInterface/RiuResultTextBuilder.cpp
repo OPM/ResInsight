@@ -392,9 +392,9 @@ void RiuResultTextBuilder::appendTextFromResultSlot(RigCaseData* eclipseCase, si
 					resultInfoText->append(QString("MULTZ- : %1\n").arg(scalarValue));
 				}
 			}
-			else if (resultSlot->resultVariable().compare(RimDefines::combinedRiTransResultName(), Qt::CaseInsensitive) == 0)
+			else if (resultSlot->resultVariable().compare(RimDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
 			{
-				cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiTransResultName());
+				cvf::ref<RigResultAccessor> transResultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiTranResultName());
 				{
 					double scalarValue = transResultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
 					resultInfoText->append(QString("riTran X : %1\n").arg(scalarValue));
@@ -420,9 +420,9 @@ void RiuResultTextBuilder::appendTextFromResultSlot(RigCaseData* eclipseCase, si
 					resultInfoText->append(QString("riMult Z : %1\n").arg(scalarValue));
 				}
 			}
-			else if (resultSlot->resultVariable().compare(RimDefines::combinedRiAreaNormTransResultName(), Qt::CaseInsensitive) == 0)
+			else if (resultSlot->resultVariable().compare(RimDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
 			{
-				cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiAreaNormTransResultName());
+				cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createResultAccessor(eclipseCase, gridIndex, porosityModel, 0, RimDefines::combinedRiAreaNormTranResultName());
 				{
 					double scalarValue = resultAccessor->cellFaceScalar(cellIndex, cvf::StructGridInterface::POS_I);
 					resultInfoText->append(QString("riTransByArea X : %1\n").arg(scalarValue));

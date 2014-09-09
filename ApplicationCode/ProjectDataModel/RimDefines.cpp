@@ -64,7 +64,7 @@ bool RimDefines::isPerCellFaceResult(const QString& resultName)
     {
         return true;
     }
-    else if (resultName.compare(RimDefines::combinedRiTransResultName(), Qt::CaseInsensitive) == 0)
+    else if (resultName.compare(RimDefines::combinedRiTranResultName(), Qt::CaseInsensitive) == 0)
     {
         return true;
     }
@@ -72,7 +72,7 @@ bool RimDefines::isPerCellFaceResult(const QString& resultName)
     {
         return true;
     }
-    else if (resultName.compare(RimDefines::combinedRiAreaNormTransResultName(), Qt::CaseInsensitive) == 0)
+    else if (resultName.compare(RimDefines::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive) == 0)
     {
         return true;
     }
