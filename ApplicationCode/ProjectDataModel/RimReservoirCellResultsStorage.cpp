@@ -678,12 +678,10 @@ void RimReservoirCellResultsStorage::computeDepthRelatedResults()
 namespace RigTransmissibilityCalcTools
 {
     void calculateConnectionGeometry(const RigCell& c1, const RigCell& c2, const std::vector<cvf::Vec3d>& nodes,
-        cvf::StructGridInterface::FaceType faceId,
-        cvf::Vec3d* faceCenter, cvf::Vec3d* faceAreaVec)
+        cvf::StructGridInterface::FaceType faceId, cvf::Vec3d* faceAreaVec)
     {
-        CVF_TIGHT_ASSERT(faceCenter && faceAreaVec);
+        CVF_TIGHT_ASSERT(faceAreaVec);
 
-        *faceCenter = cvf::Vec3d::ZERO;
         *faceAreaVec = cvf::Vec3d::ZERO;
 
         std::vector<size_t> polygon;
@@ -714,14 +712,6 @@ namespace RigTransmissibilityCalcTools
                 else
                     realPolygon.push_back(intersections[polygon[pIdx] - nodes.size()]);
             }
-
-            // Polygon center
-            for (size_t pIdx = 0; pIdx < realPolygon.size(); ++pIdx)
-            {
-                *faceCenter += realPolygon[pIdx];
-            }
-
-            *faceCenter *= 1.0 / realPolygon.size();
 
             // Polygon area vector
 
@@ -887,12 +877,11 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
 
             if (isOnFault)
             {
-                calculateConnectionGeometry(nativeCell, neighborCell, nodes, faceId,
-                    &faceCenter, &faceAreaVec);
+                calculateConnectionGeometry(nativeCell, neighborCell, nodes, faceId, &faceAreaVec);
             }
             else
             {
-                faceCenter = nativeCell.faceCenter(faceId);
+                
                 faceAreaVec = nativeCell.faceNormalWithAreaLenght(faceId);
             }
 
@@ -903,7 +892,7 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
 
             // Native cell half cell transm
             {
-                cvf::Vec3d centerToFace = faceCenter - nativeCell.center();
+                cvf::Vec3d centerToFace = nativeCell.faceCenter(faceId) - nativeCell.center();
 
                 size_t permResIdx = (*permIdxFunc)(activeCellInfo, nativeResvCellIndex);
                 double perm = permResults[permResIdx];
@@ -920,7 +909,7 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
 
             // Neighbor cell half cell transm
             {
-                cvf::Vec3d centerToFace = faceCenter - neighborCell.center();
+                cvf::Vec3d centerToFace = neighborCell.faceCenter(cvf::StructGridInterface::oppositeFace(faceId)) - neighborCell.center();
 
                 double perm = permResults[neighborCellPermResIdx];
 
@@ -1066,7 +1055,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 
         // Native cell half cell transm
         {
-            cvf::Vec3d centerToFace = faceCenter - nativeCell.center();
+            cvf::Vec3d centerToFace = nativeCell.faceCenter(faceId) - nativeCell.center();
 
             double perm = (*permResults)[nativeCellPermResIdx];
 
@@ -1082,7 +1071,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 
         // Neighbor cell half cell transm
         {
-            cvf::Vec3d centerToFace = faceCenter - neighborCell.center();
+            cvf::Vec3d centerToFace = neighborCell.faceCenter(cvf::StructGridInterface::oppositeFace(faceId)) - neighborCell.center();
 
             double perm = (*permResults)[neighborCellPermResIdx];
 
@@ -1301,16 +1290,13 @@ void RimReservoirCellResultsStorage::computeRiTRANSbyAreaComponent(const QString
             bool isOnFault = fault;
 
             cvf::Vec3d faceAreaVec;
-            cvf::Vec3d faceCenter;
 
             if (isOnFault)
             {
-                calculateConnectionGeometry(nativeCell, neighborCell, nodes, faceId,
-                    &faceCenter, &faceAreaVec);
+                calculateConnectionGeometry(nativeCell, neighborCell, nodes, faceId, &faceAreaVec);
             }
             else
             {
-                faceCenter = nativeCell.faceCenter(faceId);
                 faceAreaVec = nativeCell.faceNormalWithAreaLenght(faceId);
             }
 
