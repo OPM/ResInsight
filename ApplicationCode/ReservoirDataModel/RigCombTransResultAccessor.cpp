@@ -55,6 +55,35 @@ double RigCombTransResultAccessor::cellScalar(size_t gridLocalCellIndex) const
 
     return HUGE_VAL;
 }
+//--------------------------------------------------------------------------------------------------
+/// Get tran value from neighbor cell. Return 0.0 on active/inactive cell borders and end of grid
+//--------------------------------------------------------------------------------------------------
+double RigCombTransResultAccessor::neighborCellTran(size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId, const RigResultAccessor* transAccessor) const
+{
+    if (transAccessor != NULL)
+    {
+        size_t i, j, k, neighborGridCellIdx;
+        m_grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
+
+        if (m_grid->cellIJKNeighbor(i, j, k, faceId, &neighborGridCellIdx))
+        {
+            double neighborCellValue = transAccessor->cellScalar(neighborGridCellIdx);
+            if (neighborCellValue == HUGE_VAL && transAccessor->cellScalar(gridLocalCellIndex) != HUGE_VAL)
+            {
+                return 0.0;
+            }
+            else
+            {
+                return neighborCellValue;
+            }
+        }
+        else
+        {
+            return 0.0;
+        }
+    }
+    return HUGE_VAL;
+}
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -73,16 +102,7 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf
         break;
     case cvf::StructGridInterface::NEG_I:
         {
-            if (m_xTransAccessor.notNull())
-            {
-                size_t i, j, k, neighborGridCellIdx;
-                m_grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
-
-                if (m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_I, &neighborGridCellIdx))
-                {
-                    return m_xTransAccessor->cellScalar(neighborGridCellIdx);
-                }
-            }
+            return this->neighborCellTran(gridLocalCellIndex, cvf::StructGridInterface::NEG_I, m_xTransAccessor.p());
         }
         break;
     case cvf::StructGridInterface::POS_J:
@@ -95,16 +115,7 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf
         break;
     case cvf::StructGridInterface::NEG_J:
         {
-            if (m_yTransAccessor.notNull())
-            {
-                size_t i, j, k, neighborGridCellIdx;
-                m_grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
-
-                if (m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_J, &neighborGridCellIdx))
-                {
-                    return m_yTransAccessor->cellScalar(neighborGridCellIdx);
-                }
-            }
+            return this->neighborCellTran(gridLocalCellIndex, cvf::StructGridInterface::NEG_J, m_yTransAccessor.p());
         }
         break;
     case cvf::StructGridInterface::POS_K:
@@ -117,16 +128,7 @@ double RigCombTransResultAccessor::cellFaceScalar(size_t gridLocalCellIndex, cvf
         break;
     case cvf::StructGridInterface::NEG_K:
         {
-            if (m_zTransAccessor.notNull())
-            {
-                size_t i, j, k, neighborGridCellIdx;
-                m_grid->ijkFromCellIndex(gridLocalCellIndex, &i, &j, &k);
-
-                if (m_grid->cellIJKNeighbor(i, j, k, cvf::StructGridInterface::NEG_K, &neighborGridCellIdx))
-                {
-                    return m_zTransAccessor->cellScalar(neighborGridCellIdx);
-                }
-            }
+            return this->neighborCellTran(gridLocalCellIndex, cvf::StructGridInterface::NEG_K, m_zTransAccessor.p());
         }
         break;
     }
