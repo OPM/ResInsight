@@ -734,7 +734,14 @@ namespace RigTransmissibilityCalcTools
     //--------------------------------------------------------------------------------------------------
     double newtran(double cdarchy, double mult, double halfCellTrans, double neighborHalfCellTrans)
     {
-        return cdarchy * mult / ((1 / halfCellTrans) + (1 / neighborHalfCellTrans));
+        if (cvf::Math::abs(halfCellTrans) < 1e-15 || cvf::Math::abs(neighborHalfCellTrans) < 1e-15)
+        {
+            return 0.0;
+        }
+
+        double result = cdarchy * mult / ((1 / halfCellTrans) + (1 / neighborHalfCellTrans));
+        CVF_TIGHT_ASSERT(result == result);
+        return result;
     }
 
     //--------------------------------------------------------------------------------------------------
@@ -923,7 +930,7 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
                 neighborHalfCellTrans = halfCellTransmissibility(perm, ntg, centerToFace, -faceAreaVec);
             }
 
-            riTransResults[tranResIdx] = newtran(cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans);;
+            riTransResults[tranResIdx] = newtran(cdarchy, 1.0, halfCellTrans, neighborHalfCellTrans);
         }
 
     }
@@ -1094,17 +1101,23 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 
 double riMult(double transResults, double riTransResults)
 {
-    // To make 0.0 values give 1.0 in mult value
+    if (transResults == HUGE_VAL || riTransResults == HUGE_VAL) return HUGE_VAL;
 
-    if (riTransResults == 0.0)
+    // To make 0.0 values give 1.0 in mult value
+    if (cvf::Math::abs (riTransResults) < 1e-12)
     {
         if (cvf::Math::abs (transResults)  < 1e-12)
         {
             return 1.0;
         }
+
+        return HUGE_VAL;
     }
 
-    return transResults / riTransResults;
+
+    double result = transResults / riTransResults;
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
