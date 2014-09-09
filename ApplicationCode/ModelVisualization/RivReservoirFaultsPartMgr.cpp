@@ -30,7 +30,8 @@
 #include "RimFaultResultSlot.h"
 #include "RimReservoirView.h"
 #include "RimResultSlot.h"
-
+#include "RimCase.h"
+#include "RigCaseData.h"
 
 //--------------------------------------------------------------------------------------------------
 /// 
@@ -93,8 +94,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
     RimFaultCollection* faultCollection = m_reservoirView->faultCollection();
     if (!faultCollection) return;
 
-    RimFaultResultSlot* faultResultSlot = m_reservoirView->faultResultSettings();
-
+ 
     bool isShowingGrid = faultCollection->isGridVisualizationMode();
     if (!faultCollection->showFaultCollection() && !isShowingGrid) return;
     
@@ -141,15 +141,31 @@ void RivReservoirFaultsPartMgr::appendPartsToModel(cvf::ModelBasicList* model)
         }
 
         // Parts that is not overridden by the grid settings
+        RimFaultResultSlot* faultResultSlot = m_reservoirView->faultResultSettings();
+        RimResultSlot* cellResultSlot = m_reservoirView->cellResult();
 
         if (rimFault->showFault() && faultCollection->showFaultCollection())
         {
             if (faultCollection->showNNCs())
             {
                 bool showNncs = true;
-                if (faultResultSlot->hideNncsWhenNoResultIsAvailable())
+                if (faultCollection->hideNncsWhenNoResultIsAvailable())
                 {
-                    showNncs = faultResultSlot->isNncResultAvailable();
+                    size_t scalarResultIndex = cvf::UNDEFINED_SIZE_T;
+                    if (faultResultSlot->showCustomFaultResult())
+                    {
+                        scalarResultIndex = faultResultSlot->customFaultResult()->scalarResultIndex();
+                    }
+                    else
+                    {
+                        scalarResultIndex = cellResultSlot->scalarResultIndex();
+                    }
+
+                    RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
+                    if (!(mainGrid && mainGrid->nncData()->hasScalarValues(scalarResultIndex)))
+                    {
+                        showNncs = false;
+                    }
                 }
 
                 if (showNncs)

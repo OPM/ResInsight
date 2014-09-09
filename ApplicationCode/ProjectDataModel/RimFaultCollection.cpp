@@ -69,7 +69,8 @@ RimFaultCollection::RimFaultCollection()
     cvf::Color3f defWellLabelColor = RiaApplication::instance()->preferences()->defaultWellLabelColor();
     CAF_PDM_InitField(&faultLabelColor,         "FaultLabelColor",   defWellLabelColor, "Label color",  "", "", "");
     
-    CAF_PDM_InitField(&showNNCs, "ShowNNCs", false, "Show NNCs", "", "", "");
+    CAF_PDM_InitField(&showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "");
+    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC geometry if no NNC result is available", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&noCommonAreaNnncCollection, "NoCommonAreaNnncCollection", "NNCs With No Common Area", "", "", "");
     noCommonAreaNnncCollection = new RimNoCommonAreaNncCollection;
@@ -109,7 +110,8 @@ void RimFaultCollection::fieldChangedByUi(const caf::PdmFieldHandle* changedFiel
         &m_showFaultsOutsideFilters == changedField ||
         &faultLabelColor == changedField ||
         &faultResult == changedField ||
-        &showNNCs == changedField
+        &showNNCs == changedField ||
+        &hideNncsWhenNoResultIsAvailable == changedField
         )
     {
         if (m_reservoirView) 
@@ -337,6 +339,11 @@ void RimFaultCollection::defineUiOrdering(QString uiConfigName, caf::PdmUiOrderi
     ffviz->add(&showFaultFaces);
     ffviz->add(&showOppositeFaultFaces);
     ffviz->add(&faultResult);
+
+    caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup("NNC Visibility");
+    nncViz->add(&showNNCs);
+    nncViz->add(&hideNncsWhenNoResultIsAvailable);
+
 }
 
 //--------------------------------------------------------------------------------------------------

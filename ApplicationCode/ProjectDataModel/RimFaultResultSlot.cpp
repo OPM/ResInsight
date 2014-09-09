@@ -51,7 +51,6 @@ RimFaultResultSlot::RimFaultResultSlot()
     m_customFaultResult->m_porosityModelUiField.setOwnerObject(this);
     m_customFaultResult->m_resultVariableUiField.setOwnerObject(this);
 
-    CAF_PDM_InitField(&hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC geometry if no NNC result is available", "", "", "");
 
     updateFieldVisibility();
 }
@@ -148,25 +147,9 @@ QList<caf::PdmOptionItemInfo> RimFaultResultSlot::calculateValueOptions(const ca
 //--------------------------------------------------------------------------------------------------
 bool RimFaultResultSlot::hasValidCustomResult()
 {
-    if (m_customFaultResult->hasResult() || m_customFaultResult->isTernarySaturationSelected())
+    if (this->showCustomFaultResult())
     {
-        return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool RimFaultResultSlot::isNncResultAvailable()
-{
-    if (this->hasValidCustomResult())
-    {
-        size_t scalarSetIndex = this->customFaultResult()->scalarResultIndex();
-
-        RigMainGrid* mainGrid = m_reservoirView->eclipseCase()->reservoirData()->mainGrid();
-        if (mainGrid && mainGrid->nncData()->hasScalarValues(scalarSetIndex))
+        if (m_customFaultResult->hasResult() || m_customFaultResult->isTernarySaturationSelected())
         {
             return true;
         }
@@ -174,4 +157,3 @@ bool RimFaultResultSlot::isNncResultAvailable()
 
     return false;
 }
-

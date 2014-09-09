@@ -75,6 +75,7 @@ public:
 
     caf::PdmField<bool>                 showFaultCollection;
     caf::PdmField<bool>                 showNNCs;
+    caf::PdmField<bool>                 hideNncsWhenNoResultIsAvailable;
 
     caf::PdmPointersField<RimFault*>    faults;
     RimFault*                           findFaultByName(QString name);
