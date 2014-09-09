@@ -131,11 +131,21 @@ void RigNativeStatCalc::valueSumAndSampleCount(double& valueSum, size_t& sampleC
     for (size_t tIdx = 0; tIdx < m_resultsData->timeStepCount(m_scalarResultIndex); tIdx++)
     {
         std::vector<double>& values = m_resultsData->cellScalarResults(m_scalarResultIndex, tIdx);
+        size_t undefValueCount = 0;
         for (size_t cIdx = 0; cIdx < values.size(); ++cIdx)
         {
-            valueSum += values[cIdx];
+            double value = values[cIdx];
+            if (value == HUGE_VAL || value != value)
+            {
+                ++undefValueCount;
+                continue;
+            }
+
+            valueSum += value;
         }
+
         sampleCount += values.size();
+        sampleCount -= undefValueCount;
     }
 }
 
