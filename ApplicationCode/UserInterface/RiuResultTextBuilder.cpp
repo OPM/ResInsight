@@ -113,11 +113,7 @@ QString RiuResultTextBuilder::mainResultText()
     
     appendDetails(text, cellEdgeResultDetails());
 
-    bool isCustomFaultResultVisible = m_reservoirView->faultResultSettings()->showCustomFaultResult() && m_reservoirView->faultResultSettings()->hasValidCustomResult();
-    if (isCustomFaultResultVisible)
-    {
-        appendDetails(text, gridResultDetails());
-    }
+    appendDetails(text, gridResultDetails());
 
     appendDetails(text, wellResultText());
 
