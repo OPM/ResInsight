@@ -109,10 +109,7 @@ QString RiuResultTextBuilder::mainResultText()
 
     appendDetails(text, nncDetails());
     
-    if (nncDetails().isEmpty())
-    {
-        appendDetails(text, faultResultDetails());
-    }
+    appendDetails(text, faultResultDetails());
     
     appendDetails(text, cellEdgeResultDetails());
 
