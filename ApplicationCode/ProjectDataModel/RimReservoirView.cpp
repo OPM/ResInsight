@@ -686,7 +686,7 @@ void RimReservoirView::createDisplayModel()
 
     // If the animation was active before recreating everything, make viewer view current frame
 
-    if (isAnimationActive)
+    if (isAnimationActive || cellResult->hasResult())
     {
         m_viewer->slotSetCurrentFrame(m_currentTimeStep);
     }
