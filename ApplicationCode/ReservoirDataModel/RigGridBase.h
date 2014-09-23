@@ -60,7 +60,7 @@ public:
     void                        setGridId(int id) { m_gridId = id; }
     int                         gridId() const { return m_gridId; }
 
-    double                      characteristicIJCellSize();
+    double                      characteristicIJCellSize() const;
 
     std::string                 gridName() const;
     void                        setGridName(const std::string& gridName);

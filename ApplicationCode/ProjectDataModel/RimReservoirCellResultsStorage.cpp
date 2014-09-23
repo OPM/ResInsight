@@ -846,7 +846,7 @@ void RimReservoirCellResultsStorage::computeRiTransComponent(const QString& riTr
 
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
     const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
-    bool isFaceNormalsOutwards = m_ownerMainGrid->faceNormalsIsOutwards();
+    bool isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->cells().size(); nativeResvCellIndex++)
     {
@@ -990,7 +990,7 @@ void RimReservoirCellResultsStorage::computeNncCombRiTrans()
 
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
     const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
-    bool isFaceNormalsOutwards = m_ownerMainGrid->faceNormalsIsOutwards();
+    bool isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     // NNC calculation
     std::vector<RigConnection>& nncConnections = m_ownerMainGrid->nncData()->connections();
@@ -1274,7 +1274,7 @@ void RimReservoirCellResultsStorage::computeRiTRANSbyAreaComponent(const QString
 
     const RigActiveCellInfo* activeCellInfo = m_cellResults->activeCellInfo();
     const std::vector<cvf::Vec3d>& nodes = m_ownerMainGrid->nodes();
-    bool isFaceNormalsOutwards = m_ownerMainGrid->faceNormalsIsOutwards();
+    bool isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     for (size_t nativeResvCellIndex = 0; nativeResvCellIndex < m_ownerMainGrid->cells().size(); nativeResvCellIndex++)
     {

@@ -220,7 +220,7 @@ cvf::Vec3d StructGridInterface::displayModelOffset() const
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, double* kSize)
+void StructGridInterface::characteristicCellSizes(double* iSize, double* jSize, double* kSize) const
 {
     CVF_ASSERT(iSize && jSize && kSize);
 

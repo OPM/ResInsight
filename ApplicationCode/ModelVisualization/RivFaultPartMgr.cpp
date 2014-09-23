@@ -610,7 +610,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
     {
         if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_BACK_FACE_CULLING)
         {
-            if (m_grid->mainGrid()->faceNormalsIsOutwards())
+            if (m_grid->mainGrid()->isFaceNormalsOutwards())
             {
                 return caf::FC_BACK;
             }
@@ -621,7 +621,7 @@ caf::FaceCulling RivFaultPartMgr::faceCullingMode() const
         }
         else if (m_rimFaultCollection->faultResult() == RimFaultCollection::FAULT_FRONT_FACE_CULLING)
         {
-            if (m_grid->mainGrid()->faceNormalsIsOutwards())
+            if (m_grid->mainGrid()->isFaceNormalsOutwards())
             {
                 return caf::FC_FRONT;
             }
