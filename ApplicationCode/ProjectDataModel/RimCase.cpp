@@ -562,7 +562,10 @@ bool RimCase::openReserviorCase()
             // After the placeholder result for combined transmissibility is created, 
             // make sure the nnc transmissibilities can be addressed by this scalarResultIndex as well
             size_t combinedTransResIdx = results->cellResults()->findScalarResultIndex(RimDefines::STATIC_NATIVE, RimDefines::combinedTransmissibilityResultName());
-            reservoirData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+            if (combinedTransResIdx != cvf::UNDEFINED_SIZE_T)
+            {
+                reservoirData()->mainGrid()->nncData()->setCombTransmisibilityScalarResultIndex(combinedTransResIdx);
+            }
         }
 
     }
