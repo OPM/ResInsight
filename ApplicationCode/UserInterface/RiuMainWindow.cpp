@@ -761,7 +761,7 @@ void RiuMainWindow::slotAbout()
 
     dlg.setApplicationName(RI_APPLICATION_NAME);
     dlg.setApplicationVersion(RiaApplication::getVersionStringApp(true));
-    dlg.setCopyright("Copyright 2011-2013 Statoil ASA, Ceetron AS");
+    dlg.setCopyright("Copyright Statoil ASA, Ceetron Solutions AS, Ceetron AS");
     dlg.showQtVersion(false);
 #ifdef _DEBUG
     dlg.setIsDebugBuild(true);
