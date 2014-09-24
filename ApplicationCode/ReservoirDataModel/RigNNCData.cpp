@@ -190,12 +190,13 @@ const std::vector<double>* RigNNCData::connectionScalarResult(size_t scalarResul
 void RigNNCData::setCombTransmisibilityScalarResultIndex(size_t scalarResultIndex)
 {
     std::map<size_t, std::vector<double> >::iterator it = m_connectionResults.find(cvf::UNDEFINED_SIZE_T);
-    CVF_ASSERT(it != m_connectionResults.end());
-
-    std::vector<double>& emptyData = m_connectionResults[scalarResultIndex];
-    std::vector<double>& realData = m_connectionResults[cvf::UNDEFINED_SIZE_T];
-    emptyData.swap(realData);
-    m_connectionResults.erase(cvf::UNDEFINED_SIZE_T);
+    if (it != m_connectionResults.end())
+    {
+        std::vector<double>& emptyData = m_connectionResults[scalarResultIndex];
+        std::vector<double>& realData = m_connectionResults[cvf::UNDEFINED_SIZE_T];
+        emptyData.swap(realData);
+        m_connectionResults.erase(cvf::UNDEFINED_SIZE_T);
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
